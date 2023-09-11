@@ -531,6 +531,7 @@ internal static class AuditLogParser
 
         foreach (AuditLogActionChange change in auditLogAction.Changes)
         {
+            guild.Discord.Logger.LogTrace(change.Key);
             switch (change.Key.ToLowerInvariant())
             {
                 case "id":
@@ -558,29 +559,11 @@ internal static class AuditLogParser
                     break;
 
                 case "trigger_metadata":
-                    ruleEntry.TriggerMetadata = new PropertyChange<DiscordRuleTriggerMetadata?>
-                    {
-                        Before =
-                            change.OldValue != null
-                                ? ((JObject)change.OldValue).ToDiscordObject<DiscordRuleTriggerMetadata>()
-                                : null,
-                        After = change.NewValue != null
-                            ? ((JObject)change.NewValue).ToDiscordObject<DiscordRuleTriggerMetadata>()
-                            : null
-                    };
+                    ruleEntry.TriggerMetadata = PropertyChange<DiscordRuleTriggerMetadata>.From(change);
                     break;
 
                 case "actions":
-                    ruleEntry.Actions = new PropertyChange<IEnumerable<DiscordAutoModerationAction>>
-                    {
-                        Before =
-                            change.OldValue != null
-                                ? change.OldValues.Select(x => x.ToDiscordObject<DiscordAutoModerationAction>())
-                                : null,
-                        After = change.NewValue != null
-                            ? change.NewValues.Select(x => x.ToDiscordObject<DiscordAutoModerationAction>())
-                            : null
-                    };
+                    ruleEntry.Actions = PropertyChange<IEnumerable<DiscordAutoModerationAction>?>.From(change);
                     break;
 
                 case "enabled":
@@ -588,45 +571,59 @@ internal static class AuditLogParser
                     break;
 
                 case "exempt_roles":
-                    ruleEntry.ExemptRoles = new PropertyChange<IEnumerable<DiscordRole>>
-                    {
-                        Before =
-                            change.OldValue != null
-                                ? change.OldValues.Select(xo => (ulong)xo["id"]).Select(guild.GetRole)
-                                : null,
-                        After = change.NewValue != null
-                            ? change.NewValues.Select(xo => (ulong)xo["id"]).Select(guild.GetRole)
-                            : null
-                    };
+                    JArray oldRoleIds = (JArray)change.OldValue;
+                    JArray newRoleIds = (JArray)change.NewValue;
+                    
+                    IEnumerable<DiscordRole> oldRoles = oldRoleIds
+                        .Select(x => x.ToObject<ulong>())
+                        .Select(guild.GetRole);
+                    
+                    IEnumerable<DiscordRole> newRoles = newRoleIds
+                        .Select(x => x.ToObject<ulong>())
+                        .Select(guild.GetRole);
+
+                    ruleEntry.ExemptRoles =
+                        PropertyChange<IEnumerable<DiscordRole>>.From(oldRoles, newRoles);
                     break;
 
                 case "exempt_channels":
-                    ruleEntry.ExemptChannels = new PropertyChange<IEnumerable<DiscordChannel>>
-                    {
-                        Before =
-                            change.OldValue != null
-                                ? change.OldValues.Select(xo => (ulong)xo["id"]).Select(guild.GetChannel)
-                                : null,
-                        After = change.NewValue != null
-                            ? change.NewValues.Select(xo => (ulong)xo["id"]).Select(guild.GetChannel)
-                            : null
-                    };
+                    JArray oldChannelIds = (JArray)change.OldValue;
+                    JArray newChanelIds = (JArray)change.NewValue;
+                    
+                    IEnumerable<DiscordChannel> oldChannels = oldChannelIds
+                        .Select(x => x.ToObject<ulong>())
+                        .Select(guild.GetChannel);
+                    
+                    IEnumerable<DiscordChannel> newChannels = newChanelIds
+                        .Select(x => x.ToObject<ulong>())
+                        .Select(guild.GetChannel);
+
+                    ruleEntry.ExemptChannels =
+                        PropertyChange<IEnumerable<DiscordChannel>>.From(oldChannels, newChannels);
                     break;
                 
                 case "$add_keyword_filter":
-                    ruleEntry.AddedKeywords = change.NewValues.Select(x => x.ToObject<string>()).ToList();
+                    ruleEntry.AddedKeywords =  ((JArray)change.NewValue).Cast<string>();
                     break;
                 
                 case "$remove_keyword_filter":
-                    ruleEntry.RemovedKeywords = change.NewValues.Select(x => x.ToObject<string>()).ToList();
+                    ruleEntry.RemovedKeywords =  ((JArray)change.NewValue).Cast<string>();
                     break;
                 
                 case "$add_regex_patterns":
-                    ruleEntry.AddedRegexPatterns = change.NewValues.Select(x => x.ToObject<string>()).ToList();
+                    ruleEntry.AddedRegexPatterns = ((JArray)change.NewValue).Cast<string>();
                     break;
                 
                 case "$remove_regex_patterns":
-                    ruleEntry.RemovedRegexPatterns = change.NewValues.Select(x => x.ToObject<string>()).ToList();
+                    ruleEntry.RemovedRegexPatterns =  ((JArray)change.NewValue).Cast<string>();
+                    break;
+                
+                case "$add_allow_list":
+                    ruleEntry.AddedAllowList = ((JArray)change.NewValue).Cast<string>();
+                    break;
+                
+                case "$remove_allow_list":
+                    ruleEntry.RemovedKeywords = ((JArray)change.NewValue).Cast<string>();
                     break;
 
                 default:
@@ -757,15 +754,7 @@ internal static class AuditLogParser
                     break;
 
                 case "entity_type":
-                    entry.Type = new PropertyChange<ScheduledGuildEventType?>
-                    {
-                        Before = change.OldValue != null
-                            ? (ScheduledGuildEventType)change.OldValueLong
-                            : null,
-                        After = change.NewValue != null
-                            ? (ScheduledGuildEventType)change.NewValueLong
-                            : null
-                    };
+                    entry.Type = PropertyChange<ScheduledGuildEventType?>.From(change);
                     break;
 
                 case "image_hash":
@@ -815,14 +804,11 @@ internal static class AuditLogParser
             switch (change.Key.ToLowerInvariant())
             {
                 case "name":
-                    entry.NameChange = new PropertyChange<string>
-                    {
-                        Before = change.OldValueString, After = change.NewValueString
-                    };
+                    entry.NameChange = PropertyChange<string?>.From(change);
                     break;
 
                 case "owner_id":
-                    entry.OwnerChange = new PropertyChange<DiscordMember>
+                    entry.OwnerChange = new PropertyChange<DiscordMember?>
                     {
                         Before = guild._members != null && guild._members.TryGetValue(
                             change.OldValueUlong,
@@ -837,7 +823,7 @@ internal static class AuditLogParser
                     break;
 
                 case "icon_hash":
-                    entry.IconChange = new PropertyChange<string>
+                    entry.IconChange = new PropertyChange<string?>
                     {
                         Before = change.OldValueString != null
                             ? $"https://cdn.discordapp.com/icons/{guild.Id}/{change.OldValueString}.webp"
@@ -849,10 +835,14 @@ internal static class AuditLogParser
                     break;
 
                 case "verification_level":
-                    entry.VerificationLevelChange = PropertyChange<VerificationLevel>.From(change);
+                    entry.VerificationLevelChange = PropertyChange<VerificationLevel?>.From(change);
                     break;
 
                 case "afk_channel_id":
+                    
+                    entry.AfkChannelChange = PropertyChange<DiscordChannel?>.From(change);
+                    /*
+                    
                     ulong.TryParse(change.NewValue as string, NumberStyles.Integer,
                         CultureInfo.InvariantCulture, out before);
                     ulong.TryParse(change.OldValue as string, NumberStyles.Integer,
@@ -868,7 +858,7 @@ internal static class AuditLogParser
                         {
                             Id = before, Discord = guild.Discord, GuildId = guild.Id
                         }
-                    };
+                    };*/
                     break;
 
                 case "widget_channel_id":
@@ -877,7 +867,7 @@ internal static class AuditLogParser
                     ulong.TryParse(change.OldValue as string, NumberStyles.Integer,
                         CultureInfo.InvariantCulture, out after);
 
-                    entry.EmbedChannelChange = new PropertyChange<DiscordChannel>
+                    entry.EmbedChannelChange = new PropertyChange<DiscordChannel?>
                     {
                         Before = guild.GetChannel(before) ?? new DiscordChannel
                         {
@@ -891,7 +881,7 @@ internal static class AuditLogParser
                     break;
 
                 case "splash_hash":
-                    entry.SplashChange = new PropertyChange<string>
+                    entry.SplashChange = new PropertyChange<string?>
                     {
                         Before = change.OldValueString != null
                             ? $"https://cdn.discordapp.com/splashes/{guild.Id}/{change.OldValueString}.webp?size=2048"
@@ -903,7 +893,7 @@ internal static class AuditLogParser
                     break;
 
                 case "default_message_notifications":
-                    entry.NotificationSettingsChange = PropertyChange<DefaultMessageNotifications>.From(change);
+                    entry.NotificationSettingsChange = PropertyChange<DefaultMessageNotifications?>.From(change);
                     break;
 
                 case "system_channel_id":
@@ -912,7 +902,7 @@ internal static class AuditLogParser
                     ulong.TryParse(change.OldValue as string, NumberStyles.Integer,
                         CultureInfo.InvariantCulture, out after);
 
-                    entry.SystemChannelChange = new PropertyChange<DiscordChannel>
+                    entry.SystemChannelChange = new PropertyChange<DiscordChannel?>
                     {
                         Before = guild.GetChannel(before) ?? new DiscordChannel
                         {
@@ -926,15 +916,15 @@ internal static class AuditLogParser
                     break;
 
                 case "explicit_content_filter":
-                    entry.ExplicitContentFilterChange = PropertyChange<ExplicitContentFilter>.From(change);
+                    entry.ExplicitContentFilterChange = PropertyChange<ExplicitContentFilter?>.From(change);
                     break;
 
                 case "mfa_level":
-                    entry.MfaLevelChange = PropertyChange<MfaLevel>.From(change);
+                    entry.MfaLevelChange = PropertyChange<MfaLevel?>.From(change);
                     break;
 
                 case "region":
-                    entry.RegionChange = PropertyChange<string>.From(change);
+                    entry.RegionChange = PropertyChange<string?>.From(change);
                     break;
 
                 default:
