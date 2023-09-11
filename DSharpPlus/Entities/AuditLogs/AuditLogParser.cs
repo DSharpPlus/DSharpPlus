@@ -531,7 +531,6 @@ internal static class AuditLogParser
 
         foreach (AuditLogActionChange change in auditLogAction.Changes)
         {
-            guild.Discord.Logger.LogTrace(change.Key);
             switch (change.Key.ToLowerInvariant())
             {
                 case "id":
@@ -840,9 +839,6 @@ internal static class AuditLogParser
 
                 case "afk_channel_id":
                     
-                    entry.AfkChannelChange = PropertyChange<DiscordChannel?>.From(change);
-                    /*
-                    
                     ulong.TryParse(change.NewValue as string, NumberStyles.Integer,
                         CultureInfo.InvariantCulture, out before);
                     ulong.TryParse(change.OldValue as string, NumberStyles.Integer,
@@ -858,7 +854,7 @@ internal static class AuditLogParser
                         {
                             Id = before, Discord = guild.Discord, GuildId = guild.Id
                         }
-                    };*/
+                    };
                     break;
 
                 case "widget_channel_id":
