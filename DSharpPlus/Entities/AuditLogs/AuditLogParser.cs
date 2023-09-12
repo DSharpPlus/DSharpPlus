@@ -43,7 +43,7 @@ internal static class AuditLogParser
     /// <param name="guild"> <see cref="DiscordGuild"/> which is the parent of the AuditLog</param>
     /// <param name="auditLog"> <see cref="AuditLog"/> whose entries should be parsed</param>
     /// <returns>A list of <see cref="DiscordAuditLogEntry"/>. All entries which cant be parsed are dropped</returns>
-    internal static async Task<IEnumerable<DiscordAuditLogEntry>> ParseAuditLogToEntriesAsync
+    internal static async IAsyncEnumerable<DiscordAuditLogEntry> ParseAuditLogToEntriesAsync
     (
         DiscordGuild guild,
         AuditLog auditLog
@@ -94,15 +94,14 @@ internal static class AuditLogParser
         IDictionary<ulong, DiscordThreadChannel> threads = guild._threads;
 
 
-        IEnumerable<DiscordMember>? discordMembers = users
+        IEnumerable<DiscordMember>? discordMembers = users?
             .Select(xau => guild._members != null && guild._members.TryGetValue(xau.Id, out DiscordMember? member)
                 ? member
                 : new DiscordMember {Discord = guild.Discord, Id = xau.Id, _guild_id = guild.Id});
 
-        Dictionary<ulong, DiscordMember>? members = discordMembers.ToDictionary(xm => xm.Id, xm => xm);
+        Dictionary<ulong, DiscordMember>? members = discordMembers?.ToDictionary(xm => xm.Id, xm => xm);
 
         IOrderedEnumerable<AuditLogAction>? auditLogActions = auditLog.Entries.OrderByDescending(xa => xa.Id);
-        List<DiscordAuditLogEntry>? entries = new();
         foreach (AuditLogAction? auditLogAction in auditLogActions)
         {
             DiscordAuditLogEntry? entry =
@@ -113,10 +112,8 @@ internal static class AuditLogParser
                 continue;
             }
 
-            entries.Add(entry);
+            yield return entry;
         }
-
-        return new ReadOnlyCollection<DiscordAuditLogEntry>(entries);
     }
 
     /// <summary>
@@ -573,11 +570,11 @@ internal static class AuditLogParser
                     JArray oldRoleIds = (JArray)change.OldValue;
                     JArray newRoleIds = (JArray)change.NewValue;
                     
-                    IEnumerable<DiscordRole> oldRoles = oldRoleIds
+                    IEnumerable<DiscordRole> oldRoles = oldRoleIds?
                         .Select(x => x.ToObject<ulong>())
                         .Select(guild.GetRole);
                     
-                    IEnumerable<DiscordRole> newRoles = newRoleIds
+                    IEnumerable<DiscordRole> newRoles = newRoleIds?
                         .Select(x => x.ToObject<ulong>())
                         .Select(guild.GetRole);
 
@@ -589,11 +586,11 @@ internal static class AuditLogParser
                     JArray oldChannelIds = (JArray)change.OldValue;
                     JArray newChanelIds = (JArray)change.NewValue;
                     
-                    IEnumerable<DiscordChannel> oldChannels = oldChannelIds
+                    IEnumerable<DiscordChannel> oldChannels = oldChannelIds?
                         .Select(x => x.ToObject<ulong>())
                         .Select(guild.GetChannel);
                     
-                    IEnumerable<DiscordChannel> newChannels = newChanelIds
+                    IEnumerable<DiscordChannel> newChannels = newChanelIds?
                         .Select(x => x.ToObject<ulong>())
                         .Select(guild.GetChannel);
 
@@ -1126,13 +1123,13 @@ internal static class AuditLogParser
 
                 case "$add":
                     entry.AddedRoles =
-                        new ReadOnlyCollection<DiscordRole>(change.NewValues.Select(xo => (ulong)xo["id"])
+                        new ReadOnlyCollection<DiscordRole>(change.NewValues?.Select(xo => (ulong)xo["id"])
                             .Select(guild.GetRole).ToList());
                     break;
 
                 case "$remove":
                     entry.RemovedRoles =
-                        new ReadOnlyCollection<DiscordRole>(change.NewValues.Select(xo => (ulong)xo["id"])
+                        new ReadOnlyCollection<DiscordRole>(change.NewValues?.Select(xo => (ulong)xo["id"])
                             .Select(guild.GetRole).ToList());
                     break;
 

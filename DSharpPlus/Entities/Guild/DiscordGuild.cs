@@ -1547,26 +1547,26 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <summary>
     /// Gets audit log entries for this guild.
     /// </summary>
-    /// <param name="limit">Maximum number of entries to fetch.</param>
+    /// <param name="limit">Maximum number of entries to fetch. Defaults to 100</param>
     /// <param name="byMember">Filter by member responsible.</param>
     /// <param name="actionType">Filter by action type.</param>
     /// <returns>A collection of requested audit log entries.</returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ViewAuditLog"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<IReadOnlyList<DiscordAuditLogEntry>> GetAuditLogsAsync
+    /// <remarks>If you set <paramref name="limit"/> to null, it will fetch all entries. This may take a while as it will result in multiple api calls</remarks>
+    public async IAsyncEnumerable<DiscordAuditLogEntry> GetAuditLogsAsync
     (
-        int? limit = null,
+        int? limit = 100,
         DiscordMember byMember = null, 
         AuditLogActionType? actionType = null
     )
     {
         //Get all entries from api
-        List<AuditLog> auditLogs = new();
-        int ac = 1, logsCollected = 0, remainingEntries = 100;
+        int entriesAcquiredLastCall = 1, totalEntriesCollected = 0, remainingEntries = 100;
         ulong last = 0;
-        while (ac > 0)
+        while (entriesAcquiredLastCall > 0)
         {
-            remainingEntries = limit != null ? limit.Value - logsCollected : 100;
+            remainingEntries = limit != null ? limit.Value - totalEntriesCollected : 100;
             remainingEntries = Math.Min(100, remainingEntries);
             if (remainingEntries <= 0)
             {
@@ -1575,37 +1575,31 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
             AuditLog guildAuditLog = await this.Discord.ApiClient.GetAuditLogsAsync(this.Id, remainingEntries, null,
                 last == 0 ? null : (ulong?)last, byMember?.Id, (int?)actionType);
-            ac = guildAuditLog.Entries.Count();
-            logsCollected += ac;
-            if (ac > 0)
+            entriesAcquiredLastCall = guildAuditLog.Entries.Count();
+            totalEntriesCollected += entriesAcquiredLastCall;
+            if (entriesAcquiredLastCall > 0)
             {
                 last = guildAuditLog.Entries.Last().Id;
-                auditLogs.Add(guildAuditLog);
+                IAsyncEnumerable<DiscordAuditLogEntry> parsedEntries = AuditLogParser.ParseAuditLogToEntriesAsync(this, guildAuditLog);
+                await foreach (DiscordAuditLogEntry discordAuditLogEntry in parsedEntries)
+                {
+                    yield return discordAuditLogEntry;
+                }
             }
-
+            
             if (limit.HasValue)
             {
-                int remaining = limit.Value - logsCollected;
+                int remaining = limit.Value - totalEntriesCollected;
                 if (remaining < 1)
                 {
                     break;
                 }
             }
-            else if (ac < 100)
+            else if (entriesAcquiredLastCall < 100)
             {
                 break;
             }
         }
-
-        IEnumerable<DiscordAuditLogEntry> entries = new List<DiscordAuditLogEntry>();
-        foreach (AuditLog log in auditLogs)
-        {
-            IEnumerable<DiscordAuditLogEntry> logEntries =
-                await AuditLogParser.ParseAuditLogToEntriesAsync(this, log);
-            entries = entries.Concat(logEntries);
-        }
-
-        return entries.ToList().AsReadOnly();
     }
 
     /// <summary>
