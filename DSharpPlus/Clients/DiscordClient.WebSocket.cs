@@ -506,7 +506,6 @@ namespace DSharpPlus
             await this._webSocketClient.SendMessageAsync(jsonPayload);
         }
 
-#nullable enable
         /// <summary>
         /// Sends a raw payload to the gateway. This method is not recommended for use unless you know what you're doing.
         /// </summary>
@@ -518,21 +517,18 @@ namespace DSharpPlus
         public Task SendPayloadAsync<T>(GatewayOpCode opCode, T data) => this.SendPayloadAsync(opCode, (object?)data);
 
         /// <inheritdoc cref="SendPayloadAsync{T}(GatewayOpCode, T)"/>
-        /// <param name="data">The data to deserialize.</param>
-        /// <param name="opCode">The opcode to send to the Discord gateway.</param>
         [Obsolete("This method should not be used unless you know what you're doing. Instead, look towards the other explicitly implemented methods which come with client-side validation.")]
         public Task SendPayloadAsync(GatewayOpCode opCode, object? data = null)
         {
-            var payload = new GatewayPayload
+            GatewayPayload payload = new()
             {
                 OpCode = opCode,
                 Data = data
             };
 
-            var payloadString = DiscordJson.SerializeObject(payload);
+            string payloadString = DiscordJson.SerializeObject(payload);
             return this.SendRawPayloadAsync(payloadString);
         }
-#nullable disable
         #endregion
 
         #region Semaphore Methods
