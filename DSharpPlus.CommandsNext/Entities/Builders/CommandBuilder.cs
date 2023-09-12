@@ -120,7 +120,7 @@ namespace DSharpPlus.CommandsNext.Builders
         /// <returns>This builder.</returns>
         public CommandBuilder WithName(string name)
         {
-            if (name == null || name.ToCharArray().Any(xc => char.IsWhiteSpace(xc)))
+            if (name == null || name.ToCharArray().Any(char.IsWhiteSpace))
                 throw new ArgumentException("Command name cannot be null or contain any whitespace characters.", nameof(name));
             else if (this.Name != null)
                 throw new InvalidOperationException("This command already has a name.");
@@ -165,7 +165,7 @@ namespace DSharpPlus.CommandsNext.Builders
         /// <returns>This builder.</returns>
         public CommandBuilder WithAlias(string alias)
         {
-            if (alias.ToCharArray().Any(xc => char.IsWhiteSpace(xc)))
+            if (alias.ToCharArray().Any(char.IsWhiteSpace))
                 throw new ArgumentException("Aliases cannot contain whitespace characters or null strings.", nameof(alias));
 
             if (this.Name == alias || this._aliasList.Contains(alias))

@@ -959,7 +959,7 @@ namespace DSharpPlus.Interactivity
                             s = "";
                         }
                     }
-                    if (s != "" && split.All(x => x != s))
+                    if (s != "" && split.TrueForAll(x => x != s))
                         split.Add(s);
                     break;
             }
@@ -1012,7 +1012,7 @@ namespace DSharpPlus.Interactivity
                             s = "";
                         }
                     }
-                    if (s != "" && split.All(x => x != s))
+                    if (s != "" && split.TrueForAll(x => x != s))
                         split.Add(s);
                     break;
             }

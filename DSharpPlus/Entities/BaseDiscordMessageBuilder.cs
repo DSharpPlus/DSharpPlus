@@ -213,7 +213,7 @@ namespace DSharpPlus.Entities
             if (this.Files.Count >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
-            if (this._files.Any(x => x.FileName == fileName))
+            if (this._files.Exists(x => x.FileName == fileName))
                 throw new ArgumentException("A File with that filename already exists");
 
             if (resetStreamPosition)
@@ -235,7 +235,7 @@ namespace DSharpPlus.Entities
             if (this.Files.Count >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
-            if (this._files.Any(x => x.FileName == stream.Name))
+            if (this._files.Exists(x => x.FileName == stream.Name))
                 throw new ArgumentException("A File with that filename already exists");
 
             if (resetStreamPosition)
@@ -259,7 +259,7 @@ namespace DSharpPlus.Entities
 
             foreach (var file in files)
             {
-                if (this._files.Any(x => x.FileName == file.Key))
+                if (this._files.Exists(x => x.FileName == file.Key))
                     throw new ArgumentException("A File with that filename already exists");
 
                 if (resetStreamPosition)

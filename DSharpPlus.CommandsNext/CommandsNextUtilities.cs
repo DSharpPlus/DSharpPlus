@@ -172,7 +172,7 @@ namespace DSharpPlus.CommandsNext
             if (!indices.Any())
                 return s;
 
-            var li = indices.Last();
+            var li = indices[^1];
             var ll = 1;
             for (var x = indices.Count - 2; x >= 0; x--)
             {
@@ -192,7 +192,6 @@ namespace DSharpPlus.CommandsNext
 
         internal static async Task<ArgumentBindingResult> BindArgumentsAsync(CommandContext ctx, bool ignoreSurplus)
         {
-            var command = ctx.Command;
             var overload = ctx.Overload;
 
             var args = new object?[overload.Arguments.Count + 2];
@@ -333,7 +332,7 @@ namespace DSharpPlus.CommandsNext
 
             // check if appropriate return and arguments
             parameters = method.GetParameters();
-            if (!parameters.Any() || parameters.First().ParameterType != typeof(CommandContext) || method.ReturnType != typeof(Task))
+            if (!parameters.Any() || parameters[0].ParameterType != typeof(CommandContext) || method.ReturnType != typeof(Task))
                 return false;
 
             // qualifies

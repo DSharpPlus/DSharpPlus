@@ -99,7 +99,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public string BannerUrl
-            => string.IsNullOrEmpty(this.BannerHash) ? null : $"https://cdn.discordapp.com/banners/{this.Id}/{this.BannerHash}.{(this.BannerHash.StartsWith("a") ? "gif" : "png")}?size=4096";
+            => string.IsNullOrEmpty(this.BannerHash) ? null : $"https://cdn.discordapp.com/banners/{this.Id}/{this.BannerHash}.{(this.BannerHash.StartsWith('a') ? "gif" : "png")}?size=4096";
 
         /// <summary>
         /// Gets the user's profile banner hash. Mutually exclusive with <see cref="BannerColor"/>.

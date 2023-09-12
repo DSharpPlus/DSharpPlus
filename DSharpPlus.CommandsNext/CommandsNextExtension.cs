@@ -654,7 +654,7 @@ namespace DSharpPlus.CommandsNext
         /// <param name="cmds">Commands to unregister.</param>
         public void UnregisterCommands(params Command[] cmds)
         {
-            if (cmds.Any(x => x.Parent is not null))
+            if (Array.Exists(cmds,x => x.Parent is not null))
                 throw new InvalidOperationException("Cannot unregister nested commands.");
 
             var keys = this.RegisteredCommands.Where(x => cmds.Contains(x.Value)).Select(x => x.Key).ToList();

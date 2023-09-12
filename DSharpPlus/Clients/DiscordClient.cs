@@ -258,7 +258,7 @@ namespace DSharpPlus
         /// <typeparam name="T">Type of extension to retrieve.</typeparam>
         /// <returns>The requested extension.</returns>
         public T GetExtension<T>() where T : BaseExtension
-            => this._extensions.FirstOrDefault(x => x.GetType() == typeof(T)) as T;
+            => this._extensions.Find(x => x.GetType() == typeof(T)) as T;
 
         #endregion
 

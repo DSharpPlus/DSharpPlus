@@ -1742,7 +1742,7 @@ namespace DSharpPlus
                 };
             }
 
-            var react = msg._reactions.FirstOrDefault(xr => xr.Emoji == emoji);
+            var react = msg._reactions.Find(xr => xr.Emoji == emoji);
             if (react == null)
             {
                 msg._reactions.Add(react = new DiscordReaction
@@ -1807,7 +1807,7 @@ namespace DSharpPlus
                 };
             }
 
-            var react = msg._reactions?.FirstOrDefault(xr => xr.Emoji == emoji);
+            var react = msg._reactions?.Find(xr => xr.Emoji == emoji);
             if (react != null)
             {
                 react.Count--;

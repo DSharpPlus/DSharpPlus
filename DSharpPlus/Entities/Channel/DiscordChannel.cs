@@ -986,12 +986,12 @@ namespace DSharpPlus.Entities
 
             // channel overrides for roles that member is in
             var mbRoleOverrides = mbRoles
-                .Select(xr => this._permissionOverwrites.FirstOrDefault(xo => xo.Id == xr.Id))
+                .Select(xr => this._permissionOverwrites.Find(xo => xo.Id == xr.Id))
                 .Where(xo => xo != null)
                 .ToList();
 
             // assign channel permission overwrites for @everyone pseudo-role
-            var everyoneOverwrites = this._permissionOverwrites.FirstOrDefault(xo => xo.Id == everyoneRole.Id);
+            var everyoneOverwrites = this._permissionOverwrites.Find(xo => xo.Id == everyoneRole.Id);
             if (everyoneOverwrites != null)
             {
                 perms &= ~everyoneOverwrites.Denied;
@@ -1004,7 +1004,7 @@ namespace DSharpPlus.Entities
             perms |= mbRoleOverrides.Aggregate(Permissions.None, (c, overs) => c | overs.Allowed);
 
             // channel overrides for just this member
-            var mbOverrides = this._permissionOverwrites.FirstOrDefault(xo => xo.Id == mbr.Id);
+            var mbOverrides = this._permissionOverwrites.Find(xo => xo.Id == mbr.Id);
             if (mbOverrides == null) return perms;
 
             // assign channel permission overwrites for just this member

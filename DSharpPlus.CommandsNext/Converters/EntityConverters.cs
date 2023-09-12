@@ -104,7 +104,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
             var searchResult = await ctx.Guild.SearchMembersAsync(value);
             if (searchResult.Any())
-                return Optional.FromValue(searchResult.First());
+                return Optional.FromValue(searchResult[0]);
 
             var cs = ctx.Config.CaseSensitive;
 
@@ -259,7 +259,7 @@ namespace DSharpPlus.CommandsNext.Converters
             if (string.IsNullOrWhiteSpace(value))
                 return Optional.FromNoValue<DiscordMessage>();
 
-            var msguri = value.StartsWith("<") && value.EndsWith(">") ? value.Substring(1, value.Length - 2) : value;
+            var msguri = value.StartsWith('<') && value.EndsWith('>') ? value.Substring(1, value.Length - 2) : value;
             ulong mid;
             if (Uri.TryCreate(msguri, UriKind.Absolute, out var uri))
             {
