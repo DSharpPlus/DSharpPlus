@@ -103,4 +103,14 @@ public sealed class DiscordAuditLogAutoModerationRuleEntry : DiscordAuditLogEntr
     /// List of trigger regex patterns that were removed from the rule
     /// </summary>
     public IEnumerable<string>? RemovedRegexPatterns { get; internal set; }
+    
+    /// <summary>
+    /// List of strings that were added to the allow list
+    /// </summary>
+    public IEnumerable<string>? AddedAllowList { get; internal set; }
+    
+    /// <summary>
+    /// List of strings that were removed from the allow list
+    /// </summary>
+    public IEnumerable<string>? RemovedAllowList { get; internal set; }
 }
