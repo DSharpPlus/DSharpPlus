@@ -26,9 +26,14 @@ namespace DSharpPlus.Entities;
 public sealed class DiscordAuditLogMessageEntry : DiscordAuditLogEntry
 {
     /// <summary>
-    /// Gets the affected message. Note that more often than not, this will only have ID specified.
+    /// Gets the affected User.
     /// </summary>
-    public DiscordMessage Target { get; internal set; }
+    public DiscordUser Target { get; internal set; }
+
+    /// <summary>
+    /// Gets the affected Member. This is null if the action was performed on a user that is not in the member cache.
+    /// </summary>
+    public DiscordMember? Member => Channel.Guild.Members.TryGetValue(Target.Id, out DiscordMember? member) ? member : null;
 
     /// <summary>
     /// Gets the channel in which the action occurred.

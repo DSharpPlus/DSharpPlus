@@ -287,12 +287,8 @@ internal static class AuditLogParser
 
                 if (messageEntry.Channel != null)
                 {
-                    messageEntry.Target = guild.Discord is DiscordClient dc
-                                          && dc.MessageCache != null
-                                          && dc.MessageCache.TryGet(auditLogAction.TargetId.Value,
-                                              out DiscordMessage? msg)
-                        ? msg
-                        : new DiscordMessage {Discord = guild.Discord, Id = auditLogAction.TargetId.Value};
+                    guild.Discord.UserCache.TryGetValue(auditLogAction.UserId, out DiscordUser? user);
+                    messageEntry.Target = user ?? new DiscordUser {Id = auditLogAction.UserId, Discord = guild.Discord};
                 }
 
                 break;
