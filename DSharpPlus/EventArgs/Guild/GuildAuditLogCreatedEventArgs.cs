@@ -1,4 +1,5 @@
 ﻿using DSharpPlus.Entities;
+using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.Net.Abstractions;
 
 namespace DSharpPlus.EventArgs;

@@ -33,7 +33,7 @@ using DSharpPlus.Net.Serialization;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
-namespace DSharpPlus.Entities;
+namespace DSharpPlus.Entities.AuditLogs;
 
 internal static class AuditLogParser
 {

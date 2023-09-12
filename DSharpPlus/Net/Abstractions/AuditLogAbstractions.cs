@@ -23,6 +23,7 @@
 
 using System.Collections.Generic;
 using DSharpPlus.Entities;
+using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

@@ -23,7 +23,7 @@
 
 using DSharpPlus.Net.Abstractions;
 
-namespace DSharpPlus.Entities;
+namespace DSharpPlus.Entities.AuditLogs;
 
 /// <summary>
 /// Represents a description of how a property changed.
