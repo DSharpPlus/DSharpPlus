@@ -1013,6 +1013,27 @@ internal static class AuditLogParser
                 case "flags":
                     entry.Flags = PropertyChange<ChannelFlags?>.From(change);
                     break;
+                
+                case "available_tags":
+                    IEnumerable<DiscordForumTag>? newTags = change.NewValues?.OfType<JObject>()?
+                        .Select(jObject => jObject.ToDiscordObject<DiscordForumTag>())?
+                        .Select(forumTag =>
+                        {
+                            forumTag.Discord = guild.Discord;
+                            return forumTag;
+                        });
+                    
+                    IEnumerable<DiscordForumTag>? oldTags = change.OldValues?.OfType<JObject>()?
+                        .Select(jObject => jObject.ToDiscordObject<DiscordForumTag>())?
+                        .Select(forumTag =>
+                        {
+                            forumTag.Discord = guild.Discord;
+                            return forumTag;
+                        });
+                    
+                    entry.AvailableTags = PropertyChange<IEnumerable<DiscordForumTag>>.From(oldTags, newTags);
+                    
+                    break;
 
                 default:
                     if (guild.Discord.Configuration.LogUnknownAuditlogs)

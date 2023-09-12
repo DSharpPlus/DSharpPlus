@@ -70,6 +70,8 @@ public sealed class DiscordAuditLogChannelEntry : DiscordAuditLogEntry
     public PropertyChange<int?> UserLimit { get; internal set; }
     
     public PropertyChange<ChannelFlags?> Flags { get; internal set; }
+    
+    public PropertyChange<IEnumerable<DiscordForumTag>> AvailableTags { get; internal set; }
 
     internal DiscordAuditLogChannelEntry() { }
 }
