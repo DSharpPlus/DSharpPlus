@@ -21,8 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-
 namespace DSharpPlus
 {
     /// <summary>
@@ -30,13 +28,6 @@ namespace DSharpPlus
     /// </summary>
     public enum TokenType
     {
-        /// <summary>
-        /// User token type
-        /// </summary>
-        [Obsolete("Logging in with a user token may result in your account being terminated, and is therefore highly unrecommended." +
-            "\nIf anything goes wrong with this, we will not provide any support!", true)]
-        User = 0,
-
         /// <summary>
         /// Bot token type
         /// </summary>

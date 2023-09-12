@@ -275,13 +275,6 @@ namespace DSharpPlus
         Stream  = 0x0000000000000200,
 
         /// <summary>
-        /// Allows the user to use slash commands.
-        /// </summary>
-        [Obsolete("Replaced by UseApplicationCommands", false)]
-        [PermissionString("Use slash commands")]
-        UseSlashCommands = 0x0000000080000000,
-
-        /// <summary>
         /// Allows the user to use application commands.
         /// </summary>
         [PermissionString("Use application commands")]
@@ -304,20 +297,6 @@ namespace DSharpPlus
         /// </summary>
         [PermissionString("Manage Threads")]
         ManageThreads = 0x0000000400000000,
-
-        /// <summary>
-        /// Allows for creating and participating in threads.
-        /// </summary>
-        [Obsolete("Replaced by CreatePublicThreads and SendMessagesInThreads", false)]
-        [PermissionString("Use Public Threads")]
-        UsePublicThreads = 0x0000000800000000,
-
-        /// <summary>
-        /// Allows for creating and participating in private threads.
-        /// </summary>
-        [Obsolete("Replaced by CreatePrivateThreads and SendMessagesInThreads", false)]
-        [PermissionString("Use Private Threads")]
-        UsePrivateThreads = 0x0000001000000000,
 
         /// <summary>
         /// Allows for creating public threads.
