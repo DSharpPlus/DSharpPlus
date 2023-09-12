@@ -980,15 +980,15 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <summary>
     /// Unbans a user by ID.
     /// </summary>
-    /// <param name="user_id">ID of the user to unban.</param>
+    /// <param name="userId">ID of the user to unban.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.BanMembers"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the user does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task UnbanMemberAsync(ulong user_id, string reason = null)
-        => this.Discord.ApiClient.RemoveGuildBanAsync(this.Id, user_id, reason);
+    public Task UnbanMember(ulong userId, string reason = null)
+        => this.Discord.ApiClient.RemoveGuildBanAsync(this.Id, userId, reason);
 
     /// <summary>
     /// Leaves this guild.
@@ -1068,7 +1068,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="name">Name of the new channel.</param>
     /// <param name="parent">Category to put this channel in.</param>
     /// <param name="bitrate">Bitrate of the channel.</param>
-    /// <param name="user_limit">Maximum number of users in the channel.</param>
+    /// <param name="userLimit">Maximum number of users in the channel.</param>
     /// <param name="overwrites">Permission overwrites for this channel.</param>
     /// <param name="qualityMode">Video quality mode of the channel.</param>
     /// <param name="position">Sorting position of the channel.</param>
@@ -1078,8 +1078,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<DiscordChannel> CreateVoiceChannelAsync(string name, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, VideoQualityMode? qualityMode = null, int? position = null, string reason = null)
-        => this.CreateChannelAsync(name, ChannelType.Voice, parent, Optional.FromNoValue<string>(), bitrate, user_limit, overwrites, null, Optional.FromNoValue<int?>(), qualityMode, position, reason);
+    public Task<DiscordChannel> CreateVoiceChannel(string name, DiscordChannel parent = null, int? bitrate = null, int? userLimit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, VideoQualityMode? qualityMode = null, int? position = null, string reason = null)
+        => this.CreateChannelAsync(name, ChannelType.Voice, parent, Optional.FromNoValue<string>(), bitrate, userLimit, overwrites, null, Optional.FromNoValue<int?>(), qualityMode, position, reason);
 
     /// <summary>
     /// Creates a new channel in this guild.
@@ -1262,16 +1262,16 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Modifies an integration in this guild.
     /// </summary>
     /// <param name="integration">Integration to modify.</param>
-    /// <param name="expire_behaviour">Number of days after which the integration expires.</param>
-    /// <param name="expire_grace_period">Length of grace period which allows for renewing the integration.</param>
-    /// <param name="enable_emoticons">Whether emotes should be synced from this integration.</param>
+    /// <param name="expireBehaviour">Number of days after which the integration expires.</param>
+    /// <param name="expireGracePeriod">Length of grace period which allows for renewing the integration.</param>
+    /// <param name="enableEmoticons">Whether emotes should be synced from this integration.</param>
     /// <returns>The modified integration.</returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<DiscordIntegration> ModifyIntegrationAsync(DiscordIntegration integration, int expire_behaviour, int expire_grace_period, bool enable_emoticons)
-        => this.Discord.ApiClient.ModifyGuildIntegrationAsync(this.Id, integration.Id, expire_behaviour, expire_grace_period, enable_emoticons);
+    public Task<DiscordIntegration> ModifyIntegration(DiscordIntegration integration, int expireBehaviour, int expireGracePeriod, bool enableEmoticons)
+        => this.Discord.ApiClient.ModifyGuildIntegrationAsync(this.Id, integration.Id, expireBehaviour, expireGracePeriod, enableEmoticons);
 
     /// <summary>
     /// Removes an integration from this guild.
