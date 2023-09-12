@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace DSharpPlus.Entities;
+namespace DSharpPlus.Entities.AuditLogs;
 
 public sealed class DiscordAuditLogMessageEntry : DiscordAuditLogEntry
 {

@@ -23,7 +23,7 @@
 
 using System;
 
-namespace DSharpPlus.Entities;
+namespace DSharpPlus.Entities.AuditLogs;
 
 public sealed class DiscordAuditLogRoleUpdateEntry : DiscordAuditLogEntry
 {
