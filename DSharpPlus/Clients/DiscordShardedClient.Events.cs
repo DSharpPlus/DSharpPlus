@@ -1006,6 +1006,41 @@ public sealed partial class DiscordShardedClient
     private Task Client_ThreadMembersUpdated(DiscordClient client, ThreadMembersUpdateEventArgs e)
         => this._threadMembersUpdated.InvokeAsync(client, e);
 
+    private Task Client_ScheduledGuildEventDeleted(DiscordClient client, ScheduledGuildEventDeleteEventArgs e)
+        => this._scheduledGuildEventDeleted.InvokeAsync(client, e);
+    
+    private Task Client_ScheduledGuildEventUserAdded(DiscordClient client, ScheduledGuildEventUserAddEventArgs e)
+        => this._scheduledGuildEventUserAdded.InvokeAsync(client, e);
+    
+    private Task Client_ScheduledGuildEventUserRemoved(DiscordClient client, ScheduledGuildEventUserRemoveEventArgs e)
+        => this._scheduledGuildEventUserRemoved.InvokeAsync(client, e);
+    
+    private Task Client_ScheduledGuildEventCompleted(DiscordClient client, ScheduledGuildEventCompletedEventArgs e)
+        => this._scheduledGuildEventCompleted.InvokeAsync(client, e);
+    
+    private Task Client_ScheduledGuildEventCreated(DiscordClient client, ScheduledGuildEventCreateEventArgs e)
+        => this._scheduledGuildEventCreated.InvokeAsync(client, e);
+    
+    private Task Client_ScheduledGuildEventUpdated(DiscordClient client, ScheduledGuildEventUpdateEventArgs e)
+        => this._scheduledGuildEventUpdated.InvokeAsync(client, e);
+    
+    private Task Client_AutoModerationRuleCreated(DiscordClient client, AutoModerationRuleCreateEventArgs e)
+        => this._autoModerationRuleCreated.InvokeAsync(client, e);
+    
+    private Task Client_AutoModerationRuleUpdated(DiscordClient client, AutoModerationRuleUpdateEventArgs e)
+        => this._autoModerationRuleUpdated.InvokeAsync(client, e);
+    
+    private Task Client_AutoModerationRuleDeleted(DiscordClient client, AutoModerationRuleDeleteEventArgs e)
+        => this._autoModerationRuleDeleted.InvokeAsync(client, e);
+    
+    private Task Client_AutoModerationRuleExecuted(DiscordClient client, AutoModerationRuleExecuteEventArgs e)
+        => this._autoModerationRuleExecuted.InvokeAsync(client, e);
+    
+    private Task Client_ApplicationCommandPermissionsUpdated(DiscordClient client, ApplicationCommandPermissionsUpdatedEventArgs e)
+        => this._applicationCommandPermissionsUpdated.InvokeAsync(client, e);
+    
+    
+
     #endregion
 
     #region AutoModeration
@@ -1036,5 +1071,48 @@ public sealed partial class DiscordShardedClient
         remove => this._autoModerationRuleExecuted.Unregister(value);
     }
     private AsyncEvent<DiscordClient, AutoModerationRuleExecuteEventArgs> _autoModerationRuleExecuted;
+    
+    public event AsyncEventHandler<DiscordClient, ScheduledGuildEventDeleteEventArgs> ScheduledGuildEventDeleted
+    {
+        add => this._scheduledGuildEventDeleted.Register(value);
+        remove => this._scheduledGuildEventDeleted.Unregister(value);
+    }
+    private AsyncEvent<DiscordClient, ScheduledGuildEventDeleteEventArgs> _scheduledGuildEventDeleted;
+    
+    public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUserAddEventArgs> ScheduledGuildEventUserAdded
+    {
+        add => this._scheduledGuildEventUserAdded.Register(value);
+        remove => this._scheduledGuildEventUserAdded.Unregister(value);
+    }
+    private AsyncEvent<DiscordClient, ScheduledGuildEventUserAddEventArgs> _scheduledGuildEventUserAdded;
+    
+    public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUserRemoveEventArgs> ScheduledGuildEventUserRemoved
+    {
+        add => this._scheduledGuildEventUserRemoved.Register(value);
+        remove => this._scheduledGuildEventUserRemoved.Unregister(value);
+    }
+    private AsyncEvent<DiscordClient, ScheduledGuildEventUserRemoveEventArgs> _scheduledGuildEventUserRemoved;
+    
+    public event AsyncEventHandler<DiscordClient, ScheduledGuildEventCompletedEventArgs> ScheduledGuildEventCompleted
+    {
+        add => this._scheduledGuildEventCompleted.Register(value);
+        remove => this._scheduledGuildEventCompleted.Unregister(value);
+    }
+    private AsyncEvent<DiscordClient,ScheduledGuildEventCompletedEventArgs> _scheduledGuildEventCompleted;
+    
+    public event AsyncEventHandler<DiscordClient, ScheduledGuildEventCreateEventArgs> ScheduledGuildEventCreated
+    {
+        add => this._scheduledGuildEventCreated.Register(value);
+        remove => this._scheduledGuildEventCreated.Unregister(value);
+    }
+    private AsyncEvent<DiscordClient,ScheduledGuildEventCreateEventArgs> _scheduledGuildEventCreated;
+    
+    public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUpdateEventArgs> ScheduledGuildEventUpdated
+    {
+        add => this._scheduledGuildEventUpdated.Register(value);
+        remove => this._scheduledGuildEventUpdated.Unregister(value);
+    }
+    private AsyncEvent<DiscordClient,ScheduledGuildEventUpdateEventArgs> _scheduledGuildEventUpdated;
+
     #endregion
 }
