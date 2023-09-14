@@ -39,7 +39,7 @@ partial struct EtfReader
     {
         if (this.index + 1 < this.data.Length)
         {
-            this.rawTerm = this.data.Slice(this.index, 1);
+            this.CurrentTermContents = this.data.Slice(this.index, 1);
 
             success = true;
             return 1;
@@ -66,7 +66,7 @@ partial struct EtfReader
 
             if (this.index + 2 + length < this.data.Length)
             {
-                this.rawTerm = this.data.Slice(this.index + 2, length);
+                this.CurrentTermContents = this.data.Slice(this.index + 2, length);
 
                 success = true;
                 return length + 2;
@@ -94,7 +94,7 @@ partial struct EtfReader
 
             if (this.index + 4 + length < this.data.Length)
             {
-                this.rawTerm = this.data.Slice(this.index + 4, (int)length);
+                this.CurrentTermContents = this.data.Slice(this.index + 4, (int)length);
 
                 success = true;
                 return (int)length + 4;
@@ -123,7 +123,7 @@ partial struct EtfReader
             // we do this by simply prepending the raw span with the amount of valid bits in the last byte
             if (this.index + 5 + length < this.data.Length)
             {
-                this.rawTerm = this.data.Slice(this.index + 4, (int)length + 1);
+                this.CurrentTermContents = this.data.Slice(this.index + 4, (int)length + 1);
 
                 success = true;
                 return (int)length + 5;
@@ -165,7 +165,7 @@ partial struct EtfReader
                 // one byte for arity
                 if (this.index + ++accumulatedLength < this.data.Length)
                 {
-                    this.rawTerm = this.data.Slice(this.index, accumulatedLength);
+                    this.CurrentTermContents = this.data.Slice(this.index, accumulatedLength);
 
                     success = true;
                     return accumulatedLength;
@@ -189,7 +189,7 @@ partial struct EtfReader
     {
         if (this.index + 31 < this.data.Length)
         {
-            this.rawTerm = this.data.Slice(this.index, 31);
+            this.CurrentTermContents = this.data.Slice(this.index, 31);
 
             success = true;
             return 31;
@@ -211,7 +211,7 @@ partial struct EtfReader
     {
         if (this.index + 4 < this.data.Length)
         {
-            this.rawTerm = this.data.Slice(this.index, 4);
+            this.CurrentTermContents = this.data.Slice(this.index, 4);
 
             success = true;
             return 4;
@@ -239,7 +239,7 @@ partial struct EtfReader
             // the first byte here carries the sign
             if (this.index + 5 + length < this.data.Length)
             {
-                this.rawTerm = this.data.Slice(this.index + 4, (int)length + 1);
+                this.CurrentTermContents = this.data.Slice(this.index + 4, (int)length + 1);
 
                 success = true;
                 return (int)length + 5;
@@ -369,7 +369,7 @@ partial struct EtfReader
 
                 if (this.index + accumulatedLength < this.data.Length)
                 {
-                    this.rawTerm = this.data.Slice(this.index, accumulatedLength);
+                    this.CurrentTermContents = this.data.Slice(this.index, accumulatedLength);
 
                     success = true;
                     return accumulatedLength;
@@ -393,7 +393,7 @@ partial struct EtfReader
     {
         if (this.index + 8 < this.data.Length)
         {
-            this.rawTerm = this.data.Slice(this.index, 8);
+            this.CurrentTermContents = this.data.Slice(this.index, 8);
 
             success = true;
             return 8;
@@ -423,7 +423,7 @@ partial struct EtfReader
 
             if (this.index + length < this.data.Length)
             {
-                this.rawTerm = this.data.Slice(this.index, length);
+                this.CurrentTermContents = this.data.Slice(this.index, length);
                 
                 success = true;
                 return length;
@@ -454,7 +454,7 @@ partial struct EtfReader
 
             if (this.index + length < this.data.Length)
             {
-                this.rawTerm = this.data.Slice(this.index, length);
+                this.CurrentTermContents = this.data.Slice(this.index, length);
 
                 success = true;
                 return length;
@@ -490,7 +490,7 @@ partial struct EtfReader
 
                 if (this.index + accumulatedLength < this.data.Length)
                 {
-                    this.rawTerm = this.data.Slice(this.index, accumulatedLength);
+                    this.CurrentTermContents = this.data.Slice(this.index, accumulatedLength);
 
                     success = true;
                     return accumulatedLength;
@@ -536,7 +536,7 @@ partial struct EtfReader
 
             if (this.index + length < this.data.Length)
             {
-                this.rawTerm = this.data.Slice(this.index, length);
+                this.CurrentTermContents = this.data.Slice(this.index, length);
 
                 success = true;
                 return length;
@@ -567,7 +567,7 @@ partial struct EtfReader
 
             if (this.index + length < this.data.Length)
             {
-                this.rawTerm = this.data.Slice(this.index, length);
+                this.CurrentTermContents = this.data.Slice(this.index, length);
 
                 success = true;
                 return length;
@@ -594,7 +594,7 @@ partial struct EtfReader
 
             if (this.index + 1 + length < this.data.Length)
             {
-                this.rawTerm = this.data.Slice(this.index + 1, length);
+                this.CurrentTermContents = this.data.Slice(this.index + 1, length);
 
                 success = true;
                 return length + 1;
@@ -622,7 +622,7 @@ partial struct EtfReader
             // the first byte here carries the sign
             if (this.index + 2 + length < this.data.Length)
             {
-                this.rawTerm = this.data.Slice(this.index + 1, (int)length + 1);
+                this.CurrentTermContents = this.data.Slice(this.index + 1, (int)length + 1);
 
                 success = true;
                 return (int)length + 5;
@@ -645,7 +645,7 @@ partial struct EtfReader
     {
         if (this.index + 1 < this.data.Length)
         {
-            this.rawTerm = this.data.Slice(this.index, 1);
+            this.CurrentTermContents = this.data.Slice(this.index, 1);
 
             success = true;
             return 1;
@@ -697,7 +697,7 @@ partial struct EtfReader
 
             if (this.index + 2 + length < this.data.Length)
             {
-                this.rawTerm = this.data.Slice(this.index + 2, length);
+                this.CurrentTermContents = this.data.Slice(this.index + 2, length);
 
                 success = true;
                 return length + 2;
@@ -728,7 +728,7 @@ partial struct EtfReader
 
             if (this.index + length < this.data.Length)
             {
-                this.rawTerm = this.data.Slice(this.index, length);
+                this.CurrentTermContents = this.data.Slice(this.index, length);
 
                 success = true;
                 return length;

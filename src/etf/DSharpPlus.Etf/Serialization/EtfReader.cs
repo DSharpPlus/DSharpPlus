@@ -25,8 +25,8 @@ public ref partial struct EtfReader
     * layout is explicit here!
     * 
     * the current layout is putting the ValueStacks first, which are 24b each; then the spans, which
-    * are 16b each, then an integer and several byte-sized fields. this leads to 87 bytes used and 1
-    * byte padding required on 8-byte-aligned ABIs, 9 bytes padding on higher alignment.
+    * are 16b each, then an integer and several byte-sized fields. this leads to 86 bytes used and 2
+    * bytes padding required on 8-byte-aligned ABIs, 10 bytes padding on higher alignment.
     * 
     * copying this struct will always split at least one cache line, so passing by ref is advised 
     * where possible - which should be most cases.
@@ -36,12 +36,25 @@ public ref partial struct EtfReader
     private readonly ValueStack<TermType> complexObjects;
 
     private readonly ReadOnlySpan<byte> data;
-    private ReadOnlySpan<byte> rawTerm;
 
+    /// <summary>
+    /// Gets the contents of the current term. Correctly interpreting this varies based on 
+    /// <seealso cref="TermType"/>, and may be invalid for terms that do not declare a body.
+    /// </summary>
+    public ReadOnlySpan<byte> CurrentTermContents { readonly get; private set; }
+
+    // the weird ordering here is to keep struct layout intact
     private int index;
-    private TermType currentTerm;
-    private EtfTokenType previousToken;
-    private EtfTokenType currentToken;
+
+    /// <summary>
+    /// Gets the type of the last read term.
+    /// </summary>
+    public TermType TermType { get; private set; }
+
+    /// <summary>
+    /// Gets the type of the last token, which includes synthesized end tokens for all control structures.
+    /// </summary>
+    public EtfTokenType TokenType { get; private set; }
 
     /// <summary>
     /// Constructs a new <seealso cref="EtfReader"/> with a maximum depth of 256.
@@ -136,7 +149,7 @@ public ref partial struct EtfReader
         // we also, importantly, do this BEFORE decoding the next term.
         if (this.remainingLengths.Count != 0 && this.remainingLengths.Peek() == 0)
         {
-            this.currentToken = this.complexObjects.Pop() switch
+            this.TokenType = this.complexObjects.Pop() switch
             {
                 TermType.Map => EtfTokenType.EndMap,
                 TermType.List => EtfTokenType.EndList,
@@ -150,9 +163,8 @@ public ref partial struct EtfReader
 
         TermType term = (TermType)this.data[this.index++];
 
-        this.currentTerm = term;
-        this.previousToken = this.currentToken;
-        this.currentToken = term switch
+        this.TermType = term;
+        this.TokenType = term switch
         {
             TermType.Map => EtfTokenType.StartMap,
             TermType.List => EtfTokenType.StartList,
