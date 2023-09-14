@@ -4,6 +4,8 @@
     <VersionPrefix>0.1.0</VersionPrefix>
     <Description>$(Description) This package implements the serialization models mirroring the Discord API.</Description>
     <OutputType>Library</OutputType>
+
+    <NoWarn>$(NoWarn);CA1812</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

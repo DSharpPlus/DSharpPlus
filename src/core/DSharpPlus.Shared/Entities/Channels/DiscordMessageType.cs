@@ -4,7 +4,9 @@
 
 namespace DSharpPlus.Entities;
 
+#pragma warning disable CA1027 // this is not a flags enum.
 public enum DiscordMessageType
+#pragma warning restore CA1027 
 {
     Default,
     RecipientAdd,

@@ -8,7 +8,7 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <AnalysisMode>All</AnalysisMode>
-    <NoWarn>$(NoWarn);CS1591;CA1028;CA1720;CA2007</NoWarn>
+    <NoWarn>$(NoWarn);CS1591;CA1028;CA1062;CA1711;CA1716;CA1720;CA2007</NoWarn>
 
     <!-- build and versioning setup -->
     <ManagePackageVersionsCentrally>True</ManagePackageVersionsCentrally>

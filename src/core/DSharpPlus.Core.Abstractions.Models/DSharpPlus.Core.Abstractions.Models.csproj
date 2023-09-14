@@ -4,6 +4,8 @@
     <VersionPrefix>$(_DSharpPlusCoreAbstractionsModelsVersion)</VersionPrefix>
     <Description>$(Description) This package specifies a contract for the serialization models to implement. This definition is library-agnostic.</Description>
     <OutputType>Library</OutputType>
+
+    <NoWarn>$(NoWarn);CA1040;CA1056</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

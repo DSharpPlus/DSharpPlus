@@ -6,6 +6,7 @@
     <OutputType>Library</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IsAotCompatible>true</IsAotCompatible>
+    <NoWarn>$(NoWarn);CA1008</NoWarn>
     
     <RootNamespace>DSharpPlus</RootNamespace>
   </PropertyGroup>

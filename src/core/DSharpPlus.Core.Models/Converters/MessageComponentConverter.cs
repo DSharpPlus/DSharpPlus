@@ -29,7 +29,6 @@ public class MessageComponentConverter : JsonConverter<IInteractiveComponent>
             throw new JsonException("There was no JSON object found.");
         }
 
-#pragma warning disable IDE0046 // we don't want this to become a 40 line ternary.
         if
         (
             !JsonDocument.TryParseValue(ref reader, out JsonDocument? document)
@@ -40,7 +39,7 @@ public class MessageComponentConverter : JsonConverter<IInteractiveComponent>
             throw new JsonException("The provided JSON object was malformed.");
         }
 
-        return (DiscordMessageComponentType)type switch
+        IInteractiveComponent? component = (DiscordMessageComponentType)type switch
         {
             DiscordMessageComponentType.ActionRow
                 => throw new JsonException("Invalid JSON structure: expected an interactive component, not an action row."),
@@ -68,7 +67,9 @@ public class MessageComponentConverter : JsonConverter<IInteractiveComponent>
             
             _ => throw new JsonException("Unknown component type.")
         };
-#pragma warning restore IDE0046
+
+        document.Dispose();
+        return component;
     }
 
     /// <inheritdoc/>

@@ -53,6 +53,8 @@ public class AutoModerationActionConverter : JsonConverter<IAutoModerationAction
             _ => new()
         };
 
+        document.Dispose();
+
         return new AutoModerationAction
         {
             Type = (DiscordAutoModerationActionType)type,
@@ -73,7 +75,7 @@ public class AutoModerationActionConverter : JsonConverter<IAutoModerationAction
         writer.WritePropertyName("type");
         writer.WriteNumberValue((int)value.Type);
 
-        if (!value.Metadata.IsDefined(out IAutoModerationActionMetadata? metadata))
+        if (!value.Metadata.TryGet(out IAutoModerationActionMetadata? metadata))
         {
             writer.WriteEndObject();
             return;

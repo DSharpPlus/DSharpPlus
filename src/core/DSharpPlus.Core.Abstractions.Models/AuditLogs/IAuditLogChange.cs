@@ -2,8 +2,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-using System.Text.Json;
-
 using Remora.Rest.Core;
 
 namespace DSharpPlus.Core.Abstractions.Models;
@@ -16,12 +14,12 @@ public interface IAuditLogChange
     /// <summary>
     /// The new value of this field.
     /// </summary>
-    public Optional<JsonElement> NewValue { get; }
+    public Optional<string> NewValue { get; }
 
     /// <summary>
     /// The old value of this field.
     /// </summary>
-    public Optional<JsonElement> OldValue { get; }
+    public Optional<string> OldValue { get; }
 
     /// <summary>
     /// The name of the changed field, with a few exceptions: see

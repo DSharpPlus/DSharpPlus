@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 using System;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -42,5 +43,5 @@ public class DiscordPermissionConverter : JsonConverter<DiscordPermissions>
         DiscordPermissions value,
         JsonSerializerOptions options
     ) 
-        => writer.WriteStringValue(((ulong)value).ToString());
+        => writer.WriteStringValue(((ulong)value).ToString(CultureInfo.InvariantCulture));
 }

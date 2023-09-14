@@ -41,13 +41,15 @@ public class AuditLogChangeConverter : JsonConverter<IAuditLogChange>
 
         string key = propertyKey.GetString()!;
 
-        Optional<JsonElement> newProperty = document.RootElement.TryGetProperty("new_value", out JsonElement value)
-            ? value
-            : new Optional<JsonElement>();
+        Optional<string> newProperty = document.RootElement.TryGetProperty("new_value", out JsonElement value)
+            ? JsonSerializer.Serialize(value, options)
+            : new Optional<string>();
 
-        Optional<JsonElement> oldProperty = document.RootElement.TryGetProperty("old_value", out JsonElement oldValue)
-            ? oldValue
-            : new Optional<JsonElement>();
+        Optional<string> oldProperty = document.RootElement.TryGetProperty("old_value", out JsonElement oldValue)
+            ? JsonSerializer.Serialize(oldValue, options)
+            : new Optional<string>();
+
+        document.Dispose();
 
         return new AuditLogChange
         {
@@ -70,16 +72,16 @@ public class AuditLogChangeConverter : JsonConverter<IAuditLogChange>
         writer.WritePropertyName("key");
         writer.WriteStringValue(value.Key);
 
-        if (value.NewValue.TryGet(out JsonElement newValue))
+        if (value.NewValue.TryGet(out string? newValue))
         {
             writer.WritePropertyName("new_value");
-            newValue.WriteTo(writer);
+            writer.WriteStringValue(newValue);
         }
 
-        if (value.OldValue.TryGet(out JsonElement oldValue))
+        if (value.OldValue.TryGet(out string? oldValue))
         {
             writer.WritePropertyName("old_value");
-            oldValue.WriteTo(writer);
+            writer.WriteStringValue(oldValue);
         }
 
         writer.WriteEndObject();
