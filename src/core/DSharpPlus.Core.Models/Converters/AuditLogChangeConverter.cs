@@ -33,7 +33,7 @@ public class AuditLogChangeConverter : JsonConverter<IAuditLogChange>
         if
         (
             !JsonDocument.TryParseValue(ref reader, out JsonDocument? document)
-            || document.RootElement.TryGetProperty("key", out JsonElement propertyKey)
+            || !document.RootElement.TryGetProperty("key", out JsonElement propertyKey)
         )
         {
             throw new JsonException("The provided JSON object was malformed.");
