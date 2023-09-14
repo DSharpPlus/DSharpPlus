@@ -49,7 +49,7 @@ param (
     [string]$ToolGroup,
 
     [Alias('s')]
-    [ValidateSet("core")]
+    [ValidateSet("core", "etf")]
     [string[]]$Subset,
 
     [Alias('n')]

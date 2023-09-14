@@ -28,11 +28,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Generators", "Generators", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.SourceGenerators.Common", "gen\common\DSharpPlus.SourceGenerators.Common.csproj", "{98D2C52C-E3BA-4564-919C-750775B7BA9C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Core.Models.Tests", "tests\core\DSharpPlus.Core.Models.Tests\DSharpPlus.Core.Models.Tests.csproj", "{9F25D892-3CB0-4D47-B67D-D3FFFADC03E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core.Models.Tests", "tests\core\DSharpPlus.Core.Models.Tests\DSharpPlus.Core.Models.Tests.csproj", "{9F25D892-3CB0-4D47-B67D-D3FFFADC03E0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ETF", "ETF", "{0BB713D0-63CC-4373-9C76-3C80611EFFA6}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Etf", "Etf", "{0BB713D0-63CC-4373-9C76-3C80611EFFA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.ETF", "src\etf\DSharpPlus.ETF\DSharpPlus.ETF.csproj", "{96B95EF1-14FC-440F-B924-05E41929AA33}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Etf", "src\etf\DSharpPlus.ETF\DSharpPlus.Etf.csproj", "{96B95EF1-14FC-440F-B924-05E41929AA33}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

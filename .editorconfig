@@ -53,7 +53,7 @@ dotnet_diagnostic.IDE2002.severity = error
 dotnet_diagnostic.IDE0073.severity = error
 
 # this. preferences
-dotnet_style_qualification_for_field = true:silent
+dotnet_style_qualification_for_field = true:error
 dotnet_style_qualification_for_property = true:silent
 dotnet_style_qualification_for_method = true:silent
 dotnet_style_qualification_for_event = true:silent

@@ -2,12 +2,14 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-namespace DSharpPlus.ETF;
+namespace DSharpPlus.Etf;
 
 /// <summary>
-/// Specifies the token type prefixes for each type, according to ERTS 14.0.2.
+/// Specifies the token type prefixes for each type, according to ERTS 14.0.2, format version 131.
 /// </summary>
-public enum TokenType : byte
+#pragma warning disable CA1008 // Enums should have zero value, the "none" value is 108
+public enum TermType : byte
+#pragma warning restore CA1008
 {
     /// <summary>
     /// erl_ext_dist 4
@@ -122,11 +124,13 @@ public enum TokenType : byte
     // /// erl_ext_dist 25
     // /// </summary>
     // Fun = 117,
-
-    /// <summary>
-    /// erl_ext_dist 26
-    /// </summary>
-    NewFun = 112,
+    //
+    // unsupported
+    //
+    // /// <summary>
+    // /// erl_ext_dist 26
+    // /// </summary>
+    // NewFun = 112,
 
     /// <summary>
     /// erl_ext_dist 27
