@@ -6,6 +6,6 @@
     <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj"/>
+    <ProjectReference Include="$(ProjectRoot)\DSharpPlus\DSharpPlus.csproj" />
   </ItemGroup>
 </Project>

@@ -15,6 +15,7 @@
     <Version>5.0.0</Version>
     <Version Condition="'$(Nightly)' != ''">$(Version)-nightly-$(Nightly)</Version>
   </PropertyGroup>
+
   <!-- Nuget -->
   <PropertyGroup>
     <Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, IDoEverything, Velvet, OoLunar, akiraveliara, DSharpPlus contributors</Authors>
@@ -27,6 +28,7 @@
     <RepositoryType>Git</RepositoryType>
     <RepositoryUrl>https://github.com/DSharpPlus/DSharpPlus</RepositoryUrl>
   </PropertyGroup>
+
   <!-- SourceLink -->
   <PropertyGroup>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -34,6 +36,7 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
   <ItemGroup>
     <None Include="$(ProjectRoot)/LICENSE" Pack="true" PackagePath=""/>
     <None Include="$(ProjectRoot)/README.md" Pack="true" PackagePath=""/>
