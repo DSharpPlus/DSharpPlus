@@ -1,36 +1,41 @@
 <Project>
   <!-- Build -->
   <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>false</IsPackable>
     <LangVersion>Latest</LangVersion>
-    <ManagePackageVersionsCentrally>True</ManagePackageVersionsCentrally>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <NoWarn>CS1591</NoWarn>
     <Nullable>enable</Nullable>
+    <OutputType>Library</OutputType>
     <ProjectRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), "*.sln"))</ProjectRoot>
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <TargetFramework>net7.0</TargetFramework>
-    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <VersionPrefix>5.0.0</VersionPrefix>
   </PropertyGroup>
   <!-- Nuget -->
   <PropertyGroup>
     <Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, IDoEverything, Velvet, OoLunar, akiraveliara, DSharpPlus contributors</Authors>
-    <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp</PackageTags>
     <Company>DSharpPlus developers</Company>
     <PackageIcon>dsharpplus.png</PackageIcon>
-    <PackageIconUrl>https://raw.githubusercontent.com/DSharpPlus/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/DSharpPlus/DSharpPlus</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp</PackageTags>
     <RepositoryType>Git</RepositoryType>
     <RepositoryUrl>https://github.com/DSharpPlus/DSharpPlus</RepositoryUrl>
-    <VersionPrefix>5.0.0</VersionPrefix>
-    <!-- SourceLink -->
+  </PropertyGroup>
+  <!-- SourceLink -->
+  <PropertyGroup>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="$(ProjectRoot)/logo/dsharpplus.png" Pack="true" PackagePath="/"/>
+    <None Include="$(ProjectRoot)/LICENSE" Pack="true" PackagePath=""/>
+    <None Include="$(ProjectRoot)/README.md" Pack="true" PackagePath=""/>
+    <None Include="$(ProjectRoot)/logo/dsharpplus.png" Pack="true" PackagePath=""/>
   </ItemGroup>
 </Project>
