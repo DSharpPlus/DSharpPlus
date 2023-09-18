@@ -24,7 +24,7 @@
 using System.Collections.Generic;
 using DSharpPlus.Enums;
 
-namespace DSharpPlus.Entities;
+namespace DSharpPlus.Entities.AuditLogs;
 
 public sealed class DiscordAuditLogAutoModerationRuleEntry : DiscordAuditLogEntry
 {

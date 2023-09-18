@@ -1,18 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <AssemblyName>DSharpPlus.Rest</AssemblyName>
-        <RootNamespace>DSharpPlus.Rest</RootNamespace>
-        <OutputType>Library</OutputType>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <PackageId>DSharpPlus.Rest</PackageId>
-        <Description>A Rest-only client for DSharpPlus.</Description>
-        <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, rest-api, oauth2</PackageTags>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj"/>
-    </ItemGroup>
-
+  <PropertyGroup>
+    <PackageId>DSharpPlus.Rest</PackageId>
+    <Description>A Rest-only client for DSharpPlus.</Description>
+    <PackageTags>$(PackageTags), rest-api, oauth2</PackageTags>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(ProjectRoot)\DSharpPlus\DSharpPlus.csproj" />
+  </ItemGroup>
 </Project>

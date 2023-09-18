@@ -22,12 +22,12 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 7.0.103
+          dotnet-version: 7
       - name: Publish NuGet packages
         run: |
           mkdir build
           dotnet pack -c Release -o build
-          dotnet nuget push \"build/*\" -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json
+          dotnet nuget push \"build/*\" --skip-duplicate -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json
       - name: Upload NuGet packages to GitHub Actions
         uses: actions/upload-artifact@v3
         with:

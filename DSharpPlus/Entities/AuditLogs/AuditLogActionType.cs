@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace DSharpPlus.Entities;
+namespace DSharpPlus.Entities.AuditLogs;
 
 // below is taken from
 // https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-audit-log-events
