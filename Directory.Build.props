@@ -11,8 +11,6 @@
     <Nullable>enable</Nullable>
     <OutputType>Library</OutputType>
     <ProjectRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), "DSharpPlus.sln"))</ProjectRoot>
-    <!-- Remove the 'JSImportGenerator' analyzer by default to improve compilation time. +200ms is apparently enough to require this change. -->
-    <RemoveAnalyzer Include="Microsoft.Interop.JavaScript.JSImportGenerator" />
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <TargetFramework>net7.0</TargetFramework>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
@@ -46,6 +44,8 @@
     <None Include="$(ProjectRoot)/LICENSE" Pack="true" PackagePath=""/>
     <None Include="$(ProjectRoot)/README.md" Pack="true" PackagePath=""/>
     <None Include="$(ProjectRoot)/logo/dsharpplus.png" Pack="true" PackagePath=""/>
+    <!-- Remove the 'JSImportGenerator' analyzer by default to improve compilation time. +200ms is apparently enough to require this change. -->
+    <RemoveAnalyzer Include="Microsoft.Interop.JavaScript.JSImportGenerator" />
   </ItemGroup>
 
   <Target Name="_DisableAnalyzers" DependsOnTargets="ResolveTargetingPackAssets" Inputs="@(RemoveAnalyzer)" Outputs="|%(Identity)|">
