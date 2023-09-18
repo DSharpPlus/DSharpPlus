@@ -17,8 +17,13 @@ public static class Program
 
     private const string ClassHeader = "public sealed partial class DiscordShardedClient\n{";
         
-    public static async Task Main()
+    public static async Task Main(string[] args)
     {
+        if (args.Length != 1)
+        {
+            Console.WriteLine("Usage: DSharpPlus.Tools.ShardedEventHandlingGen <path for output>");
+            return;
+        }
         StringBuilderIndented sb = new();
         sb = sb.CreateFileHeader();
         sb.Indent();
@@ -76,7 +81,7 @@ public static class Program
         sb.Unindent();
         sb.AppendLine("}");
         
-        Console.Write(sb.ToString());
+        File.WriteAllText(args[0], sb.ToString());
     }
 
     public static StringBuilderIndented CreateFileHeader(this StringBuilderIndented sb)
