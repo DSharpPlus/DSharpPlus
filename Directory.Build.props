@@ -1,6 +1,8 @@
 <Project>
   <!-- Build -->
   <PropertyGroup>
+    <!-- Add '_DisableAnalyzers' to the list of compilation dependencies -->
+    <CoreCompileDependsOn>$(CoreCompileDependsOn);_DisableAnalyzers</CoreCompileDependsOn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>false</IsPackable>
     <LangVersion>Latest</LangVersion>
@@ -9,13 +11,14 @@
     <Nullable>enable</Nullable>
     <OutputType>Library</OutputType>
     <ProjectRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), "DSharpPlus.sln"))</ProjectRoot>
+    <!-- Remove the 'JSImportGenerator' analyzer by default to improve compilation time. +200ms is apparently enough to require this change. -->
+    <RemoveAnalyzer Include="Microsoft.Interop.JavaScript.JSImportGenerator" />
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <TargetFramework>net7.0</TargetFramework>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <Version>5.0.0</Version>
     <Version Condition="'$(Nightly)' != ''">$(Version)-nightly-$(Nightly)</Version>
   </PropertyGroup>
-
   <!-- Nuget -->
   <PropertyGroup>
     <Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, IDoEverything, Velvet, OoLunar, akiraveliara, DSharpPlus contributors</Authors>
@@ -28,7 +31,6 @@
     <RepositoryType>Git</RepositoryType>
     <RepositoryUrl>https://github.com/DSharpPlus/DSharpPlus</RepositoryUrl>
   </PropertyGroup>
-
   <!-- SourceLink -->
   <PropertyGroup>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -36,10 +38,15 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
-
   <ItemGroup>
     <None Include="$(ProjectRoot)/LICENSE" Pack="true" PackagePath=""/>
     <None Include="$(ProjectRoot)/README.md" Pack="true" PackagePath=""/>
     <None Include="$(ProjectRoot)/logo/dsharpplus.png" Pack="true" PackagePath=""/>
   </ItemGroup>
+  <Target Name="_DisableAnalyzers" DependsOnTargets="ResolveTargetingPackAssets" Inputs="@(RemoveAnalyzer)" Outputs="|%(Identity)|">
+    <ItemGroup>
+      <!-- Remove the analyzer specified in 'RemoveAnalyzer' from the list of analyzers -->
+      <Analyzer Remove="@(Analyzer)" Condition="'%(Analyzer.Identity)' == '$(RemoveAnalyzer)'"/>
+    </ItemGroup>
+  </Target>
 </Project>
