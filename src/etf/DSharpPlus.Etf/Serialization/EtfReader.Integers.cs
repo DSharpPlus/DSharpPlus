@@ -2,6 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+using System.Buffers.Binary;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -123,7 +124,7 @@ partial struct EtfReader
     ***************************************************************************************************/
 
     /// <summary>
-    /// Provides the implementation for reading a 64-bit unsigned integer from a currently provided
+    /// Provides the implementation for reading a unsigned integer from a currently provided
     /// BigInteger term, ignoring the sign byte.
     /// </summary>
     private readonly TNumber ReadUnsignedIntegerFromBigInteger<TNumber>()
@@ -140,7 +141,7 @@ partial struct EtfReader
     }
 
     /// <summary>
-    /// Provides the implementation for reading a 64-bit signed integer from a currently provided
+    /// Provides the implementation for reading a signed integer from a currently provided
     /// BigInteger term.
     /// </summary>
     private readonly TNumber ReadSignedIntegerFromBigInteger<TNumber>()
@@ -159,4 +160,58 @@ partial struct EtfReader
 
         return MemoryMarshal.GetReference(this.CurrentTermContents) == 0 ? value : -value;
     }
+
+    /// <summary>
+    /// Provides the implementation for performing a truncating read from an integer term.
+    /// </summary>
+    private readonly TNumber ReadFromIntegerTruncating<TNumber>()
+        where TNumber : IBinaryInteger<TNumber>
+    {
+        int value = BinaryPrimitives.ReadInt32BigEndian(this.CurrentTermContents);
+
+        return TNumber.CreateTruncating(value);
+    }
+
+    /// <summary>
+    /// Provides the implementation for performing a saturating read from an integer term.
+    /// </summary>
+    private readonly TNumber ReadFromIntegerSaturating<TNumber>()
+        where TNumber : IBinaryInteger<TNumber>
+    {
+        int value = BinaryPrimitives.ReadInt32BigEndian(this.CurrentTermContents);
+
+        return TNumber.CreateSaturating(value);
+    }
+
+    /// <summary>
+    /// Provides the implementation for performing a checked read from an integer term.
+    /// </summary>
+    private readonly TNumber ReadFromIntegerChecked<TNumber>()
+        where TNumber : IBinaryInteger<TNumber>
+    {
+        int value = BinaryPrimitives.ReadInt32BigEndian(this.CurrentTermContents);
+
+        return TNumber.CreateChecked(value);
+    }
+
+    /// <summary>
+    /// Provides the implementation for performing a truncating read from a small-integer term.
+    /// </summary>
+    private readonly TNumber ReadFromByteTruncating<TNumber>()
+        where TNumber : IBinaryInteger<TNumber> 
+        => TNumber.CreateTruncating(MemoryMarshal.GetReference(this.CurrentTermContents));
+
+    /// <summary>
+    /// Provides the implementation for performing a saturating read from a small-integer term.
+    /// </summary>
+    private readonly TNumber ReadFromByteSaturating<TNumber>()
+        where TNumber : IBinaryInteger<TNumber> 
+        => TNumber.CreateSaturating(MemoryMarshal.GetReference(this.CurrentTermContents));
+
+    /// <summary>
+    /// Provides the implementation for performing a checked read from a small-integer term.
+    /// </summary>
+    private readonly TNumber ReadFromByteChecked<TNumber>()
+        where TNumber : IBinaryInteger<TNumber> 
+        => TNumber.CreateChecked(MemoryMarshal.GetReference(this.CurrentTermContents));
 }
