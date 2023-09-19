@@ -4,6 +4,7 @@
     <Description>An extension for DSharpPlus to make slash commands easy</Description>
     <PackageTags>$(PackageTags), commands, slash-commands, interactions</PackageTags>
     <Authors>IDoEverything, Epictek, SakuraIsayeki, sssvt-drabek-stepan, tygore587, VelvetThePanda, OoLunar</Authors>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="$(ProjectRoot)\DSharpPlus\DSharpPlus.csproj" />
