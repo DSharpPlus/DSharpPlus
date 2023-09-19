@@ -29,6 +29,15 @@ public static class TermTypeExtensions
         => term is TermType.SmallBig or TermType.LargeBig or TermType.SmallInteger or TermType.Integer;
 
     /// <summary>
+    /// Determines whether this term is a big integer.
+    /// </summary>
+    public static bool IsBigInteger
+    (
+        this TermType term
+    )
+        => term is TermType.SmallBig or TermType.LargeBig;
+
+    /// <summary>
     /// Determines whether this term is a tuple.
     /// </summary>
     public static bool IsTuple

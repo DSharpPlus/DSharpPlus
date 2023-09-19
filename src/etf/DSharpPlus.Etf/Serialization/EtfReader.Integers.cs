@@ -7,6 +7,8 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
+using DSharpPlus.Etf.Extensions;
+
 namespace DSharpPlus.Etf.Serialization;
 
 /*******************************************************************************************************
@@ -18,9 +20,9 @@ namespace DSharpPlus.Etf.Serialization;
 * 
 * We want to define our Try- methods first and then implement throwing variants in the following form:
 * 
-* public readonly Thing GetThing()
+* public readonly Thing ReadThing()
 * {
-*     if (this.TryGetThing(out Thing thing))
+*     if (this.TryReadThing(out Thing thing))
 *     {
 *         return thing;
 *     }
@@ -161,57 +163,413 @@ partial struct EtfReader
         return MemoryMarshal.GetReference(this.CurrentTermContents) == 0 ? value : -value;
     }
 
+#pragma warning disable CS8509 // switch expressions should handle every option; this one shouldn't
+
     /// <summary>
     /// Provides the implementation for performing a truncating read from an integer term.
     /// </summary>
-    private readonly TNumber ReadFromIntegerTruncating<TNumber>()
+    private readonly TNumber ReadInteger<TNumber>()
         where TNumber : IBinaryInteger<TNumber>
     {
-        int value = BinaryPrimitives.ReadInt32BigEndian(this.CurrentTermContents);
+        return this.TermType switch
+        {
+            TermType.Integer =>
+                TNumber.CreateTruncating(BinaryPrimitives.ReadInt32BigEndian(this.CurrentTermContents)),
 
-        return TNumber.CreateTruncating(value);
+            TermType.SmallInteger =>
+                TNumber.CreateTruncating(MemoryMarshal.GetReference(this.CurrentTermContents))
+        };
+    }
+
+#pragma warning restore CS8509
+
+    /// <summary>
+    /// Reads the current term as a signed byte.
+    /// </summary>
+    /// <returns>True if successful, false if unsuccessful.</returns>
+    public readonly bool TryReadSByte
+    (
+        out sbyte value
+    )
+    {
+        if (this.TermType.IsInteger())
+        {
+            if (this.TermType.IsBigInteger())
+            {
+                if (this.CurrentTermContents.Length >= 2)
+                {
+                    value = this.ReadSignedIntegerFromBigInteger<sbyte>();
+                    return true;
+                }
+            }
+            else
+            {
+                value = this.ReadInteger<sbyte>();
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
     }
 
     /// <summary>
-    /// Provides the implementation for performing a saturating read from an integer term.
+    /// Reads the current term as an unsigned byte.
     /// </summary>
-    private readonly TNumber ReadFromIntegerSaturating<TNumber>()
-        where TNumber : IBinaryInteger<TNumber>
+    /// <returns>True if successful, false if unsuccessful.</returns>
+    public readonly bool TryReadByte
+    (
+        out byte value
+    )
     {
-        int value = BinaryPrimitives.ReadInt32BigEndian(this.CurrentTermContents);
+        if (this.TermType.IsInteger())
+        {
+            if (this.TermType.IsBigInteger())
+            {
+                if (this.CurrentTermContents.Length >= 2)
+                {
+                    value = this.ReadUnsignedIntegerFromBigInteger<byte>();
+                    return true;
+                }
+            }
+            else
+            {
+                value = this.ReadInteger<byte>();
+                return true;
+            }
+        }
 
-        return TNumber.CreateSaturating(value);
+        value = default;
+        return false;
     }
 
     /// <summary>
-    /// Provides the implementation for performing a checked read from an integer term.
+    /// Reads the current term as a short.
     /// </summary>
-    private readonly TNumber ReadFromIntegerChecked<TNumber>()
-        where TNumber : IBinaryInteger<TNumber>
+    /// <returns>True if successful, false if unsuccessful.</returns>
+    public readonly bool TryReadInt16
+    (
+        out short value
+    )
     {
-        int value = BinaryPrimitives.ReadInt32BigEndian(this.CurrentTermContents);
+        if (this.TermType.IsInteger())
+        {
+            if (this.TermType.IsBigInteger())
+            {
+                if (this.CurrentTermContents.Length >= 3)
+                {
+                    value = this.ReadSignedIntegerFromBigInteger<short>();
+                    return true;
+                }
+            }
+            else
+            {
+                value = this.ReadInteger<short>();
+                return true;
+            }
+        }
 
-        return TNumber.CreateChecked(value);
+        value = default;
+        return false;
     }
 
     /// <summary>
-    /// Provides the implementation for performing a truncating read from a small-integer term.
+    /// Reads the current term as a ushort.
     /// </summary>
-    private readonly TNumber ReadFromByteTruncating<TNumber>()
-        where TNumber : IBinaryInteger<TNumber> 
-        => TNumber.CreateTruncating(MemoryMarshal.GetReference(this.CurrentTermContents));
+    /// <returns>True if successful, false if unsuccessful.</returns>
+    public readonly bool TryReadUInt16
+    (
+        out ushort value
+    )
+    {
+        if (this.TermType.IsInteger())
+        {
+            if (this.TermType.IsBigInteger())
+            {
+                if (this.CurrentTermContents.Length >= 3)
+                {
+                    value = this.ReadUnsignedIntegerFromBigInteger<ushort>();
+                    return true;
+                }
+            }
+            else
+            {
+                value = this.ReadInteger<ushort>();
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
+    }
 
     /// <summary>
-    /// Provides the implementation for performing a saturating read from a small-integer term.
+    /// Reads the current term as an int.
     /// </summary>
-    private readonly TNumber ReadFromByteSaturating<TNumber>()
-        where TNumber : IBinaryInteger<TNumber> 
-        => TNumber.CreateSaturating(MemoryMarshal.GetReference(this.CurrentTermContents));
+    /// <returns>True if successful, false if unsuccessful.</returns>
+    public readonly bool TryReadInt32
+    (
+        out int value
+    )
+    {
+        if (this.TermType.IsInteger())
+        {
+            if (this.TermType.IsBigInteger())
+            {
+                if (this.CurrentTermContents.Length >= 5)
+                {
+                    value = this.ReadSignedIntegerFromBigInteger<int>();
+                    return true;
+                }
+            }
+            else
+            {
+                value = this.ReadInteger<int>();
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
+    }
 
     /// <summary>
-    /// Provides the implementation for performing a checked read from a small-integer term.
+    /// Reads the current term as a uint.
     /// </summary>
-    private readonly TNumber ReadFromByteChecked<TNumber>()
-        where TNumber : IBinaryInteger<TNumber> 
-        => TNumber.CreateChecked(MemoryMarshal.GetReference(this.CurrentTermContents));
+    /// <returns>True if successful, false if unsuccessful.</returns>
+    public readonly bool TryReadUInt32
+    (
+        out uint value
+    )
+    {
+        if (this.TermType.IsInteger())
+        {
+            if (this.TermType.IsBigInteger())
+            {
+                if (this.CurrentTermContents.Length >= 5)
+                {
+                    value = this.ReadUnsignedIntegerFromBigInteger<uint>();
+                    return true;
+                }
+            }
+            else
+            {
+                value = this.ReadInteger<uint>();
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
+    }
+
+    /// <summary>
+    /// Reads the current term as a long.
+    /// </summary>
+    /// <returns>True if successful, false if unsuccessful.</returns>
+    public readonly bool TryReadInt64
+    (
+        out long value
+    )
+    {
+        if (this.TermType.IsInteger())
+        {
+            if (this.TermType.IsBigInteger())
+            {
+                if (this.CurrentTermContents.Length >= 9)
+                {
+                    value = this.ReadSignedIntegerFromBigInteger<long>();
+                    return true;
+                }
+            }
+            else
+            {
+                value = this.ReadInteger<long>();
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
+    }
+
+    /// <summary>
+    /// Reads the current term as a ulong.
+    /// </summary>
+    /// <returns>True if successful, false if unsuccessful.</returns>
+    public readonly bool TryReadUInt64
+    (
+        out ulong value
+    )
+    {
+        if (this.TermType.IsInteger())
+        {
+            if (this.TermType.IsBigInteger())
+            {
+                if (this.CurrentTermContents.Length >= 9)
+                {
+                    value = this.ReadUnsignedIntegerFromBigInteger<ulong>();
+                    return true;
+                }
+            }
+            else
+            {
+                value = this.ReadInteger<ulong>();
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
+    }
+
+    /// <summary>
+    /// Reads the current term as a BigInteger.
+    /// </summary>
+    /// <returns>True if successful, false if unsuccessful.</returns>
+    public readonly bool TryReadBigInteger
+    (
+        out BigInteger value
+    )
+    {
+        if (this.TermType.IsBigInteger())
+        {
+            value = this.ReadBigIntegerCore();
+            return true;
+        }
+        else if (this.TermType.IsInteger())
+        {
+            value = new BigInteger(this.ReadInteger<int>());
+            return true;
+        }
+
+        value = default;
+        return false;
+    }
+
+    /// <summary>
+    /// Reads the current term as an sbyte.
+    /// </summary>
+    public readonly sbyte ReadSByte()
+    {
+        if (this.TryReadSByte(out sbyte value))
+        {
+            return value;
+        }
+
+        ThrowHelper.ThrowInvalidDecode(typeof(sbyte));
+        return default;
+    }
+
+    /// <summary>
+    /// Reads the current term as a byte.
+    /// </summary>
+    public readonly byte ReadByte()
+    {
+        if (this.TryReadByte(out byte value))
+        {
+            return value;
+        }
+
+        ThrowHelper.ThrowInvalidDecode(typeof(byte));
+        return default;
+    }
+
+    /// <summary>
+    /// Reads the current term as a short.
+    /// </summary>
+    public readonly short ReadInt16()
+    {
+        if (this.TryReadInt16(out short value))
+        {
+            return value;
+        }
+
+        ThrowHelper.ThrowInvalidDecode(typeof(short));
+        return default;
+    }
+
+    /// <summary>
+    /// Reads the current term as a ushort.
+    /// </summary>
+    public readonly ushort ReadUInt16()
+    {
+        if (this.TryReadUInt16(out ushort value))
+        {
+            return value;
+        }
+
+        ThrowHelper.ThrowInvalidDecode(typeof(ushort));
+        return default;
+    }
+
+    /// <summary>
+    /// Reads the current term as an int.
+    /// </summary>
+    public readonly int ReadInt32()
+    {
+        if (this.TryReadInt32(out int value))
+        {
+            return value;
+        }
+
+        ThrowHelper.ThrowInvalidDecode(typeof(int));
+        return default;
+    }
+
+    /// <summary>
+    /// Reads the current term as a uint.
+    /// </summary>
+    public readonly uint ReadUInt32()
+    {
+        if (this.TryReadUInt32(out uint value))
+        {
+            return value;
+        }
+
+        ThrowHelper.ThrowInvalidDecode(typeof(uint));
+        return default;
+    }
+
+    /// <summary>
+    /// Reads the current term as a long.
+    /// </summary>
+    public readonly long ReadInt64()
+    {
+        if (this.TryReadInt64(out long value))
+        {
+            return value;
+        }
+
+        ThrowHelper.ThrowInvalidDecode(typeof(long));
+        return default;
+    }
+
+    /// <summary>
+    /// Reads the current term as a ulong.
+    /// </summary>
+    public readonly ulong ReadUInt64()
+    {
+        if (this.TryReadUInt64(out ulong value))
+        {
+            return value;
+        }
+
+        ThrowHelper.ThrowInvalidDecode(typeof(ulong));
+        return default;
+    }
+
+    /// <summary>
+    /// Reads the current term as a BigInteger.
+    /// </summary>
+    public readonly BigInteger ReadBigInteger()
+    {
+        if (this.TryReadBigInteger(out BigInteger value))
+        {
+            return value;
+        }
+
+        ThrowHelper.ThrowInvalidDecode(typeof(BigInteger));
+        return default;
+    }
 }
