@@ -1356,15 +1356,15 @@ public sealed class DiscordApiClient
     #endregion
 
     #region Channel
-    internal async Task<DiscordChannel> CreateGuildChannelAsync
+    internal async ValueTask<DiscordChannel> CreateGuildChannelAsync
     (
-        ulong guild_id,
+        ulong guildId,
         string name,
         ChannelType type,
         ulong? parent,
         Optional<string> topic,
         int? bitrate,
-        int? user_limit,
+        int? userLimit,
         IEnumerable<DiscordOverwriteBuilder> overwrites,
         bool? nsfw,
         Optional<int?> perUserRateLimit,
@@ -1378,12 +1378,12 @@ public sealed class DiscordApiClient
 
     )
     {
-        List<DiscordRestOverwrite> restoverwrites = new();
+        List<DiscordRestOverwrite> restOverwrites = new();
         if (overwrites != null)
         {
             foreach (DiscordOverwriteBuilder ow in overwrites)
             {
-                restoverwrites.Add(ow.Build());
+                restOverwrites.Add(ow.Build());
             }
         }
 
@@ -1394,8 +1394,8 @@ public sealed class DiscordApiClient
             Parent = parent,
             Topic = topic,
             Bitrate = bitrate,
-            UserLimit = user_limit,
-            PermissionOverwrites = restoverwrites,
+            UserLimit = userLimit,
+            PermissionOverwrites = restOverwrites,
             Nsfw = nsfw,
             PerUserRateLimit = perUserRateLimit,
             QualityMode = qualityMode,
@@ -1412,11 +1412,18 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.CHANNELS}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.POST, route, headers, DiscordJson.SerializeObject(pld));
+        RestRequest request = new()
+        {
+            Route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.CHANNELS}",
+            Url = new Uri($"${Endpoints.GUILDS}/{guildId}{Endpoints.CHANNELS}"),
+            Method = HttpMethod.Post,
+            Payload = DiscordJson.SerializeObject(pld),
+            Headers = headers
+        };
+        
+        
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         DiscordChannel ret = JsonConvert.DeserializeObject<DiscordChannel>(res.Response);
         ret.Discord = this._discord;
