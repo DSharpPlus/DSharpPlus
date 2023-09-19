@@ -20,18 +20,9 @@ public static class TermTypeExtensions
         => term is TermType.AtomUtf8 or TermType.SmallAtomUtf8 or TermType.String;
 
     /// <summary>
-    /// Determines whether this term can be represented in .NET as an int or higher.
+    /// Determines whether this term is an integer.
     /// </summary>
     public static bool IsInteger
-    (
-        this TermType term
-    )
-        => term is TermType.SmallInteger or TermType.Integer;
-
-    /// <summary>
-    /// Determines whether this term can be represented in .NET as a BigInteger.
-    /// </summary>
-    public static bool IsBigInteger
     (
         this TermType term
     )
@@ -45,4 +36,13 @@ public static class TermTypeExtensions
         this TermType term
     )
         => term is TermType.SmallTuple or TermType.LargeTuple;
+
+    /// <summary>
+    /// Determines whether this term is a float.
+    /// </summary>
+    public static bool IsFloat
+    (
+        this TermType term
+    )
+        => term is TermType.Float or TermType.NewFloat;
 }
