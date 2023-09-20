@@ -59,7 +59,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// The default reaction shown on posts when they are created.
         /// </summary>
-        [JsonProperty("default_reaction", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("default_reaction_emoji", NullValueHandling = NullValueHandling.Ignore)]
         public DefaultReaction? DefaultReaction { get; internal set; }
 
         /// <summary>

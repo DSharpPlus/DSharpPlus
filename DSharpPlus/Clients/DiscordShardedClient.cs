@@ -440,8 +440,8 @@ namespace DSharpPlus
             this._socketErrored = new AsyncEvent<DiscordClient, SocketErrorEventArgs>("SOCKET_ERRORED", this.Goof);
             this._socketOpened = new AsyncEvent<DiscordClient, SocketEventArgs>("SOCKET_OPENED", this.EventErrorHandler);
             this._socketClosed = new AsyncEvent<DiscordClient, SocketCloseEventArgs>("SOCKET_CLOSED", this.EventErrorHandler);
-            this._ready = new AsyncEvent<DiscordClient, ReadyEventArgs>("READY", this.EventErrorHandler);
-            this._resumed = new AsyncEvent<DiscordClient, ReadyEventArgs>("RESUMED", this.EventErrorHandler);
+            this._ready = new AsyncEvent<DiscordClient, SessionReadyEventArgs>("READY", this.EventErrorHandler);
+            this._resumed = new AsyncEvent<DiscordClient, SessionReadyEventArgs>("RESUMED", this.EventErrorHandler);
             this._channelCreated = new AsyncEvent<DiscordClient, ChannelCreateEventArgs>("CHANNEL_CREATED", this.EventErrorHandler);
             this._channelUpdated = new AsyncEvent<DiscordClient, ChannelUpdateEventArgs>("CHANNEL_UPDATED", this.EventErrorHandler);
             this._channelDeleted = new AsyncEvent<DiscordClient, ChannelDeleteEventArgs>("CHANNEL_DELETED", this.EventErrorHandler);
@@ -489,9 +489,7 @@ namespace DSharpPlus
             this._webhooksUpdated = new AsyncEvent<DiscordClient, WebhooksUpdateEventArgs>("WEBHOOKS_UPDATED", this.EventErrorHandler);
             this._heartbeated = new AsyncEvent<DiscordClient, HeartbeatEventArgs>("HEARTBEATED", this.EventErrorHandler);
             this._zombied = new AsyncEvent<DiscordClient, ZombiedEventArgs>("ZOMBIED", this.EventErrorHandler);
-            this._applicationCommandCreated = new AsyncEvent<DiscordClient, ApplicationCommandEventArgs>("APPLICATION_COMMAND_CREATED", this.EventErrorHandler);
-            this._applicationCommandUpdated = new AsyncEvent<DiscordClient, ApplicationCommandEventArgs>("APPLICATION_COMMAND_UPDATED", this.EventErrorHandler);
-            this._applicationCommandDeleted = new AsyncEvent<DiscordClient, ApplicationCommandEventArgs>("APPLICATION_COMMAND_DELETED", this.EventErrorHandler);
+            this._applicationCommandPermissionsUpdated = new AsyncEvent<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs>("APPLICATION_COMMAND_PERMISSIONS_UPDATED", this.EventErrorHandler);
             this._integrationCreated = new AsyncEvent<DiscordClient, IntegrationCreateEventArgs>("INTEGRATION_CREATED", this.EventErrorHandler);
             this._integrationUpdated = new AsyncEvent<DiscordClient, IntegrationUpdateEventArgs>("INTEGRATION_UPDATED", this.EventErrorHandler);
             this._integrationDeleted = new AsyncEvent<DiscordClient, IntegrationDeleteEventArgs>("INTEGRATION_DELETED", this.EventErrorHandler);
@@ -515,8 +513,8 @@ namespace DSharpPlus
             client.SocketErrored += this.Client_SocketError;
             client.SocketOpened += this.Client_SocketOpened;
             client.SocketClosed += this.Client_SocketClosed;
-            client.Ready += this.Client_Ready;
-            client.Resumed += this.Client_Resumed;
+            client.SessionCreated += this.Client_Ready;
+            client.SessionResumed += this.Client_Resumed;
             client.ChannelCreated += this.Client_ChannelCreated;
             client.ChannelUpdated += this.Client_ChannelUpdated;
             client.ChannelDeleted += this.Client_ChannelDeleted;
@@ -587,8 +585,8 @@ namespace DSharpPlus
             client.SocketErrored -= this.Client_SocketError;
             client.SocketOpened -= this.Client_SocketOpened;
             client.SocketClosed -= this.Client_SocketClosed;
-            client.Ready -= this.Client_Ready;
-            client.Resumed -= this.Client_Resumed;
+            client.SessionCreated -= this.Client_Ready;
+            client.SessionResumed -= this.Client_Resumed;
             client.ChannelCreated -= this.Client_ChannelCreated;
             client.ChannelUpdated -= this.Client_ChannelUpdated;
             client.ChannelDeleted -= this.Client_ChannelDeleted;

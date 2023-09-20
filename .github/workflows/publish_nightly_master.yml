@@ -1,4 +1,5 @@
 name: .NET Build
+
 on:
   push:
     branches:
@@ -7,7 +8,9 @@ on:
     branches:
       - master
     paths:
+      - ".github/workflows/publish_nightly_master.yml"
       - "DSharpPlus*/**"
+      - "tools/**"
 
 env:
   DOTNET_NOLOGO: 1
@@ -24,32 +27,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          fetch-depth: '0'
+          fetch-depth: "0"
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 7.0.103
+          dotnet-version: 7
       - name: Package
-        run: "mkdir build && dotnet pack -o build --include-symbols --include-source -p:SymbolPackageFormat=snupkg -p:VersionSuffix='nightly' -p:BuildNumber=$(printf \"%0*d\n\" 5 $(( 1195 + ${{ github.run_number }} )))" # We add 1195 since it's the last build number AppVeyor used.
+        # If the package version does not comply with SemVer, it will be set as a pre-release version automatically.
+        # We add 1195 since it's the last build number AppVeyor used.
+        run: dotnet pack -o build -p:Nightly=$(printf \"%0*d\" 5 $(( 1195 + ${{ github.run_number }} )))
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: DSharpPlus-Nightly-${{ github.run_number }}∕${{ github.run_attempt }}
+          name: DSharpPlus-Nightly-${{ github.run_number }}-${{ github.run_attempt }}.zip
           path: ./build/*
       - name: Publish nightly NuGet packages
-        if: ${{ github.event_name == 'push' }} # Ensure we don't push nightlies to the nuget feed on PRs.
-        run: "dotnet nuget push \"build/*\" -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json" # If the package version does not comply with SemVer, it will be set as a pre-release version automatically.
-      - name: Export latest tag
-        if: ${{ github.event_name == 'push' }} # Only update channel topic when a PR is merged
-        run: echo LATEST_STABLE_VERSION=$(git describe --tags $(git rev-list --tags --max-count=1)) >> $GITHUB_ENV
-      - name: Update Discord channel topic
-        if: ${{ github.event_name == 'push' }} # Only update channel topic when a PR is merged
-        run: "dotnet run --project ./tools/AutoUpdateChannelDescription -p:VersionSuffix='nightly' -p:BuildNumber=$(printf \"%0*d\n\" 5 $(( 1195 + ${{ github.run_number }} )))"
+        # Ensure we don't push nightlies to the nuget feed on PRs.
+        if: github.event.pull_request == null
+        run: |
+          echo LATEST_STABLE_VERSION=$(git describe --tags $(git rev-list --tags --max-count=1)) >> $GITHUB_ENV
+          dotnet nuget push "build/*" --skip-duplicate -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json
+          dotnet run --project ./tools/AutoUpdateChannelDescription -p:VersionSuffix='nightly' -p:BuildNumber=$(printf \"%0*d\" 5 $(( 1195 + ${{ github.run_number }} )))
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
           DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
           DISCORD_CHANNEL_TOPIC: ${{ secrets.DISCORD_CHANNEL_TOPIC }}
           NUGET_URL: ${{ secrets.NUGET_URL }}
-          GITHUB_URL : ${{ github.server_url }}/${{ github.repository }}
-          LATEST_STABLE_VERSION: ${{ env.LATEST_STABLE_VERSION }}
+          GITHUB_URL: ${{ github.server_url }}/${{ github.repository }}

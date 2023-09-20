@@ -31,6 +31,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
@@ -198,6 +199,14 @@ namespace DSharpPlus
                         return;
 
                     await this.OnGuildIntegrationsUpdateEventAsync(this._guilds[gid]);
+                    break;
+                
+                case "guild_audit_log_entry_create":
+                    gid = (ulong)dat["guild_id"];
+                    DiscordGuild guild = _guilds[gid];
+                    AuditLogAction auditLogAction = dat.ToDiscordObject<AuditLogAction>();
+                    DiscordAuditLogEntry entry = await AuditLogParser.ParseAuditLogEntryAsync(guild, auditLogAction);
+                    await this.OnGuildAuditLogEntryCreateEventAsync(guild, entry);
                     break;
 
                 #endregion
@@ -463,22 +472,7 @@ namespace DSharpPlus
                     cid = (ulong)dat["channel_id"];
                     await this.OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, dat.ToDiscordObject<DiscordInteraction>());
                     break;
-
-                case "application_command_create":
-                    await this.OnApplicationCommandCreateAsync(dat.ToDiscordObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]);
-                    break;
-
-                case "application_command_update":
-                    await this.OnApplicationCommandUpdateAsync(dat.ToDiscordObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]);
-                    break;
-
-                case "application_command_permissions_update":
-                    await this.OnApplicationCommandPermissionsUpdateAsync(dat);
-                    break;
-
-                case "application_command_delete":
-                    await this.OnApplicationCommandDeleteAsync(dat.ToDiscordObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]);
-                    break;
+                
 
                 case "integration_create":
                     await this.OnIntegrationCreateAsync(dat.ToDiscordObject<DiscordIntegration>(), (ulong)dat["guild_id"]);
@@ -492,6 +486,9 @@ namespace DSharpPlus
                     await this.OnIntegrationDeleteAsync((ulong)dat["id"], (ulong)dat["guild_id"], (ulong?)dat["application_id"]);
                     break;
 
+                case "application_command_permissions_update":
+                    await this.OnApplicationCommandPermissionsUpdateAsync(dat);
+                    break;
                 #endregion
 
                 #region Stage Instance
@@ -566,7 +563,6 @@ namespace DSharpPlus
                 #endregion
             }
         }
-
 
         #endregion
 
@@ -681,13 +677,13 @@ namespace DSharpPlus
                 this._guilds[guild.Id] = guild;
             }
 
-            await this._ready.InvokeAsync(this, new ReadyEventArgs());
+            await this._ready.InvokeAsync(this, new SessionReadyEventArgs());
         }
 
         internal Task OnResumedAsync()
         {
             this.Logger.LogInformation(LoggerEvents.SessionUpdate, "Session resumed");
-            return this._resumed.InvokeAsync(this, new ReadyEventArgs());
+            return this._resumed.InvokeAsync(this, new SessionReadyEventArgs());
         }
 
         #endregion
@@ -1214,6 +1210,16 @@ namespace DSharpPlus
             };
             await this._guildIntegrationsUpdated.InvokeAsync(this, ea);
         }
+        
+        private async Task OnGuildAuditLogEntryCreateEventAsync(DiscordGuild guild, DiscordAuditLogEntry auditLogEntry)
+        {
+            GuildAuditLogCreatedEventArgs ea = new()
+            {
+                Guild = guild,
+                AuditLogEntry = auditLogEntry
+            };
+            await _guildAuditLogCreated.InvokeAsync(this, ea);
+        }
 
         #endregion
 
@@ -1505,7 +1511,7 @@ namespace DSharpPlus
 
         internal async Task OnMessageAckEventAsync(DiscordChannel chn, ulong messageId)
         {
-            if (this.MessageCache == null || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == chn.Id, out var msg))
+            if (this.MessageCache == null || !this.MessageCache.TryGet(messageId, out var msg))
             {
                 msg = new DiscordMessage
                 {
@@ -1558,7 +1564,7 @@ namespace DSharpPlus
             DiscordMessage oldmsg = null;
             if (this.Configuration.MessageCacheSize == 0
                 || this.MessageCache == null
-                || !this.MessageCache.TryGet(xm => xm.Id == event_message.Id && xm.ChannelId == event_message.ChannelId, out message)) // previous message was not in cache
+                || !this.MessageCache.TryGet(event_message.Id, out message)) // previous message was not in cache
             {
                 message = event_message;
                 this.PopulateMessageReactionsAndCache(message, author, member);
@@ -1631,7 +1637,7 @@ namespace DSharpPlus
             if (channel == null
                 || this.Configuration.MessageCacheSize == 0
                 || this.MessageCache == null
-                || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
+                || !this.MessageCache.TryGet(messageId, out var msg))
             {
                 msg = new DiscordMessage
                 {
@@ -1643,7 +1649,7 @@ namespace DSharpPlus
             }
 
             if (this.Configuration.MessageCacheSize > 0)
-                this.MessageCache?.Remove(xm => xm.Id == msg.Id && xm.ChannelId == channelId);
+                this.MessageCache?.Remove(msg.Id);
 
             var ea = new MessageDeleteEventArgs
             {
@@ -1664,7 +1670,7 @@ namespace DSharpPlus
                 if (channel == null
                     || this.Configuration.MessageCacheSize == 0
                     || this.MessageCache == null
-                    || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
+                    || !this.MessageCache.TryGet(messageId, out var msg))
                 {
                     msg = new DiscordMessage
                     {
@@ -1674,7 +1680,7 @@ namespace DSharpPlus
                     };
                 }
                 if (this.Configuration.MessageCacheSize > 0)
-                    this.MessageCache?.Remove(xm => xm.Id == msg.Id && xm.ChannelId == channelId);
+                    this.MessageCache?.Remove(msg.Id);
                 msgs.Add(msg);
             }
 
@@ -1726,7 +1732,7 @@ namespace DSharpPlus
             if (channel == null
                 || this.Configuration.MessageCacheSize == 0
                 || this.MessageCache == null
-                || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
+                || !this.MessageCache.TryGet(messageId, out var msg))
             {
                 msg = new DiscordMessage
                 {
@@ -1792,7 +1798,7 @@ namespace DSharpPlus
             if (channel == null
                 || this.Configuration.MessageCacheSize == 0
                 || this.MessageCache == null
-                || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
+                || !this.MessageCache.TryGet(messageId, out var msg))
             {
                 msg = new DiscordMessage
                 {
@@ -1836,7 +1842,7 @@ namespace DSharpPlus
             if (channel == null
                 || this.Configuration.MessageCacheSize == 0
                 || this.MessageCache == null
-                || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
+                || !this.MessageCache.TryGet(messageId, out var msg))
             {
                 msg = new DiscordMessage
                 {
@@ -1878,7 +1884,7 @@ namespace DSharpPlus
             if (channel == null
                 || this.Configuration.MessageCacheSize == 0
                 || this.MessageCache == null
-                || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
+                || !this.MessageCache.TryGet(messageId, out var msg))
             {
                 msg = new DiscordMessage
                 {
@@ -2257,89 +2263,8 @@ namespace DSharpPlus
         }
 
         #endregion
+        
 
-        #region Commands
-
-        internal async Task OnApplicationCommandCreateAsync(DiscordApplicationCommand cmd, ulong? guild_id)
-        {
-            cmd.Discord = this;
-
-            var guild = this.InternalGetCachedGuild(guild_id);
-
-            if (guild == null && guild_id.HasValue)
-            {
-                guild = new DiscordGuild
-                {
-                    Id = guild_id.Value,
-                    Discord = this
-                };
-            }
-
-            var ea = new ApplicationCommandEventArgs
-            {
-                Guild = guild,
-                Command = cmd
-            };
-
-            await this._applicationCommandCreated.InvokeAsync(this, ea);
-        }
-
-        internal async Task OnApplicationCommandUpdateAsync(DiscordApplicationCommand cmd, ulong? guild_id)
-        {
-            cmd.Discord = this;
-
-            var guild = this.InternalGetCachedGuild(guild_id);
-
-            if (guild == null && guild_id.HasValue)
-            {
-                guild = new DiscordGuild
-                {
-                    Id = guild_id.Value,
-                    Discord = this
-                };
-            }
-
-            var ea = new ApplicationCommandEventArgs
-            {
-                Guild = guild,
-                Command = cmd
-            };
-
-            await this._applicationCommandUpdated.InvokeAsync(this, ea);
-        }
-
-        internal async Task OnApplicationCommandPermissionsUpdateAsync(JObject obj)
-        {
-            var ev = obj.ToObject<ApplicationCommandPermissionsUpdatedEventArgs>();
-
-            await this._applicationCommandPermissionsUpdated.InvokeAsync(this, ev);
-        }
-
-        internal async Task OnApplicationCommandDeleteAsync(DiscordApplicationCommand cmd, ulong? guild_id)
-        {
-            cmd.Discord = this;
-
-            var guild = this.InternalGetCachedGuild(guild_id);
-
-            if (guild == null && guild_id.HasValue)
-            {
-                guild = new DiscordGuild
-                {
-                    Id = guild_id.Value,
-                    Discord = this
-                };
-            }
-
-            var ea = new ApplicationCommandEventArgs
-            {
-                Guild = guild,
-                Command = cmd
-            };
-
-            await this._applicationCommandDeleted.InvokeAsync(this, ea);
-        }
-
-        #endregion
 
         #region Integration
 
@@ -2408,6 +2333,17 @@ namespace DSharpPlus
             };
 
             await this._integrationDeleted.InvokeAsync(this, ea);
+        }
+
+        #endregion
+
+        #region Commands
+
+        internal async Task OnApplicationCommandPermissionsUpdateAsync(JObject obj)
+        {
+            ApplicationCommandPermissionsUpdatedEventArgs? ev = obj.ToObject<ApplicationCommandPermissionsUpdatedEventArgs>();
+
+            await this._applicationCommandPermissionsUpdated.InvokeAsync(this, ev);
         }
 
         #endregion
@@ -2674,16 +2610,19 @@ namespace DSharpPlus
         #region AutoModeration
         internal async Task OnAutoModerationRuleCreateAsync(DiscordAutoModerationRule ruleCreated)
         {
+            ruleCreated.Discord = this;
             await this._autoModerationRuleCreated.InvokeAsync(this, new AutoModerationRuleCreateEventArgs { Rule = ruleCreated });
         }
 
         internal async Task OnAutoModerationRuleUpdatedAsync(DiscordAutoModerationRule ruleUpdated)
         {
+            ruleUpdated.Discord = this;
             await this._autoModerationRuleUpdated.InvokeAsync(this, new AutoModerationRuleUpdateEventArgs { Rule = ruleUpdated });
         }
 
         internal async Task OnAutoModerationRuleDeletedAsync(DiscordAutoModerationRule ruleDeleted)
         {
+            ruleDeleted.Discord = this;
             await this._autoModerationRuleDeleted.InvokeAsync(this, new AutoModerationRuleDeleteEventArgs { Rule = ruleDeleted });
         }
 

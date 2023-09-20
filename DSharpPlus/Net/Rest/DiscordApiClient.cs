@@ -2097,6 +2097,7 @@ public sealed class DiscordApiClient
             RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
             DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
+          
             return ret;
         }
         else

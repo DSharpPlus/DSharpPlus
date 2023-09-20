@@ -9,6 +9,5 @@
     <PackageVersion Include="DSharpPlus.VoiceNext.Natives" Version="1.0.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="Polly" Version="7.2.3" />
-    <PackageVersion Include="System.Text.Json" Version="8.0.0-preview.2.23128.3" />
   </ItemGroup>
 </Project>

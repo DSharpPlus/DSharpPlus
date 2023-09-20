@@ -36,9 +36,21 @@ namespace DSharpPlus.Entities
         public ulong? EmojiId { get; internal set; }
 
         /// <summary>
-        /// The unicoide emoji, if applicable.
+        /// The unicode emoji, if applicable.
         /// </summary>
         [JsonProperty("emoji_name")]
-        public string EmojiName { get; internal set; }
+        public string? EmojiName { get; internal set; }
+                
+        /// <summary>
+        /// Creates a DefaultReaction object from an emoji.
+        /// </summary>
+        /// <param name="emoji">The <see cref="DiscordEmoji"/>.</param>
+        /// <returns>Create <see cref="DefaultReaction"/> object.</returns>
+        public static DefaultReaction FromEmoji(DiscordEmoji emoji)
+        {
+            return emoji.Id == 0
+                ? new DefaultReaction { EmojiName = emoji.Name }
+                : new DefaultReaction { EmojiId = emoji.Id };
+        }
     }
 }

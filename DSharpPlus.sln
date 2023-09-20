@@ -5,8 +5,6 @@ VisualStudioVersion = 17.5.33209.295
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus", "DSharpPlus\DSharpPlus.csproj", "{EB3D8310-DFAD-4295-97F9-82E253647583}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Test", "DSharpPlus.Test\DSharpPlus.Test.csproj", "{4E5AD259-70F1-48AD-A94E-0D1CABDB8AE6}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.VoiceNext", "DSharpPlus.VoiceNext\DSharpPlus.VoiceNext.csproj", "{FB6B9EE9-65FB-4DFB-8D51-06F0BE6C1BA5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4255B64D-92EC-46B3-BC3B-ED2C3A8073EE}"
@@ -56,9 +54,6 @@ Global
 		{EB3D8310-DFAD-4295-97F9-82E253647583}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB3D8310-DFAD-4295-97F9-82E253647583}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB3D8310-DFAD-4295-97F9-82E253647583}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4E5AD259-70F1-48AD-A94E-0D1CABDB8AE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4E5AD259-70F1-48AD-A94E-0D1CABDB8AE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4E5AD259-70F1-48AD-A94E-0D1CABDB8AE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB6B9EE9-65FB-4DFB-8D51-06F0BE6C1BA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FB6B9EE9-65FB-4DFB-8D51-06F0BE6C1BA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB6B9EE9-65FB-4DFB-8D51-06F0BE6C1BA5}.Release|Any CPU.ActiveCfg = Release|Any CPU

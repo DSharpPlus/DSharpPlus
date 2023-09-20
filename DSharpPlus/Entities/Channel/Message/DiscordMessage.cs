@@ -347,7 +347,7 @@ namespace DSharpPlus.Entities
 
             else reference.Channel = channel;
 
-            if (client.MessageCache != null && client.MessageCache.TryGet(m => m.Id == messageId.Value && m.ChannelId == channelId, out var msg))
+            if (client.MessageCache != null && client.MessageCache.TryGet(messageId.Value, out var msg))
                 reference.Message = msg;
 
             else
@@ -388,56 +388,39 @@ namespace DSharpPlus.Entities
             this._mentionedRoles ??= new List<DiscordRole>();
             this._mentionedChannels ??= new List<DiscordChannel>();
 
+            // Create a Hashset that will replace 'this._mentionedUsers'.
             var mentionedUsers = new HashSet<DiscordUser>(new DiscordUserComparer());
-            if (guild != null)
-            {
-                foreach (var usr in this._mentionedUsers)
-                {
-                    var member = usr as DiscordMember;
-                    if (member != null)
-                    {
-                        this.Discord.UpdateUserCache(new DiscordUser()
-                        {
-                            Id = member.Id,
-                            Username = member.Username,
-                            Discriminator = member.Discriminator,
-                            AvatarHash = member.AvatarHash,
-                            _bannerColor = member._bannerColor,
-                            BannerHash = member.BannerHash,
-                            IsBot = member.IsBot,
-                            MfaEnabled = member.MfaEnabled,
-                            Verified = member.Verified,
-                            Email = member.Email,
-                            PremiumType = member.PremiumType,
-                            Locale = member.Locale,
-                            Flags = member.Flags,
-                            OAuthFlags = member.OAuthFlags,
-                            Discord = this.Discord
-                        });
-                    }
-                    else
-                    {
-                        usr.Discord = this.Discord;
-                        this.Discord.UpdateUserCache(usr);
-                    }
 
-                    mentionedUsers.Add(member ?? (guild._members.TryGetValue(usr.Id, out var cachedMember) ? cachedMember : usr));
+            foreach (var usr in this._mentionedUsers)
+            {
+                // Assign the Discord instance and update the user cache.
+                usr.Discord = this.Discord;
+                this.Discord.UpdateUserCache(usr);
+
+                if (guild != null && usr is not DiscordMember && guild._members.TryGetValue(usr.Id, out var cachedMember))
+                {
+                    // If the message is from a guild, but a discord member isn't provided, try to get the discord member out of guild members cache.
+                    mentionedUsers.Add(cachedMember);
+                }
+                else
+                {
+                    // Add provided user otherwise.
+                    mentionedUsers.Add(usr);
                 }
             }
-            if (!string.IsNullOrWhiteSpace(this.Content))
+
+            // Replace 'this._mentionedUsers'.
+            this._mentionedUsers = mentionedUsers.ToList();
+
+            if (guild != null && !string.IsNullOrWhiteSpace(this.Content))
             {
+                this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(xid => guild.GetChannel(xid))).ToList();
+                this._mentionedRoles = this._mentionedRoles.Union(this._mentionedRoleIds.Select(xid => guild.GetRole(xid))).ToList();
+
                 //uncomment if this breaks
                 //mentionedUsers.UnionWith(Utilities.GetUserMentions(this).Select(this.Discord.GetCachedOrEmptyUserInternal));
-
-                if (guild != null)
-                {
-                    //uncomment if this breaks
-                    //this._mentionedRoles = this._mentionedRoles.Union(Utilities.GetRoleMentions(this).Select(xid => guild.GetRole(xid))).ToList();
-                    this._mentionedRoles = this._mentionedRoles.Union(this._mentionedRoleIds.Select(xid => guild.GetRole(xid))).ToList();
-                    this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(xid => guild.GetChannel(xid))).ToList();
-                }
+                //this._mentionedRoles = this._mentionedRoles.Union(Utilities.GetRoleMentions(this).Select(xid => guild.GetRole(xid))).ToList();
             }
-            this._mentionedUsers = mentionedUsers.ToList();
         }
 
         /// <summary>

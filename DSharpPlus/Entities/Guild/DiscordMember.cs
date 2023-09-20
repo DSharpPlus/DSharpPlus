@@ -94,7 +94,7 @@ namespace DSharpPlus.Entities
         /// Gets this member's display name.
         /// </summary>
         [JsonIgnore]
-        public string DisplayName => this.Nickname ?? this.Username;
+        public string DisplayName => this.Nickname ?? this.GlobalName ?? this.Username;
 
         /// <summary>
         /// How long this member's communication will be suppressed for.
@@ -324,6 +324,16 @@ namespace DSharpPlus.Entities
         {
             get => this.User.Flags;
             internal set => this.User.Flags = value;
+        }
+
+        /// <summary>
+        /// Gets the member's global display name.
+        /// </summary>
+        [JsonIgnore]
+        public override string? GlobalName
+        {
+            get => this.User.GlobalName;
+            internal set => this.User.GlobalName = value;
         }
         #endregion
 

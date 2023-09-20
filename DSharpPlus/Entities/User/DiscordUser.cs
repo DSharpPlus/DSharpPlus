@@ -42,6 +42,7 @@ namespace DSharpPlus.Entities
             this.Id = transport.Id;
             this.Username = transport.Username;
             this.Discriminator = transport.Discriminator;
+            this.GlobalName = transport.GlobalDisplayName;
             this.AvatarHash = transport.AvatarHash;
             this._bannerColor = transport.BannerColor;
             this.BannerHash = transport.BannerHash;
@@ -62,8 +63,21 @@ namespace DSharpPlus.Entities
         public virtual string Username { get; internal set; }
 
         /// <summary>
+        /// Gets this user's global display name.
+        /// </summary>
+        /// <remarks>
+        /// A global display name differs from a username in that it acts like a nickname, but is not specific to a single guild.
+        /// Nicknames in servers however still take precedence over global names, which take precedence over usernames.
+        /// </remarks>
+        [JsonProperty("global_name", NullValueHandling = NullValueHandling.Ignore)]
+        public virtual string GlobalName { get; internal set; }
+
+        /// <summary>
         /// Gets the user's 4-digit discriminator.
         /// </summary>
+        /// <remarks>
+        /// As of May 15th, 2023, Discord has begun phasing out discriminators in favor of handles (@username); this property will return "0" for migrated accounts.
+        /// </remarks>
         [JsonProperty("discriminator", NullValueHandling = NullValueHandling.Ignore)]
         public virtual string Discriminator { get; internal set; }
 
@@ -111,7 +125,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public string DefaultAvatarUrl
-            => $"https://cdn.discordapp.com/embed/avatars/{(this.DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture)}.png?size=1024";
+            => $"https://cdn.discordapp.com/embed/avatars/{(this.DiscriminatorInt is 0 ? (this.Id >> 22) % 6 : (ulong)this.DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture)}.png?size=1024";
 
         /// <summary>
         /// Gets whether the user is a bot.
