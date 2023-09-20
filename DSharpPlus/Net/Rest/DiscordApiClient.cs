@@ -33,6 +33,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
+using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.Enums;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
@@ -1913,7 +1914,7 @@ public sealed class DiscordApiClient
     internal async ValueTask<DiscordMessage> CreateMessageAsync
     (
         ulong channelId, 
-        string content, 
+        string? content, 
         IEnumerable<DiscordEmbed>? embeds, 
         ulong? replyMessageId, 
         bool mentionReply, 

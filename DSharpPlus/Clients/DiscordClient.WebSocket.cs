@@ -136,12 +136,14 @@ namespace DSharpPlus
             this._webSocketClient.MessageReceived += SocketOnMessage;
             this._webSocketClient.ExceptionThrown += SocketOnException;
 
-            var gwuri = new QueryUriBuilder(this.GatewayUri)
+            QueryUriBuilder gwuri = new QueryUriBuilder(this.GatewayUri.ToString())
                 .AddParameter("v", "10")
                 .AddParameter("encoding", "json");
 
             if (this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Stream)
+            {
                 gwuri.AddParameter("compress", "zlib-stream");
+            }
 
             await this._webSocketClient.ConnectAsync(gwuri.Build());
 

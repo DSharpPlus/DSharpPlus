@@ -90,8 +90,8 @@ public class DiscordAutoModerationRule : SnowflakeObject
     /// Deletes the rule in the guild.
     /// </summary>
     /// <param name="reason">Reason for audits logs.</param>
-    public Task DeleteAsync(string reason = null)
-        => this.Discord.ApiClient.DeleteGuildAutoModerationRuleAsync(this.GuildId, this.Id, reason);
+    public async Task DeleteAsync(string reason = null)
+        => await this.Discord.ApiClient.DeleteGuildAutoModerationRuleAsync(this.GuildId, this.Id, reason);
 
     /// <summary>
     /// Modify the rule in the guild.

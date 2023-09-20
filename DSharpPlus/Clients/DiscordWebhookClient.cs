@@ -102,7 +102,7 @@ namespace DSharpPlus
 
             var parsedTimeout = timeout ?? TimeSpan.FromSeconds(10);
 
-            this._apiclient = new DiscordApiClient(proxy, parsedTimeout, useRelativeRateLimit, this.Logger);
+            this._apiclient = new DiscordApiClient(proxy, parsedTimeout, this.Logger);
             this._hooks = new List<DiscordWebhook>();
             this.Webhooks = new ReadOnlyCollection<DiscordWebhook>(this._hooks);
         }

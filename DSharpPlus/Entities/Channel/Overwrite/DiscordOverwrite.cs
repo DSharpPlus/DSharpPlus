@@ -59,7 +59,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="reason">Reason as to why this overwrite gets deleted.</param>
         /// <returns></returns>
-        public Task DeleteAsync(string reason = null) => this.Discord.ApiClient.DeleteChannelPermissionAsync(this._channel_id, this.Id, reason);
+        public async Task DeleteAsync(string reason = null) => await this.Discord.ApiClient.DeleteChannelPermissionAsync(this._channel_id, this.Id, reason);
 
         /// <summary>
         /// Updates this channel overwrite.
@@ -72,8 +72,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the overwrite does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task UpdateAsync(Permissions? allow = null, Permissions? deny = null, string reason = null)
-            => this.Discord.ApiClient.EditChannelPermissionsAsync(this._channel_id, this.Id, allow ?? this.Allowed, deny ?? this.Denied, this.Type.ToString().ToLowerInvariant(), reason);
+        public async Task UpdateAsync(Permissions? allow = null, Permissions? deny = null, string reason = null)
+            => await this.Discord.ApiClient.EditChannelPermissionsAsync(this._channel_id, this.Id, allow ?? this.Allowed, deny ?? this.Denied, this.Type.ToString().ToLowerInvariant(), reason);
         #endregion
 
         /// <summary>

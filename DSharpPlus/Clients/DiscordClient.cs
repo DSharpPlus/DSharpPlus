@@ -378,15 +378,15 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="stickerId">The ID of the sticker.</param>
         /// <returns>The specified sticker</returns>
-        public Task<DiscordMessageSticker> GetStickerAsync(ulong stickerId)
-            => this.ApiClient.GetStickerAsync(stickerId);
+        public async Task<DiscordMessageSticker> GetStickerAsync(ulong stickerId)
+            => await this.ApiClient.GetStickerAsync(stickerId);
 
         /// <summary>
         /// Gets a collection of sticker packs that may be used by nitro users.
         /// </summary>
         /// <returns></returns>
-        public Task<IReadOnlyList<DiscordMessageStickerPack>> GetStickerPacksAsync()
-            => this.ApiClient.GetStickerPacksAsync();
+        public async Task<IReadOnlyList<DiscordMessageStickerPack>> GetStickerPacksAsync()
+            => await this.ApiClient.GetStickerPacksAsync();
 
         /// <summary>
         /// Gets a user
@@ -430,8 +430,8 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content)
-            => this.ApiClient.CreateMessageAsync(channel.Id, content, embeds: null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
+        public async Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content)
+            => await this.ApiClient.CreateMessageAsync(channel.Id, content, embeds: null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
 
         /// <summary>
         /// Sends a message
@@ -443,8 +443,8 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, DiscordEmbed embed)
-            => this.ApiClient.CreateMessageAsync(channel.Id, null, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
+        public async Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, DiscordEmbed embed)
+            => await this.ApiClient.CreateMessageAsync(channel.Id, null, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
 
         /// <summary>
         /// Sends a message
@@ -457,8 +457,8 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content, DiscordEmbed embed)
-            => this.ApiClient.CreateMessageAsync(channel.Id, content, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
+        public async Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content, DiscordEmbed embed)
+            => await this.ApiClient.CreateMessageAsync(channel.Id, content, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
 
         /// <summary>
         /// Sends a message
@@ -470,8 +470,8 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, DiscordMessageBuilder builder)
-            => this.ApiClient.CreateMessageAsync(channel.Id, builder);
+        public async Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, DiscordMessageBuilder builder)
+            => await this.ApiClient.CreateMessageAsync(channel.Id, builder);
 
         /// <summary>
         /// Sends a message
@@ -483,12 +483,12 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, Action<DiscordMessageBuilder> action)
+        public async Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, Action<DiscordMessageBuilder> action)
         {
-            var builder = new DiscordMessageBuilder();
+            DiscordMessageBuilder builder = new DiscordMessageBuilder();
             action(builder);
 
-            return this.ApiClient.CreateMessageAsync(channel.Id, builder);
+            return await this.ApiClient.CreateMessageAsync(channel.Id, builder);
         }
 
         /// <summary>
@@ -504,7 +504,7 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordGuild> CreateGuildAsync(string name, string region = null, Optional<Stream> icon = default, VerificationLevel? verificationLevel = null,
+        public async Task<DiscordGuild> CreateGuildAsync(string name, string region = null, Optional<Stream> icon = default, VerificationLevel? verificationLevel = null,
             DefaultMessageNotifications? defaultMessageNotifications = null,
             SystemChannelFlags? systemChannelFlags = null)
         {
@@ -515,7 +515,7 @@ namespace DSharpPlus
             else if (icon.HasValue)
                 iconb64 = null;
 
-            return this.ApiClient.CreateGuildAsync(name, region, iconb64, verificationLevel, defaultMessageNotifications, systemChannelFlags);
+            return await this.ApiClient.CreateGuildAsync(name, region, iconb64, verificationLevel, defaultMessageNotifications, systemChannelFlags);
         }
 
         /// <summary>
@@ -527,7 +527,7 @@ namespace DSharpPlus
         /// <returns>The created guild.</returns>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordGuild> CreateGuildFromTemplateAsync(string code, string name, Optional<Stream> icon = default)
+        public async Task<DiscordGuild> CreateGuildFromTemplateAsync(string code, string name, Optional<Stream> icon = default)
         {
             var iconb64 = Optional.FromNoValue<string>();
             if (icon.HasValue && icon.Value != null)
@@ -536,7 +536,7 @@ namespace DSharpPlus
             else if (icon.HasValue)
                 iconb64 = null;
 
-            return this.ApiClient.CreateGuildFromTemplateAsync(code, name, iconb64);
+            return await this.ApiClient.CreateGuildFromTemplateAsync(code, name, iconb64);
         }
 
         /// <summary>
@@ -569,8 +569,8 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordGuildPreview> GetGuildPreviewAsync(ulong id)
-            => this.ApiClient.GetGuildPreviewAsync(id);
+        public async Task<DiscordGuildPreview> GetGuildPreviewAsync(ulong id)
+            => await this.ApiClient.GetGuildPreviewAsync(id);
 
         /// <summary>
         /// Gets an invite.
@@ -582,8 +582,8 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.NotFoundException">Thrown when the invite does not exists.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordInvite> GetInviteByCodeAsync(string code, bool? withCounts = null, bool? withExpiration = null)
-            => this.ApiClient.GetInviteAsync(code, withCounts, withExpiration);
+        public async Task<DiscordInvite> GetInviteByCodeAsync(string code, bool? withCounts = null, bool? withExpiration = null)
+            => await this.ApiClient.GetInviteAsync(code, withCounts, withExpiration);
 
         /// <summary>
         /// Gets a list of connections
@@ -591,8 +591,8 @@ namespace DSharpPlus
         /// <returns></returns>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<IReadOnlyList<DiscordConnection>> GetConnectionsAsync()
-            => this.ApiClient.GetUsersConnectionsAsync();
+        public async Task<IReadOnlyList<DiscordConnection>> GetConnectionsAsync()
+            => await this.ApiClient.GetUsersConnectionsAsync();
 
         /// <summary>
         /// Gets a webhook
@@ -602,8 +602,8 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordWebhook> GetWebhookAsync(ulong id)
-            => this.ApiClient.GetWebhookAsync(id);
+        public async Task<DiscordWebhook> GetWebhookAsync(ulong id)
+            => await this.ApiClient.GetWebhookAsync(id);
 
         /// <summary>
         /// Gets a webhook
@@ -614,8 +614,8 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordWebhook> GetWebhookWithTokenAsync(ulong id, string token)
-            => this.ApiClient.GetWebhookWithTokenAsync(id, token);
+        public async Task<DiscordWebhook> GetWebhookWithTokenAsync(ulong id, string token)
+            => await this.ApiClient.GetWebhookWithTokenAsync(id, token);
 
         /// <summary>
         /// Updates current user's activity and status.
@@ -660,39 +660,39 @@ namespace DSharpPlus
         /// <returns>The guild template for the code.</returns>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordGuildTemplate> GetTemplateAsync(string code)
-            => this.ApiClient.GetTemplateAsync(code);
+        public async Task<DiscordGuildTemplate> GetTemplateAsync(string code)
+            => await this.ApiClient.GetTemplateAsync(code);
 
         /// <summary>
         /// Gets all the global application commands for this application.
         /// </summary>
         /// <returns>A list of global application commands.</returns>
-        public Task<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync() =>
-            this.ApiClient.GetGlobalApplicationCommandsAsync(this.CurrentApplication.Id);
+        public async Task<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync() =>
+            await this.ApiClient.GetGlobalApplicationCommandsAsync(this.CurrentApplication.Id);
 
         /// <summary>
         /// Overwrites the existing global application commands. New commands are automatically created and missing commands are automatically deleted.
         /// </summary>
         /// <param name="commands">The list of commands to overwrite with.</param>
         /// <returns>The list of global commands.</returns>
-        public Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGlobalApplicationCommandsAsync(IEnumerable<DiscordApplicationCommand> commands) =>
-            this.ApiClient.BulkOverwriteGlobalApplicationCommandsAsync(this.CurrentApplication.Id, commands);
+        public async Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGlobalApplicationCommandsAsync(IEnumerable<DiscordApplicationCommand> commands) =>
+            await this.ApiClient.BulkOverwriteGlobalApplicationCommandsAsync(this.CurrentApplication.Id, commands);
 
         /// <summary>
         /// Creates or overwrites a global application command.
         /// </summary>
         /// <param name="command">The command to create.</param>
         /// <returns>The created command.</returns>
-        public Task<DiscordApplicationCommand> CreateGlobalApplicationCommandAsync(DiscordApplicationCommand command) =>
-            this.ApiClient.CreateGlobalApplicationCommandAsync(this.CurrentApplication.Id, command);
+        public async Task<DiscordApplicationCommand> CreateGlobalApplicationCommandAsync(DiscordApplicationCommand command) =>
+            await this.ApiClient.CreateGlobalApplicationCommandAsync(this.CurrentApplication.Id, command);
 
         /// <summary>
         /// Gets a global application command by its id.
         /// </summary>
         /// <param name="commandId">The ID of the command to get.</param>
         /// <returns>The command with the ID.</returns>
-        public Task<DiscordApplicationCommand> GetGlobalApplicationCommandAsync(ulong commandId) =>
-            this.ApiClient.GetGlobalApplicationCommandAsync(this.CurrentApplication.Id, commandId);
+        public async Task<DiscordApplicationCommand> GetGlobalApplicationCommandAsync(ulong commandId) =>
+            await this.ApiClient.GetGlobalApplicationCommandAsync(this.CurrentApplication.Id, commandId);
 
         /// <summary>
         /// Gets a global application command by its name.
@@ -726,16 +726,16 @@ namespace DSharpPlus
         /// Deletes a global application command.
         /// </summary>
         /// <param name="commandId">The ID of the command to delete.</param>
-        public Task DeleteGlobalApplicationCommandAsync(ulong commandId) =>
-            this.ApiClient.DeleteGlobalApplicationCommandAsync(this.CurrentApplication.Id, commandId);
+        public async Task DeleteGlobalApplicationCommandAsync(ulong commandId) =>
+            await this.ApiClient.DeleteGlobalApplicationCommandAsync(this.CurrentApplication.Id, commandId);
 
         /// <summary>
         /// Gets all the application commands for a guild.
         /// </summary>
         /// <param name="guildId">The ID of the guild to get application commands for.</param>
         /// <returns>A list of application commands in the guild.</returns>
-        public Task<IReadOnlyList<DiscordApplicationCommand>> GetGuildApplicationCommandsAsync(ulong guildId) =>
-            this.ApiClient.GetGuildApplicationCommandsAsync(this.CurrentApplication.Id, guildId);
+        public async Task<IReadOnlyList<DiscordApplicationCommand>> GetGuildApplicationCommandsAsync(ulong guildId) =>
+            await this.ApiClient.GetGuildApplicationCommandsAsync(this.CurrentApplication.Id, guildId);
 
         /// <summary>
         /// Overwrites the existing application commands in a guild. New commands are automatically created and missing commands are automatically deleted.
@@ -743,8 +743,8 @@ namespace DSharpPlus
         /// <param name="guildId">The ID of the guild.</param>
         /// <param name="commands">The list of commands to overwrite with.</param>
         /// <returns>The list of guild commands.</returns>
-        public Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGuildApplicationCommandsAsync(ulong guildId, IEnumerable<DiscordApplicationCommand> commands) =>
-            this.ApiClient.BulkOverwriteGuildApplicationCommandsAsync(this.CurrentApplication.Id, guildId, commands);
+        public async Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGuildApplicationCommandsAsync(ulong guildId, IEnumerable<DiscordApplicationCommand> commands) =>
+            await this.ApiClient.BulkOverwriteGuildApplicationCommandsAsync(this.CurrentApplication.Id, guildId, commands);
 
         /// <summary>
         /// Creates or overwrites a guild application command.
@@ -752,8 +752,8 @@ namespace DSharpPlus
         /// <param name="guildId">The ID of the guild to create the application command in.</param>
         /// <param name="command">The command to create.</param>
         /// <returns>The created command.</returns>
-        public Task<DiscordApplicationCommand> CreateGuildApplicationCommandAsync(ulong guildId, DiscordApplicationCommand command) =>
-            this.ApiClient.CreateGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, command);
+        public async Task<DiscordApplicationCommand> CreateGuildApplicationCommandAsync(ulong guildId, DiscordApplicationCommand command) =>
+            await this.ApiClient.CreateGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, command);
 
         /// <summary>
         /// Gets a application command in a guild by its ID.
@@ -761,8 +761,8 @@ namespace DSharpPlus
         /// <param name="guildId">The ID of the guild the application command is in.</param>
         /// <param name="commandId">The ID of the command to get.</param>
         /// <returns>The command with the ID.</returns>
-        public Task<DiscordApplicationCommand> GetGuildApplicationCommandAsync(ulong guildId, ulong commandId) =>
-             this.ApiClient.GetGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, commandId);
+        public async Task<DiscordApplicationCommand> GetGuildApplicationCommandAsync(ulong guildId, ulong commandId) =>
+             await this.ApiClient.GetGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, commandId);
 
         /// <summary>
         /// Edits a application command in a guild.
@@ -784,8 +784,8 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="guildId">The ID of the guild to delete the application command in.</param>
         /// <param name="commandId">The ID of the command.</param>
-        public Task DeleteGuildApplicationCommandAsync(ulong guildId, ulong commandId) =>
-            this.ApiClient.DeleteGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, commandId);
+        public async Task DeleteGuildApplicationCommandAsync(ulong guildId, ulong commandId) =>
+            await this.ApiClient.DeleteGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, commandId);
         #endregion
 
         #region Internal Caching Methods

@@ -76,8 +76,6 @@ internal readonly record struct RestRequest : IRestRequest
             }
         }
 
-        request.Headers.Add("Authorization", Utilities.GetAuthenticationHeaderValue());
-
         return request;
     }
 }

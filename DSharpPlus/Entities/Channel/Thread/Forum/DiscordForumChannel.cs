@@ -79,8 +79,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="builder">The builder to create the forum post with.</param>
         /// <returns>The starter (the created thread, and the initial message) from creating the post.</returns>
-        public Task<DiscordForumPostStarter> CreateForumPostAsync(ForumPostBuilder builder)
-            => this.Discord.ApiClient.CreateForumPostAsync(this.Id, builder.Name, builder.AutoArchiveDuration, builder.SlowMode, builder.Message, builder.AppliedTags.Select(t => t.Id));
+        public async Task<DiscordForumPostStarter> CreateForumPostAsync(ForumPostBuilder builder)
+            => await this.Discord.ApiClient.CreateForumPostAsync(this.Id, builder.Name, builder.Message, builder.AutoArchiveDuration, builder.SlowMode, builder.AppliedTags.Select(t => t.Id));
 
         internal DiscordForumChannel() {}
     }
