@@ -214,4 +214,58 @@ public ref partial struct EtfReader
 
         return success;
     }
+
+    // expose ways to just get raw memory
+
+    /// <summary>
+    /// Copies the current term as raw memory.
+    /// </summary>
+    /// <returns>True if successful, false if unsuccessful.</returns>
+    public readonly bool TryReadMemory
+    (
+        Span<byte> buffer
+    )
+        => this.CurrentTermContents.TryCopyTo(buffer);
+
+    /// <summary>
+    /// Copies the current term as raw memory.
+    /// </summary>
+    /// <returns>True if successful, false if unsuccessful.</returns>
+    public readonly bool TryReadMemory
+    (
+        byte[] buffer
+    )
+        => this.CurrentTermContents.TryCopyTo(buffer);
+
+    /// <summary>
+    /// Copies the current term as raw memory.
+    /// </summary>
+    public readonly void ReadMemory
+    (
+        Span<byte> buffer
+    )
+    {
+        if (this.TryReadMemory(buffer))
+        {
+            return;
+        }
+
+        ThrowHelper.ThrowInvalidDecode(typeof(Span<byte>));
+    }
+
+    /// <summary>
+    /// Copies the current term as raw memory.
+    /// </summary>
+    public readonly void ReadMemory
+    (
+        byte[] buffer
+    )
+    {
+        if (this.TryReadMemory(buffer))
+        {
+            return;
+        }
+
+        ThrowHelper.ThrowInvalidDecode(typeof(byte[]));
+    }
 }
