@@ -132,10 +132,10 @@ public static class Program
 
         if (str.Length == 1)
         {
-            return str.ToUpperInvariant();
+            return str.ToLowerInvariant();
         }
 
-        return str.Substring(0, 1).ToUpperInvariant() + str.Substring(1);
+        return str.Substring(0, 1).ToLowerInvariant() + str.Substring(1);
     }
 
 }
