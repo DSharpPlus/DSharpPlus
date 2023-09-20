@@ -28,7 +28,7 @@ public sealed class DiscordRuleTriggerMetadata
     /// Gets the internally pre-defined wordsets which will be searched in the content.
     /// </summary>
     [JsonProperty("presets", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyList<RuleKeywordPresetType> KeywordPresetTypes { get; internal set; }
+    public IReadOnlyList<RuleKeywordPresetType>? KeywordPresetTypes { get; internal set; }
 
     /// <summary>
     /// Gets the substrings which should not trigger the rule.
