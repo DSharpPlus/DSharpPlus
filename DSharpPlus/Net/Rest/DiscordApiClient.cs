@@ -4447,25 +4447,37 @@ public sealed class DiscordApiClient
     #endregion
 
     #region Reactions
-    internal Task CreateReactionAsync(ulong channel_id, ulong message_id, string emoji)
+    internal async ValueTask CreateReactionAsync(ulong channelId, ulong messageId, string emoji)
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.REACTIONS}/:emoji{Endpoints.ME}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.PUT, route, new { channel_id, message_id, emoji }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        return this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PUT, route, ratelimitWaitOverride: this._discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
+        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/:message_id/{Endpoints.REACTIONS}/:emoji/{Endpoints.ME}";
+        Uri url = new($"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{messageId}/{Endpoints.REACTIONS}/{emoji}/{Endpoints.ME}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Put
+        };
+        
+        await this._rest.ExecuteRequestAsync(request);
     }
 
-    internal Task DeleteOwnReactionAsync(ulong channel_id, ulong message_id, string emoji)
+    internal async ValueTask DeleteOwnReactionAsync(ulong channelId, ulong messageId, string emoji)
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.REACTIONS}/:emoji{Endpoints.ME}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id, emoji }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        return this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.DELETE, route, ratelimitWaitOverride: this._discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
+        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/:message_id/{Endpoints.REACTIONS}/:emoji/{Endpoints.ME}";
+        Uri url = new($"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{messageId}/{Endpoints.REACTIONS}/{emoji}/{Endpoints.ME}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Delete
+        };
+        
+        await this._rest.ExecuteRequestAsync(request);
     }
 
-    internal Task DeleteUserReactionAsync(ulong channel_id, ulong message_id, ulong user_id, string emoji, string reason)
+    internal async ValueTask DeleteUserReactionAsync(ulong channelId, ulong messageId, ulong userId, string emoji, string reason)
     {
         Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
@@ -4473,43 +4485,62 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.REACTIONS}/:emoji/:user_id";
-        var bucket = this._rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id, emoji, user_id }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        return this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.DELETE, route, headers, ratelimitWaitOverride: this._discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
+        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/:message_id/{Endpoints.REACTIONS}/:emoji/:user_id";
+        Uri url = new($"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{messageId}/{Endpoints.REACTIONS}/{emoji}/{userId}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Delete,
+            Headers = headers
+        };  
+        
+        await this._rest.ExecuteRequestAsync(request);
     }
 
-    internal async Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji, ulong? after_id = null, int limit = 25)
+    internal async ValueTask<IReadOnlyList<DiscordUser>> GetReactionsAsync
+    (
+        ulong channelId,
+        ulong messageId,
+        string emoji,
+        ulong? afterId = null,
+        int limit = 25
+    )
     {
-        Dictionary<string, string> urlparams = new();
-        if (after_id.HasValue)
+        QueryUriBuilder urlparams = new($"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{messageId}/{Endpoints.REACTIONS}/{emoji}");
+        if (afterId.HasValue)
         {
-            urlparams["after"] = after_id.Value.ToString(CultureInfo.InvariantCulture);
+            urlparams.AddParameter("after", afterId.Value.ToString(CultureInfo.InvariantCulture));
         }
 
-        urlparams["limit"] = limit.ToString(CultureInfo.InvariantCulture);
+        urlparams.AddParameter("limit", limit.ToString(CultureInfo.InvariantCulture));
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.REACTIONS}/:emoji";
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { channel_id, message_id, emoji }, out var path);
+        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/:message_id/{Endpoints.REACTIONS}/:emoji";
 
-        Uri url = Utilities.GetApiUriFor(path, BuildQueryString(urlparams));
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = urlparams.Build(),
+            Method = HttpMethod.Get
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        IEnumerable<TransportUser> reacters_raw = JsonConvert.DeserializeObject<IEnumerable<TransportUser>>(res.Response);
-        List<DiscordUser> reacters = new();
-        foreach (TransportUser xr in reacters_raw)
+        IEnumerable<TransportUser> usersRaw = JsonConvert.DeserializeObject<IEnumerable<TransportUser>>(res.Response);
+        List<DiscordUser> users = new();
+        foreach (TransportUser xr in usersRaw)
         {
             DiscordUser usr = new(xr) { Discord = this._discord };
             usr = this._discord.UpdateUserCache(usr);
 
-            reacters.Add(usr);
+            users.Add(usr);
         }
 
-        return new ReadOnlyCollection<DiscordUser>(new List<DiscordUser>(reacters));
+        return new ReadOnlyCollection<DiscordUser>(new List<DiscordUser>(users));
     }
 
-    internal Task DeleteAllReactionsAsync(ulong channel_id, ulong message_id, string reason)
+    internal async ValueTask DeleteAllReactionsAsync(ulong channelId, ulong messageId, string reason)
     {
         Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
@@ -4517,84 +4548,116 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.REACTIONS}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id }, out var path);
+        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/:message_id/{Endpoints.REACTIONS}";
+        Uri url = new($"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{messageId}/{Endpoints.REACTIONS}");
 
-        Uri url = Utilities.GetApiUriFor(path);
-        return this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.DELETE, route, headers, ratelimitWaitOverride: this._discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Delete,
+            Headers = headers
+        };
+        
+        await this._rest.ExecuteRequestAsync(request);
     }
 
-    internal Task DeleteReactionsEmojiAsync(ulong channel_id, ulong message_id, string emoji)
+    internal async ValueTask DeleteReactionsEmojiAsync(ulong channelId, ulong messageId, string emoji)
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.REACTIONS}/:emoji";
-        var bucket = this._rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id, emoji }, out var path);
+        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/:message_id/{Endpoints.REACTIONS}/:emoji";
+        Uri url = new($"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{messageId}/{Endpoints.REACTIONS}/{emoji}");
 
-        Uri url = Utilities.GetApiUriFor(path);
-        return this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.DELETE, route, ratelimitWaitOverride: this._discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Delete
+        };
+        
+        await this._rest.ExecuteRequestAsync(request);
     }
     #endregion
 
     #region Emoji
-    internal async Task<IReadOnlyList<DiscordGuildEmoji>> GetGuildEmojisAsync(ulong guild_id)
+    internal async ValueTask<IReadOnlyList<DiscordGuildEmoji>> GetGuildEmojisAsync(ulong guildId)
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EMOJIS}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
+        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.EMOJIS}";
+        Uri url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.EMOJIS}");
 
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         IEnumerable<JObject> emojisRaw = JsonConvert.DeserializeObject<IEnumerable<JObject>>(res.Response);
 
-        this._discord.Guilds.TryGetValue(guild_id, out DiscordGuild? gld);
+        this._discord.Guilds.TryGetValue(guildId, out DiscordGuild? guild);
         Dictionary<ulong, DiscordUser> users = new();
         List<DiscordGuildEmoji> emojis = new();
         foreach (JObject rawEmoji in emojisRaw)
         {
-            DiscordGuildEmoji xge = rawEmoji.ToDiscordObject<DiscordGuildEmoji>();
-            xge.Guild = gld;
+            DiscordGuildEmoji discordGuildEmoji = rawEmoji.ToDiscordObject<DiscordGuildEmoji>();
+            discordGuildEmoji.Guild = guild;
 
-            TransportUser? xtu = rawEmoji["user"]?.ToDiscordObject<TransportUser>();
-            if (xtu != null)
+            TransportUser? rawUser = rawEmoji["user"]?.ToDiscordObject<TransportUser>();
+            if (rawUser != null)
             {
-                if (!users.ContainsKey(xtu.Id))
+                if (!users.ContainsKey(rawUser.Id))
                 {
-                    DiscordUser user = gld != null && gld.Members.TryGetValue(xtu.Id, out DiscordMember? member) ? member : new DiscordUser(xtu);
+                    DiscordUser user = guild != null && guild.Members.TryGetValue(rawUser.Id, out DiscordMember? member) ? member : new DiscordUser(rawUser);
                     users[user.Id] = user;
                 }
 
-                xge.User = users[xtu.Id];
+                discordGuildEmoji.User = users[rawUser.Id];
             }
 
-            emojis.Add(xge);
+            emojis.Add(discordGuildEmoji);
         }
 
         return new ReadOnlyCollection<DiscordGuildEmoji>(emojis);
     }
 
-    internal async Task<DiscordGuildEmoji> GetGuildEmojiAsync(ulong guild_id, ulong emoji_id)
+    internal async ValueTask<DiscordGuildEmoji> GetGuildEmojiAsync(ulong guildId, ulong emojiId)
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EMOJIS}/:emoji_id";
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { guild_id, emoji_id }, out var path);
+        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.EMOJIS}/:emoji_id";
+        Uri url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.EMOJIS}/{emojiId}");
 
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
-
-        this._discord.Guilds.TryGetValue(guild_id, out DiscordGuild? gld);
-
-        JObject emoji_raw = JObject.Parse(res.Response);
-        DiscordGuildEmoji emoji = emoji_raw.ToDiscordObject<DiscordGuildEmoji>();
-        emoji.Guild = gld;
-
-        TransportUser? xtu = emoji_raw["user"]?.ToDiscordObject<TransportUser>();
-        if (xtu != null)
+        RestRequest request = new()
         {
-            emoji.User = gld != null && gld.Members.TryGetValue(xtu.Id, out DiscordMember member) ? member : new DiscordUser(xtu);
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+
+        this._discord.Guilds.TryGetValue(guildId, out DiscordGuild? guild);
+
+        JObject emojiRaw = JObject.Parse(res.Response);
+        DiscordGuildEmoji emoji = emojiRaw.ToDiscordObject<DiscordGuildEmoji>();
+        emoji.Guild = guild;
+
+        TransportUser? rawUser = emojiRaw["user"]?.ToDiscordObject<TransportUser>();
+        if (rawUser != null)
+        {
+            emoji.User = guild != null && guild.Members.TryGetValue(rawUser.Id, out DiscordMember member) ? member : new DiscordUser(rawUser);
         }
 
         return emoji;
     }
 
-    internal async Task<DiscordGuildEmoji> CreateGuildEmojiAsync(ulong guild_id, string name, string imageb64, IEnumerable<ulong> roles, string reason)
+    internal async ValueTask<DiscordGuildEmoji> CreateGuildEmojiAsync
+    (
+        ulong guildId,
+        string name,
+        string imageb64,
+        IEnumerable<ulong> roles,
+        string reason
+    )
     {
         RestGuildEmojiCreatePayload pld = new()
         {
@@ -4609,27 +4672,41 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EMOJIS}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
+        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.EMOJIS}";
+        Uri url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.EMOJIS}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post,
+            Payload = DiscordJson.SerializeObject(pld),
+            Headers = headers
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.POST, route, headers, DiscordJson.SerializeObject(pld));
+        this._discord.Guilds.TryGetValue(guildId, out DiscordGuild? guild);
 
-        this._discord.Guilds.TryGetValue(guild_id, out DiscordGuild? gld);
+        JObject emojiRaw = JObject.Parse(res.Response);
+        DiscordGuildEmoji emoji = emojiRaw.ToDiscordObject<DiscordGuildEmoji>();
+        emoji.Guild = guild;
 
-        JObject emoji_raw = JObject.Parse(res.Response);
-        DiscordGuildEmoji emoji = emoji_raw.ToDiscordObject<DiscordGuildEmoji>();
-        emoji.Guild = gld;
-
-        TransportUser? xtu = emoji_raw["user"]?.ToDiscordObject<TransportUser>();
-        emoji.User = xtu != null
-            ? gld != null && gld.Members.TryGetValue(xtu.Id, out DiscordMember member) ? member : new DiscordUser(xtu)
+        TransportUser? rawUser = emojiRaw["user"]?.ToDiscordObject<TransportUser>();
+        emoji.User = rawUser != null
+            ? guild != null && guild.Members.TryGetValue(rawUser.Id, out DiscordMember member) ? member : new DiscordUser(rawUser)
             : this._discord.CurrentUser;
 
         return emoji;
     }
 
-    internal async Task<DiscordGuildEmoji> ModifyGuildEmojiAsync(ulong guild_id, ulong emoji_id, string name, IEnumerable<ulong> roles, string reason)
+    internal async ValueTask<DiscordGuildEmoji> ModifyGuildEmojiAsync
+    (
+        ulong guildId,
+        ulong emojiId,
+        string name,
+        IEnumerable<ulong> roles,
+        string reason)
     {
         RestGuildEmojiModifyPayload pld = new()
         {
@@ -4644,27 +4721,35 @@ public sealed class DiscordApiClient
         }
 
         string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EMOJIS}/:emoji_id";
-        var bucket = this._rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id, emoji_id }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld));
-
-        this._discord.Guilds.TryGetValue(guild_id, out DiscordGuild? gld);
-
-        JObject emoji_raw = JObject.Parse(res.Response);
-        DiscordGuildEmoji emoji = emoji_raw.ToDiscordObject<DiscordGuildEmoji>();
-        emoji.Guild = gld;
-
-        TransportUser? xtu = emoji_raw["user"]?.ToDiscordObject<TransportUser>();
-        if (xtu != null)
+        Uri url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.EMOJIS}/{emojiId}");
+        
+        RestRequest request = new()
         {
-            emoji.User = gld != null && gld.Members.TryGetValue(xtu.Id, out DiscordMember member) ? member : new DiscordUser(xtu);
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Patch,
+            Payload = DiscordJson.SerializeObject(pld),
+            Headers = headers
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+
+        this._discord.Guilds.TryGetValue(guildId, out DiscordGuild? guild);
+
+        JObject emojiRaw = JObject.Parse(res.Response);
+        DiscordGuildEmoji emoji = emojiRaw.ToDiscordObject<DiscordGuildEmoji>();
+        emoji.Guild = guild;
+
+        TransportUser? rawUser = emojiRaw["user"]?.ToDiscordObject<TransportUser>();
+        if (rawUser != null)
+        {
+            emoji.User = guild != null && guild.Members.TryGetValue(rawUser.Id, out DiscordMember member) ? member : new DiscordUser(rawUser);
         }
 
         return emoji;
     }
 
-    internal Task DeleteGuildEmojiAsync(ulong guild_id, ulong emoji_id, string reason)
+    internal async ValueTask DeleteGuildEmojiAsync(ulong guildId, ulong emojiId, string reason)
     {
         Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
@@ -4672,22 +4757,35 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EMOJIS}/:emoji_id";
-        var bucket = this._rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id, emoji_id }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        return this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.DELETE, route, headers);
+        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.EMOJIS}/:emoji_id";
+        Uri url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.EMOJIS}/{emojiId}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Delete,
+            Headers = headers
+        };
+        
+        await this._rest.ExecuteRequestAsync(request);
     }
     #endregion
 
     #region Application Commands
-    internal async Task<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync(ulong application_id)
+    internal async ValueTask<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync(ulong applicationId)
     {
-        string route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { application_id }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
+        string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.COMMANDS}";
+        Uri url = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.COMMANDS}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         IEnumerable<DiscordApplicationCommand> ret = JsonConvert.DeserializeObject<IEnumerable<DiscordApplicationCommand>>(res.Response);
         foreach (DiscordApplicationCommand app in ret)
@@ -4698,7 +4796,7 @@ public sealed class DiscordApiClient
         return ret.ToList();
     }
 
-    internal async Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGlobalApplicationCommandsAsync(ulong application_id, IEnumerable<DiscordApplicationCommand> commands)
+    internal async ValueTask<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGlobalApplicationCommandsAsync(ulong applicationId, IEnumerable<DiscordApplicationCommand> commands)
     {
         List<RestApplicationCommandCreatePayload> pld = new();
         foreach (DiscordApplicationCommand command in commands)
@@ -4718,11 +4816,18 @@ public sealed class DiscordApiClient
             });
         }
 
-        string route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.PUT, route, new { application_id }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PUT, route, payload: DiscordJson.SerializeObject(pld));
+        string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.COMMANDS}";
+        Uri url = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.COMMANDS}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Put,
+            Payload = DiscordJson.SerializeObject(pld)
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         IEnumerable<DiscordApplicationCommand> ret = JsonConvert.DeserializeObject<IEnumerable<DiscordApplicationCommand>>(res.Response);
         foreach (DiscordApplicationCommand app in ret)
@@ -4733,7 +4838,7 @@ public sealed class DiscordApiClient
         return ret.ToList();
     }
 
-    internal async Task<DiscordApplicationCommand> CreateGlobalApplicationCommandAsync(ulong application_id, DiscordApplicationCommand command)
+    internal async ValueTask<DiscordApplicationCommand> CreateGlobalApplicationCommandAsync(ulong applicationId, DiscordApplicationCommand command)
     {
         RestApplicationCommandCreatePayload pld = new()
         {
@@ -4749,11 +4854,18 @@ public sealed class DiscordApiClient
             NSFW = command.NSFW
         };
 
-        string route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { application_id }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
+        string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.COMMANDS}";
+        Uri url = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.COMMANDS}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post,
+            Payload = DiscordJson.SerializeObject(pld)
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         DiscordApplicationCommand ret = JsonConvert.DeserializeObject<DiscordApplicationCommand>(res.Response);
         ret.Discord = this._discord;
@@ -4761,13 +4873,19 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async Task<DiscordApplicationCommand> GetGlobalApplicationCommandAsync(ulong application_id, ulong command_id)
+    internal async ValueTask<DiscordApplicationCommand> GetGlobalApplicationCommandAsync(ulong applicationId, ulong commandId)
     {
-        string route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}/:command_id";
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { application_id, command_id }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
+        string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.COMMANDS}/:command_id";
+        Uri url = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.COMMANDS}/{commandId}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         DiscordApplicationCommand ret = JsonConvert.DeserializeObject<DiscordApplicationCommand>(res.Response);
         ret.Discord = this._discord;
@@ -4775,7 +4893,20 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong application_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, Optional<bool?> nsfw, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, Optional<bool> allowDMUsage = default, Optional<Permissions?> defaultMemberPermissions = default)
+    internal async ValueTask<DiscordApplicationCommand> EditGlobalApplicationCommandAsync
+    (
+        ulong applicationId,
+        ulong commandId,
+        Optional<string> name,
+        Optional<string> description,
+        Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options,
+        Optional<bool?> defaultPermission,
+        Optional<bool?> nsfw,
+        IReadOnlyDictionary<string, string> nameLocalizations = null,
+        IReadOnlyDictionary<string, string> descriptionLocalizations = null,
+        Optional<bool> allowDmUsage = default,
+        Optional<Permissions?> defaultMemberPermissions = default
+    )
     {
         RestApplicationCommandEditPayload pld = new()
         {
@@ -4783,18 +4914,25 @@ public sealed class DiscordApiClient
             Description = description,
             Options = options,
             DefaultPermission = defaultPermission,
-            NameLocalizations = name_localizations,
-            DescriptionLocalizations = description_localizations,
-            AllowDMUsage = allowDMUsage,
+            NameLocalizations = nameLocalizations,
+            DescriptionLocalizations = descriptionLocalizations,
+            AllowDMUsage = allowDmUsage,
             DefaultMemberPermissions = defaultMemberPermissions,
             NSFW = nsfw,
         };
 
-        string route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}/:command_id";
-        var bucket = this._rest.GetBucket(RestRequestMethod.PATCH, route, new { application_id, command_id }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld));
+        string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.COMMANDS}/:command_id";
+        Uri url = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.COMMANDS}/{commandId}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Patch,
+            Payload = DiscordJson.SerializeObject(pld)
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         DiscordApplicationCommand ret = JsonConvert.DeserializeObject<DiscordApplicationCommand>(res.Response);
         ret.Discord = this._discord;
@@ -4802,22 +4940,34 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async Task DeleteGlobalApplicationCommandAsync(ulong application_id, ulong command_id)
+    internal async ValueTask DeleteGlobalApplicationCommandAsync(ulong applicationId, ulong commandId)
     {
-        string route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}/:command_id";
-        var bucket = this._rest.GetBucket(RestRequestMethod.DELETE, route, new { application_id, command_id }, out var path);
+        string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.COMMANDS}/:command_id";
+        Uri url = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.COMMANDS}/{commandId}");
 
-        Uri url = Utilities.GetApiUriFor(path);
-        await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.DELETE, route);
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Delete
+        };
+        
+        await this._rest.ExecuteRequestAsync(request);
     }
 
-    internal async Task<IReadOnlyList<DiscordApplicationCommand>> GetGuildApplicationCommandsAsync(ulong application_id, ulong guild_id)
+    internal async ValueTask<IReadOnlyList<DiscordApplicationCommand>> GetGuildApplicationCommandsAsync(ulong applicationId, ulong guildId)
     {
-        string route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { application_id, guild_id }, out var path);
+        string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.GUILDS}/:guild_id/{Endpoints.COMMANDS}";
+        Uri url = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.GUILDS}/{guildId}/{Endpoints.COMMANDS}");
 
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         IEnumerable<DiscordApplicationCommand> ret = JsonConvert.DeserializeObject<IEnumerable<DiscordApplicationCommand>>(res.Response);
         foreach (DiscordApplicationCommand app in ret)
@@ -4828,7 +4978,12 @@ public sealed class DiscordApiClient
         return ret.ToList();
     }
 
-    internal async Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGuildApplicationCommandsAsync(ulong application_id, ulong guild_id, IEnumerable<DiscordApplicationCommand> commands)
+    internal async ValueTask<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGuildApplicationCommandsAsync
+    (
+        ulong applicationId,
+        ulong guildId,
+        IEnumerable<DiscordApplicationCommand> commands
+    )
     {
         List<RestApplicationCommandCreatePayload> pld = new();
         foreach (DiscordApplicationCommand command in commands)
@@ -4848,11 +5003,18 @@ public sealed class DiscordApiClient
             });
         }
 
-        string route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.PUT, route, new { application_id, guild_id }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PUT, route, payload: DiscordJson.SerializeObject(pld));
+        string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.GUILDS}/:guild_id/{Endpoints.COMMANDS}";
+        Uri url = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.GUILDS}/{guildId}/{Endpoints.COMMANDS}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Put,
+            Payload = DiscordJson.SerializeObject(pld)
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         IEnumerable<DiscordApplicationCommand> ret = JsonConvert.DeserializeObject<IEnumerable<DiscordApplicationCommand>>(res.Response);
         foreach (DiscordApplicationCommand app in ret)
@@ -4863,7 +5025,12 @@ public sealed class DiscordApiClient
         return ret.ToList();
     }
 
-    internal async Task<DiscordApplicationCommand> CreateGuildApplicationCommandAsync(ulong application_id, ulong guild_id, DiscordApplicationCommand command)
+    internal async ValueTask<DiscordApplicationCommand> CreateGuildApplicationCommandAsync
+    (
+        ulong applicationId,
+        ulong guildId,
+        DiscordApplicationCommand command
+    )
     {
         RestApplicationCommandCreatePayload pld = new()
         {
@@ -4879,11 +5046,18 @@ public sealed class DiscordApiClient
             NSFW = command.NSFW
         };
 
-        string route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { application_id, guild_id }, out var path);
+        string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.GUILDS}/:guild_id/{Endpoints.COMMANDS}";
+        Uri url = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.GUILDS}/{guildId}/{Endpoints.COMMANDS}");
 
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post,
+            Payload = DiscordJson.SerializeObject(pld)
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         DiscordApplicationCommand ret = JsonConvert.DeserializeObject<DiscordApplicationCommand>(res.Response);
         ret.Discord = this._discord;
@@ -4891,13 +5065,24 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async Task<DiscordApplicationCommand> GetGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id)
+    internal async ValueTask<DiscordApplicationCommand> GetGuildApplicationCommandAsync
+    (
+        ulong applicationId,
+        ulong guildId,
+        ulong commandId
+    )
     {
-        string route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}/:command_id";
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { application_id, guild_id, command_id }, out var path);
+        string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.GUILDS}/:guild_id/{Endpoints.COMMANDS}/:command_id";
+        Uri url = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.GUILDS}/{guildId}/{Endpoints.COMMANDS}/{commandId}");
 
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         DiscordApplicationCommand ret = JsonConvert.DeserializeObject<DiscordApplicationCommand>(res.Response);
         ret.Discord = this._discord;
@@ -4905,7 +5090,21 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, Optional<bool?> nsfw, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, Optional<bool> allowDMUsage = default, Optional<Permissions?> defaultMemberPermissions = default)
+    internal async ValueTask<DiscordApplicationCommand> EditGuildApplicationCommandAsync
+    (
+        ulong applicationId,
+        ulong guildId,
+        ulong commandId,
+        Optional<string> name,
+        Optional<string> description,
+        Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options,
+        Optional<bool?> defaultPermission,
+        Optional<bool?> nsfw,
+        IReadOnlyDictionary<string, string> nameLocalizations = null,
+        IReadOnlyDictionary<string, string> descriptionLocalizations = null,
+        Optional<bool> allowDmUsage = default,
+        Optional<Permissions?> defaultMemberPermissions = default
+    )
     {
         RestApplicationCommandEditPayload pld = new()
         {
@@ -4913,18 +5112,25 @@ public sealed class DiscordApiClient
             Description = description,
             Options = options,
             DefaultPermission = defaultPermission,
-            NameLocalizations = name_localizations,
-            DescriptionLocalizations = description_localizations,
-            AllowDMUsage = allowDMUsage,
+            NameLocalizations = nameLocalizations,
+            DescriptionLocalizations = descriptionLocalizations,
+            AllowDMUsage = allowDmUsage,
             DefaultMemberPermissions = defaultMemberPermissions,
             NSFW = nsfw
         };
 
-        string route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}/:command_id";
-        var bucket = this._rest.GetBucket(RestRequestMethod.PATCH, route, new { application_id, guild_id, command_id }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld));
+        string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.GUILDS}/:guild_id/{Endpoints.COMMANDS}/:command_id";
+        Uri url = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.GUILDS}/{guildId}/{Endpoints.COMMANDS}/{commandId}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Patch,
+            Payload = DiscordJson.SerializeObject(pld)
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         DiscordApplicationCommand ret = JsonConvert.DeserializeObject<DiscordApplicationCommand>(res.Response);
         ret.Discord = this._discord;
@@ -4932,16 +5138,28 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async Task DeleteGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id)
+    internal async ValueTask DeleteGuildApplicationCommandAsync(ulong applicationId, ulong guildId, ulong commandId)
     {
-        string route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}/:command_id";
-        var bucket = this._rest.GetBucket(RestRequestMethod.DELETE, route, new { application_id, guild_id, command_id }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.DELETE, route);
+        string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.GUILDS}/:guild_id/{Endpoints.COMMANDS}/:command_id";
+        Uri url = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.GUILDS}/{guildId}/{Endpoints.COMMANDS}/{commandId}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Delete
+        };
+        
+        await this._rest.ExecuteRequestAsync(request);
     }
 
-    internal async Task CreateInteractionResponseAsync(ulong interaction_id, string interaction_token, InteractionResponseType type, DiscordInteractionResponseBuilder builder)
+    internal async ValueTask CreateInteractionResponseAsync
+    (
+        ulong interactionId,
+        string interactionToken,
+        InteractionResponseType type,
+        DiscordInteractionResponseBuilder builder
+    )
     {
         if (builder?.Embeds != null)
         {
@@ -4981,14 +5199,22 @@ public sealed class DiscordApiClient
             }
         }
 
-        string route = $"{Endpoints.INTERACTIONS}/:interaction_id/:interaction_token{Endpoints.CALLBACK}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { interaction_id, interaction_token }, out var path);
-
-        Uri url = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true").Build();
+        string route = $"{Endpoints.INTERACTIONS}/:interaction_id/:interaction_token/{Endpoints.CALLBACK}";
+        Uri url = new($"{Endpoints.INTERACTIONS}/{interactionId}/{interactionToken}/{Endpoints.CALLBACK}");
+        
         if (builder != null)
         {
-            await this.DoMultipartAsync(this._discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files);
-
+            MultipartRestRequest request = new()
+            {
+                Route = route,
+                Url = url,
+                Method = HttpMethod.Post,
+                Values = values,
+                Files = builder?.Files
+            };
+        
+            await this._rest.ExecuteRequestAsync(request);
+            
             foreach (DiscordMessageFile? file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
             {
                 file.Stream.Position = file.ResetPositionTo.Value;
@@ -4996,30 +5222,50 @@ public sealed class DiscordApiClient
         }
         else
         {
-            await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
+            RestRequest request = new()
+            {
+                Route = route,
+                Url = url,
+                Method = HttpMethod.Post,
+                Payload = DiscordJson.SerializeObject(pld)
+            };
+            
+            await this._rest.ExecuteRequestAsync(request);
         }
     }
 
-    internal async Task<DiscordMessage> GetOriginalInteractionResponseAsync(ulong application_id, string interaction_token)
+    internal async ValueTask<DiscordMessage> GetOriginalInteractionResponseAsync(ulong applicationId, string interactionToken)
     {
-        string route = $"{Endpoints.WEBHOOKS}/:application_id/:interaction_token{Endpoints.MESSAGES}{Endpoints.ORIGINAL}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { application_id, interaction_token }, out var path);
+        string route = $"{Endpoints.WEBHOOKS}/:application_id/:interaction_token/{Endpoints.MESSAGES}/{Endpoints.ORIGINAL}";
+        Uri url = new($"{Endpoints.WEBHOOKS}/{applicationId}/{interactionToken}/{Endpoints.MESSAGES}/{Endpoints.ORIGINAL}");
 
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
         DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
 
         ret.Discord = this._discord;
         return ret;
     }
 
-    internal Task<DiscordMessage> EditOriginalInteractionResponseAsync(ulong application_id, string interaction_token, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments) =>
-        this.EditWebhookMessageAsync(application_id, interaction_token, "@original", builder, attachments);
+    internal ValueTask<DiscordMessage> EditOriginalInteractionResponseAsync
+    (
+        ulong applicationId,
+        string interactionToken,
+        DiscordWebhookBuilder builder,
+        IEnumerable<DiscordAttachment> attachments
+    ) =>
+        this.EditWebhookMessageAsync(applicationId, interactionToken, "@original", builder, attachments);
 
-    internal Task DeleteOriginalInteractionResponseAsync(ulong application_id, string interaction_token) =>
-        this.DeleteWebhookMessageAsync(application_id, interaction_token, "@original");
+    internal ValueTask DeleteOriginalInteractionResponseAsync(ulong applicationId, string interactionToken) =>
+        this.DeleteWebhookMessageAsync(applicationId, interactionToken, "@original");
 
-    internal async Task<DiscordMessage> CreateFollowupMessageAsync(ulong application_id, string interaction_token, DiscordFollowupMessageBuilder builder)
+    internal async ValueTask<DiscordMessage> CreateFollowupMessageAsync(ulong applicationId, string interactionToken, DiscordFollowupMessageBuilder builder)
     {
         builder.Validate();
 
@@ -5055,10 +5301,18 @@ public sealed class DiscordApiClient
         }
 
         string route = $"{Endpoints.WEBHOOKS}/:application_id/:interaction_token";
-        var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { application_id, interaction_token }, out var path);
-
-        Uri url = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true").Build();
-        var res = await this.DoMultipartAsync(this._discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files);
+        Uri url = new($"{Endpoints.WEBHOOKS}/{applicationId}/{interactionToken}");
+        
+        MultipartRestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post,
+            Values = values,
+            Files = builder.Files
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
         DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
 
         foreach (DiscordMessageFile? file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
@@ -5070,22 +5324,40 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal Task<DiscordMessage> GetFollowupMessageAsync(ulong application_id, string interaction_token, ulong message_id) =>
-        this.GetWebhookMessageAsync(application_id, interaction_token, message_id);
+    internal ValueTask<DiscordMessage> GetFollowupMessageAsync
+    (
+        ulong applicationId,
+        string interactionToken,
+        ulong messageId
+    ) =>
+        this.GetWebhookMessageAsync(applicationId, interactionToken, messageId);
 
-    internal Task<DiscordMessage> EditFollowupMessageAsync(ulong application_id, string interaction_token, ulong message_id, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments) =>
-        this.EditWebhookMessageAsync(application_id, interaction_token, message_id, builder, attachments);
+    internal ValueTask<DiscordMessage> EditFollowupMessageAsync
+    (
+        ulong applicationId,
+        string interactionToken,
+        ulong messageId,
+        DiscordWebhookBuilder builder,
+        IEnumerable<DiscordAttachment> attachments
+    ) =>
+        this.EditWebhookMessageAsync(applicationId, interactionToken, messageId, builder, attachments);
 
-    internal Task DeleteFollowupMessageAsync(ulong application_id, string interaction_token, ulong message_id) =>
-        this.DeleteWebhookMessageAsync(application_id, interaction_token, message_id);
+    internal ValueTask DeleteFollowupMessageAsync(ulong applicationId, string interactionToken, ulong messageId) =>
+        this.DeleteWebhookMessageAsync(applicationId, interactionToken, messageId);
 
-    internal async Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> GetGuildApplicationCommandPermissionsAsync(ulong application_id, ulong guild_id)
+    internal async ValueTask<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> GetGuildApplicationCommandPermissionsAsync(ulong applicationId, ulong guildId)
     {
-        string route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}{Endpoints.PERMISSIONS}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { application_id, guild_id }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
+        string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.GUILDS}/:guild_id/{Endpoints.COMMANDS}/{Endpoints.PERMISSIONS}";
+        Uri url = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.GUILDS}/{guildId}/{Endpoints.COMMANDS}/{Endpoints.PERMISSIONS}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
         IEnumerable<DiscordGuildApplicationCommandPermissions> ret = JsonConvert.DeserializeObject<IEnumerable<DiscordGuildApplicationCommandPermissions>>(res.Response);
 
         foreach (DiscordGuildApplicationCommandPermissions perm in ret)
@@ -5096,45 +5368,79 @@ public sealed class DiscordApiClient
         return ret.ToList();
     }
 
-    internal async Task<DiscordGuildApplicationCommandPermissions> GetApplicationCommandPermissionsAsync(ulong application_id, ulong guild_id, ulong command_id)
+    internal async ValueTask<DiscordGuildApplicationCommandPermissions> GetApplicationCommandPermissionsAsync(ulong applicationId, ulong guildId, ulong commandId)
     {
-        string route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}/:command_id{Endpoints.PERMISSIONS}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { application_id, guild_id, command_id }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
+        string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.GUILDS}/:guild_id/{Endpoints.COMMANDS}/:command_id/{Endpoints.PERMISSIONS}";
+        Uri url = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.GUILDS}/{guildId}/{Endpoints.COMMANDS}/{commandId}/{Endpoints.PERMISSIONS}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
         DiscordGuildApplicationCommandPermissions ret = JsonConvert.DeserializeObject<DiscordGuildApplicationCommandPermissions>(res.Response);
 
         ret.Discord = this._discord;
         return ret;
     }
 
-    internal async Task<DiscordGuildApplicationCommandPermissions> EditApplicationCommandPermissionsAsync(ulong application_id, ulong guild_id, ulong command_id, IEnumerable<DiscordApplicationCommandPermission> permissions)
+    internal async ValueTask<DiscordGuildApplicationCommandPermissions> EditApplicationCommandPermissionsAsync
+    (
+        ulong applicationId,
+        ulong guildId,
+        ulong commandId,
+        IEnumerable<DiscordApplicationCommandPermission> permissions
+    )
     {
+        
         RestEditApplicationCommandPermissionsPayload pld = new()
         {
             Permissions = permissions
         };
 
-        string route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}/:command_id{Endpoints.PERMISSIONS}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.PUT, route, new { application_id, guild_id, command_id }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PUT, route, payload: DiscordJson.SerializeObject(pld));
-        DiscordGuildApplicationCommandPermissions ret = JsonConvert.DeserializeObject<DiscordGuildApplicationCommandPermissions>(res.Response);
+        string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.GUILDS}/:guild_id/{Endpoints.COMMANDS}/:command_id/{Endpoints.PERMISSIONS}";
+        Uri url = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.GUILDS}/{guildId}/{Endpoints.COMMANDS}/{commandId}/{Endpoints.PERMISSIONS}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Put,
+            Payload = DiscordJson.SerializeObject(pld)
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+        DiscordGuildApplicationCommandPermissions ret = 
+            JsonConvert.DeserializeObject<DiscordGuildApplicationCommandPermissions>(res.Response);
 
         ret.Discord = this._discord;
         return ret;
     }
 
-    internal async Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> BatchEditApplicationCommandPermissionsAsync(ulong application_id, ulong guild_id, IEnumerable<DiscordGuildApplicationCommandPermissions> permissions)
+    internal async ValueTask<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> BatchEditApplicationCommandPermissionsAsync
+    (
+        ulong applicationId,
+        ulong guildId,
+        IEnumerable<DiscordGuildApplicationCommandPermissions> permissions
+    )
     {
-        string route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}{Endpoints.PERMISSIONS}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.PUT, route, new { application_id, guild_id }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PUT, route, payload: DiscordJson.SerializeObject(permissions));
-        IEnumerable<DiscordGuildApplicationCommandPermissions> ret = JsonConvert.DeserializeObject<IEnumerable<DiscordGuildApplicationCommandPermissions>>(res.Response);
+        string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.GUILDS}/:guild_id/{Endpoints.COMMANDS}/{Endpoints.PERMISSIONS}";
+        Uri url = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.GUILDS}/{guildId}/{Endpoints.COMMANDS}/{Endpoints.PERMISSIONS}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Put,
+            Payload = DiscordJson.SerializeObject(permissions)
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+        IEnumerable<DiscordGuildApplicationCommandPermissions> ret = 
+            JsonConvert.DeserializeObject<IEnumerable<DiscordGuildApplicationCommandPermissions>>(res.Response);
 
         foreach (DiscordGuildApplicationCommandPermissions perm in ret)
         {
@@ -5146,30 +5452,42 @@ public sealed class DiscordApiClient
     #endregion
 
     #region Misc
-    internal Task<TransportApplication> GetCurrentApplicationInfoAsync()
+    internal ValueTask<TransportApplication> GetCurrentApplicationInfoAsync()
         => this.GetApplicationInfoAsync("@me");
 
-    internal Task<TransportApplication> GetApplicationInfoAsync(ulong application_id)
-        => this.GetApplicationInfoAsync(application_id.ToString(CultureInfo.InvariantCulture));
+    internal ValueTask<TransportApplication> GetApplicationInfoAsync(ulong applicationId)
+        => this.GetApplicationInfoAsync(applicationId.ToString(CultureInfo.InvariantCulture));
 
-    private async Task<TransportApplication> GetApplicationInfoAsync(string application_id)
+    private async ValueTask<TransportApplication> GetApplicationInfoAsync(string applicationId)
     {
-        string route = $"{Endpoints.OAUTH2}{Endpoints.APPLICATIONS}/:application_id";
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { application_id }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
+        string route = $"{Endpoints.OAUTH2}/{Endpoints.APPLICATIONS}/:application_id";
+        Uri url = new($"{Endpoints.OAUTH2}/{Endpoints.APPLICATIONS}/{applicationId}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         return JsonConvert.DeserializeObject<TransportApplication>(res.Response);
     }
 
-    internal async Task<IReadOnlyList<DiscordApplicationAsset>> GetApplicationAssetsAsync(DiscordApplication application)
+    internal async ValueTask<IReadOnlyList<DiscordApplicationAsset>> GetApplicationAssetsAsync(DiscordApplication application)
     {
-        string route = $"{Endpoints.OAUTH2}{Endpoints.APPLICATIONS}/:application_id{Endpoints.ASSETS}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { application_id = application.Id }, out var path);
+        string route = $"{Endpoints.OAUTH2}/{Endpoints.APPLICATIONS}/:application_id/{Endpoints.ASSETS}";
+        Uri url = new($"{Endpoints.OAUTH2}/{Endpoints.APPLICATIONS}/{application.Id}/{Endpoints.ASSETS}");
 
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         IEnumerable<DiscordApplicationAsset> assets = JsonConvert.DeserializeObject<IEnumerable<DiscordApplicationAsset>>(res.Response);
         foreach (DiscordApplicationAsset asset in assets)
@@ -5181,19 +5499,26 @@ public sealed class DiscordApiClient
         return new ReadOnlyCollection<DiscordApplicationAsset>(new List<DiscordApplicationAsset>(assets));
     }
 
-    internal async Task<GatewayInfo> GetGatewayInfoAsync()
+    internal async ValueTask<GatewayInfo> GetGatewayInfoAsync()
     {
-        Dictionary<string, string> headers = ;
-        string route = Endpoints.GATEWAY;
+        Dictionary<string, string> headers = new();
+        string route = Endpoints.GATEWAY + "/";
         if (this._discord.Configuration.TokenType == TokenType.Bot)
         {
             route += Endpoints.BOT;
         }
-
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route, headers);
+        
+        Uri url = new(route);
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get,
+            Headers = headers
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         GatewayInfo info = JObject.Parse(res.Response).ToDiscordObject<GatewayInfo>();
         info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.ResetAfterInternal);
@@ -5201,27 +5526,24 @@ public sealed class DiscordApiClient
     }
     #endregion
 
-    public async Task<DiscordForumPostStarter> CreateForumPostAsync
+    public async ValueTask<DiscordForumPostStarter> CreateForumPostAsync
     (
         ulong channelId,
         string name,
         AutoArchiveDuration? autoArchiveDuration,
-        int? rate_limit_per_user,
+        int? rateLimitPerUser,
         DiscordMessageBuilder message,
         IEnumerable<ulong> appliedTags
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREADS}";
-
-        var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { channel_id = channelId }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
+        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.THREADS}";
+        Uri url = new($"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREADS}");
 
         RestForumPostCreatePayload pld = new()
         {
             Name = name,
             ArchiveAfter = autoArchiveDuration,
-            RateLimitPerUser = rate_limit_per_user,
+            RateLimitPerUser = rateLimitPerUser,
             Message = new RestChannelMessageCreatePayload
             {
                 Content = message.Content,
@@ -5236,10 +5558,18 @@ public sealed class DiscordApiClient
         };
 
         JObject ret;
+        RestResponse res;
         if (message.Files.Count is 0)
         {
-            var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
-
+            RestRequest req = new()
+            {
+                Route = route,
+                Url = url,
+                Method = HttpMethod.Post,
+                Payload = DiscordJson.SerializeObject(pld)
+            };
+            
+            res = await this._rest.ExecuteRequestAsync(req);
             ret = JObject.Parse(res.Response);
         }
         else
@@ -5248,9 +5578,17 @@ public sealed class DiscordApiClient
             {
                 ["payload_json"] = DiscordJson.SerializeObject(pld)
             };
-
-            var res = await this.DoMultipartAsync(this._discord, bucket, url, RestRequestMethod.POST, route, values: values, files: message.Files);
-
+            
+            MultipartRestRequest req = new()
+            {
+                Route = route,
+                Url = url,
+                Method = HttpMethod.Post,
+                Values = values,
+                Files = message.Files
+            };
+            
+            res = await this._rest.ExecuteRequestAsync(req);
             ret = JObject.Parse(res.Response);
         }
 
@@ -5267,37 +5605,35 @@ public sealed class DiscordApiClient
     /// <summary>
     /// Internal method to create an auto-moderation rule in a guild.
     /// </summary>
-    /// <param name="guild_id">The id of the guild where the rule will be created.</param>
+    /// <param name="guildId">The id of the guild where the rule will be created.</param>
     /// <param name="name">The rule name.</param>
-    /// <param name="event_type">The Discord event that will trigger the rule.</param>
-    /// <param name="trigger_type">The rule trigger.</param>
-    /// <param name="trigger_metadata">The trigger metadata.</param>
+    /// <param name="eventType">The Discord event that will trigger the rule.</param>
+    /// <param name="triggerType">The rule trigger.</param>
+    /// <param name="triggerMetadata">The trigger metadata.</param>
     /// <param name="actions">The actions that will run when a rule is triggered.</param>
     /// <param name="enabled">Whenever the rule is enabled or not.</param>
-    /// <param name="exempt_roles">The exempted roles that will not trigger the rule.</param>
-    /// <param name="exempt_channels">The exempted channels that will not trigger the rule.</param>
+    /// <param name="exemptRoles">The exempted roles that will not trigger the rule.</param>
+    /// <param name="exemptChannels">The exempted channels that will not trigger the rule.</param>
     /// <param name="reason">The reason for audits logs.</param>
     /// <returns>The created rule.</returns>
-    internal async Task<DiscordAutoModerationRule> CreateGuildAutoModerationRuleAsync
+    internal async ValueTask<DiscordAutoModerationRule> CreateGuildAutoModerationRuleAsync
     (
-        ulong guild_id,
+        ulong guildId,
         string name,
-        RuleEventType event_type,
-        RuleTriggerType trigger_type,
-        DiscordRuleTriggerMetadata trigger_metadata,
+        RuleEventType eventType,
+        RuleTriggerType triggerType,
+        DiscordRuleTriggerMetadata triggerMetadata,
         IReadOnlyList<DiscordAutoModerationAction> actions,
         Optional<bool> enabled = default,
-        Optional<IReadOnlyList<DiscordRole>> exempt_roles = default,
-        Optional<IReadOnlyList<DiscordChannel>> exempt_channels = default,
+        Optional<IReadOnlyList<DiscordRole>> exemptRoles = default,
+        Optional<IReadOnlyList<DiscordChannel>> exemptChannels = default,
         string reason = null
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.AUTO_MODERATION}{Endpoints.RULES}";
+        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}";
+        Uri url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}");
 
-        var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
-        Uri url = Utilities.GetApiUriFor(path);
-
-        Dictionary<string, string> headers = ;
+        Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
@@ -5305,19 +5641,28 @@ public sealed class DiscordApiClient
 
         string payload = DiscordJson.SerializeObject(new
         {
-            guild_id,
+            guild_id = guildId,
             name,
-            event_type,
-            trigger_type,
-            trigger_metadata,
+            event_type = eventType,
+            trigger_type = triggerType,
+            trigger_metadata = triggerMetadata,
             actions,
             enabled,
-            exempt_roles = exempt_roles.Value.Select(x => x.Id).ToArray(),
-            exempt_channels = exempt_channels.Value.Select(x => x.Id).ToArray()
+            exempt_roles = exemptRoles.Value.Select(x => x.Id).ToArray(),
+            exempt_channels = exemptChannels.Value.Select(x => x.Id).ToArray()
         });
-
-        var req = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.POST, route, headers, payload);
-        DiscordAutoModerationRule rule = JsonConvert.DeserializeObject<DiscordAutoModerationRule>(req.Response);
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post,
+            Headers = headers,
+            Payload = payload
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+        DiscordAutoModerationRule rule = JsonConvert.DeserializeObject<DiscordAutoModerationRule>(res.Response);
 
         return rule;
     }
@@ -5325,17 +5670,23 @@ public sealed class DiscordApiClient
     /// <summary>
     /// Internal method to get an auto-moderation rule in a guild.
     /// </summary>
-    /// <param name="guild_id">The guild id where the rule is in.</param>
-    /// <param name="rule_id">The rule id.</param>
+    /// <param name="guildId">The guild id where the rule is in.</param>
+    /// <param name="ruleId">The rule id.</param>
     /// <returns>The rule found.</returns>
-    internal async Task<DiscordAutoModerationRule> GetGuildAutoModerationRuleAsync(ulong guild_id, ulong rule_id)
+    internal async ValueTask<DiscordAutoModerationRule> GetGuildAutoModerationRuleAsync(ulong guildId, ulong ruleId)
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.AUTO_MODERATION}{Endpoints.RULES}/:rule_id";
-
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { guild_id, rule_id }, out var path);
-        Uri url = Utilities.GetApiUriFor(path);
-        var req = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
-        DiscordAutoModerationRule rule = JsonConvert.DeserializeObject<DiscordAutoModerationRule>(req.Response);
+        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}/:rule_id";
+        Uri url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}/{ruleId}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+        DiscordAutoModerationRule rule = JsonConvert.DeserializeObject<DiscordAutoModerationRule>(res.Response);
 
         return rule;
     }
@@ -5343,16 +5694,22 @@ public sealed class DiscordApiClient
     /// <summary>
     /// Internal method to get all auto-moderation rules in a guild.
     /// </summary>
-    /// <param name="guild_id">The guild id where rules are in.</param>
+    /// <param name="guildId">The guild id where rules are in.</param>
     /// <returns>The rules found.</returns>
-    internal async Task<IReadOnlyList<DiscordAutoModerationRule>> GetGuildAutoModerationRulesAsync(ulong guild_id)
+    internal async ValueTask<IReadOnlyList<DiscordAutoModerationRule>> GetGuildAutoModerationRulesAsync(ulong guildId)
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.AUTO_MODERATION}{Endpoints.RULES}";
-
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
-        Uri url = Utilities.GetApiUriFor(path);
-        var req = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
-        IReadOnlyList<DiscordAutoModerationRule> rules = JsonConvert.DeserializeObject<IReadOnlyList<DiscordAutoModerationRule>>(req.Response);
+        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}";
+        Uri url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+        IReadOnlyList<DiscordAutoModerationRule> rules = JsonConvert.DeserializeObject<IReadOnlyList<DiscordAutoModerationRule>>(res.Response);
 
         return rules;
     }
@@ -5360,36 +5717,34 @@ public sealed class DiscordApiClient
     /// <summary>
     /// Internal method to modify an auto-moderation rule in a guild.
     /// </summary>
-    /// <param name="guild_id">The id of the guild where the rule will be modified.</param>
+    /// <param name="guildId">The id of the guild where the rule will be modified.</param>
     /// <param name="name">The rule name.</param>
-    /// <param name="event_type">The Discord event that will trigger the rule.</param>
-    /// <param name="trigger_metadata">The trigger metadata.</param>
+    /// <param name="eventType">The Discord event that will trigger the rule.</param>
+    /// <param name="triggerMetadata">The trigger metadata.</param>
     /// <param name="actions">The actions that will run when a rule is triggered.</param>
     /// <param name="enabled">Whenever the rule is enabled or not.</param>
-    /// <param name="exempt_roles">The exempted roles that will not trigger the rule.</param>
-    /// <param name="exempt_channels">The exempted channels that will not trigger the rule.</param>
+    /// <param name="exemptRoles">The exempted roles that will not trigger the rule.</param>
+    /// <param name="exemptChannels">The exempted channels that will not trigger the rule.</param>
     /// <param name="reason">The reason for audits logs.</param>
     /// <returns>The modified rule.</returns>
-    internal async Task<DiscordAutoModerationRule> ModifyGuildAutoModerationRuleAsync
+    internal async ValueTask<DiscordAutoModerationRule> ModifyGuildAutoModerationRuleAsync
     (
-        ulong guild_id,
-        ulong rule_id,
+        ulong guildId,
+        ulong ruleId,
         Optional<string> name,
-        Optional<RuleEventType> event_type,
-        Optional<DiscordRuleTriggerMetadata> trigger_metadata,
+        Optional<RuleEventType> eventType,
+        Optional<DiscordRuleTriggerMetadata> triggerMetadata,
         Optional<IReadOnlyList<DiscordAutoModerationAction>> actions,
         Optional<bool> enabled,
-        Optional<IReadOnlyList<DiscordRole>> exempt_roles,
-        Optional<IReadOnlyList<DiscordChannel>> exempt_channels,
+        Optional<IReadOnlyList<DiscordRole>> exemptRoles,
+        Optional<IReadOnlyList<DiscordChannel>> exemptChannels,
         string reason = null
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.AUTO_MODERATION}{Endpoints.RULES}/:rule_id";
+        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}/:rule_id";
+        Uri url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}/{ruleId}");
 
-        var bucket = this._rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id, rule_id }, out var path);
-        Uri url = Utilities.GetApiUriFor(path);
-
-        Dictionary<string, string> headers = ;
+        Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
@@ -5398,15 +5753,24 @@ public sealed class DiscordApiClient
         string payload = DiscordJson.SerializeObject(new
         {
             name,
-            event_type,
-            trigger_metadata,
+            event_type = eventType,
+            trigger_metadata = triggerMetadata,
             actions,
             enabled,
-            exempt_roles = exempt_roles.Value.Select(x => x.Id).ToArray(),
-            exempt_channels = exempt_channels.Value.Select(x => x.Id).ToArray()
+            exempt_roles = exemptRoles.Value.Select(x => x.Id).ToArray(),
+            exempt_channels = exemptChannels.Value.Select(x => x.Id).ToArray()
         });
-
-        var req = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PATCH, route, headers, payload);
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Patch,
+            Headers = headers,
+            Payload = payload
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
         DiscordAutoModerationRule rule = JsonConvert.DeserializeObject<DiscordAutoModerationRule>(req.Response);
 
         return rule;
@@ -5415,22 +5779,28 @@ public sealed class DiscordApiClient
     /// <summary>
     /// Internal method to delete an auto-moderation rule in a guild.
     /// </summary>
-    /// <param name="guild_id">The id of the guild where the rule is in.</param>
-    /// <param name="rule_id">The rule id that will be deleted.</param>
+    /// <param name="guildId">The id of the guild where the rule is in.</param>
+    /// <param name="ruleId">The rule id that will be deleted.</param>
     /// <param name="reason">The reason for audits logs.</param>
-    internal Task DeleteGuildAutoModerationRuleAsync(ulong guild_id, ulong rule_id, string reason)
+    internal async ValueTask DeleteGuildAutoModerationRuleAsync(ulong guildId, ulong ruleId, string reason)
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.AUTO_MODERATION}{Endpoints.RULES}/:rule_id";
+        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}/:rule_id";
+        Uri url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}/{ruleId}");
 
-        var bucket = this._rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id, rule_id }, out var path);
-        Uri url = Utilities.GetApiUriFor(path);
-
-        Dictionary<string, string> headers = ;
+        Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
         }
-
-        return this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.DELETE, route, headers);
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Delete,
+            Headers = headers
+        };
+        
+        await this._rest.ExecuteRequestAsync(request);
     }
 }
