@@ -3384,45 +3384,56 @@ public sealed class DiscordApiClient
     #endregion
 
     #region Roles
-    internal async Task<IReadOnlyList<DiscordRole>> GetGuildRolesAsync(ulong guild_id)
+    internal async ValueTask<IReadOnlyList<DiscordRole>> GetGuildRolesAsync(ulong guildId)
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.ROLES}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
+        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.ROLES}";
+        Uri url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.ROLES}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
+        IEnumerable<DiscordRole> rolesRaw = JsonConvert.DeserializeObject<IEnumerable<DiscordRole>>(res.Response).Select(xr => { xr.Discord = this._discord; xr._guild_id = guildId; return xr; });
 
-        IEnumerable<DiscordRole> roles_raw = JsonConvert.DeserializeObject<IEnumerable<DiscordRole>>(res.Response).Select(xr => { xr.Discord = this._discord; xr._guild_id = guild_id; return xr; });
-
-        return new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(roles_raw));
+        return new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(rolesRaw));
     }
 
-    internal async Task<DiscordGuild> GetGuildAsync(ulong guildId, bool? with_counts)
+    internal async ValueTask<DiscordGuild> GetGuildAsync(ulong guildId, bool? withCounts)
     {
-        Dictionary<string, string> urlparams = new();
-        if (with_counts.HasValue)
+        QueryUriBuilder urlparams = new($"{Endpoints.GUILDS}/{guildId}");
+        if (withCounts.HasValue)
         {
-            urlparams["with_counts"] = with_counts?.ToString();
+            urlparams.AddParameter("with_counts", withCounts?.ToString());
         }
 
         string route = $"{Endpoints.GUILDS}/:guild_id";
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { guild_id = guildId }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path, urlparams.Any() ? BuildQueryString(urlparams) : "");
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route, urlparams);
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = urlparams.Build(),
+            Method = HttpMethod.Get
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         JObject json = JObject.Parse(res.Response);
         JArray rawMembers = (JArray)json["members"];
         DiscordGuild guildRest = json.ToDiscordObject<DiscordGuild>();
-        foreach (DiscordRole r in guildRest._roles.Values)
+        foreach (DiscordRole role in guildRest._roles.Values)
         {
-            r._guild_id = guildRest.Id;
+            role._guild_id = guildRest.Id;
         }
 
-        if (this._discord is DiscordClient dc)
+        if (this._discord is DiscordClient discordClient)
         {
-            await dc.OnGuildUpdateEventAsync(guildRest, rawMembers);
-            return dc._guilds[guildRest.Id];
+            await discordClient.OnGuildUpdateEventAsync(guildRest, rawMembers);
+            return discordClient._guilds[guildRest.Id];
         }
         else
         {
@@ -3431,7 +3442,19 @@ public sealed class DiscordApiClient
         }
     }
 
-    internal async Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason, Stream icon, string emoji)
+    internal async ValueTask<DiscordRole> ModifyGuildRoleAsync
+    (
+        ulong guildId,
+        ulong roleId,
+        string name,
+        Permissions? permissions,
+        int? color,
+        bool? hoist,
+        bool? mentionable,
+        string reason,
+        Stream icon,
+        string emoji
+    )
     {
         string image = null;
 
@@ -3452,41 +3475,67 @@ public sealed class DiscordApiClient
             Icon = image
         };
 
-        Dictionary<string, string> headers = ;
+        Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.ROLES}/:role_id";
-        var bucket = this._rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id, role_id }, out var path);
-
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld));
+        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.ROLES}/:role_id";
+        Uri url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.ROLES}/{roleId}");
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Patch,
+            Payload = DiscordJson.SerializeObject(pld),
+            Headers = headers
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         DiscordRole ret = JsonConvert.DeserializeObject<DiscordRole>(res.Response);
         ret.Discord = this._discord;
-        ret._guild_id = guild_id;
+        ret._guild_id = guildId;
 
         return ret;
     }
 
-    internal Task DeleteRoleAsync(ulong guild_id, ulong role_id, string reason)
+    internal async ValueTask DeleteRoleAsync(ulong guildId, ulong roleId, string reason)
     {
-        Dictionary<string, string> headers = ;
+        Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.ROLES}/:role_id";
-        var bucket = this._rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id, role_id }, out var path);
+        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.ROLES}/:role_id";
+        Uri url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.ROLES}/{roleId}");
 
-        Uri url = Utilities.GetApiUriFor(path);
-        return this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.DELETE, route, headers);
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Delete,
+            Headers = headers
+        };
+        
+        await this._rest.ExecuteRequestAsync(request);
     }
 
-    internal async Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason, Stream icon, string emoji)
+    internal async ValueTask<DiscordRole> CreateGuildRoleAsync
+    (
+        ulong guildId,
+        string name,
+        Permissions? permissions,
+        int? color,
+        bool? hoist,
+        bool? mentionable,
+        string reason,
+        Stream icon,
+        string emoji
+    )
     {
         string image = null;
 
@@ -3507,22 +3556,29 @@ public sealed class DiscordApiClient
             Icon = image
         };
 
-        Dictionary<string, string> headers = ;
+        Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.ROLES}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
+        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.ROLES}";
+        Uri url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.ROLES}");
 
-        Uri url = Utilities.GetApiUriFor(path);
-
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.POST, route, headers, DiscordJson.SerializeObject(pld));
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post,
+            Payload = DiscordJson.SerializeObject(pld),
+            Headers = headers
+        };
+        
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         DiscordRole ret = JsonConvert.DeserializeObject<DiscordRole>(res.Response);
         ret.Discord = this._discord;
-        ret._guild_id = guild_id;
+        ret._guild_id = guildId;
 
         return ret;
     }
