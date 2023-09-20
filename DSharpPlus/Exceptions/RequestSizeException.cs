@@ -39,7 +39,8 @@ public class RequestSizeException : DiscordException
 
         try
         {
-            JsonElement responseModel = JsonDocument.Parse(content).RootElement;
+            using JsonDocument document = JsonDocument.Parse(content);
+            JsonElement responseModel = document.RootElement;
 
             if
             (
