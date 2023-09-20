@@ -104,9 +104,6 @@ namespace DSharpPlus
             };
         }
 
-        internal static Dictionary<string, string> GetBaseHeaders()
-            => new();
-
         internal static string GetUserAgent()
             => VersionHeader;
 
