@@ -79,7 +79,7 @@ internal sealed class RestChannelCreatePayload
 internal sealed class RestChannelModifyPayload
 {
     [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonProperty("type")]
     public Optional<ChannelType> Type { get; set; }
@@ -103,7 +103,7 @@ internal sealed class RestChannelModifyPayload
     public int? UserLimit { get; set; }
 
     [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<DiscordRestOverwrite> PermissionOverwrites { get; set; }
+    public IEnumerable<DiscordRestOverwrite>? PermissionOverwrites { get; set; }
 
     [JsonProperty("rate_limit_per_user")]
     public Optional<int?> PerUserRateLimit { get; set; }
@@ -124,10 +124,13 @@ internal sealed class RestChannelModifyPayload
     public Optional<ChannelFlags> Flags { get; set; }
 
     [JsonProperty("default_reaction_emoji", NullValueHandling = NullValueHandling.Ignore)]
-    public Optional<DefaultReaction> DefaultReaction { get; set; }
+    public Optional<DefaultReaction?> DefaultReaction { get; set; }
+
+    [JsonProperty("default_per_user_rate_limit", NullValueHandling = NullValueHandling.Ignore)]
+    public Optional<int> DefaultPerUserRateLimit { get; set; }
 
     [JsonProperty("available_tags", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<DiscordForumTagBuilder> AvailableTags { get; set; }
+    public IEnumerable<DiscordForumTagBuilder>? AvailableTags { get; set; }
 
     [JsonProperty("default_forum_layout", NullValueHandling = NullValueHandling.Ignore)]
     public Optional<DefaultForumLayout> DefaultForumLayout { get; set; }
@@ -136,7 +139,7 @@ internal sealed class RestChannelModifyPayload
 internal sealed class RestThreadChannelModifyPayload
 {
     [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonProperty("type")]
     public Optional<ChannelType> Type { get; set; }
@@ -160,7 +163,7 @@ internal sealed class RestThreadChannelModifyPayload
     public int? UserLimit { get; set; }
 
     [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<DiscordRestOverwrite> PermissionOverwrites { get; set; }
+    public IEnumerable<DiscordRestOverwrite>? PermissionOverwrites { get; set; }
 
     [JsonProperty("rate_limit_per_user")]
     public Optional<int?> PerUserRateLimit { get; set; }
@@ -181,31 +184,31 @@ internal sealed class RestThreadChannelModifyPayload
     public bool? Locked { get; set; }
 
     [JsonProperty("applied_tags", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<ulong> AppliedTags { get; set; }
+    public IEnumerable<ulong>? AppliedTags { get; set; }
 }
 
 internal class RestChannelMessageEditPayload
 {
     [JsonProperty("content", NullValueHandling = NullValueHandling.Include)]
-    public string Content { get; set; }
+    public string? Content { get; set; }
 
     [JsonIgnore]
     public bool HasContent { get; set; }
 
     [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<DiscordEmbed> Embeds { get; set; }
+    public IEnumerable<DiscordEmbed>? Embeds { get; set; }
 
     [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
-    public DiscordMentions Mentions { get; set; }
+    public DiscordMentions? Mentions { get; set; }
 
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyCollection<DiscordActionRowComponent> Components { get; set; }
+    public IReadOnlyCollection<DiscordActionRowComponent>? Components { get; set; }
 
     [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
     public MessageFlags? Flags { get; set; }
 
     [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<DiscordAttachment> Attachments { get; set; }
+    public IEnumerable<DiscordAttachment>? Attachments { get; set; }
 
     [JsonIgnore]
     public bool HasEmbed { get; set; }
@@ -223,11 +226,10 @@ internal sealed class RestChannelMessageCreatePayload : RestChannelMessageEditPa
     public bool? IsTTS { get; set; }
 
     [JsonProperty("sticker_ids", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<ulong> StickersIds { get; set; } // Discord sends an array, but you can only have one* sticker on a message //
+    public IEnumerable<ulong>? StickersIds { get; set; } // Discord sends an array, but you can only have one* sticker on a message //
 
     [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
     public InternalDiscordMessageReference? MessageReference { get; set; }
-
 }
 
 internal sealed class RestChannelMessageCreateMultipartPayload
