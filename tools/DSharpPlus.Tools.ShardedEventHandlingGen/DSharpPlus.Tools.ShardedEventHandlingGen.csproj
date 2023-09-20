@@ -16,8 +16,5 @@
     <ProjectReference Include="..\..\DSharpPlus\DSharpPlus.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Humanizer" />
-  </ItemGroup>
 
 </Project>

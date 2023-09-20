@@ -2,8 +2,6 @@
 using System.Reflection;
 using System.Text;
 using DSharpPlus;
-using Humanizer;
-
 
 namespace DSharpPlus.Tools.ShardedEventHandlingGen;
 
@@ -123,6 +121,21 @@ public static class Program
         sb.AppendLine();
 
         return sb;
+    }
+    
+    public static string Camelize(this string str)
+    {
+        if (string.IsNullOrEmpty(str))
+        {
+            return str;
+        }
+
+        if (str.Length == 1)
+        {
+            return str.ToUpperInvariant();
+        }
+
+        return str.Substring(0, 1).ToUpperInvariant() + str.Substring(1);
     }
 
 }
