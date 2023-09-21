@@ -83,8 +83,6 @@ public sealed partial class DiscordShardedClient
     /// <param name="config">Configuration to use.</param>
     public DiscordShardedClient(DiscordConfiguration config) : this()
     {
-        this.InternalSetup();
-
         if (config.ShardCount > 1)
         {
             this._manuallySharding = true;
