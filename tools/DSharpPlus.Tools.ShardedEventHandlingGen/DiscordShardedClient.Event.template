@@ -1,0 +1,8 @@
+    /// <inheritdoc cref="DiscordClient.{{EventName}}"/>
+    public event AsyncEventHandler<DiscordClient, {{EventArgumentType}}> {{EventName}}
+    {
+        add => this.{{EventNameCamelCased}}.Register(value);
+        remove => this.{{EventNameCamelCased}}.Unregister(value);
+    }
+    private AsyncEvent<DiscordClient, {{EventArgumentType}}> {{EventNameCamelCased}};
+    private Task {{EventName}}Delegator(DiscordClient client, {{EventArgumentType}} eventArgs) => {{EventNameCamelCased}}.InvokeAsync(client, eventArgs);

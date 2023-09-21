@@ -81,7 +81,7 @@ public sealed partial class DiscordShardedClient
     /// Initializes new auto-sharding Discord client.
     /// </summary>
     /// <param name="config">Configuration to use.</param>
-    public DiscordShardedClient(DiscordConfiguration config)
+    public DiscordShardedClient(DiscordConfiguration config) : this()
     {
         this.InternalSetup();
 
@@ -451,7 +451,7 @@ public sealed partial class DiscordShardedClient
     #endregion
 
     #region Event Handler Initialization/Registering
-    
+
     #region Error Handling
 
     internal void EventErrorHandler<TArgs>(AsyncEvent<DiscordClient, TArgs> asyncEvent, Exception ex, AsyncEventHandler<DiscordClient, TArgs> handler, DiscordClient sender, TArgs eventArgs)
@@ -465,7 +465,7 @@ public sealed partial class DiscordShardedClient
         where TArgs : AsyncEventArgs => this.Logger.LogCritical(LoggerEvents.EventHandlerException, ex, "Exception event handler {Method} (defined in {DeclaringType}) threw an exception", handler.Method, handler.Method.DeclaringType);
 
     #endregion
-    
+
     private int GetShardIdFromGuilds(ulong id)
     {
         foreach (DiscordClient s in this._shards.Values)
