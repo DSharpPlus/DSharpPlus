@@ -71,92 +71,58 @@ partial struct EtfReader
     *    unnecessary but that still poses a branch the branch predictor has to deal with. oddly,
     *    removing that branch also causes the JIT to optimize the ternary operator to a conditional
     *    move, which actually makes this code entirely branchless.
-    *    
-    ****************************************************************************************************
-    * 
-    * one note for the following section: the exact registers and moves may differ; the assembly here 
-    * is taken from an (U)Int64 implementation
-    * 
-    ****************************************************************************************************
-    *    
-    * on x86, the emitted assembly output should look as follows for unsigned methods:
-    * 
-    * mov rax, bword ptr [rcx+0x40] | load the length of the current term as the reference passed
-    *                               | to Unsafe.Add
-    * ------------------------------|-------------------------------------------------------------------
-    * mov rax, qword ptr [rax+0x01] | implicitly add and load the value at this address into rax, the
-    *                               | return register
-    * 
-    ****************************************************************************************************
-    * 
-    * and for signed methods:
-    * 
-    * mov rax, bword ptr [rcx+0x40] | load the length of the current term as the reference passed
-    *                               | to Unsafe.Add, but also as the reference we will use later to
-    *                               | determine the sign
-    * ------------------------------|-------------------------------------------------------------------
-    * mov rcx, rax                  | move our work to rcx (or just any register that's currently
-    *                               | free, it doesn't really matter) to keep the reference in rax
-    *                               | intact
-    * ------------------------------|-------------------------------------------------------------------
-    * mov rdx, 0x7FFFFFFFFFFFFFFF   | set the maximum value up to ensure we don't break if the sign
-    *                               | bit is already set
-    * ------------------------------|-------------------------------------------------------------------
-    * and rdx, qword ptr [rcx+0x01] | implicitly and and load the integer into rdx, the address
-    *                               | incremented as Unsafe.Add instructed it to
-    * ------------------------------|-------------------------------------------------------------------
-    * mov rcx, rdx                  | copy the value into rcx to work there
-    * ------------------------------|-------------------------------------------------------------------
-    * neg rcx                       | negate the value in rcx, effectively `rcx = -rcx`. the JIT thinks
-    *                               | rightly that it is faster to always negate than to take the
-    *                               | branch, which hurts us by even existing
-    * ------------------------------|-------------------------------------------------------------------
-    * cmp byte ptr [rax], 0         | see whether the sign byte, with the reference stored in rax from
-    *                               | the very beginning, equals zero
-    * ------------------------------|-------------------------------------------------------------------
-    * mov rax, rcx                  | move the negated value into rax to set up for evaluating the
-    *                               | condition
-    * ------------------------------|-------------------------------------------------------------------
-    * cmove rax, rdx                | if the sign byte from earlier was zero, move the positive value
-    *                               | into rax, if not, keep the negative value
-    *
-    * if the JIT insists on changing cmp byte ptr [rax], 0 to test byte ptr [rax], that's fine, any 
-    * other changes should absolutely be analyzed for performance.
-    * 
     ***************************************************************************************************/
 
     /// <summary>
     /// Provides the implementation for reading a unsigned integer from a currently provided
     /// BigInteger term, ignoring the sign byte.
     /// </summary>
-    private readonly TNumber ReadUnsignedIntegerFromBigInteger<TNumber>()
-        where TNumber : IUnsignedNumber<TNumber>, IBinaryInteger<TNumber>
+    private readonly unsafe TNumber ReadUnsignedIntegerFromBigInteger<TNumber>()
+        where TNumber : unmanaged, IUnsignedNumber<TNumber>, IBinaryInteger<TNumber>
     {
-        return Unsafe.ReadUnaligned<TNumber>
+        void* copy = stackalloc ulong[1];
+
+        Unsafe.CopyBlockUnaligned
         (
-            ref Unsafe.Add
+            destination: copy,
+            source: Unsafe.AsPointer
             (
-                ref MemoryMarshal.GetReference(this.CurrentTermContents),
-                elementOffset: 1
-            )
+                ref Unsafe.Add
+                (
+                    source: ref MemoryMarshal.GetReference(this.CurrentTermContents),
+                    elementOffset: 1
+                )
+            ),
+            byteCount: (uint)this.CurrentTermContents.Length - 1
         );
+
+        return Unsafe.Read<TNumber>(copy);
     }
 
     /// <summary>
     /// Provides the implementation for reading a signed integer from a currently provided
     /// BigInteger term.
     /// </summary>
-    private readonly TNumber ReadSignedIntegerFromBigInteger<TNumber>()
-        where TNumber : IBinaryInteger<TNumber>, IMinMaxValue<TNumber>, ISignedNumber<TNumber>
+    private readonly unsafe TNumber ReadSignedIntegerFromBigInteger<TNumber>()
+        where TNumber : unmanaged, IBinaryInteger<TNumber>, IMinMaxValue<TNumber>, ISignedNumber<TNumber>
     {
-        TNumber value = Unsafe.ReadUnaligned<TNumber>
+        void* copy = stackalloc ulong[1];
+
+        Unsafe.CopyBlockUnaligned
         (
-            ref Unsafe.Add
+            destination: copy,
+            source: Unsafe.AsPointer
             (
-                ref MemoryMarshal.GetReference(this.CurrentTermContents),
-                elementOffset: 1
-            )
+                ref Unsafe.Add
+                (
+                    source: ref MemoryMarshal.GetReference(this.CurrentTermContents),
+                    elementOffset: 1
+                )
+            ),
+            byteCount: (uint)this.CurrentTermContents.Length - 1
         );
+
+        TNumber value = Unsafe.Read<TNumber>(copy);
 
         value &= TNumber.MaxValue;
 
@@ -261,10 +227,6 @@ partial struct EtfReader
                     value = this.ReadSignedIntegerFromBigInteger<short>();
                     return true;
                 }
-
-                BigInteger intermediary = this.ReadBigIntegerCore();
-                value = (short)intermediary;
-                return true;
             }
             else
             {
@@ -295,10 +257,6 @@ partial struct EtfReader
                     value = this.ReadUnsignedIntegerFromBigInteger<ushort>();
                     return true;
                 }
-
-                BigInteger intermediary = this.ReadBigIntegerCore();
-                value = (ushort)intermediary;
-                return true;
             }
             else
             {
@@ -329,10 +287,6 @@ partial struct EtfReader
                     value = this.ReadSignedIntegerFromBigInteger<int>();
                     return true;
                 }
-
-                BigInteger intermediary = this.ReadBigIntegerCore();
-                value = (int)intermediary;
-                return true;
             }
             else
             {
@@ -363,10 +317,6 @@ partial struct EtfReader
                     value = this.ReadUnsignedIntegerFromBigInteger<uint>();
                     return true;
                 }
-
-                BigInteger intermediary = this.ReadBigIntegerCore();
-                value = (uint)intermediary;
-                return true;
             }
             else
             {
@@ -397,10 +347,6 @@ partial struct EtfReader
                     value = this.ReadSignedIntegerFromBigInteger<long>();
                     return true;
                 }
-
-                BigInteger intermediary = this.ReadBigIntegerCore();
-                value = (long)intermediary;
-                return true;
             }
             else
             {
@@ -431,10 +377,6 @@ partial struct EtfReader
                     value = this.ReadUnsignedIntegerFromBigInteger<ulong>();
                     return true;
                 }
-
-                BigInteger intermediary = this.ReadBigIntegerCore();
-                value = (ulong)intermediary;
-                return true;
             }
             else
             {
