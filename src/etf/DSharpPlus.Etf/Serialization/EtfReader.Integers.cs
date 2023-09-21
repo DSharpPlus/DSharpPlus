@@ -261,6 +261,10 @@ partial struct EtfReader
                     value = this.ReadSignedIntegerFromBigInteger<short>();
                     return true;
                 }
+
+                BigInteger intermediary = this.ReadBigIntegerCore();
+                value = (short)intermediary;
+                return true;
             }
             else
             {
@@ -291,6 +295,10 @@ partial struct EtfReader
                     value = this.ReadUnsignedIntegerFromBigInteger<ushort>();
                     return true;
                 }
+
+                BigInteger intermediary = this.ReadBigIntegerCore();
+                value = (ushort)intermediary;
+                return true;
             }
             else
             {
@@ -321,6 +329,10 @@ partial struct EtfReader
                     value = this.ReadSignedIntegerFromBigInteger<int>();
                     return true;
                 }
+
+                BigInteger intermediary = this.ReadBigIntegerCore();
+                value = (int)intermediary;
+                return true;
             }
             else
             {
@@ -351,6 +363,10 @@ partial struct EtfReader
                     value = this.ReadUnsignedIntegerFromBigInteger<uint>();
                     return true;
                 }
+
+                BigInteger intermediary = this.ReadBigIntegerCore();
+                value = (uint)intermediary;
+                return true;
             }
             else
             {
@@ -381,6 +397,10 @@ partial struct EtfReader
                     value = this.ReadSignedIntegerFromBigInteger<long>();
                     return true;
                 }
+
+                BigInteger intermediary = this.ReadBigIntegerCore();
+                value = (long)intermediary;
+                return true;
             }
             else
             {
@@ -411,6 +431,10 @@ partial struct EtfReader
                     value = this.ReadUnsignedIntegerFromBigInteger<ulong>();
                     return true;
                 }
+
+                BigInteger intermediary = this.ReadBigIntegerCore();
+                value = (ulong)intermediary;
+                return true;
             }
             else
             {
