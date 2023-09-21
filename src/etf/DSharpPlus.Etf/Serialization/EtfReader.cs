@@ -268,4 +268,10 @@ public ref partial struct EtfReader
 
         ThrowHelper.ThrowInvalidDecode(typeof(byte[]));
     }
+
+    /// <summary>
+    /// Gets the remaining length of the current complex structure.
+    /// </summary>
+    public readonly uint GetCurrentRemainingLength()
+        => this.remainingLengths.Peek();
 }
