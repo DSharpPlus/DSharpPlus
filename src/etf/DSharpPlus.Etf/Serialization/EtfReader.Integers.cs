@@ -80,11 +80,11 @@ partial struct EtfReader
     private readonly unsafe TNumber ReadUnsignedIntegerFromBigInteger<TNumber>()
         where TNumber : unmanaged, IUnsignedNumber<TNumber>, IBinaryInteger<TNumber>
     {
-        void* copy = stackalloc ulong[1];
+        TNumber value = TNumber.Zero;
 
         Unsafe.CopyBlockUnaligned
         (
-            destination: copy,
+            destination: &value,
             source: Unsafe.AsPointer
             (
                 ref Unsafe.Add
@@ -96,7 +96,7 @@ partial struct EtfReader
             byteCount: (uint)this.CurrentTermContents.Length - 1
         );
 
-        return Unsafe.Read<TNumber>(copy);
+        return value;
     }
 
     /// <summary>
@@ -106,11 +106,11 @@ partial struct EtfReader
     private readonly unsafe TNumber ReadSignedIntegerFromBigInteger<TNumber>()
         where TNumber : unmanaged, IBinaryInteger<TNumber>, IMinMaxValue<TNumber>, ISignedNumber<TNumber>
     {
-        void* copy = stackalloc ulong[1];
+        TNumber value = TNumber.Zero;
 
         Unsafe.CopyBlockUnaligned
         (
-            destination: copy,
+            destination: &value,
             source: Unsafe.AsPointer
             (
                 ref Unsafe.Add
@@ -121,8 +121,6 @@ partial struct EtfReader
             ),
             byteCount: (uint)this.CurrentTermContents.Length - 1
         );
-
-        TNumber value = Unsafe.Read<TNumber>(copy);
 
         value &= TNumber.MaxValue;
 
