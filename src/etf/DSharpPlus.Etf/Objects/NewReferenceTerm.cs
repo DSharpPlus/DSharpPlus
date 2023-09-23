@@ -2,12 +2,14 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+using System.Collections.Generic;
+
 namespace DSharpPlus.Etf.Objects;
 
 /// <summary>
-/// Represents a new Erlang process identifier object.
+/// Represents a new Erlang reference term.
 /// </summary>
-public readonly record struct NewPidTerm
+public readonly record struct NewReferenceTerm
 {
     /// <summary>
     /// The originating node.
@@ -15,17 +17,12 @@ public readonly record struct NewPidTerm
     public required string Node { get; init; }
 
     /// <summary>
-    /// The relevant ID.
-    /// </summary>
-    public required uint Id { get; init; }
-
-    /// <summary>
-    /// The relevant serial number.
-    /// </summary>
-    public required uint Serial { get; init; }
-
-    /// <summary>
     /// An identifier indicating the incarnation of a node.
     /// </summary>
-    public required uint Creation { get; init; }
+    public required byte Creation { get; init; }
+
+    /// <summary>
+    /// The relevant ID, to be regarded as uninterpreted data.
+    /// </summary>
+    public required IReadOnlyList<uint> Id { get; init; }
 }

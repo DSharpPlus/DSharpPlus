@@ -5,7 +5,7 @@
 namespace DSharpPlus.Etf.Objects;
 
 /// <summary>
-/// Represents an Erland process identifier object.
+/// Represents an Erlang process identifier object.
 /// </summary>
 public readonly record struct PidTerm
 {

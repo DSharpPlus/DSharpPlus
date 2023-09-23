@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
@@ -250,6 +251,57 @@ partial struct EtfReader
             Id = id,
             Serial = serial,
             Creation = creation
+        };
+
+        return true;
+    }
+
+    /// <summary>
+    /// Reads the current term as a Reference term.
+    /// </summary>
+    /// <returns>True if successful, false if unsuccessful.</returns>
+    public readonly bool TryReadNewReferenceTerm
+    (
+        out NewReferenceTerm term
+    )
+    {
+        int offset = 2;
+
+        if (this.TermType != TermType.NewReference)
+        {
+            term = default;
+            return false;
+        }
+
+        ushort length = BinaryPrimitives.ReadUInt16BigEndian(this.CurrentTermContents[..2]);
+
+        if (!this.TryReadAtom(ref offset, out string? node))
+        {
+            term = default;
+            return false;
+        }
+
+        if (this.CurrentTermContents.Length < offset + (length * 4) + 1)
+        {
+            term = default;
+            return false;
+        }
+
+        byte creation = this.CurrentTermContents[offset++];
+
+        List<uint> id = new(length);
+
+        for (int i = 0; i < length; i++)
+        {
+            id.Add(BinaryPrimitives.ReadUInt32BigEndian(this.CurrentTermContents[offset..4]));
+            offset += 4;
+        }
+
+        term = new()
+        {
+            Node = node,
+            Creation = creation,
+            Id = id
         };
 
         return true;
