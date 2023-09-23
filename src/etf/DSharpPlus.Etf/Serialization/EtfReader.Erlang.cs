@@ -82,4 +82,46 @@ partial struct EtfReader
 
         return true;
     }
+
+    /// <summary>
+    /// Reads the current term as a new-port term.
+    /// </summary>
+    /// <returns>True if successful, false if unsuccessful.</returns>
+    public readonly bool TryReadNewPortTerm
+    (
+        out NewPortTerm term
+    )
+    {
+        int offset = 0;
+
+        if (this.TermType != TermType.NewPort)
+        {
+            term = default;
+            return false;
+        }
+
+        if (!this.TryReadAtom(ref offset, out string? node))
+        {
+            term = default;
+            return false;
+        }
+
+        if (this.CurrentTermContents.Length < offset + 8)
+        {
+            term = default;
+            return false;
+        }
+
+        uint id = BinaryPrimitives.ReadUInt32BigEndian(this.CurrentTermContents[offset..4]);
+        uint creation = BinaryPrimitives.ReadUInt32BigEndian(this.CurrentTermContents[(offset + 4)..4]);
+
+        term = new()
+        {
+            Node = node,
+            Id = id,
+            Creation = creation
+        };
+
+        return true;
+    }
 }
