@@ -19,7 +19,7 @@ public class DiscordAutoModerationActionExecution
     /// Gets the action which was executed.
     /// </summary>
     [JsonProperty("action")]
-    public DiscordAutoModerationAction Action { get; internal set; }
+    public DiscordAutoModerationAction? Action { get; internal set; }
 
     /// <summary>
     /// Gets the id of the rule which was triggered.
@@ -68,7 +68,7 @@ public class DiscordAutoModerationActionExecution
     /// Gets the keywords (word or phrase) configured in the rule that triggered it.
     /// </summary>
     [JsonProperty("matched_keyword")]
-    public string MatchedKeyword { get; internal set; }
+    public string? MatchedKeyword { get; internal set; }
 
     /// <summary>
     /// Gets the substring in content that triggered the rule.

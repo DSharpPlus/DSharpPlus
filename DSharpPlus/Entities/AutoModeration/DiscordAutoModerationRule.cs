@@ -21,13 +21,13 @@ public class DiscordAutoModerationRule : SnowflakeObject
     /// Gets the guild which the rule is in.
     /// </summary>
     [JsonIgnore]
-    public DiscordGuild? Guild => this.Discord.Guilds.TryGetValue(this.GuildId, out var guild) ? guild : null;
+    public DiscordGuild? Guild => this.Discord.Guilds.TryGetValue(this.GuildId, out DiscordGuild? guild) ? guild : null;
 
     /// <summary>
     /// Gets the rule name.
     /// </summary>
     [JsonProperty("name")]
-    public string Name { get; internal set; }
+    public string? Name { get; internal set; }
 
     [JsonProperty("creator_id")]
     internal ulong CreatorId { get; set; }
@@ -36,7 +36,7 @@ public class DiscordAutoModerationRule : SnowflakeObject
     /// Gets the user that created the rule.
     /// </summary>
     [JsonIgnore]
-    public DiscordUser Creator => this.Discord.TryGetCachedUserInternal(this.CreatorId, out DiscordUser creator) ? creator : null;
+    public DiscordUser? Creator => this.Discord.TryGetCachedUserInternal(this.CreatorId, out DiscordUser creator) ? creator : null;
 
     /// <summary>
     /// Gets the rule event type.
@@ -54,13 +54,13 @@ public class DiscordAutoModerationRule : SnowflakeObject
     /// Gets the additional data to determine whether a rule should be triggered.
     /// </summary>
     [JsonProperty("trigger_metadata")]
-    public DiscordRuleTriggerMetadata Metadata { get; internal set; }
+    public DiscordRuleTriggerMetadata? Metadata { get; internal set; }
 
     /// <summary>
     /// Gets actions which will execute when the rule is triggered.
     /// </summary>
     [JsonProperty("actions")]
-    public IReadOnlyList<DiscordAutoModerationAction> Actions { get; internal set; }
+    public IReadOnlyList<DiscordAutoModerationAction>? Actions { get; internal set; }
 
     /// <summary>
     /// Gets whether the rule is enabled.
@@ -75,7 +75,7 @@ public class DiscordAutoModerationRule : SnowflakeObject
     /// Maximum of 20.
     /// </remarks>
     [JsonProperty("exempt_roles", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyList<ulong> ExemptRoles { get; internal set; }
+    public IReadOnlyList<ulong>? ExemptRoles { get; internal set; }
 
     /// <summary>
     /// Gets ids of channels in which rule will be not triggered.
@@ -84,7 +84,7 @@ public class DiscordAutoModerationRule : SnowflakeObject
     /// Maximum of 50.
     /// </remarks>
     [JsonProperty("exempt_channels", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyList<ulong> ExemptChannels { get; internal set; }
+    public IReadOnlyList<ulong>? ExemptChannels { get; internal set; }
 
     /// <summary>
     /// Deletes the rule in the guild.
@@ -100,7 +100,7 @@ public class DiscordAutoModerationRule : SnowflakeObject
     /// <returns>The modified rule.</returns>
     public async Task<DiscordAutoModerationRule> ModifyAsync(Action<AutoModerationRuleEditModel> action)
     {
-        var model = new AutoModerationRuleEditModel();
+        AutoModerationRuleEditModel model = new();
 
         action(model);
 

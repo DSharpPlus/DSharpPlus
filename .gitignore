@@ -482,3 +482,4 @@ $RECYCLE.BIN/
 # DSharpPlus changes
 docs/_site
 DSharpPlus.Test/config.json
+.idea
