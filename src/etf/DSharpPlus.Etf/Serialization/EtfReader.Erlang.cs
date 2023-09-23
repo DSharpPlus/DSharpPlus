@@ -210,4 +210,48 @@ partial struct EtfReader
 
         return true;
     }
+
+    /// <summary>
+    /// Reads the current term as a PID term.
+    /// </summary>
+    /// <returns>True if successful, false if unsuccessful.</returns>
+    public readonly bool TryReadNewPidTerm
+    (
+        out NewPidTerm term
+    )
+    {
+        int offset = 0;
+
+        if (this.TermType != TermType.NewPid)
+        {
+            term = default;
+            return false;
+        }
+
+        if (!this.TryReadAtom(ref offset, out string? node))
+        {
+            term = default;
+            return false;
+        }
+
+        if (this.CurrentTermContents.Length < offset + 9)
+        {
+            term = default;
+            return false;
+        }
+
+        uint id = BinaryPrimitives.ReadUInt32BigEndian(this.CurrentTermContents[offset..4]);
+        uint serial = BinaryPrimitives.ReadUInt32BigEndian(this.CurrentTermContents[(offset + 4)..4]);
+        uint creation = BinaryPrimitives.ReadUInt32BigEndian(this.CurrentTermContents[(offset + 8)..4]);
+
+        term = new()
+        {
+            Node = node,
+            Id = id,
+            Serial = serial,
+            Creation = creation
+        };
+
+        return true;
+    }
 }
