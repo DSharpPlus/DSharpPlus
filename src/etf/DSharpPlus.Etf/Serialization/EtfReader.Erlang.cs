@@ -136,7 +136,7 @@ partial struct EtfReader
     {
         int offset = 0;
 
-        if (this.TermType != TermType.NewPort)
+        if (this.TermType != TermType.V4Port)
         {
             term = default;
             return false;
@@ -161,6 +161,50 @@ partial struct EtfReader
         {
             Node = node,
             Id = id,
+            Creation = creation
+        };
+
+        return true;
+    }
+
+    /// <summary>
+    /// Reads the current term as a PID term.
+    /// </summary>
+    /// <returns>True if successful, false if unsuccessful.</returns>
+    public readonly bool TryReadPidTerm
+    (
+        out PidTerm term
+    )
+    {
+        int offset = 0;
+
+        if (this.TermType != TermType.Pid)
+        {
+            term = default;
+            return false;
+        }
+
+        if (!this.TryReadAtom(ref offset, out string? node))
+        {
+            term = default;
+            return false;
+        }
+
+        if (this.CurrentTermContents.Length < offset + 9)
+        {
+            term = default;
+            return false;
+        }
+
+        uint id = BinaryPrimitives.ReadUInt32BigEndian(this.CurrentTermContents[offset..4]);
+        uint serial = BinaryPrimitives.ReadUInt32BigEndian(this.CurrentTermContents[(offset + 4)..4]);
+        byte creation = this.CurrentTermContents[^1];
+
+        term = new()
+        {
+            Node = node,
+            Id = id,
+            Serial = serial,
             Creation = creation
         };
 
