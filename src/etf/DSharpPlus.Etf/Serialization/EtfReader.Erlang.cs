@@ -124,4 +124,46 @@ partial struct EtfReader
 
         return true;
     }
+
+    /// <summary>
+    /// Reads the current term as a v4-port term.
+    /// </summary>
+    /// <returns>True if successful, false if unsuccessful.</returns>
+    public readonly bool TryReadV4PortTerm
+    (
+        out V4PortTerm term
+    )
+    {
+        int offset = 0;
+
+        if (this.TermType != TermType.NewPort)
+        {
+            term = default;
+            return false;
+        }
+
+        if (!this.TryReadAtom(ref offset, out string? node))
+        {
+            term = default;
+            return false;
+        }
+
+        if (this.CurrentTermContents.Length < offset + 12)
+        {
+            term = default;
+            return false;
+        }
+
+        ulong id = BinaryPrimitives.ReadUInt64BigEndian(this.CurrentTermContents[offset..8]);
+        uint creation = BinaryPrimitives.ReadUInt32BigEndian(this.CurrentTermContents[(offset + 8)..4]);
+
+        term = new()
+        {
+            Node = node,
+            Id = id,
+            Creation = creation
+        };
+
+        return true;
+    }
 }
