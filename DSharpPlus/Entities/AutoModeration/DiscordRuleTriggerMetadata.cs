@@ -116,7 +116,7 @@ public sealed class DiscordRuleTriggerMetadataBuilder
     /// <exception cref="ArgumentNullException"></exception>
     public DiscordRuleTriggerMetadataBuilder AddKeywordPresetTypes(IReadOnlyList<RuleKeywordPresetType> keywordPresetTypes)
     {
-        this.KeywordPresetTypes = keywordPresetTypes ?? throw new ArgumentNullException("Argument can't be null.");
+        this.KeywordPresetTypes = keywordPresetTypes ?? throw new ArgumentNullException(nameof(keywordPresetTypes));
 
         return this;
     }
