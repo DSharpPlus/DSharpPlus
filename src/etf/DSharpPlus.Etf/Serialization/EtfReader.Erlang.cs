@@ -257,7 +257,7 @@ partial struct EtfReader
     }
 
     /// <summary>
-    /// Reads the current term as a Reference term.
+    /// Reads the current term as a new reference term.
     /// </summary>
     /// <returns>True if successful, false if unsuccessful.</returns>
     public readonly bool TryReadNewReferenceTerm
@@ -288,6 +288,58 @@ partial struct EtfReader
         }
 
         byte creation = this.CurrentTermContents[offset++];
+
+        List<uint> id = new(length);
+
+        for (int i = 0; i < length; i++)
+        {
+            id.Add(BinaryPrimitives.ReadUInt32BigEndian(this.CurrentTermContents[offset..4]));
+            offset += 4;
+        }
+
+        term = new()
+        {
+            Node = node,
+            Creation = creation,
+            Id = id
+        };
+
+        return true;
+    }
+
+    /// <summary>
+    /// Reads the current term as a newer reference term.
+    /// </summary>
+    /// <returns>True if successful, false if unsuccessful.</returns>
+    public readonly bool TryReadNewerReferenceTerm
+    (
+        out NewerReferenceTerm term
+    )
+    {
+        int offset = 2;
+
+        if (this.TermType != TermType.NewReference)
+        {
+            term = default;
+            return false;
+        }
+
+        ushort length = BinaryPrimitives.ReadUInt16BigEndian(this.CurrentTermContents[..2]);
+
+        if (!this.TryReadAtom(ref offset, out string? node))
+        {
+            term = default;
+            return false;
+        }
+
+        if (this.CurrentTermContents.Length < offset + (length * 4) + 4)
+        {
+            term = default;
+            return false;
+        }
+
+        uint creation = BinaryPrimitives.ReadUInt32BigEndian(this.CurrentTermContents[offset..4]);
+        offset += 4;
 
         List<uint> id = new(length);
 
