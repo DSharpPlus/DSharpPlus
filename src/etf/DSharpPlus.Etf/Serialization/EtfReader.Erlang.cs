@@ -358,4 +358,102 @@ partial struct EtfReader
 
         return true;
     }
+
+    /// <summary>
+    /// Reads the current term as port term.
+    /// </summary>
+    public readonly PortTerm ReadPortTerm()
+    {
+        if (this.TryReadPortTerm(out PortTerm term))
+        {
+            return term;
+        }
+
+        ThrowHelper.ThrowInvalidDecode(typeof(PortTerm));
+        return default;
+    }
+
+    /// <summary>
+    /// Reads the current term as new port term.
+    /// </summary>
+    public readonly NewPortTerm ReadNewPortTerm()
+    {
+        if (this.TryReadNewPortTerm(out NewPortTerm term))
+        {
+            return term;
+        }
+
+        ThrowHelper.ThrowInvalidDecode(typeof(NewPortTerm));
+        return default;
+    }
+
+    /// <summary>
+    /// Reads the current term as v4 port term.
+    /// </summary>
+    public readonly V4PortTerm ReadV4PortTerm()
+    {
+        if (this.TryReadV4PortTerm(out V4PortTerm term))
+        {
+            return term;
+        }
+
+        ThrowHelper.ThrowInvalidDecode(typeof(V4PortTerm));
+        return default;
+    }
+
+    /// <summary>
+    /// Reads the current term as PID term.
+    /// </summary>
+    public readonly PidTerm ReadPidTerm()
+    {
+        if (this.TryReadPidTerm(out PidTerm term))
+        {
+            return term;
+        }
+
+        ThrowHelper.ThrowInvalidDecode(typeof(PidTerm));
+        return default;
+    }
+
+    /// <summary>
+    /// Reads the current term as new PID term.
+    /// </summary>
+    public readonly NewPidTerm ReadNewPidTerm()
+    {
+        if (this.TryReadNewPidTerm(out NewPidTerm term))
+        {
+            return term;
+        }
+
+        ThrowHelper.ThrowInvalidDecode(typeof(NewPidTerm));
+        return default;
+    }
+
+    /// <summary>
+    /// Reads the current term as new reference term.
+    /// </summary>
+    public readonly NewReferenceTerm ReadNewReferenceTerm()
+    {
+        if (this.TryReadNewReferenceTerm(out NewReferenceTerm term))
+        {
+            return term;
+        }
+
+        ThrowHelper.ThrowInvalidDecode(typeof(NewReferenceTerm));
+        return default;
+    }
+
+    /// <summary>
+    /// Reads the current term as newer reference term.
+    /// </summary>
+    public readonly NewerReferenceTerm ReadNewerReferenceTerm()
+    {
+        if (this.TryReadNewerReferenceTerm(out NewerReferenceTerm term))
+        {
+            return term;
+        }
+
+        ThrowHelper.ThrowInvalidDecode(typeof(NewerReferenceTerm));
+        return default;
+    }
 }
