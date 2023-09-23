@@ -63,14 +63,16 @@ partial struct EtfReader
     *    safety rules, so we can't simplify it:
     *    TNumber value = Unsafe.ReadUnaligned<TNumber>(ref this.CurrentTermContents[1]);
     *    
-    * 2. using Unsafe.ReadUnaligned over TNumber.ReadLittleEndian is done for the same reason:
-    *    avoiding the slice associated with starting at byte 1 rather than byte 0
+    * 2. using Unsafe.CopyBlockUnaligned into the on-stack value versus doing literally anything
+    *    else is done to avoid a copy and allocating an extra 8 bytes on the stack; even though
+    *    stack-allocs are cheap they're not free.
     *    
     * 3. in the signed implementation we use MemoryMarshal.GetReference(this.CurrentTermContents) over
     *    just this.CurrentTermContents[0], which elides a range check that at this point we know to be
     *    unnecessary but that still poses a branch the branch predictor has to deal with. oddly,
     *    removing that branch also causes the JIT to optimize the ternary operator to a conditional
-    *    move, which actually makes this code entirely branchless.
+    *    move, reducing this code to only one branch from a CopyBlockUnaligned-induced check that we
+    *    can't get rid of, to my knowledge.
     ***************************************************************************************************/
 
     /// <summary>
