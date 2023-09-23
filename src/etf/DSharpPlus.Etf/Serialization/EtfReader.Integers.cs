@@ -141,7 +141,7 @@ partial struct EtfReader
                 TNumber.CreateTruncating(BinaryPrimitives.ReadInt32BigEndian(this.CurrentTermContents)),
 
             TermType.SmallInteger =>
-                TNumber.CreateTruncating(MemoryMarshal.GetReference(this.CurrentTermContents))
+                TNumber.CreateTruncating((sbyte)MemoryMarshal.GetReference(this.CurrentTermContents))
         };
     }
 

@@ -37,7 +37,7 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 1 < this.data.Length)
+        if (this.index + 1 <= this.data.Length)
         {
             this.CurrentTermContents = this.data.Slice(this.index, 1);
 
@@ -59,12 +59,12 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 2 < this.data.Length)
+        if (this.index + 2 <= this.data.Length)
         {
             ReadOnlySpan<byte> lengthSlice = this.data.Slice(this.index, 2);
             ushort length = BinaryPrimitives.ReadUInt16BigEndian(lengthSlice);
 
-            if (this.index + 2 + length < this.data.Length)
+            if (this.index + 2 + length <= this.data.Length)
             {
                 this.CurrentTermContents = this.data.Slice(this.index + 2, length);
 
@@ -87,12 +87,12 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 4 < this.data.Length)
+        if (this.index + 4 <= this.data.Length)
         {
             ReadOnlySpan<byte> lengthSlice = this.data.Slice(this.index, 4);
             uint length = BinaryPrimitives.ReadUInt32BigEndian(lengthSlice);
 
-            if (this.index + 4 + length < this.data.Length)
+            if (this.index + 4 + length <= this.data.Length)
             {
                 this.CurrentTermContents = this.data.Slice(this.index + 4, (int)length);
 
@@ -115,13 +115,13 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 4 < this.data.Length)
+        if (this.index + 4 <= this.data.Length)
         {
             ReadOnlySpan<byte> lengthSlice = this.data.Slice(this.index, 4);
             uint length = BinaryPrimitives.ReadUInt32BigEndian(lengthSlice);
 
             // we do this by simply prepending the raw span with the amount of valid bits in the last byte
-            if (this.index + 5 + length < this.data.Length)
+            if (this.index + 5 + length <= this.data.Length)
             {
                 this.CurrentTermContents = this.data.Slice(this.index + 4, (int)length + 1);
 
@@ -145,7 +145,7 @@ partial struct EtfReader
     )
     {
         // first atom: module name
-        if (this.index + 2 < this.data.Length)
+        if (this.index + 2 <= this.data.Length)
         {
             int accumulatedLength = 2;
 
@@ -155,7 +155,7 @@ partial struct EtfReader
             accumulatedLength += length;
 
             // second atom: function name
-            if (this.index + accumulatedLength + 2 < this.data.Length)
+            if (this.index + accumulatedLength + 2 <= this.data.Length)
             {
                 lengthSlice = this.data.Slice(this.index + accumulatedLength, 2);
                 length = BinaryPrimitives.ReadUInt16BigEndian(lengthSlice);
@@ -163,7 +163,7 @@ partial struct EtfReader
                 accumulatedLength += 2 + length;
 
                 // one byte for arity
-                if (this.index + ++accumulatedLength < this.data.Length)
+                if (this.index + ++accumulatedLength <= this.data.Length)
                 {
                     this.CurrentTermContents = this.data.Slice(this.index, accumulatedLength);
 
@@ -187,7 +187,7 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 31 < this.data.Length)
+        if (this.index + 31 <= this.data.Length)
         {
             this.CurrentTermContents = this.data.Slice(this.index, 31);
 
@@ -209,7 +209,7 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 4 < this.data.Length)
+        if (this.index + 4 <= this.data.Length)
         {
             this.CurrentTermContents = this.data.Slice(this.index, 4);
 
@@ -231,13 +231,13 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 4 < this.data.Length)
+        if (this.index + 4 <= this.data.Length)
         {
             ReadOnlySpan<byte> lengthSlice = this.data.Slice(this.index, 4);
             uint length = BinaryPrimitives.ReadUInt32BigEndian(lengthSlice);
 
             // the first byte here carries the sign
-            if (this.index + 5 + length < this.data.Length)
+            if (this.index + 5 + length <= this.data.Length)
             {
                 this.CurrentTermContents = this.data.Slice(this.index + 4, (int)length + 1);
 
@@ -260,7 +260,7 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 4 < this.data.Length)
+        if (this.index + 4 <= this.data.Length)
         {
             ReadOnlySpan<byte> lengthSlice = this.data.Slice(this.index, 4);
             uint length = BinaryPrimitives.ReadUInt32BigEndian(lengthSlice);
@@ -286,7 +286,7 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 4 < this.data.Length)
+        if (this.index + 4 <= this.data.Length)
         {
             ReadOnlySpan<byte> lengthSlice = this.data.Slice(this.index, 4);
             uint length = BinaryPrimitives.ReadUInt32BigEndian(lengthSlice);
@@ -328,7 +328,7 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 4 < this.data.Length)
+        if (this.index + 4 <= this.data.Length)
         {
             ReadOnlySpan<byte> lengthSlice = this.data.Slice(this.index, 4);
             uint length = BinaryPrimitives.ReadUInt32BigEndian(lengthSlice);
@@ -354,20 +354,20 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 2 < this.data.Length)
+        if (this.index + 2 <= this.data.Length)
         {
             ReadOnlySpan<byte> lengthSlice = this.data.Slice(this.index, 2);
             ushort idLength = BinaryPrimitives.ReadUInt16BigEndian(lengthSlice);
 
             // decode the atom node name
-            if (this.index + 4 < this.data.Length)
+            if (this.index + 4 <= this.data.Length)
             {
                 lengthSlice = this.data.Slice(this.index + 2, 2);
                 ushort nodeLength = BinaryPrimitives.ReadUInt16BigEndian(lengthSlice);
 
                 int accumulatedLength = (idLength * 4) + nodeLength + 8;
 
-                if (this.index + accumulatedLength < this.data.Length)
+                if (this.index + accumulatedLength <= this.data.Length)
                 {
                     this.CurrentTermContents = this.data.Slice(this.index, accumulatedLength);
 
@@ -391,7 +391,7 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 8 < this.data.Length)
+        if (this.index + 8 <= this.data.Length)
         {
             this.CurrentTermContents = this.data.Slice(this.index, 8);
 
@@ -413,7 +413,7 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 2 < this.data.Length)
+        if (this.index + 2 <= this.data.Length)
         {
 
             ReadOnlySpan<byte> lengthSlice = this.data.Slice(this.index, 2);
@@ -421,7 +421,7 @@ partial struct EtfReader
 
             length += 14;
 
-            if (this.index + length < this.data.Length)
+            if (this.index + length <= this.data.Length)
             {
                 this.CurrentTermContents = this.data.Slice(this.index, length);
                 
@@ -444,7 +444,7 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 2 < this.data.Length)
+        if (this.index + 2 <= this.data.Length)
         {
 
             ReadOnlySpan<byte> lengthSlice = this.data.Slice(this.index, 2);
@@ -452,7 +452,7 @@ partial struct EtfReader
 
             length += 10;
 
-            if (this.index + length < this.data.Length)
+            if (this.index + length <= this.data.Length)
             {
                 this.CurrentTermContents = this.data.Slice(this.index, length);
 
@@ -475,20 +475,20 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 2 < this.data.Length)
+        if (this.index + 2 <= this.data.Length)
         {
             ReadOnlySpan<byte> lengthSlice = this.data.Slice(this.index, 2);
             ushort idLength = BinaryPrimitives.ReadUInt16BigEndian(lengthSlice);
 
             // decode the atom node name
-            if (this.index + 4 < this.data.Length)
+            if (this.index + 4 <= this.data.Length)
             {
                 lengthSlice = this.data.Slice(this.index + 2, 2);
                 ushort nodeLength = BinaryPrimitives.ReadUInt16BigEndian(lengthSlice);
 
                 int accumulatedLength = (idLength * 4) + nodeLength + 5;
 
-                if (this.index + accumulatedLength < this.data.Length)
+                if (this.index + accumulatedLength <= this.data.Length)
                 {
                     this.CurrentTermContents = this.data.Slice(this.index, accumulatedLength);
 
@@ -526,7 +526,7 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 2 < this.data.Length)
+        if (this.index + 2 <= this.data.Length)
         {
 
             ReadOnlySpan<byte> lengthSlice = this.data.Slice(this.index, 2);
@@ -534,7 +534,7 @@ partial struct EtfReader
 
             length += 11;
 
-            if (this.index + length < this.data.Length)
+            if (this.index + length <= this.data.Length)
             {
                 this.CurrentTermContents = this.data.Slice(this.index, length);
 
@@ -557,7 +557,7 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 2 < this.data.Length)
+        if (this.index + 2 <= this.data.Length)
         {
 
             ReadOnlySpan<byte> lengthSlice = this.data.Slice(this.index, 2);
@@ -565,7 +565,7 @@ partial struct EtfReader
 
             length += 7;
 
-            if (this.index + length < this.data.Length)
+            if (this.index + length <= this.data.Length)
             {
                 this.CurrentTermContents = this.data.Slice(this.index, length);
 
@@ -588,11 +588,11 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 1 < this.data.Length)
+        if (this.index + 1 <= this.data.Length)
         {
             byte length = this.data[this.index + 1];
 
-            if (this.index + 1 + length < this.data.Length)
+            if (this.index + 1 + length <= this.data.Length)
             {
                 this.CurrentTermContents = this.data.Slice(this.index + 1, length);
 
@@ -615,12 +615,12 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 1 < this.data.Length)
+        if (this.index + 1 <= this.data.Length)
         {
             byte length = this.data[this.index];
 
             // the first byte here carries the sign
-            if (this.index + 2 + length < this.data.Length)
+            if (this.index + 2 + length <= this.data.Length)
             {
                 this.CurrentTermContents = this.data.Slice(this.index + 1, (int)length + 1);
 
@@ -643,7 +643,7 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 1 < this.data.Length)
+        if (this.index + 1 <= this.data.Length)
         {
             this.CurrentTermContents = this.data.Slice(this.index, 1);
 
@@ -665,7 +665,7 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 1 < this.data.Length)
+        if (this.index + 1 <= this.data.Length)
         {
             byte length = this.data[this.index];
 
@@ -690,12 +690,12 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 2 < this.data.Length)
+        if (this.index + 2 <= this.data.Length)
         {
             ReadOnlySpan<byte> lengthSlice = this.data.Slice(this.index, 2);
             ushort length = BinaryPrimitives.ReadUInt16BigEndian(lengthSlice);
 
-            if (this.index + 2 + length < this.data.Length)
+            if (this.index + 2 + length <= this.data.Length)
             {
                 this.CurrentTermContents = this.data.Slice(this.index + 2, length);
 
@@ -718,7 +718,7 @@ partial struct EtfReader
         out bool success
     )
     {
-        if (this.index + 2 < this.data.Length)
+        if (this.index + 2 <= this.data.Length)
         {
 
             ReadOnlySpan<byte> lengthSlice = this.data.Slice(this.index, 2);
@@ -726,7 +726,7 @@ partial struct EtfReader
 
             length += 14;
 
-            if (this.index + length < this.data.Length)
+            if (this.index + length <= this.data.Length)
             {
                 this.CurrentTermContents = this.data.Slice(this.index, length);
 

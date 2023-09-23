@@ -116,12 +116,12 @@ public ref partial struct EtfReader
             throw new ArgumentException("Inconsistent maximum depth between object lengths and object types.");
         }
 
-        if (this.data[0] != 0x83)
+        if (data[0] != 0x83)
         {
             throw new ArgumentException("The data was provided in a wrong format or format version.");
         }
 
-        if (this.data[1] == 0x50)
+        if (data[1] == 0x50)
         {
             throw new ArgumentException("Compressed data cannot be processed.");
         }
