@@ -622,10 +622,10 @@ partial struct EtfReader
             // the first byte here carries the sign
             if (this.index + 2 + length <= this.data.Length)
             {
-                this.CurrentTermContents = this.data.Slice(this.index + 1, (int)length + 1);
+                this.CurrentTermContents = this.data.Slice(this.index + 1, length + 1);
 
                 success = true;
-                return (int)length + 5;
+                return length + 2;
             }
         }
 
