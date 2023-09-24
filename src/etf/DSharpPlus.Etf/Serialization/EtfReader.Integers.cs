@@ -162,11 +162,8 @@ partial struct EtfReader
         {
             if (this.TermType.IsBigInteger())
             {
-                if (this.CurrentTermContents.Length >= 2)
-                {
-                    value = this.ReadSignedIntegerFromBigInteger<sbyte>();
-                    return true;
-                }
+                value = this.ReadSignedIntegerFromBigInteger<sbyte>();
+                return true;
             }
             else
             {
@@ -192,11 +189,8 @@ partial struct EtfReader
         {
             if (this.TermType.IsBigInteger())
             {
-                if (this.CurrentTermContents.Length >= 2)
-                {
-                    value = this.ReadUnsignedIntegerFromBigInteger<byte>();
-                    return true;
-                }
+                value = this.ReadUnsignedIntegerFromBigInteger<byte>();
+                return true;
             }
             else
             {
@@ -222,11 +216,8 @@ partial struct EtfReader
         {
             if (this.TermType.IsBigInteger())
             {
-                if (this.CurrentTermContents.Length >= 3)
-                {
-                    value = this.ReadSignedIntegerFromBigInteger<short>();
-                    return true;
-                }
+                value = this.ReadSignedIntegerFromBigInteger<short>();
+                return true;
             }
             else
             {
@@ -252,11 +243,8 @@ partial struct EtfReader
         {
             if (this.TermType.IsBigInteger())
             {
-                if (this.CurrentTermContents.Length >= 3)
-                {
-                    value = this.ReadUnsignedIntegerFromBigInteger<ushort>();
-                    return true;
-                }
+                value = this.ReadUnsignedIntegerFromBigInteger<ushort>();
+                return true;
             }
             else
             {
@@ -282,11 +270,8 @@ partial struct EtfReader
         {
             if (this.TermType.IsBigInteger())
             {
-                if (this.CurrentTermContents.Length >= 5)
-                {
-                    value = this.ReadSignedIntegerFromBigInteger<int>();
-                    return true;
-                }
+                value = this.ReadSignedIntegerFromBigInteger<int>();
+                return true;
             }
             else
             {
@@ -312,11 +297,8 @@ partial struct EtfReader
         {
             if (this.TermType.IsBigInteger())
             {
-                if (this.CurrentTermContents.Length >= 5)
-                {
-                    value = this.ReadUnsignedIntegerFromBigInteger<uint>();
-                    return true;
-                }
+                value = this.ReadUnsignedIntegerFromBigInteger<uint>();
+                return true;
             }
             else
             {
@@ -342,11 +324,8 @@ partial struct EtfReader
         {
             if (this.TermType.IsBigInteger())
             {
-                if (this.CurrentTermContents.Length >= 9)
-                {
-                    value = this.ReadSignedIntegerFromBigInteger<long>();
-                    return true;
-                }
+                value = this.ReadSignedIntegerFromBigInteger<long>();
+                return true;
             }
             else
             {
@@ -372,11 +351,8 @@ partial struct EtfReader
         {
             if (this.TermType.IsBigInteger())
             {
-                if (this.CurrentTermContents.Length >= 9)
-                {
-                    value = this.ReadUnsignedIntegerFromBigInteger<ulong>();
-                    return true;
-                }
+                value = this.ReadUnsignedIntegerFromBigInteger<ulong>();
+                return true;
             }
             else
             {
