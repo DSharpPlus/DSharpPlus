@@ -66,7 +66,11 @@ internal readonly record struct MultipartRestRequest : IRestRequest
 
     public HttpRequestMessage Build()
     {
-        HttpRequestMessage request = new(this.Method, this.Url);
+        HttpRequestMessage request = new()
+        {
+            Method = this.Method,
+            RequestUri = new($"{Endpoints.BASE_URI}/{this.Url}")
+        };
 
         if (this.Headers is not null)
         {

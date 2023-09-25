@@ -36,9 +36,13 @@ internal readonly record struct RestRequest : IRestRequest
     /// <inheritdoc/>
     public HttpRequestMessage Build()
     {
-        HttpRequestMessage request = new(this.Method, this.Url);
+        HttpRequestMessage request = new()
+        {
+            Method = this.Method,
+            RequestUri = new($"{Endpoints.BASE_URI}/{this.Url}")
+        };
 
-        if(this.Payload is not null)
+        if (this.Payload is not null)
         {
             request.Content = new StringContent(this.Payload);
             request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
