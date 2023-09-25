@@ -24,7 +24,7 @@ partial struct EtfReader
     {
         if (this.TermType.IsString())
         {
-            value = Encoding.Unicode.GetString(this.CurrentTermContents);
+            value = Encoding.UTF8.GetString(this.CurrentTermContents);
             return true;
         }
 

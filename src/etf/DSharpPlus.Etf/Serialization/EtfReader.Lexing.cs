@@ -590,7 +590,7 @@ partial struct EtfReader
     {
         if (this.index + 1 <= this.data.Length)
         {
-            byte length = this.data[this.index + 1];
+            byte length = this.data[this.index];
 
             if (this.index + 1 + length <= this.data.Length)
             {
