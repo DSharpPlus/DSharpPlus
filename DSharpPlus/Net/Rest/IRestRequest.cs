@@ -1,4 +1,3 @@
-using System;
 using System.Net.Http;
 
 namespace DSharpPlus.Net;
@@ -17,7 +16,7 @@ internal interface IRestRequest
     /// The URL this request is made to. This is distinct from the <seealso cref="Route"/> in that the route
     /// cannot contain query parameters or secondary IDs necessary for the request.
     /// </summary>
-    public Uri Url { get; init; }
+    public string Url { get; init; }
 
     /// <summary>
     /// The ratelimiting route this request is made to.

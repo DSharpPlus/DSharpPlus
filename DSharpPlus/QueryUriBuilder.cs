@@ -29,7 +29,7 @@ internal class QueryUriBuilder
         return this;
     }
 
-    public Uri Build()
+    public string Build()
     {
         return new UriBuilder(this.SourceUri)
         {
@@ -41,7 +41,7 @@ internal class QueryUriBuilder
                     e => Uri.EscapeDataString(e.Key) + '=' + Uri.EscapeDataString(e.Value)
                 )
             )
-        }.Uri;
+        }.ToString();
     }
 
     public override string ToString() => this.Build().ToString();

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -11,7 +10,7 @@ namespace DSharpPlus.Net;
 internal readonly record struct RestRequest : IRestRequest
 {
     /// <inheritdoc/>
-    public Uri Url { get; init; }
+    public string Url { get; init; }
 
     /// <summary>
     /// The method for this request.

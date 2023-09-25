@@ -36,7 +36,7 @@ namespace DSharpPlus.Net;
 internal readonly record struct MultipartRestRequest : IRestRequest
 {
     /// <inheritdoc/>
-    public Uri Url { get; init; }
+    public string Url { get; init; }
 
     /// <summary>
     /// The method for this request.
