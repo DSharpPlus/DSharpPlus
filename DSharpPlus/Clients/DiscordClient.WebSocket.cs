@@ -122,7 +122,7 @@ namespace DSharpPlus
                 gwuri.AddParameter("compress", "zlib-stream");
             }
 
-            await this._webSocketClient.ConnectAsync(gwuri.Build());
+            await this._webSocketClient.ConnectAsync(new Uri(gwuri.Build()));
 
             Task SocketOnConnect(IWebSocketClient sender, SocketEventArgs e)
                 => this._socketOpened.InvokeAsync(this, e);
