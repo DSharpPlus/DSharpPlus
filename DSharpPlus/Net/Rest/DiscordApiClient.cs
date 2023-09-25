@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
@@ -1391,7 +1392,7 @@ public sealed class DiscordApiClient
 
         RestRequest request = new()
         {
-            Route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.CHANNELS}",
+            Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.CHANNELS}",
             Url = $"${Endpoints.GUILDS}/{guildId}/{Endpoints.CHANNELS}",
             Method = HttpMethod.Post,
             Payload = DiscordJson.SerializeObject(pld),
@@ -1480,7 +1481,7 @@ public sealed class DiscordApiClient
         
         RestRequest request = new()
         {
-            Route = $"{Endpoints.CHANNELS}/:channel_id",
+            Route = $"{Endpoints.CHANNELS}/{channelId}",
             Url = $"{Endpoints.CHANNELS}/{channelId}",
             Method = HttpMethod.Patch,
             Payload = DiscordJson.SerializeObject(pld),
@@ -1550,7 +1551,7 @@ public sealed class DiscordApiClient
         
         RestRequest request = new()
         {
-            Route = $"{Endpoints.CHANNELS}/:channel_id",
+            Route = $"{Endpoints.CHANNELS}/{channelId}",
             Url = $"{Endpoints.CHANNELS}/{channelId}",
             Method = HttpMethod.Patch,
             Payload = DiscordJson.SerializeObject(pld),
@@ -1571,7 +1572,7 @@ public sealed class DiscordApiClient
         
         RestRequest request = new()
         {
-            Route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.EVENTS}",
+            Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EVENTS}",
             Url = url.Build(),
             Method = HttpMethod.Get
         };
@@ -1628,7 +1629,7 @@ public sealed class DiscordApiClient
 
         RestRequest request = new()
         {
-            Route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.EVENTS}",
+            Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EVENTS}",
             Url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EVENTS}",
             Method = HttpMethod.Post,
             Payload = DiscordJson.SerializeObject(pld),
@@ -1657,7 +1658,7 @@ public sealed class DiscordApiClient
     {
         RestRequest request = new()
         {
-            Route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.EVENTS}/:guild_scheduled_event_id",
+            Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EVENTS}/:guild_scheduled_event_id",
             Url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EVENTS}/{guildScheduledEventId}",
             Method = HttpMethod.Delete
         };
@@ -1675,7 +1676,7 @@ public sealed class DiscordApiClient
         ulong? after = null
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.EVENTS}/:guild_scheduled_event_id/{Endpoints.USERS}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EVENTS}/:guild_scheduled_event_id/{Endpoints.USERS}";
 
         QueryUriBuilder url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.EVENTS}/{guildScheduledEventId}/{Endpoints.USERS}");
         
@@ -1722,7 +1723,7 @@ public sealed class DiscordApiClient
         ulong guildScheduledEventId
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.EVENTS}/:guild_scheduled_event_id";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EVENTS}/:guild_scheduled_event_id";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EVENTS}/{guildScheduledEventId}";
             
         RestRequest request = new()
@@ -1762,7 +1763,7 @@ public sealed class DiscordApiClient
         string? reason = null
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.EVENTS}/:guild_scheduled_event_id";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EVENTS}/:guild_scheduled_event_id";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EVENTS}/{guildScheduledEventId}";
 
         Dictionary<string, string> headers = new();
@@ -1812,7 +1813,7 @@ public sealed class DiscordApiClient
         ulong channelId
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id";
+        string route = $"{Endpoints.CHANNELS}/{channelId}";
         string url = $"{Endpoints.CHANNELS}/{channelId}";
         
         RestRequest request = new()
@@ -1856,7 +1857,7 @@ public sealed class DiscordApiClient
 
         RestRequest request = new()
         {
-            Route = $"{Endpoints.CHANNELS}/:channel_id",
+            Route = $"{Endpoints.CHANNELS}/{channelId}",
             Url = new($"{Endpoints.CHANNELS}/{channelId}"),
             Method = HttpMethod.Delete,
             Headers = headers
@@ -1871,7 +1872,7 @@ public sealed class DiscordApiClient
         ulong messageId
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/:message_id";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/:message_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{messageId}";
 
         RestRequest request = new()
@@ -2004,7 +2005,7 @@ public sealed class DiscordApiClient
             pld.Mentions = new DiscordMentions(Mentions.All, true, mentionReply);
         }
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}";
         
         RestRequest request = new()
@@ -2061,7 +2062,7 @@ public sealed class DiscordApiClient
 
         if (builder.Files.Count == 0)
         {
-            string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}";
+            string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}";
             string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}";
             
             RestRequest request = new()
@@ -2085,7 +2086,7 @@ public sealed class DiscordApiClient
                 ["payload_json"] = DiscordJson.SerializeObject(pld)
             };
             
-            string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}";
+            string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}";
             string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}";
 
             MultipartRestRequest request = new()
@@ -2111,7 +2112,7 @@ public sealed class DiscordApiClient
 
     internal async ValueTask<IReadOnlyList<DiscordChannel>> GetGuildChannelsAsync(ulong guildId)
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.CHANNELS}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.CHANNELS}";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.CHANNELS}";
         
         RestRequest request = new()
@@ -2175,7 +2176,7 @@ public sealed class DiscordApiClient
             url.AddParameter("limit", limit.ToString(CultureInfo.InvariantCulture));
         }
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}";
         
         RestRequest request = new()
         {
@@ -2202,7 +2203,7 @@ public sealed class DiscordApiClient
         ulong messageId
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/:message_id";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/:message_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{messageId}";
 
         RestRequest request = new()
@@ -2267,7 +2268,7 @@ public sealed class DiscordApiClient
             ["payload_json"] = DiscordJson.SerializeObject(pld)
         };
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/:message_id";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/:message_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{messageId}";
         
         MultipartRestRequest request = new()
@@ -2306,7 +2307,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/:message_id";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/:message_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{messageId}";
 
         RestRequest request = new()
@@ -2338,7 +2339,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/{Endpoints.BULK_DELETE}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{Endpoints.BULK_DELETE}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{Endpoints.BULK_DELETE}";
 
         RestRequest request = new()
@@ -2358,7 +2359,7 @@ public sealed class DiscordApiClient
         ulong channelId
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.INVITES}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.INVITES}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.INVITES}";
 
         RestRequest request = new()
@@ -2413,7 +2414,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.INVITES}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.INVITES}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.INVITES}";
 
         RestRequest request = new()
@@ -2446,7 +2447,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.PERMISSIONS}/:overwrite_id";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PERMISSIONS}/:overwrite_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PERMISSIONS}/{overwriteId}";
 
         RestRequest request = new()
@@ -2483,7 +2484,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.PERMISSIONS}/:overwrite_id";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PERMISSIONS}/:overwrite_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PERMISSIONS}/{overwriteId}";
 
         RestRequest request = new()
@@ -2503,7 +2504,7 @@ public sealed class DiscordApiClient
         ulong channelId
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.TYPING}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.TYPING}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.TYPING}";
 
         RestRequest request = new()
@@ -2520,7 +2521,7 @@ public sealed class DiscordApiClient
         ulong channelId
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.PINS}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PINS}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PINS}";
 
         RestRequest request = new()
@@ -2548,7 +2549,7 @@ public sealed class DiscordApiClient
         ulong messageId
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.PINS}/:message_id";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PINS}/:message_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PINS}/{messageId}";
         
         RestRequest request = new()
@@ -2567,7 +2568,7 @@ public sealed class DiscordApiClient
         ulong messageId
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.PINS}/:message_id";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PINS}/:message_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.PINS}/{messageId}";
         
         RestRequest request = new()
@@ -2593,7 +2594,7 @@ public sealed class DiscordApiClient
             Nickname = nickname
         };
 
-        string route = $"{Endpoints.USERS}/{Endpoints.ME}/{Endpoints.CHANNELS}/:channel_id/{Endpoints.RECIPIENTS}/:user_id";
+        string route = $"{Endpoints.USERS}/{Endpoints.ME}/{Endpoints.CHANNELS}/{channelId}/{Endpoints.RECIPIENTS}/:user_id";
         string url = $"{Endpoints.USERS}/{Endpoints.ME}/{Endpoints.CHANNELS}/{channelId}/{Endpoints.RECIPIENTS}/{userId}";
         
         RestRequest request = new()
@@ -2613,7 +2614,7 @@ public sealed class DiscordApiClient
         ulong userId
     )
     {
-        string route = $"{Endpoints.USERS}/{Endpoints.ME}/{Endpoints.CHANNELS}/:channel_id/{Endpoints.RECIPIENTS}/:user_id";
+        string route = $"{Endpoints.USERS}/{Endpoints.ME}/{Endpoints.CHANNELS}/{channelId}/{Endpoints.RECIPIENTS}/:user_id";
         string url = $"{Endpoints.USERS}/{Endpoints.ME}/{Endpoints.CHANNELS}/{channelId}/{Endpoints.RECIPIENTS}/{userId}";
        
         RestRequest request = new()
@@ -2700,7 +2701,7 @@ public sealed class DiscordApiClient
             WebhookChannelId = webhookChannelId
         };
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.FOLLOWERS}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.FOLLOWERS}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.FOLLOWERS}";
         
         RestRequest request = new()
@@ -2722,7 +2723,7 @@ public sealed class DiscordApiClient
         ulong messageId
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/:message_id/{Endpoints.CROSSPOST}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/:message_id/{Endpoints.CROSSPOST}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{messageId}/{Endpoints.CROSSPOST}";
         
         RestRequest request = new()
@@ -2783,7 +2784,7 @@ public sealed class DiscordApiClient
         ulong channelId
     )
     {
-        string route = $"{Endpoints.STAGE_INSTANCES}/:channel_id";
+        string route = $"{Endpoints.STAGE_INSTANCES}/{channelId}";
         string url = $"{Endpoints.STAGE_INSTANCES}/{channelId}";
 
         RestRequest request = new()
@@ -2821,7 +2822,7 @@ public sealed class DiscordApiClient
             PrivacyLevel = privacyLevel
         };
 
-        string route = $"{Endpoints.STAGE_INSTANCES}/:channel_id";
+        string route = $"{Endpoints.STAGE_INSTANCES}/{channelId}";
         string url = $"{Endpoints.STAGE_INSTANCES}/{channelId}";
 
         RestRequest request = new()
@@ -2859,7 +2860,7 @@ public sealed class DiscordApiClient
         };
 
         string user = userId?.ToString() ?? "@me";
-        string route = $"/guilds/{guildId}/{Endpoints.VOICE_STATES}/{user}";
+        string route = $"/guilds/{guildId}/{Endpoints.VOICE_STATES}/{(userId is null ? "@me" : ":user_id")}";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.VOICE_STATES}/{user}";
 
         RestRequest request = new()
@@ -2886,7 +2887,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.STAGE_INSTANCES}/:channel_id";
+        string route = $"{Endpoints.STAGE_INSTANCES}/{channelId}";
         string url = $"{Endpoints.STAGE_INSTANCES}/{channelId}";
         
         RestRequest request = new()
@@ -2925,7 +2926,7 @@ public sealed class DiscordApiClient
             ArchiveAfter = archiveAfter
         };
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/:message_id/{Endpoints.THREADS}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/:message_id/{Endpoints.THREADS}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{messageId}/{Endpoints.THREADS}";
 
         RestRequest request = new()
@@ -2967,7 +2968,7 @@ public sealed class DiscordApiClient
             Type = type
         };
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.THREADS}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREADS}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREADS}";
         
         RestRequest request = new()
@@ -2992,7 +2993,7 @@ public sealed class DiscordApiClient
         ulong channelId
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.THREAD_MEMBERS}/{Endpoints.ME}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREAD_MEMBERS}/{Endpoints.ME}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREAD_MEMBERS}/{Endpoints.ME}";
         
         RestRequest request = new()
@@ -3010,7 +3011,7 @@ public sealed class DiscordApiClient
         ulong channelId
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.THREAD_MEMBERS}/{Endpoints.ME}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREAD_MEMBERS}/{Endpoints.ME}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREAD_MEMBERS}/{Endpoints.ME}";
         
         RestRequest request = new()
@@ -3029,7 +3030,7 @@ public sealed class DiscordApiClient
         ulong userId
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.THREAD_MEMBERS}/:user_id";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREAD_MEMBERS}/:user_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREAD_MEMBERS}/{userId}";
         
         RestRequest request = new()
@@ -3054,7 +3055,7 @@ public sealed class DiscordApiClient
         ulong userId
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.THREAD_MEMBERS}/:user_id";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREAD_MEMBERS}/:user_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREAD_MEMBERS}/{userId}";
         
         RestRequest request = new()
@@ -3073,7 +3074,7 @@ public sealed class DiscordApiClient
         ulong userId
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.THREAD_MEMBERS}/:user_id";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREAD_MEMBERS}/:user_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREAD_MEMBERS}/{userId}";
         
         RestRequest request = new()
@@ -3091,7 +3092,7 @@ public sealed class DiscordApiClient
         ulong channelId
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.THREAD_MEMBERS}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREAD_MEMBERS}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREAD_MEMBERS}";
         
         RestRequest request = new()
@@ -3112,7 +3113,7 @@ public sealed class DiscordApiClient
         ulong guildId
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.THREADS}/{Endpoints.ACTIVE}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.THREADS}/{Endpoints.ACTIVE}";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.THREADS}/{Endpoints.ACTIVE}";
         
         RestRequest request = new()
@@ -3165,7 +3166,7 @@ public sealed class DiscordApiClient
             queryParams.AddParameter("limit", limit.ToString(CultureInfo.InvariantCulture));
         }
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.THREADS}/{Endpoints.ARCHIVED}/{Endpoints.PUBLIC}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREADS}/{Endpoints.ARCHIVED}/{Endpoints.PUBLIC}";
         
         
         RestRequest request = new()
@@ -3218,7 +3219,7 @@ public sealed class DiscordApiClient
             queryParams.AddParameter("limit",limit.ToString(CultureInfo.InvariantCulture));
         }
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.THREADS}/{Endpoints.ARCHIVED}/{Endpoints.PRIVATE}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREADS}/{Endpoints.ARCHIVED}/{Endpoints.PRIVATE}";
 
         RestRequest request = new()
         {
@@ -3269,7 +3270,7 @@ public sealed class DiscordApiClient
             queryParams.AddParameter("limit", limit.ToString(CultureInfo.InvariantCulture));
         }
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.USERS}/{Endpoints.ME}/{Endpoints.THREADS}/{Endpoints.ARCHIVED}/{Endpoints.PUBLIC}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.USERS}/{Endpoints.ME}/{Endpoints.THREADS}/{Endpoints.ARCHIVED}/{Endpoints.PUBLIC}";
         
         RestRequest request = new()
         {
@@ -3339,7 +3340,7 @@ public sealed class DiscordApiClient
         ulong userId
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.MEMBERS}/:user_id";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/:user_id";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/{userId}";
         
         RestRequest request = new()
@@ -3379,7 +3380,7 @@ public sealed class DiscordApiClient
             urlparams.AddParameter("reason", reason);
         }
 
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.MEMBERS}/:user_id";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/:user_id";
         
         RestRequest request = new()
         {
@@ -3497,7 +3498,7 @@ public sealed class DiscordApiClient
             CommunicationDisabledUntil = communicationDisabledUntil
         };
 
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.MEMBERS}/:user_id";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/:user_id";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/{userId}";
         
         RestRequest request = new()
@@ -3530,7 +3531,7 @@ public sealed class DiscordApiClient
             Nickname = nick
         };
 
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.MEMBERS}/{Endpoints.ME}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/{Endpoints.ME}";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/{Endpoints.ME}";
         
         RestRequest request = new()
@@ -3552,7 +3553,7 @@ public sealed class DiscordApiClient
         ulong guildId
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.ROLES}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.ROLES}";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.ROLES}";
         
         RestRequest request = new()
@@ -3590,7 +3591,7 @@ public sealed class DiscordApiClient
             urlparams.AddParameter("with_counts", withCounts?.ToString());
         }
 
-        string route = $"{Endpoints.GUILDS}/:guild_id";
+        string route = $"{Endpoints.GUILDS}/{guildId}";
         
         RestRequest request = new()
         {
@@ -3660,7 +3661,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.ROLES}/:role_id";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.ROLES}/:role_id";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.ROLES}/{roleId}";
         
         RestRequest request = new()
@@ -3694,7 +3695,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.ROLES}/:role_id";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.ROLES}/:role_id";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.ROLES}/{roleId}";
 
         RestRequest request = new()
@@ -3746,7 +3747,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.ROLES}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.ROLES}";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.ROLES}";
 
         RestRequest request = new()
@@ -3797,7 +3798,7 @@ public sealed class DiscordApiClient
             }
         }
 
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.PRUNE}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.PRUNE}";
         
         RestRequest request = new()
         {
@@ -3835,12 +3836,9 @@ public sealed class DiscordApiClient
 
         if (includeRoles is not null)
         {
-            ulong[] roleArray = includeRoles.ToArray();
-            int roleArrayCount = roleArray.Length;
-
-            for (int i = 0; i < roleArrayCount; i++)
+            foreach (ulong id in includeRoles)
             {
-                sb.Append($"&include_roles={roleArray[i]}");
+                sb.Append($"&include_roles={id}");
             }
         }
 
@@ -3850,12 +3848,12 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason!;
         }
 
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.PRUNE}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.PRUNE}";
         
         RestRequest request = new()
         {
             Route = route,
-            Url = urlparams.Build(),
+            Url = urlparams.Build() + sb.ToString(),
             Method = HttpMethod.Post,
             Headers = headers
         };
@@ -3896,7 +3894,7 @@ public sealed class DiscordApiClient
         ulong guildId
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.INTEGRATIONS}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.INTEGRATIONS}";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.INTEGRATIONS}";
 
         RestRequest request = new()
@@ -3927,7 +3925,7 @@ public sealed class DiscordApiClient
         ulong guildId
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.PREVIEW}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.PREVIEW}";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.PREVIEW}";
         
         RestRequest request = new()
@@ -3958,7 +3956,7 @@ public sealed class DiscordApiClient
             Id = id
         };
 
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.INTEGRATIONS}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.INTEGRATIONS}";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.INTEGRATIONS}";
         
         RestRequest request = new()
@@ -3993,7 +3991,7 @@ public sealed class DiscordApiClient
             EnableEmoticons = enableEmoticons
         };
 
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.INTEGRATIONS}/:integration_id";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.INTEGRATIONS}/:integration_id";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.INTEGRATIONS}/{integrationId}";
         
         RestRequest request = new()
@@ -4024,7 +4022,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason!;
         }
 
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.INTEGRATIONS}/:integration_id";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.INTEGRATIONS}/:integration_id";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.INTEGRATIONS}/{integrationId}";
         
         RestRequest request = new()
@@ -4044,7 +4042,7 @@ public sealed class DiscordApiClient
         ulong integrationId
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.INTEGRATIONS}/:integration_id/{Endpoints.SYNC}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.INTEGRATIONS}/:integration_id/{Endpoints.SYNC}";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.INTEGRATIONS}/{integrationId}/{Endpoints.SYNC}";
 
         RestRequest request = new()
@@ -4062,7 +4060,7 @@ public sealed class DiscordApiClient
         ulong guildId
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.REGIONS}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.REGIONS}";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.REGIONS}";
 
         RestRequest request = new()
@@ -4084,7 +4082,7 @@ public sealed class DiscordApiClient
         ulong guildId
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.INVITES}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.INVITES}";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.INVITES}";
         
         RestRequest request = new()
@@ -4250,7 +4248,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.WEBHOOKS}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.WEBHOOKS}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.WEBHOOKS}";
         
         RestRequest request = new()
@@ -4276,7 +4274,7 @@ public sealed class DiscordApiClient
         ulong channelId
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.WEBHOOKS}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.WEBHOOKS}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.WEBHOOKS}";
         
         RestRequest request = new()
@@ -4309,7 +4307,7 @@ public sealed class DiscordApiClient
         ulong guildId
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.WEBHOOKS}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.WEBHOOKS}";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.WEBHOOKS}";
 
         RestRequest request = new()
@@ -4342,7 +4340,7 @@ public sealed class DiscordApiClient
         ulong webhookId
     )
     {
-        string route = $"{Endpoints.WEBHOOKS}/:webhook_id";
+        string route = $"{Endpoints.WEBHOOKS}/{webhookId}";
         string url = $"{Endpoints.WEBHOOKS}/{webhookId}";
         
         RestRequest request = new()
@@ -4368,7 +4366,7 @@ public sealed class DiscordApiClient
         string webhookToken
     )
     {
-        string route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token";
+        string route = $"{Endpoints.WEBHOOKS}/{webhookId}/:webhook_token";
         string url = $"{Endpoints.WEBHOOKS}/{webhookId}/{webhookToken}";
         
         RestRequest request = new()
@@ -4397,7 +4395,7 @@ public sealed class DiscordApiClient
         ulong messageId
     )
     {
-        string route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token/{Endpoints.MESSAGES}/:message_id";
+        string route = $"{Endpoints.WEBHOOKS}/{webhookId}/:webhook_token/{Endpoints.MESSAGES}/:message_id";
         string url = $"{Endpoints.WEBHOOKS}/{webhookId}/{webhookToken}/{Endpoints.MESSAGES}/{messageId}";
 
         RestRequest request = new()
@@ -4438,7 +4436,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.WEBHOOKS}/:webhook_id";
+        string route = $"{Endpoints.WEBHOOKS}/{webhookId}";
         string url = $"{Endpoints.WEBHOOKS}/{webhookId}";
         
         RestRequest request = new()
@@ -4480,7 +4478,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token";
+        string route = $"{Endpoints.WEBHOOKS}/{webhookId}/:webhook_token";
         string url = $"{Endpoints.WEBHOOKS}/{webhookId}/{webhookToken}";
         
         RestRequest request = new()
@@ -4514,7 +4512,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.WEBHOOKS}/:webhook_id";
+        string route = $"{Endpoints.WEBHOOKS}/{webhookId}";
         string url = $"{Endpoints.WEBHOOKS}/{webhookId}";
         
         RestRequest request = new()
@@ -4541,7 +4539,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token";
+        string route = $"{Endpoints.WEBHOOKS}/{webhookId}/:webhook_token";
         string url = $"{Endpoints.WEBHOOKS}/{webhookId}/{webhookToken}";
         
         RestRequest request = new()
@@ -4597,7 +4595,7 @@ public sealed class DiscordApiClient
             values["payload_json"] = DiscordJson.SerializeObject(pld);
         }
 
-        string route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token";
+        string route = $"{Endpoints.WEBHOOKS}/{webhookId}/:webhook_token";
         QueryUriBuilder url = new($"{Endpoints.WEBHOOKS}/{webhookId}/{webhookToken}");
         url.AddParameter("wait", "true");
         
@@ -4636,7 +4634,7 @@ public sealed class DiscordApiClient
         string jsonPayload
     )
     {
-        string route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token/{Endpoints.SLACK}";
+        string route = $"{Endpoints.WEBHOOKS}/{webhookId}/:webhook_token/{Endpoints.SLACK}";
         QueryUriBuilder url = new($"{Endpoints.WEBHOOKS}/{webhookId}/{webhookToken}/{Endpoints.SLACK}");
 
         RestRequest request = new()
@@ -4662,7 +4660,7 @@ public sealed class DiscordApiClient
         string jsonPayload
     )
     {
-        string route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.GITHUB}";
+        string route = $"{Endpoints.WEBHOOKS}/{webhookId}/:webhook_token{Endpoints.GITHUB}";
         QueryUriBuilder url = new($"{Endpoints.WEBHOOKS}/{webhookId}/{webhookToken}{Endpoints.GITHUB}");
         url.AddParameter("wait", "true");
         
@@ -4703,7 +4701,7 @@ public sealed class DiscordApiClient
             Attachments = attachments
         };
 
-        string route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token/{Endpoints.MESSAGES}/:message_id";
+        string route = $"{Endpoints.WEBHOOKS}/{webhookId}/:webhook_token/{Endpoints.MESSAGES}/:message_id";
         string url = $"{Endpoints.WEBHOOKS}/{webhookId}/{webhookToken}/{Endpoints.MESSAGES}/{messageId}";
 
         Dictionary<string, string> values = new()
@@ -4741,7 +4739,7 @@ public sealed class DiscordApiClient
         ulong messageId
     )
     {
-        string route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token/{Endpoints.MESSAGES}/:message_id";
+        string route = $"{Endpoints.WEBHOOKS}/{webhookId}/:webhook_token/{Endpoints.MESSAGES}/:message_id";
         string url = $"{Endpoints.WEBHOOKS}/{webhookId}/{webhookToken}/{Endpoints.MESSAGES}/{messageId}";
 
         RestRequest request = new()
@@ -4764,7 +4762,7 @@ public sealed class DiscordApiClient
         string emoji
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/:message_id/{Endpoints.REACTIONS}/:emoji/{Endpoints.ME}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/:message_id/{Endpoints.REACTIONS}/:emoji/{Endpoints.ME}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{messageId}/{Endpoints.REACTIONS}/{emoji}/{Endpoints.ME}";
         
         RestRequest request = new()
@@ -4784,7 +4782,7 @@ public sealed class DiscordApiClient
         string emoji
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/:message_id/{Endpoints.REACTIONS}/:emoji/{Endpoints.ME}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/:message_id/{Endpoints.REACTIONS}/:emoji/{Endpoints.ME}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{messageId}/{Endpoints.REACTIONS}/{emoji}/{Endpoints.ME}";
         
         RestRequest request = new()
@@ -4812,7 +4810,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/:message_id/{Endpoints.REACTIONS}/:emoji/:user_id";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/:message_id/{Endpoints.REACTIONS}/:emoji/:user_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{messageId}/{Endpoints.REACTIONS}/{emoji}/{userId}";
         
         RestRequest request = new()
@@ -4843,7 +4841,7 @@ public sealed class DiscordApiClient
 
         urlparams.AddParameter("limit", limit.ToString(CultureInfo.InvariantCulture));
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/:message_id/{Endpoints.REACTIONS}/:emoji";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/:message_id/{Endpoints.REACTIONS}/:emoji";
 
         RestRequest request = new()
         {
@@ -4883,7 +4881,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/:message_id/{Endpoints.REACTIONS}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/:message_id/{Endpoints.REACTIONS}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{messageId}/{Endpoints.REACTIONS}";
 
         RestRequest request = new()
@@ -4904,7 +4902,7 @@ public sealed class DiscordApiClient
         string emoji
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.MESSAGES}/:message_id/{Endpoints.REACTIONS}/:emoji";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/:message_id/{Endpoints.REACTIONS}/:emoji";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{messageId}/{Endpoints.REACTIONS}/{emoji}";
 
         RestRequest request = new()
@@ -4924,7 +4922,7 @@ public sealed class DiscordApiClient
         ulong guildId
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.EMOJIS}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EMOJIS}";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EMOJIS}";
 
         RestRequest request = new()
@@ -4974,7 +4972,7 @@ public sealed class DiscordApiClient
         ulong emojiId
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.EMOJIS}/:emoji_id";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EMOJIS}/:emoji_id";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EMOJIS}/{emojiId}";
 
         RestRequest request = new()
@@ -5027,7 +5025,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.EMOJIS}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EMOJIS}";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EMOJIS}";
         
         RestRequest request = new()
@@ -5080,7 +5078,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EMOJIS}/:emoji_id";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EMOJIS}/:emoji_id";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EMOJIS}/{emojiId}";
         
         RestRequest request = new()
@@ -5126,7 +5124,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.EMOJIS}/:emoji_id";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EMOJIS}/:emoji_id";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EMOJIS}/{emojiId}";
         
         RestRequest request = new()
@@ -5598,7 +5596,7 @@ public sealed class DiscordApiClient
             }
         }
 
-        string route = $"{Endpoints.INTERACTIONS}/:interaction_id/:interaction_token/{Endpoints.CALLBACK}";
+        string route = $"{Endpoints.INTERACTIONS}/{interactionId}/:interaction_token/{Endpoints.CALLBACK}";
         string url = $"{Endpoints.INTERACTIONS}/{interactionId}/{interactionToken}/{Endpoints.CALLBACK}";
         
         if (builder is not null)
@@ -5640,7 +5638,7 @@ public sealed class DiscordApiClient
         string interactionToken
     )
     {
-        string route = $"{Endpoints.WEBHOOKS}/:application_id/:interaction_token/{Endpoints.MESSAGES}/{Endpoints.ORIGINAL}";
+        string route = $"{Endpoints.WEBHOOKS}/:application_id/{interactionToken}/{Endpoints.MESSAGES}/{Endpoints.ORIGINAL}";
         string url = $"{Endpoints.WEBHOOKS}/{applicationId}/{interactionToken}/{Endpoints.MESSAGES}/{Endpoints.ORIGINAL}";
 
         RestRequest request = new()
@@ -5680,7 +5678,7 @@ public sealed class DiscordApiClient
                 Attachments = attachments
             };
 
-            string route = $"{Endpoints.WEBHOOKS}/:application_id/:interaction_token/{Endpoints.MESSAGES}/@original";
+            string route = $"{Endpoints.WEBHOOKS}/:application_id/{interactionToken}/{Endpoints.MESSAGES}/@original";
             string url = $"{Endpoints.WEBHOOKS}/{applicationId}/{interactionToken}/{Endpoints.MESSAGES}/@original";
 
             Dictionary<string, string> values = new()
@@ -5718,7 +5716,7 @@ public sealed class DiscordApiClient
         string interactionToken
     )
     {
-        string route = $"{Endpoints.WEBHOOKS}/:application_id/:interaction_token/{Endpoints.MESSAGES}/@original";
+        string route = $"{Endpoints.WEBHOOKS}/:application_id/{interactionToken}/{Endpoints.MESSAGES}/@original";
         string url = $"{Endpoints.WEBHOOKS}/{applicationId}/{interactionToken}/{Endpoints.MESSAGES}/@original";
 
         RestRequest request = new()
@@ -5772,7 +5770,7 @@ public sealed class DiscordApiClient
             values["payload_json"] = DiscordJson.SerializeObject(pld);
         }
 
-        string route = $"{Endpoints.WEBHOOKS}/:application_id/:interaction_token";
+        string route = $"{Endpoints.WEBHOOKS}/:application_id/{interactionToken}";
         string url = $"{Endpoints.WEBHOOKS}/{applicationId}/{interactionToken}";
         
         MultipartRestRequest request = new()
@@ -6027,7 +6025,7 @@ public sealed class DiscordApiClient
         IEnumerable<ulong>? appliedTags = null
     )
     {
-        string route = $"{Endpoints.CHANNELS}/:channel_id/{Endpoints.THREADS}";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREADS}";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.THREADS}";
 
         RestForumPostCreatePayload pld = new()
@@ -6121,7 +6119,7 @@ public sealed class DiscordApiClient
         string? reason = null
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}";
 
         Dictionary<string, string> headers = new();
@@ -6170,7 +6168,7 @@ public sealed class DiscordApiClient
         ulong ruleId
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}/:rule_id";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}/:rule_id";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}/{ruleId}";
         
         RestRequest request = new()
@@ -6196,7 +6194,7 @@ public sealed class DiscordApiClient
         ulong guildId
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}";
         
         RestRequest request = new()
@@ -6240,7 +6238,7 @@ public sealed class DiscordApiClient
         string? reason = null
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}/:rule_id";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}/:rule_id";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}/{ruleId}";
 
         Dictionary<string, string> headers = new();
@@ -6288,7 +6286,7 @@ public sealed class DiscordApiClient
         string? reason = null
     )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}/:rule_id";
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}/:rule_id";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.AUTO_MODERATION}/{Endpoints.RULES}/{ruleId}";
 
         Dictionary<string, string> headers = new();
