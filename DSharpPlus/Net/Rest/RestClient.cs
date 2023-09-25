@@ -172,7 +172,7 @@ internal sealed partial class RestClient : IDisposable
                 LoggerEvents.RestError, 
                 ex, 
                 "Request to {url} triggered an exception", 
-                $"{Endpoints.BASE_URI}/request.Url"
+                $"{Endpoints.BASE_URI}/{request.Url}"
             );
 
             throw;
