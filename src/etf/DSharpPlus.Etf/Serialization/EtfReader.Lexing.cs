@@ -255,7 +255,7 @@ partial struct EtfReader
     /// </summary>
     /// <param name="success">Indicates whether the term was read successfully.</param>
     /// <returns>The amount of bytes processed.</returns>
-    private readonly int LexLargeTuple
+    private int LexLargeTuple
     (
         out bool success
     )
@@ -281,7 +281,7 @@ partial struct EtfReader
     /// </summary>
     /// <param name="success">Indicates whether the term was read successfully.</param>
     /// <returns>The amount of bytes processed.</returns>
-    private readonly int LexList
+    private int LexList
     (
         out bool success
     )
@@ -291,7 +291,7 @@ partial struct EtfReader
             ReadOnlySpan<byte> lengthSlice = this.data.Slice(this.index, 4);
             uint length = BinaryPrimitives.ReadUInt32BigEndian(lengthSlice);
 
-            this.complexObjects.Push(TermType.LargeTuple);
+            this.complexObjects.Push(TermType.List);
 
             // account for the null-terminator-that-may-not-actually-be-null-at-all
             this.remainingLengths.Push(length + 1);
@@ -323,7 +323,7 @@ partial struct EtfReader
     /// </summary>
     /// <param name="success">Indicates whether the term was read successfully.</param>
     /// <returns>The amount of bytes processed.</returns>
-    private readonly int LexMap
+    private int LexMap
     (
         out bool success
     )
@@ -333,7 +333,7 @@ partial struct EtfReader
             ReadOnlySpan<byte> lengthSlice = this.data.Slice(this.index, 4);
             uint length = BinaryPrimitives.ReadUInt32BigEndian(lengthSlice);
 
-            this.complexObjects.Push(TermType.LargeTuple);
+            this.complexObjects.Push(TermType.Map);
             this.remainingLengths.Push(length * 2);
 
             success = true;
@@ -660,7 +660,7 @@ partial struct EtfReader
     /// </summary>
     /// <param name="success">Indicates whether the term was read successfully.</param>
     /// <returns>The amount of bytes processed.</returns>
-    private readonly int LexSmallTuple
+    private int LexSmallTuple
     (
         out bool success
     )

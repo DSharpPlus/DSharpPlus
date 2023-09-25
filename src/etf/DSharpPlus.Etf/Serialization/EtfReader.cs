@@ -32,8 +32,8 @@ public ref partial struct EtfReader
     * where possible - which should be most cases.
     ***************************************************************************************************/
 
-    private readonly ValueStack<uint> remainingLengths;
-    private readonly ValueStack<TermType> complexObjects;
+    private ValueStack<uint> remainingLengths;
+    private ValueStack<TermType> complexObjects;
 
     private readonly ReadOnlySpan<byte> data;
 
