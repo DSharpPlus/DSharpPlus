@@ -10,12 +10,9 @@ using Xunit;
 
 namespace DSharpPlus.Etf.Tests.Serialization.EtfReaderTests;
 
-/// <summary>
-/// Contains tests for the two float primitives.
-/// </summary>
-public class Floats
+partial class PrimitiveTests
 {
-    private static readonly byte[] payload =
+    private static readonly byte[] floatPayload =
     [
         // etf version header
         0x83,
@@ -34,7 +31,7 @@ public class Floats
     [Fact]
     public void TestReadingNewFloat()
     {
-        ReadOnlySpan<byte> span = [.. payload];
+        ReadOnlySpan<byte> span = [.. floatPayload];
         EtfReader reader = new
         (
             span,
@@ -54,7 +51,7 @@ public class Floats
     [Fact]
     public void TestReadingOldFloat()
     {
-        ReadOnlySpan<byte> span = [.. payload];
+        ReadOnlySpan<byte> span = [.. floatPayload];
         EtfReader reader = new
         (
             span,

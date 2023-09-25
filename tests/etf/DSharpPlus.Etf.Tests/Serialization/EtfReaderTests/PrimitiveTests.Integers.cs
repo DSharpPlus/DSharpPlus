@@ -11,11 +11,11 @@ using Xunit;
 namespace DSharpPlus.Etf.Tests.Serialization.EtfReaderTests;
 
 /// <summary>
-/// Contains tests for the two integer primitives and reading them as other integer types.
+/// Contains tests for reading primitive types.
 /// </summary>
-public class IntegerPrimitives
+public partial class PrimitiveTests
 {
-    private static readonly byte[] payload =
+    private static readonly byte[] integerPayload =
     [
         // ETF version header
         0x83,
@@ -33,7 +33,7 @@ public class IntegerPrimitives
     [Fact]
     public void TestReadingInt32()
     {
-        ReadOnlySpan<byte> span = [.. payload];
+        ReadOnlySpan<byte> span = [.. integerPayload];
         EtfReader reader = new
         (
             span,
@@ -57,7 +57,7 @@ public class IntegerPrimitives
     [Fact]
     public void TestReadingByte()
     {
-        ReadOnlySpan<byte> span = [.. payload];
+        ReadOnlySpan<byte> span = [.. integerPayload];
         EtfReader reader = new
         (
             span,

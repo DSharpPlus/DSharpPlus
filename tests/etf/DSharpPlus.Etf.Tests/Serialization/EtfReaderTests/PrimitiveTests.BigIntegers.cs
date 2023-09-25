@@ -11,12 +11,9 @@ using Xunit;
 
 namespace DSharpPlus.Etf.Tests.Serialization.EtfReaderTests;
 
-/// <summary>
-/// Contains tests for big integers and reading them as other integer types.
-/// </summary>
-public class BigIntegers
+partial class PrimitiveTests
 {
-    private static readonly byte[] payload =
+    private static readonly byte[] bigIntegerPayload =
     [
         // ETF version header
         0x83,
@@ -31,7 +28,7 @@ public class BigIntegers
     [Fact]
     public void TestSmallBigInteger()
     {
-        ReadOnlySpan<byte> span = [.. payload];
+        ReadOnlySpan<byte> span = [.. bigIntegerPayload];
         EtfReader reader = new
         (
             span,
@@ -49,7 +46,7 @@ public class BigIntegers
     [Fact]
     public void TestLargeBigInteger()
     {
-        ReadOnlySpan<byte> span = [.. payload];
+        ReadOnlySpan<byte> span = [.. bigIntegerPayload];
         EtfReader reader = new
         (
             span,
