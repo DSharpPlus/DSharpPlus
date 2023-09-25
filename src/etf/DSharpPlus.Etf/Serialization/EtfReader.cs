@@ -138,11 +138,6 @@ public ref partial struct EtfReader
     /// <returns>True if the term was read successfully.</returns>
     public bool Read()
     {
-        if (this.index + 1 == this.data.Length)
-        {
-            return false;
-        }
-
         // ugly ETF hacks :3
         // because ETF doesn't have end tokens (luckily!), we synthesize them here to be able to expose
         // an acceptable API without performance sacrifices
@@ -159,6 +154,12 @@ public ref partial struct EtfReader
 
             this.remainingLengths.Pop();
             return true;
+        }
+
+        // now that we've handled synthesizing, check whether we can read a term
+        if (this.index + 1 == this.data.Length)
+        {
+            return false;
         }
 
         TermType term = (TermType)this.data[this.index++];
