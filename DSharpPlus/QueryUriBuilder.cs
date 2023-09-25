@@ -31,17 +31,16 @@ internal class QueryUriBuilder
 
     public string Build()
     {
-        return new UriBuilder(this.SourceUri)
-        {
-            Query = string.Join
+        string query = string.Join
+        (
+            "&",
+            this._queryParams.Select
             (
-                "&", 
-                this._queryParams.Select
-                (
-                    e => Uri.EscapeDataString(e.Key) + '=' + Uri.EscapeDataString(e.Value)
-                )
+                e => Uri.EscapeDataString(e.Key) + '=' + Uri.EscapeDataString(e.Value)
             )
-        }.ToString();
+        );
+
+        return $"{this.SourceUri}?{query}";
     }
 
     public override string ToString() => this.Build().ToString();
