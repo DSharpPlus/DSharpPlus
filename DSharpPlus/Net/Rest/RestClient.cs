@@ -45,6 +45,7 @@ internal sealed partial class RestClient : IDisposable
     {
         this.Discord = client;
         this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(client));
+        this.HttpClient.BaseAddress = new("https://discord.com/api/v10/");
     }
 
     // This is for meta-clients, such as the webhook client
@@ -72,6 +73,7 @@ internal sealed partial class RestClient : IDisposable
         };
 
         this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
+        this.HttpClient.BaseAddress = new("https://discord.com/api/v10/");
 
         this.GlobalRateLimitEvent = new AsyncManualResetEvent(true);
 
