@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 using System;
+using System.IO;
 
 using Bundles.ValueCollections;
 
@@ -74,7 +75,7 @@ public ref partial struct EtfReader
     /// </summary>
     /// <param name="data">The span containing the binary ETF to process.</param>
     /// <param name="maxDepth">The maximum nesting depth for maps and lists.</param>
-    /// <exception cref="ArgumentException">Thrown if the root term was compressed.</exception>
+    /// <exception cref="InvalidDataException">Thrown if the root term was compressed.</exception>
     public EtfReader
     (
         ReadOnlySpan<byte> data,
@@ -101,9 +102,8 @@ public ref partial struct EtfReader
     /// <param name="data">The span containing the binary ETF to process.</param>
     /// <param name="lengths">A stack-buffer for remaining object lengths.</param>
     /// <param name="objects">A stack-buffer for all complex objects.</param>
-    /// <exception cref="ArgumentException">
-    /// Thrown if the capacities of the two buffers do not match, or if the root term was compressed.
-    /// </exception>
+    /// <exception cref="ArgumentException">Thrown if the capacities of the two buffers do not match.</exception>
+    /// <exception cref="InvalidDataException">Thrown if the root term was compressed.</exception>
     public EtfReader
     (
         ReadOnlySpan<byte> data,
@@ -123,7 +123,7 @@ public ref partial struct EtfReader
 
         if (data[1] == 0x50)
         {
-            throw new ArgumentException("Compressed data cannot be processed.");
+            throw new InvalidDataException("Compressed data cannot be processed.");
         }
 
         this.data = data;
