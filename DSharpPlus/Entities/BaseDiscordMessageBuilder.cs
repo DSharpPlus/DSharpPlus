@@ -388,9 +388,6 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Additional flags for files added to a message builder.
     /// </summary>
-    /// <remarks>
-    /// If used, disposal of the message builder is expected.
-    /// </remarks>
     [Flags]
     public enum AddFileOptions
     {
