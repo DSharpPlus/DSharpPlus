@@ -7,11 +7,12 @@ namespace DSharpPlus.Entities
     /// </summary>
     public class DiscordMessageFile
     {
-        internal DiscordMessageFile(string fileName, Stream stream, long? resetPositionTo, string fileType = null, string contentType = null)
+        internal DiscordMessageFile(string fileName, Stream stream, long? resetPositionTo, string fileType = null, string contentType = null, AddFileOptions fileOptions = AddFileOptions.None)
         {
             this.FileName = fileName ?? "file";
             this.FileType = fileType;
             this.ContentType = contentType;
+            this.FileOptions = fileOptions;
             this.Stream = stream;
             this.ResetPositionTo = resetPositionTo;
         }
@@ -34,5 +35,6 @@ namespace DSharpPlus.Entities
         /// Gets the position the File should be reset to.
         /// </summary>
         internal long? ResetPositionTo { get; set; }
+        internal AddFileOptions FileOptions { get; set; }
     }
 }

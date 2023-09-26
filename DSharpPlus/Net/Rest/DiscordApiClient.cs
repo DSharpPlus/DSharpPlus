@@ -1449,10 +1449,7 @@ namespace DSharpPlus.Net
 
                 var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
-                foreach (var file in builder._files.Where(x => x.ResetPositionTo.HasValue))
-                {
-                    file.Stream.Position = file.ResetPositionTo.Value;
-                }
+                builder.ResetFileStreamPositions();
 
                 return ret;
             }
@@ -2907,10 +2904,7 @@ namespace DSharpPlus.Net
             var res = await this.DoMultipartAsync(this._discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files);
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
 
-            foreach (var file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
-            {
-                file.Stream.Position = file.ResetPositionTo.Value;
-            }
+            builder.ResetFileStreamPositions();
 
             ret.Discord = this._discord;
             return ret;
@@ -2969,8 +2963,7 @@ namespace DSharpPlus.Net
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
             ret.Discord = this._discord;
 
-            foreach (var file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
-                file.Stream.Position = file.ResetPositionTo.Value;
+            builder.ResetFileStreamPositions();
 
             return ret;
         }
@@ -3495,10 +3488,7 @@ namespace DSharpPlus.Net
             {
                 await this.DoMultipartAsync(this._discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files);
 
-                foreach (var file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
-                {
-                    file.Stream.Position = file.ResetPositionTo.Value;
-                }
+                builder.ResetFileStreamPositions();
             }
             else
             {
@@ -3557,10 +3547,7 @@ namespace DSharpPlus.Net
             var res = await this.DoMultipartAsync(this._discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files);
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
 
-            foreach (var file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
-            {
-                file.Stream.Position = file.ResetPositionTo.Value;
-            }
+            builder.ResetFileStreamPositions();
 
             ret.Discord = this._discord;
             return ret;
