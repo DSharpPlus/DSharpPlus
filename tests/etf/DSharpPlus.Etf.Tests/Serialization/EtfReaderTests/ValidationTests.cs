@@ -43,4 +43,67 @@ public class ValidationTests
             Assert.True(false);
         }
     }
+
+    /// <summary>
+    /// Presently, the only supported format version is 131 or 0x83
+    /// </summary>
+    [Theory]
+    [InlineData(7)]
+    [InlineData(11)]
+    [InlineData(71)]
+    [InlineData(83)]
+    [InlineData(130)]
+    [InlineData(132)]
+    [InlineData(222)]
+#pragma warning disable xUnit1026 // the analyzer isn't picking up on the collection expression
+    public void TestFailingOnInvalidVersion(byte version)
+#pragma warning restore xUnit1026
+    {
+        try
+        {
+            ReadOnlySpan<byte> span = [version];
+            EtfReader reader = new(span);
+
+            // this should be unreachable
+            Assert.True(false);
+        }
+        catch (InvalidDataException)
+        {
+            // correct exception thrown
+            Assert.True(true);
+        }
+        catch
+        {
+            // specifically only that exception should be thrown
+            Assert.True(false);
+        }
+    }
+
+    [Fact]
+    public void TestFailingOnMismatchedStacks()
+    {
+        try
+        {
+            ReadOnlySpan<byte> span = [0x83];
+            EtfReader reader = new
+            (
+                span,
+                stackalloc uint[2],
+                stackalloc TermType[1]
+            );
+
+            // this should be unreachable
+            Assert.True(false);
+        }
+        catch (ArgumentException)
+        {
+            // correct exception thrown
+            Assert.True(true);
+        }
+        catch
+        {
+            // specifically only that exception should be thrown
+            Assert.True(false);
+        }
+    }
 }

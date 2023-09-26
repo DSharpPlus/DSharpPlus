@@ -103,7 +103,7 @@ public ref partial struct EtfReader
     /// <param name="lengths">A stack-buffer for remaining object lengths.</param>
     /// <param name="objects">A stack-buffer for all complex objects.</param>
     /// <exception cref="ArgumentException">Thrown if the capacities of the two buffers do not match.</exception>
-    /// <exception cref="InvalidDataException">Thrown if the root term was compressed.</exception>
+    /// <exception cref="InvalidDataException">Thrown if the root term was compressed or not correctly versioned.</exception>
     public EtfReader
     (
         ReadOnlySpan<byte> data,
@@ -118,7 +118,7 @@ public ref partial struct EtfReader
 
         if (data[0] != 0x83)
         {
-            throw new ArgumentException("The data was provided in a wrong format or format version.");
+            throw new InvalidDataException("The data was provided in a wrong format or format version.");
         }
 
         if (data[1] == 0x50)
