@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DSharpPlus.Entities
 {
@@ -185,21 +186,7 @@ namespace DSharpPlus.Entities
         /// <param name="stream">The Stream to the file.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns>The current builder to be chained.</returns>
-        public T AddFile(string fileName, Stream stream, bool resetStreamPosition = false)
-        {
-            if (this.Files.Count >= 10)
-                throw new ArgumentException("Cannot send more than 10 files with a single message.");
-
-            if (this._files.Any(x => x.FileName == fileName))
-                throw new ArgumentException("A File with that filename already exists");
-
-            if (resetStreamPosition)
-                this._files.Add(new DiscordMessageFile(fileName, stream, stream.Position));
-            else
-                this._files.Add(new DiscordMessageFile(fileName, stream, null));
-
-            return this as T;
-        }
+        public T AddFile(string fileName, Stream stream, bool resetStreamPosition = false) => this.AddFile(fileName, stream, resetStreamPosition ? AddFileOptions.ResetStream : AddFileOptions.None);
 
         /// <summary>
         /// Sets if the message has files to be sent.
@@ -207,21 +194,7 @@ namespace DSharpPlus.Entities
         /// <param name="stream">The Stream to the file.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns>The current builder to be chained.</returns>
-        public T AddFile(FileStream stream, bool resetStreamPosition = false)
-        {
-            if (this.Files.Count >= 10)
-                throw new ArgumentException("Cannot send more than 10 files with a single message.");
-
-            if (this._files.Any(x => x.FileName == stream.Name))
-                throw new ArgumentException("A File with that filename already exists");
-
-            if (resetStreamPosition)
-                this._files.Add(new DiscordMessageFile(stream.Name, stream, stream.Position));
-            else
-                this._files.Add(new DiscordMessageFile(stream.Name, stream, null));
-
-            return this as T;
-        }
+        public T AddFile(FileStream stream, bool resetStreamPosition = false) => this.AddFile(stream, resetStreamPosition ? AddFileOptions.ResetStream : AddFileOptions.None);
 
         /// <summary>
         /// Sets if the message has files to be sent.
@@ -229,7 +202,45 @@ namespace DSharpPlus.Entities
         /// <param name="files">The Files that should be sent.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns>The current builder to be chained.</returns>
-        public T AddFiles(IDictionary<string, Stream> files, bool resetStreamPosition = false)
+        public T AddFiles(IDictionary<string, Stream> files, bool resetStreamPosition = false) => this.AddFiles(files, resetStreamPosition ? AddFileOptions.ResetStream : AddFileOptions.None);
+
+        /// <summary>
+        /// Attaches a file to this message.
+        /// </summary>
+        /// <param name="fileName">Name of the file to attach.</param>
+        /// <param name="stream">Stream containing said file's contents.</param>
+        /// <param name="fileOptions">Additional flags for the handling of the file stream.</param>
+        /// <returns>The current builder to be chained.</returns>
+        public T AddFile(string fileName, Stream stream, AddFileOptions fileOptions)
+        {
+            if (this.Files.Count >= 10)
+                throw new ArgumentException("Cannot send more than 10 files with a single message.");
+
+            if (this._files.Any(x => x.FileName == fileName))
+                throw new ArgumentException("A File with that filename already exists");
+
+            stream = ResolveStream(stream, fileOptions);
+            long? resetPosition = fileOptions.HasFlag(AddFileOptions.ResetStream) ? stream.Position : null;
+            this._files.Add(new DiscordMessageFile(fileName, stream, resetPosition, fileOptions: fileOptions));
+
+            return this as T;
+        }
+
+        /// <summary>
+        /// Attaches a file to this message.
+        /// </summary>
+        /// <param name="stream">FileStream pointing to the file to attach.</param>
+        /// <param name="fileOptions">Additional flags for the handling of the file stream.</param>
+        /// <returns>The current builder to be chained.</returns>
+        public T AddFile(FileStream stream, AddFileOptions fileOptions) => this.AddFile(stream.Name, stream, fileOptions);
+
+        /// <summary>
+        /// Attaches multiple files to this message.
+        /// </summary>
+        /// <param name="files">Dictionary of files to add, where <see cref="string"/> is a file name and <see cref="Stream"/> is a stream containing the file's contents.</param>
+        /// <param name="fileOptions">Additional flags for the handling of the file streams.</param>
+        /// <returns>The current builder to be chained.</returns>
+        public T AddFiles(IDictionary<string, Stream> files, AddFileOptions fileOptions)
         {
             if (this.Files.Count + files.Count > 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -239,10 +250,9 @@ namespace DSharpPlus.Entities
                 if (this._files.Any(x => x.FileName == file.Key))
                     throw new ArgumentException("A File with that filename already exists");
 
-                if (resetStreamPosition)
-                    this._files.Add(new DiscordMessageFile(file.Key, file.Value, file.Value.Position));
-                else
-                    this._files.Add(new DiscordMessageFile(file.Key, file.Value, null));
+                var stream = ResolveStream(file.Value, fileOptions);
+                long? resetPosition = fileOptions.HasFlag(AddFileOptions.ResetStream) ? stream.Position : null;
+                this._files.Add(new DiscordMessageFile(file.Key, stream, resetPosition, fileOptions: fileOptions));
             }
 
             return this as T;
@@ -294,6 +304,68 @@ namespace DSharpPlus.Entities
             this._components.Clear();
         }
 
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            // We don't bother to fully implement the dispose pattern
+            // since deriving from this type outside this assembly is unusual.
+
+            foreach (var file in _files)
+            {
+                if (file.FileOptions.HasFlag(AddFileOptions.CloseStream))
+                    file.Stream.Dispose();
+            }
+
+            GC.SuppressFinalize(this);
+        }
+
+        /// <inheritdoc/>
+        public async ValueTask DisposeAsync()
+        {
+            foreach (var file in _files)
+            {
+                if (file.FileOptions.HasFlag(AddFileOptions.CloseStream))
+                    await file.Stream.DisposeAsync();
+            }
+
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Helper method to reset stream positions used several times by the API client.
+        /// </summary>
+        internal void ResetFileStreamPositions()
+        {
+            foreach (var file in _files)
+            {
+                if (file.ResetPositionTo is long pos)
+                    file.Stream.Position = pos;
+            }
+        }
+
+        /// <summary>
+        /// Helper method to resolve stream copies depending on the file mode parameter.
+        /// </summary>
+        private static Stream ResolveStream(Stream stream, AddFileOptions fileOptions)
+        {
+            if (fileOptions.HasFlag(AddFileOptions.CopyStream))
+            {
+                Stream originalStream = stream;
+                MemoryStream newStream = new();
+                originalStream.CopyTo(newStream);
+                newStream.Position = 0;
+
+                if (fileOptions.HasFlag(AddFileOptions.CloseStream))
+                {
+                    originalStream.Dispose();
+                }
+
+                stream = newStream;
+            }
+
+            return stream;
+        }
+
         IDiscordMessageBuilder IDiscordMessageBuilder.SuppressNotifications() => this.SuppressNotifications();
         IDiscordMessageBuilder IDiscordMessageBuilder.WithContent(string content) => this.WithContent(content);
         IDiscordMessageBuilder IDiscordMessageBuilder.AddComponents(params DiscordComponent[] components) => this.AddComponents(components);
@@ -306,11 +378,55 @@ namespace DSharpPlus.Entities
         IDiscordMessageBuilder IDiscordMessageBuilder.AddFile(FileStream stream, bool resetStream) => this.AddFile(stream, resetStream);
         IDiscordMessageBuilder IDiscordMessageBuilder.AddFiles(IDictionary<string, Stream> files, bool resetStreams) => this.AddFiles(files, resetStreams);
         IDiscordMessageBuilder IDiscordMessageBuilder.AddFiles(IEnumerable<DiscordMessageFile> files) => this.AddFiles(files);
+        IDiscordMessageBuilder IDiscordMessageBuilder.AddFile(string fileName, Stream stream, AddFileOptions fileOptions) => this.AddFile(fileName, stream, fileOptions);
+        IDiscordMessageBuilder IDiscordMessageBuilder.AddFile(FileStream stream, AddFileOptions fileOptions) => this.AddFile(stream, fileOptions);
+        IDiscordMessageBuilder IDiscordMessageBuilder.AddFiles(IDictionary<string, Stream> files, AddFileOptions fileOptions) => this.AddFiles(files, fileOptions);
         IDiscordMessageBuilder IDiscordMessageBuilder.AddMention(IMention mention) => this.AddMention(mention);
         IDiscordMessageBuilder IDiscordMessageBuilder.AddMentions(IEnumerable<IMention> mentions) => this.AddMentions(mentions);
     }
 
-    public interface IDiscordMessageBuilder
+    /// <summary>
+    /// Additional flags for files added to a message builder.
+    /// </summary>
+    [Flags]
+    public enum AddFileOptions
+    {
+        /// <summary>
+        /// No additional behavior. The stream will read to completion and is left at that position after sending.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// Resets the stream to its original position after sending.
+        /// </summary>
+        ResetStream = 0x1,
+
+        /// <summary>
+        /// Closes the stream upon disposal of the message builder.
+        /// </summary>
+        /// <remarks>
+        /// Streams will not be disposed upon sending. Disposal of the message builder is necessary.
+        /// </remarks>
+        CloseStream = 0x2,
+
+        /// <summary>
+        /// Immediately reads the stream to completion and copies its contents to an in-memory stream.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Note that this incurs an additional memory overhead and may perform synchronous I/O and should only be used if the source stream cannot be kept open any longer.
+        /// </para>
+        /// <para>
+        /// If specified together with <see cref="CloseStream"/>, the stream will closed immediately after the copy.
+        /// </para>
+        /// </remarks>
+        CopyStream = 0x4,
+    }
+
+    /// <summary>
+    /// Base interface for any discord message builder.
+    /// </summary>
+    public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     {
         /// <summary>
         /// Getter / setter for message content.
@@ -417,6 +533,31 @@ namespace DSharpPlus.Entities
         /// <param name="resetStreams">Whether to reset all stream positions to 0 after sending.</param>
         /// <returns></returns>
         IDiscordMessageBuilder AddFiles(IDictionary<string, Stream> files, bool resetStreams = false);
+
+        /// <summary>
+        /// Attaches a file to this message.
+        /// </summary>
+        /// <param name="fileName">Name of the file to attach.</param>
+        /// <param name="stream">Stream containing said file's contents.</param>
+        /// <param name="fileOptions">Additional flags for the handling of the file stream.</param>
+        /// <returns></returns>
+        IDiscordMessageBuilder AddFile(string fileName, Stream stream, AddFileOptions fileOptions);
+
+        /// <summary>
+        /// Attaches a file to this message.
+        /// </summary>
+        /// <param name="stream">FileStream pointing to the file to attach.</param>
+        /// <param name="fileOptions">Additional flags for the handling of the file stream.</param>
+        /// <returns></returns>
+        IDiscordMessageBuilder AddFile(FileStream stream, AddFileOptions fileOptions);
+
+        /// <summary>
+        /// Attaches multiple files to this message.
+        /// </summary>
+        /// <param name="files">Dictionary of files to add, where <see cref="string"/> is a file name and <see cref="Stream"/> is a stream containing the file's contents.</param>
+        /// <param name="fileOptions">Additional flags for the handling of the file streams.</param>
+        /// <returns></returns>
+        IDiscordMessageBuilder AddFiles(IDictionary<string, Stream> files, AddFileOptions fileOptions);
 
         /// <summary>
         /// Attaches previously used files to this file stream.

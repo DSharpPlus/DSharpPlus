@@ -2098,12 +2098,10 @@ public sealed class DiscordApiClient
             
             RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-            DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
-
-            foreach (DiscordMessageFile? file in builder._files.Where(x => x.ResetPositionTo.HasValue))
-            {
-                file.Stream.Position = file.ResetPositionTo!.Value;
-            }
+                foreach (var file in builder._files.Where(x => x.ResetPositionTo.HasValue))
+                {
+                    file.Stream.Position = file.ResetPositionTo.Value;
+                }
 
             return ret;
         }
@@ -4617,10 +4615,7 @@ public sealed class DiscordApiClient
 
         DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
 
-        foreach (DiscordMessageFile? file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
-        {
-            file.Stream.Position = file.ResetPositionTo!.Value;
-        }
+            builder.ResetFileStreamPositions();
 
         ret.Discord = this._discord!;
         return ret;
@@ -4720,8 +4715,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
-        ret.Discord = this._discord!;
+            builder.ResetFileStreamPositions();
 
         foreach (DiscordMessageFile? file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
         {
@@ -5611,11 +5605,8 @@ public sealed class DiscordApiClient
             };
         
             await this._rest.ExecuteRequestAsync(request);
-            
-            foreach (DiscordMessageFile? file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
-            {
-                file.Stream.Position = file.ResetPositionTo!.Value;
-            }
+
+            builder.ResetFileStreamPositions();
         }
         else
         {
@@ -5785,10 +5776,10 @@ public sealed class DiscordApiClient
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
         DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
 
-        foreach (DiscordMessageFile? file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
-        {
-            file.Stream.Position = file.ResetPositionTo!.Value;
-        }
+            foreach (var file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
+            {
+                file.Stream.Position = file.ResetPositionTo.Value;
+            }
 
         ret.Discord = this._discord!;
         return ret;
