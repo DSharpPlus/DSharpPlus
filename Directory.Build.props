@@ -47,9 +47,6 @@
     
     <!-- DSharpPlus.Core.Models-->
     <_DSharpPlusCoreModelsVersion>0.1.0</_DSharpPlusCoreModelsVersion>
-    
-    <!-- DSharpPlus.Etf-->
-    <_DSharpPlusEtfVersion>0.1.0</_DSharpPlusEtfVersion>
   </PropertyGroup>
 
 </Project>

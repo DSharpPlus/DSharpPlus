@@ -1,3 +1,6 @@
 [submodule "bundles"]
 	path = lib/bundles
 	url = https://github.com/dsharpplus/bundles.git
+[submodule "etf"]
+	path = lib/etf
+	url = https://github.com/discord-lib-common/etfkit.git
