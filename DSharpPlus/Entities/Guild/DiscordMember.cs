@@ -322,14 +322,16 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordDmChannel> CreateDmChannelAsync()
+        public async Task<DiscordDmChannel> CreateDmChannelAsync()
         {
             DiscordDmChannel dm = default;
 
             if (this.Discord is DiscordClient dc)
+            {
                 dm = dc._privateChannels.Values.FirstOrDefault(x => x.Recipients.FirstOrDefault() == this);
+            }
 
-            return dm != null ? Task.FromResult(dm) : this.Discord.ApiClient.CreateDmAsync(this.Id);
+            return dm is not null ? dm : await this.Discord.ApiClient.CreateDmAsync(this.Id);
         }
 
         /// <summary>
@@ -410,8 +412,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="until">How long the timeout should last. Set to <see langword="null"/> or a time in the past to remove the timeout.</param>
         /// <param name="reason">Why this member is being restricted.</param>
-        public Task TimeoutAsync(DateTimeOffset? until, string reason = default)
-            => this.Discord.ApiClient.ModifyGuildMemberAsync(this._guild_id, this.Id, default, default, default, default, default, until, reason);
+        public async Task TimeoutAsync(DateTimeOffset? until, string reason = default)
+            => await this.Discord.ApiClient.ModifyGuildMemberAsync(this._guild_id, this.Id, default, default, default, default, default, until, reason);
 
         /// <summary>
         /// Sets this member's voice mute status.
@@ -423,8 +425,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task SetMuteAsync(bool mute, string reason = null)
-            => this.Discord.ApiClient.ModifyGuildMemberAsync(this._guild_id, this.Id, default, default, mute, default, default, default, reason);
+        public async Task SetMuteAsync(bool mute, string reason = null)
+            => await this.Discord.ApiClient.ModifyGuildMemberAsync(this._guild_id, this.Id, default, default, mute, default, default, default, reason);
 
         /// <summary>
         /// Sets this member's voice deaf status.
@@ -436,8 +438,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task SetDeafAsync(bool deaf, string reason = null)
-            => this.Discord.ApiClient.ModifyGuildMemberAsync(this._guild_id, this.Id, default, default, default, deaf, default, default, reason);
+        public async Task SetDeafAsync(bool deaf, string reason = null)
+            => await this.Discord.ApiClient.ModifyGuildMemberAsync(this._guild_id, this.Id, default, default, default, deaf, default, default, reason);
 
         /// <summary>
         /// Modifies this member.
@@ -483,8 +485,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task GrantRoleAsync(DiscordRole role, string reason = null)
-            => this.Discord.ApiClient.AddGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
+        public async Task GrantRoleAsync(DiscordRole role, string reason = null)
+            => await this.Discord.ApiClient.AddGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
 
         /// <summary>
         /// Revokes a role from a member.
@@ -496,8 +498,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task RevokeRoleAsync(DiscordRole role, string reason = null)
-            => this.Discord.ApiClient.RemoveGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
+        public async Task RevokeRoleAsync(DiscordRole role, string reason = null)
+            => await this.Discord.ApiClient.RemoveGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
 
         /// <summary>
         /// Sets the member's roles to ones specified.
@@ -509,8 +511,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null)
-            => this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, default,
+        public async Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null)
+            => await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, default,
                 new Optional<IEnumerable<ulong>>(roles.Select(xr => xr.Id)), default, default, default, default, reason);
 
         /// <summary>
@@ -542,8 +544,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task RemoveAsync(string reason = null)
-            => this.Discord.ApiClient.RemoveGuildMemberAsync(this._guild_id, this.Id, reason);
+        public async Task RemoveAsync(string reason = null)
+            => await this.Discord.ApiClient.RemoveGuildMemberAsync(this._guild_id, this.Id, reason);
 
         /// <summary>
         /// Moves this member to the specified voice channel

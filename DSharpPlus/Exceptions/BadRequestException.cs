@@ -1,6 +1,5 @@
-using System;
-using DSharpPlus.Net;
-using Newtonsoft.Json.Linq;
+using System.Net.Http;
+using System.Text.Json;
 
 namespace DSharpPlus.Exceptions;
 
@@ -20,25 +19,44 @@ public class BadRequestException : DiscordException
     /// </summary>
     public string? Errors { get; internal set; }
 
-    internal BadRequestException(BaseRestRequest request, RestResponse response) : base("Bad request: " + response.ResponseCode)
+    internal BadRequestException(HttpRequestMessage request, HttpResponseMessage response, string content) 
+        : base("Bad request: " + response.StatusCode)
     {
-        this.WebRequest = request;
-        this.WebResponse = response;
+        this.Request = request;
+        this.Response = response;
 
-        JObject jsonResponse = JObject.Parse(response.Response);
-        if (jsonResponse.TryGetValue("message", StringComparison.Ordinal, out JToken? message))
+        try
         {
-            this.JsonMessage = message.ToString();
-        }
+            using JsonDocument document = JsonDocument.Parse(content);
+            JsonElement responseModel = document.RootElement;
 
-        if (jsonResponse.TryGetValue("code", StringComparison.Ordinal, out JToken? code))
-        {
-            this.Code = (int)code;
-        }
+            if
+            (
+                responseModel.TryGetProperty("code", out JsonElement code) 
+                && code.ValueKind == JsonValueKind.Number
+            )
+            {
+                this.Code = code.GetInt32();
+            }
 
-        if (jsonResponse.TryGetValue("errors", StringComparison.Ordinal, out JToken? errors))
-        {
-            this.Errors = errors.ToString();
+            if
+            (
+                responseModel.TryGetProperty("message", out JsonElement message)
+                && message.ValueKind == JsonValueKind.String
+            )
+            {
+                this.JsonMessage = message.GetString();
+            }
+
+            if
+            (
+                responseModel.TryGetProperty("errors", out JsonElement errors)
+                && message.ValueKind == JsonValueKind.String
+            )
+            {
+                this.Errors = errors.GetString();
+            }
         }
+        catch { }
     }
 }

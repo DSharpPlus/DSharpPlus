@@ -409,8 +409,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> ModifyAsync(Optional<string> content)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
+        public async Task<DiscordMessage> ModifyAsync(Optional<string> content)
+            => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
 
         /// <summary>
         /// Edits the message.
@@ -421,8 +421,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> ModifyAsync(Optional<DiscordEmbed> embed = default)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed.HasValue ? new[] { embed.Value } : Array.Empty<DiscordEmbed>(), this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
+        public async Task<DiscordMessage> ModifyAsync(Optional<DiscordEmbed> embed = default)
+            => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed.HasValue ? new[] { embed.Value } : Array.Empty<DiscordEmbed>(), this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
 
         /// <summary>
         /// Edits the message.
@@ -434,8 +434,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> ModifyAsync(Optional<string> content, Optional<DiscordEmbed> embed = default)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed.HasValue ? new[] { embed.Value } : Array.Empty<DiscordEmbed>(), this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
+        public async Task<DiscordMessage> ModifyAsync(Optional<string> content, Optional<DiscordEmbed> embed = default)
+            => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed.HasValue ? new[] { embed.Value } : Array.Empty<DiscordEmbed>(), this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
 
         /// <summary>
         /// Edits the message.
@@ -447,8 +447,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> ModifyAsync(Optional<string> content, Optional<IEnumerable<DiscordEmbed>> embeds = default)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embeds, this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
+        public async Task<DiscordMessage> ModifyAsync(Optional<string> content, Optional<IEnumerable<DiscordEmbed>> embeds = default)
+            => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embeds, this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
 
         /// <summary>
         /// Edits the message.
@@ -495,8 +495,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task ModifyEmbedSuppressionAsync(bool hideEmbeds)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, default, default, default, Array.Empty<DiscordMessageFile>(), hideEmbeds ? MessageFlags.SuppressedEmbeds : null, default);
+        public async Task ModifyEmbedSuppressionAsync(bool hideEmbeds)
+            => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, default, default, default, Array.Empty<DiscordMessageFile>(), hideEmbeds ? MessageFlags.SuppressedEmbeds : null, default);
 
         /// <summary>
         /// Deletes the message.
@@ -506,8 +506,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task DeleteAsync(string reason = null)
-            => this.Discord.ApiClient.DeleteMessageAsync(this.ChannelId, this.Id, reason);
+        public async Task DeleteAsync(string reason = null)
+            => await this.Discord.ApiClient.DeleteMessageAsync(this.ChannelId, this.Id, reason);
 
         /// <summary>
         /// Pins the message in its channel.
@@ -517,8 +517,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task PinAsync()
-            => this.Discord.ApiClient.PinMessageAsync(this.ChannelId, this.Id);
+        public async Task PinAsync()
+            => await this.Discord.ApiClient.PinMessageAsync(this.ChannelId, this.Id);
 
         /// <summary>
         /// Unpins the message in its channel.
@@ -528,8 +528,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task UnpinAsync()
-            => this.Discord.ApiClient.UnpinMessageAsync(this.ChannelId, this.Id);
+        public async Task UnpinAsync()
+            => await this.Discord.ApiClient.UnpinMessageAsync(this.ChannelId, this.Id);
 
         /// <summary>
         /// Responds to the message. This produces a reply.
@@ -540,8 +540,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> RespondAsync(string content)
-            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, null, replyMessageId: this.Id, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
+        public async Task<DiscordMessage> RespondAsync(string content)
+            => await this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, null, replyMessageId: this.Id, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
 
         /// <summary>
         /// Responds to the message. This produces a reply.
@@ -552,8 +552,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> RespondAsync(DiscordEmbed embed)
-            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, null, embed != null ? new[] { embed } : null, replyMessageId: this.Id, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
+        public async Task<DiscordMessage> RespondAsync(DiscordEmbed embed)
+            => await this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, null, embed != null ? new[] { embed } : null, replyMessageId: this.Id, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
 
         /// <summary>
         /// Responds to the message. This produces a reply.
@@ -565,8 +565,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> RespondAsync(string content, DiscordEmbed embed)
-            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, embed != null ? new[] { embed } : null, replyMessageId: this.Id, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
+        public async Task<DiscordMessage> RespondAsync(string content, DiscordEmbed embed)
+            => await this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, embed != null ? new[] { embed } : null, replyMessageId: this.Id, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
 
         /// <summary>
         /// Responds to the message. This produces a reply.
@@ -577,8 +577,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> RespondAsync(DiscordMessageBuilder builder)
-            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder.WithReply(this.Id, mention: false, failOnInvalidReply: false));
+        public async Task<DiscordMessage> RespondAsync(DiscordMessageBuilder builder)
+            => await this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder.WithReply(this.Id, mention: false, failOnInvalidReply: false));
 
         /// <summary>
         /// Responds to the message. This produces a reply.
@@ -589,11 +589,11 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> RespondAsync(Action<DiscordMessageBuilder> action)
+        public async Task<DiscordMessage> RespondAsync(Action<DiscordMessageBuilder> action)
         {
-            var builder = new DiscordMessageBuilder();
+            DiscordMessageBuilder builder = new DiscordMessageBuilder();
             action(builder);
-            return this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder.WithReply(this.Id, mention: false, failOnInvalidReply: false));
+            return await this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder.WithReply(this.Id, mention: false, failOnInvalidReply: false));
         }
 
         /// <summary>
@@ -607,12 +607,11 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordThreadChannel> CreateThreadAsync(string name, AutoArchiveDuration archiveAfter, string reason = null)
+        public async Task<DiscordThreadChannel> CreateThreadAsync(string name, AutoArchiveDuration archiveAfter, string reason = null)
         {
-            if (this.Channel.Type != ChannelType.Text && this.Channel.Type != ChannelType.News)
-                throw new InvalidOperationException("Threads can only be created within text or news channels.");
-
-            return this.Discord.ApiClient.CreateThreadFromMessageAsync(this.Channel.Id, this.Id, name, archiveAfter, reason);
+            return this.Channel.Type != ChannelType.Text && this.Channel.Type != ChannelType.News
+                ? throw new InvalidOperationException("Threads can only be created within text or news channels.")
+                : await this.Discord.ApiClient.CreateThreadFromMessageAsync(this.Channel.Id, this.Id, name, archiveAfter, reason);
         }
 
         /// <summary>
@@ -624,8 +623,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task CreateReactionAsync(DiscordEmoji emoji)
-            => this.Discord.ApiClient.CreateReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
+        public async Task CreateReactionAsync(DiscordEmoji emoji)
+            => await this.Discord.ApiClient.CreateReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
 
         /// <summary>
         /// Deletes your own reaction
@@ -635,8 +634,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task DeleteOwnReactionAsync(DiscordEmoji emoji)
-            => this.Discord.ApiClient.DeleteOwnReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
+        public async Task DeleteOwnReactionAsync(DiscordEmoji emoji)
+            => await this.Discord.ApiClient.DeleteOwnReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
 
         /// <summary>
         /// Deletes another user's reaction.
@@ -649,8 +648,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task DeleteReactionAsync(DiscordEmoji emoji, DiscordUser user, string reason = null)
-            => this.Discord.ApiClient.DeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, emoji.ToReactionString(), reason);
+        public async Task DeleteReactionAsync(DiscordEmoji emoji, DiscordUser user, string reason = null)
+            => await this.Discord.ApiClient.DeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, emoji.ToReactionString(), reason);
 
         /// <summary>
         /// Gets users that reacted with this emoji.
@@ -674,8 +673,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task DeleteAllReactionsAsync(string reason = null)
-            => this.Discord.ApiClient.DeleteAllReactionsAsync(this.ChannelId, this.Id, reason);
+        public async Task DeleteAllReactionsAsync(string reason = null)
+            => await this.Discord.ApiClient.DeleteAllReactionsAsync(this.ChannelId, this.Id, reason);
 
         /// <summary>
         /// Deletes all reactions of a specific reaction for this message.
@@ -686,8 +685,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task DeleteReactionsEmojiAsync(DiscordEmoji emoji)
-            => this.Discord.ApiClient.DeleteReactionsEmojiAsync(this.ChannelId, this.Id, emoji.ToReactionString());
+        public async Task DeleteReactionsEmojiAsync(DiscordEmoji emoji)
+            => await this.Discord.ApiClient.DeleteReactionsEmojiAsync(this.ChannelId, this.Id, emoji.ToReactionString());
 
         private async Task<IReadOnlyList<DiscordUser>> GetReactionsInternalAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null)
         {

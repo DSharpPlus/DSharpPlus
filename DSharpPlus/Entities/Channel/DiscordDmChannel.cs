@@ -51,8 +51,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task AddDmRecipientAsync(ulong user_id, string accesstoken, string nickname)
-            => this.Discord.ApiClient.AddGroupDmRecipientAsync(this.Id, user_id, accesstoken, nickname);
+        public async Task AddDmRecipientAsync(ulong user_id, string accesstoken, string nickname)
+            => await this.Discord.ApiClient.AddGroupDmRecipientAsync(this.Id, user_id, accesstoken, nickname);
 
         /// <summary>
         /// Only use for Group DMs!
@@ -62,7 +62,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task RemoveDmRecipientAsync(ulong user_id, string accesstoken)
-            => this.Discord.ApiClient.RemoveGroupDmRecipientAsync(this.Id, user_id);
+        public async Task RemoveDmRecipientAsync(ulong user_id, string accesstoken)
+            => await this.Discord.ApiClient.RemoveGroupDmRecipientAsync(this.Id, user_id);
     }
 }

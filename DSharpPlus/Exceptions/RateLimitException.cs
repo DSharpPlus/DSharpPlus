@@ -1,6 +1,5 @@
-using System;
-using DSharpPlus.Net;
-using Newtonsoft.Json.Linq;
+using System.Net.Http;
+using System.Text.Json;
 
 namespace DSharpPlus.Exceptions;
 
@@ -9,13 +8,26 @@ namespace DSharpPlus.Exceptions;
 /// </summary>
 public class RateLimitException : DiscordException
 {
-    internal RateLimitException(BaseRestRequest request, RestResponse response) : base("Rate limited: " + response.ResponseCode)
+    internal RateLimitException(HttpRequestMessage request, HttpResponseMessage response, string content) 
+        : base("Rate limited: " + response.StatusCode)
     {
-        this.WebRequest = request;
-        this.WebResponse = response;
-        if (JObject.Parse(response.Response).TryGetValue("message", StringComparison.Ordinal, out JToken? message))
+        this.Request = request;
+        this.Response = response;
+
+        try
         {
-            this.JsonMessage = message.ToString();
+            using JsonDocument document = JsonDocument.Parse(content);
+            JsonElement responseModel = document.RootElement;
+
+            if
+            (
+                responseModel.TryGetProperty("message", out JsonElement message)
+                && message.ValueKind == JsonValueKind.String
+            )
+            {
+                this.JsonMessage = message.GetString();
+            }
         }
+        catch { }
     }
 }

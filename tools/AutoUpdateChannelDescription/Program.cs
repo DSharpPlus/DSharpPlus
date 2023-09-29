@@ -66,7 +66,7 @@ public sealed class Program
             }
             catch (DiscordException error)
             {
-                Console.WriteLine($"Error: HTTP {error.WebResponse.ResponseCode}, {error.WebResponse.Response}");
+                Console.WriteLine($"Error: HTTP {error.Response!.StatusCode}, {await error.Response.Content.ReadAsStringAsync()}");
             }
 
             await client.DisconnectAsync();

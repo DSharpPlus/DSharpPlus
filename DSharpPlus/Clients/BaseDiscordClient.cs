@@ -160,8 +160,8 @@ namespace DSharpPlus
         /// </summary>
         /// <returns></returns>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<IReadOnlyList<DiscordVoiceRegion>> ListVoiceRegionsAsync()
-            => this.ApiClient.ListVoiceRegionsAsync();
+        public async Task<IReadOnlyList<DiscordVoiceRegion>> ListVoiceRegionsAsync()
+            => await this.ApiClient.ListVoiceRegionsAsync();
 
         /// <summary>
         /// Initializes this client. This method fetches information about current user, application, and voice regions.

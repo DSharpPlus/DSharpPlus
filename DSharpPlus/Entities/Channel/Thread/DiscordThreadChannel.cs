@@ -122,23 +122,37 @@ namespace DSharpPlus.Entities
         /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task ModifyAsync(Action<ThreadChannelEditModel> action)
         {
-            var mdl = new ThreadChannelEditModel();
+            ThreadChannelEditModel mdl = new();
             action(mdl);
             await this.Discord.ApiClient.ModifyThreadChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
                 mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(r => r?.Id),
-                mdl.QualityMode, mdl.Type, mdl.PermissionOverwrites, mdl.IsArchived, mdl.AutoArchiveDuration, mdl.Locked, mdl.AuditLogReason, mdl.AppliedTags);
+                mdl.QualityMode, mdl.Type, mdl.PermissionOverwrites, mdl.IsArchived, mdl.AutoArchiveDuration, mdl.Locked, mdl.AppliedTags, mdl.AuditLogReason);
 
             // We set these *after* the rest request so that Discord can validate the properties. This is useful if the requirements ever change.
             if (!string.IsNullOrWhiteSpace(mdl.Name))
+            {
                 this.Name = mdl.Name;
+            }
+
             if (mdl.PerUserRateLimit.HasValue)
+            {
                 this.PerUserRateLimit = mdl.PerUserRateLimit.Value;
+            }
+
             if (mdl.IsArchived.HasValue)
+            {
                 this.ThreadMetadata.IsArchived = mdl.IsArchived.Value;
+            }
+
             if (mdl.AutoArchiveDuration.HasValue)
+            {
                 this.ThreadMetadata.AutoArchiveDuration = mdl.AutoArchiveDuration.Value;
+            }
+
             if (mdl.Locked.HasValue)
+            {
                 this.ThreadMetadata.IsLocked = mdl.Locked.Value;
+            }
         }
 
         /// <summary>

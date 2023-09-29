@@ -96,8 +96,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="type">The type of the response.</param>
         /// <param name="builder">The data, if any, to send.</param>
-        public Task CreateResponseAsync(InteractionResponseType type, DiscordInteractionResponseBuilder builder = null) =>
-            this.Discord.ApiClient.CreateInteractionResponseAsync(this.Id, this.Token, type, builder);
+        public async Task CreateResponseAsync(InteractionResponseType type, DiscordInteractionResponseBuilder builder = null) =>
+            await this.Discord.ApiClient.CreateInteractionResponseAsync(this.Id, this.Token, type, builder);
 
         /// <summary>
         ///     Creates a deferred response to this interaction.
@@ -111,8 +111,8 @@ namespace DSharpPlus.Entities
         /// Gets the original interaction response.
         /// </summary>
         /// <returns>The original message that was sent.</returns>
-        public Task<DiscordMessage> GetOriginalResponseAsync() =>
-            this.Discord.ApiClient.GetOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token);
+        public async Task<DiscordMessage> GetOriginalResponseAsync() =>
+            await this.Discord.ApiClient.GetOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token);
 
         /// <summary>
         /// Edits the original interaction response.
@@ -130,8 +130,8 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Deletes the original interaction response.
         /// </summary>>
-        public Task DeleteOriginalResponseAsync() =>
-            this.Discord.ApiClient.DeleteOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token);
+        public async Task DeleteOriginalResponseAsync() =>
+            await this.Discord.ApiClient.DeleteOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token);
 
         /// <summary>
         /// Creates a follow up message to this interaction.
@@ -149,8 +149,8 @@ namespace DSharpPlus.Entities
         /// Gets a follow up message.
         /// </summary>
         /// <param name="messageId">The id of the follow up message.</param>
-        public Task<DiscordMessage> GetFollowupMessageAsync(ulong messageId) =>
-            this.Discord.ApiClient.GetFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId);
+        public async Task<DiscordMessage> GetFollowupMessageAsync(ulong messageId) =>
+            await this.Discord.ApiClient.GetFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId);
 
         /// <summary>
         /// Edits a follow up message.
@@ -170,7 +170,7 @@ namespace DSharpPlus.Entities
         /// Deletes a follow up message.
         /// </summary>
         /// <param name="messageId">The id of the follow up message.</param>
-        public Task DeleteFollowupMessageAsync(ulong messageId) =>
-            this.Discord.ApiClient.DeleteFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId);
+        public async Task DeleteFollowupMessageAsync(ulong messageId) =>
+            await this.Discord.ApiClient.DeleteFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId);
     }
 }
