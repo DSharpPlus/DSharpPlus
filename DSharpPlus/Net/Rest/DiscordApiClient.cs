@@ -2093,7 +2093,8 @@ public sealed class DiscordApiClient
                 Route = route,
                 Url = url,
                 Method = HttpMethod.Post,
-                Values = values
+                Values = values,
+                Files = builder.Files
             };
             
             RestResponse res = await this._rest.ExecuteRequestAsync(request);
@@ -2259,23 +2260,41 @@ public sealed class DiscordApiClient
                 : null
         };
 
-        Dictionary<string, string> values = new()
-        {
-            ["payload_json"] = DiscordJson.SerializeObject(pld)
-        };
+        string payload = DiscordJson.SerializeObject(pld);
 
         string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/:message_id";
         string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}/{messageId}";
-        
-        MultipartRestRequest request = new()
+
+        RestResponse res;
+
+        if (files is not null)
         {
-            Route = route,
-            Url = url,
-            Method = HttpMethod.Patch,
-            Values = values
-        };
-        
-        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+            MultipartRestRequest request = new()
+            {
+                Route = route,
+                Url = url,
+                Method = HttpMethod.Patch,
+                Values = new Dictionary<string, string>() 
+                { 
+                    ["payload_json"] = payload 
+                },
+                Files = (IReadOnlyList<DiscordMessageFile>)files
+            };
+
+            res = await this._rest.ExecuteRequestAsync(request);
+        }
+        else
+        {
+            RestRequest request = new()
+            {
+                Route = route,
+                Url = url,
+                Method = HttpMethod.Patch,
+                Payload = payload
+            };
+
+            res = await this._rest.ExecuteRequestAsync(request);
+        }
 
         DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
 
