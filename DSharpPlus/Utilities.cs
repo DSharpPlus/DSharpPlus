@@ -180,6 +180,7 @@ namespace DSharpPlus
                 ChannelType.PrivateThread => true,
                 ChannelType.NewsThread => true,
                 ChannelType.News => true,
+                ChannelType.Stage => true,
                 _ => false,
             };
 
