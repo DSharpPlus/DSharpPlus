@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+using System.Collections.Generic;
+
 using DSharpPlus.Entities;
 
 using OneOf;
@@ -59,4 +61,7 @@ public sealed record Interaction : IInteraction
 
     /// <inheritdoc/>
     public Optional<string> GuildLocale { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<IReadOnlyList<IEntitlement>> Entitlements { get; init; }
 }

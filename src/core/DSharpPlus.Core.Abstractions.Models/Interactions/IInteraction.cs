@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+using System.Collections.Generic;
+
 using DSharpPlus.Entities;
 
 using OneOf;
@@ -94,4 +96,9 @@ public interface IInteraction
     /// The preferred locale of the guild, if invoked in a guild.
     /// </summary>
     public Optional<string> GuildLocale { get; }
+
+    /// <summary>
+    /// For monetized apps, any entitlements for the invoking user.
+    /// </summary>
+    public Optional<IReadOnlyList<IEntitlement>> Entitlements { get; }
 }
