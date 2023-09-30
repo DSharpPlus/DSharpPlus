@@ -23,4 +23,7 @@ public sealed record MessageComponentInteractionData : IMessageComponentInteract
 
     /// <inheritdoc/>
     public Optional<IReadOnlyList<ISelectOption>> Values { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<IResolvedData> Resolved { get; init; }
 }

@@ -29,4 +29,9 @@ public interface IMessageComponentInteractionData
     /// The values selected in the associated select menu, if applicable.
     /// </summary>
     public Optional<IReadOnlyList<ISelectOption>> Values { get; }
+
+    /// <summary>
+    /// Resolved entities from the selected options.
+    /// </summary>
+    public Optional<IResolvedData> Resolved { get; }
 }
