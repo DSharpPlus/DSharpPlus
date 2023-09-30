@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+using System.Collections.Generic;
+
 using DSharpPlus.Entities;
 
 using Remora.Rest.Core;
@@ -21,6 +23,9 @@ public sealed record RoleSelectComponent : IRoleSelectComponent
 
     /// <inheritdoc/>
     public Optional<string> Placeholder { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<IReadOnlyList<IDefaultSelectValue>> DefaultValues { get; init; }
 
     /// <inheritdoc/>
     public Optional<int> MinValues { get; init; }

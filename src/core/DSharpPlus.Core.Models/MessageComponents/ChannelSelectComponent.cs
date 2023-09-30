@@ -28,6 +28,9 @@ public sealed record ChannelSelectComponent : IChannelSelectComponent
     public Optional<string> Placeholder { get; init; }
 
     /// <inheritdoc/>
+    public Optional<IReadOnlyList<IDefaultSelectValue>> DefaultValues { get; init; }
+
+    /// <inheritdoc/>
     public Optional<int> MinValues { get; init; }
 
     /// <inheritdoc/>

@@ -37,6 +37,12 @@ public interface IChannelSelectComponent : IInteractiveComponent
     public Optional<string> Placeholder { get; }
 
     /// <summary>
+    /// A list of default values for this select; the number of default values must be within the range defined by
+    /// <seealso cref="MinValues"/> and <seealso cref="MaxValues"/>.
+    /// </summary>
+    public Optional<IReadOnlyList<IDefaultSelectValue>> DefaultValues { get; }
+
+    /// <summary>
     /// The minimum number of items that must be chosen, between 0 and 25.
     /// </summary>
     public Optional<int> MinValues { get; }
