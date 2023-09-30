@@ -14,7 +14,7 @@ namespace DSharpPlus.Core.Models;
 public sealed record Sku : ISku
 {
     /// <inheritdoc/>
-    public required object Id { get; init; }
+    public required Snowflake Id { get; init; }
 
     /// <inheritdoc/>
     public required SkuType Type { get; init; }
@@ -27,4 +27,7 @@ public sealed record Sku : ISku
 
     /// <inheritdoc/>
     public required string Slug { get; init; }
+
+    /// <inheritdoc/>
+    public required SkuFlags Flags { get; init; }
 }

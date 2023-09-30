@@ -16,7 +16,7 @@ public interface ISku
     /// <summary>
     /// The identifier of this SKU.
     /// </summary>
-    public object Id { get; }
+    public Snowflake Id { get; }
 
     /// <summary>
     /// The type of this SKU.
@@ -37,4 +37,9 @@ public interface ISku
     /// A system-generated URL slug based on the SKU's name.
     /// </summary>
     public string Slug { get; }
+
+    /// <summary>
+    /// Additional flags for this SKU.
+    /// </summary>
+    public SkuFlags Flags { get; }
 }
