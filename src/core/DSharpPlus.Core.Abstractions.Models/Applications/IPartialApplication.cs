@@ -51,6 +51,11 @@ public interface IPartialApplication
     public Optional<bool> BotRequireCodeGrant { get; }
 
     /// <summary>
+    /// A partial user object for the bot user associated with this app.
+    /// </summary>
+    public Optional<IPartialUser> Bot { get; }
+
+    /// <summary>
     /// The URL to this application's terms of service.
     /// </summary>
     public Optional<string> TermsOfServiceUrl { get; }
@@ -112,6 +117,22 @@ public interface IPartialApplication
     public Optional<int> ApproximateGuildCount { get; }
 
     /// <summary>
+    /// An array of redirect URIs for this application.
+    /// </summary>
+    public Optional<IReadOnlyList<string>> RedirectUris { get; }
+
+    /// <summary>
+    /// The interactions endpoint url for this app, if it uses HTTP interactions.
+    /// </summary>
+    public Optional<string> InteractionsEndpointUrl { get; }
+
+    /// <summary>
+    /// This application's role connection verification entry point; which, when configured, will render
+    /// the application as a verification method in the guild role verification configuration.
+    /// </summary>
+    public Optional<string> RoleConnectionsVerificationUrl { get; }
+
+    /// <summary>
     /// Up to five tags describing content and functionality of the application.
     /// </summary>
     public Optional<IReadOnlyList<string>> Tags { get; }
@@ -125,10 +146,4 @@ public interface IPartialApplication
     /// The default custom authorization link for this application, if enabled.
     /// </summary>
     public Optional<string> CustomInstallUrl { get; }
-
-    /// <summary>
-    /// This application's role connection verification entry point; which, when configured, will render
-    /// the application as a verification method in the guild role verification configuration.
-    /// </summary>
-    public Optional<string> RoleConnectionsVerificationUrl { get; }
 }

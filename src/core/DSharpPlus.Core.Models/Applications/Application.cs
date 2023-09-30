@@ -37,6 +37,9 @@ public sealed record Application : IApplication
     public required bool BotRequireCodeGrant { get; init; }
 
     /// <inheritdoc/>
+    public Optional<IPartialUser> Bot { get; init; }
+
+    /// <inheritdoc/>
     public Optional<string> TermsOfServiceUrl { get; init; }
 
     /// <inheritdoc/>
@@ -73,6 +76,15 @@ public sealed record Application : IApplication
     public Optional<int> ApproximateGuildCount { get; init; }
 
     /// <inheritdoc/>
+    public Optional<IReadOnlyList<string>> RedirectUris { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<string> InteractionsEndpointUrl { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<string> RoleConnectionsVerificationUrl { get; init; }
+
+    /// <inheritdoc/>
     public Optional<IReadOnlyList<string>> Tags { get; init; }
 
     /// <inheritdoc/>
@@ -80,7 +92,4 @@ public sealed record Application : IApplication
 
     /// <inheritdoc/>
     public Optional<string> CustomInstallUrl { get; init; }
-
-    /// <inheritdoc/>
-    public Optional<string> RoleConnectionsVerificationUrl { get; init; }
 }
