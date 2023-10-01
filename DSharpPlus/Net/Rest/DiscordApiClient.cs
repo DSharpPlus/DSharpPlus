@@ -3120,6 +3120,12 @@ public sealed class DiscordApiClient
         RestResponse response = await this._rest.ExecuteRequestAsync(request);
 
         List<DiscordThreadChannelMember> threadMembers = JsonConvert.DeserializeObject<List<DiscordThreadChannelMember>>(response.Response!)!;
+        
+        foreach (DiscordThreadChannelMember member in threadMembers)
+        {
+            member.Discord = this._discord!;
+        }
+        
         return new ReadOnlyCollection<DiscordThreadChannelMember>(threadMembers);
     }
 
