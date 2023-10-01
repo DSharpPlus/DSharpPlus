@@ -252,6 +252,8 @@ public sealed class DiscordApiClient
             // this looks wrong. TODO: investigate double-fired event?
             await dc.OnGuildCreateEventAsync(guild, rawMembers, null!);
         }
+        
+        guild.Discord = this._discord!;
 
         return guild;
     }
@@ -287,6 +289,8 @@ public sealed class DiscordApiClient
         {
             await dc.OnGuildCreateEventAsync(guild, rawMembers, null!);
         }
+        
+        guild.Discord = this._discord!;
 
         return guild;
     }
@@ -2750,7 +2754,9 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
         
-        return JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
+        DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
+        
+        return ret;
     }
 
     internal async ValueTask<DiscordStageInstance> CreateStageInstanceAsync
@@ -3482,6 +3488,12 @@ public sealed class DiscordApiClient
                 xug => (this._discord as DiscordClient)?._guilds[xug.Id]
             )
             .Where(static guild => guild is not null)!;
+
+            foreach (DiscordGuild guild in guilds)
+            {
+                guild.Discord = this._discord!;
+            }
+            
             return new ReadOnlyCollection<DiscordGuild>(new List<DiscordGuild>(guilds));
         }
         else
@@ -4639,7 +4651,7 @@ public sealed class DiscordApiClient
 
         DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
 
-            builder.ResetFileStreamPositions();
+        builder.ResetFileStreamPositions();
 
         ret.Discord = this._discord!;
         return ret;
@@ -4973,6 +4985,8 @@ public sealed class DiscordApiClient
 
                 discordGuildEmoji.User = users[rawUser.Id];
             }
+            
+            discordGuildEmoji.Discord = this._discord!;
 
             emojis.Add(discordGuildEmoji);
         }
@@ -5013,6 +5027,8 @@ public sealed class DiscordApiClient
         {
             emoji.User = guild is not null && guild.Members.TryGetValue(rawUser.Id, out DiscordMember? member) ? member : new DiscordUser(rawUser);
         }
+        
+        emoji.Discord = this._discord!;
 
         return emoji;
     }
@@ -5067,6 +5083,8 @@ public sealed class DiscordApiClient
         emoji.User = rawUser != null
             ? guild is not null && guild.Members.TryGetValue(rawUser.Id, out DiscordMember? member) ? member : new DiscordUser(rawUser)
             : this._discord.CurrentUser;
+        
+        emoji.Discord = this._discord!;
 
         return emoji;
     }
@@ -5121,6 +5139,8 @@ public sealed class DiscordApiClient
         {
             emoji.User = guild is not null && guild.Members.TryGetValue(rawUser.Id, out DiscordMember? member) ? member : new DiscordUser(rawUser);
         }
+        
+        emoji.Discord = this._discord!;
 
         return emoji;
     }
@@ -6160,7 +6180,8 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
         DiscordAutoModerationRule rule = JsonConvert.DeserializeObject<DiscordAutoModerationRule>(res.Response!)!;
-
+        rule.Discord = this._discord!;
+        
         return rule;
     }
 
@@ -6188,7 +6209,8 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
         DiscordAutoModerationRule rule = JsonConvert.DeserializeObject<DiscordAutoModerationRule>(res.Response!)!;
-
+        rule.Discord = this._discord!;
+        
         return rule;
     }
 
@@ -6214,7 +6236,12 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
         IReadOnlyList<DiscordAutoModerationRule> rules = JsonConvert.DeserializeObject<IReadOnlyList<DiscordAutoModerationRule>>(res.Response!)!;
-
+        
+        foreach (DiscordAutoModerationRule rule in rules)
+        {
+            rule.Discord = this._discord!;
+        }
+        
         return rules;
     }
 
@@ -6277,7 +6304,8 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
         DiscordAutoModerationRule rule = JsonConvert.DeserializeObject<DiscordAutoModerationRule>(res.Response!)!;
-
+        rule.Discord = this._discord!;
+        
         return rule;
     }
 
