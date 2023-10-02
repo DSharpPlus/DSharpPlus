@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Concurrent;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -17,6 +19,7 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
     private readonly RateLimitBucket globalBucket;
     private readonly MemoryCache cache;
     private readonly ILogger logger;
+    private readonly ConcurrentDictionary<string, string> routeHashes;
     private static readonly TimeSpan second = TimeSpan.FromSeconds(1);
 
     public RateLimitPolicy(ILogger logger)
@@ -33,6 +36,7 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
         );
 
         this.logger = logger;
+        this.routeHashes = new();
     }
 
     protected override async Task<HttpResponseMessage> ImplementationAsync
@@ -86,31 +90,38 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
             }
         }
 
-        RateLimitBucket? bucket = this.cache.Get<RateLimitBucket?>(route);
+        bool hashPresent = this.routeHashes.TryGetValue(route, out string? hash);
 
-        if(bucket is not null)
+        if (hash is not null)
         {
-            if (!bucket.Value.CheckNextRequest())
+            RateLimitBucket? bucket = this.cache.Get<RateLimitBucket?>(hash);
+
+            if (bucket is not null)
             {
-                HttpResponseMessage synthesizedResponse = new(HttpStatusCode.TooManyRequests);
+                if (!bucket.Value.CheckNextRequest())
+                {
+                    HttpResponseMessage synthesizedResponse = new(HttpStatusCode.TooManyRequests);
 
-                synthesizedResponse.Headers.RetryAfter = new RetryConditionHeaderValue(bucket.Value.Reset - instant);
-                synthesizedResponse.Headers.Add("DSharpPlus-Internal-Response", "bucket");
+                    synthesizedResponse.Headers.RetryAfter = new RetryConditionHeaderValue(bucket.Value.Reset - instant);
+                    synthesizedResponse.Headers.Add("DSharpPlus-Internal-Response", "bucket");
 
-                this.logger.LogWarning
-                (
-                    LoggerEvents.RatelimitPreemptive,
-                    "Pre-emptive ratelimit triggered - waiting until {reset:yyyy-MM-dd HH:mm:ss zzz}.",
-                    bucket.Value.Reset
-                );
+                    this.logger.LogWarning
+                    (
+                        LoggerEvents.RatelimitPreemptive,
+                        "Pre-emptive ratelimit triggered - waiting until {reset:yyyy-MM-dd HH:mm:ss zzz}.",
+                        bucket.Value.Reset
+                    );
 
-                return synthesizedResponse;
+                    return synthesizedResponse;
+                }
             }
         }
 
         // make the actual request
 
         HttpResponseMessage response = await action(context, cancellationToken);
+
+        hash = response.Headers.GetValues("X-RateLimit-Bucket").SingleOrDefault() ?? "UNKNOWN";
 
         if(!RateLimitBucket.TryExtractRateLimitBucket(response.Headers, out RateLimitBucket? extracted))
         {
@@ -120,6 +131,8 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
         this.cache.CreateEntry(route)
                 .SetValue(extracted.Value)
                 .Dispose();
+
+        this.routeHashes.AddOrUpdate(route, hash, (_, _) => hash);
 
         return response;
     }
