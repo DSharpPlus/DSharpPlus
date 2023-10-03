@@ -426,7 +426,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        IEnumerable<DiscordBan> bansRaw = JsonConvert.DeserializeObject<IEnumerable<DiscordBan>>(res.Response!)!
+        IEnumerable<DiscordBan> bansRaw = DiscordJson.ToDiscordObject<IEnumerable<DiscordBan>>(res.Response!)!
         .Select(xb =>
         {
             if (!this._discord!.TryGetCachedUserInternal(xb.RawUser.Id, out DiscordUser? user))
@@ -545,7 +545,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        TransportMember transport = JsonConvert.DeserializeObject<TransportMember>(res.Response!)!;
+        TransportMember transport = DiscordJson.ToDiscordObject<TransportMember>(res.Response!)!;
 
         return new DiscordMember(transport) { Discord = this._discord!, _guild_id = guildId };
     }
@@ -578,7 +578,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        List<TransportMember> rawMembers = JsonConvert.DeserializeObject<List<TransportMember>>(res.Response!)!;
+        List<TransportMember> rawMembers = DiscordJson.ToDiscordObject<List<TransportMember>>(res.Response!)!;
         return new ReadOnlyCollection<TransportMember>(rawMembers);
     }
 
@@ -678,7 +678,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordRole[] ret = JsonConvert.DeserializeObject<DiscordRole[]>(res.Response!)!;
+        DiscordRole[] ret = DiscordJson.ToDiscordObject<DiscordRole[]>(res.Response!)!;
         foreach (DiscordRole role in ret)
         {
             role.Discord = this._discord!;
@@ -731,7 +731,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        return JsonConvert.DeserializeObject<AuditLog>(res.Response!)!;
+        return DiscordJson.ToDiscordObject<AuditLog>(res.Response!)!;
     }
 
     internal async ValueTask<DiscordInvite> GetGuildVanityUrlAsync
@@ -748,7 +748,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        return JsonConvert.DeserializeObject<DiscordInvite>(res.Response!)!;
+        return DiscordJson.ToDiscordObject<DiscordInvite>(res.Response!)!;
     }
 
     internal async ValueTask<DiscordWidget> GetGuildWidgetAsync
@@ -804,7 +804,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordWidgetSettings ret = JsonConvert.DeserializeObject<DiscordWidgetSettings>(res.Response!)!;
+        DiscordWidgetSettings ret = DiscordJson.ToDiscordObject<DiscordWidgetSettings>(res.Response!)!;
         ret.Guild = this._discord!.Guilds[guildId];
 
         return ret;
@@ -840,7 +840,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordWidgetSettings ret = JsonConvert.DeserializeObject<DiscordWidgetSettings>(res.Response!)!;
+        DiscordWidgetSettings ret = DiscordJson.ToDiscordObject<DiscordWidgetSettings>(res.Response!)!;
         ret.Guild = this._discord!.Guilds[guildId];
 
         return ret;
@@ -861,7 +861,7 @@ public sealed class DiscordApiClient
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         IEnumerable<DiscordGuildTemplate> templates = 
-            JsonConvert.DeserializeObject<IEnumerable<DiscordGuildTemplate>>(res.Response!)!;
+            DiscordJson.ToDiscordObject<IEnumerable<DiscordGuildTemplate>>(res.Response!)!;
 
         return new ReadOnlyCollection<DiscordGuildTemplate>(new List<DiscordGuildTemplate>(templates));
     }
@@ -889,7 +889,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        return JsonConvert.DeserializeObject<DiscordGuildTemplate>(res.Response!)!;
+        return DiscordJson.ToDiscordObject<DiscordGuildTemplate>(res.Response!)!;
     }
 
     internal async ValueTask<DiscordGuildTemplate> SyncGuildTemplateAsync
@@ -907,7 +907,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        return JsonConvert.DeserializeObject<DiscordGuildTemplate>(res.Response!)!;
+        return DiscordJson.ToDiscordObject<DiscordGuildTemplate>(res.Response!)!;
     }
 
     internal async ValueTask<DiscordGuildTemplate> ModifyGuildTemplateAsync
@@ -934,7 +934,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        return JsonConvert.DeserializeObject<DiscordGuildTemplate>(res.Response!)!;
+        return DiscordJson.ToDiscordObject<DiscordGuildTemplate>(res.Response!)!;
     }
 
     internal async ValueTask<DiscordGuildTemplate> DeleteGuildTemplateAsync
@@ -952,7 +952,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        return JsonConvert.DeserializeObject<DiscordGuildTemplate>(res.Response!)!;
+        return DiscordJson.ToDiscordObject<DiscordGuildTemplate>(res.Response!)!;
     }
 
     internal async ValueTask<DiscordGuildMembershipScreening> GetGuildMembershipScreeningFormAsync
@@ -969,7 +969,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        return JsonConvert.DeserializeObject<DiscordGuildMembershipScreening>(res.Response!)!;
+        return DiscordJson.ToDiscordObject<DiscordGuildMembershipScreening>(res.Response!)!;
     }
 
     internal async ValueTask<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync
@@ -997,7 +997,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        return JsonConvert.DeserializeObject<DiscordGuildMembershipScreening>(res.Response!)!;
+        return DiscordJson.ToDiscordObject<DiscordGuildMembershipScreening>(res.Response!)!;
     }
 
     internal async ValueTask<DiscordGuildWelcomeScreen> GetGuildWelcomeScreenAsync
@@ -1014,7 +1014,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        return JsonConvert.DeserializeObject<DiscordGuildWelcomeScreen>(res.Response!)!;
+        return DiscordJson.ToDiscordObject<DiscordGuildWelcomeScreen>(res.Response!)!;
     }
 
     internal async ValueTask<DiscordGuildWelcomeScreen> ModifyGuildWelcomeScreenAsync
@@ -1049,7 +1049,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        return JsonConvert.DeserializeObject<DiscordGuildWelcomeScreen>(res.Response!)!;
+        return DiscordJson.ToDiscordObject<DiscordGuildWelcomeScreen>(res.Response!)!;
     }
 
     internal async ValueTask UpdateCurrentUserVoiceStateAsync
@@ -1406,7 +1406,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordChannel ret = JsonConvert.DeserializeObject<DiscordChannel>(res.Response!)!;
+        DiscordChannel ret = DiscordJson.ToDiscordObject<DiscordChannel>(res.Response!)!;
         ret.Discord = this._discord!;
 
         foreach (DiscordOverwrite xo in ret._permissionOverwrites)
@@ -1582,7 +1582,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordScheduledGuildEvent[] ret = JsonConvert.DeserializeObject<DiscordScheduledGuildEvent[]>(res.Response!)!;
+        DiscordScheduledGuildEvent[] ret = DiscordJson.ToDiscordObject<DiscordScheduledGuildEvent[]>(res.Response!)!;
         
         foreach (DiscordScheduledGuildEvent? scheduledGuildEvent in ret)
         {
@@ -1641,7 +1641,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordScheduledGuildEvent ret = JsonConvert.DeserializeObject<DiscordScheduledGuildEvent>(res.Response!)!;
+        DiscordScheduledGuildEvent ret = DiscordJson.ToDiscordObject<DiscordScheduledGuildEvent>(res.Response!)!;
 
         ret.Discord = this._discord!;
 
@@ -1738,7 +1738,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordScheduledGuildEvent ret = JsonConvert.DeserializeObject<DiscordScheduledGuildEvent>(res.Response!)!;
+        DiscordScheduledGuildEvent ret = DiscordJson.ToDiscordObject<DiscordScheduledGuildEvent>(res.Response!)!;
 
         ret.Discord = this._discord!;
 
@@ -1799,7 +1799,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordScheduledGuildEvent ret = JsonConvert.DeserializeObject<DiscordScheduledGuildEvent>(res.Response!)!;
+        DiscordScheduledGuildEvent ret = DiscordJson.ToDiscordObject<DiscordScheduledGuildEvent>(res.Response!)!;
 
         ret.Discord = this._discord!;
 
@@ -2119,7 +2119,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
         
-        IEnumerable<DiscordChannel> channelsRaw = JsonConvert.DeserializeObject<IEnumerable<DiscordChannel>>(res.Response!)!
+        IEnumerable<DiscordChannel> channelsRaw = DiscordJson.ToDiscordObject<IEnumerable<DiscordChannel>>(res.Response!)!
             .Select
             (
                 xc => 
@@ -2384,7 +2384,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        IEnumerable<DiscordInvite> invitesRaw = JsonConvert.DeserializeObject<IEnumerable<DiscordInvite>>(res.Response!)!
+        IEnumerable<DiscordInvite> invitesRaw = DiscordJson.ToDiscordObject<IEnumerable<DiscordInvite>>(res.Response!)!
             .Select
             (
                 xi => 
@@ -2441,7 +2441,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
         
-        DiscordInvite ret = JsonConvert.DeserializeObject<DiscordInvite>(res.Response!)!;
+        DiscordInvite ret = DiscordJson.ToDiscordObject<DiscordInvite>(res.Response!)!;
         ret.Discord = this._discord!;
 
         return ret;
@@ -2664,7 +2664,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
         
-        DiscordDmChannel ret = JsonConvert.DeserializeObject<DiscordDmChannel>(res.Response!)!;
+        DiscordDmChannel ret = DiscordJson.ToDiscordObject<DiscordDmChannel>(res.Response!)!;
         ret.Discord = this._discord!;
         
         if (this._discord is DiscordClient dc)
@@ -2697,7 +2697,7 @@ public sealed class DiscordApiClient
         };
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
-        DiscordDmChannel ret = JsonConvert.DeserializeObject<DiscordDmChannel>(res.Response!)!;
+        DiscordDmChannel ret = DiscordJson.ToDiscordObject<DiscordDmChannel>(res.Response!)!;
         ret.Discord = this._discord!;
 
         if (this._discord is DiscordClient dc)
@@ -2732,7 +2732,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
         
-        return JsonConvert.DeserializeObject<DiscordFollowedChannel>(res.Response!)!;
+        return DiscordJson.ToDiscordObject<DiscordFollowedChannel>(res.Response!)!;
     }
 
     internal async ValueTask<DiscordMessage> CrosspostMessageAsync
@@ -2793,7 +2793,7 @@ public sealed class DiscordApiClient
         
         RestResponse response = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordStageInstance stage = JsonConvert.DeserializeObject<DiscordStageInstance>(response.Response!)!;
+        DiscordStageInstance stage = DiscordJson.ToDiscordObject<DiscordStageInstance>(response.Response!)!;
         stage.Discord = this._discord!;
 
         return stage;
@@ -2816,7 +2816,7 @@ public sealed class DiscordApiClient
         
         RestResponse response = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordStageInstance stage = JsonConvert.DeserializeObject<DiscordStageInstance>(response.Response!)!;
+        DiscordStageInstance stage = DiscordJson.ToDiscordObject<DiscordStageInstance>(response.Response!)!;
         stage.Discord = this._discord!;
 
         return stage;
@@ -2855,7 +2855,7 @@ public sealed class DiscordApiClient
         };
         
         RestResponse response = await this._rest.ExecuteRequestAsync(request);
-        DiscordStageInstance stage = JsonConvert.DeserializeObject<DiscordStageInstance>(response.Response!)!;
+        DiscordStageInstance stage = DiscordJson.ToDiscordObject<DiscordStageInstance>(response.Response!)!;
         stage.Discord = this._discord!;
 
         return stage;
@@ -2960,7 +2960,7 @@ public sealed class DiscordApiClient
         
         RestResponse response = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordThreadChannel thread = JsonConvert.DeserializeObject<DiscordThreadChannel>(response.Response!)!;
+        DiscordThreadChannel thread = DiscordJson.ToDiscordObject<DiscordThreadChannel>(response.Response!)!;
         thread.Discord = this._discord!;
 
         return thread;
@@ -3002,7 +3002,7 @@ public sealed class DiscordApiClient
         
         RestResponse response = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordThreadChannel thread = JsonConvert.DeserializeObject<DiscordThreadChannel>(response.Response!)!;
+        DiscordThreadChannel thread = DiscordJson.ToDiscordObject<DiscordThreadChannel>(response.Response!)!;
         thread.Discord = this._discord!;
 
         return thread;
@@ -3062,7 +3062,7 @@ public sealed class DiscordApiClient
         
         RestResponse response = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordThreadChannelMember ret = JsonConvert.DeserializeObject<DiscordThreadChannelMember>(response.Response!)!;
+        DiscordThreadChannelMember ret = DiscordJson.ToDiscordObject<DiscordThreadChannelMember>(response.Response!)!;
         
         ret.Discord = this._discord!;
         
@@ -3124,7 +3124,7 @@ public sealed class DiscordApiClient
         
         RestResponse response = await this._rest.ExecuteRequestAsync(request);
 
-        List<DiscordThreadChannelMember> threadMembers = JsonConvert.DeserializeObject<List<DiscordThreadChannelMember>>(response.Response!)!;
+        List<DiscordThreadChannelMember> threadMembers = DiscordJson.ToDiscordObject<List<DiscordThreadChannelMember>>(response.Response!)!;
         
         foreach (DiscordThreadChannelMember member in threadMembers)
         {
@@ -3151,7 +3151,7 @@ public sealed class DiscordApiClient
         
         RestResponse response = await this._rest.ExecuteRequestAsync(request);
 
-        ThreadQueryResult result = JsonConvert.DeserializeObject<ThreadQueryResult>(response.Response!)!;
+        ThreadQueryResult result = DiscordJson.ToDiscordObject<ThreadQueryResult>(response.Response!)!;
         result.HasMore = false;
 
         foreach (DiscordThreadChannel thread in result.Threads)
@@ -3205,7 +3205,7 @@ public sealed class DiscordApiClient
 
         RestResponse response = await this._rest.ExecuteRequestAsync(request);
 
-        ThreadQueryResult result = JsonConvert.DeserializeObject<ThreadQueryResult>(response.Response!)!;
+        ThreadQueryResult result = DiscordJson.ToDiscordObject<ThreadQueryResult>(response.Response!)!;
 
         foreach (DiscordThreadChannel thread in result.Threads)
         {
@@ -3256,7 +3256,7 @@ public sealed class DiscordApiClient
         
         RestResponse response = await this._rest.ExecuteRequestAsync(request);
 
-        ThreadQueryResult result = JsonConvert.DeserializeObject<ThreadQueryResult>(response.Response!)!;
+        ThreadQueryResult result = DiscordJson.ToDiscordObject<ThreadQueryResult>(response.Response!)!;
 
         foreach (DiscordThreadChannel thread in result.Threads)
         {
@@ -3307,7 +3307,7 @@ public sealed class DiscordApiClient
         
         RestResponse response = await this._rest.ExecuteRequestAsync(request);
 
-        ThreadQueryResult result = JsonConvert.DeserializeObject<ThreadQueryResult>(response.Response!)!;
+        ThreadQueryResult result = DiscordJson.ToDiscordObject<ThreadQueryResult>(response.Response!)!;
 
         foreach (DiscordThreadChannel thread in result.Threads)
         {
@@ -3351,7 +3351,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        TransportUser userRaw = JsonConvert.DeserializeObject<TransportUser>(res.Response!)!;
+        TransportUser userRaw = DiscordJson.ToDiscordObject<TransportUser>(res.Response!)!;
         DiscordUser user = new(userRaw) 
         { 
             Discord = this._discord! 
@@ -3378,7 +3378,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        TransportMember tm = JsonConvert.DeserializeObject<TransportMember>(res.Response!)!;
+        TransportMember tm = DiscordJson.ToDiscordObject<TransportMember>(res.Response!)!;
 
         DiscordUser usr = new(tm.User) 
         { 
@@ -3444,7 +3444,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        TransportUser userRaw = JsonConvert.DeserializeObject<TransportUser>(res.Response!)!;
+        TransportUser userRaw = DiscordJson.ToDiscordObject<TransportUser>(res.Response!)!;
 
         return userRaw;
     }
@@ -3481,7 +3481,7 @@ public sealed class DiscordApiClient
 
         if (this._discord is DiscordClient)
         {
-            IEnumerable<RestUserGuild> guildsRaw = JsonConvert.DeserializeObject<IEnumerable<RestUserGuild>>(res.Response!)!;
+            IEnumerable<RestUserGuild> guildsRaw = DiscordJson.ToDiscordObject<IEnumerable<RestUserGuild>>(res.Response!)!;
             IEnumerable<DiscordGuild> guilds = guildsRaw.Select
             (
                 xug => (this._discord as DiscordClient)?._guilds[xug.Id]
@@ -3497,7 +3497,7 @@ public sealed class DiscordApiClient
         }
         else
         {
-            return new ReadOnlyCollection<DiscordGuild>(JsonConvert.DeserializeObject<List<DiscordGuild>>(res.Response!)!);
+            return new ReadOnlyCollection<DiscordGuild>(DiscordJson.ToDiscordObject<List<DiscordGuild>>(res.Response!)!);
         }
     }
 
@@ -3597,7 +3597,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        IEnumerable<DiscordRole> rolesRaw = JsonConvert.DeserializeObject<IEnumerable<DiscordRole>>(res.Response!)!
+        IEnumerable<DiscordRole> rolesRaw = DiscordJson.ToDiscordObject<IEnumerable<DiscordRole>>(res.Response!)!
             .Select
             (
                 xr => 
@@ -3707,7 +3707,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordRole ret = JsonConvert.DeserializeObject<DiscordRole>(res.Response!)!;
+        DiscordRole ret = DiscordJson.ToDiscordObject<DiscordRole>(res.Response!)!;
         ret.Discord = this._discord!;
         ret._guild_id = guildId;
 
@@ -3793,7 +3793,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordRole ret = JsonConvert.DeserializeObject<DiscordRole>(res.Response!)!;
+        DiscordRole ret = DiscordJson.ToDiscordObject<DiscordRole>(res.Response!)!;
         ret.Discord = this._discord!;
         ret._guild_id = guildId;
 
@@ -3841,7 +3841,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        RestGuildPruneResultPayload pruned = JsonConvert.DeserializeObject<RestGuildPruneResultPayload>(res.Response!)!;
+        RestGuildPruneResultPayload pruned = DiscordJson.ToDiscordObject<RestGuildPruneResultPayload>(res.Response!)!;
 
         return pruned.Pruned!.Value;
     }
@@ -3892,7 +3892,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        RestGuildPruneResultPayload pruned = JsonConvert.DeserializeObject<RestGuildPruneResultPayload>(res.Response!)!;
+        RestGuildPruneResultPayload pruned = DiscordJson.ToDiscordObject<RestGuildPruneResultPayload>(res.Response!)!;
 
         return pruned.Pruned;
     }
@@ -3916,7 +3916,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordGuildTemplate templatesRaw = JsonConvert.DeserializeObject<DiscordGuildTemplate>(res.Response!)!;
+        DiscordGuildTemplate templatesRaw = DiscordJson.ToDiscordObject<DiscordGuildTemplate>(res.Response!)!;
 
         return templatesRaw;
     }
@@ -3939,7 +3939,7 @@ public sealed class DiscordApiClient
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         IEnumerable<DiscordIntegration> integrationsRaw = 
-            JsonConvert.DeserializeObject<IEnumerable<DiscordIntegration>>(res.Response!)!
+            DiscordJson.ToDiscordObject<IEnumerable<DiscordIntegration>>(res.Response!)!
             .Select
             (
                 xi => 
@@ -3969,7 +3969,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordGuildPreview ret = JsonConvert.DeserializeObject<DiscordGuildPreview>(res.Response!)!;
+        DiscordGuildPreview ret = DiscordJson.ToDiscordObject<DiscordGuildPreview>(res.Response!)!;
         ret.Discord = this._discord!;
 
         return ret;
@@ -4001,7 +4001,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordIntegration ret = JsonConvert.DeserializeObject<DiscordIntegration>(res.Response!)!;
+        DiscordIntegration ret = DiscordJson.ToDiscordObject<DiscordIntegration>(res.Response!)!;
         ret.Discord = this._discord!;
 
         return ret;
@@ -4035,7 +4035,7 @@ public sealed class DiscordApiClient
         };
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
-        DiscordIntegration ret = JsonConvert.DeserializeObject<DiscordIntegration>(res.Response!)!;
+        DiscordIntegration ret = DiscordJson.ToDiscordObject<DiscordIntegration>(res.Response!)!;
         ret.Discord = this._discord!;
 
         return ret;
@@ -4104,7 +4104,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        IEnumerable<DiscordVoiceRegion> regionsRaw = JsonConvert.DeserializeObject<IEnumerable<DiscordVoiceRegion>>(res.Response!)!;
+        IEnumerable<DiscordVoiceRegion> regionsRaw = DiscordJson.ToDiscordObject<IEnumerable<DiscordVoiceRegion>>(res.Response!)!;
 
         return new ReadOnlyCollection<DiscordVoiceRegion>(new List<DiscordVoiceRegion>(regionsRaw));
     }
@@ -4127,7 +4127,7 @@ public sealed class DiscordApiClient
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         IEnumerable<DiscordInvite> invitesRaw = 
-            JsonConvert.DeserializeObject<IEnumerable<DiscordInvite>>(res.Response!)!
+            DiscordJson.ToDiscordObject<IEnumerable<DiscordInvite>>(res.Response!)!
             .Select
             (
                 xi => 
@@ -4168,7 +4168,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordInvite ret = JsonConvert.DeserializeObject<DiscordInvite>(res.Response!)!;
+        DiscordInvite ret = DiscordJson.ToDiscordObject<DiscordInvite>(res.Response!)!;
         ret.Discord = this._discord!;
 
         return ret;
@@ -4199,7 +4199,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordInvite ret = JsonConvert.DeserializeObject<DiscordInvite>(res.Response!)!;
+        DiscordInvite ret = DiscordJson.ToDiscordObject<DiscordInvite>(res.Response!)!;
         ret.Discord = this._discord!;
 
         return ret;
@@ -4222,7 +4222,7 @@ public sealed class DiscordApiClient
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         IEnumerable<DiscordConnection> connectionsRaw = 
-            JsonConvert.DeserializeObject<IEnumerable<DiscordConnection>>(res.Response!)!
+            DiscordJson.ToDiscordObject<IEnumerable<DiscordConnection>>(res.Response!)!
             .Select
             (
                 xc => 
@@ -4252,7 +4252,7 @@ public sealed class DiscordApiClient
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         IEnumerable<DiscordVoiceRegion> regions = 
-            JsonConvert.DeserializeObject<IEnumerable<DiscordVoiceRegion>>(res.Response!)!;
+            DiscordJson.ToDiscordObject<IEnumerable<DiscordVoiceRegion>>(res.Response!)!;
 
         return new ReadOnlyCollection<DiscordVoiceRegion>(new List<DiscordVoiceRegion>(regions));
     }
@@ -4294,7 +4294,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordWebhook ret = JsonConvert.DeserializeObject<DiscordWebhook>(res.Response!)!;
+        DiscordWebhook ret = DiscordJson.ToDiscordObject<DiscordWebhook>(res.Response!)!;
         ret.Discord = this._discord!;
         ret.ApiClient = this;
 
@@ -4384,7 +4384,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordWebhook ret = JsonConvert.DeserializeObject<DiscordWebhook>(res.Response!)!;
+        DiscordWebhook ret = DiscordJson.ToDiscordObject<DiscordWebhook>(res.Response!)!;
         ret.Discord = this._discord!;
         ret.ApiClient = this;
 
@@ -4411,7 +4411,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordWebhook ret = JsonConvert.DeserializeObject<DiscordWebhook>(res.Response!)!;
+        DiscordWebhook ret = DiscordJson.ToDiscordObject<DiscordWebhook>(res.Response!)!;
         ret.Token = webhookToken;
         ret.Id = webhookId;
         ret.Discord = this._discord!;
@@ -4440,7 +4440,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
+        DiscordMessage ret = DiscordJson.ToDiscordObject<DiscordMessage>(res.Response!)!;
         ret.Discord = this._discord!;
         return ret;
     }
@@ -4482,7 +4482,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordWebhook ret = JsonConvert.DeserializeObject<DiscordWebhook>(res.Response!)!;
+        DiscordWebhook ret = DiscordJson.ToDiscordObject<DiscordWebhook>(res.Response!)!;
         ret.Discord = this._discord!;
         ret.ApiClient = this;
 
@@ -4525,7 +4525,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordWebhook ret = JsonConvert.DeserializeObject<DiscordWebhook>(res.Response!)!;
+        DiscordWebhook ret = DiscordJson.ToDiscordObject<DiscordWebhook>(res.Response!)!;
         ret.Discord = this._discord!;
         ret.ApiClient = this;
 
@@ -4648,7 +4648,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
+        DiscordMessage ret = DiscordJson.ToDiscordObject<DiscordMessage>(res.Response!)!;
 
         builder.ResetFileStreamPositions();
 
@@ -4677,7 +4677,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
         
-        DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
+        DiscordMessage ret = DiscordJson.ToDiscordObject<DiscordMessage>(res.Response!)!;
         ret.Discord = this._discord!;
         return ret;
     }
@@ -4703,7 +4703,7 @@ public sealed class DiscordApiClient
         };
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
-        DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
+        DiscordMessage ret = DiscordJson.ToDiscordObject<DiscordMessage>(res.Response!)!;
         ret.Discord = this._discord!;
         return ret;
     }
@@ -4877,7 +4877,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        IEnumerable<TransportUser> usersRaw = JsonConvert.DeserializeObject<IEnumerable<TransportUser>>(res.Response!)!;
+        IEnumerable<TransportUser> usersRaw = DiscordJson.ToDiscordObject<IEnumerable<TransportUser>>(res.Response!)!;
         List<DiscordUser> users = new();
         foreach (TransportUser xr in usersRaw)
         {
@@ -4959,7 +4959,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        IEnumerable<JObject> emojisRaw = JsonConvert.DeserializeObject<IEnumerable<JObject>>(res.Response!)!;
+        IEnumerable<JObject> emojisRaw = DiscordJson.ToDiscordObject<IEnumerable<JObject>>(res.Response!)!;
 
         this._discord!.Guilds.TryGetValue(guildId, out DiscordGuild? guild);
         Dictionary<ulong, DiscordUser> users = new();
@@ -5190,7 +5190,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        IEnumerable<DiscordApplicationCommand> ret = JsonConvert.DeserializeObject<IEnumerable<DiscordApplicationCommand>>(res.Response!)!;
+        IEnumerable<DiscordApplicationCommand> ret = DiscordJson.ToDiscordObject<IEnumerable<DiscordApplicationCommand>>(res.Response!)!;
         foreach (DiscordApplicationCommand app in ret)
         {
             app.Discord = this._discord!;
@@ -5236,7 +5236,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        IEnumerable<DiscordApplicationCommand> ret = JsonConvert.DeserializeObject<IEnumerable<DiscordApplicationCommand>>(res.Response!)!;
+        IEnumerable<DiscordApplicationCommand> ret = DiscordJson.ToDiscordObject<IEnumerable<DiscordApplicationCommand>>(res.Response!)!;
         foreach (DiscordApplicationCommand app in ret)
         {
             app.Discord = this._discord!;
@@ -5278,7 +5278,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordApplicationCommand ret = JsonConvert.DeserializeObject<DiscordApplicationCommand>(res.Response!)!;
+        DiscordApplicationCommand ret = DiscordJson.ToDiscordObject<DiscordApplicationCommand>(res.Response!)!;
         ret.Discord = this._discord!;
 
         return ret;
@@ -5302,7 +5302,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordApplicationCommand ret = JsonConvert.DeserializeObject<DiscordApplicationCommand>(res.Response!)!;
+        DiscordApplicationCommand ret = DiscordJson.ToDiscordObject<DiscordApplicationCommand>(res.Response!)!;
         ret.Discord = this._discord!;
 
         return ret;
@@ -5349,7 +5349,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordApplicationCommand ret = JsonConvert.DeserializeObject<DiscordApplicationCommand>(res.Response!)!;
+        DiscordApplicationCommand ret = DiscordJson.ToDiscordObject<DiscordApplicationCommand>(res.Response!)!;
         ret.Discord = this._discord!;
 
         return ret;
@@ -5392,7 +5392,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        IEnumerable<DiscordApplicationCommand> ret = JsonConvert.DeserializeObject<IEnumerable<DiscordApplicationCommand>>(res.Response!)!;
+        IEnumerable<DiscordApplicationCommand> ret = DiscordJson.ToDiscordObject<IEnumerable<DiscordApplicationCommand>>(res.Response!)!;
         foreach (DiscordApplicationCommand app in ret)
         {
             app.Discord = this._discord!;
@@ -5439,7 +5439,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        IEnumerable<DiscordApplicationCommand> ret = JsonConvert.DeserializeObject<IEnumerable<DiscordApplicationCommand>>(res.Response!)!;
+        IEnumerable<DiscordApplicationCommand> ret = DiscordJson.ToDiscordObject<IEnumerable<DiscordApplicationCommand>>(res.Response!)!;
         foreach (DiscordApplicationCommand app in ret)
         {
             app.Discord = this._discord!;
@@ -5482,7 +5482,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordApplicationCommand ret = JsonConvert.DeserializeObject<DiscordApplicationCommand>(res.Response!)!;
+        DiscordApplicationCommand ret = DiscordJson.ToDiscordObject<DiscordApplicationCommand>(res.Response!)!;
         ret.Discord = this._discord!;
 
         return ret;
@@ -5507,7 +5507,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordApplicationCommand ret = JsonConvert.DeserializeObject<DiscordApplicationCommand>(res.Response!)!;
+        DiscordApplicationCommand ret = DiscordJson.ToDiscordObject<DiscordApplicationCommand>(res.Response!)!;
         ret.Discord = this._discord!;
 
         return ret;
@@ -5555,7 +5555,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordApplicationCommand ret = JsonConvert.DeserializeObject<DiscordApplicationCommand>(res.Response!)!;
+        DiscordApplicationCommand ret = DiscordJson.ToDiscordObject<DiscordApplicationCommand>(res.Response!)!;
         ret.Discord = this._discord!;
 
         return ret;
@@ -5680,7 +5680,7 @@ public sealed class DiscordApiClient
         };
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
-        DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
+        DiscordMessage ret = DiscordJson.ToDiscordObject<DiscordMessage>(res.Response!)!;
 
         ret.Discord = this._discord!;
         return ret;
@@ -5728,7 +5728,7 @@ public sealed class DiscordApiClient
 
             RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-            DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
+            DiscordMessage ret = DiscordJson.ToDiscordObject<DiscordMessage>(res.Response!)!;
             ret.Discord = this._discord!;
 
             foreach (DiscordMessageFile? file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
@@ -5814,7 +5814,7 @@ public sealed class DiscordApiClient
         };
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
-        DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
+        DiscordMessage ret = DiscordJson.ToDiscordObject<DiscordMessage>(res.Response!)!;
 
         builder.ResetFileStreamPositions();
 
@@ -5860,7 +5860,7 @@ public sealed class DiscordApiClient
         };
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
-        IEnumerable<DiscordGuildApplicationCommandPermissions> ret = JsonConvert.DeserializeObject<IEnumerable<DiscordGuildApplicationCommandPermissions>>(res.Response!)!;
+        IEnumerable<DiscordGuildApplicationCommandPermissions> ret = DiscordJson.ToDiscordObject<IEnumerable<DiscordGuildApplicationCommandPermissions>>(res.Response!)!;
 
         foreach (DiscordGuildApplicationCommandPermissions perm in ret)
         {
@@ -5888,7 +5888,7 @@ public sealed class DiscordApiClient
         };
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
-        DiscordGuildApplicationCommandPermissions ret = JsonConvert.DeserializeObject<DiscordGuildApplicationCommandPermissions>(res.Response!)!;
+        DiscordGuildApplicationCommandPermissions ret = DiscordJson.ToDiscordObject<DiscordGuildApplicationCommandPermissions>(res.Response!)!;
 
         ret.Discord = this._discord!;
         return ret;
@@ -5921,7 +5921,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
         DiscordGuildApplicationCommandPermissions ret = 
-            JsonConvert.DeserializeObject<DiscordGuildApplicationCommandPermissions>(res.Response!)!;
+            DiscordJson.ToDiscordObject<DiscordGuildApplicationCommandPermissions>(res.Response!)!;
 
         ret.Discord = this._discord!;
         return ret;
@@ -5947,7 +5947,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
         IEnumerable<DiscordGuildApplicationCommandPermissions> ret = 
-            JsonConvert.DeserializeObject<IEnumerable<DiscordGuildApplicationCommandPermissions>>(res.Response!)!;
+            DiscordJson.ToDiscordObject<IEnumerable<DiscordGuildApplicationCommandPermissions>>(res.Response!)!;
 
         foreach (DiscordGuildApplicationCommandPermissions perm in ret)
         {
@@ -5985,7 +5985,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        return JsonConvert.DeserializeObject<TransportApplication>(res.Response!)!;
+        return DiscordJson.ToDiscordObject<TransportApplication>(res.Response!)!;
     }
 
     internal async ValueTask<IReadOnlyList<DiscordApplicationAsset>> GetApplicationAssetsAsync
@@ -6005,7 +6005,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        IEnumerable<DiscordApplicationAsset> assets = JsonConvert.DeserializeObject<IEnumerable<DiscordApplicationAsset>>(res.Response!)!;
+        IEnumerable<DiscordApplicationAsset> assets = DiscordJson.ToDiscordObject<IEnumerable<DiscordApplicationAsset>>(res.Response!)!;
         foreach (DiscordApplicationAsset asset in assets)
         {
             asset.Discord = application.Discord;
@@ -6178,7 +6178,7 @@ public sealed class DiscordApiClient
         };
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
-        DiscordAutoModerationRule rule = JsonConvert.DeserializeObject<DiscordAutoModerationRule>(res.Response!)!;
+        DiscordAutoModerationRule rule = DiscordJson.ToDiscordObject<DiscordAutoModerationRule>(res.Response!)!;
         rule.Discord = this._discord!;
         
         return rule;
@@ -6207,7 +6207,7 @@ public sealed class DiscordApiClient
         };
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
-        DiscordAutoModerationRule rule = JsonConvert.DeserializeObject<DiscordAutoModerationRule>(res.Response!)!;
+        DiscordAutoModerationRule rule = DiscordJson.ToDiscordObject<DiscordAutoModerationRule>(res.Response!)!;
         rule.Discord = this._discord!;
         
         return rule;
@@ -6234,7 +6234,7 @@ public sealed class DiscordApiClient
         };
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
-        IReadOnlyList<DiscordAutoModerationRule> rules = JsonConvert.DeserializeObject<IReadOnlyList<DiscordAutoModerationRule>>(res.Response!)!;
+        IReadOnlyList<DiscordAutoModerationRule> rules = DiscordJson.ToDiscordObject<IReadOnlyList<DiscordAutoModerationRule>>(res.Response!)!;
         
         foreach (DiscordAutoModerationRule rule in rules)
         {
@@ -6302,7 +6302,7 @@ public sealed class DiscordApiClient
         };
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
-        DiscordAutoModerationRule rule = JsonConvert.DeserializeObject<DiscordAutoModerationRule>(res.Response!)!;
+        DiscordAutoModerationRule rule = DiscordJson.ToDiscordObject<DiscordAutoModerationRule>(res.Response!)!;
         rule.Discord = this._discord!;
         
         return rule;
