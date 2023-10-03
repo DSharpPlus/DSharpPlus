@@ -107,9 +107,8 @@ public sealed class DiscordApiClient
                 {
                     Discord = this._discord
                 };
+                this._discord.UserCache[author.Id] = user;
             }
-
-            this._discord.UserCache[author.Id] = user;
 
             // get the member object if applicable, if not set the message author to an user
             if (guild is not null)
@@ -4319,8 +4318,8 @@ public sealed class DiscordApiClient
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         IEnumerable<DiscordWebhook> webhooksRaw = 
-            JsonConvert
-                .DeserializeObject<IEnumerable<DiscordWebhook>>(res.Response!)!
+            DiscordJson
+                .ToDiscordObject<IEnumerable<DiscordWebhook>>(res.Response!)!
                 .Select
                 (
                     xw => 
@@ -4352,8 +4351,8 @@ public sealed class DiscordApiClient
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         IEnumerable<DiscordWebhook> webhooksRaw = 
-            JsonConvert
-                .DeserializeObject<IEnumerable<DiscordWebhook>>(res.Response!)!
+            DiscordJson
+                .ToDiscordObject<IEnumerable<DiscordWebhook>>(res.Response!)!
                 .Select
                 (
                     xw => 
@@ -4440,7 +4439,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordMessage ret = DiscordJson.ToDiscordObject<DiscordMessage>(res.Response!)!;
+        DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
         ret.Discord = this._discord!;
         return ret;
     }
@@ -4648,7 +4647,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordMessage ret = DiscordJson.ToDiscordObject<DiscordMessage>(res.Response!)!;
+        DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
 
         builder.ResetFileStreamPositions();
 
@@ -4677,7 +4676,7 @@ public sealed class DiscordApiClient
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
         
-        DiscordMessage ret = DiscordJson.ToDiscordObject<DiscordMessage>(res.Response!)!;
+        DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
         ret.Discord = this._discord!;
         return ret;
     }
@@ -4703,7 +4702,7 @@ public sealed class DiscordApiClient
         };
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
-        DiscordMessage ret = DiscordJson.ToDiscordObject<DiscordMessage>(res.Response!)!;
+        DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
         ret.Discord = this._discord!;
         return ret;
     }
@@ -5680,7 +5679,7 @@ public sealed class DiscordApiClient
         };
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
-        DiscordMessage ret = DiscordJson.ToDiscordObject<DiscordMessage>(res.Response!)!;
+        DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
 
         ret.Discord = this._discord!;
         return ret;
@@ -5728,7 +5727,7 @@ public sealed class DiscordApiClient
 
             RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-            DiscordMessage ret = DiscordJson.ToDiscordObject<DiscordMessage>(res.Response!)!;
+            DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
             ret.Discord = this._discord!;
 
             foreach (DiscordMessageFile? file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
@@ -5814,7 +5813,7 @@ public sealed class DiscordApiClient
         };
         
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
-        DiscordMessage ret = DiscordJson.ToDiscordObject<DiscordMessage>(res.Response!)!;
+        DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
 
         builder.ResetFileStreamPositions();
 
