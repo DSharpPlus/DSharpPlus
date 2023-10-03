@@ -122,11 +122,11 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
         // make the actual request
 
         HttpResponseMessage response = await action(context, cancellationToken);
+        bool hasBucketHeader = response.Headers.TryGetValues("X-RateLimit-Bucket", out IEnumerable<string>? hashHeader);
 
-        if (!exemptFromGlobalLimit)
+        if (!exemptFromGlobalLimit && hasBucketHeader)
         {
-            bool hasBucketHeader = response.Headers.TryGetValues("X-RateLimit-Bucket", out IEnumerable<string>? hashHeader);
-            hash = hasBucketHeader ? hashHeader?.FirstOrDefault() : "UNKNOWN";
+            hash = hashHeader?.Single();
 
             if(!RateLimitBucket.TryExtractRateLimitBucket(response.Headers, out RateLimitBucket? extracted))
             {
