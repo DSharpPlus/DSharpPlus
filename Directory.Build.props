@@ -47,6 +47,12 @@
     
     <!-- DSharpPlus.Core.Models-->
     <_DSharpPlusCoreModelsVersion>0.1.0</_DSharpPlusCoreModelsVersion>
+
+    <!-- DSharpPlus.Core.Abstractions.Rest -->
+    <_DSharpPlusCoreAbstractionsRestVersion>0.1.0</_DSharpPlusCoreAbstractionsRestVersion>
+    
+    <!-- DSharpPlus.Core.Rest -->
+    <_DSharpPlusCoreRestVersion>0.1.0</_DSharpPlusCoreRestVersion>
   </PropertyGroup>
 
 </Project>

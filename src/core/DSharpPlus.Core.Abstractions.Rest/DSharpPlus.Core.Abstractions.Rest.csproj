@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <VersionPrefix>$(_DSharpPlusCoreAbstractionsRestVersion)</VersionPrefix>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference 
+      Include="..\DSharpPlus.Core.Abstractions.Models\DSharpPlus.Core.Abstractions.Models.csproj"
+      Version="$(_DSharpPlusCoreAbstractionsModelsVersion)"/>
+  </ItemGroup>
+
+</Project>
