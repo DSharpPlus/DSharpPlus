@@ -1395,7 +1395,7 @@ public sealed class DiscordApiClient
         RestRequest request = new()
         {
             Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.CHANNELS}",
-            Url = $"${Endpoints.GUILDS}/{guildId}/{Endpoints.CHANNELS}",
+            Url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.CHANNELS}",
             Method = HttpMethod.Post,
             Payload = DiscordJson.SerializeObject(pld),
             Headers = headers
@@ -1918,7 +1918,7 @@ public sealed class DiscordApiClient
         {
             foreach (DiscordEmbed embed in embeds)
             {
-                if (embed.Title.Length > 256)
+                if (embed.Title?.Length > 256)
                 {
                     throw new ArgumentException("Embed title length must not exceed 256 characters.");
                 }
@@ -1960,7 +1960,7 @@ public sealed class DiscordApiClient
                 }
                 
                 int totalCharacter = 0;
-                totalCharacter += embed.Title.Length;
+                totalCharacter += embed.Title?.Length ?? 0;
                 totalCharacter += embed.Description?.Length ?? 0;
                 totalCharacter += embed.Fields?.Sum(xf => xf.Name.Length + xf.Value.Length) ?? 0;
                 totalCharacter += embed.Footer?.Text.Length ?? 0;
