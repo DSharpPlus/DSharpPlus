@@ -1392,7 +1392,7 @@ public sealed class DiscordApiClient
         RestRequest request = new()
         {
             Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.CHANNELS}",
-            Url = $"${Endpoints.GUILDS}/{guildId}/{Endpoints.CHANNELS}",
+            Url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.CHANNELS}",
             Method = HttpMethod.Post,
             Payload = DiscordJson.SerializeObject(pld),
             Headers = headers
