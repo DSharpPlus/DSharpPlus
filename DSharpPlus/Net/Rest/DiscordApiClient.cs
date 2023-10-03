@@ -1828,13 +1828,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordChannel ret = JsonConvert.DeserializeObject<DiscordChannel>(res.Response!)!;
-
-        // this is really weird, we should consider doing this better
-        if (ret.IsThread)
-        {
-            ret = JsonConvert.DeserializeObject<DiscordThreadChannel>(res.Response!)!;
-        }
+        DiscordChannel ret = DiscordJson.ToDiscordObject<DiscordThreadChannel>(res.Response!)!;
 
         ret.Discord = this._discord!;
         foreach (DiscordOverwrite xo in ret._permissionOverwrites)
@@ -2672,6 +2666,11 @@ public sealed class DiscordApiClient
         
         DiscordDmChannel ret = JsonConvert.DeserializeObject<DiscordDmChannel>(res.Response!)!;
         ret.Discord = this._discord!;
+        
+        if (this._discord is DiscordClient dc)
+        {
+            _ = dc._privateChannels.TryAdd(ret.Id, ret);
+        }
 
         return ret;
     }
