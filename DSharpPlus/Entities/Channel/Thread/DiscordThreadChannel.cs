@@ -1,26 +1,3 @@
-// This file is part of the DSharpPlus project.
-//
-// Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2023 DSharpPlus Contributors
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -145,23 +122,37 @@ namespace DSharpPlus.Entities
         /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task ModifyAsync(Action<ThreadChannelEditModel> action)
         {
-            var mdl = new ThreadChannelEditModel();
+            ThreadChannelEditModel mdl = new();
             action(mdl);
             await this.Discord.ApiClient.ModifyThreadChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
                 mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(r => r?.Id),
-                mdl.QualityMode, mdl.Type, mdl.PermissionOverwrites, mdl.IsArchived, mdl.AutoArchiveDuration, mdl.Locked, mdl.AuditLogReason, mdl.AppliedTags);
+                mdl.QualityMode, mdl.Type, mdl.PermissionOverwrites, mdl.IsArchived, mdl.AutoArchiveDuration, mdl.Locked, mdl.AppliedTags, mdl.AuditLogReason);
 
             // We set these *after* the rest request so that Discord can validate the properties. This is useful if the requirements ever change.
             if (!string.IsNullOrWhiteSpace(mdl.Name))
+            {
                 this.Name = mdl.Name;
+            }
+
             if (mdl.PerUserRateLimit.HasValue)
+            {
                 this.PerUserRateLimit = mdl.PerUserRateLimit.Value;
+            }
+
             if (mdl.IsArchived.HasValue)
+            {
                 this.ThreadMetadata.IsArchived = mdl.IsArchived.Value;
+            }
+
             if (mdl.AutoArchiveDuration.HasValue)
+            {
                 this.ThreadMetadata.AutoArchiveDuration = mdl.AutoArchiveDuration.Value;
+            }
+
             if (mdl.Locked.HasValue)
+            {
                 this.ThreadMetadata.IsLocked = mdl.Locked.Value;
+            }
         }
 
         /// <summary>

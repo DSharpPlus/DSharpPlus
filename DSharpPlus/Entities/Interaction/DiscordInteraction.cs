@@ -1,26 +1,3 @@
-// This file is part of the DSharpPlus project.
-//
-// Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2023 DSharpPlus Contributors
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -119,8 +96,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="type">The type of the response.</param>
         /// <param name="builder">The data, if any, to send.</param>
-        public Task CreateResponseAsync(InteractionResponseType type, DiscordInteractionResponseBuilder builder = null) =>
-            this.Discord.ApiClient.CreateInteractionResponseAsync(this.Id, this.Token, type, builder);
+        public async Task CreateResponseAsync(InteractionResponseType type, DiscordInteractionResponseBuilder builder = null) =>
+            await this.Discord.ApiClient.CreateInteractionResponseAsync(this.Id, this.Token, type, builder);
 
         /// <summary>
         ///     Creates a deferred response to this interaction.
@@ -134,8 +111,8 @@ namespace DSharpPlus.Entities
         /// Gets the original interaction response.
         /// </summary>
         /// <returns>The original message that was sent.</returns>
-        public Task<DiscordMessage> GetOriginalResponseAsync() =>
-            this.Discord.ApiClient.GetOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token);
+        public async Task<DiscordMessage> GetOriginalResponseAsync() =>
+            await this.Discord.ApiClient.GetOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token);
 
         /// <summary>
         /// Edits the original interaction response.
@@ -153,8 +130,8 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Deletes the original interaction response.
         /// </summary>>
-        public Task DeleteOriginalResponseAsync() =>
-            this.Discord.ApiClient.DeleteOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token);
+        public async Task DeleteOriginalResponseAsync() =>
+            await this.Discord.ApiClient.DeleteOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token);
 
         /// <summary>
         /// Creates a follow up message to this interaction.
@@ -172,8 +149,8 @@ namespace DSharpPlus.Entities
         /// Gets a follow up message.
         /// </summary>
         /// <param name="messageId">The id of the follow up message.</param>
-        public Task<DiscordMessage> GetFollowupMessageAsync(ulong messageId) =>
-            this.Discord.ApiClient.GetFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId);
+        public async Task<DiscordMessage> GetFollowupMessageAsync(ulong messageId) =>
+            await this.Discord.ApiClient.GetFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId);
 
         /// <summary>
         /// Edits a follow up message.
@@ -193,7 +170,7 @@ namespace DSharpPlus.Entities
         /// Deletes a follow up message.
         /// </summary>
         /// <param name="messageId">The id of the follow up message.</param>
-        public Task DeleteFollowupMessageAsync(ulong messageId) =>
-            this.Discord.ApiClient.DeleteFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId);
+        public async Task DeleteFollowupMessageAsync(ulong messageId) =>
+            await this.Discord.ApiClient.DeleteFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId);
     }
 }

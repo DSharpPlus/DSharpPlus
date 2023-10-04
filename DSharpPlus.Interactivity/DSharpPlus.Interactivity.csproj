@@ -1,22 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>DSharpPlus.Interactivity</AssemblyName>
-    <RootNamespace>DSharpPlus.Interactivity</RootNamespace>
-    <OutputType>Library</OutputType>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <PackageId>DSharpPlus.Interactivity</PackageId>
     <Description>An addon that adds interactivity capabilities to commands.</Description>
-    <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, interactive, pagination, reactions</PackageTags>
+    <PackageTags>$(PackageTags), interactive, pagination, reactions</PackageTags>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="$(ProjectRoot)\DSharpPlus\DSharpPlus.csproj" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ConcurrentHashSet"/>
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
-  </ItemGroup>
-
 </Project>

@@ -1,34 +1,11 @@
-// This file is part of the DSharpPlus project.
-//
-// Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2023 DSharpPlus Contributors
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.Enums;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
@@ -580,7 +557,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="location">Where this event takes place, up to 100 characters. Only applicable if the type is <see cref="ScheduledGuildEventType.External"/></param>
     /// <param name="reason">Reason for audit log.</param>
     /// <returns>The created event.</returns>
-    public Task<DiscordScheduledGuildEvent> CreateEventAsync(string name, string description, ulong? channelId, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, string location = null, string reason = null)
+    public async Task<DiscordScheduledGuildEvent> CreateEventAsync(string name, string description, ulong? channelId, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, string location = null, string reason = null)
     {
         if (start <= DateTimeOffset.Now)
         {
@@ -612,7 +589,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             };
         }
 
-        return this.Discord.ApiClient.CreateScheduledGuildEventAsync(this.Id, name, description, channelId, start, end, type, privacyLevel, metadata, reason);
+        return await this.Discord.ApiClient.CreateScheduledGuildEventAsync(this.Id, name, description, start, type, privacyLevel, metadata, end, channelId, reason);
     }
 
     /// <summary>
@@ -742,10 +719,10 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="guildEvent"></param>
     /// <param name="reason"></param>
     /// <returns></returns>
-    public Task DeleteEventAsync(DiscordScheduledGuildEvent guildEvent, string reason = null)
+    public async Task DeleteEventAsync(DiscordScheduledGuildEvent guildEvent, string reason = null)
     {
         this._scheduledEvents.TryRemove(guildEvent.Id, out _);
-        return this.Discord.ApiClient.DeleteScheduledGuildEventAsync(this.Id, guildEvent.Id);
+        await this.Discord.ApiClient.DeleteScheduledGuildEventAsync(this.Id, guildEvent.Id);
     }
 
     /// <summary>
@@ -812,8 +789,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="name">The name to search for.</param>
     /// <param name="limit">The maximum amount of members to return. Max 1000. Defaults to 1.</param>
     /// <returns>The members found, if any.</returns>
-    public Task<IReadOnlyList<DiscordMember>> SearchMembersAsync(string name, int? limit = 1)
-        => this.Discord.ApiClient.SearchMembersAsync(this.Id, name, limit);
+    public async Task<IReadOnlyList<DiscordMember>> SearchMembersAsync(string name, int? limit = 1)
+        => await this.Discord.ApiClient.SearchMembersAsync(this.Id, name, limit);
 
     /// <summary>
     /// Adds a new member to this guild
@@ -829,9 +806,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the <paramref name="user"/> or <paramref name="access_token"/> is not found.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task AddMemberAsync(DiscordUser user, string access_token, string nickname = null, IEnumerable<DiscordRole> roles = null,
+    public async Task AddMemberAsync(DiscordUser user, string access_token, string nickname = null, IEnumerable<DiscordRole> roles = null,
         bool muted = false, bool deaf = false)
-        => this.Discord.ApiClient.AddGuildMemberAsync(this.Id, user.Id, access_token, nickname, roles, muted, deaf);
+        => await this.Discord.ApiClient.AddGuildMemberAsync(this.Id, user.Id, access_token, muted, deaf, nickname, roles);
 
     /// <summary>
     /// Deletes this guild. Requires the caller to be the owner of the guild.
@@ -839,8 +816,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns></returns>
     /// <exception cref="UnauthorizedException">Thrown when the client is not the owner of the guild.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task DeleteAsync()
-        => this.Discord.ApiClient.DeleteGuildAsync(this.Id);
+    public async Task DeleteAsync()
+        => await this.Discord.ApiClient.DeleteGuildAsync(this.Id);
 
     /// <summary>
     /// Modifies this guild.
@@ -929,7 +906,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         }
 
         // Sort the roles by position and create skeleton roles for the payload.
-        DiscordRole[] returnedRoles = await this.Discord.ApiClient.ModifyGuildRolePositionsAsync(this.Id, roles.Select(x => new RestGuildRoleReorderPayload() { RoleId = x.Value.Id, Position = x.Key }), reason);
+        IReadOnlyList<DiscordRole> returnedRoles = await this.Discord.ApiClient.ModifyGuildRolePositionsAsync(this.Id, roles.Select(x => new RestGuildRoleReorderPayload() { RoleId = x.Value.Id, Position = x.Key }), reason);
 
         // Update the cache as the endpoint returns all roles in the order they were sent.
         this._roles = new(returnedRoles.Select(x => new KeyValuePair<ulong, DiscordRole>(x.Id, x)));
@@ -947,8 +924,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task BanMemberAsync(DiscordMember member, int delete_message_days = 0, string reason = null)
-        => this.Discord.ApiClient.CreateGuildBanAsync(this.Id, member.Id, delete_message_days, reason);
+    public async Task BanMemberAsync(DiscordMember member, int delete_message_days = 0, string reason = null)
+        => await this.Discord.ApiClient.CreateGuildBanAsync(this.Id, member.Id, delete_message_days, reason);
 
     /// <summary>
     /// Bans a specified user by ID. This doesn't require the user to be in this guild.
@@ -961,8 +938,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task BanMemberAsync(ulong user_id, int delete_message_days = 0, string reason = null)
-        => this.Discord.ApiClient.CreateGuildBanAsync(this.Id, user_id, delete_message_days, reason);
+    public async Task BanMemberAsync(ulong user_id, int delete_message_days = 0, string reason = null)
+        => await this.Discord.ApiClient.CreateGuildBanAsync(this.Id, user_id, delete_message_days, reason);
 
     /// <summary>
     /// Unbans a user from this guild.
@@ -974,8 +951,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the user does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task UnbanMemberAsync(DiscordUser user, string reason = null)
-        => this.Discord.ApiClient.RemoveGuildBanAsync(this.Id, user.Id, reason);
+    public async Task UnbanMemberAsync(DiscordUser user, string reason = null)
+        => await this.Discord.ApiClient.RemoveGuildBanAsync(this.Id, user.Id, reason);
 
     /// <summary>
     /// Unbans a user by ID.
@@ -987,16 +964,16 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the user does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task UnbanMemberAsync(ulong userId, string reason = null)
-        => this.Discord.ApiClient.RemoveGuildBanAsync(this.Id, userId, reason);
+    public async Task UnbanMemberAsync(ulong userId, string reason = null)
+        => await this.Discord.ApiClient.RemoveGuildBanAsync(this.Id, userId, reason);
 
     /// <summary>
     /// Leaves this guild.
     /// </summary>
     /// <returns></returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task LeaveAsync()
-        => this.Discord.ApiClient.LeaveGuildAsync(this.Id);
+    public async Task LeaveAsync()
+        => await this.Discord.ApiClient.LeaveGuildAsync(this.Id);
 
     /// <summary>
     /// Gets the bans for this guild.
@@ -1007,8 +984,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>Collection of bans in this guild.</returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.BanMembers"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<IReadOnlyList<DiscordBan>> GetBansAsync(int? limit = null, ulong? before = null, ulong? after = null)
-        => this.Discord.ApiClient.GetGuildBansAsync(this.Id, limit, before, after);
+    public async Task<IReadOnlyList<DiscordBan>> GetBansAsync(int? limit = null, ulong? before = null, ulong? after = null)
+        => await this.Discord.ApiClient.GetGuildBansAsync(this.Id, limit, before, after);
 
     /// <summary>
     /// Gets a ban for a specific user.
@@ -1016,8 +993,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="userId">The ID of the user to get the ban for.</param>
     /// <exception cref="NotFoundException">Thrown when the specified user is not banned.</exception>
     /// <returns>The requested ban object.</returns>
-    public Task<DiscordBan> GetBanAsync(ulong userId)
-        => this.Discord.ApiClient.GetGuildBanAsync(this.Id, userId);
+    public async Task<DiscordBan> GetBanAsync(ulong userId)
+        => await this.Discord.ApiClient.GetGuildBanAsync(this.Id, userId);
 
     /// <summary>
     /// Gets a ban for a specific user.
@@ -1105,7 +1082,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<DiscordChannel> CreateChannelAsync
+    public async Task<DiscordChannel> CreateChannelAsync
     (
         string name,
         ChannelType type,
@@ -1133,7 +1110,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
         return type == ChannelType.Category && parent != null
             ? throw new ArgumentException("Cannot specify parent of a channel category.", nameof(parent))
-            : this.Discord.ApiClient.CreateGuildChannelAsync
+            : await this.Discord.ApiClient.CreateGuildChannelAsync
             (
                 this.Id,
                 name,
@@ -1177,7 +1154,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<int> GetPruneCountAsync(int days = 7, IEnumerable<DiscordRole> includedRoles = null)
+    public async Task<int> GetPruneCountAsync(int days = 7, IEnumerable<DiscordRole> includedRoles = null)
     {
         if (includedRoles != null)
         {
@@ -1194,10 +1171,10 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 }
             }
 
-            return this.Discord.ApiClient.GetGuildPruneCountAsync(this.Id, days, rawRoleIds);
+            return await this.Discord.ApiClient.GetGuildPruneCountAsync(this.Id, days, rawRoleIds);
         }
 
-        return this.Discord.ApiClient.GetGuildPruneCountAsync(this.Id, days, null);
+        return await this.Discord.ApiClient.GetGuildPruneCountAsync(this.Id, days, null);
     }
 
     /// <summary>
@@ -1212,7 +1189,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<int?> PruneAsync(int days = 7, bool computePruneCount = true, IEnumerable<DiscordRole> includedRoles = null, string reason = null)
+    public async Task<int?> PruneAsync(int days = 7, bool computePruneCount = true, IEnumerable<DiscordRole> includedRoles = null, string reason = null)
     {
         if (includedRoles != null)
         {
@@ -1229,10 +1206,10 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 }
             }
 
-            return this.Discord.ApiClient.BeginGuildPruneAsync(this.Id, days, computePruneCount, rawRoleIds, reason);
+            return await this.Discord.ApiClient.BeginGuildPruneAsync(this.Id, days, computePruneCount, rawRoleIds, reason);
         }
 
-        return this.Discord.ApiClient.BeginGuildPruneAsync(this.Id, days, computePruneCount, null, reason);
+        return await this.Discord.ApiClient.BeginGuildPruneAsync(this.Id, days, computePruneCount, null, reason);
     }
 
     /// <summary>
@@ -1243,8 +1220,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<IReadOnlyList<DiscordIntegration>> GetIntegrationsAsync()
-        => this.Discord.ApiClient.GetGuildIntegrationsAsync(this.Id);
+    public async Task<IReadOnlyList<DiscordIntegration>> GetIntegrationsAsync()
+        => await this.Discord.ApiClient.GetGuildIntegrationsAsync(this.Id);
 
     /// <summary>
     /// Attaches an integration from current user to this guild.
@@ -1255,8 +1232,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<DiscordIntegration> AttachUserIntegrationAsync(DiscordIntegration integration)
-        => this.Discord.ApiClient.CreateGuildIntegrationAsync(this.Id, integration.Type, integration.Id);
+    public async Task<DiscordIntegration> AttachUserIntegrationAsync(DiscordIntegration integration)
+        => await this.Discord.ApiClient.CreateGuildIntegrationAsync(this.Id, integration.Type, integration.Id);
 
     /// <summary>
     /// Modifies an integration in this guild.
@@ -1270,8 +1247,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<DiscordIntegration> ModifyIntegrationAsync(DiscordIntegration integration, int expireBehaviour, int expireGracePeriod, bool enableEmoticons)
-        => this.Discord.ApiClient.ModifyGuildIntegrationAsync(this.Id, integration.Id, expireBehaviour, expireGracePeriod, enableEmoticons);
+    public async Task<DiscordIntegration> ModifyIntegrationAsync(DiscordIntegration integration, int expireBehaviour, int expireGracePeriod, bool enableEmoticons)
+        => await this.Discord.ApiClient.ModifyGuildIntegrationAsync(this.Id, integration.Id, expireBehaviour, expireGracePeriod, enableEmoticons);
 
     /// <summary>
     /// Removes an integration from this guild.
@@ -1283,8 +1260,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task DeleteIntegrationAsync(DiscordIntegration integration, string reason = null)
-        => this.Discord.ApiClient.DeleteGuildIntegrationAsync(this.Id, integration, reason);
+    public async Task DeleteIntegrationAsync(DiscordIntegration integration, string? reason = null)
+        => await this.Discord.ApiClient.DeleteGuildIntegrationAsync(this.Id, integration.Id, reason);
 
     /// <summary>
     /// Forces re-synchronization of an integration for this guild.
@@ -1295,8 +1272,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task SyncIntegrationAsync(DiscordIntegration integration)
-        => this.Discord.ApiClient.SyncGuildIntegrationAsync(this.Id, integration.Id);
+    public async Task SyncIntegrationAsync(DiscordIntegration integration)
+        => await this.Discord.ApiClient.SyncGuildIntegrationAsync(this.Id, integration.Id);
 
     /// <summary>
     /// Gets the voice regions for this guild.
@@ -1364,8 +1341,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>A partial vanity invite.</returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<DiscordInvite> GetVanityInviteAsync()
-        => this.Discord.ApiClient.GetGuildVanityUrlAsync(this.Id);
+    public async Task<DiscordInvite> GetVanityInviteAsync()
+        => await this.Discord.ApiClient.GetGuildVanityUrlAsync(this.Id);
 
 
     /// <summary>
@@ -1374,8 +1351,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>A collection of webhooks this guild has.</returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageWebhooks"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<IReadOnlyList<DiscordWebhook>> GetWebhooksAsync()
-        => this.Discord.ApiClient.GetGuildWebhooksAsync(this.Id);
+    public async Task<IReadOnlyList<DiscordWebhook>> GetWebhooksAsync()
+        => await this.Discord.ApiClient.GetGuildWebhooksAsync(this.Id);
 
     /// <summary>
     /// Gets this guild's widget image.
@@ -1507,8 +1484,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <returns>A collection of this guild's channels.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<IReadOnlyList<DiscordChannel>> GetChannelsAsync()
-        => this.Discord.ApiClient.GetGuildChannelsAsync(this.Id);
+    public async Task<IReadOnlyList<DiscordChannel>> GetChannelsAsync()
+        => await this.Discord.ApiClient.GetGuildChannelsAsync(this.Id);
 
     /// <summary>
     /// Creates a new role in this guild.
@@ -1524,8 +1501,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>The newly-created role.</returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<DiscordRole> CreateRoleAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null, Stream icon = null, DiscordEmoji emoji = null)
-        => this.Discord.ApiClient.CreateGuildRoleAsync(this.Id, name, permissions, color?.Value, hoist, mentionable, reason, icon, emoji?.ToString());
+    public async Task<DiscordRole> CreateRoleAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null, Stream icon = null, DiscordEmoji emoji = null)
+        => await this.Discord.ApiClient.CreateGuildRoleAsync(this.Id, name, permissions, color?.Value, hoist, mentionable, icon, emoji?.ToString(), reason);
     /// <summary>
     /// Gets a role from this guild by its ID.
     /// </summary>
@@ -1574,7 +1551,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             }
 
             AuditLog guildAuditLog = await this.Discord.ApiClient.GetAuditLogsAsync(this.Id, remainingEntries, null,
-                last == 0 ? null : (ulong?)last, byMember?.Id, (int?)actionType);
+                last == 0 ? null : (ulong?)last, byMember?.Id, actionType);
             entriesAcquiredLastCall = guildAuditLog.Entries.Count();
             totalEntriesCollected += entriesAcquiredLastCall;
             if (entriesAcquiredLastCall > 0)
@@ -1607,8 +1584,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <returns>All of this guild's custom emojis.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<IReadOnlyList<DiscordGuildEmoji>> GetEmojisAsync()
-        => this.Discord.ApiClient.GetGuildEmojisAsync(this.Id);
+    public async Task<IReadOnlyList<DiscordGuildEmoji>> GetEmojisAsync()
+        => await this.Discord.ApiClient.GetGuildEmojisAsync(this.Id);
 
     /// <summary>
     /// Gets this guild's specified custom emoji.
@@ -1616,8 +1593,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="id">ID of the emoji to get.</param>
     /// <returns>The requested custom emoji.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<DiscordGuildEmoji> GetEmojiAsync(ulong id)
-        => this.Discord.ApiClient.GetGuildEmojiAsync(this.Id, id);
+    public async Task<DiscordGuildEmoji> GetEmojiAsync(ulong id)
+        => await this.Discord.ApiClient.GetGuildEmojiAsync(this.Id, id);
 
     /// <summary>
     /// Creates a new custom emoji for this guild.
@@ -1629,7 +1606,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>The newly-created emoji.</returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageEmojis"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<DiscordGuildEmoji> CreateEmojiAsync(string name, Stream image, IEnumerable<DiscordRole> roles = null, string reason = null)
+    public async Task<DiscordGuildEmoji> CreateEmojiAsync(string name, Stream image, IEnumerable<DiscordRole> roles = null, string reason = null)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -1653,7 +1630,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             image64 = imgtool.GetBase64();
         }
 
-        return this.Discord.ApiClient.CreateGuildEmojiAsync(this.Id, name, image64, roles?.Select(xr => xr.Id), reason);
+        return await this.Discord.ApiClient.CreateGuildEmojiAsync(this.Id, name, image64, roles?.Select(xr => xr.Id), reason);
     }
 
     /// <summary>
@@ -1666,7 +1643,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>The modified emoji.</returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageEmojis"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<DiscordGuildEmoji> ModifyEmojiAsync(DiscordGuildEmoji emoji, string name, IEnumerable<DiscordRole> roles = null, string reason = null)
+    public async Task<DiscordGuildEmoji> ModifyEmojiAsync(DiscordGuildEmoji emoji, string name, IEnumerable<DiscordRole> roles = null, string reason = null)
     {
         if (emoji == null)
         {
@@ -1686,7 +1663,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         name = name.Trim();
         return name.Length < 2 || name.Length > 50
             ? throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.")
-            : this.Discord.ApiClient.ModifyGuildEmojiAsync(this.Id, emoji.Id, name, roles?.Select(xr => xr.Id), reason);
+            : await this.Discord.ApiClient.ModifyGuildEmojiAsync(this.Id, emoji.Id, name, roles?.Select(xr => xr.Id), reason);
     }
 
     /// <summary>
@@ -1697,16 +1674,18 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns></returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageEmojis"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task DeleteEmojiAsync(DiscordGuildEmoji emoji, string reason = null)
+    public async Task DeleteEmojiAsync(DiscordGuildEmoji emoji, string? reason = null)
     {
-        if (emoji == null)
-        {
-            throw new ArgumentNullException(nameof(emoji));
-        }
+        ArgumentNullException.ThrowIfNull(emoji);
 
-        return emoji.Guild.Id != this.Id
-            ? throw new ArgumentException("This emoji does not belong to this guild.")
-            : this.Discord.ApiClient.DeleteGuildEmojiAsync(this.Id, emoji.Id, reason);
+        if (emoji.Guild.Id != this.Id)
+        {
+            throw new ArgumentException("This emoji does not belong to this guild.");
+        }
+        else
+        {
+            await this.Discord.ApiClient.DeleteGuildEmojiAsync(this.Id, emoji.Id, reason);
+        }
     }
 
     /// <summary>
@@ -1724,15 +1703,15 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the guild's widget
     /// </summary>
     /// <returns>The guild's widget</returns>
-    public Task<DiscordWidget> GetWidgetAsync()
-        => this.Discord.ApiClient.GetGuildWidgetAsync(this.Id);
+    public async Task<DiscordWidget> GetWidgetAsync()
+        => await this.Discord.ApiClient.GetGuildWidgetAsync(this.Id);
 
     /// <summary>
     /// Gets the guild's widget settings
     /// </summary>
     /// <returns>The guild's widget settings</returns>
-    public Task<DiscordWidgetSettings> GetWidgetSettingsAsync()
-        => this.Discord.ApiClient.GetGuildWidgetSettingsAsync(this.Id);
+    public async Task<DiscordWidgetSettings> GetWidgetSettingsAsync()
+        => await this.Discord.ApiClient.GetGuildWidgetSettingsAsync(this.Id);
 
     /// <summary>
     /// Modifies the guild's widget settings
@@ -1741,8 +1720,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="channel">Widget channel</param>
     /// <param name="reason">Reason the widget settings were modified</param>
     /// <returns>The newly modified widget settings</returns>
-    public Task<DiscordWidgetSettings> ModifyWidgetSettingsAsync(bool? isEnabled = null, DiscordChannel channel = null, string reason = null)
-        => this.Discord.ApiClient.ModifyGuildWidgetSettingsAsync(this.Id, isEnabled, channel?.Id, reason);
+    public async Task<DiscordWidgetSettings> ModifyWidgetSettingsAsync(bool? isEnabled = null, DiscordChannel channel = null, string reason = null)
+        => await this.Discord.ApiClient.ModifyGuildWidgetSettingsAsync(this.Id, isEnabled, channel?.Id, reason);
 
     /// <summary>
     /// Gets all of this guild's templates.
@@ -1750,8 +1729,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>All of the guild's templates.</returns>
     /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<IReadOnlyList<DiscordGuildTemplate>> GetTemplatesAsync()
-        => this.Discord.ApiClient.GetGuildTemplatesAsync(this.Id);
+    public async Task<IReadOnlyList<DiscordGuildTemplate>> GetTemplatesAsync()
+        => await this.Discord.ApiClient.GetGuildTemplatesAsync(this.Id);
 
     /// <summary>
     /// Creates a guild template.
@@ -1762,8 +1741,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="BadRequestException">Throws when a template already exists for the guild or a null parameter is provided for the name.</exception>
     /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<DiscordGuildTemplate> CreateTemplateAsync(string name, string description = null)
-        => this.Discord.ApiClient.CreateGuildTemplateAsync(this.Id, name, description);
+    public async Task<DiscordGuildTemplate> CreateTemplateAsync(string name, string description = null)
+        => await this.Discord.ApiClient.CreateGuildTemplateAsync(this.Id, name, description);
 
     /// <summary>
     /// Syncs the template to the current guild's state.
@@ -1773,8 +1752,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Throws when the template for the code cannot be found</exception>
     /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<DiscordGuildTemplate> SyncTemplateAsync(string code)
-        => this.Discord.ApiClient.SyncGuildTemplateAsync(this.Id, code);
+    public async Task<DiscordGuildTemplate> SyncTemplateAsync(string code)
+        => await this.Discord.ApiClient.SyncGuildTemplateAsync(this.Id, code);
 
     /// <summary>
     /// Modifies the template's metadata.
@@ -1786,8 +1765,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Throws when the template for the code cannot be found</exception>
     /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<DiscordGuildTemplate> ModifyTemplateAsync(string code, string name = null, string description = null)
-        => this.Discord.ApiClient.ModifyGuildTemplateAsync(this.Id, code, name, description);
+    public async Task<DiscordGuildTemplate> ModifyTemplateAsync(string code, string name = null, string description = null)
+        => await this.Discord.ApiClient.ModifyGuildTemplateAsync(this.Id, code, name, description);
 
     /// <summary>
     /// Deletes the template.
@@ -1797,16 +1776,16 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Throws when the template for the code cannot be found</exception>
     /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<DiscordGuildTemplate> DeleteTemplateAsync(string code)
-        => this.Discord.ApiClient.DeleteGuildTemplateAsync(this.Id, code);
+    public async Task<DiscordGuildTemplate> DeleteTemplateAsync(string code)
+        => await this.Discord.ApiClient.DeleteGuildTemplateAsync(this.Id, code);
 
     /// <summary>
     /// Gets this guild's membership screening form.
     /// </summary>
     /// <returns>This guild's membership screening form.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<DiscordGuildMembershipScreening> GetMembershipScreeningFormAsync()
-        => this.Discord.ApiClient.GetGuildMembershipScreeningFormAsync(this.Id);
+    public async Task<DiscordGuildMembershipScreening> GetMembershipScreeningFormAsync()
+        => await this.Discord.ApiClient.GetGuildMembershipScreeningFormAsync(this.Id);
 
     /// <summary>
     /// Modifies this guild's membership screening form.
@@ -1815,27 +1794,27 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>The modified screening form.</returns>
     /// <exception cref="UnauthorizedException">Thrown when the client doesn't have the <see cref="Permissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(Action<MembershipScreeningEditModel> action)
+    public async Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(Action<MembershipScreeningEditModel> action)
     {
         MembershipScreeningEditModel editModel = new();
         action(editModel);
-        return this.Discord.ApiClient.ModifyGuildMembershipScreeningFormAsync(this.Id, editModel.Enabled, editModel.Fields, editModel.Description);
+        return await this.Discord.ApiClient.ModifyGuildMembershipScreeningFormAsync(this.Id, editModel.Enabled, editModel.Fields, editModel.Description);
     }
 
     /// <summary>
     /// Gets a list of stickers from this guild.
     /// </summary>
     /// <returns></returns>
-    public Task<IReadOnlyList<DiscordMessageSticker>> GetStickersAsync()
-        => this.Discord.ApiClient.GetGuildStickersAsync(this.Id);
+    public async Task<IReadOnlyList<DiscordMessageSticker>> GetStickersAsync()
+        => await this.Discord.ApiClient.GetGuildStickersAsync(this.Id);
 
     /// <summary>
     /// Gets a sticker from this guild.
     /// </summary>
     /// <param name="stickerId">The id of the sticker.</param>
     /// <returns></returns>
-    public Task<DiscordMessageSticker> GetStickerAsync(ulong stickerId)
-        => this.Discord.ApiClient.GetGuildStickerAsync(this.Id, stickerId);
+    public async Task<DiscordMessageSticker> GetStickerAsync(ulong stickerId)
+        => await this.Discord.ApiClient.GetGuildStickerAsync(this.Id, stickerId);
 
     /// <summary>
     /// Creates a sticker in this guild. Lottie stickers can only be created on verified and/or partnered servers.
@@ -1847,7 +1826,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="format">The image format of the sticker.</param>
     /// <param name="reason">The reason this sticker is being created.</param>
 
-    public Task<DiscordMessageSticker> CreateStickerAsync(string name, string description, string tags, Stream imageContents, StickerFormat format, string reason = null)
+    public async Task<DiscordMessageSticker> CreateStickerAsync(string name, string description, string tags, Stream imageContents, StickerFormat format, string reason = null)
     {
         string contentType = null, extension = null;
 
@@ -1867,7 +1846,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             extension = "json";
         }
 
-        return this.Discord.ApiClient.CreateGuildStickerAsync(this.Id, name, description ?? string.Empty, tags, new DiscordMessageFile(null, imageContents, null, extension, contentType), reason);
+        return await this.Discord.ApiClient.CreateGuildStickerAsync(this.Id, name, description ?? string.Empty, tags, new DiscordMessageFile(null, imageContents, null, extension, contentType), reason);
     }
 
     /// <summary>
@@ -1876,11 +1855,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="stickerId">The id of the sticker.</param>
     /// <param name="action">Action to perform.</param>
     /// <param name="reason">Reason for audit log.</param>
-    public Task<DiscordMessageSticker> ModifyStickerAsync(ulong stickerId, Action<StickerEditModel> action, string reason = null)
+    public async Task<DiscordMessageSticker> ModifyStickerAsync(ulong stickerId, Action<StickerEditModel> action, string reason = null)
     {
         StickerEditModel editModel = new();
         action(editModel);
-        return this.Discord.ApiClient.ModifyStickerAsync(this.Id, stickerId, editModel.Name, editModel.Description, editModel.Tags, reason ?? editModel.AuditLogReason);
+        return await this.Discord.ApiClient.ModifyStickerAsync(this.Id, stickerId, editModel.Name, editModel.Description, editModel.Tags, reason ?? editModel.AuditLogReason);
     }
 
     /// <summary>
@@ -1889,11 +1868,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="sticker">Sticker to modify.</param>
     /// <param name="action">Action to perform.</param>
     /// <param name="reason">Reason for audit log.</param>
-    public Task<DiscordMessageSticker> ModifyStickerAsync(DiscordMessageSticker sticker, Action<StickerEditModel> action, string reason = null)
+    public async Task<DiscordMessageSticker> ModifyStickerAsync(DiscordMessageSticker sticker, Action<StickerEditModel> action, string reason = null)
     {
         StickerEditModel editModel = new();
         action(editModel);
-        return this.Discord.ApiClient.ModifyStickerAsync(this.Id, sticker.Id, editModel.Name, editModel.Description, editModel.Tags, reason ?? editModel.AuditLogReason);
+        return await this.Discord.ApiClient.ModifyStickerAsync(this.Id, sticker.Id, editModel.Name, editModel.Description, editModel.Tags, reason ?? editModel.AuditLogReason);
     }
 
     /// <summary>
@@ -1901,39 +1880,39 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="stickerId">The id of the sticker.</param>
     /// <param name="reason">Reason for audit log.</param>
-    public Task DeleteStickerAsync(ulong stickerId, string reason = null)
-        => this.Discord.ApiClient.DeleteStickerAsync(this.Id, stickerId, reason);
+    public async Task DeleteStickerAsync(ulong stickerId, string reason = null)
+        => await this.Discord.ApiClient.DeleteStickerAsync(this.Id, stickerId, reason);
 
     /// <summary>
     /// Deletes a sticker in this guild.
     /// </summary>
     /// <param name="sticker">Sticker to delete.</param>
     /// <param name="reason">Reason for audit log.</param>
-    public Task DeleteStickerAsync(DiscordMessageSticker sticker, string reason = null)
-        => this.Discord.ApiClient.DeleteStickerAsync(this.Id, sticker.Id, reason);
+    public async Task DeleteStickerAsync(DiscordMessageSticker sticker, string reason = null)
+        => await this.Discord.ApiClient.DeleteStickerAsync(this.Id, sticker.Id, reason);
 
     /// <summary>
     /// Gets all the application commands in this guild.
     /// </summary>
     /// <returns>A list of application commands in this guild.</returns>
-    public Task<IReadOnlyList<DiscordApplicationCommand>> GetApplicationCommandsAsync() =>
-        this.Discord.ApiClient.GetGuildApplicationCommandsAsync(this.Discord.CurrentApplication.Id, this.Id);
+    public async Task<IReadOnlyList<DiscordApplicationCommand>> GetApplicationCommandsAsync() =>
+        await this.Discord.ApiClient.GetGuildApplicationCommandsAsync(this.Discord.CurrentApplication.Id, this.Id);
 
     /// <summary>
     /// Overwrites the existing application commands in this guild. New commands are automatically created and missing commands are automatically delete
     /// </summary>
     /// <param name="commands">The list of commands to overwrite with.</param>
     /// <returns>The list of guild commands</returns>
-    public Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteApplicationCommandsAsync(IEnumerable<DiscordApplicationCommand> commands) =>
-        this.Discord.ApiClient.BulkOverwriteGuildApplicationCommandsAsync(this.Discord.CurrentApplication.Id, this.Id, commands);
+    public async Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteApplicationCommandsAsync(IEnumerable<DiscordApplicationCommand> commands) =>
+        await this.Discord.ApiClient.BulkOverwriteGuildApplicationCommandsAsync(this.Discord.CurrentApplication.Id, this.Id, commands);
 
     /// <summary>
     /// Creates or overwrites a application command in this guild.
     /// </summary>
     /// <param name="command">The command to create.</param>
     /// <returns>The created command.</returns>
-    public Task<DiscordApplicationCommand> CreateApplicationCommandAsync(DiscordApplicationCommand command) =>
-        this.Discord.ApiClient.CreateGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, command);
+    public async Task<DiscordApplicationCommand> CreateApplicationCommandAsync(DiscordApplicationCommand command) =>
+        await this.Discord.ApiClient.CreateGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, command);
 
     /// <summary>
     /// Edits a application command in this guild.
@@ -1953,8 +1932,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="commandId">The ID of the command to get.</param>
     /// <returns>The command with the ID.</returns>
-    public Task<DiscordApplicationCommand> GetApplicationCommandAsync(ulong commandId) =>
-        this.Discord.ApiClient.GetGlobalApplicationCommandAsync(this.Discord.CurrentApplication.Id, commandId);
+    public async Task<DiscordApplicationCommand> GetApplicationCommandAsync(ulong commandId) =>
+        await this.Discord.ApiClient.GetGlobalApplicationCommandAsync(this.Discord.CurrentApplication.Id, commandId);
 
     /// <summary>
     /// Gets a application command in this guild by its name.
@@ -1979,8 +1958,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <returns>This guild's welcome screen object.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<DiscordGuildWelcomeScreen> GetWelcomeScreenAsync() =>
-        this.Discord.ApiClient.GetGuildWelcomeScreenAsync(this.Id);
+    public async Task<DiscordGuildWelcomeScreen> GetWelcomeScreenAsync() =>
+        await this.Discord.ApiClient.GetGuildWelcomeScreenAsync(this.Id);
 
     /// <summary>
     /// Modifies this guild's welcome screen.
@@ -2001,16 +1980,16 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets all application command permissions in this guild.
     /// </summary>
     /// <returns>A list of permissions.</returns>
-    public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> GetApplicationCommandsPermissionsAsync()
-        => this.Discord.ApiClient.GetGuildApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id);
+    public async Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> GetApplicationCommandsPermissionsAsync()
+        => await this.Discord.ApiClient.GetGuildApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id);
 
     /// <summary>
     /// Gets permissions for a application command in this guild.
     /// </summary>
     /// <param name="command">The command to get them for.</param>
     /// <returns>The permissions.</returns>
-    public Task<DiscordGuildApplicationCommandPermissions> GetApplicationCommandPermissionsAsync(DiscordApplicationCommand command)
-        => this.Discord.ApiClient.GetApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, command.Id);
+    public async Task<DiscordGuildApplicationCommandPermissions> GetApplicationCommandPermissionsAsync(DiscordApplicationCommand command)
+        => await this.Discord.ApiClient.GetApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, command.Id);
 
     /// <summary>
     /// Edits permissions for a application command in this guild.
@@ -2018,16 +1997,16 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="command">The command to edit permissions for.</param>
     /// <param name="permissions">The list of permissions to use.</param>
     /// <returns>The edited permissions.</returns>
-    public Task<DiscordGuildApplicationCommandPermissions> EditApplicationCommandPermissionsAsync(DiscordApplicationCommand command, IEnumerable<DiscordApplicationCommandPermission> permissions)
-        => this.Discord.ApiClient.EditApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, command.Id, permissions);
+    public async Task<DiscordGuildApplicationCommandPermissions> EditApplicationCommandPermissionsAsync(DiscordApplicationCommand command, IEnumerable<DiscordApplicationCommandPermission> permissions)
+        => await this.Discord.ApiClient.EditApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, command.Id, permissions);
 
     /// <summary>
     /// Batch edits permissions for a application command in this guild.
     /// </summary>
     /// <param name="permissions">The list of permissions to use.</param>
     /// <returns>A list of edited permissions.</returns>
-    public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> BatchEditApplicationCommandPermissionsAsync(IEnumerable<DiscordGuildApplicationCommandPermissions> permissions)
-        => this.Discord.ApiClient.BatchEditApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, permissions);
+    public async Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> BatchEditApplicationCommandPermissionsAsync(IEnumerable<DiscordGuildApplicationCommandPermissions> permissions)
+        => await this.Discord.ApiClient.BatchEditApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, permissions);
 
     /// <summary>
     /// Creates an auto-moderation rule in the guild.
@@ -2042,7 +2021,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="exemptChannels">Channels which will not trigger the rule.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns>The created rule.</returns>
-    public Task<DiscordAutoModerationRule> CreateAutoModerationRuleAsync
+    public async Task<DiscordAutoModerationRule> CreateAutoModerationRuleAsync
     (
         string name,
         RuleEventType eventType,
@@ -2054,7 +2033,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         Optional<IReadOnlyList<DiscordChannel>> exemptChannels = default,
         string reason = null
     ) =>
-        this.Discord.ApiClient.CreateGuildAutoModerationRuleAsync
+        await this.Discord.ApiClient.CreateGuildAutoModerationRuleAsync
         (
             this.Id,
             name,
@@ -2073,15 +2052,15 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="ruleId">The rule id.</param>
     /// <returns>The found rule.</returns>
-    public Task<DiscordAutoModerationRule> GetAutoModerationRuleAsync(ulong ruleId)
-        => this.Discord.ApiClient.GetGuildAutoModerationRuleAsync(this.Id, ruleId);
+    public async Task<DiscordAutoModerationRule> GetAutoModerationRuleAsync(ulong ruleId)
+        => await this.Discord.ApiClient.GetGuildAutoModerationRuleAsync(this.Id, ruleId);
 
     /// <summary>
     /// Gets all auto-moderation rules in the guild.
     /// </summary>
     /// <returns>All rules available in the guild.</returns>
-    public Task<IReadOnlyList<DiscordAutoModerationRule>> GetAutoModerationRulesAsync()
-        => this.Discord.ApiClient.GetGuildAutoModerationRulesAsync(this.Id);
+    public async Task<IReadOnlyList<DiscordAutoModerationRule>> GetAutoModerationRulesAsync()
+        => await this.Discord.ApiClient.GetGuildAutoModerationRulesAsync(this.Id);
 
     /// <summary>
     /// Modify an auto-moderation rule in the guild.
@@ -2090,13 +2069,13 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="action">Action to perform on this rule.</param>
     /// <returns>The modified rule.</returns>
     /// <remarks>All arguments are optionals.</remarks>
-    public Task<DiscordAutoModerationRule> ModifyAutoModerationRuleAsync(ulong ruleId, Action<AutoModerationRuleEditModel> action)
+    public async Task<DiscordAutoModerationRule> ModifyAutoModerationRuleAsync(ulong ruleId, Action<AutoModerationRuleEditModel> action)
     {
         AutoModerationRuleEditModel model = new();
 
         action(model);
 
-        return this.Discord.ApiClient.ModifyGuildAutoModerationRuleAsync
+        return await this.Discord.ApiClient.ModifyGuildAutoModerationRuleAsync
         (
             this.Id, 
             ruleId, 
@@ -2117,8 +2096,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="ruleId">The rule id.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    public Task DeleteAutoModerationRuleAsync(ulong ruleId, string reason = null)
-        => this.Discord.ApiClient.DeleteGuildAutoModerationRuleAsync(this.Id, ruleId, reason);
+    public async Task DeleteAutoModerationRuleAsync(ulong ruleId, string reason = null)
+        => await this.Discord.ApiClient.DeleteGuildAutoModerationRuleAsync(this.Id, ruleId, reason);
 
     #endregion
 

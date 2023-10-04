@@ -23,7 +23,7 @@
 
 using System.Collections.Generic;
 
-namespace DSharpPlus.Entities;
+namespace DSharpPlus.Entities.AuditLogs;
 
 public sealed class DiscordAuditLogChannelEntry : DiscordAuditLogEntry
 {

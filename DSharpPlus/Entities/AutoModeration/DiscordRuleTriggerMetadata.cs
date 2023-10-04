@@ -28,7 +28,7 @@ public sealed class DiscordRuleTriggerMetadata
     /// Gets the internally pre-defined wordsets which will be searched in the content.
     /// </summary>
     [JsonProperty("presets", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyList<RuleKeywordPresetType> KeywordPresetTypes { get; internal set; }
+    public IReadOnlyList<RuleKeywordPresetType>? KeywordPresetTypes { get; internal set; }
 
     /// <summary>
     /// Gets the substrings which should not trigger the rule.
@@ -116,12 +116,7 @@ public sealed class DiscordRuleTriggerMetadataBuilder
     /// <exception cref="ArgumentNullException"></exception>
     public DiscordRuleTriggerMetadataBuilder AddKeywordPresetTypes(IReadOnlyList<RuleKeywordPresetType> keywordPresetTypes)
     {
-        if (keywordPresetTypes is null)
-        {
-            throw new ArgumentNullException("Argument can't be null.");
-        }
-
-        this.KeywordPresetTypes = keywordPresetTypes;
+        this.KeywordPresetTypes = keywordPresetTypes ?? throw new ArgumentNullException(nameof(keywordPresetTypes));
 
         return this;
     }
@@ -168,7 +163,7 @@ public sealed class DiscordRuleTriggerMetadataBuilder
     /// <returns>The build trigger metadata.</returns>
     public DiscordRuleTriggerMetadata Build()
     {
-        var metadata = new DiscordRuleTriggerMetadata
+        DiscordRuleTriggerMetadata metadata = new()
         {
             AllowedKeywords = this.AllowedKeywords ?? Array.Empty<string>(),
             KeywordFilter = this.KeywordFilter,

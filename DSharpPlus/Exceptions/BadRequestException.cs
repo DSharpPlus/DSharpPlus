@@ -1,29 +1,5 @@
-// This file is part of the DSharpPlus project.
-//
-// Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2023 DSharpPlus Contributors
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
-using System;
-using DSharpPlus.Net;
-using Newtonsoft.Json.Linq;
+using System.Net.Http;
+using System.Text.Json;
 
 namespace DSharpPlus.Exceptions;
 
@@ -43,25 +19,44 @@ public class BadRequestException : DiscordException
     /// </summary>
     public string? Errors { get; internal set; }
 
-    internal BadRequestException(BaseRestRequest request, RestResponse response) : base("Bad request: " + response.ResponseCode)
+    internal BadRequestException(HttpRequestMessage request, HttpResponseMessage response, string content) 
+        : base("Bad request: " + response.StatusCode)
     {
-        this.WebRequest = request;
-        this.WebResponse = response;
+        this.Request = request;
+        this.Response = response;
 
-        JObject jsonResponse = JObject.Parse(response.Response);
-        if (jsonResponse.TryGetValue("message", StringComparison.Ordinal, out JToken? message))
+        try
         {
-            this.JsonMessage = message.ToString();
-        }
+            using JsonDocument document = JsonDocument.Parse(content);
+            JsonElement responseModel = document.RootElement;
 
-        if (jsonResponse.TryGetValue("code", StringComparison.Ordinal, out JToken? code))
-        {
-            this.Code = (int)code;
-        }
+            if
+            (
+                responseModel.TryGetProperty("code", out JsonElement code) 
+                && code.ValueKind == JsonValueKind.Number
+            )
+            {
+                this.Code = code.GetInt32();
+            }
 
-        if (jsonResponse.TryGetValue("errors", StringComparison.Ordinal, out JToken? errors))
-        {
-            this.Errors = errors.ToString();
+            if
+            (
+                responseModel.TryGetProperty("message", out JsonElement message)
+                && message.ValueKind == JsonValueKind.String
+            )
+            {
+                this.JsonMessage = message.GetString();
+            }
+
+            if
+            (
+                responseModel.TryGetProperty("errors", out JsonElement errors)
+                && message.ValueKind == JsonValueKind.String
+            )
+            {
+                this.Errors = errors.GetString();
+            }
         }
+        catch { }
     }
 }
