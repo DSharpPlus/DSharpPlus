@@ -1832,7 +1832,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordChannel ret = JObject.Parse(res.Response!).ToDiscordObject<DiscordThreadChannel>()!;
+        DiscordChannel ret = JObject.Parse(res.Response!).ToDiscordObject<DiscordChannel>()!;
 
         ret.Discord = this._discord!;
         foreach (DiscordOverwrite xo in ret._permissionOverwrites)
