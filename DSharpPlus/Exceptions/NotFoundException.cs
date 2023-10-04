@@ -8,7 +8,7 @@ namespace DSharpPlus.Exceptions;
 /// </summary>
 public class NotFoundException : DiscordException
 {
-    internal NotFoundException(HttpRequestMessage request, HttpResponseMessage response, string content) 
+    internal NotFoundException(HttpRequestMessage request, HttpResponseMessage response, string content)
         : base("Not found: " + response.StatusCode)
     {
         this.Request = request;

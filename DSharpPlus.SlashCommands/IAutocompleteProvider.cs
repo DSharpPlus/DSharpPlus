@@ -1,4 +1,4 @@
-﻿// This file is part of the DSharpPlus project.
+// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2023 DSharpPlus Contributors
@@ -25,17 +25,16 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.SlashCommands
+namespace DSharpPlus.SlashCommands;
+
+/// <summary>
+/// All autocomplete providers must inherit from this interface.
+/// </summary>
+public interface IAutocompleteProvider
 {
     /// <summary>
-    /// All autocomplete providers must inherit from this interface.
+    /// Provides autocomplete choices.
     /// </summary>
-    public interface IAutocompleteProvider
-    {
-        /// <summary>
-        /// Provides autocomplete choices.
-        /// </summary>
-        /// <param name="ctx">The autocomplete context.</param>
-        public Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext ctx);
-    }
+    /// <param name="ctx">The autocomplete context.</param>
+    public Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext ctx);
 }

@@ -8,7 +8,7 @@ namespace DSharpPlus.Exceptions;
 /// </summary>
 public class RateLimitException : DiscordException
 {
-    internal RateLimitException(HttpRequestMessage request, HttpResponseMessage response, string content) 
+    internal RateLimitException(HttpRequestMessage request, HttpResponseMessage response, string content)
         : base("Rate limited: " + response.StatusCode)
     {
         this.Request = request;

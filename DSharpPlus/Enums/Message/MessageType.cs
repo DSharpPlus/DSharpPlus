@@ -89,11 +89,6 @@ public enum MessageType : int
     /// Message indicating that a guild has failed to meet guild discovery requirements for 3 weeks.
     /// </summary>
     GuildDiscoveryGracePeriodFinalWarning = 17,
-        
-    /// <summary>
-    /// 
-    /// </summary>
-    ThreadCreated = 18,
 
     /// <summary>
     /// Message indicating a user replied to another user.
@@ -104,11 +99,6 @@ public enum MessageType : int
     /// Message indicating an application command was invoked.
     /// </summary>
     ApplicationCommand = 20,
-        
-    /// <summary>
-    /// 
-    /// </summary>
-    ThreadStarterMessage = 21,
 
     /// <summary>
     /// Message reminding you to invite people to help you build the server.
@@ -124,12 +114,4 @@ public enum MessageType : int
     /// Message indicating an auto-moderation alert.
     /// </summary>
     AutoModerationAlert = 24,
-        
-    RoleSubscriptionPurchase = 25,
-    InteractionPremiumUpsell = 26,
-    StageStart = 27,
-    StageEnd = 28,
-    StageSpeaker =	29,
-    StageTopic = 31,
-    GuildApplicationPremiumSubscription = 32,
 }

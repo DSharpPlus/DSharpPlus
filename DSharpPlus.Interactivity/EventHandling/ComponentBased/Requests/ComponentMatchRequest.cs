@@ -3,34 +3,33 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-namespace DSharpPlus.Interactivity.EventHandling
+namespace DSharpPlus.Interactivity.EventHandling;
+
+/// <summary>
+/// Represents a match that is being waited for.
+/// </summary>
+internal class ComponentMatchRequest
 {
     /// <summary>
-    /// Represents a match that is being waited for.
+    /// The id to wait on. This should be uniquely formatted to avoid collisions.
     /// </summary>
-    internal class ComponentMatchRequest
+    public DiscordMessage Message { get; private set; }
+
+    /// <summary>
+    /// The completion source that represents the result of the match.
+    /// </summary>
+    public TaskCompletionSource<ComponentInteractionCreateEventArgs> Tcs { get; private set; } = new();
+
+    protected readonly CancellationToken _cancellation;
+    protected readonly Func<ComponentInteractionCreateEventArgs, bool> _predicate;
+
+    public ComponentMatchRequest(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation)
     {
-        /// <summary>
-        /// The id to wait on. This should be uniquely formatted to avoid collisions.
-        /// </summary>
-        public DiscordMessage Message { get; private set; }
-
-        /// <summary>
-        /// The completion source that represents the result of the match.
-        /// </summary>
-        public TaskCompletionSource<ComponentInteractionCreateEventArgs> Tcs { get; private set; } = new();
-
-        protected readonly CancellationToken _cancellation;
-        protected readonly Func<ComponentInteractionCreateEventArgs, bool> _predicate;
-
-        public ComponentMatchRequest(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation)
-        {
-            this.Message = message;
-            this._predicate = predicate;
-            this._cancellation = cancellation;
-            this._cancellation.Register(() => this.Tcs.TrySetResult(null)); // TrySetCancelled would probably be better but I digress ~Velvet //
-        }
-
-        public bool IsMatch(ComponentInteractionCreateEventArgs args) => this._predicate(args);
+        this.Message = message;
+        this._predicate = predicate;
+        this._cancellation = cancellation;
+        this._cancellation.Register(() => this.Tcs.TrySetResult(null)); // TrySetCancelled would probably be better but I digress ~Velvet //
     }
+
+    public bool IsMatch(ComponentInteractionCreateEventArgs args) => this._predicate(args);
 }

@@ -9,19 +9,18 @@ public class DiscordForumChannelJsonConverter : JsonConverter
 {
     public override bool CanWrite => false;
 
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => throw new ();
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => throw new();
 
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
     {
         JObject job = JObject.Load(reader);
-        JToken typeToken;
-        bool hasType = job.TryGetValue("type", out typeToken);
+        bool hasType = job.TryGetValue("type", out JToken typeToken);
 
         if (!hasType)
         {
             throw new JsonException("Channel object lacks type - this should be reported to library developers");
         }
-        
+
         DiscordChannel channel;
         ChannelType channelType = typeToken.ToObject<ChannelType>();
 

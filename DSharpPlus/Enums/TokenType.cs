@@ -1,18 +1,17 @@
-namespace DSharpPlus
+namespace DSharpPlus;
+
+/// <summary>
+/// Token type
+/// </summary>
+public enum TokenType
 {
     /// <summary>
-    /// Token type
+    /// Bot token type
     /// </summary>
-    public enum TokenType
-    {
-        /// <summary>
-        /// Bot token type
-        /// </summary>
-        Bot = 1,
+    Bot = 1,
 
-        /// <summary>
-        /// Bearer token type (used for oAuth)
-        /// </summary>
-        Bearer = 2
-    }
+    /// <summary>
+    /// Bearer token type (used for oAuth)
+    /// </summary>
+    Bearer = 2
 }

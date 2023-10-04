@@ -2,29 +2,30 @@ using System;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.CommandsNext.Converters
+namespace DSharpPlus.CommandsNext.Converters;
+
+public class StringConverter : IArgumentConverter<string>
 {
-    public class StringConverter : IArgumentConverter<string>
-    {
-        Task<Optional<string>> IArgumentConverter<string>.ConvertAsync(string value, CommandContext ctx)
-            => Task.FromResult(Optional.FromValue(value));
-    }
+    Task<Optional<string>> IArgumentConverter<string>.ConvertAsync(string value, CommandContext ctx)
+        => Task.FromResult(Optional.FromValue(value));
+}
 
-    public class UriConverter : IArgumentConverter<Uri>
+public class UriConverter : IArgumentConverter<Uri>
+{
+    Task<Optional<Uri>> IArgumentConverter<Uri>.ConvertAsync(string value, CommandContext ctx)
     {
-        Task<Optional<Uri>> IArgumentConverter<Uri>.ConvertAsync(string value, CommandContext ctx)
+        try
         {
-            try
+            if (value.StartsWith("<") && value.EndsWith(">"))
             {
-                if (value.StartsWith("<") && value.EndsWith(">"))
-                    value = value.Substring(1, value.Length - 2);
+                value = value.Substring(1, value.Length - 2);
+            }
 
-                return Task.FromResult(Optional.FromValue(new Uri(value)));
-            }
-            catch
-            {
-                return Task.FromResult(Optional.FromNoValue<Uri>());
-            }
+            return Task.FromResult(Optional.FromValue(new Uri(value)));
+        }
+        catch
+        {
+            return Task.FromResult(Optional.FromNoValue<Uri>());
         }
     }
 }

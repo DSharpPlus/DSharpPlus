@@ -14,8 +14,6 @@ using Polly;
 
 namespace DSharpPlus.Net;
 
-using System.Collections.Generic;
-
 internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
 {
     private readonly RateLimitBucket globalBucket;
@@ -43,15 +41,15 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
 
     protected override async Task<HttpResponseMessage> ImplementationAsync
     (
-        Func<Context, CancellationToken, Task<HttpResponseMessage>> action, 
-        Context context, 
-        CancellationToken cancellationToken, 
+        Func<Context, CancellationToken, Task<HttpResponseMessage>> action,
+        Context context,
+        CancellationToken cancellationToken,
         // since the library doesn't use CA(false) at all (#1533), we will proceed to ignore this 
         bool continueOnCapturedContext = true
     )
     {
         // fail-fast if we dont have a route to ratelimit to
-        if(!context.TryGetValue("route", out object rawRoute) || rawRoute is not string route)
+        if (!context.TryGetValue("route", out object rawRoute) || rawRoute is not string route)
         {
             throw new InvalidOperationException("No route passed. This should be reported to library developers.");
         }
@@ -59,7 +57,7 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
         // get global limit
         bool exemptFromGlobalLimit = false;
 
-        if(context.TryGetValue("exempt-from-global-limit", out object rawExempt) && rawExempt is bool exempt)
+        if (context.TryGetValue("exempt-from-global-limit", out object rawExempt) && rawExempt is bool exempt)
         {
             exemptFromGlobalLimit = exempt;
         }
@@ -83,8 +81,8 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
 
                 this.logger.LogWarning
                 (
-                    LoggerEvents.RatelimitPreemptive, 
-                    "Pre-emptive ratelimit triggered - waiting until {reset:yyyy-MM-dd HH:mm:ss zzz}.", 
+                    LoggerEvents.RatelimitPreemptive,
+                    "Pre-emptive ratelimit triggered - waiting until {reset:yyyy-MM-dd HH:mm:ss zzz}.",
                     this.globalBucket.Reset
                 );
 
@@ -122,23 +120,20 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
         // make the actual request
 
         HttpResponseMessage response = await action(context, cancellationToken);
-        bool hasBucketHeader = response.Headers.TryGetValues("X-RateLimit-Bucket", out IEnumerable<string>? hashHeader);
 
-        if (!exemptFromGlobalLimit && hasBucketHeader)
+        hash = response.Headers.GetValues("X-RateLimit-Bucket").SingleOrDefault() ?? "UNKNOWN";
+
+        if (!RateLimitBucket.TryExtractRateLimitBucket(response.Headers, out RateLimitBucket? extracted))
         {
-            hash = hashHeader?.Single();
+            return response;
+        }
 
-            if(!RateLimitBucket.TryExtractRateLimitBucket(response.Headers, out RateLimitBucket? extracted))
-            {
-                return response;
-            }
-
-            this.cache.CreateEntry(route)
+        this.cache.CreateEntry(route)
                 .SetValue(extracted.Value)
                 .Dispose();
 
-            this.routeHashes.AddOrUpdate(route, hash, (_, _) => hash);
-        }
+        this.routeHashes.AddOrUpdate(route, hash, (_, _) => hash);
+
         return response;
     }
 }

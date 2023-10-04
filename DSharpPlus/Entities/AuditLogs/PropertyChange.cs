@@ -1,4 +1,4 @@
-﻿// This file is part of the DSharpPlus project.
+// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2023 DSharpPlus Contributors
@@ -47,13 +47,13 @@ public readonly record struct PropertyChange<T>
     public static PropertyChange<T> From(object before, object after) =>
         new()
         {
-            Before = before is not null && before is T ? (T) before : default,
-            After = after is not null && after is T ? (T) after : default
+            Before = before is not null && before is T ? (T)before : default,
+            After = after is not null && after is T ? (T)after : default
         };
 
     /// <summary>
     /// Create a new <see cref="PropertyChange{T}"/> from the given change using before and after values.
     /// </summary>
-    internal static PropertyChange<T> From(AuditLogActionChange change) => 
+    internal static PropertyChange<T> From(AuditLogActionChange change) =>
         From(change.OldValue, change.NewValue);
 }

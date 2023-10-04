@@ -1,8 +1,7 @@
-namespace DSharpPlus
+namespace DSharpPlus;
+
+public enum ApplicationCommandPermissionType
 {
-    public enum ApplicationCommandPermissionType
-    {
-        Role = 1,
-        User
-    }
+    Role = 1,
+    User
 }

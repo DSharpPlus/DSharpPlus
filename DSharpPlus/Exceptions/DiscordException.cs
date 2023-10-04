@@ -19,7 +19,7 @@ public abstract class DiscordException : Exception
     /// Gets the JSON message received.
     /// </summary>
     public virtual string? JsonMessage { get; internal set; }
-    
+
     public DiscordException() : base() { }
     public DiscordException(string message) : base(message) { }
     public DiscordException(string message, Exception innerException) : base(message, innerException) { }

@@ -1,110 +1,111 @@
 using Newtonsoft.Json;
-namespace DSharpPlus.Entities
+namespace DSharpPlus.Entities;
+
+public sealed class DiscordForumTag : SnowflakeObject
 {
-    public sealed class DiscordForumTag : SnowflakeObject
+    /// <summary>
+    /// Gets the name of this tag.
+    /// </summary>
+    [JsonProperty("name")]
+    public string Name { get; internal set; }
+
+    /// <summary>
+    /// Gets whether this tag is moderated. Moderated tags can only be applied by users with the <see cref="Permissions.ManageThreads"/> permission.
+    /// </summary>
+    [JsonProperty("moderated")]
+    public bool Moderated { get; internal set; }
+
+    /// <summary>
+    /// Gets the Id of the emoji for this tag, if applicable.
+    /// </summary>
+    [JsonProperty("emoji_id")]
+    public ulong? EmojiId { get; internal set; }
+
+    /// <summary>
+    /// Gets the unicode emoji for this tag, if applicable.
+    /// </summary>
+    [JsonProperty("emoji_name")]
+    public string EmojiName { get; internal set; }
+}
+
+public class DiscordForumTagBuilder
+{
+    [JsonProperty("name")]
+    private string _name;
+
+    [JsonProperty("moderated")]
+    private bool _moderated;
+
+    [JsonProperty("emoji_id")]
+    private ulong? _emojiId;
+
+    [JsonProperty("emoji_name")]
+    private string _emojiName;
+
+
+    public static DiscordForumTagBuilder FromTag(DiscordForumTag tag)
     {
-        /// <summary>
-        /// Gets the name of this tag.
-        /// </summary>
-        [JsonProperty("name")]
-        public string Name { get; internal set; }
-
-        /// <summary>
-        /// Gets whether this tag is moderated. Moderated tags can only be applied by users with the <see cref="Permissions.ManageThreads"/> permission.
-        /// </summary>
-        [JsonProperty("moderated")]
-        public bool Moderated { get; internal set; }
-
-        /// <summary>
-        /// Gets the Id of the emoji for this tag, if applicable.
-        /// </summary>
-        [JsonProperty("emoji_id")]
-        public ulong? EmojiId { get; internal set; }
-
-        /// <summary>
-        /// Gets the unicode emoji for this tag, if applicable.
-        /// </summary>
-        [JsonProperty("emoji_name")]
-        public string EmojiName { get; internal set; }
+        DiscordForumTagBuilder builder = new DiscordForumTagBuilder
+        {
+            _name = tag.Name,
+            _moderated = tag.Moderated,
+            _emojiId = tag.EmojiId,
+            _emojiName = tag.EmojiName
+        };
+        return builder;
     }
 
-    public class DiscordForumTagBuilder
+    /// <summary>
+    /// Sets the name of this tag.
+    /// </summary>
+    /// <param name="name">The name of the tag.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    public DiscordForumTagBuilder WithName(string name)
     {
-        [JsonProperty("name")]
-        private string _name;
+        _name = name;
+        return this;
+    }
 
-        [JsonProperty("moderated")]
-        private bool _moderated;
+    /// <summary>
+    /// Sets this tag to be moderated (as in, it can only be set by users with the <see cref="Permissions.ManageThreads"/> permission).
+    /// </summary>
+    /// <param name="moderated">Whether the tag is moderated.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    public DiscordForumTagBuilder IsModerated(bool moderated = true)
+    {
+        _moderated = moderated;
+        return this;
+    }
 
-        [JsonProperty("emoji_id")]
-        private ulong? _emojiId;
+    /// <summary>
+    /// Sets the emoji ID for this tag (which will overwrite the emoji name).
+    /// </summary>
+    /// <param name="emojiId"></param>
+    /// <returns>The builder to chain calls with.</returns>
+    public DiscordForumTagBuilder WithEmojiId(ulong? emojiId)
+    {
+        _emojiId = emojiId;
+        _emojiName = null;
+        return this;
+    }
 
-        [JsonProperty("emoji_name")]
-        private string _emojiName;
+    /// <summary>
+    /// Sets the emoji for this tag.
+    /// </summary>
+    /// <param name="emoji">The emoji to use.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    public DiscordForumTagBuilder WithEmoji(DiscordEmoji emoji)
+    {
+        _emojiId = emoji.Id;
+        _emojiName = emoji.Name;
+        return this;
+    }
 
-
-        public static DiscordForumTagBuilder FromTag(DiscordForumTag tag)
-        {
-            var builder = new DiscordForumTagBuilder();
-            builder._name = tag.Name;
-            builder._moderated = tag.Moderated;
-            builder._emojiId = tag.EmojiId;
-            builder._emojiName = tag.EmojiName;
-            return builder;
-        }
-
-        /// <summary>
-        /// Sets the name of this tag.
-        /// </summary>
-        /// <param name="name">The name of the tag.</param>
-        /// <returns>The builder to chain calls with.</returns>
-        public DiscordForumTagBuilder WithName(string name)
-        {
-            _name = name;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets this tag to be moderated (as in, it can only be set by users with the <see cref="Permissions.ManageThreads"/> permission).
-        /// </summary>
-        /// <param name="moderated">Whether the tag is moderated.</param>
-        /// <returns>The builder to chain calls with.</returns>
-        public DiscordForumTagBuilder IsModerated(bool moderated = true)
-        {
-            _moderated = moderated;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the emoji ID for this tag (which will overwrite the emoji name).
-        /// </summary>
-        /// <param name="emojiId"></param>
-        /// <returns>The builder to chain calls with.</returns>
-        public DiscordForumTagBuilder WithEmojiId(ulong? emojiId)
-        {
-            _emojiId = emojiId;
-            _emojiName = null;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the emoji for this tag.
-        /// </summary>
-        /// <param name="emoji">The emoji to use.</param>
-        /// <returns>The builder to chain calls with.</returns>
-        public DiscordForumTagBuilder WithEmoji(DiscordEmoji emoji)
-        {
-            _emojiId = emoji.Id;
-            _emojiName = emoji.Name;
-            return this;
-        }
-
-        /// <returns>The builder to chain calls with.</returns>
-        public DiscordForumTagBuilder WithEmojiName(string emojiName)
-        {
-            _emojiId = null;
-            _emojiName = emojiName;
-            return this;
-        }
+    /// <returns>The builder to chain calls with.</returns>
+    public DiscordForumTagBuilder WithEmojiName(string emojiName)
+    {
+        _emojiId = null;
+        _emojiName = emojiName;
+        return this;
     }
 }

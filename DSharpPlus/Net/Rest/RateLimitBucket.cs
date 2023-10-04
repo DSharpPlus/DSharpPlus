@@ -37,8 +37,8 @@ internal record struct RateLimitBucket
 
     public RateLimitBucket
     (
-        int maximum, 
-        int remaining, 
+        int maximum,
+        int remaining,
         DateTime reset
     )
     {
@@ -52,11 +52,11 @@ internal record struct RateLimitBucket
     /// </summary>
     internal void ResetLimit(DateTime nextReset)
     {
-        if(nextReset < this.Reset)
+        if (nextReset < this.Reset)
         {
             throw new ArgumentOutOfRangeException
             (
-                nameof(nextReset), 
+                nameof(nextReset),
                 "The next ratelimit expiration must follow the present expiration."
             );
         }
@@ -77,7 +77,7 @@ internal record struct RateLimitBucket
 
         try
         {
-            if 
+            if
             (
                 !headers.TryGetValues("X-RateLimit-Limit", out IEnumerable<string>? limitRaw)
                 || !headers.TryGetValues("X-RateLimit-Remaining", out IEnumerable<string>? remainingRaw)
@@ -87,7 +87,7 @@ internal record struct RateLimitBucket
                 return false;
             }
 
-            if 
+            if
             (
                 !int.TryParse(limitRaw.SingleOrDefault(), out int limit)
                 || !int.TryParse(remainingRaw.SingleOrDefault(), out int remaining)

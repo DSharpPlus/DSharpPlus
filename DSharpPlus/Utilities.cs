@@ -18,7 +18,7 @@ namespace DSharpPlus;
 /// <summary>
 /// Various Discord-related utilities.
 /// </summary>
-public static class Utilities
+public static partial class Utilities
 {
     /// <summary>
     /// Gets the version of the library
@@ -90,42 +90,37 @@ public static class Utilities
 
     internal static bool ContainsUserMentions(string message)
     {
-        string pattern = @"<@(\d+)>";
-        Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
+        Regex regex = UserMentionRegex();
         return regex.IsMatch(message);
     }
 
     internal static bool ContainsNicknameMentions(string message)
     {
-        string pattern = @"<@!(\d+)>";
-        Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
+        Regex regex = NicknameMentionRegex();
         return regex.IsMatch(message);
     }
 
     internal static bool ContainsChannelMentions(string message)
     {
-        string pattern = @"<#(\d+)>";
-        Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
+        Regex regex = ChannelMentionRegex();
         return regex.IsMatch(message);
     }
 
     internal static bool ContainsRoleMentions(string message)
     {
-        string pattern = @"<@&(\d+)>";
-        Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
+        Regex regex = RoleMentionRegex();
         return regex.IsMatch(message);
     }
 
     internal static bool ContainsEmojis(string message)
     {
-        string pattern = @"<a?:(.*):(\d+)>";
-        Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
+        Regex regex = EmojiMentionRegex();
         return regex.IsMatch(message);
     }
 
     internal static IEnumerable<ulong> GetUserMentions(DiscordMessage message)
     {
-        Regex regex = new Regex(@"<@!?(\d+)>", RegexOptions.ECMAScript);
+        Regex regex = UserMentionRegex();
         MatchCollection matches = regex.Matches(message.Content);
         foreach (Match match in matches)
         {
@@ -135,7 +130,7 @@ public static class Utilities
 
     internal static IEnumerable<ulong> GetRoleMentions(DiscordMessage message)
     {
-        Regex regex = new Regex(@"<@&(\d+)>", RegexOptions.ECMAScript);
+        Regex regex = RoleMentionRegex();
         MatchCollection matches = regex.Matches(message.Content);
         foreach (Match match in matches)
         {
@@ -145,7 +140,7 @@ public static class Utilities
 
     internal static IEnumerable<ulong> GetChannelMentions(DiscordMessage message)
     {
-        Regex regex = new Regex(@"<#(\d+)>", RegexOptions.ECMAScript);
+        Regex regex = ChannelMentionRegex();
         MatchCollection matches = regex.Matches(message.Content);
         foreach (Match match in matches)
         {
@@ -155,7 +150,7 @@ public static class Utilities
 
     internal static IEnumerable<ulong> GetEmojis(DiscordMessage message)
     {
-        Regex regex = new Regex(@"<a?:([a-zA-Z0-9_]+):(\d+)>", RegexOptions.ECMAScript);
+        Regex regex = EmojiMentionRegex();
         MatchCollection matches = regex.Matches(message.Content);
         foreach (Match match in matches)
         {
@@ -165,7 +160,7 @@ public static class Utilities
 
     internal static bool IsValidSlashCommandName(string name)
     {
-        Regex regex = new Regex(@"^[\w-]{1,32}$");
+        Regex regex = SlashCommandNameRegex();
         return regex.IsMatch(name);
     }
 
@@ -192,7 +187,6 @@ public static class Utilities
             ChannelType.Stage => true,
             _ => false,
         };
-
 
     // https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula
     /// <summary>
@@ -327,4 +321,22 @@ public static class Utilities
         key = kvp.Key;
         value = kvp.Value;
     }
+
+    [GeneratedRegex("<@(\\d+)>", RegexOptions.ECMAScript)]
+    private static partial Regex UserMentionRegex();
+
+    [GeneratedRegex("<@!(\\d+)>", RegexOptions.ECMAScript)]
+    private static partial Regex NicknameMentionRegex();
+
+    [GeneratedRegex("<#(\\d+)>", RegexOptions.ECMAScript)]
+    private static partial Regex ChannelMentionRegex();
+
+    [GeneratedRegex("<@&(\\d+)>", RegexOptions.ECMAScript)]
+    private static partial Regex RoleMentionRegex();
+
+    [GeneratedRegex("<a?:(.*):(\\d+)>", RegexOptions.ECMAScript)]
+    private static partial Regex EmojiMentionRegex();
+
+    [GeneratedRegex("^[\\w-]{1,32}$")]
+    private static partial Regex SlashCommandNameRegex();
 }

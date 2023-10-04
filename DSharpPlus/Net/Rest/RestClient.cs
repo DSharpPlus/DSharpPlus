@@ -38,7 +38,7 @@ internal sealed partial class RestClient : IDisposable
     internal RestClient(BaseDiscordClient client)
         : this
         (
-            client.Configuration.Proxy, 
+            client.Configuration.Proxy,
             client.Configuration.HttpTimeout,
             client.Logger
         )
@@ -51,10 +51,10 @@ internal sealed partial class RestClient : IDisposable
     // This is for meta-clients, such as the webhook client
     internal RestClient
     (
-        IWebProxy proxy, 
+        IWebProxy proxy,
         TimeSpan timeout,
         ILogger logger
-    ) 
+    )
     {
         this.Logger = logger;
 
@@ -100,7 +100,7 @@ internal sealed partial class RestClient : IDisposable
         {
             throw new ObjectDisposedException
             (
-                "DSharpPlus Rest Client", 
+                "DSharpPlus Rest Client",
                 "The Rest Client was disposed. No further requests are possible."
             );
         }
@@ -121,8 +121,8 @@ internal sealed partial class RestClient : IDisposable
             (
                 async (_) => await this.HttpClient.SendAsync
                 (
-                    req, 
-                    HttpCompletionOption.ResponseContentRead, 
+                    req,
+                    HttpCompletionOption.ResponseContentRead,
                     CancellationToken.None
                 ),
                 context
@@ -169,9 +169,9 @@ internal sealed partial class RestClient : IDisposable
         {
             this.Logger.LogError
             (
-                LoggerEvents.RestError, 
-                ex, 
-                "Request to {url} triggered an exception", 
+                LoggerEvents.RestError,
+                ex,
+                "Request to {url} triggered an exception",
                 $"{Endpoints.BASE_URI}/{request.Url}"
             );
 
