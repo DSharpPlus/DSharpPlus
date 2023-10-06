@@ -563,11 +563,11 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             }
             else
             {
-                foreach (DiscordMessage msg in fetch.Reverse())
+                for (int i = fetch.Count - 1; i >= 0; i--)
                 {
-                    yield return msg;
+                    yield return fetch[i];
                 }
-                last = fetch.LastOrDefault()?.Id;
+                last = fetch.FirstOrDefault()?.Id;
             }
         }
         while (remaining > 0 && lastCount > 0);
