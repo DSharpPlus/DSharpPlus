@@ -1,4 +1,4 @@
-﻿// This file is part of the DSharpPlus project.
+// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2023 DSharpPlus Contributors
@@ -31,17 +31,17 @@ public sealed class DiscordAuditLogAutoModerationExecutedEntry : DiscordAuditLog
     /// Name of the rule that was executed
     /// </summary>
     public string ResponsibleRule { get; internal set; }
-    
+
     /// <summary>
     /// User that was affected by the rule
     /// </summary>
     public DiscordUser TargetUser { get; internal set; }
-    
+
     /// <summary>
     /// Type of the trigger that was executed
     /// </summary>
     public RuleTriggerType RuleTriggerType { get; internal set; }
-    
+
     /// <summary>
     /// Channel where the rule was executed
     /// </summary>

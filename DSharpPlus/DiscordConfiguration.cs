@@ -139,15 +139,7 @@ public sealed class DiscordConfiguration
     public WebSocketClientFactoryDelegate WebSocketClientFactory
     {
         internal get => this._webSocketClientFactory;
-        set
-        {
-            if (value == null)
-            {
-                throw new InvalidOperationException("You need to supply a valid WebSocket client factory method.");
-            }
-
-            this._webSocketClientFactory = value;
-        }
+        set => this._webSocketClientFactory = value ?? throw new InvalidOperationException("You need to supply a valid WebSocket client factory method.");
     }
     private WebSocketClientFactoryDelegate _webSocketClientFactory = WebSocketClient.CreateNew;
 
@@ -174,7 +166,7 @@ public sealed class DiscordConfiguration
     /// Whether to log unknown events or not. Defaults to true.
     /// </summary>
     public bool LogUnknownEvents { internal get; set; } = true;
-        
+
     /// <summary>
     /// Whether to log unknown auditlog types and change keys or not. Defaults to true.
     /// </summary>

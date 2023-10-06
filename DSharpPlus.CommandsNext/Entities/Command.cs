@@ -144,11 +144,17 @@ public class Command
     /// <returns>Pre-execution checks that fail for given context.</returns>
     public async Task<IEnumerable<CheckBaseAttribute>> RunChecksAsync(CommandContext ctx, bool help)
     {
-        var fchecks = new List<CheckBaseAttribute>();
+        List<CheckBaseAttribute> fchecks = new List<CheckBaseAttribute>();
         if (this.ExecutionChecks.Any())
-            foreach (var ec in this.ExecutionChecks)
+        {
+            foreach (CheckBaseAttribute ec in this.ExecutionChecks)
+            {
                 if (!await ec.ExecuteCheckAsync(ctx, help))
+                {
                     fchecks.Add(ec);
+                }
+            }
+        }
 
         return fchecks;
     }
@@ -161,8 +167,8 @@ public class Command
     /// <returns>Whether the two commands are equal.</returns>
     public static bool operator ==(Command? cmd1, Command? cmd2)
     {
-        var o1 = cmd1 as object;
-        var o2 = cmd2 as object;
+        object? o1 = cmd1 as object;
+        object? o2 = cmd2 as object;
         return (o1 != null || o2 == null) && (o1 == null || o2 != null) && ((o1 == null && o2 == null) || cmd1!.QualifiedName == cmd2!.QualifiedName);
     }
 
@@ -181,7 +187,7 @@ public class Command
     /// <returns>Whether this command is equal to another object.</returns>
     public override bool Equals(object? obj)
     {
-        var o2 = this as object;
+        object? o2 = this as object;
         return (obj != null || o2 == null) && (obj == null || o2 != null) && ((obj == null && o2 == null) || (obj is Command cmd && cmd.QualifiedName == this.QualifiedName));
     }
 

@@ -1,22 +1,21 @@
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.EventArgs
+namespace DSharpPlus.EventArgs;
+
+/// <summary>
+/// Represents arguments for <see cref="DiscordClient.GuildMemberRemoved"/> event.
+/// </summary>
+public class GuildMemberRemoveEventArgs : DiscordEventArgs
 {
     /// <summary>
-    /// Represents arguments for <see cref="DiscordClient.GuildMemberRemoved"/> event.
+    /// Gets the guild the member was removed from.
     /// </summary>
-    public class GuildMemberRemoveEventArgs : DiscordEventArgs
-    {
-        /// <summary>
-        /// Gets the guild the member was removed from.
-        /// </summary>
-        public DiscordGuild Guild { get; internal set; }
+    public DiscordGuild Guild { get; internal set; }
 
-        /// <summary>
-        /// Gets the member that was removed.
-        /// </summary>
-        public DiscordMember Member { get; internal set; }
+    /// <summary>
+    /// Gets the member that was removed.
+    /// </summary>
+    public DiscordMember Member { get; internal set; }
 
-        internal GuildMemberRemoveEventArgs() : base() { }
-    }
+    internal GuildMemberRemoveEventArgs() : base() { }
 }

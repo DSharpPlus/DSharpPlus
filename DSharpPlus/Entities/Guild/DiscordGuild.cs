@@ -13,9 +13,7 @@ using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Entities;
 
@@ -600,12 +598,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="InvalidOperationException"></exception>
     public Task StartEventAsync(DiscordScheduledGuildEvent guildEvent)
     {
-        if (guildEvent.Status is not ScheduledGuildEventStatus.Scheduled)
-        {
-            throw new InvalidOperationException("The event must be scheduled for it to be started.");
-        }
-
-        return this.ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Active);
+        return guildEvent.Status is not ScheduledGuildEventStatus.Scheduled
+            ? throw new InvalidOperationException("The event must be scheduled for it to be started.")
+            : this.ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Active);
     }
 
     /// <summary>
@@ -614,12 +609,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="guildEvent">The event to delete.</param>
     public Task CancelEventAsync(DiscordScheduledGuildEvent guildEvent)
     {
-        if (guildEvent.Status is not ScheduledGuildEventStatus.Scheduled)
-        {
-            throw new InvalidOperationException("The event must be scheduled for it to be cancelled.");
-        }
-
-        return this.ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Cancelled);
+        return guildEvent.Status is not ScheduledGuildEventStatus.Scheduled
+            ? throw new InvalidOperationException("The event must be scheduled for it to be cancelled.")
+            : this.ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Cancelled);
     }
 
     /// <summary>
@@ -906,7 +898,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         }
 
         // Sort the roles by position and create skeleton roles for the payload.
-        DiscordRole[] returnedRoles = await this.Discord.ApiClient.ModifyGuildRolePositionsAsync(this.Id, roles.Select(x => new RestGuildRoleReorderPayload() { RoleId = x.Value.Id, Position = x.Key }), reason);
+        IReadOnlyList<DiscordRole> returnedRoles = await this.Discord.ApiClient.ModifyGuildRolePositionsAsync(this.Id, roles.Select(x => new RestGuildRoleReorderPayload() { RoleId = x.Value.Id, Position = x.Key }), reason);
 
         // Update the cache as the endpoint returns all roles in the order they were sent.
         this._roles = new(returnedRoles.Select(x => new KeyValuePair<ulong, DiscordRole>(x.Id, x)));
@@ -1103,12 +1095,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     )
     {
         // technically you can create news/store channels but not always
-        if (type is not (ChannelType.Text or ChannelType.Voice or ChannelType.Category or ChannelType.News or ChannelType.Stage or ChannelType.GuildForum))
-        {
-            throw new ArgumentException("Channel type must be text, voice, stage, category, or a forum.", nameof(type));
-        }
-
-        return type == ChannelType.Category && parent != null
+        return type is not (ChannelType.Text or ChannelType.Voice or ChannelType.Category or ChannelType.News or ChannelType.Stage or ChannelType.GuildForum)
+            ? throw new ArgumentException("Channel type must be text, voice, stage, category, or a forum.", nameof(type))
+            : type == ChannelType.Category && parent != null
             ? throw new ArgumentException("Cannot specify parent of a channel category.", nameof(parent))
             : await this.Discord.ApiClient.CreateGuildChannelAsync
             (
@@ -1534,7 +1523,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public async IAsyncEnumerable<DiscordAuditLogEntry> GetAuditLogsAsync
     (
         int? limit = 100,
-        DiscordMember byMember = null, 
+        DiscordMember byMember = null,
         AuditLogActionType? actionType = null
     )
     {
@@ -1563,7 +1552,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                     yield return discordAuditLogEntry;
                 }
             }
-            
+
             if (limit.HasValue)
             {
                 int remaining = limit.Value - totalEntriesCollected;
@@ -2077,15 +2066,15 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
         return await this.Discord.ApiClient.ModifyGuildAutoModerationRuleAsync
         (
-            this.Id, 
-            ruleId, 
-            model.Name, 
-            model.EventType, 
-            model.TriggerMetadata, 
-            model.Actions, 
-            model.Enable, 
-            model.ExemptRoles, 
-            model.ExemptChannels, 
+            this.Id,
+            ruleId,
+            model.Name,
+            model.EventType,
+            model.TriggerMetadata,
+            model.Actions,
+            model.Enable,
+            model.ExemptRoles,
+            model.ExemptChannels,
             model.AuditLogReason
         );
     }
@@ -2119,15 +2108,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="e"><see cref="DiscordGuild"/> to compare to.</param>
     /// <returns>Whether the <see cref="DiscordGuild"/> is equal to this <see cref="DiscordGuild"/>.</returns>
-    public bool Equals(DiscordGuild e)
-    {
-        if (e is null)
-        {
-            return false;
-        }
-
-        return ReferenceEquals(this, e) || this.Id == e.Id;
-    }
+    public bool Equals(DiscordGuild e) => e is null ? false : ReferenceEquals(this, e) || this.Id == e.Id;
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordGuild"/>.
@@ -2146,12 +2127,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         object? o1 = e1;
         object? o2 = e2;
 
-        if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
-        {
-            return false;
-        }
-
-        return (o1 == null && o2 == null) || e1.Id == e2.Id;
+        return (o1 == null && o2 != null) || (o1 != null && o2 == null) ? false : (o1 == null && o2 == null) || e1.Id == e2.Id;
     }
 
     /// <summary>

@@ -48,9 +48,9 @@ internal readonly record struct RestRequest : IRestRequest
             request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
         }
 
-        if(this.Headers is not null)
+        if (this.Headers is not null)
         {
-            foreach(KeyValuePair<string, string> header in this.Headers)
+            foreach (KeyValuePair<string, string> header in this.Headers)
             {
                 request.Headers.Add(header.Key, header.Value);
             }

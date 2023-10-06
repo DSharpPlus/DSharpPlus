@@ -1,4 +1,4 @@
-﻿// This file is part of the DSharpPlus project.
+// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2023 DSharpPlus Contributors
@@ -31,12 +31,12 @@ public sealed class DiscordAuditLogApplicationCommandPermissionEntry : DiscordAu
     /// Id of the application command that was changed
     /// </summary>
     public ulong? ApplicationCommandId { get; internal set; }
-    
+
     /// <summary>
     /// Id of the application that owns the command
     /// </summary>
     public ulong ApplicationId { get; internal set; }
-    
+
     /// <summary>
     /// Permissions changed
     /// </summary>

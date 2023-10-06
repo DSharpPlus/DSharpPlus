@@ -1,15 +1,14 @@
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.EventArgs
+namespace DSharpPlus.EventArgs;
+
+/// <summary>
+/// Represents arguments for <see cref="DiscordClient.InteractionCreated"/>
+/// </summary>
+public class InteractionCreateEventArgs : DiscordEventArgs
 {
     /// <summary>
-    /// Represents arguments for <see cref="DiscordClient.InteractionCreated"/>
+    /// Gets the interaction data that was invoked.
     /// </summary>
-    public class InteractionCreateEventArgs : DiscordEventArgs
-    {
-        /// <summary>
-        /// Gets the interaction data that was invoked.
-        /// </summary>
-        public DiscordInteraction Interaction { get; internal set; }
-    }
+    public DiscordInteraction Interaction { get; internal set; }
 }

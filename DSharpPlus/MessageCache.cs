@@ -19,7 +19,7 @@ internal class MessageCache : IMessageCacheProvider
             Size = 1,
         };
     }
-    
+
     /// <inheritdoc/>
     public void Add(DiscordMessage message) => _cache.Set(message.Id, message, _entryOptions);
 

@@ -1,26 +1,25 @@
 using DSharpPlus.AsyncEvents;
 
-namespace DSharpPlus.Lavalink.EventArgs
+namespace DSharpPlus.Lavalink.EventArgs;
+
+/// <summary>
+/// Represents event arguments for Lavalink node disconnection.
+/// </summary>
+public sealed class NodeDisconnectedEventArgs : AsyncEventArgs
 {
     /// <summary>
-    /// Represents event arguments for Lavalink node disconnection.
+    /// Gets the node that was disconnected.
     /// </summary>
-    public sealed class NodeDisconnectedEventArgs : AsyncEventArgs
+    public LavalinkNodeConnection LavalinkNode { get; }
+
+    /// <summary>
+    /// Gets whether disconnect was clean.
+    /// </summary>
+    public bool IsCleanClose { get; }
+
+    internal NodeDisconnectedEventArgs(LavalinkNodeConnection node, bool isClean)
     {
-        /// <summary>
-        /// Gets the node that was disconnected.
-        /// </summary>
-        public LavalinkNodeConnection LavalinkNode { get; }
-
-        /// <summary>
-        /// Gets whether disconnect was clean.
-        /// </summary>
-        public bool IsCleanClose { get; }
-
-        internal NodeDisconnectedEventArgs(LavalinkNodeConnection node, bool isClean)
-        {
-            this.LavalinkNode = node;
-            this.IsCleanClose = isClean;
-        }
+        this.LavalinkNode = node;
+        this.IsCleanClose = isClean;
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using DSharpPlus.AsyncEvents;
-using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Logging;
 
@@ -268,8 +267,8 @@ public sealed partial class DiscordClient
         add => this._guildAuditLogCreated.Register(value);
         remove => this._guildAuditLogCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildAuditLogCreatedEventArgs> _guildAuditLogCreated;        
-        
+    private AsyncEvent<DiscordClient, GuildAuditLogCreatedEventArgs> _guildAuditLogCreated;
+
     #endregion
 
     #region Scheduled Guild Events
@@ -701,7 +700,7 @@ public sealed partial class DiscordClient
     private AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs> _threadMembersUpdated;
 
     #endregion
-        
+
 
     #region Integration
 
