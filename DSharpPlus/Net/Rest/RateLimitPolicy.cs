@@ -14,6 +14,8 @@ using Polly;
 
 namespace DSharpPlus.Net;
 
+using System.Collections.Generic;
+
 internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
 {
     private readonly RateLimitBucket globalBucket;
@@ -120,20 +122,24 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
         // make the actual request
 
         HttpResponseMessage response = await action(context, cancellationToken);
+        bool hasBucketHeader = response.Headers.TryGetValues("X-RateLimit-Bucket", out IEnumerable<string>? hashHeader);
 
-        hash = response.Headers.GetValues("X-RateLimit-Bucket").SingleOrDefault() ?? "UNKNOWN";
+        if (!exemptFromGlobalLimit && hasBucketHeader)
 
-        if (!RateLimitBucket.TryExtractRateLimitBucket(response.Headers, out RateLimitBucket? extracted))
         {
-            return response;
-        }
+            hash = hashHeader?.Single();
 
-        this.cache.CreateEntry(route)
+            if(!RateLimitBucket.TryExtractRateLimitBucket(response.Headers, out RateLimitBucket? extracted))
+            {
+                return response;
+            }
+
+            this.cache.CreateEntry(route)
                 .SetValue(extracted.Value)
                 .Dispose();
 
-        this.routeHashes.AddOrUpdate(route, hash, (_, _) => hash);
-
+            this.routeHashes.AddOrUpdate(route, hash, (_, _) => hash);
+        }
         return response;
     }
 }
