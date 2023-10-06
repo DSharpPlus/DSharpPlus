@@ -109,8 +109,6 @@ internal sealed partial class RestClient : IDisposable
         {
             await this.GlobalRateLimitEvent.WaitAsync();
 
-            using HttpRequestMessage req = request.Build();
-
             Context context = new()
             {
                 ["route"] = request.Route,
@@ -119,12 +117,16 @@ internal sealed partial class RestClient : IDisposable
 
             using HttpResponseMessage response = await this.RateLimitPolicy.ExecuteAsync
             (
-                async (_) => await this.HttpClient.SendAsync
-                (
-                    req,
-                    HttpCompletionOption.ResponseContentRead,
-                    CancellationToken.None
-                ),
+                async (_) =>
+                {
+                    HttpRequestMessage req = request.Build();
+                    return await this.HttpClient.SendAsync
+                    (
+                        req,
+                        HttpCompletionOption.ResponseContentRead,
+                        CancellationToken.None
+                    );
+                },
                 context
             );
 
