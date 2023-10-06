@@ -5,8 +5,10 @@
     <OutputType>Library</OutputType>
     <PackageId>OoLunar.DSharpPlus.CommandAll</PackageId>
     <PackageTags>discord, discord-api, bots, discord-bots, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, commands, slash-commands, interactions</PackageTags>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-01806" />
+    <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-01820" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
   </ItemGroup>
 </Project>

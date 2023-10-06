@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using DSharpPlus.AsyncEvents;
+using DSharpPlus.CommandAll.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -17,11 +19,7 @@ namespace DSharpPlus.CommandAll
         /// <inheritdoc cref="CommandAllConfiguration.DebugGuildId"/>
         public ulong? DebugGuildId { get; init; }
 
-        /// <summary>
-        /// Executed everytime a command is finished executing.
-        /// </summary>
-        public event AsyncEventHandler<CommandAllExtension, AsyncEventArgs> CommandExecuted { add => _commandExecuted.Register(value); remove => _commandExecuted.Unregister(value); }
-        internal readonly AsyncEvent<CommandAllExtension, AsyncEventArgs> _commandExecuted = new("COMMANDALL_COMMAND_EXECUTED", EverythingWentWrongErrorHandler);
+        public IReadOnlyDictionary<Type, Delegate> Converters { get; init; } = new Dictionary<Type, Delegate>();
 
         /// <summary>
         /// Executed before registering slash commands.
@@ -30,10 +28,16 @@ namespace DSharpPlus.CommandAll
         internal readonly AsyncEvent<CommandAllExtension, AsyncEventArgs> _configureCommands = new("COMMANDALL_CONFIGURE_COMMANDS", EverythingWentWrongErrorHandler);
 
         /// <summary>
+        /// Executed everytime a command is finished executing.
+        /// </summary>
+        public event AsyncEventHandler<CommandAllExtension, AsyncEventArgs> CommandExecuted { add => _commandExecuted.Register(value); remove => _commandExecuted.Unregister(value); }
+        internal readonly AsyncEvent<CommandAllExtension, AsyncEventArgs> _commandExecuted = new("COMMANDALL_COMMAND_EXECUTED", EverythingWentWrongErrorHandler);
+
+        /// <summary>
         /// Executed everytime a command errored and <see cref="BaseCommand.OnErrorAsync(CommandContext, Exception)"/> also errored.
         /// </summary>
-        public event AsyncEventHandler<CommandAllExtension, AsyncEventArgs> CommandErrored { add => _commandErrored.Register(value); remove => _commandErrored.Unregister(value); }
-        internal readonly AsyncEvent<CommandAllExtension, AsyncEventArgs> _commandErrored = new("COMMANDALL_COMMAND_ERRORED", EverythingWentWrongErrorHandler);
+        public event AsyncEventHandler<CommandAllExtension, CommandErroredEventArgs> CommandErrored { add => _commandErrored.Register(value); remove => _commandErrored.Unregister(value); }
+        internal readonly AsyncEvent<CommandAllExtension, CommandErroredEventArgs> _commandErrored = new("COMMANDALL_COMMAND_ERRORED", EverythingWentWrongErrorHandler);
 
         /// <summary>
         /// Used to log messages from this extension.

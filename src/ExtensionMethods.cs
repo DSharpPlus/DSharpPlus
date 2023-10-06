@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.CommandAll
 {
@@ -25,7 +28,7 @@ namespace DSharpPlus.CommandAll
                 throw new InvalidOperationException("CommandAll Extension is already initialized.");
             }
 
-            CommandAllExtension extension = new(configuration ?? new());
+            CommandAllExtension extension = new(configuration ?? GrabDefaultConfiguration(client.Logger));
             client.AddExtension(extension);
             return extension;
         }
@@ -37,13 +40,10 @@ namespace DSharpPlus.CommandAll
         /// <param name="configuration">The configuration to use for the extension.</param>
         public static async Task<IReadOnlyDictionary<int, CommandAllExtension>> UseCommandAllAsync(this DiscordShardedClient shardedClient, CommandAllConfiguration? configuration = null)
         {
-            if (shardedClient is null)
-            {
-                throw new ArgumentNullException(nameof(shardedClient));
-            }
+            ArgumentNullException.ThrowIfNull(shardedClient);
 
             await shardedClient.InitializeShardsAsync();
-            configuration ??= new();
+            configuration ??= GrabDefaultConfiguration(shardedClient.Logger);
 
             Dictionary<int, CommandAllExtension> extensions = new();
             foreach (DiscordClient shard in shardedClient.ShardClients.Values)
@@ -68,10 +68,7 @@ namespace DSharpPlus.CommandAll
         /// <param name="shardedClient">The client to retrieve the extension from.</param>
         public static IReadOnlyDictionary<int, CommandAllExtension> GetCommandAllExtensions(this DiscordShardedClient shardedClient)
         {
-            if (shardedClient is null)
-            {
-                throw new ArgumentNullException(nameof(shardedClient));
-            }
+            ArgumentNullException.ThrowIfNull(shardedClient);
 
             Dictionary<int, CommandAllExtension> extensions = new();
             foreach (DiscordClient shard in shardedClient.ShardClients.Values)
@@ -84,6 +81,35 @@ namespace DSharpPlus.CommandAll
             }
 
             return extensions.AsReadOnly();
+        }
+
+        /// <inheritdoc cref="Array.IndexOf{T}(T[], T)"/>
+        internal static int IndexOf<T>(this IReadOnlyList<T> array, T? value) where T : IEquatable<T>
+        {
+            for (int i = 0; i < array.Count; i++)
+            {
+                if (array[i].Equals(value))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private static CommandAllConfiguration GrabDefaultConfiguration(ILogger logger)
+        {
+            IServiceCollection services = new ServiceCollection();
+            services.AddLogging(loggerBuilder =>
+            {
+                logger.LogWarning("CommandAll: No logger was provided, using NullLoggerProvider. This is not recommended.");
+                loggerBuilder.AddProvider(NullLoggerProvider.Instance);
+            });
+
+            return new()
+            {
+                ServiceProvider = services.BuildServiceProvider()
+            };
         }
     }
 }

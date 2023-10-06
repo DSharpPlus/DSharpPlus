@@ -8,13 +8,13 @@ namespace DSharpPlus.CommandAll
     public sealed record CommandAllConfiguration
     {
         /// <summary>
-        /// The guild id to use for debugging.
-        /// </summary>
-        public ulong? DebugGuildId { get; init; }
-
-        /// <summary>
         /// The service provider to use for dependency injection.
         /// </summary>
-        public IServiceProvider ServiceProvider { get; init; }
+        public required IServiceProvider ServiceProvider { get; set; }
+
+        /// <summary>
+        /// The guild id to use for debugging.
+        /// </summary>
+        public ulong? DebugGuildId { get; set; }
     }
 }
