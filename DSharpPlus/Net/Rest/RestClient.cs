@@ -114,12 +114,12 @@ internal sealed partial class RestClient : IDisposable
                 ["route"] = request.Route,
                 ["exempt-from-global-limit"] = request.IsExemptFromGlobalLimit
             };
-            HttpRequestMessage req = request.Build();
+            using HttpRequestMessage req = request.Build();
             using HttpResponseMessage response = await this.RateLimitPolicy.ExecuteAsync
             (
                 async (_) =>
                 {
-                    req = request.Build();
+                    using HttpRequestMessage req = request.Build();
                     return await this.HttpClient.SendAsync
                     (
                         req,
