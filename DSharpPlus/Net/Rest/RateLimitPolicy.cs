@@ -125,7 +125,6 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
         bool hasBucketHeader = response.Headers.TryGetValues("X-RateLimit-Bucket", out IEnumerable<string>? hashHeader);
 
         if (!exemptFromGlobalLimit && hasBucketHeader)
-
         {
             hash = hashHeader?.Single();
 

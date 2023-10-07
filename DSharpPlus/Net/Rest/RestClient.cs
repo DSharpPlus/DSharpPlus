@@ -109,22 +109,24 @@ internal sealed partial class RestClient : IDisposable
         {
             await this.GlobalRateLimitEvent.WaitAsync();
 
-            using HttpRequestMessage req = request.Build();
-
             Context context = new()
             {
                 ["route"] = request.Route,
                 ["exempt-from-global-limit"] = request.IsExemptFromGlobalLimit
             };
-
+            
             using HttpResponseMessage response = await this.RateLimitPolicy.ExecuteAsync
             (
-                async (_) => await this.HttpClient.SendAsync
-                (
-                    req,
-                    HttpCompletionOption.ResponseContentRead,
-                    CancellationToken.None
-                ),
+                async (_) =>
+                {
+                    using HttpRequestMessage req = request.Build();
+                    return await this.HttpClient.SendAsync
+                    (
+                        req,
+                        HttpCompletionOption.ResponseContentRead,
+                        CancellationToken.None
+                    );
+                },
                 context
             );
 
@@ -135,25 +137,25 @@ internal sealed partial class RestClient : IDisposable
             _ = response.StatusCode switch
             {
                 HttpStatusCode.BadRequest or HttpStatusCode.MethodNotAllowed =>
-                    throw new BadRequestException(req, response, content),
+                    throw new BadRequestException(request.Build(), response, content),
 
                 HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden =>
-                    throw new UnauthorizedException(req, response, content),
+                    throw new UnauthorizedException(request.Build(), response, content),
 
                 HttpStatusCode.NotFound =>
-                    throw new NotFoundException(req, response, content),
+                    throw new NotFoundException(request.Build(), response, content),
 
                 HttpStatusCode.RequestEntityTooLarge =>
-                    throw new RequestSizeException(req, response, content),
+                    throw new RequestSizeException(request.Build(), response, content),
 
                 HttpStatusCode.TooManyRequests =>
-                   throw new RateLimitException(req, response, content),
+                   throw new RateLimitException(request.Build(), response, content),
 
                 HttpStatusCode.InternalServerError
                     or HttpStatusCode.BadGateway
                     or HttpStatusCode.ServiceUnavailable
                     or HttpStatusCode.GatewayTimeout =>
-                    throw new ServerErrorException(req, response, content),
+                    throw new ServerErrorException(request.Build(), response, content),
 
                 // we need to keep the c# compiler happy, and not all branches can/should throw here.
                 _ => 0
