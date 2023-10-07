@@ -478,7 +478,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<IReadOnlyList<DiscordMessage>> GetMessagesBeforeAsync(ulong before, int limit = 100)
+    public IAsyncEnumerable<DiscordMessage> GetMessagesBeforeAsync(ulong before, int limit = 100)
         => this.GetMessagesInternalAsync(limit, before, null, null);
 
     /// <summary>
@@ -490,7 +490,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<IReadOnlyList<DiscordMessage>> GetMessagesAfterAsync(ulong after, int limit = 100)
+    public IAsyncEnumerable<DiscordMessage> GetMessagesAfterAsync(ulong after, int limit = 100)
         => this.GetMessagesInternalAsync(limit, null, after, null);
 
     /// <summary>
@@ -502,7 +502,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<IReadOnlyList<DiscordMessage>> GetMessagesAroundAsync(ulong around, int limit = 100)
+    public IAsyncEnumerable<DiscordMessage> GetMessagesAroundAsync(ulong around, int limit = 100)
         => this.GetMessagesInternalAsync(limit, null, null, around);
 
     /// <summary>
@@ -513,10 +513,10 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(int limit = 100) =>
+    public IAsyncEnumerable<DiscordMessage> GetMessagesAsync(int limit = 100) =>
         this.GetMessagesInternalAsync(limit, null, null, null);
 
-    private async Task<IReadOnlyList<DiscordMessage>> GetMessagesInternalAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
+    private async IAsyncEnumerable<DiscordMessage> GetMessagesInternalAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
     {
         if (!Utilities.IsTextableChannel(this))
         {
@@ -530,7 +530,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
 
         if (limit == 0)
         {
-            return Array.Empty<DiscordMessage>();
+            yield break;
         }
 
         //return this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, limit, before, after, around);
@@ -542,31 +542,35 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         List<DiscordMessage> msgs = new(limit);
         int remaining = limit;
         ulong? last = null;
-        bool isAfter = after != null;
+        bool isbefore = before != null;
 
         int lastCount;
         do
         {
             int fetchSize = remaining > 100 ? 100 : remaining;
-            IReadOnlyList<DiscordMessage> fetch = await this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, fetchSize, !isAfter ? last ?? before : null, isAfter ? last ?? after : null, around);
+            IReadOnlyList<DiscordMessage> fetch = await this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, fetchSize, isbefore ? last ?? before : null, !isbefore ? last ?? after : null, around);
 
             lastCount = fetch.Count;
             remaining -= lastCount;
 
-            if (!isAfter)
+            if (!isbefore)
             {
-                msgs.AddRange(fetch);
+                foreach (DiscordMessage msg in fetch)
+                {
+                    yield return msg;
+                }
                 last = fetch.LastOrDefault()?.Id;
             }
             else
             {
-                msgs.InsertRange(0, fetch);
+                for (int i = fetch.Count - 1; i >= 0; i--)
+                {
+                    yield return fetch[i];
+                }
                 last = fetch.FirstOrDefault()?.Id;
             }
         }
         while (remaining > 0 && lastCount > 0);
-
-        return new ReadOnlyCollection<DiscordMessage>(msgs);
     }
 
     /// <summary>
