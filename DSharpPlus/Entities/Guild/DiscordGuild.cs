@@ -741,8 +741,13 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="limit">How many users to fetch.</param>
     /// <param name="after">Fetch users after this id. Mutually exclusive with before</param>
     /// <param name="before">Fetch users before this id. Mutually exclusive with after</param>
-    public async Task<IReadOnlyList<DiscordUser>> GetEventUsersAsync(DiscordScheduledGuildEvent guildEvent, int limit = 100, ulong? after = null, ulong? before = null)
+    public async IAsyncEnumerable<DiscordUser> GetEventUsersAsync(DiscordScheduledGuildEvent guildEvent, int limit = 100, ulong? after = null, ulong? before = null)
     {
+        if (after.HasValue && before.HasValue)
+        {
+            throw new ArgumentException("after and before are mutually exclusive");
+        }
+        
         int remaining = limit;
         ulong? last = null;
         bool isAfter = after != null;
@@ -760,19 +765,22 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
             if (!isAfter)
             {
-                users.AddRange(fetch);
+                for (int i = lastCount - 1; i >= 0; i--)
+                {
+                    yield return fetch[i];
+                }
                 last = fetch.LastOrDefault()?.Id;
             }
             else
             {
-                users.InsertRange(0, fetch);
+                for (int i = 0; i < lastCount; i++)
+                {
+                    yield return fetch[i];
+                }
                 last = fetch.FirstOrDefault()?.Id;
             }
         }
         while (remaining > 0 && lastCount > 0);
-
-
-        return users.AsReadOnly();
     }
 
     /// <summary>
@@ -1395,16 +1403,14 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <returns>A collection of all members in this guild.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<IReadOnlyCollection<DiscordMember>> GetAllMembersAsync()
+    public async IAsyncEnumerable<DiscordMember> GetAllMembersAsync()
     {
-        HashSet<DiscordMember> members = new();
-
-        int recd = 1000;
+        int recievedLastCall = 1000;
         ulong last = 0ul;
-        while (recd > 0)
+        while (recievedLastCall > 0)
         {
             IReadOnlyList<TransportMember> tms = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : (ulong?)last);
-            recd = tms.Count;
+            recievedLastCall = tms.Count;
 
             foreach (TransportMember transportMember in tms)
             {
@@ -1412,14 +1418,13 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
                 user = this.Discord.UpdateUserCache(user);
 
-                members.Add(new DiscordMember(transportMember) { Discord = this.Discord, _guild_id = this.Id });
+                DiscordMember member = new (transportMember) { Discord = this.Discord, _guild_id = this.Id };
+                yield return member;
             }
 
             TransportMember? lastMember = tms.LastOrDefault();
             last = lastMember?.User.Id ?? 0;
         }
-
-        return new ReadOnlySet<DiscordMember>(members);
     }
 
     /// <summary>
