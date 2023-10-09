@@ -17,28 +17,12 @@ namespace DSharpPlus.CommandAll
     {
         private readonly ILogger<CommandExecutor> _logger;
         private readonly CancellationToken _cancellationToken;
-        private readonly PeriodicTimer _timer = new(TimeSpan.FromMilliseconds(1));
-        private readonly ConcurrentQueue<CommandContext> _queue = new();
-        private readonly Task[] _workers;
+        private readonly ConcurrentDictionary<Guid, Task> _tasks = new();
 
-        public CommandExecutor(ILogger<CommandExecutor> logger, CancellationToken cancellationToken = default) : this((int)double.Round(Environment.ProcessorCount * 0.75, MidpointRounding.ToZero), logger, cancellationToken) { }
-
-        public CommandExecutor(int parallelism, ILogger<CommandExecutor> logger, CancellationToken cancellationToken = default)
+        public CommandExecutor(ILogger<CommandExecutor> logger, CancellationToken cancellationToken = default)
         {
             _logger = logger ?? NullLogger<CommandExecutor>.Instance;
             _cancellationToken = cancellationToken;
-
-            if (parallelism < 1)
-            {
-                parallelism = 1;
-                _logger.LogWarning("Parallelism was set to less than 1. Defaulting to 1.");
-            }
-
-            _workers = new Task[parallelism];
-            for (int i = 0; i < parallelism; i++)
-            {
-                _workers[i] = Task.Run(WorkerAsync);
-            }
         }
 
         /// <summary>
@@ -46,49 +30,48 @@ namespace DSharpPlus.CommandAll
         /// </summary>
         /// <param name="context">The context of the command.</param>
         /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The value will be a <see cref="Optional{T}"/> of <see cref="bool"/>. <see cref="Optional{T}.HasValue"/> will be <see langword="true"/> if the command was executed successfully, <see langword="false"/> if the command was not executed successfully, and <see langword="null"/> if the command threw an exception.</returns>
-        public void ExecuteAsync(CommandContext context) => _queue.Enqueue(context);
-
-        private async ValueTask WorkerAsync()
+        public void Execute(CommandContext context)
         {
-            while (await _timer.WaitForNextTickAsync(_cancellationToken))
+            Guid guid = Guid.NewGuid();
+            _tasks.TryAdd(guid, Task.Run(() => WorkerAsync(context, guid)));
+        }
+
+        private async ValueTask WorkerAsync(CommandContext context, Guid id)
+        {
+            try
             {
-                if (!_queue.TryDequeue(out CommandContext? context))
+                object? value = context.Command.Delegate.Method.Invoke(context.Command.Delegate.Target, context.Arguments.Values.Prepend(context).ToArray());
+                if (value is Task task)
                 {
-                    // Wait another millisecond for the next command.
-                    continue;
+                    await task;
+                }
+                else if (value is ValueTask valueTask)
+                {
+                    await valueTask;
                 }
 
-                try
+                await context.Extension._commandExecuted.InvokeAsync(context.Extension, new CommandExecutedEventArgs()
                 {
-                    object? value = context.Command.Delegate.Method.Invoke(context.Command.Delegate.Target, context.Arguments.Values.Prepend(context).ToArray());
-                    if (value is Task task)
-                    {
-                        await task;
-                    }
-                    else if (value is ValueTask valueTask)
-                    {
-                        await valueTask;
-                    }
-
-                    await context.Extension._commandExecuted.InvokeAsync(context.Extension, new CommandExecutedEventArgs()
-                    {
-                        Context = context,
-                        Value = value
-                    });
-                }
-                catch (Exception error)
+                    Context = context,
+                    Value = value
+                });
+            }
+            catch (Exception error)
+            {
+                if (error is TargetInvocationException targetInvocationError)
                 {
-                    if (error is TargetInvocationException targetInvocationError)
-                    {
-                        error = ExceptionDispatchInfo.Capture(targetInvocationError.InnerException!).SourceException;
-                    }
-
-                    await context.Extension._commandExecuted.InvokeAsync(context.Extension, new CommandErroredEventArgs()
-                    {
-                        Context = context,
-                        Exception = error
-                    });
+                    error = ExceptionDispatchInfo.Capture(targetInvocationError.InnerException!).SourceException;
                 }
+
+                await context.Extension._commandErrored.InvokeAsync(context.Extension, new CommandErroredEventArgs()
+                {
+                    Context = context,
+                    Exception = error
+                });
+            }
+            finally
+            {
+                _tasks.TryRemove(id, out Task? _);
             }
         }
     }
