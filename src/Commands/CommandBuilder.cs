@@ -12,7 +12,8 @@ namespace DSharpPlus.CommandAll.Commands
     {
         public string? Name { get; set; }
         public string? Description { get; set; }
-        public Delegate? Delegate { get; set; }
+        public MethodInfo? Method { get; set; }
+        public object? Target { get; set; }
         public Command? Parent { get; set; }
         public List<CommandBuilder> Subcommands { get; set; } = new();
         public List<CommandArgumentBuilder> Arguments { get; set; } = new();
@@ -48,27 +49,38 @@ namespace DSharpPlus.CommandAll.Commands
             return this;
         }
 
-        public CommandBuilder WithDelegate(Delegate method)
+        public CommandBuilder WithDelegate(Delegate? method) => WithDelegate(method?.Method, method?.Target);
+        public CommandBuilder WithDelegate(MethodInfo? method, object? target = null)
         {
-            Delegate = method;
+            if (method is not null)
+            {
+                ParameterInfo[] parameters = method.GetParameters();
+                if (parameters.Length == 0 || !parameters[0].ParameterType.IsAssignableFrom(typeof(CommandContext)))
+                {
+                    throw new ArgumentException("The method must have it's first parameter be a CommandContext.", nameof(method));
+                }
+            }
+
+            Method = method;
+            Target = target;
             return this;
         }
 
-        public CommandBuilder WithParent(Command parent)
+        public CommandBuilder WithParent(Command? parent)
         {
             Parent = parent;
             return this;
         }
 
-        public CommandBuilder WithSubcommands(List<CommandBuilder> subcommands)
+        public CommandBuilder WithSubcommands(IEnumerable<CommandBuilder> subcommands)
         {
-            Subcommands = subcommands;
+            Subcommands = new(subcommands);
             return this;
         }
 
-        public CommandBuilder WithArguments(List<CommandArgumentBuilder> arguments)
+        public CommandBuilder WithArguments(IEnumerable<CommandArgumentBuilder> arguments)
         {
-            Arguments = arguments;
+            Arguments = new(arguments);
             return this;
         }
 
@@ -78,13 +90,11 @@ namespace DSharpPlus.CommandAll.Commands
             return this;
         }
 
-        [MemberNotNull(nameof(Name), nameof(Description), nameof(Delegate), nameof(Parent), nameof(Subcommands), nameof(Arguments), nameof(Attributes))]
+        [MemberNotNull(nameof(Name), nameof(Description), nameof(Subcommands), nameof(Arguments), nameof(Attributes))]
         public Command Build()
         {
             ArgumentNullException.ThrowIfNull(Name, nameof(Name));
             ArgumentNullException.ThrowIfNull(Description, nameof(Description));
-            ArgumentNullException.ThrowIfNull(Delegate, nameof(Delegate));
-            ArgumentNullException.ThrowIfNull(Parent, nameof(Parent));
             ArgumentNullException.ThrowIfNull(Subcommands, nameof(Subcommands));
             ArgumentNullException.ThrowIfNull(Arguments, nameof(Arguments));
             ArgumentNullException.ThrowIfNull(Attributes, nameof(Attributes));
@@ -92,7 +102,7 @@ namespace DSharpPlus.CommandAll.Commands
             // Push it through the With* methods again, which contain validation.
             WithName(Name);
             WithDescription(Description);
-            WithDelegate(Delegate);
+            WithDelegate(Method);
             WithParent(Parent);
             WithSubcommands(Subcommands);
             WithArguments(Arguments);
@@ -102,7 +112,8 @@ namespace DSharpPlus.CommandAll.Commands
             {
                 Name = Name,
                 Description = Description,
-                Delegate = Delegate,
+                Method = Method,
+                Target = Target,
                 Parent = Parent,
                 Subcommands = Subcommands.Select(x => x.Build()).ToArray(),
                 Arguments = Arguments.Select(x => x.Build()).ToArray(),
@@ -137,7 +148,8 @@ namespace DSharpPlus.CommandAll.Commands
             {
                 if (methodInfo.GetCustomAttribute<CommandAttribute>() is not null)
                 {
-                    commandBuilder.WithDelegate(methodInfo.CreateDelegate<Delegate>());
+                    commandBuilder.WithDelegate(methodInfo);
+                    commandBuilder.WithArguments(methodInfo.GetParameters()[1..].Select(CommandArgumentBuilder.From));
                 }
             }
 
@@ -157,11 +169,8 @@ namespace DSharpPlus.CommandAll.Commands
             ArgumentNullException.ThrowIfNull(method, nameof(method));
 
             CommandBuilder builder = new();
-            if (method.IsStatic || target is not null)
-            {
-                builder.WithDelegate(method.CreateDelegate<Delegate>(target));
-            }
-
+            builder.WithDelegate(method, target);
+            builder.WithArguments(method.GetParameters()[1..].Select(CommandArgumentBuilder.From));
             builder.WithAttributes(method.GetCustomAttributes().ToList());
             foreach (Attribute attribute in builder.Attributes)
             {

@@ -20,19 +20,28 @@ namespace DSharpPlus.CommandAll
         /// </summary>
         /// <param name="context">The context of the command.</param>
         /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The value will be a <see cref="Optional{T}"/> of <see cref="bool"/>. <see cref="Optional{T}.HasValue"/> will be <see langword="true"/> if the command was executed successfully, <see langword="false"/> if the command was not executed successfully, and <see langword="null"/> if the command threw an exception.</returns>
-        public async Task ExecuteAsync(CommandContext context, CancellationToken cancellationToken = default)
+        public async Task ExecuteAsync(CommandContext context, bool block = false, CancellationToken cancellationToken = default)
         {
             Guid guid = Guid.NewGuid();
-            _tasks.TryAdd(guid, Task.Run(() => WorkerAsync(context), cancellationToken));
-            await _tasks[guid];
-            _tasks.TryRemove(guid, out Task? _);
+            Task task = Task.Run(() => WorkerAsync(context), cancellationToken);
+            if (!block)
+            {
+                task = task.ContinueWith(_ => _tasks.TryRemove(guid, out Task? _));
+            }
+
+            _tasks.TryAdd(guid, task);
+            if (block)
+            {
+                await _tasks[guid];
+                _tasks.TryRemove(guid, out Task? _);
+            }
         }
 
         private static async ValueTask WorkerAsync(CommandContext context)
         {
             try
             {
-                object? value = context.Command.Delegate.Method.Invoke(context.Command.Delegate.Target, context.Arguments.Values.Prepend(context).ToArray());
+                object? value = context.Command.Method!.Invoke(context.Command.Target, context.Arguments.Values.Prepend(context).ToArray());
                 if (value is Task task)
                 {
                     await task;
