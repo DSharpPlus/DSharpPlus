@@ -62,10 +62,7 @@ public readonly record struct Optional<T> : IOptional
     /// <summary>
     /// Returns the contained value if present, or the provided value if not present.
     /// </summary>
-    public readonly T Or
-    (
-        T value
-    ) 
+    public readonly T Or(T value) 
         => this.HasValue ? this.value : value;
 
     /// <summary>
