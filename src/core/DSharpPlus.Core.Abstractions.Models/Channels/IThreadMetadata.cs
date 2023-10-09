@@ -4,8 +4,6 @@
 
 using System;
 
-using Remora.Rest.Core;
-
 namespace DSharpPlus.Core.Abstractions.Models;
 
 /// <summary>

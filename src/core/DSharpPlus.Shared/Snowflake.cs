@@ -93,10 +93,7 @@ public readonly partial record struct Snowflake :
             | increment.Value;
     }
 
-    public int CompareTo
-    (
-        Snowflake other
-    )
+    public int CompareTo(Snowflake other)
         => this.Value.CompareTo(other.Value);
 
     public static bool operator <(Snowflake left, Snowflake right) => left.Value < right.Value;

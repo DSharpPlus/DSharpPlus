@@ -8,8 +8,6 @@ using DSharpPlus.Entities;
 
 using OneOf;
 
-using Remora.Rest.Core;
-
 using DSharpPlus.Core.Abstractions.Models;
 
 namespace DSharpPlus.Core.Models;

@@ -3,7 +3,6 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 using DSharpPlus.Entities;
-using Remora.Rest.Core;
 
 namespace DSharpPlus.Core.Abstractions.Models;
 

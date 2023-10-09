@@ -149,4 +149,7 @@ public readonly record struct Optional<T> : IOptional
             ? $"Optional {{ {this.value} }}"
             : "Optional { no value }";
     }
+
+    public static implicit operator Optional<T>(T value)
+        => new(value);
 }

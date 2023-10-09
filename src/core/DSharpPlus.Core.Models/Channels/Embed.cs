@@ -5,8 +5,6 @@
 using System;
 using System.Collections.Generic;
 
-using Remora.Rest.Core;
-
 using DSharpPlus.Core.Abstractions.Models;
 
 namespace DSharpPlus.Core.Models;
