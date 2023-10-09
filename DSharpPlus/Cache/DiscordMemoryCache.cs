@@ -1,5 +1,6 @@
 ﻿namespace DSharpPlus.Cache;
 
+using System;
 using System.Threading.Tasks;
 using Entities;
 using Microsoft.Extensions.Caching.Memory;
@@ -27,94 +28,51 @@ public class DiscordMemoryCache : IDiscordCache
         this._userOptions = new MemoryCacheEntryOptions()
             .SetAbsoluteExpiration(configuration.UserLifetime);
     }
-    
-    public ValueTask AddUser(DiscordUser user)
-    { 
-        this._cache.Set(user.Id, user, this._userOptions);
+
+
+    public ValueTask Add<T>(T entity)
+    {
+        if (entity is DiscordGuild guild)
+        {
+            this._cache.Set(new GuildCacheKey(guild.Id), guild, this._guildOptions);
+        }
+        else if (entity is DiscordChannel channel)
+        {
+            this._cache.Set(new ChannelCacheKey(channel.Id), channel, this._channelOptions);
+        }
+        else if (entity is DiscordThreadChannel thread)
+        {
+            this._cache.Set(new ChannelCacheKey(thread.Id), thread, this._threadOptions);
+        }
+        else if (entity is DiscordMessage message)
+        {
+            this._cache.Set(new MessageCacheKey(message.Id), message, this._messageOptions);
+        }
+        else if (entity is DiscordUser user)
+        {
+            this._cache.Set(new UserCacheKey(user.Id), user, this._userOptions);
+        }
+        else if (entity is DiscordMember member)
+        {
+            this._cache.Set(new MemberCacheKey(member.Id, member.Guild.Id), member, this._userOptions);
+        }
+        else
+        {
+            throw new ArgumentException(
+                "Invalid type provided. Only DiscordUser, DiscordGuild, DiscordChannel, DiscordThread, and DiscordMessage are supported.");
+        }
         return default;
     }
 
-    public ValueTask AddChannel(DiscordChannel channel)
+    public ValueTask Remove(ICacheKey key)
     {
-        this._cache.Set(channel.Id, channel, this._channelOptions);
+        this._cache.Remove(key);
         return default;
     }
 
-    public ValueTask AddGuild(DiscordGuild guild)
+    public ValueTask<bool> TryGet<T>(ICacheKey key, out T? entity)
     {
-        this._cache.Set(guild.Id, guild, this._guildOptions);
-        return default;
-    }
-
-    public ValueTask AddMessage(DiscordMessage message)
-    {
-        this._cache.Set(message.Id, message, this._messageOptions);
-        return default;
-    }
-    
-    public ValueTask AddThread(DiscordThreadChannel thread)
-    {
-        this._cache.Set(thread.Id, thread, this._threadOptions);
-        return default;
-    }
-
-    public ValueTask RemoveUser(ulong userId)
-    {
-        this._cache.Remove(userId);
-        return default;
-    }
-
-    public ValueTask RemoveChannel(ulong channelId)
-    {
-        this._cache.Remove(channelId);
-        return default;
-    }
-
-    public ValueTask RemoveGuild(ulong guildId)
-    {
-        this._cache.Remove(guildId);
-        return default;
-    }
-
-    public ValueTask RemoveMessage(ulong messageId)
-    {
-        this._cache.Remove(messageId);
-        return default;
-    }
-    
-    public ValueTask RemoveThread(ulong threadId)
-    {
-        this._cache.Remove(threadId);
-        return default;
-    }
-
-    public ValueTask<bool> TryGetUser(ulong userId, out DiscordUser? user)
-    {
-        user = this._cache.Get<DiscordUser>(userId);
-        return new ValueTask<bool>(user is not null);
-    }
-
-    public ValueTask<bool> TryGetChannel(ulong channelId, out DiscordChannel? channel)
-    {
-        channel = this._cache.Get<DiscordChannel>(channelId);
-        return new ValueTask<bool>(channel is not null);
-    }
-
-    public ValueTask<bool> TryGetGuild(ulong guildId, out DiscordGuild? guild)
-    {
-        guild = this._cache.Get<DiscordGuild>(guildId);
-        return new ValueTask<bool>(guild is not null);
-    }
-
-    public ValueTask<bool> TryGetMessage(ulong messageId, out DiscordMessage? message)
-    {
-        message = this._cache.Get<DiscordMessage>(messageId);
-        return new ValueTask<bool>(message is not null);
-    }
-    
-    public ValueTask<bool> TryGetThread(ulong threadId, out DiscordThreadChannel? thread)
-    {
-        thread = this._cache.Get<DiscordThreadChannel>(threadId);
-        return new ValueTask<bool>(thread is not null);
+        entity = this._cache.Get<T>(key);
+        return new(entity is not null);
     }
 }
