@@ -8,35 +8,27 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.EventArgs;
 using DSharpPlus.Entities;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.CommandAll
 {
     public sealed class CommandExecutor
     {
-        private readonly ILogger<CommandExecutor> _logger;
-        private readonly CancellationToken _cancellationToken;
         private readonly ConcurrentDictionary<Guid, Task> _tasks = new();
-
-        public CommandExecutor(ILogger<CommandExecutor> logger, CancellationToken cancellationToken = default)
-        {
-            _logger = logger ?? NullLogger<CommandExecutor>.Instance;
-            _cancellationToken = cancellationToken;
-        }
 
         /// <summary>
         /// Executes a command asynchronously.
         /// </summary>
         /// <param name="context">The context of the command.</param>
         /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The value will be a <see cref="Optional{T}"/> of <see cref="bool"/>. <see cref="Optional{T}.HasValue"/> will be <see langword="true"/> if the command was executed successfully, <see langword="false"/> if the command was not executed successfully, and <see langword="null"/> if the command threw an exception.</returns>
-        public void Execute(CommandContext context)
+        public async Task ExecuteAsync(CommandContext context, CancellationToken cancellationToken = default)
         {
             Guid guid = Guid.NewGuid();
-            _tasks.TryAdd(guid, Task.Run(() => WorkerAsync(context, guid)));
+            _tasks.TryAdd(guid, Task.Run(() => WorkerAsync(context), cancellationToken));
+            await _tasks[guid];
+            _tasks.TryRemove(guid, out Task? _);
         }
 
-        private async ValueTask WorkerAsync(CommandContext context, Guid id)
+        private static async ValueTask WorkerAsync(CommandContext context)
         {
             try
             {
@@ -68,10 +60,6 @@ namespace DSharpPlus.CommandAll
                     Context = context,
                     Exception = error
                 });
-            }
-            finally
-            {
-                _tasks.TryRemove(id, out Task? _);
             }
         }
     }
