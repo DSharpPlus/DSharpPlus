@@ -3,5 +3,5 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandAll.Converters.Meta
 {
-    public delegate Task<Optional<TOutput>> ConverterDelegate<TOutput>(ConverterContext context);
+    public delegate Task<IOptional> ConverterDelegate(ConverterContext context);
 }

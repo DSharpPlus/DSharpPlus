@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using DSharpPlus.CommandAll.Commands.Attributes;
 
@@ -55,6 +56,7 @@ namespace DSharpPlus.CommandAll.Commands
             return this;
         }
 
+        [MemberNotNull(nameof(Name), nameof(Description), nameof(Type), nameof(Attributes))]
         public CommandArgument Build()
         {
             ArgumentNullException.ThrowIfNull(Name, nameof(Name));
