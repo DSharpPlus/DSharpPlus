@@ -28,46 +28,22 @@ public readonly partial record struct Snowflake
         return left.Value - time;
     }
 
-    public static bool operator ==
-    (
-        Snowflake left,
-        DateTimeOffset right
-    )
+    public static bool operator ==(Snowflake left, DateTimeOffset right)
         => left.Timestamp == right;
 
-    public static bool operator !=
-    (
-        Snowflake left,
-        DateTimeOffset right
-    )
+    public static bool operator !=(Snowflake left, DateTimeOffset right)
         => left.Timestamp != right;
 
-    public static bool operator <
-    (
-        Snowflake left,
-        DateTimeOffset right
-    )
+    public static bool operator <(Snowflake left, DateTimeOffset right)
         => left.Timestamp < right;
 
-    public static bool operator <=
-    (
-        Snowflake left,
-        DateTimeOffset right
-    )
+    public static bool operator <=(Snowflake left, DateTimeOffset right)
         => left.Timestamp <= right;
 
-    public static bool operator >
-    (
-        Snowflake left,
-        DateTimeOffset right
-    )
+    public static bool operator >(Snowflake left, DateTimeOffset right)
         => left.Timestamp > right;
 
-    public static bool operator >=
-    (
-        Snowflake left,
-        DateTimeOffset right
-    )
+    public static bool operator >=(Snowflake left, DateTimeOffset right)
         => left.Timestamp >= right;
 
     /// <summary>

@@ -207,175 +207,99 @@ public readonly partial record struct Snowflake :
     }
 
     /// <inheritdoc/>
-    static Snowflake INumberBase<Snowflake>.Abs
-    (
-        Snowflake value
-    )
+    static Snowflake INumberBase<Snowflake>.Abs(Snowflake value)
         => long.Abs(value);
 
     /// <inheritdoc/>
-    static bool INumberBase<Snowflake>.IsCanonical
-    (
-        Snowflake value
-    )
+    static bool INumberBase<Snowflake>.IsCanonical(Snowflake value)
         => true;
 
     /// <inheritdoc/>
-    static bool INumberBase<Snowflake>.IsComplexNumber
-    (
-        Snowflake value
-    )
+    static bool INumberBase<Snowflake>.IsComplexNumber(Snowflake value)
         => false;
 
     /// <inheritdoc/>
-    static bool INumberBase<Snowflake>.IsEvenInteger
-    (
-        Snowflake value
-    )
+    static bool INumberBase<Snowflake>.IsEvenInteger(Snowflake value)
         => long.IsEvenInteger(value);
 
     /// <inheritdoc/>
-    static bool INumberBase<Snowflake>.IsFinite
-    (
-        Snowflake value
-    )
+    static bool INumberBase<Snowflake>.IsFinite(Snowflake value)
         => true;
 
     /// <inheritdoc/>
-    static bool INumberBase<Snowflake>.IsImaginaryNumber
-    (
-        Snowflake value
-    )
+    static bool INumberBase<Snowflake>.IsImaginaryNumber(Snowflake value)
         => false;
 
     /// <inheritdoc/>
-    static bool INumberBase<Snowflake>.IsInfinity
-    (
-        Snowflake value
-    )
+    static bool INumberBase<Snowflake>.IsInfinity(Snowflake value)
         => false;
 
     /// <inheritdoc/>
-    static bool INumberBase<Snowflake>.IsInteger
-    (
-        Snowflake value
-    )
+    static bool INumberBase<Snowflake>.IsInteger(Snowflake value)
         => true;
 
     /// <inheritdoc/>
-    static bool INumberBase<Snowflake>.IsNaN
-    (
-        Snowflake value
-    )
+    static bool INumberBase<Snowflake>.IsNaN(Snowflake value)
         => false;
 
     /// <inheritdoc/>
-    static bool INumberBase<Snowflake>.IsNegative
-    (
-        Snowflake value
-    )
+    static bool INumberBase<Snowflake>.IsNegative(Snowflake value)
         => long.IsNegative(value);
 
     /// <inheritdoc/>
-    static bool INumberBase<Snowflake>.IsNegativeInfinity
-    (
-        Snowflake value
-    )
+    static bool INumberBase<Snowflake>.IsNegativeInfinity(Snowflake value)
         => false;
 
     /// <inheritdoc/>
-    static bool INumberBase<Snowflake>.IsNormal
-    (
-        Snowflake value
-    )
+    static bool INumberBase<Snowflake>.IsNormal(Snowflake value)
         => false;
 
     /// <inheritdoc/>
-    static bool INumberBase<Snowflake>.IsOddInteger
-    (
-        Snowflake value
-    )
+    static bool INumberBase<Snowflake>.IsOddInteger(Snowflake value)
         => long.IsOddInteger(value);
 
     /// <inheritdoc/>
-    static bool INumberBase<Snowflake>.IsPositive
-    (
-        Snowflake value
-    )
+    static bool INumberBase<Snowflake>.IsPositive(Snowflake value)
         => long.IsPositive(value);
 
     /// <inheritdoc/>
-    static bool INumberBase<Snowflake>.IsPositiveInfinity
-    (
-        Snowflake value
-    )
+    static bool INumberBase<Snowflake>.IsPositiveInfinity(Snowflake value)
         => false;
 
     /// <inheritdoc/>
-    static bool IBinaryNumber<Snowflake>.IsPow2
-    (
-        Snowflake value
-    )
+    static bool IBinaryNumber<Snowflake>.IsPow2(Snowflake value)
         => long.IsPow2(value);
 
     /// <inheritdoc/>
-    static bool INumberBase<Snowflake>.IsRealNumber
-    (
-        Snowflake value
-    )
+    static bool INumberBase<Snowflake>.IsRealNumber(Snowflake value)
         => true;
 
     /// <inheritdoc/>
-    static bool INumberBase<Snowflake>.IsSubnormal
-    (
-        Snowflake value
-    )
+    static bool INumberBase<Snowflake>.IsSubnormal(Snowflake value)
         => false;
 
     /// <inheritdoc/>
-    static bool INumberBase<Snowflake>.IsZero
-    (
-        Snowflake value
-    )
+    static bool INumberBase<Snowflake>.IsZero(Snowflake value)
         => value == 0;
 
     /// <inheritdoc/>
-    static Snowflake IBinaryNumber<Snowflake>.Log2
-    (
-        Snowflake value
-    )
+    static Snowflake IBinaryNumber<Snowflake>.Log2(Snowflake value)
         => long.Log2(value);
 
     /// <inheritdoc/>
-    static Snowflake INumberBase<Snowflake>.MaxMagnitude
-    (
-        Snowflake x,
-        Snowflake y
-    )
+    static Snowflake INumberBase<Snowflake>.MaxMagnitude(Snowflake x, Snowflake y)
         => long.MaxMagnitude(x, y);
 
     /// <inheritdoc/>
-    static Snowflake INumberBase<Snowflake>.MaxMagnitudeNumber
-    (
-        Snowflake x,
-        Snowflake y
-    )
+    static Snowflake INumberBase<Snowflake>.MaxMagnitudeNumber(Snowflake x, Snowflake y)
         => long.MaxMagnitude(x, y);
 
     /// <inheritdoc/>
-    static Snowflake INumberBase<Snowflake>.MinMagnitude
-    (
-        Snowflake x,
-        Snowflake y
-    )
+    static Snowflake INumberBase<Snowflake>.MinMagnitude(Snowflake x, Snowflake y)
         => long.MinMagnitude(x, y);
 
     /// <inheritdoc/>
-    static Snowflake INumberBase<Snowflake>.MinMagnitudeNumber
-    (
-        Snowflake x,
-        Snowflake y
-    )
+    static Snowflake INumberBase<Snowflake>.MinMagnitudeNumber(Snowflake x, Snowflake y)
         => long.MinMagnitude(x, y);
 
     /// <inheritdoc/>
@@ -439,17 +363,11 @@ public readonly partial record struct Snowflake :
     }
 
     /// <inheritdoc/>
-    static Snowflake IBinaryInteger<Snowflake>.PopCount
-    (
-        Snowflake value
-    )
+    static Snowflake IBinaryInteger<Snowflake>.PopCount(Snowflake value)
         => long.PopCount(value);
 
     /// <inheritdoc/>
-    static Snowflake IBinaryInteger<Snowflake>.TrailingZeroCount
-    (
-        Snowflake value
-    )
+    static Snowflake IBinaryInteger<Snowflake>.TrailingZeroCount(Snowflake value)
         => long.TrailingZeroCount(value);
 
     /// <inheritdoc/>
@@ -874,18 +792,11 @@ public readonly partial record struct Snowflake :
     }
 
     /// <inheritdoc cref="IComparable.CompareTo(object?)"/>
-    public int CompareTo
-    (
-        object? obj
-    )
+    public int CompareTo(object? obj)
         => this.Value.CompareTo(obj);
 
     /// <inheritdoc cref="IFormattable.ToString(string?, IFormatProvider?)"/>
-    public string ToString
-    (
-        string? format,
-        IFormatProvider? formatProvider = null
-    )
+    public string ToString(string? format, IFormatProvider? formatProvider = null)
         => this.Value.ToString(format, formatProvider);
 
     /// <inheritdoc cref="ISpanFormattable.TryFormat(Span{char}, out int, ReadOnlySpan{char}, IFormatProvider?)"/>
@@ -907,24 +818,15 @@ public readonly partial record struct Snowflake :
     }
 
     /// <inheritdoc/>
-    int IComparable.CompareTo
-    (
-        object? obj
-    )
+    int IComparable.CompareTo(object? obj)
         => this.Value.CompareTo(obj);
 
     /// <inheritdoc/>
-    int IComparable<Snowflake>.CompareTo
-    (
-        Snowflake other
-    )
+    int IComparable<Snowflake>.CompareTo(Snowflake other)
         => this.Value.CompareTo(other);
 
     /// <inheritdoc/>
-    bool IEquatable<Snowflake>.Equals
-    (
-        Snowflake other
-    )
+    bool IEquatable<Snowflake>.Equals(Snowflake other)
         => this.Value.Equals(other);
 
     /// <inheritdoc/>
@@ -1022,202 +924,105 @@ public readonly partial record struct Snowflake :
     }
 
     /// <inheritdoc/>
-    static Snowflake IUnaryPlusOperators<Snowflake, Snowflake>.operator +
-    (
-        Snowflake value
-    )
+    static Snowflake IUnaryPlusOperators<Snowflake, Snowflake>.operator +(Snowflake value)
         => +value.Value;
 
     /// <inheritdoc/>
-    public static Snowflake operator +
-    (
-        Snowflake left,
-        Snowflake right
-    )
+    public static Snowflake operator +(Snowflake left, Snowflake right)
         => left.Value + right.Value;
 
     /// <inheritdoc/>
-    static Snowflake IAdditionOperators<Snowflake, Snowflake, Snowflake>.operator +
-    (
-        Snowflake left,
-        Snowflake right
-    )
+    static Snowflake IAdditionOperators<Snowflake, Snowflake, Snowflake>.operator +(Snowflake left, Snowflake right)
         => left.Value + right.Value;
 
-    static Snowflake IUnaryNegationOperators<Snowflake, Snowflake>.operator -
-    (
-        Snowflake value
-    )
+    static Snowflake IUnaryNegationOperators<Snowflake, Snowflake>.operator -(Snowflake value)
         => -value.Value;
 
     /// <inheritdoc/>
-    public static Snowflake operator -
-    (
-        Snowflake left,
-        Snowflake right
-    )
+    public static Snowflake operator -(Snowflake left,Snowflake right)
         => left.Value - right.Value;
 
     /// <inheritdoc/>
-    static Snowflake ISubtractionOperators<Snowflake, Snowflake, Snowflake>.operator -
-    (
-        Snowflake left,
-        Snowflake right
-    )
+    static Snowflake ISubtractionOperators<Snowflake, Snowflake, Snowflake>.operator -(Snowflake left, Snowflake right)
         => left.Value - right.Value;
 
     /// <inheritdoc/>
-    static Snowflake IBitwiseOperators<Snowflake, Snowflake, Snowflake>.operator ~
-    (
-        Snowflake value
-    )
+    static Snowflake IBitwiseOperators<Snowflake, Snowflake, Snowflake>.operator ~(Snowflake value)
         => ~value.Value;
 
     /// <inheritdoc/>
-    public static Snowflake operator ++
-    (
-        Snowflake value
-    )
+    public static Snowflake operator ++(Snowflake value)
         => value.Value + 1;
 
     /// <inheritdoc/>
-    static Snowflake IIncrementOperators<Snowflake>.operator ++
-    (
-        Snowflake value
-    )
+    static Snowflake IIncrementOperators<Snowflake>.operator ++(Snowflake value)
         => value.Value + 1;
 
     /// <inheritdoc/>
-    public static Snowflake operator --
-    (
-        Snowflake value
-    )
+    public static Snowflake operator --(Snowflake value)
         => value.Value - 1;
 
     /// <inheritdoc/>
-    static Snowflake IDecrementOperators<Snowflake>.operator --
-    (
-        Snowflake value
-    )
+    static Snowflake IDecrementOperators<Snowflake>.operator --(Snowflake value)
         => value.Value - 1;
 
     /// <inheritdoc/>
-    static Snowflake IMultiplyOperators<Snowflake, Snowflake, Snowflake>.operator *
-    (
-        Snowflake left,
-        Snowflake right
-    )
+    static Snowflake IMultiplyOperators<Snowflake, Snowflake, Snowflake>.operator *(Snowflake left, Snowflake right)
         => left.Value * right.Value;
 
     /// <inheritdoc/>
-    static Snowflake IDivisionOperators<Snowflake, Snowflake, Snowflake>.operator /
-    (
-        Snowflake left,
-        Snowflake right
-    )
+    static Snowflake IDivisionOperators<Snowflake, Snowflake, Snowflake>.operator /(Snowflake left, Snowflake right)
         => left.Value / right.Value;
 
     /// <inheritdoc/>
-    static Snowflake IModulusOperators<Snowflake, Snowflake, Snowflake>.operator %
-    (
-        Snowflake left,
-        Snowflake right
-    )
+    static Snowflake IModulusOperators<Snowflake, Snowflake, Snowflake>.operator %(Snowflake left, Snowflake right)
         => left.Value % right.Value;
 
     /// <inheritdoc/>
-    static Snowflake IBitwiseOperators<Snowflake, Snowflake, Snowflake>.operator &
-    (
-        Snowflake left,
-        Snowflake right
-    )
+    static Snowflake IBitwiseOperators<Snowflake, Snowflake, Snowflake>.operator &(Snowflake left, Snowflake right)
         => left.Value & right.Value;
 
     /// <inheritdoc/>
-    static Snowflake IBitwiseOperators<Snowflake, Snowflake, Snowflake>.operator |
-    (
-        Snowflake left,
-        Snowflake right
-    )
+    static Snowflake IBitwiseOperators<Snowflake, Snowflake, Snowflake>.operator |(Snowflake left, Snowflake right)
         => left.Value | right.Value;
 
     /// <inheritdoc/>
-    static Snowflake IBitwiseOperators<Snowflake, Snowflake, Snowflake>.operator ^
-    (
-        Snowflake left,
-        Snowflake right
-    )
+    static Snowflake IBitwiseOperators<Snowflake, Snowflake, Snowflake>.operator ^(Snowflake left, Snowflake right)
         => left.Value ^ right.Value;
 
     /// <inheritdoc/>
-    static Snowflake IShiftOperators<Snowflake, int, Snowflake>.operator <<
-    (
-        Snowflake value,
-        int shiftAmount
-    )
+    static Snowflake IShiftOperators<Snowflake, int, Snowflake>.operator <<(Snowflake value, int shiftAmount)
         => value.Value << shiftAmount;
 
     /// <inheritdoc/>
-    static Snowflake IShiftOperators<Snowflake, int, Snowflake>.operator >>
-    (
-        Snowflake value,
-        int shiftAmount
-    )
+    static Snowflake IShiftOperators<Snowflake, int, Snowflake>.operator >>(Snowflake value, int shiftAmount)
         => value.Value >> shiftAmount;
 
     /// <inheritdoc/>
-    static bool IEqualityOperators<Snowflake, Snowflake, bool>.operator ==
-    (
-        Snowflake left,
-        Snowflake right
-    )
+    static bool IEqualityOperators<Snowflake, Snowflake, bool>.operator ==(Snowflake left, Snowflake right)
         => left.Value == right.Value;
 
     /// <inheritdoc/>
-    static bool IEqualityOperators<Snowflake, Snowflake, bool>.operator !=
-    (
-        Snowflake left,
-        Snowflake right
-    )
+    static bool IEqualityOperators<Snowflake, Snowflake, bool>.operator !=(Snowflake left, Snowflake right)
         => left.Value != right.Value;
 
     /// <inheritdoc/>
-    static bool IComparisonOperators<Snowflake, Snowflake, bool>.operator <
-    (
-        Snowflake left,
-        Snowflake right
-    )
+    static bool IComparisonOperators<Snowflake, Snowflake, bool>.operator <(Snowflake left, Snowflake right)
         => left.Value < right.Value;
 
     /// <inheritdoc/>
-    static bool IComparisonOperators<Snowflake, Snowflake, bool>.operator >
-    (
-        Snowflake left,
-        Snowflake right
-    )
+    static bool IComparisonOperators<Snowflake, Snowflake, bool>.operator >(Snowflake left, Snowflake right)
         => left.Value > right.Value;
 
     /// <inheritdoc/>
-    static bool IComparisonOperators<Snowflake, Snowflake, bool>.operator <=
-    (
-        Snowflake left,
-        Snowflake right
-    )
+    static bool IComparisonOperators<Snowflake, Snowflake, bool>.operator <=(Snowflake left, Snowflake right)
         => left.Value <= right.Value;
 
     /// <inheritdoc/>
-    static bool IComparisonOperators<Snowflake, Snowflake, bool>.operator >=
-    (
-        Snowflake left,
-        Snowflake right
-    )
+    static bool IComparisonOperators<Snowflake, Snowflake, bool>.operator >=(Snowflake left, Snowflake right)
         => left.Value >= right.Value;
 
     /// <inheritdoc/>
-    static Snowflake IShiftOperators<Snowflake, int, Snowflake>.operator >>>
-    (
-        Snowflake value,
-        int shiftAmount
-    )
+    static Snowflake IShiftOperators<Snowflake, int, Snowflake>.operator >>>(Snowflake value, int shiftAmount)
         => value.Value >>> shiftAmount;
 }
