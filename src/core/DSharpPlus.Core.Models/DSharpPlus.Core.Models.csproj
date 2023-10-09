@@ -10,14 +10,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
-    <PackageReference Include="Remora.Rest" />
-    <PackageReference Include="Remora.Rest.Core.Analyzers" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference 
-      Include="..\DSharpPlus.Core.Abstractions.Models\DSharpPlus.Core.Abstractions.Models.csproj"
-      Version="$(_DSharpPlusCoreAbstractionsModelsVersion)"/>
+    <ProjectReference Include="..\DSharpPlus.Core.Abstractions.Models\DSharpPlus.Core.Abstractions.Models.csproj" Version="$(_DSharpPlusCoreAbstractionsModelsVersion)" />
   </ItemGroup>
 
 </Project>

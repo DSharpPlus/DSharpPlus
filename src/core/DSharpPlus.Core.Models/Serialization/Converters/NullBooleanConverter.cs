@@ -6,7 +6,7 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace DSharpPlus.Core.Models.Converters;
+namespace DSharpPlus.Core.Models.Serialization.Converters;
 
 /// <summary>
 /// Provides serialization for discord's optional null booleans, see

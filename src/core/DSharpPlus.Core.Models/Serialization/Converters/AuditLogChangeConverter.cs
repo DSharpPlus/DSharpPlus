@@ -8,9 +8,7 @@ using System.Text.Json.Serialization;
 
 using DSharpPlus.Core.Abstractions.Models;
 
-using Remora.Rest.Core;
-
-namespace DSharpPlus.Core.Models.Converters;
+namespace DSharpPlus.Core.Models.Serialization.Converters;
 
 /// <summary>
 /// Provides conversion for <seealso cref="IAuditLogChange"/>s.
@@ -21,7 +19,7 @@ public class AuditLogChangeConverter : JsonConverter<IAuditLogChange>
     public override IAuditLogChange? Read
     (
         ref Utf8JsonReader reader,
-        Type typeToConvert, 
+        Type typeToConvert,
         JsonSerializerOptions options
     )
     {
@@ -62,8 +60,8 @@ public class AuditLogChangeConverter : JsonConverter<IAuditLogChange>
     /// <inheritdoc/>
     public override void Write
     (
-        Utf8JsonWriter writer, 
-        IAuditLogChange value, 
+        Utf8JsonWriter writer,
+        IAuditLogChange value,
         JsonSerializerOptions options
     )
     {
@@ -72,13 +70,13 @@ public class AuditLogChangeConverter : JsonConverter<IAuditLogChange>
         writer.WritePropertyName("key");
         writer.WriteStringValue(value.Key);
 
-        if (value.NewValue.TryGet(out string? newValue))
+        if (value.NewValue.TryGetValue(out string? newValue))
         {
             writer.WritePropertyName("new_value");
             writer.WriteStringValue(newValue);
         }
 
-        if (value.OldValue.TryGet(out string? oldValue))
+        if (value.OldValue.TryGetValue(out string? oldValue))
         {
             writer.WritePropertyName("old_value");
             writer.WriteStringValue(oldValue);

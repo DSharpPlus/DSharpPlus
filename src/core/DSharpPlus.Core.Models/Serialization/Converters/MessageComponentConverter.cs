@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 using DSharpPlus.Core.Abstractions.Models;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.Core.Models.Converters;
+namespace DSharpPlus.Core.Models.Serialization.Converters;
 
 /// <summary>
 /// Converts between message components and JSON.
@@ -19,8 +19,8 @@ public class MessageComponentConverter : JsonConverter<IInteractiveComponent>
     /// <inheritdoc/>
     public override IInteractiveComponent? Read
     (
-        ref Utf8JsonReader reader, 
-        Type typeToConvert, 
+        ref Utf8JsonReader reader,
+        Type typeToConvert,
         JsonSerializerOptions options
     )
     {
@@ -43,28 +43,28 @@ public class MessageComponentConverter : JsonConverter<IInteractiveComponent>
         {
             DiscordMessageComponentType.ActionRow
                 => throw new JsonException("Invalid JSON structure: expected an interactive component, not an action row."),
-            
+
             DiscordMessageComponentType.Button
-                => JsonSerializer.Deserialize<IButtonComponent>(document, options),
-            
+                => document.Deserialize<IButtonComponent>(options),
+
             DiscordMessageComponentType.StringSelect
-                => JsonSerializer.Deserialize<IStringSelectComponent>(document, options),
-            
+                => document.Deserialize<IStringSelectComponent>(options),
+
             DiscordMessageComponentType.TextInput
-                => JsonSerializer.Deserialize<ITextInputComponent>(document, options),
-            
+                => document.Deserialize<ITextInputComponent>(options),
+
             DiscordMessageComponentType.UserSelect
-                => JsonSerializer.Deserialize<IUserSelectComponent>(document, options),
-            
+                => document.Deserialize<IUserSelectComponent>(options),
+
             DiscordMessageComponentType.RoleSelect
-                => JsonSerializer.Deserialize<IRoleSelectComponent>(document, options),
-            
+                => document.Deserialize<IRoleSelectComponent>(options),
+
             DiscordMessageComponentType.MentionableSelect
-                => JsonSerializer.Deserialize<IMentionableSelectComponent>(document, options),
-            
+                => document.Deserialize<IMentionableSelectComponent>(options),
+
             DiscordMessageComponentType.ChannelSelect
-                => JsonSerializer.Deserialize<IChannelSelectComponent>(document, options),
-            
+                => document.Deserialize<IChannelSelectComponent>(options),
+
             _ => throw new JsonException("Unknown component type.")
         };
 
@@ -75,8 +75,8 @@ public class MessageComponentConverter : JsonConverter<IInteractiveComponent>
     /// <inheritdoc/>
     public override void Write
     (
-        Utf8JsonWriter writer, 
-        IInteractiveComponent value, 
+        Utf8JsonWriter writer,
+        IInteractiveComponent value,
         JsonSerializerOptions options
     )
     {

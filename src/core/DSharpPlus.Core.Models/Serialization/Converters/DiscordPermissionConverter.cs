@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.Core.Models.Converters;
+namespace DSharpPlus.Core.Models.Serialization.Converters;
 
 /// <summary>
 /// Enables serializing and deserializing Discord permissions.
@@ -19,8 +19,8 @@ public class DiscordPermissionConverter : JsonConverter<DiscordPermissions>
     /// <inheritdoc/>
     public override DiscordPermissions Read
     (
-        ref Utf8JsonReader reader, 
-        Type typeToConvert, 
+        ref Utf8JsonReader reader,
+        Type typeToConvert,
         JsonSerializerOptions options
     )
     {
@@ -42,6 +42,6 @@ public class DiscordPermissionConverter : JsonConverter<DiscordPermissions>
         Utf8JsonWriter writer,
         DiscordPermissions value,
         JsonSerializerOptions options
-    ) 
+    )
         => writer.WriteStringValue(((ulong)value).ToString(CultureInfo.InvariantCulture));
 }

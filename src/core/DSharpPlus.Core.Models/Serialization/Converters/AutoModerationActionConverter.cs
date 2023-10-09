@@ -9,9 +9,7 @@ using System.Text.Json.Serialization;
 using DSharpPlus.Core.Abstractions.Models;
 using DSharpPlus.Entities;
 
-using Remora.Rest.Core;
-
-namespace DSharpPlus.Core.Models.Converters;
+namespace DSharpPlus.Core.Models.Serialization.Converters;
 
 /// <summary>
 /// Provides conversion for <seealso cref="IAutoModerationAction"/>.
@@ -21,8 +19,8 @@ public class AutoModerationActionConverter : JsonConverter<IAutoModerationAction
     /// <inheritdoc/>
     public override IAutoModerationAction? Read
     (
-        ref Utf8JsonReader reader, 
-        Type typeToConvert, 
+        ref Utf8JsonReader reader,
+        Type typeToConvert,
         JsonSerializerOptions options
     )
     {
@@ -45,11 +43,11 @@ public class AutoModerationActionConverter : JsonConverter<IAutoModerationAction
         Optional<IAutoModerationActionMetadata> data = (DiscordAutoModerationActionType)type switch
         {
             DiscordAutoModerationActionType.BlockMessage
-                => new(JsonSerializer.Deserialize<IBlockMessageActionMetadata>(metadata, options)!),
+                => new(metadata.Deserialize<IBlockMessageActionMetadata>(options)!),
             DiscordAutoModerationActionType.SendAlertMessage
-                => new(JsonSerializer.Deserialize<ISendAlertMessageActionMetadata>(metadata, options)!),
+                => new(metadata.Deserialize<ISendAlertMessageActionMetadata>(options)!),
             DiscordAutoModerationActionType.Timeout
-                => new(JsonSerializer.Deserialize<ITimeoutActionMetadata>(metadata, options)!),
+                => new(metadata.Deserialize<ITimeoutActionMetadata>(options)!),
             _ => new()
         };
 
@@ -65,8 +63,8 @@ public class AutoModerationActionConverter : JsonConverter<IAutoModerationAction
     /// <inheritdoc/>
     public override void Write
     (
-        Utf8JsonWriter writer, 
-        IAutoModerationAction value, 
+        Utf8JsonWriter writer,
+        IAutoModerationAction value,
         JsonSerializerOptions options
     )
     {
@@ -75,7 +73,7 @@ public class AutoModerationActionConverter : JsonConverter<IAutoModerationAction
         writer.WritePropertyName("type");
         writer.WriteNumberValue((int)value.Type);
 
-        if (!value.Metadata.TryGet(out IAutoModerationActionMetadata? metadata))
+        if (!value.Metadata.TryGetValue(out IAutoModerationActionMetadata? metadata))
         {
             writer.WriteEndObject();
             return;
