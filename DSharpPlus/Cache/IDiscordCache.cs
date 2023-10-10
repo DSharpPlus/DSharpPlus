@@ -1,7 +1,6 @@
 ﻿namespace DSharpPlus.Cache;
 
 using System.Threading.Tasks;
-using Entities;
 
 public interface IDiscordCache
 {

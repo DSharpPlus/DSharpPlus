@@ -1,6 +1,5 @@
 ﻿namespace DSharpPlus.Cache;
 
-using System;
 using Microsoft.Extensions.Caching.Memory;
 
 /// <summary>

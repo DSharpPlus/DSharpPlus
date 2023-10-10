@@ -2,7 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
-using Entities;
+using DSharpPlus.Entities;
 using Microsoft.Extensions.Caching.Memory;
 
 public class DiscordMemoryCache : IDiscordCache
@@ -47,7 +47,7 @@ public class DiscordMemoryCache : IDiscordCache
                 this._cache.Set(new MessageCacheKey(message.Id), message, this._messageOptions);
                 break;
             case DiscordMember member:
-                this._cache.Set(new MemberCacheKey(member.Id, member._guild_id), member, this._userOptions);
+                this._cache.Set(new MemberCacheKey(member.Id, member._guild_id), member, this._memberOptions);
                 break;
             case DiscordUser user:
                 this._cache.Set(new UserCacheKey(user.Id), user, this._userOptions);
