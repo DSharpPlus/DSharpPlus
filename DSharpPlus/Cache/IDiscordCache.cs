@@ -1,9 +1,20 @@
 ﻿namespace DSharpPlus.Cache;
 
+using System;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
 
 public interface IDiscordCache
 {
+    public static readonly Type[] NeededTypes = new[]
+    {
+        typeof(DiscordGuild),
+        typeof(DiscordChannel),
+        typeof(DiscordMessage),
+        typeof(DiscordMember),
+        typeof(DiscordUser)
+    };
+    
     /// <summary>
     /// Add entity of type T to the cache
     /// </summary>

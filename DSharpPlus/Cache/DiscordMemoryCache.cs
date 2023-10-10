@@ -1,63 +1,45 @@
 ﻿namespace DSharpPlus.Cache;
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using DSharpPlus.Entities;
 using Microsoft.Extensions.Caching.Memory;
 
 public class DiscordMemoryCache : IDiscordCache
 {
-    private MemoryCacheEntryOptions _guildOptions;
-    private MemoryCacheEntryOptions _channelOptions;
-    private MemoryCacheEntryOptions _threadOptions;
-    private MemoryCacheEntryOptions _messageOptions;
-    private MemoryCacheEntryOptions _memberOptions;
-    private MemoryCacheEntryOptions _userOptions;
-
     private MemoryCache _cache = new(new MemoryCacheOptions());
+
+    private Dictionary<Type, MemoryCacheEntryOptions> MemoryCacheEntryOptions;
+    private Dictionary<Type, Func<object, ICacheKey>> KeyFunctions;
 
     public DiscordMemoryCache(CacheConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
-        
-        this._guildOptions = configuration.Guild;
-        this._channelOptions = configuration.Channel;
-        this._threadOptions = configuration.Thread;
-        this._messageOptions = configuration.Message;
-        this._userOptions = configuration.User;
-        this._memberOptions = configuration.Member;
+        MemoryCacheEntryOptions = configuration.MemoryCacheEntryOptions;
+        KeyFunctions = configuration.KeyFunctions;
     }
 
     public ValueTask Add<T>(T entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
-
-        switch (entity)
+        
+        if (KeyFunctions.TryGetValue(typeof(T), out Func<object, ICacheKey>? keyFunction))
         {
-            case DiscordGuild guild:
-                this._cache.Set(new GuildCacheKey(guild.Id), guild, this._guildOptions);
-                break;
-            case DiscordThreadChannel thread:
-                this._cache.Set(new ChannelCacheKey(thread.Id), thread, this._threadOptions);
-                break;
-            case DiscordChannel channel:
-                this._cache.Set(new ChannelCacheKey(channel.Id), channel, this._channelOptions);
-                break;
-            case DiscordMessage message:
-                this._cache.Set(new MessageCacheKey(message.Id), message, this._messageOptions);
-                break;
-            case DiscordMember member:
-                this._cache.Set(new MemberCacheKey(member.Id, member._guild_id), member, this._memberOptions);
-                break;
-            case DiscordUser user:
-                this._cache.Set(new UserCacheKey(user.Id), user, this._userOptions);
-                break;
-            default:
-                throw new ArgumentException(
-                    "Invalid type provided. Only DiscordUser, DiscordGuild, DiscordChannel, DiscordThread, and DiscordMessage are supported.");
+            if (MemoryCacheEntryOptions.TryGetValue(typeof(T), out MemoryCacheEntryOptions? cacheEntryOptions))
+            {
+                ICacheKey key = keyFunction(entity);
+                _cache.Set(key, entity, cacheEntryOptions);
+                return default;
+            }
+            else
+            {
+                throw new ArgumentException($"Missing MemoryCacheEntryOptions for Type {nameof(T)}");
+            }
         }
-
-        return default;
+        else
+        {
+            throw new ArgumentException($"Missing KeyFunction for Type {nameof(T)}");
+        }
     }
 
     public ValueTask Remove(ICacheKey key)
@@ -79,30 +61,25 @@ public class DiscordMemoryCache : IDiscordCache
     public bool Validate(CacheConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
-        
-        if (configuration.Guild.Size.HasValue)
+
+        foreach (Type neededType in IDiscordCache.NeededTypes)
         {
-            throw new ArgumentException("Cache dont support limiting by Size" , nameof(configuration.Guild));
+            if (!MemoryCacheEntryOptions.ContainsKey(neededType))
+            {
+                throw new ArgumentException($"Missing MemoryCacheEntryOptions for needed Type {neededType}");
+            }
+            if (!configuration.KeyFunctions.ContainsKey(neededType))
+            {
+                throw new ArgumentException($"Missing KeyFunction for needed Type {neededType}");
+            }
         }
-        if (configuration.Channel.Size.HasValue)
+
+        foreach (MemoryCacheEntryOptions entryOptions in configuration.MemoryCacheEntryOptions.Values)
         {
-            throw new ArgumentException("Cache dont support limiting by Size" , nameof(configuration.Channel));
-        }
-        if (configuration.Thread.Size.HasValue)
-        {
-            throw new ArgumentException("Cache dont support limiting by Size" , nameof(configuration.Thread));
-        }
-        if (configuration.User.Size.HasValue)
-        {
-            throw new ArgumentException("Cache dont support limiting by Size" , nameof(configuration.User));
-        }
-        if (configuration.Message.Size.HasValue)
-        {
-            throw new ArgumentException("Cache dont support limiting by Size" , nameof(configuration.Message));
-        }
-        if (configuration.Member.Size.HasValue)
-        {
-            throw new ArgumentException("Cache dont support limiting by Size" , nameof(configuration.Member));
+            if (entryOptions.Size.HasValue)
+            {
+                throw new ArgumentException("Cache dont support limiting by Size");
+            }
         }
         return true;
     }
