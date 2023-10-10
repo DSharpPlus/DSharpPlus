@@ -4,7 +4,7 @@ using Entities;
 
 public interface ICacheKey
 {
-    protected const string KeyPrefix = "dsharpplus";
+    public const string KeyPrefix = "dsharpplus";
 }
 
 public readonly record struct GuildCacheKey : ICacheKey
@@ -45,7 +45,7 @@ public readonly record struct UserCacheKey : ICacheKey
 
 public readonly record struct MemberCacheKey : ICacheKey
 {
-    //key format is ""{keyPrefix}-guild-{this.GuildId}-member-{this.Id}""
+    //key format is "{keyPrefix}-guild-{this.GuildId}-member-{this.Id}"
     public ulong Id { get; init; }
     public ulong GuildId { get; init; }
 

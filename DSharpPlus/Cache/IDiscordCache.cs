@@ -5,9 +5,30 @@ using Entities;
 
 public interface IDiscordCache
 {
-    ValueTask Add<T>(T entity);
+    /// <summary>
+    /// Add entity of type T to the cache
+    /// </summary>
+    /// <param name="entity">Entity to cache</param>
+    public ValueTask Add<T>(T entity);
     
-    ValueTask Remove(ICacheKey key);
+    /// <summary>
+    /// Remove entity with given key from the cache
+    /// </summary>
+    /// <param name="key"></param>
+    public ValueTask Remove(ICacheKey key);
     
-    ValueTask<bool> TryGet<T>(ICacheKey key, out T? entity);
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="entity"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public ValueTask<bool> TryGet<T>(ICacheKey key, out T? entity);
+
+    
+    /// <summary>
+    /// Validates if the given configuration is valid for the cache implementation
+    /// </summary>
+    public bool Validate(CacheConfiguration configuration);
 }
