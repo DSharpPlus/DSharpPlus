@@ -52,7 +52,7 @@ public sealed partial class SerializationService<T> : ISerializationService<T>
 
         if (this.format == "json")
         {
-            this.jsonOptions = provider.GetRequiredKeyedService<JsonSerializerOptions>("dsharpplus");
+            this.jsonOptions = provider.GetRequiredService<IOptionsMonitor<JsonSerializerOptions>>().Get("dsharpplus");
 
             this.jsonOptions.TypeInfoResolverChain.Insert
             (
