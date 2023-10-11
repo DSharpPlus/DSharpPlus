@@ -6,20 +6,12 @@ using DSharpPlus.Entities;
 
 public interface IDiscordCache
 {
-    public static readonly Type[] NeededTypes = new[]
-    {
-        typeof(DiscordGuild),
-        typeof(DiscordChannel),
-        typeof(DiscordMessage),
-        typeof(DiscordMember),
-        typeof(DiscordUser)
-    };
-    
     /// <summary>
     /// Add entity of type T to the cache
     /// </summary>
     /// <param name="entity">Entity to cache</param>
-    public ValueTask Add<T>(T entity);
+    /// <param name="key"></param>
+    public ValueTask Add<T>(T entity, ICacheKey key);
     
     /// <summary>
     /// Remove entity with given key from the cache
@@ -35,10 +27,4 @@ public interface IDiscordCache
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
     public ValueTask<bool> TryGet<T>(ICacheKey key, out T? entity);
-
-    
-    /// <summary>
-    /// Validates if the given configuration is valid for the cache implementation
-    /// </summary>
-    public bool Validate(CacheConfiguration configuration);
 }
