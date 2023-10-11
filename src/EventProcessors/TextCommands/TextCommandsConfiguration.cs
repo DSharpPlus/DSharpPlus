@@ -1,8 +1,7 @@
-namespace DSharpPlus.CommandAll.EventProcessors
+namespace DSharpPlus.CommandAll.Processors
 {
     public sealed record TextCommandsConfiguration
     {
-        public required bool Enabled { get; set; }
         public required TextCommandOptions Options { get; set; }
     }
 }
