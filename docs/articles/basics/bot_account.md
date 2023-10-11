@@ -95,7 +95,7 @@ Go ahead and copy your bot token and save it somewhere. You'll be using it soon!
 You've got a bot account set up and a token ready for use. Sounds like it's time for you to [write your first bot][11]!
 
 <!-- LINKS -->
-[0]:  https://discord.com/developers/docs/topics/oauth2#bots
+[0]:  https://discord.com/developers/docs/topics/oauth2#bot-users
 [1]:  https://discord.com/developers/applications
 [2]:  ../../images/basics_bot_account_01.png
 [3]:  ../../images/basics_bot_account_02.png "Naming Application"
