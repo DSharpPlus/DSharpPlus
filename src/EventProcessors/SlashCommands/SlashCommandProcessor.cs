@@ -8,16 +8,16 @@ using DSharpPlus.CommandAll.Commands.Attributes;
 using DSharpPlus.CommandAll.Commands.Contexts;
 using DSharpPlus.CommandAll.Converters.Meta;
 using DSharpPlus.CommandAll.EventArgs;
-using DSharpPlus.CommandAll.EventProcessors.SlashCommands;
-using DSharpPlus.CommandAll.EventProcessors.SlashCommands.Attributes;
+using DSharpPlus.CommandAll.Processors.SlashCommands;
+using DSharpPlus.CommandAll.Processors.SlashCommands.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
-namespace DSharpPlus.CommandAll.EventProcessors
+namespace DSharpPlus.CommandAll.Processors
 {
-    public sealed class SlashCommandProcessor : IEventProcessor<InteractionCreateEventArgs>
+    public sealed class SlashCommandProcessor : ICommandProcessor<InteractionCreateEventArgs>
     {
-        public required SlashCommandConfiguration Configuration { get; init; }
+        public SlashCommandConfiguration Configuration { get; init; } = new();
         public IReadOnlyDictionary<Type, ApplicationCommandOptionType> TypeMappings { get; private set; } = new Dictionary<Type, ApplicationCommandOptionType>();
         private bool _eventsRegistered;
 
@@ -112,11 +112,6 @@ namespace DSharpPlus.CommandAll.EventProcessors
 
         public Task RegisterSlashCommandsAsync(CommandAllExtension extension)
         {
-            if (!Configuration.Enabled)
-            {
-                return Task.CompletedTask;
-            }
-
             DiscordApplicationCommand[] applicationCommands = extension.Commands.Values.Select(ToApplicationCommand).ToArray();
             return extension.DebugGuildId is null
                 ? extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(applicationCommands)

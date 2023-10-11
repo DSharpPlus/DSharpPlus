@@ -1,6 +1,6 @@
 using System;
 
-namespace DSharpPlus.CommandAll.EventProcessors
+namespace DSharpPlus.CommandAll.Processors
 {
     [Flags]
     public enum TextCommandOptions

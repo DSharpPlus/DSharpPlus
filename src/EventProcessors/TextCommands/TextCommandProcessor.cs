@@ -4,9 +4,9 @@ using DSharpPlus.CommandAll.Converters.Meta;
 using DSharpPlus.CommandAll.EventArgs;
 using DSharpPlus.EventArgs;
 
-namespace DSharpPlus.CommandAll.EventProcessors
+namespace DSharpPlus.CommandAll.Processors
 {
-    public sealed class TextCommandProcessor : IEventProcessor<MessageCreateEventArgs>
+    public sealed class TextCommandProcessor : ICommandProcessor<MessageCreateEventArgs>
     {
         public required TextCommandOptions Options { get; init; }
         private bool _eventsRegistered;

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DSharpPlus.CommandAll.EventProcessors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -109,16 +108,7 @@ namespace DSharpPlus.CommandAll
 
             return new()
             {
-                ServiceProvider = services.BuildServiceProvider(),
-                TextCommandsConfiguration = new()
-                {
-                    Enabled = false,
-                    Options = TextCommandOptions.AllowDMs | TextCommandOptions.AllowGuilds
-                },
-                SlashCommandsConfiguration = new()
-                {
-                    Enabled = false
-                }
+                ServiceProvider = services.BuildServiceProvider()
             };
         }
     }

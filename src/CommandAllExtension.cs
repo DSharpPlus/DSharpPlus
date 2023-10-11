@@ -8,7 +8,7 @@ using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Commands.Attributes;
 using DSharpPlus.CommandAll.Converters.Meta;
 using DSharpPlus.CommandAll.EventArgs;
-using DSharpPlus.CommandAll.EventProcessors;
+using DSharpPlus.CommandAll.Processors;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -41,8 +41,8 @@ namespace DSharpPlus.CommandAll
         public IReadOnlyDictionary<string, Command> Commands { get; private set; } = new Dictionary<string, Command>();
         private readonly List<CommandBuilder> _commandBuilders = new();
 
-        public TextCommandProcessor? TextCommandProcessor { get; init; }
-        public SlashCommandProcessor? SlashCommandProcessor { get; init; }
+        public IReadOnlyList<ICommandProcessor> Processors => _processors;
+        private readonly List<ICommandProcessor> _processors = new();
 
         /// <summary>
         /// Executed before registering slash commands.
@@ -77,27 +77,6 @@ namespace DSharpPlus.CommandAll
 
             ServiceProvider = configuration.ServiceProvider;
             DebugGuildId = configuration.DebugGuildId;
-
-            if (configuration.TextCommandsConfiguration.Enabled)
-            {
-                TextCommandProcessor = new()
-                {
-                    Options = configuration.TextCommandsConfiguration.Options
-                };
-
-                ConfigureCommands += TextCommandProcessor.ConfigureAsync;
-            }
-
-            if (configuration.SlashCommandsConfiguration.Enabled)
-            {
-                SlashCommandProcessor = new()
-                {
-                    Configuration = configuration.SlashCommandsConfiguration
-                };
-
-                ConfigureCommands += SlashCommandProcessor.ConfigureAsync;
-            }
-
             AddConverters(typeof(CommandAllExtension).Assembly);
 
             // Attempt to get the user defined logging, otherwise setup a null logger since the D#+ Default Logger is internal.
@@ -175,6 +154,22 @@ namespace DSharpPlus.CommandAll
                 }
             }
         }
+
+        public void AddProcessor(ICommandProcessor processor)
+        {
+            ConfigureCommands += processor.ConfigureAsync;
+            _processors.Add(processor);
+        }
+
+        public void AddProcessors(IEnumerable<ICommandProcessor> processors)
+        {
+            foreach (ICommandProcessor processor in processors)
+            {
+                AddProcessor(processor);
+            }
+        }
+
+        public void AddProcessors(params ICommandProcessor[] processors) => AddProcessors(processors as IEnumerable<ICommandProcessor>);
 
         public async Task RefreshAsync()
         {
