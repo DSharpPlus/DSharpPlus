@@ -2,6 +2,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -9,37 +11,42 @@ public class DiscordMemoryCache : IDiscordCache
 {
     private MemoryCache _cache = new(new MemoryCacheOptions());
 
-    private Dictionary<Type, MemoryCacheEntryOptions> MemoryCacheEntryOptions;
-    private Dictionary<Type, Func<object, ICacheKey>> KeyFunctions;
+    private Dictionary<Type, MemoryCacheEntryOptions> _memoryCacheEntryOptions;
+    private Dictionary<Type, MethodInfo> _keyFunctions;
 
     public DiscordMemoryCache(CacheConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
-        MemoryCacheEntryOptions = configuration.MemoryCacheEntryOptions;
-        KeyFunctions = configuration.KeyFunctions;
+        this._memoryCacheEntryOptions = configuration.MemoryCacheEntryOptions;
+        this._keyFunctions = this.GetKeyMethods();
     }
 
     public ValueTask Add<T>(T entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
-        
-        if (KeyFunctions.TryGetValue(typeof(T), out Func<object, ICacheKey>? keyFunction))
+
+        MethodInfo? keyMethod = this._keyFunctions
+            .Where(x => entity.GetType().IsAssignableFrom(x.Key)).FirstOrDefault()
+            .Value;
+
+        if (keyMethod is null)
         {
-            if (MemoryCacheEntryOptions.TryGetValue(typeof(T), out MemoryCacheEntryOptions? cacheEntryOptions))
-            {
-                ICacheKey key = keyFunction(entity);
-                _cache.Set(key, entity, cacheEntryOptions);
-                return default;
-            }
-            else
-            {
-                throw new ArgumentException($"Missing MemoryCacheEntryOptions for Type {nameof(T)}");
-            }
+            return default;
         }
-        else
+
+        MemoryCacheEntryOptions? entryOptions = this._memoryCacheEntryOptions
+            .Where(x => entity.GetType().IsAssignableFrom(x.Key)).FirstOrDefault()
+            .Value;
+
+        if (entryOptions is null)
         {
-            throw new ArgumentException($"Missing KeyFunction for Type {nameof(T)}");
+            return default;
         }
+
+        ICacheKey? key = (ICacheKey?)keyMethod.Invoke(null, new object[] {entity});
+        ArgumentNullException.ThrowIfNull(key);
+        _cache.Set(key, entity, entryOptions);
+        return default;
     }
 
     public ValueTask Remove(ICacheKey key)
@@ -64,10 +71,11 @@ public class DiscordMemoryCache : IDiscordCache
 
         foreach (Type neededType in IDiscordCache.NeededTypes)
         {
-            if (!MemoryCacheEntryOptions.ContainsKey(neededType))
+            if (!this._memoryCacheEntryOptions.ContainsKey(neededType))
             {
                 throw new ArgumentException($"Missing MemoryCacheEntryOptions for needed Type {neededType}");
             }
+
             if (!configuration.KeyFunctions.ContainsKey(neededType))
             {
                 throw new ArgumentException($"Missing KeyFunction for needed Type {neededType}");
@@ -81,6 +89,36 @@ public class DiscordMemoryCache : IDiscordCache
                 throw new ArgumentException("Cache dont support limiting by Size");
             }
         }
+
         return true;
+    }
+
+    private Dictionary<Type, MethodInfo> GetKeyMethods()
+    {
+        Dictionary<Type, MethodInfo> keyMethods = new();
+
+        Type[] dspTypes = Assembly.GetAssembly(typeof(DiscordClient))!.GetTypes();
+        Type[]? userTypes = Assembly.GetEntryAssembly()?.GetTypes();
+
+        IEnumerable<Type> types = dspTypes.Concat(userTypes ?? Array.Empty<Type>());
+        MethodInfo[]? methods = types
+            .SelectMany(x => x.GetMethods())
+            .Where(x => x.IsStatic && x.ReturnType == typeof(ICacheKey))
+            .ToArray();
+
+        foreach (Type cachebleType in this._memoryCacheEntryOptions.Keys)
+        {
+            MethodInfo? method = methods?
+                .Where(x => x.GetParameters().Length == 1 && x.GetParameters()[0].ParameterType == cachebleType)
+                .FirstOrDefault();
+            if (method is null)
+            {
+                throw new ArgumentException($"Missing KeyFunction for Type {cachebleType}");
+            }
+
+            keyMethods.Add(cachebleType, method);
+        }
+
+        return keyMethods;
     }
 }
