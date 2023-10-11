@@ -17,13 +17,29 @@ namespace DSharpPlus.CommandAll.Processors
 {
     public sealed class SlashCommandProcessor : ICommandProcessor<InteractionCreateEventArgs>
     {
+        public static readonly IReadOnlyDictionary<Type, ApplicationCommandOptionType> DefaultTypeMappings = new Dictionary<Type, ApplicationCommandOptionType>()
+        {
+            [typeof(string)] = ApplicationCommandOptionType.String,
+            [typeof(long)] = ApplicationCommandOptionType.Integer,
+            [typeof(bool)] = ApplicationCommandOptionType.Boolean,
+            [typeof(double)] = ApplicationCommandOptionType.Number,
+            [typeof(Enum)] = ApplicationCommandOptionType.String,
+            [typeof(TimeSpan)] = ApplicationCommandOptionType.String,
+            [typeof(DiscordUser)] = ApplicationCommandOptionType.User,
+            [typeof(DiscordRole)] = ApplicationCommandOptionType.Role,
+            [typeof(DiscordEmoji)] = ApplicationCommandOptionType.String,
+            [typeof(DiscordChannel)] = ApplicationCommandOptionType.Channel,
+            [typeof(DiscordAttachment)] = ApplicationCommandOptionType.Attachment,
+            [typeof(SnowflakeObject)] = ApplicationCommandOptionType.Mentionable,
+        };
+
         public SlashCommandConfiguration Configuration { get; init; } = new();
-        public IReadOnlyDictionary<Type, ApplicationCommandOptionType> TypeMappings { get; private set; } = new Dictionary<Type, ApplicationCommandOptionType>();
+        public IReadOnlyDictionary<Type, ApplicationCommandOptionType> TypeMappings { get; private set; } = DefaultTypeMappings;
         private bool _eventsRegistered;
 
         public Task ConfigureAsync(CommandAllExtension extension, ConfigureCommandsEventArgs eventArgs)
         {
-            Dictionary<Type, ApplicationCommandOptionType> typeMappings = new();
+            Dictionary<Type, ApplicationCommandOptionType> typeMappings = new(DefaultTypeMappings);
             foreach ((Type type, ConverterDelegate converter) in eventArgs.Extension.Converters)
             {
                 if (converter.Method.GetCustomAttribute<SlashConverterAttribute>() is SlashConverterAttribute converterAttribute)
