@@ -1,6 +1,6 @@
 using System;
 
-namespace DSharpPlus.CommandAll.EventProcessors.SlashCommands.Attributes
+namespace DSharpPlus.CommandAll.Processors.SlashCommands.Attributes
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Delegate)]
     public sealed class SlashConverterAttribute : Attribute

@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Converters.Meta;
-using DSharpPlus.CommandAll.EventProcessors.SlashCommands.Attributes;
+using DSharpPlus.CommandAll.Processors.SlashCommands.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
