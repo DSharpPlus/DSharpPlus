@@ -12,7 +12,7 @@ namespace DSharpPlus.Serialization;
 /// Represents an abstraction over model serialization.
 /// </summary>
 /// <typeparam name="T">The library component a given instance is associated with.</typeparam>
-public interface ISerializationService<T>
+public interface ISerializationService<out T>
 {
     /// <summary>
     /// Serializes a given serialization model to the given writer.
