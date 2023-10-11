@@ -538,7 +538,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         };
         string stringImageSize = imageSize.ToString(CultureInfo.InvariantCulture);
 
-        return $"https://cdn.discordapp.com{Endpoints.ICONS}/{this.Id}/{this.IconHash}.{stringImageFormat}?size={stringImageSize}";
+        return $"https://cdn.discordapp.com/{Endpoints.ICONS}/{this.Id}/{this.IconHash}.{stringImageFormat}?size={stringImageSize}";
 
     }
 
@@ -1366,7 +1366,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             WidgetType.Banner4 => "banner4",
             _ => "shield",
         };
-        return $"{Net.Endpoints.BASE_URI}{Net.Endpoints.GUILDS}/{this.Id}{Net.Endpoints.WIDGET_PNG}?style={param}";
+        return $"{Net.Endpoints.BASE_URI}/{Net.Endpoints.GUILDS}/{this.Id}/{Net.Endpoints.WIDGET_PNG}?style={param}";
     }
 
     /// <summary>

@@ -235,13 +235,13 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
         if (!string.IsNullOrWhiteSpace(this.AvatarHash))
         {
             string userId = this.Id.ToString(CultureInfo.InvariantCulture);
-            return $"https://cdn.discordapp.com{Endpoints.AVATARS}/{userId}/{this.AvatarHash}.{stringImageFormat}?size={stringImageSize}";
+            return $"https://cdn.discordapp.com/{Endpoints.AVATARS}/{userId}/{this.AvatarHash}.{stringImageFormat}?size={stringImageSize}";
         }
         else
         {
             // https://discord.com/developers/docs/reference#image-formatting-cdn-endpoints: In the case of the Default User Avatar endpoint, the value for `user_discriminator` in the path should be the user's discriminator `modulo 5—Test#1337` would be `1337 % 5`, which evaluates to 2.
             string defaultAvatarType = (this.DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture);
-            return $"https://cdn.discordapp.com/embed{Endpoints.AVATARS}/{defaultAvatarType}.{stringImageFormat}?size={stringImageSize}";
+            return $"https://cdn.discordapp.com/embed/{Endpoints.AVATARS}/{defaultAvatarType}.{stringImageFormat}?size={stringImageSize}";
         }
     }
 
