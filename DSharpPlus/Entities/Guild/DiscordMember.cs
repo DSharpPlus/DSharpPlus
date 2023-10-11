@@ -53,7 +53,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// Gets the members avatar url for the current guild.
     /// </summary>
     [JsonIgnore]
-    public string GuildAvatarUrl => string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? null : $"https://cdn.discordapp.com{Endpoints.GUILDS}/{this._guild_id}{Endpoints.USERS}/{this.Id}{Endpoints.AVATARS}/{this.GuildAvatarHash}.{(this.GuildAvatarHash.StartsWith("a_") ? "gif" : "png")}?size=1024";
+    public string GuildAvatarUrl => string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? null : $"https://cdn.discordapp.com/{Endpoints.GUILDS}/{this._guild_id}/{Endpoints.USERS}/{this.Id}/{Endpoints.AVATARS}/{this.GuildAvatarHash}.{(this.GuildAvatarHash.StartsWith("a_") ? "gif" : "png")}?size=1024";
 
     [JsonIgnore]
     internal string _avatarHash;
@@ -633,7 +633,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         };
         string stringImageSize = imageSize.ToString(CultureInfo.InvariantCulture);
 
-        return $"https://cdn.discordapp.com{Endpoints.GUILDS}/{this._guild_id}{Endpoints.USERS}/{this.Id}{Endpoints.AVATARS}/{this.GuildAvatarHash}.{stringImageFormat}?size={stringImageSize}";
+        return $"https://cdn.discordapp.com/{Endpoints.GUILDS}/{this._guild_id}/{Endpoints.USERS}/{this.Id}/{Endpoints.AVATARS}/{this.GuildAvatarHash}.{stringImageFormat}?size={stringImageSize}";
     }
 
 
