@@ -9,6 +9,8 @@ using DSharpPlus.Core.Models.Extensions;
 using DSharpPlus.Serialization;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 using Xunit;
 
@@ -25,6 +27,11 @@ public class AuditLogChangeTests
         services.Configure<SerializationOptions>
         (
             options => options.SetFormat<AuditLogChangeTests>()
+        );
+
+        services.AddLogging
+        (
+            builder => builder.ClearProviders().AddProvider(NullLoggerProvider.Instance)
         );
 
         services.AddSingleton(typeof(ISerializationService<>), typeof(SerializationService<>));
