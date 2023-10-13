@@ -14,13 +14,12 @@ namespace DSharpPlus.Serialization;
 public sealed class SerializationOptions
 {
     public const string Json = "json";
-    public const string Etf = "etf";
 
     /// <summary>
     /// Well-known formats:
     /// <list type="number">
-    ///     <item>"json", on top of System.Text.Json</item>
-    ///     <item>"etf", on top of ETFKit</item>
+    ///     <item>"json", on top of System.Text.Json.</item>
+    ///     <item>"etf", on top of ETFKit, not installed by default.</item>
     /// </list>
     /// </summary>
     internal Dictionary<Type, string> Formats { get; } = new(2);
