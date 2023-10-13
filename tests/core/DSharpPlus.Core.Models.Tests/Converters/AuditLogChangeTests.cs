@@ -3,13 +3,12 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 using System;
-using System.Text.Json;
 
 using DSharpPlus.Core.Abstractions.Models;
 using DSharpPlus.Core.Models.Extensions;
+using DSharpPlus.Serialization;
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 using Xunit;
 
@@ -17,55 +16,61 @@ namespace DSharpPlus.Core.Models.Tests.Converters;
 
 public class AuditLogChangeTests
 {
-    private readonly JsonSerializerOptions options;
+    private readonly ISerializationService<AuditLogChangeTests> serializer;
 
     public AuditLogChangeTests()
     {
         IServiceCollection services = new ServiceCollection();
         services.RegisterDiscordModelSerialization();
+        services.Configure<SerializationOptions>
+        (
+            options => options.SetFormat<AuditLogChangeTests>()
+        );
+
+        services.AddSingleton(typeof(ISerializationService<>), typeof(SerializationService<>));
 
         IServiceProvider provider = services.BuildServiceProvider();
-        this.options = provider.GetRequiredService<IOptionsMonitor<JsonSerializerOptions>>().Get("DSharpPlus");
+        this.serializer = provider.GetRequiredService<ISerializationService<AuditLogChangeTests>>();
     }
 
-    private const string IntPayload = 
+    private static readonly byte[] IntPayload = 
     """
     {
         "key": "$test",
         "new_value": 17,
         "old_value": 83
     }
-    """;
+    """u8.ToArray();
     
-    private const string StringPayload =
+    private static readonly byte[] StringPayload =
     """
     {
         "key": "$test",
         "new_value": "this is the new value",
         "old_value": "this was the old value"
     }
-    """;
+    """u8.ToArray();
 
-    private const string NewValueMissingPayload =
+    private static readonly byte[] NewValueMissingPayload =
     """
     {
         "key": "$test",
         "old_value": "this was the old value"
     }
-    """;
+    """u8.ToArray();
 
-    private const string OldValueMissingPayload =
+    private static readonly byte[] OldValueMissingPayload =
     """
     {
         "key": "$test",
         "new_value": "this is the new value"
     }
-    """;
+    """u8.ToArray();
     
     [Fact]
     public void TestIntegerPayload()
     {
-        IAuditLogChange change = JsonSerializer.Deserialize<IAuditLogChange>(IntPayload, this.options)!;
+        IAuditLogChange change = this.serializer.DeserializeModel<IAuditLogChange>(IntPayload);
 
         Assert.True(change.NewValue.HasValue);
         Assert.True(change.OldValue.HasValue);
@@ -76,7 +81,7 @@ public class AuditLogChangeTests
     [Fact]
     public void TestStringPayload()
     {
-        IAuditLogChange change = JsonSerializer.Deserialize<IAuditLogChange>(StringPayload, this.options)!;
+        IAuditLogChange change = this.serializer.DeserializeModel<IAuditLogChange>(StringPayload);
 
         Assert.True(change.NewValue.HasValue);
         Assert.True(change.OldValue.HasValue);
@@ -87,7 +92,7 @@ public class AuditLogChangeTests
     [Fact]
     public void TestNewValueMissing()
     {
-        IAuditLogChange change = JsonSerializer.Deserialize<IAuditLogChange>(NewValueMissingPayload, this.options)!;
+        IAuditLogChange change = this.serializer.DeserializeModel<IAuditLogChange>(NewValueMissingPayload);
 
         Assert.False(change.NewValue.HasValue);
         Assert.True(change.OldValue.HasValue);
@@ -98,7 +103,7 @@ public class AuditLogChangeTests
     [Fact]
     public void TestOldValueMissing()
     {
-        IAuditLogChange change = JsonSerializer.Deserialize<IAuditLogChange>(OldValueMissingPayload, this.options)!;
+        IAuditLogChange change = this.serializer.DeserializeModel<IAuditLogChange>(OldValueMissingPayload);
 
         Assert.True(change.NewValue.HasValue);
         Assert.False(change.OldValue.HasValue);

@@ -97,7 +97,7 @@ public sealed partial class SerializationService<T> : ISerializationService<T>
         }
     }
 
-    private static IJsonTypeInfoResolver ConstructTypeInfoResolver
+    private static DefaultJsonTypeInfoResolver ConstructTypeInfoResolver
     (
         SerializationOptions models
     )
