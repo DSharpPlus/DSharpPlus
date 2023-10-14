@@ -38,6 +38,7 @@ public static class ServiceCollectionExtensions
                 options.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
 
                 options.Converters.Add(new OptionalConverterFactory());
+                options.Converters.Add(new SnowflakeConverter());
                 options.Converters.Add(new AuditLogChangeConverter());
                 options.Converters.Add(new AutoModerationActionConverter());
                 options.Converters.Add(new DiscordPermissionConverter());
