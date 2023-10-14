@@ -13,7 +13,7 @@ namespace DSharpPlus;
 /// <typeparam name="T">The type of the enclosed value.</typeparam>
 public readonly record struct Optional<T> : IOptional
 {
-    private readonly T value;
+    private readonly T? value;
 
     /// <inheritdoc/>
     public bool HasValue { get; }
@@ -21,7 +21,7 @@ public readonly record struct Optional<T> : IOptional
     /// <summary>
     /// Retrieves the underlying value, if present.
     /// </summary>
-    public T Value
+    public T? Value
     {
         get
         {
@@ -36,7 +36,7 @@ public readonly record struct Optional<T> : IOptional
 
     public Optional
     (
-        T value
+        T? value
     )
     {
         this.HasValue = true;
@@ -46,7 +46,7 @@ public readonly record struct Optional<T> : IOptional
     /// <summary>
     /// Returns the contained value if one is present, or throws the given exception if none is present.
     /// </summary>
-    public readonly T Expect
+    public readonly T? Expect
     (
         Func<Exception> exception
     )
@@ -62,7 +62,7 @@ public readonly record struct Optional<T> : IOptional
     /// <summary>
     /// Returns the contained value if present, or the provided value if not present.
     /// </summary>
-    public readonly T Or(T value) 
+    public readonly T? Or(T value) 
         => this.HasValue ? this.value : value;
 
     /// <summary>
@@ -77,7 +77,7 @@ public readonly record struct Optional<T> : IOptional
     /// </summary>
     public readonly Optional<TOther> Map<TOther>
     (
-        Func<T, TOther> transformation
+        Func<T?, TOther?> transformation
     )
     {
         return this.HasValue
@@ -89,10 +89,10 @@ public readonly record struct Optional<T> : IOptional
     /// Transforms the value of the given optional to <typeparamref name="TOther"/>, returning
     /// <paramref name="value"/> if there was no value present.
     /// </summary>
-    public readonly TOther MapOr<TOther>
+    public readonly TOther? MapOr<TOther>
     (
-        Func<T, TOther> transformation,
-        TOther value
+        Func<T?, TOther?> transformation,
+        TOther? value
     )
     {
         return this.HasValue
