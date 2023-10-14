@@ -4,6 +4,7 @@
 
 using System.Text.Json.Serialization.Metadata;
 
+using DSharpPlus.Core.Abstractions.Models;
 using DSharpPlus.Core.Models.Serialization.Converters;
 
 namespace DSharpPlus.Core.Models.Serialization.Resolvers;
@@ -16,7 +17,7 @@ public static class NullBooleanTypeInfoResolver
         {
             (type) =>
             {
-                if (type.Type != typeof(RoleTags))
+                if (type.Type != typeof(IRoleTags))
                 {
                     return;
                 }
