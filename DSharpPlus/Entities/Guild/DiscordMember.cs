@@ -519,8 +519,19 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null)
-        => await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, default,
-            new Optional<IEnumerable<ulong>>(roles.Select(xr => xr.Id)), default, default, default, default, reason);
+    {
+        if (roles.Where(x => x.IsManaged).Any())
+        {
+            throw new ArgumentException("Cannot assign managed roles.");
+        }
+        IEnumerable<DiscordRole> managedRoles = this.Roles.Where(x => x.IsManaged);
+
+        IEnumerable<DiscordRole> newRoles = managedRoles.Concat(roles);
+        
+        await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, default,
+            new Optional<IEnumerable<ulong>>(newRoles.Select(xr => xr.Id)), default, default, default, default, reason);
+    }
+        
 
     /// <summary>
     /// Bans a this member from their guild.
