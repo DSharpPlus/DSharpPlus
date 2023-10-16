@@ -518,11 +518,12 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when attempting to add a managed role.</exception>
     public async Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null)
     {
         if (roles.Where(x => x.IsManaged).Any())
         {
-            throw new ArgumentException("Cannot assign managed roles.");
+            throw new InvalidOperationException("Cannot assign managed roles.");
         }
         IEnumerable<DiscordRole> managedRoles = this.Roles.Where(x => x.IsManaged);
 
