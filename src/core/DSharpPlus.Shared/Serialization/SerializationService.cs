@@ -3,12 +3,10 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
+using System.Text.Json.Serialization;
 
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -54,11 +52,18 @@ public sealed partial class SerializationService<T> : ISerializationService<T>
         {
             this.jsonOptions = provider.GetRequiredService<IOptionsMonitor<JsonSerializerOptions>>().Get("dsharpplus");
 
-            this.jsonOptions.TypeInfoResolverChain.Insert
-            (
-                index: 0,
-                item: ConstructTypeInfoResolver(formats.Value)
-            );
+            foreach (KeyValuePair<Type, Type> map in formats.Value.InterfacesToConcrete)
+            {
+                this.jsonOptions.Converters.Add
+                (
+                    (JsonConverter)typeof(RedirectingConverter<,>)
+                        .MakeGenericType(map.Key, map.Value)
+                        .GetConstructor(Type.EmptyTypes)!
+                        .Invoke(null)!
+                );
+            }
+
+            this.jsonOptions.MakeReadOnly();
         }
     }
 
@@ -94,60 +99,6 @@ public sealed partial class SerializationService<T> : ISerializationService<T>
             }
             default:
                 throw new InvalidOperationException($"The model could not be serialized to {this.format}.");
-        }
-    }
-
-    private static DefaultJsonTypeInfoResolver ConstructTypeInfoResolver
-    (
-        SerializationOptions models
-    )
-    {
-        DefaultJsonTypeInfoResolver resolver = new();
-
-        resolver.WithAddedModifier
-        (
-            (typeinfo) =>
-            {
-                if (models.InterfacesToConcrete.TryGetValue(typeinfo.Type, out Type? value))
-                {
-                    typeinfo.CreateObject = CreateObjectFactory(value);
-                }
-            }
-        );
-
-        return resolver;
-    }
-
-    // for future reference, we might want to optimize the false branch. it's never hit for our own models,
-    // but it might hit for user-defined models and if there's a faster way of doing this we shouldn't penalize
-    // them
-    private static Func<object> CreateObjectFactory
-    (
-        Type type
-    )
-    {
-        ConstructorInfo? ctor = type.GetConstructor(Type.EmptyTypes);
-
-        if (ctor is not null)
-        {
-            DynamicMethod method = new
-            (
-                name: $"factory-{type.Name}",
-                returnType: type,
-                parameterTypes: Type.EmptyTypes,
-                restrictedSkipVisibility: true
-            );
-
-            ILGenerator il = method.GetILGenerator();
-
-            il.Emit(OpCodes.Newobj, ctor);
-            il.Emit(OpCodes.Ret);
-
-            return method.CreateDelegate<Func<object>>();
-        }
-        else
-        {
-            return () => RuntimeHelpers.GetUninitializedObject(type);
         }
     }
 
