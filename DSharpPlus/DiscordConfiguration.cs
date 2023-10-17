@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Net;
+using DSharpPlus.Cache;
 using DSharpPlus.Net.Udp;
 using DSharpPlus.Net.WebSocket;
 using Microsoft.Extensions.Logging;
@@ -173,11 +174,16 @@ public sealed class DiscordConfiguration
     public bool LogUnknownAuditlogs { internal get; set; } = true;
 
     /// <summary>
-    /// <para>Sets the message cache implementation to use.</para>
-    /// <para>To create your own implementation, implement the <see cref="IMessageCacheProvider"/> instance.</para>
+    /// <para>Sets the cache implementation to use.</para>
+    /// <para>To create your own implementation, implement the <see cref="IDiscordCache"/> instance.</para>
     /// <para>Defaults to built-in implementation.</para>
     /// </summary>
-    public IMessageCacheProvider? MessageCacheProvider { internal get; set; } = null;
+    public IDiscordCache? CacheProvider { internal get; set; } = null;
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    public CacheConfiguration CacheConfiguration { internal get; set; } = new();
 
     /// <summary>
     /// Creates a new configuration with default values.
@@ -211,6 +217,7 @@ public sealed class DiscordConfiguration
         this.LoggerFactory = other.LoggerFactory;
         this.LogUnknownEvents = other.LogUnknownEvents;
         this.LogUnknownAuditlogs = other.LogUnknownAuditlogs;
-        this.MessageCacheProvider = other.MessageCacheProvider;
+        this.CacheConfiguration = other.CacheConfiguration;
+        this.CacheProvider = other.CacheProvider;
     }
 }

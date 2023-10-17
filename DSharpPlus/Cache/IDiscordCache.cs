@@ -20,11 +20,11 @@ public interface IDiscordCache
     public ValueTask Remove(ICacheKey key);
     
     /// <summary>
-    /// 
+    /// Tries to get a cached entity of type T with given key
     /// </summary>
     /// <param name="key"></param>
     /// <param name="entity"></param>
     /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
-    public ValueTask<bool> TryGet<T>(ICacheKey key, out T? entity);
+    /// <returns>Returns the entity if present otherwise returns null</returns>
+    public ValueTask<T?> TryGet<T>(ICacheKey key);
 }

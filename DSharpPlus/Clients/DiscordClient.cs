@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
+using DSharpPlus.Cache;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
@@ -27,7 +28,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     #region Internal Fields/Properties
 
     internal bool _isShard = false;
-    internal IMessageCacheProvider? MessageCache { get; }
+    
+    internal IDiscordCache Cache { get; }
 
     private List<BaseExtension> _extensions = new();
     private StatusUpdate _status = null;
@@ -70,21 +72,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// </summary>
     public DiscordIntents Intents
         => this.Configuration.Intents;
-
-    /// <summary>
-    /// Gets a dictionary of DM channels that have been cached by this client. The dictionary's key is the channel
-    /// ID.
-    /// </summary>
-    public IReadOnlyDictionary<ulong, DiscordDmChannel> PrivateChannels { get; }
-    internal ConcurrentDictionary<ulong, DiscordDmChannel> _privateChannels = new();
-
-    /// <summary>
-    /// Gets a dictionary of guilds that this client is in. The dictionary's key is the guild ID. Note that the
-    /// guild objects in this dictionary will not be filled in if the specific guilds aren't available (the
-    /// <see cref="GuildAvailable"/> or <see cref="GuildDownloadCompleted"/> events haven't been fired yet)
-    /// </summary>
-    public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds { get; }
-    internal ConcurrentDictionary<ulong, DiscordGuild> _guilds = new();
+    
+    public override List<ulong> Guilds { get; }
+    public List<ulong> DmChannels { get; }
+    
 
     /// <summary>
     /// Gets the WS latency for this client.
@@ -113,17 +104,15 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public DiscordClient(DiscordConfiguration config)
         : base(config)
     {
-        DiscordIntents intents = this.Configuration.Intents;
-        if (intents.HasIntent(DiscordIntents.GuildMessages) || intents.HasIntent(DiscordIntents.DirectMessages))
-        {
-            this.MessageCache = this.Configuration.MessageCacheProvider
-                ?? (this.Configuration.MessageCacheSize > 0 ? new MessageCache(this.Configuration.MessageCacheSize) : null);
-        }
+        this.Cache = this.Configuration.CacheProvider
+                     ?? (this.Configuration.MessageCacheSize > 0
+                         ? new DiscordMemoryCache(this.Configuration.CacheConfiguration)
+                         : null);
 
         this.InternalSetup();
 
-        this.Guilds = new ReadOnlyConcurrentDictionary<ulong, DiscordGuild>(this._guilds);
-        this.PrivateChannels = new ReadOnlyConcurrentDictionary<ulong, DiscordDmChannel>(this._privateChannels);
+        this.Guilds = new List<ulong>();
+        this.DmChannels = new List<ulong>();
     }
 
     internal void InternalSetup()
@@ -209,7 +198,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this._threadMembersUpdated = new AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs>("THREAD_MEMBERS_UPDATED", this.EventErrorHandler);
         #endregion
 
-        this._guilds.Clear();
+        this.Guilds.Clear();
 
         this._presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this._presences));
     }
@@ -390,17 +379,21 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <returns></returns>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordUser> GetUserAsync(ulong userId, bool updateCache = false)
+    public async ValueTask<DiscordUser?> GetUserAsync(ulong userId, bool updateCache = false)
     {
-        if (!updateCache && this.TryGetCachedUserInternal(userId, out DiscordUser? usr))
+        if (!updateCache)
         {
-            return usr;
+            DiscordUser? cachedUser = await this.TryGetCachedUserInternal(userId);
+            if (cachedUser != null)
+            {
+                return cachedUser;
+            }
         }
 
-        usr = await this.ApiClient.GetUserAsync(userId);
+        DiscordUser usr = await this.ApiClient.GetUserAsync(userId);
 
         // See BaseDiscordClient.UpdateUser for why this is done like this.
-        this.UserCache.AddOrUpdate(userId, usr, (_, _) => usr);
+        this.Cache.Add(usr, usr.GetCacheKey());
 
         return usr;
     }
@@ -559,12 +552,16 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordGuild> GetGuildAsync(ulong id, bool? withCounts = null)
     {
-        if (this._guilds.TryGetValue(id, out DiscordGuild? guild) && (!withCounts.HasValue || !withCounts.Value))
+        if (!withCounts.HasValue || !withCounts.Value)
         {
-            return guild;
+            DiscordGuild cachedGuild = this.InternalGetCachedGuild(id);
+            if (cachedGuild is not null)
+            {
+                return cachedGuild;
+            }
         }
 
-        guild = await this.ApiClient.GetGuildAsync(id, withCounts);
+        DiscordGuild guild = await this.ApiClient.GetGuildAsync(id, withCounts);
         IReadOnlyList<DiscordChannel> channels = await this.ApiClient.GetGuildChannelsAsync(guild.Id);
         foreach (DiscordChannel channel in channels)
         {
@@ -813,51 +810,29 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
     #region Internal Caching Methods
 
-    internal DiscordThreadChannel InternalGetCachedThread(ulong threadId)
+    internal async ValueTask<DiscordThreadChannel?> InternalGetCachedThread(ulong threadId)
     {
-        foreach (DiscordGuild guild in this.Guilds.Values)
-        {
-            if (guild.Threads.TryGetValue(threadId, out DiscordThreadChannel? foundThread))
-            {
-                return foundThread;
-            }
-        }
-
-        return null;
+        ICacheKey key = ICacheKey.ForChannel(threadId);
+        DiscordThreadChannel? channel = await this.Cache.TryGet<DiscordThreadChannel>(key);
+        return channel;
     }
 
-    internal DiscordChannel InternalGetCachedChannel(ulong channelId)
+    internal async ValueTask<DiscordChannel?> InternalGetCachedChannel(ulong channelId)
     {
-        if (this._privateChannels?.TryGetValue(channelId, out DiscordDmChannel? foundDmChannel) == true)
-        {
-            return foundDmChannel;
-        }
-
-        foreach (DiscordGuild guild in this.Guilds.Values)
-        {
-            if (guild.Channels.TryGetValue(channelId, out DiscordChannel? foundChannel))
-            {
-                return foundChannel;
-            }
-        }
-
-        return null;
+        ICacheKey key = ICacheKey.ForChannel(channelId);
+        DiscordChannel? channel = await this.Cache.TryGet<DiscordChannel>(key);
+        return channel;
     }
 
-    internal DiscordGuild InternalGetCachedGuild(ulong? guildId)
+    internal ValueTask<DiscordGuild?> InternalGetCachedGuild(ulong guildId)
     {
-        if (this._guilds != null && guildId.HasValue)
-        {
-            if (this._guilds.TryGetValue(guildId.Value, out DiscordGuild? guild))
-            {
-                return guild;
-            }
-        }
+        ICacheKey key = ICacheKey.ForGuild(guildId);
+        ValueTask<DiscordGuild?> guild = this.Cache.TryGet<DiscordGuild>(key);
 
-        return null;
+        return guild;
     }
 
-    private void UpdateMessage(DiscordMessage message, TransportUser author, DiscordGuild guild, TransportMember member)
+    private async void UpdateMessage(DiscordMessage message, TransportUser author, DiscordGuild guild, TransportMember member)
     {
         if (author != null)
         {
@@ -871,7 +846,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             message.Author = this.UpdateUser(usr, guild?.Id, guild, member);
         }
 
-        DiscordChannel? channel = this.InternalGetCachedChannel(message.ChannelId) ?? this.InternalGetCachedThread(message.ChannelId);
+        DiscordChannel? channel = await this.InternalGetCachedChannel(message.ChannelId) ?? await this.InternalGetCachedThread(message.ChannelId);
 
         if (channel != null)
         {
@@ -939,25 +914,22 @@ public sealed partial class DiscordClient : BaseDiscordClient
         return usr;
     }
 
-    private void UpdateCachedGuild(DiscordGuild newGuild, JArray rawMembers)
+    private async void UpdateCachedGuild(DiscordGuild newGuild, JArray rawMembers)
     {
         if (this._disposed)
         {
             return;
         }
 
-        if (!this._guilds.ContainsKey(newGuild.Id))
-        {
-            this._guilds[newGuild.Id] = newGuild;
-        }
-
-        DiscordGuild guild = this._guilds[newGuild.Id];
+        var cacheKey = ICacheKey.ForGuild(newGuild.Id);
+        var cachedGuild = await this.Cache.TryGet<DiscordGuild>(cacheKey);
+        
 
         if (newGuild._channels != null && newGuild._channels.Count > 0)
         {
             foreach (DiscordChannel channel in newGuild._channels.Values)
             {
-                if (guild._channels.TryGetValue(channel.Id, out _))
+                if (cachedGuild._channels.TryGetValue(channel.Id, out _))
                 {
                     continue;
                 }
@@ -968,35 +940,35 @@ public sealed partial class DiscordClient : BaseDiscordClient
                     overwrite._channel_id = channel.Id;
                 }
 
-                guild._channels[channel.Id] = channel;
+                cachedGuild._channels[channel.Id] = channel;
             }
         }
         if (newGuild._threads != null && newGuild._threads.Count > 0)
         {
             foreach (DiscordThreadChannel thread in newGuild._threads.Values)
             {
-                if (guild._threads.TryGetValue(thread.Id, out _))
+                if (cachedGuild._threads.TryGetValue(thread.Id, out _))
                 {
                     continue;
                 }
 
-                guild._threads[thread.Id] = thread;
+                cachedGuild._threads[thread.Id] = thread;
             }
         }
 
         foreach (DiscordEmoji newEmoji in newGuild._emojis.Values)
         {
-            _ = guild._emojis.GetOrAdd(newEmoji.Id, _ => newEmoji);
+            _ = cachedGuild._emojis.GetOrAdd(newEmoji.Id, _ => newEmoji);
         }
 
         foreach (DiscordMessageSticker newSticker in newGuild._stickers.Values)
         {
-            _ = guild._stickers.GetOrAdd(newSticker.Id, _ => newSticker);
+            _ = cachedGuild._stickers.GetOrAdd(newSticker.Id, _ => newSticker);
         }
 
         if (rawMembers != null)
         {
-            guild._members.Clear();
+            cachedGuild._members.Clear();
 
             foreach (JToken xj in rawMembers)
             {
@@ -1005,61 +977,61 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 DiscordUser xu = new DiscordUser(xtm.User) { Discord = this };
                 this.UpdateUserCache(xu);
 
-                guild._members[xtm.User.Id] = new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id };
+                cachedGuild._members[xtm.User.Id] = new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id };
             }
         }
 
         foreach (DiscordRole role in newGuild._roles.Values)
         {
-            if (guild._roles.TryGetValue(role.Id, out _))
+            if (cachedGuild._roles.TryGetValue(role.Id, out _))
             {
                 continue;
             }
 
-            role._guild_id = guild.Id;
-            guild._roles[role.Id] = role;
+            role._guild_id = cachedGuild.Id;
+            cachedGuild._roles[role.Id] = role;
         }
 
         if (newGuild._stageInstances != null)
         {
             foreach (DiscordStageInstance newStageInstance in newGuild._stageInstances.Values)
             {
-                _ = guild._stageInstances.GetOrAdd(newStageInstance.Id, _ => newStageInstance);
+                _ = cachedGuild._stageInstances.GetOrAdd(newStageInstance.Id, _ => newStageInstance);
             }
         }
 
-        guild.Name = newGuild.Name;
-        guild._afkChannelId = newGuild._afkChannelId;
-        guild.AfkTimeout = newGuild.AfkTimeout;
-        guild.DefaultMessageNotifications = newGuild.DefaultMessageNotifications;
-        guild.Features = newGuild.Features;
-        guild.IconHash = newGuild.IconHash;
-        guild.MfaLevel = newGuild.MfaLevel;
-        guild.OwnerId = newGuild.OwnerId;
-        guild._voiceRegionId = newGuild._voiceRegionId;
-        guild.SplashHash = newGuild.SplashHash;
-        guild.VerificationLevel = newGuild.VerificationLevel;
-        guild.WidgetEnabled = newGuild.WidgetEnabled;
-        guild._widgetChannelId = newGuild._widgetChannelId;
-        guild.ExplicitContentFilter = newGuild.ExplicitContentFilter;
-        guild.PremiumTier = newGuild.PremiumTier;
-        guild.PremiumSubscriptionCount = newGuild.PremiumSubscriptionCount;
-        guild.Banner = newGuild.Banner;
-        guild.Description = newGuild.Description;
-        guild.VanityUrlCode = newGuild.VanityUrlCode;
-        guild.Banner = newGuild.Banner;
-        guild._systemChannelId = newGuild._systemChannelId;
-        guild.SystemChannelFlags = newGuild.SystemChannelFlags;
-        guild.DiscoverySplashHash = newGuild.DiscoverySplashHash;
-        guild.MaxMembers = newGuild.MaxMembers;
-        guild.MaxPresences = newGuild.MaxPresences;
-        guild.ApproximateMemberCount = newGuild.ApproximateMemberCount;
-        guild.ApproximatePresenceCount = newGuild.ApproximatePresenceCount;
-        guild.MaxVideoChannelUsers = newGuild.MaxVideoChannelUsers;
-        guild.PreferredLocale = newGuild.PreferredLocale;
-        guild._rulesChannelId = newGuild._rulesChannelId;
-        guild._publicUpdatesChannelId = newGuild._publicUpdatesChannelId;
-        guild.PremiumProgressBarEnabled = newGuild.PremiumProgressBarEnabled;
+        cachedGuild.Name = newGuild.Name;
+        cachedGuild._afkChannelId = newGuild._afkChannelId;
+        cachedGuild.AfkTimeout = newGuild.AfkTimeout;
+        cachedGuild.DefaultMessageNotifications = newGuild.DefaultMessageNotifications;
+        cachedGuild.Features = newGuild.Features;
+        cachedGuild.IconHash = newGuild.IconHash;
+        cachedGuild.MfaLevel = newGuild.MfaLevel;
+        cachedGuild.OwnerId = newGuild.OwnerId;
+        cachedGuild._voiceRegionId = newGuild._voiceRegionId;
+        cachedGuild.SplashHash = newGuild.SplashHash;
+        cachedGuild.VerificationLevel = newGuild.VerificationLevel;
+        cachedGuild.WidgetEnabled = newGuild.WidgetEnabled;
+        cachedGuild._widgetChannelId = newGuild._widgetChannelId;
+        cachedGuild.ExplicitContentFilter = newGuild.ExplicitContentFilter;
+        cachedGuild.PremiumTier = newGuild.PremiumTier;
+        cachedGuild.PremiumSubscriptionCount = newGuild.PremiumSubscriptionCount;
+        cachedGuild.Banner = newGuild.Banner;
+        cachedGuild.Description = newGuild.Description;
+        cachedGuild.VanityUrlCode = newGuild.VanityUrlCode;
+        cachedGuild.Banner = newGuild.Banner;
+        cachedGuild._systemChannelId = newGuild._systemChannelId;
+        cachedGuild.SystemChannelFlags = newGuild.SystemChannelFlags;
+        cachedGuild.DiscoverySplashHash = newGuild.DiscoverySplashHash;
+        cachedGuild.MaxMembers = newGuild.MaxMembers;
+        cachedGuild.MaxPresences = newGuild.MaxPresences;
+        cachedGuild.ApproximateMemberCount = newGuild.ApproximateMemberCount;
+        cachedGuild.ApproximatePresenceCount = newGuild.ApproximatePresenceCount;
+        cachedGuild.MaxVideoChannelUsers = newGuild.MaxVideoChannelUsers;
+        cachedGuild.PreferredLocale = newGuild.PreferredLocale;
+        cachedGuild._rulesChannelId = newGuild._rulesChannelId;
+        cachedGuild._publicUpdatesChannelId = newGuild._publicUpdatesChannelId;
+        cachedGuild.PremiumProgressBarEnabled = newGuild.PremiumProgressBarEnabled;
 
         // fields not sent for update:
         // - guild.Channels
