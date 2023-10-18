@@ -20,7 +20,7 @@ you're not sure what to do first, Bob's tutorial series should be your starting 
 There are multiple different development and maintenance branches of DSharpPlus targeting different [.NET][4] versions and supported
 on different .NET versions.
 
-IF you are using [Unity][7], [Mono][6] or [the .NET Framework][5], no support will be provided, and you might break at any given
+IF you are using [Unity][7], [Mono][6] or [the .NET Framework][5], no support will be provided, and your project might break at any given
 moment. .NET Framework 4.6.1 through 4.8.1 *should* work, but we will not provide support or fixes for any issues arising there.
 Additionally, if you are using a game engine with C# support (such as Unity), you should consider using the [Discord GameSDK][8]
 instead of DSharpPlus.
