@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions;
 
-internal class TransportUser
+internal sealed record TransportUser
 {
     [JsonProperty("id")]
     public ulong Id { get; internal set; }
