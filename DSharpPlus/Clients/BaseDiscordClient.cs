@@ -180,7 +180,7 @@ public abstract class BaseDiscordClient : IDisposable
         if (this.CurrentUser == null)
         {
             this.CurrentUser = await this.ApiClient.GetCurrentUserAsync();
-            this.UpdateUserCache(this.CurrentUser);
+            this.AddUserToCache(this.CurrentUser);
         }
 
         if (this.Configuration.TokenType == TokenType.Bot && this.CurrentApplication == null)
@@ -226,23 +226,25 @@ public abstract class BaseDiscordClient : IDisposable
 
         return await this.ApiClient.GetGatewayInfoAsync();
     }
-
-    internal async ValueTask<DiscordUser?> TryGetCachedUserInternal(ulong user_id)
+    
+    internal async ValueTask<DiscordUser?> TryGetCachedUserInternalAsync(ulong userId)
     {
-        ICacheKey key = ICacheKey.ForUser(user_id);
+        ICacheKey key = ICacheKey.ForUser(userId);
         
         DiscordUser? user = await this.Cache.TryGet<DiscordUser>(key);
 
         return user;
     }
+    
+    internal void AddUserToCache(DiscordUser newUser) => this.Cache.Add(newUser, newUser.GetCacheKey());
+    
+    internal void AddGuildToCacher(DiscordGuild guild) => this.Cache.Add(guild, guild.GetCacheKey());
+    
+    internal void AddChannelToCache(DiscordChannel channel) => this.Cache.Add(channel, channel.GetCacheKey());
+    
+    internal void AddMemberToCache(DiscordMember member) => this.Cache.Add(member, member.GetCacheKey());
 
-    // This previously set properties on the old user and re-injected into the cache.
-    // That's terrible. Instead, insert the new reference and let the old one get GC'd.
-    // End-users are more likely to be holding a reference to the new object via an event or w/e
-    // anyways.
-    // Furthermore, setting properties requires keeping track of where we update cache and updating repeat code.
-    internal void UpdateUserCache(DiscordUser newUser) => this.Cache.Add(newUser, newUser.GetCacheKey());
-
+    
 
     /// <summary>
     /// Disposes this client.

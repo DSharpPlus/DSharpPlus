@@ -10,6 +10,12 @@ using Serialization;
 internal sealed record TransportGuild
 {
     /// <summary>
+    /// Gets the ID of this object.
+    /// </summary>
+    [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+    public ulong Id { get; internal set; }
+    
+    /// <summary>
     /// Gets the guild's name.
     /// </summary>
     [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]

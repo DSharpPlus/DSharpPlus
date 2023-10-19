@@ -412,7 +412,7 @@ public class DiscordRestClient : BaseDiscordClient
                     Discord = this
                 };
 
-                this.UpdateUserCache(usr);
+                this.AddUserToCache(usr);
             }
 
             recmbr.AddRange(tms.Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild_id }));

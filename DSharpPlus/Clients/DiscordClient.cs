@@ -383,7 +383,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     {
         if (!updateCache)
         {
-            DiscordUser? cachedUser = await this.TryGetCachedUserInternal(userId);
+            DiscordUser? cachedUser = await this.TryGetCachedUserInternalAsync(userId);
             if (cachedUser != null)
             {
                 return cachedUser;
@@ -879,7 +879,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             {
                 usr = new DiscordUser(mbr.User) { Discord = this };
 
-                this.UpdateUserCache(usr);
+                this.AddUserToCache(usr);
 
                 usr = new DiscordMember(mbr) { Discord = this, _guild_id = guildId.Value };
             }
@@ -908,7 +908,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
         else if (usr.Username != null) // check if not a skeleton user
         {
-            this.UpdateUserCache(usr);
+            this.AddUserToCache(usr);
         }
 
         return usr;
@@ -975,7 +975,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 TransportMember xtm = xj.ToDiscordObject<TransportMember>();
 
                 DiscordUser xu = new DiscordUser(xtm.User) { Discord = this };
-                this.UpdateUserCache(xu);
+                this.AddUserToCache(xu);
 
                 cachedGuild._members[xtm.User.Id] = new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id };
             }

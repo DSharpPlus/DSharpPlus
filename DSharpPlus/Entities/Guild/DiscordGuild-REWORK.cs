@@ -17,10 +17,13 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
+
+// THIS IS ONLY A COPY TO QUICKLY COMPARE THE DIFFERENCES BETWEEN THE ORIGINAL AND THE REWORKED VERSION
+
 /// <summary>
 /// Represents a Discord guild.
 /// </summary>
-public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
+public class DiscordGuild2 : SnowflakeObject, IEquatable<DiscordGuild>
 {
     /// <summary>
     /// Gets the guild's name.
@@ -314,7 +317,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonProperty("max_presences")]
     public int? MaxPresences { get; internal set; }
-    
+
+#pragma warning disable CS1734
     /// <summary>
     /// Gets the approximate number of members in this guild, when using <see cref="DiscordClient.GetGuildAsync(ulong, bool?)"/> and having <paramref name="withCounts"></paramref> set to true.
     /// </summary>
@@ -326,6 +330,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonProperty("approximate_presence_count", NullValueHandling = NullValueHandling.Ignore)]
     public int? ApproximatePresenceCount { get; internal set; }
+#pragma warning restore CS1734
 
     /// <summary>
     /// Gets the maximum amount of users allowed per video channel.
@@ -347,22 +352,22 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <summary>
     /// Gets a dictionary of all the members that belong to this guild. The dictionary's key is the member ID.
     /// </summary>
-    [JsonIgnore]
-    public IReadOnlyList<ulong> Members => this._members.ToList();
+    [JsonIgnore] // TODO overhead of => vs Lazy? it's a struct
+    public IReadOnlyDictionary<ulong, DiscordMember> Members => new ReadOnlyConcurrentDictionary<ulong, DiscordMember>(this._members);
 
     [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-    internal ConcurrentBag<ulong> _members;
+    internal ConcurrentDictionary<ulong, DiscordMember> _members;
 
     /// <summary>
-    /// Gets a unordered list of all the channel ids in this guild.
+    /// Gets a dictionary of all the channels associated with this guild. The dictionary's key is the channel ID.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyList<ulong> Channels => new List<ulong>(this._channels);
+    public IReadOnlyDictionary<ulong, DiscordChannel> Channels => new ReadOnlyConcurrentDictionary<ulong, DiscordChannel>(this._channels);
 
     [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-    internal ConcurrentBag<ulong> _channels;
+    internal ConcurrentDictionary<ulong, DiscordChannel> _channels;
 
     /// <summary>
     /// Gets a dictionary of all the active threads associated with this guild the user has permission to view. The dictionary's key is the channel ID.

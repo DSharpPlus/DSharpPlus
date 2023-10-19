@@ -63,7 +63,7 @@ internal static class AuditLogParser
                 continue;
             }
 
-            client.UpdateUserCache(discordUser);
+            client.AddUserToCache(discordUser);
         }
 
         //get unique webhooks, scheduledEvents, threads

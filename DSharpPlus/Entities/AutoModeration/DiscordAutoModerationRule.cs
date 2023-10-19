@@ -36,7 +36,7 @@ public class DiscordAutoModerationRule : SnowflakeObject
     /// Gets the user that created the rule.
     /// </summary>
     [JsonIgnore]
-    public DiscordUser? Creator => this.Discord.TryGetCachedUserInternal(this.CreatorId, out DiscordUser creator) ? creator : null;
+    public DiscordUser? Creator => this.Discord.TryGetCachedUserInternalAsync(this.CreatorId, out DiscordUser creator) ? creator : null;
 
     /// <summary>
     /// Gets the rule event type.

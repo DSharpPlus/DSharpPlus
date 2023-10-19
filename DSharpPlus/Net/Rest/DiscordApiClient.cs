@@ -22,6 +22,8 @@ using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Net;
 
+using System.Collections.Concurrent;
+
 // huge credits to dvoraks 8th symphony for being a source of sanity in the trying times of 
 // fixing this absolute catastrophy up at least somewhat
 
@@ -142,6 +144,38 @@ public sealed class DiscordApiClient
 
     #region Guild
 
+    private DiscordGuild ConvertGuild(TransportGuild transportGuild)
+    {
+        DiscordGuild discordGuild = new();
+        
+        // Add channels
+        transportGuild.Channels ??= new ConcurrentDictionary<ulong, DiscordChannel>();
+        foreach (KeyValuePair<ulong, DiscordChannel> channel in transportGuild.Channels)
+        {
+            channel.Value.Discord = this._discord!;
+            this._discord.AddChannelToCache(channel.Value);
+        }
+        
+        transportGuild.Members ??= new ConcurrentDictionary<ulong, DiscordMember>();
+        foreach (KeyValuePair<ulong, DiscordMember> member in transportGuild.Members)
+        {
+            member.Value.Discord = this._discord!;
+            this._discord.AddMemberToCache(member.Value);
+        }
+        
+        transportGuild.Threads ??= new ConcurrentDictionary<ulong, DiscordThreadChannel>();
+        foreach (KeyValuePair<ulong, DiscordThreadChannel> thread in transportGuild.Threads)
+        {
+            thread.Value.Discord = this._discord!;
+            this._discord.AddChannelToCache(thread.Value);
+        }
+        
+        discordGuild._channels = new ConcurrentBag<ulong>(transportGuild.Channels.Values.Select(x => x.Id));
+        discordGuild._members = new ConcurrentBag<ulong>(transportGuild.Members.Values.Select(x => x.Id));
+        
+        
+    }
+
     internal async ValueTask<IReadOnlyList<DiscordMember>> SearchMembersAsync
     (
         ulong guildId,
@@ -175,7 +209,7 @@ public sealed class DiscordApiClient
         {
             DiscordUser usr = new(transport.User) { Discord = this._discord! };
 
-            this._discord!.UpdateUserCache(usr);
+            this._discord!.AddUserToCache(usr);
 
             members.Add(new DiscordMember(transport) { Discord = this._discord, _guild_id = guildId });
         }
@@ -202,10 +236,10 @@ public sealed class DiscordApiClient
 
         DiscordBan ban = json.ToDiscordObject<DiscordBan>();
 
-        if (!this._discord!.TryGetCachedUserInternal(ban.RawUser.Id, out DiscordUser? user))
+        if (!this._discord!.TryGetCachedUserInternalAsync(ban.RawUser.Id, out DiscordUser? user))
         {
             user = new DiscordUser(ban.RawUser) { Discord = this._discord };
-            user = this._discord.UpdateUserCache(user);
+            user = this._discord.AddUserToCache(user);
         }
 
         ban.User = user;
@@ -425,10 +459,10 @@ public sealed class DiscordApiClient
         IEnumerable<DiscordBan> bansRaw = JsonConvert.DeserializeObject<IEnumerable<DiscordBan>>(res.Response!)!
         .Select(xb =>
         {
-            if (!this._discord!.TryGetCachedUserInternal(xb.RawUser.Id, out DiscordUser? user))
+            if (!this._discord!.TryGetCachedUserInternalAsync(xb.RawUser.Id, out DiscordUser? user))
             {
                 user = new DiscordUser(xb.RawUser) { Discord = this._discord };
-                user = this._discord.UpdateUserCache(user);
+                user = this._discord.AddUserToCache(user);
             }
 
             xb.User = user;
@@ -3376,7 +3410,7 @@ public sealed class DiscordApiClient
         {
             Discord = this._discord!
         };
-        _ = this._discord!.UpdateUserCache(usr);
+        _ = this._discord!.AddUserToCache(usr);
 
         return new DiscordMember(tm)
         {
@@ -4871,7 +4905,7 @@ public sealed class DiscordApiClient
             {
                 Discord = this._discord!
             };
-            usr = this._discord!.UpdateUserCache(usr);
+            usr = this._discord!.AddUserToCache(usr);
 
             users.Add(usr);
         }

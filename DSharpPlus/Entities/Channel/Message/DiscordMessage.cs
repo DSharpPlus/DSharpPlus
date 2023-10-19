@@ -396,7 +396,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         {
             // Assign the Discord instance and update the user cache.
             usr.Discord = this.Discord;
-            this.Discord.UpdateUserCache(usr);
+            this.Discord.AddUserToCache(usr);
 
             if (guild != null && usr is not DiscordMember && guild._members.TryGetValue(usr.Id, out DiscordMember? cachedMember))
             {

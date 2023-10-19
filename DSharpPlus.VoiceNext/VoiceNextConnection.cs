@@ -960,7 +960,7 @@ public sealed class VoiceNextConnection : IDisposable
                 // No longer spam, Discord supposedly doesn't send many of these
                 this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received SPEAKING (OP5)");
                 VoiceSpeakingPayload spd = opp.ToDiscordObject<VoiceSpeakingPayload>();
-                bool foundUserInCache = this.Discord.TryGetCachedUserInternal(spd.UserId.Value, out DiscordUser? resolvedUser);
+                bool foundUserInCache = this.Discord.TryGetCachedUserInternalAsync(spd.UserId.Value, out DiscordUser? resolvedUser);
                 UserSpeakingEventArgs spk = new UserSpeakingEventArgs
                 {
                     Speaking = spd.Speaking,

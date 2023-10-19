@@ -36,7 +36,7 @@ public class DiscordMemoryCache : IDiscordCache
         }
         
         _cache.Set(key, entity, entryOptions.ToMemoryCacheEntryOptions());
-        return default;
+        return ValueTask.CompletedTask;
     }
 
     public ValueTask Remove(ICacheKey key)
@@ -44,14 +44,13 @@ public class DiscordMemoryCache : IDiscordCache
         ArgumentNullException.ThrowIfNull(key);
 
         this._cache.Remove(key);
-        return default;
+        return ValueTask.CompletedTask;
     }
 
-    public ValueTask<bool> TryGet<T>(ICacheKey key, out T? entity)
+    public ValueTask<T?> TryGet<T>(ICacheKey key)
     {
         ArgumentNullException.ThrowIfNull(key);
 
-        entity = this._cache.Get<T>(key);
-        return new ValueTask<bool>(entity is not null);
+        return ValueTask.FromResult(this._cache.Get<T?>(key));
     }
 }
