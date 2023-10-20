@@ -120,7 +120,7 @@ public static class Program
             FileInfo file = new(path);
             string fullPath = file.FullName.Replace('\\', '/');
 
-            int index = fullPath.LastIndexOf("/");
+            int index = fullPath.LastIndexOf('/');
             string deletePath = fullPath.Remove(index + 1, 1).Replace(input, output);
 
             AnsiConsole.MarkupLine
@@ -164,7 +164,7 @@ public static class Program
             }
         );
 
-        List<string> emittedFiles = new();
+        List<string> emittedFiles = [];
         List<string> editedFiles = added.Concat(modified).ToList();
 
         for(int i = 0; i < editedFiles.Count; i++)
@@ -176,7 +176,7 @@ public static class Program
                 File.ReadAllText(path)
             );
 
-            int index = path.LastIndexOf("/");
+            int index = path.LastIndexOf('/');
             string outPath = path.Remove(index + 1, 1).Replace(input, output);
 
             StringBuilder writer = new();

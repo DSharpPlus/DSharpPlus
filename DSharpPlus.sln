@@ -30,9 +30,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.SourceGenerators
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core.Models.Tests", "tests\core\DSharpPlus.Core.Models.Tests\DSharpPlus.Core.Models.Tests.csproj", "{9F25D892-3CB0-4D47-B67D-D3FFFADC03E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Core.Abstractions.Rest", "src\core\DSharpPlus.Core.Abstractions.Rest\DSharpPlus.Core.Abstractions.Rest.csproj", "{CD440954-E19A-4E94-A217-CCC1DC4AF095}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core.Abstractions.Rest", "src\core\DSharpPlus.Core.Abstractions.Rest\DSharpPlus.Core.Abstractions.Rest.csproj", "{CD440954-E19A-4E94-A217-CCC1DC4AF095}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Core.Rest", "src\core\DSharpPlus.Core.Rest\DSharpPlus.Core.Rest.csproj", "{9CEC3D27-9014-48B6-910F-D25233BF8C44}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core.Rest", "src\core\DSharpPlus.Core.Rest\DSharpPlus.Core.Rest.csproj", "{9CEC3D27-9014-48B6-910F-D25233BF8C44}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
