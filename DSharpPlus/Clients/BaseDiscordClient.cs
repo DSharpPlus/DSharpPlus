@@ -238,7 +238,7 @@ public abstract class BaseDiscordClient : IDisposable
     
     internal void AddUserToCache(DiscordUser newUser) => this.Cache.Add(newUser, newUser.GetCacheKey());
     
-    internal void AddGuildToCacher(DiscordGuild guild) => this.Cache.Add(guild, guild.GetCacheKey());
+    internal void AddGuildToCache(DiscordGuild guild) => this.Cache.Add(guild, guild.GetCacheKey());
     
     internal void AddChannelToCache(DiscordChannel channel) => this.Cache.Add(channel, channel.GetCacheKey());
     

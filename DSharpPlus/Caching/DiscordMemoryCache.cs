@@ -53,4 +53,6 @@ public class DiscordMemoryCache : IDiscordCache
 
         return ValueTask.FromResult(this._cache.Get<T?>(key));
     }
+
+    public void Dispose() => this._cache.Dispose();
 }

@@ -1,10 +1,11 @@
 ﻿namespace DSharpPlus.Cache;
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
-public interface IDiscordCache
+public interface IDiscordCache : IDisposable
 {
     /// <summary>
     /// Add entity of type T to the cache

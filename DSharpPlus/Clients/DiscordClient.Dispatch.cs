@@ -980,7 +980,7 @@ public sealed partial class DiscordClient
         guild._stageInstances ??= new ConcurrentDictionary<ulong, DiscordStageInstance>();
         guild._scheduledEvents ??= new ConcurrentDictionary<ulong, DiscordScheduledGuildEvent>();
 
-        this.UpdateCachedGuild(eventGuild, rawMembers);
+        this.UpdateCachedGuildAsync(eventGuild, rawMembers);
 
         guild.JoinedAt = eventGuild.JoinedAt;
         guild.IsLarge = eventGuild.IsLarge;
@@ -1192,7 +1192,7 @@ public sealed partial class DiscordClient
             guild._members = new ConcurrentDictionary<ulong, DiscordMember>();
         }
 
-        this.UpdateCachedGuild(eventGuild, rawMembers);
+        this.UpdateCachedGuildAsync(eventGuild, rawMembers);
 
         foreach (DiscordChannel xc in guild._channels.Values)
         {
@@ -1263,7 +1263,7 @@ public sealed partial class DiscordClient
         guild._isSynced = true;
         guild.IsLarge = isLarge;
 
-        this.UpdateCachedGuild(guild, rawMembers);
+        this.UpdateCachedGuildAsync(guild, rawMembers);
 
         await this._guildAvailable.InvokeAsync(this, new GuildCreateEventArgs { Guild = guild });
     }
