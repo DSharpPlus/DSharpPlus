@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -52,7 +53,7 @@ internal readonly record struct RestRequest : IRestRequest
         {
             foreach (KeyValuePair<string, string> header in this.Headers)
             {
-                request.Headers.Add(header.Key, header.Value);
+                request.Headers.Add(header.Key, Uri.EscapeDataString(header.Value));
             }
         }
 
