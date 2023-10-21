@@ -76,7 +76,7 @@ internal readonly record struct MultipartRestRequest : IRestRequest
         {
             foreach (KeyValuePair<string, string> header in this.Headers)
             {
-                request.Headers.Add(header.Key, header.Value);
+                request.Headers.Add(header.Key, Uri.EscapeDataString(header.Value));
             }
         }
 
