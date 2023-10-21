@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -28,7 +27,8 @@ public sealed class OneOfConverter<TUnion> : JsonConverter<TUnion>
     // using type handles turns out to be marginally faster than Type, but it doesn't fundamentally matter
     // and this might well change in future .NET versions, in which case this code should use Type for ease
     // of reading
-    private static readonly FrozenDictionary<long, Func<object, IOneOf>> constructionMethods;
+    // at some point i'd also like to kill the MethodInfo, but today is not that day
+    private static readonly FrozenDictionary<long, MethodInfo> constructionMethods;
 
     // we cache ordered types by the jsontokentype
     private static readonly FrozenDictionary<JsonTokenType, FrozenSet<Type>> orderedUnion;
@@ -46,22 +46,20 @@ public sealed class OneOfConverter<TUnion> : JsonConverter<TUnion>
         // 3. float primitives (assignable to INumber and IFloatingPoint, is struct)
         // 4. other types that aren't models
         // 5. models
-        FrozenSet<Type> baselineOrderedUnionTypes = unionTypes
+        IEnumerable<Type> baselineOrderedUnionTypes = unionTypes
             .OrderByDescending(t => t == typeof(Snowflake) || t == typeof(Snowflake?))
-            .ThenByDescending(t => t.IsAssignableTo(typeof(INumber<>).MakeGenericType(t)) && t.IsValueType)
-            .ThenBy(t => t.IsAssignableTo(typeof(IFloatingPoint<>).MakeGenericType(t)))
-            .ThenBy(t => t.FullName!.StartsWith("DSharpPlus", StringComparison.InvariantCulture))
-            .ToFrozenSet();
+            .ThenByDescending(t => t.IsAssignableTo(typeof(INumber<>)) && t.IsValueType)
+            .ThenBy(t => t.IsAssignableTo(typeof(IFloatingPoint<>)))
+            .ThenBy(t => t.FullName!.StartsWith("DSharpPlus", StringComparison.InvariantCulture));
 
         // construction methods
-        Dictionary<long, Func<object, IOneOf>> methods = [];
+        Dictionary<long, MethodInfo> methods = [];
 
         for (int i = 0; i < unionTypes.Length; i++)
         {
-            MethodInfo? method = typeof(TUnion).GetMethod($"FromT{i}")!;
+            MethodInfo method = typeof(TUnion).GetMethod($"FromT{i}")!;
 
-            Func<object, IOneOf> @delegate = Unsafe.As<Func<object, IOneOf>>(method.CreateDelegate(unionTypes[i]));
-            methods.Add(unionTypes[i].TypeHandle.Value, @delegate);
+            methods.Add(unionTypes[i].TypeHandle.Value, method);
         }
 
         constructionMethods = methods.ToFrozenDictionary();
@@ -70,7 +68,7 @@ public sealed class OneOfConverter<TUnion> : JsonConverter<TUnion>
         Dictionary<JsonTokenType, FrozenSet<Type>> priorities = new()
         {
             // our baseline is already optimized for numbers
-            [JsonTokenType.Number] = baselineOrderedUnionTypes
+            [JsonTokenType.Number] = baselineOrderedUnionTypes.ToFrozenSet()
         };
 
         // nullability
@@ -79,7 +77,7 @@ public sealed class OneOfConverter<TUnion> : JsonConverter<TUnion>
             JsonTokenType.Null,
             baselineOrderedUnionTypes.OrderByDescending
             (
-                type => type.GetGenericTypeDefinition() == typeof(Nullable<>) || !type.IsValueType
+                type => (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) || !type.IsValueType
             )
             .ToFrozenSet()
         );
@@ -94,13 +92,13 @@ public sealed class OneOfConverter<TUnion> : JsonConverter<TUnion>
         priorities.Add(JsonTokenType.True, booleanPriority);
         priorities.Add(JsonTokenType.False, booleanPriority);
 
-        // string
+        // string - snowflakes also use strings, so we should prioritize accordingly
         priorities.Add
         (
             JsonTokenType.String,
             baselineOrderedUnionTypes.OrderByDescending
             (
-                type => type == typeof(string)
+                type => type == typeof(string) || type == typeof(Snowflake)
             )
             .ToFrozenSet()
         );
@@ -120,7 +118,7 @@ public sealed class OneOfConverter<TUnion> : JsonConverter<TUnion>
             JsonTokenType.StartObject,
             baselineOrderedUnionTypes.OrderByDescending(type => !type.IsPrimitive)
                 .ThenByDescending(type => type != typeof(Snowflake) && type != typeof(Snowflake?))
-                .ThenByDescending(type => type.GetGenericTypeDefinition() != typeof(Nullable<>))
+                .ThenByDescending(type => type.IsGenericType && type.GetGenericTypeDefinition() != typeof(Nullable<>))
                 .ToFrozenSet()
         );
 
@@ -148,7 +146,7 @@ public sealed class OneOfConverter<TUnion> : JsonConverter<TUnion>
                 continue;
             }
 
-            return (TUnion)constructionMethods[type.TypeHandle.Value](value);
+            return (TUnion)constructionMethods[type.TypeHandle.Value].Invoke(null, new object[] { value })!;
         }
 
         throw new JsonException("The value could not be parsed into the given union.");

@@ -24,7 +24,7 @@ public sealed class OneOfConverterFactory : JsonConverterFactory
         JsonSerializerOptions options
     )
     {
-        Type concreteConverter = typeof(OneOfConverter<>).MakeGenericType(typeToConvert.GetGenericArguments());
+        Type concreteConverter = typeof(OneOfConverter<>).MakeGenericType(typeToConvert);
 
         return (JsonConverter)Activator.CreateInstance(concreteConverter)!;
     }
