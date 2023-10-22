@@ -32,7 +32,7 @@ public sealed record Entitlement : IEntitlement
     public required EntitlementType Type { get; init; }
 
     /// <inheritdoc/>
-    public required bool Consumed { get; init; }
+    public required bool Deleted { get; init; }
 
     /// <inheritdoc/>
     public Optional<DateTimeOffset> StartsAt { get; init; }

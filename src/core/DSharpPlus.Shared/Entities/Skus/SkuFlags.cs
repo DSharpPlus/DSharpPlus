@@ -13,6 +13,11 @@ namespace DSharpPlus.Entities;
 public enum SkuFlags
 {
     /// <summary>
+    /// This SKU is available for purchase.
+    /// </summary>
+    Available = 1 << 2,
+
+    /// <summary>
     /// A subscription purchased by a user and applied to a single server. Everyone in that server gets access
     /// to the given SKU.
     /// </summary>

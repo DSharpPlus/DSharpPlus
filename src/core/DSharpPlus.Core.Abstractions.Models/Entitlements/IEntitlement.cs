@@ -44,9 +44,9 @@ public interface IEntitlement
     public EntitlementType Type { get; }
 
     /// <summary>
-    /// <c>false</c>.
+    /// Indicates whether this entitlement was deleted.
     /// </summary>
-    public bool Consumed { get; }
+    public bool Deleted { get; }
 
     /// <summary>
     /// The starting date at which this entitlement is valid. Not present when using test entitlements.
