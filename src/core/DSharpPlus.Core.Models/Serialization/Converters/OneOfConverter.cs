@@ -48,8 +48,14 @@ public sealed class OneOfConverter<TUnion> : JsonConverter<TUnion>
         // 5. models
         IEnumerable<Type> baselineOrderedUnionTypes = unionTypes
             .OrderByDescending(t => t == typeof(Snowflake) || t == typeof(Snowflake?))
-            .ThenByDescending(t => t.IsAssignableTo(typeof(INumber<>)) && t.IsValueType)
-            .ThenBy(t => t.IsAssignableTo(typeof(IFloatingPoint<>)))
+            .ThenByDescending
+            (
+                t => TestAssignableToGenericMathInterface(t, typeof(INumber<>))
+            )
+            .ThenBy
+            (
+                t => TestAssignableToGenericMathInterface(t, typeof(IFloatingPoint<>))
+            )
             .ThenBy(t => t.FullName!.StartsWith("DSharpPlus", StringComparison.InvariantCulture));
 
         // construction methods
@@ -123,6 +129,32 @@ public sealed class OneOfConverter<TUnion> : JsonConverter<TUnion>
         );
 
         orderedUnion = priorities.ToFrozenDictionary();
+    }
+
+    private static bool TestAssignableToGenericMathInterface
+    (
+        Type type,
+        Type @interface
+    )
+    {
+        if (!type.IsValueType)
+        {
+            return false;
+        }
+
+        try
+        {
+            if (type.IsAssignableTo(@interface.MakeGenericType(type)))
+            {
+                return true;
+            }
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
+
+        return false;
     }
 
     public override TUnion? Read
