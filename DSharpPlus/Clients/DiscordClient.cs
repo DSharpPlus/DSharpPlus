@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
-using DSharpPlus.Cache;
+using DSharpPlus.Caching;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
@@ -407,7 +407,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordChannel> GetChannelAsync(ulong id)
-        => this.InternalGetCachedThread(id) ?? this.InternalGetCachedChannel(id) ?? await this.ApiClient.GetChannelAsync(id);
+        => this.InternalGetCachedThreadAsync(id) ?? this.InternalGetCachedChannel(id) ?? await this.ApiClient.GetChannelAsync(id);
 
     /// <summary>
     /// Sends a message
@@ -810,14 +810,14 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
     #region Internal Caching Methods
 
-    internal async ValueTask<DiscordThreadChannel?> InternalGetCachedThread(ulong threadId)
+    internal async ValueTask<DiscordThreadChannel?> GetCachedThreadAsync(ulong threadId)
     {
         ICacheKey key = ICacheKey.ForChannel(threadId);
         DiscordThreadChannel? channel = await this.Cache.TryGet<DiscordThreadChannel>(key);
         return channel;
     }
 
-    internal async ValueTask<DiscordChannel?> InternalGetCachedChannel(ulong channelId)
+    internal async ValueTask<DiscordChannel?> GetCachedChannelAsync(ulong channelId)
     {
         ICacheKey key = ICacheKey.ForChannel(channelId);
         DiscordChannel? channel = await this.Cache.TryGet<DiscordChannel>(key);
@@ -846,7 +846,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             message.Author = this.UpdateUser(usr, guild?.Id, guild, member);
         }
 
-        DiscordChannel? channel = await this.InternalGetCachedChannel(message.ChannelId) ?? await this.InternalGetCachedThread(message.ChannelId);
+        DiscordChannel? channel = await this.InternalGetCachedChannel(message.ChannelId) ?? await this.InternalGetCachedThreadAsync(message.ChannelId);
 
         if (channel != null)
         {

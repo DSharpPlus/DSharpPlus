@@ -1,9 +1,7 @@
-﻿namespace DSharpPlus.Cache;
+﻿namespace DSharpPlus.Caching;
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using DSharpPlus.Entities;
 
 public interface IDiscordCache : IDisposable
 {

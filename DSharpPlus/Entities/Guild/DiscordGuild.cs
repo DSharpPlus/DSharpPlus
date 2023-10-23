@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.Caching;
 using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.Enums;
 using DSharpPlus.EventArgs;
@@ -16,9 +17,6 @@ using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
-
-using Cache;
-using Microsoft.Extensions.Caching.Memory;
 
 /// <summary>
 /// Represents a Discord guild.
@@ -351,21 +349,21 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets a dictionary of all the members that belong to this guild. The dictionary's key is the member ID.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyList<ulong> Members => this._members.ToList();
+    public IReadOnlyDictionary<ulong, DiscordMember> Members => new ReadOnlyConcurrentDictionary<ulong, DiscordMember>(this._members);
 
     [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-    internal ConcurrentBag<ulong> _members;
+    internal ConcurrentDictionary<ulong, DiscordMember> _members;
 
     /// <summary>
-    /// Gets a unordered list of all the channel ids in this guild.
+    /// Gets a dictionary of all the channels associated with this guild. The dictionary's key is the channel ID.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyList<ulong> Channels => new List<ulong>(this._channels);
+    public IReadOnlyDictionary<ulong, DiscordChannel> Channels => new ReadOnlyConcurrentDictionary<ulong, DiscordChannel>(this._channels);
 
     [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-    internal ConcurrentBag<ulong> _channels;
+    internal ConcurrentDictionary<ulong, DiscordChannel> _channels;
 
     /// <summary>
     /// Gets a dictionary of all the active threads associated with this guild the user has permission to view. The dictionary's key is the channel ID.
@@ -1392,12 +1390,14 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     }
 
     /// <summary>
-    /// Retrieves a full list of members from Discord. This method will bypass and update cache.
+    /// Retrieves a full list of members from Discord. This method will bypass cache.
     /// </summary>
     /// <returns>A collection of all members in this guild.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async IAsyncEnumerable<DiscordMember> GetAllMembersAsync()
+    public async Task<IReadOnlyCollection<DiscordMember>> GetAllMembersAsync()
     {
+        HashSet<DiscordMember> members = new();
+
         int recd = 1000;
         ulong last = 0ul;
         while (recd > 0)
@@ -1409,14 +1409,16 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             {
                 DiscordUser user = new(transportMember.User) { Discord = this.Discord };
 
-                this.Discord.AddUserToCache(user);
+                user = this.Discord.UpdateUserCache(user);
 
-                DiscordMember member = new(transportMember) { Discord = this.Discord, _guild_id = this.Id };
-                this.Discord.AddMemberToCache(member);
-                last = member.Id;
-                yield return member;
+                members.Add(new DiscordMember(transportMember) { Discord = this.Discord, _guild_id = this.Id });
             }
+
+            TransportMember? lastMember = tms.LastOrDefault();
+            last = lastMember?.User.Id ?? 0;
         }
+
+        return new ReadOnlySet<DiscordMember>(members);
     }
 
     /// <summary>
@@ -1504,18 +1506,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="id">ID of the channel to get.</param>
     /// <returns>Requested channel.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async ValueTask<DiscordChannel> GetChannelAsync(ulong id)
-    {
-        DiscordChannel? cachedChannel = await this.Discord.Cache.TryGet<DiscordChannel?>(ICacheKey.ForChannel(id));
-        if (cachedChannel is not null)
-        {
-            return cachedChannel;
-        }
-
-        cachedChannel = await this.Discord.ApiClient.GetChannelAsync(id);
-        return cachedChannel;
-    }
-        
+    public DiscordChannel GetChannel(ulong id)
+        => this._channels != null && this._channels.TryGetValue(id, out DiscordChannel? channel) ? channel : null;
 
     /// <summary>
     /// Gets audit log entries for this guild.
@@ -2145,4 +2137,120 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>Whether the two members are not equal.</returns>
     public static bool operator !=(DiscordGuild e1, DiscordGuild e2)
         => !(e1 == e2);
+}
+
+/// <summary>
+/// Represents guild verification level.
+/// </summary>
+public enum VerificationLevel : int
+{
+    /// <summary>
+    /// No verification. Anyone can join and chat right away.
+    /// </summary>
+    None = 0,
+
+    /// <summary>
+    /// Low verification level. Users are required to have a verified email attached to their account in order to be able to chat.
+    /// </summary>
+    Low = 1,
+
+    /// <summary>
+    /// Medium verification level. Users are required to have a verified email attached to their account, and account age need to be at least 5 minutes in order to be able to chat.
+    /// </summary>
+    Medium = 2,
+
+    /// <summary>
+    /// (╯°□°）╯︵ ┻━┻ verification level. Users are required to have a verified email attached to their account, account age need to be at least 5 minutes, and they need to be in the server for at least 10 minutes in order to be able to chat.
+    /// </summary>
+    High = 3,
+
+    /// <summary>
+    /// ┻━┻ ﾐヽ(ಠ益ಠ)ノ彡┻━┻ verification level. Users are required to have a verified phone number attached to their account.
+    /// </summary>
+    Highest = 4
+}
+
+/// <summary>
+/// Represents default notification level for a guild.
+/// </summary>
+public enum DefaultMessageNotifications : int
+{
+    /// <summary>
+    /// All messages will trigger push notifications.
+    /// </summary>
+    AllMessages = 0,
+
+    /// <summary>
+    /// Only messages that mention the user (or a role he's in) will trigger push notifications.
+    /// </summary>
+    MentionsOnly = 1
+}
+
+/// <summary>
+/// Represents multi-factor authentication level required by a guild to use administrator functionality.
+/// </summary>
+public enum MfaLevel : int
+{
+    /// <summary>
+    /// Multi-factor authentication is not required to use administrator functionality.
+    /// </summary>
+    Disabled = 0,
+
+    /// <summary>
+    /// Multi-factor authentication is required to use administrator functionality.
+    /// </summary>
+    Enabled = 1
+}
+
+/// <summary>
+/// Represents the value of explicit content filter in a guild.
+/// </summary>
+public enum ExplicitContentFilter : int
+{
+    /// <summary>
+    /// Explicit content filter is disabled.
+    /// </summary>
+    Disabled = 0,
+
+    /// <summary>
+    /// Only messages from members without any roles are scanned.
+    /// </summary>
+    MembersWithoutRoles = 1,
+
+    /// <summary>
+    /// Messages from all members are scanned.
+    /// </summary>
+    AllMembers = 2
+}
+
+/// <summary>
+/// Represents the formats for a guild widget.
+/// </summary>
+public enum WidgetType : int
+{
+    /// <summary>
+    /// The widget is represented in shield format.
+    /// <para>This is the default widget type.</para>
+    /// </summary>
+    Shield = 0,
+
+    /// <summary>
+    /// The widget is represented as the first banner type.
+    /// </summary>
+    Banner1 = 1,
+
+    /// <summary>
+    /// The widget is represented as the second banner type.
+    /// </summary>
+    Banner2 = 2,
+
+    /// <summary>
+    /// The widget is represented as the third banner type.
+    /// </summary>
+    Banner3 = 3,
+
+    /// <summary>
+    /// The widget is represented in the fourth banner type.
+    /// </summary>
+    Banner4 = 4
 }

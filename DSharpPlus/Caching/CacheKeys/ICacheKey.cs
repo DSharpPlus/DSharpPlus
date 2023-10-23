@@ -1,4 +1,4 @@
-namespace DSharpPlus.Cache;
+namespace DSharpPlus.Caching;
 
 /// <summary>
 /// 

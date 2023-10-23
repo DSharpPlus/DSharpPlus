@@ -137,14 +137,14 @@ public class DiscordThreadChannelConverter : IArgumentConverter<DiscordThreadCha
     {
         if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulong threadId))
         {
-            DiscordThreadChannel result = ctx.Client.InternalGetCachedThread(threadId);
+            DiscordThreadChannel result = ctx.Client.InternalGetCachedThreadAsync(threadId);
             return Task.FromResult(result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordThreadChannel>());
         }
 
         Match m = ThreadRegex.Match(value);
         if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out threadId))
         {
-            DiscordThreadChannel result = ctx.Client.InternalGetCachedThread(threadId);
+            DiscordThreadChannel result = ctx.Client.InternalGetCachedThreadAsync(threadId);
             return Task.FromResult(result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordThreadChannel>());
         }
 

@@ -1,4 +1,4 @@
-namespace DSharpPlus.Cache;
+namespace DSharpPlus.Caching;
 
 public readonly record struct MemberCacheKey(ulong Id, ulong GuildId) : ICacheKey
 {

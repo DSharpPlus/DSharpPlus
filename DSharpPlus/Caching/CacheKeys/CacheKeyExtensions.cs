@@ -1,7 +1,6 @@
-﻿namespace DSharpPlus.Cache;
+﻿using DSharpPlus.Entities;
 
-using System;
-using Entities;
+namespace DSharpPlus.Caching;
 
 public static class CacheKeyExtensions
 {

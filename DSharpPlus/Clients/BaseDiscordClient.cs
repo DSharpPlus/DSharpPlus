@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using DSharpPlus.Cache;
+using DSharpPlus.Caching;
 using DSharpPlus.Entities;
 using DSharpPlus.Net;
 using Microsoft.Extensions.Logging;

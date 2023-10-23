@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Cache;
+﻿namespace DSharpPlus.Caching;
 
 using System;
 using Microsoft.Extensions.Caching.Memory;
@@ -29,9 +29,9 @@ public class CacheEntryOptions
 
         if 
         (
-            AbsoluteExpirationRelativeToCreation is not null &&
-            SlidingExpiration is not null &&
-            AbsoluteExpirationRelativeToCreation < SlidingExpiration
+            this.AbsoluteExpirationRelativeToCreation is not null &&
+            this.SlidingExpiration is not null &&
+            this.AbsoluteExpirationRelativeToCreation < this.SlidingExpiration
         )
         {
             throw new ArgumentException("AbsoluteExpirationRelativeToCreation must be greater than SlidingExpiration");

@@ -1,10 +1,8 @@
-﻿namespace DSharpPlus.Cache;
+﻿namespace DSharpPlus.Caching;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mime;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -35,7 +33,7 @@ public class DiscordMemoryCache : IDiscordCache
             return default;
         }
         
-        _cache.Set(key, entity, entryOptions.ToMemoryCacheEntryOptions());
+        this._cache.Set(key, entity, entryOptions.ToMemoryCacheEntryOptions());
         return ValueTask.CompletedTask;
     }
 

@@ -1,7 +1,6 @@
-﻿namespace DSharpPlus.Cache;
+﻿namespace DSharpPlus.Caching;
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,9 +14,9 @@ public class WeakDictionary<TKey, TValue> where TValue : class
     {
         WeakReference<TValue> item = new(value, false);
         KeyValuePair<TKey, WeakReference<TValue>> newPair = new(key, item);
-        foreach (KeyValuePair<TKey, WeakReference<TValue>> pair in _list)
+        foreach (KeyValuePair<TKey, WeakReference<TValue>> pair in this._list)
         {
-            if (pair.Key.Equals(key))
+            if (pair.Key != null && pair.Key.Equals(key))
             {
                 this._list.Remove(pair);
                 this._list.Add(newPair);
@@ -25,14 +24,14 @@ public class WeakDictionary<TKey, TValue> where TValue : class
             }
         }
         
-        _list.Add(newPair);
+        this._list.Add(newPair);
     }
 
     public bool ContainsKey(TKey key)
     {
-        foreach (KeyValuePair<TKey, WeakReference<TValue>> pair in _list)
+        foreach (KeyValuePair<TKey, WeakReference<TValue>> pair in this._list)
         {
-            if (pair.Key.Equals(key))
+            if (pair.Key != null && pair.Key.Equals(key))
             {
                 if (pair.Value.TryGetTarget(out _) == false)
                 {
@@ -50,7 +49,7 @@ public class WeakDictionary<TKey, TValue> where TValue : class
     {
         foreach (KeyValuePair<TKey, WeakReference<TValue>> pair in this._list)
         {
-            if (pair.Key.Equals(key))
+            if (pair.Key != null && pair.Key.Equals(key))
             {
                 this._list.Remove(pair);
                 return true;
@@ -64,7 +63,7 @@ public class WeakDictionary<TKey, TValue> where TValue : class
     {
         foreach (KeyValuePair<TKey, WeakReference<TValue>> pair  in this._list)
         {
-            if (pair.Key.Equals(key))
+            if (pair.Key != null && pair.Key.Equals(key))
             {
                 if (pair.Value.TryGetTarget(out value) == false)
                 {
@@ -83,9 +82,9 @@ public class WeakDictionary<TKey, TValue> where TValue : class
 
     public IEnumerable<TValue> Values => this._list.Select(x =>
         {
-            TValue xValue;
+            TValue? xValue;
             x.Value.TryGetTarget(out xValue);
             return xValue;
         })
-        .Where(x => x is not null);
+        .Where(x => x is not null)!;
 }
