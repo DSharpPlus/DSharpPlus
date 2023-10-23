@@ -8,7 +8,7 @@ namespace DSharpPlus.Exceptions;
 /// </summary>
 public class ServerErrorException : DiscordException
 {
-    internal ServerErrorException(HttpRequestMessage request, HttpResponseMessage response, string content) 
+    internal ServerErrorException(HttpRequestMessage request, HttpResponseMessage response, string content)
         : base("Internal Server Error: " + response.StatusCode)
     {
         this.Request = request;

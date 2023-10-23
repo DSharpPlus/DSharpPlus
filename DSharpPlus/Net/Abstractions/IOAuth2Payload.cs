@@ -1,7 +1,6 @@
-namespace DSharpPlus.Net.Abstractions
+namespace DSharpPlus.Net.Abstractions;
+
+internal interface IOAuth2Payload
 {
-    internal interface IOAuth2Payload
-    {
-        string AccessToken { get; set; }
-    }
+    string AccessToken { get; set; }
 }

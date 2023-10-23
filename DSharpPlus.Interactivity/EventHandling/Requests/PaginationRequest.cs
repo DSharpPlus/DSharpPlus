@@ -11,7 +11,7 @@ namespace DSharpPlus.Interactivity.EventHandling
     {
         private TaskCompletionSource<bool> _tcs;
         private readonly CancellationTokenSource _ct;
-        private TimeSpan _timeout;
+        private readonly TimeSpan _timeout;
         private readonly List<Page> _pages;
         private readonly PaginationBehaviour _behaviour;
         private readonly DiscordMessage _message;
@@ -45,7 +45,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._emojis = emojis;
 
             this._pages = new List<Page>();
-            foreach (var p in pages)
+            foreach (Page p in pages)
             {
                 this._pages.Add(p);
             }
@@ -84,17 +84,25 @@ namespace DSharpPlus.Interactivity.EventHandling
             {
                 case PaginationBehaviour.Ignore:
                     if (this._index == this._pages.Count - 1)
+                    {
                         break;
+                    }
                     else
+                    {
                         this._index++;
+                    }
 
                     break;
 
                 case PaginationBehaviour.WrapAround:
                     if (this._index == this._pages.Count - 1)
+                    {
                         this._index = 0;
+                    }
                     else
+                    {
                         this._index++;
+                    }
 
                     break;
             }
@@ -108,17 +116,25 @@ namespace DSharpPlus.Interactivity.EventHandling
             {
                 case PaginationBehaviour.Ignore:
                     if (this._index == 0)
+                    {
                         break;
+                    }
                     else
+                    {
                         this._index--;
+                    }
 
                     break;
 
                 case PaginationBehaviour.WrapAround:
                     if (this._index == 0)
+                    {
                         this._index = this._pages.Count - 1;
+                    }
                     else
+                    {
                         this._index--;
+                    }
 
                     break;
             }

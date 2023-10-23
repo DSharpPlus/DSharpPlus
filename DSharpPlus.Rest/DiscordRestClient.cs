@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
@@ -23,10 +22,7 @@ public class DiscordRestClient : BaseDiscordClient
     internal Dictionary<ulong, DiscordGuild> _guilds = new();
     private Lazy<IReadOnlyDictionary<ulong, DiscordGuild>> _guilds_lazy;
 
-    public DiscordRestClient(DiscordConfiguration config) : base(config)
-    {
-        this._disposed = false;
-    }
+    public DiscordRestClient(DiscordConfiguration config) : base(config) => this._disposed = false;
 
     /// <summary>
     /// Initializes cache
@@ -36,8 +32,8 @@ public class DiscordRestClient : BaseDiscordClient
     {
         await base.InitializeAsync();
         this._guilds_lazy = new Lazy<IReadOnlyDictionary<ulong, DiscordGuild>>(() => new ReadOnlyDictionary<ulong, DiscordGuild>(this._guilds));
-        var gs = await this.ApiClient.GetCurrentUserGuildsAsync(100, null, null);
-        foreach (var g in gs)
+        IReadOnlyList<DiscordGuild> gs = await this.ApiClient.GetCurrentUserGuildsAsync(100, null, null);
+        foreach (DiscordGuild g in gs)
         {
             this._guilds[g.Id] = g;
         }
@@ -86,7 +82,6 @@ public class DiscordRestClient : BaseDiscordClient
     public async Task<IReadOnlyList<DiscordScheduledGuildEvent>> GetScheduledGuildEventsAsync(ulong guildId)
         => await this.ApiClient.GetScheduledGuildEventsAsync(guildId);
 
-
     /// <summary>
     /// Modify a scheduled guild event.
     /// </summary>
@@ -96,30 +91,39 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns>The modified event.</returns>
     public async Task<DiscordScheduledGuildEvent> ModifyScheduledGuildEventAsync(ulong guildId, ulong eventId, Action<ScheduledGuildEventEditModel> mdl)
     {
-        var model = new ScheduledGuildEventEditModel();
+        ScheduledGuildEventEditModel model = new();
         mdl(model);
 
         if (model.Type.HasValue && model.Type.Value is ScheduledGuildEventType.StageInstance or ScheduledGuildEventType.VoiceChannel)
+        {
             if (!model.Channel.HasValue)
+            {
                 throw new ArgumentException("Channel must be supplied if the event is a stage instance or voice channel event.");
+            }
+        }
 
         if (model.Type.HasValue && model.Type.Value is ScheduledGuildEventType.External)
         {
             if (!model.EndTime.HasValue)
+            {
                 throw new ArgumentException("End must be supplied if the event is an external event.");
+            }
 
             if (!model.Metadata.HasValue || string.IsNullOrEmpty(model.Metadata.Value.Location))
+            {
                 throw new ArgumentException("Location must be supplied if the event is an external event.");
+            }
 
             if (model.Channel.HasValue && model.Channel.Value != null)
+            {
                 throw new ArgumentException("Channel must not be supplied if the event is an external event.");
+            }
         }
 
         // We only have an ID to work off of, so we have no validation as to the current state of the event.
-        if (model.Status.HasValue && model.Status.Value is ScheduledGuildEventStatus.Scheduled)
-            throw new ArgumentException("Status cannot be set to scheduled.");
-
-        return await this.ApiClient.ModifyScheduledGuildEventAsync(
+        return model.Status.HasValue && model.Status.Value is ScheduledGuildEventStatus.Scheduled
+            ? throw new ArgumentException("Status cannot be set to scheduled.")
+            : await this.ApiClient.ModifyScheduledGuildEventAsync(
             guildId, eventId,
             model.Name, model.Description,
             model.Channel.IfPresent(c => c?.Id),
@@ -139,17 +143,17 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns>The users interested in the event.</returns>
     public async Task<IReadOnlyList<DiscordUser>> GetScheduledGuildEventUsersAsync(ulong guildId, ulong eventId, int limit = 100, ulong? after = null, ulong? before = null)
     {
-        var remaining = limit;
+        int remaining = limit;
         ulong? last = null;
-        var isAfter = after != null;
+        bool isAfter = after != null;
 
-        var users = new List<DiscordUser>();
+        List<DiscordUser> users = new();
 
         int lastCount;
         do
         {
-            var fetchSize = remaining > 100 ? 100 : remaining;
-            var fetch = await this.ApiClient.GetScheduledGuildEventUsersAsync(guildId, eventId, true, fetchSize, !isAfter ? last ?? before : null, isAfter ? last ?? after : null);
+            int fetchSize = remaining > 100 ? 100 : remaining;
+            IReadOnlyList<DiscordUser> fetch = await this.ApiClient.GetScheduledGuildEventUsersAsync(guildId, eventId, true, fetchSize, !isAfter ? last ?? before : null, isAfter ? last ?? after : null);
 
             lastCount = fetch.Count;
             remaining -= lastCount;
@@ -166,7 +170,6 @@ public class DiscordRestClient : BaseDiscordClient
             }
         }
         while (remaining > 0 && lastCount > 0);
-
 
         return users.AsReadOnly();
     }
@@ -242,7 +245,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="systemChannelFlags">New system channel flags</param>
     /// <param name="reason">Modify reason</param>
     /// <returns></returns>
-    public async  Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Optional<string> name,
+    public async Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Optional<string> name,
         Optional<string> region, Optional<VerificationLevel> verification_level,
         Optional<DefaultMessageNotifications> default_message_notifications, Optional<MfaLevel> mfa_level,
         Optional<ExplicitContentFilter> explicit_content_filter, Optional<ulong?> afk_channel_id,
@@ -262,34 +265,50 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns></returns>
     public async Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Action<GuildEditModel> action)
     {
-        var mdl = new GuildEditModel();
+        GuildEditModel mdl = new();
         action(mdl);
 
         if (mdl.AfkChannel.HasValue)
+        {
             if (mdl.AfkChannel.Value.Type != ChannelType.Voice)
+            {
                 throw new ArgumentException("AFK channel needs to be a voice channel!");
+            }
+        }
 
-        var iconb64 = Optional.FromNoValue<string>();
+        Optional<string> iconb64 = Optional.FromNoValue<string>();
         if (mdl.Icon.HasValue && mdl.Icon.Value != null)
-            using (var imgtool = new ImageTool(mdl.Icon.Value))
-                iconb64 = imgtool.GetBase64();
+        {
+            using ImageTool imgtool = new(mdl.Icon.Value);
+            iconb64 = imgtool.GetBase64();
+        }
         else if (mdl.Icon.HasValue)
+        {
             iconb64 = null;
+        }
 
-        var splashb64 = Optional.FromNoValue<string>();
+        Optional<string> splashb64 = Optional.FromNoValue<string>();
         if (mdl.Splash.HasValue && mdl.Splash.Value != null)
-            using (var imgtool = new ImageTool(mdl.Splash.Value))
-                splashb64 = imgtool.GetBase64();
+        {
+            using ImageTool imgtool = new(mdl.Splash.Value);
+            splashb64 = imgtool.GetBase64();
+        }
         else if (mdl.Splash.HasValue)
+        {
             splashb64 = null;
+        }
 
-        var bannerb64 = Optional.FromNoValue<string>();
+        Optional<string> bannerb64 = Optional.FromNoValue<string>();
 
         if (mdl.Banner.HasValue && mdl.Banner.Value != null)
-            using (var imgtool = new ImageTool(mdl.Banner.Value))
-                bannerb64 = imgtool.GetBase64();
+        {
+            using ImageTool imgtool = new(mdl.Banner.Value);
+            bannerb64 = imgtool.GetBase64();
+        }
         else if (mdl.Banner.HasValue)
+        {
             bannerb64 = null;
+        }
 
         return await this.ApiClient.ModifyGuildAsync(guild_id, mdl.Name, mdl.Region.IfPresent(x => x.Id), mdl.VerificationLevel, mdl.DefaultMessageNotifications,
             mdl.MfaLevel, mdl.ExplicitContentFilter, mdl.AfkChannel.IfPresent(x => x?.Id), mdl.AfkTimeout, iconb64, mdl.Owner.IfPresent(x => x.Id),
@@ -369,24 +388,30 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns></returns>
     public async Task<IReadOnlyList<DiscordMember>> ListGuildMembersAsync(ulong guild_id, int? limit, ulong? after)
     {
-        var recmbr = new List<DiscordMember>();
+        List<DiscordMember> recmbr = new();
 
-        var recd = limit ?? 1000;
-        var lim = limit ?? 1000;
-        var last = after;
+        int recd = limit ?? 1000;
+        int lim = limit ?? 1000;
+        ulong? last = after;
         while (recd == lim)
         {
-            var tms = await this.ApiClient.ListGuildMembersAsync(guild_id, lim, last == 0 ? null : (ulong?)last);
+            IReadOnlyList<TransportMember> tms = await this.ApiClient.ListGuildMembersAsync(guild_id, lim, last == 0 ? null : (ulong?)last);
             recd = tms.Count;
 
-            foreach (var xtm in tms)
+            foreach (TransportMember xtm in tms)
             {
                 last = xtm.User.Id;
 
                 if (this.UserCache.ContainsKey(xtm.User.Id))
+                {
                     continue;
+                }
 
-                var usr = new DiscordUser(xtm.User) { Discord = this };
+                DiscordUser usr = new(xtm.User)
+                {
+                    Discord = this
+                };
+
                 this.UpdateUserCache(usr);
             }
 
@@ -428,9 +453,12 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns></returns>
     public async Task UpdateRolePositionAsync(ulong guild_id, ulong role_id, int position, string reason = null)
     {
-        var rgrrps = new List<RestGuildRoleReorderPayload>()
+        List<RestGuildRoleReorderPayload> rgrrps = new()
         {
-            new RestGuildRoleReorderPayload { RoleId = role_id }
+            new()
+            {
+                RoleId = role_id
+            }
         };
         await this.ApiClient.ModifyGuildRolePositionsAsync(guild_id, rgrrps, reason);
     }
@@ -447,9 +475,15 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns></returns>
     public async Task UpdateChannelPositionAsync(ulong guild_id, ulong channel_id, int position, string reason, bool? lockPermissions = null, ulong? parentId = null)
     {
-        var rgcrps = new List<RestGuildChannelReorderPayload>()
+        List<RestGuildChannelReorderPayload> rgcrps = new()
         {
-            new RestGuildChannelReorderPayload { ChannelId = channel_id, Position = position, LockPermissions = lockPermissions, ParentId = parentId }
+            new()
+            {
+                ChannelId = channel_id,
+                Position = position,
+                LockPermissions = lockPermissions,
+                ParentId = parentId
+            }
         };
         await this.ApiClient.ModifyGuildChannelPositionAsync(guild_id, rgcrps, reason);
     }
@@ -497,7 +531,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns>The modified screening form.</returns>
     public async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, Action<MembershipScreeningEditModel> action)
     {
-        var mdl = new MembershipScreeningEditModel();
+        MembershipScreeningEditModel mdl = new();
         action(mdl);
         return await this.ApiClient.ModifyGuildMembershipScreeningFormAsync(guild_id, mdl.Enabled, mdl.Fields, mdl.Description);
     }
@@ -575,10 +609,9 @@ public class DiscordRestClient : BaseDiscordClient
         DefaultSortOrder? defaultSortOrder = null
     )
     {
-        if (type is not (ChannelType.Text or ChannelType.Voice or ChannelType.Category or ChannelType.News or ChannelType.Stage or ChannelType.GuildForum))
-            throw new ArgumentException("Channel type must be text, voice, stage, category, or a forum.", nameof(type));
-
-        return await this.ApiClient.CreateGuildChannelAsync
+        return type is not (ChannelType.Text or ChannelType.Voice or ChannelType.Category or ChannelType.News or ChannelType.Stage or ChannelType.GuildForum)
+            ? throw new ArgumentException("Channel type must be text, voice, stage, category, or a forum.", nameof(type))
+            : await this.ApiClient.CreateGuildChannelAsync
         (
             id,
             name,
@@ -682,7 +715,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns></returns>
     public async Task ModifyChannelAsync(ulong channelId, Action<ChannelEditModel> action)
     {
-        var mdl = new ChannelEditModel();
+        ChannelEditModel mdl = new();
         action(mdl);
 
         await this.ApiClient.ModifyChannelAsync
@@ -781,7 +814,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns></returns>
     public async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, Action<DiscordMessageBuilder> action)
     {
-        var builder = new DiscordMessageBuilder();
+        DiscordMessageBuilder builder = new();
         action(builder);
         return await this.ApiClient.CreateMessageAsync(channel_id, builder);
     }
@@ -1006,7 +1039,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns></returns>
     public async Task<DiscordDmChannel> CreateGroupDmWithCurrentUserAsync(IEnumerable<string> access_tokens, IDictionary<ulong, string> nicks)
     {
-        var a = access_tokens.ToList();
+        List<string> a = access_tokens.ToList();
         a.Add(this.Configuration.Token);
         return await this.ApiClient.CreateGroupDmAsync(a, nicks);
     }
@@ -1066,7 +1099,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns>The modified stage instance.</returns>
     public async Task<DiscordStageInstance> ModifyStageInstanceAsync(ulong channelId, Action<StageInstanceEditModel> action)
     {
-        var mdl = new StageInstanceEditModel();
+        StageInstanceEditModel mdl = new();
         action(mdl);
         return await this.ApiClient.ModifyStageInstanceAsync(channelId, mdl.Topic, mdl.PrivacyLevel, mdl.AuditLogReason);
     }
@@ -1143,8 +1176,10 @@ public class DiscordRestClient : BaseDiscordClient
     {
         string av64 = null;
         if (avatar != null)
-            using (var imgtool = new ImageTool(avatar))
-                av64 = imgtool.GetBase64();
+        {
+            using ImageTool imgtool = new(avatar);
+            av64 = imgtool.GetBase64();
+        }
 
         return new DiscordUser(await this.ApiClient.ModifyCurrentUserAsync(username, av64)) { Discord = this };
     }
@@ -1186,11 +1221,13 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns></returns>
     public async Task ModifyAsync(ulong member_id, ulong guild_id, Action<MemberEditModel> action)
     {
-        var mdl = new MemberEditModel();
+        MemberEditModel mdl = new();
         action(mdl);
 
         if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value != null && mdl.VoiceChannel.Value.Type != ChannelType.Voice && mdl.VoiceChannel.Value.Type != ChannelType.Stage)
+        {
             throw new ArgumentException("Given channel is not a voice or stage channel.", nameof(mdl.VoiceChannel));
+        }
 
         if (mdl.Nickname.HasValue && this.CurrentUser.Id == member_id)
         {
@@ -1207,7 +1244,6 @@ public class DiscordRestClient : BaseDiscordClient
                 mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.CommunicationDisabledUntil, mdl.AuditLogReason);
         }
     }
-    
 
     /// <summary>
     /// Changes the current user in a guild.
@@ -1265,7 +1301,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns></returns>
     public async Task ModifyGuildRoleAsync(ulong role_id, ulong guild_id, Action<RoleEditModel> action)
     {
-        var mdl = new RoleEditModel();
+        RoleEditModel mdl = new();
         action(mdl);
 
         await this.ModifyGuildRoleAsync(guild_id, role_id, mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason, mdl.Icon, mdl.Emoji);
@@ -1451,7 +1487,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns>The modified welcome screen.</returns>
     public async Task<DiscordGuildWelcomeScreen> ModifyGuildWelcomeScreenAsync(ulong guildId, Action<WelcomeScreenEditModel> action, string reason = null)
     {
-        var mdl = new WelcomeScreenEditModel();
+        WelcomeScreenEditModel mdl = new();
         action(mdl);
         return await this.ApiClient.ModifyGuildWelcomeScreenAsync(guildId, mdl.Enabled, mdl.WelcomeChannels, mdl.Description, reason);
     }
@@ -1519,8 +1555,10 @@ public class DiscordRestClient : BaseDiscordClient
     {
         string av64 = null;
         if (avatar != null)
-            using (var imgtool = new ImageTool(avatar))
-                av64 = imgtool.GetBase64();
+        {
+            using ImageTool imgtool = new(avatar);
+            av64 = imgtool.GetBase64();
+        }
 
         return await this.ApiClient.CreateWebhookAsync(channel_id, name, av64, reason);
     }
@@ -1583,8 +1621,10 @@ public class DiscordRestClient : BaseDiscordClient
     {
         string av64 = null;
         if (avatar != null)
-            using (var imgtool = new ImageTool(avatar))
-                av64 = imgtool.GetBase64();
+        {
+            using ImageTool imgtool = new(avatar);
+            av64 = imgtool.GetBase64();
+        }
 
         return await this.ApiClient.ModifyWebhookAsync(webhook_id, channelId, name, av64, reason);
     }
@@ -1614,8 +1654,10 @@ public class DiscordRestClient : BaseDiscordClient
     {
         string av64 = null;
         if (avatar != null)
-            using (var imgtool = new ImageTool(avatar))
-                av64 = imgtool.GetBase64();
+        {
+            using ImageTool imgtool = new(avatar);
+            av64 = imgtool.GetBase64();
+        }
 
         return await this.ApiClient.ModifyWebhookAsync(webhook_id, name, av64, webhook_token, reason);
     }
@@ -1795,9 +1837,9 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns>The edited command.</returns>
     public async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong commandId, Action<ApplicationCommandEditModel> action)
     {
-        var mdl = new ApplicationCommandEditModel();
+        ApplicationCommandEditModel mdl = new();
         action(mdl);
-        var applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
+        ulong applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
         return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
     }
 
@@ -1852,9 +1894,9 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns>The edited command.</returns>
     public async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong guildId, ulong commandId, Action<ApplicationCommandEditModel> action)
     {
-        var mdl = new ApplicationCommandEditModel();
+        ApplicationCommandEditModel mdl = new();
         action(mdl);
-        var applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
+        ulong applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
         return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
     }
 
@@ -2024,7 +2066,7 @@ public class DiscordRestClient : BaseDiscordClient
 
     public async Task<DiscordMessageSticker> CreateGuildStickerAsync(ulong guildId, string name, string description, string tags, Stream imageContents, StickerFormat format, string reason = null)
     {
-        string contentType = null, extension = null;
+        string contentType, extension;
 
         if (format == StickerFormat.PNG || format == StickerFormat.APNG)
         {
@@ -2049,7 +2091,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="reason">Reason for audit log.</param>
     public async Task<DiscordMessageSticker> ModifyGuildStickerAsync(ulong guildId, ulong stickerId, Action<StickerEditModel> action, string reason = null)
     {
-        var mdl = new StickerEditModel();
+        StickerEditModel mdl = new();
         action(mdl);
         return await this.ApiClient.ModifyStickerAsync(guildId, stickerId, mdl.Name, mdl.Description, mdl.Tags, reason);
     }
@@ -2195,18 +2237,25 @@ public class DiscordRestClient : BaseDiscordClient
     public async Task<DiscordGuildEmoji> CreateEmojiAsync(ulong guildId, string name, Stream image, IEnumerable<ulong> roles = null, string reason = null)
     {
         if (string.IsNullOrWhiteSpace(name))
+        {
             throw new ArgumentNullException(nameof(name));
+        }
 
         name = name.Trim();
         if (name.Length < 2 || name.Length > 50)
+        {
             throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.");
+        }
 
         if (image == null)
+        {
             throw new ArgumentNullException(nameof(image));
+        }
 
-        string image64 = null;
-        using (var imgtool = new ImageTool(image))
-            image64 = imgtool.GetBase64();
+        string image64;
+
+        using ImageTool imgtool = new(image);
+        image64 = imgtool.GetBase64();
 
         return await this.ApiClient.CreateGuildEmojiAsync(guildId, name, image64, roles, reason);
     }
@@ -2258,7 +2307,10 @@ public class DiscordRestClient : BaseDiscordClient
     public override void Dispose()
     {
         if (this._disposed)
+        {
             return;
+        }
+
         this._disposed = true;
         this._guilds = null;
         this.ApiClient?._rest?.Dispose();

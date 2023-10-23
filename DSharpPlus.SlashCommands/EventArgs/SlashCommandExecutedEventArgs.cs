@@ -1,15 +1,14 @@
 using DSharpPlus.AsyncEvents;
 
-namespace DSharpPlus.SlashCommands.EventArgs
+namespace DSharpPlus.SlashCommands.EventArgs;
+
+/// <summary>
+/// Represents the arguments for a <see cref="SlashCommandsExtension.SlashCommandExecuted"/> event.
+/// </summary>
+public sealed class SlashCommandExecutedEventArgs : AsyncEventArgs
 {
     /// <summary>
-    /// Represents the arguments for a <see cref="SlashCommandsExtension.SlashCommandExecuted"/> event.
+    /// The context of the command.
     /// </summary>
-    public sealed class SlashCommandExecutedEventArgs : AsyncEventArgs
-    {
-        /// <summary>
-        /// The context of the command.
-        /// </summary>
-        public InteractionContext Context { get; internal set; }
-    }
+    public InteractionContext Context { get; internal set; }
 }

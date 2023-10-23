@@ -76,7 +76,7 @@ internal readonly record struct MultipartRestRequest : IRestRequest
         {
             foreach (KeyValuePair<string, string> header in this.Headers)
             {
-                request.Headers.Add(header.Key, header.Value);
+                request.Headers.Add(header.Key, Uri.EscapeDataString(header.Value));
             }
         }
 
@@ -87,23 +87,23 @@ internal readonly record struct MultipartRestRequest : IRestRequest
 
         MultipartFormDataContent content = new(boundary);
 
-        if(this.Values is not null)
+        if (this.Values is not null)
         {
-            foreach(KeyValuePair<string, string> element in this.Values)
+            foreach (KeyValuePair<string, string> element in this.Values)
             {
                 content.Add(new StringContent(element.Value), element.Key);
             }
         }
 
-        if(this.Files is not null)
+        if (this.Files is not null)
         {
-            for(int i = 0; i < this.Files.Count; i++)
+            for (int i = 0; i < this.Files.Count; i++)
             {
                 DiscordMessageFile current = this.Files[i];
 
                 StreamContent file = new(current.Stream);
 
-                if(current.ContentType is not null)
+                if (current.ContentType is not null)
                 {
                     file.Headers.ContentType = MediaTypeHeaderValue.Parse(current.ContentType);
                 }
@@ -114,7 +114,7 @@ internal readonly record struct MultipartRestRequest : IRestRequest
 
                 // do we actually need this distinction? it's been made since the beginning of time,
                 // but it doesn't seem very necessary
-                if(this.Files.Count > 1)
+                if (this.Files.Count > 1)
                 {
                     content.Add(file, $"file{i + 1}", filename);
                 }

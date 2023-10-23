@@ -1,4 +1,4 @@
-﻿// This file is part of the DSharpPlus project.
+// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2023 DSharpPlus Contributors
@@ -66,11 +66,11 @@ public sealed class DiscordAuditLogChannelEntry : DiscordAuditLogEntry
     /// Gets the description of channel's slow mode timeout change.
     /// </summary>
     public PropertyChange<int?> PerUserRateLimitChange { get; internal set; }
-    
+
     public PropertyChange<int?> UserLimit { get; internal set; }
-    
+
     public PropertyChange<ChannelFlags?> Flags { get; internal set; }
-    
+
     public PropertyChange<IEnumerable<DiscordForumTag>> AvailableTags { get; internal set; }
 
     internal DiscordAuditLogChannelEntry() { }

@@ -14,8 +14,5 @@ public class AutoModerationRuleDeleteEventArgs : DiscordEventArgs
 
     internal AutoModerationRuleDeleteEventArgs() : base() { }
 
-    internal AutoModerationRuleDeleteEventArgs(DiscordAutoModerationRule rule) : base()
-    {
-        this.Rule = rule;
-    }
+    internal AutoModerationRuleDeleteEventArgs(DiscordAutoModerationRule rule) : base() => this.Rule = rule;
 }

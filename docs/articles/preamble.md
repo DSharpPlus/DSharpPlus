@@ -17,17 +17,28 @@ you're not sure what to do first, Bob's tutorial series should be your starting 
 
 ## Supported .NET Implementations
 
-Because DSharpPlus targets .NET Standard 2.0, there are many implementations that may function with DSharpPlus. However,
-there are only a few versions we will *explicitly* provide support for.
+There are multiple different development and maintenance branches of DSharpPlus targeting different [.NET][4] versions and supported
+on different .NET versions.
 
-Implementation      | Support | Notes
-:------------------:|:-------:|:------
-[.NET][4]      | ✔️      | EoL versions Core 3.1 and 5.0 should work; LTS version 6.0 and STS version 7.0 are supported.
-[.NET Framework][5] | ⚠️      | Versions 4.6.1 through 4.8 *should* work fine. However, we do not directly support .NET Framework. We recommend that you use the latest or LTS version of .NET Core.
-[Mono][6]           | ❌️       | Has numerous flaws which can break things without warning. If you need a cross platform runtime, use .NET.
-[Unity][7]          | ❌️       | Game engines with C# support will never be supported by DSharpPlus. You should consider using the official [Discord GameSDK][8] instead.
+IF you are using [Unity][7], [Mono][6] or [the .NET Framework][5], no support will be provided, and your project might break at any given
+moment. .NET Framework 4.6.1 through 4.8.1 *should* work, but we will not provide support or fixes for any issues arising there.
+Additionally, if you are using a game engine with C# support (such as Unity), you should consider using the [Discord GameSDK][8]
+instead of DSharpPlus.
 
-If you use an unsupported implementation and encounter issues, you'll be on your own.
+If you use unsupported software, you are on your own with any arising issues.
+
+### Latest Stable 4.4.2
+
+Version 4.4.2 *should* work on EoL versions Core 3.1 and 5.0 and is supported from version 6.0 upwards.
+
+### Nightly 5.0
+
+5.0 nightly builds target .NET 7.0, and will target the latest stable .NET version going forward.
+
+### 6.0 early work
+
+6.0 work targets the latest available bleeding edge of .NET, and will target the latest stable .NET version once there is a semblance
+of completion and stability on the v6 branch.
 
 ## Getting Started
 

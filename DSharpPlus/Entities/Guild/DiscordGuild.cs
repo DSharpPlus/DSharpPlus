@@ -13,9 +13,7 @@ using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Entities;
 
@@ -540,7 +538,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         };
         string stringImageSize = imageSize.ToString(CultureInfo.InvariantCulture);
 
-        return $"https://cdn.discordapp.com{Endpoints.ICONS}/{this.Id}/{this.IconHash}.{stringImageFormat}?size={stringImageSize}";
+        return $"https://cdn.discordapp.com/{Endpoints.ICONS}/{this.Id}/{this.IconHash}.{stringImageFormat}?size={stringImageSize}";
 
     }
 
@@ -600,12 +598,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="InvalidOperationException"></exception>
     public Task StartEventAsync(DiscordScheduledGuildEvent guildEvent)
     {
-        if (guildEvent.Status is not ScheduledGuildEventStatus.Scheduled)
-        {
-            throw new InvalidOperationException("The event must be scheduled for it to be started.");
-        }
-
-        return this.ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Active);
+        return guildEvent.Status is not ScheduledGuildEventStatus.Scheduled
+            ? throw new InvalidOperationException("The event must be scheduled for it to be started.")
+            : this.ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Active);
     }
 
     /// <summary>
@@ -614,12 +609,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="guildEvent">The event to delete.</param>
     public Task CancelEventAsync(DiscordScheduledGuildEvent guildEvent)
     {
-        if (guildEvent.Status is not ScheduledGuildEventStatus.Scheduled)
-        {
-            throw new InvalidOperationException("The event must be scheduled for it to be cancelled.");
-        }
-
-        return this.ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Cancelled);
+        return guildEvent.Status is not ScheduledGuildEventStatus.Scheduled
+            ? throw new InvalidOperationException("The event must be scheduled for it to be cancelled.")
+            : this.ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Cancelled);
     }
 
     /// <summary>
@@ -749,8 +741,13 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="limit">How many users to fetch.</param>
     /// <param name="after">Fetch users after this id. Mutually exclusive with before</param>
     /// <param name="before">Fetch users before this id. Mutually exclusive with after</param>
-    public async Task<IReadOnlyList<DiscordUser>> GetEventUsersAsync(DiscordScheduledGuildEvent guildEvent, int limit = 100, ulong? after = null, ulong? before = null)
+    public async IAsyncEnumerable<DiscordUser> GetEventUsersAsync(DiscordScheduledGuildEvent guildEvent, int limit = 100, ulong? after = null, ulong? before = null)
     {
+        if (after.HasValue && before.HasValue)
+        {
+            throw new ArgumentException("after and before are mutually exclusive");
+        }
+        
         int remaining = limit;
         ulong? last = null;
         bool isAfter = after != null;
@@ -768,19 +765,22 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
             if (!isAfter)
             {
-                users.AddRange(fetch);
+                for (int i = lastCount - 1; i >= 0; i--)
+                {
+                    yield return fetch[i];
+                }
                 last = fetch.LastOrDefault()?.Id;
             }
             else
             {
-                users.InsertRange(0, fetch);
+                for (int i = 0; i < lastCount; i++)
+                {
+                    yield return fetch[i];
+                }
                 last = fetch.FirstOrDefault()?.Id;
             }
         }
         while (remaining > 0 && lastCount > 0);
-
-
-        return users.AsReadOnly();
     }
 
     /// <summary>
@@ -1103,12 +1103,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     )
     {
         // technically you can create news/store channels but not always
-        if (type is not (ChannelType.Text or ChannelType.Voice or ChannelType.Category or ChannelType.News or ChannelType.Stage or ChannelType.GuildForum))
-        {
-            throw new ArgumentException("Channel type must be text, voice, stage, category, or a forum.", nameof(type));
-        }
-
-        return type == ChannelType.Category && parent != null
+        return type is not (ChannelType.Text or ChannelType.Voice or ChannelType.Category or ChannelType.News or ChannelType.Stage or ChannelType.GuildForum)
+            ? throw new ArgumentException("Channel type must be text, voice, stage, category, or a forum.", nameof(type))
+            : type == ChannelType.Category && parent != null
             ? throw new ArgumentException("Cannot specify parent of a channel category.", nameof(parent))
             : await this.Discord.ApiClient.CreateGuildChannelAsync
             (
@@ -1369,7 +1366,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             WidgetType.Banner4 => "banner4",
             _ => "shield",
         };
-        return $"{Net.Endpoints.BASE_URI}{Net.Endpoints.GUILDS}/{this.Id}{Net.Endpoints.WIDGET_PNG}?style={param}";
+        return $"{Net.Endpoints.BASE_URI}/{Net.Endpoints.GUILDS}/{this.Id}/{Net.Endpoints.WIDGET_PNG}?style={param}";
     }
 
     /// <summary>
@@ -1406,16 +1403,14 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <returns>A collection of all members in this guild.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<IReadOnlyCollection<DiscordMember>> GetAllMembersAsync()
+    public async IAsyncEnumerable<DiscordMember> GetAllMembersAsync()
     {
-        HashSet<DiscordMember> members = new();
-
-        int recd = 1000;
+        int recievedLastCall = 1000;
         ulong last = 0ul;
-        while (recd > 0)
+        while (recievedLastCall > 0)
         {
             IReadOnlyList<TransportMember> tms = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : (ulong?)last);
-            recd = tms.Count;
+            recievedLastCall = tms.Count;
 
             foreach (TransportMember transportMember in tms)
             {
@@ -1423,14 +1418,13 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
                 user = this.Discord.UpdateUserCache(user);
 
-                members.Add(new DiscordMember(transportMember) { Discord = this.Discord, _guild_id = this.Id });
+                DiscordMember member = new (transportMember) { Discord = this.Discord, _guild_id = this.Id };
+                yield return member;
             }
 
             TransportMember? lastMember = tms.LastOrDefault();
             last = lastMember?.User.Id ?? 0;
         }
-
-        return new ReadOnlySet<DiscordMember>(members);
     }
 
     /// <summary>
@@ -1534,7 +1528,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public async IAsyncEnumerable<DiscordAuditLogEntry> GetAuditLogsAsync
     (
         int? limit = 100,
-        DiscordMember byMember = null, 
+        DiscordMember byMember = null,
         AuditLogActionType? actionType = null
     )
     {
@@ -1563,7 +1557,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                     yield return discordAuditLogEntry;
                 }
             }
-            
+
             if (limit.HasValue)
             {
                 int remaining = limit.Value - totalEntriesCollected;
@@ -2077,15 +2071,15 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
         return await this.Discord.ApiClient.ModifyGuildAutoModerationRuleAsync
         (
-            this.Id, 
-            ruleId, 
-            model.Name, 
-            model.EventType, 
-            model.TriggerMetadata, 
-            model.Actions, 
-            model.Enable, 
-            model.ExemptRoles, 
-            model.ExemptChannels, 
+            this.Id,
+            ruleId,
+            model.Name,
+            model.EventType,
+            model.TriggerMetadata,
+            model.Actions,
+            model.Enable,
+            model.ExemptRoles,
+            model.ExemptChannels,
             model.AuditLogReason
         );
     }
@@ -2119,15 +2113,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="e"><see cref="DiscordGuild"/> to compare to.</param>
     /// <returns>Whether the <see cref="DiscordGuild"/> is equal to this <see cref="DiscordGuild"/>.</returns>
-    public bool Equals(DiscordGuild e)
-    {
-        if (e is null)
-        {
-            return false;
-        }
-
-        return ReferenceEquals(this, e) || this.Id == e.Id;
-    }
+    public bool Equals(DiscordGuild e) => e is null ? false : ReferenceEquals(this, e) || this.Id == e.Id;
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordGuild"/>.
@@ -2146,12 +2132,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         object? o1 = e1;
         object? o2 = e2;
 
-        if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
-        {
-            return false;
-        }
-
-        return (o1 == null && o2 == null) || e1.Id == e2.Id;
+        return (o1 == null && o2 != null) || (o1 != null && o2 == null) ? false : (o1 == null && o2 == null) || e1.Id == e2.Id;
     }
 
     /// <summary>

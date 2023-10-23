@@ -106,15 +106,15 @@ public class DiscordAutoModerationRule : SnowflakeObject
 
         return await this.Discord.ApiClient.ModifyGuildAutoModerationRuleAsync
         (
-            this.GuildId, 
-            this.Id, 
-            model.Name, 
-            model.EventType, 
-            model.TriggerMetadata, 
-            model.Actions, 
-            model.Enable, 
-            model.ExemptRoles, 
-            model.ExemptChannels, 
+            this.GuildId,
+            this.Id,
+            model.Name,
+            model.EventType,
+            model.TriggerMetadata,
+            model.Actions,
+            model.Enable,
+            model.ExemptRoles,
+            model.ExemptChannels,
             model.AuditLogReason
         );
     }

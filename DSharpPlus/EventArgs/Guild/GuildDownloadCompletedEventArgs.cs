@@ -1,22 +1,18 @@
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.EventArgs
+namespace DSharpPlus.EventArgs;
+
+/// <summary>
+/// Represents arguments for <see cref="DiscordClient.GuildDownloadCompleted"/> event.
+/// </summary>
+public class GuildDownloadCompletedEventArgs : DiscordEventArgs
 {
     /// <summary>
-    /// Represents arguments for <see cref="DiscordClient.GuildDownloadCompleted"/> event.
+    /// Gets the dictionary of guilds that just finished downloading.
     /// </summary>
-    public class GuildDownloadCompletedEventArgs : DiscordEventArgs
-    {
-        /// <summary>
-        /// Gets the dictionary of guilds that just finished downloading.
-        /// </summary>
-        public IReadOnlyDictionary<ulong, DiscordGuild> Guilds { get; }
+    public IReadOnlyDictionary<ulong, DiscordGuild> Guilds { get; }
 
-        internal GuildDownloadCompletedEventArgs(IReadOnlyDictionary<ulong, DiscordGuild> guilds)
-            : base()
-        {
-            this.Guilds = guilds;
-        }
-    }
+    internal GuildDownloadCompletedEventArgs(IReadOnlyDictionary<ulong, DiscordGuild> guilds)
+        : base() => this.Guilds = guilds;
 }

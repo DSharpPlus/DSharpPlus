@@ -41,6 +41,7 @@ public sealed class Program
             {
                 builder.AppendLine(Formatter.Bold("Latest stable version") + ": " + nugetUrl + "/" + latestStableVersion);
             }
+
             latestStableVersion = latestStableVersion?.Replace("v", string.Empty, StringComparison.Ordinal);
 
             string? nightlyVersion = typeof(DiscordClient).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
@@ -51,6 +52,7 @@ public sealed class Program
                 // Get the previous version from the channel topic.
                 nightlyVersion = channel.Topic.Split('\n').FirstOrDefault(x => x.StartsWith(Formatter.Bold("Latest preview version") + ": " + nugetUrl + "/"))?.Split('/').LastOrDefault() ?? throw new InvalidOperationException("Could not find previous nightly version in channel topic.");
             }
+
             nightlyVersion = nightlyVersion.Replace("v", string.Empty, StringComparison.Ordinal);
 
             // Update the channel topic with the latest nightly version.

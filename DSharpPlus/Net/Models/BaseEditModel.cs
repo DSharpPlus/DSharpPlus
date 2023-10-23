@@ -1,10 +1,9 @@
-namespace DSharpPlus.Net.Models
+namespace DSharpPlus.Net.Models;
+
+public class BaseEditModel
 {
-    public class BaseEditModel
-    {
-        /// <summary>
-        /// Reason given in audit logs
-        /// </summary>
-        public string AuditLogReason { internal get; set; }
-    }
+    /// <summary>
+    /// Reason given in audit logs
+    /// </summary>
+    public string AuditLogReason { internal get; set; }
 }

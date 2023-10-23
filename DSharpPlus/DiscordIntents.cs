@@ -173,7 +173,7 @@ public enum DiscordIntents
     /// <para>These are all intents excluding <see cref="DiscordIntents.GuildMembers"/> and <see cref="DiscordIntents.GuildPresences"/>.</para>
     /// </summary>
     AllUnprivileged = Guilds | GuildModeration | GuildEmojisAndStickers | GuildIntegrations | GuildWebhooks | GuildInvites | GuildVoiceStates | GuildMessages |
-                      GuildMessageReactions | GuildMessageTyping | DirectMessages | DirectMessageReactions | DirectMessageTyping | ScheduledGuildEvents | 
+                      GuildMessageReactions | GuildMessageTyping | DirectMessages | DirectMessageReactions | DirectMessageTyping | ScheduledGuildEvents |
                       AutoModerationEvents | AutoModerationExecution,
 
     /// <summary>

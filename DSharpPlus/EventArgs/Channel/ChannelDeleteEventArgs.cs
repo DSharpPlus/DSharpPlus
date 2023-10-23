@@ -1,22 +1,21 @@
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.EventArgs
+namespace DSharpPlus.EventArgs;
+
+/// <summary>
+/// Represents arguments for <see cref="DiscordClient.ChannelDeleted"/> event.
+/// </summary>
+public class ChannelDeleteEventArgs : DiscordEventArgs
 {
     /// <summary>
-    /// Represents arguments for <see cref="DiscordClient.ChannelDeleted"/> event.
+    /// Gets the channel that was deleted.
     /// </summary>
-    public class ChannelDeleteEventArgs : DiscordEventArgs
-    {
-        /// <summary>
-        /// Gets the channel that was deleted.
-        /// </summary>
-        public DiscordChannel Channel { get; internal set; }
+    public DiscordChannel Channel { get; internal set; }
 
-        /// <summary>
-        /// Gets the guild this channel belonged to.
-        /// </summary>
-        public DiscordGuild Guild { get; internal set; }
+    /// <summary>
+    /// Gets the guild this channel belonged to.
+    /// </summary>
+    public DiscordGuild Guild { get; internal set; }
 
-        internal ChannelDeleteEventArgs() : base() { }
-    }
+    internal ChannelDeleteEventArgs() : base() { }
 }

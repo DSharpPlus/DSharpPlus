@@ -1,30 +1,29 @@
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Entities
+namespace DSharpPlus.Entities;
+
+/// <summary>
+/// Represents a field inside a discord embed.
+/// </summary>
+public sealed class DiscordEmbedField
 {
     /// <summary>
-    /// Represents a field inside a discord embed.
+    /// Gets the name of the field.
     /// </summary>
-    public sealed class DiscordEmbedField
-    {
-        /// <summary>
-        /// Gets the name of the field.
-        /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; set; }
+    [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+    public string Name { get; set; }
 
-        /// <summary>
-        /// Gets the value of the field.
-        /// </summary>
-        [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
-        public string Value { get; set; }
+    /// <summary>
+    /// Gets the value of the field.
+    /// </summary>
+    [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
+    public string Value { get; set; }
 
-        /// <summary>
-        /// Gets whether or not this field should display inline.
-        /// </summary>
-        [JsonProperty("inline", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Inline { get; set; }
+    /// <summary>
+    /// Gets whether or not this field should display inline.
+    /// </summary>
+    [JsonProperty("inline", NullValueHandling = NullValueHandling.Ignore)]
+    public bool Inline { get; set; }
 
-        internal DiscordEmbedField() { }
-    }
+    internal DiscordEmbedField() { }
 }

@@ -1,12 +1,11 @@
 using System;
 
-namespace DSharpPlus.CommandsNext
+namespace DSharpPlus.CommandsNext;
+
+/// <summary>
+/// Represents arguments for <see cref="CommandsNextExtension.CommandErrored"/> event.
+/// </summary>
+public class CommandErrorEventArgs : CommandEventArgs
 {
-    /// <summary>
-    /// Represents arguments for <see cref="CommandsNextExtension.CommandErrored"/> event.
-    /// </summary>
-    public class CommandErrorEventArgs : CommandEventArgs
-    {
-        public Exception Exception { get; internal set; } = null!;
-    }
+    public Exception Exception { get; internal set; } = null!;
 }

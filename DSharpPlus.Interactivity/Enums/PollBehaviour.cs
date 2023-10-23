@@ -1,18 +1,17 @@
-namespace DSharpPlus.Interactivity.Enums
+namespace DSharpPlus.Interactivity.Enums;
+
+/// <summary>
+/// Specifies what should be done when a poll times out.
+/// </summary>
+public enum PollBehaviour
 {
     /// <summary>
-    /// Specifies what should be done when a poll times out.
+    /// Reaction emojis will not be deleted.
     /// </summary>
-    public enum PollBehaviour
-    {
-        /// <summary>
-        /// Reaction emojis will not be deleted.
-        /// </summary>
-        KeepEmojis = 0,
+    KeepEmojis = 0,
 
-        /// <summary>
-        /// Reaction emojis will be deleted.
-        /// </summary>
-        DeleteEmojis = 1
-    }
+    /// <summary>
+    /// Reaction emojis will be deleted.
+    /// </summary>
+    DeleteEmojis = 1
 }

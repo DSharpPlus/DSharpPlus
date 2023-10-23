@@ -1,4 +1,4 @@
-﻿// This file is part of the DSharpPlus project.
+// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2023 DSharpPlus Contributors
@@ -23,25 +23,21 @@
 
 using System;
 
-namespace DSharpPlus.SlashCommands
+namespace DSharpPlus.SlashCommands;
+
+/// <summary>
+/// Sets a maximum allowed length for this slash command option. Only valid for <see cref="string"/> parameters.
+/// </summary>
+[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+public class MaximumLengthAttribute : Attribute
 {
+    /// <summary>
+    /// The value.
+    /// </summary>
+    public int Value { get; internal set; }
+
     /// <summary>
     /// Sets a maximum allowed length for this slash command option. Only valid for <see cref="string"/> parameters.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
-    public class MaximumLengthAttribute : Attribute
-    {
-        /// <summary>
-        /// The value.
-        /// </summary>
-        public int Value { get; internal set; }
-
-        /// <summary>
-        /// Sets a maximum allowed length for this slash command option. Only valid for <see cref="string"/> parameters.
-        /// </summary>
-        public MaximumLengthAttribute(int value)
-        {
-            this.Value = value;
-        }
-    }
+    public MaximumLengthAttribute(int value) => this.Value = value;
 }

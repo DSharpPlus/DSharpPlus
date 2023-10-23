@@ -1,4 +1,4 @@
-﻿// This file is part of the DSharpPlus project.
+// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2023 DSharpPlus Contributors
@@ -64,7 +64,7 @@ public sealed class DiscordAuditLogThreadEventEntry : DiscordAuditLogEntry
     /// Gets a change in the thread's slowmode setting
     /// </summary>
     public PropertyChange<int?> PerUserRateLimit { get; internal set; }
-    
+
     /// <summary>
     /// Gets a change in channel flags
     /// </summary>

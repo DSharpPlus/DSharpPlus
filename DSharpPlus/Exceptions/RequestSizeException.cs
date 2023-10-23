@@ -8,7 +8,7 @@ namespace DSharpPlus.Exceptions;
 /// </summary>
 public class RequestSizeException : DiscordException
 {
-    internal RequestSizeException(HttpRequestMessage request, HttpResponseMessage response, string content) 
+    internal RequestSizeException(HttpRequestMessage request, HttpResponseMessage response, string content)
         : base($"Request entity too large: {response.StatusCode}. Make sure the data sent is within Discord's upload limit.")
     {
         this.Request = request;

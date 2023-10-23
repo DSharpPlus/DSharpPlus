@@ -8,7 +8,7 @@ namespace DSharpPlus.Exceptions;
 /// </summary>
 public class UnauthorizedException : DiscordException
 {
-    internal UnauthorizedException(HttpRequestMessage request, HttpResponseMessage response, string content) 
+    internal UnauthorizedException(HttpRequestMessage request, HttpResponseMessage response, string content)
         : base("Unauthorized: " + response.StatusCode)
     {
         this.Request = request;
