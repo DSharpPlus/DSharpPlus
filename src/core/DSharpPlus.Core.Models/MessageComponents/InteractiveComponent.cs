@@ -7,6 +7,6 @@ using DSharpPlus.Core.Abstractions.Models;
 namespace DSharpPlus.Core.Models;
 
 /// <summary>
-/// Placeholder implementation for serialization purposes. Please report spotting this to library developers.
+/// Placeholder implementation of a marker interface. Please report spotting this to library developers.
 /// </summary>
 internal sealed record InteractiveComponent : IInteractiveComponent;

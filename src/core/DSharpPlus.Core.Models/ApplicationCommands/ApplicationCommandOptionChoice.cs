@@ -4,9 +4,9 @@
 
 using System.Collections.Generic;
 
-using OneOf;
-
 using DSharpPlus.Core.Abstractions.Models;
+
+using OneOf;
 
 namespace DSharpPlus.Core.Models;
 

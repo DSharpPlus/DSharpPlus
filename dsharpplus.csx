@@ -4,6 +4,7 @@
 
 #r "nuget:Spectre.Console, 0.47.1-preview.0.26"
 
+using System;
 using System.Diagnostics;
 using System.Linq;
 
@@ -43,15 +44,16 @@ string[] subsets =
 // executes a given tool
 void ExecuteTool(string tool, ToolType type)
 {
-    switch (type)
+    ProcessStartInfo info = new ProcessStartInfo("dotnet");
+    info.Arguments = type switch
     {
-        case ToolType.Generator:
-            Process.Start("dotnet", $"script ./tools/generators/{tool}.csx");
-            break;
-        case ToolType.Analyzer:
-            Process.Start("dotnet", $"script ./tools/analyzers/{tool}.csx");
-            break;
-    }
+        ToolType.Generator => $"script ./tools/generators/{tool}.csx -c Release",
+        ToolType.Analyzer => $"script ./tools/analyzers/{tool}.csx -c Release",
+        _ => throw new InvalidOperationException($"Expected a valid tool type, found {type}.")
+    };
+
+    Process process = Process.Start(info)!;
+    process.WaitForExit();
 }
 
 // executes all tools belonging to a subject
@@ -75,7 +77,7 @@ void ExecuteSubset(string[] subset, ToolType type)
 
 // main entrypoint is here, at the big ass help command
 
-if (Args.Count == 1 && Args is ["--help"] or ["-h"] or ["-?"])
+if (Args.Count == 1 && Args is ["--help" or "-h" or "-?"])
 {
     AnsiConsole.MarkupLine
     (

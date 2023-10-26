@@ -45,9 +45,9 @@ public Changes GetFileChanges(string toolName, params string[] files)
         Directory.CreateDirectory("./artifacts/hashes");
     }
 
-    if (!File.Exists($"./artifacts/hashes/{name}.json"))
+    if (!File.Exists($"./artifacts/hashes/{toolName}.json"))
     {
-        File.Create($"./artifacts/hashes/{name}.json").Close();
+        File.Create($"./artifacts/hashes/{toolName}.json").Close();
         CalculateAndSaveHashes(files, toolName);
 
         return new Changes
@@ -55,12 +55,12 @@ public Changes GetFileChanges(string toolName, params string[] files)
             Added = files,
             Removed = Array.Empty<string>(),
             Modified = Array.Empty<string>()
-        }
+        };
     }
 
-    StreamReader reader = new($"./artifacts/hashes/{name}.json");
+    StreamReader reader = new($"./artifacts/hashes/{toolName}.json");
 
-    Dictionary<string, string> oldHashes = JsonSerializer.Deserialize<Dictionary<string, string>>(reader.ReadToEnd());
+    Dictionary<string, string> oldHashes = JsonSerializer.Deserialize<Dictionary<string, string>>(reader.ReadToEnd())!;
 
     reader.Close();
 
@@ -93,7 +93,7 @@ private Dictionary<string, string> CalculateAndSaveHashes(string[] files, string
     foreach (string file in files)
     {
         XxHash3 xxh = new();
-        xxh.Append(File.ReadAllBytes(path));
+        xxh.Append(File.ReadAllBytes(file));
         
         string hash = xxh.GetCurrentHashAsUInt64().ToString();
         dictionary.Add(file, hash);

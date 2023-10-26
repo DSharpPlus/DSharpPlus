@@ -5,9 +5,8 @@
 using System;
 using System.Collections.Generic;
 
-using DSharpPlus.Entities;
-
 using DSharpPlus.Core.Abstractions.Models;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.Core.Models;
 

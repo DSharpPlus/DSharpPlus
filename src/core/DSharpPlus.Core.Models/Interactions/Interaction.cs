@@ -4,11 +4,10 @@
 
 using System.Collections.Generic;
 
+using DSharpPlus.Core.Abstractions.Models;
 using DSharpPlus.Entities;
 
 using OneOf;
-
-using DSharpPlus.Core.Abstractions.Models;
 
 namespace DSharpPlus.Core.Models;
 
