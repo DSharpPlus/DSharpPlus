@@ -41,10 +41,12 @@ public abstract class BaseDiscordClient : IDisposable
     /// </summary>
     public DiscordApplication CurrentApplication { get; internal set; }
 
+    public IReadOnlyCollection<ulong> Guilds => new ReadOnlyCollection<ulong>(_guilds);
+
     /// <summary>
     /// Gets the cached guilds for this client.
     /// </summary>
-    public abstract List<ulong> Guilds { get; }
+    internal List<ulong> _guilds { get; set; }
     
     public IDiscordCache Cache { get; }
     
@@ -68,7 +70,7 @@ public abstract class BaseDiscordClient : IDisposable
     {
         this.Configuration = new DiscordConfiguration(config);
 
-        if (this.Configuration.LoggerFactory == null)
+        if (this.Configuration.LoggerFactory is null)
         {
             this.Configuration.LoggerFactory = new DefaultLoggerFactory();
             this.Configuration.LoggerFactory.AddProvider(new DefaultLoggerProvider(this));
@@ -97,14 +99,9 @@ public abstract class BaseDiscordClient : IDisposable
             }
         }
         
-        if (this.Configuration.CacheProvider != null)
-        {
-            this.Cache = this.Configuration.CacheProvider;
-        }
-        else 
-        {
-            this.Cache = new DiscordMemoryCache(this.Configuration.CacheConfiguration);
-        }
+        this.Cache = this.Configuration.CacheProvider is not null
+            ? this.Configuration.CacheProvider
+            : new DiscordMemoryCache(this.Configuration.CacheConfiguration);
     }
 
     /// <summary>
@@ -180,7 +177,7 @@ public abstract class BaseDiscordClient : IDisposable
         if (this.CurrentUser == null)
         {
             this.CurrentUser = await this.ApiClient.GetCurrentUserAsync();
-            this.AddUserToCache(this.CurrentUser);
+            this.AddUserToCacheAsync(this.CurrentUser);
         }
 
         if (this.Configuration.TokenType == TokenType.Bot && this.CurrentApplication == null)
@@ -235,17 +232,32 @@ public abstract class BaseDiscordClient : IDisposable
 
         return user;
     }
-    
-    internal void AddUserToCache(DiscordUser newUser) => this.Cache.Add(newUser, newUser.GetCacheKey());
-    
-    internal void AddGuildToCache(DiscordGuild guild) => this.Cache.Add(guild, guild.GetCacheKey());
-    
-    internal void AddChannelToCache(DiscordChannel channel) => this.Cache.Add(channel, channel.GetCacheKey());
-    
-    internal void AddMemberToCache(DiscordMember member) => this.Cache.Add(member, member.GetCacheKey());
 
-    
+    #region CacheMethods
 
+    internal Task AddUserToCacheAsync(DiscordUser newUser) => this.Cache.Add(newUser, newUser.GetCacheKey());
+    
+    internal Task AddGuildToCacheAsync(DiscordGuild guild) => this.Cache.Add(guild, guild.GetCacheKey());
+    
+    internal Task AddChannelToCacheAsync(DiscordChannel channel) => this.Cache.Add(channel, channel.GetCacheKey());
+    
+    internal Task AddMemberToCacheAsync(DiscordMember member) => this.Cache.Add(member, member.GetCacheKey());
+    
+    internal Task AddMessageToCacheAsync(DiscordMessage message) => this.Cache.Add(message, message.GetCacheKey());
+
+    internal ValueTask<DiscordUser?> GetUserFromCacheAsync(ulong userId) => this.Cache.TryGet<DiscordUser>(ICacheKey.ForUser(userId));
+    
+    internal ValueTask<DiscordGuild?> GetGuildFromCacheAsync(ulong guildId) => this.Cache.TryGet<DiscordGuild>(ICacheKey.ForGuild(guildId));
+    
+    internal ValueTask<DiscordChannel?> GetChannelFromCacheAsync(ulong channelId) => this.Cache.TryGet<DiscordChannel>(ICacheKey.ForChannel(channelId));
+    
+    internal ValueTask<DiscordMember?> GetMemberFromCacheAsync(ulong memberId, ulong guildId) => this.Cache.TryGet<DiscordMember>(ICacheKey.ForMember(memberId, guildId));
+    
+    internal ValueTask<DiscordMessage?> GetMessageFromCacheAsync(ulong messageId) => this.Cache.TryGet<DiscordMessage>(ICacheKey.ForMessage(messageId));
+    
+    #endregion
+    
+    
     /// <summary>
     /// Disposes this client.
     /// </summary>

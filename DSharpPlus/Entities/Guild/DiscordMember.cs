@@ -142,7 +142,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// </summary>
     [JsonIgnore]
     public DiscordVoiceState VoiceState
-        => this.Discord.Guilds[this._guild_id].VoiceStates.TryGetValue(this.Id, out DiscordVoiceState? voiceState) ? voiceState : null;
+        => this.Discord._guilds[this._guild_id].VoiceStates.TryGetValue(this.Id, out DiscordVoiceState? voiceState) ? voiceState : null;
 
     [JsonIgnore]
     internal ulong _guild_id = 0;
@@ -152,7 +152,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// </summary>
     [JsonIgnore]
     public DiscordGuild Guild
-        => this.Discord.Guilds[this._guild_id];
+        => this.Discord._guilds[this._guild_id];
 
     /// <summary>
     /// Gets whether this member is the Guild owner.

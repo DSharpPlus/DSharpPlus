@@ -35,7 +35,7 @@ public sealed class DiscordScheduledGuildEvent : SnowflakeObject
     /// The guild this event is scheduled for.
     /// </summary>
     [JsonIgnore]
-    public DiscordGuild Guild => (this.Discord as DiscordClient).InternalGetCachedGuild(this.GuildId);
+    public DiscordGuild Guild => (this.Discord as DiscordClient).GetCachedGuild(this.GuildId);
 
     /// <summary>
     /// The channel this event is scheduled for, if applicable.

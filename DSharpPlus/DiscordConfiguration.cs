@@ -89,13 +89,6 @@ public sealed class DiscordConfiguration
     public GatewayCompressionLevel GatewayCompressionLevel { internal get; set; } = GatewayCompressionLevel.Stream;
 
     /// <summary>
-    /// <para>Sets the size of the global message cache.</para>
-    /// <para>Setting this to 0 will disable message caching entirely. Defaults to 1024.</para>
-    /// <para>This is only applied if the default message cache implementation is used.</para>
-    /// </summary>
-    public int MessageCacheSize { internal get; set; } = 1024;
-
-    /// <summary>
     /// <para>Sets the proxy to use for HTTP and WebSocket connections to Discord.</para>
     /// <para>Defaults to null.</para>
     /// </summary>
@@ -183,7 +176,7 @@ public sealed class DiscordConfiguration
     /// <summary>
     /// 
     /// </summary>
-    public CacheConfiguration CacheConfiguration { internal get; set; } = new();
+    public CacheConfiguration? CacheConfiguration { internal get; set; } = new();
 
     /// <summary>
     /// Creates a new configuration with default values.
@@ -207,7 +200,6 @@ public sealed class DiscordConfiguration
         this.ShardId = other.ShardId;
         this.ShardCount = other.ShardCount;
         this.GatewayCompressionLevel = other.GatewayCompressionLevel;
-        this.MessageCacheSize = other.MessageCacheSize;
         this.WebSocketClientFactory = other.WebSocketClientFactory;
         this.UdpClientFactory = other.UdpClientFactory;
         this.Proxy = other.Proxy;

@@ -42,7 +42,7 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     /// <summary>
     /// Gets the guild associated with this sticker, if any.
     /// </summary>
-    public DiscordGuild Guild => (this.Discord as DiscordClient).InternalGetCachedGuild(this.GuildId);
+    public DiscordGuild Guild => (this.Discord as DiscordClient).GetCachedGuild(this.GuildId);
 
     public string StickerUrl => $"https://cdn.discordapp.com/stickers/{this.Id}{this.GetFileTypeExtension()}";
 

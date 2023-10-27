@@ -71,7 +71,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     [JsonIgnore]
     public DiscordChannel Channel
     {
-        get => (this.Discord as DiscordClient)?.InternalGetCachedChannel(this.ChannelId) ?? (this.Discord as DiscordClient)?.InternalGetCachedThreadAsync(this.ChannelId) ?? this._channel;
+        get => (this.Discord as DiscordClient)?.GetCachedChannelAsync(this.ChannelId) ?? (this.Discord as DiscordClient)?.GetCachedThreadAsync(this.ChannelId) ?? this._channel;
         internal set => this._channel = value;
     }
 
@@ -396,7 +396,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         {
             // Assign the Discord instance and update the user cache.
             usr.Discord = this.Discord;
-            this.Discord.AddUserToCache(usr);
+            this.Discord.AddUserToCacheAsync(usr);
 
             if (guild != null && usr is not DiscordMember && guild._members.TryGetValue(usr.Id, out DiscordMember? cachedMember))
             {

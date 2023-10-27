@@ -233,7 +233,7 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
             throw new ArgumentNullException(nameof(client), "Client cannot be null.");
         }
 
-        foreach (DiscordGuild guild in client.Guilds.Values)
+        foreach (DiscordGuild guild in client._guilds.Values)
         {
             if (guild.Emojis.TryGetValue(id, out DiscordEmoji? found))
             {
@@ -258,7 +258,7 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
             throw new ArgumentNullException(nameof(client), "Client cannot be null.");
         }
 
-        foreach (DiscordGuild guild in client.Guilds.Values)
+        foreach (DiscordGuild guild in client._guilds.Values)
         {
             if (guild.Emojis.TryGetValue(id, out emoji))
             {
@@ -301,7 +301,7 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
         else if (includeGuilds)
         {
             name = name.Substring(1, name.Length - 2); // remove colons
-            foreach (DiscordGuild guild in client.Guilds.Values)
+            foreach (DiscordGuild guild in client._guilds.Values)
             {
                 DiscordEmoji? found = guild.Emojis.Values.FirstOrDefault(emoji => emoji.Name == name);
                 if (found != null)
@@ -357,7 +357,7 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
         else if (includeGuilds)
         {
             name = name.Substring(1, name.Length - 2); // remove colons
-            foreach (DiscordGuild guild in client.Guilds.Values)
+            foreach (DiscordGuild guild in client._guilds.Values)
             {
                 emoji = guild.Emojis.Values.FirstOrDefault(emoji => emoji.Name == name);
                 if (emoji != null)

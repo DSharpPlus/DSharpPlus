@@ -5,6 +5,8 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
+using System.Runtime.CompilerServices;
+
 /// <summary>
 /// Represents a Discord voice state.
 /// </summary>
@@ -23,7 +25,7 @@ public class DiscordVoiceState
     /// </summary>
     [JsonIgnore]
     public DiscordGuild Guild
-        => this.GuildId != null ? this.Discord.Guilds[this.GuildId.Value] : this.Channel?.Guild;
+        => this.GuildId != null ? this.Discord._guilds[this.GuildId.Value] : this.Channel?.Guild;
 
     /// <summary>
     /// Gets ID of the channel this user is connected to.
@@ -62,7 +64,7 @@ public class DiscordVoiceState
 
             if (usr == null)
             {
-                usr = this.Discord.GetCachedOrEmptyUserInternal(this.UserId);
+                usr = this.Discord.GetUserFromCacheAsync(this.UserId);
             }
 
             return usr;

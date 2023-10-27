@@ -73,7 +73,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public DiscordIntents Intents
         => this.Configuration.Intents;
     
-    public override List<ulong> Guilds { get; }
     public List<ulong> DmChannels { get; }
     
 
@@ -104,14 +103,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public DiscordClient(DiscordConfiguration config)
         : base(config)
     {
-        this.Cache = this.Configuration.CacheProvider
-                     ?? (this.Configuration.MessageCacheSize > 0
-                         ? new DiscordMemoryCache(this.Configuration.CacheConfiguration)
-                         : null);
-
+        this.Cache = this.Configuration.CacheProvider ?? new DiscordMemoryCache(this.Configuration.CacheConfiguration);
         this.InternalSetup();
 
-        this.Guilds = new List<ulong>();
+        this._guilds = new List<ulong>();
         this.DmChannels = new List<ulong>();
     }
 
@@ -198,7 +193,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this._threadMembersUpdated = new AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs>("THREAD_MEMBERS_UPDATED", this.EventErrorHandler);
         #endregion
 
-        this.Guilds.Clear();
+        this._guilds.Clear();
 
         this._presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this._presences));
     }
@@ -406,8 +401,12 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordChannel> GetChannelAsync(ulong id)
-        => this.InternalGetCachedThreadAsync(id) ?? this.InternalGetCachedChannel(id) ?? await this.ApiClient.GetChannelAsync(id);
+    public async Task<DiscordChannel> GetChannelAsync(ulong id, bool skipCache)
+    {
+        return !skipCache
+            ? await this.GetCachedThreadAsync(id) ?? await this.GetCachedChannelAsync(id) ?? await this.ApiClient.GetChannelAsync(id)
+            : await this.ApiClient.GetChannelAsync(id);
+    }
 
     /// <summary>
     /// Sends a message
@@ -554,7 +553,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     {
         if (!withCounts.HasValue || !withCounts.Value)
         {
-            DiscordGuild cachedGuild = this.InternalGetCachedGuild(id);
+            DiscordGuild cachedGuild = await this.GetCachedGuild(id);
             if (cachedGuild is not null)
             {
                 return cachedGuild;
@@ -824,7 +823,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         return channel;
     }
 
-    internal ValueTask<DiscordGuild?> InternalGetCachedGuild(ulong guildId)
+    internal ValueTask<DiscordGuild?> GetCachedGuild(ulong guildId)
     {
         ICacheKey key = ICacheKey.ForGuild(guildId);
         ValueTask<DiscordGuild?> guild = this.Cache.TryGet<DiscordGuild>(key);
@@ -832,7 +831,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         return guild;
     }
 
-    private async void UpdateMessage(DiscordMessage message, TransportUser author, DiscordGuild guild, TransportMember member)
+    private async void UpdateMessageAsync(DiscordMessage message, TransportUser author, DiscordGuild guild, TransportMember member)
     {
         if (author != null)
         {
@@ -843,10 +842,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 member.User = author;
             }
 
-            message.Author = this.UpdateUser(usr, guild?.Id, guild, member);
+            message.Author = await this.UpdateUserAsync(usr, guild?.Id, guild, member);
         }
 
-        DiscordChannel? channel = await this.InternalGetCachedChannel(message.ChannelId) ?? await this.InternalGetCachedThreadAsync(message.ChannelId);
+        DiscordChannel? channel = await this.GetCachedChannelAsync(message.ChannelId) ?? await this.GetCachedThreadAsync(message.ChannelId);
 
         if (channel != null)
         {
@@ -871,15 +870,15 @@ public sealed partial class DiscordClient : BaseDiscordClient
         message.Channel = channel;
     }
 
-    private DiscordUser UpdateUser(DiscordUser usr, ulong? guildId, DiscordGuild guild, TransportMember mbr)
+    private async ValueTask<DiscordUser> UpdateUserAsync(DiscordUser usr, ulong? guildId, DiscordGuild guild, TransportMember mbr)
     {
-        if (mbr != null)
+        if (mbr is not null)
         {
-            if (mbr.User != null)
+            if (mbr.User is not null)
             {
                 usr = new DiscordUser(mbr.User) { Discord = this };
 
-                this.AddUserToCache(usr);
+                this.AddUserToCacheAsync(usr);
 
                 usr = new DiscordMember(mbr) { Discord = this, _guild_id = guildId.Value };
             }
@@ -890,25 +889,26 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
             if (!intents.HasAllPrivilegedIntents() || guild.IsLarge) // we have the necessary privileged intents, no need to worry about caching here unless guild is large.
             {
-                if (guild?._members.TryGetValue(usr.Id, out member) == false)
+                DiscordMember? cachedMember = await this.Cache.TryGet<DiscordMember>(ICacheKey.ForMember(usr.Id, guildId.Value));
+                if (cachedMember is null)
                 {
                     if (intents.HasIntent(DiscordIntents.GuildMembers) || this.Configuration.AlwaysCacheMembers) // member can be updated by events, so cache it
                     {
-                        guild._members.TryAdd(usr.Id, (DiscordMember)usr);
+                        this.AddMemberToCacheAsync((DiscordMember)usr);
                     }
                 }
                 else if (intents.HasIntent(DiscordIntents.GuildPresences) || this.Configuration.AlwaysCacheMembers) // we can attempt to update it if it's already in cache.
                 {
                     if (!intents.HasIntent(DiscordIntents.GuildMembers)) // no need to update if we already have the member events
                     {
-                        _ = guild._members.TryUpdate(usr.Id, (DiscordMember)usr, member);
+                        this.AddMemberToCacheAsync(member);
                     }
                 }
             }
         }
-        else if (usr.Username != null) // check if not a skeleton user
+        else if (usr.Username is not null) // check if not a skeleton user
         {
-            this.AddUserToCache(usr);
+            this.AddUserToCacheAsync(usr);
         }
 
         return usr;
@@ -928,7 +928,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         {
             foreach (DiscordChannel channel in newGuild.Channels.Values)
             {
-                DiscordChannel? cachedChannel = await this.InternalGetCachedChannel(channel.Id);
+                DiscordChannel? cachedChannel = await this.GetCachedChannelAsync(channel.Id);
                 if (cachedChannel is not null)
                 {
                     continue;
@@ -940,14 +940,14 @@ public sealed partial class DiscordClient : BaseDiscordClient
                     overwrite._channel_id = channel.Id;
                 }
 
-                this.AddChannelToCache(channel);
+                this.AddChannelToCacheAsync(channel);
             }
         }
         if (newGuild.Threads != null && newGuild.Threads.Count > 0)
         {
             foreach (DiscordThreadChannel thread in newGuild.Threads.Values)
             {
-                DiscordChannel? cachedChannel = (DiscordThreadChannel) await this.InternalGetCachedChannel(thread.Id);
+                DiscordChannel? cachedChannel = await this.GetCachedThreadAsync(thread.Id);
                 if (cachedChannel is not null)
                 {
                     continue;
@@ -959,7 +959,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
                     overwrite._channel_id = thread.Id;
                 }
 
-                this.AddChannelToCache(thread);
+                this.AddChannelToCacheAsync(thread);
             }
         }
 
@@ -982,8 +982,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 TransportMember transportMember = rawMember.ToDiscordObject<TransportMember>();
 
                 DiscordUser newUser = new(transportMember.User) { Discord = this };
-                this.AddUserToCache(newUser);
-                this.AddMemberToCache(new DiscordMember(transportMember) { Discord = this, _guild_id = newGuild.Id });
+                this.AddUserToCacheAsync(newUser);
+                this.AddMemberToCacheAsync(new DiscordMember(transportMember) { Discord = this, _guild_id = newGuild.Id });
             }
         }
 
@@ -1048,11 +1048,11 @@ public sealed partial class DiscordClient : BaseDiscordClient
         // - guild.Unavailable = new_guild.Unavailable;
     }
 
-    private async void PopulateMessageReactionsAndCache(DiscordMessage message, TransportUser author, TransportMember member)
+    private async void PopulateMessageReactionsAndCacheAsync(DiscordMessage message, TransportUser author, TransportMember member)
     {
-        DiscordGuild guild = message.Channel?.Guild ?? await this.InternalGetCachedGuild(message._guildId.Value);
+        DiscordGuild guild = message.Channel?.Guild ?? await this.GetCachedGuild(message._guildId.Value);
 
-        this.UpdateMessage(message, author, guild, member);
+        this.UpdateMessageAsync(message, author, guild, member);
 
         if (message._reactions == null)
         {
@@ -1064,10 +1064,9 @@ public sealed partial class DiscordClient : BaseDiscordClient
             xr.Emoji.Discord = this;
         }
 
-        if (this.Configuration.MessageCacheSize > 0 && message.Channel != null)
+        if (message.Channel != null)
         {
-            this.message
-            this.MessageCache?.Add(message);
+            this.AddMessageToCacheAsync(message);
         }
     }
 

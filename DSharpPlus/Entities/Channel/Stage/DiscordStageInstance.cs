@@ -15,7 +15,7 @@ public sealed class DiscordStageInstance : SnowflakeObject
     /// </summary>
     [JsonIgnore]
     public DiscordGuild Guild
-        => this.Discord.Guilds.TryGetValue(this.GuildId, out DiscordGuild? guild) ? guild : null;
+        => this.Discord._guilds.TryGetValue(this.GuildId, out DiscordGuild? guild) ? guild : null;
 
     /// <summary>
     /// Gets the id of the guild this stage instance is in.

@@ -36,7 +36,7 @@ public class DiscordUserConverter : IArgumentConverter<DiscordUser>
         string un = di != -1 ? value.Substring(0, di) : value;
         string? dv = di != -1 ? value.Substring(di + 1) : null;
 
-        System.Collections.Generic.IEnumerable<DiscordMember> us = ctx.Client.Guilds.Values
+        System.Collections.Generic.IEnumerable<DiscordMember> us = ctx.Client._guilds.Values
             .SelectMany(xkvp => xkvp.Members.Values).Where(xm =>
                 xm.Username.Equals(un, cs ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase) &&
                 ((dv != null && xm.Discriminator == dv) || dv == null));
@@ -199,14 +199,14 @@ public class DiscordGuildConverter : IArgumentConverter<DiscordGuild>
     {
         if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulong gid))
         {
-            return ctx.Client.Guilds.TryGetValue(gid, out DiscordGuild? result)
+            return ctx.Client._guilds.TryGetValue(gid, out DiscordGuild? result)
                 ? Task.FromResult(Optional.FromValue(result))
                 : Task.FromResult(Optional.FromNoValue<DiscordGuild>());
         }
 
         bool cs = ctx.Config.CaseSensitive;
 
-        DiscordGuild? gld = ctx.Client.Guilds.Values.FirstOrDefault(xg =>
+        DiscordGuild? gld = ctx.Client._guilds.Values.FirstOrDefault(xg =>
             xg.Name.Equals(value, cs ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase));
         return Task.FromResult(gld != null ? Optional.FromValue(gld) : Optional.FromNoValue<DiscordGuild>());
     }

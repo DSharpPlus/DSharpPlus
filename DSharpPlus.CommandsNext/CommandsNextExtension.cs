@@ -131,7 +131,7 @@ public class CommandsNextExtension : BaseExtension
 
         Type t = typeof(CommandsNextExtension);
         IEnumerable<MethodInfo> ms = t.GetTypeInfo().DeclaredMethods;
-        MethodInfo? m = ms.FirstOrDefault(xm => xm.Name == nameof(ConvertArgument) && xm.ContainsGenericParameters && !xm.IsStatic && xm.IsPublic);
+        MethodInfo? m = ms.FirstOrDefault(xm => xm.Name == nameof(ConvertArgumentAsync) && xm.ContainsGenericParameters && !xm.IsStatic && xm.IsPublic);
         this.ConvertGeneric = m;
     }
 
@@ -949,7 +949,7 @@ public class CommandsNextExtension : BaseExtension
     /// <param name="cmd">Command to execute.</param>
     /// <param name="rawArguments">Raw arguments to pass to command.</param>
     /// <returns>Created fake context.</returns>
-    public CommandContext CreateFakeContext(DiscordUser actor, DiscordChannel channel, string messageContents, string prefix, Command cmd, string? rawArguments = null)
+    public async Task<CommandContext> CreateFakeContextAsync(DiscordUser actor, DiscordChannel channel, string messageContents, string prefix, Command cmd, string? rawArguments = null)
     {
         DateTimeOffset epoch = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
         DateTimeOffset now = DateTimeOffset.UtcNow;
@@ -987,7 +987,14 @@ public class CommandsNextExtension : BaseExtension
             }
             else
             {
-                mentionedUsers = Utilities.GetUserMentions(msg).Select(this.Client.GetCachedOrEmptyUserInternal).ToList();
+                foreach (ulong mentionedUserId in Utilities.GetUserMentions(msg))
+                {
+                    DiscordUser? User = await this.Client.TryGetCachedUserInternalAsync(mentionedUserId);
+                    if (User is not null)
+                    {
+                        mentionedUsers.Add(User);
+                    }
+                }
             }
         }
 
@@ -1026,7 +1033,7 @@ public class CommandsNextExtension : BaseExtension
     /// <param name="value">Value to convert.</param>
     /// <param name="ctx">Context in which to convert to.</param>
     /// <returns>Converted object.</returns>
-    public async Task<object> ConvertArgument<T>(string value, CommandContext ctx)
+    public async Task<object> ConvertArgumentAsync<T>(string value, CommandContext ctx)
     {
         Type t = typeof(T);
         if (!this.ArgumentConverters.ContainsKey(t))
@@ -1050,7 +1057,7 @@ public class CommandsNextExtension : BaseExtension
     /// <param name="ctx">Context in which to convert to.</param>
     /// <param name="type">Type to convert to.</param>
     /// <returns>Converted object.</returns>
-    public async Task<object> ConvertArgument(string? value, CommandContext ctx, Type type)
+    public async Task<object> ConvertArgumentAsync(string? value, CommandContext ctx, Type type)
     {
         MethodInfo m = this.ConvertGeneric.MakeGenericMethod(type);
         try

@@ -32,7 +32,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     [JsonIgnore]
     public DiscordGuild Guild
-        => (this.Discord as DiscordClient).InternalGetCachedGuild(this.GuildId);
+        => (this.Discord as DiscordClient).GetCachedGuild(this.GuildId);
 
     /// <summary>
     /// Gets the Id of the channel that invoked this interaction.

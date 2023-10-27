@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Caching;
+namespace DSharpPlus.Caching;
 
 using System;
 using System.Collections.Generic;
@@ -49,7 +49,7 @@ public class WeakDictionary<TKey, TValue> where TValue : class
     {
         foreach (KeyValuePair<TKey, WeakReference<TValue>> pair in this._list)
         {
-            if (pair.Key != null && pair.Key.Equals(key))
+            if (pair.Key != null && Equals(pair.Key, key))
             {
                 this._list.Remove(pair);
                 return true;
@@ -82,8 +82,7 @@ public class WeakDictionary<TKey, TValue> where TValue : class
 
     public IEnumerable<TValue> Values => this._list.Select(x =>
         {
-            TValue? xValue;
-            x.Value.TryGetTarget(out xValue);
+            x.Value.TryGetTarget(out TValue? xValue);
             return xValue;
         })
         .Where(x => x is not null)!;

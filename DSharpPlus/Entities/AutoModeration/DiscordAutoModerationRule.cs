@@ -9,6 +9,9 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
+using System.Runtime.CompilerServices;
+using Caching;
+
 /// <summary>
 /// Represents a Discord auto-moderation rule.
 /// </summary>
@@ -20,8 +23,7 @@ public class DiscordAutoModerationRule : SnowflakeObject
     /// <summary>
     /// Gets the guild which the rule is in.
     /// </summary>
-    [JsonIgnore]
-    public DiscordGuild? Guild => this.Discord.Guilds.TryGetValue(this.GuildId, out DiscordGuild? guild) ? guild : null;
+    public async Task<DiscordGuild?> GetGuildAsync() => await this.Discord.Cache.TryGet<DiscordGuild>(ICacheKey.ForGuild(this.GuildId));
 
     /// <summary>
     /// Gets the rule name.
@@ -35,8 +37,7 @@ public class DiscordAutoModerationRule : SnowflakeObject
     /// <summary>
     /// Gets the user that created the rule.
     /// </summary>
-    [JsonIgnore]
-    public DiscordUser? Creator => this.Discord.TryGetCachedUserInternalAsync(this.CreatorId, out DiscordUser creator) ? creator : null;
+    public async Task<DiscordUser?> GetCreatorAsync() => await this.Discord.TryGetCachedUserInternalAsync(this.CreatorId);
 
     /// <summary>
     /// Gets the rule event type.

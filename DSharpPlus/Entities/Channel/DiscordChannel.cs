@@ -33,9 +33,8 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <summary>
     /// Gets the category that contains this channel. For threads, gets the channel this thread was created in.
     /// </summary>
-    [JsonIgnore]
-    public DiscordChannel Parent
-        => this.ParentId.HasValue ? this.Guild.GetChannel(this.ParentId.Value) : null;
+    public async Task<DiscordChannel?> GetParentAsync()
+        => this.ParentId.HasValue ? (await this.GetGuild())?.GetChannel(this.ParentId.Value) : null;
 
     /// <summary>
     /// Gets the name of this channel.
@@ -79,9 +78,15 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <summary>
     /// Gets the guild to which this channel belongs.
     /// </summary>
-    [JsonIgnore]
-    public DiscordGuild Guild
-        => this.GuildId.HasValue && this.Discord.Guilds.TryGetValue(this.GuildId.Value, out DiscordGuild? guild) ? guild : null;
+    public async Task<DiscordGuild?> GetGuild()
+    {
+        if (this.GuildId.HasValue)
+        {
+            return await this.Discord.GetGuildFromCacheAsync(this.GuildId.Value);
+        }
+
+        return null;
+    }
 
     /// <summary>
     /// Gets a collection of permission overwrites for this channel.
