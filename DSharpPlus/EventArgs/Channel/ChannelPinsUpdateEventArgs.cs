@@ -11,12 +11,24 @@ public class ChannelPinsUpdateEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the guild in which the update occurred.
     /// </summary>
-    public DiscordGuild Guild { get; internal set; }
+    /// <remarks>This value comes from cache and is null if its not present in cache</remarks>
+    public DiscordGuild? Guild { get; internal set; }
 
+    /// <summary>
+    /// Gets the ID of the guild in which the update occurred.
+    /// </summary>
+    public ulong GuildId { get; internal set; }
+    
     /// <summary>
     /// Gets the channel in which the update occurred.
     /// </summary>
-    public DiscordChannel Channel { get; internal set; }
+    /// <remarks>This value comes from cache and is null if its not present in cache</remarks>
+    public DiscordChannel? Channel { get; internal set; }
+    
+    /// <summary>
+    /// Gets the ID of the channel in which the update occurred.
+    /// </summary>
+    public ulong ChannelId { get; internal set; }
 
     /// <summary>
     /// Gets the timestamp of the latest pin.

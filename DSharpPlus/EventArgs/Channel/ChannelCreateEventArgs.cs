@@ -15,7 +15,13 @@ public class ChannelCreateEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the guild in which the channel was created.
     /// </summary>
-    public DiscordGuild Guild { get; internal set; }
+    /// <remarks>This value comes from cache and could be null</remarks>
+    public DiscordGuild? Guild { get; internal set; }
+    
+    /// <summary>
+    /// Gets the ID of the guild in which the update occurred.
+    /// </summary>
+    public ulong GuildId { get; internal set; }
 
     internal ChannelCreateEventArgs() : base() { }
 }
