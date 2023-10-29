@@ -10,6 +10,7 @@ using DSharpPlus.CommandAll.Commands.Attributes;
 using DSharpPlus.CommandAll.Converters;
 using DSharpPlus.CommandAll.EventArgs;
 using DSharpPlus.CommandAll.Exceptions;
+using DSharpPlus.CommandAll.Processors.SlashCommands.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
@@ -180,7 +181,12 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
 
         public async Task RegisterSlashCommandsAsync(CommandAllExtension extension)
         {
-            IEnumerable<DiscordApplicationCommand> applicationCommands = extension.Commands.Values.Select(ToApplicationCommand);
+            List<DiscordApplicationCommand> applicationCommands = [];
+            foreach (Command command in extension.Commands.Values)
+            {
+                applicationCommands.Add(await ToApplicationCommandAsync(command));
+            }
+
             IReadOnlyList<DiscordApplicationCommand> commands = extension.DebugGuildId is null
                 ? await extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(applicationCommands)
                 : await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId.Value, applicationCommands);
@@ -195,31 +201,121 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             SlashLogging.RegisteredCommands(_logger, Commands.Count, null);
         }
 
-        public DiscordApplicationCommand ToApplicationCommand(Command command) => new(
-            name: command.Name,
-            description: command.Description,
-            options: command.Subcommands.Any() ? command.Subcommands.Select(ToApplicationArgument) : command.Arguments.Select(ToApplicationArgument),
-            type: ApplicationCommandType.SlashCommand,
-            //name_localizations: command.Attributes.FirstOrDefault(x => x is SlashLocalizerAttribute slashLocalizer && slashLocalizer.Localize(command.Name))
-            //description_localizations: command.Attributes.FirstOrDefault(x => x is SlashLocalizerAttribute slashLocalizer && slashLocalizer.Localize(command.Description))
-            //allowDMUsage: command.Attributes.Any(x => x is SlashCommandAllowDMUsageAttribute)
-            defaultMemberPermissions: command.Attributes.OfType<PermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? Permissions.None,
-            nsfw: command.Attributes.Any(x => x is NsfwAttribute)
-        );
+        public async Task<DiscordApplicationCommand> ToApplicationCommandAsync(Command command)
+        {
+            if (_extension is null)
+            {
+                throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
+            }
 
-        public DiscordApplicationCommandOption ToApplicationArgument(Command command) => new(
-            name: command.Name,
-            description: command.Description,
-            type: command.Subcommands.Any() ? ApplicationCommandOptionType.SubCommandGroup : ApplicationCommandOptionType.SubCommand,
-            options: command.Subcommands.Select(ToApplicationArgument)
-        );
+            // Translate the command's name and description.
+            IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
+            IReadOnlyDictionary<string, string> descriptionLocalizations = new Dictionary<string, string>();
+            if (command.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
+            {
+                nameLocalizations = await localizerAttribute.LocalizeAsync(_extension.ServiceProvider, $"{command.FullName}.name");
+                descriptionLocalizations = await localizerAttribute.LocalizeAsync(_extension.ServiceProvider, $"{command.FullName}.description");
+            }
 
-        public DiscordApplicationCommandOption ToApplicationArgument(CommandArgument argument) => new(
-            name: argument.Name,
-            description: argument.Description,
-            type: TypeMappings.TryGetValue(argument.Type, out ApplicationCommandOptionType type) ? type : throw new InvalidOperationException($"No type mapping found for argument type '{argument.Type.Name}'"),
-            required: !argument.DefaultValue.HasValue
-        );
+            // Convert the subcommands or arguments into application options
+            List<DiscordApplicationCommandOption> options = [];
+            if (command.Subcommands.Any())
+            {
+                foreach (Command subCommand in command.Subcommands)
+                {
+                    options.Add(await ToApplicationArgumentAsync(subCommand));
+                }
+            }
+            else
+            {
+                foreach (CommandArgument argument in command.Arguments)
+                {
+                    options.Add(await ToApplicationArgumentAsync(command, argument));
+                }
+            }
+
+            // Create the top level application command.
+            return new(
+                name: command.Name,
+                description: command.Description,
+                options: options,
+                type: ApplicationCommandType.SlashCommand,
+                name_localizations: nameLocalizations,
+                description_localizations: descriptionLocalizations,
+                allowDMUsage: command.Attributes.Any(x => x is AllowDMUsageAttribute),
+                defaultMemberPermissions: command.Attributes.OfType<PermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? Permissions.None,
+                nsfw: command.Attributes.Any(x => x is NsfwAttribute)
+            );
+        }
+
+        public async Task<DiscordApplicationCommandOption> ToApplicationArgumentAsync(Command command)
+        {
+            if (_extension is null)
+            {
+                throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
+            }
+
+            // Translate the subcommand's name and description.
+            IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
+            IReadOnlyDictionary<string, string> descriptionLocalizations = new Dictionary<string, string>();
+            if (command.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
+            {
+                nameLocalizations = await localizerAttribute.LocalizeAsync(_extension.ServiceProvider, $"{command.FullName}.name");
+                descriptionLocalizations = await localizerAttribute.LocalizeAsync(_extension.ServiceProvider, $"{command.FullName}.description");
+            }
+
+            // Convert the subcommands or arguments into application options
+            List<DiscordApplicationCommandOption> options = [];
+            if (command.Subcommands.Any())
+            {
+                foreach (Command subCommand in command.Subcommands)
+                {
+                    options.Add(await ToApplicationArgumentAsync(subCommand));
+                }
+            }
+            else
+            {
+                foreach (CommandArgument argument in command.Arguments)
+                {
+                    options.Add(await ToApplicationArgumentAsync(command, argument));
+                }
+            }
+
+            return new(
+                name: command.Name,
+                description: command.Description,
+                name_localizations: nameLocalizations,
+                description_localizations: descriptionLocalizations,
+                type: command.Subcommands.Any() ? ApplicationCommandOptionType.SubCommandGroup : ApplicationCommandOptionType.SubCommand,
+                options: options
+            );
+        }
+
+        public async Task<DiscordApplicationCommandOption> ToApplicationArgumentAsync(Command command, CommandArgument argument)
+        {
+            if (_extension is null)
+            {
+                throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
+            }
+
+            // Translate the argument's name and description.
+            IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
+            IReadOnlyDictionary<string, string> descriptionLocalizations = new Dictionary<string, string>();
+            if (argument.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
+            {
+                nameLocalizations = await localizerAttribute.LocalizeAsync(_extension.ServiceProvider, $"{command.FullName}.arguments.{argument.Name}.name");
+                descriptionLocalizations = await localizerAttribute.LocalizeAsync(_extension.ServiceProvider, $"{command.FullName}.arguments.{argument.Name}.description");
+            }
+
+            return new(
+                name: argument.Name,
+                description: argument.Description,
+                name_localizations: nameLocalizations,
+                description_localizations: descriptionLocalizations,
+                type: TypeMappings.TryGetValue(argument.Type, out ApplicationCommandOptionType type) ? type : throw new InvalidOperationException($"No type mapping found for argument type '{argument.Type.Name}'"),
+                required: !argument.DefaultValue.HasValue
+            );
+        }
 
         private async Task<CommandContext?> ParseArgumentsAsync(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs)
         {
