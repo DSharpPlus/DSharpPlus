@@ -14,6 +14,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.CommandAll.Processors.SlashCommands
 {
@@ -25,7 +26,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
 
         private readonly Dictionary<Type, ISlashArgumentConverter> _converters = [];
         private CommandAllExtension? _extension;
-        private ILogger<SlashCommandProcessor>? _logger;
+        private ILogger<SlashCommandProcessor> _logger = NullLogger<SlashCommandProcessor>.Instance;
         private bool _eventsRegistered;
 
         public void AddConverter<T>(ISlashArgumentConverter<T> converter) => _converters.Add(typeof(T), converter);
@@ -80,8 +81,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 catch (Exception error)
                 {
                     // Log the error if possible
-                    // TODO: LoggerEvents
-                    _logger?.LogError(error, "Failed to create instance of converter '{FullName}'", type.FullName);
+                    SlashLogging.FailedConverterCreation(_logger, type.FullName ?? type.Name, error);
                 }
             }
         }
@@ -89,7 +89,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
         public Task ConfigureAsync(CommandAllExtension extension, ConfigureCommandsEventArgs eventArgs)
         {
             _extension = extension;
-            _logger = extension.ServiceProvider.GetService<ILogger<SlashCommandProcessor>>();
+            _logger = extension.ServiceProvider.GetService<ILogger<SlashCommandProcessor>>() ?? NullLogger<SlashCommandProcessor>.Instance;
             AddConverters(typeof(SlashCommandProcessor).Assembly);
 
             Dictionary<Type, ConverterDelegate<InteractionCreateEventArgs>> converters = [];
@@ -126,13 +126,13 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             }
             else if (eventArgs.Interaction.Type != InteractionType.ApplicationCommand)
             {
-                _logger?.LogTrace("Received interaction of type '{InteractionType}.' Ignoring.", eventArgs.Interaction.Type);
+                SlashLogging.UnknownInteractionType(_logger, eventArgs.Interaction.Type, null);
                 return;
             }
 
             if (!TryFindCommand(eventArgs.Interaction, out Command? command))
             {
-                _logger?.LogDebug("Received interaction for command '{CommandName}' but no matching command id was found. Was this command for a different shard or process?", eventArgs.Interaction.Data.Name);
+                SlashLogging.UnknownCommandName(_logger, eventArgs.Interaction.Data.Name, null);
                 return;
             }
 
@@ -192,7 +192,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             }
 
             Commands = commandsDictionary.ToFrozenDictionary();
-            _logger?.LogInformation("Registered {Count:N0} slash commands", Commands.Count);
+            SlashLogging.RegisteredCommands(_logger, Commands.Count, null);
         }
 
         public DiscordApplicationCommand ToApplicationCommand(Command command) => new(
