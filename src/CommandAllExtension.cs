@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Commands.Attributes;
-using DSharpPlus.CommandAll.Converters.Meta;
 using DSharpPlus.CommandAll.EventArgs;
 using DSharpPlus.CommandAll.Processors;
-using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -30,25 +28,13 @@ namespace DSharpPlus.CommandAll
         public CommandExecutor CommandExecutor { get; init; } = new();
 
         /// <summary>
-        /// The argument converters to use when parsing user input.
-        /// </summary>
-        public IReadOnlyDictionary<Type, ConverterDelegate> Converters { get; private set; } = new Dictionary<Type, ConverterDelegate>();
-        private readonly Dictionary<Type, ConverterDelegate> _converters = new();
-
-        /// <summary>
         /// The registered commands that the users can execute.
         /// </summary>
         public IReadOnlyDictionary<string, Command> Commands { get; private set; } = new Dictionary<string, Command>();
-        private readonly List<CommandBuilder> _commandBuilders = new();
+        private readonly List<CommandBuilder> _commandBuilders = [];
 
         public IReadOnlyList<ICommandProcessor> Processors => _processors;
-        private readonly List<ICommandProcessor> _processors = new();
-
-        /// <summary>
-        /// Executed before registering slash commands.
-        /// </summary>
-        public event AsyncEventHandler<CommandAllExtension, ConfigureCommandsEventArgs> ConfigureCommands { add => _configureCommands.Register(value); remove => _configureCommands.Unregister(value); }
-        internal readonly AsyncEvent<CommandAllExtension, ConfigureCommandsEventArgs> _configureCommands = new("COMMANDALL_CONFIGURE_COMMANDS", EverythingWentWrongErrorHandler);
+        private readonly List<ICommandProcessor> _processors = [];
 
         /// <summary>
         /// Executed everytime a command is finished executing.
@@ -77,7 +63,6 @@ namespace DSharpPlus.CommandAll
 
             ServiceProvider = configuration.ServiceProvider;
             DebugGuildId = configuration.DebugGuildId;
-            AddConverters(typeof(CommandAllExtension).Assembly);
 
             // Attempt to get the user defined logging, otherwise setup a null logger since the D#+ Default Logger is internal.
             _logger = ServiceProvider.GetService<ILogger<CommandAllExtension>>() ?? NullLogger<CommandAllExtension>.Instance;
@@ -100,34 +85,6 @@ namespace DSharpPlus.CommandAll
 
             Client = client;
             Client.SessionCreated += async (_, _) => await RefreshAsync();
-        }
-
-        public void AddConverter<T>(ConverterDelegate converter) => _converters.Add(typeof(T), converter);
-        public void AddConverter(Type type) => AddConverters(new[] { type });
-        public void AddConverters(Assembly assembly) => AddConverters(assembly.GetTypes());
-        public void AddConverters(IEnumerable<Type> types)
-        {
-            foreach (Type type in types)
-            {
-                foreach (MethodInfo method in type.GetMethods())
-                {
-                    if (method.GetCustomAttribute<ConverterAttribute>() is not ConverterAttribute converterAttribute
-                        || method.ReturnType != typeof(Task<IOptional>))
-                    {
-                        continue;
-                    }
-
-                    if (method.IsStatic)
-                    {
-                        _converters.Add(converterAttribute.ParameterType, method.CreateDelegate<ConverterDelegate>(null));
-                    }
-                    else
-                    {
-                        object instance = ActivatorUtilities.CreateInstance(ServiceProvider, method.DeclaringType!);
-                        _converters.Add(converterAttribute.ParameterType, method.CreateDelegate<ConverterDelegate>(instance));
-                    }
-                }
-            }
         }
 
         public void AddCommand(CommandBuilder command) => _commandBuilders.Add(command);
@@ -155,32 +112,22 @@ namespace DSharpPlus.CommandAll
             }
         }
 
-        public void AddProcessor(ICommandProcessor processor)
-        {
-            ConfigureCommands += processor.ConfigureAsync;
-            _processors.Add(processor);
-        }
-
-        public void AddProcessors(IEnumerable<ICommandProcessor> processors)
-        {
-            foreach (ICommandProcessor processor in processors)
-            {
-                AddProcessor(processor);
-            }
-        }
-
-        public void AddProcessors(params ICommandProcessor[] processors) => AddProcessors(processors as IEnumerable<ICommandProcessor>);
+        public void AddProcessor(ICommandProcessor processor) => _processors.Add(processor);
+        public void AddProcessors(IEnumerable<ICommandProcessor> processors) => _processors.AddRange(processors);
+        public void AddProcessors(params ICommandProcessor[] processors) => _processors.AddRange(processors);
 
         public async Task RefreshAsync()
         {
-            Converters = _converters.ToFrozenDictionary();
-            await _configureCommands.InvokeAsync(this, new ConfigureCommandsEventArgs()
+            foreach (ICommandProcessor processor in _processors)
             {
-                Extension = this,
-                CommandBuilders = _commandBuilders
-            });
+                await processor.ConfigureAsync(this, new ConfigureCommandsEventArgs()
+                {
+                    Extension = this,
+                    CommandBuilders = _commandBuilders
+                });
+            }
 
-            Dictionary<string, Command> commands = new();
+            Dictionary<string, Command> commands = [];
             foreach (CommandBuilder commandBuilder in _commandBuilders)
             {
                 try

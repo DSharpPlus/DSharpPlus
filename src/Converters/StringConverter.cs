@@ -1,28 +1,20 @@
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus.CommandAll.Converters.Meta;
-using DSharpPlus.CommandAll.Processors.SlashCommands.Attributes;
+using DSharpPlus.CommandAll.Processors.SlashCommands;
+using DSharpPlus.CommandAll.Processors.TextCommands;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.CommandAll.Converters
 {
-    public class StringConverter
+    public class StringConverter : ISlashArgumentConverter<string>, ITextArgumentConverter<string>
     {
-        [Converter<string>, SlashConverter(ApplicationCommandOptionType.String)]
-        public static Task<IOptional> ConvertAsync(ConverterContext context)
-        {
-            if (context.EventArgs is MessageCreateEventArgs messageCreateEventArgs)
-            {
-                return Task.FromResult<IOptional>(Optional.FromValue(messageCreateEventArgs.Message.Content));
-            }
-            else if (context.EventArgs is InteractionCreateEventArgs eventArgs
-                && eventArgs.Interaction.Type == InteractionType.ApplicationCommand)
-            {
-                return Task.FromResult<IOptional>(Optional.FromValue(eventArgs.Interaction.Data.Options.ElementAt(context.Command.Arguments.IndexOf(context.Argument)).Value.ToString()!));
-            }
+        public ApplicationCommandOptionType ArgumentType { get; init; } = ApplicationCommandOptionType.String;
 
-            return Task.FromResult<IOptional>(Optional.FromNoValue<string>());
-        }
+        public Task<Optional<string>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue(eventArgs.Message.Content));
+
+        public Task<Optional<string>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => eventArgs.Interaction.Type != InteractionType.ApplicationCommand
+            ? Task.FromResult(Optional.FromNoValue<string>())
+            : Task.FromResult(Optional.FromValue(eventArgs.Interaction.Data.Options.ElementAt(context.ArgumentIndex).Value.ToString()!));
     }
 }
