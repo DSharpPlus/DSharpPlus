@@ -84,14 +84,17 @@ namespace DSharpPlus.CommandAll
         }
 
         /// <inheritdoc cref="Array.IndexOf{T}(T[], T)"/>
-        internal static int IndexOf<T>(this IReadOnlyList<T> array, T? value) where T : IEquatable<T>
+        internal static int IndexOf<T>(this IEnumerable<T> array, T? value) where T : IEquatable<T>
         {
-            for (int i = 0; i < array.Count; i++)
+            int index = 0;
+            foreach (T item in array)
             {
-                if (array[i].Equals(value))
+                if (item.Equals(value))
                 {
-                    return i;
+                    return index;
                 }
+
+                index++;
             }
 
             return -1;

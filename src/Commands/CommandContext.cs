@@ -4,20 +4,12 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandAll.Commands
 {
-    public abstract record CommandContext
+    public abstract record CommandContext : AbstractContext
     {
-        public required DiscordUser User { get; init; }
-        public required DiscordChannel Channel { get; init; }
-        public required CommandAllExtension Extension { get; init; }
-        public required Command Command { get; init; }
         public required IReadOnlyDictionary<CommandArgument, object?> Arguments { get; init; }
 
         public IReadOnlyDictionary<ulong, DiscordMessage> FollowupMessages => _followupMessages;
-        protected Dictionary<ulong, DiscordMessage> _followupMessages = new();
-
-        public DiscordGuild? Guild => Channel.Guild;
-        public DiscordMember? Member => User as DiscordMember;
-        public DiscordClient Client => Extension.Client;
+        protected Dictionary<ulong, DiscordMessage> _followupMessages = [];
 
         public virtual ValueTask RespondAsync(string content) => RespondAsync(new DiscordMessageBuilder().WithContent(content));
         public virtual ValueTask RespondAsync(DiscordEmbed embed) => RespondAsync(new DiscordMessageBuilder().WithEmbed(embed));

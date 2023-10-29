@@ -1,8 +1,9 @@
 using System;
 using System.Threading.Tasks;
+using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.CommandAll.Commands.Contexts
+namespace DSharpPlus.CommandAll.Processors.SlashCommands
 {
     public sealed record SlashContext : CommandContext
     {

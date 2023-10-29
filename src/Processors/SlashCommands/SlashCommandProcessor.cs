@@ -1,54 +1,81 @@
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Commands.Attributes;
-using DSharpPlus.CommandAll.Commands.Contexts;
-using DSharpPlus.CommandAll.Converters.Meta;
+using DSharpPlus.CommandAll.Converters;
 using DSharpPlus.CommandAll.EventArgs;
-using DSharpPlus.CommandAll.Processors.SlashCommands;
-using DSharpPlus.CommandAll.Processors.SlashCommands.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
-namespace DSharpPlus.CommandAll.Processors
+namespace DSharpPlus.CommandAll.Processors.SlashCommands
 {
     public sealed class SlashCommandProcessor : ICommandProcessor<InteractionCreateEventArgs>
     {
-        public static readonly IReadOnlyDictionary<Type, ApplicationCommandOptionType> DefaultTypeMappings = new Dictionary<Type, ApplicationCommandOptionType>()
-        {
-            [typeof(string)] = ApplicationCommandOptionType.String,
-            [typeof(long)] = ApplicationCommandOptionType.Integer,
-            [typeof(bool)] = ApplicationCommandOptionType.Boolean,
-            [typeof(double)] = ApplicationCommandOptionType.Number,
-            [typeof(Enum)] = ApplicationCommandOptionType.String,
-            [typeof(TimeSpan)] = ApplicationCommandOptionType.String,
-            [typeof(DiscordUser)] = ApplicationCommandOptionType.User,
-            [typeof(DiscordRole)] = ApplicationCommandOptionType.Role,
-            [typeof(DiscordEmoji)] = ApplicationCommandOptionType.String,
-            [typeof(DiscordChannel)] = ApplicationCommandOptionType.Channel,
-            [typeof(DiscordAttachment)] = ApplicationCommandOptionType.Attachment,
-            [typeof(SnowflakeObject)] = ApplicationCommandOptionType.Mentionable,
-        };
+        public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreateEventArgs>> Converters { get; private set; } = new Dictionary<Type, ConverterDelegate<InteractionCreateEventArgs>>();
+        public IReadOnlyDictionary<Type, ApplicationCommandOptionType> TypeMappings { get; private set; } = new Dictionary<Type, ApplicationCommandOptionType>();
 
-        public SlashCommandConfiguration Configuration { get; init; } = new();
-        public IReadOnlyDictionary<Type, ApplicationCommandOptionType> TypeMappings { get; private set; } = DefaultTypeMappings;
+        private readonly Dictionary<Type, ISlashArgumentConverter> _converters = [];
         private bool _eventsRegistered;
+
+        public void AddConverter<T>(ISlashArgumentConverter<T> converter) => _converters.Add(typeof(T), converter);
+        public void AddConverter(Type type, ISlashArgumentConverter converter)
+        {
+            if (!converter.GetType().IsAssignableTo(typeof(ISlashArgumentConverter<>).MakeGenericType(type)))
+            {
+                throw new ArgumentException($"Type '{converter.GetType().Name}' Converter must implement '{typeof(ISlashArgumentConverter<>).MakeGenericType(type).Name}'", nameof(converter));
+            }
+
+            _converters.Add(type, converter);
+        }
+        public void AddConverters(Assembly assembly) => AddConverters(assembly.GetTypes());
+        public void AddConverters(IEnumerable<Type> types)
+        {
+            foreach (Type type in types)
+            {
+                Type? genericArgumentConverter = type.GetInterfaces().FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ISlashArgumentConverter<>));
+                if (type.IsAbstract || type.IsInterface || genericArgumentConverter is null)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    object? converter = Activator.CreateInstance(type);
+                    if (converter is null)
+                    {
+                        continue;
+                    }
+
+                    AddConverter(genericArgumentConverter.GenericTypeArguments[0], (ISlashArgumentConverter)converter);
+                }
+                catch (Exception) { }
+            }
+        }
 
         public Task ConfigureAsync(CommandAllExtension extension, ConfigureCommandsEventArgs eventArgs)
         {
-            Dictionary<Type, ApplicationCommandOptionType> typeMappings = new(DefaultTypeMappings);
-            foreach ((Type type, ConverterDelegate converter) in eventArgs.Extension.Converters)
+            AddConverters(typeof(SlashCommandProcessor).Assembly);
+
+            Dictionary<Type, ConverterDelegate<InteractionCreateEventArgs>> converters = [];
+            Dictionary<Type, ApplicationCommandOptionType> typeMappings = [];
+            foreach ((Type type, ISlashArgumentConverter converter) in _converters)
             {
-                if (converter.Method.GetCustomAttribute<SlashConverterAttribute>() is SlashConverterAttribute converterAttribute)
-                {
-                    typeMappings.Add(type, converterAttribute.ParameterType);
-                }
+                Type genericConverter = typeof(ISlashArgumentConverter<>).MakeGenericType(type);
+                MethodInfo? convertAsyncMethod = genericConverter.GetMethod("ConvertAsync", [typeof(ConverterContext), typeof(InteractionCreateEventArgs)]) ?? throw new InvalidOperationException($"Converter {converter.GetType().Name} does not implement {genericConverter.Name}");
+
+                MethodInfo? executeConvertAsyncMethod = typeof(SlashCommandProcessor).GetMethod(nameof(ExecuteConvertAsync), BindingFlags.Public | BindingFlags.Static) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConvertAsync)} does not exist");
+                executeConvertAsyncMethod = executeConvertAsyncMethod.MakeGenericMethod(type);
+
+                converters.Add(type, executeConvertAsyncMethod.CreateDelegate<ConverterDelegate<InteractionCreateEventArgs>>(converter));
+                typeMappings.Add(type, converter.ArgumentType);
             }
 
-            TypeMappings = typeMappings;
+            Converters = converters.ToFrozenDictionary();
+            TypeMappings = typeMappings.ToFrozenDictionary();
             if (_eventsRegistered)
             {
                 return RegisterSlashCommandsAsync(extension);
@@ -58,7 +85,7 @@ namespace DSharpPlus.CommandAll.Processors
             extension.Client.GuildDownloadCompleted += async (client, eventArgs) => await RegisterSlashCommandsAsync(extension);
             extension.Client.InteractionCreated += async (client, eventArgs) =>
             {
-                ConverterContext? converterContext = await ConvertEventAsync(extension, eventArgs);
+                ConverterContext? converterContext = await CreateConverterContext(extension, eventArgs);
                 if (converterContext is null)
                 {
                     return;
@@ -76,7 +103,7 @@ namespace DSharpPlus.CommandAll.Processors
             return Task.CompletedTask;
         }
 
-        public Task<ConverterContext?> ConvertEventAsync(CommandAllExtension extension, InteractionCreateEventArgs eventArgs)
+        public static Task<ConverterContext?> CreateConverterContext(CommandAllExtension extension, InteractionCreateEventArgs eventArgs)
         {
             if (eventArgs.Interaction.Type != InteractionType.ApplicationCommand || !extension.Commands.TryGetValue(eventArgs.Interaction.Data.Name, out Command? command) || command is null)
             {
@@ -96,15 +123,22 @@ namespace DSharpPlus.CommandAll.Processors
                 options = option.Options;
             }
 
-            return Task.FromResult<ConverterContext?>(new ConverterContext(extension, eventArgs, command));
+            return Task.FromResult<ConverterContext?>(new SlashConverterContext()
+            {
+                Extension = extension,
+                Command = command,
+                Interaction = eventArgs.Interaction,
+                Channel = eventArgs.Interaction.Channel,
+                User = eventArgs.Interaction.User,
+            });
         }
 
         public async Task<CommandContext?> ParseArgumentsAsync(ConverterContext converterContext, InteractionCreateEventArgs eventArgs)
         {
-            List<object?> parameters = new();
+            List<object?> parameters = [];
             while (converterContext.NextArgument())
             {
-                IOptional optional = await converterContext.Extension.Converters[converterContext.Argument!.Type](converterContext);
+                IOptional optional = await Converters[converterContext.Argument.Type](converterContext, eventArgs);
                 if (!optional.HasValue)
                 {
                     break;
@@ -146,19 +180,20 @@ namespace DSharpPlus.CommandAll.Processors
             nsfw: command.Attributes.Any(x => x is NsfwAttribute)
         );
 
-        private DiscordApplicationCommandOption ToApplicationArgument(Command command) => new(
+        public DiscordApplicationCommandOption ToApplicationArgument(Command command) => new(
             name: command.Name,
             description: command.Description,
             type: command.Subcommands.Any() ? ApplicationCommandOptionType.SubCommandGroup : ApplicationCommandOptionType.SubCommand,
             options: command.Subcommands.Select(ToApplicationArgument)
-
         );
 
-        private DiscordApplicationCommandOption ToApplicationArgument(CommandArgument argument) => new(
+        public DiscordApplicationCommandOption ToApplicationArgument(CommandArgument argument) => new(
             name: argument.Name,
             description: argument.Description,
-            type: TypeMappings.TryGetValue(argument.Type, out ApplicationCommandOptionType type) ? type : ApplicationCommandOptionType.String,
+            type: TypeMappings.TryGetValue(argument.Type, out ApplicationCommandOptionType type) ? type : throw new InvalidOperationException($"No type mapping found for argument type '{argument.Type.Name}'"),
             required: !argument.DefaultValue.HasValue
         );
+
+        public static async Task<IOptional> ExecuteConvertAsync<T>(ISlashArgumentConverter<T> converter, ConverterContext context, InteractionCreateEventArgs eventArgs) => await converter.ConvertAsync(context, eventArgs);
     }
 }
