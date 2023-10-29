@@ -255,15 +255,6 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
             }
 
-            // Translate the subcommand's name and description.
-            IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
-            IReadOnlyDictionary<string, string> descriptionLocalizations = new Dictionary<string, string>();
-            if (command.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
-            {
-                nameLocalizations = await localizerAttribute.LocalizeAsync(_extension.ServiceProvider, $"{command.FullName}.name");
-                descriptionLocalizations = await localizerAttribute.LocalizeAsync(_extension.ServiceProvider, $"{command.FullName}.description");
-            }
-
             // Convert the subcommands or arguments into application options
             List<DiscordApplicationCommandOption> options = [];
             if (command.Subcommands.Any())
@@ -279,6 +270,15 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 {
                     options.Add(await ToApplicationArgumentAsync(command, argument));
                 }
+            }
+
+            // Translate the subcommand's name and description.
+            IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
+            IReadOnlyDictionary<string, string> descriptionLocalizations = new Dictionary<string, string>();
+            if (command.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
+            {
+                nameLocalizations = await localizerAttribute.LocalizeAsync(_extension.ServiceProvider, $"{command.FullName}.name");
+                descriptionLocalizations = await localizerAttribute.LocalizeAsync(_extension.ServiceProvider, $"{command.FullName}.description");
             }
 
             return new(
@@ -298,6 +298,13 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
             }
 
+            if (!TypeMappings.TryGetValue(argument.Type, out ApplicationCommandOptionType type))
+            {
+                throw new InvalidOperationException($"No type mapping found for argument type '{argument.Type.Name}'");
+            }
+
+            SlashMinMaxAttribute? minMaxAttribute = argument.Attributes.OfType<SlashMinMaxAttribute>().FirstOrDefault();
+
             // Translate the argument's name and description.
             IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
             IReadOnlyDictionary<string, string> descriptionLocalizations = new Dictionary<string, string>();
@@ -307,12 +314,22 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 descriptionLocalizations = await localizerAttribute.LocalizeAsync(_extension.ServiceProvider, $"{command.FullName}.arguments.{argument.Name}.description");
             }
 
+            IEnumerable<DiscordApplicationCommandOptionChoice> choices = [];
+            if (argument.Attributes.OfType<SlashChoiceProviderAttribute>().FirstOrDefault() is SlashChoiceProviderAttribute choiceAttribute)
+            {
+                choices = await choiceAttribute.GrabChoicesAsync(_extension.ServiceProvider, argument);
+            }
+
             return new(
                 name: argument.Name,
                 description: argument.Description,
                 name_localizations: nameLocalizations,
                 description_localizations: descriptionLocalizations,
-                type: TypeMappings.TryGetValue(argument.Type, out ApplicationCommandOptionType type) ? type : throw new InvalidOperationException($"No type mapping found for argument type '{argument.Type.Name}'"),
+                channelTypes: argument.Attributes.OfType<SlashChannelTypesAttribute>().FirstOrDefault()?.ChannelTypes ?? [],
+                minLength: minMaxAttribute?.MinValue,
+                maxLength: minMaxAttribute?.MaxValue,
+                type: type,
+                choices: choices,
                 required: !argument.DefaultValue.HasValue
             );
         }
