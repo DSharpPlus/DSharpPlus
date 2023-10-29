@@ -33,8 +33,8 @@ namespace DSharpPlus.CommandAll
         public IReadOnlyDictionary<string, Command> Commands { get; private set; } = new Dictionary<string, Command>();
         private readonly List<CommandBuilder> _commandBuilders = [];
 
-        public IReadOnlyList<ICommandProcessor> Processors => _processors;
-        private readonly List<ICommandProcessor> _processors = [];
+        public IReadOnlyDictionary<Type, ICommandProcessor> Processors { get; private set; } = new Dictionary<Type, ICommandProcessor>();
+        private readonly Dictionary<Type, ICommandProcessor> _processors = [];
 
         /// <summary>
         /// Executed everytime a command is finished executing.
@@ -112,13 +112,21 @@ namespace DSharpPlus.CommandAll
             }
         }
 
-        public void AddProcessor(ICommandProcessor processor) => _processors.Add(processor);
-        public void AddProcessors(IEnumerable<ICommandProcessor> processors) => _processors.AddRange(processors);
-        public void AddProcessors(params ICommandProcessor[] processors) => _processors.AddRange(processors);
+        public void AddProcessor(ICommandProcessor processor) => _processors.Add(processor.GetType(), processor);
+        public void AddProcessors(params ICommandProcessor[] processors) => AddProcessors((IEnumerable<ICommandProcessor>)processors);
+        public void AddProcessors(IEnumerable<ICommandProcessor> processors)
+        {
+            foreach (ICommandProcessor processor in processors)
+            {
+                _processors.Add(processor.GetType(), processor);
+            }
+        }
+
+        public TProcessor GetProcessor<TProcessor>() where TProcessor : ICommandProcessor => (TProcessor)_processors[typeof(TProcessor)];
 
         public async Task RefreshAsync()
         {
-            foreach (ICommandProcessor processor in _processors)
+            foreach (ICommandProcessor processor in _processors.Values)
             {
                 await processor.ConfigureAsync(this, new ConfigureCommandsEventArgs()
                 {
