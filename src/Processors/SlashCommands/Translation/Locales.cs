@@ -1,0 +1,37 @@
+namespace DSharpPlus.CommandAll.Processors.SlashCommands.Translation
+{
+    public enum Locales
+    {
+        id,
+        da,
+        de,
+        en_GB,
+        en_US,
+        es_ES,
+        fr,
+        hr,
+        it,
+        lt,
+        hu,
+        nl,
+        no,
+        pl,
+        pt_BR,
+        ro,
+        fi,
+        sv_SE,
+        vi,
+        tr,
+        cs,
+        el,
+        bg,
+        ru,
+        uk,
+        hi,
+        th,
+        zh_CN,
+        ja,
+        zh_TW,
+        ko
+    }
+}
