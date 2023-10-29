@@ -14,7 +14,8 @@
       "dest": "api",
       "filter": "filter_config.yml",
       "shouldSkipMarkup": true,
-      "memberLayout": "separatePages"
+      "memberLayout": "separatePages",
+      "outputFormat": "apiPage"
     }
   ],
   "build": {
