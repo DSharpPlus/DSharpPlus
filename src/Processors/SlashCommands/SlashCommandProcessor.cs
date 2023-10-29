@@ -303,7 +303,8 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 throw new InvalidOperationException($"No type mapping found for argument type '{argument.Type.Name}'");
             }
 
-            SlashMinMaxAttribute? minMaxAttribute = argument.Attributes.OfType<SlashMinMaxAttribute>().FirstOrDefault();
+            SlashMinMaxValueAttribute? minMaxValue = argument.Attributes.OfType<SlashMinMaxValueAttribute>().FirstOrDefault();
+            SlashMinMaxLengthAttribute? minMaxLength = argument.Attributes.OfType<SlashMinMaxLengthAttribute>().FirstOrDefault();
 
             // Translate the argument's name and description.
             IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
@@ -326,8 +327,10 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 name_localizations: nameLocalizations,
                 description_localizations: descriptionLocalizations,
                 channelTypes: argument.Attributes.OfType<SlashChannelTypesAttribute>().FirstOrDefault()?.ChannelTypes ?? [],
-                minLength: minMaxAttribute?.MinValue,
-                maxLength: minMaxAttribute?.MaxValue,
+                minLength: minMaxLength?.MinLength,
+                maxLength: minMaxLength?.MaxLength,
+                minValue: minMaxValue?.MinValue!, // Incorrect nullable annotations within the lib
+                maxValue: minMaxValue?.MaxValue!, // Incorrect nullable annotations within the lib
                 type: type,
                 choices: choices,
                 required: !argument.DefaultValue.HasValue
