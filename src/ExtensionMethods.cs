@@ -45,7 +45,7 @@ namespace DSharpPlus.CommandAll
             await shardedClient.InitializeShardsAsync();
             configuration ??= GrabDefaultConfiguration(shardedClient.Logger);
 
-            Dictionary<int, CommandAllExtension> extensions = new();
+            Dictionary<int, CommandAllExtension> extensions = [];
             foreach (DiscordClient shard in shardedClient.ShardClients.Values)
             {
                 extensions[shard.ShardId] = shard.GetExtension<CommandAllExtension>() ?? shard.UseCommandAll(configuration);
@@ -70,7 +70,7 @@ namespace DSharpPlus.CommandAll
         {
             ArgumentNullException.ThrowIfNull(shardedClient);
 
-            Dictionary<int, CommandAllExtension> extensions = new();
+            Dictionary<int, CommandAllExtension> extensions = [];
             foreach (DiscordClient shard in shardedClient.ShardClients.Values)
             {
                 CommandAllExtension? extension = shard.GetExtension<CommandAllExtension>();

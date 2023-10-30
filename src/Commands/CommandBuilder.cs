@@ -15,9 +15,9 @@ namespace DSharpPlus.CommandAll.Commands
         public MethodInfo? Method { get; set; }
         public object? Target { get; set; }
         public Command? Parent { get; set; }
-        public List<CommandBuilder> Subcommands { get; set; } = new();
-        public List<CommandArgumentBuilder> Arguments { get; set; } = new();
-        public List<Attribute> Attributes { get; set; } = new();
+        public List<CommandBuilder> Subcommands { get; set; } = [];
+        public List<CommandArgumentBuilder> Arguments { get; set; } = [];
+        public List<Attribute> Attributes { get; set; } = [];
 
         public CommandBuilder WithName(string name)
         {

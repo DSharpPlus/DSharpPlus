@@ -26,6 +26,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
         public IReadOnlyDictionary<ulong, Command> Commands { get; private set; } = new Dictionary<ulong, Command>();
 
         private readonly Dictionary<Type, ISlashArgumentConverter> _converters = [];
+        private readonly List<DiscordApplicationCommand> _applicationCommands = [];
         private CommandAllExtension? _extension;
         private ILogger<SlashCommandProcessor> _logger = NullLogger<SlashCommandProcessor>.Instance;
         private bool _eventsRegistered;
@@ -38,7 +39,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 throw new ArgumentException($"Type '{converter.GetType().FullName}' must implement '{typeof(ISlashArgumentConverter<>).MakeGenericType(type).FullName}'", nameof(converter));
             }
 
-            _converters.Add(type, converter);
+            _converters.TryAdd(type, converter);
         }
         public void AddConverters(Assembly assembly) => AddConverters(assembly.GetTypes());
         public void AddConverters(IEnumerable<Type> types)
@@ -87,7 +88,10 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             }
         }
 
-        public Task ConfigureAsync(CommandAllExtension extension, ConfigureCommandsEventArgs eventArgs)
+        public void AddApplicationCommands(params DiscordApplicationCommand[] applicationCommands) => _applicationCommands.AddRange(applicationCommands);
+        public void AddApplicationCommands(IEnumerable<DiscordApplicationCommand> applicationCommands) => _applicationCommands.AddRange(applicationCommands);
+
+        public Task ConfigureAsync(CommandAllExtension extension)
         {
             _extension = extension;
             _logger = extension.ServiceProvider.GetService<ILogger<SlashCommandProcessor>>() ?? NullLogger<SlashCommandProcessor>.Instance;
@@ -109,7 +113,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             TypeMappings = typeMappings.ToFrozenDictionary();
             if (_eventsRegistered)
             {
-                return RegisterSlashCommandsAsync(extension);
+                return Task.CompletedTask;
             }
 
             _eventsRegistered = true;
@@ -125,9 +129,8 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             {
                 throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
             }
-            else if (eventArgs.Interaction.Type != InteractionType.ApplicationCommand && eventArgs.Interaction.Type != InteractionType.AutoComplete)
+            else if (eventArgs.Interaction.Type is not InteractionType.ApplicationCommand and not InteractionType.AutoComplete || eventArgs.Interaction.Data.Type is not ApplicationCommandType.SlashCommand)
             {
-                SlashLogging.UnknownInteractionType(_logger, eventArgs.Interaction.Type, null);
                 return;
             }
 
@@ -179,7 +182,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             }
 
             // Resolve subcommands, which do not have id's.
-            options = interaction.Data.Options;
+            options = interaction.Data.Options ?? [];
             while (options.Any())
             {
                 DiscordInteractionDataOption option = options.First();
@@ -189,7 +192,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 }
 
                 command = command.Subcommands.First(x => x.Name == option.Name);
-                options = option.Options;
+                options = option.Options ?? [];
             }
 
             return true;
@@ -198,8 +201,16 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
         public async Task RegisterSlashCommandsAsync(CommandAllExtension extension)
         {
             List<DiscordApplicationCommand> applicationCommands = [];
+            applicationCommands.AddRange(_applicationCommands);
             foreach (Command command in extension.Commands.Values)
             {
+                // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
+                // If there isn't, default to SlashCommands
+                if (command.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute && !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(ApplicationCommandType.SlashCommand))
+                {
+                    continue;
+                }
+
                 applicationCommands.Add(await ToApplicationCommandAsync(command));
             }
 

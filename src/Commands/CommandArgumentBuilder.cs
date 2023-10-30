@@ -12,7 +12,7 @@ namespace DSharpPlus.CommandAll.Commands
         public string? Name { get; set; }
         public string? Description { get; set; }
         public Type? Type { get; set; }
-        public List<Attribute> Attributes { get; set; } = new();
+        public List<Attribute> Attributes { get; set; } = [];
 
         public CommandArgumentBuilder WithName(string name)
         {
