@@ -126,15 +126,6 @@ namespace DSharpPlus.CommandAll
 
         public async Task RefreshAsync()
         {
-            foreach (ICommandProcessor processor in _processors.Values)
-            {
-                await processor.ConfigureAsync(this, new ConfigureCommandsEventArgs()
-                {
-                    Extension = this,
-                    CommandBuilders = _commandBuilders
-                });
-            }
-
             Dictionary<string, Command> commands = [];
             foreach (CommandBuilder commandBuilder in _commandBuilders)
             {
@@ -150,6 +141,11 @@ namespace DSharpPlus.CommandAll
             }
 
             Commands = commands.ToFrozenDictionary();
+
+            foreach (ICommandProcessor processor in _processors.Values)
+            {
+                await processor.ConfigureAsync(this);
+            }
         }
 
         /// <summary>
