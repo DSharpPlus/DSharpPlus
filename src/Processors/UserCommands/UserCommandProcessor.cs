@@ -14,9 +14,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace DSharpPlus.CommandAll.Processors.MessageCommands
+namespace DSharpPlus.CommandAll.Processors.UserCommands
 {
-    public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreateEventArgs>
+    public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreateEventArgs>
     {
         public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreateEventArgs>> Converters => _slashCommandProcessor?.Converters ?? new Dictionary<Type, ConverterDelegate<InteractionCreateEventArgs>>();
         private CommandAllExtension? _extension;
@@ -29,25 +29,25 @@ namespace DSharpPlus.CommandAll.Processors.MessageCommands
             _slashCommandProcessor = _extension.GetProcessor<SlashCommandProcessor>() ?? new SlashCommandProcessor();
             await _slashCommandProcessor.ConfigureAsync(_extension);
 
-            ILogger<MessageCommandProcessor> logger = _extension.ServiceProvider.GetService<ILogger<MessageCommandProcessor>>() ?? NullLogger<MessageCommandProcessor>.Instance;
+            ILogger<UserCommandProcessor> logger = _extension.ServiceProvider.GetService<ILogger<UserCommandProcessor>>() ?? NullLogger<UserCommandProcessor>.Instance;
             List<DiscordApplicationCommand> applicationCommands = [];
             foreach (Command command in _extension.Commands.Values)
             {
-                // Message commands must be explicitly defined as such, otherwise they are ignored.
-                if (!command.Attributes.Any(x => x is SlashCommandTypesAttribute slashCommandTypesAttribute && slashCommandTypesAttribute.ApplicationCommandTypes.Contains(ApplicationCommandType.MessageContextMenu)))
+                // User commands must be explicitly defined as such, otherwise they are ignored.
+                if (!command.Attributes.Any(x => x is SlashCommandTypesAttribute slashCommandTypesAttribute && slashCommandTypesAttribute.ApplicationCommandTypes.Contains(ApplicationCommandType.UserContextMenu)))
                 {
                     continue;
                 }
                 // Ensure there are no subcommands.
                 else if (command.Subcommands.Count != 0)
                 {
-                    logger.LogError("Message command '{CommandName}' cannot have subcommands.", command.Name);
+                    logger.LogError("User command '{CommandName}' cannot have subcommands.", command.Name);
                     continue;
                 }
                 // Check to see if the method signature is valid.
-                else if (command.Arguments.Count != 1 || command.Arguments[0].Type != typeof(DiscordMessage))
+                else if (command.Arguments.Count != 1 || (command.Arguments[0].Type != typeof(DiscordUser) && command.Arguments[0].Type != typeof(DiscordMember)))
                 {
-                    logger.LogError("Message command '{CommandName}' must have a single argument of type DiscordMessage.", command.Name);
+                    logger.LogError("User command '{CommandName}' must have a single argument of type DiscordUser or DiscordMember.", command.Name);
                     continue;
                 }
 
@@ -63,7 +63,7 @@ namespace DSharpPlus.CommandAll.Processors.MessageCommands
             {
                 throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
             }
-            else if (eventArgs.Interaction.Type is not InteractionType.ApplicationCommand || eventArgs.Interaction.Data.Type is not ApplicationCommandType.MessageContextMenu)
+            else if (eventArgs.Interaction.Type is not InteractionType.ApplicationCommand || eventArgs.Interaction.Data.Type is not ApplicationCommandType.UserContextMenu)
             {
                 return;
             }
@@ -83,7 +83,7 @@ namespace DSharpPlus.CommandAll.Processors.MessageCommands
                 User = eventArgs.Interaction.User,
                 Arguments = new Dictionary<CommandArgument, object?>()
                 {
-                    [command.Arguments[0]] = eventArgs.TargetMessage
+                    [command.Arguments[0]] = eventArgs.TargetUser
                 }
             };
 
@@ -101,7 +101,7 @@ namespace DSharpPlus.CommandAll.Processors.MessageCommands
             return new(
                 name: command.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName ?? command.Name,
                 description: string.Empty,
-                type: ApplicationCommandType.MessageContextMenu,
+                type: ApplicationCommandType.UserContextMenu,
                 name_localizations: nameLocalizations,
                 allowDMUsage: command.Attributes.Any(x => x is AllowDMUsageAttribute),
                 defaultMemberPermissions: command.Attributes.OfType<PermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? Permissions.None,

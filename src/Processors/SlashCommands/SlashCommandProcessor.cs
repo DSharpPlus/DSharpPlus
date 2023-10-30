@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
@@ -221,7 +222,25 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             Dictionary<ulong, Command> commandsDictionary = [];
             foreach (DiscordApplicationCommand command in commands)
             {
-                commandsDictionary.Add(command.Id, extension.Commands[command.Name]);
+                if (!extension.Commands.TryGetValue(command.Name, out Command? caCommand))
+                {
+                    foreach (Command officialCommand in extension.Commands.Values)
+                    {
+                        if (officialCommand.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName == command.Name)
+                        {
+                            caCommand = officialCommand;
+                            break;
+                        }
+                    }
+                }
+
+                if (caCommand is null)
+                {
+                    SlashLogging.UnknownCommandName(_logger, command.Name, null);
+                    continue;
+                }
+
+                commandsDictionary.Add(command.Id, caCommand);
             }
 
             Commands = commandsDictionary.ToFrozenDictionary();
