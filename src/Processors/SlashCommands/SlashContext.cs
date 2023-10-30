@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.Entities;
@@ -8,6 +9,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
     public sealed record SlashContext : CommandContext
     {
         public required DiscordInteraction Interaction { get; init; }
+        public required IEnumerable<DiscordInteractionDataOption> Options { get; init; }
         public InteractionState State { get; private set; }
 
         /// <inheritdoc />

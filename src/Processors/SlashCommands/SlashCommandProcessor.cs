@@ -140,15 +140,16 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             SlashConverterContext converterContext = new()
             {
                 Interaction = eventArgs.Interaction,
+                Options = options,
                 Extension = _extension,
                 Command = command,
                 Channel = eventArgs.Interaction.Channel,
                 User = eventArgs.Interaction.User,
             };
 
-            if (eventArgs.Interaction.Type == InteractionType.AutoComplete && options is not null)
+            if (eventArgs.Interaction.Type == InteractionType.AutoComplete)
             {
-                AutoCompleteContext? autoCompleteContext = await ParseAutoCompletesAsync(converterContext, eventArgs, options);
+                AutoCompleteContext? autoCompleteContext = await ParseAutoCompletesAsync(converterContext, eventArgs);
                 if (autoCompleteContext is null)
                 {
                     return;
@@ -169,7 +170,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             }
         }
 
-        public bool TryFindCommand(DiscordInteraction interaction, [NotNullWhen(true)] out Command? command, [MaybeNullWhen(true)] out IEnumerable<DiscordInteractionDataOption>? options)
+        public bool TryFindCommand(DiscordInteraction interaction, [NotNullWhen(true)] out Command? command, [NotNullWhen(true)] out IEnumerable<DiscordInteractionDataOption>? options)
         {
             if (!Commands.TryGetValue(interaction.Data.Id, out command))
             {
@@ -179,7 +180,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
 
             // Resolve subcommands, which do not have id's.
             options = interaction.Data.Options;
-            while (options is not null && options.Any())
+            while (options.Any())
             {
                 DiscordInteractionDataOption option = options.First();
                 if (option.Type is not ApplicationCommandOptionType.SubCommandGroup and not ApplicationCommandOptionType.SubCommand)
@@ -385,7 +386,8 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                         Extension = converterContext.Extension,
                         Command = converterContext.Command,
                         Arguments = parsedArguments,
-                        Interaction = eventArgs.Interaction
+                        Interaction = eventArgs.Interaction,
+                        Options = converterContext.Options
                     },
                     Exception = new ParseArgumentException(converterContext.Argument, error)
                 });
@@ -398,16 +400,17 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 Extension = converterContext.Extension,
                 Command = converterContext.Command,
                 Arguments = parsedArguments,
-                Interaction = eventArgs.Interaction
+                Interaction = eventArgs.Interaction,
+                Options = converterContext.Options
             };
         }
 
-        private async Task<AutoCompleteContext?> ParseAutoCompletesAsync(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs, IEnumerable<DiscordInteractionDataOption> options)
+        private async Task<AutoCompleteContext?> ParseAutoCompletesAsync(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs)
         {
             Dictionary<CommandArgument, object?> parsedArguments = [];
             try
             {
-                while (converterContext.NextArgument() && !options.ElementAt(converterContext.ArgumentIndex).Focused)
+                while (converterContext.NextArgument() && !converterContext.Options.ElementAt(converterContext.ArgumentIndex).Focused)
                 {
                     IOptional optional = await Converters[converterContext.Argument.Type](converterContext, eventArgs);
                     if (!optional.HasValue)
@@ -434,7 +437,8 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                         Extension = converterContext.Extension,
                         Command = converterContext.Command,
                         Arguments = parsedArguments,
-                        Interaction = eventArgs.Interaction
+                        Interaction = eventArgs.Interaction,
+                        Options = converterContext.Options
                     },
                     Exception = new ParseArgumentException(converterContext.Argument, error)
                 });
@@ -449,7 +453,8 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 Arguments = parsedArguments,
                 Interaction = eventArgs.Interaction,
                 AutoCompleteArgument = converterContext.Argument,
-                UserInput = options.ElementAt(converterContext.ArgumentIndex).Value
+                UserInput = converterContext.Options.ElementAt(converterContext.ArgumentIndex).Value,
+                Options = converterContext.Options
             };
         }
 

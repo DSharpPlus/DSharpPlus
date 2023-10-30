@@ -17,5 +17,7 @@ namespace DSharpPlus.CommandAll.Converters
             ArgumentIndex++;
             return true;
         }
+
+        public T As<T>() where T : ConverterContext => (T)this;
     }
 }
