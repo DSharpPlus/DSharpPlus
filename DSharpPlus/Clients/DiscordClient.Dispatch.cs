@@ -2631,38 +2631,33 @@ public sealed partial class DiscordClient
 
             await this._modalSubmitted.InvokeAsync(this, mea);
         }
-        else
+        else if (interaction.Data.Target.HasValue) // Context-Menu. //
         {
-            if (interaction.Data.Target.HasValue) // Context-Menu. //
+            ulong targetId = interaction.Data.Target.Value;
+            DiscordUser targetUser = null;
+            DiscordMember targetMember = null;
+            DiscordMessage targetMessage = null;
+
+            interaction.Data.Resolved.Messages?.TryGetValue(targetId, out targetMessage);
+            interaction.Data.Resolved.Members?.TryGetValue(targetId, out targetMember);
+            interaction.Data.Resolved.Users?.TryGetValue(targetId, out targetUser);
+
+            ContextMenuInteractionCreateEventArgs ctea = new ContextMenuInteractionCreateEventArgs
             {
-                ulong targetId = interaction.Data.Target.Value;
-                DiscordUser targetUser = null;
-                DiscordMember targetMember = null;
-                DiscordMessage targetMessage = null;
-
-                interaction.Data.Resolved.Messages?.TryGetValue(targetId, out targetMessage);
-                interaction.Data.Resolved.Members?.TryGetValue(targetId, out targetMember);
-                interaction.Data.Resolved.Users?.TryGetValue(targetId, out targetUser);
-
-                ContextMenuInteractionCreateEventArgs ctea = new ContextMenuInteractionCreateEventArgs
-                {
-                    Interaction = interaction,
-                    TargetUser = targetMember ?? targetUser,
-                    TargetMessage = targetMessage,
-                    Type = interaction.Data.Type,
-                };
-                await this._contextMenuInteractionCreated.InvokeAsync(this, ctea);
-            }
-            else
-            {
-                InteractionCreateEventArgs ea = new InteractionCreateEventArgs
-                {
-                    Interaction = interaction
-                };
-
-                await this._interactionCreated.InvokeAsync(this, ea);
-            }
+                Interaction = interaction,
+                TargetUser = targetMember ?? targetUser,
+                TargetMessage = targetMessage,
+                Type = interaction.Data.Type,
+            };
+            await this._contextMenuInteractionCreated.InvokeAsync(this, ctea);
         }
+
+        InteractionCreateEventArgs ea = new InteractionCreateEventArgs
+        {
+            Interaction = interaction
+        };
+
+        await this._interactionCreated.InvokeAsync(this, ea);
     }
 
     internal async Task OnTypingStartEventAsync(ulong userId, ulong channelId, DiscordChannel channel, ulong? guildId, DateTimeOffset started, TransportMember mbr)
