@@ -125,13 +125,13 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             {
                 throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
             }
-            else if (eventArgs.Interaction.Type != InteractionType.ApplicationCommand)
+            else if (eventArgs.Interaction.Type != InteractionType.ApplicationCommand && eventArgs.Interaction.Type != InteractionType.AutoComplete)
             {
                 SlashLogging.UnknownInteractionType(_logger, eventArgs.Interaction.Type, null);
                 return;
             }
 
-            if (!TryFindCommand(eventArgs.Interaction, out Command? command))
+            if (!TryFindCommand(eventArgs.Interaction, out Command? command, out IEnumerable<DiscordInteractionDataOption>? options))
             {
                 SlashLogging.UnknownCommandName(_logger, eventArgs.Interaction.Data.Name, null);
                 return;
@@ -146,24 +146,39 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 User = eventArgs.Interaction.User,
             };
 
-            CommandContext? commandContext = await ParseArgumentsAsync(converterContext, eventArgs);
-            if (commandContext is null)
+            if (eventArgs.Interaction.Type == InteractionType.AutoComplete && options is not null)
             {
-                return;
-            }
+                AutoCompleteContext? autoCompleteContext = await ParseAutoCompletesAsync(converterContext, eventArgs, options);
+                if (autoCompleteContext is null)
+                {
+                    return;
+                }
 
-            await _extension.CommandExecutor.ExecuteAsync(commandContext);
+                IEnumerable<DiscordAutoCompleteChoice> choices = await converterContext.Argument.Attributes.OfType<SlashAutoCompleteProviderAttribute>().First().AutoCompleteAsync(autoCompleteContext);
+                await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.AutoCompleteResult, new DiscordInteractionResponseBuilder().AddAutoCompleteChoices(choices));
+            }
+            else
+            {
+                CommandContext? commandContext = await ParseArgumentsAsync(converterContext, eventArgs);
+                if (commandContext is null)
+                {
+                    return;
+                }
+
+                await _extension.CommandExecutor.ExecuteAsync(commandContext);
+            }
         }
 
-        public bool TryFindCommand(DiscordInteraction interaction, [NotNullWhen(true)] out Command? command)
+        public bool TryFindCommand(DiscordInteraction interaction, [NotNullWhen(true)] out Command? command, [MaybeNullWhen(true)] out IEnumerable<DiscordInteractionDataOption>? options)
         {
             if (!Commands.TryGetValue(interaction.Data.Id, out command))
             {
+                options = null;
                 return false;
             }
 
             // Resolve subcommands, which do not have id's.
-            IEnumerable<DiscordInteractionDataOption> options = interaction.Data.Options;
+            options = interaction.Data.Options;
             while (options is not null && options.Any())
             {
                 DiscordInteractionDataOption option = options.First();
@@ -326,20 +341,21 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 description: argument.Description,
                 name_localizations: nameLocalizations,
                 description_localizations: descriptionLocalizations,
+                autocomplete: argument.Attributes.Any(x => x is SlashAutoCompleteProviderAttribute),
                 channelTypes: argument.Attributes.OfType<SlashChannelTypesAttribute>().FirstOrDefault()?.ChannelTypes ?? [],
-                minLength: minMaxLength?.MinLength,
-                maxLength: minMaxLength?.MaxLength,
-                minValue: minMaxValue?.MinValue!, // Incorrect nullable annotations within the lib
-                maxValue: minMaxValue?.MaxValue!, // Incorrect nullable annotations within the lib
-                type: type,
                 choices: choices,
-                required: !argument.DefaultValue.HasValue
+                maxLength: minMaxLength?.MaxLength,
+                maxValue: minMaxValue?.MaxValue!, // Incorrect nullable annotations within the lib
+                minLength: minMaxLength?.MinLength,
+                minValue: minMaxValue?.MinValue!, // Incorrect nullable annotations within the lib
+                required: !argument.DefaultValue.HasValue,
+                type: type
             );
         }
 
         private async Task<CommandContext?> ParseArgumentsAsync(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs)
         {
-            List<object?> parameters = [];
+            Dictionary<CommandArgument, object?> parsedArguments = [];
             try
             {
                 while (converterContext.NextArgument())
@@ -350,7 +366,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                         break;
                     }
 
-                    parameters.Add(optional.RawValue);
+                    parsedArguments.Add(converterContext.Argument, optional.RawValue);
                 }
             }
             catch (Exception error)
@@ -368,9 +384,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                         Channel = eventArgs.Interaction.Channel,
                         Extension = converterContext.Extension,
                         Command = converterContext.Command,
-                        Arguments = converterContext.Command.Arguments.ToDictionary(
-                            argument => argument,
-                            argument => parameters.Count > converterContext.Command.Arguments.IndexOf(argument) ? parameters[converterContext.Command.Arguments.IndexOf(argument)] : null),
+                        Arguments = parsedArguments,
                         Interaction = eventArgs.Interaction
                     },
                     Exception = new ParseArgumentException(converterContext.Argument, error)
@@ -383,8 +397,59 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 Channel = eventArgs.Interaction.Channel,
                 Extension = converterContext.Extension,
                 Command = converterContext.Command,
-                Arguments = converterContext.Command.Arguments.ToDictionary(x => x, x => parameters[converterContext.Command.Arguments.IndexOf(x)]),
+                Arguments = parsedArguments,
                 Interaction = eventArgs.Interaction
+            };
+        }
+
+        private async Task<AutoCompleteContext?> ParseAutoCompletesAsync(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs, IEnumerable<DiscordInteractionDataOption> options)
+        {
+            Dictionary<CommandArgument, object?> parsedArguments = [];
+            try
+            {
+                while (converterContext.NextArgument() && !options.ElementAt(converterContext.ArgumentIndex).Focused)
+                {
+                    IOptional optional = await Converters[converterContext.Argument.Type](converterContext, eventArgs);
+                    if (!optional.HasValue)
+                    {
+                        break;
+                    }
+
+                    parsedArguments.Add(converterContext.Argument, optional.RawValue);
+                }
+            }
+            catch (Exception error)
+            {
+                if (_extension is null)
+                {
+                    return null;
+                }
+
+                await _extension._commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
+                {
+                    Context = new SlashContext()
+                    {
+                        User = eventArgs.Interaction.User,
+                        Channel = eventArgs.Interaction.Channel,
+                        Extension = converterContext.Extension,
+                        Command = converterContext.Command,
+                        Arguments = parsedArguments,
+                        Interaction = eventArgs.Interaction
+                    },
+                    Exception = new ParseArgumentException(converterContext.Argument, error)
+                });
+            }
+
+            return new AutoCompleteContext()
+            {
+                User = eventArgs.Interaction.User,
+                Channel = eventArgs.Interaction.Channel,
+                Extension = converterContext.Extension,
+                Command = converterContext.Command,
+                Arguments = parsedArguments,
+                Interaction = eventArgs.Interaction,
+                AutoCompleteArgument = converterContext.Argument,
+                UserInput = options.ElementAt(converterContext.ArgumentIndex).Value
             };
         }
 
