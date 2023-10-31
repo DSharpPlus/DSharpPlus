@@ -38,6 +38,16 @@ public readonly record struct RequestInfo
     public RetryMode? RetryMode { get; init; }
 
     /// <summary>
+    /// Specifies whether to skip updating the cache after making a request.
+    /// </summary>
+    public bool SkipUpdatingCache { get; init; }
+
+    /// <summary>
+    /// Specifies whether to skip asking cache for whether it already has the requested information.
+    /// </summary>
+    public bool SkipCache { get; init; }
+
+    /// <summary>
     /// An asynchronous callback to execute when the ratelimit fails.
     /// </summary>
     public Func<IRatelimitCallbackInfo, ValueTask>? RatelimitCallback { get; init; }
