@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 public interface IDiscordCache : IDisposable
 {
     /// <summary>
-    /// Add entity of type T to the cache
+    /// Add entity of type T to the cache and overwrite the old one if it is already present
     /// </summary>
     /// <param name="entity">Entity to cache</param>
     /// <param name="key"></param>
-    public Task Add<T>(T entity, ICacheKey key);
+    public Task Set<T>(T entity, ICacheKey key);
     
     /// <summary>
     /// Remove entity with given key from the cache

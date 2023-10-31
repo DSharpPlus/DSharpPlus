@@ -11,9 +11,14 @@ namespace DSharpPlus.EventArgs;
 public class GuildMemberUpdateEventArgs : DiscordEventArgs
 {
     /// <summary>
-    /// Gets the guild in which the update occurred.
+    /// Gets the guild in which the update occurred. This field is null if the guild was not in cache.
     /// </summary>
-    public DiscordGuild Guild { get; internal set; }
+    public DiscordGuild? Guild { get; internal set; }
+    
+    /// <summary>
+    /// Gets the id of the guild in which the update occurred.
+    /// </summary>
+    public ulong GuildId { get; internal set; }
 
     /// <summary>
     /// Get the member with post-update info
@@ -21,9 +26,9 @@ public class GuildMemberUpdateEventArgs : DiscordEventArgs
     public DiscordMember MemberAfter { get; internal set; }
 
     /// <summary>
-    /// Get the member with pre-update info
+    /// Get the member with pre-update info. This field is null if the guild was not in cache.
     /// </summary>
-    public DiscordMember MemberBefore { get; internal set; }
+    public DiscordMember? MemberBefore { get; internal set; }
 
     /// <summary>
     /// Gets a collection containing post-update roles.

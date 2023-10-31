@@ -12,6 +12,8 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
+using Caching;
+
 /// <summary>
 /// Represents a discord channel.
 /// </summary>
@@ -34,7 +36,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// Gets the category that contains this channel. For threads, gets the channel this thread was created in.
     /// </summary>
     public async Task<DiscordChannel?> GetParentAsync()
-        => this.ParentId.HasValue ? (await this.GetGuild())?.GetChannel(this.ParentId.Value) : null;
+        => this.ParentId.HasValue ? (await this.GetGuildAsync())?.GetChannel(this.ParentId.Value) : null;
 
     /// <summary>
     /// Gets the name of this channel.
@@ -78,14 +80,25 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <summary>
     /// Gets the guild to which this channel belongs.
     /// </summary>
-    public async Task<DiscordGuild?> GetGuild()
+    public async Task<DiscordGuild?> GetGuildAsync(bool skipCache = false)
     {
-        if (this.GuildId.HasValue)
+        if (!this.GuildId.HasValue)
         {
-            return await this.Discord.GetGuildFromCacheAsync(this.GuildId.Value);
+            return null;
         }
 
-        return null;
+        if (skipCache)
+        {
+            return await this.Discord.ApiClient.GetGuildAsync(GuildId.Value, null);
+        }
+
+        DiscordGuild? cachedGuild = await this.Discord.Cache.TryGetGuildAsync(this.GuildId.GetValueOrDefault());
+        if (cachedGuild is null)
+        {
+            return await this.Discord.ApiClient.GetGuildAsync(GuildId.Value, null);
+        }
+
+        return cachedGuild;
     }
 
     /// <summary>

@@ -11,6 +11,8 @@ using DSharpPlus.Net.Models;
 
 namespace DSharpPlus;
 
+using Caching;
+
 public class DiscordRestClient : BaseDiscordClient
 {
     public DiscordRestClient(DiscordConfiguration config) : base(config) => this._disposed = false;
@@ -26,7 +28,7 @@ public class DiscordRestClient : BaseDiscordClient
         foreach (DiscordGuild guild in gs)
         {
             this._guilds.Add(guild.Id);
-            this.AddGuildToCacheAsync(guild);
+            await this.Cache.AddGuildAsync(guild);
         }
     }
 
@@ -403,7 +405,7 @@ public class DiscordRestClient : BaseDiscordClient
                     Discord = this
                 };
 
-                this.AddUserToCacheAsync(usr);
+                await this.Cache.AddUserAsync(usr);
             }
 
             recmbr.AddRange(tms.Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild_id }));

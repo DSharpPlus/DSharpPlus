@@ -111,7 +111,7 @@ public sealed class DiscordApiClient
                 };
             }
 
-            this._discord.AddUserToCacheAsync(user);
+            await this._discord.Cache.AddUserAsync(user);
 
             // get the member object if applicable, if not set the message author to an user
             if (guild is not null)
@@ -179,7 +179,7 @@ public sealed class DiscordApiClient
         {
             DiscordUser usr = new(transport.User) { Discord = this._discord! };
 
-            this._discord!.AddUserToCacheAsync(usr);
+            await this._discord!.Cache.AddUserAsync(usr);
 
             members.Add(new DiscordMember(transport) { Discord = this._discord, _guild_id = guildId });
         }
@@ -206,12 +206,12 @@ public sealed class DiscordApiClient
 
         DiscordBan ban = json.ToDiscordObject<DiscordBan>();
 
-        DiscordUser? user = await this._discord!.GetUserFromCacheAsync(ban.RawUser.Id)
+        DiscordUser? user = await this._discord!.Cache.TryGetUserAsync(ban.RawUser.Id);
         
         if (user is null)
         {
             user = new DiscordUser(ban.RawUser) { Discord = this._discord };
-            this._discord!.AddUserToCacheAsync(user);
+            await this._discord!.Cache.AddUserAsync(user);
         }
 
         ban.User = user;
@@ -428,19 +428,18 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        IEnumerable<DiscordBan> bansRaw = JsonConvert.DeserializeObject<IEnumerable<DiscordBan>>(res.Response!)!
-        .Select(xb =>
+        IEnumerable<DiscordBan> bansRaw = JsonConvert.DeserializeObject<IEnumerable<DiscordBan>>(res.Response!).ToList();
+        foreach (DiscordBan discordBan in bansRaw)
         {
-            if (!this._discord!.TryGetCachedUserInternalAsync(xb.RawUser.Id, out DiscordUser? user))
+            DiscordUser? cachedUser = await this._discord!.Cache.TryGetUserAsync(discordBan.RawUser.Id);
+            if (cachedUser is null)
             {
-                user = new DiscordUser(xb.RawUser) { Discord = this._discord };
-                user = this._discord.AddUserToCacheAsync(user);
+                cachedUser = new DiscordUser(discordBan.RawUser) {Discord = this._discord};
+                await this._discord.Cache.AddUserAsync(cachedUser);
             }
 
-            xb.User = user;
-            return xb;
-        });
-
+            discordBan.User = cachedUser;
+        }
         ReadOnlyCollection<DiscordBan> bans = new(new List<DiscordBan>(bansRaw));
 
         return bans;
@@ -3375,7 +3374,7 @@ public sealed class DiscordApiClient
         {
             Discord = this._discord!
         };
-        _ = this._discord!.AddUserToCacheAsync(usr);
+        _ = this._discord!.Cache.AddUserAsync(usr);
 
         return new DiscordMember(tm)
         {
@@ -4870,7 +4869,7 @@ public sealed class DiscordApiClient
             {
                 Discord = this._discord!
             };
-            usr = this._discord!.AddUserToCacheAsync(usr);
+            await this._discord!.Cache.AddUserAsync(usr);
 
             users.Add(usr);
         }

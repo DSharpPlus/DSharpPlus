@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 namespace DSharpPlus.Entities;
 
 using System.Runtime.CompilerServices;
+using Caching;
 
 /// <summary>
 /// Represents a Discord voice state.
@@ -51,6 +52,7 @@ public class DiscordVoiceState
     /// <para>This can be cast to a <see cref="DiscordMember"/> if this voice state was in a guild.</para>
     /// </summary>
     [JsonIgnore]
+    //TODO apply caching
     public DiscordUser User
     {
         get
@@ -64,7 +66,7 @@ public class DiscordVoiceState
 
             if (usr == null)
             {
-                usr = this.Discord.GetUserFromCacheAsync(this.UserId);
+                usr = this.Discord.Cache.TryGetUserAsync(this.UserId);
             }
 
             return usr;

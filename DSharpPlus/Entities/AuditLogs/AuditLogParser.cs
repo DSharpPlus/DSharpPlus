@@ -27,6 +27,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.Caching;
 using DSharpPlus.Enums;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
@@ -58,12 +59,8 @@ internal static class AuditLogParser
         foreach (DiscordUser discordUser in users)
         {
             discordUser.Discord = client;
-            if (client.UserCache.ContainsKey(discordUser.Id))
-            {
-                continue;
-            }
 
-            client.AddUserToCacheAsync(discordUser);
+            await client.Cache.AddIfNotPresentAsync(discordUser, discordUser.GetCacheKey());
         }
 
         //get unique webhooks, scheduledEvents, threads

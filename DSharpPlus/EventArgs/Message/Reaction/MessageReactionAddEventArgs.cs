@@ -23,9 +23,14 @@ public class MessageReactionAddEventArgs : DiscordEventArgs
         => this.Message.Channel;
 
     /// <summary>
-    /// Gets the guild in which the reaction was added.
+    /// Gets the guild in which the reaction was added. This value is null if the guild was not in cache or the message was in DMs.
     /// </summary>
-    public DiscordGuild Guild { get; internal set; }
+    public DiscordGuild? Guild { get; internal set; }
+    
+    /// <summary>
+    /// Gets the id of the guild in which the reaction was added. This value is null if the reaction was not in a guild.
+    /// </summary>
+    public ulong? GuildId { get; internal set; }
 
     /// <summary>
     /// Gets the user who created the reaction.

@@ -18,7 +18,7 @@ public class DiscordMemoryCache : IDiscordCache
         this._memoryCacheEntryOptions = configuration.MemoryCacheEntryOptions;
     }
 
-    public Task Add<T>(T entity, ICacheKey key)
+    public Task Set<T>(T entity, ICacheKey key)
     {
         if (entity is null)
         {

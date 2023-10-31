@@ -13,9 +13,14 @@ public class GuildBanAddEventArgs : DiscordEventArgs
     public DiscordMember Member { get; internal set; }
 
     /// <summary>
-    /// Gets the guild this member was banned in.
+    /// Gets the guild this member was banned in. This value is null if the guild wasn't cached.
     /// </summary>
-    public DiscordGuild Guild { get; internal set; }
+    public DiscordGuild? Guild { get; internal set; }
+    
+    /// <summary>
+    /// Gets the id of the guild this member was banned in.
+    /// </summary>
+    public ulong GuildId { get; internal set; }
 
     internal GuildBanAddEventArgs() : base() { }
 }

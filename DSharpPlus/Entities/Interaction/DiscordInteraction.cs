@@ -31,6 +31,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// Gets the guild that invoked this interaction.
     /// </summary>
     [JsonIgnore]
+    //TODO apply caching
     public DiscordGuild Guild
         => (this.Discord as DiscordClient).GetCachedGuild(this.GuildId);
 

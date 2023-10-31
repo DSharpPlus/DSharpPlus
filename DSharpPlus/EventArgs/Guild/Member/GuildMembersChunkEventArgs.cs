@@ -9,9 +9,14 @@ namespace DSharpPlus.EventArgs;
 public class GuildMembersChunkEventArgs : DiscordEventArgs
 {
     /// <summary>
-    /// Gets the guild that requested this chunk.
+    /// Gets the guild that requested this chunk. This value is null if the guild wasn't cached.
     /// </summary>
-    public DiscordGuild Guild { get; internal set; }
+    public DiscordGuild? Guild { get; internal set; }
+    
+    /// <summary>
+    /// Gets the id of the guild in which the update occurred.
+    /// </summary>
+    public ulong GuildId { get; internal set; }
 
     /// <summary>
     /// Gets the collection of members returned from this chunk.
@@ -41,7 +46,7 @@ public class GuildMembersChunkEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the unique string used to identify the request, if specified.
     /// </summary>
-    public string Nonce { get; set; }
+    public string? Nonce { get; set; }
 
     internal GuildMembersChunkEventArgs() : base() { }
 }
