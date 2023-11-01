@@ -124,8 +124,21 @@ public readonly struct Optional<T> : IEquatable<Optional<T>>, IEquatable<T>, IOp
     /// Gets the hash code for this <see cref="Optional{T}"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="Optional{T}"/>.</returns>
+    [SuppressMessage("Formatting", "IDE0046", Justification = "Do not fall into the ternary trap")]
     public override int GetHashCode()
-        => this.IsDefined(out T? value) ? value.GetHashCode() : 0;
+    {
+        if (this.HasValue)
+        {
+            if (this._val is not null)
+            {
+                return this._val.GetHashCode();
+            }
+
+            return 0;
+        }
+
+        return -1;
+    }
 
     public static implicit operator Optional<T>(T val)
         => new(val);
