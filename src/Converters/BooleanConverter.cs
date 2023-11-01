@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace DSharpPlus.CommandAll.Converters
 {
     public class BooleanConverter : ISlashArgumentConverter<bool>, ITextArgumentConverter<bool>
     {
-        private static readonly FrozenDictionary<string, bool> _values = new Dictionary<string, bool>
+        private static readonly FrozenDictionary<string, bool> _values = new Dictionary<string, bool>()
         {
             ["true"] = true,
             ["false"] = false,
@@ -28,11 +29,12 @@ namespace DSharpPlus.CommandAll.Converters
             ["disabled"] = false,
             ["t"] = true,
             ["f"] = false
-        }.ToFrozenDictionary();
+        }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
         public ApplicationCommandOptionType ArgumentType { get; init; } = ApplicationCommandOptionType.Boolean;
+        public bool RequiresText { get; init; } = true;
 
-        public Task<Optional<bool>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => throw new System.NotImplementedException();
+        public Task<Optional<bool>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue(_values.TryGetValue(context.As<TextConverterContext>().CurrentTextArgument, out bool value) && value));
         public Task<Optional<bool>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue((bool)context.As<SlashConverterContext>().CurrentOption.Value));
     }
 }

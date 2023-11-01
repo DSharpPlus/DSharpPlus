@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using DSharpPlus.CommandAll.Commands.Attributes;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandAll.Commands
 {
@@ -13,6 +14,7 @@ namespace DSharpPlus.CommandAll.Commands
         public string? Description { get; set; }
         public Type? Type { get; set; }
         public List<Attribute> Attributes { get; set; } = [];
+        public Optional<object?> DefaultValue { get; set; } = Optional.FromNoValue<object?>();
 
         public CommandArgumentBuilder WithName(string name)
         {
@@ -56,6 +58,12 @@ namespace DSharpPlus.CommandAll.Commands
             return this;
         }
 
+        public CommandArgumentBuilder WithDefaultValue(Optional<object?> defaultValue)
+        {
+            DefaultValue = defaultValue;
+            return this;
+        }
+
         [MemberNotNull(nameof(Name), nameof(Description), nameof(Type), nameof(Attributes))]
         public CommandArgument Build()
         {
@@ -63,19 +71,22 @@ namespace DSharpPlus.CommandAll.Commands
             ArgumentNullException.ThrowIfNull(Description, nameof(Description));
             ArgumentNullException.ThrowIfNull(Type, nameof(Type));
             ArgumentNullException.ThrowIfNull(Attributes, nameof(Attributes));
+            ArgumentNullException.ThrowIfNull(DefaultValue, nameof(DefaultValue));
 
             // Push it through the With* methods again, which contain validation.
             WithName(Name);
             WithDescription(Description);
             WithType(Type);
             WithAttributes(Attributes);
+            WithDefaultValue(DefaultValue);
 
             return new CommandArgument()
             {
                 Name = Name,
                 Description = Description,
                 Type = Type,
-                Attributes = Attributes
+                Attributes = Attributes,
+                DefaultValue = DefaultValue
             };
         }
 
@@ -86,6 +97,11 @@ namespace DSharpPlus.CommandAll.Commands
             CommandArgumentBuilder builder = new();
             builder.WithType(parameterInfo.ParameterType);
             builder.WithAttributes(parameterInfo.GetCustomAttributes());
+            if (parameterInfo.HasDefaultValue)
+            {
+                builder.WithDefaultValue(parameterInfo.RawDefaultValue);
+            }
+
             foreach (Attribute attribute in builder.Attributes)
             {
                 if (attribute is ArgumentAttribute argumentAttribute)
