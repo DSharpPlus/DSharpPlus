@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using DSharpPlus.Net.Serialization;
@@ -79,7 +80,7 @@ public readonly struct Optional<T> : IEquatable<Optional<T>>, IEquatable<T>, IOp
     /// </summary>
     /// <param name="value">The value contained within the optional.</param>
     /// <returns>True if the value is set, and is not null, otherwise false.</returns>
-    public bool IsDefined(out T? value)
+    public bool IsDefined([NotNullWhen(true)] out T? value)
         => (value = this._val) != null;
 
     /// <summary>
@@ -124,7 +125,7 @@ public readonly struct Optional<T> : IEquatable<Optional<T>>, IEquatable<T>, IOp
     /// </summary>
     /// <returns>The hash code for this <see cref="Optional{T}"/>.</returns>
     public override int GetHashCode()
-        => this.HasValue ? this.Value.GetHashCode() : 0;
+        => this.IsDefined(out T? value) ? value.GetHashCode() : 0;
 
     public static implicit operator Optional<T>(T val)
         => new(val);
