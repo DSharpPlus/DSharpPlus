@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
+using DSharpPlus.CommandAll.Checks;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.EventArgs;
+using DSharpPlus.CommandAll.Exceptions;
 using DSharpPlus.Entities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.CommandAll
 {
@@ -39,14 +43,55 @@ namespace DSharpPlus.CommandAll
 
         private static async ValueTask WorkerAsync(CommandContext context)
         {
+            List<CheckAttribute> checks = context.Command.Attributes.OfType<CheckAttribute>().ToList();
+            if (checks.Count != 0)
+            {
+                CheckAttribute check = null!;
+                try
+                {
+                    for (int i = 0; i < checks.Count; i++)
+                    {
+                        check = checks[i];
+                        if (!await check.ExecuteCheckAsync(context))
+                        {
+                            await context.Extension._commandErrored.InvokeAsync(context.Extension, new CommandErroredEventArgs()
+                            {
+                                Context = context,
+                                Exception = new CheckFailedException(check),
+                                CommandObject = null
+                            });
+                        }
+                    }
+                }
+                catch (Exception error)
+                {
+                    if (error is TargetInvocationException targetInvocationError && targetInvocationError.InnerException is not null)
+                    {
+                        error = ExceptionDispatchInfo.Capture(targetInvocationError.InnerException).SourceException;
+                    }
+
+                    await context.Extension._commandErrored.InvokeAsync(context.Extension, new CommandErroredEventArgs()
+                    {
+                        Context = context,
+                        Exception = new CheckFailedException(check, error),
+                        CommandObject = null
+                    });
+                }
+            }
+
+            object? commandObject = null;
             try
             {
-                object? value = context.Command.Method!.Invoke(context.Command.Target, context.Arguments.Values.Prepend(context).ToArray());
-                if (value is Task task)
+                commandObject = context.Command.Target is not null
+                    ? context.Command.Target
+                    : ActivatorUtilities.CreateInstance(context.Extension.ServiceProvider, context.Command.Method!.DeclaringType!);
+
+                object? returnValue = context.Command.Method!.Invoke(commandObject, context.Arguments.Values.Prepend(context).ToArray());
+                if (returnValue is Task task)
                 {
                     await task;
                 }
-                else if (value is ValueTask valueTask)
+                else if (returnValue is ValueTask valueTask)
                 {
                     await valueTask;
                 }
@@ -54,20 +99,22 @@ namespace DSharpPlus.CommandAll
                 await context.Extension._commandExecuted.InvokeAsync(context.Extension, new CommandExecutedEventArgs()
                 {
                     Context = context,
-                    Value = value
+                    ReturnValue = returnValue,
+                    CommandObject = commandObject
                 });
             }
             catch (Exception error)
             {
-                if (error is TargetInvocationException targetInvocationError)
+                if (error is TargetInvocationException targetInvocationError && targetInvocationError.InnerException is not null)
                 {
-                    error = ExceptionDispatchInfo.Capture(targetInvocationError.InnerException!).SourceException;
+                    error = ExceptionDispatchInfo.Capture(targetInvocationError.InnerException).SourceException;
                 }
 
                 await context.Extension._commandErrored.InvokeAsync(context.Extension, new CommandErroredEventArgs()
                 {
                     Context = context,
-                    Exception = error
+                    Exception = error,
+                    CommandObject = commandObject
                 });
             }
         }
