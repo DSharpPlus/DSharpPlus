@@ -13,10 +13,9 @@
       ],
       "dest": "api",
       "filter": "filter_config.yml",
-      "shouldSkipMarkup": true,
-      "memberLayout": "separatePages",
-      "outputFormat": "apiPage"
-    }
+      "memberLayout": "separatePages"
+    } 
+
   ],
   "build": {
     "content": [
