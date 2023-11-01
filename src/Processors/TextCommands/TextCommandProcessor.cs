@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -10,7 +9,6 @@ using DSharpPlus.CommandAll.Converters;
 using DSharpPlus.CommandAll.EventArgs;
 using DSharpPlus.CommandAll.Exceptions;
 using DSharpPlus.CommandAll.Processors.TextCommands;
-using DSharpPlus.CommandAll.Processors.TextCommands.Parsing;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,16 +17,15 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.CommandAll.Processors
 {
-    public sealed class TextCommandProcessor : ICommandProcessor<MessageCreateEventArgs>
+    public sealed class TextCommandProcessor(TextCommandConfiguration? configuration = null) : ICommandProcessor<MessageCreateEventArgs>
     {
         public IReadOnlyDictionary<Type, ConverterDelegate<MessageCreateEventArgs>> Converters { get; private set; } = new Dictionary<Type, ConverterDelegate<MessageCreateEventArgs>>();
-        public ResolvePrefixDelegateAsync PrefixResolver { get; private set; } = new DefaultPrefixResolver("!").ResolvePrefixAsync;
-        public TextArgumentSplicer TextArgumentSplicer { get; private set; } = DefaultTextArgumentSplicer.Splice;
+        public TextCommandConfiguration Configuration { get; init; } = configuration ?? new();
 
-        private readonly Dictionary<Type, ITextArgumentConverter> _converters = [];
+        private bool _eventsRegistered;
         private CommandAllExtension? _extension;
         private ILogger<TextCommandProcessor> _logger = NullLogger<TextCommandProcessor>.Instance;
-        private bool _eventsRegistered;
+        private readonly Dictionary<Type, ITextArgumentConverter> _converters = [];
 
         public void AddConverter<T>(ITextArgumentConverter<T> converter) => _converters.Add(typeof(T), converter);
         public void AddConverter(Type type, ITextArgumentConverter converter)
@@ -40,6 +37,7 @@ namespace DSharpPlus.CommandAll.Processors
 
             _converters.TryAdd(type, converter);
         }
+
         public void AddConverters(Assembly assembly) => AddConverters(assembly.GetTypes());
         public void AddConverters(IEnumerable<Type> types)
         {
@@ -118,16 +116,12 @@ namespace DSharpPlus.CommandAll.Processors
             {
                 throw new InvalidOperationException("TextCommandProcessor has not been configured.");
             }
-            else if (eventArgs.Author.IsBot || eventArgs.Message.Content.Length == 0)
-            {
-                return;
-            }
-            else if (_extension.DebugGuildId.HasValue && eventArgs.Guild?.Id != _extension.DebugGuildId)
+            else if (eventArgs.Author.IsBot || eventArgs.Message.Content.Length == 0 || (_extension.DebugGuildId.HasValue && eventArgs.Guild?.Id != _extension.DebugGuildId))
             {
                 return;
             }
 
-            int prefixLength = await PrefixResolver(_extension, eventArgs.Message);
+            int prefixLength = await Configuration.PrefixResolver(_extension, eventArgs.Message);
             if (prefixLength < 0)
             {
                 return;
@@ -142,6 +136,20 @@ namespace DSharpPlus.CommandAll.Processors
 
             if (!_extension.Commands.TryGetValue(commandText[..index], out Command? command))
             {
+                await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
+                {
+                    Context = new TextContext()
+                    {
+                        Extension = _extension,
+                        Channel = eventArgs.Channel,
+                        Command = null!,
+                        Message = eventArgs.Message,
+                        User = eventArgs.Author,
+                        Arguments = new Dictionary<CommandArgument, object?>()
+                    },
+                    Exception = new CommandNotFoundException(commandText[..index])
+                });
+
                 return;
             }
 
@@ -169,10 +177,9 @@ namespace DSharpPlus.CommandAll.Processors
                 command = foundCommand;
             }
 
-            Debug.Assert(command is not null, "Command should not be null at this point.");
             TextConverterContext converterContext = new()
             {
-                Splicer = TextArgumentSplicer,
+                Splicer = Configuration.TextArgumentSplicer,
                 Extension = _extension,
                 Channel = eventArgs.Channel,
                 Command = command,
@@ -188,9 +195,6 @@ namespace DSharpPlus.CommandAll.Processors
 
             await _extension.CommandExecutor.ExecuteAsync(commandContext);
         }
-
-        public void SetPrefixResolver(ResolvePrefixDelegateAsync prefixResolver) => PrefixResolver = prefixResolver;
-        public void SetTextArgumentSplicer(TextArgumentSplicer textArgumentSplicer) => TextArgumentSplicer = textArgumentSplicer;
 
         private async Task<CommandContext?> ParseArgumentsAsync(TextConverterContext converterContext, MessageCreateEventArgs eventArgs)
         {
@@ -249,7 +253,7 @@ namespace DSharpPlus.CommandAll.Processors
             }
             else if (context.Argument.DefaultValue.HasValue)
             {
-                return Optional.FromValue((T?)context.Argument.DefaultValue.Value);
+                return Optional.FromValue(context.Argument.DefaultValue.Value);
             }
 
             throw new ParseArgumentException(context.Argument, message: $"Missing text argument for {context.Argument.Name}.");
