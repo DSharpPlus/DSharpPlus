@@ -122,6 +122,10 @@ namespace DSharpPlus.CommandAll.Processors
             {
                 return;
             }
+            else if (_extension.DebugGuildId.HasValue && eventArgs.Guild?.Id != _extension.DebugGuildId)
+            {
+                return;
+            }
 
             int prefixLength = await PrefixResolver(_extension, eventArgs.Message);
             if (prefixLength < 0)
