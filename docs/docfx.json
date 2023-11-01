@@ -15,7 +15,7 @@
       "filter": "filter_config.yml",
       "shouldSkipMarkup": true,
       "memberLayout": "separatePages"
-    }
+    } 
   ],
   "build": {
     "content": [
