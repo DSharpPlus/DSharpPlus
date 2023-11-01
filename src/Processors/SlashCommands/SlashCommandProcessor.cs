@@ -416,7 +416,8 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                         Interaction = eventArgs.Interaction,
                         Options = converterContext.Options
                     },
-                    Exception = new ParseArgumentException(converterContext.Argument, error)
+                    Exception = new ParseArgumentException(converterContext.Argument, error),
+                    CommandObject = null
                 });
             }
 
@@ -467,7 +468,8 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                         Interaction = eventArgs.Interaction,
                         Options = converterContext.Options
                     },
-                    Exception = new ParseArgumentException(converterContext.Argument, error)
+                    Exception = new ParseArgumentException(converterContext.Argument, error),
+                    CommandObject = null
                 });
             }
 

@@ -147,7 +147,8 @@ namespace DSharpPlus.CommandAll.Processors
                         User = eventArgs.Author,
                         Arguments = new Dictionary<CommandArgument, object?>()
                     },
-                    Exception = new CommandNotFoundException(commandText[..index])
+                    Exception = new CommandNotFoundException(commandText[..index]),
+                    CommandObject = null
                 });
 
                 return;
@@ -230,7 +231,8 @@ namespace DSharpPlus.CommandAll.Processors
                         Arguments = parsedArguments,
                         Message = eventArgs.Message,
                     },
-                    Exception = new ParseArgumentException(converterContext.Argument, error)
+                    Exception = new ParseArgumentException(converterContext.Argument, error),
+                    CommandObject = null
                 });
             }
 

@@ -8,5 +8,6 @@ namespace DSharpPlus.CommandAll.EventArgs
     {
         public required CommandContext Context { get; init; }
         public required Exception Exception { get; init; }
+        public required object? CommandObject { get; init; }
     }
 }
