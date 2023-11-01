@@ -12,22 +12,21 @@ namespace DSharpPlus.CommandAll.Converters
     public partial class TimeSpanConverter : ISlashArgumentConverter<TimeSpan>, ITextArgumentConverter<TimeSpan>
     {
         [GeneratedRegex("^((?<days>\\d+)d\\s*)?((?<hours>\\d+)h\\s*)?((?<minutes>\\d+)m\\s*)?((?<seconds>\\d+)s\\s*)?$", RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.RightToLeft | RegexOptions.CultureInvariant)]
-        private static partial Regex TimeSpanParseRegex();
+        private static partial Regex _getTimeSpanRegex();
 
         public ApplicationCommandOptionType ArgumentType { get; init; } = ApplicationCommandOptionType.String;
+        public bool RequiresText { get; init; } = true;
 
-        public Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => throw new System.NotImplementedException();
-        public Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
+        public Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context, context.As<TextConverterContext>().CurrentTextArgument);
+        public Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context, context.As<SlashConverterContext>().CurrentOption.Value.ToString());
+
+        public static Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context, string? value)
         {
-            string? value = context.As<SlashConverterContext>().CurrentOption.Value.ToString();
-            return !string.IsNullOrWhiteSpace(value)
-                ? ConvertAsync(context, value)
-                : Task.FromResult(Optional.FromNoValue<TimeSpan>());
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return Task.FromResult(Optional.FromNoValue<TimeSpan>());
+            }
 
-        }
-
-        public static Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context, string value)
-        {
             if (value == "0")
             {
                 return Task.FromResult(Optional.FromValue(TimeSpan.Zero));
@@ -42,7 +41,7 @@ namespace DSharpPlus.CommandAll.Converters
             }
             else
             {
-                Match m = TimeSpanParseRegex().Match(value);
+                Match m = _getTimeSpanRegex().Match(value);
                 int ds = m.Groups["days"].Success ? int.Parse(m.Groups["days"].Value, CultureInfo.InvariantCulture) : 0;
                 int hs = m.Groups["hours"].Success ? int.Parse(m.Groups["hours"].Value, CultureInfo.InvariantCulture) : 0;
                 int ms = m.Groups["minutes"].Success ? int.Parse(m.Groups["minutes"].Value, CultureInfo.InvariantCulture) : 0;

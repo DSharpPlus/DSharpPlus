@@ -15,18 +15,18 @@ namespace DSharpPlus.CommandAll.Converters
         private static partial Regex GetMessageRegex();
 
         public ApplicationCommandOptionType ArgumentType { get; init; } = ApplicationCommandOptionType.String;
+        public bool RequiresText { get; init; } = true;
 
-        public Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => throw new System.NotImplementedException();
-        public Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
-        {
-            string? messageLinkString = context.As<SlashConverterContext>().CurrentOption.Value.ToString();
-            return !string.IsNullOrWhiteSpace(messageLinkString)
-                ? ConvertAsync(context, messageLinkString)
-                : Task.FromResult(Optional.FromNoValue<DiscordMessage>());
-        }
+        public Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context, context.As<TextConverterContext>().CurrentTextArgument);
+        public Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context, context.As<SlashConverterContext>().CurrentOption.Value.ToString());
 
-        public static async Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context, string value)
+        public static async Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context, string? value)
         {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return Optional.FromNoValue<DiscordMessage>();
+            }
+
             Match match = GetMessageRegex().Match(value);
             if (!match.Success || !ulong.TryParse(match.Groups["message"].ValueSpan, CultureInfo.InvariantCulture, out ulong messageId))
             {

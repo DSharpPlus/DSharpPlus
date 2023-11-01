@@ -10,12 +10,13 @@ namespace DSharpPlus.CommandAll.Converters
     public class AttachmentConverter : ISlashArgumentConverter<DiscordAttachment>, ITextArgumentConverter<DiscordAttachment>
     {
         public ApplicationCommandOptionType ArgumentType { get; init; } = ApplicationCommandOptionType.Attachment;
+        public bool RequiresText { get; init; }
 
         public Task<Optional<DiscordAttachment>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs)
         {
             int currentAttachmentArgumentIndex = context.Command.Arguments.Where(argument => argument.Type == typeof(DiscordAttachment)).IndexOf(context.Argument);
             return eventArgs.Message.Attachments.Count < currentAttachmentArgumentIndex
-                ? Task.FromResult(Optional.FromNoValue<DiscordAttachment>())
+                ? Task.FromResult(Optional.FromNoValue<DiscordAttachment>()) // Too many parameters, not enough attachments
                 : Task.FromResult(Optional.FromValue(eventArgs.Message.Attachments[currentAttachmentArgumentIndex]));
         }
 

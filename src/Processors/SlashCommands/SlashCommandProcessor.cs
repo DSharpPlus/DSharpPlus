@@ -63,22 +63,21 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
 
                 try
                 {
-                    // Try to create an instance of the converter.
-                    object? converter = Activator.CreateInstance(type);
-                    if (converter is null)
-                    {
-                        // Check to see if we have a service provider available
-                        if (_extension is null)
-                        {
-                            // If not, we can't create the converter. Just skip it.
-                            continue;
-                        }
+                    object converter;
 
+                    // Check to see if we have a service provider available
+                    if (_extension is not null)
+                    {
                         // If we do, try to create the converter using the service provider.
                         converter = ActivatorUtilities.CreateInstance(_extension.ServiceProvider, type);
                     }
+                    else
+                    {
+                        // If we don't, try using a parameterless constructor.
+                        converter = Activator.CreateInstance(type) ?? throw new InvalidOperationException($"Failed to create instance of {type.FullName ?? type.Name}");
+                    }
 
-                    // GenericTypeArguments[0] here is the T in ISlashArgumentConverter<T>
+                    // GenericTypeArguments[0] here is the T in ITextArgumentConverter<T>
                     AddConverter(genericArgumentConverter.GenericTypeArguments[0], (ISlashArgumentConverter)converter);
                 }
                 catch (Exception error)
@@ -112,14 +111,12 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
 
             Converters = converters.ToFrozenDictionary();
             TypeMappings = typeMappings.ToFrozenDictionary();
-            if (_eventsRegistered)
+            if (!_eventsRegistered)
             {
-                return Task.CompletedTask;
+                _eventsRegistered = true;
+                extension.Client.GuildDownloadCompleted += async (client, eventArgs) => await RegisterSlashCommandsAsync(extension);
+                extension.Client.InteractionCreated += ExecuteInteractionAsync;
             }
-
-            _eventsRegistered = true;
-            extension.Client.GuildDownloadCompleted += async (client, eventArgs) => await RegisterSlashCommandsAsync(extension);
-            extension.Client.InteractionCreated += ExecuteInteractionAsync;
 
             return Task.CompletedTask;
         }
