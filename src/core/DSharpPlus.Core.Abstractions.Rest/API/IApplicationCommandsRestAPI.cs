@@ -44,7 +44,7 @@ public interface IApplicationCommandsRestAPI
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>A value indicating whether this command was newly created as well as the command object.</returns>
-    public ValueTask<Result<CreateApplicationCommandResponse>> CreateGlobalApplicationCommand
+    public ValueTask<Result<CreateApplicationCommandResponse>> CreateGlobalApplicationCommandAsync
     (
         Snowflake applicationId,
         ICreateGlobalApplicationCommandPayload payload,
@@ -60,10 +60,28 @@ public interface IApplicationCommandsRestAPI
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>The requested application command.</returns>
-    public ValueTask<Result<IApplicationCommand>> GetGlobalApplicationCommand
+    public ValueTask<Result<IApplicationCommand>> GetGlobalApplicationCommandAsync
     (
         Snowflake applicationId,
         Snowflake commandId,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
+    /// Edits a global application command for your application.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="commandId">The snowflake identifier of the command to edit.</param>
+    /// <param name="payload">A payload containing the fields to edit with their new values.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns>The requested application command.</returns>
+    public ValueTask<Result<IApplicationCommand>> EditGlobalApplicationCommandAsync
+    (
+        Snowflake applicationId,
+        Snowflake commandId,
+        IEditGlobalApplicationCommandPayload payload,
         RequestInfo info = default,
         CancellationToken ct = default
     );
