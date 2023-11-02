@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using DSharpPlus.CommandAll.Checks;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Commands.Attributes;
 using DSharpPlus.CommandAll.Converters;
@@ -286,8 +287,8 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 name_localizations: nameLocalizations,
                 description_localizations: descriptionLocalizations,
                 allowDMUsage: command.Attributes.Any(x => x is AllowDMUsageAttribute),
-                defaultMemberPermissions: command.Attributes.OfType<PermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? Permissions.None,
-                nsfw: command.Attributes.Any(x => x is NsfwAttribute)
+                defaultMemberPermissions: command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? Permissions.None,
+                nsfw: command.Attributes.Any(x => x is RequireNsfwAttribute)
             );
         }
 

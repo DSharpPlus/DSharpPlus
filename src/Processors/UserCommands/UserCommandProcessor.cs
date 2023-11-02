@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.CommandAll.Checks;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Commands.Attributes;
 using DSharpPlus.CommandAll.Converters;
@@ -104,8 +105,8 @@ namespace DSharpPlus.CommandAll.Processors.UserCommands
                 type: ApplicationCommandType.UserContextMenu,
                 name_localizations: nameLocalizations,
                 allowDMUsage: command.Attributes.Any(x => x is AllowDMUsageAttribute),
-                defaultMemberPermissions: command.Attributes.OfType<PermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? Permissions.None,
-                nsfw: command.Attributes.Any(x => x is NsfwAttribute)
+                defaultMemberPermissions: command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? Permissions.None,
+                nsfw: command.Attributes.Any(x => x is RequireNsfwAttribute)
             );
         }
     }
