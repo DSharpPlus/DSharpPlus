@@ -76,12 +76,28 @@ public interface IApplicationCommandsRestAPI
     /// <param name="payload">A payload containing the fields to edit with their new values.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
-    /// <returns>The requested application command.</returns>
+    /// <returns>The edited application command.</returns>
     public ValueTask<Result<IApplicationCommand>> EditGlobalApplicationCommandAsync
     (
         Snowflake applicationId,
         Snowflake commandId,
         IEditGlobalApplicationCommandPayload payload,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
+    /// Deletes a global application command for your application.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="commandId">The snowflake identifier of the command to delete.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns>A value indicating the success of this operation.</returns>
+    public ValueTask<Result> DeleteGlobalApplicationCommandAsync
+    (
+        Snowflake applicationId,
+        Snowflake commandId,
         RequestInfo info = default,
         CancellationToken ct = default
     );
