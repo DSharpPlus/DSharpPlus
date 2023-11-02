@@ -51,4 +51,20 @@ public interface IApplicationCommandsRestAPI
         RequestInfo info = default,
         CancellationToken ct = default
     );
+
+    /// <summary>
+    /// Fetches a global application command for your application.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="commandId">The snowflake identifier of the command to fetch.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns>The requested application command.</returns>
+    public ValueTask<Result<IApplicationCommand>> GetGlobalApplicationCommand
+    (
+        Snowflake applicationId,
+        Snowflake commandId,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
 }
