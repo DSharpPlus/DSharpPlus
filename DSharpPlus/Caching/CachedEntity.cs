@@ -1,10 +1,13 @@
 ﻿namespace DSharpPlus.Caching;
 
+using System.Diagnostics.CodeAnalysis;
 
 public readonly record struct CachedEntity<TKey, TValue> where TValue : class
 {
-    TKey Key { get;  }
-    TValue? Value { get; }
+    public TKey Key { get;  }
+    
+    //private to encourage a more responsible usage
+    private TValue? Value { get; }
     
     public CachedEntity(TKey key, TValue? value)
     {
@@ -14,7 +17,7 @@ public readonly record struct CachedEntity<TKey, TValue> where TValue : class
     
     public bool HasCachedValue => Value is not null;
     
-    public bool TryGetCachedValue(out TValue? value)
+    public bool TryGetCachedValue([MaybeNullWhen(false)]out TValue value)
     {
         value = Value;
         return HasCachedValue;
