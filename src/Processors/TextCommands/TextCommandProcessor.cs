@@ -116,7 +116,7 @@ namespace DSharpPlus.CommandAll.Processors
             {
                 throw new InvalidOperationException("TextCommandProcessor has not been configured.");
             }
-            else if (eventArgs.Author.IsBot || eventArgs.Message.Content.Length == 0 || (_extension.DebugGuildId.HasValue && eventArgs.Guild?.Id != _extension.DebugGuildId))
+            else if (eventArgs.Message.Content.Length == 0 || (eventArgs.Author.IsBot && Configuration.IgnoreBots) || (_extension.DebugGuildId.HasValue && eventArgs.Guild?.Id != _extension.DebugGuildId))
             {
                 return;
             }

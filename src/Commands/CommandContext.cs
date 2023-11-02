@@ -37,5 +37,7 @@ namespace DSharpPlus.CommandAll.Commands
 
         public abstract ValueTask<DiscordMessage?> GetFollowupAsync(ulong messageId, bool ignoreCache = false);
         public abstract ValueTask DeleteFollowupAsync(ulong messageId);
+
+        public T As<T>() where T : CommandContext => (T)this;
     }
 }

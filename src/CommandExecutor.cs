@@ -43,10 +43,10 @@ namespace DSharpPlus.CommandAll
 
         private static async ValueTask WorkerAsync(CommandContext context)
         {
-            List<CheckAttribute> checks = context.Command.Attributes.OfType<CheckAttribute>().ToList();
+            List<ContextCheckAttribute> checks = context.Command.Attributes.OfType<ContextCheckAttribute>().ToList();
             if (checks.Count != 0)
             {
-                CheckAttribute check = null!;
+                ContextCheckAttribute check = null!;
                 try
                 {
                     for (int i = 0; i < checks.Count; i++)
@@ -60,6 +60,8 @@ namespace DSharpPlus.CommandAll
                                 Exception = new CheckFailedException(check),
                                 CommandObject = null
                             });
+
+                            return;
                         }
                     }
                 }
@@ -76,6 +78,8 @@ namespace DSharpPlus.CommandAll
                         Exception = new CheckFailedException(check, error),
                         CommandObject = null
                     });
+
+                    return;
                 }
             }
 
