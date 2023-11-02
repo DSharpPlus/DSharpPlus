@@ -7,6 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus.Core.Abstractions.Models;
+using DSharpPlus.Core.Abstractions.Rest.Payloads;
+using DSharpPlus.Core.Abstractions.Rest.Responses;
 
 using Remora.Results;
 
@@ -30,6 +32,22 @@ public interface IApplicationCommandsRestAPI
     (
         Snowflake applicationId,
         bool? withLocalizations = null,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
+    /// Creates a new global application command for your application.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="payload">The command you wish to create.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns>A value indicating whether this command was newly created as well as the command object.</returns>
+    public ValueTask<Result<CreateApplicationCommandResponse>> CreateGlobalApplicationCommand
+    (
+        Snowflake applicationId,
+        ICreateGlobalApplicationCommandPayload payload,
         RequestInfo info = default,
         CancellationToken ct = default
     );
