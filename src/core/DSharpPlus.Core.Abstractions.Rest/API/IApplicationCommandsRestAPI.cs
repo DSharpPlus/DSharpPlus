@@ -101,4 +101,25 @@ public interface IApplicationCommandsRestAPI
         RequestInfo info = default,
         CancellationToken ct = default
     );
+
+    /// <summary>
+    /// Bulk-overwrites global application commands for your application with the provided commands.
+    /// </summary>
+    /// <remarks>
+    /// This will overwrite all types of application commands: slash/chat input commands, user context menu
+    /// commands and message context menu commands. Commands that did not already exist will count towards the
+    /// daily application command creation limits, commands that did exist will not.
+    /// </remarks>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="payload">The application commands to create.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns>The full list of application commands for your application after overwriting.</returns>
+    public ValueTask<Result<IReadOnlyList<IApplicationCommand>>> BulkOverwriteGlobalApplicationCommandsAsync
+    (
+        Snowflake applicationId,
+        IReadOnlyList<ICreateGlobalApplicationCommandPayload> payload,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
 }
