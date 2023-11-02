@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using DSharpPlus.CommandAll.Checks;
 using DSharpPlus.CommandAll.Commands;
+using DSharpPlus.CommandAll.ContextChecks;
 
-namespace DSharpPlus.CommandAll.Processors.TextCommands.Checks
+namespace DSharpPlus.CommandAll.Processors.TextCommands.ContextChecks
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Delegate)]
     public class TextRequestMessageReplyCheckAttribute(bool require = false) : ContextCheckAttribute

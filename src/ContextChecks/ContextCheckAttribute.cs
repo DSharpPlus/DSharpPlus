@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands;
 
-namespace DSharpPlus.CommandAll.Checks
+namespace DSharpPlus.CommandAll.ContextChecks
 {
     [AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = true)]
     public abstract class ContextCheckAttribute : Attribute

@@ -1,5 +1,5 @@
 using System;
-using DSharpPlus.CommandAll.Checks;
+using DSharpPlus.CommandAll.ContextChecks;
 
 namespace DSharpPlus.CommandAll.Exceptions
 {
