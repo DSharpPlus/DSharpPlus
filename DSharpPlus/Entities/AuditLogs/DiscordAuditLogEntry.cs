@@ -24,7 +24,7 @@
 namespace DSharpPlus.Entities.AuditLogs;
 
 /// <summary>
-/// Represents an audit log entry.
+/// Represents an audit log entry. All fields of type <see cref="PropertyChange{T}"/> will be null if the property was not changed.
 /// </summary>
 public abstract class DiscordAuditLogEntry : SnowflakeObject
 {

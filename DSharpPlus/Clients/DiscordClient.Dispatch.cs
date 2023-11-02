@@ -179,10 +179,8 @@ public sealed partial class DiscordClient
             //TODO: Fix this event to use the new caching system
             case "guild_audit_log_entry_create":
                 gid = (ulong)dat["guild_id"];
-                DiscordGuild guild = _guilds[gid];
                 AuditLogAction auditLogAction = dat.ToDiscordObject<AuditLogAction>();
-                DiscordAuditLogEntry entry = await AuditLogParser.ParseAuditLogEntryAsync(guild, auditLogAction);
-                await this.OnGuildAuditLogEntryCreateEventAsync(guild, entry);
+                await this.OnGuildAuditLogEntryCreateEventAsync(gid, auditLogAction);
                 break;
 
             #endregion
@@ -1355,11 +1353,13 @@ public sealed partial class DiscordClient
         await this._guildIntegrationsUpdated.InvokeAsync(this, ea);
     }
 
-    private async Task OnGuildAuditLogEntryCreateEventAsync(DiscordGuild guild, DiscordAuditLogEntry auditLogEntry)
+    private async Task OnGuildAuditLogEntryCreateEventAsync(ulong guildId, AuditLogAction auditLogEntry)
     {
+        AuditLogParser.ParseAuditLogEntryAsync()
+        
         GuildAuditLogCreatedEventArgs ea = new()
         {
-            Guild = guild,
+            Guild = guildId,
             AuditLogEntry = auditLogEntry
         };
         await _guildAuditLogCreated.InvokeAsync(this, ea);
@@ -1399,7 +1399,7 @@ public sealed partial class DiscordClient
     internal async Task OnGuildBanRemoveEventAsync(TransportUser user, ulong guildId)
     {
         DiscordUser usr = new(user) { Discord = this };
-        this.Cache.AddIfNotPresentAsync(usr, usr.GetCacheKey());
+        await this.Cache.AddIfNotPresentAsync(usr, usr.GetCacheKey());
         
         DiscordGuild? guild = await this.Cache.TryGetGuildAsync(guildId);
         DiscordMember? member = await this.Cache.TryGetMemberAsync(guildId, user.Id);
