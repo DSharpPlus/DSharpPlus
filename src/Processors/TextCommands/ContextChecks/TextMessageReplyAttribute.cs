@@ -6,7 +6,7 @@ using DSharpPlus.CommandAll.ContextChecks;
 namespace DSharpPlus.CommandAll.Processors.TextCommands.ContextChecks
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Delegate)]
-    public class TextRequestMessageReplyCheckAttribute(bool require = false) : ContextCheckAttribute
+    public class TextMessageReplyAttribute(bool require = false) : ContextCheckAttribute
     {
         public bool RequireReplies { get; init; } = require;
 
