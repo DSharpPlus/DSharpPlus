@@ -133,9 +133,27 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 return;
             }
 
+            AsyncServiceScope scope = _extension.ServiceProvider.CreateAsyncScope();
             if (!TryFindCommand(eventArgs.Interaction, out Command? command, out IEnumerable<DiscordInteractionDataOption>? options))
             {
-                SlashLogging.UnknownCommandName(_logger, eventArgs.Interaction.Data.Name, null);
+                await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
+                {
+                    Context = new SlashContext()
+                    {
+                        Arguments = new Dictionary<CommandArgument, object?>(),
+                        Channel = eventArgs.Interaction.Channel,
+                        Command = null!,
+                        Extension = _extension,
+                        ServiceScope = scope,
+                        User = eventArgs.Interaction.User,
+                        Interaction = eventArgs.Interaction,
+                        Options = eventArgs.Interaction.Data.Options ?? []
+                    },
+                    CommandObject = null,
+                    Exception = new CommandNotFoundException(eventArgs.Interaction.Data.Name)
+                });
+
+                await scope.DisposeAsync();
                 return;
             }
 
@@ -146,26 +164,27 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 Extension = _extension,
                 Interaction = eventArgs.Interaction,
                 Options = options,
-                ServiceScope = _extension.ServiceProvider.CreateAsyncScope(),
+                ServiceScope = scope,
                 User = eventArgs.Interaction.User
             };
 
             if (eventArgs.Interaction.Type == InteractionType.AutoComplete)
             {
                 AutoCompleteContext? autoCompleteContext = await ParseAutoCompletesAsync(converterContext, eventArgs);
-                if (autoCompleteContext is null)
+                if (autoCompleteContext is not null)
                 {
-                    return;
+                    IEnumerable<DiscordAutoCompleteChoice> choices = await converterContext.Argument.Attributes.OfType<SlashAutoCompleteProviderAttribute>().First().AutoCompleteAsync(autoCompleteContext);
+                    await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.AutoCompleteResult, new DiscordInteractionResponseBuilder().AddAutoCompleteChoices(choices));
                 }
 
-                IEnumerable<DiscordAutoCompleteChoice> choices = await converterContext.Argument.Attributes.OfType<SlashAutoCompleteProviderAttribute>().First().AutoCompleteAsync(autoCompleteContext);
-                await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.AutoCompleteResult, new DiscordInteractionResponseBuilder().AddAutoCompleteChoices(choices));
+                await converterContext.ServiceScope.DisposeAsync();
             }
             else
             {
                 CommandContext? commandContext = await ParseArgumentsAsync(converterContext, eventArgs);
                 if (commandContext is null)
                 {
+                    await converterContext.ServiceScope.DisposeAsync();
                     return;
                 }
 
@@ -372,7 +391,6 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             }
 
             await scope.DisposeAsync();
-
             return new(
                 name: argument.Name,
                 description: argument.Description,
@@ -392,6 +410,11 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
 
         private async Task<CommandContext?> ParseArgumentsAsync(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs)
         {
+            if (_extension is null)
+            {
+                return null;
+            }
+
             Dictionary<CommandArgument, object?> parsedArguments = [];
             try
             {
@@ -408,11 +431,6 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             }
             catch (Exception error)
             {
-                if (_extension is null)
-                {
-                    return null;
-                }
-
                 await _extension._commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
                 {
                     Context = new SlashContext()
@@ -429,6 +447,8 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                     Exception = new ParseArgumentException(converterContext.Argument, error),
                     CommandObject = null
                 });
+
+                return null;
             }
 
             return new SlashContext()
@@ -446,6 +466,11 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
 
         private async Task<AutoCompleteContext?> ParseAutoCompletesAsync(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs)
         {
+            if (_extension is null)
+            {
+                return null;
+            }
+
             Dictionary<CommandArgument, object?> parsedArguments = [];
             try
             {
@@ -462,11 +487,6 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             }
             catch (Exception error)
             {
-                if (_extension is null)
-                {
-                    return null;
-                }
-
                 await _extension._commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
                 {
                     Context = new SlashContext()
@@ -483,6 +503,8 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                     Exception = new ParseArgumentException(converterContext.Argument, error),
                     CommandObject = null
                 });
+
+                return null;
             }
 
             return new AutoCompleteContext()

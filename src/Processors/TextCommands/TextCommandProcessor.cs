@@ -134,6 +134,7 @@ namespace DSharpPlus.CommandAll.Processors
                 index = commandText.Length;
             }
 
+            AsyncServiceScope scope = _extension.ServiceProvider.CreateAsyncScope();
             if (!_extension.Commands.TryGetValue(commandText[..index], out Command? command))
             {
                 await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
@@ -145,13 +146,14 @@ namespace DSharpPlus.CommandAll.Processors
                         Command = null!,
                         Extension = _extension,
                         Message = eventArgs.Message,
-                        ServiceScope = _extension.ServiceProvider.CreateAsyncScope(),
+                        ServiceScope = scope,
                         User = eventArgs.Author
                     },
                     Exception = new CommandNotFoundException(commandText[..index]),
                     CommandObject = null
                 });
 
+                await scope.DisposeAsync();
                 return;
             }
 
@@ -190,7 +192,7 @@ namespace DSharpPlus.CommandAll.Processors
                 Command = command,
                 Extension = _extension,
                 RawArguments = commandText[index..],
-                ServiceScope = _extension.ServiceProvider.CreateAsyncScope(),
+                ServiceScope = scope,
                 Splicer = Configuration.TextArgumentSplicer,
                 User = eventArgs.Author
             };
@@ -198,6 +200,7 @@ namespace DSharpPlus.CommandAll.Processors
             CommandContext? commandContext = await ParseArgumentsAsync(converterContext, eventArgs);
             if (commandContext is null)
             {
+                await scope.DisposeAsync();
                 return;
             }
 
@@ -206,6 +209,11 @@ namespace DSharpPlus.CommandAll.Processors
 
         private async Task<CommandContext?> ParseArgumentsAsync(TextConverterContext converterContext, MessageCreateEventArgs eventArgs)
         {
+            if (_extension is null)
+            {
+                return null;
+            }
+
             Dictionary<CommandArgument, object?> parsedArguments = [];
             try
             {
@@ -222,11 +230,6 @@ namespace DSharpPlus.CommandAll.Processors
             }
             catch (Exception error)
             {
-                if (_extension is null)
-                {
-                    return null;
-                }
-
                 await _extension._commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
                 {
                     Context = new TextContext()
@@ -242,6 +245,8 @@ namespace DSharpPlus.CommandAll.Processors
                     Exception = new ParseArgumentException(converterContext.Argument, error),
                     CommandObject = null
                 });
+
+                return null;
             }
 
             return new TextContext()
