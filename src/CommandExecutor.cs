@@ -88,7 +88,7 @@ namespace DSharpPlus.CommandAll
             {
                 commandObject = context.Command.Target is not null
                     ? context.Command.Target
-                    : ActivatorUtilities.CreateInstance(context.Extension.ServiceProvider, context.Command.Method!.DeclaringType!);
+                    : ActivatorUtilities.CreateInstance(context.ServiceProvider, context.Command.Method!.DeclaringType!);
 
                 object? returnValue = context.Command.Method!.Invoke(commandObject, context.Arguments.Values.Prepend(context).ToArray());
                 if (returnValue is Task task)
@@ -121,6 +121,8 @@ namespace DSharpPlus.CommandAll
                     CommandObject = commandObject
                 });
             }
+
+            await context.ServiceScope.DisposeAsync();
         }
     }
 }

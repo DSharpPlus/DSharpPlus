@@ -140,12 +140,13 @@ namespace DSharpPlus.CommandAll.Processors
                 {
                     Context = new TextContext()
                     {
-                        Extension = _extension,
+                        Arguments = new Dictionary<CommandArgument, object?>(),
                         Channel = eventArgs.Channel,
                         Command = null!,
+                        Extension = _extension,
                         Message = eventArgs.Message,
-                        User = eventArgs.Author,
-                        Arguments = new Dictionary<CommandArgument, object?>()
+                        ServiceScope = _extension.ServiceProvider.CreateAsyncScope(),
+                        User = eventArgs.Author
                     },
                     Exception = new CommandNotFoundException(commandText[..index]),
                     CommandObject = null
@@ -185,12 +186,13 @@ namespace DSharpPlus.CommandAll.Processors
 
             TextConverterContext converterContext = new()
             {
-                Splicer = Configuration.TextArgumentSplicer,
-                Extension = _extension,
                 Channel = eventArgs.Channel,
                 Command = command,
-                User = eventArgs.Author,
-                RawArguments = commandText[index..]
+                Extension = _extension,
+                RawArguments = commandText[index..],
+                ServiceScope = _extension.ServiceProvider.CreateAsyncScope(),
+                Splicer = Configuration.TextArgumentSplicer,
+                User = eventArgs.Author
             };
 
             CommandContext? commandContext = await ParseArgumentsAsync(converterContext, eventArgs);
@@ -229,12 +231,13 @@ namespace DSharpPlus.CommandAll.Processors
                 {
                     Context = new TextContext()
                     {
-                        User = eventArgs.Author,
-                        Channel = eventArgs.Channel,
-                        Extension = converterContext.Extension,
-                        Command = converterContext.Command,
                         Arguments = parsedArguments,
+                        Channel = eventArgs.Channel,
+                        Command = converterContext.Command,
+                        Extension = converterContext.Extension,
                         Message = eventArgs.Message,
+                        ServiceScope = converterContext.ServiceScope,
+                        User = eventArgs.Author
                     },
                     Exception = new ParseArgumentException(converterContext.Argument, error),
                     CommandObject = null
@@ -243,12 +246,13 @@ namespace DSharpPlus.CommandAll.Processors
 
             return new TextContext()
             {
-                User = eventArgs.Author,
-                Channel = eventArgs.Channel,
-                Extension = converterContext.Extension,
-                Command = converterContext.Command,
                 Arguments = parsedArguments,
-                Message = eventArgs.Message
+                Channel = eventArgs.Channel,
+                Command = converterContext.Command,
+                Extension = converterContext.Extension,
+                Message = eventArgs.Message,
+                ServiceScope = converterContext.ServiceScope,
+                User = eventArgs.Author
             };
         }
 

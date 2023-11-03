@@ -16,7 +16,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands.Attributes
             IAutoCompleteProvider autoCompleteProvider;
             try
             {
-                autoCompleteProvider = (IAutoCompleteProvider)ActivatorUtilities.CreateInstance(context.Extension.ServiceProvider, AutoCompleteType);
+                autoCompleteProvider = (IAutoCompleteProvider)ActivatorUtilities.CreateInstance(context.ServiceProvider, AutoCompleteType);
             }
             catch (Exception)
             {

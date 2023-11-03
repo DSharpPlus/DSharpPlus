@@ -85,7 +85,8 @@ namespace DSharpPlus.CommandAll.Processors.UserCommands
                 Arguments = new Dictionary<CommandArgument, object?>()
                 {
                     [command.Arguments[0]] = eventArgs.TargetUser
-                }
+                },
+                ServiceScope = _extension.ServiceProvider.CreateAsyncScope()
             };
 
             await _extension.CommandExecutor.ExecuteAsync(context);
@@ -96,7 +97,9 @@ namespace DSharpPlus.CommandAll.Processors.UserCommands
             IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
             if (command.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
             {
-                nameLocalizations = await localizerAttribute.LocalizeAsync(extension.ServiceProvider, $"{command.FullName}.name");
+                AsyncServiceScope scope = extension.ServiceProvider.CreateAsyncScope();
+                nameLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.name");
+                await scope.DisposeAsync();
             }
 
             return new(
