@@ -76,7 +76,7 @@ namespace DSharpPlus.CommandAll.Processors.MessageCommands
             {
                 await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
                 {
-                    Context = new SlashContext()
+                    Context = new SlashCommandContext()
                     {
                         Arguments = new Dictionary<CommandArgument, object?>(),
                         Channel = eventArgs.Interaction.Channel,
@@ -95,7 +95,7 @@ namespace DSharpPlus.CommandAll.Processors.MessageCommands
                 return;
             }
 
-            SlashContext context = new()
+            SlashCommandContext context = new()
             {
                 Arguments = new Dictionary<CommandArgument, object?>()
                 {
