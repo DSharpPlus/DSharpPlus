@@ -37,7 +37,7 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands.Parsing
             }
 
             argument = match.ValueSpan;
-            return startAt + match.Length + 1;
+            return startAt + match.Length;
         }
     }
 }
