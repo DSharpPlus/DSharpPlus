@@ -7,6 +7,8 @@ using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Commands.Attributes;
 using DSharpPlus.CommandAll.ContextChecks;
 using DSharpPlus.CommandAll.Converters;
+using DSharpPlus.CommandAll.EventArgs;
+using DSharpPlus.CommandAll.Exceptions;
 using DSharpPlus.CommandAll.Processors.SlashCommands;
 using DSharpPlus.CommandAll.Processors.SlashCommands.Attributes;
 using DSharpPlus.Entities;
@@ -69,24 +71,43 @@ namespace DSharpPlus.CommandAll.Processors.UserCommands
                 return;
             }
 
+            AsyncServiceScope scope = _extension.ServiceProvider.CreateAsyncScope();
             if (!_slashCommandProcessor.TryFindCommand(eventArgs.Interaction, out Command? command, out IEnumerable<DiscordInteractionDataOption>? options))
             {
+                await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
+                {
+                    Context = new SlashContext()
+                    {
+                        Arguments = new Dictionary<CommandArgument, object?>(),
+                        Channel = eventArgs.Interaction.Channel,
+                        Command = null!,
+                        Extension = _extension,
+                        Interaction = eventArgs.Interaction,
+                        Options = eventArgs.Interaction.Data.Options ?? [],
+                        ServiceScope = scope,
+                        User = eventArgs.Interaction.User
+                    },
+                    CommandObject = null,
+                    Exception = new CommandNotFoundException(eventArgs.Interaction.Data.Name),
+                });
+
+                await scope.DisposeAsync();
                 return;
             }
 
             SlashContext context = new()
             {
-                Extension = _extension,
-                Command = command,
-                Interaction = eventArgs.Interaction,
-                Channel = eventArgs.Interaction.Channel,
-                Options = [],
-                User = eventArgs.Interaction.User,
                 Arguments = new Dictionary<CommandArgument, object?>()
                 {
                     [command.Arguments[0]] = eventArgs.TargetUser
                 },
-                ServiceScope = _extension.ServiceProvider.CreateAsyncScope()
+                Channel = eventArgs.Interaction.Channel,
+                Command = command,
+                Extension = _extension,
+                Interaction = eventArgs.Interaction,
+                Options = [],
+                ServiceScope = scope,
+                User = eventArgs.Interaction.User
             };
 
             await _extension.CommandExecutor.ExecuteAsync(context);
