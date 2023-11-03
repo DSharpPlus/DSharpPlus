@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace DSharpPlus.CommandAll.Processors.TextCommands.Parsing
@@ -20,7 +19,6 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands.Parsing
                 return -1;
             }
 
-            List<string> args = [];
             MatchCollection matches = _argumentMatcherRegex().Matches(text, startAt);
             if (matches.Count == 0)
             {
