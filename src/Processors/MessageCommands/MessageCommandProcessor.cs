@@ -76,16 +76,17 @@ namespace DSharpPlus.CommandAll.Processors.MessageCommands
 
             SlashContext context = new()
             {
-                Extension = _extension,
-                Command = command,
-                Interaction = eventArgs.Interaction,
-                Channel = eventArgs.Interaction.Channel,
-                Options = [],
-                User = eventArgs.Interaction.User,
                 Arguments = new Dictionary<CommandArgument, object?>()
                 {
                     [command.Arguments[0]] = eventArgs.TargetMessage
-                }
+                },
+                Channel = eventArgs.Interaction.Channel,
+                Command = command,
+                Extension = _extension,
+                Interaction = eventArgs.Interaction,
+                Options = [],
+                ServiceScope = _extension.ServiceProvider.CreateAsyncScope(),
+                User = eventArgs.Interaction.User
             };
 
             await _extension.CommandExecutor.ExecuteAsync(context);
@@ -96,7 +97,9 @@ namespace DSharpPlus.CommandAll.Processors.MessageCommands
             IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
             if (command.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
             {
-                nameLocalizations = await localizerAttribute.LocalizeAsync(extension.ServiceProvider, $"{command.FullName}.name");
+                AsyncServiceScope scope = extension.ServiceProvider.CreateAsyncScope();
+                nameLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.name");
+                await scope.DisposeAsync();
             }
 
             return new(

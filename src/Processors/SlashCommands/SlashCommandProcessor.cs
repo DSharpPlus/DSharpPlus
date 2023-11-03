@@ -141,12 +141,13 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
 
             SlashConverterContext converterContext = new()
             {
+                Channel = eventArgs.Interaction.Channel,
+                Command = command,
+                Extension = _extension,
                 Interaction = eventArgs.Interaction,
                 Options = options,
-                Extension = _extension,
-                Command = command,
-                Channel = eventArgs.Interaction.Channel,
-                User = eventArgs.Interaction.User,
+                ServiceScope = _extension.ServiceProvider.CreateAsyncScope(),
+                User = eventArgs.Interaction.User
             };
 
             if (eventArgs.Interaction.Type == InteractionType.AutoComplete)
@@ -257,8 +258,10 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             IReadOnlyDictionary<string, string> descriptionLocalizations = new Dictionary<string, string>();
             if (command.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
             {
-                nameLocalizations = await localizerAttribute.LocalizeAsync(_extension.ServiceProvider, $"{command.FullName}.name");
-                descriptionLocalizations = await localizerAttribute.LocalizeAsync(_extension.ServiceProvider, $"{command.FullName}.description");
+                AsyncServiceScope scope = _extension.ServiceProvider.CreateAsyncScope();
+                nameLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.name");
+                descriptionLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.description");
+                await scope.DisposeAsync();
             }
 
             // Convert the subcommands or arguments into application options
@@ -321,8 +324,10 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             IReadOnlyDictionary<string, string> descriptionLocalizations = new Dictionary<string, string>();
             if (command.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
             {
-                nameLocalizations = await localizerAttribute.LocalizeAsync(_extension.ServiceProvider, $"{command.FullName}.name");
-                descriptionLocalizations = await localizerAttribute.LocalizeAsync(_extension.ServiceProvider, $"{command.FullName}.description");
+                AsyncServiceScope scope = _extension.ServiceProvider.CreateAsyncScope();
+                nameLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.name");
+                descriptionLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.description");
+                await scope.DisposeAsync();
             }
 
             return new(
@@ -349,21 +354,24 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
 
             SlashMinMaxValueAttribute? minMaxValue = argument.Attributes.OfType<SlashMinMaxValueAttribute>().FirstOrDefault();
             SlashMinMaxLengthAttribute? minMaxLength = argument.Attributes.OfType<SlashMinMaxLengthAttribute>().FirstOrDefault();
+            AsyncServiceScope scope = _extension.ServiceProvider.CreateAsyncScope();
 
             // Translate the argument's name and description.
             IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
             IReadOnlyDictionary<string, string> descriptionLocalizations = new Dictionary<string, string>();
             if (argument.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
             {
-                nameLocalizations = await localizerAttribute.LocalizeAsync(_extension.ServiceProvider, $"{command.FullName}.arguments.{argument.Name}.name");
-                descriptionLocalizations = await localizerAttribute.LocalizeAsync(_extension.ServiceProvider, $"{command.FullName}.arguments.{argument.Name}.description");
+                nameLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.arguments.{argument.Name}.name");
+                descriptionLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.arguments.{argument.Name}.description");
             }
 
             IEnumerable<DiscordApplicationCommandOptionChoice> choices = [];
             if (argument.Attributes.OfType<SlashChoiceProviderAttribute>().FirstOrDefault() is SlashChoiceProviderAttribute choiceAttribute)
             {
-                choices = await choiceAttribute.GrabChoicesAsync(_extension.ServiceProvider, argument);
+                choices = await choiceAttribute.GrabChoicesAsync(scope.ServiceProvider, argument);
             }
+
+            await scope.DisposeAsync();
 
             return new(
                 name: argument.Name,
@@ -409,13 +417,14 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 {
                     Context = new SlashContext()
                     {
-                        User = eventArgs.Interaction.User,
-                        Channel = eventArgs.Interaction.Channel,
-                        Extension = converterContext.Extension,
-                        Command = converterContext.Command,
                         Arguments = parsedArguments,
+                        Channel = eventArgs.Interaction.Channel,
+                        Command = converterContext.Command,
+                        Extension = converterContext.Extension,
                         Interaction = eventArgs.Interaction,
-                        Options = converterContext.Options
+                        Options = converterContext.Options,
+                        ServiceScope = converterContext.ServiceScope,
+                        User = eventArgs.Interaction.User
                     },
                     Exception = new ParseArgumentException(converterContext.Argument, error),
                     CommandObject = null
@@ -424,13 +433,14 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
 
             return new SlashContext()
             {
-                User = eventArgs.Interaction.User,
-                Channel = eventArgs.Interaction.Channel,
-                Extension = converterContext.Extension,
-                Command = converterContext.Command,
                 Arguments = parsedArguments,
+                Channel = eventArgs.Interaction.Channel,
+                Command = converterContext.Command,
+                Extension = converterContext.Extension,
                 Interaction = eventArgs.Interaction,
-                Options = converterContext.Options
+                Options = converterContext.Options,
+                ServiceScope = converterContext.ServiceScope,
+                User = eventArgs.Interaction.User
             };
         }
 
@@ -461,13 +471,14 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 {
                     Context = new SlashContext()
                     {
-                        User = eventArgs.Interaction.User,
-                        Channel = eventArgs.Interaction.Channel,
-                        Extension = converterContext.Extension,
-                        Command = converterContext.Command,
                         Arguments = parsedArguments,
+                        Channel = eventArgs.Interaction.Channel,
+                        Command = converterContext.Command,
+                        Extension = converterContext.Extension,
                         Interaction = eventArgs.Interaction,
-                        Options = converterContext.Options
+                        Options = converterContext.Options,
+                        ServiceScope = converterContext.ServiceScope,
+                        User = eventArgs.Interaction.User
                     },
                     Exception = new ParseArgumentException(converterContext.Argument, error),
                     CommandObject = null
@@ -476,15 +487,16 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
 
             return new AutoCompleteContext()
             {
-                User = eventArgs.Interaction.User,
-                Channel = eventArgs.Interaction.Channel,
-                Extension = converterContext.Extension,
-                Command = converterContext.Command,
                 Arguments = parsedArguments,
-                Interaction = eventArgs.Interaction,
                 AutoCompleteArgument = converterContext.Argument,
-                UserInput = converterContext.Options.ElementAt(converterContext.ArgumentIndex).Value,
-                Options = converterContext.Options
+                Channel = eventArgs.Interaction.Channel,
+                Command = converterContext.Command,
+                Extension = converterContext.Extension,
+                Interaction = eventArgs.Interaction,
+                Options = converterContext.Options,
+                ServiceScope = converterContext.ServiceScope,
+                User = eventArgs.Interaction.User,
+                UserInput = converterContext.Options.ElementAt(converterContext.ArgumentIndex).Value
             };
         }
 
