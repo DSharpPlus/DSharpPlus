@@ -7,20 +7,20 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
     public record TextConverterContext : ConverterContext
     {
         public required TextArgumentSplicer Splicer { get; init; }
-        public required string TextArguments { get; init; }
+        public required string RawArguments { get; init; }
         public string CurrentTextArgument { get; private set; } = string.Empty;
-        public int TextIndex { get; private set; }
+        public int NextTextIndex { get; private set; }
 
         public bool NextTextArgument()
         {
-            if (TextIndex >= TextArguments.Length || TextIndex == -1)
+            if (NextTextIndex >= RawArguments.Length || NextTextIndex == -1)
             {
                 return false;
             }
 
-            TextIndex = Splicer(Extension, TextArguments, TextIndex, out ReadOnlySpan<char> argument);
-            CurrentTextArgument = argument.ToString();
-            return TextIndex != -1;
+            NextTextIndex = Splicer(Extension, RawArguments, NextTextIndex, out ReadOnlySpan<char> argument);
+            CurrentTextArgument = argument.Trim().ToString();
+            return NextTextIndex != -1;
         }
     }
 }

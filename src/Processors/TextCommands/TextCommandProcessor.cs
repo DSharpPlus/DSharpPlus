@@ -154,11 +154,16 @@ namespace DSharpPlus.CommandAll.Processors
                 return;
             }
 
-            int nextIndex = 0;
+            index++; // Skip the space
+            int nextIndex = index;
             while (nextIndex != -1)
             {
-                // Add 2 to skip the space
-                nextIndex = commandText.IndexOf(' ', nextIndex + 2);
+                if (nextIndex == commandText.Length)
+                {
+                    break;
+                }
+
+                nextIndex = commandText.IndexOf(' ', nextIndex);
                 if (nextIndex == -1)
                 {
                     break;
@@ -185,7 +190,7 @@ namespace DSharpPlus.CommandAll.Processors
                 Channel = eventArgs.Channel,
                 Command = command,
                 User = eventArgs.Author,
-                TextArguments = commandText[index..]
+                RawArguments = commandText[index..]
             };
 
             CommandContext? commandContext = await ParseArgumentsAsync(converterContext, eventArgs);
