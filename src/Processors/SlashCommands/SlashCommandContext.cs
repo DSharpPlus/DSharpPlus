@@ -6,11 +6,11 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandAll.Processors.SlashCommands
 {
-    public sealed record SlashContext : CommandContext
+    public record SlashCommandContext : CommandContext
     {
         public required DiscordInteraction Interaction { get; init; }
         public required IEnumerable<DiscordInteractionDataOption> Options { get; init; }
-        public InteractionState State { get; private set; }
+        public InteractionState State { get; protected set; }
 
         /// <inheritdoc />
         public override async ValueTask RespondAsync(IDiscordMessageBuilder builder)

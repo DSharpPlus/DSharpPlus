@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Description>An extension for DSharpPlus to allow for text and slash commands to be used with a single base.</Description>
     <IsPackable>true</IsPackable>
     <OutputType>Library</OutputType>
