@@ -55,9 +55,9 @@ namespace DSharpPlus.CommandAll.Commands
             if (method is not null)
             {
                 ParameterInfo[] parameters = method.GetParameters();
-                if (parameters.Length == 0 || !parameters[0].ParameterType.IsAssignableFrom(typeof(CommandContext)))
+                if (parameters.Length == 0 || !parameters[0].ParameterType.IsAssignableTo(typeof(CommandContext)))
                 {
-                    throw new ArgumentException("The method must have it's first parameter be a CommandContext.", nameof(method));
+                    throw new ArgumentException($"The command method \"{(method.DeclaringType is not null ? $"{method.DeclaringType.FullName}.{method.Name}" : method.Name)}\" must have it's first parameter be a CommandContext.", nameof(method));
                 }
             }
 
@@ -87,6 +87,23 @@ namespace DSharpPlus.CommandAll.Commands
         public CommandBuilder WithAttributes(IEnumerable<Attribute> attributes)
         {
             Attributes = new(attributes);
+            foreach (Attribute attribute in attributes)
+            {
+                if (attribute is CommandAttribute commandAttribute)
+                {
+                    WithName(commandAttribute.Name);
+                }
+                else if (attribute is DescriptionAttribute descriptionAttribute)
+                {
+                    WithDescription(descriptionAttribute.Description);
+                }
+            }
+
+            if (string.IsNullOrEmpty(Description))
+            {
+                WithDescription("No description provided.");
+            }
+
             return this;
         }
 
@@ -108,51 +125,66 @@ namespace DSharpPlus.CommandAll.Commands
             WithArguments(Arguments);
             WithAttributes(Attributes);
 
-            return new()
+            return new(Subcommands)
             {
                 Name = Name,
                 Description = Description,
                 Method = Method,
                 Target = Target,
                 Parent = Parent,
-                Subcommands = Subcommands.Select(x => x.Build()).ToArray(),
                 Arguments = Arguments.Select(x => x.Build()).ToArray(),
                 Attributes = Attributes
             };
         }
 
+        /// <inheritdoc cref="From(Type)"/>
+        /// <typeparam name="T">The type that'll be searched for subcommands.</typeparam>
         public static CommandBuilder From<T>() => From(typeof(T));
+
+        /// <summary>
+        /// Creates a group command from the specified <paramref name="type"/>.
+        /// </summary>
+        /// <param name="type">The type that'll be searched for subcommands.</param>
+        /// <returns>A new <see cref="CommandBuilder"/> which does it's best to build a pre-filled <see cref="CommandBuilder"/> from the specified <paramref name="type"/>.</returns>
         public static CommandBuilder From(Type type)
         {
             ArgumentNullException.ThrowIfNull(type, nameof(type));
+            if (type.GetCustomAttribute<CommandAttribute>() is null)
+            {
+                throw new ArgumentException($"The type \"{type.FullName ?? type.Name}\" does not have a CommandAttribute.", nameof(type));
+            }
+
+            // Add subcommands
+            List<CommandBuilder> subCommandBuilders = [];
+            foreach (Type subCommand in type.GetNestedTypes(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
+            {
+                if (subCommand.GetCustomAttribute<CommandAttribute>() is null)
+                {
+                    continue;
+                }
+
+                subCommandBuilders.Add(From(subCommand));
+            }
+
+            // Add methods
+            foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
+            {
+                if (method.GetCustomAttribute<CommandAttribute>() is null)
+                {
+                    continue;
+                }
+
+                subCommandBuilders.Add(From(method));
+            }
+
+            if (subCommandBuilders.Count == 0)
+            {
+                throw new ArgumentException($"The type \"{type.FullName ?? type.Name}\" does not have any subcommands or methods with a CommandAttribute.", nameof(type));
+            }
 
             CommandBuilder commandBuilder = new();
-            commandBuilder.WithAttributes(type.GetCustomAttributes().ToList());
-
-            foreach (Attribute attribute in commandBuilder.Attributes)
-            {
-                switch (attribute)
-                {
-                    case CommandAttribute commandAttribute:
-                        commandBuilder.WithName(commandAttribute.Name);
-                        break;
-                    case DescriptionAttribute descriptionAttribute:
-                        commandBuilder.WithDescription(descriptionAttribute.Description);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            foreach (MethodInfo methodInfo in type.GetMethods())
-            {
-                if (methodInfo.GetCustomAttribute<CommandAttribute>() is not null)
-                {
-                    commandBuilder.WithDelegate(methodInfo);
-                    commandBuilder.WithArguments(methodInfo.GetParameters()[1..].Select(CommandArgumentBuilder.From));
-                }
-            }
-
+            commandBuilder.WithAttributes(type.GetCustomAttributes());
+            commandBuilder.WithSubcommands(subCommandBuilders);
             return commandBuilder;
         }
 
@@ -167,36 +199,22 @@ namespace DSharpPlus.CommandAll.Commands
         public static CommandBuilder From(MethodInfo method, object? target = null)
         {
             ArgumentNullException.ThrowIfNull(method, nameof(method));
-
-            CommandBuilder builder = new();
-            builder.WithDelegate(method, target);
-            builder.WithArguments(method.GetParameters()[1..].Select(CommandArgumentBuilder.From));
-            builder.WithAttributes(method.GetCustomAttributes().ToList());
-            foreach (Attribute attribute in builder.Attributes)
+            if (method.GetCustomAttribute<CommandAttribute>() is null)
             {
-                if (attribute is CommandAttribute commandAttribute)
-                {
-                    builder.WithName(commandAttribute.Name);
-                }
-                else if (attribute is DescriptionAttribute descriptionAttribute)
-                {
-                    builder.WithDescription(descriptionAttribute.Description);
-                }
+                throw new ArgumentException($"The method \"{(method.DeclaringType is not null ? $"{method.DeclaringType.FullName}.{method.Name}" : method.Name)}\" does not have a CommandAttribute.", nameof(method));
             }
 
-            // If no CommandAttribute is present, try to use the method name instead.
-            if (string.IsNullOrWhiteSpace(builder.Name))
+            ParameterInfo[] parameters = method.GetParameters();
+            if (parameters.Length == 0 || !parameters[0].ParameterType.IsAssignableTo(typeof(CommandContext)))
             {
-                builder.WithName(method.Name.Replace("Async", string.Empty));
+                throw new ArgumentException($"The command method \"{(method.DeclaringType is not null ? $"{method.DeclaringType.FullName}.{method.Name}" : method.Name)}\" must have a parameter and it must be a type of {nameof(CommandContext)}.", nameof(method));
             }
 
-            // If no DescriptionAttribute is present, use a default description.
-            if (string.IsNullOrWhiteSpace(builder.Description))
-            {
-                builder.WithDescription("No description provided.");
-            }
-
-            return builder;
+            CommandBuilder commandBuilder = new();
+            commandBuilder.WithAttributes(method.GetCustomAttributes());
+            commandBuilder.WithDelegate(method, target);
+            commandBuilder.WithArguments(parameters[1..].Select(CommandArgumentBuilder.From));
+            return commandBuilder;
         }
     }
 }
