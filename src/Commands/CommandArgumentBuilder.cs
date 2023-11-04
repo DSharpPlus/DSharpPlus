@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Text;
 using DSharpPlus.CommandAll.Commands.Attributes;
 using DSharpPlus.Entities;
 
@@ -54,7 +55,24 @@ namespace DSharpPlus.CommandAll.Commands
 
         public CommandArgumentBuilder WithAttributes(IEnumerable<Attribute> attributes)
         {
-            Attributes = new(attributes);
+            Attributes = new List<Attribute>(attributes);
+            foreach (Attribute attribute in attributes)
+            {
+                if (attribute is CommandAttribute commandAttribute)
+                {
+                    WithName(commandAttribute.Name);
+                }
+                else if (attribute is DescriptionAttribute descriptionAttribute)
+                {
+                    WithDescription(descriptionAttribute.Description);
+                }
+            }
+
+            if (string.IsNullOrEmpty(Description))
+            {
+                WithDescription("No description provided.");
+            }
+
             return this;
         }
 
@@ -93,45 +111,53 @@ namespace DSharpPlus.CommandAll.Commands
         public static CommandArgumentBuilder From(ParameterInfo parameterInfo)
         {
             ArgumentNullException.ThrowIfNull(parameterInfo, nameof(parameterInfo));
+            if (parameterInfo.ParameterType.IsAssignableTo(typeof(CommandContext)))
+            {
+                throw new ArgumentException("The parameter cannot be a CommandContext.", nameof(parameterInfo));
+            }
 
-            CommandArgumentBuilder builder = new();
-            builder.WithType(parameterInfo.ParameterType);
-            builder.WithAttributes(parameterInfo.GetCustomAttributes());
+            CommandArgumentBuilder commandArgumentBuilder = new();
+            commandArgumentBuilder.WithAttributes(parameterInfo.GetCustomAttributes());
             if (parameterInfo.HasDefaultValue)
             {
-                builder.WithDefaultValue(parameterInfo.RawDefaultValue);
+                commandArgumentBuilder.WithDefaultValue(parameterInfo.DefaultValue);
             }
 
-            foreach (Attribute attribute in builder.Attributes)
+            if (string.IsNullOrWhiteSpace(commandArgumentBuilder.Name) && !string.IsNullOrWhiteSpace(parameterInfo.Name))
             {
-                if (attribute is ArgumentAttribute argumentAttribute)
-                {
-                    builder.WithName(argumentAttribute.Name);
-                }
-                else if (attribute is DescriptionAttribute descriptionAttribute)
-                {
-                    builder.WithDescription(descriptionAttribute.Description);
-                }
+                commandArgumentBuilder.WithName(ToSnakeCase(parameterInfo.Name));
             }
 
-            // If no CommandArgumentAttribute is present, try to use the parameter name instead.
-            if (string.IsNullOrWhiteSpace(builder.Name))
+            if (commandArgumentBuilder.Type is null)
             {
-                if (string.IsNullOrWhiteSpace(parameterInfo.Name))
+                commandArgumentBuilder.WithType(parameterInfo.ParameterType);
+            }
+
+            return commandArgumentBuilder;
+        }
+
+        private static string ToSnakeCase(string str)
+        {
+            StringBuilder stringBuilder = new();
+            foreach (char character in str)
+            {
+                // kebab-cased, somehow.
+                if (character == '-')
                 {
-                    throw new InvalidOperationException($"The parameter is lacking a name from {nameof(ParameterInfo.Name)} and {nameof(ArgumentAttribute)} is not present.");
+                    stringBuilder.Append('_');
+                    continue;
                 }
 
-                builder.WithName(parameterInfo.Name);
+                // camelCase, PascalCase
+                if (char.IsUpper(character))
+                {
+                    stringBuilder.Append('_');
+                }
+
+                stringBuilder.Append(char.ToLowerInvariant(character));
             }
 
-            // If no DescriptionAttribute is present, use a default description.
-            if (string.IsNullOrWhiteSpace(builder.Description))
-            {
-                builder.WithDescription("No description provided.");
-            }
-
-            return builder;
+            return stringBuilder.ToString();
         }
     }
 }
