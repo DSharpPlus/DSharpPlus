@@ -1,6 +1,4 @@
-using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Converters;
-using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.CommandAll.Processors.SlashCommands
@@ -10,8 +8,5 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
         public ApplicationCommandOptionType ArgumentType { get; init; }
     }
 
-    public interface ISlashArgumentConverter<T> : ISlashArgumentConverter
-    {
-        public Task<Optional<T>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs);
-    }
+    public interface ISlashArgumentConverter<T> : ISlashArgumentConverter, IArgumentConverter<InteractionCreateEventArgs, T>;
 }
