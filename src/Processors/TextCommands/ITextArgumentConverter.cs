@@ -1,6 +1,4 @@
-using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Converters;
-using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.CommandAll.Processors.TextCommands
@@ -10,8 +8,5 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
         public bool RequiresText { get; init; }
     }
 
-    public interface ITextArgumentConverter<T> : ITextArgumentConverter
-    {
-        public Task<Optional<T>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs);
-    }
+    public interface ITextArgumentConverter<T> : ITextArgumentConverter, IArgumentConverter<MessageCreateEventArgs, T>;
 }
