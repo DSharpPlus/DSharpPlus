@@ -157,11 +157,16 @@ namespace DSharpPlus.CommandAll.Processors
                 return;
             }
 
-            index++; // Skip the space
+            if (index < commandText.Length && commandText[index] == ' ')
+            {
+                // Skip the space
+                index++;
+            }
+
             int nextIndex = index;
             while (nextIndex != -1)
             {
-                if (nextIndex == commandText.Length)
+                if (nextIndex >= commandText.Length)
                 {
                     break;
                 }
