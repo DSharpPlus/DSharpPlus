@@ -18,11 +18,11 @@ public class DiscordMemoryCache : IDiscordCache
         this._memoryCacheEntryOptions = configuration.MemoryCacheEntryOptions;
     }
 
-    public Task Set<T>(T entity, ICacheKey key)
+    public ValueTask Set<T>(T entity, ICacheKey key)
     {
         if (entity is null)
         {
-            return Task.CompletedTask;
+            return default;
         }
         ArgumentNullException.ThrowIfNull(key);
 
@@ -40,11 +40,11 @@ public class DiscordMemoryCache : IDiscordCache
 
         if (entryOptions is null)
         {
-            return Task.CompletedTask;
+            return default;
         }
         
         this._cache.Set(key, entity, entryOptions.ToMemoryCacheEntryOptions());
-        return Task.CompletedTask;
+        return default;
     }
 
     public ValueTask Remove(ICacheKey key)

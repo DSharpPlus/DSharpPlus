@@ -1,3 +1,4 @@
+using DSharpPlus.Caching;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs;
@@ -10,17 +11,13 @@ public class GuildBanAddEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the member that was banned.
     /// </summary>
-    public DiscordMember Member { get; internal set; }
+    public CachedEntity<ulong, DiscordMember> Member { get; internal set; }
 
     /// <summary>
-    /// Gets the guild this member was banned in. This value is null if the guild wasn't cached.
+    /// Gets the guild this member was banned in.
     /// </summary>
-    public DiscordGuild? Guild { get; internal set; }
-    
-    /// <summary>
-    /// Gets the id of the guild this member was banned in.
-    /// </summary>
-    public ulong GuildId { get; internal set; }
+    public CachedEntity<ulong, DiscordGuild> Guild { get; internal set; }
+
 
     internal GuildBanAddEventArgs() : base() { }
 }

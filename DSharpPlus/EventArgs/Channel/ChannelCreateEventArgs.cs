@@ -1,4 +1,5 @@
 using DSharpPlus.Entities;
+using DSharpPlus.Caching;
 
 namespace DSharpPlus.EventArgs;
 
@@ -13,15 +14,9 @@ public class ChannelCreateEventArgs : DiscordEventArgs
     public DiscordChannel Channel { get; internal set; }
 
     /// <summary>
-    /// Gets the guild in which the channel was created.
+    /// Gets the guild in which the channel was created. This field is null if the channel has no guild.
     /// </summary>
-    /// <remarks>This value comes from cache and could be null</remarks>
-    public DiscordGuild? Guild { get; internal set; }
-    
-    /// <summary>
-    /// Gets the ID of the guild in which the update occurred.
-    /// </summary>
-    public ulong GuildId { get; internal set; }
+    public CachedEntity<ulong,DiscordGuild>? Guild { get; internal set; }
 
     internal ChannelCreateEventArgs() : base() { }
 }

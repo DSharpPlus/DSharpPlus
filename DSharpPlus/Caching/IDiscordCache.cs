@@ -10,7 +10,7 @@ public interface IDiscordCache : IDisposable
     /// </summary>
     /// <param name="entity">Entity to cache</param>
     /// <param name="key"></param>
-    public Task Set<T>(T entity, ICacheKey key);
+    public ValueTask Set<T>(T entity, ICacheKey key);
     
     /// <summary>
     /// Remove entity with given key from the cache

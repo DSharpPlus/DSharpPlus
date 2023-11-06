@@ -165,6 +165,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     public string Mention
         => Formatter.Mention(this);
 
+    //TODO replace those with async methods
     /// <summary>
     /// Gets this channel's children. This applies only to channel categories.
     /// </summary>

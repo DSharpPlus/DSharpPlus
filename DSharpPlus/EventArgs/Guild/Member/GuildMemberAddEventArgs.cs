@@ -1,3 +1,4 @@
+using DSharpPlus.Caching;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs;
@@ -13,14 +14,10 @@ public class GuildMemberAddEventArgs : DiscordEventArgs
     public DiscordMember Member { get; internal set; }
 
     /// <summary>
-    /// Gets the guild the member was added to. This value is null if the guild wasn't cached.
+    /// Gets the guild the member was added to.
     /// </summary>
-    public DiscordGuild? Guild { get; internal set; }
+    public CachedEntity<ulong, DiscordGuild> Guild { get; internal set; }
     
-    /// <summary>
-    /// Gets the id of the guild the member was added to.
-    /// </summary>
-    public ulong GuildId { get; internal set; }
 
     internal GuildMemberAddEventArgs() : base() { }
 }

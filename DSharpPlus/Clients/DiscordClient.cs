@@ -28,7 +28,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     #region Internal Fields/Properties
 
     internal bool _isShard = false;
-    
+
     internal IDiscordCache Cache { get; }
 
     private List<BaseExtension> _extensions = new();
@@ -39,6 +39,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     #endregion
 
     #region Public Fields/Properties
+
     /// <summary>
     /// Gets the gateway protocol version.
     /// </summary>
@@ -72,9 +73,9 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// </summary>
     public DiscordIntents Intents
         => this.Configuration.Intents;
-    
+
     public List<ulong> DmChannels { get; }
-    
+
 
     /// <summary>
     /// Gets the WS latency for this client.
@@ -92,6 +93,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
     internal Dictionary<ulong, DiscordPresence> _presences = new();
     private Lazy<IReadOnlyDictionary<ulong, DiscordPresence>> _presencesLazy;
+
     #endregion
 
     #region Constructor/Internal Setup
@@ -115,87 +117,185 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this._clientErrored = new AsyncEvent<DiscordClient, ClientErrorEventArgs>("CLIENT_ERRORED", this.Goof);
         this._socketErrored = new AsyncEvent<DiscordClient, SocketErrorEventArgs>("SOCKET_ERRORED", this.Goof);
         this._socketOpened = new AsyncEvent<DiscordClient, SocketEventArgs>("SOCKET_OPENED", this.EventErrorHandler);
-        this._socketClosed = new AsyncEvent<DiscordClient, SocketCloseEventArgs>("SOCKET_CLOSED", this.EventErrorHandler);
+        this._socketClosed =
+            new AsyncEvent<DiscordClient, SocketCloseEventArgs>("SOCKET_CLOSED", this.EventErrorHandler);
         this._ready = new AsyncEvent<DiscordClient, SessionReadyEventArgs>("READY", this.EventErrorHandler);
         this._resumed = new AsyncEvent<DiscordClient, SessionReadyEventArgs>("RESUMED", this.EventErrorHandler);
-        this._channelCreated = new AsyncEvent<DiscordClient, ChannelCreateEventArgs>("CHANNEL_CREATED", this.EventErrorHandler);
-        this._channelUpdated = new AsyncEvent<DiscordClient, ChannelUpdateEventArgs>("CHANNEL_UPDATED", this.EventErrorHandler);
-        this._channelDeleted = new AsyncEvent<DiscordClient, ChannelDeleteEventArgs>("CHANNEL_DELETED", this.EventErrorHandler);
-        this._dmChannelDeleted = new AsyncEvent<DiscordClient, DmChannelDeleteEventArgs>("DM_CHANNEL_DELETED", this.EventErrorHandler);
-        this._channelPinsUpdated = new AsyncEvent<DiscordClient, ChannelPinsUpdateEventArgs>("CHANNEL_PINS_UPDATED", this.EventErrorHandler);
-        this._guildCreated = new AsyncEvent<DiscordClient, GuildCreateEventArgs>("GUILD_CREATED", this.EventErrorHandler);
-        this._guildAvailable = new AsyncEvent<DiscordClient, GuildCreateEventArgs>("GUILD_AVAILABLE", this.EventErrorHandler);
-        this._guildUpdated = new AsyncEvent<DiscordClient, GuildUpdateEventArgs>("GUILD_UPDATED", this.EventErrorHandler);
-        this._guildDeleted = new AsyncEvent<DiscordClient, GuildDeleteEventArgs>("GUILD_DELETED", this.EventErrorHandler);
-        this._guildUnavailable = new AsyncEvent<DiscordClient, GuildDeleteEventArgs>("GUILD_UNAVAILABLE", this.EventErrorHandler);
-        this._guildDownloadCompletedEv = new AsyncEvent<DiscordClient, GuildDownloadCompletedEventArgs>("GUILD_DOWNLOAD_COMPLETED", this.EventErrorHandler);
-        this._inviteCreated = new AsyncEvent<DiscordClient, InviteCreateEventArgs>("INVITE_CREATED", this.EventErrorHandler);
-        this._inviteDeleted = new AsyncEvent<DiscordClient, InviteDeleteEventArgs>("INVITE_DELETED", this.EventErrorHandler);
-        this._messageCreated = new AsyncEvent<DiscordClient, MessageCreateEventArgs>("MESSAGE_CREATED", this.EventErrorHandler);
-        this._presenceUpdated = new AsyncEvent<DiscordClient, PresenceUpdateEventArgs>("PRESENCE_UPDATED", this.EventErrorHandler);
-        this._scheduledGuildEventCreated = new AsyncEvent<DiscordClient, ScheduledGuildEventCreateEventArgs>("SCHEDULED_GUILD_EVENT_CREATED", this.EventErrorHandler);
-        this._scheduledGuildEventDeleted = new AsyncEvent<DiscordClient, ScheduledGuildEventDeleteEventArgs>("SCHEDULED_GUILD_EVENT_DELETED", this.EventErrorHandler);
-        this._scheduledGuildEventUpdated = new AsyncEvent<DiscordClient, ScheduledGuildEventUpdateEventArgs>("SCHEDULED_GUILD_EVENT_UPDATED", this.EventErrorHandler);
-        this._scheduledGuildEventCompleted = new AsyncEvent<DiscordClient, ScheduledGuildEventCompletedEventArgs>("SCHEDULED_GUILD_EVENT_COMPLETED", this.EventErrorHandler);
-        this._scheduledGuildEventUserAdded = new AsyncEvent<DiscordClient, ScheduledGuildEventUserAddEventArgs>("SCHEDULED_GUILD_EVENT_USER_ADDED", this.EventErrorHandler);
-        this._scheduledGuildEventUserRemoved = new AsyncEvent<DiscordClient, ScheduledGuildEventUserRemoveEventArgs>("SCHEDULED_GUILD_EVENT_USER_REMOVED", this.EventErrorHandler);
-        this._guildBanAdded = new AsyncEvent<DiscordClient, GuildBanAddEventArgs>("GUILD_BAN_ADD", this.EventErrorHandler);
-        this._guildBanRemoved = new AsyncEvent<DiscordClient, GuildBanRemoveEventArgs>("GUILD_BAN_REMOVED", this.EventErrorHandler);
-        this._guildEmojisUpdated = new AsyncEvent<DiscordClient, GuildEmojisUpdateEventArgs>("GUILD_EMOJI_UPDATED", this.EventErrorHandler);
-        this._guildStickersUpdated = new AsyncEvent<DiscordClient, GuildStickersUpdateEventArgs>("GUILD_STICKER_UPDATED", this.EventErrorHandler);
-        this._guildIntegrationsUpdated = new AsyncEvent<DiscordClient, GuildIntegrationsUpdateEventArgs>("GUILD_INTEGRATIONS_UPDATED", this.EventErrorHandler);
-        this._guildMemberAdded = new AsyncEvent<DiscordClient, GuildMemberAddEventArgs>("GUILD_MEMBER_ADD", this.EventErrorHandler);
-        this._guildMemberRemoved = new AsyncEvent<DiscordClient, GuildMemberRemoveEventArgs>("GUILD_MEMBER_REMOVED", this.EventErrorHandler);
-        this._guildMemberUpdated = new AsyncEvent<DiscordClient, GuildMemberUpdateEventArgs>("GUILD_MEMBER_UPDATED", this.EventErrorHandler);
-        this._guildRoleCreated = new AsyncEvent<DiscordClient, GuildRoleCreateEventArgs>("GUILD_ROLE_CREATED", this.EventErrorHandler);
-        this._guildRoleUpdated = new AsyncEvent<DiscordClient, GuildRoleUpdateEventArgs>("GUILD_ROLE_UPDATED", this.EventErrorHandler);
-        this._guildRoleDeleted = new AsyncEvent<DiscordClient, GuildRoleDeleteEventArgs>("GUILD_ROLE_DELETED", this.EventErrorHandler);
-        this._guildAuditLogCreated = new AsyncEvent<DiscordClient, GuildAuditLogCreatedEventArgs>("GUILD_AUDIT_LOG_CREATED", this.EventErrorHandler);
-        this._messageAcknowledged = new AsyncEvent<DiscordClient, MessageAcknowledgeEventArgs>("MESSAGE_ACKNOWLEDGED", this.EventErrorHandler);
-        this._messageUpdated = new AsyncEvent<DiscordClient, MessageUpdateEventArgs>("MESSAGE_UPDATED", this.EventErrorHandler);
-        this._messageDeleted = new AsyncEvent<DiscordClient, MessageDeleteEventArgs>("MESSAGE_DELETED", this.EventErrorHandler);
-        this._messagesBulkDeleted = new AsyncEvent<DiscordClient, MessageBulkDeleteEventArgs>("MESSAGE_BULK_DELETED", this.EventErrorHandler);
-        this._interactionCreated = new AsyncEvent<DiscordClient, InteractionCreateEventArgs>("INTERACTION_CREATED", this.EventErrorHandler);
-        this._componentInteractionCreated = new AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs>("COMPONENT_INTERACTED", this.EventErrorHandler);
-        this._modalSubmitted = new AsyncEvent<DiscordClient, ModalSubmitEventArgs>("MODAL_SUBMITTED", this.EventErrorHandler);
-        this._contextMenuInteractionCreated = new AsyncEvent<DiscordClient, ContextMenuInteractionCreateEventArgs>("CONTEXT_MENU_INTERACTED", this.EventErrorHandler);
-        this._typingStarted = new AsyncEvent<DiscordClient, TypingStartEventArgs>("TYPING_STARTED", this.EventErrorHandler);
-        this._userSettingsUpdated = new AsyncEvent<DiscordClient, UserSettingsUpdateEventArgs>("USER_SETTINGS_UPDATED", this.EventErrorHandler);
+        this._channelCreated =
+            new AsyncEvent<DiscordClient, ChannelCreateEventArgs>("CHANNEL_CREATED", this.EventErrorHandler);
+        this._channelUpdated =
+            new AsyncEvent<DiscordClient, ChannelUpdateEventArgs>("CHANNEL_UPDATED", this.EventErrorHandler);
+        this._channelDeleted =
+            new AsyncEvent<DiscordClient, ChannelDeleteEventArgs>("CHANNEL_DELETED", this.EventErrorHandler);
+        this._dmChannelDeleted =
+            new AsyncEvent<DiscordClient, DmChannelDeleteEventArgs>("DM_CHANNEL_DELETED", this.EventErrorHandler);
+        this._channelPinsUpdated =
+            new AsyncEvent<DiscordClient, ChannelPinsUpdateEventArgs>("CHANNEL_PINS_UPDATED", this.EventErrorHandler);
+        this._guildCreated =
+            new AsyncEvent<DiscordClient, GuildCreateEventArgs>("GUILD_CREATED", this.EventErrorHandler);
+        this._guildAvailable =
+            new AsyncEvent<DiscordClient, GuildCreateEventArgs>("GUILD_AVAILABLE", this.EventErrorHandler);
+        this._guildUpdated =
+            new AsyncEvent<DiscordClient, GuildUpdateEventArgs>("GUILD_UPDATED", this.EventErrorHandler);
+        this._guildDeleted =
+            new AsyncEvent<DiscordClient, GuildDeleteEventArgs>("GUILD_DELETED", this.EventErrorHandler);
+        this._guildUnavailable =
+            new AsyncEvent<DiscordClient, GuildDeleteEventArgs>("GUILD_UNAVAILABLE", this.EventErrorHandler);
+        this._guildDownloadCompletedEv =
+            new AsyncEvent<DiscordClient, GuildDownloadCompletedEventArgs>("GUILD_DOWNLOAD_COMPLETED",
+                this.EventErrorHandler);
+        this._inviteCreated =
+            new AsyncEvent<DiscordClient, InviteCreateEventArgs>("INVITE_CREATED", this.EventErrorHandler);
+        this._inviteDeleted =
+            new AsyncEvent<DiscordClient, InviteDeleteEventArgs>("INVITE_DELETED", this.EventErrorHandler);
+        this._messageCreated =
+            new AsyncEvent<DiscordClient, MessageCreateEventArgs>("MESSAGE_CREATED", this.EventErrorHandler);
+        this._presenceUpdated =
+            new AsyncEvent<DiscordClient, PresenceUpdateEventArgs>("PRESENCE_UPDATED", this.EventErrorHandler);
+        this._scheduledGuildEventCreated =
+            new AsyncEvent<DiscordClient, ScheduledGuildEventCreateEventArgs>("SCHEDULED_GUILD_EVENT_CREATED",
+                this.EventErrorHandler);
+        this._scheduledGuildEventDeleted =
+            new AsyncEvent<DiscordClient, ScheduledGuildEventDeleteEventArgs>("SCHEDULED_GUILD_EVENT_DELETED",
+                this.EventErrorHandler);
+        this._scheduledGuildEventUpdated =
+            new AsyncEvent<DiscordClient, ScheduledGuildEventUpdateEventArgs>("SCHEDULED_GUILD_EVENT_UPDATED",
+                this.EventErrorHandler);
+        this._scheduledGuildEventCompleted =
+            new AsyncEvent<DiscordClient, ScheduledGuildEventCompletedEventArgs>("SCHEDULED_GUILD_EVENT_COMPLETED",
+                this.EventErrorHandler);
+        this._scheduledGuildEventUserAdded =
+            new AsyncEvent<DiscordClient, ScheduledGuildEventUserAddEventArgs>("SCHEDULED_GUILD_EVENT_USER_ADDED",
+                this.EventErrorHandler);
+        this._scheduledGuildEventUserRemoved =
+            new AsyncEvent<DiscordClient, ScheduledGuildEventUserRemoveEventArgs>("SCHEDULED_GUILD_EVENT_USER_REMOVED",
+                this.EventErrorHandler);
+        this._guildBanAdded =
+            new AsyncEvent<DiscordClient, GuildBanAddEventArgs>("GUILD_BAN_ADD", this.EventErrorHandler);
+        this._guildBanRemoved =
+            new AsyncEvent<DiscordClient, GuildBanRemoveEventArgs>("GUILD_BAN_REMOVED", this.EventErrorHandler);
+        this._guildEmojisUpdated =
+            new AsyncEvent<DiscordClient, GuildEmojisUpdateEventArgs>("GUILD_EMOJI_UPDATED", this.EventErrorHandler);
+        this._guildStickersUpdated =
+            new AsyncEvent<DiscordClient, GuildStickersUpdateEventArgs>("GUILD_STICKER_UPDATED",
+                this.EventErrorHandler);
+        this._guildIntegrationsUpdated =
+            new AsyncEvent<DiscordClient, GuildIntegrationsUpdateEventArgs>("GUILD_INTEGRATIONS_UPDATED",
+                this.EventErrorHandler);
+        this._guildMemberAdded =
+            new AsyncEvent<DiscordClient, GuildMemberAddEventArgs>("GUILD_MEMBER_ADD", this.EventErrorHandler);
+        this._guildMemberRemoved =
+            new AsyncEvent<DiscordClient, GuildMemberRemoveEventArgs>("GUILD_MEMBER_REMOVED", this.EventErrorHandler);
+        this._guildMemberUpdated =
+            new AsyncEvent<DiscordClient, GuildMemberUpdateEventArgs>("GUILD_MEMBER_UPDATED", this.EventErrorHandler);
+        this._guildRoleCreated =
+            new AsyncEvent<DiscordClient, GuildRoleCreateEventArgs>("GUILD_ROLE_CREATED", this.EventErrorHandler);
+        this._guildRoleUpdated =
+            new AsyncEvent<DiscordClient, GuildRoleUpdateEventArgs>("GUILD_ROLE_UPDATED", this.EventErrorHandler);
+        this._guildRoleDeleted =
+            new AsyncEvent<DiscordClient, GuildRoleDeleteEventArgs>("GUILD_ROLE_DELETED", this.EventErrorHandler);
+        this._guildAuditLogCreated =
+            new AsyncEvent<DiscordClient, GuildAuditLogCreatedEventArgs>("GUILD_AUDIT_LOG_CREATED",
+                this.EventErrorHandler);
+        this._messageAcknowledged =
+            new AsyncEvent<DiscordClient, MessageAcknowledgeEventArgs>("MESSAGE_ACKNOWLEDGED", this.EventErrorHandler);
+        this._messageUpdated =
+            new AsyncEvent<DiscordClient, MessageUpdateEventArgs>("MESSAGE_UPDATED", this.EventErrorHandler);
+        this._messageDeleted =
+            new AsyncEvent<DiscordClient, MessageDeleteEventArgs>("MESSAGE_DELETED", this.EventErrorHandler);
+        this._messagesBulkDeleted =
+            new AsyncEvent<DiscordClient, MessageBulkDeleteEventArgs>("MESSAGE_BULK_DELETED", this.EventErrorHandler);
+        this._interactionCreated =
+            new AsyncEvent<DiscordClient, InteractionCreateEventArgs>("INTERACTION_CREATED", this.EventErrorHandler);
+        this._componentInteractionCreated =
+            new AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs>("COMPONENT_INTERACTED",
+                this.EventErrorHandler);
+        this._modalSubmitted =
+            new AsyncEvent<DiscordClient, ModalSubmitEventArgs>("MODAL_SUBMITTED", this.EventErrorHandler);
+        this._contextMenuInteractionCreated =
+            new AsyncEvent<DiscordClient, ContextMenuInteractionCreateEventArgs>("CONTEXT_MENU_INTERACTED",
+                this.EventErrorHandler);
+        this._typingStarted =
+            new AsyncEvent<DiscordClient, TypingStartEventArgs>("TYPING_STARTED", this.EventErrorHandler);
+        this._userSettingsUpdated =
+            new AsyncEvent<DiscordClient, UserSettingsUpdateEventArgs>("USER_SETTINGS_UPDATED", this.EventErrorHandler);
         this._userUpdated = new AsyncEvent<DiscordClient, UserUpdateEventArgs>("USER_UPDATED", this.EventErrorHandler);
-        this._voiceStateUpdated = new AsyncEvent<DiscordClient, VoiceStateUpdateEventArgs>("VOICE_STATE_UPDATED", this.EventErrorHandler);
-        this._voiceServerUpdated = new AsyncEvent<DiscordClient, VoiceServerUpdateEventArgs>("VOICE_SERVER_UPDATED", this.EventErrorHandler);
-        this._guildMembersChunked = new AsyncEvent<DiscordClient, GuildMembersChunkEventArgs>("GUILD_MEMBERS_CHUNKED", this.EventErrorHandler);
+        this._voiceStateUpdated =
+            new AsyncEvent<DiscordClient, VoiceStateUpdateEventArgs>("VOICE_STATE_UPDATED", this.EventErrorHandler);
+        this._voiceServerUpdated =
+            new AsyncEvent<DiscordClient, VoiceServerUpdateEventArgs>("VOICE_SERVER_UPDATED", this.EventErrorHandler);
+        this._guildMembersChunked =
+            new AsyncEvent<DiscordClient, GuildMembersChunkEventArgs>("GUILD_MEMBERS_CHUNKED", this.EventErrorHandler);
         this._unknownEvent = new AsyncEvent<DiscordClient, UnknownEventArgs>("UNKNOWN_EVENT", this.EventErrorHandler);
-        this._messageReactionAdded = new AsyncEvent<DiscordClient, MessageReactionAddEventArgs>("MESSAGE_REACTION_ADDED", this.EventErrorHandler);
-        this._messageReactionRemoved = new AsyncEvent<DiscordClient, MessageReactionRemoveEventArgs>("MESSAGE_REACTION_REMOVED", this.EventErrorHandler);
-        this._messageReactionsCleared = new AsyncEvent<DiscordClient, MessageReactionsClearEventArgs>("MESSAGE_REACTIONS_CLEARED", this.EventErrorHandler);
-        this._messageReactionRemovedEmoji = new AsyncEvent<DiscordClient, MessageReactionRemoveEmojiEventArgs>("MESSAGE_REACTION_REMOVED_EMOJI", this.EventErrorHandler);
-        this._webhooksUpdated = new AsyncEvent<DiscordClient, WebhooksUpdateEventArgs>("WEBHOOKS_UPDATED", this.EventErrorHandler);
+        this._messageReactionAdded =
+            new AsyncEvent<DiscordClient, MessageReactionAddEventArgs>("MESSAGE_REACTION_ADDED",
+                this.EventErrorHandler);
+        this._messageReactionRemoved =
+            new AsyncEvent<DiscordClient, MessageReactionRemoveEventArgs>("MESSAGE_REACTION_REMOVED",
+                this.EventErrorHandler);
+        this._messageReactionsCleared =
+            new AsyncEvent<DiscordClient, MessageReactionsClearEventArgs>("MESSAGE_REACTIONS_CLEARED",
+                this.EventErrorHandler);
+        this._messageReactionRemovedEmoji =
+            new AsyncEvent<DiscordClient, MessageReactionRemoveEmojiEventArgs>("MESSAGE_REACTION_REMOVED_EMOJI",
+                this.EventErrorHandler);
+        this._webhooksUpdated =
+            new AsyncEvent<DiscordClient, WebhooksUpdateEventArgs>("WEBHOOKS_UPDATED", this.EventErrorHandler);
         this._heartbeated = new AsyncEvent<DiscordClient, HeartbeatEventArgs>("HEARTBEATED", this.EventErrorHandler);
         this._zombied = new AsyncEvent<DiscordClient, ZombiedEventArgs>("ZOMBIED", this.EventErrorHandler);
-        this._applicationCommandPermissionsUpdated = new AsyncEvent<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs>("APPLICATION_COMMAND_PERMISSIONS_UPDATED", this.EventErrorHandler);
-        this._integrationCreated = new AsyncEvent<DiscordClient, IntegrationCreateEventArgs>("INTEGRATION_CREATED", this.EventErrorHandler);
-        this._integrationUpdated = new AsyncEvent<DiscordClient, IntegrationUpdateEventArgs>("INTEGRATION_UPDATED", this.EventErrorHandler);
-        this._integrationDeleted = new AsyncEvent<DiscordClient, IntegrationDeleteEventArgs>("INTEGRATION_DELETED", this.EventErrorHandler);
-        this._stageInstanceCreated = new AsyncEvent<DiscordClient, StageInstanceCreateEventArgs>("STAGE_INSTANCE_CREATED", this.EventErrorHandler);
-        this._stageInstanceUpdated = new AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs>("STAGE_INSTANCE_UPDATED", this.EventErrorHandler);
-        this._stageInstanceDeleted = new AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs>("STAGE_INSTANCE_DELETED", this.EventErrorHandler);
-        this._autoModerationRuleCreated = new AsyncEvent<DiscordClient, AutoModerationRuleCreateEventArgs>("AUTO_MODERATION_RULE_CREATE", this.EventErrorHandler);
-        this._autoModerationRuleUpdated = new AsyncEvent<DiscordClient, AutoModerationRuleUpdateEventArgs>("AUTO_MODERATION_RULE_UPDATE", this.EventErrorHandler);
-        this._autoModerationRuleDeleted = new AsyncEvent<DiscordClient, AutoModerationRuleDeleteEventArgs>("AUTO_MODERATION_RULE_DELETE", this.EventErrorHandler);
-        this._autoModerationRuleExecuted = new AsyncEvent<DiscordClient, AutoModerationRuleExecuteEventArgs>("AUTO_MODERATION_ACTION_EXECUTION", this.EventErrorHandler);
+        this._applicationCommandPermissionsUpdated =
+            new AsyncEvent<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs>(
+                "APPLICATION_COMMAND_PERMISSIONS_UPDATED", this.EventErrorHandler);
+        this._integrationCreated =
+            new AsyncEvent<DiscordClient, IntegrationCreateEventArgs>("INTEGRATION_CREATED", this.EventErrorHandler);
+        this._integrationUpdated =
+            new AsyncEvent<DiscordClient, IntegrationUpdateEventArgs>("INTEGRATION_UPDATED", this.EventErrorHandler);
+        this._integrationDeleted =
+            new AsyncEvent<DiscordClient, IntegrationDeleteEventArgs>("INTEGRATION_DELETED", this.EventErrorHandler);
+        this._stageInstanceCreated =
+            new AsyncEvent<DiscordClient, StageInstanceCreateEventArgs>("STAGE_INSTANCE_CREATED",
+                this.EventErrorHandler);
+        this._stageInstanceUpdated =
+            new AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs>("STAGE_INSTANCE_UPDATED",
+                this.EventErrorHandler);
+        this._stageInstanceDeleted =
+            new AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs>("STAGE_INSTANCE_DELETED",
+                this.EventErrorHandler);
+        this._autoModerationRuleCreated =
+            new AsyncEvent<DiscordClient, AutoModerationRuleCreateEventArgs>("AUTO_MODERATION_RULE_CREATE",
+                this.EventErrorHandler);
+        this._autoModerationRuleUpdated =
+            new AsyncEvent<DiscordClient, AutoModerationRuleUpdateEventArgs>("AUTO_MODERATION_RULE_UPDATE",
+                this.EventErrorHandler);
+        this._autoModerationRuleDeleted =
+            new AsyncEvent<DiscordClient, AutoModerationRuleDeleteEventArgs>("AUTO_MODERATION_RULE_DELETE",
+                this.EventErrorHandler);
+        this._autoModerationRuleExecuted =
+            new AsyncEvent<DiscordClient, AutoModerationRuleExecuteEventArgs>("AUTO_MODERATION_ACTION_EXECUTION",
+                this.EventErrorHandler);
+
         #region Threads
-        this._threadCreated = new AsyncEvent<DiscordClient, ThreadCreateEventArgs>("THREAD_CREATED", this.EventErrorHandler);
-        this._threadUpdated = new AsyncEvent<DiscordClient, ThreadUpdateEventArgs>("THREAD_UPDATED", this.EventErrorHandler);
-        this._threadDeleted = new AsyncEvent<DiscordClient, ThreadDeleteEventArgs>("THREAD_DELETED", this.EventErrorHandler);
-        this._threadListSynced = new AsyncEvent<DiscordClient, ThreadListSyncEventArgs>("THREAD_LIST_SYNCED", this.EventErrorHandler);
-        this._threadMemberUpdated = new AsyncEvent<DiscordClient, ThreadMemberUpdateEventArgs>("THREAD_MEMBER_UPDATED", this.EventErrorHandler);
-        this._threadMembersUpdated = new AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs>("THREAD_MEMBERS_UPDATED", this.EventErrorHandler);
+
+        this._threadCreated =
+            new AsyncEvent<DiscordClient, ThreadCreateEventArgs>("THREAD_CREATED", this.EventErrorHandler);
+        this._threadUpdated =
+            new AsyncEvent<DiscordClient, ThreadUpdateEventArgs>("THREAD_UPDATED", this.EventErrorHandler);
+        this._threadDeleted =
+            new AsyncEvent<DiscordClient, ThreadDeleteEventArgs>("THREAD_DELETED", this.EventErrorHandler);
+        this._threadListSynced =
+            new AsyncEvent<DiscordClient, ThreadListSyncEventArgs>("THREAD_LIST_SYNCED", this.EventErrorHandler);
+        this._threadMemberUpdated =
+            new AsyncEvent<DiscordClient, ThreadMemberUpdateEventArgs>("THREAD_MEMBER_UPDATED", this.EventErrorHandler);
+        this._threadMembersUpdated =
+            new AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs>("THREAD_MEMBERS_UPDATED",
+                this.EventErrorHandler);
+
         #endregion
 
         this._guilds.Clear();
 
-        this._presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this._presences));
+        this._presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() =>
+            new ReadOnlyDictionary<ulong, DiscordPresence>(this._presences));
     }
 
     #endregion
@@ -232,7 +332,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.UnauthorizedException">Thrown when an invalid token was provided.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task ConnectAsync(DiscordActivity activity = null, UserStatus? status = null, DateTimeOffset? idlesince = null)
+    public async Task ConnectAsync(DiscordActivity activity = null, UserStatus? status = null,
+    DateTimeOffset? idlesince = null)
     {
         // Check if connection lock is already set, and set it if it isn't
         if (!this.ConnectionLock.Wait(0))
@@ -253,12 +354,12 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
         else
         {
-            long? since_unix = idlesince != null ? (long?)Utilities.GetUnixTime(idlesince.Value) : null;
+            long? sinceUnix = idlesince != null ? (long?)Utilities.GetUnixTime(idlesince.Value) : null;
             this._status = new StatusUpdate()
             {
                 Activity = new TransportActivity(activity),
                 Status = status ?? UserStatus.Online,
-                IdleSince = since_unix,
+                IdleSince = sinceUnix,
                 IsAFK = idlesince != null,
                 _activity = activity
             };
@@ -268,7 +369,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
         {
             if (this.Configuration.TokenType != TokenType.Bot)
             {
-                this.Logger.LogWarning(LoggerEvents.Misc, "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.");
+                this.Logger.LogWarning(LoggerEvents.Misc,
+                    "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.");
             }
 
             this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus, version {Version}", this.VersionString);
@@ -307,7 +409,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
                     break;
                 }
 
-                this.Logger.LogError(LoggerEvents.ConnectionFailure, ex, "Connection attempt failed, retrying in {Seconds}s", w / 1000);
+                this.Logger.LogError(LoggerEvents.ConnectionFailure, ex,
+                    "Connection attempt failed, retrying in {Seconds}s", w / 1000);
                 await Task.Delay(w);
 
                 if (i > 0)
@@ -417,7 +520,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content)
-        => await this.ApiClient.CreateMessageAsync(channel.Id, content, embeds: null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
+        => await this.ApiClient.CreateMessageAsync(channel.Id, content, embeds: null, replyMessageId: null,
+            mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
 
     /// <summary>
     /// Sends a message
@@ -430,7 +534,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, DiscordEmbed embed)
-        => await this.ApiClient.CreateMessageAsync(channel.Id, null, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
+        => await this.ApiClient.CreateMessageAsync(channel.Id, null, embed != null ? new[] {embed} : null,
+            replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
 
     /// <summary>
     /// Sends a message
@@ -444,7 +549,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content, DiscordEmbed embed)
-        => await this.ApiClient.CreateMessageAsync(channel.Id, content, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
+        => await this.ApiClient.CreateMessageAsync(channel.Id, content, embed != null ? new[] {embed} : null,
+            replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
 
     /// <summary>
     /// Sends a message
@@ -490,9 +596,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordGuild> CreateGuildAsync(string name, string region = null, Optional<Stream> icon = default, VerificationLevel? verificationLevel = null,
-        DefaultMessageNotifications? defaultMessageNotifications = null,
-        SystemChannelFlags? systemChannelFlags = null)
+    public async Task<DiscordGuild> CreateGuildAsync(string name, string region = null, Optional<Stream> icon = default,
+    VerificationLevel? verificationLevel = null,
+    DefaultMessageNotifications? defaultMessageNotifications = null,
+    SystemChannelFlags? systemChannelFlags = null)
     {
         Optional<string> iconb64 = Optional.FromNoValue<string>();
         if (icon.HasValue && icon.Value != null)
@@ -507,7 +614,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
             iconb64 = null;
         }
 
-        return await this.ApiClient.CreateGuildAsync(name, region, iconb64, verificationLevel, defaultMessageNotifications, systemChannelFlags);
+        return await this.ApiClient.CreateGuildAsync(name, region, iconb64, verificationLevel,
+            defaultMessageNotifications, systemChannelFlags);
     }
 
     /// <summary>
@@ -519,7 +627,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <returns>The created guild.</returns>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordGuild> CreateGuildFromTemplateAsync(string code, string name, Optional<Stream> icon = default)
+    public async Task<DiscordGuild> CreateGuildFromTemplateAsync(string code, string name,
+    Optional<Stream> icon = default)
     {
         Optional<string> iconb64 = Optional.FromNoValue<string>();
         if (icon.HasValue && icon.Value != null)
@@ -589,7 +698,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.NotFoundException">Thrown when the invite does not exists.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordInvite> GetInviteByCodeAsync(string code, bool? withCounts = null, bool? withExpiration = null)
+    public async Task<DiscordInvite> GetInviteByCodeAsync(string code, bool? withCounts = null,
+    bool? withExpiration = null)
         => await this.ApiClient.GetInviteAsync(code, withCounts, withExpiration);
 
     /// <summary>
@@ -631,7 +741,12 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="userStatus">Status of the user.</param>
     /// <param name="idleSince">Since when is the client performing the specified activity.</param>
     /// <returns></returns>
-    public Task UpdateStatusAsync(DiscordActivity activity = null, UserStatus? userStatus = null, DateTimeOffset? idleSince = null)
+    public Task UpdateStatusAsync
+    (   
+        DiscordActivity activity = null,
+        UserStatus? userStatus = null,
+        DateTimeOffset? idleSince = null
+    )
         => this.InternalUpdateStatusAsync(activity, userStatus, idleSince);
 
     /// <summary>
@@ -688,7 +803,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// </summary>
     /// <param name="commands">The list of commands to overwrite with.</param>
     /// <returns>The list of global commands.</returns>
-    public async Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGlobalApplicationCommandsAsync(IEnumerable<DiscordApplicationCommand> commands) =>
+    public async Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGlobalApplicationCommandsAsync(
+    IEnumerable<DiscordApplicationCommand> commands) =>
         await this.ApiClient.BulkOverwriteGlobalApplicationCommandsAsync(this.CurrentApplication.Id, commands);
 
     /// <summary>
@@ -696,7 +812,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// </summary>
     /// <param name="command">The command to create.</param>
     /// <returns>The created command.</returns>
-    public async Task<DiscordApplicationCommand> CreateGlobalApplicationCommandAsync(DiscordApplicationCommand command) =>
+    public async Task<DiscordApplicationCommand>
+        CreateGlobalApplicationCommandAsync(DiscordApplicationCommand command) =>
         await this.ApiClient.CreateGlobalApplicationCommandAsync(this.CurrentApplication.Id, command);
 
     /// <summary>
@@ -714,7 +831,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <returns>The command with the name.</returns>
     public async Task<DiscordApplicationCommand> GetGlobalApplicationCommandAsync(string commandName)
     {
-        foreach (DiscordApplicationCommand command in await this.ApiClient.GetGlobalApplicationCommandsAsync(this.CurrentApplication.Id))
+        foreach (DiscordApplicationCommand command in await this.ApiClient.GetGlobalApplicationCommandsAsync(
+                     this.CurrentApplication.Id))
         {
             if (command.Name == commandName)
             {
@@ -731,12 +849,15 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="commandId">The ID of the command to edit.</param>
     /// <param name="action">Action to perform.</param>
     /// <returns>The edited command.</returns>
-    public async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong commandId, Action<ApplicationCommandEditModel> action)
+    public async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong commandId,
+    Action<ApplicationCommandEditModel> action)
     {
         ApplicationCommandEditModel mdl = new ApplicationCommandEditModel();
         action(mdl);
         ulong applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
-        return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
+        return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name,
+            mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage,
+            mdl.DefaultMemberPermissions);
     }
 
     /// <summary>
@@ -760,7 +881,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="guildId">The ID of the guild.</param>
     /// <param name="commands">The list of commands to overwrite with.</param>
     /// <returns>The list of guild commands.</returns>
-    public async Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGuildApplicationCommandsAsync(ulong guildId, IEnumerable<DiscordApplicationCommand> commands) =>
+    public async Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGuildApplicationCommandsAsync(
+    ulong guildId, IEnumerable<DiscordApplicationCommand> commands) =>
         await this.ApiClient.BulkOverwriteGuildApplicationCommandsAsync(this.CurrentApplication.Id, guildId, commands);
 
     /// <summary>
@@ -769,7 +891,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="guildId">The ID of the guild to create the application command in.</param>
     /// <param name="command">The command to create.</param>
     /// <returns>The created command.</returns>
-    public async Task<DiscordApplicationCommand> CreateGuildApplicationCommandAsync(ulong guildId, DiscordApplicationCommand command) =>
+    public async Task<DiscordApplicationCommand> CreateGuildApplicationCommandAsync(ulong guildId,
+    DiscordApplicationCommand command) =>
         await this.ApiClient.CreateGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, command);
 
     /// <summary>
@@ -779,7 +902,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="commandId">The ID of the command to get.</param>
     /// <returns>The command with the ID.</returns>
     public async Task<DiscordApplicationCommand> GetGuildApplicationCommandAsync(ulong guildId, ulong commandId) =>
-         await this.ApiClient.GetGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, commandId);
+        await this.ApiClient.GetGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, commandId);
 
     /// <summary>
     /// Edits a application command in a guild.
@@ -788,12 +911,15 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="commandId">The ID of the command to edit.</param>
     /// <param name="action">Action to perform.</param>
     /// <returns>The edited command.</returns>
-    public async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong guildId, ulong commandId, Action<ApplicationCommandEditModel> action)
+    public async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong guildId, ulong commandId,
+    Action<ApplicationCommandEditModel> action)
     {
         ApplicationCommandEditModel mdl = new ApplicationCommandEditModel();
         action(mdl);
         ulong applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
-        return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
+        return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name,
+            mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage,
+            mdl.DefaultMemberPermissions);
     }
 
     /// <summary>
@@ -803,88 +929,53 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="commandId">The ID of the command.</param>
     public async Task DeleteGuildApplicationCommandAsync(ulong guildId, ulong commandId) =>
         await this.ApiClient.DeleteGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, commandId);
+
     #endregion
 
     #region Internal Caching Methods
 
-    private async void UpdateMessageAsync(DiscordMessage message, TransportUser author, DiscordGuild guild, TransportMember member)
-    {
-        if (author != null)
-        {
-            DiscordUser usr = new DiscordUser(author) { Discord = this };
-
-            if (member != null)
-            {
-                member.User = author;
-            }
-
-            message.Author = await this.UpdateUserAsync(usr, guild?.Id, guild, member);
-        }
-
-        DiscordChannel? channel = await this.Cache.TryGetChannelAsync(message.ChannelId) ;
-
-        if (channel != null)
-        {
-            return;
-        }
-
-        channel = !message._guildId.HasValue
-            ? new DiscordDmChannel
-            {
-                Id = message.ChannelId,
-                Discord = this,
-                Type = ChannelType.Private,
-                Recipients = new DiscordUser[] { message.Author }
-            }
-            : new DiscordChannel
-            {
-                Id = message.ChannelId,
-                GuildId = guild.Id,
-                Discord = this
-            };
-
-        message.Channel = channel;
-    }
-
-    private async ValueTask<DiscordUser> UpdateUserAsync(DiscordUser usr, ulong? guildId, DiscordGuild guild, TransportMember mbr)
+    private async ValueTask<DiscordUser> UpdateUserAsync
+    (
+        DiscordUser usr,
+        ulong? guildId,
+        TransportMember? mbr
+    )
     {
         if (mbr is not null)
         {
             if (mbr.User is not null)
             {
-                usr = new DiscordUser(mbr.User) { Discord = this };
-
-                await this.Cache.AddUserAsync(usr);
-
-                usr = new DiscordMember(mbr) { Discord = this, _guild_id = guildId.Value };
+                usr = new DiscordUser(mbr.User) {Discord = this};
+                
+                usr = new DiscordMember(mbr) {Discord = this, _guild_id = guildId.Value};
             }
 
             DiscordIntents intents = this.Configuration.Intents;
 
             DiscordMember? member = new(mbr);
 
-            if (!intents.HasAllPrivilegedIntents() || guild.IsLarge) // we have the necessary privileged intents, no need to worry about caching here unless guild is large.
+            DiscordMember? cachedMember = await this.Cache.TryGetMemberAsync(usr.Id, guildId.Value);
+            if (cachedMember is null)
             {
-                DiscordMember? cachedMember = await this.Cache.TryGet<DiscordMember>(ICacheKey.ForMember(usr.Id, guildId.Value));
-                if (cachedMember is null)
+                if (intents.HasIntent(DiscordIntents.GuildMembers) ||
+                    this.Configuration.AlwaysCacheMembers) // member can be updated by events, so cache it
                 {
-                    if (intents.HasIntent(DiscordIntents.GuildMembers) || this.Configuration.AlwaysCacheMembers) // member can be updated by events, so cache it
-                    {
-                        await this.Cache.AddMemberAsync((DiscordMember)usr);
-                    }
-                }
-                else if (intents.HasIntent(DiscordIntents.GuildPresences) || this.Configuration.AlwaysCacheMembers) // we can attempt to update it if it's already in cache.
-                {
-                    if (!intents.HasIntent(DiscordIntents.GuildMembers)) // no need to update if we already have the member events
-                    {
-                        await this.Cache.AddMemberAsync(member);
-                    }
+                    await this.Cache.AddMemberAsync((DiscordMember)usr);
                 }
             }
-        }
-        else if (usr.Username is not null) // check if not a skeleton user
-        {
-            await this.Cache.AddUserAsync(usr);
+            else if (intents.HasIntent(DiscordIntents.GuildPresences) ||
+                     this.Configuration.AlwaysCacheMembers) // we can attempt to update it if it's already in cache.
+            {
+                if (!intents.HasIntent(DiscordIntents
+                        .GuildMembers)) // no need to update if we already have the member events
+                {
+                    await this.Cache.AddMemberAsync(member);
+                }
+            }
+            else if (usr.Username is not null) // check if not a skeleton user
+            {
+                await this.Cache.AddUserAsync(usr);
+            }
         }
 
         return usr;
@@ -896,14 +987,14 @@ public sealed partial class DiscordClient : BaseDiscordClient
         {
             return;
         }
-        
+
         DiscordGuild? cachedGuild = await this.Cache.TryGetGuildAsync(newGuild.Id);
         if (cachedGuild is null)
         {
             cachedGuild = newGuild;
             await this.Cache.AddGuildAsync(cachedGuild);
         }
-        
+
         if (newGuild.Channels is {Count: > 0})
         {
             foreach (DiscordChannel channel in newGuild.Channels.Values)
@@ -923,6 +1014,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 await this.Cache.AddChannelAsync(channel);
             }
         }
+
         if (newGuild.Threads is {Count: > 0})
         {
             foreach (DiscordThreadChannel thread in newGuild.Threads.Values)
@@ -1029,28 +1121,52 @@ public sealed partial class DiscordClient : BaseDiscordClient
         // - guild.Unavailable = new_guild.Unavailable;
     }
 
-    private async void PopulateMessageReactionsAndCacheAsync(DiscordMessage message, TransportUser author, TransportMember member)
+    private async void PopulateMessageReactionsAndCacheAsync
+    (
+        DiscordMessage message,
+        TransportUser author,
+        TransportMember member
+    )
     {
-        DiscordGuild guild = message.Channel?.Guild ?? await await this.Cache.TryGetGuildAsync(message._guildId.Value);
-
-        this.UpdateMessageAsync(message, author, guild, member);
-
-        if (message._reactions == null)
+        if (author is not null)
         {
-            message._reactions = new List<DiscordReaction>();
+            DiscordUser usr = new DiscordUser(author) {Discord = this};
+
+            if (member is not null)
+            {
+                member.User = author;
+            }
+
+            message.Author = await this.UpdateUserAsync(usr, message._guildId, member);
         }
 
-        foreach (DiscordReaction xr in message._reactions)
+        DiscordChannel? channel = await this.Cache.TryGetChannelAsync(message.ChannelId);
+
+        if (channel is null)
         {
-            xr.Emoji.Discord = this;
+            channel = !message._guildId.HasValue
+                ? new DiscordDmChannel
+                {
+                    Id = message.ChannelId,
+                    Discord = this,
+                    Type = ChannelType.Private,
+                    Recipients = new DiscordUser[] {message.Author}
+                }
+                : new DiscordChannel {Id = message.ChannelId, GuildId = message._guildId, Discord = this};
+
+            message.Channel = channel;
+            await this.Cache.AddChannelAsync(channel);
         }
 
-        if (message.Channel != null)
+        message._reactions ??= new List<DiscordReaction>();
+
+        foreach (DiscordReaction reaction in message._reactions)
         {
-            await this.Cache.AddMessageAsync(message);
+            reaction.Emoji.Discord = this;
         }
+
+        await this.Cache.AddMessageAsync(message);
     }
-
 
     #endregion
 
@@ -1091,7 +1207,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             this._cancelTokenSource?.Dispose();
         }
         catch { }
-        
+
         this._heartbeatTask = null!;
     }
 

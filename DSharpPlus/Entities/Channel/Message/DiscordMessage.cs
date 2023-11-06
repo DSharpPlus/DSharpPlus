@@ -71,15 +71,8 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Gets the channel in which the message was sent.
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel Channel
-    {
-        //TODO
-        get => (this.Discord as DiscordClient)?.GetCachedChannelAsync(this.ChannelId) ?? await  (this.Discord as DiscordClient)?.Cache.TryGetChannelAsync(this.ChannelId) ?? this._channel;
-        internal set => this._channel = value;
-    }
-
-    private DiscordChannel _channel;
-
+    public DiscordChannel? Channel { get; internal set; }
+    
     /// <summary>
     /// Gets the ID of the channel in which the message was sent.
     /// </summary>
@@ -154,7 +147,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// </summary>
     [JsonIgnore]
     public IReadOnlyList<DiscordRole> MentionedRoles
-        => this._mentionedRoles;
+        => this._mentionedRoles ?? new List<DiscordRole>();
 
     [JsonIgnore]
     internal List<DiscordRole> _mentionedRoles;
@@ -201,14 +194,6 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
 
     [JsonProperty("reactions", NullValueHandling = NullValueHandling.Ignore)]
     internal List<DiscordReaction> _reactions = new();
-
-    /*
-    /// <summary>
-    /// Gets the nonce sent with the message, if the message was sent by the client.
-    /// </summary>
-    [JsonProperty("nonce", NullValueHandling = NullValueHandling.Ignore)]
-    public ulong? Nonce { get; internal set; }
-    */
 
     /// <summary>
     /// Gets whether the message is pinned.
@@ -312,9 +297,8 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
 
         if (guildId.HasValue)
         {
-            reference.Guild = client._guilds.TryGetValue(guildId.Value, out DiscordGuild? g)
-                ? g
-                : new DiscordGuild
+            reference.Guild = await this.Discord.Cache.TryGetGuildAsync(guildId.Value);
+                ?? new DiscordGuild
                 {
                     Id = guildId.Value,
                     Discord = client

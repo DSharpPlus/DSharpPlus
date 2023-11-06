@@ -1,3 +1,4 @@
+using DSharpPlus.Caching;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs;
@@ -10,17 +11,12 @@ public class GuildMemberRemoveEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the guild the member was removed from.
     /// </summary>
-    public DiscordGuild? Guild { get; internal set; }
-    
-    /// <summary>
-    /// Gets the id of the guild the member was removed from.
-    /// </summary>
-    public ulong GuildId { get; internal set; }
+    public CachedEntity<ulong, DiscordGuild> Guild { get; internal set; }
 
     /// <summary>
     /// Gets the member that was removed.
     /// </summary>
-    public DiscordMember Member { get; internal set; }
+    public CachedEntity<ulong, DiscordMember> Member { get; internal set; }
 
     internal GuildMemberRemoveEventArgs() : base() { }
 }
