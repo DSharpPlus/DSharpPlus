@@ -8,6 +8,7 @@ using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Converters;
 using DSharpPlus.CommandAll.EventArgs;
 using DSharpPlus.CommandAll.Exceptions;
+using DSharpPlus.CommandAll.Processors.TextCommands.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
@@ -136,24 +137,37 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
             AsyncServiceScope scope = _extension.ServiceProvider.CreateAsyncScope();
             if (!_extension.Commands.TryGetValue(commandText[..index], out Command? command))
             {
-                await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
+                foreach (Command officialCommand in _extension.Commands.Values)
                 {
-                    Context = new TextContext()
+                    TextAliasAttribute? aliasAttribute = officialCommand.Attributes.OfType<TextAliasAttribute>().FirstOrDefault();
+                    if (aliasAttribute is not null && aliasAttribute.Aliases.Any(alias => alias.Equals(commandText[..index], StringComparison.OrdinalIgnoreCase)))
                     {
-                        Arguments = new Dictionary<CommandArgument, object?>(),
-                        Channel = eventArgs.Channel,
-                        Command = null!,
-                        Extension = _extension,
-                        Message = eventArgs.Message,
-                        ServiceScope = scope,
-                        User = eventArgs.Author
-                    },
-                    Exception = new CommandNotFoundException(commandText[..index]),
-                    CommandObject = null
-                });
+                        command = officialCommand;
+                        break;
+                    }
+                }
 
-                await scope.DisposeAsync();
-                return;
+                if (command is null)
+                {
+                    await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
+                    {
+                        Context = new TextContext()
+                        {
+                            Arguments = new Dictionary<CommandArgument, object?>(),
+                            Channel = eventArgs.Channel,
+                            Command = null!,
+                            Extension = _extension,
+                            Message = eventArgs.Message,
+                            ServiceScope = scope,
+                            User = eventArgs.Author
+                        },
+                        Exception = new CommandNotFoundException(commandText[..index]),
+                        CommandObject = null
+                    });
+
+                    await scope.DisposeAsync();
+                    return;
+                }
             }
 
             if (index < commandText.Length && commandText[index] == ' ')
@@ -181,6 +195,12 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
 
                 // Resolve subcommands
                 Command? foundCommand = command.Subcommands.FirstOrDefault(command => command.Name.Equals(commandText[index..nextIndex], StringComparison.OrdinalIgnoreCase));
+                if (foundCommand is null)
+                {
+                    break;
+                }
+
+                foundCommand = command.Subcommands.FirstOrDefault(command => command.Attributes.OfType<TextAliasAttribute>().FirstOrDefault()?.Aliases.Any(alias => alias.Equals(commandText[index..nextIndex], StringComparison.OrdinalIgnoreCase)) ?? false);
                 if (foundCommand is null)
                 {
                     break;
