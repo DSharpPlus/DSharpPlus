@@ -1,4 +1,3 @@
-using System;
 using DSharpPlus.CommandAll.Converters;
 using DSharpPlus.CommandAll.Processors.TextCommands.Parsing;
 
@@ -18,9 +17,17 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
                 return false;
             }
 
-            //NextTextIndex = Splicer(Extension, RawArguments, ref NextTextIndex, out ReadOnlySpan<char> argument);
-            //CurrentTextArgument = argument.Trim().ToString();
-            return NextTextIndex != -1;
+            int nextTextIndex = NextTextIndex;
+            string? nextText = Splicer(Extension, RawArguments, ref nextTextIndex);
+            if (string.IsNullOrEmpty(nextText))
+            {
+                CurrentTextArgument = string.Empty;
+                return false;
+            }
+
+            NextTextIndex = nextTextIndex;
+            CurrentTextArgument = nextText;
+            return true;
         }
     }
 }
