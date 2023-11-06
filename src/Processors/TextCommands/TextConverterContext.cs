@@ -18,8 +18,8 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
                 return false;
             }
 
-            NextTextIndex = Splicer(Extension, RawArguments, NextTextIndex, out ReadOnlySpan<char> argument);
-            CurrentTextArgument = argument.Trim().ToString();
+            //NextTextIndex = Splicer(Extension, RawArguments, ref NextTextIndex, out ReadOnlySpan<char> argument);
+            //CurrentTextArgument = argument.Trim().ToString();
             return NextTextIndex != -1;
         }
     }
