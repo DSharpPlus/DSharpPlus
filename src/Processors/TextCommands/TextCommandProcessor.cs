@@ -8,14 +8,13 @@ using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Converters;
 using DSharpPlus.CommandAll.EventArgs;
 using DSharpPlus.CommandAll.Exceptions;
-using DSharpPlus.CommandAll.Processors.TextCommands;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace DSharpPlus.CommandAll.Processors
+namespace DSharpPlus.CommandAll.Processors.TextCommands
 {
     public sealed class TextCommandProcessor(TextCommandConfiguration? configuration = null) : ICommandProcessor<MessageCreateEventArgs>
     {
