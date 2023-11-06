@@ -43,13 +43,21 @@ namespace DSharpPlus.CommandAll
 
         private static async ValueTask WorkerAsync(CommandContext context)
         {
-            List<ContextCheckAttribute> checks = context.Command.Attributes.OfType<ContextCheckAttribute>().ToList();
+            List<ContextCheckAttribute> checks = new(context.Command.Attributes.OfType<ContextCheckAttribute>());
+            Command? parent = context.Command.Parent;
+            while (parent is not null)
+            {
+                checks.AddRange(parent.Attributes.OfType<ContextCheckAttribute>());
+                parent = parent.Parent;
+            }
+
             if (checks.Count != 0)
             {
                 ContextCheckAttribute check = null!;
                 try
                 {
-                    for (int i = 0; i < checks.Count; i++)
+                    // Reverse foreach so we execute the top-most command's checks first.
+                    for (int i = checks.Count - 1; i >= 0; i--)
                     {
                         check = checks[i];
                         if (!await check.ExecuteCheckAsync(context))
