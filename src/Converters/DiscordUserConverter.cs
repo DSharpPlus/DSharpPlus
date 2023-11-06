@@ -15,7 +15,7 @@ namespace DSharpPlus.CommandAll.Converters
 {
     public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>, ITextArgumentConverter<DiscordUser>
     {
-        [GeneratedRegex(@"^<@\!?(\d+?)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+        [GeneratedRegex("""^<@!?(\d+?)>$""", RegexOptions.Compiled | RegexOptions.ECMAScript)]
         private static partial Regex _getMemberRegex();
 
         public ApplicationCommandOptionType ArgumentType { get; init; } = ApplicationCommandOptionType.User;
@@ -35,7 +35,7 @@ namespace DSharpPlus.CommandAll.Converters
             if (!ulong.TryParse(value, CultureInfo.InvariantCulture, out ulong memberId))
             {
                 Match match = _getMemberRegex().Match(value);
-                if (!match.Success || !ulong.TryParse(match.Captures[0].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out memberId))
+                if (!match.Success || !ulong.TryParse(match.Groups[1].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out memberId))
                 {
                     // Attempt to find a member by name, case sensitive.
                     DiscordUser? namedMember = context.Guild.Members.Values.FirstOrDefault(member => member.DisplayName.Equals(value, StringComparison.Ordinal));
