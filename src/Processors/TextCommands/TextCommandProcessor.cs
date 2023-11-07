@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -231,6 +232,7 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
             await _extension.CommandExecutor.ExecuteAsync(commandContext);
         }
 
+        [SuppressMessage("Roslyn", "IDE0045", Justification = "Ternary rabbit hole.")]
         private async Task<CommandContext?> ParseArgumentsAsync(TextConverterContext converterContext, MessageCreateEventArgs eventArgs)
         {
             if (_extension is null)
@@ -243,7 +245,21 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
             {
                 while (converterContext.NextArgument())
                 {
-                    IOptional optional = await Converters[converterContext.Argument.Type](converterContext, eventArgs);
+                    Type parameterType;
+                    if (converterContext.Argument.Type.IsEnum)
+                    {
+                        parameterType = typeof(Enum);
+                    }
+                    else if (converterContext.Argument.Type.IsArray)
+                    {
+                        parameterType = converterContext.Argument.Type.GetElementType()!;
+                    }
+                    else
+                    {
+                        parameterType = Nullable.GetUnderlyingType(converterContext.Argument.Type) ?? converterContext.Argument.Type;
+                    }
+
+                    IOptional optional = await Converters[parameterType](converterContext, eventArgs);
                     if (!optional.HasValue)
                     {
                         break;

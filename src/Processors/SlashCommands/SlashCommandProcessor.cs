@@ -359,6 +359,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             );
         }
 
+        [SuppressMessage("Roslyn", "IDE0045", Justification = "Ternary rabbit hole.")]
         public async Task<DiscordApplicationCommandOption> ToApplicationArgumentAsync(Command command, CommandArgument argument)
         {
             if (_extension is null)
@@ -366,7 +367,21 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
             }
 
-            if (!TypeMappings.TryGetValue(argument.Type, out ApplicationCommandOptionType type))
+            Type parameterType;
+            if (argument.Type.IsEnum)
+            {
+                parameterType = typeof(Enum);
+            }
+            else if (argument.Type.IsArray)
+            {
+                parameterType = argument.Type.GetElementType()!;
+            }
+            else
+            {
+                parameterType = Nullable.GetUnderlyingType(argument.Type) ?? argument.Type;
+            }
+
+            if (!TypeMappings.TryGetValue(parameterType, out ApplicationCommandOptionType type))
             {
                 throw new InvalidOperationException($"No type mapping found for argument type '{argument.Type.Name}'");
             }
@@ -408,6 +423,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             );
         }
 
+        [SuppressMessage("Roslyn", "IDE0045", Justification = "Ternary rabbit hole.")]
         private async Task<CommandContext?> ParseArgumentsAsync(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs)
         {
             if (_extension is null)
@@ -420,7 +436,21 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             {
                 while (converterContext.NextArgument())
                 {
-                    IOptional optional = await Converters[converterContext.Argument.Type](converterContext, eventArgs);
+                    Type parameterType;
+                    if (converterContext.Argument.Type.IsEnum)
+                    {
+                        parameterType = typeof(Enum);
+                    }
+                    else if (converterContext.Argument.Type.IsArray)
+                    {
+                        parameterType = converterContext.Argument.Type.GetElementType()!;
+                    }
+                    else
+                    {
+                        parameterType = Nullable.GetUnderlyingType(converterContext.Argument.Type) ?? converterContext.Argument.Type;
+                    }
+
+                    IOptional optional = await Converters[parameterType](converterContext, eventArgs);
                     if (!optional.HasValue)
                     {
                         break;

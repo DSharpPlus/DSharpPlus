@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Processors.SlashCommands;
 using DSharpPlus.CommandAll.Processors.TextCommands;
@@ -15,14 +16,15 @@ namespace DSharpPlus.CommandAll.Converters
         public Task<Optional<Enum>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs)
         {
             string value = context.As<TextConverterContext>().CurrentTextArgument;
-            return Enum.IsDefined(context.Argument.Type, value)
-                ? Task.FromResult(Optional.FromValue((Enum)Enum.ToObject(context.Argument.Type, value)))
-                : Task.FromResult(Optional.FromNoValue<Enum>());
+            return Task.FromResult(Enum.TryParse(context.Argument.Type, value, true, out object? result)
+                ? Optional.FromValue((Enum)result)
+                : Optional.FromNoValue<Enum>());
         }
 
         public Task<Optional<Enum>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
         {
-            int value = (int)context.As<SlashConverterContext>().CurrentOption.Value;
+            SlashConverterContext slashConverterContext = context.As<SlashConverterContext>();
+            object value = Convert.ChangeType(slashConverterContext.CurrentOption.Value, Enum.GetUnderlyingType(context.Argument.Type), CultureInfo.InvariantCulture);
             return Enum.IsDefined(context.Argument.Type, value)
                 ? Task.FromResult(Optional.FromValue((Enum)Enum.ToObject(context.Argument.Type, value)))
                 : Task.FromResult(Optional.FromNoValue<Enum>());
