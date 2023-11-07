@@ -1694,12 +1694,12 @@ public sealed partial class DiscordClient
         }
         
         CachedEntity<ulong, DiscordGuild> cachedGuild = new(guildId, guild);
+        CachedEntity<ulong, DiscordRole> cachedRole = new(roleId, role);
 
         GuildRoleDeleteEventArgs ea = new()
         {
             Guild = cachedGuild,
-            Role = role,
-            RoleId = roleId
+            Role = cachedRole
         };
         await this._guildRoleDeleted.InvokeAsync(this, ea);
     }
