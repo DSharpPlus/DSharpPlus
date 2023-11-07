@@ -2,9 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands.Attributes;
+using DSharpPlus.CommandAll.Processors.SlashCommands.Attributes;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandAll.Commands
@@ -50,6 +54,11 @@ namespace DSharpPlus.CommandAll.Commands
         public CommandArgumentBuilder WithType(Type type)
         {
             Type = type;
+            if (type.IsEnum && !Attributes.Any(attribute => attribute is SlashChoiceProviderAttribute))
+            {
+                Attributes.Add(new SlashChoiceProviderAttribute<EnumOptionProvider>());
+            }
+
             return this;
         }
 
@@ -94,8 +103,8 @@ namespace DSharpPlus.CommandAll.Commands
             // Push it through the With* methods again, which contain validation.
             WithName(Name);
             WithDescription(Description);
-            WithType(Type);
             WithAttributes(Attributes);
+            WithType(Type);
             WithDefaultValue(DefaultValue);
 
             return new CommandArgument()
@@ -158,6 +167,23 @@ namespace DSharpPlus.CommandAll.Commands
             }
 
             return stringBuilder.ToString();
+        }
+
+        public class EnumOptionProvider : IChoiceProvider
+        {
+            public Task<Dictionary<string, object>> ProvideAsync(CommandArgument argument)
+            {
+                string[] enumNames = Enum.GetNames(argument.Type);
+                Array enumValues = Enum.GetValuesAsUnderlyingType(argument.Type);
+
+                Dictionary<string, object> choices = [];
+                for (int i = 0; i < enumNames.Length; i++)
+                {
+                    choices.Add(enumNames[i], Convert.ToDouble(enumValues.GetValue(i), CultureInfo.InvariantCulture));
+                }
+
+                return Task.FromResult(choices);
+            }
         }
     }
 }
