@@ -53,7 +53,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// Gets the members avatar url for the current guild.
     /// </summary>
     [JsonIgnore]
-    public string GuildAvatarUrl => string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? null : $"https://cdn.discordapp.com{Endpoints.GUILDS}/{this._guild_id}{Endpoints.USERS}/{this.Id}{Endpoints.AVATARS}/{this.GuildAvatarHash}.{(this.GuildAvatarHash.StartsWith("a_") ? "gif" : "png")}?size=1024";
+    public string GuildAvatarUrl => string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? null : $"https://cdn.discordapp.com/{Endpoints.GUILDS}/{this._guild_id}/{Endpoints.USERS}/{this.Id}/{Endpoints.AVATARS}/{this.GuildAvatarHash}.{(this.GuildAvatarHash.StartsWith("a_") ? "gif" : "png")}?size=1024";
 
     [JsonIgnore]
     internal string _avatarHash;
@@ -518,9 +518,21 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when attempting to add a managed role.</exception>
     public async Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null)
-        => await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, default,
-            new Optional<IEnumerable<ulong>>(roles.Select(xr => xr.Id)), default, default, default, default, reason);
+    {
+        if (roles.Where(x => x.IsManaged).Any())
+        {
+            throw new InvalidOperationException("Cannot assign managed roles.");
+        }
+        IEnumerable<DiscordRole> managedRoles = this.Roles.Where(x => x.IsManaged);
+
+        IEnumerable<DiscordRole> newRoles = managedRoles.Concat(roles);
+        
+        await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, default,
+            new Optional<IEnumerable<ulong>>(newRoles.Select(xr => xr.Id)), default, default, default, default, reason);
+    }
+        
 
     /// <summary>
     /// Bans a this member from their guild.
@@ -633,7 +645,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         };
         string stringImageSize = imageSize.ToString(CultureInfo.InvariantCulture);
 
-        return $"https://cdn.discordapp.com{Endpoints.GUILDS}/{this._guild_id}{Endpoints.USERS}/{this.Id}{Endpoints.AVATARS}/{this.GuildAvatarHash}.{stringImageFormat}?size={stringImageSize}";
+        return $"https://cdn.discordapp.com/{Endpoints.GUILDS}/{this._guild_id}/{Endpoints.USERS}/{this.Id}/{Endpoints.AVATARS}/{this.GuildAvatarHash}.{stringImageFormat}?size={stringImageSize}";
     }
 
 

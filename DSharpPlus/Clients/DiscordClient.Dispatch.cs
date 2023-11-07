@@ -154,18 +154,6 @@ public sealed partial class DiscordClient
                 await this.OnGuildDeleteEventAsync(dat.ToDiscordObject<DiscordGuild>(), rawMembers);
                 break;
 
-            //TODO - This event is not documented in the Discord API docs
-            case "guild_sync":
-                gid = (ulong)dat["id"];
-
-                rawMembers = (JArray)dat["members"];
-                rawPresences = (JArray)dat["presences"];
-                dat.Remove("members");
-                dat.Remove("presences");
-
-                await this.OnGuildSyncEventAsync(gid, (bool)dat["large"], rawMembers, rawPresences.ToDiscordObject<IEnumerable<DiscordPresence>>());
-                break;
-
             case "guild_emojis_update":
                 gid = (ulong)dat["guild_id"];
                 IEnumerable<DiscordEmoji> ems = dat["emojis"].ToDiscordObject<IEnumerable<DiscordEmoji>>();
@@ -263,12 +251,6 @@ public sealed partial class DiscordClient
             #endregion
 
             #region Message
-
-            case "message_ack":
-                cid = (ulong)dat["channel_id"];
-                ulong mid = (ulong)dat["message_id"];
-                await this.OnMessageAckEventAsync(cid, mid);
-                break;
 
             case "message_create":
                 rawMbr = dat["member"];
@@ -1321,25 +1303,8 @@ public sealed partial class DiscordClient
             await this._guildDeleted.InvokeAsync(this, new GuildDeleteEventArgs { Guild = cachedGuild });
         }
     }
-
-    //TODO: This is event is not documented in the Discord API docs
-    internal async Task OnGuildSyncEventAsync(ulong guild, bool isLarge, JArray rawMembers, IEnumerable<DiscordPresence> presences)
-    {
-        presences = presences.Select(xp => { xp.Discord = this; xp.Activity = new DiscordActivity(xp.RawActivity); return xp; });
-        foreach (DiscordPresence xp in presences)
-        {
-            this._presences[xp.InternalUser.Id] = xp;
-        }
-
-        guild._isSynced = true;
-        guild.IsLarge = isLarge;
-
-        this.UpdateCachedGuildAsync(guild, rawMembers);
-
-        await this._guildAvailable.InvokeAsync(this, new GuildCreateEventArgs { Guild = guild });
-    }
-
-    internal async Task OnGuildEmojisUpdateEventAsync(ulong guildId, IEnumerable<DiscordEmoji> newEmojis)
+    
+    internal async Task OnGuildEmojisUpdateEventAsync(DiscordGuild guild, IEnumerable<DiscordEmoji> newEmojis)
     {
         List<DiscordEmoji> newEmojisList = newEmojis.ToList();
         foreach (DiscordEmoji emoji in newEmojisList)
@@ -1764,22 +1729,7 @@ public sealed partial class DiscordClient
     #endregion
 
     #region Message
-
-    //TODO nuke this event (dead since 2021)
-    internal async Task OnMessageAckEventAsync(ulong channelId, ulong messageId)
-    {
-        DiscordMessage? cachedMessage = await this.Cache.TryGetMessageAsync(messageId);
-        
-        cachedMessage ??= new DiscordMessage
-        {
-            Id = messageId,
-            ChannelId = channelId,
-            Discord = this,
-        };
-        
-        await this._messageAcknowledged.InvokeAsync(this, new MessageAcknowledgeEventArgs { Message = cachedMessage });
-    }
-
+    
     internal async Task OnMessageCreateEventAsync(DiscordMessage message, TransportUser author, TransportMember member, TransportUser referenceAuthor, TransportMember referenceMember)
     {
         message.Discord = this;
@@ -2773,38 +2723,33 @@ public sealed partial class DiscordClient
 
             await this._modalSubmitted.InvokeAsync(this, mea);
         }
-        else
+        else if (interaction.Data.Target.HasValue) // Context-Menu. //
         {
-            if (interaction.Data.Target.HasValue) // Context-Menu. //
+            ulong targetId = interaction.Data.Target.Value;
+            DiscordUser targetUser = null;
+            DiscordMember targetMember = null;
+            DiscordMessage targetMessage = null;
+
+            interaction.Data.Resolved.Messages?.TryGetValue(targetId, out targetMessage);
+            interaction.Data.Resolved.Members?.TryGetValue(targetId, out targetMember);
+            interaction.Data.Resolved.Users?.TryGetValue(targetId, out targetUser);
+
+            ContextMenuInteractionCreateEventArgs ctea = new ContextMenuInteractionCreateEventArgs
             {
-                ulong targetId = interaction.Data.Target.Value;
-                DiscordUser targetUser = null;
-                DiscordMember targetMember = null;
-                DiscordMessage targetMessage = null;
-
-                interaction.Data.Resolved.Messages?.TryGetValue(targetId, out targetMessage);
-                interaction.Data.Resolved.Members?.TryGetValue(targetId, out targetMember);
-                interaction.Data.Resolved.Users?.TryGetValue(targetId, out targetUser);
-
-                ContextMenuInteractionCreateEventArgs ctea = new()
-                {
-                    Interaction = interaction,
-                    TargetUser = targetMember ?? targetUser,
-                    TargetMessage = targetMessage,
-                    Type = interaction.Data.Type,
-                };
-                await this._contextMenuInteractionCreated.InvokeAsync(this, ctea);
-            }
-            else
-            {
-                InteractionCreateEventArgs ea = new()
-                {
-                    Interaction = interaction
-                };
-
-                await this._interactionCreated.InvokeAsync(this, ea);
-            }
+                Interaction = interaction,
+                TargetUser = targetMember ?? targetUser,
+                TargetMessage = targetMessage,
+                Type = interaction.Data.Type,
+            };
+            await this._contextMenuInteractionCreated.InvokeAsync(this, ctea);
         }
+
+        InteractionCreateEventArgs ea = new InteractionCreateEventArgs
+        {
+            Interaction = interaction
+        };
+
+        await this._interactionCreated.InvokeAsync(this, ea);
     }
 
     internal async Task OnTypingStartEventAsync(ulong userId, ulong channelId, ulong? guildId, DateTimeOffset started, TransportMember mbr)
