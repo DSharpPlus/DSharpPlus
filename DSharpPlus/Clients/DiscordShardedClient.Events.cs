@@ -834,7 +834,6 @@ public sealed partial class DiscordShardedClient
         client.InteractionCreated += this.InteractionCreatedDelegator;
         client.InviteCreated += this.InviteCreatedDelegator;
         client.InviteDeleted += this.InviteDeletedDelegator;
-        client.MessageAcknowledged += this.MessageAcknowledgedDelegator;
         client.MessageCreated += this.MessageCreatedDelegator;
         client.MessageDeleted += this.MessageDeletedDelegator;
         client.MessageReactionAdded += this.MessageReactionAddedDelegator;
@@ -916,7 +915,6 @@ public sealed partial class DiscordShardedClient
         client.InteractionCreated -= this.InteractionCreatedDelegator;
         client.InviteCreated -= this.InviteCreatedDelegator;
         client.InviteDeleted -= this.InviteDeletedDelegator;
-        client.MessageAcknowledged -= this.MessageAcknowledgedDelegator;
         client.MessageCreated -= this.MessageCreatedDelegator;
         client.MessageDeleted -= this.MessageDeletedDelegator;
         client.MessageReactionAdded -= this.MessageReactionAddedDelegator;
