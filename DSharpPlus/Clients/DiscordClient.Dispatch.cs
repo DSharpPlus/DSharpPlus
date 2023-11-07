@@ -151,17 +151,6 @@ public sealed partial class DiscordClient
                 await this.OnGuildDeleteEventAsync(dat.ToDiscordObject<DiscordGuild>(), rawMembers);
                 break;
 
-            case "guild_sync":
-                gid = (ulong)dat["id"];
-
-                rawMembers = (JArray)dat["members"];
-                rawPresences = (JArray)dat["presences"];
-                dat.Remove("members");
-                dat.Remove("presences");
-
-                await this.OnGuildSyncEventAsync(this._guilds[gid], (bool)dat["large"], rawMembers, rawPresences.ToDiscordObject<IEnumerable<DiscordPresence>>());
-                break;
-
             case "guild_emojis_update":
                 gid = (ulong)dat["guild_id"];
                 IEnumerable<DiscordEmoji> ems = dat["emojis"].ToDiscordObject<IEnumerable<DiscordEmoji>>();
@@ -278,12 +267,6 @@ public sealed partial class DiscordClient
             #endregion
 
             #region Message
-
-            case "message_ack":
-                cid = (ulong)dat["channel_id"];
-                ulong mid = (ulong)dat["message_id"];
-                await this.OnMessageAckEventAsync(this.InternalGetCachedChannel(cid), mid);
-                break;
 
             case "message_create":
                 rawMbr = dat["member"];
@@ -1251,23 +1234,7 @@ public sealed partial class DiscordClient
             await this._guildDeleted.InvokeAsync(this, new GuildDeleteEventArgs { Guild = gld });
         }
     }
-
-    internal async Task OnGuildSyncEventAsync(DiscordGuild guild, bool isLarge, JArray rawMembers, IEnumerable<DiscordPresence> presences)
-    {
-        presences = presences.Select(xp => { xp.Discord = this; xp.Activity = new DiscordActivity(xp.RawActivity); return xp; });
-        foreach (DiscordPresence xp in presences)
-        {
-            this._presences[xp.InternalUser.Id] = xp;
-        }
-
-        guild._isSynced = true;
-        guild.IsLarge = isLarge;
-
-        this.UpdateCachedGuild(guild, rawMembers);
-
-        await this._guildAvailable.InvokeAsync(this, new GuildCreateEventArgs { Guild = guild });
-    }
-
+    
     internal async Task OnGuildEmojisUpdateEventAsync(DiscordGuild guild, IEnumerable<DiscordEmoji> newEmojis)
     {
         ConcurrentDictionary<ulong, DiscordEmoji> oldEmojis = new ConcurrentDictionary<ulong, DiscordEmoji>(guild._emojis);
@@ -1611,22 +1578,7 @@ public sealed partial class DiscordClient
     #endregion
 
     #region Message
-
-    internal async Task OnMessageAckEventAsync(DiscordChannel chn, ulong messageId)
-    {
-        if (this.MessageCache == null || !this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
-        {
-            msg = new DiscordMessage
-            {
-                Id = messageId,
-                ChannelId = chn.Id,
-                Discord = this,
-            };
-        }
-
-        await this._messageAcknowledged.InvokeAsync(this, new MessageAcknowledgeEventArgs { Message = msg });
-    }
-
+    
     internal async Task OnMessageCreateEventAsync(DiscordMessage message, TransportUser author, TransportMember member, TransportUser referenceAuthor, TransportMember referenceMember)
     {
         message.Discord = this;
