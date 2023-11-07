@@ -50,7 +50,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
         /// <inheritdoc />
         public override async ValueTask EditResponseAsync(IDiscordMessageBuilder builder)
         {
-            if (!State.HasFlag(InteractionState.ResponseSent) || !State.HasFlag(InteractionState.ResponseDelayed))
+            if (!State.HasFlag(InteractionState.ResponseSent) && !State.HasFlag(InteractionState.ResponseDelayed))
             {
                 throw new InvalidOperationException("Cannot edit a response that has not been sent yet.");
             }
