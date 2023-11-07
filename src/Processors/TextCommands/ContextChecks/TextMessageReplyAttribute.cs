@@ -10,6 +10,6 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands.ContextChecks
     {
         public bool RequireReplies { get; init; } = require;
 
-        public override Task<bool> ExecuteCheckAsync(CommandContext context) => Task.FromResult(!RequireReplies || context.As<TextContext>().Message.ReferencedMessage is not null);
+        public override Task<bool> ExecuteCheckAsync(CommandContext context) => Task.FromResult(!RequireReplies || context.As<TextCommandContext>().Message.ReferencedMessage is not null);
     }
 }

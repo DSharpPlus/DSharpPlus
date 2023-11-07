@@ -151,7 +151,7 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
                 {
                     await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
                     {
-                        Context = new TextContext()
+                        Context = new TextCommandContext()
                         {
                             Arguments = new Dictionary<CommandArgument, object?>(),
                             Channel = eventArgs.Channel,
@@ -256,7 +256,7 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
             {
                 await _extension._commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
                 {
-                    Context = new TextContext()
+                    Context = new TextCommandContext()
                     {
                         Arguments = parsedArguments,
                         Channel = eventArgs.Channel,
@@ -273,7 +273,7 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
                 return null;
             }
 
-            return new TextContext()
+            return new TextCommandContext()
             {
                 Arguments = parsedArguments,
                 Channel = eventArgs.Channel,

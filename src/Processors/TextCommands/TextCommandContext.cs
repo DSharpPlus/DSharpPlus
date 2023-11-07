@@ -5,10 +5,11 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandAll.Processors.TextCommands
 {
-    public sealed record TextContext : CommandContext
+    public sealed record TextCommandContext : CommandContext
     {
         public required DiscordMessage Message { get; init; }
         public DiscordMessage? Response { get; private set; }
+        public bool Delayed { get; private set; }
 
         /// <inheritdoc />
         public override async ValueTask RespondAsync(IDiscordMessageBuilder builder)
@@ -33,12 +34,18 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
         /// <inheritdoc />
         public override async ValueTask EditResponseAsync(IDiscordMessageBuilder builder)
         {
-            if (Response is null)
+            if (Response is not null)
+            {
+                Response = await Response.ModifyAsync(new DiscordMessageBuilder(builder));
+            }
+            else if (Delayed)
+            {
+                await RespondAsync(builder);
+            }
+            else
             {
                 throw new InvalidOperationException("Cannot edit a response that has not been sent yet.");
             }
-
-            Response = await Response.ModifyAsync(new DiscordMessageBuilder(builder));
         }
 
         /// <inheritdoc />
@@ -56,7 +63,11 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
         public override ValueTask<DiscordMessage?> GetResponseAsync() => ValueTask.FromResult(Response);
 
         /// <inheritdoc />
-        public override async ValueTask DelayResponseAsync() => await Channel.TriggerTypingAsync();
+        public override async ValueTask DelayResponseAsync()
+        {
+            await Channel.TriggerTypingAsync();
+            Delayed = true;
+        }
 
         public override async ValueTask FollowupAsync(IDiscordMessageBuilder builder)
         {
