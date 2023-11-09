@@ -656,15 +656,15 @@ public sealed partial class DiscordClient
 
             this._guilds[guild.Id] = guild;
         }
-
-        if (guilds.Count() == 0)
+        
+        await this._ready.InvokeAsync(this, new SessionReadyEventArgs());
+        
+        if (!guilds.Any())
         {
             this._guildDownloadCompleted = true;
             GuildDownloadCompletedEventArgs ea = new(this.Guilds);
-            this._guildDownloadCompletedEv.InvokeAsync(this, ea);
+            await this._guildDownloadCompletedEv.InvokeAsync(this, ea);
         }
-
-        await this._ready.InvokeAsync(this, new SessionReadyEventArgs());
     }
 
     internal Task OnResumedAsync()
