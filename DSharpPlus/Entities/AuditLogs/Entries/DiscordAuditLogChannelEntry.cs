@@ -30,7 +30,7 @@ public sealed class DiscordAuditLogChannelEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the affected channel.
     /// </summary>
-    public DiscordChannel Target { get; internal set; }
+    public DiscordChannel Target { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the description of channel's name change.

@@ -5,7 +5,7 @@ public sealed class DiscordAuditLogRoleUpdateEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the affected role.
     /// </summary>
-    public DiscordRole Target { get; internal set; }
+    public DiscordRole Target { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the description of role's name change.

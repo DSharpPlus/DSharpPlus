@@ -28,7 +28,7 @@ public sealed class DiscordAuditLogKickEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the kicked member.
     /// </summary>
-    public DiscordMember Target { get; internal set; }
+    public DiscordMember Target { get; internal set; } = default!;
 
     internal DiscordAuditLogKickEntry() { }
 }

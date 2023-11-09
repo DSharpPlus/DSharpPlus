@@ -30,7 +30,7 @@ public sealed class DiscordAuditLogMemberUpdateEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the affected member.
     /// </summary>
-    public DiscordMember Target { get; internal set; }
+    public DiscordMember Target { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the description of member's nickname change.
@@ -40,12 +40,12 @@ public sealed class DiscordAuditLogMemberUpdateEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the roles that were removed from the member.
     /// </summary>
-    public IReadOnlyList<DiscordRole> RemovedRoles { get; internal set; }
+    public IReadOnlyList<DiscordRole>? RemovedRoles { get; internal set; }
 
     /// <summary>
     /// Gets the roles that were added to the member.
     /// </summary>
-    public IReadOnlyList<DiscordRole> AddedRoles { get; internal set; }
+    public IReadOnlyList<DiscordRole>? AddedRoles { get; internal set; }
 
     /// <summary>
     /// Gets the description of member's mute status change.

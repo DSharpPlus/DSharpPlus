@@ -28,7 +28,7 @@ public sealed class DiscordAuditLogGuildEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the affected guild.
     /// </summary>
-    public DiscordGuild Target { get; internal set; }
+    public DiscordGuild Target { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the description of guild name's change.

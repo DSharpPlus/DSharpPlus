@@ -1,36 +1,16 @@
-// This file is part of the DSharpPlus project.
-//
-// Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2023 DSharpPlus Contributors
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+
 using DSharpPlus.Enums;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
+
 using Microsoft.Extensions.Logging;
+
 using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Entities.AuditLogs;
@@ -79,8 +59,10 @@ internal static class AuditLogParser
             {
                 continue;
             }
+
             guild._scheduledEvents[discordEvent.Id] = discordEvent;
         }
+
         IDictionary<ulong, DiscordScheduledGuildEvent> events = guild._scheduledEvents;
 
         foreach (DiscordThreadChannel thread in uniqueThreads)
@@ -89,17 +71,28 @@ internal static class AuditLogParser
             {
                 continue;
             }
+
             guild._threads[thread.Id] = thread;
         }
+
         IDictionary<ulong, DiscordThreadChannel> threads = guild._threads;
 
+        IEnumerable<DiscordMember>? discordMembers = users.Select
+        (
+            user => 
+            {
+                return guild._members is not null && guild._members.TryGetValue(user.Id, out DiscordMember? member)
+                    ? member
+                    : new DiscordMember 
+                    { 
+                        Discord = guild.Discord, 
+                        Id = user.Id, 
+                        _guild_id = guild.Id 
+                    };
+            }
+        );
 
-        IEnumerable<DiscordMember>? discordMembers = users?
-            .Select(xau => guild._members != null && guild._members.TryGetValue(xau.Id, out DiscordMember? member)
-                ? member
-                : new DiscordMember { Discord = guild.Discord, Id = xau.Id, _guild_id = guild.Id });
-
-        Dictionary<ulong, DiscordMember>? members = discordMembers?.ToDictionary(xm => xm.Id, xm => xm);
+        Dictionary<ulong, DiscordMember> members = discordMembers.ToDictionary(xm => xm.Id, xm => xm);
 
         IOrderedEnumerable<AuditLogAction>? auditLogActions = auditLog.Entries.OrderByDescending(xa => xa.Id);
         foreach (AuditLogAction? auditLogAction in auditLogActions)
@@ -131,29 +124,20 @@ internal static class AuditLogParser
     (
         DiscordGuild guild,
         AuditLogAction auditLogAction,
-        IDictionary<ulong, DiscordMember> members = null,
-        IDictionary<ulong, DiscordThreadChannel> threads = null,
-        IDictionary<ulong, DiscordWebhook> webhooks = null,
-        IDictionary<ulong, DiscordScheduledGuildEvent> events = null
+        IDictionary<ulong, DiscordMember>? members = null,
+        IDictionary<ulong, DiscordThreadChannel>? threads = null,
+        IDictionary<ulong, DiscordWebhook>? webhooks = null,
+        IDictionary<ulong, DiscordScheduledGuildEvent>? events = null
     )
     {
         //initialize members if null
-        if (members is null)
-        {
-            members = guild._members;
-        }
+        members ??= guild._members;
 
         //initialize threads if null
-        if (threads is null)
-        {
-            threads = guild._threads;
-        }
+        threads ??= guild._threads;
 
         //initialize scheduled events if null
-        if (events is null)
-        {
-            events = guild._scheduledEvents;
-        }
+        events ??= guild._scheduledEvents;
 
         webhooks ??= new Dictionary<ulong, DiscordWebhook>();
 
@@ -179,7 +163,7 @@ internal static class AuditLogParser
             case AuditLogActionType.Kick:
                 entry = new DiscordAuditLogKickEntry
                 {
-                    Target = members.TryGetValue(auditLogAction.TargetId.Value, out DiscordMember? kickMember)
+                    Target = members.TryGetValue(auditLogAction.TargetId!.Value, out DiscordMember? kickMember)
                         ? kickMember
                         : new DiscordMember
                         {
@@ -202,7 +186,7 @@ internal static class AuditLogParser
             case AuditLogActionType.Unban:
                 entry = new DiscordAuditLogBanEntry
                 {
-                    Target = members.TryGetValue(auditLogAction.TargetId.Value, out DiscordMember? unbanMember)
+                    Target = members.TryGetValue(auditLogAction.TargetId!.Value, out DiscordMember? unbanMember)
                         ? unbanMember
                         : new DiscordMember
                         {
@@ -241,12 +225,12 @@ internal static class AuditLogParser
             case AuditLogActionType.EmojiUpdate:
                 entry = new DiscordAuditLogEmojiEntry
                 {
-                    Target = guild._emojis.TryGetValue(auditLogAction.TargetId.Value, out DiscordEmoji? target)
+                    Target = guild._emojis.TryGetValue(auditLogAction.TargetId!.Value, out DiscordEmoji? target)
                         ? target
                         : new DiscordEmoji { Id = auditLogAction.TargetId.Value, Discord = guild.Discord }
                 };
 
-                DiscordAuditLogEmojiEntry? emojiEntry = entry as DiscordAuditLogEmojiEntry;
+                DiscordAuditLogEmojiEntry emojiEntry = (DiscordAuditLogEmojiEntry)entry;
                 foreach (AuditLogActionChange actionChange in auditLogAction.Changes)
                 {
                     switch (actionChange.Key.ToLowerInvariant())
@@ -262,6 +246,7 @@ internal static class AuditLogParser
                                     "Unknown key in emote update: {Key} - this should be reported to library developers",
                                     actionChange.Key);
                             }
+
                             break;
                     }
                 }
@@ -279,9 +264,9 @@ internal static class AuditLogParser
                 {
                     entry = new DiscordAuditLogMessageEntry();
 
-                    DiscordAuditLogMessageEntry? messageEntry = entry as DiscordAuditLogMessageEntry;
+                    DiscordAuditLogMessageEntry messageEntry = (DiscordAuditLogMessageEntry)entry;
 
-                    if (auditLogAction.Options != null)
+                    if (auditLogAction.Options is not null)
                     {
                         messageEntry.Channel = guild.GetChannel(auditLogAction.Options.ChannelId) ?? new DiscordChannel
                         {
@@ -292,10 +277,14 @@ internal static class AuditLogParser
                         messageEntry.MessageCount = auditLogAction.Options.Count;
                     }
 
-                    if (messageEntry.Channel != null)
+                    if (messageEntry.Channel is not null)
                     {
                         guild.Discord.UserCache.TryGetValue(auditLogAction.UserId, out DiscordUser? user);
-                        messageEntry.Target = user ?? new DiscordUser { Id = auditLogAction.UserId, Discord = guild.Discord };
+                        messageEntry.Target = user ?? new DiscordUser 
+                        { 
+                            Id = auditLogAction.UserId, 
+                            Discord = guild.Discord 
+                        };
                     }
 
                     break;
@@ -306,7 +295,7 @@ internal static class AuditLogParser
                 {
                     entry = new DiscordAuditLogMessagePinEntry();
 
-                    DiscordAuditLogMessagePinEntry? messagePinEntry = entry as DiscordAuditLogMessagePinEntry;
+                    DiscordAuditLogMessagePinEntry messagePinEntry = (DiscordAuditLogMessagePinEntry)entry;
 
                     if (guild.Discord is not DiscordClient dc)
                     {
@@ -315,7 +304,7 @@ internal static class AuditLogParser
 
                     if (auditLogAction.Options != null)
                     {
-                        DiscordMessage message = default;
+                        DiscordMessage? message = default;
                         dc.MessageCache?.TryGet(auditLogAction.Options.MessageId, out message);
 
                         messagePinEntry.Channel = guild.GetChannel(auditLogAction.Options.ChannelId) ??
@@ -335,7 +324,11 @@ internal static class AuditLogParser
                     if (auditLogAction.TargetId.HasValue)
                     {
                         dc.UserCache.TryGetValue(auditLogAction.TargetId.Value, out DiscordUser? user);
-                        messagePinEntry.Target = user ?? new DiscordUser { Id = user.Id, Discord = guild.Discord };
+                        messagePinEntry.Target = user ?? new DiscordUser 
+                        { 
+                            Id = auditLogAction.TargetId.Value, 
+                            Discord = guild.Discord 
+                        };
                     }
 
                     break;
@@ -351,12 +344,12 @@ internal static class AuditLogParser
                     }
 
                     dc.UserCache.TryGetValue(auditLogAction.TargetId.Value, out DiscordUser? bot);
-                    (entry as DiscordAuditLogBotAddEntry).TargetBot = bot ??
-                                                                      new DiscordUser
-                                                                      {
-                                                                          Id = auditLogAction.TargetId.Value,
-                                                                          Discord = guild.Discord
-                                                                      };
+                    (entry as DiscordAuditLogBotAddEntry)!.TargetBot = bot
+                        ?? new DiscordUser
+                        {
+                            Id = auditLogAction.TargetId.Value,
+                            Discord = guild.Discord
+                        };
 
                     break;
                 }
@@ -369,7 +362,7 @@ internal static class AuditLogParser
                     break;
                 }
 
-                DiscordAuditLogMemberMoveEntry? memberMoveEntry = entry as DiscordAuditLogMemberMoveEntry;
+                DiscordAuditLogMemberMoveEntry? memberMoveEntry = (DiscordAuditLogMemberMoveEntry)entry;
 
                 memberMoveEntry.UserCount = auditLogAction.Options.Count;
                 memberMoveEntry.Channel = guild.GetChannel(auditLogAction.Options.ChannelId) ?? new DiscordChannel
@@ -405,7 +398,7 @@ internal static class AuditLogParser
             case AuditLogActionType.ApplicationCommandPermissionUpdate:
                 entry = new DiscordAuditLogApplicationCommandPermissionEntry();
                 DiscordAuditLogApplicationCommandPermissionEntry permissionEntry =
-                    entry as DiscordAuditLogApplicationCommandPermissionEntry;
+                    (DiscordAuditLogApplicationCommandPermissionEntry)entry;
 
                 if (auditLogAction.Options.ApplicationId == auditLogAction.TargetId)
                 {
@@ -427,10 +420,10 @@ internal static class AuditLogParser
                         .ToDiscordObject<DiscordApplicationCommandPermission>();
 
                     DiscordApplicationCommandPermission? newValue = ((JObject)change
-                            .NewValue)?
+                            .NewValue)
                         .ToDiscordObject<DiscordApplicationCommandPermission>();
 
-                    permissionEntry.PermissionChanges
+                    permissionEntry.PermissionChanges = permissionEntry.PermissionChanges
                         .Append(PropertyChange<DiscordApplicationCommandPermission>.From(oldValue, newValue));
                 }
 
@@ -442,12 +435,19 @@ internal static class AuditLogParser
                 entry = new DiscordAuditLogAutoModerationExecutedEntry();
 
                 DiscordAuditLogAutoModerationExecutedEntry autoModerationEntry =
-                    entry as DiscordAuditLogAutoModerationExecutedEntry;
+                    (DiscordAuditLogAutoModerationExecutedEntry)entry;
 
-                autoModerationEntry.TargetUser =
-                    members.TryGetValue(auditLogAction.TargetId.Value, out DiscordMember? targetMember)
-                        ? targetMember
-                        : new DiscordUser { Id = auditLogAction.TargetId.Value, Discord = guild.Discord };
+                if (auditLogAction.TargetId is not null)
+                {
+                    autoModerationEntry.TargetUser =
+                        members.TryGetValue(auditLogAction.TargetId.Value, out DiscordMember? targetMember)
+                            ? targetMember
+                            : new DiscordUser 
+                            { 
+                                Id = auditLogAction.TargetId.Value, 
+                                Discord = guild.Discord 
+                            };
+                }
 
                 autoModerationEntry.ResponsibleRule = auditLogAction.Options.RoleName;
                 autoModerationEntry.Channel = guild.GetChannel(auditLogAction.Options.ChannelId);
@@ -465,9 +465,10 @@ internal static class AuditLogParser
                 if (guild.Discord.Configuration.LogUnknownAuditlogs)
                 {
                     guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                        "Unknown audit log action type: {0} - this should be reported to library developers",
+                        "Unknown audit log action type: {type} - this should be reported to library developers",
                         (int)auditLogAction.ActionType);
                 }
+
                 break;
         }
 
@@ -504,9 +505,9 @@ internal static class AuditLogParser
         entry.Reason = auditLogAction.Reason;
         entry.Discord = guild.Discord;
 
-        entry.UserResponsible = members.TryGetValue(auditLogAction.UserId, out DiscordMember member)
+        entry.UserResponsible = members.TryGetValue(auditLogAction.UserId, out DiscordMember? member)
             ? member
-            : guild.Discord.UserCache.TryGetValue(auditLogAction.UserId, out DiscordUser discordUser)
+            : guild.Discord.UserCache.TryGetValue(auditLogAction.UserId, out DiscordUser? discordUser)
                 ? discordUser
                 : new DiscordUser { Id = auditLogAction.UserId, Discord = guild.Discord };
 
@@ -552,7 +553,7 @@ internal static class AuditLogParser
                     break;
 
                 case "trigger_metadata":
-                    ruleEntry.TriggerMetadata = PropertyChange<DiscordRuleTriggerMetadata>.From(change);
+                    ruleEntry.TriggerMetadata = PropertyChange<DiscordRuleTriggerMetadata?>.From(change);
                     break;
 
                 case "actions":
@@ -567,32 +568,32 @@ internal static class AuditLogParser
                     JArray oldRoleIds = (JArray)change.OldValue;
                     JArray newRoleIds = (JArray)change.NewValue;
 
-                    IEnumerable<DiscordRole> oldRoles = oldRoleIds?
+                    IEnumerable<DiscordRole>? oldRoles = oldRoleIds?
                         .Select(x => x.ToObject<ulong>())
                         .Select(guild.GetRole);
 
-                    IEnumerable<DiscordRole> newRoles = newRoleIds?
+                    IEnumerable<DiscordRole>? newRoles = newRoleIds?
                         .Select(x => x.ToObject<ulong>())
                         .Select(guild.GetRole);
 
                     ruleEntry.ExemptRoles =
-                        PropertyChange<IEnumerable<DiscordRole>>.From(oldRoles, newRoles);
+                        PropertyChange<IEnumerable<DiscordRole>?>.From(oldRoles, newRoles);
                     break;
 
                 case "exempt_channels":
                     JArray oldChannelIds = (JArray)change.OldValue;
                     JArray newChanelIds = (JArray)change.NewValue;
 
-                    IEnumerable<DiscordChannel> oldChannels = oldChannelIds?
+                    IEnumerable<DiscordChannel>? oldChannels = oldChannelIds?
                         .Select(x => x.ToObject<ulong>())
                         .Select(guild.GetChannel);
 
-                    IEnumerable<DiscordChannel> newChannels = newChanelIds?
+                    IEnumerable<DiscordChannel>? newChannels = newChanelIds?
                         .Select(x => x.ToObject<ulong>())
                         .Select(guild.GetChannel);
 
                     ruleEntry.ExemptChannels =
-                        PropertyChange<IEnumerable<DiscordChannel>>.From(oldChannels, newChannels);
+                        PropertyChange<IEnumerable<DiscordChannel>?>.From(oldChannels, newChannels);
                     break;
 
                 case "$add_keyword_filter":
@@ -626,6 +627,7 @@ internal static class AuditLogParser
                             "Unknown key in AutoModRule update: {Key} - this should be reported to library developers",
                             change.Key);
                     }
+
                     break;
             }
         }
@@ -646,7 +648,7 @@ internal static class AuditLogParser
         DiscordAuditLogThreadEventEntry entry = new()
         {
             Target =
-                threads.TryGetValue(auditLogAction.TargetId.Value,
+                threads.TryGetValue(auditLogAction.TargetId!.Value,
                     out DiscordThreadChannel? channel)
                     ? channel
                     : new DiscordThreadChannel() { Id = auditLogAction.TargetId.Value, Discord = guild.Discord },
@@ -695,6 +697,7 @@ internal static class AuditLogParser
                             "Unknown key in thread update: {Key} - this should be reported to library developers",
                             change.Key);
                     }
+
                     break;
             }
         }
@@ -715,7 +718,7 @@ internal static class AuditLogParser
         DiscordAuditLogGuildScheduledEventEntry entry = new()
         {
             Target =
-                events.TryGetValue(auditLogAction.TargetId.Value, out DiscordScheduledGuildEvent? ta)
+                events.TryGetValue(auditLogAction.TargetId!.Value, out DiscordScheduledGuildEvent? ta)
                     ? ta
                     : new DiscordScheduledGuildEvent() { Id = auditLogAction.TargetId.Value, Discord = guild.Discord },
         };
@@ -777,6 +780,7 @@ internal static class AuditLogParser
                             "Unknown key in scheduled event update: {Key} - this should be reported to library developers",
                             change.Key);
                     }
+
                     break;
             }
         }
@@ -842,7 +846,7 @@ internal static class AuditLogParser
                     ulong.TryParse(change.OldValue as string, NumberStyles.Integer,
                         CultureInfo.InvariantCulture, out after);
 
-                    entry.AfkChannelChange = new PropertyChange<DiscordChannel>
+                    entry.AfkChannelChange = new PropertyChange<DiscordChannel?>
                     {
                         Before = guild.GetChannel(before) ?? new DiscordChannel
                         {
@@ -940,6 +944,7 @@ internal static class AuditLogParser
                             "Unknown key in guild update: {Key} - this should be reported to library developers",
                             change.Key);
                     }
+
                     break;
             }
         }
@@ -957,7 +962,7 @@ internal static class AuditLogParser
     {
         DiscordAuditLogChannelEntry entry = new()
         {
-            Target = guild.GetChannel(auditLogAction.TargetId.Value) ?? new DiscordChannel
+            Target = guild.GetChannel(auditLogAction.TargetId!.Value) ?? new DiscordChannel
             {
                 Id = auditLogAction.TargetId.Value,
                 Discord = guild.Discord,
@@ -970,7 +975,7 @@ internal static class AuditLogParser
             switch (change.Key.ToLowerInvariant())
             {
                 case "name":
-                    entry.NameChange = PropertyChange<string?>.From(change);
+                    entry.NameChange = PropertyChange<string>.From(change);
                     break;
 
                 case "type":
@@ -1062,6 +1067,7 @@ internal static class AuditLogParser
                             "Unknown key in channel update: {Key} - this should be reported to library developers",
                             change.Key);
                     }
+
                     break;
             }
         }
@@ -1081,9 +1087,9 @@ internal static class AuditLogParser
         DiscordAuditLogOverwriteEntry entry = new()
         {
             Target = guild
-                .GetChannel(auditLogAction.TargetId.Value)?
+                .GetChannel(auditLogAction.TargetId!.Value)
                 .PermissionOverwrites
-                .FirstOrDefault(xo => xo.Id == auditLogAction.Options.Id),
+                .First(xo => xo.Id == auditLogAction.Options.Id),
             Channel = guild.GetChannel(auditLogAction.TargetId.Value)
         };
 
@@ -1114,6 +1120,7 @@ internal static class AuditLogParser
                             "Unknown key in overwrite update: {Key} - this should be reported to library developers",
                             change.Key);
                     }
+
                     break;
             }
         }
@@ -1132,7 +1139,7 @@ internal static class AuditLogParser
     {
         DiscordAuditLogMemberUpdateEntry entry = new()
         {
-            Target = guild._members.TryGetValue(auditLogAction.TargetId.Value, out DiscordMember? roleUpdMember)
+            Target = guild._members.TryGetValue(auditLogAction.TargetId!.Value, out DiscordMember? roleUpdMember)
                 ? roleUpdMember
                 : new DiscordMember { Id = auditLogAction.TargetId.Value, Discord = guild.Discord, _guild_id = guild.Id }
         };
@@ -1160,13 +1167,13 @@ internal static class AuditLogParser
 
                 case "$add":
                     entry.AddedRoles =
-                        new ReadOnlyCollection<DiscordRole>(change.NewValues?.Select(xo => (ulong)xo["id"])
+                        new ReadOnlyCollection<DiscordRole>(change.NewValues.Select(xo => (ulong)xo["id"]!)
                             .Select(guild.GetRole).ToList());
                     break;
 
                 case "$remove":
                     entry.RemovedRoles =
-                        new ReadOnlyCollection<DiscordRole>(change.NewValues?.Select(xo => (ulong)xo["id"])
+                        new ReadOnlyCollection<DiscordRole>(change.NewValues.Select(xo => (ulong)xo["id"]!)
                             .Select(guild.GetRole).ToList());
                     break;
 
@@ -1177,6 +1184,7 @@ internal static class AuditLogParser
                             "Unknown key in member update: {Key} - this should be reported to library developers",
                             change.Key);
                     }
+
                     break;
             }
         }
@@ -1195,7 +1203,7 @@ internal static class AuditLogParser
     {
         DiscordAuditLogRoleUpdateEntry entry = new()
         {
-            Target = guild.GetRole(auditLogAction.TargetId.Value) ??
+            Target = guild.GetRole(auditLogAction.TargetId!.Value) ??
                      new DiscordRole { Id = auditLogAction.TargetId.Value, Discord = guild.Discord }
         };
 
@@ -1233,6 +1241,7 @@ internal static class AuditLogParser
                             "Unknown key in role update: {Key} - this should be reported to library developers",
                             change.Key);
                     }
+
                     break;
             }
         }
@@ -1332,7 +1341,7 @@ internal static class AuditLogParser
                     {
                         Discord = guild.Discord,
                         Id = boolBefore ? ulongBefore : ulongAfter,
-                        Name = channel?.Name,
+                        Name = channel?.Name ?? "",
                         Type = channelType != null ? channelType.Value : ChannelType.Unknown
                     };
                     break;
@@ -1374,6 +1383,7 @@ internal static class AuditLogParser
                             "Unknown key in invite update: {Key} - this should be reported to library developers",
                             change.Key);
                     }
+
                     break;
             }
         }
@@ -1398,7 +1408,7 @@ internal static class AuditLogParser
     {
         DiscordAuditLogWebhookEntry entry = new()
         {
-            Target = webhooks.TryGetValue(auditLogAction.TargetId.Value, out DiscordWebhook? webhook)
+            Target = webhooks.TryGetValue(auditLogAction.TargetId!.Value, out DiscordWebhook? webhook)
                 ? webhook
                 : new DiscordWebhook { Id = auditLogAction.TargetId.Value, Discord = guild.Discord }
         };
@@ -1457,6 +1467,7 @@ internal static class AuditLogParser
                             "Unknown key in webhook update: {Key} - this should be reported to library developers",
                             change.Key);
                     }
+
                     break;
             }
         }
@@ -1474,7 +1485,7 @@ internal static class AuditLogParser
     {
         DiscordAuditLogStickerEntry entry = new()
         {
-            Target = guild._stickers.TryGetValue(auditLogAction.TargetId.Value, out DiscordMessageSticker? sticker)
+            Target = guild._stickers.TryGetValue(auditLogAction.TargetId!.Value, out DiscordMessageSticker? sticker)
                 ? sticker
                 : new DiscordMessageSticker { Id = auditLogAction.TargetId.Value, Discord = guild.Discord }
         };
@@ -1526,6 +1537,7 @@ internal static class AuditLogParser
                             "Unknown key in sticker update: {Key} - this should be reported to library developers",
                             change.Key);
                     }
+
                     break;
             }
         }
@@ -1574,6 +1586,7 @@ internal static class AuditLogParser
                             "Unknown key in integration update: {Key} - this should be reported to library developers",
                             change.Key);
                     }
+
                     break;
             }
         }
