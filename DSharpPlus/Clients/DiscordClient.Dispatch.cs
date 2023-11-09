@@ -657,6 +657,13 @@ public sealed partial class DiscordClient
             this._guilds[guild.Id] = guild;
         }
 
+        if (guilds.Count() == 0)
+        {
+            this._guildDownloadCompleted = true;
+            var ea = new GuildDownloadCompletedEventArgs(this.Guilds);
+            this._guildDownloadCompletedEv.InvokeAsync(this, ea);
+        }
+
         await this._ready.InvokeAsync(this, new SessionReadyEventArgs());
     }
 
