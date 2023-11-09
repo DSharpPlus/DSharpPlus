@@ -660,7 +660,7 @@ public sealed partial class DiscordClient
         if (guilds.Count() == 0)
         {
             this._guildDownloadCompleted = true;
-            var ea = new GuildDownloadCompletedEventArgs(this.Guilds);
+            GuildDownloadCompletedEventArgs ea = new(this.Guilds);
             this._guildDownloadCompletedEv.InvokeAsync(this, ea);
         }
 
