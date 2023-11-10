@@ -40,7 +40,7 @@ public sealed class DiscordAuditLogAutoModerationExecutedEntry : DiscordAuditLog
     /// <summary>
     /// Type of the trigger that was executed
     /// </summary>
-    public RuleTriggerType RuleTriggerType { get; internal set; }
+    public DiscordRuleTriggerType RuleTriggerType { get; internal set; }
 
     /// <summary>
     /// Channel where the rule was executed

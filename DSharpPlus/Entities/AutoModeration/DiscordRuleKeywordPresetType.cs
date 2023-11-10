@@ -1,9 +1,9 @@
-namespace DSharpPlus.Enums;
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Characterizes which type of category a blocked word belongs to.
 /// </summary>
-public enum RuleKeywordPresetType
+public enum DiscordRuleKeywordPresetType
 {
     /// <summary>
     /// Words that may be considered forms of swearing or cursing.

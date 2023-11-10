@@ -1,9 +1,9 @@
-namespace DSharpPlus.Enums;
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Contains all actions that can be taken after a rule activation.
 /// </summary>
-public enum RuleActionType
+public enum DiscordRuleActionType
 {
     /// <summary>
     /// Blocks a member's message and prevents it from being posted. 

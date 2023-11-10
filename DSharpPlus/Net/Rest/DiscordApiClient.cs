@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
+using DSharpPlus.Entities.AutoModeration;
 using DSharpPlus.Enums;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
@@ -6114,8 +6115,8 @@ public sealed class DiscordApiClient
     (
         ulong guildId,
         string name,
-        RuleEventType eventType,
-        RuleTriggerType triggerType,
+        DiscordRuleEventType eventType,
+        DiscordRuleTriggerType triggerType,
         DiscordRuleTriggerMetadata triggerMetadata,
         IReadOnlyList<DiscordAutoModerationAction> actions,
         Optional<bool> enabled = default,
@@ -6234,7 +6235,7 @@ public sealed class DiscordApiClient
         ulong guildId,
         ulong ruleId,
         Optional<string> name,
-        Optional<RuleEventType> eventType,
+        Optional<DiscordRuleEventType> eventType,
         Optional<DiscordRuleTriggerMetadata> triggerMetadata,
         Optional<IReadOnlyList<DiscordAutoModerationAction>> actions,
         Optional<bool> enabled,
