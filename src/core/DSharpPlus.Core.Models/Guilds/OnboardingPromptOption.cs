@@ -21,7 +21,16 @@ public sealed record OnboardingPromptOption : IOnboardingPromptOption
     public required IReadOnlyList<Snowflake> RoleIds { get; init; }
 
     /// <inheritdoc/>
-    public required IEmoji Emoji { get; init; }
+    public Optional<IEmoji> Emoji { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<Snowflake> EmojiId { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<string> EmojiName { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<bool> EmojiAnimated { get; init; }
 
     /// <inheritdoc/>
     public required string Title { get; init; }

@@ -27,9 +27,25 @@ public interface IOnboardingPromptOption
     public IReadOnlyList<Snowflake> RoleIds { get; }
 
     /// <summary>
-    /// The emoji for this option.
+    /// The emoji for this option. This field is only ever returned, and must not be sent when creating
+    /// or updating a prompt option.
     /// </summary>
-    public IEmoji Emoji { get; }
+    public Optional<IEmoji> Emoji { get; }
+
+    /// <summary>
+    /// The snowflake identifier of the emoji for this option.
+    /// </summary>
+    public Optional<Snowflake> EmojiId { get; }
+
+    /// <summary>
+    /// The name of the emoji for this option.
+    /// </summary>
+    public Optional<string> EmojiName { get; }
+
+    /// <summary>
+    /// Indicates whether the emoji for this option is animated.
+    /// </summary>
+    public Optional<bool> EmojiAnimated { get; }
 
     /// <summary>
     /// The title of this option.
