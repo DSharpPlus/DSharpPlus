@@ -38,7 +38,6 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
 
             _converters.TryAdd(type, converter);
         }
-
         public void AddConverters(Assembly assembly) => AddConverters(assembly.GetTypes());
         public void AddConverters(IEnumerable<Type> types)
         {
