@@ -110,7 +110,7 @@ internal sealed class AuditLogAction
     public ulong Id { get; set; }
 
     [JsonProperty("action_type")]
-    public AuditLogActionType ActionType { get; set; }
+    public DiscordAuditLogActionType ActionType { get; set; }
 
     [JsonProperty("changes")]
     public IEnumerable<AuditLogActionChange> Changes { get; set; }

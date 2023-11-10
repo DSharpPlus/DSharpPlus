@@ -28,12 +28,12 @@ public sealed class DiscordAuditLogOverwriteEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the affected overwrite.
     /// </summary>
-    public DiscordOverwrite Target { get; internal set; }
+    public DiscordOverwrite Target { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the channel for which the overwrite was changed.
     /// </summary>
-    public DiscordChannel Channel { get; internal set; }
+    public DiscordChannel Channel { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the description of overwrite's allow value change.

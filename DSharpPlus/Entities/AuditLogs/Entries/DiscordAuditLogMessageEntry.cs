@@ -28,7 +28,7 @@ public sealed class DiscordAuditLogMessageEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the affected User.
     /// </summary>
-    public DiscordUser Target { get; internal set; }
+    public DiscordUser Target { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the affected Member. This is null if the action was performed on a user that is not in the member cache.
@@ -38,7 +38,7 @@ public sealed class DiscordAuditLogMessageEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the channel in which the action occurred.
     /// </summary>
-    public DiscordChannel Channel { get; internal set; }
+    public DiscordChannel Channel { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the number of messages that were affected.

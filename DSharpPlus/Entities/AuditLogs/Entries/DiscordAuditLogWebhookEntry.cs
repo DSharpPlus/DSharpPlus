@@ -28,7 +28,7 @@ public sealed class DiscordAuditLogWebhookEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the affected webhook.
     /// </summary>
-    public DiscordWebhook Target { get; internal set; }
+    public DiscordWebhook Target { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the description of webhook's name change.

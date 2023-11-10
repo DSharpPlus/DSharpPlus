@@ -33,7 +33,7 @@ public sealed class DiscordAuditLogGuildScheduledEventEntry : DiscordAuditLogEnt
     /// <summary>
     /// Gets the target event. Note that this will only have the ID specified if it is not cached.
     /// </summary>
-    public DiscordScheduledGuildEvent Target { get; internal set; }
+    public DiscordScheduledGuildEvent Target { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the channel the event was changed to.

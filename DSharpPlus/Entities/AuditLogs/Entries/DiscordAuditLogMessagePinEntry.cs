@@ -28,17 +28,17 @@ public sealed class DiscordAuditLogMessagePinEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the affected message's user.
     /// </summary>
-    public DiscordUser Target { get; internal set; }
+    public DiscordUser Target { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the channel the message is in.
     /// </summary>
-    public DiscordChannel Channel { get; internal set; }
+    public DiscordChannel Channel { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the message the pin action was for.
     /// </summary>
-    public DiscordMessage Message { get; internal set; }
+    public DiscordMessage Message { get; internal set; } = default!;
 
     internal DiscordAuditLogMessagePinEntry() { }
 }
