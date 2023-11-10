@@ -27,11 +27,12 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus.Entities.AutoModeration;
-using DSharpPlus.Enums;
+
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
+
 using Microsoft.Extensions.Logging;
+
 using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Entities.AuditLogs;

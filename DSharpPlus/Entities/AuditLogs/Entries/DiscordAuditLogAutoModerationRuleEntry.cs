@@ -22,8 +22,6 @@
 // SOFTWARE.
 
 using System.Collections.Generic;
-using DSharpPlus.Entities.AutoModeration;
-using DSharpPlus.Enums;
 
 namespace DSharpPlus.Entities.AuditLogs;
 

@@ -11,8 +11,6 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
-using DSharpPlus.Entities.AutoModeration;
-using DSharpPlus.Enums;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
 
