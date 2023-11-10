@@ -3,7 +3,7 @@ namespace DSharpPlus.Net.Models;
 using System.Collections.Generic;
 
 using DSharpPlus.Entities;
-using DSharpPlus.Enums;
+using DSharpPlus.Entities.AutoModeration;
 
 public class AutoModerationRuleEditModel : BaseEditModel
 {
@@ -15,7 +15,7 @@ public class AutoModerationRuleEditModel : BaseEditModel
     /// <summary>
     /// The new rule event type.
     /// </summary>
-    public Optional<RuleEventType> EventType { internal get; set; }
+    public Optional<DiscordRuleEventType> EventType { internal get; set; }
 
     /// <summary>
     /// The new rule trigger metadata.

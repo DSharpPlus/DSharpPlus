@@ -1,9 +1,9 @@
-namespace DSharpPlus.Enums;
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Characterizes the type of content which can trigger a rule.
 /// </summary>
-public enum RuleTriggerType
+public enum DiscordRuleTriggerType
 {
     /// <summary>
     /// Check if the content contains words from a definied list of keywords.

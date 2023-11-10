@@ -1,7 +1,5 @@
 namespace DSharpPlus.Entities;
 
-using DSharpPlus.Enums;
-
 using Newtonsoft.Json;
 
 /// <summary>
@@ -31,7 +29,7 @@ public class DiscordAutoModerationActionExecution
     /// Gets the rule trigger type.
     /// </summary>
     [JsonProperty("rule_trigger_type")]
-    public RuleTriggerType TriggerType { get; internal set; }
+    public DiscordRuleTriggerType TriggerType { get; internal set; }
 
     /// <summary>
     /// Gets the id of the user which triggered the rule.

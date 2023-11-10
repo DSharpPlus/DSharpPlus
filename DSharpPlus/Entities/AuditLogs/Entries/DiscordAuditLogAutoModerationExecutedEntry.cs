@@ -21,8 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using DSharpPlus.Enums;
-
 namespace DSharpPlus.Entities.AuditLogs;
 
 public sealed class DiscordAuditLogAutoModerationExecutedEntry : DiscordAuditLogEntry
@@ -40,7 +38,7 @@ public sealed class DiscordAuditLogAutoModerationExecutedEntry : DiscordAuditLog
     /// <summary>
     /// Type of the trigger that was executed
     /// </summary>
-    public RuleTriggerType RuleTriggerType { get; internal set; }
+    public DiscordRuleTriggerType RuleTriggerType { get; internal set; }
 
     /// <summary>
     /// Channel where the rule was executed

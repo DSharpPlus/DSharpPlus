@@ -5,14 +5,15 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+
 using DSharpPlus.Entities.AuditLogs;
-using DSharpPlus.Enums;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
+
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -2018,8 +2019,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public async Task<DiscordAutoModerationRule> CreateAutoModerationRuleAsync
     (
         string name,
-        RuleEventType eventType,
-        RuleTriggerType triggerType,
+        DiscordRuleEventType eventType,
+        DiscordRuleTriggerType triggerType,
         DiscordRuleTriggerMetadata triggerMetadata,
         IReadOnlyList<DiscordAutoModerationAction> actions,
         Optional<bool> enabled = default,

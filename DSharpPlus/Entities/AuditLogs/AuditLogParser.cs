@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
-using DSharpPlus.Enums;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
 
@@ -452,7 +451,7 @@ internal static class AuditLogParser
                 autoModerationEntry.ResponsibleRule = auditLogAction.Options.RoleName;
                 autoModerationEntry.Channel = guild.GetChannel(auditLogAction.Options.ChannelId);
                 autoModerationEntry.RuleTriggerType =
-                    (RuleTriggerType)int.Parse(auditLogAction.Options.AutoModerationRuleTriggerType);
+                    (DiscordRuleTriggerType)int.Parse(auditLogAction.Options.AutoModerationRuleTriggerType);
                 break;
 
             case DiscordAuditLogActionType.AutoModerationRuleCreate:
@@ -545,11 +544,11 @@ internal static class AuditLogParser
                     break;
 
                 case "event_type":
-                    ruleEntry.EventType = PropertyChange<RuleEventType?>.From(change);
+                    ruleEntry.EventType = PropertyChange<DiscordRuleEventType?>.From(change);
                     break;
 
                 case "trigger_type":
-                    ruleEntry.TriggerType = PropertyChange<RuleTriggerType?>.From(change);
+                    ruleEntry.TriggerType = PropertyChange<DiscordRuleTriggerType?>.From(change);
                     break;
 
                 case "trigger_metadata":
