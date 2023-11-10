@@ -30,12 +30,12 @@ public sealed class DiscordAuditLogAutoModerationExecutedEntry : DiscordAuditLog
     /// <summary>
     /// Name of the rule that was executed
     /// </summary>
-    public string ResponsibleRule { get; internal set; }
+    public string ResponsibleRule { get; internal set; } = default!;
 
     /// <summary>
     /// User that was affected by the rule
     /// </summary>
-    public DiscordUser TargetUser { get; internal set; }
+    public DiscordUser TargetUser { get; internal set; } = default!;
 
     /// <summary>
     /// Type of the trigger that was executed
@@ -45,5 +45,5 @@ public sealed class DiscordAuditLogAutoModerationExecutedEntry : DiscordAuditLog
     /// <summary>
     /// Channel where the rule was executed
     /// </summary>
-    public DiscordChannel Channel { get; internal set; }
+    public DiscordChannel Channel { get; internal set; } = default!;
 }

@@ -28,7 +28,7 @@ public sealed class DiscordAuditLogBanEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the banned member.
     /// </summary>
-    public DiscordMember Target { get; internal set; }
+    public DiscordMember Target { get; internal set; } = default!;
 
     internal DiscordAuditLogBanEntry() { }
 }

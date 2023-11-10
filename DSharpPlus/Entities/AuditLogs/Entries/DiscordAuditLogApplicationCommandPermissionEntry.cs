@@ -40,5 +40,5 @@ public sealed class DiscordAuditLogApplicationCommandPermissionEntry : DiscordAu
     /// <summary>
     /// Permissions changed
     /// </summary>
-    public IEnumerable<PropertyChange<DiscordApplicationCommandPermission>> PermissionChanges { get; internal set; }
+    public IEnumerable<PropertyChange<DiscordApplicationCommandPermission>> PermissionChanges { get; internal set; } = default!;
 }

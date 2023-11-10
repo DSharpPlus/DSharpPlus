@@ -28,7 +28,7 @@ public sealed class DiscordAuditLogStickerEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the affected sticker.
     /// </summary>
-    public DiscordMessageSticker Target { get; internal set; }
+    public DiscordMessageSticker Target { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the description of sticker's name change.

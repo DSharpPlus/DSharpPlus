@@ -28,7 +28,7 @@ public sealed class DiscordAuditLogThreadEventEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the target thread.
     /// </summary>
-    public DiscordThreadChannel Target { get; internal set; }
+    public DiscordThreadChannel Target { get; internal set; } = default!;
 
     /// <summary>
     /// Gets a change in the thread's name.

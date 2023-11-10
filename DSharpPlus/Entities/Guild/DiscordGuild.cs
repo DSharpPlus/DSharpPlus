@@ -1529,7 +1529,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     (
         int? limit = 100,
         DiscordMember byMember = null,
-        AuditLogActionType? actionType = null
+        DiscordAuditLogActionType? actionType = null
     )
     {
         //Get all entries from api

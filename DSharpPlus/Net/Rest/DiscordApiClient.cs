@@ -691,7 +691,7 @@ public sealed class DiscordApiClient
         ulong? after = null,
         ulong? before = null,
         ulong? userId = null,
-        AuditLogActionType? actionType = null
+        DiscordAuditLogActionType? actionType = null
     )
     {
         QueryUriBuilder builder = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.AUDIT_LOGS}");
