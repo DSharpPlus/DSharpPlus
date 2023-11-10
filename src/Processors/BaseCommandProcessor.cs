@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.CommandAll.Processors
 {
-    public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext>
+    public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext> : ICommandProcessor<TEventArgs>
         where TEventArgs : DiscordEventArgs
         where TConverter : IArgumentConverter
         where TConverterContext : ConverterContext, new()
@@ -72,6 +72,8 @@ namespace DSharpPlus.CommandAll.Processors
 
         public IReadOnlyDictionary<Type, TConverter> Converters { get; protected set; } = new Dictionary<Type, TConverter>();
         public IReadOnlyDictionary<Type, ConverterDelegate<TEventArgs>> ConverterDelegates { get; protected set; } = new Dictionary<Type, ConverterDelegate<TEventArgs>>();
+        // Redirect the interface to use the converter delegates property instead of the converters property
+        IReadOnlyDictionary<Type, ConverterDelegate<TEventArgs>> ICommandProcessor<TEventArgs>.Converters => ConverterDelegates;
 
         protected readonly List<LazyConverter> _lazyConverters = [];
         protected CommandAllExtension? _extension;
