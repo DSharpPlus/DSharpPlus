@@ -89,9 +89,6 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             }
         }
 
-        public void AddApplicationCommands(params DiscordApplicationCommand[] applicationCommands) => _applicationCommands.AddRange(applicationCommands);
-        public void AddApplicationCommands(IEnumerable<DiscordApplicationCommand> applicationCommands) => _applicationCommands.AddRange(applicationCommands);
-
         public Task ConfigureAsync(CommandAllExtension extension)
         {
             _extension = extension;
@@ -216,6 +213,9 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
 
             return true;
         }
+
+        public void AddApplicationCommands(params DiscordApplicationCommand[] applicationCommands) => _applicationCommands.AddRange(applicationCommands);
+        public void AddApplicationCommands(IEnumerable<DiscordApplicationCommand> applicationCommands) => _applicationCommands.AddRange(applicationCommands);
 
         public async Task RegisterSlashCommandsAsync(CommandAllExtension extension)
         {
