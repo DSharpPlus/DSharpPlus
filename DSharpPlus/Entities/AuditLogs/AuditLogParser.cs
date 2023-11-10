@@ -719,7 +719,7 @@ internal static class AuditLogParser
             Target =
                 events.TryGetValue(auditLogAction.TargetId!.Value, out DiscordScheduledGuildEvent? ta)
                     ? ta
-                    : new DiscordScheduledGuildEvent() { Id = auditLogAction.TargetId.Value, Discord = guild.Discord },
+                    : new DiscordScheduledGuildEvent() { Id = auditLogAction.Id, Discord = guild.Discord },
         };
 
         foreach (AuditLogActionChange change in auditLogAction.Changes)
@@ -730,16 +730,22 @@ internal static class AuditLogParser
                     entry.Name = PropertyChange<string?>.From(change);
                     break;
                 case "channel_id":
+                    
+                    ulong.TryParse(change.NewValue as string, NumberStyles.Integer,
+                        CultureInfo.InvariantCulture, out ulong newChannelId);
+                    ulong.TryParse(change.OldValue as string, NumberStyles.Integer,
+                        CultureInfo.InvariantCulture, out ulong oldChannelId);
+                    
                     entry.Channel = new PropertyChange<DiscordChannel?>
                     {
                         Before =
-                            guild.GetChannel(change.OldValueUlong) ?? new DiscordChannel
+                            guild.GetChannel(newChannelId) ?? new DiscordChannel
                             {
                                 Id = change.OldValueUlong,
                                 Discord = guild.Discord,
                                 GuildId = guild.Id
                             },
-                        After = guild.GetChannel(change.NewValueUlong) ?? new DiscordChannel
+                        After = guild.GetChannel(newChannelId) ?? new DiscordChannel
                         {
                             Id = change.NewValueUlong,
                             Discord = guild.Discord,
