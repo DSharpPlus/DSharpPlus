@@ -12,8 +12,9 @@ public sealed class DiscordSpotifyAsset : DiscordAsset
 
     private readonly Uri _url;
 
-    public DiscordSpotifyAsset()
+    public DiscordSpotifyAsset(string pId)
     {
+        this.Id = pId;
         string[] ids = this.Id.Split(':');
         string id = ids[1];
 
