@@ -379,7 +379,7 @@ public sealed class DiscordRichPresence
         {
             if (lid.StartsWith("spotify:"))
             {
-                this.LargeImage = new DiscordSpotifyAsset { Id = lid };
+                this.LargeImage = new DiscordSpotifyAsset(lid);
             }
             else if (ulong.TryParse(lid, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong ulid))
             {
@@ -392,11 +392,11 @@ public sealed class DiscordRichPresence
         {
             if (sid.StartsWith("spotify:"))
             {
-                this.SmallImage = new DiscordSpotifyAsset { Id = sid };
+                this.SmallImage = new DiscordSpotifyAsset(sid);
             }
             else if (ulong.TryParse(sid, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong usid))
             {
-                this.SmallImage = new DiscordApplicationAsset { Id = sid, Application = this.Application, Type = DiscordApplicationAssetType.LargeImage };
+                this.SmallImage = new DiscordApplicationAsset { Id = sid, Application = this.Application, Type = DiscordApplicationAssetType.SmallImage };
             }
         }
     }
