@@ -383,7 +383,13 @@ public sealed class DiscordRichPresence
             }
             else if (ulong.TryParse(lid, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong ulid))
             {
-                this.LargeImage = new DiscordApplicationAsset { Id = lid, Application = this.Application, Type = DiscordApplicationAssetType.LargeImage };
+                this.LargeImage =
+                    new DiscordApplicationAsset
+                    {
+                        Id = lid,
+                        Application = this.Application,
+                        Type = DiscordApplicationAssetType.LargeImage
+                    };
             }
         }
 
@@ -396,7 +402,13 @@ public sealed class DiscordRichPresence
             }
             else if (ulong.TryParse(sid, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong usid))
             {
-                this.SmallImage = new DiscordApplicationAsset { Id = sid, Application = this.Application, Type = DiscordApplicationAssetType.SmallImage };
+                this.SmallImage =
+                    new DiscordApplicationAsset
+                    {
+                        Id = sid,
+                        Application = this.Application,
+                        Type = DiscordApplicationAssetType.SmallImage
+                    };
             }
         }
     }
