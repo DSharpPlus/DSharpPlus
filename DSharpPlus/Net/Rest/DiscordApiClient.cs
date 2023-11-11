@@ -2098,7 +2098,7 @@ public sealed class DiscordApiClient
             try
             {
                 res = await this._rest.ExecuteRequestAsync(request);
-            }catch(Exception ex)
+            }catch(Exception)
             {
                 builder.ResetFileStreamPositions();
                 throw;
