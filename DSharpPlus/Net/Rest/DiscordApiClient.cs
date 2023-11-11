@@ -2094,7 +2094,16 @@ public sealed class DiscordApiClient
                 Files = builder.Files
             };
 
-            RestResponse res = await this._rest.ExecuteRequestAsync(request);
+            RestResponse res;
+            try
+            {
+                res = await this._rest.ExecuteRequestAsync(request);
+            }catch(Exception ex)
+            {
+                builder.ResetFileStreamPositions();
+                throw;
+            }
+            
 
             DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
 
