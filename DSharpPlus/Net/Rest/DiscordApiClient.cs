@@ -2099,17 +2099,12 @@ public sealed class DiscordApiClient
             {
                 res = await this._rest.ExecuteRequestAsync(request);
             }
-            catch(Exception)
+            finally
             {
                 builder.ResetFileStreamPositions();
-                throw;
             }
-            
-
             DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
-
-            builder.ResetFileStreamPositions();
-
+            
             return ret;
         }
     }
@@ -4646,15 +4641,11 @@ public sealed class DiscordApiClient
         {
             res = await this._rest.ExecuteRequestAsync(request);
         }
-        catch (Exception)
+        finally
         {
             builder.ResetFileStreamPositions();
-            throw;
         }
-        
         DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
-
-        builder.ResetFileStreamPositions();
 
         ret.Discord = this._discord!;
         return ret;
@@ -4757,16 +4748,12 @@ public sealed class DiscordApiClient
         {
             res = await this._rest.ExecuteRequestAsync(request);
         }
-        catch (Exception)
+        finally
         {
             builder.ResetFileStreamPositions();
-            throw;
         }
-
         DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
-
-        builder.ResetFileStreamPositions();
-
+        
         return ret;
     }
 
@@ -5653,13 +5640,10 @@ public sealed class DiscordApiClient
             {
                 await this._rest.ExecuteRequestAsync(request);
             }
-            catch (Exception)
+            finally
             {
                 builder.ResetFileStreamPositions();
-                throw;
             }
-
-            builder.ResetFileStreamPositions();
         }
         else
         {
@@ -5831,15 +5815,11 @@ public sealed class DiscordApiClient
         {
             res = await this._rest.ExecuteRequestAsync(request);
         }
-        catch (Exception)
+        finally
         {
             builder.ResetFileStreamPositions();
-            throw;
         }
-        
         DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
-
-        builder.ResetFileStreamPositions();
 
         ret.Discord = this._discord!;
         return ret;
