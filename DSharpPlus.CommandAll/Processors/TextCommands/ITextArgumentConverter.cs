@@ -1,12 +1,11 @@
 using DSharpPlus.CommandAll.Converters;
 using DSharpPlus.EventArgs;
 
-namespace DSharpPlus.CommandAll.Processors.TextCommands
-{
-    public interface ITextArgumentConverter : IArgumentConverter
-    {
-        public bool RequiresText { get; init; }
-    }
+namespace DSharpPlus.CommandAll.Processors.TextCommands;
 
-    public interface ITextArgumentConverter<T> : ITextArgumentConverter, IArgumentConverter<MessageCreateEventArgs, T>;
+public interface ITextArgumentConverter : IArgumentConverter
+{
+    public bool RequiresText { get; init; }
 }
+
+public interface ITextArgumentConverter<T> : ITextArgumentConverter, IArgumentConverter<MessageCreateEventArgs, T>;

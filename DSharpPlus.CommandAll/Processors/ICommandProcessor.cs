@@ -4,15 +4,14 @@ using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.CommandAll.Converters;
 
-namespace DSharpPlus.CommandAll.Processors
-{
-    public interface ICommandProcessor
-    {
-        public Task ConfigureAsync(CommandAllExtension extension);
-    }
+namespace DSharpPlus.CommandAll.Processors;
 
-    public interface ICommandProcessor<T> : ICommandProcessor where T : AsyncEventArgs
-    {
-        public IReadOnlyDictionary<Type, ConverterDelegate<T>> Converters { get; }
-    }
+public interface ICommandProcessor
+{
+    public Task ConfigureAsync(CommandAllExtension extension);
+}
+
+public interface ICommandProcessor<T> : ICommandProcessor where T : AsyncEventArgs
+{
+    public IReadOnlyDictionary<Type, ConverterDelegate<T>> Converters { get; }
 }

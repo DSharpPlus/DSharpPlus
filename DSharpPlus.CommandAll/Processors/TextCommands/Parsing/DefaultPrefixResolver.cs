@@ -2,37 +2,36 @@ using System;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.CommandAll.Processors.TextCommands.Parsing
+namespace DSharpPlus.CommandAll.Processors.TextCommands.Parsing;
+
+public delegate Task<int> ResolvePrefixDelegateAsync(CommandAllExtension extension, DiscordMessage message);
+
+public sealed class DefaultPrefixResolver
 {
-    public delegate Task<int> ResolvePrefixDelegateAsync(CommandAllExtension extension, DiscordMessage message);
+    public string Prefix { get; init; }
 
-    public sealed class DefaultPrefixResolver
+    public DefaultPrefixResolver(string prefix)
     {
-        public string Prefix { get; init; }
-
-        public DefaultPrefixResolver(string prefix)
+        if (string.IsNullOrWhiteSpace(prefix))
         {
-            if (string.IsNullOrWhiteSpace(prefix))
-            {
-                throw new ArgumentException("Prefix cannot be null or whitespace.", nameof(prefix));
-            }
-
-            Prefix = prefix;
+            throw new ArgumentException("Prefix cannot be null or whitespace.", nameof(prefix));
         }
 
-        public Task<int> ResolvePrefixAsync(CommandAllExtension extension, DiscordMessage message)
-        {
-            if (message.Content.StartsWith(Prefix, StringComparison.OrdinalIgnoreCase))
-            {
-                return Task.FromResult(Prefix.Length);
-            }
-            // Mention check
-            else if (message.Content.StartsWith(extension.Client.CurrentUser.Mention, StringComparison.OrdinalIgnoreCase))
-            {
-                return Task.FromResult(extension.Client.CurrentUser.Mention.Length);
-            }
+        Prefix = prefix;
+    }
 
-            return Task.FromResult(-1);
+    public Task<int> ResolvePrefixAsync(CommandAllExtension extension, DiscordMessage message)
+    {
+        if (message.Content.StartsWith(Prefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return Task.FromResult(Prefix.Length);
         }
+        // Mention check
+        else if (message.Content.StartsWith(extension.Client.CurrentUser.Mention, StringComparison.OrdinalIgnoreCase))
+        {
+            return Task.FromResult(extension.Client.CurrentUser.Mention.Length);
+        }
+
+        return Task.FromResult(-1);
     }
 }
