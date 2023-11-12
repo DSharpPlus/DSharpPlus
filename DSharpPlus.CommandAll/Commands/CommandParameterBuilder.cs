@@ -11,179 +11,178 @@ using DSharpPlus.CommandAll.Commands.Attributes;
 using DSharpPlus.CommandAll.Processors.SlashCommands.Attributes;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.CommandAll.Commands
+namespace DSharpPlus.CommandAll.Commands;
+
+public record CommandParameterBuilder
 {
-    public record CommandParameterBuilder
+    public string? Name { get; set; }
+    public string? Description { get; set; }
+    public Type? Type { get; set; }
+    public List<Attribute> Attributes { get; set; } = [];
+    public Optional<object?> DefaultValue { get; set; } = Optional.FromNoValue<object?>();
+
+    public CommandParameterBuilder WithName(string name)
     {
-        public string? Name { get; set; }
-        public string? Description { get; set; }
-        public Type? Type { get; set; }
-        public List<Attribute> Attributes { get; set; } = [];
-        public Optional<object?> DefaultValue { get; set; } = Optional.FromNoValue<object?>();
-
-        public CommandParameterBuilder WithName(string name)
+        if (string.IsNullOrWhiteSpace(name))
         {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentNullException(nameof(name), "The name of the command cannot be null or whitespace.");
-            }
-            else if (name.Length is < 1 or > 32)
-            {
-                throw new ArgumentOutOfRangeException(nameof(name), "The name of the command must be between 1 and 32 characters.");
-            }
-
-            Name = name;
-            return this;
+            throw new ArgumentNullException(nameof(name), "The name of the command cannot be null or whitespace.");
+        }
+        else if (name.Length is < 1 or > 32)
+        {
+            throw new ArgumentOutOfRangeException(nameof(name), "The name of the command must be between 1 and 32 characters.");
         }
 
-        public CommandParameterBuilder WithDescription(string description)
-        {
-            if (string.IsNullOrWhiteSpace(description))
-            {
-                throw new ArgumentNullException(nameof(description), "The description of the command cannot be null or whitespace.");
-            }
-            else if (description.Length is < 1 or > 100)
-            {
-                throw new ArgumentOutOfRangeException(nameof(description), "The description of the command must be between 1 and 100 characters.");
-            }
+        Name = name;
+        return this;
+    }
 
-            Description = description;
-            return this;
+    public CommandParameterBuilder WithDescription(string description)
+    {
+        if (string.IsNullOrWhiteSpace(description))
+        {
+            throw new ArgumentNullException(nameof(description), "The description of the command cannot be null or whitespace.");
+        }
+        else if (description.Length is < 1 or > 100)
+        {
+            throw new ArgumentOutOfRangeException(nameof(description), "The description of the command must be between 1 and 100 characters.");
         }
 
-        public CommandParameterBuilder WithType(Type type)
-        {
-            Type = type;
-            if (type.IsEnum && !Attributes.Any(attribute => attribute is SlashChoiceProviderAttribute))
-            {
-                Attributes.Add(new SlashChoiceProviderAttribute<EnumOptionProvider>());
-            }
+        Description = description;
+        return this;
+    }
 
-            return this;
+    public CommandParameterBuilder WithType(Type type)
+    {
+        Type = type;
+        if (type.IsEnum && !Attributes.Any(attribute => attribute is SlashChoiceProviderAttribute))
+        {
+            Attributes.Add(new SlashChoiceProviderAttribute<EnumOptionProvider>());
         }
 
-        public CommandParameterBuilder WithAttributes(IEnumerable<Attribute> attributes)
+        return this;
+    }
+
+    public CommandParameterBuilder WithAttributes(IEnumerable<Attribute> attributes)
+    {
+        Attributes = new List<Attribute>(attributes);
+        foreach (Attribute attribute in attributes)
         {
-            Attributes = new List<Attribute>(attributes);
-            foreach (Attribute attribute in attributes)
+            if (attribute is CommandAttribute commandAttribute)
             {
-                if (attribute is CommandAttribute commandAttribute)
-                {
-                    WithName(commandAttribute.Name);
-                }
-                else if (attribute is DescriptionAttribute descriptionAttribute)
-                {
-                    WithDescription(descriptionAttribute.Description);
-                }
+                WithName(commandAttribute.Name);
             }
-
-            if (string.IsNullOrEmpty(Description))
+            else if (attribute is DescriptionAttribute descriptionAttribute)
             {
-                WithDescription("No description provided.");
+                WithDescription(descriptionAttribute.Description);
             }
-
-            return this;
         }
 
-        public CommandParameterBuilder WithDefaultValue(Optional<object?> defaultValue)
+        if (string.IsNullOrEmpty(Description))
         {
-            DefaultValue = defaultValue;
-            return this;
+            WithDescription("No description provided.");
         }
 
-        [MemberNotNull(nameof(Name), nameof(Description), nameof(Type), nameof(Attributes))]
-        public CommandParameter Build()
+        return this;
+    }
+
+    public CommandParameterBuilder WithDefaultValue(Optional<object?> defaultValue)
+    {
+        DefaultValue = defaultValue;
+        return this;
+    }
+
+    [MemberNotNull(nameof(Name), nameof(Description), nameof(Type), nameof(Attributes))]
+    public CommandParameter Build()
+    {
+        ArgumentNullException.ThrowIfNull(Name, nameof(Name));
+        ArgumentNullException.ThrowIfNull(Description, nameof(Description));
+        ArgumentNullException.ThrowIfNull(Type, nameof(Type));
+        ArgumentNullException.ThrowIfNull(Attributes, nameof(Attributes));
+        ArgumentNullException.ThrowIfNull(DefaultValue, nameof(DefaultValue));
+
+        // Push it through the With* methods again, which contain validation.
+        WithName(Name);
+        WithDescription(Description);
+        WithAttributes(Attributes);
+        WithType(Type);
+        WithDefaultValue(DefaultValue);
+
+        return new CommandParameter()
         {
-            ArgumentNullException.ThrowIfNull(Name, nameof(Name));
-            ArgumentNullException.ThrowIfNull(Description, nameof(Description));
-            ArgumentNullException.ThrowIfNull(Type, nameof(Type));
-            ArgumentNullException.ThrowIfNull(Attributes, nameof(Attributes));
-            ArgumentNullException.ThrowIfNull(DefaultValue, nameof(DefaultValue));
+            Name = Name,
+            Description = Description,
+            Type = Type,
+            Attributes = Attributes,
+            DefaultValue = DefaultValue
+        };
+    }
 
-            // Push it through the With* methods again, which contain validation.
-            WithName(Name);
-            WithDescription(Description);
-            WithAttributes(Attributes);
-            WithType(Type);
-            WithDefaultValue(DefaultValue);
-
-            return new CommandParameter()
-            {
-                Name = Name,
-                Description = Description,
-                Type = Type,
-                Attributes = Attributes,
-                DefaultValue = DefaultValue
-            };
+    public static CommandParameterBuilder From(ParameterInfo parameterInfo)
+    {
+        ArgumentNullException.ThrowIfNull(parameterInfo, nameof(parameterInfo));
+        if (parameterInfo.ParameterType.IsAssignableTo(typeof(CommandContext)))
+        {
+            throw new ArgumentException("The parameter cannot be a CommandContext.", nameof(parameterInfo));
         }
 
-        public static CommandParameterBuilder From(ParameterInfo parameterInfo)
+        CommandParameterBuilder commandParameterBuilder = new();
+        commandParameterBuilder.WithAttributes(parameterInfo.GetCustomAttributes());
+        if (parameterInfo.HasDefaultValue)
         {
-            ArgumentNullException.ThrowIfNull(parameterInfo, nameof(parameterInfo));
-            if (parameterInfo.ParameterType.IsAssignableTo(typeof(CommandContext)))
-            {
-                throw new ArgumentException("The parameter cannot be a CommandContext.", nameof(parameterInfo));
-            }
-
-            CommandParameterBuilder commandParameterBuilder = new();
-            commandParameterBuilder.WithAttributes(parameterInfo.GetCustomAttributes());
-            if (parameterInfo.HasDefaultValue)
-            {
-                commandParameterBuilder.WithDefaultValue(parameterInfo.DefaultValue);
-            }
-
-            if (string.IsNullOrWhiteSpace(commandParameterBuilder.Name) && !string.IsNullOrWhiteSpace(parameterInfo.Name))
-            {
-                commandParameterBuilder.WithName(ToSnakeCase(parameterInfo.Name));
-            }
-
-            if (commandParameterBuilder.Type is null)
-            {
-                commandParameterBuilder.WithType(parameterInfo.ParameterType);
-            }
-
-            return commandParameterBuilder;
+            commandParameterBuilder.WithDefaultValue(parameterInfo.DefaultValue);
         }
 
-        private static string ToSnakeCase(string str)
+        if (string.IsNullOrWhiteSpace(commandParameterBuilder.Name) && !string.IsNullOrWhiteSpace(parameterInfo.Name))
         {
-            StringBuilder stringBuilder = new();
-            foreach (char character in str)
-            {
-                // kebab-cased, somehow.
-                if (character == '-')
-                {
-                    stringBuilder.Append('_');
-                    continue;
-                }
-
-                // camelCase, PascalCase
-                if (char.IsUpper(character))
-                {
-                    stringBuilder.Append('_');
-                }
-
-                stringBuilder.Append(char.ToLowerInvariant(character));
-            }
-
-            return stringBuilder.ToString();
+            commandParameterBuilder.WithName(ToSnakeCase(parameterInfo.Name));
         }
 
-        public class EnumOptionProvider : IChoiceProvider
+        if (commandParameterBuilder.Type is null)
         {
-            public Task<Dictionary<string, object>> ProvideAsync(CommandParameter parameter)
+            commandParameterBuilder.WithType(parameterInfo.ParameterType);
+        }
+
+        return commandParameterBuilder;
+    }
+
+    private static string ToSnakeCase(string str)
+    {
+        StringBuilder stringBuilder = new();
+        foreach (char character in str)
+        {
+            // kebab-cased, somehow.
+            if (character == '-')
             {
-                string[] enumNames = Enum.GetNames(parameter.Type);
-                Array enumValues = Enum.GetValuesAsUnderlyingType(parameter.Type);
-
-                Dictionary<string, object> choices = [];
-                for (int i = 0; i < enumNames.Length; i++)
-                {
-                    choices.Add(enumNames[i], Convert.ToDouble(enumValues.GetValue(i), CultureInfo.InvariantCulture));
-                }
-
-                return Task.FromResult(choices);
+                stringBuilder.Append('_');
+                continue;
             }
+
+            // camelCase, PascalCase
+            if (char.IsUpper(character))
+            {
+                stringBuilder.Append('_');
+            }
+
+            stringBuilder.Append(char.ToLowerInvariant(character));
+        }
+
+        return stringBuilder.ToString();
+    }
+
+    public class EnumOptionProvider : IChoiceProvider
+    {
+        public Task<Dictionary<string, object>> ProvideAsync(CommandParameter parameter)
+        {
+            string[] enumNames = Enum.GetNames(parameter.Type);
+            Array enumValues = Enum.GetValuesAsUnderlyingType(parameter.Type);
+
+            Dictionary<string, object> choices = [];
+            for (int i = 0; i < enumNames.Length; i++)
+            {
+                choices.Add(enumNames[i], Convert.ToDouble(enumValues.GetValue(i), CultureInfo.InvariantCulture));
+            }
+
+            return Task.FromResult(choices);
         }
     }
 }

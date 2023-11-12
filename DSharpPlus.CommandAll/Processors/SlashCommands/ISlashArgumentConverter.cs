@@ -1,12 +1,11 @@
 using DSharpPlus.CommandAll.Converters;
 using DSharpPlus.EventArgs;
 
-namespace DSharpPlus.CommandAll.Processors.SlashCommands
-{
-    public interface ISlashArgumentConverter : IArgumentConverter
-    {
-        public ApplicationCommandOptionType ParameterType { get; init; }
-    }
+namespace DSharpPlus.CommandAll.Processors.SlashCommands;
 
-    public interface ISlashArgumentConverter<T> : ISlashArgumentConverter, IArgumentConverter<InteractionCreateEventArgs, T>;
+public interface ISlashArgumentConverter : IArgumentConverter
+{
+    public ApplicationCommandOptionType ParameterType { get; init; }
 }
+
+public interface ISlashArgumentConverter<T> : ISlashArgumentConverter, IArgumentConverter<InteractionCreateEventArgs, T>;
