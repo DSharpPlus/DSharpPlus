@@ -1,3 +1,4 @@
+namespace DSharpPlus.CommandAll.Commands;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -5,8 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using DSharpPlus.CommandAll.Commands.Attributes;
-
-namespace DSharpPlus.CommandAll.Commands;
 
 public record CommandBuilder
 {
@@ -30,7 +29,7 @@ public record CommandBuilder
             throw new ArgumentOutOfRangeException(nameof(name), "The name of the command must be between 1 and 32 characters.");
         }
 
-        Name = name;
+        this.Name = name;
         return this;
     }
 
@@ -45,11 +44,11 @@ public record CommandBuilder
             throw new ArgumentOutOfRangeException(nameof(description), "The description of the command must be between 1 and 100 characters.");
         }
 
-        Description = description;
+        this.Description = description;
         return this;
     }
 
-    public CommandBuilder WithDelegate(Delegate? method) => WithDelegate(method?.Method, method?.Target);
+    public CommandBuilder WithDelegate(Delegate? method) => this.WithDelegate(method?.Method, method?.Target);
     public CommandBuilder WithDelegate(MethodInfo? method, object? target = null)
     {
         if (method is not null)
@@ -61,47 +60,47 @@ public record CommandBuilder
             }
         }
 
-        Method = method;
-        Target = target;
+        this.Method = method;
+        this.Target = target;
         return this;
     }
 
     public CommandBuilder WithParent(Command? parent)
     {
-        Parent = parent;
+        this.Parent = parent;
         return this;
     }
 
     public CommandBuilder WithSubcommands(IEnumerable<CommandBuilder> subcommands)
     {
-        Subcommands = new(subcommands);
+        this.Subcommands = new(subcommands);
         return this;
     }
 
     public CommandBuilder WithParameters(IEnumerable<CommandParameterBuilder> parameters)
     {
-        Parameters = new(parameters);
+        this.Parameters = new(parameters);
         return this;
     }
 
     public CommandBuilder WithAttributes(IEnumerable<Attribute> attributes)
     {
-        Attributes = new(attributes);
+        this.Attributes = new(attributes);
         foreach (Attribute attribute in attributes)
         {
             if (attribute is CommandAttribute commandAttribute)
             {
-                WithName(commandAttribute.Name);
+                this.WithName(commandAttribute.Name);
             }
             else if (attribute is DescriptionAttribute descriptionAttribute)
             {
-                WithDescription(descriptionAttribute.Description);
+                this.WithDescription(descriptionAttribute.Description);
             }
         }
 
-        if (string.IsNullOrEmpty(Description))
+        if (string.IsNullOrEmpty(this.Description))
         {
-            WithDescription("No description provided.");
+            this.WithDescription("No description provided.");
         }
 
         return this;
@@ -110,30 +109,30 @@ public record CommandBuilder
     [MemberNotNull(nameof(Name), nameof(Description), nameof(Subcommands), nameof(Parameters), nameof(Attributes))]
     public Command Build()
     {
-        ArgumentNullException.ThrowIfNull(Name, nameof(Name));
-        ArgumentNullException.ThrowIfNull(Description, nameof(Description));
-        ArgumentNullException.ThrowIfNull(Subcommands, nameof(Subcommands));
-        ArgumentNullException.ThrowIfNull(Parameters, nameof(Parameters));
-        ArgumentNullException.ThrowIfNull(Attributes, nameof(Attributes));
+        ArgumentNullException.ThrowIfNull(this.Name, nameof(this.Name));
+        ArgumentNullException.ThrowIfNull(this.Description, nameof(this.Description));
+        ArgumentNullException.ThrowIfNull(this.Subcommands, nameof(this.Subcommands));
+        ArgumentNullException.ThrowIfNull(this.Parameters, nameof(this.Parameters));
+        ArgumentNullException.ThrowIfNull(this.Attributes, nameof(this.Attributes));
 
         // Push it through the With* methods again, which contain validation.
-        WithName(Name);
-        WithDescription(Description);
-        WithDelegate(Method);
-        WithParent(Parent);
-        WithSubcommands(Subcommands);
-        WithParameters(Parameters);
-        WithAttributes(Attributes);
+        this.WithName(this.Name);
+        this.WithDescription(this.Description);
+        this.WithDelegate(this.Method);
+        this.WithParent(this.Parent);
+        this.WithSubcommands(this.Subcommands);
+        this.WithParameters(this.Parameters);
+        this.WithAttributes(this.Attributes);
 
-        return new(Subcommands)
+        return new(this.Subcommands)
         {
-            Name = Name,
-            Description = Description,
-            Method = Method,
-            Target = Target,
-            Parent = Parent,
-            Parameters = Parameters.Select(x => x.Build()).ToArray(),
-            Attributes = Attributes
+            Name = this.Name,
+            Description = this.Description,
+            Method = this.Method,
+            Target = this.Target,
+            Parent = this.Parent,
+            Parameters = this.Parameters.Select(x => x.Build()).ToArray(),
+            Attributes = this.Attributes
         };
     }
 

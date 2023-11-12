@@ -1,8 +1,7 @@
+namespace DSharpPlus.CommandAll.Processors.TextCommands.Parsing;
 using System;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
-
-namespace DSharpPlus.CommandAll.Processors.TextCommands.Parsing;
 
 public delegate Task<int> ResolvePrefixDelegateAsync(CommandAllExtension extension, DiscordMessage message);
 
@@ -17,14 +16,14 @@ public sealed class DefaultPrefixResolver
             throw new ArgumentException("Prefix cannot be null or whitespace.", nameof(prefix));
         }
 
-        Prefix = prefix;
+        this.Prefix = prefix;
     }
 
     public Task<int> ResolvePrefixAsync(CommandAllExtension extension, DiscordMessage message)
     {
-        if (message.Content.StartsWith(Prefix, StringComparison.OrdinalIgnoreCase))
+        if (message.Content.StartsWith(this.Prefix, StringComparison.OrdinalIgnoreCase))
         {
-            return Task.FromResult(Prefix.Length);
+            return Task.FromResult(this.Prefix.Length);
         }
         // Mention check
         else if (message.Content.StartsWith(extension.Client.CurrentUser.Mention, StringComparison.OrdinalIgnoreCase))

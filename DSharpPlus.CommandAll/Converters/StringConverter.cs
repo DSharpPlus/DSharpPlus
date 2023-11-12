@@ -1,3 +1,4 @@
+namespace DSharpPlus.CommandAll.Converters;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Processors.SlashCommands;
@@ -5,8 +6,6 @@ using DSharpPlus.CommandAll.Processors.TextCommands;
 using DSharpPlus.CommandAll.Processors.TextCommands.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-
-namespace DSharpPlus.CommandAll.Converters;
 
 public class StringConverter : ISlashArgumentConverter<string>, ITextArgumentConverter<string>
 {

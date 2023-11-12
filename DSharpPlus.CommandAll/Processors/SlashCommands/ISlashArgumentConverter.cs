@@ -1,7 +1,6 @@
+namespace DSharpPlus.CommandAll.Processors.SlashCommands;
 using DSharpPlus.CommandAll.Converters;
 using DSharpPlus.EventArgs;
-
-namespace DSharpPlus.CommandAll.Processors.SlashCommands;
 
 public interface ISlashArgumentConverter : IArgumentConverter
 {

@@ -1,3 +1,4 @@
+namespace DSharpPlus.CommandAll.Converters;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -6,8 +7,6 @@ using DSharpPlus.CommandAll.Processors.TextCommands;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
-
-namespace DSharpPlus.CommandAll.Converters;
 
 public partial class DiscordMessageConverter : ISlashArgumentConverter<DiscordMessage>, ITextArgumentConverter<DiscordMessage>
 {

@@ -1,3 +1,4 @@
+namespace DSharpPlus.CommandAll.Converters;
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
@@ -6,8 +7,6 @@ using DSharpPlus.CommandAll.Processors.SlashCommands;
 using DSharpPlus.CommandAll.Processors.TextCommands;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-
-namespace DSharpPlus.CommandAll.Converters;
 
 public class BooleanConverter : ISlashArgumentConverter<bool>, ITextArgumentConverter<bool>
 {

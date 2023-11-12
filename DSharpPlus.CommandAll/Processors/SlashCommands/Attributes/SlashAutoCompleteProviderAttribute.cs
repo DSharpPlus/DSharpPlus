@@ -1,10 +1,9 @@
+namespace DSharpPlus.CommandAll.Processors.SlashCommands.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
-
-namespace DSharpPlus.CommandAll.Processors.SlashCommands.Attributes;
 
 [AttributeUsage(AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
 public class SlashAutoCompleteProviderAttribute(Type autoCompleteType) : Attribute
@@ -16,7 +15,7 @@ public class SlashAutoCompleteProviderAttribute(Type autoCompleteType) : Attribu
         IAutoCompleteProvider autoCompleteProvider;
         try
         {
-            autoCompleteProvider = (IAutoCompleteProvider)ActivatorUtilities.CreateInstance(context.ServiceProvider, AutoCompleteType);
+            autoCompleteProvider = (IAutoCompleteProvider)ActivatorUtilities.CreateInstance(context.ServiceProvider, this.AutoCompleteType);
         }
         catch (Exception)
         {

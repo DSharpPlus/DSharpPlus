@@ -1,6 +1,6 @@
-using System;
-
 namespace DSharpPlus.CommandAll;
+
+using System;
 
 /// <summary>
 /// The configuration copied to an instance of <see cref="CommandAllExtension"/>.

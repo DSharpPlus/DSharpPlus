@@ -1,3 +1,5 @@
+namespace DSharpPlus.CommandAll;
+
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
@@ -11,8 +13,6 @@ using DSharpPlus.CommandAll.Processors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-
-namespace DSharpPlus.CommandAll;
 
 /// <summary>
 /// Because not everyone can decide between slash commands and text commands.
@@ -39,13 +39,13 @@ public sealed class CommandAllExtension : BaseExtension
     /// <summary>
     /// Executed everytime a command is finished executing.
     /// </summary>
-    public event AsyncEventHandler<CommandAllExtension, CommandExecutedEventArgs> CommandExecuted { add => _commandExecuted.Register(value); remove => _commandExecuted.Unregister(value); }
+    public event AsyncEventHandler<CommandAllExtension, CommandExecutedEventArgs> CommandExecuted { add => this._commandExecuted.Register(value); remove => this._commandExecuted.Unregister(value); }
     internal readonly AsyncEvent<CommandAllExtension, CommandExecutedEventArgs> _commandExecuted = new("COMMANDALL_COMMAND_EXECUTED", EverythingWentWrongErrorHandler);
 
     /// <summary>
     /// Executed everytime a command has errored.
     /// </summary>
-    public event AsyncEventHandler<CommandAllExtension, CommandErroredEventArgs> CommandErrored { add => _commandErrored.Register(value); remove => _commandErrored.Unregister(value); }
+    public event AsyncEventHandler<CommandAllExtension, CommandErroredEventArgs> CommandErrored { add => this._commandErrored.Register(value); remove => this._commandErrored.Unregister(value); }
     internal readonly AsyncEvent<CommandAllExtension, CommandErroredEventArgs> _commandErrored = new("COMMANDALL_COMMAND_ERRORED", EverythingWentWrongErrorHandler);
 
     /// <summary>
@@ -61,11 +61,11 @@ public sealed class CommandAllExtension : BaseExtension
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        ServiceProvider = configuration.ServiceProvider;
-        DebugGuildId = configuration.DebugGuildId;
+        this.ServiceProvider = configuration.ServiceProvider;
+        this.DebugGuildId = configuration.DebugGuildId;
 
         // Attempt to get the user defined logging, otherwise setup a null logger since the D#+ Default Logger is internal.
-        _logger = ServiceProvider.GetService<ILogger<CommandAllExtension>>() ?? NullLogger<CommandAllExtension>.Instance;
+        this._logger = this.ServiceProvider.GetService<ILogger<CommandAllExtension>>() ?? NullLogger<CommandAllExtension>.Instance;
     }
 
     /// <summary>
@@ -78,27 +78,27 @@ public sealed class CommandAllExtension : BaseExtension
         {
             throw new ArgumentNullException(nameof(client));
         }
-        else if (Client is not null)
+        else if (this.Client is not null)
         {
             throw new InvalidOperationException("CommandAll Extension is already initialized.");
         }
 
-        Client = client;
-        Client.SessionCreated += async (_, _) => await RefreshAsync();
+        this.Client = client;
+        this.Client.SessionCreated += async (_, _) => await this.RefreshAsync();
     }
 
-    public void AddCommand(CommandBuilder command) => _commandBuilders.Add(command);
-    public void AddCommand(Delegate commandDelegate) => _commandBuilders.Add(CommandBuilder.From(commandDelegate));
-    public void AddCommands(IEnumerable<CommandBuilder> commands) => _commandBuilders.AddRange(commands);
-    public void AddCommands(Assembly assembly) => AddCommands(assembly.GetTypes());
-    public void AddCommands(params CommandBuilder[] commands) => _commandBuilders.AddRange(commands);
+    public void AddCommand(CommandBuilder command) => this._commandBuilders.Add(command);
+    public void AddCommand(Delegate commandDelegate) => this._commandBuilders.Add(CommandBuilder.From(commandDelegate));
+    public void AddCommands(IEnumerable<CommandBuilder> commands) => this._commandBuilders.AddRange(commands);
+    public void AddCommands(Assembly assembly) => this.AddCommands(assembly.GetTypes());
+    public void AddCommands(params CommandBuilder[] commands) => this._commandBuilders.AddRange(commands);
     public void AddCommands(IEnumerable<Type> types)
     {
         foreach (Type type in types)
         {
             if (type.GetCustomAttribute<CommandAttribute>() is not null)
             {
-                _commandBuilders.Add(CommandBuilder.From(type));
+                this._commandBuilders.Add(CommandBuilder.From(type));
                 continue;
             }
 
@@ -106,28 +106,28 @@ public sealed class CommandAllExtension : BaseExtension
             {
                 if (method.GetCustomAttribute<CommandAttribute>() is not null)
                 {
-                    _commandBuilders.Add(CommandBuilder.From(method));
+                    this._commandBuilders.Add(CommandBuilder.From(method));
                 }
             }
         }
     }
 
-    public void AddProcessor(ICommandProcessor processor) => _processors.Add(processor.GetType(), processor);
-    public void AddProcessors(params ICommandProcessor[] processors) => AddProcessors((IEnumerable<ICommandProcessor>)processors);
+    public void AddProcessor(ICommandProcessor processor) => this._processors.Add(processor.GetType(), processor);
+    public void AddProcessors(params ICommandProcessor[] processors) => this.AddProcessors((IEnumerable<ICommandProcessor>)processors);
     public void AddProcessors(IEnumerable<ICommandProcessor> processors)
     {
         foreach (ICommandProcessor processor in processors)
         {
-            _processors.Add(processor.GetType(), processor);
+            this._processors.Add(processor.GetType(), processor);
         }
     }
 
-    public TProcessor GetProcessor<TProcessor>() where TProcessor : ICommandProcessor => (TProcessor)_processors[typeof(TProcessor)];
+    public TProcessor GetProcessor<TProcessor>() where TProcessor : ICommandProcessor => (TProcessor)this._processors[typeof(TProcessor)];
 
     public async Task RefreshAsync()
     {
         Dictionary<string, Command> commands = [];
-        foreach (CommandBuilder commandBuilder in _commandBuilders)
+        foreach (CommandBuilder commandBuilder in this._commandBuilders)
         {
             try
             {
@@ -136,13 +136,13 @@ public sealed class CommandAllExtension : BaseExtension
             }
             catch (Exception error)
             {
-                _logger.LogError(error, "Failed to build command '{CommandBuilder}'", commandBuilder.Name);
+                this._logger.LogError(error, "Failed to build command '{CommandBuilder}'", commandBuilder.Name);
             }
         }
 
-        Commands = commands.ToFrozenDictionary();
+        this.Commands = commands.ToFrozenDictionary();
 
-        foreach (ICommandProcessor processor in _processors.Values)
+        foreach (ICommandProcessor processor in this._processors.Values)
         {
             await processor.ConfigureAsync(this);
         }

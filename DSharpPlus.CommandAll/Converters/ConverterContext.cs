@@ -1,21 +1,20 @@
-using DSharpPlus.CommandAll.Commands;
-
 namespace DSharpPlus.CommandAll.Converters;
+using DSharpPlus.CommandAll.Commands;
 
 public abstract record ConverterContext : AbstractContext
 {
     public virtual object? Argument { get; protected set; }
     public int ParameterIndex { get; private set; } = -1;
-    public CommandParameter Parameter => Command.Parameters[ParameterIndex];
+    public CommandParameter Parameter => this.Command.Parameters[this.ParameterIndex];
 
     public bool NextParameter()
     {
-        if (ParameterIndex + 1 >= Command.Parameters.Count)
+        if (this.ParameterIndex + 1 >= this.Command.Parameters.Count)
         {
             return false;
         }
 
-        ParameterIndex++;
+        this.ParameterIndex++;
         return true;
     }
 

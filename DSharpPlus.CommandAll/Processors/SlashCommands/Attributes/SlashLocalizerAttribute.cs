@@ -1,10 +1,9 @@
+namespace DSharpPlus.CommandAll.Processors.SlashCommands.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Processors.SlashCommands.Translation;
 using Microsoft.Extensions.DependencyInjection;
-
-namespace DSharpPlus.CommandAll.Processors.SlashCommands.Attributes;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
 public class SlashLocalizerAttribute(Type localizerType) : Attribute
@@ -16,7 +15,7 @@ public class SlashLocalizerAttribute(Type localizerType) : Attribute
         ITranslator translator;
         try
         {
-            translator = (ITranslator)ActivatorUtilities.CreateInstance(serviceProvider, LocalizerType);
+            translator = (ITranslator)ActivatorUtilities.CreateInstance(serviceProvider, this.LocalizerType);
         }
         catch (Exception)
         {

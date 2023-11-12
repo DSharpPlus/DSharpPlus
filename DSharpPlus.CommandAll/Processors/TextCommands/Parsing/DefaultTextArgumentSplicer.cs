@@ -1,8 +1,7 @@
+namespace DSharpPlus.CommandAll.Processors.TextCommands.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
-namespace DSharpPlus.CommandAll.Processors.TextCommands.Parsing;
 
 public delegate string? TextArgumentSplicer(CommandAllExtension extension, string text, ref int startAt);
 

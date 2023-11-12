@@ -1,11 +1,10 @@
+namespace DSharpPlus.CommandAll.Converters;
 using System.Globalization;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Processors.SlashCommands;
 using DSharpPlus.CommandAll.Processors.TextCommands;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-
-namespace DSharpPlus.CommandAll.Converters;
 
 public class SByteConverter : ISlashArgumentConverter<sbyte>, ITextArgumentConverter<sbyte>
 {

@@ -1,6 +1,5 @@
-using System;
-
 namespace DSharpPlus.CommandAll.Exceptions;
+using System;
 
 public sealed class CommandNotFoundException : Exception
 {
@@ -9,6 +8,6 @@ public sealed class CommandNotFoundException : Exception
     public CommandNotFoundException(string commandName, string? message = null) : base(message ?? $"Command {commandName} not found.")
     {
         ArgumentNullException.ThrowIfNull(commandName, nameof(commandName));
-        CommandName = commandName;
+        this.CommandName = commandName;
     }
 }

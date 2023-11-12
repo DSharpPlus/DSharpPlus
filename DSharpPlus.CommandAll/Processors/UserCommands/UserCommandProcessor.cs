@@ -1,3 +1,4 @@
+namespace DSharpPlus.CommandAll.Processors.UserCommands;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -17,24 +18,22 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace DSharpPlus.CommandAll.Processors.UserCommands;
-
 public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreateEventArgs>
 {
-    public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreateEventArgs>> Converters => _slashCommandProcessor?.ConverterDelegates ?? new Dictionary<Type, ConverterDelegate<InteractionCreateEventArgs>>();
+    public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreateEventArgs>> Converters => this._slashCommandProcessor?.ConverterDelegates ?? new Dictionary<Type, ConverterDelegate<InteractionCreateEventArgs>>();
     private CommandAllExtension? _extension;
     private SlashCommandProcessor? _slashCommandProcessor;
 
     public async Task ConfigureAsync(CommandAllExtension extension)
     {
-        _extension = extension;
-        _extension.Client.ContextMenuInteractionCreated += ExecuteInteractionAsync;
-        _slashCommandProcessor = _extension.GetProcessor<SlashCommandProcessor>() ?? new SlashCommandProcessor();
-        await _slashCommandProcessor.ConfigureAsync(_extension);
+        this._extension = extension;
+        this._extension.Client.ContextMenuInteractionCreated += this.ExecuteInteractionAsync;
+        this._slashCommandProcessor = this._extension.GetProcessor<SlashCommandProcessor>() ?? new SlashCommandProcessor();
+        await this._slashCommandProcessor.ConfigureAsync(this._extension);
 
-        ILogger<UserCommandProcessor> logger = _extension.ServiceProvider.GetService<ILogger<UserCommandProcessor>>() ?? NullLogger<UserCommandProcessor>.Instance;
+        ILogger<UserCommandProcessor> logger = this._extension.ServiceProvider.GetService<ILogger<UserCommandProcessor>>() ?? NullLogger<UserCommandProcessor>.Instance;
         List<DiscordApplicationCommand> applicationCommands = [];
-        foreach (Command command in _extension.Commands.Values)
+        foreach (Command command in this._extension.Commands.Values)
         {
             // User commands must be explicitly defined as such, otherwise they are ignored.
             if (!command.Attributes.Any(x => x is SlashCommandTypesAttribute slashCommandTypesAttribute && slashCommandTypesAttribute.ApplicationCommandTypes.Contains(ApplicationCommandType.UserContextMenu)))
@@ -54,15 +53,15 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreateEv
                 continue;
             }
 
-            applicationCommands.Add(await ToApplicationCommandAsync(_extension, command));
+            applicationCommands.Add(await ToApplicationCommandAsync(this._extension, command));
         }
 
-        _slashCommandProcessor.AddApplicationCommands(applicationCommands);
+        this._slashCommandProcessor.AddApplicationCommands(applicationCommands);
     }
 
     public async Task ExecuteInteractionAsync(DiscordClient client, ContextMenuInteractionCreateEventArgs eventArgs)
     {
-        if (_extension is null || _slashCommandProcessor is null)
+        if (this._extension is null || this._slashCommandProcessor is null)
         {
             throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
         }
@@ -71,17 +70,17 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreateEv
             return;
         }
 
-        AsyncServiceScope scope = _extension.ServiceProvider.CreateAsyncScope();
-        if (!_slashCommandProcessor.TryFindCommand(eventArgs.Interaction, out Command? command, out IEnumerable<DiscordInteractionDataOption>? options))
+        AsyncServiceScope scope = this._extension.ServiceProvider.CreateAsyncScope();
+        if (!this._slashCommandProcessor.TryFindCommand(eventArgs.Interaction, out Command? command, out IEnumerable<DiscordInteractionDataOption>? options))
         {
-            await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
+            await this._extension._commandErrored.InvokeAsync(this._extension, new CommandErroredEventArgs()
             {
                 Context = new SlashCommandContext()
                 {
                     Arguments = new Dictionary<CommandParameter, object?>(),
                     Channel = eventArgs.Interaction.Channel,
                     Command = null!,
-                    Extension = _extension,
+                    Extension = this._extension,
                     Interaction = eventArgs.Interaction,
                     Options = eventArgs.Interaction.Data.Options ?? [],
                     ServiceScope = scope,
@@ -103,14 +102,14 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreateEv
             },
             Channel = eventArgs.Interaction.Channel,
             Command = command,
-            Extension = _extension,
+            Extension = this._extension,
             Interaction = eventArgs.Interaction,
             Options = [],
             ServiceScope = scope,
             User = eventArgs.Interaction.User
         };
 
-        await _extension.CommandExecutor.ExecuteAsync(context);
+        await this._extension.CommandExecutor.ExecuteAsync(context);
     }
 
     public static async Task<DiscordApplicationCommand> ToApplicationCommandAsync(CommandAllExtension extension, Command command)
