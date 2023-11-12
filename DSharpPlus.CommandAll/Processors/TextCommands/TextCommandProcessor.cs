@@ -10,6 +10,7 @@ using DSharpPlus.CommandAll.Processors.TextCommands.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.CommandAll.Processors.TextCommands
 {
@@ -24,6 +25,12 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
             if (!_configured)
             {
                 _configured = true;
+                if (!extension.Client.Intents.HasIntent(DiscordIntents.MessageContents))
+                {
+                    _logger.LogCritical("TextCommandProcessor requires the MessageContents intent to be enabled. Text commands will fail without it.");
+                    return;
+                }
+
                 extension.Client.MessageCreated += ExecuteTextCommandAsync;
             }
         }
