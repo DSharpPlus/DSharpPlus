@@ -1,14 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <Description>An extension for DSharpPlus to allow for text and slash commands to be used with a single base.</Description>
-    <IsPackable>true</IsPackable>
-    <OutputType>Library</OutputType>
-    <PackageId>OoLunar.DSharpPlus.CommandAll</PackageId>
-    <PackageTags>discord, discord-api, bots, discord-bots, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, commands, slash-commands, interactions</PackageTags>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-01880" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
-  </ItemGroup>
+    <PropertyGroup>
+        <PackageId>DSharpPlus.CommandAll</PackageId>
+        <Description>An all in one package for managing commands.</Description>
+        <PackageTags>$(PackageTags), commands, commandsnext, slash-commands, interactions</PackageTags>
+        <IsPackable>true</IsPackable>
+        <TargetFramework>net8.0</TargetFramework>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="$(ProjectRoot)\DSharpPlus\DSharpPlus.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Logging" />
+    </ItemGroup>
 </Project>
