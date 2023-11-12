@@ -48,7 +48,6 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                 {
                     await this.RegisterSlashCommandsAsync(extension);
                 }
-
             };
         }
     }
@@ -64,7 +63,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             return;
         }
 
-        AsyncServiceScope scope = this._extension.ServiceProvider.CreateAsyncScope();
+        AsyncServiceScope serviceScope = this._extension.ServiceProvider.CreateAsyncScope();
         if (!this.TryFindCommand(eventArgs.Interaction, out Command? command, out IEnumerable<DiscordInteractionDataOption>? options))
         {
             await this._extension._commandErrored.InvokeAsync(this._extension, new CommandErroredEventArgs()
@@ -75,7 +74,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                     Channel = eventArgs.Interaction.Channel,
                     Command = null!,
                     Extension = this._extension,
-                    ServiceScope = scope,
+                    ServiceScope = serviceScope,
                     User = eventArgs.Interaction.User,
                     Interaction = eventArgs.Interaction,
                     Options = eventArgs.Interaction.Data.Options ?? []
@@ -84,7 +83,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                 Exception = new CommandNotFoundException(eventArgs.Interaction.Data.Name)
             });
 
-            await scope.DisposeAsync();
+            await serviceScope.DisposeAsync();
             return;
         }
 
@@ -95,11 +94,11 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             Extension = this._extension,
             Interaction = eventArgs.Interaction,
             Options = options.ToList(),
-            ServiceScope = scope,
+            ServiceScope = serviceScope,
             User = eventArgs.Interaction.User
         };
 
-        if (eventArgs.Interaction.Type == InteractionType.AutoComplete)
+        if (eventArgs.Interaction.Type is InteractionType.AutoComplete)
         {
             AutoCompleteContext? autoCompleteContext = await this.ParseAutoCompleteArgumentsAsync(converterContext, eventArgs);
             if (autoCompleteContext is not null)
@@ -167,32 +166,32 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             applicationCommands.Add(await this.ToApplicationCommandAsync(command));
         }
 
-        IReadOnlyList<DiscordApplicationCommand> commands = extension.DebugGuildId is null
+        IReadOnlyList<DiscordApplicationCommand> discordCommands = extension.DebugGuildId is null
             ? await extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(applicationCommands)
             : await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId.Value, applicationCommands);
 
         Dictionary<ulong, Command> commandsDictionary = [];
-        foreach (DiscordApplicationCommand command in commands)
+        foreach (DiscordApplicationCommand discordCommand in discordCommands)
         {
-            if (!extension.Commands.TryGetValue(command.Name, out Command? caCommand))
+            if (!extension.Commands.TryGetValue(discordCommand.Name, out Command? command))
             {
-                foreach (Command officialCommand in extension.Commands.Values)
+                foreach (Command aliasedCommand in extension.Commands.Values)
                 {
-                    if (officialCommand.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName == command.Name)
+                    if (aliasedCommand.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName == discordCommand.Name)
                     {
-                        caCommand = officialCommand;
+                        command = aliasedCommand;
                         break;
                     }
                 }
             }
 
-            if (caCommand is null)
+            if (command is null)
             {
-                SlashLogging.UnknownCommandName(this._logger, command.Name, null);
+                SlashLogging.UnknownCommandName(this._logger, discordCommand.Name, null);
                 continue;
             }
 
-            commandsDictionary.Add(command.Id, caCommand);
+            commandsDictionary.Add(discordCommand.Id, command);
         }
 
         this.Commands = commandsDictionary.ToFrozenDictionary();
@@ -304,7 +303,6 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         );
     }
 
-    [SuppressMessage("Roslyn", "IDE0045", Justification = "Ternary rabbit hole.")]
     [SuppressMessage("Roslyn", "CA1859", Justification = "Incorrect warning in NET 8-rc2. TODO: Open an issue in dotnet/runtime.")]
     private async Task<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command, CommandParameter parameter, int? i = null)
     {
