@@ -11,7 +11,6 @@ using DSharpPlus.CommandAll.Processors.TextCommands.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 public sealed class TextCommandProcessor(TextCommandConfiguration? configuration = null) : BaseCommandProcessor<MessageCreateEventArgs, ITextArgumentConverter, TextConverterContext, TextCommandContext>
 {
@@ -26,7 +25,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             this._configured = true;
             if (!extension.Client.Intents.HasIntent(DiscordIntents.MessageContents))
             {
-                this._logger.LogCritical("TextCommandProcessor requires the MessageContents intent to be enabled. Text commands will fail without it.");
+                TextLogging.MissingMessageContentIntent(this._logger, null);
                 return;
             }
 
