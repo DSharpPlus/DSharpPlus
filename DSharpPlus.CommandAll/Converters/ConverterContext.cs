@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandAll.Converters;
+
 using DSharpPlus.CommandAll.Commands;
 
 public abstract record ConverterContext : AbstractContext

@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandAll.Exceptions;
+
 using System;
 using DSharpPlus.CommandAll.ContextChecks;
 

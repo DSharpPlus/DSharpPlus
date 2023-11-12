@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandAll.Processors.TextCommands;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;

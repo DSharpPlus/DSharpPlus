@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandAll.Processors.SlashCommands;
+
 using System.Collections.Generic;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.Entities;

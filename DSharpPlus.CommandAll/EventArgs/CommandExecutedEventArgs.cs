@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandAll.EventArgs;
+
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.CommandAll.Commands;
 

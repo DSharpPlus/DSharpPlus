@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandAll.Processors.TextCommands;
+
 using DSharpPlus.CommandAll.Processors.TextCommands.Parsing;
 
 public record TextCommandConfiguration

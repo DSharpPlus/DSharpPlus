@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandAll.Processors.SlashCommands;
+
 using DSharpPlus.CommandAll.Converters;
 using DSharpPlus.EventArgs;
 

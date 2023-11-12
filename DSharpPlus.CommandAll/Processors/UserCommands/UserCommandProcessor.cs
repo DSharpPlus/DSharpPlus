@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandAll.Processors.UserCommands;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
