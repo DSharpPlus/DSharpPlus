@@ -1,3 +1,4 @@
+namespace DSharpPlus.CommandAll.Converters;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -5,8 +6,6 @@ using DSharpPlus.CommandAll.Processors.SlashCommands;
 using DSharpPlus.CommandAll.Processors.TextCommands;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-
-namespace DSharpPlus.CommandAll.Converters;
 
 public class DateTimeOffsetConverter : ISlashArgumentConverter<DateTimeOffset>, ITextArgumentConverter<DateTimeOffset>
 {

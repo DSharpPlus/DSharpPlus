@@ -1,3 +1,4 @@
+namespace DSharpPlus.CommandAll.Converters;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -6,8 +7,6 @@ using DSharpPlus.CommandAll.Processors.SlashCommands;
 using DSharpPlus.CommandAll.Processors.TextCommands;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-
-namespace DSharpPlus.CommandAll.Converters;
 
 public partial class TimeSpanConverter : ISlashArgumentConverter<TimeSpan>, ITextArgumentConverter<TimeSpan>
 {

@@ -1,8 +1,7 @@
+namespace DSharpPlus.CommandAll.Commands;
 using System;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
-
-namespace DSharpPlus.CommandAll.Commands;
 
 public record CommandParameter
 {

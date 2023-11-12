@@ -1,11 +1,10 @@
+namespace DSharpPlus.CommandAll.Processors.SlashCommands.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
-
-namespace DSharpPlus.CommandAll.Processors.SlashCommands.Attributes;
 
 [AttributeUsage(AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
 public class SlashChoiceProviderAttribute(Type providerType) : Attribute
@@ -17,7 +16,7 @@ public class SlashChoiceProviderAttribute(Type providerType) : Attribute
         IChoiceProvider choiceProvider;
         try
         {
-            choiceProvider = (IChoiceProvider)ActivatorUtilities.CreateInstance(serviceProvider, ProviderType);
+            choiceProvider = (IChoiceProvider)ActivatorUtilities.CreateInstance(serviceProvider, this.ProviderType);
         }
         catch (Exception)
         {

@@ -1,7 +1,6 @@
+namespace DSharpPlus.CommandAll.Processors.TextCommands;
 using DSharpPlus.CommandAll.Converters;
 using DSharpPlus.EventArgs;
-
-namespace DSharpPlus.CommandAll.Processors.TextCommands;
 
 public interface ITextArgumentConverter : IArgumentConverter
 {

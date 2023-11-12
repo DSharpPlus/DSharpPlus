@@ -1,9 +1,9 @@
+namespace DSharpPlus.CommandAll;
+
 using System;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
-
-namespace DSharpPlus.CommandAll;
 
 public abstract record AbstractContext
 {
@@ -13,8 +13,8 @@ public abstract record AbstractContext
     public required Command Command { get; init; }
     public required AsyncServiceScope ServiceScope { internal get; init; }
 
-    public DiscordGuild? Guild => Channel.Guild;
-    public DiscordMember? Member => User as DiscordMember;
-    public DiscordClient Client => Extension.Client;
-    public IServiceProvider ServiceProvider => ServiceScope.ServiceProvider;
+    public DiscordGuild? Guild => this.Channel.Guild;
+    public DiscordMember? Member => this.User as DiscordMember;
+    public DiscordClient Client => this.Extension.Client;
+    public IServiceProvider ServiceProvider => this.ServiceScope.ServiceProvider;
 }

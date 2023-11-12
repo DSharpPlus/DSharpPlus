@@ -1,9 +1,8 @@
+namespace DSharpPlus.CommandAll.ContextChecks;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands;
-
-namespace DSharpPlus.CommandAll.ContextChecks;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Delegate)]
 public class RequireOwnerAttribute : ContextCheckAttribute

@@ -1,7 +1,6 @@
+namespace DSharpPlus.CommandAll.Processors.TextCommands;
 using System;
 using Microsoft.Extensions.Logging;
-
-namespace DSharpPlus.CommandAll.Processors.TextCommands;
 
 internal static class TextLogging
 {

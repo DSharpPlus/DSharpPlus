@@ -1,7 +1,6 @@
+namespace DSharpPlus.CommandAll.Processors.SlashCommands;
 using System;
 using Microsoft.Extensions.Logging;
-
-namespace DSharpPlus.CommandAll.Processors.SlashCommands;
 
 internal static class SlashLogging
 {

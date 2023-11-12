@@ -1,6 +1,5 @@
-using System;
-
 namespace DSharpPlus.CommandAll.Processors.SlashCommands.Attributes;
+using System;
 
 /// <summary>
 /// Determines the minimum and maximum length that a parameter can accept.
@@ -23,7 +22,7 @@ public sealed class SlashMinMaxLengthAttribute : Attribute
     /// </summary>
     public SlashMinMaxLengthAttribute()
     {
-        if (MinLength is not null && MaxLength is not null && MinLength > MaxLength)
+        if (this.MinLength is not null && this.MaxLength is not null && this.MinLength > this.MaxLength)
         {
             throw new ArgumentException("The minimum length cannot be greater than the maximum length.");
         }

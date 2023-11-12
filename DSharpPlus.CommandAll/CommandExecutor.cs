@@ -1,3 +1,5 @@
+namespace DSharpPlus.CommandAll;
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -12,8 +14,6 @@ using DSharpPlus.CommandAll.EventArgs;
 using DSharpPlus.CommandAll.Exceptions;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
-
-namespace DSharpPlus.CommandAll;
 
 public sealed class CommandExecutor
 {
@@ -32,14 +32,14 @@ public sealed class CommandExecutor
         Task task = Task.Run(() => WorkerAsync(context), cancellationToken);
         if (!block)
         {
-            task = task.ContinueWith(_ => _tasks.TryRemove(guid, out Task? _));
+            task = task.ContinueWith(_ => this._tasks.TryRemove(guid, out Task? _));
         }
 
-        _tasks.TryAdd(guid, task);
+        this._tasks.TryAdd(guid, task);
         if (block)
         {
-            await _tasks[guid];
-            _tasks.TryRemove(guid, out Task? _);
+            await this._tasks[guid];
+            this._tasks.TryRemove(guid, out Task? _);
         }
     }
 

@@ -1,3 +1,4 @@
+namespace DSharpPlus.CommandAll.Converters;
 using System;
 using System.Globalization;
 using System.Linq;
@@ -11,8 +12,6 @@ using DSharpPlus.Exceptions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace DSharpPlus.CommandAll.Converters;
-
 public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>, ITextArgumentConverter<DiscordUser>
 {
     [GeneratedRegex("""^<@!?(\d+?)>$""", RegexOptions.Compiled | RegexOptions.ECMAScript)]
@@ -22,7 +21,7 @@ public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>
     public bool RequiresText { get; init; } = true;
     private readonly ILogger<DiscordUserConverter> _logger;
 
-    public DiscordUserConverter(ILogger<DiscordUserConverter>? logger = null) => _logger = logger ?? NullLogger<DiscordUserConverter>.Instance;
+    public DiscordUserConverter(ILogger<DiscordUserConverter>? logger = null) => this._logger = logger ?? NullLogger<DiscordUserConverter>.Instance;
 
     public async Task<Optional<DiscordUser>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs)
     {
@@ -54,7 +53,7 @@ public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>
         }
         catch (DiscordException error)
         {
-            _logger.LogError(error, "Failed to get user from client.");
+            this._logger.LogError(error, "Failed to get user from client.");
         }
 
         return Optional.FromNoValue<DiscordUser>();
