@@ -14,7 +14,6 @@ public sealed class ParameterAttribute : Attribute
     /// Creates a new instance of the <see cref="CommandAttribute"/> class.
     /// </summary>
     /// <param name="name">The name of the command.</param>
-    /// <param name="description">The description of the command.</param>
     public ParameterAttribute(string name)
     {
         if (string.IsNullOrWhiteSpace(name))

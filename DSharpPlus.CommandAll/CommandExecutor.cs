@@ -23,6 +23,8 @@ public sealed class CommandExecutor
     /// Executes a command asynchronously.
     /// </summary>
     /// <param name="context">The context of the command.</param>
+    /// <param name="block">Whether or not to block the current thread until the command has finished executing.</param>
+    /// <param name="cancellationToken">The cancellation token to use.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The value will be a <see cref="Optional{T}"/> of <see cref="bool"/>. <see cref="Optional{T}.HasValue"/> will be <see langword="true"/> if the command was executed successfully, <see langword="false"/> if the command was not executed successfully, and <see langword="null"/> if the command threw an exception.</returns>
     public async Task ExecuteAsync(CommandContext context, bool block = false, CancellationToken cancellationToken = default)
     {
