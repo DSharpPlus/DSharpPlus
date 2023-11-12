@@ -10,11 +10,11 @@ namespace DSharpPlus.CommandAll.Converters
 {
     public class DateTimeOffsetConverter : ISlashArgumentConverter<DateTimeOffset>, ITextArgumentConverter<DateTimeOffset>
     {
-        public ApplicationCommandOptionType ArgumentType { get; init; } = ApplicationCommandOptionType.String;
+        public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.String;
         public bool RequiresText { get; init; } = true;
 
-        public Task<Optional<DateTimeOffset>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context.As<TextConverterContext>().CurrentTextArgument);
-        public Task<Optional<DateTimeOffset>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context.As<SlashConverterContext>().CurrentOption.Value.ToString());
+        public Task<Optional<DateTimeOffset>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context.As<TextConverterContext>().Argument);
+        public Task<Optional<DateTimeOffset>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context.As<SlashConverterContext>().Argument.ToString());
         public static Task<Optional<DateTimeOffset>> ConvertAsync(string? value) =>
             DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, out DateTimeOffset result)
                 ? Task.FromResult(Optional.FromValue(result.ToUniversalTime()))

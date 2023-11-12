@@ -14,11 +14,11 @@ namespace DSharpPlus.CommandAll.Converters
         [GeneratedRegex(@"\/channels\/(?<guild>(?:\d+|@me))\/(?<channel>\d+)\/(?<message>\d+)\/?", RegexOptions.Compiled | RegexOptions.ECMAScript)]
         private static partial Regex GetMessageRegex();
 
-        public ApplicationCommandOptionType ArgumentType { get; init; } = ApplicationCommandOptionType.String;
+        public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.String;
         public bool RequiresText { get; init; } = true;
 
-        public Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context, context.As<TextConverterContext>().CurrentTextArgument);
-        public Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context, context.As<SlashConverterContext>().CurrentOption.Value.ToString());
+        public Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context, context.As<TextConverterContext>().Argument);
+        public Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context, context.As<SlashConverterContext>().Argument.Value.ToString());
 
         public static async Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context, string? value)
         {

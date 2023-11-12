@@ -18,7 +18,7 @@ namespace DSharpPlus.CommandAll.Converters
         [GeneratedRegex("""^<@!?(\d+?)>$""", RegexOptions.Compiled | RegexOptions.ECMAScript)]
         private static partial Regex _getMemberRegex();
 
-        public ApplicationCommandOptionType ArgumentType { get; init; } = ApplicationCommandOptionType.User;
+        public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.User;
         public bool RequiresText { get; init; } = true;
         private readonly ILogger<DiscordMemberConverter> _logger;
 
@@ -31,7 +31,7 @@ namespace DSharpPlus.CommandAll.Converters
                 return Optional.FromNoValue<DiscordMember>();
             }
 
-            string value = context.As<TextConverterContext>().CurrentTextArgument;
+            string value = context.As<TextConverterContext>().Argument;
             if (!ulong.TryParse(value, CultureInfo.InvariantCulture, out ulong memberId))
             {
                 Match match = _getMemberRegex().Match(value);
@@ -58,7 +58,7 @@ namespace DSharpPlus.CommandAll.Converters
         public Task<Optional<DiscordMember>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
         {
             SlashConverterContext slashContext = context.As<SlashConverterContext>();
-            return Task.FromResult(Optional.FromValue(slashContext.Interaction.Data.Resolved.Members[(ulong)slashContext.CurrentOption.Value]));
+            return Task.FromResult(Optional.FromValue(slashContext.Interaction.Data.Resolved.Members[(ulong)slashContext.Argument.Value]));
         }
     }
 }

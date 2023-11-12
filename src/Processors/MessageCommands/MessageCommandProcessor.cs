@@ -48,9 +48,9 @@ namespace DSharpPlus.CommandAll.Processors.MessageCommands
                     continue;
                 }
                 // Check to see if the method signature is valid.
-                else if (command.Arguments.Count != 1 || command.Arguments[0].Type != typeof(DiscordMessage))
+                else if (command.Parameters.Count != 1 || command.Parameters[0].Type != typeof(DiscordMessage))
                 {
-                    logger.LogError("Message command '{CommandName}' must have a single argument of type DiscordMessage.", command.Name);
+                    logger.LogError("Message command '{CommandName}' must have a single parameter of type DiscordMessage.", command.Name);
                     continue;
                 }
 
@@ -78,7 +78,7 @@ namespace DSharpPlus.CommandAll.Processors.MessageCommands
                 {
                     Context = new SlashCommandContext()
                     {
-                        Arguments = new Dictionary<CommandArgument, object?>(),
+                        Arguments = new Dictionary<CommandParameter, object?>(),
                         Channel = eventArgs.Interaction.Channel,
                         Command = null!,
                         Extension = _extension,
@@ -97,9 +97,9 @@ namespace DSharpPlus.CommandAll.Processors.MessageCommands
 
             SlashCommandContext context = new()
             {
-                Arguments = new Dictionary<CommandArgument, object?>()
+                Arguments = new Dictionary<CommandParameter, object?>()
                 {
-                    [command.Arguments[0]] = eventArgs.TargetMessage
+                    [command.Parameters[0]] = eventArgs.TargetMessage
                 },
                 Channel = eventArgs.Interaction.Channel,
                 Command = command,

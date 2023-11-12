@@ -15,7 +15,7 @@ namespace DSharpPlus.CommandAll.Converters
         [GeneratedRegex(@"^<#(\d+)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
         private static partial Regex _getChannelRegex();
 
-        public ApplicationCommandOptionType ArgumentType { get; init; } = ApplicationCommandOptionType.Channel;
+        public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Channel;
         public bool RequiresText { get; init; } = true;
 
         public Task<Optional<DiscordThreadChannel>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs)
@@ -25,7 +25,7 @@ namespace DSharpPlus.CommandAll.Converters
                 return Task.FromResult(Optional.FromNoValue<DiscordThreadChannel>());
             }
 
-            string value = context.As<TextConverterContext>().CurrentTextArgument;
+            string value = context.As<TextConverterContext>().Argument;
             if (!ulong.TryParse(value, CultureInfo.InvariantCulture, out ulong channelId))
             {
                 // value can be a raw channel id or a channel mention. The regex will match both.
@@ -46,7 +46,7 @@ namespace DSharpPlus.CommandAll.Converters
         public Task<Optional<DiscordThreadChannel>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
         {
             SlashConverterContext slashContext = context.As<SlashConverterContext>();
-            return Task.FromResult(Optional.FromValue((DiscordThreadChannel)slashContext.Interaction.Data.Resolved.Channels[(ulong)slashContext.CurrentOption.Value]));
+            return Task.FromResult(Optional.FromValue((DiscordThreadChannel)slashContext.Interaction.Data.Resolved.Channels[(ulong)slashContext.Argument.Value]));
         }
     }
 }

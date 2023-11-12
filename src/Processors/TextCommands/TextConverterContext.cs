@@ -7,26 +7,28 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
     {
         public required TextArgumentSplicer Splicer { get; init; }
         public required string RawArguments { get; init; }
-        public string CurrentTextArgument { get; private set; } = string.Empty;
-        public int NextTextIndex { get; private set; }
+        public new string Argument => (string)(base.Argument ?? string.Empty);
+        public int CurrentArgumentIndex { get; private set; }
+        public int NextArgumentIndex { get; private set; }
 
-        public bool NextTextArgument()
+        public override bool NextArgument()
         {
-            if (NextTextIndex >= RawArguments.Length || NextTextIndex == -1)
+            if (NextArgumentIndex >= RawArguments.Length || NextArgumentIndex == -1)
             {
                 return false;
             }
 
-            int nextTextIndex = NextTextIndex;
+            CurrentArgumentIndex = NextArgumentIndex;
+            int nextTextIndex = NextArgumentIndex;
             string? nextText = Splicer(Extension, RawArguments, ref nextTextIndex);
             if (string.IsNullOrEmpty(nextText))
             {
-                CurrentTextArgument = string.Empty;
+                base.Argument = string.Empty;
                 return false;
             }
 
-            NextTextIndex = nextTextIndex;
-            CurrentTextArgument = nextText;
+            NextArgumentIndex = nextTextIndex;
+            base.Argument = nextText;
             return true;
         }
     }

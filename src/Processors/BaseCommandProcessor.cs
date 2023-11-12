@@ -27,7 +27,7 @@ namespace DSharpPlus.CommandAll.Processors
         {
             private delegate Task<IOptional> PrivateConverterDelegate(TConverter converter, TConverterContext converterContext, TEventArgs eventArgs);
 
-            public required Type ArgumentType { get; init; }
+            public required Type ParameterType { get; init; }
 
             public ConverterDelegate<TEventArgs>? ConverterDelegate { get; set; }
             public TConverter? ConverterInstance { get; set; }
@@ -43,7 +43,7 @@ namespace DSharpPlus.CommandAll.Processors
                 ConverterInstance ??= GetConverter(serviceProvider);
 
                 MethodInfo executeConvertAsyncMethod = processor.GetType().GetMethod(nameof(ExecuteConvertAsync), BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConvertAsync)} does not exist");
-                MethodInfo genericExecuteConvertAsyncMethod = executeConvertAsyncMethod.MakeGenericMethod(ArgumentType) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConvertAsync)} does not exist");
+                MethodInfo genericExecuteConvertAsyncMethod = executeConvertAsyncMethod.MakeGenericMethod(ParameterType) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConvertAsync)} does not exist");
                 return ConverterDelegate = (ConverterContext converterContext, TEventArgs eventArgs) => (Task<IOptional>)genericExecuteConvertAsyncMethod.Invoke(processor, [ConverterInstance, converterContext, eventArgs])!;
             }
 
@@ -74,7 +74,6 @@ namespace DSharpPlus.CommandAll.Processors
                     .FirstOrDefault(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IArgumentConverter<,>))
                     ?? throw new InvalidOperationException($"Type {ConverterType.FullName ?? ConverterType.Name} does not implement {typeof(IArgumentConverter<,>).FullName ?? typeof(IArgumentConverter<,>).Name}");
 
-                // GenericTypeArguments[0] here is the T in IArgumentConverter<TEventArgs, T>
                 return (TConverter)ActivatorUtilities.CreateInstance(serviceProvider, ConverterType);
             }
 
@@ -102,7 +101,7 @@ namespace DSharpPlus.CommandAll.Processors
             public override bool Equals(object? obj) => obj is LazyConverter lazyConverter && Equals(lazyConverter);
             public bool Equals(LazyConverter obj)
             {
-                if (ArgumentType != obj.ArgumentType)
+                if (ParameterType != obj.ParameterType)
                 {
                     return false;
                 }
@@ -122,7 +121,7 @@ namespace DSharpPlus.CommandAll.Processors
                 return false;
             }
 
-            public override int GetHashCode() => HashCode.Combine(ArgumentType, ConverterDelegate, ConverterInstance, ConverterType);
+            public override int GetHashCode() => HashCode.Combine(ParameterType, ConverterDelegate, ConverterInstance, ConverterType);
         }
 
         public IReadOnlyDictionary<Type, TConverter> Converters { get; protected set; } = new Dictionary<Type, TConverter>();
@@ -137,7 +136,7 @@ namespace DSharpPlus.CommandAll.Processors
         private static readonly Action<ILogger, string, Exception?> FailedConverterCreation = LoggerMessage.Define<string>(LogLevel.Error, new EventId(1), "Failed to create instance of converter '{FullName}' due to a lack of empty public constructors, lack of a service provider, or lack of services within the service provider.");
 
         public virtual void AddConverter<T>(TConverter converter) => AddConverter(typeof(T), converter);
-        public virtual void AddConverter(Type type, TConverter converter) => AddConverter(new() { ArgumentType = type, ConverterInstance = converter });
+        public virtual void AddConverter(Type type, TConverter converter) => AddConverter(new() { ParameterType = type, ConverterInstance = converter });
         public virtual void AddConverters(Assembly assembly) => AddConverters(assembly.GetTypes());
         public virtual void AddConverters(IEnumerable<Type> types)
         {
@@ -159,18 +158,18 @@ namespace DSharpPlus.CommandAll.Processors
                 }
 
                 // GenericTypeArguments[1] here is the T in IArgumentConverter<TEventArgs, T>
-                AddConverter(new() { ArgumentType = genericArgumentConverter.GenericTypeArguments[1], ConverterType = type });
+                AddConverter(new() { ParameterType = genericArgumentConverter.GenericTypeArguments[1], ConverterType = type });
             }
         }
 
         protected void AddConverter(LazyConverter lazyConverter)
         {
-            if (!_lazyConverters.TryAdd(lazyConverter.ArgumentType, lazyConverter))
+            if (!_lazyConverters.TryAdd(lazyConverter.ParameterType, lazyConverter))
             {
-                LazyConverter existingLazyConverter = _lazyConverters[lazyConverter.ArgumentType];
+                LazyConverter existingLazyConverter = _lazyConverters[lazyConverter.ParameterType];
                 if (!lazyConverter.Equals(existingLazyConverter))
                 {
-                    _logger.LogError("Failed to add converter {ConverterFullName} because a converter for type {ArgumentType} already exists: {ExistingConverter}", lazyConverter.ToString(), existingLazyConverter.ArgumentType.FullName ?? existingLazyConverter.ArgumentType.Name, existingLazyConverter.ToString());
+                    _logger.LogError("Failed to add converter {ConverterFullName} because a converter for type {ParameterType} already exists: {ExistingConverter}", lazyConverter.ToString(), existingLazyConverter.ParameterType.FullName ?? existingLazyConverter.ParameterType.Name, existingLazyConverter.ToString());
                 }
             }
         }
@@ -189,8 +188,8 @@ namespace DSharpPlus.CommandAll.Processors
             Dictionary<Type, ConverterDelegate<TEventArgs>> converterDelegates = [];
             foreach (LazyConverter lazyConverter in _lazyConverters.Values)
             {
-                converterDelegates.Add(lazyConverter.ArgumentType, lazyConverter.GetConverterDelegate(this, extension.ServiceProvider));
-                converters.Add(lazyConverter.ArgumentType, lazyConverter.GetConverter(extension.ServiceProvider));
+                converterDelegates.Add(lazyConverter.ParameterType, lazyConverter.GetConverterDelegate(this, extension.ServiceProvider));
+                converters.Add(lazyConverter.ParameterType, lazyConverter.GetConverter(extension.ServiceProvider));
             }
 
             Converters = converters.ToFrozenDictionary();
@@ -205,18 +204,18 @@ namespace DSharpPlus.CommandAll.Processors
                 return null;
             }
 
-            Dictionary<CommandArgument, object?> parsedArguments = [];
+            Dictionary<CommandParameter, object?> parsedArguments = [];
             try
             {
-                while (converterContext.NextArgument())
+                while (converterContext.NextParameter())
                 {
-                    IOptional optional = await ConverterDelegates[GetConverterFriendlyBaseType(converterContext.Argument.Type)](converterContext, eventArgs);
+                    IOptional optional = await ConverterDelegates[GetConverterFriendlyBaseType(converterContext.Parameter.Type)](converterContext, eventArgs);
                     if (!optional.HasValue)
                     {
                         break;
                     }
 
-                    parsedArguments.Add(converterContext.Argument, optional.RawValue);
+                    parsedArguments.Add(converterContext.Parameter, optional.RawValue);
                 }
             }
             catch (Exception error)
@@ -224,7 +223,7 @@ namespace DSharpPlus.CommandAll.Processors
                 await _extension._commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
                 {
                     Context = CreateCommandContext(converterContext, eventArgs, parsedArguments),
-                    Exception = new ParseArgumentException(converterContext.Argument, error),
+                    Exception = new ArgumentParseException(converterContext.Parameter, error),
                     CommandObject = null
                 });
 
@@ -234,7 +233,7 @@ namespace DSharpPlus.CommandAll.Processors
             return CreateCommandContext(converterContext, eventArgs, parsedArguments);
         }
 
-        public abstract TCommandContext CreateCommandContext(TConverterContext converterContext, TEventArgs eventArgs, Dictionary<CommandArgument, object?> parsedArguments);
+        public abstract TCommandContext CreateCommandContext(TConverterContext converterContext, TEventArgs eventArgs, Dictionary<CommandParameter, object?> parsedArguments);
 
         protected virtual Type GetConverterFriendlyBaseType(Type type)
         {

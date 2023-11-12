@@ -3,7 +3,7 @@ using System;
 namespace DSharpPlus.CommandAll.Commands.Attributes
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Delegate)]
-    public sealed class ArgumentAttribute : Attribute
+    public sealed class ParameterAttribute : Attribute
     {
         /// <summary>
         /// The name of the command.
@@ -15,7 +15,7 @@ namespace DSharpPlus.CommandAll.Commands.Attributes
         /// </summary>
         /// <param name="name">The name of the command.</param>
         /// <param name="description">The description of the command.</param>
-        public ArgumentAttribute(string name)
+        public ParameterAttribute(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
             {

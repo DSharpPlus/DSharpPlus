@@ -16,7 +16,7 @@ namespace DSharpPlus.CommandAll.Commands
         public object? Target { get; set; }
         public Command? Parent { get; set; }
         public List<CommandBuilder> Subcommands { get; set; } = [];
-        public List<CommandArgumentBuilder> Arguments { get; set; } = [];
+        public List<CommandParameterBuilder> Parameters { get; set; } = [];
         public List<Attribute> Attributes { get; set; } = [];
 
         public CommandBuilder WithName(string name)
@@ -78,9 +78,9 @@ namespace DSharpPlus.CommandAll.Commands
             return this;
         }
 
-        public CommandBuilder WithArguments(IEnumerable<CommandArgumentBuilder> arguments)
+        public CommandBuilder WithParameters(IEnumerable<CommandParameterBuilder> parameters)
         {
-            Arguments = new(arguments);
+            Parameters = new(parameters);
             return this;
         }
 
@@ -107,13 +107,13 @@ namespace DSharpPlus.CommandAll.Commands
             return this;
         }
 
-        [MemberNotNull(nameof(Name), nameof(Description), nameof(Subcommands), nameof(Arguments), nameof(Attributes))]
+        [MemberNotNull(nameof(Name), nameof(Description), nameof(Subcommands), nameof(Parameters), nameof(Attributes))]
         public Command Build()
         {
             ArgumentNullException.ThrowIfNull(Name, nameof(Name));
             ArgumentNullException.ThrowIfNull(Description, nameof(Description));
             ArgumentNullException.ThrowIfNull(Subcommands, nameof(Subcommands));
-            ArgumentNullException.ThrowIfNull(Arguments, nameof(Arguments));
+            ArgumentNullException.ThrowIfNull(Parameters, nameof(Parameters));
             ArgumentNullException.ThrowIfNull(Attributes, nameof(Attributes));
 
             // Push it through the With* methods again, which contain validation.
@@ -122,7 +122,7 @@ namespace DSharpPlus.CommandAll.Commands
             WithDelegate(Method);
             WithParent(Parent);
             WithSubcommands(Subcommands);
-            WithArguments(Arguments);
+            WithParameters(Parameters);
             WithAttributes(Attributes);
 
             return new(Subcommands)
@@ -132,7 +132,7 @@ namespace DSharpPlus.CommandAll.Commands
                 Method = Method,
                 Target = Target,
                 Parent = Parent,
-                Arguments = Arguments.Select(x => x.Build()).ToArray(),
+                Parameters = Parameters.Select(x => x.Build()).ToArray(),
                 Attributes = Attributes
             };
         }
@@ -213,7 +213,7 @@ namespace DSharpPlus.CommandAll.Commands
             CommandBuilder commandBuilder = new();
             commandBuilder.WithAttributes(method.GetCustomAttributes());
             commandBuilder.WithDelegate(method, target);
-            commandBuilder.WithArguments(parameters[1..].Select(CommandArgumentBuilder.From));
+            commandBuilder.WithParameters(parameters[1..].Select(CommandParameterBuilder.From));
             return commandBuilder;
         }
     }

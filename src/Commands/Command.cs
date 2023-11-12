@@ -13,7 +13,7 @@ namespace DSharpPlus.CommandAll.Commands
         public object? Target { get; init; }
         public Command? Parent { get; init; }
         public IReadOnlyList<Command> Subcommands { get; init; }
-        public required IReadOnlyList<CommandArgument> Arguments { get; init; }
+        public required IReadOnlyList<CommandParameter> Parameters { get; init; }
         public required IReadOnlyList<Attribute> Attributes { get; init; }
         public string FullName => Parent is null ? Name : $"{Parent.FullName} {Name}";
 
