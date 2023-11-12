@@ -3,7 +3,7 @@ using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.CommandAll.Processors.TextCommands
 {
-    public interface ITextArgumentConverter
+    public interface ITextArgumentConverter : IArgumentConverter
     {
         public bool RequiresText { get; init; }
     }

@@ -4,119 +4,45 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Commands.Attributes;
 using DSharpPlus.CommandAll.ContextChecks;
-using DSharpPlus.CommandAll.Converters;
 using DSharpPlus.CommandAll.EventArgs;
 using DSharpPlus.CommandAll.Exceptions;
 using DSharpPlus.CommandAll.Processors.SlashCommands.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.CommandAll.Processors.SlashCommands
 {
-    public sealed class SlashCommandProcessor : ICommandProcessor<InteractionCreateEventArgs>
+    public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCreateEventArgs, ISlashArgumentConverter, SlashConverterContext, SlashCommandContext>
     {
-        public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreateEventArgs>> Converters { get; private set; } = new Dictionary<Type, ConverterDelegate<InteractionCreateEventArgs>>();
         public IReadOnlyDictionary<Type, ApplicationCommandOptionType> TypeMappings { get; private set; } = new Dictionary<Type, ApplicationCommandOptionType>();
         public IReadOnlyDictionary<ulong, Command> Commands { get; private set; } = new Dictionary<ulong, Command>();
 
-        private readonly Dictionary<Type, ISlashArgumentConverter> _converters = [];
         private readonly List<DiscordApplicationCommand> _applicationCommands = [];
-        private CommandAllExtension? _extension;
-        private ILogger<SlashCommandProcessor> _logger = NullLogger<SlashCommandProcessor>.Instance;
-        private bool _eventsRegistered;
+        private bool _configured;
 
-        public void AddConverter<T>(ISlashArgumentConverter<T> converter) => _converters.Add(typeof(T), converter);
-        public void AddConverter(Type type, ISlashArgumentConverter converter)
+        public override async Task ConfigureAsync(CommandAllExtension extension)
         {
-            if (!converter.GetType().IsAssignableTo(typeof(ISlashArgumentConverter<>).MakeGenericType(type)))
-            {
-                throw new ArgumentException($"Type '{converter.GetType().FullName}' must implement '{typeof(ISlashArgumentConverter<>).MakeGenericType(type).FullName}'", nameof(converter));
-            }
+            await base.ConfigureAsync(extension);
 
-            _converters.TryAdd(type, converter);
-        }
-        public void AddConverters(Assembly assembly) => AddConverters(assembly.GetTypes());
-        public void AddConverters(IEnumerable<Type> types)
-        {
-            foreach (Type type in types)
-            {
-                // Ignore types that don't have a concrete implementation (abstract classes or interfaces)
-                // Additionally ignore types that have open generics (ISlashArgumentConverter<T>) instead of closed generics (ISlashArgumentConverter<string>)
-                if (type.IsAbstract || type.IsInterface || type.IsGenericTypeDefinition)
-                {
-                    continue;
-                }
-
-                // Check if the type implements ISlashArgumentConverter<T>
-                Type? genericArgumentConverter = type.GetInterfaces().FirstOrDefault(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ISlashArgumentConverter<>));
-                if (genericArgumentConverter is null)
-                {
-                    continue;
-                }
-
-                try
-                {
-                    object converter;
-
-                    // Check to see if we have a service provider available
-                    if (_extension is not null)
-                    {
-                        // If we do, try to create the converter using the service provider.
-                        converter = ActivatorUtilities.CreateInstance(_extension.ServiceProvider, type);
-                    }
-                    else
-                    {
-                        // If we don't, try using a parameterless constructor.
-                        converter = Activator.CreateInstance(type) ?? throw new InvalidOperationException($"Failed to create instance of {type.FullName ?? type.Name}");
-                    }
-
-                    // GenericTypeArguments[0] here is the T in ITextArgumentConverter<T>
-                    AddConverter(genericArgumentConverter.GenericTypeArguments[0], (ISlashArgumentConverter)converter);
-                }
-                catch (Exception error)
-                {
-                    // Log the error if possible
-                    SlashLogging.FailedConverterCreation(_logger, type.FullName ?? type.Name, error);
-                }
-            }
-        }
-
-        public Task ConfigureAsync(CommandAllExtension extension)
-        {
-            _extension = extension;
-            _logger = extension.ServiceProvider.GetService<ILogger<SlashCommandProcessor>>() ?? NullLogger<SlashCommandProcessor>.Instance;
-            AddConverters(typeof(SlashCommandProcessor).Assembly);
-
-            Dictionary<Type, ConverterDelegate<InteractionCreateEventArgs>> converters = [];
             Dictionary<Type, ApplicationCommandOptionType> typeMappings = [];
-            foreach ((Type type, ISlashArgumentConverter converter) in _converters)
+            foreach (LazyConverter lazyConverter in _lazyConverters.Values)
             {
-                MethodInfo executeConvertAsyncMethod = typeof(SlashCommandProcessor)
-                    .GetMethod(nameof(ExecuteConvertAsync), BindingFlags.NonPublic | BindingFlags.Static)?
-                    .MakeGenericMethod(type) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConvertAsync)} does not exist");
-
-                converters.Add(type, executeConvertAsyncMethod.CreateDelegate<ConverterDelegate<InteractionCreateEventArgs>>(converter));
-                typeMappings.Add(type, converter.ArgumentType);
+                ISlashArgumentConverter converter = lazyConverter.GetConverter(_extension.ServiceProvider);
+                typeMappings.Add(lazyConverter.ArgumentType, converter.ArgumentType);
             }
 
-            Converters = converters.ToFrozenDictionary();
             TypeMappings = typeMappings.ToFrozenDictionary();
-            if (!_eventsRegistered)
+            if (!_configured)
             {
-                _eventsRegistered = true;
+                _configured = true;
                 extension.Client.GuildDownloadCompleted += async (client, eventArgs) => await RegisterSlashCommandsAsync(extension);
                 extension.Client.InteractionCreated += ExecuteInteractionAsync;
             }
-
-            return Task.CompletedTask;
         }
 
         public async Task ExecuteInteractionAsync(DiscordClient client, InteractionCreateEventArgs eventArgs)
@@ -167,7 +93,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
 
             if (eventArgs.Interaction.Type == InteractionType.AutoComplete)
             {
-                AutoCompleteContext? autoCompleteContext = await ParseAutoCompletesAsync(converterContext, eventArgs);
+                AutoCompleteContext? autoCompleteContext = await ParseAutoCompleteArgumentsAsync(converterContext, eventArgs);
                 if (autoCompleteContext is not null)
                 {
                     IEnumerable<DiscordAutoCompleteChoice> choices = await converterContext.Argument.Attributes.OfType<SlashAutoCompleteProviderAttribute>().First().AutoCompleteAsync(autoCompleteContext);
@@ -367,21 +293,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
             }
 
-            Type parameterType;
-            if (argument.Type.IsEnum)
-            {
-                parameterType = typeof(Enum);
-            }
-            else if (argument.Type.IsArray)
-            {
-                parameterType = argument.Type.GetElementType()!;
-            }
-            else
-            {
-                parameterType = Nullable.GetUnderlyingType(argument.Type) ?? argument.Type;
-            }
-
-            if (!TypeMappings.TryGetValue(parameterType, out ApplicationCommandOptionType type))
+            if (!TypeMappings.TryGetValue(GetConverterFriendlyBaseType(argument.Type), out ApplicationCommandOptionType type))
             {
                 throw new InvalidOperationException($"No type mapping found for argument type '{argument.Type.Name}'");
             }
@@ -423,78 +335,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             );
         }
 
-        [SuppressMessage("Roslyn", "IDE0045", Justification = "Ternary rabbit hole.")]
-        private async Task<CommandContext?> ParseArgumentsAsync(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs)
-        {
-            if (_extension is null)
-            {
-                return null;
-            }
-
-            Dictionary<CommandArgument, object?> parsedArguments = [];
-            try
-            {
-                while (converterContext.NextArgument())
-                {
-                    Type parameterType;
-                    if (converterContext.Argument.Type.IsEnum)
-                    {
-                        parameterType = typeof(Enum);
-                    }
-                    else if (converterContext.Argument.Type.IsArray)
-                    {
-                        parameterType = converterContext.Argument.Type.GetElementType()!;
-                    }
-                    else
-                    {
-                        parameterType = Nullable.GetUnderlyingType(converterContext.Argument.Type) ?? converterContext.Argument.Type;
-                    }
-
-                    IOptional optional = await Converters[parameterType](converterContext, eventArgs);
-                    if (!optional.HasValue)
-                    {
-                        break;
-                    }
-
-                    parsedArguments.Add(converterContext.Argument, optional.RawValue);
-                }
-            }
-            catch (Exception error)
-            {
-                await _extension._commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
-                {
-                    Context = new SlashCommandContext()
-                    {
-                        Arguments = parsedArguments,
-                        Channel = eventArgs.Interaction.Channel,
-                        Command = converterContext.Command,
-                        Extension = converterContext.Extension,
-                        Interaction = eventArgs.Interaction,
-                        Options = converterContext.Options,
-                        ServiceScope = converterContext.ServiceScope,
-                        User = eventArgs.Interaction.User
-                    },
-                    Exception = new ParseArgumentException(converterContext.Argument, error),
-                    CommandObject = null
-                });
-
-                return null;
-            }
-
-            return new SlashCommandContext()
-            {
-                Arguments = parsedArguments,
-                Channel = eventArgs.Interaction.Channel,
-                Command = converterContext.Command,
-                Extension = converterContext.Extension,
-                Interaction = eventArgs.Interaction,
-                Options = converterContext.Options,
-                ServiceScope = converterContext.ServiceScope,
-                User = eventArgs.Interaction.User
-            };
-        }
-
-        private async Task<AutoCompleteContext?> ParseAutoCompletesAsync(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs)
+        private async Task<AutoCompleteContext?> ParseAutoCompleteArgumentsAsync(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs)
         {
             if (_extension is null)
             {
@@ -506,7 +347,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             {
                 while (converterContext.NextArgument() && !converterContext.Options.ElementAt(converterContext.ArgumentIndex).Focused)
                 {
-                    IOptional optional = await Converters[converterContext.Argument.Type](converterContext, eventArgs);
+                    IOptional optional = await ConverterDelegates[GetConverterFriendlyBaseType(converterContext.Argument.Type)](converterContext, eventArgs);
                     if (!optional.HasValue)
                     {
                         break;
@@ -552,6 +393,16 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             };
         }
 
-        private static async Task<IOptional> ExecuteConvertAsync<T>(ISlashArgumentConverter<T> converter, ConverterContext context, InteractionCreateEventArgs eventArgs) => await converter.ConvertAsync(context, eventArgs);
+        public override SlashCommandContext CreateCommandContext(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs, Dictionary<CommandArgument, object?> parsedArguments) => new()
+        {
+            Arguments = parsedArguments,
+            Channel = eventArgs.Interaction.Channel,
+            Command = converterContext.Command,
+            Extension = _extension ?? throw new InvalidOperationException("SlashCommandProcessor has not been configured."),
+            Interaction = eventArgs.Interaction,
+            Options = converterContext.Options,
+            ServiceScope = converterContext.ServiceScope,
+            User = eventArgs.Interaction.User
+        };
     }
 }

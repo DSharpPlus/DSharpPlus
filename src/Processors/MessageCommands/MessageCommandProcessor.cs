@@ -21,7 +21,7 @@ namespace DSharpPlus.CommandAll.Processors.MessageCommands
 {
     public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreateEventArgs>
     {
-        public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreateEventArgs>> Converters => _slashCommandProcessor?.Converters ?? new Dictionary<Type, ConverterDelegate<InteractionCreateEventArgs>>();
+        public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreateEventArgs>> Converters => _slashCommandProcessor?.ConverterDelegates ?? new Dictionary<Type, ConverterDelegate<InteractionCreateEventArgs>>();
         private CommandAllExtension? _extension;
         private SlashCommandProcessor? _slashCommandProcessor;
 
