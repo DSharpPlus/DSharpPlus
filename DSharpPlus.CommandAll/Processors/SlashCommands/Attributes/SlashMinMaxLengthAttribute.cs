@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandAll.Processors.SlashCommands.Attributes;
+
 using System;
 
 /// <summary>

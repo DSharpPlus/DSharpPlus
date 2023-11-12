@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandAll.Commands.Attributes;
+
 using System;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]

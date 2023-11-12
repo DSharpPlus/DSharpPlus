@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandAll.ContextChecks;
+
 using System;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands;
