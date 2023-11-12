@@ -1,113 +1,30 @@
 using System;
-using System.Collections.Frozen;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands;
-using DSharpPlus.CommandAll.Converters;
 using DSharpPlus.CommandAll.EventArgs;
 using DSharpPlus.CommandAll.Exceptions;
 using DSharpPlus.CommandAll.Processors.TextCommands.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.CommandAll.Processors.TextCommands
 {
-    public sealed class TextCommandProcessor(TextCommandConfiguration? configuration = null) : ICommandProcessor<MessageCreateEventArgs>
+    public sealed class TextCommandProcessor(TextCommandConfiguration? configuration = null) : BaseCommandProcessor<MessageCreateEventArgs, ITextArgumentConverter, TextConverterContext, TextCommandContext>
     {
-        public IReadOnlyDictionary<Type, ConverterDelegate<MessageCreateEventArgs>> Converters { get; private set; } = new Dictionary<Type, ConverterDelegate<MessageCreateEventArgs>>();
         public TextCommandConfiguration Configuration { get; init; } = configuration ?? new();
+        private bool _configured;
 
-        private bool _eventsRegistered;
-        private CommandAllExtension? _extension;
-        private ILogger<TextCommandProcessor> _logger = NullLogger<TextCommandProcessor>.Instance;
-        private readonly Dictionary<Type, ITextArgumentConverter> _converters = [];
-
-        public void AddConverter<T>(ITextArgumentConverter<T> converter) => _converters.Add(typeof(T), converter);
-        public void AddConverter(Type type, ITextArgumentConverter converter)
+        public override async Task ConfigureAsync(CommandAllExtension extension)
         {
-            if (!converter.GetType().IsAssignableTo(typeof(ITextArgumentConverter<>).MakeGenericType(type)))
+            await base.ConfigureAsync(extension);
+            if (!_configured)
             {
-                throw new ArgumentException($"Type '{converter.GetType().FullName}' must implement '{typeof(ITextArgumentConverter<>).MakeGenericType(type).FullName}'", nameof(converter));
-            }
-
-            _converters.TryAdd(type, converter);
-        }
-        public void AddConverters(Assembly assembly) => AddConverters(assembly.GetTypes());
-        public void AddConverters(IEnumerable<Type> types)
-        {
-            foreach (Type type in types)
-            {
-                // Ignore types that don't have a concrete implementation (abstract classes or interfaces)
-                // Additionally ignore types that have open generics (ITextArgumentConverter<T>) instead of closed generics (ITextArgumentConverter<string>)
-                if (type.IsAbstract || type.IsInterface || type.IsGenericTypeDefinition)
-                {
-                    continue;
-                }
-
-                // Check if the type implements ITextArgumentConverter<T>
-                Type? genericArgumentConverter = type.GetInterfaces().FirstOrDefault(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ITextArgumentConverter<>));
-                if (genericArgumentConverter is null)
-                {
-                    continue;
-                }
-
-                try
-                {
-                    object converter;
-
-                    // Check to see if we have a service provider available
-                    if (_extension is not null)
-                    {
-                        // If we do, try to create the converter using the service provider.
-                        converter = ActivatorUtilities.CreateInstance(_extension.ServiceProvider, type);
-                    }
-                    else
-                    {
-                        // If we don't, try using a parameterless constructor.
-                        converter = Activator.CreateInstance(type) ?? throw new InvalidOperationException($"Failed to create instance of {type.FullName ?? type.Name}");
-                    }
-
-                    // GenericTypeArguments[0] here is the T in ITextArgumentConverter<T>
-                    AddConverter(genericArgumentConverter.GenericTypeArguments[0], (ITextArgumentConverter)converter);
-                }
-                catch (Exception error)
-                {
-                    // Log the error if possible
-                    TextLogging.FailedConverterCreation(_logger, type.FullName ?? type.Name, error);
-                }
-            }
-        }
-
-        public Task ConfigureAsync(CommandAllExtension extension)
-        {
-            _extension = extension;
-            _logger = extension.ServiceProvider.GetService<ILogger<TextCommandProcessor>>() ?? NullLogger<TextCommandProcessor>.Instance;
-
-            AddConverters(typeof(TextCommandProcessor).Assembly);
-            Dictionary<Type, ConverterDelegate<MessageCreateEventArgs>> converters = [];
-            foreach ((Type type, ITextArgumentConverter converter) in _converters)
-            {
-                MethodInfo executeConvertAsyncMethod = typeof(TextCommandProcessor)
-                    .GetMethod(nameof(ExecuteConvertAsync), BindingFlags.NonPublic | BindingFlags.Static)?
-                    .MakeGenericMethod(type) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConvertAsync)} does not exist");
-
-                converters.Add(type, executeConvertAsyncMethod.CreateDelegate<ConverterDelegate<MessageCreateEventArgs>>(converter));
-            }
-
-            Converters = converters.ToFrozenDictionary();
-            if (!_eventsRegistered)
-            {
-                _eventsRegistered = true;
+                _configured = true;
                 extension.Client.MessageCreated += ExecuteTextCommandAsync;
             }
-
-            return Task.CompletedTask;
         }
 
         public async Task ExecuteTextCommandAsync(DiscordClient client, MessageCreateEventArgs eventArgs)
@@ -116,7 +33,9 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
             {
                 throw new InvalidOperationException("TextCommandProcessor has not been configured.");
             }
-            else if (eventArgs.Message.Content.Length == 0 || (eventArgs.Author.IsBot && Configuration.IgnoreBots) || (_extension.DebugGuildId.HasValue && eventArgs.Guild?.Id != _extension.DebugGuildId))
+            else if (eventArgs.Message.Content.Length == 0
+                || (eventArgs.Author.IsBot && Configuration.IgnoreBots)
+                || (_extension.DebugGuildId.HasValue && eventArgs.Guild?.Id != _extension.DebugGuildId))
             {
                 return;
             }
@@ -137,6 +56,7 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
             AsyncServiceScope scope = _extension.ServiceProvider.CreateAsyncScope();
             if (!_extension.Commands.TryGetValue(commandText[..index], out Command? command))
             {
+                // Search for any aliases
                 foreach (Command officialCommand in _extension.Commands.Values)
                 {
                     TextAliasAttribute? aliasAttribute = officialCommand.Attributes.OfType<TextAliasAttribute>().FirstOrDefault();
@@ -147,6 +67,7 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
                     }
                 }
 
+                // No alias was found
                 if (command is null)
                 {
                     await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
@@ -170,20 +91,23 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
                 }
             }
 
+            // If there is a space after the command's name, skip it.
             if (index < commandText.Length && commandText[index] == ' ')
             {
-                // Skip the space
                 index++;
             }
 
+            // Recursively resolve subcommands
             int nextIndex = index;
             while (nextIndex != -1)
             {
+                // If the index is at the end of the string, break
                 if (nextIndex >= commandText.Length)
                 {
                     break;
                 }
 
+                // If there was no space found after the subcommand, break
                 nextIndex = commandText.IndexOf(' ', nextIndex);
                 if (nextIndex == -1)
                 {
@@ -221,7 +145,7 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
                 User = eventArgs.Author
             };
 
-            CommandContext? commandContext = await ParseArgumentsAsync(converterContext, eventArgs);
+            TextCommandContext? commandContext = await ParseArgumentsAsync(converterContext, eventArgs);
             if (commandContext is null)
             {
                 await scope.DisposeAsync();
@@ -231,87 +155,29 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
             await _extension.CommandExecutor.ExecuteAsync(commandContext);
         }
 
-        [SuppressMessage("Roslyn", "IDE0045", Justification = "Ternary rabbit hole.")]
-        private async Task<CommandContext?> ParseArgumentsAsync(TextConverterContext converterContext, MessageCreateEventArgs eventArgs)
+        protected override async Task<IOptional> ExecuteConvertAsync<T>(ITextArgumentConverter converter, TextConverterContext converterContext, MessageCreateEventArgs eventArgs)
         {
-            if (_extension is null)
+            if (!converter.RequiresText || converterContext.NextTextArgument())
             {
-                return null;
+                return await base.ExecuteConvertAsync<T>(converter, converterContext, eventArgs);
+            }
+            else if (converterContext.Argument.DefaultValue.HasValue)
+            {
+                return Optional.FromValue(converterContext.Argument.DefaultValue.Value);
             }
 
-            Dictionary<CommandArgument, object?> parsedArguments = [];
-            try
-            {
-                while (converterContext.NextArgument())
-                {
-                    Type parameterType;
-                    if (converterContext.Argument.Type.IsEnum)
-                    {
-                        parameterType = typeof(Enum);
-                    }
-                    else if (converterContext.Argument.Type.IsArray)
-                    {
-                        parameterType = converterContext.Argument.Type.GetElementType()!;
-                    }
-                    else
-                    {
-                        parameterType = Nullable.GetUnderlyingType(converterContext.Argument.Type) ?? converterContext.Argument.Type;
-                    }
-
-                    IOptional optional = await Converters[parameterType](converterContext, eventArgs);
-                    if (!optional.HasValue)
-                    {
-                        break;
-                    }
-
-                    parsedArguments.Add(converterContext.Argument, optional.RawValue);
-                }
-            }
-            catch (Exception error)
-            {
-                await _extension._commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
-                {
-                    Context = new TextCommandContext()
-                    {
-                        Arguments = parsedArguments,
-                        Channel = eventArgs.Channel,
-                        Command = converterContext.Command,
-                        Extension = converterContext.Extension,
-                        Message = eventArgs.Message,
-                        ServiceScope = converterContext.ServiceScope,
-                        User = eventArgs.Author
-                    },
-                    Exception = new ParseArgumentException(converterContext.Argument, error),
-                    CommandObject = null
-                });
-
-                return null;
-            }
-
-            return new TextCommandContext()
-            {
-                Arguments = parsedArguments,
-                Channel = eventArgs.Channel,
-                Command = converterContext.Command,
-                Extension = converterContext.Extension,
-                Message = eventArgs.Message,
-                ServiceScope = converterContext.ServiceScope,
-                User = eventArgs.Author
-            };
+            throw new ParseArgumentException(converterContext.Argument, message: $"Missing text argument for {converterContext.Argument.Name}.");
         }
 
-        private static async Task<IOptional> ExecuteConvertAsync<T>(ITextArgumentConverter<T> converter, ConverterContext context, MessageCreateEventArgs eventArgs)
+        public override TextCommandContext CreateCommandContext(TextConverterContext converterContext, MessageCreateEventArgs eventArgs, Dictionary<CommandArgument, object?> parsedArguments) => new()
         {
-            if (!converter.RequiresText || context.As<TextConverterContext>().NextTextArgument())
-            {
-                return await converter.ConvertAsync(context, eventArgs);
-            }
-            else if (context.Argument.DefaultValue.HasValue)
-            {
-                return Optional.FromValue(context.Argument.DefaultValue.Value);
-            }
-
-            throw new ParseArgumentException(context.Argument, message: $"Missing text argument for {context.Argument.Name}.");
-        }
+            Arguments = parsedArguments,
+            Channel = eventArgs.Channel,
+            Command = converterContext.Command,
+            Extension = _extension ?? throw new InvalidOperationException("TextCommandProcessor has not been configured."),
+            Message = eventArgs.Message,
+            ServiceScope = converterContext.ServiceScope,
+            User = eventArgs.Author
+        };
     }
 }

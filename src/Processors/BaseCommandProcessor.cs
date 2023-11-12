@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -19,55 +20,109 @@ namespace DSharpPlus.CommandAll.Processors
     public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext> : ICommandProcessor<TEventArgs>
         where TEventArgs : DiscordEventArgs
         where TConverter : IArgumentConverter
-        where TConverterContext : ConverterContext, new()
-        where TCommandContext : CommandContext, new()
+        where TConverterContext : ConverterContext
+        where TCommandContext : CommandContext
     {
-        protected record LazyConverter
+        protected class LazyConverter
         {
+            private delegate Task<IOptional> PrivateConverterDelegate(TConverter converter, TConverterContext converterContext, TEventArgs eventArgs);
+
             public required Type ArgumentType { get; init; }
 
-            public ConverterDelegate<TEventArgs>? Delegate { get; set; }
-            public TConverter? Converter { get; set; }
+            public ConverterDelegate<TEventArgs>? ConverterDelegate { get; set; }
+            public TConverter? ConverterInstance { get; set; }
             public Type? ConverterType { get; set; }
 
-            public ConverterDelegate<TEventArgs> GetConverterDelegate(IServiceProvider serviceProvider)
+            public ConverterDelegate<TEventArgs> GetConverterDelegate(BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext> processor, IServiceProvider serviceProvider)
             {
-                if (Delegate is not null)
+                if (ConverterDelegate is not null)
                 {
-                    return Delegate;
+                    return ConverterDelegate;
                 }
 
-                Converter ??= GetConverter(serviceProvider);
-                MethodInfo executeConvertAsyncMethod = GetType().GetMethod(nameof(ExecuteConvertAsync), BindingFlags.NonPublic) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConvertAsync)} does not exist");
+                ConverterInstance ??= GetConverter(serviceProvider);
+
+                MethodInfo executeConvertAsyncMethod = processor.GetType().GetMethod(nameof(ExecuteConvertAsync), BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConvertAsync)} does not exist");
                 MethodInfo genericExecuteConvertAsyncMethod = executeConvertAsyncMethod.MakeGenericMethod(ArgumentType) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConvertAsync)} does not exist");
-                return Delegate = executeConvertAsyncMethod.CreateDelegate<ConverterDelegate<TEventArgs>>(Converter);
+                return ConverterDelegate = (ConverterContext converterContext, TEventArgs eventArgs) => (Task<IOptional>)genericExecuteConvertAsyncMethod.Invoke(processor, [ConverterInstance, converterContext, eventArgs])!;
             }
 
             public TConverter GetConverter(IServiceProvider serviceProvider)
             {
-                if (Converter is not null)
+                if (ConverterInstance is not null)
                 {
-                    return Converter;
+                    return ConverterInstance;
                 }
                 else if (ConverterType is null)
                 {
-                    if (Delegate is null)
+                    if (ConverterDelegate is null)
                     {
                         throw new InvalidOperationException("No delegate, converter object, or converter type was provided.");
                     }
 
-                    ConverterType = Delegate.Method.DeclaringType ?? throw new InvalidOperationException("No converter type was provided and the delegate's declaring type is null.");
+                    ConverterType = ConverterDelegate.Method.DeclaringType ?? throw new InvalidOperationException("No converter type was provided and the delegate's declaring type is null.");
+                }
+
+                if (!ConverterType.IsAssignableTo(typeof(TConverter)))
+                {
+                    throw new InvalidOperationException($"Type {ConverterType.FullName ?? ConverterType.Name} does not implement {typeof(TConverter).FullName ?? typeof(TConverter).Name}");
                 }
 
                 // Check if the type implements IArgumentConverter<TEventArgs, T>
                 Type genericArgumentConverter = ConverterType
                     .GetInterfaces()
-                    .FirstOrDefault(type => type.IsAssignableTo(typeof(IArgumentConverter<,>)) && type.IsAssignableTo(typeof(TConverter)))
+                    .FirstOrDefault(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IArgumentConverter<,>))
                     ?? throw new InvalidOperationException($"Type {ConverterType.FullName ?? ConverterType.Name} does not implement {typeof(IArgumentConverter<,>).FullName ?? typeof(IArgumentConverter<,>).Name}");
 
                 // GenericTypeArguments[0] here is the T in IArgumentConverter<TEventArgs, T>
                 return (TConverter)ActivatorUtilities.CreateInstance(serviceProvider, ConverterType);
             }
+
+            [SuppressMessage("Roslyn", "IDE0046", Justification = "Ternary rabbit hole.")]
+            public override string? ToString()
+            {
+                if (ConverterDelegate is not null)
+                {
+                    return ConverterDelegate.ToString();
+                }
+                else if (ConverterInstance is not null)
+                {
+                    return ConverterInstance.ToString();
+                }
+                else if (ConverterType is not null)
+                {
+                    return ConverterType.ToString() ?? ConverterType.Name;
+                }
+                else
+                {
+                    return "<Empty Lazy Converter>";
+                }
+            }
+
+            public override bool Equals(object? obj) => obj is LazyConverter lazyConverter && Equals(lazyConverter);
+            public bool Equals(LazyConverter obj)
+            {
+                if (ArgumentType != obj.ArgumentType)
+                {
+                    return false;
+                }
+                else if (ConverterDelegate is not null && obj.ConverterDelegate is not null)
+                {
+                    return ConverterDelegate.Equals(obj.ConverterDelegate);
+                }
+                else if (ConverterInstance is not null && obj.ConverterInstance is not null)
+                {
+                    return ConverterInstance.Equals(obj.ConverterInstance);
+                }
+                else if (ConverterType is not null && obj.ConverterType is not null)
+                {
+                    return ConverterType.Equals(obj.ConverterType);
+                }
+
+                return false;
+            }
+
+            public override int GetHashCode() => HashCode.Combine(ArgumentType, ConverterDelegate, ConverterInstance, ConverterType);
         }
 
         public IReadOnlyDictionary<Type, TConverter> Converters { get; protected set; } = new Dictionary<Type, TConverter>();
@@ -75,14 +130,14 @@ namespace DSharpPlus.CommandAll.Processors
         // Redirect the interface to use the converter delegates property instead of the converters property
         IReadOnlyDictionary<Type, ConverterDelegate<TEventArgs>> ICommandProcessor<TEventArgs>.Converters => ConverterDelegates;
 
-        protected readonly List<LazyConverter> _lazyConverters = [];
+        protected readonly Dictionary<Type, LazyConverter> _lazyConverters = [];
         protected CommandAllExtension? _extension;
-        protected ILogger<BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext>>? _logger;
+        protected ILogger<BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext>> _logger = NullLogger<BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext>>.Instance;
 
         private static readonly Action<ILogger, string, Exception?> FailedConverterCreation = LoggerMessage.Define<string>(LogLevel.Error, new EventId(1), "Failed to create instance of converter '{FullName}' due to a lack of empty public constructors, lack of a service provider, or lack of services within the service provider.");
 
         public virtual void AddConverter<T>(TConverter converter) => AddConverter(typeof(T), converter);
-        public virtual void AddConverter(Type type, TConverter converter) => _lazyConverters.Add(new LazyConverter() { ArgumentType = type, Converter = converter });
+        public virtual void AddConverter(Type type, TConverter converter) => AddConverter(new() { ArgumentType = type, ConverterInstance = converter });
         public virtual void AddConverters(Assembly assembly) => AddConverters(assembly.GetTypes());
         public virtual void AddConverters(IEnumerable<Type> types)
         {
@@ -90,35 +145,51 @@ namespace DSharpPlus.CommandAll.Processors
             {
                 // Ignore types that don't have a concrete implementation (abstract classes or interfaces)
                 // Additionally ignore types that have open generics (IArgumentConverter<TEventArgs, T>) instead of closed generics (IArgumentConverter<string>)
-                if (type.IsAbstract || type.IsInterface || type.IsGenericTypeDefinition)
+                if (type.IsAbstract || type.IsInterface || type.IsGenericTypeDefinition || !type.IsAssignableTo(typeof(TConverter)))
                 {
                     continue;
                 }
 
                 // Check if the type implements IArgumentConverter<TEventArgs, T>
-                Type? genericArgumentConverter = type.GetInterfaces().FirstOrDefault(type => type.IsAssignableTo(typeof(IArgumentConverter<,>)) && type.IsAssignableTo(typeof(TConverter)));
+                Type? genericArgumentConverter = type.GetInterfaces().FirstOrDefault(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IArgumentConverter<,>));
                 if (genericArgumentConverter is null)
                 {
+                    _logger.LogWarning("Argument Converter {FullName} does not implement {InterfaceFullName}", type.FullName ?? type.Name, typeof(IArgumentConverter<,>).FullName ?? typeof(IArgumentConverter<,>).Name);
                     continue;
                 }
 
                 // GenericTypeArguments[1] here is the T in IArgumentConverter<TEventArgs, T>
-                _lazyConverters.Add(new LazyConverter() { ArgumentType = genericArgumentConverter.GenericTypeArguments[1], ConverterType = type });
+                AddConverter(new() { ArgumentType = genericArgumentConverter.GenericTypeArguments[1], ConverterType = type });
             }
         }
 
+        protected void AddConverter(LazyConverter lazyConverter)
+        {
+            if (!_lazyConverters.TryAdd(lazyConverter.ArgumentType, lazyConverter))
+            {
+                LazyConverter existingLazyConverter = _lazyConverters[lazyConverter.ArgumentType];
+                if (!lazyConverter.Equals(existingLazyConverter))
+                {
+                    _logger.LogError("Failed to add converter {ConverterFullName} because a converter for type {ArgumentType} already exists: {ExistingConverter}", lazyConverter.ToString(), existingLazyConverter.ArgumentType.FullName ?? existingLazyConverter.ArgumentType.Name, existingLazyConverter.ToString());
+                }
+            }
+        }
+
+        [MemberNotNull(nameof(_extension))]
         public virtual Task ConfigureAsync(CommandAllExtension extension)
         {
             _extension = extension;
             _logger = extension.ServiceProvider.GetService<ILogger<BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext>>>() ?? NullLogger<BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext>>.Instance;
-            AddConverters(GetType().Assembly);
+
+            Type thisType = GetType();
+            MethodInfo executeConvertAsyncMethod = thisType.GetMethod(nameof(ExecuteConvertAsync), BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConvertAsync)} does not exist");
+            AddConverters(thisType.Assembly);
 
             Dictionary<Type, TConverter> converters = [];
             Dictionary<Type, ConverterDelegate<TEventArgs>> converterDelegates = [];
-            MethodInfo executeConvertAsyncMethod = GetType().GetMethod(nameof(ExecuteConvertAsync), BindingFlags.NonPublic) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConvertAsync)} does not exist");
-            foreach (LazyConverter lazyConverter in _lazyConverters)
+            foreach (LazyConverter lazyConverter in _lazyConverters.Values)
             {
-                converterDelegates.Add(lazyConverter.ArgumentType, lazyConverter.GetConverterDelegate(extension.ServiceProvider));
+                converterDelegates.Add(lazyConverter.ArgumentType, lazyConverter.GetConverterDelegate(this, extension.ServiceProvider));
                 converters.Add(lazyConverter.ArgumentType, lazyConverter.GetConverter(extension.ServiceProvider));
             }
 
@@ -163,6 +234,8 @@ namespace DSharpPlus.CommandAll.Processors
             return CreateCommandContext(converterContext, eventArgs, parsedArguments);
         }
 
+        public abstract TCommandContext CreateCommandContext(TConverterContext converterContext, TEventArgs eventArgs, Dictionary<CommandArgument, object?> parsedArguments);
+
         protected virtual Type GetConverterFriendlyBaseType(Type type)
         {
             ArgumentNullException.ThrowIfNull(type, nameof(type));
@@ -179,7 +252,6 @@ namespace DSharpPlus.CommandAll.Processors
             return Nullable.GetUnderlyingType(type) ?? type;
         }
 
-        public abstract TCommandContext CreateCommandContext(TConverterContext converterContext, TEventArgs eventArgs, Dictionary<CommandArgument, object?> parsedArguments);
         protected virtual async Task<IOptional> ExecuteConvertAsync<T>(TConverter converter, TConverterContext converterContext, TEventArgs eventArgs) => await ((IArgumentConverter<TEventArgs, T>)converter).ConvertAsync(converterContext, eventArgs);
     }
 }

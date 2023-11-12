@@ -3,7 +3,7 @@ using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.CommandAll.Processors.SlashCommands
 {
-    public interface ISlashArgumentConverter
+    public interface ISlashArgumentConverter : IArgumentConverter
     {
         public ApplicationCommandOptionType ArgumentType { get; init; }
     }
