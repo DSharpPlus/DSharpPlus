@@ -6,7 +6,7 @@ namespace DSharpPlus.CommandAll.Commands
 {
     public abstract record CommandContext : AbstractContext
     {
-        public required IReadOnlyDictionary<CommandArgument, object?> Arguments { get; init; }
+        public required IReadOnlyDictionary<CommandParameter, object?> Arguments { get; init; }
 
         public IReadOnlyDictionary<ulong, DiscordMessage> FollowupMessages => _followupMessages;
         protected Dictionary<ulong, DiscordMessage> _followupMessages = [];

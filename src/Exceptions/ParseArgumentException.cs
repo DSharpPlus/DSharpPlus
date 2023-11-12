@@ -3,14 +3,14 @@ using DSharpPlus.CommandAll.Commands;
 
 namespace DSharpPlus.CommandAll.Exceptions
 {
-    public sealed class ParseArgumentException : Exception
+    public sealed class ArgumentParseException : Exception
     {
-        public CommandArgument Argument { get; init; }
+        public CommandParameter Parameter { get; init; }
 
-        public ParseArgumentException(CommandArgument argument, Exception? innerException = null, string? message = null) : base(message ?? $"Failed to parse {argument.Name}.", innerException)
+        public ArgumentParseException(CommandParameter parameter, Exception? innerException = null, string? message = null) : base(message ?? $"Failed to parse {parameter.Name}.", innerException)
         {
-            ArgumentNullException.ThrowIfNull(argument, nameof(argument));
-            Argument = argument;
+            ArgumentNullException.ThrowIfNull(parameter, nameof(parameter));
+            Parameter = parameter;
         }
     }
 }

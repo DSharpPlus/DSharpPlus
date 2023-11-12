@@ -9,14 +9,14 @@ namespace DSharpPlus.CommandAll.Converters
 {
     public class FloatConverter : ISlashArgumentConverter<float>, ITextArgumentConverter<float>
     {
-        public ApplicationCommandOptionType ArgumentType { get; init; } = ApplicationCommandOptionType.Number;
+        public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Number;
         public bool RequiresText { get; init; } = true;
 
         public Task<Optional<float>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) =>
-            float.TryParse(context.As<TextConverterContext>().CurrentTextArgument, CultureInfo.InvariantCulture, out float result)
+            float.TryParse(context.As<TextConverterContext>().Argument, CultureInfo.InvariantCulture, out float result)
                 ? Task.FromResult(Optional.FromValue(result))
                 : Task.FromResult(Optional.FromNoValue<float>());
 
-        public Task<Optional<float>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue((float)context.As<SlashConverterContext>().CurrentOption.Value));
+        public Task<Optional<float>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue((float)context.As<SlashConverterContext>().Argument.Value));
     }
 }

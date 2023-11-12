@@ -15,7 +15,7 @@ namespace DSharpPlus.CommandAll.Converters
         [GeneratedRegex(@"^<@&(\d+?)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
         private static partial Regex _getRoleRegex();
 
-        public ApplicationCommandOptionType ArgumentType { get; init; } = ApplicationCommandOptionType.Role;
+        public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Role;
         public bool RequiresText { get; init; } = true;
 
         public Task<Optional<DiscordRole>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs)
@@ -25,7 +25,7 @@ namespace DSharpPlus.CommandAll.Converters
                 return Task.FromResult(Optional.FromNoValue<DiscordRole>());
             }
 
-            string value = context.As<TextConverterContext>().CurrentTextArgument;
+            string value = context.As<TextConverterContext>().Argument;
             if (!ulong.TryParse(value, CultureInfo.InvariantCulture, out ulong roleId))
             {
                 // value can be a raw channel id or a channel mention. The regex will match both.
@@ -46,7 +46,7 @@ namespace DSharpPlus.CommandAll.Converters
         public Task<Optional<DiscordRole>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
         {
             SlashConverterContext slashContext = context.As<SlashConverterContext>();
-            return Task.FromResult(Optional.FromValue(slashContext.Interaction.Data.Resolved.Roles[(ulong)slashContext.CurrentOption.Value]));
+            return Task.FromResult(Optional.FromValue(slashContext.Interaction.Data.Resolved.Roles[(ulong)slashContext.Argument.Value]));
         }
     }
 }

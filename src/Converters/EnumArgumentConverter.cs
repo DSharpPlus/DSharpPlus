@@ -10,13 +10,13 @@ namespace DSharpPlus.CommandAll.Converters
 {
     public class EnumConverter : ISlashArgumentConverter<Enum>, ITextArgumentConverter<Enum>
     {
-        public ApplicationCommandOptionType ArgumentType { get; init; } = ApplicationCommandOptionType.Integer;
+        public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Integer;
         public bool RequiresText { get; init; } = true;
 
         public Task<Optional<Enum>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs)
         {
-            string value = context.As<TextConverterContext>().CurrentTextArgument;
-            return Task.FromResult(Enum.TryParse(context.Argument.Type, value, true, out object? result)
+            string value = context.As<TextConverterContext>().Argument;
+            return Task.FromResult(Enum.TryParse(context.Parameter.Type, value, true, out object? result)
                 ? Optional.FromValue((Enum)result)
                 : Optional.FromNoValue<Enum>());
         }
@@ -24,9 +24,9 @@ namespace DSharpPlus.CommandAll.Converters
         public Task<Optional<Enum>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
         {
             SlashConverterContext slashConverterContext = context.As<SlashConverterContext>();
-            object value = Convert.ChangeType(slashConverterContext.CurrentOption.Value, Enum.GetUnderlyingType(context.Argument.Type), CultureInfo.InvariantCulture);
-            return Enum.IsDefined(context.Argument.Type, value)
-                ? Task.FromResult(Optional.FromValue((Enum)Enum.ToObject(context.Argument.Type, value)))
+            object value = Convert.ChangeType(slashConverterContext.Argument.Value, Enum.GetUnderlyingType(context.Parameter.Type), CultureInfo.InvariantCulture);
+            return Enum.IsDefined(context.Parameter.Type, value)
+                ? Task.FromResult(Optional.FromValue((Enum)Enum.ToObject(context.Parameter.Type, value)))
                 : Task.FromResult(Optional.FromNoValue<Enum>());
         }
     }

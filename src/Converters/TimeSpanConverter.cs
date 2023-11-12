@@ -14,11 +14,11 @@ namespace DSharpPlus.CommandAll.Converters
         [GeneratedRegex("^((?<days>\\d+)d\\s*)?((?<hours>\\d+)h\\s*)?((?<minutes>\\d+)m\\s*)?((?<seconds>\\d+)s\\s*)?$", RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.RightToLeft | RegexOptions.CultureInvariant)]
         private static partial Regex _getTimeSpanRegex();
 
-        public ApplicationCommandOptionType ArgumentType { get; init; } = ApplicationCommandOptionType.String;
+        public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.String;
         public bool RequiresText { get; init; } = true;
 
-        public Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context, context.As<TextConverterContext>().CurrentTextArgument);
-        public Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context, context.As<SlashConverterContext>().CurrentOption.Value.ToString());
+        public Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context, context.As<TextConverterContext>().Argument);
+        public Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context, context.As<SlashConverterContext>().Argument.Value.ToString());
 
         public static Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context, string? value)
         {

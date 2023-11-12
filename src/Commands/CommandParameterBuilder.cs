@@ -13,7 +13,7 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandAll.Commands
 {
-    public record CommandArgumentBuilder
+    public record CommandParameterBuilder
     {
         public string? Name { get; set; }
         public string? Description { get; set; }
@@ -21,7 +21,7 @@ namespace DSharpPlus.CommandAll.Commands
         public List<Attribute> Attributes { get; set; } = [];
         public Optional<object?> DefaultValue { get; set; } = Optional.FromNoValue<object?>();
 
-        public CommandArgumentBuilder WithName(string name)
+        public CommandParameterBuilder WithName(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -36,7 +36,7 @@ namespace DSharpPlus.CommandAll.Commands
             return this;
         }
 
-        public CommandArgumentBuilder WithDescription(string description)
+        public CommandParameterBuilder WithDescription(string description)
         {
             if (string.IsNullOrWhiteSpace(description))
             {
@@ -51,7 +51,7 @@ namespace DSharpPlus.CommandAll.Commands
             return this;
         }
 
-        public CommandArgumentBuilder WithType(Type type)
+        public CommandParameterBuilder WithType(Type type)
         {
             Type = type;
             if (type.IsEnum && !Attributes.Any(attribute => attribute is SlashChoiceProviderAttribute))
@@ -62,7 +62,7 @@ namespace DSharpPlus.CommandAll.Commands
             return this;
         }
 
-        public CommandArgumentBuilder WithAttributes(IEnumerable<Attribute> attributes)
+        public CommandParameterBuilder WithAttributes(IEnumerable<Attribute> attributes)
         {
             Attributes = new List<Attribute>(attributes);
             foreach (Attribute attribute in attributes)
@@ -85,14 +85,14 @@ namespace DSharpPlus.CommandAll.Commands
             return this;
         }
 
-        public CommandArgumentBuilder WithDefaultValue(Optional<object?> defaultValue)
+        public CommandParameterBuilder WithDefaultValue(Optional<object?> defaultValue)
         {
             DefaultValue = defaultValue;
             return this;
         }
 
         [MemberNotNull(nameof(Name), nameof(Description), nameof(Type), nameof(Attributes))]
-        public CommandArgument Build()
+        public CommandParameter Build()
         {
             ArgumentNullException.ThrowIfNull(Name, nameof(Name));
             ArgumentNullException.ThrowIfNull(Description, nameof(Description));
@@ -107,7 +107,7 @@ namespace DSharpPlus.CommandAll.Commands
             WithType(Type);
             WithDefaultValue(DefaultValue);
 
-            return new CommandArgument()
+            return new CommandParameter()
             {
                 Name = Name,
                 Description = Description,
@@ -117,7 +117,7 @@ namespace DSharpPlus.CommandAll.Commands
             };
         }
 
-        public static CommandArgumentBuilder From(ParameterInfo parameterInfo)
+        public static CommandParameterBuilder From(ParameterInfo parameterInfo)
         {
             ArgumentNullException.ThrowIfNull(parameterInfo, nameof(parameterInfo));
             if (parameterInfo.ParameterType.IsAssignableTo(typeof(CommandContext)))
@@ -125,24 +125,24 @@ namespace DSharpPlus.CommandAll.Commands
                 throw new ArgumentException("The parameter cannot be a CommandContext.", nameof(parameterInfo));
             }
 
-            CommandArgumentBuilder commandArgumentBuilder = new();
-            commandArgumentBuilder.WithAttributes(parameterInfo.GetCustomAttributes());
+            CommandParameterBuilder commandParameterBuilder = new();
+            commandParameterBuilder.WithAttributes(parameterInfo.GetCustomAttributes());
             if (parameterInfo.HasDefaultValue)
             {
-                commandArgumentBuilder.WithDefaultValue(parameterInfo.DefaultValue);
+                commandParameterBuilder.WithDefaultValue(parameterInfo.DefaultValue);
             }
 
-            if (string.IsNullOrWhiteSpace(commandArgumentBuilder.Name) && !string.IsNullOrWhiteSpace(parameterInfo.Name))
+            if (string.IsNullOrWhiteSpace(commandParameterBuilder.Name) && !string.IsNullOrWhiteSpace(parameterInfo.Name))
             {
-                commandArgumentBuilder.WithName(ToSnakeCase(parameterInfo.Name));
+                commandParameterBuilder.WithName(ToSnakeCase(parameterInfo.Name));
             }
 
-            if (commandArgumentBuilder.Type is null)
+            if (commandParameterBuilder.Type is null)
             {
-                commandArgumentBuilder.WithType(parameterInfo.ParameterType);
+                commandParameterBuilder.WithType(parameterInfo.ParameterType);
             }
 
-            return commandArgumentBuilder;
+            return commandParameterBuilder;
         }
 
         private static string ToSnakeCase(string str)
@@ -171,10 +171,10 @@ namespace DSharpPlus.CommandAll.Commands
 
         public class EnumOptionProvider : IChoiceProvider
         {
-            public Task<Dictionary<string, object>> ProvideAsync(CommandArgument argument)
+            public Task<Dictionary<string, object>> ProvideAsync(CommandParameter parameter)
             {
-                string[] enumNames = Enum.GetNames(argument.Type);
-                Array enumValues = Enum.GetValuesAsUnderlyingType(argument.Type);
+                string[] enumNames = Enum.GetNames(parameter.Type);
+                Array enumValues = Enum.GetValuesAsUnderlyingType(parameter.Type);
 
                 Dictionary<string, object> choices = [];
                 for (int i = 0; i < enumNames.Length; i++)

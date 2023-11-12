@@ -15,12 +15,12 @@ namespace DSharpPlus.CommandAll.Converters
         [GeneratedRegex(@"^<#(\d+)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
         private static partial Regex _getChannelRegex();
 
-        public ApplicationCommandOptionType ArgumentType { get; init; } = ApplicationCommandOptionType.Channel;
+        public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Channel;
         public bool RequiresText { get; init; } = true;
 
         public Task<Optional<DiscordChannel>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs)
         {
-            string value = context.As<TextConverterContext>().CurrentTextArgument;
+            string value = context.As<TextConverterContext>().Argument;
 
             // Attempt to parse the channel id
             if (!ulong.TryParse(value, CultureInfo.InvariantCulture, out ulong channelId))
@@ -43,7 +43,7 @@ namespace DSharpPlus.CommandAll.Converters
         public Task<Optional<DiscordChannel>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
         {
             SlashConverterContext slashContext = context.As<SlashConverterContext>();
-            return Task.FromResult(Optional.FromValue(slashContext.Interaction.Data.Resolved.Channels[(ulong)slashContext.CurrentOption.Value]));
+            return Task.FromResult(Optional.FromValue(slashContext.Interaction.Data.Resolved.Channels[(ulong)slashContext.Argument.Value]));
         }
     }
 }

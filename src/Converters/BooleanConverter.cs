@@ -31,10 +31,10 @@ namespace DSharpPlus.CommandAll.Converters
             ["f"] = false
         }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
-        public ApplicationCommandOptionType ArgumentType { get; init; } = ApplicationCommandOptionType.Boolean;
+        public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Boolean;
         public bool RequiresText { get; init; } = true;
 
-        public Task<Optional<bool>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue(_values.TryGetValue(context.As<TextConverterContext>().CurrentTextArgument, out bool value) && value));
-        public Task<Optional<bool>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue((bool)context.As<SlashConverterContext>().CurrentOption.Value));
+        public Task<Optional<bool>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue(_values.TryGetValue(context.As<TextConverterContext>().Argument, out bool value) && value));
+        public Task<Optional<bool>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue((bool)context.Argument!));
     }
 }

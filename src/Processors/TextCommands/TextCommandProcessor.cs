@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands;
+using DSharpPlus.CommandAll.Converters;
 using DSharpPlus.CommandAll.EventArgs;
 using DSharpPlus.CommandAll.Exceptions;
 using DSharpPlus.CommandAll.Processors.TextCommands.Attributes;
@@ -74,7 +75,7 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
                     {
                         Context = new TextCommandContext()
                         {
-                            Arguments = new Dictionary<CommandArgument, object?>(),
+                            Arguments = new Dictionary<CommandParameter, object?>(),
                             Channel = eventArgs.Channel,
                             Command = null!,
                             Extension = _extension,
@@ -155,21 +156,7 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
             await _extension.CommandExecutor.ExecuteAsync(commandContext);
         }
 
-        protected override async Task<IOptional> ExecuteConvertAsync<T>(ITextArgumentConverter converter, TextConverterContext converterContext, MessageCreateEventArgs eventArgs)
-        {
-            if (!converter.RequiresText || converterContext.NextTextArgument())
-            {
-                return await base.ExecuteConvertAsync<T>(converter, converterContext, eventArgs);
-            }
-            else if (converterContext.Argument.DefaultValue.HasValue)
-            {
-                return Optional.FromValue(converterContext.Argument.DefaultValue.Value);
-            }
-
-            throw new ParseArgumentException(converterContext.Argument, message: $"Missing text argument for {converterContext.Argument.Name}.");
-        }
-
-        public override TextCommandContext CreateCommandContext(TextConverterContext converterContext, MessageCreateEventArgs eventArgs, Dictionary<CommandArgument, object?> parsedArguments) => new()
+        public override TextCommandContext CreateCommandContext(TextConverterContext converterContext, MessageCreateEventArgs eventArgs, Dictionary<CommandParameter, object?> parsedArguments) => new()
         {
             Arguments = parsedArguments,
             Channel = eventArgs.Channel,
@@ -179,5 +166,36 @@ namespace DSharpPlus.CommandAll.Processors.TextCommands
             ServiceScope = converterContext.ServiceScope,
             User = eventArgs.Author
         };
+
+        protected override async Task<IOptional> ExecuteConvertAsync<T>(ITextArgumentConverter converter, TextConverterContext converterContext, MessageCreateEventArgs eventArgs)
+        {
+            IArgumentConverter<MessageCreateEventArgs, T> strongConverter = (IArgumentConverter<MessageCreateEventArgs, T>)converter;
+            if (converterContext.Parameter.Attributes.OfType<ParamArrayAttribute>().Any())
+            {
+                List<T> values = [];
+                do
+                {
+                    Optional<T> optional = await strongConverter.ConvertAsync(converterContext, eventArgs);
+                    if (!optional.HasValue)
+                    {
+                        break;
+                    }
+
+                    values.Add(optional.Value);
+                } while (converterContext.NextArgument());
+                return Optional.FromValue(values.ToArray());
+            }
+
+            if (!converter.RequiresText || converterContext.NextArgument())
+            {
+                return await base.ExecuteConvertAsync<T>(converter, converterContext, eventArgs);
+            }
+            else if (converterContext.Parameter.DefaultValue.HasValue)
+            {
+                return Optional.FromValue(converterContext.Parameter.DefaultValue.Value);
+            }
+
+            throw new ArgumentParseException(converterContext.Parameter, message: $"Missing text argument for {converterContext.Parameter.Name}.");
+        }
     }
 }

@@ -9,11 +9,11 @@ namespace DSharpPlus.CommandAll.Converters
 {
     public class ByteConverter : ISlashArgumentConverter<byte>, ITextArgumentConverter<byte>
     {
-        public ApplicationCommandOptionType ArgumentType { get; init; } = ApplicationCommandOptionType.Integer;
+        public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Integer;
         public bool RequiresText { get; init; } = true;
 
-        public Task<Optional<byte>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context.As<TextConverterContext>().CurrentTextArgument);
-        public Task<Optional<byte>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context.As<SlashConverterContext>().CurrentOption.Value.ToString());
+        public Task<Optional<byte>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context.As<TextConverterContext>().Argument);
+        public Task<Optional<byte>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context.As<SlashConverterContext>().Argument.ToString());
         public static Task<Optional<byte>> ConvertAsync(string? value) =>
             byte.TryParse(value, CultureInfo.InvariantCulture, out byte result)
                 ? Task.FromResult(Optional.FromValue(result))

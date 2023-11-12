@@ -10,25 +10,23 @@ namespace DSharpPlus.CommandAll.Converters
 {
     public class StringConverter : ISlashArgumentConverter<string>, ITextArgumentConverter<string>
     {
-        public ApplicationCommandOptionType ArgumentType { get; init; } = ApplicationCommandOptionType.String;
+        public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.String;
         public bool RequiresText { get; init; } = true;
 
         public Task<Optional<string>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs)
         {
             TextConverterContext textContext = context.As<TextConverterContext>();
-            if (!context.Argument.Attributes.Any(attribute => attribute is RemainingTextAttribute))
+            if (!context.Parameter.Attributes.Any(attribute => attribute is RemainingTextAttribute))
             {
-                return Task.FromResult(Optional.FromValue(textContext.CurrentTextArgument));
+                return Task.FromResult(Optional.FromValue(textContext.Argument));
             }
 
-            string currentTextArgument = textContext.CurrentTextArgument;
-            int nextIndex = textContext.NextTextIndex;
-            while (textContext.NextTextArgument()) { }
-            return Task.FromResult(Optional.FromValue(currentTextArgument + textContext.RawArguments[nextIndex..]));
+            TextConverterContext textConverterContext = context.As<TextConverterContext>();
+            return Task.FromResult(Optional.FromValue(textConverterContext.RawArguments[textConverterContext.CurrentArgumentIndex..]));
         }
 
         public Task<Optional<string>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => eventArgs.Interaction.Type != InteractionType.ApplicationCommand
             ? Task.FromResult(Optional.FromNoValue<string>())
-            : Task.FromResult(Optional.FromValue(eventArgs.Interaction.Data.Options.ElementAt(context.ArgumentIndex).Value.ToString()!));
+            : Task.FromResult(Optional.FromValue(eventArgs.Interaction.Data.Options.ElementAt(context.ParameterIndex).Value.ToString()!));
     }
 }

@@ -33,7 +33,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             foreach (LazyConverter lazyConverter in _lazyConverters.Values)
             {
                 ISlashArgumentConverter converter = lazyConverter.GetConverter(_extension.ServiceProvider);
-                typeMappings.Add(lazyConverter.ArgumentType, converter.ArgumentType);
+                typeMappings.Add(lazyConverter.ParameterType, converter.ParameterType);
             }
 
             TypeMappings = typeMappings.ToFrozenDictionary();
@@ -63,7 +63,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 {
                     Context = new SlashCommandContext()
                     {
-                        Arguments = new Dictionary<CommandArgument, object?>(),
+                        Arguments = new Dictionary<CommandParameter, object?>(),
                         Channel = eventArgs.Interaction.Channel,
                         Command = null!,
                         Extension = _extension,
@@ -86,7 +86,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 Command = command,
                 Extension = _extension,
                 Interaction = eventArgs.Interaction,
-                Options = options,
+                Options = options.ToList(),
                 ServiceScope = scope,
                 User = eventArgs.Interaction.User
             };
@@ -96,7 +96,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 AutoCompleteContext? autoCompleteContext = await ParseAutoCompleteArgumentsAsync(converterContext, eventArgs);
                 if (autoCompleteContext is not null)
                 {
-                    IEnumerable<DiscordAutoCompleteChoice> choices = await converterContext.Argument.Attributes.OfType<SlashAutoCompleteProviderAttribute>().First().AutoCompleteAsync(autoCompleteContext);
+                    IEnumerable<DiscordAutoCompleteChoice> choices = await converterContext.Parameter.Attributes.OfType<SlashAutoCompleteProviderAttribute>().First().AutoCompleteAsync(autoCompleteContext);
                     await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.AutoCompleteResult, new DiscordInteractionResponseBuilder().AddAutoCompleteChoices(choices));
                 }
 
@@ -209,20 +209,20 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 await scope.DisposeAsync();
             }
 
-            // Convert the subcommands or arguments into application options
+            // Convert the subcommands or parameters into application options
             List<DiscordApplicationCommandOption> options = [];
             if (command.Subcommands.Any())
             {
                 foreach (Command subCommand in command.Subcommands)
                 {
-                    options.Add(await ToApplicationArgumentAsync(subCommand));
+                    options.Add(await ToApplicationParameterAsync(subCommand));
                 }
             }
             else
             {
-                foreach (CommandArgument argument in command.Arguments)
+                foreach (CommandParameter parameter in command.Parameters)
                 {
-                    options.Add(await ToApplicationArgumentAsync(command, argument));
+                    options.Add(await ToApplicationParameterAsync(command, parameter));
                 }
             }
 
@@ -240,27 +240,27 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             );
         }
 
-        public async Task<DiscordApplicationCommandOption> ToApplicationArgumentAsync(Command command)
+        public async Task<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command)
         {
             if (_extension is null)
             {
                 throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
             }
 
-            // Convert the subcommands or arguments into application options
+            // Convert the subcommands or parameters into application options
             List<DiscordApplicationCommandOption> options = [];
             if (command.Subcommands.Any())
             {
                 foreach (Command subCommand in command.Subcommands)
                 {
-                    options.Add(await ToApplicationArgumentAsync(subCommand));
+                    options.Add(await ToApplicationParameterAsync(subCommand));
                 }
             }
             else
             {
-                foreach (CommandArgument argument in command.Arguments)
+                foreach (CommandParameter parameter in command.Parameters)
                 {
-                    options.Add(await ToApplicationArgumentAsync(command, argument));
+                    options.Add(await ToApplicationParameterAsync(command, parameter));
                 }
             }
 
@@ -286,51 +286,51 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
         }
 
         [SuppressMessage("Roslyn", "IDE0045", Justification = "Ternary rabbit hole.")]
-        public async Task<DiscordApplicationCommandOption> ToApplicationArgumentAsync(Command command, CommandArgument argument)
+        public async Task<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command, CommandParameter parameter)
         {
             if (_extension is null)
             {
                 throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
             }
 
-            if (!TypeMappings.TryGetValue(GetConverterFriendlyBaseType(argument.Type), out ApplicationCommandOptionType type))
+            if (!TypeMappings.TryGetValue(GetConverterFriendlyBaseType(parameter.Type), out ApplicationCommandOptionType type))
             {
-                throw new InvalidOperationException($"No type mapping found for argument type '{argument.Type.Name}'");
+                throw new InvalidOperationException($"No type mapping found for parameter type '{parameter.Type.Name}'");
             }
 
-            SlashMinMaxValueAttribute? minMaxValue = argument.Attributes.OfType<SlashMinMaxValueAttribute>().FirstOrDefault();
-            SlashMinMaxLengthAttribute? minMaxLength = argument.Attributes.OfType<SlashMinMaxLengthAttribute>().FirstOrDefault();
+            SlashMinMaxValueAttribute? minMaxValue = parameter.Attributes.OfType<SlashMinMaxValueAttribute>().FirstOrDefault();
+            SlashMinMaxLengthAttribute? minMaxLength = parameter.Attributes.OfType<SlashMinMaxLengthAttribute>().FirstOrDefault();
             AsyncServiceScope scope = _extension.ServiceProvider.CreateAsyncScope();
 
-            // Translate the argument's name and description.
+            // Translate the parameter's name and description.
             IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
             IReadOnlyDictionary<string, string> descriptionLocalizations = new Dictionary<string, string>();
-            if (argument.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
+            if (parameter.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
             {
-                nameLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.arguments.{argument.Name}.name");
-                descriptionLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.arguments.{argument.Name}.description");
+                nameLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.parameters.{parameter.Name}.name");
+                descriptionLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.parameters.{parameter.Name}.description");
             }
 
             IEnumerable<DiscordApplicationCommandOptionChoice> choices = [];
-            if (argument.Attributes.OfType<SlashChoiceProviderAttribute>().FirstOrDefault() is SlashChoiceProviderAttribute choiceAttribute)
+            if (parameter.Attributes.OfType<SlashChoiceProviderAttribute>().FirstOrDefault() is SlashChoiceProviderAttribute choiceAttribute)
             {
-                choices = await choiceAttribute.GrabChoicesAsync(scope.ServiceProvider, argument);
+                choices = await choiceAttribute.GrabChoicesAsync(scope.ServiceProvider, parameter);
             }
 
             await scope.DisposeAsync();
             return new(
-                name: argument.Name,
-                description: argument.Description,
+                name: parameter.Name,
+                description: parameter.Description,
                 name_localizations: nameLocalizations,
                 description_localizations: descriptionLocalizations,
-                autocomplete: argument.Attributes.Any(x => x is SlashAutoCompleteProviderAttribute),
-                channelTypes: argument.Attributes.OfType<SlashChannelTypesAttribute>().FirstOrDefault()?.ChannelTypes ?? [],
+                autocomplete: parameter.Attributes.Any(x => x is SlashAutoCompleteProviderAttribute),
+                channelTypes: parameter.Attributes.OfType<SlashChannelTypesAttribute>().FirstOrDefault()?.ChannelTypes ?? [],
                 choices: choices,
                 maxLength: minMaxLength?.MaxLength,
                 maxValue: minMaxValue?.MaxValue!, // Incorrect nullable annotations within the lib
                 minLength: minMaxLength?.MinLength,
                 minValue: minMaxValue?.MinValue!, // Incorrect nullable annotations within the lib
-                required: !argument.DefaultValue.HasValue,
+                required: !parameter.DefaultValue.HasValue,
                 type: type
             );
         }
@@ -342,18 +342,18 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 return null;
             }
 
-            Dictionary<CommandArgument, object?> parsedArguments = [];
+            Dictionary<CommandParameter, object?> parsedArguments = [];
             try
             {
-                while (converterContext.NextArgument() && !converterContext.Options.ElementAt(converterContext.ArgumentIndex).Focused)
+                while (converterContext.NextParameter() && !converterContext.Options.ElementAt(converterContext.ParameterIndex).Focused)
                 {
-                    IOptional optional = await ConverterDelegates[GetConverterFriendlyBaseType(converterContext.Argument.Type)](converterContext, eventArgs);
+                    IOptional optional = await ConverterDelegates[GetConverterFriendlyBaseType(converterContext.Parameter.Type)](converterContext, eventArgs);
                     if (!optional.HasValue)
                     {
                         break;
                     }
 
-                    parsedArguments.Add(converterContext.Argument, optional.RawValue);
+                    parsedArguments.Add(converterContext.Parameter, optional.RawValue);
                 }
             }
             catch (Exception error)
@@ -371,7 +371,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                         ServiceScope = converterContext.ServiceScope,
                         User = eventArgs.Interaction.User
                     },
-                    Exception = new ParseArgumentException(converterContext.Argument, error),
+                    Exception = new ArgumentParseException(converterContext.Parameter, error),
                     CommandObject = null
                 });
 
@@ -381,7 +381,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             return new AutoCompleteContext()
             {
                 Arguments = parsedArguments,
-                AutoCompleteArgument = converterContext.Argument,
+                AutoCompleteArgument = converterContext.Parameter,
                 Channel = eventArgs.Interaction.Channel,
                 Command = converterContext.Command,
                 Extension = converterContext.Extension,
@@ -389,11 +389,11 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 Options = converterContext.Options,
                 ServiceScope = converterContext.ServiceScope,
                 User = eventArgs.Interaction.User,
-                UserInput = converterContext.Options.ElementAt(converterContext.ArgumentIndex).Value
+                UserInput = converterContext.Options.ElementAt(converterContext.ParameterIndex).Value
             };
         }
 
-        public override SlashCommandContext CreateCommandContext(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs, Dictionary<CommandArgument, object?> parsedArguments) => new()
+        public override SlashCommandContext CreateCommandContext(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs, Dictionary<CommandParameter, object?> parsedArguments) => new()
         {
             Arguments = parsedArguments,
             Channel = eventArgs.Interaction.Channel,

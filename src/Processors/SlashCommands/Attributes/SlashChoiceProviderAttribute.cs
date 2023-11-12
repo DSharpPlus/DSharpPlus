@@ -12,7 +12,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands.Attributes
     {
         public Type ProviderType { get; init; } = providerType ?? throw new ArgumentNullException(nameof(providerType));
 
-        public async Task<IEnumerable<DiscordApplicationCommandOptionChoice>> GrabChoicesAsync(IServiceProvider serviceProvider, CommandArgument argument)
+        public async Task<IEnumerable<DiscordApplicationCommandOptionChoice>> GrabChoicesAsync(IServiceProvider serviceProvider, CommandParameter parameter)
         {
             IChoiceProvider choiceProvider;
             try
@@ -25,7 +25,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands.Attributes
             }
 
             List<DiscordApplicationCommandOptionChoice> choices = [];
-            foreach ((string name, object value) in await choiceProvider.ProvideAsync(argument))
+            foreach ((string name, object value) in await choiceProvider.ProvideAsync(parameter))
             {
                 choices.Add(new(name, value));
             }
@@ -42,6 +42,6 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands.Attributes
 
     public interface IChoiceProvider
     {
-        public Task<Dictionary<string, object>> ProvideAsync(CommandArgument argument);
+        public Task<Dictionary<string, object>> ProvideAsync(CommandParameter parameter);
     }
 }
