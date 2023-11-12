@@ -41,8 +41,15 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         if (!this._configured)
         {
             this._configured = true;
-            extension.Client.GuildDownloadCompleted += async (client, eventArgs) => await this.RegisterSlashCommandsAsync(extension);
             extension.Client.InteractionCreated += this.ExecuteInteractionAsync;
+            extension.Client.GuildDownloadCompleted += async (client, eventArgs) =>
+            {
+                if (client.ShardId == 0)
+                {
+                    await this.RegisterSlashCommandsAsync(extension);
+                }
+
+            };
         }
     }
 
