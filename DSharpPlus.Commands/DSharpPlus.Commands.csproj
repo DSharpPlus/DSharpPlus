@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <PackageId>DSharpPlus.Commands</PackageId>
+        <Description>An all in one package for managing commands.</Description>
+        <PackageTags>$(PackageTags), commands, commandsnext, slash-commands, interactions</PackageTags>
+        <IsPackable>true</IsPackable>
+        <TargetFramework>net8.0</TargetFramework>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="$(ProjectRoot)\DSharpPlus\DSharpPlus.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Logging" />
+    </ItemGroup>
+</Project>
