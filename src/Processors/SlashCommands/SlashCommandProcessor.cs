@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Commands.Attributes;
@@ -191,6 +192,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             SlashLogging.RegisteredCommands(_logger, Commands.Count, null);
         }
 
+        [SuppressMessage("Roslyn", "CA1859", Justification = "Incorrect warning in NET 8-rc2. TODO: Open an issue in dotnet/runtime.")]
         public async Task<DiscordApplicationCommand> ToApplicationCommandAsync(Command command)
         {
             if (_extension is null)
@@ -222,14 +224,23 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             {
                 foreach (CommandParameter parameter in command.Parameters)
                 {
+                    if (parameter.Attributes.OfType<ParamArrayAttribute>().Any())
+                    {
+                        // Fill til 25
+                        for (int i = options.Count; i < 24; i++)
+                        {
+                            options.Add(await ToApplicationParameterAsync(command, parameter, i));
+                        }
+                    }
+
                     options.Add(await ToApplicationParameterAsync(command, parameter));
                 }
             }
 
             // Create the top level application command.
             return new(
-                name: command.Name,
-                description: command.Description,
+                name: nameLocalizations.TryGetValue("en-US", out string? name) ? name : command.Name,
+                description: descriptionLocalizations.TryGetValue("en-US", out string? description) ? description : command.Description,
                 options: options,
                 type: ApplicationCommandType.SlashCommand,
                 name_localizations: nameLocalizations,
@@ -240,6 +251,7 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             );
         }
 
+        [SuppressMessage("Roslyn", "CA1859", Justification = "Incorrect warning in NET 8-rc2. TODO: Open an issue in dotnet/runtime.")]
         public async Task<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command)
         {
             if (_extension is null)
@@ -276,8 +288,8 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             }
 
             return new(
-                name: command.Name,
-                description: command.Description,
+                name: nameLocalizations.TryGetValue("en-US", out string? name) ? name : command.Name,
+                description: descriptionLocalizations.TryGetValue("en-US", out string? description) ? description : command.Description,
                 name_localizations: nameLocalizations,
                 description_localizations: descriptionLocalizations,
                 type: command.Subcommands.Any() ? ApplicationCommandOptionType.SubCommandGroup : ApplicationCommandOptionType.SubCommand,
@@ -286,7 +298,8 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
         }
 
         [SuppressMessage("Roslyn", "IDE0045", Justification = "Ternary rabbit hole.")]
-        public async Task<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command, CommandParameter parameter)
+        [SuppressMessage("Roslyn", "CA1859", Justification = "Incorrect warning in NET 8-rc2. TODO: Open an issue in dotnet/runtime.")]
+        private async Task<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command, CommandParameter parameter, int? i = null)
         {
             if (_extension is null)
             {
@@ -307,8 +320,15 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
             IReadOnlyDictionary<string, string> descriptionLocalizations = new Dictionary<string, string>();
             if (parameter.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
             {
-                nameLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.parameters.{parameter.Name}.name");
-                descriptionLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.parameters.{parameter.Name}.description");
+                StringBuilder localeIdBuilder = new();
+                localeIdBuilder.Append($"{command.FullName}.parameters.{parameter.Name}");
+                if (i.HasValue)
+                {
+                    localeIdBuilder.Append($".{i}");
+                }
+
+                nameLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, localeIdBuilder.ToString() + ".name");
+                descriptionLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, localeIdBuilder.ToString() + ".description");
             }
 
             IEnumerable<DiscordApplicationCommandOptionChoice> choices = [];
@@ -317,10 +337,20 @@ namespace DSharpPlus.CommandAll.Processors.SlashCommands
                 choices = await choiceAttribute.GrabChoicesAsync(scope.ServiceProvider, parameter);
             }
 
+            if (!nameLocalizations.TryGetValue("en-US", out string? name))
+            {
+                name = i.HasValue ? $"{parameter.Name}_{i}" : parameter.Name;
+            }
+
+            if (!descriptionLocalizations.TryGetValue("en-US", out string? description))
+            {
+                description = parameter.Description;
+            }
+
             await scope.DisposeAsync();
             return new(
-                name: parameter.Name,
-                description: parameter.Description,
+                name: name,
+                description: description,
                 name_localizations: nameLocalizations,
                 description_localizations: descriptionLocalizations,
                 autocomplete: parameter.Attributes.Any(x => x is SlashAutoCompleteProviderAttribute),
