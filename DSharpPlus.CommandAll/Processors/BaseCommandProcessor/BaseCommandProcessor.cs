@@ -89,7 +89,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
             }
             else if (this.ConverterType is not null)
             {
-                return this.ConverterType.ToString() ?? this.ConverterType.Name;
+                return this.ConverterType.ToString();
             }
             else
             {
@@ -152,7 +152,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
             Type? genericArgumentConverter = type.GetInterfaces().FirstOrDefault(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IArgumentConverter<,>));
             if (genericArgumentConverter is null)
             {
-                this._logger.LogWarning("Argument Converter {FullName} does not implement {InterfaceFullName}", type.FullName ?? type.Name, typeof(IArgumentConverter<,>).FullName ?? typeof(IArgumentConverter<,>).Name);
+                BaseCommandLogging.InvalidArgumentConverterImplementation(this._logger, type.FullName ?? type.Name, typeof(IArgumentConverter<,>).FullName ?? typeof(IArgumentConverter<,>).Name, null);
                 continue;
             }
 
@@ -168,7 +168,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
             LazyConverter existingLazyConverter = this._lazyConverters[lazyConverter.ParameterType];
             if (!lazyConverter.Equals(existingLazyConverter))
             {
-                this._logger.LogError("Failed to add converter {ConverterFullName} because a converter for type {ParameterType} already exists: {ExistingConverter}", lazyConverter.ToString(), existingLazyConverter.ParameterType.FullName ?? existingLazyConverter.ParameterType.Name, existingLazyConverter.ToString());
+                BaseCommandLogging.DuplicateArgumentConvertersRegistered(this._logger, lazyConverter.ToString()!, existingLazyConverter.ParameterType.FullName ?? existingLazyConverter.ParameterType.Name, existingLazyConverter.ToString()!, null);
             }
         }
     }
