@@ -3,13 +3,18 @@ namespace DSharpPlus.Commands;
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Commands.EventArgs;
+using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Processors;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Attributes;
+using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -19,11 +24,14 @@ using Microsoft.Extensions.Logging.Abstractions;
 /// </summary>
 public sealed class CommandsExtension : BaseExtension
 {
-    /// <inheritdoc cref="Trees.ServiceProvider"/>
+    /// <inheritdoc cref="CommandsConfiguration.ServiceProvider"/>
     public IServiceProvider ServiceProvider { get; init; }
 
-    /// <inheritdoc cref="Trees.DebugGuildId"/>
+    /// <inheritdoc cref="CommandsConfiguration.DebugGuildId"/>
     public ulong? DebugGuildId { get; init; }
+
+    /// <inheritdoc cref="CommandsConfiguration.UseDefaultCommandErrorHandler"/>
+    public bool UseDefaultCommandErrorHandler { get; init; }
 
     public CommandExecutor CommandExecutor { get; init; } = new();
 
@@ -45,7 +53,19 @@ public sealed class CommandsExtension : BaseExtension
     /// <summary>
     /// Executed everytime a command has errored.
     /// </summary>
-    public event AsyncEventHandler<CommandsExtension, CommandErroredEventArgs> CommandErrored { add => this._commandErrored.Register(value); remove => this._commandErrored.Unregister(value); }
+    public event AsyncEventHandler<CommandsExtension, CommandErroredEventArgs> CommandErrored
+    {
+        add
+        {
+            if (this.UseDefaultCommandErrorHandler)
+            {
+                this._commandErrored.Unregister(DefaultCommandErrorHandlerAsync);
+            }
+
+            this._commandErrored.Register(value);
+        }
+        remove => this._commandErrored.Unregister(value);
+    }
     internal readonly AsyncEvent<CommandsExtension, CommandErroredEventArgs> _commandErrored = new("COMMANDS_COMMAND_ERRORED", EverythingWentWrongErrorHandler);
 
     /// <summary>
@@ -63,6 +83,12 @@ public sealed class CommandsExtension : BaseExtension
 
         this.ServiceProvider = configuration.ServiceProvider;
         this.DebugGuildId = configuration.DebugGuildId;
+        this.UseDefaultCommandErrorHandler = configuration.UseDefaultCommandErrorHandler;
+        if (this.UseDefaultCommandErrorHandler)
+        {
+            // We don't do `this.CommandErrored += DefaultCommandErrorHandlerAsync` because that'll immediately remove the event handler.
+            this._commandErrored.Register(DefaultCommandErrorHandlerAsync);
+        }
 
         // Attempt to get the user defined logging, otherwise setup a null logger since the D#+ Default Logger is internal.
         this._logger = this.ServiceProvider.GetService<ILogger<CommandsExtension>>() ?? NullLogger<CommandsExtension>.Instance;
@@ -148,6 +174,13 @@ public sealed class CommandsExtension : BaseExtension
         }
     }
 
+    // TODO: Disposable pattern for processors
+    /// <inheritdoc />
+    public override void Dispose()
+    {
+        return;
+    }
+
     /// <summary>
     /// The event handler used to log all unhandled exceptions, usually from when <see cref="_commandErrored"/> itself errors.
     /// </summary>
@@ -158,9 +191,43 @@ public sealed class CommandsExtension : BaseExtension
     /// <param name="eventArgs">The event arguments passed to <paramref name="handler"/>.</param>
     private static void EverythingWentWrongErrorHandler<TArgs>(AsyncEvent<CommandsExtension, TArgs> asyncEvent, Exception error, AsyncEventHandler<CommandsExtension, TArgs> handler, CommandsExtension sender, TArgs eventArgs) where TArgs : AsyncEventArgs => sender._logger.LogError(error, "Event handler '{Method}' for event {AsyncEvent} threw an unhandled exception.", handler.Method, asyncEvent.Name);
 
-    /// <inheritdoc />
-    public override void Dispose()
+    /// <summary>
+    /// The default command error handler. Only used if <see cref="UseDefaultCommandErrorHandler"/> is set to true.
+    /// </summary>
+    /// <param name="extension">The extension.</param>
+    /// <param name="eventArgs">The event arguments containing the exception.</param>
+    private static async Task DefaultCommandErrorHandlerAsync(CommandsExtension extension, CommandErroredEventArgs eventArgs)
     {
-        return;
+        StringBuilder stringBuilder = new();
+        DiscordMessageBuilder messageBuilder = new();
+
+        // Error message
+        stringBuilder.Append(eventArgs.Exception switch
+        {
+            CommandNotFoundException commandNotFoundException => $"Command {Formatter.InlineCode(Formatter.Sanitize(commandNotFoundException.CommandName))} was not found.",
+            ArgumentParseException argumentParseException => $"Failed to parse argument {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.Parameter.Name))}.",
+            CheckFailedException checkFailedException => $"Check {Formatter.InlineCode(Formatter.Sanitize(checkFailedException.Check.GetType().Name))} failed.",
+            DiscordException discordException when discordException.Response is not null && (int)discordException.Response.StatusCode >= 500 && (int)discordException.Response.StatusCode < 600 => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? "No further information was provided."}",
+            DiscordException discordException when discordException.Response is not null => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? discordException.Message}",
+            _ => $"An unexpected error occurred: {eventArgs.Exception.Message}"
+        });
+
+        // Stack trace
+        if (!string.IsNullOrWhiteSpace(eventArgs.Exception.StackTrace))
+        {
+            // If the stack trace can fit inside a codeblock
+            if (8 + eventArgs.Exception.StackTrace.Length + stringBuilder.Length >= 2000)
+            {
+                stringBuilder.Append($"```\n{eventArgs.Exception.StackTrace}\n```");
+            }
+            // Otherwise, we'll have to upload it as a file
+            else
+            {
+                messageBuilder.AddFile("StackTrace.txt", new MemoryStream(Encoding.UTF8.GetBytes(eventArgs.Exception.StackTrace)), AddFileOptions.CloseStream);
+            }
+        }
+
+        messageBuilder.WithContent(stringBuilder.ToString());
+        await eventArgs.Context.RespondAsync(messageBuilder);
     }
 }
