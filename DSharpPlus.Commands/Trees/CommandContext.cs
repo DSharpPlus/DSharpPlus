@@ -1,4 +1,4 @@
-namespace DSharpPlus.Commands.Commands;
+namespace DSharpPlus.Commands.Trees;
 
 using System.Collections.Generic;
 using System.Threading.Tasks;

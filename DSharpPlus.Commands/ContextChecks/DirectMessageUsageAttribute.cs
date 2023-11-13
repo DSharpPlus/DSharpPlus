@@ -2,7 +2,7 @@ namespace DSharpPlus.Commands.ContextChecks;
 
 using System;
 using System.Threading.Tasks;
-using DSharpPlus.Commands.Commands;
+using DSharpPlus.Commands.Trees;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Delegate)]
 public class DirectMessageUsageAttribute(DirectMessageUsage usage = DirectMessageUsage.AllowDMs) : ContextCheckAttribute

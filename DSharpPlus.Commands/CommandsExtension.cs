@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
-using DSharpPlus.Commands.Commands;
-using DSharpPlus.Commands.Commands.Attributes;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Processors;
+using DSharpPlus.Commands.Trees;
+using DSharpPlus.Commands.Trees.Attributes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -19,10 +19,10 @@ using Microsoft.Extensions.Logging.Abstractions;
 /// </summary>
 public sealed class CommandsExtension : BaseExtension
 {
-    /// <inheritdoc cref="Commands.ServiceProvider"/>
+    /// <inheritdoc cref="Trees.ServiceProvider"/>
     public IServiceProvider ServiceProvider { get; init; }
 
-    /// <inheritdoc cref="Commands.DebugGuildId"/>
+    /// <inheritdoc cref="Trees.DebugGuildId"/>
     public ulong? DebugGuildId { get; init; }
 
     public CommandExecutor CommandExecutor { get; init; } = new();

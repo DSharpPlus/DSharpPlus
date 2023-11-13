@@ -8,12 +8,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DSharpPlus.Commands.Commands;
-using DSharpPlus.Commands.Commands.Attributes;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Processors.SlashCommands.Attributes;
+using DSharpPlus.Commands.Trees;
+using DSharpPlus.Commands.Trees.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,7 +26,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
     private readonly List<DiscordApplicationCommand> _applicationCommands = [];
     private bool _configured;
 
-    public override async Task ConfigureAsync(CommandsExtension extension)
+    public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {
         await base.ConfigureAsync(extension);
 

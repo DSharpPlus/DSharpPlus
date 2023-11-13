@@ -1,6 +1,6 @@
 namespace DSharpPlus.Commands.Converters;
 
-using DSharpPlus.Commands.Commands;
+using DSharpPlus.Commands.Trees;
 
 public abstract record ConverterContext : AbstractContext
 {
