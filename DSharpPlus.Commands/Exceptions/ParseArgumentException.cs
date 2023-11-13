@@ -1,7 +1,7 @@
 namespace DSharpPlus.Commands.Exceptions;
 
 using System;
-using DSharpPlus.Commands.Commands;
+using DSharpPlus.Commands.Trees;
 
 public sealed class ArgumentParseException : Exception
 {

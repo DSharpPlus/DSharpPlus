@@ -1,4 +1,4 @@
-namespace DSharpPlus.Commands.Commands;
+namespace DSharpPlus.Commands.Trees;
 
 using System;
 using System.Collections.Generic;
@@ -9,8 +9,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using DSharpPlus.Commands.Commands.Attributes;
 using DSharpPlus.Commands.Processors.SlashCommands.Attributes;
+using DSharpPlus.Commands.Trees.Attributes;
 using DSharpPlus.Entities;
 
 public class CommandParameterBuilder

@@ -2,8 +2,8 @@ namespace DSharpPlus.Commands.Processors.TextCommands.ContextChecks;
 
 using System;
 using System.Threading.Tasks;
-using DSharpPlus.Commands.Commands;
 using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Commands.Trees;
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public class TextMessageReplyAttribute(bool require = false) : ContextCheckAttribute

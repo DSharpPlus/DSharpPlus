@@ -1,7 +1,7 @@
 namespace DSharpPlus.Commands.Processors.SlashCommands;
 
 using System.Collections.Generic;
-using DSharpPlus.Commands.Commands;
+using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
 
 public sealed record AutoCompleteContext : AbstractContext

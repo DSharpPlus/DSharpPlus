@@ -3,7 +3,7 @@ namespace DSharpPlus.Commands.Processors.SlashCommands.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DSharpPlus.Commands.Commands;
+using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 

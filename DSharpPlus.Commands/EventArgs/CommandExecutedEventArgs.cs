@@ -1,7 +1,7 @@
 namespace DSharpPlus.Commands.EventArgs;
 
 using DSharpPlus.AsyncEvents;
-using DSharpPlus.Commands.Commands;
+using DSharpPlus.Commands.Trees;
 
 public sealed class CommandExecutedEventArgs : AsyncEventArgs
 {

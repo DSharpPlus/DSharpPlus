@@ -3,7 +3,7 @@ namespace DSharpPlus.Commands.ContextChecks;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus.Commands.Commands;
+using DSharpPlus.Commands.Trees;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Delegate)]
 public class RequireOwnerAttribute : ContextCheckAttribute

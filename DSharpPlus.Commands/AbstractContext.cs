@@ -1,7 +1,7 @@
 namespace DSharpPlus.Commands;
 
 using System;
-using DSharpPlus.Commands.Commands;
+using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
