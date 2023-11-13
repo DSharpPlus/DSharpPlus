@@ -22,13 +22,13 @@ public abstract record CommandContext : AbstractContext
     public abstract ValueTask EditResponseAsync(IDiscordMessageBuilder builder);
 
     public abstract ValueTask<DiscordMessage?> GetResponseAsync();
-    public abstract ValueTask DelayResponseAsync();
+    public abstract ValueTask DeferResponseAsync();
     public abstract ValueTask DeleteResponseAsync();
 
-    public virtual ValueTask FollowupAsync(string content) => this.FollowupAsync(new DiscordMessageBuilder().WithContent(content));
-    public virtual ValueTask FollowupAsync(DiscordEmbed embed) => this.FollowupAsync(new DiscordMessageBuilder().WithEmbed(embed));
-    public virtual ValueTask FollowupAsync(string content, DiscordEmbed embed) => this.FollowupAsync(new DiscordMessageBuilder().WithContent(content).WithEmbed(embed));
-    public abstract ValueTask FollowupAsync(IDiscordMessageBuilder builder);
+    public virtual ValueTask<DiscordMessage> FollowupAsync(string content) => this.FollowupAsync(new DiscordMessageBuilder().WithContent(content));
+    public virtual ValueTask<DiscordMessage> FollowupAsync(DiscordEmbed embed) => this.FollowupAsync(new DiscordMessageBuilder().WithEmbed(embed));
+    public virtual ValueTask<DiscordMessage> FollowupAsync(string content, DiscordEmbed embed) => this.FollowupAsync(new DiscordMessageBuilder().WithContent(content).WithEmbed(embed));
+    public abstract ValueTask<DiscordMessage> FollowupAsync(IDiscordMessageBuilder builder);
 
     public virtual ValueTask EditFollowupAsync(ulong messageId, string content) => this.EditFollowupAsync(messageId, new DiscordMessageBuilder().WithContent(content));
     public virtual ValueTask EditFollowupAsync(ulong messageId, DiscordEmbed embed) => this.EditFollowupAsync(messageId, new DiscordMessageBuilder().WithEmbed(embed));
