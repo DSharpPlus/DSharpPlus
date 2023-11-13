@@ -25,7 +25,7 @@ public static class ExtensionMethods
         }
         else if (client.GetExtension<CommandsExtension>() is not null)
         {
-            throw new InvalidOperationException("Commands Extension is already initialized.");
+            throw new InvalidOperationException("Commands extension is already initialized.");
         }
 
         CommandsExtension extension = new(configuration ?? GrabDefaultConfiguration(client.Logger));
