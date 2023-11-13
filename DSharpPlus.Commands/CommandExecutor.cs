@@ -30,13 +30,12 @@ public sealed class CommandExecutor
     {
         Guid guid = Guid.NewGuid();
         Task task = Task.Run(() => WorkerAsync(context), cancellationToken);
+        this._tasks.TryAdd(guid, task);
         if (!block)
         {
             task = task.ContinueWith(_ => this._tasks.TryRemove(guid, out Task? _));
         }
-
-        this._tasks.TryAdd(guid, task);
-        if (block)
+        else
         {
             await this._tasks[guid];
             this._tasks.TryRemove(guid, out Task? _);
