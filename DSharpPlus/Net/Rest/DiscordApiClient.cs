@@ -2094,12 +2094,17 @@ public sealed class DiscordApiClient
                 Files = builder.Files
             };
 
-            RestResponse res = await this._rest.ExecuteRequestAsync(request);
-
+            RestResponse res;
+            try
+            {
+                res = await this._rest.ExecuteRequestAsync(request);
+            }
+            finally
+            {
+                builder.ResetFileStreamPositions();
+            }
             DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
-
-            builder.ResetFileStreamPositions();
-
+            
             return ret;
         }
     }
@@ -4631,11 +4636,16 @@ public sealed class DiscordApiClient
             IsExemptFromGlobalLimit = true
         };
 
-        RestResponse res = await this._rest.ExecuteRequestAsync(request);
-
+        RestResponse res;
+        try
+        {
+            res = await this._rest.ExecuteRequestAsync(request);
+        }
+        finally
+        {
+            builder.ResetFileStreamPositions();
+        }
         DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
-
-        builder.ResetFileStreamPositions();
 
         ret.Discord = this._discord!;
         return ret;
@@ -4733,12 +4743,17 @@ public sealed class DiscordApiClient
             IsExemptFromGlobalLimit = true
         };
 
-        RestResponse res = await this._rest.ExecuteRequestAsync(request);
-
+        RestResponse res;
+        try
+        {
+            res = await this._rest.ExecuteRequestAsync(request);
+        }
+        finally
+        {
+            builder.ResetFileStreamPositions();
+        }
         DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
-
-        builder.ResetFileStreamPositions();
-
+        
         return ret;
     }
 
@@ -5621,9 +5636,14 @@ public sealed class DiscordApiClient
                 IsExemptFromGlobalLimit = true
             };
 
-            await this._rest.ExecuteRequestAsync(request);
-
-            builder.ResetFileStreamPositions();
+            try
+            {
+                await this._rest.ExecuteRequestAsync(request);
+            }
+            finally
+            {
+                builder.ResetFileStreamPositions();
+            }
         }
         else
         {
@@ -5790,10 +5810,16 @@ public sealed class DiscordApiClient
             IsExemptFromGlobalLimit = true
         };
 
-        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+        RestResponse res;
+        try
+        {
+            res = await this._rest.ExecuteRequestAsync(request);
+        }
+        finally
+        {
+            builder.ResetFileStreamPositions();
+        }
         DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
-
-        builder.ResetFileStreamPositions();
 
         ret.Discord = this._discord!;
         return ret;
