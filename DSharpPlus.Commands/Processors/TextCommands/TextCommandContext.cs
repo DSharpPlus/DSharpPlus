@@ -63,13 +63,13 @@ public sealed record TextCommandContext : CommandContext
     public override ValueTask<DiscordMessage?> GetResponseAsync() => ValueTask.FromResult(this.Response);
 
     /// <inheritdoc />
-    public override async ValueTask DelayResponseAsync()
+    public override async ValueTask DeferResponseAsync()
     {
         await this.Channel.TriggerTypingAsync();
         this.Delayed = true;
     }
 
-    public override async ValueTask FollowupAsync(IDiscordMessageBuilder builder)
+    public override async ValueTask<DiscordMessage> FollowupAsync(IDiscordMessageBuilder builder)
     {
         if (this.Response is null)
         {
@@ -92,6 +92,7 @@ public sealed record TextCommandContext : CommandContext
 
         DiscordMessage followup = await this.Channel.SendMessageAsync(messageBuilder);
         this._followupMessages.Add(followup.Id, followup);
+        return followup;
     }
 
     public override async ValueTask EditFollowupAsync(ulong messageId, IDiscordMessageBuilder builder)

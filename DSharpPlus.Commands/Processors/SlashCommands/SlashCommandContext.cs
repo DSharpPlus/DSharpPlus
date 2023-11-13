@@ -41,7 +41,7 @@ public record SlashCommandContext : CommandContext
     }
 
     /// <inheritdoc />
-    public override async ValueTask DelayResponseAsync()
+    public override async ValueTask DeferResponseAsync()
     {
         await this.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
         this.State |= InteractionState.ResponseDelayed;
@@ -76,7 +76,7 @@ public record SlashCommandContext : CommandContext
         : await this.Interaction.GetOriginalResponseAsync();
 
     /// <inheritdoc />
-    public override async ValueTask FollowupAsync(IDiscordMessageBuilder builder)
+    public override async ValueTask<DiscordMessage> FollowupAsync(IDiscordMessageBuilder builder)
     {
         if (!this.State.HasFlag(InteractionState.ResponseSent))
         {
@@ -85,8 +85,8 @@ public record SlashCommandContext : CommandContext
 
         DiscordFollowupMessageBuilder followupBuilder = new(builder);
         DiscordMessage message = await this.Interaction.CreateFollowupMessageAsync(followupBuilder);
-
         this._followupMessages.Add(message.Id, message);
+        return message;
     }
 
     /// <inheritdoc />
