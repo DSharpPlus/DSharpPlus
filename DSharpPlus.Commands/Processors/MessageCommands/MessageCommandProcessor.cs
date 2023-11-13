@@ -95,7 +95,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
             return;
         }
 
-        SlashCommandContext context = new()
+        SlashCommandContext commandContext = new()
         {
             Arguments = new Dictionary<CommandParameter, object?>()
             {
@@ -110,7 +110,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
             User = eventArgs.Interaction.User
         };
 
-        await this._extension.CommandExecutor.ExecuteAsync(context);
+        await this._extension.CommandExecutor.ExecuteAsync(commandContext);
     }
 
     public static async Task<DiscordApplicationCommand> ToApplicationCommandAsync(CommandsExtension extension, Command command)
