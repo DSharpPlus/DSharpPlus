@@ -25,7 +25,5 @@ public class StringConverter : ISlashArgumentConverter<string>, ITextArgumentCon
         return Task.FromResult(Optional.FromValue(textConverterContext.RawArguments[textConverterContext.CurrentArgumentIndex..]));
     }
 
-    public Task<Optional<string>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => eventArgs.Interaction.Type != InteractionType.ApplicationCommand
-        ? Task.FromResult(Optional.FromNoValue<string>())
-        : Task.FromResult(Optional.FromValue(eventArgs.Interaction.Data.Options.ElementAt(context.ParameterIndex).Value.ToString()!));
+    public Task<Optional<string>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue((string)context.As<SlashConverterContext>().Argument.Value));
 }
