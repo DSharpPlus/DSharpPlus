@@ -18,7 +18,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     public TextCommandConfiguration Configuration { get; init; } = configuration ?? new();
     private bool _configured;
 
-    public override async Task ConfigureAsync(CommandsExtension extension)
+    public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {
         await base.ConfigureAsync(extension);
         if (!this._configured)
