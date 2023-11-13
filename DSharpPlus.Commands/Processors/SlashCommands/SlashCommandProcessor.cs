@@ -107,14 +107,14 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                 await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.AutoCompleteResult, new DiscordInteractionResponseBuilder().AddAutoCompleteChoices(choices));
             }
 
-            await converterContext.ServiceScope.DisposeAsync();
+            converterContext.ServiceScope.Dispose();
         }
         else
         {
             CommandContext? commandContext = await this.ParseArgumentsAsync(converterContext, eventArgs);
             if (commandContext is null)
             {
-                await converterContext.ServiceScope.DisposeAsync();
+                converterContext.ServiceScope.Dispose();
                 return;
             }
 
