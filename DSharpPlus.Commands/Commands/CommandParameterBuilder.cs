@@ -13,7 +13,7 @@ using DSharpPlus.Commands.Commands.Attributes;
 using DSharpPlus.Commands.Processors.SlashCommands.Attributes;
 using DSharpPlus.Entities;
 
-public record CommandParameterBuilder
+public class CommandParameterBuilder
 {
     public string? Name { get; set; }
     public string? Description { get; set; }

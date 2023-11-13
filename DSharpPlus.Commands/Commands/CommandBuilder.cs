@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using DSharpPlus.Commands.Commands.Attributes;
 
-public record CommandBuilder
+public class CommandBuilder
 {
     public string? Name { get; set; }
     public string? Description { get; set; }
