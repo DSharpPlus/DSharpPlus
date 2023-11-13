@@ -12,13 +12,11 @@ public class SByteConverter : ISlashArgumentConverter<sbyte>, ITextArgumentConve
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Integer;
     public bool RequiresText { get; init; } = true;
 
-    public Task<Optional<sbyte>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) =>
-        sbyte.TryParse(context.As<TextConverterContext>().Argument, CultureInfo.InvariantCulture, out sbyte result)
+    public Task<Optional<sbyte>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => sbyte.TryParse(context.As<TextConverterContext>().Argument, CultureInfo.InvariantCulture, out sbyte result)
             ? Task.FromResult(Optional.FromValue(result))
             : Task.FromResult(Optional.FromNoValue<sbyte>());
 
-    public Task<Optional<sbyte>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) =>
-        sbyte.TryParse(context.As<SlashConverterContext>().Argument.Value.ToString(), out sbyte result)
-            ? Task.FromResult(Optional.FromValue(result))
+    public Task<Optional<sbyte>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => context.As<SlashConverterContext>().Argument.Value is int number && number >= sbyte.MinValue && number <= sbyte.MaxValue
+            ? Task.FromResult(Optional.FromValue((sbyte)number))
             : Task.FromResult(Optional.FromNoValue<sbyte>());
 }
