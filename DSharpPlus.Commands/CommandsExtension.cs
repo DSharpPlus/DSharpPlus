@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
 /// <summary>
-/// Because not everyone can decide between slash commands and text commands.
+/// An all in one extension for managing commands.
 /// </summary>
 public sealed class CommandsExtension : BaseExtension
 {
