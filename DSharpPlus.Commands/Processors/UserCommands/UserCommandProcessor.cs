@@ -25,7 +25,7 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreateEv
     private CommandsExtension? _extension;
     private SlashCommandProcessor? _slashCommandProcessor;
 
-    public async Task ConfigureAsync(CommandsExtension extension)
+    public async ValueTask ConfigureAsync(CommandsExtension extension)
     {
         this._extension = extension;
         this._extension.Client.ContextMenuInteractionCreated += this.ExecuteInteractionAsync;

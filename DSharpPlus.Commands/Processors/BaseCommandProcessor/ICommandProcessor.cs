@@ -8,7 +8,7 @@ using DSharpPlus.Commands.Converters;
 
 public interface ICommandProcessor
 {
-    public Task ConfigureAsync(CommandsExtension extension);
+    public ValueTask ConfigureAsync(CommandsExtension extension);
 }
 
 public interface ICommandProcessor<T> : ICommandProcessor where T : AsyncEventArgs

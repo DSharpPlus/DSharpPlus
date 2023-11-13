@@ -25,8 +25,6 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
 {
     protected class LazyConverter
     {
-        private delegate Task<IOptional> PrivateConverterDelegate(TConverter converter, TConverterContext converterContext, TEventArgs eventArgs);
-
         public required Type ParameterType { get; init; }
 
         public ConverterDelegate<TEventArgs>? ConverterDelegate { get; set; }
@@ -65,14 +63,14 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
 
             if (!this.ConverterType.IsAssignableTo(typeof(TConverter)))
             {
-                throw new InvalidOperationException($"Type {this.ConverterType.FullName ?? this.ConverterType.Name} does not implement {typeof(TConverter).FullName ?? typeof(TConverter).Name}");
+                throw new InvalidOperationException($"Type {this.ConverterType.FullName} does not implement {typeof(TConverter).FullName}");
             }
 
             // Check if the type implements IArgumentConverter<TEventArgs, T>
             Type genericArgumentConverter = this.ConverterType
                 .GetInterfaces()
                 .FirstOrDefault(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IArgumentConverter<,>))
-                ?? throw new InvalidOperationException($"Type {this.ConverterType.FullName ?? this.ConverterType.Name} does not implement {typeof(IArgumentConverter<,>).FullName ?? typeof(IArgumentConverter<,>).Name}");
+                ?? throw new InvalidOperationException($"Type {this.ConverterType.FullName} does not implement {typeof(IArgumentConverter<,>).FullName}");
 
             return (TConverter)ActivatorUtilities.CreateInstance(serviceProvider, this.ConverterType);
         }
@@ -175,7 +173,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
     }
 
     [MemberNotNull(nameof(_extension))]
-    public virtual Task ConfigureAsync(CommandsExtension extension)
+    public virtual ValueTask ConfigureAsync(CommandsExtension extension)
     {
         this._extension = extension;
         this._logger = extension.ServiceProvider.GetService<ILogger<BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext>>>() ?? NullLogger<BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext>>.Instance;
@@ -194,10 +192,10 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
 
         this.Converters = converters.ToFrozenDictionary();
         this.ConverterDelegates = converterDelegates.ToFrozenDictionary();
-        return Task.CompletedTask;
+        return default;
     }
 
-    public virtual async Task<TCommandContext?> ParseArgumentsAsync(TConverterContext converterContext, TEventArgs eventArgs)
+    public virtual async ValueTask<TCommandContext?> ParseArgumentsAsync(TConverterContext converterContext, TEventArgs eventArgs)
     {
         if (this._extension is null)
         {
