@@ -200,4 +200,21 @@ public interface IApplicationCommandsRestAPI
         RequestInfo info = default,
         CancellationToken ct = default
     );
+
+    /// <summary>
+    /// Deletes a guild-specific application command.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="guildId">The snowflake identifier of the guild owning this command.</param>
+    /// <param name="commandId">The snowflake identifier of this command.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    public ValueTask<Result> DeleteGuildApplicationCommandAsync
+    (
+        Snowflake applicationId,
+        Snowflake guildId,
+        Snowflake commandId,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
 }
