@@ -242,16 +242,33 @@ public interface IApplicationCommandsRestAPI
     );
 
     /// <summary>
-    /// Fetches permissions for all guild-specific commands owned by your application in the given guild.
+    /// Fetches permissions for all commands owned by your application in the given guild.
     /// </summary>
     /// <param name="applicationId">The snowflake identifier of your application.</param>
-    /// <param name="guildId">The snowflake identiifer of the guild owning the commands.</param>
+    /// <param name="guildId">The snowflake identifier of the guild.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<IReadOnlyList<IApplicationCommandPermissions>>> GetGuildApplicationCommandPermissionsAsync
     (
         Snowflake applicationId,
         Snowflake guildId,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
+    /// Fetches permissions for the given command in the given guild.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="guildId">The snowflake identifier of the guild.</param>
+    /// <param name="commandId">The snowflake identifier of the command.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    public ValueTask<Result<IApplicationCommandPermissions>> GetApplicationCommandPermissionsAsync
+    (
+        Snowflake applicationId,
+        Snowflake guildId,
+        Snowflake commandId,
         RequestInfo info = default,
         CancellationToken ct = default
     );
