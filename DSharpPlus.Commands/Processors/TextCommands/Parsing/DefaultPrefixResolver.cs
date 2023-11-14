@@ -4,7 +4,7 @@ using System;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
-public delegate Task<int> ResolvePrefixDelegateAsync(CommandsExtension extension, DiscordMessage message);
+public delegate ValueTask<int> ResolvePrefixDelegateAsync(CommandsExtension extension, DiscordMessage message);
 
 public sealed class DefaultPrefixResolver
 {
