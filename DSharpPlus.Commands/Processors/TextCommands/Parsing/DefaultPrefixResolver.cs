@@ -20,18 +20,18 @@ public sealed class DefaultPrefixResolver
         this.Prefix = prefix;
     }
 
-    public Task<int> ResolvePrefixAsync(CommandsExtension extension, DiscordMessage message)
+    public ValueTask<int> ResolvePrefixAsync(CommandsExtension extension, DiscordMessage message)
     {
         if (message.Content.StartsWith(this.Prefix, StringComparison.OrdinalIgnoreCase))
         {
-            return Task.FromResult(this.Prefix.Length);
+            return ValueTask.FromResult(this.Prefix.Length);
         }
         // Mention check
         else if (message.Content.StartsWith(extension.Client.CurrentUser.Mention, StringComparison.OrdinalIgnoreCase))
         {
-            return Task.FromResult(extension.Client.CurrentUser.Mention.Length);
+            return ValueTask.FromResult(extension.Client.CurrentUser.Mention.Length);
         }
 
-        return Task.FromResult(-1);
+        return ValueTask.FromResult(-1);
     }
 }
