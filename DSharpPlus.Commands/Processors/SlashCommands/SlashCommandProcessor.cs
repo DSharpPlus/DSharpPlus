@@ -370,7 +370,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         );
     }
 
-    private async Task<AutoCompleteContext?> ParseAutoCompleteArgumentsAsync(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs)
+    private async ValueTask<AutoCompleteContext?> ParseAutoCompleteArgumentsAsync(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs)
     {
         if (this._extension is null)
         {
