@@ -9,9 +9,9 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.Core.Abstractions.Rest.Payloads;
 
 /// <summary>
-/// Represents a payload to <c>PATCH /applications/:application-id/commands/:command-id</c>.
+/// Represents a payload to <c>PATCH /applications/:application-id/guilds/:guild-id/commands/:command-id</c>.
 /// </summary>
-public interface IEditGlobalApplicationCommandPayload
+public interface IEditGuildApplicationCommandPayload
 {
     /// <summary>
     /// The name of this command, between 1 and 32 characters.
@@ -37,11 +37,6 @@ public interface IEditGlobalApplicationCommandPayload
     /// The default permissions needed to see this command.
     /// </summary>
     public Optional<DiscordPermissions?> DefaultMemberPermissions { get; }
-
-    /// <summary>
-    /// Indicates whether this command is available in DMs with this app.
-    /// </summary>
-    public Optional<bool?> DmPermission { get; }
 
     /// <summary>
     /// The type of this command.

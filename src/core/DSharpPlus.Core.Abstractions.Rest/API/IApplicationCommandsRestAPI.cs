@@ -180,4 +180,24 @@ public interface IApplicationCommandsRestAPI
         RequestInfo info = default,
         CancellationToken ct = default
     );
+
+    /// <summary>
+    /// Edits a guild-specific application command. Updates will be available immediately.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="guildId">The snowflake identifier of the guild owning this command.</param>
+    /// <param name="commandId">The snowflake identifier of this command.</param>
+    /// <param name="payload">A payload containing new properties for this command.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns>The edited application command object.</returns>
+    public ValueTask<Result<IApplicationCommand>> EditGuildApplicationCommandAsync
+    (
+        Snowflake applicationId,
+        Snowflake guildId,
+        Snowflake commandId,
+        IEditGuildApplicationCommandPayload payload,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
 }
