@@ -7,7 +7,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.Processors.SlashCommands.Attributes;
 using DSharpPlus.Commands.Trees.Attributes;
@@ -27,26 +26,13 @@ public class CommandParameterBuilder
         {
             throw new ArgumentNullException(nameof(name), "The name of the command cannot be null or whitespace.");
         }
-        else if (name.Length is < 1 or > 32)
-        {
-            throw new ArgumentOutOfRangeException(nameof(name), "The name of the command must be between 1 and 32 characters.");
-        }
 
         this.Name = name;
         return this;
     }
 
-    public CommandParameterBuilder WithDescription(string description)
+    public CommandParameterBuilder WithDescription(string? description)
     {
-        if (string.IsNullOrWhiteSpace(description))
-        {
-            throw new ArgumentNullException(nameof(description), "The description of the command cannot be null or whitespace.");
-        }
-        else if (description.Length is < 1 or > 100)
-        {
-            throw new ArgumentOutOfRangeException(nameof(description), "The description of the command must be between 1 and 100 characters.");
-        }
-
         this.Description = description;
         return this;
     }
@@ -64,7 +50,7 @@ public class CommandParameterBuilder
 
     public CommandParameterBuilder WithAttributes(IEnumerable<Attribute> attributes)
     {
-        this.Attributes = new List<Attribute>(attributes);
+        List<Attribute> listedAttributes = [];
         foreach (Attribute attribute in attributes)
         {
             if (attribute is CommandAttribute commandAttribute)
@@ -75,13 +61,11 @@ public class CommandParameterBuilder
             {
                 this.WithDescription(descriptionAttribute.Description);
             }
+
+            listedAttributes.Add(attribute);
         }
 
-        if (string.IsNullOrEmpty(this.Description))
-        {
-            this.WithDescription("No description provided.");
-        }
-
+        this.Attributes = listedAttributes;
         return this;
     }
 
@@ -127,46 +111,25 @@ public class CommandParameterBuilder
 
         CommandParameterBuilder commandParameterBuilder = new();
         commandParameterBuilder.WithAttributes(parameterInfo.GetCustomAttributes());
+        commandParameterBuilder.WithType(parameterInfo.ParameterType);
         if (parameterInfo.HasDefaultValue)
         {
             commandParameterBuilder.WithDefaultValue(parameterInfo.DefaultValue);
         }
 
+        // Might be set by the `ArgumentAttribute`
         if (string.IsNullOrWhiteSpace(commandParameterBuilder.Name) && !string.IsNullOrWhiteSpace(parameterInfo.Name))
         {
-            commandParameterBuilder.WithName(ToSnakeCase(parameterInfo.Name));
+            commandParameterBuilder.WithName(parameterInfo.Name);
         }
 
-        if (commandParameterBuilder.Type is null)
+        // Might be set by the `DescriptionAttribute`
+        if (string.IsNullOrWhiteSpace(commandParameterBuilder.Description))
         {
-            commandParameterBuilder.WithType(parameterInfo.ParameterType);
+            commandParameterBuilder.WithDescription("No description provided.");
         }
 
         return commandParameterBuilder;
-    }
-
-    private static string ToSnakeCase(string str)
-    {
-        StringBuilder stringBuilder = new();
-        foreach (char character in str)
-        {
-            // kebab-cased, somehow.
-            if (character == '-')
-            {
-                stringBuilder.Append('_');
-                continue;
-            }
-
-            // camelCase, PascalCase
-            if (char.IsUpper(character))
-            {
-                stringBuilder.Append('_');
-            }
-
-            stringBuilder.Append(char.ToLowerInvariant(character));
-        }
-
-        return stringBuilder.ToString();
     }
 
     public class EnumOptionProvider : IChoiceProvider

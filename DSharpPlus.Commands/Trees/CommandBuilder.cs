@@ -25,10 +25,6 @@ public class CommandBuilder
         {
             throw new ArgumentNullException(nameof(name), "The name of the command cannot be null or whitespace.");
         }
-        else if (name.Length is < 1 or > 32)
-        {
-            throw new ArgumentOutOfRangeException(nameof(name), "The name of the command must be between 1 and 32 characters.");
-        }
 
         this.Name = name;
         return this;
@@ -36,15 +32,6 @@ public class CommandBuilder
 
     public CommandBuilder WithDescription(string description)
     {
-        if (string.IsNullOrWhiteSpace(description))
-        {
-            throw new ArgumentNullException(nameof(description), "The description of the command cannot be null or whitespace.");
-        }
-        else if (description.Length is < 1 or > 100)
-        {
-            throw new ArgumentOutOfRangeException(nameof(description), "The description of the command must be between 1 and 100 characters.");
-        }
-
         this.Description = description;
         return this;
     }
@@ -97,11 +84,6 @@ public class CommandBuilder
             {
                 this.WithDescription(descriptionAttribute.Description);
             }
-        }
-
-        if (string.IsNullOrEmpty(this.Description))
-        {
-            this.WithDescription("No description provided.");
         }
 
         return this;
@@ -185,6 +167,13 @@ public class CommandBuilder
         CommandBuilder commandBuilder = new();
         commandBuilder.WithAttributes(type.GetCustomAttributes());
         commandBuilder.WithSubcommands(subCommandBuilders);
+
+        // Might be set through the `DescriptionAttribute`
+        if (string.IsNullOrEmpty(commandBuilder.Description))
+        {
+            commandBuilder.WithDescription("No description provided.");
+        }
+
         return commandBuilder;
     }
 

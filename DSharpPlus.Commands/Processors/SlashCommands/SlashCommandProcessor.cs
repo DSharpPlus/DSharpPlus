@@ -439,4 +439,28 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         ServiceScope = converterContext.ServiceScope,
         User = eventArgs.Interaction.User
     };
+
+    private static string ToSnakeCase(string str)
+    {
+        StringBuilder stringBuilder = new();
+        foreach (char character in str)
+        {
+            // kebab-cased, somehow.
+            if (character == '-')
+            {
+                stringBuilder.Append('_');
+                continue;
+            }
+
+            // camelCase, PascalCase
+            if (char.IsUpper(character))
+            {
+                stringBuilder.Append('_');
+            }
+
+            stringBuilder.Append(char.ToLowerInvariant(character));
+        }
+
+        return stringBuilder.ToString();
+    }
 }
