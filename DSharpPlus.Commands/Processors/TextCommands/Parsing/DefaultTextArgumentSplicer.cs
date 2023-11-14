@@ -8,16 +8,6 @@ public delegate string? TextArgumentSplicer(CommandsExtension extension, string 
 
 public class DefaultTextArgumentSplicer
 {
-    [Flags]
-    private enum State
-    {
-        None = 0,
-        Quoted = 1 << 0,
-        InlineCode = 1 << 1,
-        TripleCode = 1 << 2,
-        Escape = 1 << 3
-    }
-
     public static string? Splice(CommandsExtension extension, string text, ref int startAt)
     {
         // We do this for no parameter overloads such as HelloWorldAsync(CommandContext context)
