@@ -154,12 +154,29 @@ public interface IApplicationCommandsRestAPI
     /// <param name="payload">The command you wish to create.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
-    /// <returns></returns>
+    /// <returns>The created application command object.</returns>
     public ValueTask<Result<IApplicationCommand>> CreateGuildApplicationCommandAsync
     (
         Snowflake applicationId,
         Snowflake guildId,
         ICreateGuildApplicationCommandPayload payload,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
+    /// Fetches a guild-specific application command by snowflake.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="guildId">The snowflake identifier of the guild owning this command.</param>
+    /// <param name="commandId">The snowflake identifier of the command to fetch.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    public ValueTask<Result<IApplicationCommand>> GetGuildApplicationCommandAsync
+    (
+        Snowflake applicationId,
+        Snowflake guildId,
+        Snowflake commandId,
         RequestInfo info = default,
         CancellationToken ct = default
     );
