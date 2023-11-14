@@ -10,12 +10,12 @@ public record SlashCommandContext : CommandContext
 {
     public required DiscordInteraction Interaction { get; init; }
     public required IEnumerable<DiscordInteractionDataOption> Options { get; init; }
-    public InteractionState State { get; protected set; }
+    public InteractionStatus State { get; protected set; }
 
     /// <inheritdoc />
     public override async ValueTask RespondAsync(IDiscordMessageBuilder builder)
     {
-        if (this.State.HasFlag(InteractionState.ResponseSent))
+        if (this.State.HasFlag(InteractionStatus.ResponseSent))
         {
             throw new InvalidOperationException("Cannot respond to an interaction twice. Please use FollowupAsync instead.");
         }
@@ -28,29 +28,29 @@ public record SlashCommandContext : CommandContext
             interactionBuilder.AddMentions(Mentions.None);
         }
 
-        if (this.State is InteractionState.None)
+        if (this.State is InteractionStatus.None)
         {
             await this.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, interactionBuilder);
         }
-        else if (this.State is InteractionState.ResponseDelayed)
+        else if (this.State is InteractionStatus.ResponseDelayed)
         {
             await this.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder(interactionBuilder));
         }
 
-        this.State |= InteractionState.ResponseSent;
+        this.State |= InteractionStatus.ResponseSent;
     }
 
     /// <inheritdoc />
     public override async ValueTask DeferResponseAsync()
     {
         await this.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-        this.State |= InteractionState.ResponseDelayed;
+        this.State |= InteractionStatus.ResponseDelayed;
     }
 
     /// <inheritdoc />
     public override async ValueTask EditResponseAsync(IDiscordMessageBuilder builder)
     {
-        if (!this.State.HasFlag(InteractionState.ResponseSent) && !this.State.HasFlag(InteractionState.ResponseDelayed))
+        if (!this.State.HasFlag(InteractionStatus.ResponseSent) && !this.State.HasFlag(InteractionStatus.ResponseDelayed))
         {
             throw new InvalidOperationException("Cannot edit a response that has not been sent yet.");
         }
@@ -62,7 +62,7 @@ public record SlashCommandContext : CommandContext
     /// <inheritdoc />
     public override async ValueTask DeleteResponseAsync()
     {
-        if (!this.State.HasFlag(InteractionState.ResponseSent) || !this.State.HasFlag(InteractionState.ResponseDelayed))
+        if (!this.State.HasFlag(InteractionStatus.ResponseSent) || !this.State.HasFlag(InteractionStatus.ResponseDelayed))
         {
             throw new InvalidOperationException("Cannot delete a response that has not been sent yet.");
         }
@@ -71,14 +71,14 @@ public record SlashCommandContext : CommandContext
     }
 
     /// <inheritdoc />
-    public override async ValueTask<DiscordMessage?> GetResponseAsync() => !this.State.HasFlag(InteractionState.ResponseSent)
+    public override async ValueTask<DiscordMessage?> GetResponseAsync() => !this.State.HasFlag(InteractionStatus.ResponseSent)
         ? throw new InvalidOperationException("Cannot get a response that has not been properly sent yet.")
         : await this.Interaction.GetOriginalResponseAsync();
 
     /// <inheritdoc />
     public override async ValueTask<DiscordMessage> FollowupAsync(IDiscordMessageBuilder builder)
     {
-        if (!this.State.HasFlag(InteractionState.ResponseSent))
+        if (!this.State.HasFlag(InteractionStatus.ResponseSent))
         {
             throw new InvalidOperationException("Cannot follow up to a response that has not been sent yet.");
         }
@@ -92,7 +92,7 @@ public record SlashCommandContext : CommandContext
     /// <inheritdoc />
     public override async ValueTask EditFollowupAsync(ulong messageId, IDiscordMessageBuilder builder)
     {
-        if (!this.State.HasFlag(InteractionState.ResponseSent))
+        if (!this.State.HasFlag(InteractionStatus.ResponseSent))
         {
             throw new InvalidOperationException("Cannot edit a follow up that has not been sent yet.");
         }
@@ -110,7 +110,7 @@ public record SlashCommandContext : CommandContext
     /// <inheritdoc />
     public override async ValueTask<DiscordMessage?> GetFollowupAsync(ulong messageId, bool ignoreCache = false)
     {
-        if (!this.State.HasFlag(InteractionState.ResponseSent))
+        if (!this.State.HasFlag(InteractionStatus.ResponseSent))
         {
             throw new InvalidOperationException("Cannot get a follow up that has not been sent yet.");
         }
@@ -129,7 +129,7 @@ public record SlashCommandContext : CommandContext
     public override async ValueTask DeleteFollowupAsync(ulong messageId) => await this.Interaction.DeleteFollowupMessageAsync(messageId);
 
     [Flags]
-    public enum InteractionState
+    public enum InteractionStatus
     {
         None = 0,
         ResponseDelayed = 1 << 0,
