@@ -34,9 +34,9 @@ public class SlashAutoCompleteProviderAttribute(Type autoCompleteType) : Attribu
 }
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
-public sealed class SlashAutoCompleteProvider<T> : SlashAutoCompleteProviderAttribute where T : IAutoCompleteProvider
+public sealed class SlashAutoCompleteProviderAttribute<T> : SlashAutoCompleteProviderAttribute where T : IAutoCompleteProvider
 {
-    public SlashAutoCompleteProvider() : base(typeof(T)) { }
+    public SlashAutoCompleteProviderAttribute() : base(typeof(T)) { }
 }
 
 public interface IAutoCompleteProvider
