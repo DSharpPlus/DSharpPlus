@@ -24,7 +24,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         if (!this._configured)
         {
             this._configured = true;
-            if (!extension.Client.Intents.HasIntent(DiscordIntents.MessageContents))
+            if (!extension.Client.Intents.HasIntent(DiscordIntents.MessageContents) && !this.Configuration.SuppressMissingMessageContentIntentWarning)
             {
                 TextLogging.MissingMessageContentIntent(this._logger, null);
                 return;
