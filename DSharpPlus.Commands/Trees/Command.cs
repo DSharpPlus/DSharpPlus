@@ -8,7 +8,7 @@ using System.Reflection;
 public record Command
 {
     public required string Name { get; init; }
-    public required string Description { get; init; }
+    public string? Description { get; init; }
     public MethodInfo? Method { get; init; }
     public object? Target { get; init; }
     public Command? Parent { get; init; }
