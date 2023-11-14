@@ -3,7 +3,7 @@ namespace DSharpPlus.Commands.Processors.SlashCommands.Translation;
 using System.Diagnostics.CodeAnalysis;
 
 [SuppressMessage("Roslyn", "CA1707", Justification = "Underscores are required to be compliant with Discord's API.")]
-public enum Locales
+public enum DiscordLocale
 {
     id,
     da,
