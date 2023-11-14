@@ -127,12 +127,14 @@ public interface IApplicationCommandsRestAPI
     /// Fetches application commands for the specified guild.
     /// </summary>
     /// <remarks>
-    /// This does not fetch global commands accessible in the guild, only comands registered to specifically that
-    /// guild using the related API calls.
+    /// This does not fetch global commands accessible in the guild, only comands registered to specifically 
+    /// that guild using the related API calls.
     /// </remarks>
     /// <param name="applicationId">The snowflake identifier of your application.</param>
     /// <param name="guildId">The snowflake identifier of the guild containing the application commands.</param>
-    /// <param name="withLocalizations">Indicates whether to include localization dictionaries with the commands.</param>
+    /// <param name="withLocalizations">
+    /// Indicates whether to include localization dictionaries with the commands.
+    /// </param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<IReadOnlyList<IApplicationCommand>>> GetGuildApplicationCommandsAsync
@@ -140,6 +142,24 @@ public interface IApplicationCommandsRestAPI
         Snowflake applicationId,
         Snowflake guildId,
         bool? withLocalizations = null,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
+    /// Creates an application command specific to the given guild.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="guildId">The snowflake identifier of the guild to own this command.</param>
+    /// <param name="payload">The command you wish to create.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns></returns>
+    public ValueTask<Result<IApplicationCommand>> CreateGuildApplicationCommandAsync
+    (
+        Snowflake applicationId,
+        Snowflake guildId,
+        ICreateGuildApplicationCommandPayload payload,
         RequestInfo info = default,
         CancellationToken ct = default
     );
