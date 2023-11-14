@@ -548,29 +548,34 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         do
         {
             int fetchSize = remaining > 100 ? 100 : remaining;
-            IReadOnlyList<DiscordMessage> fetch = await this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, fetchSize, isbefore ? last ?? before : null, !isbefore ? last ?? after : null, around);
+            IReadOnlyList<DiscordMessage> fetchedMessages = await this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, fetchSize, isbefore ? last ?? before : null, !isbefore ? last ?? after : null, around);
 
-            lastCount = fetch.Count;
+            lastCount = fetchedMessages.Count;
             remaining -= lastCount;
+            
+            //We sort the returned messages by ID so that they are in order in case Discord switches the order AGAIN.
+            DiscordMessage[] sortedMessageArray = fetchedMessages.ToArray();
+            Array.Sort(sortedMessageArray, (x, y) => x.Id.CompareTo(y.Id));
+            
 
             if (!isbefore)
             {
-                foreach (DiscordMessage msg in fetch)
+                foreach (DiscordMessage msg in sortedMessageArray)
                 {
                     yield return msg;
                 }
-                last = fetch.LastOrDefault()?.Id;
+                last = sortedMessageArray.LastOrDefault()?.Id;
             }
             else
             {
-                for (int i = fetch.Count - 1; i >= 0; i--)
+                for (int i = sortedMessageArray.Length - 1; i >= 0; i--)
                 {
-                    yield return fetch[i];
+                    yield return sortedMessageArray[i];
                 }
-                last = fetch.FirstOrDefault()?.Id;
+                last = sortedMessageArray.FirstOrDefault()?.Id;
             }
         }
-        while (remaining > 0 && lastCount > 0);
+        while (remaining > 0 && lastCount > 0 && lastCount == 100);
     }
 
     /// <summary>
