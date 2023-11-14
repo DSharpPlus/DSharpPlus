@@ -6,85 +6,85 @@ using System.Linq;
 
 public static class LocalesHelper
 {
-    public static readonly FrozenDictionary<string, Locales> EnglishToLocale;
-    public static readonly FrozenDictionary<string, Locales> NativeToLocale;
-    public static readonly FrozenDictionary<Locales, string> LocaleToEnglish;
-    public static readonly FrozenDictionary<Locales, string> LocaleToNative;
+    public static readonly FrozenDictionary<string, DiscordLocale> EnglishToLocale;
+    public static readonly FrozenDictionary<string, DiscordLocale> NativeToLocale;
+    public static readonly FrozenDictionary<DiscordLocale, string> LocaleToEnglish;
+    public static readonly FrozenDictionary<DiscordLocale, string> LocaleToNative;
 
     static LocalesHelper()
     {
-        Dictionary<string, Locales> englishToLocale = new()
+        Dictionary<string, DiscordLocale> englishToLocale = new()
         {
-            ["Indonesian"] = Locales.id,
-            ["Danish"] = Locales.da,
-            ["German"] = Locales.de,
-            ["English, UK"] = Locales.en_GB,
-            ["English, US"] = Locales.en_US,
-            ["Spanish"] = Locales.es_ES,
-            ["French"] = Locales.fr,
-            ["Croatian"] = Locales.hr,
-            ["Italian"] = Locales.it,
-            ["Lithuanian"] = Locales.lt,
-            ["Hungarian"] = Locales.hu,
-            ["Dutch"] = Locales.nl,
-            ["Norwegian"] = Locales.no,
-            ["Polish"] = Locales.pl,
-            ["Portuguese"] = Locales.pt_BR,
-            ["Romanian"] = Locales.ro,
-            ["Finnish"] = Locales.fi,
-            ["Swedish"] = Locales.sv_SE,
-            ["Vietnamese"] = Locales.vi,
-            ["Turkish"] = Locales.tr,
-            ["Czech"] = Locales.cs,
-            ["Greek"] = Locales.el,
-            ["Bulgarian"] = Locales.bg,
-            ["Russian"] = Locales.ru,
-            ["Ukrainian"] = Locales.uk,
-            ["Hindi"] = Locales.hi,
-            ["Thai"] = Locales.th,
-            ["Chinese, China"] = Locales.zh_CN,
-            ["Japanese"] = Locales.ja,
-            ["Chinese"] = Locales.zh_TW,
-            ["Korean"] = Locales.ko
+            ["Indonesian"] = DiscordLocale.id,
+            ["Danish"] = DiscordLocale.da,
+            ["German"] = DiscordLocale.de,
+            ["English, UK"] = DiscordLocale.en_GB,
+            ["English, US"] = DiscordLocale.en_US,
+            ["Spanish"] = DiscordLocale.es_ES,
+            ["French"] = DiscordLocale.fr,
+            ["Croatian"] = DiscordLocale.hr,
+            ["Italian"] = DiscordLocale.it,
+            ["Lithuanian"] = DiscordLocale.lt,
+            ["Hungarian"] = DiscordLocale.hu,
+            ["Dutch"] = DiscordLocale.nl,
+            ["Norwegian"] = DiscordLocale.no,
+            ["Polish"] = DiscordLocale.pl,
+            ["Portuguese"] = DiscordLocale.pt_BR,
+            ["Romanian"] = DiscordLocale.ro,
+            ["Finnish"] = DiscordLocale.fi,
+            ["Swedish"] = DiscordLocale.sv_SE,
+            ["Vietnamese"] = DiscordLocale.vi,
+            ["Turkish"] = DiscordLocale.tr,
+            ["Czech"] = DiscordLocale.cs,
+            ["Greek"] = DiscordLocale.el,
+            ["Bulgarian"] = DiscordLocale.bg,
+            ["Russian"] = DiscordLocale.ru,
+            ["Ukrainian"] = DiscordLocale.uk,
+            ["Hindi"] = DiscordLocale.hi,
+            ["Thai"] = DiscordLocale.th,
+            ["Chinese, China"] = DiscordLocale.zh_CN,
+            ["Japanese"] = DiscordLocale.ja,
+            ["Chinese"] = DiscordLocale.zh_TW,
+            ["Korean"] = DiscordLocale.ko
         };
 
-        Dictionary<string, Locales> nativeToLocale = new()
+        Dictionary<string, DiscordLocale> nativeToLocale = new()
         {
-            ["Bahasa Indonesia"] = Locales.id,
-            ["Dansk"] = Locales.da,
-            ["Deutsch"] = Locales.de,
-            ["English, UK"] = Locales.en_GB,
-            ["English, US"] = Locales.en_US,
-            ["Español"] = Locales.es_ES,
-            ["Français"] = Locales.fr,
-            ["Hrvatski"] = Locales.hr,
-            ["Italiano"] = Locales.it,
-            ["Lietuviškai"] = Locales.lt,
-            ["Magyar"] = Locales.hu,
-            ["Nederlands"] = Locales.nl,
-            ["Norsk"] = Locales.no,
-            ["Polski"] = Locales.pl,
-            ["Português do Brasil"] = Locales.pt_BR,
-            ["Română"] = Locales.ro,
-            ["Suomi"] = Locales.fi,
-            ["Svenska"] = Locales.sv_SE,
-            ["Tiếng Việt"] = Locales.vi,
-            ["Türkçe"] = Locales.tr,
-            ["Čeština"] = Locales.cs,
-            ["Ελληνικά"] = Locales.el,
-            ["български"] = Locales.bg,
-            ["Pусский"] = Locales.ru,
-            ["Українська"] = Locales.uk,
-            ["हिन्दी"] = Locales.hi,
-            ["ไทย"] = Locales.th,
-            ["中文"] = Locales.zh_CN,
-            ["日本語"] = Locales.ja,
-            ["繁體中文"] = Locales.zh_TW,
-            ["한국어"] = Locales.ko
+            ["Bahasa Indonesia"] = DiscordLocale.id,
+            ["Dansk"] = DiscordLocale.da,
+            ["Deutsch"] = DiscordLocale.de,
+            ["English, UK"] = DiscordLocale.en_GB,
+            ["English, US"] = DiscordLocale.en_US,
+            ["Español"] = DiscordLocale.es_ES,
+            ["Français"] = DiscordLocale.fr,
+            ["Hrvatski"] = DiscordLocale.hr,
+            ["Italiano"] = DiscordLocale.it,
+            ["Lietuviškai"] = DiscordLocale.lt,
+            ["Magyar"] = DiscordLocale.hu,
+            ["Nederlands"] = DiscordLocale.nl,
+            ["Norsk"] = DiscordLocale.no,
+            ["Polski"] = DiscordLocale.pl,
+            ["Português do Brasil"] = DiscordLocale.pt_BR,
+            ["Română"] = DiscordLocale.ro,
+            ["Suomi"] = DiscordLocale.fi,
+            ["Svenska"] = DiscordLocale.sv_SE,
+            ["Tiếng Việt"] = DiscordLocale.vi,
+            ["Türkçe"] = DiscordLocale.tr,
+            ["Čeština"] = DiscordLocale.cs,
+            ["Ελληνικά"] = DiscordLocale.el,
+            ["български"] = DiscordLocale.bg,
+            ["Pусский"] = DiscordLocale.ru,
+            ["Українська"] = DiscordLocale.uk,
+            ["हिन्दी"] = DiscordLocale.hi,
+            ["ไทย"] = DiscordLocale.th,
+            ["中文"] = DiscordLocale.zh_CN,
+            ["日本語"] = DiscordLocale.ja,
+            ["繁體中文"] = DiscordLocale.zh_TW,
+            ["한국어"] = DiscordLocale.ko
         };
 
-        Dictionary<Locales, string> localeToEnglish = englishToLocale.ToDictionary(x => x.Value, x => x.Key);
-        Dictionary<Locales, string> localeToNative = nativeToLocale.ToDictionary(x => x.Value, x => x.Key);
+        Dictionary<DiscordLocale, string> localeToEnglish = englishToLocale.ToDictionary(x => x.Value, x => x.Key);
+        Dictionary<DiscordLocale, string> localeToNative = nativeToLocale.ToDictionary(x => x.Value, x => x.Key);
 
         EnglishToLocale = englishToLocale.ToFrozenDictionary();
         NativeToLocale = nativeToLocale.ToFrozenDictionary();

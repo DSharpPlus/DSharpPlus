@@ -24,7 +24,7 @@ public class SlashLocalizerAttribute(Type localizerType) : Attribute
         }
 
         Dictionary<string, string> localized = [];
-        foreach ((Locales locale, string translation) in await translator.TranslateAsync(fullSymbolName.Replace(' ', '.').ToLowerInvariant()))
+        foreach ((DiscordLocale locale, string translation) in await translator.TranslateAsync(fullSymbolName.Replace(' ', '.').ToLowerInvariant()))
         {
             localized.Add(locale.ToString().Replace('_', '-'), translation);
         }
@@ -41,5 +41,5 @@ public sealed class SlashLocalizerAttribute<T> : SlashLocalizerAttribute where T
 
 public interface ITranslator
 {
-    public Task<IReadOnlyDictionary<Locales, string>> TranslateAsync(string fullSymbolName);
+    public Task<IReadOnlyDictionary<DiscordLocale, string>> TranslateAsync(string fullSymbolName);
 }
