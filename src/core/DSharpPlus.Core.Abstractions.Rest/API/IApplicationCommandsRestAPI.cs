@@ -122,4 +122,25 @@ public interface IApplicationCommandsRestAPI
         RequestInfo info = default,
         CancellationToken ct = default
     );
+
+    /// <summary>
+    /// Fetches application commands for the specified guild.
+    /// </summary>
+    /// <remarks>
+    /// This does not fetch global commands accessible in the guild, only comands registered to specifically that
+    /// guild using the related API calls.
+    /// </remarks>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="guildId">The snowflake identifier of the guild containing the application commands.</param>
+    /// <param name="withLocalizations">Indicates whether to include localization dictionaries with the commands.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    public ValueTask<Result<IReadOnlyList<IApplicationCommand>>> GetGuildApplicationCommandsAsync
+    (
+        Snowflake applicationId,
+        Snowflake guildId,
+        bool? withLocalizations = null,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
 }
