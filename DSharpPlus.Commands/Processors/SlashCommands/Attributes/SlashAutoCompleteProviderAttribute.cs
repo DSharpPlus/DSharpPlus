@@ -11,7 +11,7 @@ public class SlashAutoCompleteProviderAttribute(Type autoCompleteType) : Attribu
 {
     public Type AutoCompleteType { get; init; } = autoCompleteType ?? throw new ArgumentNullException(nameof(autoCompleteType));
 
-    public async Task<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(AutoCompleteContext context)
+    public async ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(AutoCompleteContext context)
     {
         IAutoCompleteProvider autoCompleteProvider;
         try
@@ -41,5 +41,5 @@ public sealed class SlashAutoCompleteProviderAttribute<T> : SlashAutoCompletePro
 
 public interface IAutoCompleteProvider
 {
-    public Task<Dictionary<string, object>> AutoCompleteAsync(AutoCompleteContext context);
+    public ValueTask<Dictionary<string, object>> AutoCompleteAsync(AutoCompleteContext context);
 }
