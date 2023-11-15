@@ -134,7 +134,7 @@ public class CommandParameterBuilder
 
     public class EnumOptionProvider : IChoiceProvider
     {
-        public Task<Dictionary<string, object>> ProvideAsync(CommandParameter parameter)
+        public ValueTask<Dictionary<string, object>> ProvideAsync(CommandParameter parameter)
         {
             string[] enumNames = Enum.GetNames(parameter.Type);
             Array enumValues = Enum.GetValuesAsUnderlyingType(parameter.Type);
@@ -145,7 +145,7 @@ public class CommandParameterBuilder
                 choices.Add(enumNames[i], Convert.ToDouble(enumValues.GetValue(i), CultureInfo.InvariantCulture));
             }
 
-            return Task.FromResult(choices);
+            return ValueTask.FromResult(choices);
         }
     }
 }

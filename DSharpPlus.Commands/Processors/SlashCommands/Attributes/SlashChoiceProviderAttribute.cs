@@ -12,7 +12,7 @@ public class SlashChoiceProviderAttribute(Type providerType) : Attribute
 {
     public Type ProviderType { get; init; } = providerType ?? throw new ArgumentNullException(nameof(providerType));
 
-    public async Task<IEnumerable<DiscordApplicationCommandOptionChoice>> GrabChoicesAsync(IServiceProvider serviceProvider, CommandParameter parameter)
+    public async ValueTask<IEnumerable<DiscordApplicationCommandOptionChoice>> GrabChoicesAsync(IServiceProvider serviceProvider, CommandParameter parameter)
     {
         IChoiceProvider choiceProvider;
         try
@@ -42,5 +42,5 @@ public sealed class SlashChoiceProviderAttribute<T> : SlashChoiceProviderAttribu
 
 public interface IChoiceProvider
 {
-    public Task<Dictionary<string, object>> ProvideAsync(CommandParameter parameter);
+    public ValueTask<Dictionary<string, object>> ProvideAsync(CommandParameter parameter);
 }
