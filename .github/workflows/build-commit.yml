@@ -51,7 +51,7 @@ jobs:
             7
       - name: Get Nightly Version
         id: nightly
-        run: printf "version=%0*d" 5 $(( 1195 + 691 ${{ github.run_number }} )) >> "$GITHUB_OUTPUT"
+        run: printf "version=%0*d" 5 $(( 1195 + 691 + ${{ github.run_number }} )) >> "$GITHUB_OUTPUT"
       - name: Package Project
         run: |
           # We add 1195 since it's the last build number AppVeyor used.
