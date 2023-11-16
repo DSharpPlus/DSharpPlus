@@ -66,4 +66,19 @@ public interface IInteractionRestAPI
         RequestInfo info = default,
         CancellationToken ct = default
     );
+
+    /// <summary>
+    /// Deletes the original response to this interaction, if it was a message.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="interactionToken">The interaction token received with the interaction.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    public ValueTask<Result> DeleteInteractionResponseAsync
+    (
+        Snowflake applicationId,
+        string interactionToken,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
 }
