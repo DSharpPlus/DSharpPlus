@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
@@ -155,6 +157,9 @@ internal sealed class RestScheduledGuildEventCreatePayload
 
     [JsonProperty("entity_metadata", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordScheduledGuildEventMetadata? Metadata { get; set; }
+
+    [JsonProperty("image", NullValueHandling = NullValueHandling.Ignore)]
+    public Optional<string> CoverImage { get; set; }
 }
 
 internal sealed class RestScheduledGuildEventModifyPayload
@@ -185,6 +190,9 @@ internal sealed class RestScheduledGuildEventModifyPayload
 
     [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
     public Optional<ScheduledGuildEventStatus> Status { get; set; }
+
+    [JsonProperty("image", NullValueHandling = NullValueHandling.Ignore)]
+    public Optional<string> CoverImage { get; set; }
 }
 
 internal sealed class RestGuildChannelReorderPayload
