@@ -1,4 +1,5 @@
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -1601,6 +1602,7 @@ public sealed class DiscordApiClient
         DiscordScheduledGuildEventMetadata? metadata = null,
         DateTimeOffset? endTime = null,
         ulong? channelId = null,
+        Stream? image = null,
         string? reason = null
     )
     {
@@ -1622,6 +1624,13 @@ public sealed class DiscordApiClient
             PrivacyLevel = privacyLevel,
             Metadata = metadata
         };
+
+        if (image is not null)
+        {
+            using ImageTool imageTool = new(image);
+
+            pld.CoverImage = imageTool.GetBase64();
+        }
 
         RestRequest request = new()
         {
@@ -1756,6 +1765,7 @@ public sealed class DiscordApiClient
         Optional<ScheduledGuildEventPrivacyLevel> privacyLevel = default,
         Optional<DiscordScheduledGuildEventMetadata> metadata = default,
         Optional<ScheduledGuildEventStatus> status = default,
+        Optional<Stream> coverImage = default,
         string? reason = null
     )
     {
@@ -1780,6 +1790,13 @@ public sealed class DiscordApiClient
             Metadata = metadata,
             Status = status
         };
+
+        if (coverImage.HasValue)
+        {
+            using ImageTool imageTool = new(coverImage.Value);
+
+            pld.CoverImage = imageTool.GetBase64();
+        }
 
         RestRequest request = new()
         {

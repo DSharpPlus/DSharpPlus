@@ -554,9 +554,10 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="start">When this event starts. Must be in the future, and before the end date.</param>
     /// <param name="end">When this event ends. If supplied, must be in the future and after the end date. This is required for <see cref="ScheduledGuildEventType.External"/>.</param>
     /// <param name="location">Where this event takes place, up to 100 characters. Only applicable if the type is <see cref="ScheduledGuildEventType.External"/></param>
+    /// <param name="image">A cover image for this event.</param>
     /// <param name="reason">Reason for audit log.</param>
     /// <returns>The created event.</returns>
-    public async Task<DiscordScheduledGuildEvent> CreateEventAsync(string name, string description, ulong? channelId, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, string location = null, string reason = null)
+    public async Task<DiscordScheduledGuildEvent> CreateEventAsync(string name, string description, ulong? channelId, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, string? location = null, Stream? image = null, string? reason = null)
     {
         if (start <= DateTimeOffset.Now)
         {
@@ -568,7 +569,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             throw new ArgumentOutOfRangeException("The end time for an event must be after the start time.");
         }
 
-        DiscordScheduledGuildEventMetadata metadata = null;
+        DiscordScheduledGuildEventMetadata? metadata = null;
         switch (type)
         {
             case ScheduledGuildEventType.StageInstance or ScheduledGuildEventType.VoiceChannel when channelId == null:
@@ -580,6 +581,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             case ScheduledGuildEventType.External when end == null:
                 throw new ArgumentException($"{nameof(end)} must not be null when using external event type", nameof(end));
         }
+
         if (!string.IsNullOrEmpty(location))
         {
             metadata = new DiscordScheduledGuildEventMetadata()
@@ -588,7 +590,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             };
         }
 
-        return await this.Discord.ApiClient.CreateScheduledGuildEventAsync(this.Id, name, description, start, type, privacyLevel, metadata, end, channelId, reason);
+        return await this.Discord.ApiClient.CreateScheduledGuildEventAsync(this.Id, name, description, start, type, privacyLevel, metadata, end, channelId, image, reason);
     }
 
     /// <summary>
@@ -694,13 +696,22 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             }
         }
 
-        DiscordScheduledGuildEvent modifiedEvent = await this.Discord.ApiClient.ModifyScheduledGuildEventAsync(
-            this.Id, guildEvent.Id,
-            model.Name, model.Description,
+        DiscordScheduledGuildEvent modifiedEvent = await this.Discord.ApiClient.ModifyScheduledGuildEventAsync
+        (
+            this.Id, 
+            guildEvent.Id,
+            model.Name, 
+            model.Description,
             model.Channel.IfPresent(c => c?.Id),
-            model.StartTime, model.EndTime,
-            model.Type, model.PrivacyLevel,
-            model.Metadata, model.Status, reason);
+            model.StartTime, 
+            model.EndTime,
+            model.Type, 
+            model.PrivacyLevel,
+            model.Metadata, 
+            model.Status,
+            model.CoverImage,
+            reason
+        );
 
         this._scheduledEvents[modifiedEvent.Id] = modifiedEvent;
         return;

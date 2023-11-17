@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+
 using DSharpPlus.Entities;
 namespace DSharpPlus.Net.Models;
 
@@ -49,6 +51,10 @@ public class ScheduledGuildEventEditModel : BaseEditModel
     /// </summary>
     public Optional<ScheduledGuildEventStatus> Status { get; set; }
 
-    internal ScheduledGuildEventEditModel() { }
+    /// <summary>
+    /// The cover image for this event.
+    /// </summary>
+    public Optional<Stream> CoverImage { get; set; }
 
+    internal ScheduledGuildEventEditModel() { }
 }
