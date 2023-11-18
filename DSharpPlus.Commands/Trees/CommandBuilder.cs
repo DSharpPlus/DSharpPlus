@@ -89,11 +89,12 @@ public class CommandBuilder
         return this;
     }
 
-    [MemberNotNull(nameof(Name), nameof(Description), nameof(Subcommands), nameof(Parameters), nameof(Attributes))]
+    [MemberNotNull(nameof(Name), nameof(Description), nameof(Method), nameof(Subcommands), nameof(Parameters), nameof(Attributes))]
     public Command Build()
     {
         ArgumentNullException.ThrowIfNull(this.Name, nameof(this.Name));
         ArgumentNullException.ThrowIfNull(this.Description, nameof(this.Description));
+        ArgumentNullException.ThrowIfNull(this.Method, nameof(this.Method));
         ArgumentNullException.ThrowIfNull(this.Subcommands, nameof(this.Subcommands));
         ArgumentNullException.ThrowIfNull(this.Parameters, nameof(this.Parameters));
         ArgumentNullException.ThrowIfNull(this.Attributes, nameof(this.Attributes));
@@ -112,6 +113,7 @@ public class CommandBuilder
             Name = this.Name,
             Description = this.Description,
             Method = this.Method,
+            Id = Ulid.NewUlid(),
             Target = this.Target,
             Parent = this.Parent,
             Parameters = this.Parameters.Select(x => x.Build()).ToArray(),
