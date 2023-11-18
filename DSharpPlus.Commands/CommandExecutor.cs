@@ -12,33 +12,31 @@ using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Trees;
-using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
-public sealed class CommandExecutor
+public sealed class CommandExecutor : ICommandExecutor
 {
-    private readonly ConcurrentDictionary<Guid, Task> _tasks = new();
+    private readonly ConcurrentDictionary<Ulid, Task> _tasks = new();
 
-    /// <summary>
-    /// Executes a command asynchronously.
-    /// </summary>
-    /// <param name="context">The context of the command.</param>
-    /// <param name="block">Whether to not return until the command has finished executing.</param>
-    /// <param name="cancellationToken">The cancellation token to use.</param>
-    /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The value will be a <see cref="Optional{T}"/> of <see cref="bool"/>. <see cref="Optional{T}.HasValue"/> will be <see langword="true"/> if the command was executed successfully, <see langword="false"/> if the command was not executed successfully, and <see langword="null"/> if the command threw an exception.</returns>
-    public async Task ExecuteAsync(CommandContext context, bool block = false, CancellationToken cancellationToken = default)
+    /// <inheritdoc/>
+    public async ValueTask ExecuteAsync
+    (
+        CommandContext context, 
+        bool awaitCommandExecution = false, 
+        CancellationToken cancellationToken = default
+    )
     {
-        Guid guid = Guid.NewGuid();
+        Ulid id = Ulid.NewUlid();
         Task task = Task.Run(() => WorkerAsync(context), cancellationToken);
-        this._tasks.TryAdd(guid, task);
-        if (!block)
+        this._tasks.TryAdd(id, task);
+        if (!awaitCommandExecution)
         {
-            task = task.ContinueWith(_ => this._tasks.TryRemove(guid, out Task? _));
+            task = task.ContinueWith(_ => this._tasks.TryRemove(id, out Task? _));
         }
         else
         {
-            await this._tasks[guid];
-            this._tasks.TryRemove(guid, out Task? _);
+            await this._tasks[id];
+            this._tasks.TryRemove(id, out Task? _);
         }
     }
 
