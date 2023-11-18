@@ -295,7 +295,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
         return new(
             name: nameLocalizations.TryGetValue("en-US", out string? name) ? name : command.Name,
-            description: descriptionLocalizations.TryGetValue("en-US", out string? description) ? description : command.Description,
+            description: descriptionLocalizations.TryGetValue("en-US", out string? description) ? description : command.Description!,
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
             type: command.Subcommands.Any() ? ApplicationCommandOptionType.SubCommandGroup : ApplicationCommandOptionType.SubCommand,
@@ -355,7 +355,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         await scope.DisposeAsync();
         return new(
             name: name,
-            description: description,
+            description: description!,
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
             autocomplete: parameter.Attributes.Any(x => x is SlashAutoCompleteProviderAttribute),

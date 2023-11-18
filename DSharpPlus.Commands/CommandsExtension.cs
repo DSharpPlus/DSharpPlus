@@ -206,7 +206,7 @@ public sealed class CommandsExtension : BaseExtension
         {
             CommandNotFoundException commandNotFoundException => $"Command {Formatter.InlineCode(Formatter.Sanitize(commandNotFoundException.CommandName))} was not found.",
             ArgumentParseException argumentParseException => $"Failed to parse argument {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.Parameter.Name))}.",
-            CheckFailedException checkFailedException => $"Check {Formatter.InlineCode(Formatter.Sanitize(checkFailedException.Check.GetType().Name))} failed.",
+            ChecksFailedException checkFailedException => $"Check {Formatter.InlineCode(Formatter.Sanitize(checkFailedException.Check.GetType().Name))} failed.",
             DiscordException discordException when discordException.Response is not null && (int)discordException.Response.StatusCode >= 500 && (int)discordException.Response.StatusCode < 600 => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? "No further information was provided."}",
             DiscordException discordException when discordException.Response is not null => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? discordException.Message}",
             _ => $"An unexpected error occurred: {eventArgs.Exception.Message}"
