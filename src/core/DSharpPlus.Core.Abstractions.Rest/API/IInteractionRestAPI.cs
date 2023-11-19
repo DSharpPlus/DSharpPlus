@@ -103,4 +103,21 @@ public interface IInteractionRestAPI
         RequestInfo info = default,
         CancellationToken ct = default
     );
+
+    /// <summary>
+    /// Fetches a followup message created for this interaction.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="interactionToken">The interaction token received with the interaction.</param>
+    /// <param name="messageId">The snowflake identifier of the followup message.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    public ValueTask<Result<IMessage>> GetFollowupMessageAsync
+    (
+        Snowflake applicationId,
+        string interactionToken,
+        Snowflake messageId,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
 }
