@@ -81,4 +81,26 @@ public interface IInteractionRestAPI
         RequestInfo info = default,
         CancellationToken ct = default
     );
+
+    /// <summary>
+    /// Creates a followup message for an interaction. If this is the first followup to a deferred interaction
+    /// response as created by 
+    /// <seealso cref="CreateInteractionResponseAsync(Snowflake, string, IInteractionResponse, RequestInfo, CancellationToken)"/>,
+    /// ephemerality of this message will be dictated by the <seealso cref="IInteractionResponse"/> supplied 
+    /// originally instead of <seealso cref="ICreateFollowupMessagePayload.Flags"/>.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="interactionToken">The interaction token received with the interaction.</param>
+    /// <param name="payload">A payload containing data to create a message from.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns>The newly created followup message.</returns>
+    public ValueTask<Result<IMessage>> CreateFollowupMessageAsync
+    (
+        Snowflake applicationId,
+        string interactionToken,
+        ICreateFollowupMessagePayload payload,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
 }
