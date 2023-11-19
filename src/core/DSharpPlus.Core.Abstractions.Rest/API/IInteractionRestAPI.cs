@@ -120,4 +120,24 @@ public interface IInteractionRestAPI
         RequestInfo info = default,
         CancellationToken ct = default
     );
+
+    /// <summary>
+    /// Edits a followup message for this interaction.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="interactionToken">The interaction token received with the interaction.</param>
+    /// <param name="messageId">The snowflake identifier of the followup message.</param>
+    /// <param name="payload">A payload containing data to create a message from.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns>The newly edited followup message.</returns>
+    public ValueTask<Result<IMessage>> EditFollowupMessageAsync
+    (
+        Snowflake applicationId,
+        string interactionToken,
+        Snowflake messageId,
+        IEditFollowupMessagePayload payload,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
 }
