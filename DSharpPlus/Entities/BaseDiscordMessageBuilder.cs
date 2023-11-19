@@ -312,7 +312,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// Clears all message components on this builder.
     /// </summary>
     public virtual void ClearComponents()
-        => this._components.Clear();
+        => this._components = [];
 
     /// <summary>
     /// Allows for clearing the Message Builder so that it can be used again to send a new message.
