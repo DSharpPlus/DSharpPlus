@@ -79,32 +79,6 @@ internal static class CommandEmitUtil
     {
         ParameterInfo[] parameters = method.GetParameters();
         ConstructorInfo argumentExceptionCtor = typeof(ArgumentException).GetConstructor([typeof(string), typeof(string)])!;
-        Label validation = il.DefineLabel();
-
-        // first, verify validity of the parameter array by length. this makes further issues easier to
-        // diagnose, since we'll be getting the actual error when we expect to.
-        il.Emit(OpCodes.Ldarg_1);
-        il.Emit(OpCodes.Ldlen);
-        il.Emit(OpCodes.Conv_I4);
-        il.Emit(OpCodes.Ldc_I4, parameters.Length);
-        il.Emit(OpCodes.Ceq);
-        il.Emit(OpCodes.Ldc_I4_0);
-        il.Emit(OpCodes.Ceq);
-        il.Emit(OpCodes.Stloc_0);
-        il.Emit(OpCodes.Ldloc_0);
-
-        // branch off if the check was successful
-        il.Emit(OpCodes.Brfalse_S, validation);
-
-        // throw if unsuccessful
-        il.Emit(OpCodes.Nop);
-        il.Emit(OpCodes.Ldstr, "args");
-        il.Emit(OpCodes.Ldstr, "Incorrect number of arguments provided.");
-        il.Emit(OpCodes.Newobj, argumentExceptionCtor);
-        il.Emit(OpCodes.Throw);
-
-        // cast and unbox the arguments
-        il.MarkLabel(validation);
 
         if (!method.IsStatic)
         {
