@@ -377,24 +377,21 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// </summary>
     private static Stream ResolveStream(Stream stream, AddFileOptions fileOptions)
     {
-        if (fileOptions.HasFlag(AddFileOptions.CopyStream))
-        {
-            Stream originalStream = stream;
-            MemoryStream newStream = new();
-            originalStream.CopyTo(newStream);
-            newStream.Position = 0;
-
-            if (fileOptions.HasFlag(AddFileOptions.CloseStream))
-            {
-                originalStream.Dispose();
-            }
-
-            return newStream;
-        }
-        else
+        if (!fileOptions.HasFlag(AddFileOptions.CopyStream))
         {
             return new RequestStreamWrapper(stream);
         }
+
+        Stream originalStream = stream;
+        MemoryStream newStream = new();
+        originalStream.CopyTo(newStream);
+        newStream.Position = 0;
+        if (fileOptions.HasFlag(AddFileOptions.CloseStream))
+        {
+            originalStream.Dispose();
+        }
+
+        return newStream;
     }
 
     IDiscordMessageBuilder IDiscordMessageBuilder.SuppressNotifications() => this.SuppressNotifications();
