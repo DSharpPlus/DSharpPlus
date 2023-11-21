@@ -40,8 +40,8 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
 
             this.ConverterInstance ??= this.GetConverter(serviceProvider);
 
-            MethodInfo executeConvertAsyncMethod = processor.GetType().GetMethod(nameof(ExecuteConvertAsync), BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConvertAsync)} does not exist");
-            MethodInfo genericExecuteConvertAsyncMethod = executeConvertAsyncMethod.MakeGenericMethod(this.ParameterType) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConvertAsync)} does not exist");
+            MethodInfo executeConvertAsyncMethod = processor.GetType().GetMethod(nameof(ExecuteConverterAsync), BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConverterAsync)} does not exist");
+            MethodInfo genericExecuteConvertAsyncMethod = executeConvertAsyncMethod.MakeGenericMethod(this.ParameterType) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConverterAsync)} does not exist");
             return this.ConverterDelegate = (ConverterContext converterContext, TEventArgs eventArgs) => (Task<IOptional>)genericExecuteConvertAsyncMethod.Invoke(processor, [this.ConverterInstance, converterContext, eventArgs])!;
         }
 
@@ -179,7 +179,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
         this._logger = extension.ServiceProvider.GetService<ILogger<BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext>>>() ?? NullLogger<BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext>>.Instance;
 
         Type thisType = this.GetType();
-        MethodInfo executeConvertAsyncMethod = thisType.GetMethod(nameof(ExecuteConvertAsync), BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConvertAsync)} does not exist");
+        MethodInfo executeConvertAsyncMethod = thisType.GetMethod(nameof(ExecuteConverterAsync), BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConverterAsync)} does not exist");
         this.AddConverters(thisType.Assembly);
 
         Dictionary<Type, TConverter> converters = [];
@@ -277,5 +277,5 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
         return Nullable.GetUnderlyingType(type) ?? type;
     }
 
-    protected virtual async Task<IOptional> ExecuteConvertAsync<T>(TConverter converter, TConverterContext converterContext, TEventArgs eventArgs) => await ((IArgumentConverter<TEventArgs, T>)converter).ConvertAsync(converterContext, eventArgs);
+    protected virtual async Task<IOptional> ExecuteConverterAsync<T>(TConverter converter, TConverterContext converterContext, TEventArgs eventArgs) => await ((IArgumentConverter<TEventArgs, T>)converter).ConvertAsync(converterContext, eventArgs);
 }

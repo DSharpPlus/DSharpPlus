@@ -181,7 +181,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         User = eventArgs.Author
     };
 
-    protected override async Task<IOptional> ExecuteConvertAsync<T>(ITextArgumentConverter converter, TextConverterContext converterContext, MessageCreateEventArgs eventArgs)
+    protected override async Task<IOptional> ExecuteConverterAsync<T>(ITextArgumentConverter converter, TextConverterContext converterContext, MessageCreateEventArgs eventArgs)
     {
         IArgumentConverter<MessageCreateEventArgs, T> strongConverter = (IArgumentConverter<MessageCreateEventArgs, T>)converter;
         if (converter.RequiresText && !converterContext.NextArgument())
@@ -193,7 +193,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
 
         if (!converterContext.Parameter.Attributes.OfType<ParamArrayAttribute>().Any())
         {
-            return await base.ExecuteConvertAsync<T>(converter, converterContext, eventArgs);
+            return await base.ExecuteConverterAsync<T>(converter, converterContext, eventArgs);
         }
         else
         {
