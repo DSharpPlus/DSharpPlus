@@ -24,8 +24,8 @@ public sealed class CommandExecutor : ICommandExecutor
     [SuppressMessage("Quality", "CA2012", Justification = "The worker does not pool instances and has its own error handling.")]
     public async ValueTask ExecuteAsync
     (
-        CommandContext context, 
-        bool awaitCommandExecution = false, 
+        CommandContext context,
+        bool awaitCommandExecution = false,
         CancellationToken cancellationToken = default
     )
     {
@@ -41,6 +41,18 @@ public sealed class CommandExecutor : ICommandExecutor
 
     private async ValueTask WorkerAsync(CommandContext context)
     {
+        if (context.Command.Method is null)
+        {
+            await context.Extension._commandErrored.InvokeAsync(context.Extension, new CommandErroredEventArgs()
+            {
+                Context = context,
+                Exception = new CommandNotExecutableException(context.Command, "Unable to execute a command that has no method. Is this command a group command?"),
+                CommandObject = null
+            });
+
+            return;
+        }
+
         List<ContextCheckAttribute> checks = new(context.Command.Attributes.OfType<ContextCheckAttribute>());
         Command? parent = context.Command.Parent;
         while (parent is not null)
@@ -65,7 +77,7 @@ public sealed class CommandExecutor : ICommandExecutor
             }
 
             if (failedChecks.Count > 0)
-            { 
+            {
                 await context.Extension._commandErrored.InvokeAsync(context.Extension, new CommandErroredEventArgs()
                 {
                     Context = context,
