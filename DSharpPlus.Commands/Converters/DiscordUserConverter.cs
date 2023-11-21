@@ -43,6 +43,12 @@ public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>
             }
         }
 
+        // Search the guild first
+        if (context.Guild.Members.TryGetValue(memberId, out DiscordMember? member))
+        {
+            return Optional.FromValue<DiscordUser>(member);
+        }
+
         // If we didn't find the user in the guild, try to get the user from the API.
         try
         {
