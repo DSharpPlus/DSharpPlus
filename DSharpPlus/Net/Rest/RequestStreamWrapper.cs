@@ -1,73 +1,74 @@
 ﻿namespace DSharpPlus.Net;
 
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 
 // this class is a clusterfuck to prevent the RestClient from disposing streams we dont want to dispose
 // only god, aaron and i know what a psychosis it was to fix this issue (#1677)
 public class RequestStreamWrapper : Stream, IDisposable
 {
-    private readonly Stream _refStream;
+    public Stream UnderlyingStream { get; init; }
 
-    private void CheckDisposed()
-    {
-        if (this._refStream is null)
-        {
-            throw new ObjectDisposedException(nameof(RequestStreamWrapper));
-        }
-    }
+    private void CheckDisposed() => ObjectDisposedException.ThrowIf(this.UnderlyingStream is null, this);
 
     //basically these two methods are the whole purpose of this class
-    protected override void Dispose(bool disposing){ /* NOT TODAY MY FRIEND */ }
-    protected void Dispose() => this.Dispose(true);
+    protected override void Dispose(bool disposing) { /* NOT TODAY MY FRIEND */ }
+    protected new void Dispose() => this.Dispose(true);
 
     public RequestStreamWrapper(Stream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        this._refStream = stream;
+        this.UnderlyingStream = stream;
     }
 
-    public override bool CanRead => this._refStream.CanRead;
+    /// <inheritdoc cref="Stream.CanRead"/>
+    public override bool CanRead => this.UnderlyingStream.CanRead;
 
-    public override bool CanSeek => this._refStream.CanSeek;
+    /// <inheritdoc cref="Stream.CanSeek"/>
+    public override bool CanSeek => this.UnderlyingStream.CanSeek;
 
-    public override bool CanWrite => this._refStream.CanWrite;
-    
-    public override void Flush() => this._refStream.Flush();
+    /// <inheritdoc cref="Stream.CanWrite"/>
+    public override bool CanWrite => this.UnderlyingStream.CanWrite;
 
+    /// <inheritdoc cref="Stream.Flush"/>
+    public override void Flush() => this.UnderlyingStream.Flush();
+
+    /// <inheritdoc cref="Stream.Length"/>
     public override long Length
     {
         get
         {
             this.CheckDisposed();
-            return this._refStream.Length;
+            return this.UnderlyingStream.Length;
         }
     }
 
+    /// <inheritdoc cref="Stream.Position"/>
     public override long Position
     {
-        get => this._refStream.Position;
-        set => this._refStream.Position = value;
+        get => this.UnderlyingStream.Position;
+        set => this.UnderlyingStream.Position = value;
     }
 
+    /// <inheritdoc cref="Stream.Read(byte[], int, int)"/>
     public override int Read(byte[] buffer, int offset, int count)
     {
         CheckDisposed();
-        return this._refStream.Read(buffer, offset, count);
+        return this.UnderlyingStream.Read(buffer, offset, count);
     }
 
+    /// <inheritdoc cref="Stream.Seek(long, SeekOrigin)"/>
     public override long Seek(long offset, SeekOrigin origin)
     {
         CheckDisposed();
-        return this._refStream.Seek(offset, origin);
+        return this.UnderlyingStream.Seek(offset, origin);
     }
 
-    public override void SetLength(long value) => this._refStream.SetLength(value);
+    /// <inheritdoc cref="Stream.SetLength(long)"/>
+    public override void SetLength(long value) => this.UnderlyingStream.SetLength(value);
 
-    public override void Write(byte[] buffer, int offset, int count) => this._refStream.Write(buffer, offset, count);
+    /// <inheritdoc cref="Stream.Write(byte[], int, int)"/>
+    public override void Write(byte[] buffer, int offset, int count) => this.UnderlyingStream.Write(buffer, offset, count);
 
     void IDisposable.Dispose() => Dispose(false);
 }

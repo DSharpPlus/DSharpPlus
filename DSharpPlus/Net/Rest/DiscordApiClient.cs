@@ -22,7 +22,7 @@ using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Net;
 
-// huge credits to dvoraks 8th symphony for being a source of sanity in the trying times of 
+// huge credits to dvoraks 8th symphony for being a source of sanity in the trying times of
 // fixing this absolute catastrophy up at least somewhat
 
 public sealed class DiscordApiClient
@@ -2120,9 +2120,8 @@ public sealed class DiscordApiClient
             {
                 builder.ResetFileStreamPositions();
             }
-            DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
-            
-            return ret;
+
+            return this.PrepareMessage(JObject.Parse(res.Response!));
         }
     }
 
@@ -4769,9 +4768,8 @@ public sealed class DiscordApiClient
         {
             builder.ResetFileStreamPositions();
         }
-        DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
-        
-        return ret;
+
+        return this.PrepareMessage(JObject.Parse(res.Response!));
     }
 
     internal async ValueTask DeleteWebhookMessageAsync
