@@ -118,23 +118,19 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             nextIndex = commandText.IndexOf(' ', nextIndex);
             if (nextIndex == -1)
             {
-                break;
+                // No more spaces. Search the rest of the string to see if there is a subcommand that matches.
+                nextIndex = commandText.Length;
             }
-
-            // Backspace once to trim the space
-            nextIndex--;
 
             // Resolve subcommands
             Command? foundCommand = command.Subcommands.FirstOrDefault(command => command.Name.Equals(commandText[index..nextIndex], StringComparison.OrdinalIgnoreCase));
             if (foundCommand is null)
             {
-                break;
-            }
-
-            foundCommand = command.Subcommands.FirstOrDefault(command => command.Attributes.OfType<TextAliasAttribute>().FirstOrDefault()?.Aliases.Any(alias => alias.Equals(commandText[index..nextIndex], StringComparison.OrdinalIgnoreCase)) ?? false);
-            if (foundCommand is null)
-            {
-                break;
+                foundCommand = command.Subcommands.FirstOrDefault(command => command.Attributes.OfType<TextAliasAttribute>().FirstOrDefault()?.Aliases.Any(alias => alias.Equals(commandText[index..nextIndex], StringComparison.OrdinalIgnoreCase)) ?? false);
+                if (foundCommand is null)
+                {
+                    break;
+                }
             }
 
             index = nextIndex;
@@ -176,7 +172,18 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     protected override async Task<IOptional> ExecuteConvertAsync<T>(ITextArgumentConverter converter, TextConverterContext converterContext, MessageCreateEventArgs eventArgs)
     {
         IArgumentConverter<MessageCreateEventArgs, T> strongConverter = (IArgumentConverter<MessageCreateEventArgs, T>)converter;
-        if (converterContext.Parameter.Attributes.OfType<ParamArrayAttribute>().Any())
+        if (converter.RequiresText && !converterContext.NextArgument())
+        {
+            return converterContext.Parameter.DefaultValue.HasValue
+                ? Optional.FromValue(converterContext.Parameter.DefaultValue.Value)
+                : throw new ArgumentParseException(converterContext.Parameter, message: $"Missing text argument for {converterContext.Parameter.Name}.");
+        }
+
+        if (!converterContext.Parameter.Attributes.OfType<ParamArrayAttribute>().Any())
+        {
+            return await base.ExecuteConvertAsync<T>(converter, converterContext, eventArgs);
+        }
+        else
         {
             List<T> values = [];
             do
@@ -191,16 +198,5 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             } while (converterContext.NextArgument());
             return Optional.FromValue(values.ToArray());
         }
-
-        if (!converter.RequiresText || converterContext.NextArgument())
-        {
-            return await base.ExecuteConvertAsync<T>(converter, converterContext, eventArgs);
-        }
-        else if (converterContext.Parameter.DefaultValue.HasValue)
-        {
-            return Optional.FromValue(converterContext.Parameter.DefaultValue.Value);
-        }
-
-        throw new ArgumentParseException(converterContext.Parameter, message: $"Missing text argument for {converterContext.Parameter.Name}.");
     }
 }
