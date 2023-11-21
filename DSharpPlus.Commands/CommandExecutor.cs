@@ -52,6 +52,17 @@ public sealed class CommandExecutor : ICommandExecutor
 
             return;
         }
+        else if (context.Arguments.Count != context.Command.Parameters.Count)
+        {
+            await context.Extension._commandErrored.InvokeAsync(context.Extension, new CommandErroredEventArgs()
+            {
+                Context = context,
+                Exception = new ArgumentException("The number of arguments provided does not match the number of parameters the command expects."),
+                CommandObject = null
+            });
+
+            return;
+        }
 
         List<ContextCheckAttribute> checks = new(context.Command.Attributes.OfType<ContextCheckAttribute>());
         Command? parent = context.Command.Parent;
@@ -95,7 +106,7 @@ public sealed class CommandExecutor : ICommandExecutor
         {
             commandObject = context.Command.Target is not null
                 ? context.Command.Target
-                : ActivatorUtilities.CreateInstance(context.ServiceProvider, context.Command.Method!.DeclaringType!);
+                : ActivatorUtilities.CreateInstance(context.ServiceProvider, context.Command.Method.DeclaringType!);
 
             if (!this.commandWrappers.TryGetValue(context.Command.Id, out Func<object?, object?[], ValueTask>? wrapper))
             {
