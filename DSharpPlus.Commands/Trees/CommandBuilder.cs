@@ -30,7 +30,7 @@ public class CommandBuilder
         return this;
     }
 
-    public CommandBuilder WithDescription(string description)
+    public CommandBuilder WithDescription(string? description)
     {
         this.Description = description;
         return this;
@@ -89,12 +89,10 @@ public class CommandBuilder
         return this;
     }
 
-    [MemberNotNull(nameof(Name), nameof(Description), nameof(Method), nameof(Subcommands), nameof(Parameters), nameof(Attributes))]
+    [MemberNotNull(nameof(Name), nameof(Subcommands), nameof(Parameters), nameof(Attributes))]
     public Command Build()
     {
         ArgumentNullException.ThrowIfNull(this.Name, nameof(this.Name));
-        ArgumentNullException.ThrowIfNull(this.Description, nameof(this.Description));
-        ArgumentNullException.ThrowIfNull(this.Method, nameof(this.Method));
         ArgumentNullException.ThrowIfNull(this.Subcommands, nameof(this.Subcommands));
         ArgumentNullException.ThrowIfNull(this.Parameters, nameof(this.Parameters));
         ArgumentNullException.ThrowIfNull(this.Attributes, nameof(this.Attributes));
@@ -102,7 +100,7 @@ public class CommandBuilder
         // Push it through the With* methods again, which contain validation.
         this.WithName(this.Name);
         this.WithDescription(this.Description);
-        this.WithDelegate(this.Method);
+        this.WithDelegate(this.Method, this.Target);
         this.WithParent(this.Parent);
         this.WithSubcommands(this.Subcommands);
         this.WithParameters(this.Parameters);
