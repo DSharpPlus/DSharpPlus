@@ -243,10 +243,20 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             }
         }
 
+        if (!descriptionLocalizations.TryGetValue("en-US", out string? description))
+        {
+            description = command.Description;
+        }
+
+        if (string.IsNullOrWhiteSpace(description))
+        {
+            description = "No description provided.";
+        }
+
         // Create the top level application command.
         return new(
-            name: nameLocalizations.TryGetValue("en-US", out string? name) ? name : command.Name,
-            description: descriptionLocalizations.TryGetValue("en-US", out string? description) ? description : command.Description,
+            name: ToSnakeCase(nameLocalizations.TryGetValue("en-US", out string? name) ? name : command.Name),
+            description: description,
             options: options,
             type: ApplicationCommandType.SlashCommand,
             name_localizations: nameLocalizations,
@@ -293,9 +303,19 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             await scope.DisposeAsync();
         }
 
+        if (!descriptionLocalizations.TryGetValue("en-US", out string? description))
+        {
+            description = command.Description;
+        }
+
+        if (string.IsNullOrWhiteSpace(description))
+        {
+            description = "No description provided.";
+        }
+
         return new(
-            name: nameLocalizations.TryGetValue("en-US", out string? name) ? name : command.Name,
-            description: descriptionLocalizations.TryGetValue("en-US", out string? description) ? description : command.Description!,
+            name: ToSnakeCase(nameLocalizations.TryGetValue("en-US", out string? name) ? name : command.Name),
+            description: description,
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
             type: command.Subcommands.Any() ? ApplicationCommandOptionType.SubCommandGroup : ApplicationCommandOptionType.SubCommand,
@@ -349,13 +369,18 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
         if (!descriptionLocalizations.TryGetValue("en-US", out string? description))
         {
-            description = parameter.Description;
+            description = command.Description;
+        }
+
+        if (string.IsNullOrWhiteSpace(description))
+        {
+            description = "No description provided.";
         }
 
         await scope.DisposeAsync();
         return new(
-            name: name,
-            description: description!,
+            name: ToSnakeCase(name),
+            description: description,
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
             autocomplete: parameter.Attributes.Any(x => x is SlashAutoCompleteProviderAttribute),
