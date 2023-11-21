@@ -148,6 +148,18 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             User = eventArgs.Author
         };
 
+        if (command.Method is null)
+        {
+            await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
+            {
+                Context = CreateCommandContext(converterContext, eventArgs, []),
+                Exception = new CommandNotExecutableException(command, "Unable to execute a command that has no method. Is this command a group command?"),
+                CommandObject = null
+            });
+
+            return;
+        }
+
         TextCommandContext? commandContext = await this.ParseArgumentsAsync(converterContext, eventArgs);
         if (commandContext is null)
         {
