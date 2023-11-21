@@ -13,7 +13,7 @@ public class Int64Converter : ISlashArgumentConverter<long>, ITextArgumentConver
     // Int64.MaxValue: 9,223,372,036,854,775,807
     // The input is defined as a string to allow for the use of the "long" type.
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.String;
-    public bool RequiresText { get; init; }
+    public bool RequiresText { get; init; } = true;
 
     public Task<Optional<long>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context.As<TextConverterContext>().Argument);
     public Task<Optional<long>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync((string)context.As<SlashConverterContext>().Argument.Value);
