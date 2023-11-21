@@ -13,7 +13,7 @@ public class UInt64Converter : ISlashArgumentConverter<ulong>, ITextArgumentConv
     // UInt64.MaxValue: 18,446,744,073,709,551,615
     // The input is defined as a string to allow for the use of the "ulong" type.
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.String;
-    public bool RequiresText { get; init; }
+    public bool RequiresText { get; init; } = true;
 
     public Task<Optional<ulong>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context.As<TextConverterContext>().Argument);
     public Task<Optional<ulong>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync((string)context.As<SlashConverterContext>().Argument.Value);
