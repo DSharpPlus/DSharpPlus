@@ -87,7 +87,7 @@ public sealed class CommandExecutor : ICommandExecutor
 
             if (!this.commandWrappers.TryGetValue(context.Command.Id, out Func<object?, object?[], ValueTask>? wrapper))
             {
-                wrapper = CommandEmitUtil.GetCommandInvocationFunc(context.Command.Method);
+                wrapper = CommandEmitUtil.GetCommandInvocationFunc(context.Command.Method, context.Command.Target);
                 this.commandWrappers[context.Command.Id] = wrapper;
             }
 

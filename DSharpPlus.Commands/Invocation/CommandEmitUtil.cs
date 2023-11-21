@@ -3,6 +3,7 @@ namespace DSharpPlus.Commands.Invocation;
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -14,9 +15,16 @@ internal static class CommandEmitUtil
     /// Creates a wrapper function to invoke a command.
     /// </summary>
     /// <param name="method">The corresponding MethodInfo for this command.</param>
+    /// <param name="target">The object targeted by this delegate, if applicable.</param>
     /// <exception cref="InvalidOperationException">Thrown if the command returns anything but ValueTask and Task.</exception>
-    public static Func<object?, object?[], ValueTask> GetCommandInvocationFunc(MethodInfo method)
+    public static Func<object?, object?[], ValueTask> GetCommandInvocationFunc(MethodInfo method, object? target)
     {
+        // we assume this is an anonymous method of any sort
+        if (method.Name.Contains('<') && method.Name.Contains('>') && method.GetCustomAttribute<CompilerGeneratedAttribute>() is not null)
+        {
+            return AnonymousDelegateUtil.GetAnonymousInvocationFunc(method, target);
+        }
+
         if (method.ReturnType == typeof(ValueTask))
         {
             return GetValueTaskFunc(method);
