@@ -3,7 +3,7 @@ namespace DSharpPlus.Commands.Exceptions;
 using System;
 using DSharpPlus.Commands.Trees;
 
-public sealed class ArgumentParseException : Exception
+public sealed class ArgumentParseException : CommandsException
 {
     public CommandParameter Parameter { get; init; }
 

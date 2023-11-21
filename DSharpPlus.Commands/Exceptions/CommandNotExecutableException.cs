@@ -3,7 +3,7 @@ namespace DSharpPlus.Commands.Exceptions;
 using System;
 using DSharpPlus.Commands.Trees;
 
-public sealed class CommandNotExecutableException : Exception
+public sealed class CommandNotExecutableException : CommandsException
 {
     public Command Command { get; init; }
 
