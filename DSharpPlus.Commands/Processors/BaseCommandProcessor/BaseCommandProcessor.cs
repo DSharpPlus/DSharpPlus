@@ -210,10 +210,38 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
                 IOptional optional = await this.ConverterDelegates[this.GetConverterFriendlyBaseType(converterContext.Parameter.Type)](converterContext, eventArgs);
                 if (!optional.HasValue)
                 {
-                    break;
+                    await this._extension._commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
+                    {
+                        Context = this.CreateCommandContext(converterContext, eventArgs, parsedArguments),
+                        Exception = new ArgumentParseException(converterContext.Parameter, null, $"Argument Converter for type {converterContext.Parameter.Type.FullName} was unable to parse the argument."),
+                        CommandObject = null
+                    });
+
+                    return null;
                 }
 
                 parsedArguments.Add(converterContext.Parameter, optional.RawValue);
+            }
+
+            if (parsedArguments.Count != converterContext.Command.Parameters.Count)
+            {
+                // Try to fill with default values
+                foreach (CommandParameter parameter in converterContext.Command.Parameters.Skip(parsedArguments.Count))
+                {
+                    if (!parameter.DefaultValue.HasValue)
+                    {
+                        await this._extension._commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
+                        {
+                            Context = this.CreateCommandContext(converterContext, eventArgs, parsedArguments),
+                            Exception = new ArgumentParseException(converterContext.Parameter, null, "No value was provided for this parameter."),
+                            CommandObject = null
+                        });
+
+                        return null;
+                    }
+
+                    parsedArguments.Add(parameter, parameter.DefaultValue.Value);
+                }
             }
         }
         catch (Exception error)
