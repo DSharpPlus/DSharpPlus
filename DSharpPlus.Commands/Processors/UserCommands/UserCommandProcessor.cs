@@ -48,9 +48,14 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreateEv
                 continue;
             }
             // Check to see if the method signature is valid.
-            else if (command.Parameters.Count != 1 || (command.Parameters[0].Type != typeof(DiscordUser) && command.Parameters[0].Type != typeof(DiscordMember)))
+            else if (command.Parameters[0].Type != typeof(DiscordUser) && command.Parameters[0].Type != typeof(DiscordMember))
             {
                 logger.LogError("User command '{CommandName}' must have a single parameter of type DiscordUser or DiscordMember.", command.Name);
+                continue;
+            }
+            else if (!command.Parameters.Skip(1).All(parameter => parameter.DefaultValue.HasValue))
+            {
+                logger.LogError("User command '{CommandName}' must have all parameters after the first contain a default value.", command.Name);
                 continue;
             }
 
@@ -95,12 +100,20 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreateEv
             return;
         }
 
+        Dictionary<CommandParameter, object?> arguments = new()
+        {
+            { command.Parameters[0], eventArgs.TargetUser }
+        };
+
+        for (int i = 1; i < command.Parameters.Count; i++)
+        {
+            // We verify at startup that all parameters have default values.
+            arguments.Add(command.Parameters[i], command.Parameters[i].DefaultValue.Value);
+        }
+
         SlashCommandContext commandContext = new()
         {
-            Arguments = new Dictionary<CommandParameter, object?>()
-            {
-                [command.Parameters[0]] = eventArgs.TargetUser
-            },
+            Arguments = arguments,
             Channel = eventArgs.Interaction.Channel,
             Command = command,
             Extension = this._extension,
