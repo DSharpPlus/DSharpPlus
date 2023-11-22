@@ -198,7 +198,6 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         SlashLogging.RegisteredCommands(this._logger, this.Commands.Count, null);
     }
 
-    [SuppressMessage("Roslyn", "CA1859", Justification = "Incorrect warning in NET 8-rc2. TODO: Open an issue in dotnet/runtime.")]
     public async Task<DiscordApplicationCommand> ToApplicationCommandAsync(Command command)
     {
         if (this._extension is null)
@@ -207,8 +206,8 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         }
 
         // Translate the command's name and description.
-        IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
-        IReadOnlyDictionary<string, string> descriptionLocalizations = new Dictionary<string, string>();
+        Dictionary<string, string> nameLocalizations = [];
+        Dictionary<string, string> descriptionLocalizations = [];
         if (command.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
         {
             AsyncServiceScope scope = this._extension.ServiceProvider.CreateAsyncScope();
@@ -267,7 +266,6 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         );
     }
 
-    [SuppressMessage("Roslyn", "CA1859", Justification = "Incorrect warning in NET 8-rc2. TODO: Open an issue in dotnet/runtime.")]
     public async Task<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command)
     {
         if (this._extension is null)
@@ -293,8 +291,8 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         }
 
         // Translate the subcommand's name and description.
-        IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
-        IReadOnlyDictionary<string, string> descriptionLocalizations = new Dictionary<string, string>();
+        Dictionary<string, string> nameLocalizations = [];
+        Dictionary<string, string> descriptionLocalizations = [];
         if (command.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
         {
             AsyncServiceScope scope = this._extension.ServiceProvider.CreateAsyncScope();
@@ -323,7 +321,6 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         );
     }
 
-    [SuppressMessage("Roslyn", "CA1859", Justification = "Incorrect warning in NET 8-rc2. TODO: Open an issue in dotnet/runtime.")]
     private async Task<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command, CommandParameter parameter, int? i = null)
     {
         if (this._extension is null)
@@ -341,8 +338,8 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         AsyncServiceScope scope = this._extension.ServiceProvider.CreateAsyncScope();
 
         // Translate the parameter's name and description.
-        IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
-        IReadOnlyDictionary<string, string> descriptionLocalizations = new Dictionary<string, string>();
+        Dictionary<string, string> nameLocalizations = [];
+        Dictionary<string, string> descriptionLocalizations = [];
         if (parameter.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
         {
             StringBuilder localeIdBuilder = new();

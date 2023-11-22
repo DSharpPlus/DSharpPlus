@@ -5,13 +5,15 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.Processors.SlashCommands.Translation;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
 public class SlashLocalizerAttribute(Type localizerType) : Attribute
 {
     public Type LocalizerType { get; init; } = localizerType ?? throw new ArgumentNullException(nameof(localizerType));
 
-    public async Task<IReadOnlyDictionary<string, string>> LocalizeAsync(IServiceProvider serviceProvider, string fullSymbolName)
+    public async Task<Dictionary<string, string>> LocalizeAsync(IServiceProvider serviceProvider, string fullSymbolName)
     {
         ITranslator translator;
         try
@@ -20,7 +22,9 @@ public class SlashLocalizerAttribute(Type localizerType) : Attribute
         }
         catch (Exception)
         {
-            return new Dictionary<string, string>();
+            ILogger<SlashLocalizerAttribute> logger = serviceProvider.GetService<ILogger<SlashLocalizerAttribute>>() ?? NullLogger<SlashLocalizerAttribute>.Instance;
+            logger.LogWarning("Failed to create an instance of {TypeName} for localization of {SymbolName}.", this.LocalizerType, fullSymbolName);
+            return [];
         }
 
         Dictionary<string, string> localized = [];
