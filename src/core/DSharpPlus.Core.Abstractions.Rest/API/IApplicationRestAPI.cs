@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus.Core.Abstractions.Models;
+using DSharpPlus.Core.Abstractions.Rest.Payloads;
 
 using Remora.Results;
 
@@ -23,6 +24,20 @@ public interface IApplicationRestAPI
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<IApplication>> GetCurrentApplicationAsync
     (
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
+    /// Edits the application associated with the requesting bot user.
+    /// </summary>
+    /// <param name="payload">A payload object containing properties to update.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns>The updated application object.</returns>
+    public ValueTask<Result<IApplication>> EditCurrentApplicationAsync
+    (
+        IEditCurrentApplicationPayload payload,
         RequestInfo info = default,
         CancellationToken ct = default
     );
