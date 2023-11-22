@@ -6132,6 +6132,7 @@ public sealed class DiscordApiClient
         DiscordMessage msg = this.PrepareMessage(msgToken!);
         // We know the return type; deserialize directly.
         DiscordThreadChannel chn = ret.ToDiscordObject<DiscordThreadChannel>();
+        chn.Discord = this._discord!;
 
         return new DiscordForumPostStarter(chn, msg);
     }
