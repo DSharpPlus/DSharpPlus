@@ -36,8 +36,8 @@ jobs:
             7
       - name: Build Project
         run: dotnet build
-      - name: Package Project
-        run: dotnet pack --no-build --include-symbols --include-source -o build -p:Nightly="PR-${{ github.event.pull_request.number }}"
+      - name: Build and Package Project
+        run: dotnet pack --include-symbols --include-source -o build -p:Nightly="PR-${{ github.event.pull_request.number }}"
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
