@@ -41,5 +41,5 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: DSharpPlus-PR-${{ github.event.pull_request.number }}.zip
+          name: DSharpPlus-PR-${{ github.event.pull_request.number }}
           path: ./build/*
