@@ -1094,7 +1094,7 @@ internal static class AuditLogParser
             Target = guild
                 .GetChannel(auditLogAction.TargetId!.Value)
                 .PermissionOverwrites
-                .First(xo => xo.Id == auditLogAction.Options.Id),
+                .FirstOrDefault(xo => xo.Id == auditLogAction.Options.Id),
             Channel = guild.GetChannel(auditLogAction.TargetId.Value)
         };
 
