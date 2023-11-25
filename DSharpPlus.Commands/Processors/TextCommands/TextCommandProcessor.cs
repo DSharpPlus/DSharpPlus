@@ -137,6 +137,33 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             command = foundCommand;
         }
 
+        if (command.Method is null)
+        {
+            Command? defaultHelpCommand = command.Subcommands.FirstOrDefault(subcommand => subcommand.Attributes.OfType<DefaultGroupCommandAttribute>().Any());
+            if (defaultHelpCommand is null)
+            {
+                await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
+                {
+                    Context = CreateCommandContext(new()
+                    {
+                        Channel = eventArgs.Channel,
+                        Command = command,
+                        Extension = this._extension,
+                        RawArguments = commandText[index..],
+                        ServiceScope = scope,
+                        Splicer = this.Configuration.TextArgumentSplicer,
+                        User = eventArgs.Author
+                    }, eventArgs, []),
+                    Exception = new CommandNotExecutableException(command, "Unable to execute a command that has no method. Is this command a group command?"),
+                    CommandObject = null
+                });
+
+                return;
+            }
+
+            command = defaultHelpCommand;
+        }
+
         TextConverterContext converterContext = new()
         {
             Channel = eventArgs.Channel,
@@ -147,18 +174,6 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             Splicer = this.Configuration.TextArgumentSplicer,
             User = eventArgs.Author
         };
-
-        if (command.Method is null)
-        {
-            await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
-            {
-                Context = CreateCommandContext(converterContext, eventArgs, []),
-                Exception = new CommandNotExecutableException(command, "Unable to execute a command that has no method. Is this command a group command?"),
-                CommandObject = null
-            });
-
-            return;
-        }
 
         TextCommandContext? commandContext = await this.ParseArgumentsAsync(converterContext, eventArgs);
         if (commandContext is null)
