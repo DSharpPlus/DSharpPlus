@@ -26,9 +26,9 @@ namespace DSharpPlus.Entities.AuditLogs;
 public sealed class DiscordAuditLogOverwriteEntry : DiscordAuditLogEntry
 {
     /// <summary>
-    /// Gets the affected overwrite.
+    /// Gets the affected overwrite. Null if the overwrite was deleted or not in cache.
     /// </summary>
-    public DiscordOverwrite Target { get; internal set; } = default!;
+    public DiscordOverwrite? Target { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the channel for which the overwrite was changed.
