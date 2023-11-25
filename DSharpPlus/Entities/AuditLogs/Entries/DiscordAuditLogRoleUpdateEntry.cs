@@ -1,11 +1,13 @@
 namespace DSharpPlus.Entities.AuditLogs;
 
+using Caching;
+
 public sealed class DiscordAuditLogRoleUpdateEntry : DiscordAuditLogEntry
 {
     /// <summary>
     /// Gets the affected role.
     /// </summary>
-    public DiscordRole Target { get; internal set; }
+    public CachedEntity<ulong, DiscordRole> Target { get; internal set; }
 
     /// <summary>
     /// Gets the description of role's name change.

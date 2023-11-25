@@ -3,6 +3,8 @@ using DSharpPlus.Entities.AuditLogs;
 
 namespace DSharpPlus.EventArgs;
 
+using Caching;
+
 public class GuildAuditLogCreatedEventArgs : DiscordEventArgs
 {
     /// <summary>
@@ -13,7 +15,7 @@ public class GuildAuditLogCreatedEventArgs : DiscordEventArgs
     /// <summary>
     /// Guild where audit log entry was created.
     /// </summary>
-    public DiscordGuild Guild { get; internal set; }
+    public CachedEntity<ulong, DiscordGuild> Guild { get; internal set; }
 
     internal GuildAuditLogCreatedEventArgs() : base() { }
 }

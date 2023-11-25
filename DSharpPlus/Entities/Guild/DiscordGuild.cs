@@ -1531,6 +1531,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         AuditLogActionType? actionType = null
     )
     {
+        AuditLogParser auditLogParser = new(this.Discord, this.Id, this);
+        
         //Get all entries from api
         int entriesAcquiredLastCall = 1, totalEntriesCollected = 0, remainingEntries = 100;
         ulong last = 0;
@@ -1550,7 +1552,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             if (entriesAcquiredLastCall > 0)
             {
                 last = guildAuditLog.Entries.Last().Id;
-                IAsyncEnumerable<DiscordAuditLogEntry> parsedEntries = AuditLogParser.ParseAuditLogToEntriesAsync(this, guildAuditLog);
+                IAsyncEnumerable<DiscordAuditLogEntry> parsedEntries = auditLogParser.ParseAuditLogToEntriesAsync(guildAuditLog);
                 await foreach (DiscordAuditLogEntry discordAuditLogEntry in parsedEntries)
                 {
                     yield return discordAuditLogEntry;

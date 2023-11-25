@@ -33,22 +33,22 @@ public sealed partial class DiscordClient
 
     internal async Task HandleDispatchAsync(GatewayPayload payload)
     {
-        if (payload.Data is not JObject dat)
+        if (payload.Data is not JObject payloadData)
         {
             this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Invalid payload body (this message is probably safe to ignore); opcode: {Op} event: {Event}; payload: {Payload}", payload.OpCode, payload.EventName, payload.Data);
             return;
         }
 
-        DiscordChannel chn;
+        DiscordChannel channel;
         DiscordThreadChannel thread;
-        ulong gid;
-        ulong cid;
-        TransportUser usr = default;
-        TransportMember mbr = default;
-        TransportUser refUsr = default;
-        TransportMember refMbr = default;
-        JToken rawMbr = default;
-        JToken? rawRefMsg = dat["referenced_message"];
+        ulong guildId;
+        ulong channelId;
+        TransportUser transportUser = default;
+        TransportMember transportMember = default;
+        TransportUser referencedUser = default;
+        TransportMember referencedMember = default;
+        JToken rawMember = default;
+        JToken? rawRefMessage = payloadData["referenced_message"];
         JArray rawMembers = default;
         JArray rawPresences = default;
 
@@ -57,13 +57,13 @@ public sealed partial class DiscordClient
             #region Gateway Status
 
             case "ready":
-                JArray? glds = (JArray)dat["guilds"];
-                JArray? dmcs = (JArray)dat["private_channels"];
+                JArray? rawGuilds = (JArray)payloadData["guilds"];
+                JArray? rawDmChannels = (JArray)payloadData["private_channels"];
 
-                dat.Remove("guilds");
-                dat.Remove("private_channels");
+                payloadData.Remove("guilds");
+                payloadData.Remove("private_channels");
                 
-                await this.OnReadyEventAsync(dat.ToDiscordObject<ReadyPayload>(), glds, dmcs);
+                await this.OnReadyEventAsync(payloadData.ToDiscordObject<ReadyPayload>(), rawGuilds, rawDmChannels);
                 break;
 
             case "resumed":
@@ -75,25 +75,27 @@ public sealed partial class DiscordClient
             #region Channel
 
             case "channel_create":
-                chn = dat.ToDiscordObject<DiscordChannel>();
-                await this.OnChannelCreateEventAsync(chn);
+                channel = payloadData.ToDiscordObject<DiscordChannel>();
+                await this.OnChannelCreateEventAsync(channel);
                 break;
 
             case "channel_update":
-                await this.OnChannelUpdateEventAsync(dat.ToDiscordObject<DiscordChannel>());
+                await this.OnChannelUpdateEventAsync(payloadData.ToDiscordObject<DiscordChannel>());
                 break;
 
             case "channel_delete":
-                bool isPrivate = dat["is_private"]?.ToObject<bool>() ?? false;
+                bool isPrivate = payloadData["is_private"]?.ToObject<bool>() ?? false;
 
-                chn = isPrivate ? dat.ToDiscordObject<DiscordDmChannel>() : dat.ToDiscordObject<DiscordChannel>();
-                await this.OnChannelDeleteEventAsync(chn);
+                channel = isPrivate ? payloadData.ToDiscordObject<DiscordDmChannel>() : payloadData.ToDiscordObject<DiscordChannel>();
+                await this.OnChannelDeleteEventAsync(channel);
                 break;
 
             case "channel_pins_update":
-                cid = (ulong)dat["channel_id"];
-                string? ts = (string)dat["last_pin_timestamp"];
-                await this.OnChannelPinsUpdateAsync((ulong?)dat["guild_id"], cid, ts != null ? DateTimeOffset.Parse(ts, CultureInfo.InvariantCulture) : default(DateTimeOffset?));
+                ulong? optionalGuildId = (ulong?)payloadData["guild_id"];
+                channelId = (ulong)payloadData["channel_id"];
+                string? ts = (string)payloadData["last_pin_timestamp"];
+                DateTimeOffset? lastPinTimestamp = ts != null ? DateTimeOffset.Parse(ts, CultureInfo.InvariantCulture) : default(DateTimeOffset?);
+                await this.OnChannelPinsUpdateAsync(optionalGuildId, channelId, lastPinTimestamp);
                 break;
 
             #endregion
@@ -101,28 +103,28 @@ public sealed partial class DiscordClient
             #region Scheduled Guild Events
 
             case "guild_scheduled_event_create":
-                DiscordScheduledGuildEvent cevt = dat.ToDiscordObject<DiscordScheduledGuildEvent>();
+                DiscordScheduledGuildEvent cevt = payloadData.ToDiscordObject<DiscordScheduledGuildEvent>();
                 await this.OnScheduledGuildEventCreateEventAsync(cevt);
                 break;
             case "guild_scheduled_event_delete":
-                DiscordScheduledGuildEvent devt = dat.ToDiscordObject<DiscordScheduledGuildEvent>();
+                DiscordScheduledGuildEvent devt = payloadData.ToDiscordObject<DiscordScheduledGuildEvent>();
                 await this.OnScheduledGuildEventDeleteEventAsync(devt);
                 break;
             case "guild_scheduled_event_update":
-                DiscordScheduledGuildEvent uevt = dat.ToDiscordObject<DiscordScheduledGuildEvent>();
+                DiscordScheduledGuildEvent uevt = payloadData.ToDiscordObject<DiscordScheduledGuildEvent>();
                 await this.OnScheduledGuildEventUpdateEventAsync(uevt);
                 break;
             case "guild_scheduled_event_user_add":
-                gid = (ulong)dat["guild_id"];
-                ulong uid = (ulong)dat["user_id"];
-                ulong eid = (ulong)dat["guild_scheduled_event_id"];
-                await this.OnScheduledGuildEventUserAddEventAsync(gid, eid, uid);
+                guildId = (ulong)payloadData["guild_id"];
+                ulong userId = (ulong)payloadData["user_id"];
+                ulong eventId = (ulong)payloadData["guild_scheduled_event_id"];
+                await this.OnScheduledGuildEventUserAddEventAsync(guildId, eventId, userId);
                 break;
             case "guild_scheduled_event_user_remove":
-                gid = (ulong)dat["guild_id"];
-                uid = (ulong)dat["user_id"];
-                eid = (ulong)dat["guild_scheduled_event_id"];
-                await this.OnScheduledGuildEventUserRemoveEventAsync(gid, eid, uid);
+                guildId = (ulong)payloadData["guild_id"];
+                userId = (ulong)payloadData["user_id"];
+                eventId = (ulong)payloadData["guild_scheduled_event_id"];
+                await this.OnScheduledGuildEventUserRemoveEventAsync(guildId, eventId, userId);
                 break;
             #endregion
 
@@ -130,46 +132,50 @@ public sealed partial class DiscordClient
 
             case "guild_create":
 
-                rawMembers = (JArray)dat["members"];
-                rawPresences = (JArray)dat["presences"];
-                dat.Remove("members");
-                dat.Remove("presences");
+                rawMembers = (JArray)payloadData["members"];
+                rawPresences = (JArray)payloadData["presences"];
+                payloadData.Remove("members");
+                payloadData.Remove("presences");
+                DiscordGuild guild = payloadData.ToDiscordObject<DiscordGuild>();
+                IEnumerable<DiscordPresence> presences = rawPresences.ToDiscordObject<IEnumerable<DiscordPresence>>();
 
-                await this.OnGuildCreateEventAsync(dat.ToDiscordObject<DiscordGuild>(), rawMembers, rawPresences.ToDiscordObject<IEnumerable<DiscordPresence>>());
+                await this.OnGuildCreateEventAsync(guild, rawMembers, presences);
                 break;
 
             case "guild_update":
 
-                rawMembers = (JArray)dat["members"];
-                dat.Remove("members");
+                rawMembers = (JArray)payloadData["members"];
+                payloadData.Remove("members");
+                guild = payloadData.ToDiscordObject<DiscordGuild>();
 
-                await this.OnGuildUpdateEventAsync(dat.ToDiscordObject<DiscordGuild>(), rawMembers);
+                await this.OnGuildUpdateEventAsync(guild, rawMembers);
                 break;
 
             case "guild_delete":
 
-                rawMembers = (JArray)dat["members"];
-                dat.Remove("members");
+                rawMembers = (JArray)payloadData["members"];
+                payloadData.Remove("members");
+                guild = payloadData.ToDiscordObject<DiscordGuild>();
 
-                await this.OnGuildDeleteEventAsync(dat.ToDiscordObject<DiscordGuild>(), rawMembers);
+                await this.OnGuildDeleteEventAsync(guild, rawMembers);
                 break;
 
             case "guild_emojis_update":
-                gid = (ulong)dat["guild_id"];
-                IEnumerable<DiscordEmoji> ems = dat["emojis"].ToDiscordObject<IEnumerable<DiscordEmoji>>();
-                await this.OnGuildEmojisUpdateEventAsync(gid, ems);
+                guildId = (ulong)payloadData["guild_id"];
+                IEnumerable<DiscordEmoji> ems = payloadData["emojis"].ToDiscordObject<IEnumerable<DiscordEmoji>>();
+                await this.OnGuildEmojisUpdateEventAsync(guildId, ems);
                 break;
 
             case "guild_integrations_update":
-                gid = (ulong)dat["guild_id"];
-                await this.OnGuildIntegrationsUpdateEventAsync(gid);
+                guildId = (ulong)payloadData["guild_id"];
+                await this.OnGuildIntegrationsUpdateEventAsync(guildId);
                 break;
 
             //TODO: Fix this event to use the new caching system
             case "guild_audit_log_entry_create":
-                gid = (ulong)dat["guild_id"];
-                AuditLogAction auditLogAction = dat.ToDiscordObject<AuditLogAction>();
-                await this.OnGuildAuditLogEntryCreateEventAsync(gid, auditLogAction);
+                guildId = (ulong)payloadData["guild_id"];
+                AuditLogAction auditLogAction = payloadData.ToDiscordObject<AuditLogAction>();
+                await this.OnGuildAuditLogEntryCreateEventAsync(guildId, auditLogAction);
                 break;
 
             #endregion
@@ -177,15 +183,15 @@ public sealed partial class DiscordClient
             #region Guild Ban
 
             case "guild_ban_add":
-                usr = dat["user"].ToDiscordObject<TransportUser>();
-                gid = (ulong)dat["guild_id"];
-                await this.OnGuildBanAddEventAsync(usr, gid);
+                transportUser = payloadData["user"].ToDiscordObject<TransportUser>();
+                guildId = (ulong)payloadData["guild_id"];
+                await this.OnGuildBanAddEventAsync(transportUser, guildId);
                 break;
 
             case "guild_ban_remove":
-                usr = dat["user"].ToDiscordObject<TransportUser>();
-                gid = (ulong)dat["guild_id"];
-                await this.OnGuildBanRemoveEventAsync(usr, gid);
+                transportUser = payloadData["user"].ToDiscordObject<TransportUser>();
+                guildId = (ulong)payloadData["guild_id"];
+                await this.OnGuildBanRemoveEventAsync(transportUser, guildId);
                 break;
 
             #endregion
@@ -193,24 +199,27 @@ public sealed partial class DiscordClient
             #region Guild Member
 
             case "guild_member_add":
-                gid = (ulong)dat["guild_id"];
-                await this.OnGuildMemberAddEventAsync(dat.ToDiscordObject<TransportMember>(), gid);
+                guildId = (ulong)payloadData["guild_id"];
+                transportMember = payloadData.ToDiscordObject<TransportMember>();
+                await this.OnGuildMemberAddEventAsync(transportMember, guildId);
                 break;
 
             case "guild_member_remove":
-                gid = (ulong)dat["guild_id"];
-                usr = dat["user"].ToDiscordObject<TransportUser>();
+                guildId = (ulong)payloadData["guild_id"];
+                transportUser = payloadData["user"].ToDiscordObject<TransportUser>();
                 
-                await this.OnGuildMemberRemoveEventAsync(usr, gid);
+                await this.OnGuildMemberRemoveEventAsync(transportUser, guildId);
                 break;
 
             case "guild_member_update":
-                gid = (ulong)dat["guild_id"];
-                await this.OnGuildMemberUpdateEventAsync(dat.ToDiscordObject<TransportMember>(), gid);
+                guildId = (ulong)payloadData["guild_id"];
+                transportMember = payloadData.ToDiscordObject<TransportMember>();
+                
+                await this.OnGuildMemberUpdateEventAsync(transportMember, guildId);
                 break;
 
             case "guild_members_chunk":
-                await this.OnGuildMembersChunkEventAsync(dat);
+                await this.OnGuildMembersChunkEventAsync(payloadData);
                 break;
 
             #endregion
@@ -218,18 +227,21 @@ public sealed partial class DiscordClient
             #region Guild Role
 
             case "guild_role_create":
-                gid = (ulong)dat["guild_id"];
-                await this.OnGuildRoleCreateEventAsync(dat["role"].ToDiscordObject<DiscordRole>(), gid);
+                guildId = (ulong)payloadData["guild_id"];
+                DiscordRole role = payloadData["role"].ToDiscordObject<DiscordRole>();
+                await this.OnGuildRoleCreateEventAsync(role, guildId);
                 break;
 
             case "guild_role_update":
-                gid = (ulong)dat["guild_id"];
-                await this.OnGuildRoleUpdateEventAsync(dat["role"].ToDiscordObject<DiscordRole>(), gid);
+                guildId = (ulong)payloadData["guild_id"];
+                role = payloadData["role"].ToDiscordObject<DiscordRole>();
+                await this.OnGuildRoleUpdateEventAsync(payloadData["role"].ToDiscordObject<DiscordRole>(), guildId);
                 break;
 
             case "guild_role_delete":
-                gid = (ulong)dat["guild_id"];
-                await this.OnGuildRoleDeleteEventAsync((ulong)dat["role_id"], gid);
+                guildId = (ulong)payloadData["guild_id"];
+                ulong roleId = (ulong)payloadData["role_id"];
+                await this.OnGuildRoleDeleteEventAsync(roleId, guildId);
                 break;
 
             #endregion
@@ -237,15 +249,16 @@ public sealed partial class DiscordClient
             #region Invite
 
             case "invite_create":
-                gid = (ulong)dat["guild_id"];
-                cid = (ulong)dat["channel_id"];
-                await this.OnInviteCreateEventAsync(cid, gid, dat.ToDiscordObject<DiscordInvite>());
+                guildId = (ulong)payloadData["guild_id"];
+                channelId = (ulong)payloadData["channel_id"];
+                DiscordInvite invite = payloadData.ToDiscordObject<DiscordInvite>();
+                await this.OnInviteCreateEventAsync(channelId, guildId, invite);
                 break;
 
             case "invite_delete":
-                gid = (ulong)dat["guild_id"];
-                cid = (ulong)dat["channel_id"];
-                await this.OnInviteDeleteEventAsync(cid, gid, dat);
+                guildId = (ulong)payloadData["guild_id"];
+                channelId = (ulong)payloadData["channel_id"];
+                await this.OnInviteDeleteEventAsync(channelId, guildId, payloadData);
                 break;
 
             #endregion
@@ -253,64 +266,73 @@ public sealed partial class DiscordClient
             #region Message
 
             case "message_create":
-                rawMbr = dat["member"];
+                rawMember = payloadData["member"];
 
-                if (rawMbr != null)
+                if (rawMember != null)
                 {
-                    mbr = rawMbr.ToDiscordObject<TransportMember>();
+                    transportMember = rawMember.ToDiscordObject<TransportMember>();
                 }
 
-                if (rawRefMsg != null && rawRefMsg.HasValues)
+                if (rawRefMessage != null && rawRefMessage.HasValues)
                 {
-                    if (rawRefMsg.SelectToken("author") != null)
+                    if (rawRefMessage.SelectToken("author") != null)
                     {
-                        refUsr = rawRefMsg.SelectToken("author").ToDiscordObject<TransportUser>();
+                        referencedUser = rawRefMessage.SelectToken("author").ToDiscordObject<TransportUser>();
                     }
 
-                    if (rawRefMsg.SelectToken("member") != null)
+                    if (rawRefMessage.SelectToken("member") != null)
                     {
-                        refMbr = rawRefMsg.SelectToken("member").ToDiscordObject<TransportMember>();
+                        referencedMember = rawRefMessage.SelectToken("member").ToDiscordObject<TransportMember>();
                     }
                 }
 
-                TransportUser author = dat["author"].ToDiscordObject<TransportUser>();
-                dat.Remove("author");
-                dat.Remove("member");
+                TransportUser author = payloadData["author"].ToDiscordObject<TransportUser>();
+                payloadData.Remove("author");
+                payloadData.Remove("member");
 
-                await this.OnMessageCreateEventAsync(dat.ToDiscordObject<DiscordMessage>(), author, mbr, refUsr, refMbr);
+                await this.OnMessageCreateEventAsync(payloadData.ToDiscordObject<DiscordMessage>(), author, transportMember, referencedUser, referencedMember);
                 break;
 
             case "message_update":
-                rawMbr = dat["member"];
+                rawMember = payloadData["member"];
 
-                if (rawMbr != null)
+                if (rawMember != null)
                 {
-                    mbr = rawMbr.ToDiscordObject<TransportMember>();
+                    transportMember = rawMember.ToDiscordObject<TransportMember>();
                 }
 
-                if (rawRefMsg != null && rawRefMsg.HasValues)
+                if (rawRefMessage != null && rawRefMessage.HasValues)
                 {
-                    if (rawRefMsg.SelectToken("author") != null)
+                    if (rawRefMessage.SelectToken("author") != null)
                     {
-                        refUsr = rawRefMsg.SelectToken("author").ToDiscordObject<TransportUser>();
+                        referencedUser = rawRefMessage.SelectToken("author").ToDiscordObject<TransportUser>();
                     }
 
-                    if (rawRefMsg.SelectToken("member") != null)
+                    if (rawRefMessage.SelectToken("member") != null)
                     {
-                        refMbr = rawRefMsg.SelectToken("member").ToDiscordObject<TransportMember>();
+                        referencedMember = rawRefMessage.SelectToken("member").ToDiscordObject<TransportMember>();
                     }
                 }
+                
+                DiscordMessage message = payloadData.ToDiscordObject<DiscordMessage>();
+                TransportUser? optionalAuthor = payloadData["author"].ToDiscordObject<TransportUser>();
 
-                await this.OnMessageUpdateEventAsync(dat.ToDiscordObject<DiscordMessage>(), dat["author"]?.ToDiscordObject<TransportUser>(), mbr, refUsr, refMbr);
+                await this.OnMessageUpdateEventAsync(message, optionalAuthor, transportMember, referencedUser, referencedMember);
                 break;
 
             // delete event does *not* include message object
             case "message_delete":
-                await this.OnMessageDeleteEventAsync((ulong)dat["id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"]);
+                ulong messageId = (ulong)payloadData["id"];
+                channelId = (ulong)payloadData["channel_id"];
+                optionalGuildId = (ulong?)payloadData["guild_id"] ?? 0;
+                await this.OnMessageDeleteEventAsync(messageId, channelId, optionalGuildId);
                 break;
 
             case "message_delete_bulk":
-                await this.OnMessageBulkDeleteEventAsync(dat["ids"].ToDiscordObject<ulong[]>(), (ulong)dat["channel_id"], (ulong?)dat["guild_id"]);
+                ulong[] messageIds = payloadData["ids"].ToDiscordObject<ulong[]>();
+                channelId = (ulong)payloadData["channel_id"];
+                optionalGuildId = (ulong?)payloadData["guild_id"];
+                await this.OnMessageBulkDeleteEventAsync(messageIds, channelId, optionalGuildId);
                 break;
 
             #endregion
@@ -318,26 +340,51 @@ public sealed partial class DiscordClient
             #region Message Reaction
 
             case "message_reaction_add":
-                rawMbr = dat["member"];
+                rawMember = payloadData["member"];
 
-                if (rawMbr != null)
+                if (rawMember != null)
                 {
-                    mbr = rawMbr.ToDiscordObject<TransportMember>();
+                    transportMember = rawMember.ToDiscordObject<TransportMember>();
                 }
+                
+                userId = (ulong)payloadData["user_id"];
+                messageId = (ulong)payloadData["message_id"];
+                channelId = (ulong)payloadData["channel_id"];
+                optionalGuildId = (ulong?)payloadData["guild_id"];
+                DiscordEmoji emoji = payloadData["emoji"].ToDiscordObject<DiscordEmoji>();
+                
 
-                await this.OnMessageReactionAddAsync((ulong)dat["user_id"], (ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"], mbr, dat["emoji"].ToDiscordObject<DiscordEmoji>());
+                await this.OnMessageReactionAddAsync(userId, messageId, channelId, optionalGuildId, transportMember, emoji);
                 break;
 
             case "message_reaction_remove":
-                await this.OnMessageReactionRemoveAsync((ulong)dat["user_id"], (ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"], dat["emoji"].ToDiscordObject<DiscordEmoji>());
+                
+                userId = (ulong)payloadData["user_id"];
+                messageId = (ulong)payloadData["message_id"];
+                channelId = (ulong)payloadData["channel_id"];
+                optionalGuildId = (ulong?)payloadData["guild_id"];
+                emoji = payloadData["emoji"].ToDiscordObject<DiscordEmoji>();
+                
+                await this.OnMessageReactionRemoveAsync(userId, messageId, channelId, optionalGuildId, emoji);
                 break;
 
             case "message_reaction_remove_all":
-                await this.OnMessageReactionRemoveAllAsync((ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"]);
+                
+                messageId = (ulong)payloadData["message_id"];
+                channelId = (ulong)payloadData["channel_id"];
+                optionalGuildId = (ulong?)payloadData["guild_id"];
+                
+                await this.OnMessageReactionRemoveAllAsync(messageId, channelId, optionalGuildId);
                 break;
 
             case "message_reaction_remove_emoji":
-                await this.OnMessageReactionRemoveEmojiAsync((ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong)dat["guild_id"], dat["emoji"]);
+                
+                messageId = (ulong)payloadData["message_id"];
+                channelId = (ulong)payloadData["channel_id"];
+                optionalGuildId = (ulong?)payloadData["guild_id"];
+                emoji = payloadData["emoji"].ToDiscordObject<DiscordEmoji>();
+                
+                await this.OnMessageReactionRemoveEmojiAsync(messageId, channelId, optionalGuildId, emoji);
                 break;
 
             #endregion
@@ -346,15 +393,17 @@ public sealed partial class DiscordClient
 
             case "presence_update":
                 // Presences are a mess. I'm not touching this. ~Velvet
-                await this.OnPresenceUpdateEventAsync(dat, (JObject)dat["user"]);
+                await this.OnPresenceUpdateEventAsync(payloadData, (JObject)payloadData["user"]);
                 break;
 
             case "user_settings_update":
-                await this.OnUserSettingsUpdateEventAsync(dat.ToDiscordObject<TransportUser>());
+                transportUser = payloadData.ToDiscordObject<TransportUser>();
+                await this.OnUserSettingsUpdateEventAsync(transportUser);
                 break;
 
             case "user_update":
-                await this.OnUserUpdateEventAsync(dat.ToDiscordObject<TransportUser>());
+                transportUser = payloadData.ToDiscordObject<TransportUser>();
+                await this.OnUserUpdateEventAsync(transportUser);
                 break;
 
             #endregion
@@ -362,12 +411,14 @@ public sealed partial class DiscordClient
             #region Voice
 
             case "voice_state_update":
-                await this.OnVoiceStateUpdateEventAsync(dat);
+                await this.OnVoiceStateUpdateEventAsync(payloadData);
                 break;
 
             case "voice_server_update":
-                gid = (ulong)dat["guild_id"];
-                await this.OnVoiceServerUpdateEventAsync((string)dat["endpoint"], (string)dat["token"], gid);
+                guildId = (ulong)payloadData["guild_id"];
+                string token = (string)payloadData["token"];
+                string endpoint = (string)payloadData["endpoint"];
+                await this.OnVoiceServerUpdateEventAsync(endpoint, token, guildId);
                 break;
 
             #endregion
@@ -375,32 +426,44 @@ public sealed partial class DiscordClient
             #region Thread
 
             case "thread_create":
-                thread = dat.ToDiscordObject<DiscordThreadChannel>();
+                thread = payloadData.ToDiscordObject<DiscordThreadChannel>();
                 await this.OnThreadCreateEventAsync(thread, thread.IsNew);
                 break;
 
             case "thread_update":
-                thread = dat.ToDiscordObject<DiscordThreadChannel>();
+                thread = payloadData.ToDiscordObject<DiscordThreadChannel>();
                 await this.OnThreadUpdateEventAsync(thread);
                 break;
 
             case "thread_delete":
-                thread = dat.ToDiscordObject<DiscordThreadChannel>();
+                thread = payloadData.ToDiscordObject<DiscordThreadChannel>();
                 await this.OnThreadDeleteEventAsync(thread);
                 break;
 
             case "thread_list_sync":
-                gid = (ulong)dat["guild_id"]; //get guild
-                await this.OnThreadListSyncEventAsync(gid, dat["channel_ids"].ToDiscordObject<IReadOnlyList<ulong>>(), dat["threads"].ToDiscordObject<IReadOnlyList<DiscordThreadChannel>>(), dat["members"].ToDiscordObject<IReadOnlyList<DiscordThreadChannelMember>>());
+                
+                guildId = (ulong)payloadData["guild_id"];
+                ulong[] channelIds = payloadData["channel_ids"].ToObject<ulong[]>();
+                DiscordThreadChannel[] threads = payloadData["threads"].ToObject<DiscordThreadChannel[]>();
+                DiscordThreadChannelMember[] members = payloadData["members"].ToObject<DiscordThreadChannelMember[]>();
+                
+                await this.OnThreadListSyncEventAsync(guildId, channelIds, threads, members);
                 break;
 
             case "thread_member_update":
-                await this.OnThreadMemberUpdateEventAsync(dat.ToDiscordObject<DiscordThreadChannelMember>());
+                DiscordThreadChannelMember threadChannelMember = payloadData.ToDiscordObject<DiscordThreadChannelMember>();
+                await this.OnThreadMemberUpdateEventAsync(threadChannelMember);
                 break;
 
             case "thread_members_update":
-                gid = (ulong)dat["guild_id"];
-                await this.OnThreadMembersUpdateEventAsync(gid, (ulong)dat["id"], dat["added_members"]?.ToDiscordObject<IReadOnlyList<DiscordThreadChannelMember>>(), dat["removed_member_ids"]?.ToDiscordObject<IReadOnlyList<ulong?>>(), (int)dat["member_count"]);
+                
+                guildId = (ulong)payloadData["guild_id"];
+                ulong threadId = (ulong)payloadData["id"];
+                IReadOnlyList<DiscordThreadChannelMember> addedMembers = payloadData["added_members"].ToObject<IReadOnlyList<DiscordThreadChannelMember>>();
+                IReadOnlyList<ulong?> removedMemberIds = payloadData["removed_member_ids"].ToObject<IReadOnlyList<ulong?>>();
+                int memberCount = (int)payloadData["member_count"];
+                
+                await this.OnThreadMembersUpdateEventAsync(guildId, threadId, addedMembers, removedMemberIds, memberCount);
                 break;
 
             #endregion
@@ -409,55 +472,68 @@ public sealed partial class DiscordClient
 
             case "interaction_create":
 
-                rawMbr = dat["member"];
+                rawMember = payloadData["member"];
 
-                if (rawMbr != null)
+                if (rawMember != null)
                 {
-                    mbr = dat["member"].ToDiscordObject<TransportMember>();
-                    usr = mbr.User;
+                    transportMember = payloadData["member"].ToDiscordObject<TransportMember>();
+                    transportUser = transportMember.User;
                 }
                 else
                 {
-                    usr = dat["user"].ToDiscordObject<TransportUser>();
+                    transportUser = payloadData["user"].ToDiscordObject<TransportUser>();
                 }
 
                 // Re: Removing re-serialized data: This one is probably fine?
                 // The user on the object is marked with [JsonIgnore].
 
-                cid = (ulong)dat["channel_id"];
-                await this.OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, dat.ToDiscordObject<DiscordInteraction>());
+                channelId = (ulong)payloadData["channel_id"];
+                optionalGuildId = (ulong?)payloadData["guild_id"];
+                DiscordInteraction interaction = payloadData.ToDiscordObject<DiscordInteraction>();
+                
+                await this.OnInteractionCreateAsync(optionalGuildId, channelId, transportUser, transportMember, interaction);
                 break;
 
 
             case "integration_create":
-                await this.OnIntegrationCreateAsync(dat.ToDiscordObject<DiscordIntegration>(), (ulong)dat["guild_id"]);
+                guildId = (ulong)payloadData["guild_id"];
+                DiscordIntegration integration = payloadData.ToDiscordObject<DiscordIntegration>();
+                await this.OnIntegrationCreateAsync(integration, guildId);
                 break;
 
             case "integration_update":
-                await this.OnIntegrationUpdateAsync(dat.ToDiscordObject<DiscordIntegration>(), (ulong)dat["guild_id"]);
+                guildId = (ulong)payloadData["guild_id"];
+                integration = payloadData.ToDiscordObject<DiscordIntegration>();
+                await this.OnIntegrationUpdateAsync(integration, guildId);
                 break;
 
             case "integration_delete":
-                await this.OnIntegrationDeleteAsync((ulong)dat["id"], (ulong)dat["guild_id"], (ulong?)dat["application_id"]);
+                guildId = (ulong)payloadData["guild_id"];
+                ulong integrationId = (ulong)payloadData["id"];
+                ulong applicationId = (ulong)payloadData["application_id"];
+                await this.OnIntegrationDeleteAsync(integrationId, guildId, applicationId);
                 break;
 
             case "application_command_permissions_update":
-                await this.OnApplicationCommandPermissionsUpdateAsync(dat);
+                await this.OnApplicationCommandPermissionsUpdateAsync(payloadData);
                 break;
             #endregion
 
             #region Stage Instance
 
             case "stage_instance_create":
-                await this.OnStageInstanceCreateAsync(dat.ToDiscordObject<DiscordStageInstance>());
+                DiscordStageInstance stageInstance = payloadData.ToDiscordObject<DiscordStageInstance>();
+                await this.OnStageInstanceCreateAsync(stageInstance);
                 break;
 
             case "stage_instance_update":
-                await this.OnStageInstanceUpdateAsync(dat.ToDiscordObject<DiscordStageInstance>());
+                stageInstance = payloadData.ToDiscordObject<DiscordStageInstance>();
+                await this.OnStageInstanceUpdateAsync(stageInstance);
                 break;
 
             case "stage_instance_delete":
-                await this.OnStageInstanceDeleteAsync(dat.ToDiscordObject<DiscordStageInstance>());
+                stageInstance = payloadData.ToDiscordObject<DiscordStageInstance>();
+                await this.OnStageInstanceDeleteAsync(stageInstance);
                 break;
 
             #endregion
@@ -471,56 +547,52 @@ public sealed partial class DiscordClient
                 break;
 
             case "typing_start":
-                cid = (ulong)dat["channel_id"];
-                rawMbr = dat["member"];
+                userId = (ulong)payloadData["user_id"];
+                channelId = (ulong)payloadData["channel_id"];
+                optionalGuildId = (ulong?)payloadData["guild_id"];
+                rawMember = payloadData["member"];
+                DateTimeOffset timestamp = Utilities.GetDateTimeOffset((long)payloadData["timestamp"]);
 
-                if (rawMbr != null)
+                if (rawMember != null)
                 {
-                    mbr = rawMbr.ToDiscordObject<TransportMember>();
+                    transportMember = rawMember.ToDiscordObject<TransportMember>();
                 }
+                
 
-                await this.OnTypingStartEventAsync((ulong)dat["user_id"], cid, (ulong?)dat["guild_id"], Utilities.GetDateTimeOffset((long)dat["timestamp"]), mbr);
+                await this.OnTypingStartEventAsync(userId, channelId, optionalGuildId, timestamp, transportMember);
                 break;
 
             case "webhooks_update":
-                gid = (ulong)dat["guild_id"];
-                cid = (ulong)dat["channel_id"];
-                await this.OnWebhooksUpdateAsync(cid, gid);
+                guildId = (ulong)payloadData["guild_id"];
+                channelId = (ulong)payloadData["channel_id"];
+                await this.OnWebhooksUpdateAsync(channelId, guildId);
                 break;
-
-            case "guild_stickers_update":
-                IEnumerable<DiscordMessageSticker> strs = dat["stickers"].ToDiscordObject<IEnumerable<DiscordMessageSticker>>();
-                await this.OnStickersUpdatedAsync(strs, dat);
-                break;
-
-            default:
-                await this.OnUnknownEventAsync(payload);
-                if (this.Configuration.LogUnknownEvents)
-                {
-                    this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown event: {EventName}\npayload: {@Payload}", payload.EventName, payload.Data);
-                }
-
-                break;
-
+            
             #endregion
 
             #region AutoModeration
+            
             case "auto_moderation_rule_create":
-                await this.OnAutoModerationRuleCreateAsync(dat.ToDiscordObject<DiscordAutoModerationRule>());
+                DiscordAutoModerationRule autoModerationRule = payloadData.ToDiscordObject<DiscordAutoModerationRule>();
+                await this.OnAutoModerationRuleCreateAsync(autoModerationRule);
                 break;
 
             case "auto_moderation_rule_update":
-                await this.OnAutoModerationRuleUpdatedAsync(dat.ToDiscordObject<DiscordAutoModerationRule>());
+                autoModerationRule = payloadData.ToDiscordObject<DiscordAutoModerationRule>();
+                await this.OnAutoModerationRuleUpdatedAsync(autoModerationRule);
                 break;
 
             case "auto_moderation_rule_delete":
-                await this.OnAutoModerationRuleDeletedAsync(dat.ToDiscordObject<DiscordAutoModerationRule>());
+                autoModerationRule = payloadData.ToDiscordObject<DiscordAutoModerationRule>();
+                await this.OnAutoModerationRuleDeletedAsync(autoModerationRule);
                 break;
 
             case "auto_moderation_action_execution":
-                await this.OnAutoModerationRuleExecutedAsync(dat.ToDiscordObject<DiscordAutoModerationActionExecution>());
+                DiscordAutoModerationActionExecution actionExecution = payloadData.ToDiscordObject<DiscordAutoModerationActionExecution>();
+                await this.OnAutoModerationRuleExecutedAsync(actionExecution);
                 break;
-                #endregion
+            
+            #endregion
         }
     }
 
@@ -579,10 +651,10 @@ public sealed partial class DiscordClient
             {
                 channel.GuildId = guild.Id;
                 channel.Discord = this;
-                foreach (DiscordOverwrite xo in channel._permissionOverwrites)
+                foreach (DiscordOverwrite overwrite in channel._permissionOverwrites)
                 {
-                    xo.Discord = this;
-                    xo._channel_id = channel.Id;
+                    overwrite.Discord = this;
+                    overwrite._channel_id = channel.Id;
                 }
             }
             foreach (DiscordThreadChannel threadChannel in guild.Threads.Values)
@@ -593,10 +665,10 @@ public sealed partial class DiscordClient
 
             guild._roles ??= new ConcurrentDictionary<ulong, DiscordRole>();
 
-            foreach (DiscordRole xr in guild.Roles.Values)
+            foreach (DiscordRole role in guild.Roles.Values)
             {
-                xr.Discord = this;
-                xr._guild_id = guild.Id;
+                role.Discord = this;
+                role._guild_id = guild.Id;
             }
 
             JObject rawGuild = rawGuildIndex[guild.Id];
@@ -620,16 +692,16 @@ public sealed partial class DiscordClient
 
             guild._emojis ??= new ConcurrentDictionary<ulong, DiscordEmoji>();
 
-            foreach (DiscordEmoji xe in guild.Emojis.Values)
+            foreach (DiscordEmoji emoji in guild.Emojis.Values)
             {
-                xe.Discord = this;
+                emoji.Discord = this;
             }
 
             guild._voiceStates ??= new ConcurrentDictionary<ulong, DiscordVoiceState>();
 
-            foreach (DiscordVoiceState xvs in guild.VoiceStates.Values)
+            foreach (DiscordVoiceState voiceState in guild.VoiceStates.Values)
             {
-                xvs.Discord = this;
+                voiceState.Discord = this;
             }
 
             await this.Cache.AddGuildAsync(guild);
@@ -658,7 +730,7 @@ public sealed partial class DiscordClient
             discordOverwrite._channel_id = channel.Id;
         }
 
-        CachedEntity<ulong, DiscordGuild>? cachedChannel = null;
+        CachedEntity<ulong, DiscordGuild>? cachedGuild = null;
         if (channel.GuildId.HasValue)
         {
             DiscordGuild? guild = await this.Cache.TryGetGuildAsync(channel.GuildId.Value);
@@ -666,10 +738,10 @@ public sealed partial class DiscordClient
             {
                 guild._channels[channel.Id] = channel;
             }
-            cachedChannel = new CachedEntity<ulong, DiscordGuild>(channel.Id, guild);
+            cachedGuild = new CachedEntity<ulong, DiscordGuild>(channel.Id, guild);
         }
         
-        await this._channelCreated.InvokeAsync(this, new ChannelCreateEventArgs { Channel = channel, Guild = cachedChannel });
+        await this._channelCreated.InvokeAsync(this, new ChannelCreateEventArgs { Channel = channel, Guild = cachedGuild });
     }
 
     internal async Task OnChannelUpdateEventAsync(DiscordChannel channel)
@@ -685,6 +757,7 @@ public sealed partial class DiscordClient
         {
             guild._channels[channel.Id] = channel;
         }
+        CachedEntity<ulong, DiscordGuild> cachedGuild = new(channel.Id, guild);
 
         DiscordChannel? newChannel = await this.Cache.TryGetChannelAsync(channel.Id);
         DiscordChannel? oldChannel = null;
@@ -1304,7 +1377,7 @@ public sealed partial class DiscordClient
         }
     }
     
-    internal async Task OnGuildEmojisUpdateEventAsync(DiscordGuild guild, IEnumerable<DiscordEmoji> newEmojis)
+    internal async Task OnGuildEmojisUpdateEventAsync(ulong guildId, IEnumerable<DiscordEmoji> newEmojis)
     {
         List<DiscordEmoji> newEmojisList = newEmojis.ToList();
         foreach (DiscordEmoji emoji in newEmojisList)
@@ -1346,15 +1419,22 @@ public sealed partial class DiscordClient
         await this._guildIntegrationsUpdated.InvokeAsync(this, ea);
     }
 
-    private async Task OnGuildAuditLogEntryCreateEventAsync(ulong guildId, AuditLogAction auditLogEntry)
+    private async Task OnGuildAuditLogEntryCreateEventAsync(ulong guildId, AuditLogAction auditLogAction)
     {
-        //TODO update auditlogParser
-        AuditLogParser.ParseAuditLogEntryAsync();
+        DiscordGuild? guild = await this.Cache.TryGetGuildAsync(guildId);
+        
+        AuditLogParser parser = new(this, guildId, guild);
+        DiscordAuditLogEntry? auditLogEntry = await parser.ParseAuditLogEntryAsync(auditLogAction);
+        
+        if (auditLogEntry is null) 
+        {
+            return;
+        }
         
         GuildAuditLogCreatedEventArgs ea = new()
         {
-            Guild = guildId,
-            AuditLogEntry = auditLogEntry
+            Guild = new CachedEntity<ulong,DiscordGuild>(guildId, guild),
+            AuditLogEntry = auditLogEntry!
         };
         await _guildAuditLogCreated.InvokeAsync(this, ea);
     }
@@ -1387,7 +1467,6 @@ public sealed partial class DiscordClient
         GuildBanAddEventArgs ea = new()
         {
             Guild = cachedGuild,
-            GuildId = guildId,
             Member = cachedMember
         };
         await this._guildBanAdded.InvokeAsync(this, ea);
@@ -2074,7 +2153,7 @@ public sealed partial class DiscordClient
         await this._messageReactionsCleared.InvokeAsync(this, ea);
     }
 
-    internal async Task OnMessageReactionRemoveEmojiAsync(ulong messageId, ulong channelId, ulong guildId, JToken dat)
+    internal async Task OnMessageReactionRemoveEmojiAsync(ulong messageId, ulong channelId, ulong? guildId, DiscordEmoji partialEmoji)
     {
         DiscordGuild guild = await this.Cache.TryGetGuildAsync(guildId);
         DiscordChannel? channel = this.InternalGetCachedChannel(channelId) ?? this.InternalGetCachedThreadAsync(channelId);
@@ -2103,8 +2182,6 @@ public sealed partial class DiscordClient
                 Discord = this
             };
         }
-
-        DiscordEmoji partialEmoji = dat.ToDiscordObject<DiscordEmoji>();
 
         if (!guild._emojis.TryGetValue(partialEmoji.Id, out DiscordEmoji? emoji))
         {
