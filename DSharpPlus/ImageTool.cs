@@ -100,6 +100,9 @@ public sealed class ImageTool : IDisposable
     /// <returns>Data-scheme base64 string.</returns>
     public string GetBase64()
     {
+        const int readLength = 12288;
+        const int writeLength = 16384;
+
         ImageFormat fmt = this.GetFormat();
 
         int contentLength = Base64.GetMaxEncodedToUtf8Length((int)this.SourceStream.Length);
@@ -112,7 +115,9 @@ public sealed class ImageTool : IDisposable
         };
 
         byte[] b64Buffer = ArrayPool<byte>.Shared.Rent(formatLength + contentLength + 19);
-        byte[] readBuffer = ArrayPool<byte>.Shared.Rent(3072);
+        byte[] readBufferBacking = ArrayPool<byte>.Shared.Rent(readLength);
+
+        Span<byte> readBuffer = readBufferBacking.AsSpan()[..readLength];
 
         int processed = 0;
         int totalWritten = 0;
@@ -124,11 +129,11 @@ public sealed class ImageTool : IDisposable
         totalWritten += 19;
         totalWritten += formatLength;
 
-        while (processed < this.SourceStream.Length - 3072)
+        while (processed < this.SourceStream.Length - readLength)
         {
             this.SourceStream.Read(readBuffer);
 
-            Base64.EncodeToUtf8(readBuffer, b64Buffer.AsSpan().Slice(totalWritten, 4096), out int _, out int written, false);
+            Base64.EncodeToUtf8(readBuffer, b64Buffer.AsSpan().Slice(totalWritten, writeLength), out int _, out int written, false);
 
             processed += 3072;
             totalWritten += written;
@@ -136,14 +141,14 @@ public sealed class ImageTool : IDisposable
 
         int remainingLength = (int)this.SourceStream.Length - processed;
 
-        this.SourceStream.Read(readBuffer, 0, remainingLength);
+        this.SourceStream.Read(readBufferBacking, 0, remainingLength);
 
-        Base64.EncodeToUtf8(readBuffer.AsSpan()[..remainingLength], b64Buffer.AsSpan()[totalWritten..], out int _, out int lastWritten);
+        Base64.EncodeToUtf8(readBufferBacking.AsSpan()[..remainingLength], b64Buffer.AsSpan()[totalWritten..], out int _, out int lastWritten);
 
         string value = Encoding.UTF8.GetString(b64Buffer.AsSpan()[..(totalWritten + lastWritten)]);
 
         ArrayPool<byte>.Shared.Return(b64Buffer);
-        ArrayPool<byte>.Shared.Return(readBuffer);
+        ArrayPool<byte>.Shared.Return(readBufferBacking);
 
         return value;
     }
