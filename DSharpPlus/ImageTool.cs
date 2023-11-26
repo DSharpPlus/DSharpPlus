@@ -135,7 +135,7 @@ public sealed class ImageTool : IDisposable
 
             Base64.EncodeToUtf8(readBuffer, b64Buffer.AsSpan().Slice(totalWritten, writeLength), out int _, out int written, false);
 
-            processed += 3072;
+            processed += readLength;
             totalWritten += written;
         }
 
