@@ -36,10 +36,13 @@ jobs:
             7
       - name: Build Project
         run: dotnet build
+      - name: Get PR Version
+        id: pr
+        run: printf "version=%0*d" 5 ${{ github.run_number }} >> "$GITHUB_OUTPUT"
       - name: Build and Package Project
-        run: dotnet pack --include-symbols --include-source -o build -p:Nightly="PR-${{ github.event.pull_request.number }}"
+        run: dotnet pack --include-symbols --include-source -o build -p:PR="${{ github.event.pull_request.number }}-${{ steps.pr.outputs.version }}"
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: DSharpPlus-PR-${{ github.event.pull_request.number }}
+          name: DSharpPlus-PR-${{ github.event.pull_request.number }}-${{ steps.pr.outputs.version }}
           path: ./build/*

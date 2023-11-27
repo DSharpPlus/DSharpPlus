@@ -16,6 +16,7 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <Version>5.0.0</Version>
     <Version Condition="'$(Nightly)' != ''">$(Version)-nightly-$(Nightly)</Version>
+    <Version Condition="'$(PR)' != ''">$(Version)-pr-$(PR)</Version>
   </PropertyGroup>
 
   <!-- Nuget -->
