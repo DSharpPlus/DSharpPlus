@@ -1,8 +1,7 @@
 using DSharpPlus.Enums;
+using DSharpPlus.Caching;
 
 namespace DSharpPlus.Entities.AuditLogs;
-
-using Caching;
 
 public sealed class DiscordAuditLogAutoModerationExecutedEntry : DiscordAuditLogEntry
 {

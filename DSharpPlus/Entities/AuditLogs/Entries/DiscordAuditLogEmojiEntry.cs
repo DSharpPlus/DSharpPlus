@@ -1,3 +1,5 @@
+using DSharpPlus.Caching;
+
 namespace DSharpPlus.Entities.AuditLogs;
 
 public sealed class DiscordAuditLogEmojiEntry : DiscordAuditLogEntry
@@ -5,7 +7,7 @@ public sealed class DiscordAuditLogEmojiEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the affected emoji.
     /// </summary>
-    public DiscordEmoji Target { get; internal set; }
+    public CachedEntity<ulong, DiscordEmoji> Target { get; internal set; }
 
     /// <summary>
     /// Gets the description of emoji's name change.

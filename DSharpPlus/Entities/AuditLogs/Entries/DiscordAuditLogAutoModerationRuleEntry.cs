@@ -1,66 +1,65 @@
 using System.Collections.Generic;
 using DSharpPlus.Enums;
+using DSharpPlus.Caching;
 
 namespace DSharpPlus.Entities.AuditLogs;
-
-using Caching;
 
 public sealed class DiscordAuditLogAutoModerationRuleEntry : DiscordAuditLogEntry
 {
     /// <summary>
     /// Id of the rule
     /// </summary>
-    public PropertyChange<ulong?> RuleId { get; internal set; }
+    public PropertyChange<ulong>? RuleId { get; internal set; }
 
     /// <summary>
     /// Id of the guild where the rule was changed
     /// </summary>
-    public PropertyChange<ulong?> GuildId { get; internal set; }
+    public PropertyChange<ulong>? GuildId { get; internal set; }
 
     /// <summary>
     /// Name of the rule
     /// </summary>
-    public PropertyChange<string?> Name { get; internal set; }
+    public PropertyChange<string>? Name { get; internal set; }
 
     /// <summary>
     /// Id of the user that created the rule
     /// </summary>
-    public PropertyChange<ulong?> CreatorId { get; internal set; }
+    public PropertyChange<ulong>? CreatorId { get; internal set; }
 
     /// <summary>
     /// Indicates in what event context a rule should be checked.
     /// </summary>
-    public PropertyChange<RuleEventType?> EventType { get; internal set; }
+    public PropertyChange<RuleEventType>? EventType { get; internal set; }
 
     /// <summary>
     /// Characterizes the type of content which can trigger the rule.
     /// </summary>
-    public PropertyChange<RuleTriggerType?> TriggerType { get; internal set; }
+    public PropertyChange<RuleTriggerType>? TriggerType { get; internal set; }
 
     /// <summary>
     /// Additional data used to determine whether a rule should be triggered. 
     /// </summary>
-    public PropertyChange<DiscordRuleTriggerMetadata?> TriggerMetadata { get; internal set; }
+    public PropertyChange<DiscordRuleTriggerMetadata>? TriggerMetadata { get; internal set; }
 
     /// <summary>
     /// Actions which will execute when the rule is triggered.
     /// </summary>
-    public PropertyChange<IEnumerable<DiscordAutoModerationAction>?> Actions { get; internal set; }
+    public PropertyChange<IEnumerable<DiscordAutoModerationAction>>? Actions { get; internal set; }
 
     /// <summary>
     /// Whether the rule is enabled or not.
     /// </summary>
-    public PropertyChange<bool?> Enabled { get; internal set; }
+    public PropertyChange<bool>? Enabled { get; internal set; }
 
     /// <summary>
     /// Roles that should not be affected by the rule
     /// </summary>
-    public PropertyChange<IEnumerable<CachedEntity<ulong,DiscordRole>>?> ExemptRoles { get; internal set; }
+    public PropertyChange<IEnumerable<CachedEntity<ulong,DiscordRole>>>? ExemptRoles { get; internal set; }
 
     /// <summary>
     /// Channels that should not be affected by the rule
     /// </summary>
-    public PropertyChange<IEnumerable<CachedEntity<ulong,DiscordChannel>>?> ExemptChannels { get; internal set; }
+    public PropertyChange<IEnumerable<CachedEntity<ulong,DiscordChannel>>>? ExemptChannels { get; internal set; }
 
     /// <summary>
     /// List of trigger keywords that were added to the rule

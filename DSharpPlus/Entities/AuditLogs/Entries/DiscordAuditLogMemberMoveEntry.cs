@@ -1,6 +1,6 @@
-namespace DSharpPlus.Entities.AuditLogs;
+using DSharpPlus.Caching;
 
-using Caching;
+namespace DSharpPlus.Entities.AuditLogs;
 
 public sealed class DiscordAuditLogMemberMoveEntry : DiscordAuditLogEntry
 {

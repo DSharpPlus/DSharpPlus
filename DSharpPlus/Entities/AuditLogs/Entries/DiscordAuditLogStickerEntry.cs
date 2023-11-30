@@ -1,6 +1,6 @@
-namespace DSharpPlus.Entities.AuditLogs;
+using DSharpPlus.Caching;
 
-using Caching;
+namespace DSharpPlus.Entities.AuditLogs;
 
 public sealed class DiscordAuditLogStickerEntry : DiscordAuditLogEntry
 {
@@ -12,47 +12,47 @@ public sealed class DiscordAuditLogStickerEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the description of sticker's name change.
     /// </summary>
-    public PropertyChange<string> NameChange { get; internal set; }
+    public PropertyChange<string>? NameChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of sticker's description change.
     /// </summary>
-    public PropertyChange<string> DescriptionChange { get; internal set; }
+    public PropertyChange<string>? DescriptionChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of sticker's tags change.
     /// </summary>
-    public PropertyChange<string> TagsChange { get; internal set; }
+    public PropertyChange<string>? TagsChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of sticker's tags change.
     /// </summary>
-    public PropertyChange<string> AssetChange { get; internal set; }
+    public PropertyChange<string>? AssetChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of sticker's guild id change.
     /// </summary>
-    public PropertyChange<ulong?> GuildIdChange { get; internal set; }
+    public PropertyChange<ulong>? GuildIdChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of sticker's availability change.
     /// </summary>
-    public PropertyChange<bool?> AvailabilityChange { get; internal set; }
+    public PropertyChange<bool>? AvailabilityChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of sticker's id change.
     /// </summary>
-    public PropertyChange<ulong?> IdChange { get; internal set; }
+    public PropertyChange<ulong>? IdChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of sticker's type change.
     /// </summary>
-    public PropertyChange<StickerType?> TypeChange { get; internal set; }
+    public PropertyChange<StickerType>? TypeChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of sticker's format change.
     /// </summary>
-    public PropertyChange<StickerFormat?> FormatChange { get; internal set; }
+    public PropertyChange<StickerFormat>? FormatChange { get; internal set; }
 
     internal DiscordAuditLogStickerEntry() { }
 }

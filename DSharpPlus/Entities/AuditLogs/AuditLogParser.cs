@@ -63,10 +63,10 @@ internal class AuditLogParser
             discordMembers.Add(cachedMember);
         }
         
-        IDictionary<ulong, DiscordScheduledGuildEvent>? events = uniqueScheduledEvents.ToDictionary(x => x.Id);
-        IDictionary<ulong, DiscordThreadChannel>? threads = uniqueThreads.ToDictionary(x => x.Id);
-        IDictionary<ulong, DiscordWebhook> webhooks = uniqueWebhooks.ToDictionary(x => x.Id);
-        IDictionary<ulong, DiscordMember>? members = discordMembers.ToDictionary(x => x.Id);
+        Dictionary<ulong, DiscordScheduledGuildEvent>? events = uniqueScheduledEvents.ToDictionary(x => x.Id);
+        Dictionary<ulong, DiscordThreadChannel>? threads = uniqueThreads.ToDictionary(x => x.Id);
+        Dictionary<ulong, DiscordWebhook> webhooks = uniqueWebhooks.ToDictionary(x => x.Id);
+        Dictionary<ulong, DiscordMember>? members = discordMembers.ToDictionary(x => x.Id);
         
         IOrderedEnumerable<AuditLogAction>? auditLogActions = auditLog.Entries.OrderByDescending(xa => xa.Id);
         foreach (AuditLogAction? auditLogAction in auditLogActions)
@@ -204,11 +204,14 @@ internal class AuditLogParser
             case AuditLogActionType.EmojiCreate:
             case AuditLogActionType.EmojiDelete:
             case AuditLogActionType.EmojiUpdate:
+                ulong emojiId = auditLogAction.TargetId.Value;
+                DiscordEmoji? emoji = null;
+                this._guild?._emojis.TryGetValue(emojiId, out emoji);
+                    
+                
                 entry = new DiscordAuditLogEmojiEntry
                 {
-                    Target = this._guild._emojis.TryGetValue(auditLogAction.TargetId.Value, out DiscordEmoji? target)
-                        ? target
-                        : new DiscordEmoji { Id = auditLogAction.TargetId.Value, Discord = this._client }
+                    Target = new CachedEntity<ulong, DiscordEmoji>(emojiId, emoji)
                 };
 
                 DiscordAuditLogEmojiEntry? emojiEntry = entry as DiscordAuditLogEmojiEntry;
@@ -251,6 +254,7 @@ internal class AuditLogParser
                         channelId = auditLogAction.Options.ChannelId;
                         channel = await this._client.Cache.TryGetChannelAsync(channelId);
                         messageEntry.Channel = new CachedEntity<ulong, DiscordChannel>(channelId, channel);
+                        
                         messageEntry.MessageCount = auditLogAction.Options.Count;
                     }
 
@@ -383,7 +387,7 @@ internal class AuditLogParser
             case AuditLogActionType.ThreadCreate:
             case AuditLogActionType.ThreadDelete:
             case AuditLogActionType.ThreadUpdate:
-                entry = ParseThreadUpdateEntry(auditLogAction, threads);
+                entry = await ParseThreadUpdateEntry(auditLogAction, threads);
                 break;
 
             case AuditLogActionType.ApplicationCommandPermissionUpdate:
@@ -535,27 +539,27 @@ internal class AuditLogParser
             switch (change.Key.ToLowerInvariant())
             {
                 case "id":
-                    ruleEntry.RuleId = PropertyChange<ulong?>.From(change);
+                    ruleEntry.RuleId = PropertyChange<ulong>.From(change);
                     break;
 
                 case "guild_id":
-                    ruleEntry.GuildId = PropertyChange<ulong?>.From(change);
+                    ruleEntry.GuildId = PropertyChange<ulong>.From(change);
                     break;
 
                 case "name":
-                    ruleEntry.Name = PropertyChange<string?>.From(change);
+                    ruleEntry.Name = PropertyChange<string>.From(change);
                     break;
 
                 case "creator_id":
-                    ruleEntry.CreatorId = PropertyChange<ulong?>.From(change);
+                    ruleEntry.CreatorId = PropertyChange<ulong>.From(change);
                     break;
 
                 case "event_type":
-                    ruleEntry.EventType = PropertyChange<RuleEventType?>.From(change);
+                    ruleEntry.EventType = PropertyChange<RuleEventType>.From(change);
                     break;
 
                 case "trigger_type":
-                    ruleEntry.TriggerType = PropertyChange<RuleTriggerType?>.From(change);
+                    ruleEntry.TriggerType = PropertyChange<RuleTriggerType>.From(change);
                     break;
 
                 case "trigger_metadata":
@@ -567,7 +571,7 @@ internal class AuditLogParser
                     break;
 
                 case "enabled":
-                    ruleEntry.Enabled = PropertyChange<bool?>.From(change);
+                    ruleEntry.Enabled = PropertyChange<bool>.From(change);
                     break;
 
                 case "exempt_roles":
@@ -576,11 +580,11 @@ internal class AuditLogParser
 
                     IEnumerable<CachedEntity<ulong,DiscordRole>> oldRoles = oldRoleIds?
                         .Select(x => x.ToObject<ulong>())
-                        .Select(x => new CachedEntity<ulong, DiscordRole>(x, this._guild.GetRole(x)));
+                        .Select(x => new CachedEntity<ulong, DiscordRole>(x, this._guild?.GetRole(x)));
 
                     IEnumerable<CachedEntity<ulong,DiscordRole>> newRoles = newRoleIds?
                         .Select(x => x.ToObject<ulong>())
-                        .Select(x => new CachedEntity<ulong, DiscordRole>(x, this._guild.GetRole(x)));
+                        .Select(x => new CachedEntity<ulong, DiscordRole>(x, this._guild?.GetRole(x)));
 
                     ruleEntry.ExemptRoles =
                         PropertyChange<IEnumerable<CachedEntity<ulong,DiscordRole>>>.From(oldRoles, newRoles);
@@ -670,19 +674,26 @@ internal class AuditLogParser
     /// <param name="auditLogAction"><see cref="AuditLogAction"/> which should be parsed</param>
     /// <param name="threads">Dictionary of <see cref="DiscordThreadChannel"/> to populate entry with thread entities</param>
     /// <returns></returns>
-    internal DiscordAuditLogThreadEventEntry ParseThreadUpdateEntry
+    internal async Task<DiscordAuditLogThreadEventEntry> ParseThreadUpdateEntry
     (
         AuditLogAction auditLogAction,
         IDictionary<ulong, DiscordThreadChannel> threads
     )
     {
+        ulong targetId = auditLogAction.TargetId.Value;
+        DiscordThreadChannel? target = null;
+        if (threads.TryGetValue(auditLogAction.TargetId.Value, out DiscordThreadChannel? t))
+        {
+            target = t;
+        }
+        if (target is null)
+        {
+            target = (DiscordThreadChannel) await this._client.Cache.TryGetChannelAsync(targetId);
+        }
+        
         DiscordAuditLogThreadEventEntry entry = new()
         {
-            Target =
-                threads.TryGetValue(auditLogAction.TargetId.Value,
-                    out DiscordThreadChannel? channel)
-                    ? channel
-                    : new DiscordThreadChannel() { Id = auditLogAction.TargetId.Value, Discord = this._client },
+            Target = new CachedEntity<ulong, DiscordThreadChannel>(targetId, target)
         };
 
         foreach (AuditLogActionChange change in auditLogAction.Changes)
@@ -690,35 +701,35 @@ internal class AuditLogParser
             switch (change.Key.ToLowerInvariant())
             {
                 case "name":
-                    entry.Name = PropertyChange<string?>.From(change);
+                    entry.Name = PropertyChange<string>.From(change);
                     break;
 
                 case "type":
-                    entry.Type = PropertyChange<ChannelType?>.From(change);
+                    entry.Type = PropertyChange<ChannelType>.From(change);
                     break;
 
                 case "archived":
-                    entry.Archived = PropertyChange<bool?>.From(change);
+                    entry.Archived = PropertyChange<bool>.From(change);
                     break;
 
                 case "auto_archive_duration":
-                    entry.AutoArchiveDuration = PropertyChange<int?>.From(change);
+                    entry.AutoArchiveDuration = PropertyChange<int>.From(change);
                     break;
 
                 case "invitable":
-                    entry.Invitable = PropertyChange<bool?>.From(change);
+                    entry.Invitable = PropertyChange<bool>.From(change);
                     break;
 
                 case "locked":
-                    entry.Locked = PropertyChange<bool?>.From(change);
+                    entry.Locked = PropertyChange<bool>.From(change);
                     break;
 
                 case "rate_limit_per_user":
-                    entry.PerUserRateLimit = PropertyChange<int?>.From(change);
+                    entry.PerUserRateLimit = PropertyChange<int>.From(change);
                     break;
 
                 case "flags":
-                    entry.Flags = PropertyChange<ChannelFlags?>.From(change);
+                    entry.Flags = PropertyChange<ChannelFlags>.From(change);
                     break;
 
                 default:
@@ -748,10 +759,15 @@ internal class AuditLogParser
         IDictionary<ulong, DiscordScheduledGuildEvent> events
     )
     {
+        ulong targetId = auditLogAction.TargetId.Value;
         DiscordScheduledGuildEvent? target = null;
-        if (events.TryGetValue(auditLogAction.TargetId.Value, out DiscordScheduledGuildEvent? t))
+        if (events.TryGetValue(targetId, out DiscordScheduledGuildEvent? t))
         {
             target = t;
+        }
+        if (target is null)
+        {
+            this._guild?._scheduledEvents.TryGetValue(targetId, out target);
         }
         
         DiscordAuditLogGuildScheduledEventEntry entry = new()
@@ -764,7 +780,7 @@ internal class AuditLogParser
             switch (change.Key.ToLowerInvariant())
             {
                 case "name":
-                    entry.Name = PropertyChange<string?>.From(change);
+                    entry.Name = PropertyChange<string>.From(change);
                     break;
                 case "channel_id":
                     ulong.TryParse(change.OldValue as string, NumberStyles.Integer,
@@ -795,12 +811,9 @@ internal class AuditLogParser
                         }
                         cachedNewChannel = new CachedEntity<ulong, DiscordChannel>(newChannelId, newChannel);
                     }
-                    
-                    entry.Channel = new PropertyChange<CachedEntity<ulong,DiscordChannel>?>
-                    {
-                        Before = cachedOldChannel,
-                        After = cachedNewChannel
-                    };
+
+                    entry.Channel =
+                        PropertyChange<CachedEntity<ulong, DiscordChannel>>.From(cachedOldChannel, cachedNewChannel);
                     break;
 
                 case "description":
@@ -808,7 +821,7 @@ internal class AuditLogParser
                     break;
 
                 case "entity_type":
-                    entry.Type = PropertyChange<ScheduledGuildEventType?>.From(change);
+                    entry.Type = PropertyChange<ScheduledGuildEventType>.From(change);
                     break;
 
                 case "image_hash":
@@ -820,11 +833,11 @@ internal class AuditLogParser
                     break;
 
                 case "privacy_level":
-                    entry.PrivacyLevel = PropertyChange<ScheduledGuildEventPrivacyLevel?>.From(change);
+                    entry.PrivacyLevel = PropertyChange<ScheduledGuildEventPrivacyLevel>.From(change);
                     break;
 
                 case "status":
-                    entry.Status = PropertyChange<ScheduledGuildEventStatus?>.From(change);
+                    entry.Status = PropertyChange<ScheduledGuildEventStatus>.From(change);
                     break;
 
                 default:
@@ -897,12 +910,9 @@ internal class AuditLogParser
                         
                         cachedMemberAfter = new CachedEntity<ulong, DiscordMember>(after, memberAfter);
                     }
-                    
-                    entry.OwnerChange = new PropertyChange<CachedEntity<ulong, DiscordMember>?>
-                    {
-                        Before = cachedMemberBefore,
-                        After = cachedMemberAfter
-                    };
+
+                    entry.OwnerChange =
+                        PropertyChange<CachedEntity<ulong, DiscordMember>>.From(cachedMemberBefore, cachedMemberAfter);
                     break;
 
                 case "icon_hash":
@@ -918,7 +928,7 @@ internal class AuditLogParser
                     break;
 
                 case "verification_level":
-                    entry.VerificationLevelChange = PropertyChange<VerificationLevel?>.From(change);
+                    entry.VerificationLevelChange = PropertyChange<VerificationLevel>.From(change);
                     break;
 
                 case "afk_channel_id":
@@ -953,12 +963,10 @@ internal class AuditLogParser
                         
                         cachedChannelAfter = new CachedEntity<ulong, DiscordChannel>(after, channelAfter);
                     }
-                    
-                    entry.AfkChannelChange = new PropertyChange<CachedEntity<ulong, DiscordChannel>?>
-                    {
-                        Before = cachedChannelBefore,
-                        After = cachedChannelAfter
-                    };
+
+                    entry.AfkChannelChange =
+                        PropertyChange<CachedEntity<ulong, DiscordChannel>>.From(cachedChannelBefore,
+                            cachedChannelAfter);
                     break;
 
                 case "widget_channel_id":
@@ -993,11 +1001,8 @@ internal class AuditLogParser
                         cachedChannelAfter = new CachedEntity<ulong, DiscordChannel>(after, channelAfter);
                     }
                     
-                    entry.EmbedChannelChange = new PropertyChange<CachedEntity<ulong, DiscordChannel?>?>
-                    {
-                        Before = cachedChannelBefore,
-                        After = cachedChannelAfter
-                    };
+                    entry.EmbedChannelChange = 
+                        PropertyChange<CachedEntity<ulong, DiscordChannel>>.From(cachedChannelBefore, cachedChannelAfter);
                     break;
 
                 case "splash_hash":
@@ -1013,7 +1018,7 @@ internal class AuditLogParser
                     break;
 
                 case "default_message_notifications":
-                    entry.NotificationSettingsChange = PropertyChange<DefaultMessageNotifications?>.From(change);
+                    entry.NotificationSettingsChange = PropertyChange<DefaultMessageNotifications>.From(change);
                     break;
 
                 case "system_channel_id":
@@ -1048,23 +1053,21 @@ internal class AuditLogParser
                         cachedChannelAfter = new CachedEntity<ulong, DiscordChannel>(after, channelAfter);
                     }
 
-                    entry.SystemChannelChange = new PropertyChange<CachedEntity<ulong, DiscordChannel?>?>
-                    {
-                        Before = cachedChannelBefore,
-                        After = cachedChannelAfter
-                    };
+                    entry.SystemChannelChange =
+                        PropertyChange<CachedEntity<ulong, DiscordChannel>>.From(cachedChannelBefore,
+                            cachedChannelAfter);
                     break;
 
                 case "explicit_content_filter":
-                    entry.ExplicitContentFilterChange = PropertyChange<ExplicitContentFilter?>.From(change);
+                    entry.ExplicitContentFilterChange = PropertyChange<ExplicitContentFilter>.From(change);
                     break;
 
                 case "mfa_level":
-                    entry.MfaLevelChange = PropertyChange<MfaLevel?>.From(change);
+                    entry.MfaLevelChange = PropertyChange<MfaLevel>.From(change);
                     break;
 
                 case "region":
-                    entry.RegionChange = PropertyChange<string?>.From(change);
+                    entry.RegionChange = PropertyChange<string>.From(change);
                     break;
 
                 default:
@@ -1107,7 +1110,7 @@ internal class AuditLogParser
                     break;
 
                 case "type":
-                    entry.TypeChange = PropertyChange<ChannelType?>.From(change);
+                    entry.TypeChange = PropertyChange<ChannelType>.From(change);
                     break;
 
                 case "permission_overwrites":
@@ -1148,23 +1151,23 @@ internal class AuditLogParser
                     break;
 
                 case "nsfw":
-                    entry.NsfwChange = PropertyChange<bool?>.From(change);
+                    entry.NsfwChange = PropertyChange<bool>.From(change);
                     break;
 
                 case "bitrate":
-                    entry.BitrateChange = PropertyChange<int?>.From(change);
+                    entry.BitrateChange = PropertyChange<int>.From(change);
                     break;
 
                 case "rate_limit_per_user":
-                    entry.PerUserRateLimitChange = PropertyChange<int?>.From(change);
+                    entry.PerUserRateLimitChange = PropertyChange<int>.From(change);
                     break;
 
                 case "user_limit":
-                    entry.UserLimit = PropertyChange<int?>.From(change);
+                    entry.UserLimit = PropertyChange<int>.From(change);
                     break;
 
                 case "flags":
-                    entry.Flags = PropertyChange<ChannelFlags?>.From(change);
+                    entry.Flags = PropertyChange<ChannelFlags>.From(change);
                     break;
 
                 case "available_tags":
@@ -1245,11 +1248,11 @@ internal class AuditLogParser
             switch (change.Key.ToLowerInvariant())
             {
                 case "deny":
-                    entry.DeniedPermissions = PropertyChange<Permissions?>.From(change);
+                    entry.DeniedPermissions = PropertyChange<Permissions>.From(change);
                     break;
 
                 case "allow":
-                    entry.AllowedPermissions = PropertyChange<Permissions?>.From(change);
+                    entry.AllowedPermissions = PropertyChange<Permissions>.From(change);
                     break;
 
                 case "type":
@@ -1257,7 +1260,7 @@ internal class AuditLogParser
                     break;
 
                 case "id":
-                    entry.TargetIdChange = PropertyChange<ulong?>.From(change);
+                    entry.TargetIdChange = PropertyChange<ulong>.From(change);
                     break;
 
                 default:
@@ -1304,15 +1307,15 @@ internal class AuditLogParser
                     break;
 
                 case "deaf":
-                    entry.DeafenChange = PropertyChange<bool?>.From(change);
+                    entry.DeafenChange = PropertyChange<bool>.From(change);
                     break;
 
                 case "mute":
-                    entry.MuteChange = PropertyChange<bool?>.From(change);
+                    entry.MuteChange = PropertyChange<bool>.From(change);
                     break;
 
                 case "communication_disabled_until":
-                    entry.TimeoutChange = PropertyChange<DateTime?>.From(change);
+                    entry.TimeoutChange = PropertyChange<DateTime>.From(change);
 
                     break;
 
@@ -1377,23 +1380,24 @@ internal class AuditLogParser
                     break;
 
                 case "color":
-                    entry.ColorChange = PropertyChange<int?>.From(change);
+                    entry.ColorChange = PropertyChange<int>.From(change);
                     break;
 
                 case "permissions":
-                    entry.PermissionChange = PropertyChange<Permissions?>.From(change);
+                    entry.PermissionChange = PropertyChange<Permissions>.From(change);
                     break;
 
                 case "position":
-                    entry.PositionChange = PropertyChange<int?>.From(change);
+                    entry.PositionChange = PropertyChange<int>.From(change);
                     break;
 
                 case "mentionable":
-                    entry.MentionableChange = PropertyChange<bool?>.From(change);
+                    entry.MentionableChange = PropertyChange<bool>.From(change);
                     break;
 
                 case "hoist":
-                    entry.HoistChange = PropertyChange<bool?>.From(change); break;
+                    entry.HoistChange = PropertyChange<bool>.From(change); 
+                    break;
 
                 default:
                     if (this._client.Configuration.LogUnknownAuditlogs)
@@ -1439,7 +1443,7 @@ internal class AuditLogParser
             switch (change.Key.ToLowerInvariant())
             {
                 case "max_age":
-                    entry.MaxAgeChange = PropertyChange<int?>.From(change);
+                    entry.MaxAgeChange = PropertyChange<int>.From(change);
                     break;
 
                 case "code":
@@ -1449,11 +1453,7 @@ internal class AuditLogParser
                     break;
 
                 case "temporary":
-                    entry.TemporaryChange = new PropertyChange<bool?>
-                    {
-                        Before = change.OldValue is not null ? (bool?)change.OldValue : null,
-                        After = change.NewValue is not null ? (bool?)change.NewValue : null
-                    };
+                    entry.TemporaryChange = PropertyChange<bool>.From(change);
                     break;
 
                 case "inviter_id":
@@ -1465,7 +1465,7 @@ internal class AuditLogParser
                         out ulongAfter);
                     
                     DiscordUser? memberBefore = null;
-                    CachedEntity<ulong, DiscordUser>? cachedMemberBefore = null;
+                    CachedEntity<ulong, DiscordUser> cachedMemberBefore = default;
                     if (change.OldValue is not null)
                     {
                         memberBefore = await this._client.Cache.TryGetMemberAsync(ulongBefore, this._guildId);
@@ -1484,7 +1484,7 @@ internal class AuditLogParser
                     }
                     
                     DiscordUser? memberAfter = null;
-                    CachedEntity<ulong, DiscordUser>? cachedMemberAfter = null;
+                    CachedEntity<ulong, DiscordUser> cachedMemberAfter = default;
                     if (change.NewValue is not null)
                     {
                         memberAfter = await this._client.Cache.TryGetMemberAsync(ulongAfter, this._guildId);
@@ -1502,11 +1502,8 @@ internal class AuditLogParser
                         cachedMemberAfter = new CachedEntity<ulong, DiscordUser>(ulongAfter, memberAfter);
                     }
 
-                    entry.InviterChange = new PropertyChange<CachedEntity<ulong, DiscordUser>?>
-                    {
-                        Before = cachedMemberBefore,
-                        After = cachedMemberAfter
-                    };
+                    entry.InviterChange = 
+                        PropertyChange<CachedEntity<ulong, DiscordUser>>.From(cachedMemberBefore, cachedMemberAfter);
                     break;
 
                 case "channel_id":
@@ -1541,20 +1538,19 @@ internal class AuditLogParser
                         cachedChannelAfter = new CachedEntity<ulong, DiscordChannel>(ulongAfter, channelAfter);
                     }
 
-                    entry.ChannelChange = new PropertyChange<CachedEntity<ulong, DiscordChannel>?>
-                    {
-                        Before = cachedChannelBefore,
-                        After = cachedChannelAfter
-                    };
+                    entry.ChannelChange = 
+                        PropertyChange<CachedEntity<ulong, DiscordChannel>>.From(cachedChannelBefore, cachedChannelAfter);
 
                     DiscordChannel? channel = null;
                     ulong? channelId = null;
-                    entry.ChannelChange?.Before?.TryGetCachedValue(out channel);
-                    channelId = channel?.Id;
-                    if (channel is null)
+                    if (entry.ChannelChange?.Before.IsDefined(out var optionalChannel) ?? false)
                     {
-                        entry.ChannelChange?.After?.TryGetCachedValue(out channel);
-                        channelId = channel?.Id;
+                        optionalChannel.TryGetCachedValue(out channel);
+                    }
+                    channelId = channel?.Id;
+                    if (entry.ChannelChange?.After.IsDefined(out optionalChannel) ?? false)
+                    {
+                        optionalChannel.TryGetCachedValue(out channel);
                     }
                     
                     ChannelType? channelType = channel?.Type;
@@ -1575,7 +1571,7 @@ internal class AuditLogParser
                         CultureInfo.InvariantCulture,
                         out intAfter);
 
-                    entry.UsesChange = new PropertyChange<int?>
+                    entry.UsesChange = new PropertyChange<int>
                     {
                         Before = boolBefore ? (int?)intBefore : null,
                         After = boolAfter ? (int?)intAfter : null
@@ -1625,11 +1621,12 @@ internal class AuditLogParser
         IDictionary<ulong, DiscordWebhook> webhooks
     )
     {
+        ulong webhookId = auditLogAction.TargetId.Value;
+        DiscordWebhook? webhook = webhooks.TryGetValue(webhookId, out DiscordWebhook? w) ? w : null;
+        
         DiscordAuditLogWebhookEntry entry = new()
         {
-            Target = webhooks.TryGetValue(auditLogAction.TargetId.Value, out DiscordWebhook? webhook)
-                ? webhook
-                : new DiscordWebhook { Id = auditLogAction.TargetId.Value, Discord = this._client }
+            Target = new CachedEntity<ulong, DiscordWebhook>(webhookId, webhook)
         };
 
         ulong ulongBefore, ulongAfter;
@@ -1664,15 +1661,15 @@ internal class AuditLogParser
                         cachedChannelAfter = new CachedEntity<ulong, DiscordChannel>(ulongAfter, channelAfter);
                     }
 
-                    entry.ChannelChange = new PropertyChange<CachedEntity<ulong,DiscordChannel>?>
+                    entry.ChannelChange = new PropertyChange<CachedEntity<ulong,DiscordChannel>>
                     {
-                        Before = cachedChannelBefore,
-                        After = cachedChannelAfter
+                        Before = cachedChannelBefore ?? default,
+                        After = cachedChannelAfter ?? default
                     };
                     break;
 
                 case "type":
-                    entry.TypeChange = PropertyChange<int?>.From(change);
+                    entry.TypeChange = PropertyChange<int>.From(change);
                     break;
 
                 case "avatar_hash":

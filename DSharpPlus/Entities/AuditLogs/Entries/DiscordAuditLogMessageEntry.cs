@@ -1,11 +1,11 @@
-namespace DSharpPlus.Entities.AuditLogs;
+using DSharpPlus.Caching;
 
-using Caching;
+namespace DSharpPlus.Entities.AuditLogs;
 
 public sealed class DiscordAuditLogMessageEntry : DiscordAuditLogEntry
 {
     /// <summary>
-    /// Gets the affected User. This can be null if the it was a bulk delete.
+    /// Gets the affected User. This can be null if this entry was created by bulk deleting messages.
     /// </summary>
     public CachedEntity<ulong, DiscordUser>? Target { get; internal set; }
 

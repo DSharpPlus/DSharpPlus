@@ -17,7 +17,7 @@ public readonly record struct CachedEntity<TKey, TValue> where TValue : class
     
     public bool HasCachedValue => Value is not null;
     
-    public bool TryGetCachedValue([MaybeNullWhen(false)]out TValue value)
+    public bool TryGetCachedValue([NotNullWhen(true)] out TValue? value)
     {
         value = Value;
         return HasCachedValue;

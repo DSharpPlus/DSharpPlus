@@ -1,6 +1,6 @@
-namespace DSharpPlus.Entities.AuditLogs;
+using DSharpPlus.Caching;
 
-using Caching;
+namespace DSharpPlus.Entities.AuditLogs;
 
 public sealed class DiscordAuditLogRoleUpdateEntry : DiscordAuditLogEntry
 {
@@ -12,32 +12,32 @@ public sealed class DiscordAuditLogRoleUpdateEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the description of role's name change.
     /// </summary>
-    public PropertyChange<string> NameChange { get; internal set; }
+    public PropertyChange<string>? NameChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of role's color change.
     /// </summary>
-    public PropertyChange<int?> ColorChange { get; internal set; }
+    public PropertyChange<int>? ColorChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of role's permission set change.
     /// </summary>
-    public PropertyChange<Permissions?> PermissionChange { get; internal set; }
+    public PropertyChange<Permissions>? PermissionChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of the role's position change.
     /// </summary>
-    public PropertyChange<int?> PositionChange { get; internal set; }
+    public PropertyChange<int>? PositionChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of the role's mentionability change.
     /// </summary>
-    public PropertyChange<bool?> MentionableChange { get; internal set; }
+    public PropertyChange<bool>? MentionableChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of the role's hoist status change.
     /// </summary>
-    public PropertyChange<bool?> HoistChange { get; internal set; }
+    public PropertyChange<bool>? HoistChange { get; internal set; }
 
     internal DiscordAuditLogRoleUpdateEntry() { }
 }
