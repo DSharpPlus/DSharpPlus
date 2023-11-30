@@ -3412,19 +3412,20 @@ public sealed class DiscordApiClient
         string? reason = null
     )
     {
-        QueryUriBuilder urlparams = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/{userId}");
-        if (reason != null)
-        {
-            urlparams.AddParameter("reason", reason);
-        }
-
+        string url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/{userId}");
         string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/:user_id";
 
         RestRequest request = new()
         {
             Route = route,
-            Url = urlparams.Build(),
-            Method = HttpMethod.Delete
+            Url = url,
+            Method = HttpMethod.Delete,
+            Headers = string.IsNullOrWhiteSpace(reason)
+                ? null
+                : new Dictionary<string, string>
+                {
+                    [REASON_HEADER_NAME] = reason
+                }
         };
 
         await this._rest.ExecuteRequestAsync(request);
