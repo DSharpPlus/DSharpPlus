@@ -62,10 +62,6 @@ public readonly record struct ImageData
     /// <summary>
     /// Writes the base64 data to the specified PipeWriter.
     /// </summary>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown if a fatal memory management error occurred. This hints at data corruption and should not
-    /// be caught under any circumstances.
-    /// </exception>
     public readonly async ValueTask WriteToAsync(PipeWriter writer)
     {
         // chosen because a StreamPipeReader buffers to 4096
@@ -184,10 +180,6 @@ public readonly record struct ImageData
     /// <summary>
     /// Writes the base64 data to the specified ArrayPoolBufferWriter.
     /// </summary>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown if a fatal memory management error occurred. This hints at data corruption and should not
-    /// be caught under any circumstances.
-    /// </exception>
     public readonly async ValueTask WriteToAsync(ArrayPoolBufferWriter<byte> writer)
     {
         const int readSegmentLength = 4096;
