@@ -29,4 +29,20 @@ public interface IRoleConnectionsRestAPI
         RequestInfo info = default,
         CancellationToken ct = default
     );
+
+    /// <summary>
+    /// Updates the role connection metadata records for the given application.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="payload">The new metadata records for this application.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns>The newly updated metadata records.</returns>
+    public ValueTask<Result<IReadOnlyList<IRoleConnectionMetadata>>> UpdateRoleConnectionMetadataRecordsAsync
+    (
+        Snowflake applicationId,
+        IReadOnlyList<IRoleConnectionMetadata> payload,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
 }
