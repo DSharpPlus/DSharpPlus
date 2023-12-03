@@ -63,4 +63,24 @@ public interface IAutoModerationRestAPI
         RequestInfo info = default,
         CancellationToken ct = default
     );
+
+    /// <summary>
+    /// Modifies the specified auto moderation rule.
+    /// </summary>
+    /// <param name="guildId">The snowflake identifier of the guild owning the rule to modify.</param>
+    /// <param name="ruleId">The snowflake identifier of the rule to modify.</param>
+    /// <param name="payload">A payload object containing the necessary information to modify the rule.</param>
+    /// <param name="reason">An optional reason to list in the audit log.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns>The newly modified auto moderation rule.</returns>
+    public ValueTask<Result<IAutoModerationRule>> ModifyAutoModerationRuleAsync
+    (
+        Snowflake guildId,
+        Snowflake ruleId,
+        IModifyAutoModerationRulePayload payload,
+        string? reason = null,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
 }
