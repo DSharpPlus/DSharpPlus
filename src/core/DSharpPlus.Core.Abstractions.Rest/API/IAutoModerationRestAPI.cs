@@ -83,4 +83,21 @@ public interface IAutoModerationRestAPI
         RequestInfo info = default,
         CancellationToken ct = default
     );
+
+    /// <summary>
+    /// Deletes the specified auto moderation rule.
+    /// </summary>
+    /// <param name="guildId">The snowflake identifier of the guild owning the rule to delete.</param>
+    /// <param name="ruleId">The snowflake identifier of the rule to delete.</param>
+    /// <param name="reason">An optional reason to list in the audit log.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    public ValueTask<Result> DeleteAutoModerationRuleAsync
+    (
+        Snowflake guildId,
+        Snowflake ruleId,
+        string? reason = null,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
 }
