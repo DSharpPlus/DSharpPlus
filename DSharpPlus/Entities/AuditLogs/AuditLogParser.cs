@@ -812,8 +812,11 @@ internal class AuditLogParser
                         cachedNewChannel = new CachedEntity<ulong, DiscordChannel>(newChannelId, newChannel);
                     }
 
-                    entry.Channel =
-                        PropertyChange<CachedEntity<ulong, DiscordChannel>>.From(cachedOldChannel, cachedNewChannel);
+                    entry.Channel = new PropertyChange<CachedEntity<ulong, DiscordChannel>>()
+                    {
+                        Before = cachedOldChannel ?? default,
+                        After = cachedNewChannel ?? default
+                    };
                     break;
 
                 case "description":

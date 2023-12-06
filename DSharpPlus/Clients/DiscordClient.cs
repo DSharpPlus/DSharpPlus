@@ -85,15 +85,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
     private int _ping;
 
-    /// <summary>
-    /// Gets the collection of presences held by this client.
-    /// </summary>
-    public IReadOnlyDictionary<ulong, DiscordPresence> Presences
-        => this._presencesLazy.Value;
-
-    internal Dictionary<ulong, DiscordPresence> _presences = new();
-    private Lazy<IReadOnlyDictionary<ulong, DiscordPresence>> _presencesLazy;
-
     #endregion
 
     #region Constructor/Internal Setup

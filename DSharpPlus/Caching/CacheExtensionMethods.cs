@@ -28,6 +28,9 @@ internal static class CacheExtensionMethods
     /// <param name="newUser"></param>
     internal static async ValueTask AddUserAsync(this IDiscordCache cache, DiscordUser newUser) =>
         await cache.Set(newUser, newUser.GetCacheKey());
+    
+    internal static async ValueTask AddUserPresenceAsync(this IDiscordCache cache, DiscordPresence newPresence) =>
+        await cache.Set(newPresence, newPresence.GetCacheKey());
 
     internal static async ValueTask AddGuildAsync(this IDiscordCache cache, DiscordGuild newGuild) =>
         await cache.Set(newGuild, newGuild.GetCacheKey());
@@ -43,6 +46,9 @@ internal static class CacheExtensionMethods
 
     internal static async ValueTask<DiscordUser?> TryGetUserAsync(this IDiscordCache cache, ulong userId) =>
         await cache.TryGet<DiscordUser>(ICacheKey.ForUser(userId));
+    
+    internal static async ValueTask<DiscordPresence?> TryGetUserPresenceAsync(this IDiscordCache cache, ulong userId) =>
+        await cache.TryGet<DiscordPresence>(ICacheKey.ForUser(userId));
 
     internal static async ValueTask<DiscordGuild?> TryGetGuildAsync(this IDiscordCache cache, ulong guildId) =>
         await cache.TryGet<DiscordGuild>(ICacheKey.ForGuild(guildId));
@@ -57,6 +63,9 @@ internal static class CacheExtensionMethods
         await cache.TryGet<DiscordMessage>(ICacheKey.ForMessage(messageId));
     
     internal static async ValueTask RemoveUserAsync(this IDiscordCache cache, ulong userId) =>
+        await cache.Remove(ICacheKey.ForUser(userId));
+    
+    internal static async ValueTask RemoveUserPresenceAsync(this IDiscordCache cache, ulong userId) =>
         await cache.Remove(ICacheKey.ForUser(userId));
     
     internal static async ValueTask RemoveGuildAsync(this IDiscordCache cache, ulong guildId) =>

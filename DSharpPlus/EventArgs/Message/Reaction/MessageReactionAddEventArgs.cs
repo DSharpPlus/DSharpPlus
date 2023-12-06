@@ -2,6 +2,8 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs;
 
+using Caching;
+
 /// <summary>
 /// Represents arguments for <see cref="DiscordClient.MessageReactionAdded"/> event.
 /// </summary>
@@ -10,33 +12,23 @@ public class MessageReactionAddEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the message for which the update occurred.
     /// </summary>
-    public DiscordMessage Message { get; internal set; }
+    public CachedEntity<ulong, DiscordMessage> Message { get; internal set; }
 
     /// <summary>
     /// Gets the channel to which this message belongs.
     /// </summary>
-    /// <remarks>
-    /// This will be <c>null</c> for an uncached channel, which will usually happen for when this event triggers on
-    /// DM channels in which no prior messages were received or sent.
-    /// </remarks>
-    public DiscordChannel Channel
-        => this.Message.Channel;
+    public CachedEntity<ulong, DiscordChannel> Channel { get; internal set; }
 
     /// <summary>
-    /// Gets the guild in which the reaction was added. This value is null if the guild was not in cache or the message was in DMs.
+    /// Gets the guild in which the reaction was added. This value is null if message was in DMs.
     /// </summary>
-    public DiscordGuild? Guild { get; internal set; }
-    
-    /// <summary>
-    /// Gets the id of the guild in which the reaction was added. This value is null if the reaction was not in a guild.
-    /// </summary>
-    public ulong? GuildId { get; internal set; }
+    public CachedEntity<ulong, DiscordGuild>? Guild { get; internal set; }
 
     /// <summary>
     /// Gets the user who created the reaction.
-    /// <para>This can be cast to a <see cref="DiscordMember"/> if the reaction was in a guild.</para>
+    /// <para>This can be a <see cref="DiscordMember"/> if the reaction was in a guild and the member was in cache.</para>
     /// </summary>
-    public DiscordUser User { get; internal set; }
+    public CachedEntity<ulong, DiscordUser> User { get; internal set; }
 
     /// <summary>
     /// Gets the emoji used for this reaction.

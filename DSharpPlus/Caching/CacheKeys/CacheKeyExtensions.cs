@@ -13,4 +13,6 @@ public static class CacheKeyExtensions
     public static MemberCacheKey GetCacheKey(this DiscordMember member) => new(member.Id, member._guild_id);
 
     public static UserCacheKey GetCacheKey(this DiscordUser user) => new(user.Id);
+    
+    public static UserPresenceCacheKey GetCacheKey(this DiscordPresence presence) => new(presence.User.Id);
 }

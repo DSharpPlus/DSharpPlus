@@ -2,6 +2,8 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs;
 
+using Caching;
+
 /// <summary>
 /// Represents arguments for <see cref="DiscordClient.PresenceUpdated"/> event.
 /// </summary>
@@ -10,7 +12,7 @@ public class PresenceUpdateEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the user whose presence was updated.
     /// </summary>
-    public DiscordUser User { get; internal set; }
+    public CachedEntity<ulong, DiscordUser> User { get; internal set; }
 
     /// <summary>
     /// Gets the user's new game.
@@ -23,9 +25,9 @@ public class PresenceUpdateEventArgs : DiscordEventArgs
     public UserStatus Status { get; internal set; }
 
     /// <summary>
-    /// Gets the user's old presence.
+    /// Gets the user's old presence. This is null if the user was not cached prior to presence update.
     /// </summary>
-    public DiscordPresence PresenceBefore { get; internal set; }
+    public DiscordPresence? PresenceBefore { get; internal set; }
 
     /// <summary>
     /// Gets the user's new presence.

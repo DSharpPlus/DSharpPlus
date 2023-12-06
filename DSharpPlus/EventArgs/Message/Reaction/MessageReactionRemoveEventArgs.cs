@@ -2,6 +2,8 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs;
 
+using Caching;
+
 /// <summary>
 /// Represents arguments for <see cref="DiscordClient.MessageReactionRemoved"/> event.
 /// </summary>
@@ -10,27 +12,22 @@ public class MessageReactionRemoveEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the message for which the update occurred.
     /// </summary>
-    public DiscordMessage Message { get; internal set; }
+    public CachedEntity<ulong, DiscordMessage> Message { get; internal set; }
 
     /// <summary>
     /// Gets the channel to which this message belongs.
     /// </summary>
-    /// <remarks>
-    /// This will be <c>null</c> for an uncached channel, which will usually happen for when this event triggers on
-    /// DM channels in which no prior messages were received or sent.
-    /// </remarks>
-    public DiscordChannel Channel
-        => this.Message.Channel;
+    public CachedEntity<ulong, DiscordChannel> Channel { get; internal set; }
 
     /// <summary>
-    /// Gets the users whose reaction was removed.
+    /// Gets the users whose reaction was removed. This can be a <see cref="DiscordMember"/> if the reaction was in a guild and the member was in cache.
     /// </summary>
-    public DiscordUser User { get; internal set; }
+    public CachedEntity<ulong, DiscordUser> User { get; internal set; }
 
     /// <summary>
-    /// Gets the guild in which the reaction was deleted.
+    /// Gets the guild in which the reaction was deleted. This value is null if message was in DMs.
     /// </summary>
-    public DiscordGuild Guild { get; internal set; }
+    public CachedEntity<ulong, DiscordGuild>? Guild { get; internal set; }
 
     /// <summary>
     /// Gets the emoji used for this reaction.

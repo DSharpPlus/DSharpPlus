@@ -3,6 +3,7 @@ using DSharpPlus.Net.Abstractions;
 namespace DSharpPlus.Entities.AuditLogs;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 /// <summary>
 /// Represents a description of how a property changed.
@@ -23,16 +24,16 @@ public readonly record struct PropertyChange<T>
     /// <summary>
     /// Create a new <see cref="PropertyChange{T}"/> from the given before and after values.
     /// </summary>
-    public static PropertyChange<T> From(T? before, T? after) =>
+    public static PropertyChange<T> From(T before, T after) =>
         new()
         {
-            Before = before is T ? (T)before : default(Optional<T>),
-            After = after is T ? (T)after : default(Optional<T>)
+            Before = before is T? (T)before : default(Optional<T>),
+            After = after is T? (T)after : default(Optional<T>)
         };
 
     /// <summary>
     /// Create a new <see cref="PropertyChange{T}"/> from the given change using before and after values.
     /// </summary>
     internal static PropertyChange<T> From(AuditLogActionChange change) =>
-        From(change.OldValue, change.NewValue);
+        From((T?) change.OldValue,  (T?) change.NewValue);
 }
