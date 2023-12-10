@@ -32,14 +32,6 @@
     <RepositoryUrl>https://github.com/DSharpPlus/DSharpPlus</RepositoryUrl>
   </PropertyGroup>
 
-  <!-- SourceLink -->
-  <PropertyGroup>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <IncludeSymbols>true</IncludeSymbols>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-  </PropertyGroup>
-
   <!-- Resource Files -->
   <ItemGroup>
     <None Include="$(ProjectRoot)/LICENSE" Pack="true" PackagePath=""/>
