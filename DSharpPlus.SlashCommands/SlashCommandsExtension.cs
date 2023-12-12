@@ -1259,6 +1259,13 @@ public sealed class SlashCommandsExtension : BaseExtension
             object providerInstance = ActivatorUtilities.CreateInstance(this._configuration.Services, provider);
 
             IEnumerable<DiscordAutoCompleteChoice> choices = await (Task<IEnumerable<DiscordAutoCompleteChoice>>)providerMethod.Invoke(providerInstance, new[] { context });
+            
+            if (choices.Count() > 25)
+            {
+                choices = choices.Take(25);
+                this.Client.Logger.LogWarning("""Autocomplete provider "{provider}" returned more than 25 choices. Only the first 25 are passed to Discord.""", nameof(provider));
+            }
+            
             await interaction.CreateResponseAsync(InteractionResponseType.AutoCompleteResult, new DiscordInteractionResponseBuilder().AddAutoCompleteChoices(choices));
 
             await this._autocompleteExecuted.InvokeAsync(this,

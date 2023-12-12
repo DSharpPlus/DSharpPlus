@@ -3,7 +3,7 @@ namespace DSharpPlus.Entities.AuditLogs;
 /// <summary>
 /// Indicates audit log action category.
 /// </summary>
-public enum AuditLogActionCategory
+public enum DiscordAuditLogActionCategory
 {
     /// <summary>
     /// Indicates that this action resulted in creation or addition of an object.

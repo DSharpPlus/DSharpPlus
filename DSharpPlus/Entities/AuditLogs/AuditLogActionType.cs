@@ -6,7 +6,7 @@ namespace DSharpPlus.Entities.AuditLogs;
 /// <summary>
 /// Represents type of the action that was taken in given audit log event.
 /// </summary>
-public enum AuditLogActionType : int
+public enum DiscordAuditLogActionType
 {
     /// <summary>
     /// Indicates that the guild was updated.

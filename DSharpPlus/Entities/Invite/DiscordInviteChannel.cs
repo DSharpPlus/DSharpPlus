@@ -11,7 +11,7 @@ public class DiscordInviteChannel : SnowflakeObject
     /// Gets the name of the channel.
     /// </summary>
     [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-    public string Name { get; internal set; }
+    public string Name { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the type of the channel.

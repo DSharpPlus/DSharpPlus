@@ -7,7 +7,7 @@ public sealed class DiscordAuditLogInviteEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the affected invite.
     /// </summary>
-    public DiscordInvite Target { get; internal set; }
+    public DiscordInvite Target { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the description of invite's max age change.

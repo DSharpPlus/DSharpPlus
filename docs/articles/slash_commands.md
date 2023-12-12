@@ -13,6 +13,14 @@ There are some caveats to the usage of the library that you should note:
 
 It does not support registering or editing commands at runtime. While you can make commands at runtime using the methods on the client, if you have a command class registered for that guild/globally if you're making global commands, it will be overwritten (therefore probably deleted) on the next startup due to the limitations of the bulk overwrite endpoint. If your usage of slash commands depends on dynamically registering commands, this extension will not work for you.
 
+## Installation
+To get started, make sure you have matching versions of both the [`DSharpPlus`](https://www.nuget.org/packages/DSharpPlus) and [`DSharpPlus.SlashCommands`](https://www.nuget.org/packages/DSharpPlus.SlashCommands) packages.
+
+```
+dotnet add package DSharpPlus
+dotnet add package DSharpPlus.SlashCommands
+```
+
 ## Important: Authorizing your bot
 
 For a bot to make slash commands in a server, it must be authorized with the applications.commands scope as well. In the OAuth2 section of the developer portal, you can check the applications.commands box to generate an invite link. You can check the bot box as well to generate a link that authorizes both. If a bot is already authorized with the bot scope, you can still authorize with just the applications.commands scope without having to kick out the bot.

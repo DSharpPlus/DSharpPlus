@@ -8,7 +8,7 @@ public sealed class DiscordAuditLogAutoModerationExecutedEntry : DiscordAuditLog
     /// <summary>
     /// Name of the rule that was executed
     /// </summary>
-    public string ResponsibleRule { get; internal set; }
+    public string ResponsibleRule { get; internal set; } = default!;
 
     /// <summary>
     /// User that was affected by the rule
@@ -18,7 +18,7 @@ public sealed class DiscordAuditLogAutoModerationExecutedEntry : DiscordAuditLog
     /// <summary>
     /// Type of the trigger that was executed
     /// </summary>
-    public RuleTriggerType RuleTriggerType { get; internal set; }
+    public DiscordRuleTriggerType RuleTriggerType { get; internal set; }
 
     /// <summary>
     /// Channel where the rule was executed

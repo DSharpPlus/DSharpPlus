@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Microsoft.Extensions.Configuration;
 
 namespace DSharpPlus.Tools.ShardedEventHandlingGen;
 
@@ -32,15 +31,8 @@ public static class Program
         TemplateFiles = new(templateFiles);
     }
 
-    public static void Main(string[] args)
+    public static void Main()
     {
-        IConfiguration configuration = new ConfigurationBuilder().AddCommandLine(args).Build();
-        string? projectRoot = configuration["ProjectRoot"];
-        if (string.IsNullOrWhiteSpace(projectRoot))
-        {
-            throw new InvalidOperationException("Missing ProjectRoot argument.");
-        }
-
         StringBuilder eventStringBuilder = new();
         StringBuilder eventHandlerStringBuilder = new();
         StringBuilder hookMethodLogic = new();
@@ -78,7 +70,7 @@ public static class Program
             unhookMethodLogic.AppendLine($"        client.{eventInfo.Name} -= this.{eventInfo.Name}Delegator;");
         }
 
-        File.WriteAllText($"{projectRoot}/DSharpPlus/Clients/DiscordShardedClient.Events.cs", TemplateFiles["DiscordShardedClient"]
+        File.WriteAllText($"{Environment.CurrentDirectory}/DSharpPlus/Clients/DiscordShardedClient.Events.cs", TemplateFiles["DiscordShardedClient"]
             .Replace("{{Date}}", DateTimeOffset.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture))
             .Replace("    // {{EventHandlers}}", eventStringBuilder.ToString().TrimEnd())
             .Replace("        // {{EventHandlerSetters}}", eventHandlerStringBuilder.ToString().TrimEnd())

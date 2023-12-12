@@ -1,4 +1,5 @@
 using System;
+using System.Buffers.Text;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,7 +13,6 @@ using System.Threading.Tasks;
 using DSharpPlus.Caching;
 using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
-using DSharpPlus.Enums;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
 
@@ -23,7 +23,7 @@ using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Net;
 
-// huge credits to dvoraks 8th symphony for being a source of sanity in the trying times of 
+// huge credits to dvoraks 8th symphony for being a source of sanity in the trying times of
 // fixing this absolute catastrophy up at least somewhat
 
 public sealed class DiscordApiClient
@@ -696,7 +696,7 @@ public sealed class DiscordApiClient
         ulong? after = null,
         ulong? before = null,
         ulong? userId = null,
-        AuditLogActionType? actionType = null
+        DiscordAuditLogActionType? actionType = null
     )
     {
         QueryUriBuilder builder = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.AUDIT_LOGS}");
@@ -1607,6 +1607,7 @@ public sealed class DiscordApiClient
         DiscordScheduledGuildEventMetadata? metadata = null,
         DateTimeOffset? endTime = null,
         ulong? channelId = null,
+        Stream? image = null,
         string? reason = null
     )
     {
@@ -1628,6 +1629,13 @@ public sealed class DiscordApiClient
             PrivacyLevel = privacyLevel,
             Metadata = metadata
         };
+
+        if (image is not null)
+        {
+            using ImageTool imageTool = new(image);
+
+            pld.CoverImage = imageTool.GetBase64();
+        }
 
         RestRequest request = new()
         {
@@ -1762,6 +1770,7 @@ public sealed class DiscordApiClient
         Optional<ScheduledGuildEventPrivacyLevel> privacyLevel = default,
         Optional<DiscordScheduledGuildEventMetadata> metadata = default,
         Optional<ScheduledGuildEventStatus> status = default,
+        Optional<Stream> coverImage = default,
         string? reason = null
     )
     {
@@ -1786,6 +1795,13 @@ public sealed class DiscordApiClient
             Metadata = metadata,
             Status = status
         };
+
+        if (coverImage.HasValue)
+        {
+            using ImageTool imageTool = new(coverImage.Value);
+
+            pld.CoverImage = imageTool.GetBase64();
+        }
 
         RestRequest request = new()
         {
@@ -1879,7 +1895,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordMessage ret = this.PrepareMessageAsync(JObject.Parse(res.Response!));
+        DiscordMessage ret = await this.PrepareMessageAsync(JObject.Parse(res.Response!));
 
         return ret;
     }
@@ -2013,7 +2029,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordMessage ret = this.PrepareMessageAsync(JObject.Parse(res.Response!));
+        DiscordMessage ret = await this.PrepareMessageAsync(JObject.Parse(res.Response!));
 
         return ret;
     }
@@ -2070,7 +2086,7 @@ public sealed class DiscordApiClient
 
             RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-            DiscordMessage ret = this.PrepareMessageAsync(JObject.Parse(res.Response!));
+            DiscordMessage ret = await this.PrepareMessageAsync(JObject.Parse(res.Response!));
 
             return ret;
         }
@@ -2093,13 +2109,17 @@ public sealed class DiscordApiClient
                 Files = builder.Files
             };
 
-            RestResponse res = await this._rest.ExecuteRequestAsync(request);
+            RestResponse res;
+            try
+            {
+                res = await this._rest.ExecuteRequestAsync(request);
+            }
+            finally
+            {
+                builder.ResetFileStreamPositions();
+            }
 
-            DiscordMessage ret = this.PrepareMessageAsync(JObject.Parse(res.Response!));
-
-            builder.ResetFileStreamPositions();
-
-            return ret;
+            return await this.PrepareMessageAsync(JObject.Parse(res.Response!));
         }
     }
 
@@ -2184,7 +2204,7 @@ public sealed class DiscordApiClient
         List<DiscordMessage> msgs = new();
         foreach (JToken xj in msgsRaw)
         {
-            msgs.Add(this.PrepareMessageAsync(xj));
+            msgs.Add(await this.PrepareMessageAsync(xj));
         }
 
         return new ReadOnlyCollection<DiscordMessage>(new List<DiscordMessage>(msgs));
@@ -2208,7 +2228,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        DiscordMessage ret = this.PrepareMessageAsync(JObject.Parse(res.Response!));
+        DiscordMessage ret = await this.PrepareMessageAsync(JObject.Parse(res.Response!));
 
         return ret;
     }
@@ -2292,7 +2312,7 @@ public sealed class DiscordApiClient
             res = await this._rest.ExecuteRequestAsync(request);
         }
 
-        DiscordMessage ret = this.PrepareMessageAsync(JObject.Parse(res.Response!));
+        DiscordMessage ret = await this.PrepareMessageAsync(JObject.Parse(res.Response!));
 
         if (files is not null)
         {
@@ -2548,7 +2568,7 @@ public sealed class DiscordApiClient
         List<DiscordMessage> msgs = new();
         foreach (JToken xj in msgsRaw)
         {
-            msgs.Add(this.PrepareMessageAsync(xj));
+            msgs.Add( await this.PrepareMessageAsync(xj));
         }
 
         return new ReadOnlyCollection<DiscordMessage>(new List<DiscordMessage>(msgs));
@@ -3390,19 +3410,20 @@ public sealed class DiscordApiClient
         string? reason = null
     )
     {
-        QueryUriBuilder urlparams = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/{userId}");
-        if (reason != null)
-        {
-            urlparams.AddParameter("reason", reason);
-        }
-
+        string url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/{userId}");
         string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/:user_id";
 
         RestRequest request = new()
         {
             Route = route,
-            Url = urlparams.Build(),
-            Method = HttpMethod.Delete
+            Url = url,
+            Method = HttpMethod.Delete,
+            Headers = string.IsNullOrWhiteSpace(reason)
+                ? null
+                : new Dictionary<string, string>
+                {
+                    [REASON_HEADER_NAME] = reason
+                }
         };
 
         await this._rest.ExecuteRequestAsync(request);
@@ -4630,11 +4651,16 @@ public sealed class DiscordApiClient
             IsExemptFromGlobalLimit = true
         };
 
-        RestResponse res = await this._rest.ExecuteRequestAsync(request);
-
+        RestResponse res;
+        try
+        {
+            res = await this._rest.ExecuteRequestAsync(request);
+        }
+        finally
+        {
+            builder.ResetFileStreamPositions();
+        }
         DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
-
-        builder.ResetFileStreamPositions();
 
         ret.Discord = this._discord!;
         return ret;
@@ -4732,13 +4758,17 @@ public sealed class DiscordApiClient
             IsExemptFromGlobalLimit = true
         };
 
-        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+        RestResponse res;
+        try
+        {
+            res = await this._rest.ExecuteRequestAsync(request);
+        }
+        finally
+        {
+            builder.ResetFileStreamPositions();
+        }
 
-        DiscordMessage ret = this.PrepareMessageAsync(JObject.Parse(res.Response!));
-
-        builder.ResetFileStreamPositions();
-
-        return ret;
+        return await this.PrepareMessageAsync(JObject.Parse(res.Response!));
     }
 
     internal async ValueTask DeleteWebhookMessageAsync
@@ -5620,9 +5650,14 @@ public sealed class DiscordApiClient
                 IsExemptFromGlobalLimit = true
             };
 
-            await this._rest.ExecuteRequestAsync(request);
-
-            builder.ResetFileStreamPositions();
+            try
+            {
+                await this._rest.ExecuteRequestAsync(request);
+            }
+            finally
+            {
+                builder.ResetFileStreamPositions();
+            }
         }
         else
         {
@@ -5789,10 +5824,16 @@ public sealed class DiscordApiClient
             IsExemptFromGlobalLimit = true
         };
 
-        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+        RestResponse res;
+        try
+        {
+            res = await this._rest.ExecuteRequestAsync(request);
+        }
+        finally
+        {
+            builder.ResetFileStreamPositions();
+        }
         DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
-
-        builder.ResetFileStreamPositions();
 
         ret.Discord = this._discord!;
         return ret;
@@ -6087,9 +6128,10 @@ public sealed class DiscordApiClient
         JToken? msgToken = ret["message"];
         ret.Remove("message");
 
-        DiscordMessage msg = this.PrepareMessageAsync(msgToken!);
+        DiscordMessage msg = await this.PrepareMessageAsync(msgToken!);
         // We know the return type; deserialize directly.
         DiscordThreadChannel chn = ret.ToDiscordObject<DiscordThreadChannel>();
+        chn.Discord = this._discord!;
 
         return new DiscordForumPostStarter(chn, msg);
     }
@@ -6112,8 +6154,8 @@ public sealed class DiscordApiClient
     (
         ulong guildId,
         string name,
-        RuleEventType eventType,
-        RuleTriggerType triggerType,
+        DiscordRuleEventType eventType,
+        DiscordRuleTriggerType triggerType,
         DiscordRuleTriggerMetadata triggerMetadata,
         IReadOnlyList<DiscordAutoModerationAction> actions,
         Optional<bool> enabled = default,
@@ -6232,7 +6274,7 @@ public sealed class DiscordApiClient
         ulong guildId,
         ulong ruleId,
         Optional<string> name,
-        Optional<RuleEventType> eventType,
+        Optional<DiscordRuleEventType> eventType,
         Optional<DiscordRuleTriggerMetadata> triggerMetadata,
         Optional<IReadOnlyList<DiscordAutoModerationAction>> actions,
         Optional<bool> enabled,

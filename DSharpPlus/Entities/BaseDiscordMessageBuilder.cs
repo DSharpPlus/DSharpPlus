@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.Net;
 
 namespace DSharpPlus.Entities;
 
@@ -366,7 +367,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         {
             if (file.ResetPositionTo is long pos)
             {
-                file.Stream.Position = pos;
+                file.Stream.Seek(pos, SeekOrigin.Begin);
             }
         }
     }
@@ -376,22 +377,21 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// </summary>
     private static Stream ResolveStream(Stream stream, AddFileOptions fileOptions)
     {
-        if (fileOptions.HasFlag(AddFileOptions.CopyStream))
+        if (!fileOptions.HasFlag(AddFileOptions.CopyStream))
         {
-            Stream originalStream = stream;
-            MemoryStream newStream = new();
-            originalStream.CopyTo(newStream);
-            newStream.Position = 0;
-
-            if (fileOptions.HasFlag(AddFileOptions.CloseStream))
-            {
-                originalStream.Dispose();
-            }
-
-            stream = newStream;
+            return new RequestStreamWrapper(stream);
         }
 
-        return stream;
+        Stream originalStream = stream;
+        MemoryStream newStream = new();
+        originalStream.CopyTo(newStream);
+        newStream.Position = 0;
+        if (fileOptions.HasFlag(AddFileOptions.CloseStream))
+        {
+            originalStream.Dispose();
+        }
+
+        return newStream;
     }
 
     IDiscordMessageBuilder IDiscordMessageBuilder.SuppressNotifications() => this.SuppressNotifications();

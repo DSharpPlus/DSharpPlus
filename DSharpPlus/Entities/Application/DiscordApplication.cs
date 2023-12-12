@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
@@ -15,33 +14,33 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// <summary>
     /// Gets the application's summary.
     /// </summary>
-    public string Summary { get; internal set; }
+    public string? Summary { get; internal set; }
 
     /// <summary>
     /// Gets the application's icon.
     /// </summary>
-    public override string Icon
+    public override string? Icon
         => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png?size=1024" : null;
 
     /// <summary>
     /// Gets the application's icon hash.
     /// </summary>
-    public string IconHash { get; internal set; }
+    public string? IconHash { get; internal set; }
 
     /// <summary>
     /// Gets the application's terms of service URL.
     /// </summary>
-    public string TermsOfServiceUrl { get; internal set; }
+    public string? TermsOfServiceUrl { get; internal set; }
 
     /// <summary>
     /// Gets the application's privacy policy URL.
     /// </summary>
-    public string PrivacyPolicyUrl { get; internal set; }
+    public string? PrivacyPolicyUrl { get; internal set; }
 
     /// <summary>
     /// Gets the application's allowed RPC origins.
     /// </summary>
-    public IReadOnlyList<string> RpcOrigins { get; internal set; }
+    public IReadOnlyList<string>? RpcOrigins { get; internal set; }
 
     /// <summary>
     /// Gets the application's flags.
@@ -51,7 +50,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// <summary>
     /// Gets the application's owners.
     /// </summary>
-    public IEnumerable<DiscordUser> Owners { get; internal set; }
+    public IEnumerable<DiscordUser>? Owners { get; internal set; }
 
     /// <summary>
     /// Gets whether this application's bot user requires code grant.
@@ -66,20 +65,20 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// <summary>
     /// Gets the hash of the application's cover image.
     /// </summary>
-    public string CoverImageHash { get; internal set; }
+    public string? CoverImageHash { get; internal set; }
 
     /// <summary>
     /// Gets this application's cover image URL.
     /// </summary>
-    public override string CoverImageUrl
+    public override string? CoverImageUrl
         => $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.CoverImageHash}.png?size=1024";
 
     /// <summary>
     /// Gets the team which owns this application.
     /// </summary>
-    public DiscordTeam Team { get; internal set; }
+    public DiscordTeam? Team { get; internal set; }
 
-    private IReadOnlyList<DiscordApplicationAsset> Assets { get; set; }
+    private IReadOnlyList<DiscordApplicationAsset>? Assets { get; set; }
 
     internal DiscordApplication() { }
 
@@ -89,7 +88,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// <param name="fmt">Format of the image to get.</param>
     /// <param name="size">Maximum size of the cover image. Must be a power of two, minimum 16, maximum 2048.</param>
     /// <returns>URL of the application's cover image.</returns>
-    public string GetAvatarUrl(ImageFormat fmt, ushort size = 1024)
+    public string? GetAvatarUrl(ImageFormat fmt, ushort size = 1024)
     {
         if (fmt == ImageFormat.Unknown)
         {
@@ -107,8 +106,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
             throw new ArgumentOutOfRangeException(nameof(size));
         }
 
-        string sfmt = "";
-        sfmt = fmt switch
+        string formatString = fmt switch
         {
             ImageFormat.Gif => "gif",
             ImageFormat.Jpeg => "jpg",
@@ -116,11 +114,13 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
             ImageFormat.WebP => "webp",
             _ => throw new ArgumentOutOfRangeException(nameof(fmt)),
         };
+
         string ssize = size.ToString(CultureInfo.InvariantCulture);
+
         if (!string.IsNullOrWhiteSpace(this.CoverImageHash))
         {
             string id = this.Id.ToString(CultureInfo.InvariantCulture);
-            return $"https://cdn.discordapp.com/avatars/{id}/{this.CoverImageHash}.{sfmt}?size={ssize}";
+            return $"https://cdn.discordapp.com/avatars/{id}/{this.CoverImageHash}.{formatString}?size={ssize}";
         }
         else
         {
@@ -162,17 +162,17 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// This URI <b>must</b> be already registered as a valid redirect URI for your application on the developer portal.
     /// </remarks>
     /// </param>
-    /// <param name="permissions">Permissions for your bot. Only required if the <seealso cref="OAuthScope.Bot"/> scope is passed.</param>
+    /// <param name="permissions">Permissions for your bot. Only required if the <seealso cref="DiscordOAuthScope.Bot"/> scope is passed.</param>
     /// <param name="scopes">OAuth scopes for your application.</param>
-    public string GenerateOAuthUri(string redirectUri = null, Permissions? permissions = null, params OAuthScope[] scopes)
+    public string GenerateOAuthUri(string? redirectUri = null, Permissions? permissions = null, params DiscordOAuthScope[] scopes)
     {
         permissions &= PermissionMethods.FULL_PERMS;
 
-        StringBuilder scopeBuilder = new StringBuilder();
+        StringBuilder scopeBuilder = new();
 
-        foreach (OAuthScope v in scopes)
+        foreach (DiscordOAuthScope v in scopes)
         {
-            scopeBuilder.Append(" ").Append(this.TranslateOAuthScope(v));
+            scopeBuilder.Append(' ').Append(TranslateOAuthScope(v));
         }
 
         QueryUriBuilder queryBuilder = new QueryUriBuilder("https://discord.com/oauth2/authorize")
@@ -199,14 +199,14 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordApplication"/>.</returns>
-    public override bool Equals(object obj) => this.Equals(obj as DiscordApplication);
+    public override bool Equals(object? obj) => this.Equals(obj as DiscordApplication);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordApplication"/> is equal to another <see cref="DiscordApplication"/>.
     /// </summary>
     /// <param name="e"><see cref="DiscordApplication"/> to compare to.</param>
     /// <returns>Whether the <see cref="DiscordApplication"/> is equal to this <see cref="DiscordApplication"/>.</returns>
-    public bool Equals(DiscordApplication e) => e is null ? false : ReferenceEquals(this, e) ? true : this.Id == e.Id;
+    public bool Equals(DiscordApplication? e) => e is not null && (ReferenceEquals(this, e) || this.Id == e.Id);
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordApplication"/>.
@@ -217,15 +217,15 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// <summary>
     /// Gets whether the two <see cref="DiscordApplication"/> objects are equal.
     /// </summary>
-    /// <param name="e1">First application to compare.</param>
-    /// <param name="e2">Second application to compare.</param>
+    /// <param name="right">First application to compare.</param>
+    /// <param name="left">Second application to compare.</param>
     /// <returns>Whether the two applications are equal.</returns>
-    public static bool operator ==(DiscordApplication e1, DiscordApplication e2)
+    public static bool operator ==(DiscordApplication right, DiscordApplication left)
     {
-        object? o1 = e1 as object;
-        object? o2 = e2 as object;
-
-        return (o1 == null && o2 != null) || (o1 != null && o2 == null) ? false : o1 == null && o2 == null ? true : e1.Id == e2.Id;
+        return (right is not null || left is null)
+            && (right is null || left is not null) 
+            && ((right is null && left is null) 
+                || right!.Id == left!.Id);
     }
 
     /// <summary>
@@ -237,319 +237,34 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     public static bool operator !=(DiscordApplication e1, DiscordApplication e2)
         => !(e1 == e2);
 
-    private string TranslateOAuthScope(OAuthScope scope)
+    private static string? TranslateOAuthScope(DiscordOAuthScope scope)
     {
         return scope switch
         {
-            OAuthScope.Identify => "identify",
-            OAuthScope.Email => "email",
-            OAuthScope.Connections => "connections",
-            OAuthScope.Guilds => "guilds",
-            OAuthScope.GuildsJoin => "guilds.join",
-            OAuthScope.GuildsMembersRead => "guilds.members.read",
-            OAuthScope.GdmJoin => "gdm.join",
-            OAuthScope.Rpc => "rpc",
-            OAuthScope.RpcNotificationsRead => "rpc.notifications.read",
-            OAuthScope.RpcVoiceRead => "rpc.voice.read",
-            OAuthScope.RpcVoiceWrite => "rpc.voice.write",
-            OAuthScope.RpcActivitiesWrite => "rpc.activities.write",
-            OAuthScope.Bot => "bot",
-            OAuthScope.WebhookIncoming => "webhook.incoming",
-            OAuthScope.MessagesRead => "messages.read",
-            OAuthScope.ApplicationsBuildsUpload => "applications.builds.upload",
-            OAuthScope.ApplicationsBuildsRead => "applications.builds.read",
-            OAuthScope.ApplicationsCommands => "applications.commands",
-            OAuthScope.ApplicationsStoreUpdate => "applications.store.update",
-            OAuthScope.ApplicationsEntitlements => "applications.entitlements",
-            OAuthScope.ActivitiesRead => "activities.read",
-            OAuthScope.ActivitiesWrite => "activities.write",
-            OAuthScope.RelationshipsRead => "relationships.read",
+            DiscordOAuthScope.Identify => "identify",
+            DiscordOAuthScope.Email => "email",
+            DiscordOAuthScope.Connections => "connections",
+            DiscordOAuthScope.Guilds => "guilds",
+            DiscordOAuthScope.GuildsJoin => "guilds.join",
+            DiscordOAuthScope.GuildsMembersRead => "guilds.members.read",
+            DiscordOAuthScope.GdmJoin => "gdm.join",
+            DiscordOAuthScope.Rpc => "rpc",
+            DiscordOAuthScope.RpcNotificationsRead => "rpc.notifications.read",
+            DiscordOAuthScope.RpcVoiceRead => "rpc.voice.read",
+            DiscordOAuthScope.RpcVoiceWrite => "rpc.voice.write",
+            DiscordOAuthScope.RpcActivitiesWrite => "rpc.activities.write",
+            DiscordOAuthScope.Bot => "bot",
+            DiscordOAuthScope.WebhookIncoming => "webhook.incoming",
+            DiscordOAuthScope.MessagesRead => "messages.read",
+            DiscordOAuthScope.ApplicationsBuildsUpload => "applications.builds.upload",
+            DiscordOAuthScope.ApplicationsBuildsRead => "applications.builds.read",
+            DiscordOAuthScope.ApplicationsCommands => "applications.commands",
+            DiscordOAuthScope.ApplicationsStoreUpdate => "applications.store.update",
+            DiscordOAuthScope.ApplicationsEntitlements => "applications.entitlements",
+            DiscordOAuthScope.ActivitiesRead => "activities.read",
+            DiscordOAuthScope.ActivitiesWrite => "activities.write",
+            DiscordOAuthScope.RelationshipsRead => "relationships.read",
             _ => null
         };
     }
-}
-
-public abstract class DiscordAsset
-{
-    /// <summary>
-    /// Gets the ID of this asset.
-    /// </summary>
-    public virtual string Id { get; set; }
-
-    /// <summary>
-    /// Gets the URL of this asset.
-    /// </summary>
-    public abstract Uri Url { get; }
-}
-
-/// <summary>
-/// Represents an asset for an OAuth2 application.
-/// </summary>
-public sealed class DiscordApplicationAsset : DiscordAsset, IEquatable<DiscordApplicationAsset>
-{
-    /// <summary>
-    /// Gets the Discord client instance for this asset.
-    /// </summary>
-    internal BaseDiscordClient Discord { get; set; }
-
-    /// <summary>
-    /// Gets the asset's name.
-    /// </summary>
-    [JsonProperty("name")]
-    public string Name { get; internal set; }
-
-    /// <summary>
-    /// Gets the asset's type.
-    /// </summary>
-    [JsonProperty("type")]
-    public ApplicationAssetType Type { get; internal set; }
-
-    /// <summary>
-    /// Gets the application this asset belongs to.
-    /// </summary>
-    public DiscordApplication Application { get; internal set; }
-
-    /// <summary>
-    /// Gets the Url of this asset.
-    /// </summary>
-    public override Uri Url
-        => new($"https://cdn.discordapp.com/app-assets/{this.Application.Id.ToString(CultureInfo.InvariantCulture)}/{this.Id}.png");
-
-    internal DiscordApplicationAsset() { }
-
-    internal DiscordApplicationAsset(DiscordApplication app) => this.Discord = app.Discord;
-
-    /// <summary>
-    /// Checks whether this <see cref="DiscordApplicationAsset"/> is equal to another object.
-    /// </summary>
-    /// <param name="obj">Object to compare to.</param>
-    /// <returns>Whether the object is equal to this <see cref="DiscordApplicationAsset"/>.</returns>
-    public override bool Equals(object obj) => this.Equals(obj as DiscordApplicationAsset);
-
-    /// <summary>
-    /// Checks whether this <see cref="DiscordApplicationAsset"/> is equal to another <see cref="DiscordApplicationAsset"/>.
-    /// </summary>
-    /// <param name="e"><see cref="DiscordApplicationAsset"/> to compare to.</param>
-    /// <returns>Whether the <see cref="DiscordApplicationAsset"/> is equal to this <see cref="DiscordApplicationAsset"/>.</returns>
-    public bool Equals(DiscordApplicationAsset e) => e is null ? false : ReferenceEquals(this, e) ? true : this.Id == e.Id;
-
-    /// <summary>
-    /// Gets the hash code for this <see cref="DiscordApplication"/>.
-    /// </summary>
-    /// <returns>The hash code for this <see cref="DiscordApplication"/>.</returns>
-    public override int GetHashCode() => this.Id.GetHashCode();
-
-    /// <summary>
-    /// Gets whether the two <see cref="DiscordApplicationAsset"/> objects are equal.
-    /// </summary>
-    /// <param name="e1">First application asset to compare.</param>
-    /// <param name="e2">Second application asset to compare.</param>
-    /// <returns>Whether the two application assets not equal.</returns>
-    public static bool operator ==(DiscordApplicationAsset e1, DiscordApplicationAsset e2)
-    {
-        object? o1 = e1 as object;
-        object? o2 = e2 as object;
-
-        return (o1 == null && o2 != null) || (o1 != null && o2 == null) ? false : o1 == null && o2 == null ? true : e1.Id == e2.Id;
-    }
-
-    /// <summary>
-    /// Gets whether the two <see cref="DiscordApplicationAsset"/> objects are not equal.
-    /// </summary>
-    /// <param name="e1">First application asset to compare.</param>
-    /// <param name="e2">Second application asset to compare.</param>
-    /// <returns>Whether the two application assets are not equal.</returns>
-    public static bool operator !=(DiscordApplicationAsset e1, DiscordApplicationAsset e2)
-        => !(e1 == e2);
-}
-
-public sealed class DiscordSpotifyAsset : DiscordAsset
-{
-    /// <summary>
-    /// Gets the URL of this asset.
-    /// </summary>
-    public override Uri Url
-        => this._url.Value;
-
-    private readonly Lazy<Uri> _url;
-
-    public DiscordSpotifyAsset()
-    {
-        this._url = new Lazy<Uri>(() =>
-        {
-            string[] ids = this.Id.Split(':');
-            string id = ids[1];
-            return new Uri($"https://i.scdn.co/image/{id}");
-        });
-    }
-}
-
-/// <summary>
-/// Determines the type of the asset attached to the application.
-/// </summary>
-public enum ApplicationAssetType : int
-{
-    /// <summary>
-    /// Unknown type. This indicates something went terribly wrong.
-    /// </summary>
-    Unknown = 0,
-
-    /// <summary>
-    /// This asset can be used as small image for rich presences.
-    /// </summary>
-    SmallImage = 1,
-
-    /// <summary>
-    /// This asset can be used as large image for rich presences.
-    /// </summary>
-    LargeImage = 2
-}
-
-/// <summary>
-/// Represents the possible OAuth scopes for application authorization.
-/// </summary>
-public enum OAuthScope : int
-{
-    /// <summary>
-    /// Allows <c>/users/@me</c> without <c>email</c>.
-    /// </summary>
-    Identify,
-
-    /// <summary>
-    /// Enables <c>/users/@me</c> to return <c>email</c>.
-    /// </summary>
-    Email,
-
-    /// <summary>
-    /// Allows <c>/users/@me/connections</c> to return linked third-party accounts.
-    /// </summary>
-    Connections,
-
-    /// <summary>
-    /// Allows <c>/users/@me/guilds</c> to return basic information about all of a user's guilds.
-    /// </summary>
-    Guilds,
-
-    /// <summary>
-    /// Allows <c>/guilds/{guild.id}/members/{user.id}</c> to be used for joining users into a guild.
-    /// </summary>
-    GuildsJoin,
-
-    /// <summary>
-    /// Allows <c>/users/@me/guilds/{guild.id}/members</c> to return a user's member information in a guild.
-    /// </summary>
-    GuildsMembersRead,
-
-    /// <summary>
-    /// Allows your app to join users into a group DM.
-    /// </summary>
-    GdmJoin,
-
-    /// <summary>
-    /// For local RPC server access, this allows you to control a user's local Discord client.
-    /// </summary>
-    /// <remarks>
-    /// This scope requires Discord approval.
-    /// </remarks>
-    Rpc,
-
-    /// <summary>
-    /// For local RPC server access, this allows you to receive notifications pushed to the user.
-    /// </summary>
-    /// <remarks>
-    /// This scope requires Discord approval.
-    /// </remarks>
-    RpcNotificationsRead,
-
-    /// <summary>
-    /// For local RPC server access, this allows you to read a user's voice settings and listen for voice events.
-    /// </summary>
-    /// <remarks>
-    /// This scope requires Discord approval.
-    /// </remarks>
-    RpcVoiceRead,
-
-    /// <summary>
-    /// For local RPC server access, this allows you to update a user's voice settings.
-    /// </summary>
-    /// <remarks>
-    /// This scope requires Discord approval.
-    /// </remarks>
-    RpcVoiceWrite,
-
-    /// <summary>
-    /// For local RPC server access, this allows you to update a user's activity.
-    /// </summary>
-    /// <remarks>
-    /// This scope requires Discord approval.
-    /// </remarks>
-    RpcActivitiesWrite,
-
-    /// <summary>
-    /// For OAuth2 bots, this puts the bot in the user's selected guild by default.
-    /// </summary>
-    Bot,
-
-    /// <summary>
-    /// This generates a webhook that is returned in the OAuth token response for authorization code grants.
-    /// </summary>
-    WebhookIncoming,
-
-    /// <summary>
-    /// For local RPC server access, this allows you to read messages from all client channels
-    /// (otherwise restricted to channels/guilds your application creates).
-    /// </summary>
-    MessagesRead,
-
-    /// <summary>
-    /// Allows your application to upload/update builds for a user's applications.
-    /// </summary>
-    /// <remarks>
-    /// This scope requires Discord approval.
-    /// </remarks>
-    ApplicationsBuildsUpload,
-
-    /// <summary>
-    /// Allows your application to read build data for a user's applications.
-    /// </summary>
-    ApplicationsBuildsRead,
-
-    /// <summary>
-    /// Allows your application to use application commands in a guild.
-    /// </summary>
-    ApplicationsCommands,
-
-    /// <summary>
-    /// Allows your application to read and update store data (SKUs, store listings, achievements etc.) for a user's applications.
-    /// </summary>
-    ApplicationsStoreUpdate,
-
-    /// <summary>
-    /// Allows your application to read entitlements for a user's applications.
-    /// </summary>
-    ApplicationsEntitlements,
-
-    /// <summary>
-    /// Allows your application to fetch data from a user's "Now Playing/Recently Played" list.
-    /// </summary>
-    /// <remarks>
-    /// This scope requires Discord approval.
-    /// </remarks>
-    ActivitiesRead,
-
-    /// <summary>
-    /// Allows your application to update a user's activity.
-    /// </summary>
-    /// <remarks>
-    /// Outside of the GameSDK activity manager, this scope requires Discord approval.
-    /// </remarks>
-    ActivitiesWrite,
-
-    /// <summary>
-    /// Allows your application to know a user's friends and implicit relationships.
-    /// </summary>
-    /// <remarks>
-    /// This scope requires Discord approval.
-    /// </remarks>
-    RelationshipsRead
 }

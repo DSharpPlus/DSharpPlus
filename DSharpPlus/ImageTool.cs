@@ -1,4 +1,6 @@
 using System;
+using System.Buffers;
+using System.Buffers.Text;
 using System.IO;
 using System.Text;
 
@@ -26,8 +28,7 @@ public sealed class ImageTool : IDisposable
     /// </summary>
     public Stream SourceStream { get; }
 
-    private ImageFormat _ifcache;
-    private string _b64cache;
+    private ImageFormat format;
 
     /// <summary>
     /// Creates a new image tool from given stream.
@@ -35,10 +36,7 @@ public sealed class ImageTool : IDisposable
     /// <param name="stream">Stream to work with.</param>
     public ImageTool(Stream stream)
     {
-        if (stream == null)
-        {
-            throw new ArgumentNullException(nameof(stream));
-        }
+        ArgumentNullException.ThrowIfNull(stream);
 
         if (!stream.CanRead || !stream.CanSeek)
         {
@@ -48,8 +46,7 @@ public sealed class ImageTool : IDisposable
         this.SourceStream = stream;
         this.SourceStream.Seek(0, SeekOrigin.Begin);
 
-        this._ifcache = 0;
-        this._b64cache = null;
+        this.format = 0;
     }
 
     /// <summary>
@@ -58,29 +55,29 @@ public sealed class ImageTool : IDisposable
     /// <returns>Detected format.</returns>
     public ImageFormat GetFormat()
     {
-        if (this._ifcache != ImageFormat.Unknown)
+        if (this.format != ImageFormat.Unknown)
         {
-            return this._ifcache;
+            return this.format;
         }
 
-        using (BinaryReader br = new BinaryReader(this.SourceStream, Utilities.UTF8, true))
+        using (BinaryReader br = new(this.SourceStream, Utilities.UTF8, true))
         {
             ulong bgn64 = br.ReadUInt64();
             if (bgn64 == PNG_MAGIC)
             {
-                return this._ifcache = ImageFormat.Png;
+                return this.format = ImageFormat.Png;
             }
 
             bgn64 &= GIF_MASK;
             if (bgn64 == GIF_MAGIC_1 || bgn64 == GIF_MAGIC_2)
             {
-                return this._ifcache = ImageFormat.Gif;
+                return this.format = ImageFormat.Gif;
             }
 
             uint bgn32 = (uint)(bgn64 & MASK32);
             if (bgn32 == WEBP_MAGIC_1 && br.ReadUInt32() == WEBP_MAGIC_2)
             {
-                return this._ifcache = ImageFormat.WebP;
+                return this.format = ImageFormat.WebP;
             }
 
             ushort bgn16 = (ushort)(bgn32 & MASK16);
@@ -89,7 +86,7 @@ public sealed class ImageTool : IDisposable
                 this.SourceStream.Seek(-2, SeekOrigin.End);
                 if (br.ReadUInt16() == JPEG_MAGIC_2)
                 {
-                    return this._ifcache = ImageFormat.Jpeg;
+                    return this.format = ImageFormat.Jpeg;
                 }
             }
         }
@@ -103,29 +100,57 @@ public sealed class ImageTool : IDisposable
     /// <returns>Data-scheme base64 string.</returns>
     public string GetBase64()
     {
-        if (this._b64cache != null)
-        {
-            return this._b64cache;
-        }
+        const int readLength = 12288;
+        const int writeLength = 16384;
 
         ImageFormat fmt = this.GetFormat();
-        StringBuilder sb = new StringBuilder();
 
-        sb.Append("data:image/")
-            .Append(fmt.ToString().ToLowerInvariant())
-            .Append(";base64,");
+        int contentLength = Base64.GetMaxEncodedToUtf8Length((int)this.SourceStream.Length);
 
-        this.SourceStream.Seek(0, SeekOrigin.Begin);
-        byte[] buff = new byte[this.SourceStream.Length];
-        int br = 0;
-        while (br < buff.Length)
+        int formatLength = (int)fmt switch
         {
-            br += this.SourceStream.Read(buff, br, (int)this.SourceStream.Length - br);
+            < 2 => 3,
+            < 5 => 4,
+            _ => 7
+        };
+
+        byte[] b64Buffer = ArrayPool<byte>.Shared.Rent(formatLength + contentLength + 19);
+        byte[] readBufferBacking = ArrayPool<byte>.Shared.Rent(readLength);
+
+        Span<byte> readBuffer = readBufferBacking.AsSpan()[..readLength];
+
+        int processed = 0;
+        int totalWritten = 0;
+
+        "data:image/"u8.CopyTo(b64Buffer);
+        Encoding.UTF8.GetBytes(fmt.ToString().ToLowerInvariant()).CopyTo(b64Buffer, 11);
+        ";base64,"u8.CopyTo(b64Buffer.AsSpan()[(11 + formatLength)..]);
+
+        totalWritten += 19;
+        totalWritten += formatLength;
+
+        while (processed < this.SourceStream.Length - readLength)
+        {
+            this.SourceStream.Read(readBuffer);
+
+            Base64.EncodeToUtf8(readBuffer, b64Buffer.AsSpan().Slice(totalWritten, writeLength), out int _, out int written, false);
+
+            processed += readLength;
+            totalWritten += written;
         }
 
-        sb.Append(Convert.ToBase64String(buff));
+        int remainingLength = (int)this.SourceStream.Length - processed;
 
-        return this._b64cache = sb.ToString();
+        this.SourceStream.Read(readBufferBacking, 0, remainingLength);
+
+        Base64.EncodeToUtf8(readBufferBacking.AsSpan()[..remainingLength], b64Buffer.AsSpan()[totalWritten..], out int _, out int lastWritten);
+
+        string value = Encoding.UTF8.GetString(b64Buffer.AsSpan()[..(totalWritten + lastWritten)]);
+
+        ArrayPool<byte>.Shared.Return(b64Buffer);
+        ArrayPool<byte>.Shared.Return(readBufferBacking);
+
+        return value;
     }
 
     /// <summary>
@@ -139,10 +164,10 @@ public sealed class ImageTool : IDisposable
 /// </summary>
 public enum ImageFormat : int
 {
-    Unknown = 0,
-    Jpeg = 1,
-    Png = 2,
-    Gif = 3,
-    WebP = 4,
-    Auto = 5
+    Png,
+    Gif,
+    Jpeg,
+    WebP,
+    Auto,
+    Unknown,
 }

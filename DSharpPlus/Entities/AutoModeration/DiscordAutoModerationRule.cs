@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
-using DSharpPlus.Enums;
 using DSharpPlus.Net.Models;
 
 using Newtonsoft.Json;
@@ -43,13 +41,13 @@ public class DiscordAutoModerationRule : SnowflakeObject
     /// Gets the rule event type.
     /// </summary>
     [JsonProperty("event_type")]
-    public RuleEventType EventType { get; internal set; }
+    public DiscordRuleEventType EventType { get; internal set; }
 
     /// <summary>
     /// Gets the rule trigger type.
     /// </summary>
     [JsonProperty("trigger_type")]
-    public RuleTriggerType TriggerType { get; internal set; }
+    public DiscordRuleTriggerType TriggerType { get; internal set; }
 
     /// <summary>
     /// Gets the additional data to determine whether a rule should be triggered.
@@ -91,7 +89,7 @@ public class DiscordAutoModerationRule : SnowflakeObject
     /// Deletes the rule in the guild.
     /// </summary>
     /// <param name="reason">Reason for audits logs.</param>
-    public async Task DeleteAsync(string reason = null)
+    public async Task DeleteAsync(string? reason = null)
         => await this.Discord.ApiClient.DeleteGuildAutoModerationRuleAsync(this.GuildId, this.Id, reason);
 
     /// <summary>

@@ -1,5 +1,6 @@
 using System;
 using Newtonsoft.Json;
+
 namespace DSharpPlus.Entities;
 
 /// <summary>
@@ -11,13 +12,13 @@ public sealed class DiscordScheduledGuildEvent : SnowflakeObject
     /// The name of the event.
     /// </summary>
     [JsonProperty("name")]
-    public string Name { get; internal set; }
+    public string Name { get; internal set; } = default!;
 
     /// <summary>
     /// The description
     /// </summary>
     [JsonProperty("description")]
-    public string Description { get; internal set; }
+    public string Description { get; internal set; } = default!;
 
     /// <summary>
     /// The time at which this event will begin.
@@ -58,7 +59,7 @@ public sealed class DiscordScheduledGuildEvent : SnowflakeObject
     /// The user that created this event.
     /// </summary>
     [JsonProperty("creator")]
-    public DiscordUser Creator { get; internal set; }
+    public DiscordUser? Creator { get; internal set; }
 
     /// <summary>
     /// The privacy of this event.
@@ -76,7 +77,7 @@ public sealed class DiscordScheduledGuildEvent : SnowflakeObject
     /// Metadata associated with this event.
     /// </summary>
     [JsonProperty("entity_metadata")]
-    public DiscordScheduledGuildEventMetadata Metadata { get; internal set; }
+    public DiscordScheduledGuildEventMetadata? Metadata { get; internal set; }
 
     /// <summary>
     /// What type of event this is.
@@ -89,6 +90,12 @@ public sealed class DiscordScheduledGuildEvent : SnowflakeObject
     /// </summary>
     [JsonProperty("user_count")]
     public int? UserCount { get; internal set; }
+
+    /// <summary>
+    /// The cover image hash of this event.
+    /// </summary>
+    [JsonProperty("image")]
+    public string? Image { get; internal set; }
 
     internal DiscordScheduledGuildEvent() { }
 }

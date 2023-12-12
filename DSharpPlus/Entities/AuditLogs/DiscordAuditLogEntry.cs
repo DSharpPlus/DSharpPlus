@@ -15,7 +15,7 @@ public abstract class DiscordAuditLogEntry : SnowflakeObject
     /// <summary>
     /// Gets the entry's action type.
     /// </summary>
-    public AuditLogActionType ActionType { get; internal set; }
+    public DiscordAuditLogActionType ActionType { get; internal set; }
 
     /// <summary>
     /// Gets the user responsible for the action.
@@ -25,10 +25,10 @@ public abstract class DiscordAuditLogEntry : SnowflakeObject
     /// <summary>
     /// Gets the reason defined in the action.
     /// </summary>
-    public string Reason { get; internal set; }
+    public string? Reason { get; internal set; }
 
     /// <summary>
     /// Gets the category under which the action falls.
     /// </summary>
-    public AuditLogActionCategory ActionCategory { get; internal set; }
+    public DiscordAuditLogActionCategory ActionCategory { get; internal set; }
 }
