@@ -186,8 +186,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
         #endregion
 
         this._guilds.Clear();
-
-        this._presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this._presences));
     }
 
     #endregion

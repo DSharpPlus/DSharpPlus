@@ -93,8 +93,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     [JsonIgnore]
     public DiscordMember Owner
         => this.Members.TryGetValue(this.OwnerId, out DiscordMember? owner)
-            ? owner
-            : this.Discord.ApiClient.GetGuildMemberAsync(this.Id, this.OwnerId).GetAwaiter().GetResult();
+           ? owner
+           : this.Discord.Cache.TryGetMemberAsync(this.OwnerId, this.Id).GetAwaiter().GetResult();
 
     /// <summary>
     /// Gets the guild's voice region ID.
