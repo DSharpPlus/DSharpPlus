@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Caching;
-using DSharpPlus.Enums;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
 using Microsoft.Extensions.Logging;
@@ -258,7 +257,7 @@ internal class AuditLogParser
                         messageEntry.MessageCount = auditLogAction.Options.Count;
                     }
 
-                    if (messageEntry.Channel is not null)
+                    if (messageEntry.Channel.HasCachedValue)
                     {
                         ulong userId = auditLogAction.TargetId.Value;
                         user = await this._client.Cache.TryGetMemberAsync(userId, this._guildId);
@@ -592,7 +591,7 @@ internal class AuditLogParser
                         .Select(x => new CachedEntity<ulong, DiscordRole>(x, this._guild?.GetRole(x)));
 
                     ruleEntry.ExemptRoles =
-                        PropertyChange<IEnumerable<CachedEntity<ulong,DiscordRole>?>>.From(oldRoles, newRoles);
+                        PropertyChange<IEnumerable<CachedEntity<ulong,DiscordRole>>>.From(oldRoles, newRoles);
                     break;
 
                 case "exempt_channels":
@@ -631,7 +630,7 @@ internal class AuditLogParser
                     }
                     
                     ruleEntry.ExemptChannels =
-                        PropertyChange<IEnumerable<CachedEntity<ulong, DiscordChannel>?>>.From(oldChannels, newChannels);
+                        PropertyChange<IEnumerable<CachedEntity<ulong, DiscordChannel>>>.From(oldChannels, newChannels);
                     break;
 
                 case "$add_keyword_filter":
@@ -897,7 +896,7 @@ internal class AuditLogParser
                         CultureInfo.InvariantCulture, out after);
                     
                     DiscordMember? memberBefore = null;
-                    CachedEntity<ulong, DiscordMember>? cachedMemberBefore = null;
+                    CachedEntity<ulong, DiscordMember> cachedMemberBefore = default;
                     if (change.OldValue is not null)
                     {
                         memberBefore = await this._client.Cache.TryGetMemberAsync(before, this._guildId);
@@ -910,7 +909,7 @@ internal class AuditLogParser
                     }
                     
                     DiscordMember? memberAfter = null;
-                    CachedEntity<ulong, DiscordMember>? cachedMemberAfter = null;
+                    CachedEntity<ulong, DiscordMember> cachedMemberAfter = default;
                     if (change.NewValue is not null)
                     {
                         memberAfter = await this._client.Cache.TryGetMemberAsync(after, this._guildId);
@@ -950,7 +949,7 @@ internal class AuditLogParser
                         CultureInfo.InvariantCulture, out after);
                     
                     DiscordChannel? channelBefore = null;
-                    CachedEntity<ulong, DiscordChannel>? cachedChannelBefore = null;
+                    CachedEntity<ulong, DiscordChannel> cachedChannelBefore = default;
                     if (change.OldValue is not null)
                     {
                         channelBefore = await this._client.Cache.TryGetChannelAsync(before);
@@ -963,7 +962,7 @@ internal class AuditLogParser
                     }
                     
                     DiscordChannel? channelAfter = null;
-                    CachedEntity<ulong, DiscordChannel>? cachedChannelAfter = null;
+                    CachedEntity<ulong, DiscordChannel> cachedChannelAfter = default;
                     if (change.NewValue is not null)
                     {
                         channelAfter = await this._client.Cache.TryGetChannelAsync(after);
@@ -987,7 +986,7 @@ internal class AuditLogParser
                         CultureInfo.InvariantCulture, out after);
                     
                     channelBefore = null;
-                    cachedChannelBefore = null;
+                    cachedChannelBefore = default;
                     if (change.OldValue is not null)
                     {
                         channelBefore = await this._client.Cache.TryGetChannelAsync(before);
@@ -1000,7 +999,7 @@ internal class AuditLogParser
                     }
                     
                     channelAfter = null;
-                    cachedChannelAfter = null;
+                    cachedChannelAfter = default;
                     if (change.NewValue is not null)
                     {
                         channelAfter = await this._client.Cache.TryGetChannelAsync(after);
@@ -1039,7 +1038,7 @@ internal class AuditLogParser
                         CultureInfo.InvariantCulture, out after);
                     
                     channelBefore = null;
-                    cachedChannelBefore = null;
+                    cachedChannelBefore = default;
                     if (change.OldValue is not null)
                     {
                         channelBefore = await this._client.Cache.TryGetChannelAsync(before);
@@ -1052,7 +1051,7 @@ internal class AuditLogParser
                     }
                     
                     channelAfter = null;
-                    cachedChannelAfter = null;
+                    cachedChannelAfter = default;
                     if (change.NewValue is not null)
                     {
                         channelAfter = await this._client.Cache.TryGetChannelAsync(after);
@@ -1531,7 +1530,7 @@ internal class AuditLogParser
                         out ulongAfter);
                     
                     DiscordChannel? channelBefore = null;
-                    CachedEntity<ulong, DiscordChannel>? cachedChannelBefore = null;
+                    CachedEntity<ulong, DiscordChannel> cachedChannelBefore = default;
                     if (change.OldValue is not null)
                     {
                         channelBefore = await this._client.Cache.TryGetChannelAsync(ulongBefore);
@@ -1543,7 +1542,7 @@ internal class AuditLogParser
                     }
                     
                     DiscordChannel? channelAfter = null;
-                    CachedEntity<ulong, DiscordChannel>? cachedChannelAfter = null;
+                    CachedEntity<ulong, DiscordChannel> cachedChannelAfter = default;
                     if (change.NewValue is not null)
                     {
                         channelAfter = await this._client.Cache.TryGetChannelAsync(ulongAfter);
@@ -1711,7 +1710,7 @@ internal class AuditLogParser
                         applicationIdAfter = ulongAfter;
                     }
                     
-                    entry.ApplicationIdChange = PropertyChange<ulong?>.From(applicationIdBefore, applicationIdAfter);
+                    entry.ApplicationIdChange = PropertyChange<ulong>.From(applicationIdBefore ?? default, applicationIdAfter ?? default);
                     break;
 
                 default:

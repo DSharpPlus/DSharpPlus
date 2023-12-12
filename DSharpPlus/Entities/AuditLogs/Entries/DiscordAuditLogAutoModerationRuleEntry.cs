@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using DSharpPlus.Enums;
 using DSharpPlus.Caching;
 
 namespace DSharpPlus.Entities.AuditLogs;
@@ -29,12 +28,12 @@ public sealed class DiscordAuditLogAutoModerationRuleEntry : DiscordAuditLogEntr
     /// <summary>
     /// Indicates in what event context a rule should be checked.
     /// </summary>
-    public PropertyChange<RuleEventType>? EventType { get; internal set; }
+    public PropertyChange<DiscordRuleEventType>? EventType { get; internal set; }
 
     /// <summary>
     /// Characterizes the type of content which can trigger the rule.
     /// </summary>
-    public PropertyChange<RuleTriggerType>? TriggerType { get; internal set; }
+    public PropertyChange<DiscordRuleTriggerType>? TriggerType { get; internal set; }
 
     /// <summary>
     /// Additional data used to determine whether a rule should be triggered. 
