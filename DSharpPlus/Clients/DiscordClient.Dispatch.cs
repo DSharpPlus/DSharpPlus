@@ -734,7 +734,7 @@ public sealed partial class DiscordClient
         if (!guilds.Any())
         {
             this._guildDownloadCompleted = true;
-            GuildDownloadCompletedEventArgs ea = new(this.Guilds);
+            GuildDownloadCompletedEventArgs ea = new(new Dictionary<ulong,DiscordGuild>());
             await this._guildDownloadCompletedEv.InvokeAsync(this, ea);
         }
     }
