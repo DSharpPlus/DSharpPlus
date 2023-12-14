@@ -125,6 +125,27 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.Guilds = new ReadOnlyConcurrentDictionary<ulong, DiscordGuild>(this._guilds);
         this.PrivateChannels = new ReadOnlyConcurrentDictionary<ulong, DiscordDmChannel>(this._privateChannels);
     }
+    
+    /// <summary>
+    /// This constructor is used when constructing a sharded client to use a shared rest client.
+    /// </summary>
+    /// <param name="config">Specifies configuration parameters.</param>
+    /// <param name="restClient">Restclient which will be used for the underlying ApiClients</param>
+    internal DiscordClient(DiscordConfiguration config, RestClient restClient)
+        : base(config, restClient)
+    {
+        DiscordIntents intents = this.Configuration.Intents;
+        if (intents.HasIntent(DiscordIntents.GuildMessages) || intents.HasIntent(DiscordIntents.DirectMessages))
+        {
+            this.MessageCache = this.Configuration.MessageCacheProvider
+                                ?? (this.Configuration.MessageCacheSize > 0 ? new MessageCache(this.Configuration.MessageCacheSize) : null);
+        }
+
+        this.InternalSetup();
+
+        this.Guilds = new ReadOnlyConcurrentDictionary<ulong, DiscordGuild>(this._guilds);
+        this.PrivateChannels = new ReadOnlyConcurrentDictionary<ulong, DiscordDmChannel>(this._privateChannels);
+    }
 
     internal void InternalSetup()
     {

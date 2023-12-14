@@ -32,10 +32,11 @@ public sealed class DiscordApiClient
     internal BaseDiscordClient? _discord { get; }
     internal RestClient _rest { get; }
 
-    internal DiscordApiClient(BaseDiscordClient client)
+    internal DiscordApiClient(BaseDiscordClient client, RestClient? rest = null)
     {
         this._discord = client;
-        this._rest = new RestClient(client);
+        rest ??= new RestClient(client.Configuration, client.Logger);
+        this._rest = rest;
     }
 
     internal DiscordApiClient
