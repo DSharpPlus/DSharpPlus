@@ -1586,11 +1586,8 @@ internal class AuditLogParser
                         CultureInfo.InvariantCulture,
                         out intAfter);
 
-                    entry.UsesChange = new PropertyChange<int>
-                    {
-                        Before = boolBefore ? (int?)intBefore : null,
-                        After = boolAfter ? (int?)intAfter : null
-                    };
+                    entry.UsesChange = PropertyChange<int>.From(boolBefore ? intBefore : null,
+                        boolAfter ? (int?)intAfter : null);
                     break;
 
                 case "max_uses":
@@ -1601,7 +1598,7 @@ internal class AuditLogParser
                         CultureInfo.InvariantCulture,
                         out intAfter);
 
-                    entry.MaxUsesChange = new PropertyChange<int?>
+                    entry.MaxUsesChange = new PropertyChange<int>
                     {
                         Before = boolBefore ? (int?)intBefore : null,
                         After = boolAfter ? (int?)intAfter : null
@@ -1760,11 +1757,11 @@ internal class AuditLogParser
                     break;
 
                 case "guild_id":
-                    entry.GuildIdChange = PropertyChange<ulong?>.From(change);
+                    entry.GuildIdChange = PropertyChange<ulong>.From(change);
                     break;
 
                 case "available":
-                    entry.AvailabilityChange = PropertyChange<bool?>.From(change);
+                    entry.AvailabilityChange = PropertyChange<bool>.From(change);
                     break;
 
                 case "asset":
@@ -1772,15 +1769,15 @@ internal class AuditLogParser
                     break;
 
                 case "id":
-                    entry.IdChange = PropertyChange<ulong?>.From(change);
+                    entry.IdChange = PropertyChange<ulong>.From(change);
                     break;
 
                 case "type":
-                    entry.TypeChange = PropertyChange<StickerType?>.From(change);
+                    entry.TypeChange = PropertyChange<StickerType>.From(change);
                     break;
 
                 case "format_type":
-                    entry.FormatChange = PropertyChange<StickerFormat?>.From(change);
+                    entry.FormatChange = PropertyChange<StickerFormat>.From(change);
                     break;
 
                 default:
@@ -1813,15 +1810,15 @@ internal class AuditLogParser
             switch (change.Key.ToLowerInvariant())
             {
                 case "enable_emoticons":
-                    entry.EnableEmoticons = PropertyChange<bool?>.From(change);
+                    entry.EnableEmoticons = PropertyChange<bool>.From(change);
                     break;
 
                 case "expire_behavior":
-                    entry.ExpireBehavior = PropertyChange<int?>.From(change);
+                    entry.ExpireBehavior = PropertyChange<int>.From(change);
                     break;
 
                 case "expire_grace_period":
-                    entry.ExpireBehavior = PropertyChange<int?>.From(change);
+                    entry.ExpireBehavior = PropertyChange<int>.From(change);
                     break;
 
                 case "name":

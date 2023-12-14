@@ -16,6 +16,7 @@ public record CacheConfiguration
         {typeof(DiscordChannel), new CacheEntryOptions(){SlidingExpiration = TimeSpan.FromMinutes(60)}},
         {typeof(DiscordMessage), new CacheEntryOptions(){SlidingExpiration = TimeSpan.FromMinutes(60)}},
         {typeof(DiscordMember), new CacheEntryOptions(){SlidingExpiration = TimeSpan.FromMinutes(60)}},
-        {typeof(DiscordUser), new CacheEntryOptions(){SlidingExpiration = TimeSpan.FromMinutes(60)}}
+        {typeof(DiscordUser), new CacheEntryOptions(){SlidingExpiration = TimeSpan.FromMinutes(60)}},
+        {typeof(DiscordPresence), new CacheEntryOptions(){SlidingExpiration = TimeSpan.FromMinutes(60)}}
     };
 }
