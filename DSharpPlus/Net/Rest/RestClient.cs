@@ -42,7 +42,7 @@ internal sealed partial class RestClient : IDisposable
             logger
         )
     {
-        this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(client));
+        this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(config));
         this.HttpClient.BaseAddress = new(Endpoints.BASE_URI);
     }
 
