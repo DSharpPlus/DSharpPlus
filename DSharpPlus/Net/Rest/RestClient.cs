@@ -30,21 +30,19 @@ internal sealed partial class RestClient : IDisposable
     private BaseDiscordClient? Discord { get; }
     private ILogger Logger { get; }
     private AsyncManualResetEvent GlobalRateLimitEvent { get; }
-
     private AsyncPolicyWrap<HttpResponseMessage> RateLimitPolicy { get; }
 
     private volatile bool _disposed;
 
-    internal RestClient(BaseDiscordClient client)
+    internal RestClient(DiscordConfiguration config, ILogger logger)
         : this
         (
-            client.Configuration.Proxy,
-            client.Configuration.HttpTimeout,
-            client.Logger
+            config.Proxy,
+            config.HttpTimeout,
+            logger
         )
     {
-        this.Discord = client;
-        this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(client));
+        this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(config));
         this.HttpClient.BaseAddress = new(Endpoints.BASE_URI);
     }
 
