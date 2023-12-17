@@ -254,7 +254,7 @@ namespace DSharpPlus
                     LoggerFactory = lf
                 };
 
-                var client = new DiscordClient(cfg);
+                var client = new DiscordClient(cfg, rc);
                 if (!this._shards.TryAdd(i, client))
                     throw new InvalidOperationException("Could not initialize shards.");
             }
