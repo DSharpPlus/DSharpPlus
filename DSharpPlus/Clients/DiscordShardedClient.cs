@@ -244,6 +244,7 @@ namespace DSharpPlus
             this.GatewayInfo = await this.GetGatewayInfoAsync().ConfigureAwait(false);
             var shardc = this.Configuration.ShardCount == 1 ? this.GatewayInfo.ShardCount : this.Configuration.ShardCount;
             var lf = new ShardedLoggerFactory(this.Logger);
+            var rc = new RestClient(this.Configuration, lf.CreateLogger("Rest"));
             for (var i = 0; i < shardc; i++)
             {
                 var cfg = new DiscordConfiguration(this.Configuration)

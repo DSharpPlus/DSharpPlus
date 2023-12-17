@@ -89,7 +89,7 @@ namespace DSharpPlus
         /// Initializes this Discord API client.
         /// </summary>
         /// <param name="config">Configuration for this client.</param>
-        protected BaseDiscordClient(DiscordConfiguration config)
+        internal BaseDiscordClient(DiscordConfiguration config, RestClient restClient = null)
         {
             this.Configuration = new DiscordConfiguration(config);
 
@@ -100,7 +100,7 @@ namespace DSharpPlus
             }
             this.Logger = this.Configuration.LoggerFactory.CreateLogger<BaseDiscordClient>();
 
-            this.ApiClient = new DiscordApiClient(this);
+            this.ApiClient = new DiscordApiClient(this, restClient);
             this.UserCache = new ConcurrentDictionary<ulong, DiscordUser>();
             this.InternalVoiceRegions = new ConcurrentDictionary<string, DiscordVoiceRegion>();
             this._voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this.InternalVoiceRegions));

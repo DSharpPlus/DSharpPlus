@@ -46,10 +46,10 @@ namespace DSharpPlus.Net
         internal BaseDiscordClient _discord { get; }
         internal RestClient _rest { get; }
 
-        internal DiscordApiClient(BaseDiscordClient client)
+        internal DiscordApiClient(BaseDiscordClient client, RestClient rest = null)
         {
             this._discord = client;
-            this._rest = new RestClient(client);
+            this._rest = rest ?? new RestClient(client.Configuration, client.Logger);
         }
 
         internal DiscordApiClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRateLimit, ILogger logger) // This is for meta-clients, such as the webhook client

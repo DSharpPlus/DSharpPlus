@@ -60,11 +60,10 @@ namespace DSharpPlus.Net
         private Task _cleanerTask;
         private volatile bool _disposed;
 
-        internal RestClient(BaseDiscordClient client)
-            : this(client.Configuration.Proxy, client.Configuration.HttpTimeout, client.Configuration.UseRelativeRatelimit, client.Logger)
+        internal RestClient(DiscordConfiguration config, ILogger logger)
+            : this(config.Proxy, config.HttpTimeout, config.UseRelativeRatelimit, logger)
         {
-            this.Discord = client;
-            this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(client));
+            this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(config));
         }
 
         internal RestClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRatelimit,
