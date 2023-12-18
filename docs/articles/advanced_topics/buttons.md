@@ -70,7 +70,7 @@ builder.WithContent("This message has buttons! Pretty neat innit?");
 ```
 
 Well, there's a builder, but no buttons. What now? Simply make a new @DSharpPlus.Entities.DiscordButtonComponent object
-and call @DSharpPlus.Entities.DiscordMessageBuilder.AddComponents* on the
+and call AddComponents on the
 message builder.
 
 ```cs
@@ -82,7 +82,7 @@ var builder = new DiscordMessageBuilder()
 ```
 
 Now you have a message with a button. Congratulations! It's important to note that
-@DSharpPlus.Entities.DiscordMessageBuilder.AddComponents* will create a new row with each call, so **add everything you
+AddComponents will create a new row with each call, so **add everything you
 want on one row in one call!**
 
 Buttons can be added in any order you fancy. Lets add 5 to demonstrate each color, and a link button for good measure.
@@ -184,7 +184,7 @@ This will update the message, and remove all the buttons. Nice.
 
 # Interactivity
 
-Along with the typical @DSharpPlus.Interactivity.InteractivityExtension.WaitForMessageAsync*and
+Along with the typical @DSharpPlus.Interactivity.InteractivityExtension.WaitForMessageAsync* and
 @DSharpPlus.Interactivity.InteractivityExtension.WaitForReactionAsync* methods provided by interactivity, there are also
 button implementations as well.
 

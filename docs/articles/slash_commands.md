@@ -13,6 +13,14 @@ There are some caveats to the usage of the library that you should note:
 
 It does not support registering or editing commands at runtime. While you can make commands at runtime using the methods on the client, if you have a command class registered for that guild/globally if you're making global commands, it will be overwritten (therefore probably deleted) on the next startup due to the limitations of the bulk overwrite endpoint. If your usage of slash commands depends on dynamically registering commands, this extension will not work for you.
 
+## Installation
+To get started, make sure you have matching versions of both the [`DSharpPlus`](https://www.nuget.org/packages/DSharpPlus) and [`DSharpPlus.SlashCommands`](https://www.nuget.org/packages/DSharpPlus.SlashCommands) packages.
+
+```
+dotnet add package DSharpPlus
+dotnet add package DSharpPlus.SlashCommands
+```
+
 ## Important: Authorizing your bot
 
 For a bot to make slash commands in a server, it must be authorized with the applications.commands scope as well. In the OAuth2 section of the developer portal, you can check the applications.commands box to generate an invite link. You can check the bot box as well to generate a link that authorizes both. If a bot is already authorized with the bot scope, you can still authorize with just the applications.commands scope without having to kick out the bot.
@@ -74,14 +82,14 @@ public class SlashCommands : ApplicationCommandModule
 }
 ```
 
-To make a response, you must run `CreateResponseAsync` on your `InteractionContext`. `CreateResponseAsync` takes two arguments. The first is a [`InteractionResponseType`](https://dsharpplus.github.io/api/DSharpPlus.InteractionResponseType.html):
+To make a response, you must run `CreateResponseAsync` on your `InteractionContext`. `CreateResponseAsync` takes two arguments. The first is a [`InteractionResponseType`](https://dsharpplus.github.io/DSharpPlus/api/DSharpPlus.InteractionResponseType.html):
 
 * `DeferredChannelMessageWithSource` - Acknowledges the interaction, doesn't require any content.
 * `ChannelMessageWithSource` - Sends a message to the channel, requires you to specify some data to send.
 
 An interaction expires in 3 seconds unless you make a response. If the code you execute before making a response has the potential to take more than 3 seconds, you should first create a `DeferredChannelMessageWithSource` response, and then edit it after your code executes.
 
-The second argument is a type of [`DiscordInteractionResponseBuilder`](https://dsharpplus.github.io/api/DSharpPlus.Entities.DiscordInteractionResponseBuilder.html). It functions similarly to the DiscordMessageBuilder, except you cannot send files, and you can have multiple embeds.
+The second argument is a type of [`DiscordInteractionResponseBuilder`](https://dsharpplus.github.io/DSharpPlus/api/DSharpPlus.Entities.DiscordInteractionResponseBuilder.-ctor.html). It functions similarly to the DiscordMessageBuilder, except you cannot send files, and you can have multiple embeds.
 
 If you want to send a file, you'll have to edit the response.
 
@@ -109,7 +117,7 @@ public async Task DelayTestCommand(InteractionContext ctx)
 }
 ```
 
-You can also override `BeforeExecutionAsync` and `AfterExecutionAsync` to run code before and after all the commands in a module. This does not apply to groups, you have the override them individually for the group's class.
+You can also override `BeforeExecutionAsync` and `AfterExecutionAsync` to run code before and after all the commands in a module. This does not apply to groups, you have to override them individually for the group's class.
 `BeforeExecutionAsync` can also be used to prevent the command from running.
 
 ### Arguments

@@ -45,7 +45,7 @@ This method displays a collection of *'pages'* which are selected one-at-a-time 
 Each button click will move the page view in one direction or the other until the timeout is reached.
 
 You'll need to create a collection of pages before you can invoke this method. This can be done easily using the
-@DSharpPlus.Interactivity.InteractivityExtension.GeneratePagesInEmbed*and
+@DSharpPlus.Interactivity.InteractivityExtension.GeneratePagesInEmbed* and
 @DSharpPlus.Interactivity.InteractivityExtension.GeneratePagesInContent* instance methods from
 @DSharpPlus.Interactivity.InteractivityExtension.
 Alternatively, for pre-generated content, you can create and add individual instances of @DSharpPlus.Interactivity.Page

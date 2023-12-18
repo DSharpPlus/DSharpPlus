@@ -1,18 +1,17 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 
-namespace DSharpPlus.SlashCommands
+namespace DSharpPlus.SlashCommands;
+
+/// <summary>
+/// The base class for a pre-execution check for a slash command.
+/// </summary>
+public abstract class SlashCheckBaseAttribute : Attribute
 {
     /// <summary>
-    /// The base class for a pre-execution check for a slash command.
+    /// Checks whether this command can be executed within the current context.
     /// </summary>
-    public abstract class SlashCheckBaseAttribute : Attribute
-    {
-        /// <summary>
-        /// Checks whether this command can be executed within the current context.
-        /// </summary>
-        /// <param name="ctx">The context.</param>
-        /// <returns>Whether the checks passed.</returns>
-        public abstract Task<bool> ExecuteChecksAsync(InteractionContext ctx);
-    }
+    /// <param name="ctx">The context.</param>
+    /// <returns>Whether the checks passed.</returns>
+    public abstract Task<bool> ExecuteChecksAsync(InteractionContext ctx);
 }

@@ -1,63 +1,74 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 
-namespace DSharpPlus.SlashCommands.Attributes
+namespace DSharpPlus.SlashCommands.Attributes;
+
+/// <summary>
+/// Defines that usage of this slash command is restricted to members with specified permissions. This check also verifies that the bot has the same permissions.
+/// </summary>
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+public sealed class SlashRequirePermissionsAttribute : SlashCheckBaseAttribute
 {
     /// <summary>
-    /// Defines that usage of this slash command is restricted to members with specified permissions. This check also verifies that the bot has the same permissions.
+    /// Gets the permissions required by this attribute.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public sealed class SlashRequirePermissionsAttribute : SlashCheckBaseAttribute
+    public Permissions Permissions { get; }
+
+    /// <summary>
+    /// Gets or sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.
+    /// </summary>
+    public bool IgnoreDms { get; } = true;
+
+    /// <summary>
+    /// Defines that usage of this command is restricted to members with specified permissions. This check also verifies that the bot has the same permissions.
+    /// </summary>
+    /// <param name="permissions">Permissions required to execute this command.</param>
+    /// <param name="ignoreDms">Sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.</param>
+    public SlashRequirePermissionsAttribute(Permissions permissions, bool ignoreDms = true)
     {
-        /// <summary>
-        /// Gets the permissions required by this attribute.
-        /// </summary>
-        public Permissions Permissions { get; }
+        this.Permissions = permissions;
+        this.IgnoreDms = ignoreDms;
+    }
 
-        /// <summary>
-        /// Gets or sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.
-        /// </summary>
-        public bool IgnoreDms { get; } = true;
-
-        /// <summary>
-        /// Defines that usage of this command is restricted to members with specified permissions. This check also verifies that the bot has the same permissions.
-        /// </summary>
-        /// <param name="permissions">Permissions required to execute this command.</param>
-        /// <param name="ignoreDms">Sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.</param>
-        public SlashRequirePermissionsAttribute(Permissions permissions, bool ignoreDms = true)
+    /// <summary>
+    /// Runs checks.
+    /// </summary>
+    public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
+    {
+        if (ctx.Guild == null)
         {
-            this.Permissions = permissions;
-            this.IgnoreDms = ignoreDms;
+            return this.IgnoreDms;
         }
 
-        /// <summary>
-        /// Runs checks.
-        /// </summary>
-        public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
+        Entities.DiscordMember usr = ctx.Member;
+        if (usr == null)
         {
-            if (ctx.Guild == null)
-                return this.IgnoreDms;
-
-            var usr = ctx.Member;
-            if (usr == null)
-                return false;
-            var pusr = ctx.Channel.PermissionsFor(usr);
-
-            var bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id).ConfigureAwait(false);
-            if (bot == null)
-                return false;
-            var pbot = ctx.Channel.PermissionsFor(bot);
-
-            var usrok = ctx.Guild.OwnerId == usr.Id;
-            var botok = ctx.Guild.OwnerId == bot.Id;
-
-            if (!usrok)
-                usrok = (pusr & Permissions.Administrator) != 0 || (pusr & this.Permissions) == this.Permissions;
-
-            if (!botok)
-                botok = (pbot & Permissions.Administrator) != 0 || (pbot & this.Permissions) == this.Permissions;
-
-            return usrok && botok;
+            return false;
         }
+
+        Permissions pusr = ctx.Channel.PermissionsFor(usr);
+
+        Entities.DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
+        if (bot == null)
+        {
+            return false;
+        }
+
+        Permissions pbot = ctx.Channel.PermissionsFor(bot);
+
+        bool usrok = ctx.Guild.OwnerId == usr.Id;
+        bool botok = ctx.Guild.OwnerId == bot.Id;
+
+        if (!usrok)
+        {
+            usrok = (pusr & Permissions.Administrator) != 0 || (pusr & this.Permissions) == this.Permissions;
+        }
+
+        if (!botok)
+        {
+            botok = (pbot & Permissions.Administrator) != 0 || (pbot & this.Permissions) == this.Permissions;
+        }
+
+        return usrok && botok;
     }
 }

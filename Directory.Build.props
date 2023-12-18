@@ -1,54 +1,50 @@
 <Project>
-    <PropertyGroup>
-        <!-- general properties -->
-        <VersionPrefix>5.0.0</VersionPrefix>
-        <TargetFramework>net7.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <LangVersion>Latest</LangVersion>
-        <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-        <Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, IDoEverything, Velvet, OoLunar, akiraveliara, DSharpPlus contributors</Authors>
-        <Company>DSharpPlus developers</Company>
-        <PackageProjectUrl>https://github.com/DSharpPlus/DSharpPlus</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/DSharpPlus/DSharpPlus</RepositoryUrl>
-        <RepositoryType>Git</RepositoryType>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageIcon>dsharpplus.png</PackageIcon>
-        <PackageIconUrl>https://raw.githubusercontent.com/DSharpPlus/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
-        <GenerateDocumentationFile>True</GenerateDocumentationFile>
-        <NoWarn>CS1591</NoWarn>
-        <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
-        <ManagePackageVersionsCentrally>True</ManagePackageVersionsCentrally>
+  <!-- Build -->
+  <PropertyGroup>
+    <!-- Add '_DisableAnalyzers' to the list of compilation dependencies -->
+    <CoreCompileDependsOn>$(CoreCompileDependsOn);_DisableAnalyzers</CoreCompileDependsOn>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IsPackable>false</IsPackable>
+    <LangVersion>Latest</LangVersion>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <NoWarn>CS1591</NoWarn>
+    <Nullable>enable</Nullable>
+    <OutputType>Library</OutputType>
+    <ProjectRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), "DSharpPlus.sln"))</ProjectRoot>
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+    <TargetFramework>net8.0</TargetFramework>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <Version>5.0.0</Version>
+    <Version Condition="'$(Nightly)' != ''">$(Version)-nightly-$(Nightly)</Version>
+    <Version Condition="'$(PR)' != ''">$(Version)-pr-$(PR)</Version>
+  </PropertyGroup>
 
-        <!-- SourceLink -->
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    </PropertyGroup>
+  <!-- Nuget -->
+  <PropertyGroup>
+    <Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, IDoEverything, Velvet, OoLunar, akiraveliara, DSharpPlus contributors</Authors>
+    <Company>DSharpPlus developers</Company>
+    <PackageIcon>dsharpplus.png</PackageIcon>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/DSharpPlus/DSharpPlus</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp</PackageTags>
+    <RepositoryType>Git</RepositoryType>
+    <RepositoryUrl>https://github.com/DSharpPlus/DSharpPlus</RepositoryUrl>
+  </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-        <Optimize>False</Optimize>
-    </PropertyGroup>
+  <!-- Resource Files -->
+  <ItemGroup>
+    <None Include="$(ProjectRoot)/LICENSE" Pack="true" PackagePath=""/>
+    <None Include="$(ProjectRoot)/README.md" Pack="true" PackagePath=""/>
+    <None Include="$(ProjectRoot)/logo/dsharpplus.png" Pack="true" PackagePath=""/>
+    <!-- Remove the 'JSImportGenerator' analyzer by default to improve compilation time. +200ms is apparently enough to require this change. -->
+    <RemoveAnalyzer Include="Microsoft.Interop.JavaScript.JSImportGenerator" />
+  </ItemGroup>
 
-    <PropertyGroup Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">
-        <Version>$(VersionPrefix)-$(VersionSuffix)-$(BuildNumber)</Version>
-        <AssemblyVersion>$(VersionPrefix).$(BuildNumber)</AssemblyVersion>
-        <FileVersion>$(VersionPrefix).$(BuildNumber)</FileVersion>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' == ''">
-        <Version>$(VersionPrefix)-$(VersionSuffix)</Version>
-        <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
-        <FileVersion>$(VersionPrefix).0</FileVersion>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(VersionSuffix)' == ''">
-        <Version>$(VersionPrefix)</Version>
-        <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
-        <FileVersion>$(VersionPrefix).0</FileVersion>
-    </PropertyGroup>
-
+  <Target Name="_DisableAnalyzers" DependsOnTargets="ResolveTargetingPackAssets" Inputs="@(RemoveAnalyzer)" Outputs="|%(Identity)|">
     <ItemGroup>
-        <None Include="../logo/dsharpplus.png" Pack="true" PackagePath="/"/>
+      <!-- Remove the analyzer specified in 'RemoveAnalyzer' from the list of analyzers -->
+      <Analyzer Remove="@(Analyzer)" Condition="'%(Analyzer.Identity)' == '$(RemoveAnalyzer)'"/>
     </ItemGroup>
+  </Target>
 </Project>

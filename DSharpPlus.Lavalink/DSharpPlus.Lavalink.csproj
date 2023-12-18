@@ -1,19 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <AssemblyName>DSharpPlus.Lavalink</AssemblyName>
-        <RootNamespace>DSharpPlus.Lavalink</RootNamespace>
-        <OutputType>Library</OutputType>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <PackageId>DSharpPlus.Lavalink</PackageId>
-        <Description>Lavalink implementation for DSharpPlus. Lavalink is an easy and lightweight method of streaming audio to Discord.</Description>
-        <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, audio, voice, radio, music, lavalink, lavaplayer</PackageTags>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj"/>
-    </ItemGroup>
-
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageId>DSharpPlus.Lavalink</PackageId>
+    <Description>Lavalink implementation for DSharpPlus. Lavalink is an easy and lightweight method of streaming audio to Discord.</Description>
+    <PackageTags>$(PackageTags), audio, voice, radio, music, lavalink, lavaplayer</PackageTags>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(ProjectRoot)\DSharpPlus\DSharpPlus.csproj" />
+  </ItemGroup>
 </Project>

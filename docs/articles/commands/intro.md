@@ -102,7 +102,7 @@ discord.MessageCreated += async (s, e) =>               // REMOVE
 await discord.ConnectAsync();
 ```
 
-Next, call the @DSharpPlus.CommandsNext.ExtensionMethods.UseCommandsNext*extension method on your
+Next, call the @DSharpPlus.CommandsNext.ExtensionMethods.UseCommandsNext* extension method on your
 @DSharpPlus.DiscordClient instance and pass it a new @DSharpPlus.CommandsNext.CommandsNextConfiguration instance. Assign
 the resulting @DSharpPlus.CommandsNext.CommandsNextExtension instance to a new variable named*commands*. This important
 step will enable CommandsNext for your Discord client.

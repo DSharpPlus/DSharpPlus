@@ -1,45 +1,62 @@
-// This file is part of the DSharpPlus project.
-//
-// Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2023 DSharpPlus Contributors
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
-namespace DSharpPlus.Net
+namespace DSharpPlus.Net;
+
+/// <summary>
+/// Represents a non-multipart HTTP request.
+/// </summary>
+internal readonly record struct RestRequest : IRestRequest
 {
-    /// <summary>
-    /// Represents a non-multipart HTTP request.
-    /// </summary>
-    internal sealed class RestRequest : BaseRestRequest
-    {
-        /// <summary>
-        /// Gets the payload sent with this request.
-        /// </summary>
-        public string Payload { get; }
+    /// <inheritdoc/>
+    public string Url { get; init; }
 
-        internal RestRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IReadOnlyDictionary<string, string> headers = null, string payload = null, double? ratelimitWaitOverride = null)
-            : base(client, bucket, url, method, route, headers, ratelimitWaitOverride)
+    /// <summary>
+    /// The method for this request.
+    /// </summary>
+    public HttpMethod Method { get; init; }
+
+    /// <inheritdoc/>
+    public string Route { get; init; }
+
+    /// <inheritdoc/>
+    public bool IsExemptFromGlobalLimit { get; init; }
+
+    /// <summary>
+    /// The headers for this request.
+    /// </summary>
+    public IReadOnlyDictionary<string, string>? Headers { get; init; }
+
+    /// <summary>
+    /// The payload sent with this request.
+    /// </summary>
+    public string? Payload { get; init; }
+
+    /// <inheritdoc/>
+    public HttpRequestMessage Build()
+    {
+        HttpRequestMessage request = new()
         {
-            this.Payload = payload;
+            Method = this.Method,
+            RequestUri = new($"{Endpoints.BASE_URI}/{this.Url}")
+        };
+
+        if (this.Payload is not null)
+        {
+            request.Content = new StringContent(this.Payload);
+            request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
         }
+
+        if (this.Headers is not null)
+        {
+            foreach (KeyValuePair<string, string> header in this.Headers)
+            {
+                request.Headers.Add(header.Key, Uri.EscapeDataString(header.Value));
+            }
+        }
+
+        return request;
     }
 }

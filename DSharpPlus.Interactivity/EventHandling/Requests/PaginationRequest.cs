@@ -1,26 +1,3 @@
-// This file is part of the DSharpPlus project.
-//
-// Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2023 DSharpPlus Contributors
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -34,7 +11,7 @@ namespace DSharpPlus.Interactivity.EventHandling
     {
         private TaskCompletionSource<bool> _tcs;
         private readonly CancellationTokenSource _ct;
-        private TimeSpan _timeout;
+        private readonly TimeSpan _timeout;
         private readonly List<Page> _pages;
         private readonly PaginationBehaviour _behaviour;
         private readonly DiscordMessage _message;
@@ -68,7 +45,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._emojis = emojis;
 
             this._pages = new List<Page>();
-            foreach (var p in pages)
+            foreach (Page p in pages)
             {
                 this._pages.Add(p);
             }
@@ -107,17 +84,25 @@ namespace DSharpPlus.Interactivity.EventHandling
             {
                 case PaginationBehaviour.Ignore:
                     if (this._index == this._pages.Count - 1)
+                    {
                         break;
+                    }
                     else
+                    {
                         this._index++;
+                    }
 
                     break;
 
                 case PaginationBehaviour.WrapAround:
                     if (this._index == this._pages.Count - 1)
+                    {
                         this._index = 0;
+                    }
                     else
+                    {
                         this._index++;
+                    }
 
                     break;
             }
@@ -131,17 +116,25 @@ namespace DSharpPlus.Interactivity.EventHandling
             {
                 case PaginationBehaviour.Ignore:
                     if (this._index == 0)
+                    {
                         break;
+                    }
                     else
+                    {
                         this._index--;
+                    }
 
                     break;
 
                 case PaginationBehaviour.WrapAround:
                     if (this._index == 0)
+                    {
                         this._index = this._pages.Count - 1;
+                    }
                     else
+                    {
                         this._index--;
+                    }
 
                     break;
             }
@@ -176,11 +169,11 @@ namespace DSharpPlus.Interactivity.EventHandling
             switch (this.PaginationDeletion)
             {
                 case PaginationDeletion.DeleteEmojis:
-                    await this._message.DeleteAllReactionsAsync().ConfigureAwait(false);
+                    await this._message.DeleteAllReactionsAsync();
                     break;
 
                 case PaginationDeletion.DeleteMessage:
-                    await this._message.DeleteAsync().ConfigureAwait(false);
+                    await this._message.DeleteAsync();
                     break;
 
                 case PaginationDeletion.KeepEmojis:
@@ -195,18 +188,15 @@ namespace DSharpPlus.Interactivity.EventHandling
             return this._tcs;
         }
 
-        ~PaginationRequest()
-        {
-            this.Dispose();
-        }
-
         /// <summary>
         /// Disposes this PaginationRequest.
         /// </summary>
         public void Dispose()
         {
-            this._ct.Dispose();
-            this._tcs = null;
+            // Why doesn't this class implement IDisposable?
+
+            this._ct?.Dispose();
+            this._tcs = null!;
         }
     }
 }
