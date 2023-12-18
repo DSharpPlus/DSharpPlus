@@ -14,12 +14,6 @@
     <ManagePackageVersionsCentrally>True</ManagePackageVersionsCentrally>
     <UseArtifactsOutput>true</UseArtifactsOutput>
     <NuGetAudit>true</NuGetAudit>
-
-    <!-- sourcelink -->
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <!-- nuget -->
