@@ -26,7 +26,7 @@ public sealed class ImageDataConverter : JsonConverter<ImageData>
     {
         using ArrayPoolBufferWriter<byte> bufferWriter = new(65536);
 
-        value.WriteToAsync(bufferWriter).AsTask().GetAwaiter().GetResult();
+        value.WriteTo(bufferWriter);
 
         writer.WriteStringValue(bufferWriter.WrittenSpan);
     }
