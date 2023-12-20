@@ -57,7 +57,7 @@ public interface ICreateMessagePayload
     /// <summary>
     /// Files to be attached to this message.
     /// </summary>
-    public IReadOnlyList<ImageData>? Files { get; }
+    public IReadOnlyList<AttachmentData>? Files { get; }
 
     /// <summary>
     /// Attachment metadata for this message.

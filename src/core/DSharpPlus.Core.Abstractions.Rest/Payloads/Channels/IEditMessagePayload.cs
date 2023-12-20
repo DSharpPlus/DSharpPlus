@@ -45,7 +45,7 @@ public interface IEditMessagePayload
     /// Attached files to this message. This must include old attachments to be retained and new attachments, 
     /// if passed.
     /// </summary>
-    public IReadOnlyList<ImageData>? Files { get; }
+    public IReadOnlyList<AttachmentData>? Files { get; }
 
     /// <summary>
     /// Attachments to this message.

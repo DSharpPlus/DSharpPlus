@@ -45,7 +45,7 @@ public interface ICreateFollowupMessagePayload
     /// <summary>
     /// Files to upload with this message.
     /// </summary>
-    public Optional<IReadOnlyList<AttachmentData>> Files { get; }
+    public IReadOnlyList<AttachmentData>? Files { get; }
 
     /// <summary>
     /// Attachment metadata for files uploaded with this message.

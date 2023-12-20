@@ -41,5 +41,5 @@ public interface IEditFollowupMessagePayload
     /// <summary>
     /// File contents to send or edit.
     /// </summary>
-    public Optional<IReadOnlyList<AttachmentData>> Files { get; }
+    public IReadOnlyList<AttachmentData>? Files { get; }
 }

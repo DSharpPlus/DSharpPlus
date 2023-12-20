@@ -39,5 +39,5 @@ public interface IStartThreadInForumOrMediaChannelPayload
     /// <summary>
     /// The contents of the files to send.
     /// </summary>
-    public IReadOnlyList<ImageData>? Files { get; }
+    public IReadOnlyList<AttachmentData>? Files { get; }
 }
