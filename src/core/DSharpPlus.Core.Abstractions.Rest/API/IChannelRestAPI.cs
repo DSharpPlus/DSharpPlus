@@ -183,7 +183,7 @@ public interface IChannelRestAPI
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>Whether the reaction was added successfully.</returns>
-    public ValueTask<Result<bool>> CreateReactionAsync
+    public ValueTask<Result> CreateReactionAsync
     (
         Snowflake channelId,
         Snowflake messageId,
@@ -201,7 +201,7 @@ public interface IChannelRestAPI
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>Whether the reaction was removed successfully.</returns>
-    public ValueTask<Result<bool>> DeleteOwnReactionAsync
+    public ValueTask<Result> DeleteOwnReactionAsync
     (
         Snowflake channelId,
         Snowflake messageId,
@@ -220,7 +220,7 @@ public interface IChannelRestAPI
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>Whether the reaction was removed successfully.</returns>
-    public ValueTask<Result<bool>> DeleteUserReactionAsync
+    public ValueTask<Result> DeleteUserReactionAsync
     (
         Snowflake channelId,
         Snowflake messageId,
@@ -309,7 +309,7 @@ public interface IChannelRestAPI
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>Whether the message was successfully deleted.</returns>
-    public ValueTask<Result<bool>> DeleteMessageAsync
+    public ValueTask<Result> DeleteMessageAsync
     (
         Snowflake channelId,
         Snowflake messageId,
@@ -330,7 +330,7 @@ public interface IChannelRestAPI
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>Whether the messages were deleted successfully.</returns>
-    public ValueTask<Result<bool>> BulkDeleteMessagesAsync
+    public ValueTask<Result> BulkDeleteMessagesAsync
     (
         Snowflake channelId,
         IReadOnlyList<Snowflake> messageIds,
@@ -349,7 +349,7 @@ public interface IChannelRestAPI
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>Whether the overwrite was successfully edited.</returns>
-    public ValueTask<Result<bool>> EditChannelPermissionsAsync
+    public ValueTask<Result> EditChannelPermissionsAsync
     (
         Snowflake channelId,
         Snowflake overwriteId,
@@ -399,7 +399,7 @@ public interface IChannelRestAPI
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>Whether the deletion was successful.</returns>
-    public ValueTask<Result<bool>> DeleteChannelPermissionAsync
+    public ValueTask<Result> DeleteChannelPermissionAsync
     (
         Snowflake channelId,
         Snowflake overwriteId,
