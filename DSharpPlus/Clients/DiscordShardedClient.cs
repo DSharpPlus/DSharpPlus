@@ -241,25 +241,25 @@ namespace DSharpPlus
             if (this._shards.Count != 0)
                 return this._shards.Count;
 
-            this.GatewayInfo = await this.GetGatewayInfoAsync().ConfigureAwait(false);
-            var shardc = this.Configuration.ShardCount == 1 ? this.GatewayInfo.ShardCount : this.Configuration.ShardCount;
-            var lf = new ShardedLoggerFactory(this.Logger);
-            var rc = new RestClient(this.Configuration, lf.CreateLogger("Rest"));
-            for (var i = 0; i < shardc; i++)
+        this.GatewayInfo = await this.GetGatewayInfoAsync();
+        int shardCount = this.Configuration.ShardCount == 1 ? this.GatewayInfo.ShardCount : this.Configuration.ShardCount;
+        ShardedLoggerFactory loggerFactory = new ShardedLoggerFactory(this.Configuration.LoggerFactory);
+        RestClient restClient = new RestClient(this.Configuration, loggerFactory.CreateLogger("Rest"));
+        for (int i = 0; i < shardCount; i++)
+        {
+            DiscordConfiguration cfg = new DiscordConfiguration(this.Configuration)
             {
-                var cfg = new DiscordConfiguration(this.Configuration)
-                {
-                    ShardId = i,
-                    ShardCount = shardc,
-                    LoggerFactory = lf
-                };
+                ShardId = i,
+                ShardCount = shardCount,
+                LoggerFactory = loggerFactory
+            };
 
-                var client = new DiscordClient(cfg, rc);
+                var client = new DiscordClient(cfg, restClient);
                 if (!this._shards.TryAdd(i, client))
                     throw new InvalidOperationException("Could not initialize shards.");
             }
 
-            return shardc;
+            return shardCount;
         }
 
         #endregion
