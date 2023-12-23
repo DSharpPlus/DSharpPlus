@@ -14,7 +14,7 @@ using Remora.Results;
 namespace DSharpPlus.Core.Abstractions.Rest.API;
 
 /// <summary>
-/// Represents a request wrapper for all request to discord's emoji rest resource.
+/// Provides access to emoji-related rest API calls.
 /// </summary>
 public interface IDiscordEmojiRestResource
 {
