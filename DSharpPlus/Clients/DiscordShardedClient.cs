@@ -233,7 +233,7 @@ public sealed partial class DiscordShardedClient
 
         this.GatewayInfo = await this.GetGatewayInfoAsync();
         int shardCount = this.Configuration.ShardCount == 1 ? this.GatewayInfo.ShardCount : this.Configuration.ShardCount;
-        ShardedLoggerFactory loggerFactory = new ShardedLoggerFactory(this.Logger);
+        ShardedLoggerFactory loggerFactory = new ShardedLoggerFactory(this.Configuration.LoggerFactory);
         RestClient restClient = new RestClient(this.Configuration, loggerFactory.CreateLogger("Rest"));
         for (int i = 0; i < shardCount; i++)
         {
