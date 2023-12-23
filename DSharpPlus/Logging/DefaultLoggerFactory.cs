@@ -11,14 +11,10 @@ internal class DefaultLoggerFactory : ILoggerFactory
 
     public void AddProvider(ILoggerProvider provider) => this.Providers.Add(provider);
 
-    public ILogger CreateLogger(string categoryName)
-    {
-        return this._isDisposed
+    public ILogger CreateLogger(string categoryName) =>
+        this._isDisposed
             ? throw new InvalidOperationException("This logger factory is already disposed.")
-            : (ILogger)(categoryName != typeof(BaseDiscordClient).FullName && categoryName != typeof(DiscordWebhookClient).FullName
-            ? throw new ArgumentException($"This factory can only provide instances of loggers for {typeof(BaseDiscordClient).FullName} or {typeof(DiscordWebhookClient).FullName}.", nameof(categoryName))
-            : new CompositeDefaultLogger(this.Providers));
-    }
+            : new CompositeDefaultLogger(this.Providers);
 
     public void Dispose()
     {
