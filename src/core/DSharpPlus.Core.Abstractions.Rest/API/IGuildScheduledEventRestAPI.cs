@@ -23,11 +23,13 @@ public interface IGuildScheduledEventRestAPI
     /// </summary>
     /// <param name="guildId">The snowflake identifier of the guild in question.</param>
     /// <param name="withUserCount">Whether the answer should include user counts.</param>
-    /// <param name="ct">Cancellation token for this request.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<IReadOnlyList<IScheduledEvent>>> ListScheduledEventsForGuildAsync
     (
         Snowflake guildId,
         bool? withUserCount = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     );
 
@@ -37,13 +39,15 @@ public interface IGuildScheduledEventRestAPI
     /// <param name="guildId">The snowflake identifier of the guild in question.</param>
     /// <param name="payload">The data to intialize the event with.</param>
     /// <param name="reason">An optional audit log reason</param>
-    /// <param name="ct">Cancellation token for this request.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>The newly created scheduled event.</returns>
     public ValueTask<Result<IScheduledEvent>> CreateGuildScheduledEventAsync
     (
         Snowflake guildId,
         ICreateGuildScheduledEventPayload payload,
         string? reason = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     );
 
@@ -55,12 +59,14 @@ public interface IGuildScheduledEventRestAPI
     /// <param name="withUserCount">
     /// Specifies whether the number of users subscribed to this event should be included.
     /// </param>
-    /// <param name="ct">Cancellation token for this request.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<IScheduledEvent>> GetScheduledEventAsync
     (
         Snowflake guildId,
         Snowflake eventId,
         bool? withUserCount = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     );
 
@@ -71,7 +77,8 @@ public interface IGuildScheduledEventRestAPI
     /// <param name="eventId">The snowflake identifier of the event to be modified.</param>
     /// <param name="payload">The new information for this event.</param>
     /// <param name="reason">An optional audit log reason.</param>
-    /// <param name="ct">Cancellation token for this request.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>The newly modified scheduled event.</returns>
     public ValueTask<Result<IScheduledEvent>> ModifyScheduledEventAsync
     (
@@ -79,6 +86,7 @@ public interface IGuildScheduledEventRestAPI
         Snowflake eventId,
         IModifyGuildScheduledEventPayload payload,
         string? reason = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     );
 
@@ -87,12 +95,14 @@ public interface IGuildScheduledEventRestAPI
     /// </summary>
     /// <param name="guildId">The snowflake identifier of the guild this event takes place in.</param>
     /// <param name="eventId">The snowflake identifier of the event to be modified.</param>
-    /// <param name="ct">Cancellation token for this request.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>Whether the deletion was successful.</returns>
     public ValueTask<Result> DeleteScheduledEventAsync
     (
         Snowflake guildId,
         Snowflake eventId,
+        RequestInfo info = default,
         CancellationToken ct = default
     );
 
@@ -105,7 +115,8 @@ public interface IGuildScheduledEventRestAPI
     /// <param name="withMember">Specifies whether the response should include guild member data.</param>
     /// <param name="before">Only return users before the given snowflake ID, used for pagination.</param>
     /// <param name="after">Only return users after the given snowflake ID, used for pagination.</param>
-    /// <param name="ct">Cancellation token for this request.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<IReadOnlyList<IScheduledEventUser>>> GetScheduledEventUsersAsync
     (
         Snowflake guildId,
@@ -114,6 +125,7 @@ public interface IGuildScheduledEventRestAPI
         bool? withMember = null,
         Snowflake? before = null,
         Snowflake? after = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     );
 }
