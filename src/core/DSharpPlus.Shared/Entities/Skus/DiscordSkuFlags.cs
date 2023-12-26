@@ -10,7 +10,7 @@ namespace DSharpPlus.Entities;
 /// Represents additional flags for a given SKU.
 /// </summary>
 [Flags]
-public enum SkuFlags
+public enum DiscordSkuFlags
 {
     /// <summary>
     /// This SKU is available for purchase.

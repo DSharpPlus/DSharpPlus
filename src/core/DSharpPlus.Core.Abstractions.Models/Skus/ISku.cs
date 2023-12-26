@@ -19,7 +19,7 @@ public interface ISku
     /// <summary>
     /// The type of this SKU.
     /// </summary>
-    public SkuType Type { get; }
+    public DiscordSkuType Type { get; }
 
     /// <summary>
     /// The snowflake identifier of the parent application.
@@ -39,5 +39,5 @@ public interface ISku
     /// <summary>
     /// Additional flags for this SKU.
     /// </summary>
-    public SkuFlags Flags { get; }
+    public DiscordSkuFlags Flags { get; }
 }

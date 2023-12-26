@@ -14,7 +14,7 @@ public sealed record Sku : ISku
     public required Snowflake Id { get; init; }
 
     /// <inheritdoc/>
-    public required SkuType Type { get; init; }
+    public required DiscordSkuType Type { get; init; }
 
     /// <inheritdoc/>
     public required Snowflake ApplicationId { get; init; }
@@ -26,5 +26,5 @@ public sealed record Sku : ISku
     public required string Slug { get; init; }
 
     /// <inheritdoc/>
-    public required SkuFlags Flags { get; init; }
+    public required DiscordSkuFlags Flags { get; init; }
 }

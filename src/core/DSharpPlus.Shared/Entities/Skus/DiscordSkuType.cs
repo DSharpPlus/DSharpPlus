@@ -7,7 +7,7 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents the type of a given SKU.
 /// </summary>
-public enum SkuType
+public enum DiscordSkuType
 {
     /// <summary>
     /// Represents a recurring subscription.
