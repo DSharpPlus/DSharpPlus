@@ -63,4 +63,20 @@ public interface IEntitlementsRestAPI
         RequestInfo info = default,
         CancellationToken ct = default
     );
+
+    /// <summary>
+    /// Deletes a currently active test entitlement. Discord will act as though that user or guild no longer
+    /// has entitlement to your offering.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="entitlementId">The snowflake identifier of the test entitlement to delete.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    public ValueTask<Result> DeleteTestEntitlementAsync
+    (
+        Snowflake applicationId,
+        Snowflake entitlementId,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
 }
