@@ -624,7 +624,56 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     }
 
     /// <summary>
-    /// Deletes multiple messages if they are less than 14 days old.  If they are older, none of the messages will be deleted and you will receive a <see cref="BadRequestException"/> error.
+    /// Deletes multiple messages if they are less than 14 days old.  If they are older, none of the messages will be deleted and you will receive a <see cref="ArgumentException"/> error.
+    /// </summary>
+    /// <param name="messages">A collection of messages to delete.</param>
+    /// <param name="reason">Reason for audit logs.</param>
+    /// <remarks>One api call per 100 requests</remarks>
+    public async Task<int> DeleteMessagesAsync(IReadOnlyList<DiscordMessage> messages, string reason = null)
+    {
+        ArgumentNullException.ThrowIfNull(messages, nameof(messages));
+
+        List<ulong> messagesList = [];
+        foreach (DiscordMessage message in messages)
+        {
+            if (message.ChannelId != this.Id)
+            {
+                throw new ArgumentException(
+                    "You can only delete messages from the channel this channel object is representing.");
+            }
+            else if (message.Timestamp < DateTimeOffset.UtcNow.AddDays(-14))
+            {
+                throw new ArgumentException("You can only delete messages that are less than 14 days old.");
+            }
+
+            messagesList.Add(message.Id);
+        }
+
+        if (messagesList.Count == 0)
+        {
+            throw new ArgumentException("You need to specify at least one message to delete.");
+        }
+        else if (messagesList.Count < 2)
+        {
+            await this.Discord.ApiClient.DeleteMessageAsync(this.Id, messagesList.Single(), reason);
+            return 1;
+        }
+
+        int count = 0;
+        for (int i = 0; i < messagesList.Count; i += 100)
+        {
+            //first iter 0 - 99 -> 100 Messages
+            //second iter 100 - 199 -> 100 Messages
+            await this.Discord.ApiClient.DeleteMessagesAsync(this.Id,
+                messagesList[i .. Math.Min(messagesList.Count - 1, i + 99)], reason);
+            count += Math.Min(messagesList.Count - 1, i + 99) - i;
+        }
+
+        return count;
+    }
+    
+    /// <summary>
+    /// Deletes multiple messages if they are less than 14 days old.  If they are older, none of the messages will be deleted and you will receive a <see cref="ArgumentException"/> error.
     /// </summary>
     /// <param name="messages">A collection of messages to delete.</param>
     /// <param name="reason">Reason for audit logs.</param>
@@ -633,25 +682,14 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task DeleteMessagesAsync(IEnumerable<DiscordMessage> messages, string reason = null)
+    public async Task<int> DeleteMessagesAsync(IAsyncEnumerable<DiscordMessage> messages, string reason = null)
     {
-        // don't enumerate more than once
-        ulong[] msgs = messages.Where(x => x.Channel.Id == this.Id).Select(x => x.Id).ToArray();
-        if (messages == null || !msgs.Any())
+        List<DiscordMessage> list = new();
+        await foreach (DiscordMessage message in messages)
         {
-            throw new ArgumentException("You need to specify at least one message to delete.");
+            list.Add(message);
         }
-
-        if (msgs.Count() < 2)
-        {
-            await this.Discord.ApiClient.DeleteMessageAsync(this.Id, msgs.Single(), reason);
-            return;
-        }
-
-        for (int i = 0; i < msgs.Count(); i += 100)
-        {
-            await this.Discord.ApiClient.DeleteMessagesAsync(this.Id, msgs.Skip(i).Take(100), reason);
-        }
+        return await this.DeleteMessagesAsync(list, reason);
     }
 
     /// <summary>
