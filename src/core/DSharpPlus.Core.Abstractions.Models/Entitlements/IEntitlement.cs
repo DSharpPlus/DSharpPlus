@@ -11,50 +11,27 @@ namespace DSharpPlus.Core.Abstractions.Models;
 /// <summary>
 /// Represents an entitlement to a premium offering in an application.
 /// </summary>
-public interface IEntitlement
+public interface IEntitlement : IPartialEntitlement
 {
-    /// <summary>
-    /// The snowflake identifier of this entitlement.
-    /// </summary>
-    public Snowflake Id { get; }
+    /// <inheritdoc cref="IPartialEntitlement.SkuId"/>
+    public new Snowflake SkuId { get; }
 
-    /// <summary>
-    /// The snowflake identifier of the SKU.
-    /// </summary>
-    public Snowflake SkuId { get; }
+    /// <inheritdoc cref="IPartialEntitlement.ApplicationId"/>
+    public new Snowflake ApplicationId { get; }
 
-    /// <summary>
-    /// The snowflake identifier of the user that is granted access to the entitlement's SKU.
-    /// </summary>
-    public Optional<Snowflake> UserId { get; }
+    /// <inheritdoc cref="IPartialEntitlement.Type"/>
+    public new DiscordEntitlementType Type { get; }
 
-    /// <summary>
-    /// The snowflake identifier of the guild that is granted access to the entitlement's SKU.
-    /// </summary>
-    public Optional<Snowflake> GuildId { get; }
+    /// <inheritdoc cref="IPartialEntitlement.Deleted"/>
+    public new bool Deleted { get; }
 
-    /// <summary>
-    /// The snowflake identifier of the parent application.
-    /// </summary>
-    public Snowflake ApplicationId { get; }
+    // partial access
 
-    /// <summary>
-    /// The type of this entitlement.
-    /// </summary>
-    public EntitlementType Type { get; }
+    Optional<Snowflake> IPartialEntitlement.SkuId => this.SkuId;
 
-    /// <summary>
-    /// Indicates whether this entitlement was deleted.
-    /// </summary>
-    public bool Deleted { get; }
+    Optional<Snowflake> IPartialEntitlement.ApplicationId => this.ApplicationId;
 
-    /// <summary>
-    /// The starting date at which this entitlement is valid. Not present when using test entitlements.
-    /// </summary>
-    public Optional<DateTimeOffset> StartsAt { get; }
+    Optional<DiscordEntitlementType> IPartialEntitlement.Type => this.Type;
 
-    /// <summary>
-    /// The date at which this entitlement is no longer valid. Not present when using test entitlements.
-    /// </summary>
-    public Optional<DateTimeOffset> EndsAt { get; }
+    Optional<bool> IPartialEntitlement.Deleted => this.Deleted;
 }

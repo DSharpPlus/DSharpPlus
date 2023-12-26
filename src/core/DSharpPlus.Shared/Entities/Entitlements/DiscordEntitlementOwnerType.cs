@@ -4,10 +4,11 @@
 
 namespace DSharpPlus.Entities;
 
-public enum EntitlementType
+/// <summary>
+/// Enumerates the owners of an entitlement.
+/// </summary>
+public enum DiscordEntitlementOwnerType
 {
-    /// <summary>
-    /// This entitlement was purchased as an app subscription.
-    /// </summary>
-    ApplicationSubscription = 8
+    Guild = 1,
+    User
 }

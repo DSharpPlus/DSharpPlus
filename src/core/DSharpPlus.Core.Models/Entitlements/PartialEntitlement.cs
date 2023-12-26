@@ -9,14 +9,14 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.Core.Models;
 
-/// <inheritdoc cref="IEntitlement" />
-public sealed record Entitlement : IEntitlement
+/// <inheritdoc cref="IPartialEntitlement" />
+public sealed record PartialEntitlement : IPartialEntitlement
 {
     /// <inheritdoc/>
     public required Snowflake Id { get; init; }
 
     /// <inheritdoc/>
-    public required Snowflake SkuId { get; init; }
+    public Optional<Snowflake> SkuId { get; init; }
 
     /// <inheritdoc/>
     public Optional<Snowflake> UserId { get; init; }
@@ -25,13 +25,13 @@ public sealed record Entitlement : IEntitlement
     public Optional<Snowflake> GuildId { get; init; }
 
     /// <inheritdoc/>
-    public required Snowflake ApplicationId { get; init; }
+    public Optional<Snowflake> ApplicationId { get; init; }
 
     /// <inheritdoc/>
-    public required DiscordEntitlementType Type { get; init; }
+    public Optional<DiscordEntitlementType> Type { get; init; }
 
     /// <inheritdoc/>
-    public required bool Deleted { get; init; }
+    public Optional<bool> Deleted { get; init; }
 
     /// <inheritdoc/>
     public Optional<DateTimeOffset> StartsAt { get; init; }

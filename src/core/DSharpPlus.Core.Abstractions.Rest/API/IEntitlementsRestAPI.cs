@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus.Core.Abstractions.Models;
+using DSharpPlus.Core.Abstractions.Rest.Payloads;
 
 using Remora.Results;
 
@@ -40,6 +41,25 @@ public interface IEntitlementsRestAPI
         int? limit = null,
         Snowflake? guildId = null,
         bool? excludeEnded = null,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
+    /// Creates a test entitlement to a given SKU for a given guild or user. Discord will act as though that user
+    /// or guild has entitlement to your offering. <br/>
+    /// After creating a test entitlement, you will need to reload your Discord client. After that, you will
+    /// have premium access.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="payload">The target of your test entitlement.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns>The newly created test entitlement.</returns>
+    public ValueTask<Result<IPartialEntitlement>> CreateTestEntitlementAsync
+    (
+        Snowflake applicationId,
+        ICreateTestEntitlementPayload payload,
         RequestInfo info = default,
         CancellationToken ct = default
     );
