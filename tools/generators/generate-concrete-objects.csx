@@ -291,7 +291,7 @@ for (int i = 0; i < collectedMetadata.Count; i++)
 
     foreach (PropertyMetadata property in principal.Properties!)
     {
-        bool required = !property.IsOptional && !property.IsNullable;
+        bool required = !(property.IsOptional || property.IsNullable);
         string type = property.Type;
 
         // strip optionality if we're being overwritten

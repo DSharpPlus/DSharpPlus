@@ -19,7 +19,7 @@ public sealed record Application : IApplication
     public required string Name { get; init; }
 
     /// <inheritdoc/>
-    public required string? Icon { get; init; }
+    public string? Icon { get; init; }
 
     /// <inheritdoc/>
     public Optional<string> Description { get; init; }
@@ -49,7 +49,7 @@ public sealed record Application : IApplication
     public required string VerifyKey { get; init; }
 
     /// <inheritdoc/>
-    public required ITeam? Team { get; init; }
+    public ITeam? Team { get; init; }
 
     /// <inheritdoc/>
     public Optional<Snowflake> GuildId { get; init; }

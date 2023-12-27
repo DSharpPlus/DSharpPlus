@@ -204,7 +204,7 @@ public InterfaceMetadata? ParseInterface(string filename, string baseDirectory)
                 Type = type,
                 Name = property.Identifier.ToString(),
                 IsOptional = type.StartsWith("Optional<"),
-                IsNullable = type.EndsWith('?'),
+                IsNullable = type.EndsWith('?') || (type.StartsWith("Optional<") && type.EndsWith("?>")),
                 IsOverwrite = property.ChildTokens().Any(token => token.RawKind == (int)SyntaxKind.NewKeyword)
             }
         );

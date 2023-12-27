@@ -12,10 +12,10 @@ namespace DSharpPlus.Core.Models;
 public sealed record Emoji : IEmoji
 {
     /// <inheritdoc/>
-    public required Snowflake? Id { get; init; }
+    public Snowflake? Id { get; init; }
 
     /// <inheritdoc/>
-    public required string? Name { get; init; }
+    public string? Name { get; init; }
 
     /// <inheritdoc/>
     public Optional<IReadOnlyList<Snowflake>> Roles { get; init; }

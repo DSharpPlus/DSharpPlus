@@ -20,22 +20,22 @@ public sealed record Webhook : IWebhook
     public Optional<Snowflake?> GuildId { get; init; }
 
     /// <inheritdoc/>
-    public required Snowflake? ChannelId { get; init; }
+    public Snowflake? ChannelId { get; init; }
 
     /// <inheritdoc/>
     public Optional<IUser> User { get; init; }
 
     /// <inheritdoc/>
-    public required string? Name { get; init; }
+    public string? Name { get; init; }
 
     /// <inheritdoc/>
-    public required string? Avatar { get; init; }
+    public string? Avatar { get; init; }
 
     /// <inheritdoc/>
     public Optional<string> Token { get; init; }
 
     /// <inheritdoc/>
-    public required Snowflake? ApplicationId { get; init; }
+    public Snowflake? ApplicationId { get; init; }
 
     /// <inheritdoc/>
     public Optional<IPartialGuild> SourceGuild { get; init; }

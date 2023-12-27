@@ -19,16 +19,16 @@ public sealed record Guild : IGuild
     public required string Name { get; init; }
 
     /// <inheritdoc/>
-    public required string? Icon { get; init; }
+    public string? Icon { get; init; }
 
     /// <inheritdoc/>
     public Optional<string?> IconHash { get; init; }
 
     /// <inheritdoc/>
-    public required string? Splash { get; init; }
+    public string? Splash { get; init; }
 
     /// <inheritdoc/>
-    public required string? DiscoverySplash { get; init; }
+    public string? DiscoverySplash { get; init; }
 
     /// <inheritdoc/>
     public Optional<bool> Owner { get; init; }
@@ -40,7 +40,7 @@ public sealed record Guild : IGuild
     public Optional<DiscordPermissions> Permissions { get; init; }
 
     /// <inheritdoc/>
-    public required Snowflake? AfkChannelId { get; init; }
+    public Snowflake? AfkChannelId { get; init; }
 
     /// <inheritdoc/>
     public required int AfkTimeout { get; init; }
@@ -73,16 +73,16 @@ public sealed record Guild : IGuild
     public required DiscordMfaLevel MfaLevel { get; init; }
 
     /// <inheritdoc/>
-    public required Snowflake? ApplicationId { get; init; }
+    public Snowflake? ApplicationId { get; init; }
 
     /// <inheritdoc/>
-    public required Snowflake? SystemChannelId { get; init; }
+    public Snowflake? SystemChannelId { get; init; }
 
     /// <inheritdoc/>
     public required DiscordSystemChannelFlags SystemChannelFlags { get; init; }
 
     /// <inheritdoc/>
-    public required Snowflake? RulesChannelId { get; init; }
+    public Snowflake? RulesChannelId { get; init; }
 
     /// <inheritdoc/>
     public Optional<int?> MaxPresences { get; init; }
@@ -91,13 +91,13 @@ public sealed record Guild : IGuild
     public Optional<int> MaxMembers { get; init; }
 
     /// <inheritdoc/>
-    public required string? VanityUrlCode { get; init; }
+    public string? VanityUrlCode { get; init; }
 
     /// <inheritdoc/>
-    public required string? Description { get; init; }
+    public string? Description { get; init; }
 
     /// <inheritdoc/>
-    public required string? Banner { get; init; }
+    public string? Banner { get; init; }
 
     /// <inheritdoc/>
     public required int PremiumTier { get; init; }
@@ -109,7 +109,7 @@ public sealed record Guild : IGuild
     public required string PreferredLocale { get; init; }
 
     /// <inheritdoc/>
-    public required Snowflake? PublicUpdatesChannelId { get; init; }
+    public Snowflake? PublicUpdatesChannelId { get; init; }
 
     /// <inheritdoc/>
     public Optional<int> MaxVideoChannelUsers { get; init; }
@@ -136,5 +136,5 @@ public sealed record Guild : IGuild
     public required bool PremiumProgressBarEnabled { get; init; }
 
     /// <inheritdoc/>
-    public required Snowflake? SafetyAlertsChannelId { get; init; }
+    public Snowflake? SafetyAlertsChannelId { get; init; }
 }

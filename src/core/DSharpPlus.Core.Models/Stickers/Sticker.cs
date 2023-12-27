@@ -20,7 +20,7 @@ public sealed record Sticker : ISticker
     public required string Name { get; init; }
 
     /// <inheritdoc/>
-    public required string? Description { get; init; }
+    public string? Description { get; init; }
 
     /// <inheritdoc/>
     public required string Tags { get; init; }

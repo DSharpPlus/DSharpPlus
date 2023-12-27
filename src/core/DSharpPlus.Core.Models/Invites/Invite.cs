@@ -19,7 +19,7 @@ public sealed record Invite : IInvite
     public Optional<IPartialGuild> Guild { get; init; }
 
     /// <inheritdoc/>
-    public required IPartialChannel? Channel { get; init; }
+    public IPartialChannel? Channel { get; init; }
 
     /// <inheritdoc/>
     public Optional<IUser> Inviter { get; init; }

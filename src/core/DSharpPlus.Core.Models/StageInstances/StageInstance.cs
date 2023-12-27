@@ -26,5 +26,5 @@ public sealed record StageInstance : IStageInstance
     public required DiscordStagePrivacyLevel PrivacyLevel { get; init; }
 
     /// <inheritdoc/>
-    public required Snowflake? GuildScheduledEventId { get; init; }
+    public Snowflake? GuildScheduledEventId { get; init; }
 }

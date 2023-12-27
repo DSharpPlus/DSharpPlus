@@ -29,7 +29,7 @@ public sealed record Message : IMessage
     public required DateTimeOffset Timestamp { get; init; }
 
     /// <inheritdoc/>
-    public required DateTimeOffset? EditedTimestamp { get; init; }
+    public DateTimeOffset? EditedTimestamp { get; init; }
 
     /// <inheritdoc/>
     public required bool Tts { get; init; }

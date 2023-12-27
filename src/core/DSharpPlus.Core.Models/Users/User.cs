@@ -20,10 +20,10 @@ public sealed record User : IUser
     public required string Discriminator { get; init; }
 
     /// <inheritdoc/>
-    public required string? GlobalName { get; init; }
+    public string? GlobalName { get; init; }
 
     /// <inheritdoc/>
-    public required string? Avatar { get; init; }
+    public string? Avatar { get; init; }
 
     /// <inheritdoc/>
     public Optional<bool> Bot { get; init; }
