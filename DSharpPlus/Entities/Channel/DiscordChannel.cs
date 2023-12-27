@@ -639,7 +639,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             if (message.ChannelId != this.Id)
             {
                 throw new ArgumentException(
-                    "You can only delete messages from the channel this channel object is representing.");
+                    $"You cannot delete messages from channel {message.Channel.Name} through channel {this.Name}!.");
             }
             else if (message.Timestamp < DateTimeOffset.UtcNow.AddDays(-14))
             {
@@ -653,23 +653,21 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         {
             throw new ArgumentException("You need to specify at least one message to delete.");
         }
-        else if (messagesList.Count < 2)
+        else if (messagesList.Count == 1)
         {
             await this.Discord.ApiClient.DeleteMessageAsync(this.Id, messagesList.Single(), reason);
             return 1;
         }
-
-        int count = 0;
+        
         for (int i = 0; i < messagesList.Count; i += 100)
         {
             //first iter 0 - 99 -> 100 Messages
             //second iter 100 - 199 -> 100 Messages
             await this.Discord.ApiClient.DeleteMessagesAsync(this.Id,
                 messagesList[i .. Math.Min(messagesList.Count - 1, i + 99)], reason);
-            count += Math.Min(messagesList.Count - 1, i + 99) - i;
         }
 
-        return count;
+        return messagesList.Count;
     }
     
     /// <summary>
