@@ -628,7 +628,8 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// </summary>
     /// <param name="messages">A collection of messages to delete.</param>
     /// <param name="reason">Reason for audit logs.</param>
-    /// <remarks>One api call per 100 requests</remarks>
+    /// <returns>The number of deleted messages</returns>
+    /// <remarks>One api call per 100 messages</remarks>
     public async Task<int> DeleteMessagesAsync(IEnumerable<DiscordMessage> messages, string? reason = null)
     {
         ArgumentNullException.ThrowIfNull(messages, nameof(messages));
@@ -672,12 +673,13 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     }
     
     /// <summary>
-    /// Deletes multiple messages if they are less than 14 days old.  If they are older, none of the messages will be deleted and you will receive a <see cref="ArgumentException"/> error.
+    /// Deletes multiple messages if they are less than 14 days old.
     /// </summary>
     /// <param name="messages">A collection of messages to delete.</param>
     /// <param name="reason">Reason for audit logs.</param>
-    /// <returns></returns>
+    /// <returns>The number of deleted messages</returns>
     /// <exception cref="BulkDeleteFailedException">Exception which contains the exception which was thrown and the count of messages which were deleted successfully</exception>
+    /// /// <remarks>One api call per 100 messages</remarks>
     public async Task<int> DeleteMessagesAsync(IAsyncEnumerable<DiscordMessage> messages, string? reason = null)
     {
         List<DiscordMessage> list = new(100);
@@ -695,6 +697,12 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
                 await this.DeleteMessagesAsync(list, reason);
                 list.Clear();
                 count += 100;
+            }
+            
+            if (list.Count > 0)
+            {
+                await this.DeleteMessagesAsync(list, reason);
+                count += list.Count;
             }
         }
         catch (DiscordException e)
