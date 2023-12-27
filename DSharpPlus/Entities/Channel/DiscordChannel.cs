@@ -633,43 +633,51 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     public async Task<int> DeleteMessagesAsync(IEnumerable<DiscordMessage> messages, string? reason = null)
     {
         ArgumentNullException.ThrowIfNull(messages, nameof(messages));
+        DiscordMessage[] messagesArray = messages.ToArray();
+        int count = messagesArray.Length;
 
-        List<ulong> messagesList = [];
-        foreach (DiscordMessage message in messages)
-        {
-            if (message.ChannelId != this.Id)
-            {
-                throw new ArgumentException(
-                    $"You cannot delete messages from channel {message.Channel.Name} through channel {this.Name}!");
-            }
-            else if (message.Timestamp < DateTimeOffset.UtcNow.AddDays(-14))
-            {
-                throw new ArgumentException("You can only delete messages that are less than 14 days old.");
-            }
-
-            messagesList.Add(message.Id);
-        }
-
-        if (messagesList.Count == 0)
+        if (count == 0)
         {
             throw new ArgumentException("You need to specify at least one message to delete.");
         }
-        else if (messagesList.Count == 1)
+        else if (count == 1)
         {
-            await this.Discord.ApiClient.DeleteMessageAsync(this.Id, messagesList[0], reason);
+            await this.Discord.ApiClient.DeleteMessageAsync(this.Id, messagesArray[0].Id, reason);
             return 1;
         }
         
-        for (int i = 0; i < messagesList.Count; i += 100)
+        int deleteCount = 0;
+
+        try
         {
-            int takeCount = Math.Min(100, messagesList.Count - i);
-            //first iter 0 - 99 -> 100 Messages
-            //second iter 100 - 199 -> 100 Messages
-            await this.Discord.ApiClient.DeleteMessagesAsync(this.Id,
-                messagesList.Slice(i, takeCount), reason);
+            for (int i = 0; i < count; i += 100)
+            {
+                int takeCount = Math.Min(100, count - i);
+                DiscordMessage[] messageBatch = messagesArray.Skip(i).Take(takeCount).ToArray();
+            
+                foreach (DiscordMessage message in messageBatch)
+                {
+                    if (message.ChannelId != this.Id)
+                    {
+                        throw new ArgumentException(
+                            $"You cannot delete messages from channel {message.Channel.Name} through channel {this.Name}!");
+                    }
+                    else if (message.Timestamp < DateTimeOffset.UtcNow.AddDays(-14))
+                    {
+                        throw new ArgumentException("You can only delete messages that are less than 14 days old.");
+                    }
+                }
+                await this.Discord.ApiClient.DeleteMessagesAsync(this.Id,
+                    messageBatch.Select(x => x.Id), reason);
+                deleteCount += takeCount;
+            }
+        }
+        catch (DiscordException e)
+        {
+            throw new BulkDeleteFailedException(deleteCount, e);
         }
 
-        return messagesList.Count;
+        return deleteCount;
     }
     
     /// <summary>
@@ -694,24 +702,28 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
                 {
                     continue;
                 }
+
                 await this.DeleteMessagesAsync(list, reason);
                 list.Clear();
                 count += 100;
             }
-            
+
             if (list.Count > 0)
             {
                 await this.DeleteMessagesAsync(list, reason);
                 count += list.Count;
             }
         }
+        catch (BulkDeleteFailedException e)
+        {
+            throw new BulkDeleteFailedException(count + e.MessagesDeleted, e.InnerException);
+        }
         catch (DiscordException e)
         {
             throw new BulkDeleteFailedException(count, e);
         }
 
-        return await this.DeleteMessagesAsync(list, reason);
-
+        return count;
     }
 
     /// <summary>
