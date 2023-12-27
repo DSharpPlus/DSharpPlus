@@ -687,7 +687,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns>The number of deleted messages</returns>
     /// <exception cref="BulkDeleteFailedException">Exception which contains the exception which was thrown and the count of messages which were deleted successfully</exception>
-    /// /// <remarks>One api call per 100 messages</remarks>
+    /// <remarks>One api call per 100 messages</remarks>
     public async Task<int> DeleteMessagesAsync(IAsyncEnumerable<DiscordMessage> messages, string? reason = null)
     {
         List<DiscordMessage> list = new(100);
