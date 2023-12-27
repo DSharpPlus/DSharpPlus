@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.IO;
 
 using Spectre.Console;
 
@@ -121,6 +122,14 @@ if (Args.Count == 1 && Args is ["--help" or "-h" or "-?"])
     return 0;
 }
 
+if (Args.Count >= 1 && Args[0] == "clear")
+{
+    Directory.Delete("./artifacts/hashes", true);
+
+    AnsiConsole.MarkupLine("Cleared persisting cached data.");
+    return 0;
+}
+
 if (Args.Count >= 1 && Args[0] == "publish")
 {
     if (Args[1] == "-s" || Args[1] == "--subset")
@@ -158,7 +167,7 @@ switch (Args[1])
 {
     case "tools":
 
-        if (Args[2] == "-s" || Args[2] == "--subset")
+        if (Args.Count >= 4 && (Args[2] == "-s" || Args[2] == "--subset"))
         {
             ExecuteSubset(Args[3].Split(','), ToolType.None);
         }
@@ -170,7 +179,7 @@ switch (Args[1])
 
     case "generators":
 
-        if (Args[2] == "-s" || Args[2] == "--subset")
+        if (Args.Count >= 4 && (Args[2] == "-s" || Args[2] == "--subset"))
         {
             ExecuteSubset(Args[3].Split(','), ToolType.Generator);
         }
@@ -182,7 +191,7 @@ switch (Args[1])
 
     case "analyzers":
 
-        if (Args[2] == "-s" || Args[2] == "--subset")
+        if (Args.Count >= 4 && (Args[2] == "-s" || Args[2] == "--subset"))
         {
             ExecuteSubset(Args[3].Split(','), ToolType.Analyzer);
         }

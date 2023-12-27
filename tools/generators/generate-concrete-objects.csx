@@ -172,13 +172,14 @@ for (int i = 0; i < collectedMetadata.Count; i++)
 
             if (candidateFiles.Any())
             {
-                collectedMetadata.Add(ParseInterface(candidateFiles.First(), input)!);
+                collectedMetadata.Add(ParseInterface(candidateFiles.First().Replace('\\', '/'), input)!);
             }
         }
     }
 
     int index = metadata.Path.LastIndexOf('/');
     string outputPath = metadata.Path.Remove(index + 1, 1).Replace(input, output);
+
     FileInfo info = new(outputPath);
 
     if (!Directory.Exists(info.DirectoryName!))
