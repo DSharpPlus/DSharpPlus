@@ -629,7 +629,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <param name="messages">A collection of messages to delete.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <remarks>One api call per 100 requests</remarks>
-    public async Task<int> DeleteMessagesAsync(IReadOnlyList<DiscordMessage> messages, string reason = null)
+    public async Task<int> DeleteMessagesAsync(IEnumerable<DiscordMessage> messages, string? reason = null)
     {
         ArgumentNullException.ThrowIfNull(messages, nameof(messages));
 
@@ -639,7 +639,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             if (message.ChannelId != this.Id)
             {
                 throw new ArgumentException(
-                    $"You cannot delete messages from channel {message.Channel.Name} through channel {this.Name}!.");
+                    $"You cannot delete messages from channel {message.Channel.Name} through channel {this.Name}!");
             }
             else if (message.Timestamp < DateTimeOffset.UtcNow.AddDays(-14))
             {
@@ -655,7 +655,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         }
         else if (messagesList.Count == 1)
         {
-            await this.Discord.ApiClient.DeleteMessageAsync(this.Id, messagesList.Single(), reason);
+            await this.Discord.ApiClient.DeleteMessageAsync(this.Id, messagesList[0], reason);
             return 1;
         }
         
@@ -676,18 +676,33 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <param name="messages">A collection of messages to delete.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
-    /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
-    /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
-    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <exception cref="BulkDeleteFailedException">Exception which contains the exception which was thrown and the count of messages which were deleted successfully</exception>
     public async Task<int> DeleteMessagesAsync(IAsyncEnumerable<DiscordMessage> messages, string reason = null)
     {
-        List<DiscordMessage> list = new();
-        await foreach (DiscordMessage message in messages)
+        List<DiscordMessage> list = new(100);
+        int count = 0;
+        try
         {
-            list.Add(message);
+            await foreach (DiscordMessage message in messages)
+            {
+                list.Add(message);
+
+                if (list.Count != 100)
+                {
+                    continue;
+                }
+                await this.DeleteMessagesAsync(list, reason);
+                list.Clear();
+                count += 100;
+            }
         }
+        catch (DiscordException e)
+        {
+            throw new BulkDeleteFailedException(count, e);
+        }
+
         return await this.DeleteMessagesAsync(list, reason);
+
     }
 
     /// <summary>
