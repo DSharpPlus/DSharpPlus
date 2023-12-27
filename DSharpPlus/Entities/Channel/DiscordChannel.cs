@@ -661,10 +661,11 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         
         for (int i = 0; i < messagesList.Count; i += 100)
         {
+            int takeCount = Math.Min(100, messagesList.Count - i);
             //first iter 0 - 99 -> 100 Messages
             //second iter 100 - 199 -> 100 Messages
             await this.Discord.ApiClient.DeleteMessagesAsync(this.Id,
-                messagesList[i .. Math.Min(messagesList.Count - 1, i + 99)], reason);
+                messagesList.Slice(i, takeCount), reason);
         }
 
         return messagesList.Count;
