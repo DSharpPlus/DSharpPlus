@@ -630,11 +630,10 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns>The number of deleted messages</returns>
     /// <remarks>One api call per 100 messages</remarks>
-    public async Task<int> DeleteMessagesAsync(IEnumerable<DiscordMessage> messages, string? reason = null)
+    public async Task<int> DeleteMessagesAsync(IReadOnlyList<DiscordMessage> messages, string? reason = null)
     {
         ArgumentNullException.ThrowIfNull(messages, nameof(messages));
-        DiscordMessage[] messagesArray = messages.ToArray();
-        int count = messagesArray.Length;
+        int count = messages.Count;
 
         if (count == 0)
         {
@@ -642,7 +641,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         }
         else if (count == 1)
         {
-            await this.Discord.ApiClient.DeleteMessageAsync(this.Id, messagesArray[0].Id, reason);
+            await this.Discord.ApiClient.DeleteMessageAsync(this.Id, messages[0].Id, reason);
             return 1;
         }
         
@@ -653,7 +652,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             for (int i = 0; i < count; i += 100)
             {
                 int takeCount = Math.Min(100, count - i);
-                DiscordMessage[] messageBatch = messagesArray.Skip(i).Take(takeCount).ToArray();
+                DiscordMessage[] messageBatch = messages.Skip(i).Take(takeCount).ToArray();
             
                 foreach (DiscordMessage message in messageBatch)
                 {
