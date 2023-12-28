@@ -651,10 +651,8 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         {
             for (int i = 0; i < count; i += 100)
             {
-                int takeCount = Math.Min(100, count - i);
-                DiscordMessage[] messageBatch = messages.Skip(i).Take(takeCount).ToArray();
-            
-                foreach (DiscordMessage message in messageBatch)
+                int takeCount = Math.Min(100, count - i);            
+                foreach (DiscordMessage message in messages[i..(i + takeCount)])
                 {
                     if (message.ChannelId != this.Id)
                     {
@@ -667,7 +665,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
                     }
                 }
                 await this.Discord.ApiClient.DeleteMessagesAsync(this.Id,
-                    messageBatch.Select(x => x.Id), reason);
+                    messages[i..(i + takeCount)].Select(x => x.Id), reason);
                 deleteCount += takeCount;
             }
         }
