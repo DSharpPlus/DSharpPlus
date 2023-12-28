@@ -624,34 +624,105 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     }
 
     /// <summary>
-    /// Deletes multiple messages if they are less than 14 days old.  If they are older, none of the messages will be deleted and you will receive a <see cref="BadRequestException"/> error.
+    /// Deletes multiple messages if they are less than 14 days old.  If they are older, none of the messages will be deleted and you will receive a <see cref="ArgumentException"/> error.
     /// </summary>
     /// <param name="messages">A collection of messages to delete.</param>
     /// <param name="reason">Reason for audit logs.</param>
-    /// <returns></returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
-    /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
-    /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
-    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task DeleteMessagesAsync(IEnumerable<DiscordMessage> messages, string reason = null)
+    /// <returns>The number of deleted messages</returns>
+    /// <remarks>One api call per 100 messages</remarks>
+    public async Task<int> DeleteMessagesAsync(IReadOnlyList<DiscordMessage> messages, string? reason = null)
     {
-        // don't enumerate more than once
-        ulong[] msgs = messages.Where(x => x.Channel.Id == this.Id).Select(x => x.Id).ToArray();
-        if (messages == null || !msgs.Any())
+        ArgumentNullException.ThrowIfNull(messages, nameof(messages));
+        int count = messages.Count;
+
+        if (count == 0)
         {
             throw new ArgumentException("You need to specify at least one message to delete.");
         }
-
-        if (msgs.Count() < 2)
+        else if (count == 1)
         {
-            await this.Discord.ApiClient.DeleteMessageAsync(this.Id, msgs.Single(), reason);
-            return;
+            await this.Discord.ApiClient.DeleteMessageAsync(this.Id, messages[0].Id, reason);
+            return 1;
+        }
+        
+        int deleteCount = 0;
+
+        try
+        {
+            for (int i = 0; i < count; i += 100)
+            {
+                int takeCount = Math.Min(100, count - i);
+                DiscordMessage[] messageBatch = messages.Skip(i).Take(takeCount).ToArray();
+            
+                foreach (DiscordMessage message in messageBatch)
+                {
+                    if (message.ChannelId != this.Id)
+                    {
+                        throw new ArgumentException(
+                            $"You cannot delete messages from channel {message.Channel.Name} through channel {this.Name}!");
+                    }
+                    else if (message.Timestamp < DateTimeOffset.UtcNow.AddDays(-14))
+                    {
+                        throw new ArgumentException("You can only delete messages that are less than 14 days old.");
+                    }
+                }
+                await this.Discord.ApiClient.DeleteMessagesAsync(this.Id,
+                    messageBatch.Select(x => x.Id), reason);
+                deleteCount += takeCount;
+            }
+        }
+        catch (DiscordException e)
+        {
+            throw new BulkDeleteFailedException(deleteCount, e);
         }
 
-        for (int i = 0; i < msgs.Count(); i += 100)
+        return deleteCount;
+    }
+    
+    /// <summary>
+    /// Deletes multiple messages if they are less than 14 days old.
+    /// </summary>
+    /// <param name="messages">A collection of messages to delete.</param>
+    /// <param name="reason">Reason for audit logs.</param>
+    /// <returns>The number of deleted messages</returns>
+    /// <exception cref="BulkDeleteFailedException">Exception which contains the exception which was thrown and the count of messages which were deleted successfully</exception>
+    /// <remarks>One api call per 100 messages</remarks>
+    public async Task<int> DeleteMessagesAsync(IAsyncEnumerable<DiscordMessage> messages, string? reason = null)
+    {
+        List<DiscordMessage> list = new(100);
+        int count = 0;
+        try
         {
-            await this.Discord.ApiClient.DeleteMessagesAsync(this.Id, msgs.Skip(i).Take(100), reason);
+            await foreach (DiscordMessage message in messages)
+            {
+                list.Add(message);
+
+                if (list.Count != 100)
+                {
+                    continue;
+                }
+
+                await this.DeleteMessagesAsync(list, reason);
+                list.Clear();
+                count += 100;
+            }
+
+            if (list.Count > 0)
+            {
+                await this.DeleteMessagesAsync(list, reason);
+                count += list.Count;
+            }
         }
+        catch (BulkDeleteFailedException e)
+        {
+            throw new BulkDeleteFailedException(count + e.MessagesDeleted, e.InnerException);
+        }
+        catch (DiscordException e)
+        {
+            throw new BulkDeleteFailedException(count, e);
+        }
+
+        return count;
     }
 
     /// <summary>
