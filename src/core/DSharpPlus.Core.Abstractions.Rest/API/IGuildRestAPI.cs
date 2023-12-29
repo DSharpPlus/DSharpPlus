@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Core.Abstractions.Models;
 using DSharpPlus.Core.Abstractions.Rest.Payloads;
+using DSharpPlus.Core.Abstractions.Rest.Queries;
 using DSharpPlus.Core.Abstractions.Rest.Responses;
 using DSharpPlus.Entities;
 
@@ -40,13 +41,13 @@ public interface IGuildRestAPI
     /// Fetches a guild from its snowflake identifier.
     /// </summary>
     /// <param name="guildId">The snowflake identifier of the guild in question.</param>
-    /// <param name="withCounts">Whether or not the response should include total and online member counts.</param>
+    /// <param name="query">Specifies whether the response should include total and online member counts.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<IGuild>> GetGuildAsync
     (
         Snowflake guildId,
-        bool? withCounts = null,
+        GetGuildQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -178,15 +179,15 @@ public interface IGuildRestAPI
     /// Returns a list of guild member objects.
     /// </summary>
     /// <param name="guildId">The snowflake identifier of the guild to be queried.</param>
-    /// <param name="limit">The amount of users to query, between 1 and 1000</param>
-    /// <param name="after">Highest user ID to <b>not</b> query. Used for request pagination.</param>
+    /// <param name="query">
+    /// Contains information pertaining to request pagination. Up to 1000 users are allowed per request.
+    /// </param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<IReadOnlyList<IGuildMember>>> ListGuildMembersAsync
     (
         Snowflake guildId,
-        int? limit = null,
-        Snowflake? after = null,
+        ForwardsPaginatedQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -195,15 +196,15 @@ public interface IGuildRestAPI
     /// Returns a list of guild member objects whose username or nickname starts with the given string.
     /// </summary>
     /// <param name="guildId">The snowflake identifier of the string in question.</param>
-    /// <param name="query">The query string to search for.</param>
-    /// <param name="limit">The maximum amount of members to return; 1 - 1000.</param>
+    /// <param name="queryString">The query string to search for.</param>
+    /// <param name="query">The maximum amount of members to return; 1 - 1000.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<IReadOnlyList<IGuildMember>>> SearchGuildMembersAsync
     (
         Snowflake guildId,
-        string query,
-        int? limit = null,
+        string queryString,
+        SearchGuildMembersQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -323,18 +324,14 @@ public interface IGuildRestAPI
     /// Returns a list of bans from the given guild. This endpoint is paginated.
     /// </summary>
     /// <param name="guildId">Snowflake identifier of the guild in question.</param>
-    /// <param name="limit">The number of bans to return, up to 1000.</param>
-    /// <param name="before">Consider only snowflakes before the given ID.</param>
-    /// <param name="after">Consider only snowflakes after the given ID.</param>
+    /// <param name="query">The query parameters used for pagination. Up to 1000 bans can be returned.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>An array of <see cref="IBan"/> objects, representing the bans in the guild.</returns>
     public ValueTask<Result<IReadOnlyList<IBan>>> GetGuildBansAsync
     (
         Snowflake guildId,
-        int? limit = null,
-        Snowflake? before = null,
-        Snowflake? after = null,
+        PaginatedQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -359,7 +356,7 @@ public interface IGuildRestAPI
     /// </summary>
     /// <param name="guildId">The snowflake identifier of the guild in question.</param>
     /// <param name="userId">The snowflake identifier of the user in question.</param>
-    /// <param name="deleteMessageSeconds">
+    /// <param name="query">
     /// Specifies how many seconds of message history from this user shall be purged, between 0 and
     /// 604800, which equals 7 days.
     /// </param>
@@ -370,7 +367,7 @@ public interface IGuildRestAPI
     (
         Snowflake guildId,
         Snowflake userId,
-        int deleteMessageSeconds,
+        BanMemberQuery query = default,
         string? reason = null,
         RequestInfo info = default,
         CancellationToken ct = default
@@ -501,20 +498,13 @@ public interface IGuildRestAPI
     /// Queries how many users would be kicked from a given guild in a prune.
     /// </summary>
     /// <param name="guildId">The snowflake identifier of the guild in question.</param>
-    /// <param name="days">Amount of inactivity days to be measured, 0 to 30.</param>
-    /// <param name="includeRoles">Comma-separated list of role IDs to include in the prune.
-    ///		<para>
-    ///		Any user with a subset of these roles will be considered for the prune. Any user with any role not listed here
-    ///		will not be included in the count.
-    ///		</para>
-    /// </param>
+    /// <param name="query">Provides additional information on which members to count.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<int>> GetGuildPruneCountAsync
     (
         Snowflake guildId,
-        int? days = null,
-        string? includeRoles = null,
+        GetGuildPruneCountQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -523,14 +513,7 @@ public interface IGuildRestAPI
     /// Initiates a prune from the guild in question.
     /// </summary>
     /// <param name="guildId">The snowflake identifier of the guild in question.</param>
-    /// <param name="days">The amount of inactivity days to be measured, 0 to 30.</param>
-    /// <param name="includeRoles">Comma-separated list of role IDs to include in the prune.
-    ///		<para>
-    ///		Any user with a subset of these roles will be considered for the prune. Any user with any role not listed here
-    ///		will not be included in the count.
-    ///		</para>
-    /// </param>
-    /// <param name="computePruneCount">Whether or not the amount of users pruned should be calculated.</param>
+    /// <param name="query">Contains additional information on which users to consider.</param>
     /// <param name="reason">Optional audit log reason for the prune.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
@@ -538,9 +521,7 @@ public interface IGuildRestAPI
     public ValueTask<Result<BeginGuildPruneResponse>> BeginGuildPruneAsync
     (
         Snowflake guildId,
-        int? days = null,
-        string? includeRoles = null,
-        bool? computePruneCount = null,
+        BeginGuildPruneQuery query = default,
         string? reason = null,
         RequestInfo info = default,
         CancellationToken ct = default

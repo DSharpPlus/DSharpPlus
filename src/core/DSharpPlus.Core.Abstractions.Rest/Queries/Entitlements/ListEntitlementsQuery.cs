@@ -7,7 +7,7 @@ namespace DSharpPlus.Core.Abstractions.Rest.Queries;
 /// <summary>
 /// Contains the query parameters to <c>IEntitlementsRestAPI.ListEntitlementsAsync</c>.
 /// </summary>
-public readonly record struct ListEntitlementsQuery : IPaginationQuery
+public readonly record struct ListEntitlementsQuery : IPaginatedQuery
 {
     /// <inheritdoc/>
     public Snowflake? Before { get; init; }

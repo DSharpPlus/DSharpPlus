@@ -7,7 +7,7 @@ namespace DSharpPlus.Core.Abstractions.Rest.Queries;
 /// <summary>
 /// Contains query parameters for <c>IChannelRestAPI.GetChannelMessagesAsync</c>.
 /// </summary>
-public readonly record struct GetChannelMessagesQuery : IPaginationQuery
+public readonly record struct GetChannelMessagesQuery : IPaginatedQuery
 {
     /// <summary>
     /// If specified, request entities around this ID.

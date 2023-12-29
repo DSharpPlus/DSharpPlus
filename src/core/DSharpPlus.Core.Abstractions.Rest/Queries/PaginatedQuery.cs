@@ -5,17 +5,16 @@
 namespace DSharpPlus.Core.Abstractions.Rest.Queries;
 
 /// <summary>
-/// Contains the query parameters for <c>IChannelRestAPI.GetReactionsAsync</c>.
+/// Contains the query parameters for all purely snowflake-paginated requests.
 /// </summary>
-public readonly record struct GetReactionsQuery
+public readonly record struct PaginatedQuery : IPaginatedQuery
 {
-    /// <summary>
-    /// If specified, only request reactions from users with an ID greater than this ID.
-    /// </summary>
+    /// <inheritdoc/>
+    public Snowflake? Before { get; init; }
+
+    /// <inheritdoc/>
     public Snowflake? After { get; init; }
 
-    /// <summary>
-    /// The maximum number of reactions for this request, up to 25.
-    /// </summary>
+    /// <inheritdoc/>
     public int? Limit { get; init; }
 }

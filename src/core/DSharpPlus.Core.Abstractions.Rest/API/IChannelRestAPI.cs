@@ -230,7 +230,7 @@ public interface IChannelRestAPI
     /// <param name="channelId">The snowflake identifier of the message's parent channel.</param>
     /// <param name="messageId">The snowflake identifier of the message in question.</param>
     /// <param name="emoji">The string representation of the queried emoji.</param>
-    /// <param name="query">Contains query information related to request pagination</param>
+    /// <param name="query">Contains query information related to request pagination.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<IReadOnlyList<IUser>>> GetReactionsAsync
@@ -238,7 +238,7 @@ public interface IChannelRestAPI
         Snowflake channelId,
         Snowflake messageId,
         string emoji,
-        GetReactionsQuery query = default,
+        ForwardsPaginatedQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );

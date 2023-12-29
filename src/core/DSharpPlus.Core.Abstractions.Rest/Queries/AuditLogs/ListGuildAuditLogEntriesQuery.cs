@@ -9,7 +9,7 @@ namespace DSharpPlus.Core.Abstractions.Rest.Queries;
 /// <summary>
 /// Contains the query parameters to <c>IAuditLogsRestAPI.ListGuildAuditLogEntriesAsync</c>.
 /// </summary>
-public readonly record struct ListGuildAuditLogEntriesQuery : IPaginationQuery
+public readonly record struct ListGuildAuditLogEntriesQuery : IPaginatedQuery
 {
     /// <summary>
     /// If specified, only list entries from this user ID.
