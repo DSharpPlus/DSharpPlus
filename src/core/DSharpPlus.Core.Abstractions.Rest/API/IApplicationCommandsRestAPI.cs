@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Core.Abstractions.Models;
 using DSharpPlus.Core.Abstractions.Rest.Payloads;
+using DSharpPlus.Core.Abstractions.Rest.Queries;
 using DSharpPlus.Core.Abstractions.Rest.Responses;
 
 using Remora.Results;
@@ -24,14 +25,14 @@ public interface IApplicationCommandsRestAPI
     /// Fetches all global application commands for your application.
     /// </summary>
     /// <param name="applicationId">The snowflake identifier of your application.</param>
-    /// <param name="withLocalizations">Indicates whether to include full localizations in the returned objects.</param>
+    /// <param name="query">Indicates whether to include full localizations in the returned objects.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>An array of application commands.</returns>
     public ValueTask<Result<IReadOnlyList<IApplicationCommand>>> GetGlobalApplicationCommandsAsync
     (
         Snowflake applicationId,
-        bool? withLocalizations = null,
+        LocalizationQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -132,7 +133,7 @@ public interface IApplicationCommandsRestAPI
     /// </remarks>
     /// <param name="applicationId">The snowflake identifier of your application.</param>
     /// <param name="guildId">The snowflake identifier of the guild containing the application commands.</param>
-    /// <param name="withLocalizations">
+    /// <param name="query">
     /// Indicates whether to include localization dictionaries with the commands.
     /// </param>
     /// <param name="info">Additional instructions regarding this request.</param>
@@ -141,7 +142,7 @@ public interface IApplicationCommandsRestAPI
     (
         Snowflake applicationId,
         Snowflake guildId,
-        bool? withLocalizations = null,
+        LocalizationQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
