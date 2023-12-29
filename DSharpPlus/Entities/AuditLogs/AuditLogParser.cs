@@ -145,7 +145,7 @@ internal class AuditLogParser
             case DiscordAuditLogActionType.OverwriteCreate:
             case DiscordAuditLogActionType.OverwriteDelete:
             case DiscordAuditLogActionType.OverwriteUpdate:
-                entry = await ParseOverwriteEntry(auditLogAction);
+                entry = await this.ParseOverwriteEntryAsync(auditLogAction);
                 break;
 
             case DiscordAuditLogActionType.Kick:
@@ -179,7 +179,7 @@ internal class AuditLogParser
 
             case DiscordAuditLogActionType.MemberUpdate:
             case DiscordAuditLogActionType.MemberRoleUpdate:
-                entry = await ParseMemberUpdateEntry(auditLogAction);
+                entry = await this.ParseMemberUpdateEntryAsync(auditLogAction);
                 break;
 
             case DiscordAuditLogActionType.RoleCreate:
@@ -191,13 +191,13 @@ internal class AuditLogParser
             case DiscordAuditLogActionType.InviteCreate:
             case DiscordAuditLogActionType.InviteDelete:
             case DiscordAuditLogActionType.InviteUpdate:
-                entry = await ParseInviteUpdateEntry(auditLogAction);
+                entry = await this.ParseInviteUpdateEntryAsync(auditLogAction);
                 break;
 
             case DiscordAuditLogActionType.WebhookCreate:
             case DiscordAuditLogActionType.WebhookDelete:
             case DiscordAuditLogActionType.WebhookUpdate:
-                entry = await ParseWebhookUpdateEntry(auditLogAction, webhooks);
+                entry = await this.ParseWebhookUpdateEntryAsync(auditLogAction, webhooks);
                 break;
 
             case DiscordAuditLogActionType.EmojiCreate:
@@ -263,7 +263,7 @@ internal class AuditLogParser
                         user = await this._client.Cache.TryGetMemberAsync(userId, this._guildId);
                         if (user is null)
                         {
-                            if (this._guild?._members.TryGetValue(userId, out var guildMember) ?? false)
+                            if (this._guild?._members.TryGetValue(userId, out DiscordMember? guildMember) ?? false)
                             {
                                 user = guildMember;
                             }
@@ -310,7 +310,7 @@ internal class AuditLogParser
                         user = await this._client.Cache.TryGetMemberAsync(targetId, this._guildId);
                         if (user is null)
                         {
-                            if (this._guild?._members.TryGetValue(targetId, out var guildMember) ?? false)
+                            if (this._guild?._members.TryGetValue(targetId, out DiscordMember? guildMember) ?? false)
                             {
                                 user = guildMember;
                             }
@@ -338,7 +338,7 @@ internal class AuditLogParser
                     DiscordUser? bot = await this._client.Cache.TryGetMemberAsync(botId, this._guildId);
                     if (bot is null)
                     {
-                        if (this._guild?._members.TryGetValue(botId, out var botMember) ?? false)
+                        if (this._guild?._members.TryGetValue(botId, out DiscordMember? botMember) ?? false)
                         {
                             bot = botMember;
                         }
@@ -380,13 +380,13 @@ internal class AuditLogParser
             case DiscordAuditLogActionType.GuildScheduledEventCreate:
             case DiscordAuditLogActionType.GuildScheduledEventDelete:
             case DiscordAuditLogActionType.GuildScheduledEventUpdate:
-                entry = await ParseGuildScheduledEventUpdateEntry(auditLogAction, events);
+                entry = await this.ParseGuildScheduledEventUpdateEntryAsync(auditLogAction, events);
                 break;
 
             case DiscordAuditLogActionType.ThreadCreate:
             case DiscordAuditLogActionType.ThreadDelete:
             case DiscordAuditLogActionType.ThreadUpdate:
-                entry = await ParseThreadUpdateEntry(auditLogAction, threads);
+                entry = await this.ParseThreadUpdateEntryAsync(auditLogAction, threads);
                 break;
 
             case DiscordAuditLogActionType.ApplicationCommandPermissionUpdate:
@@ -440,7 +440,7 @@ internal class AuditLogParser
                     member = await this._client.Cache.TryGetMemberAsync(targetId, this._guildId);
                     if (member is null)
                     {
-                        if (this._guild?._members.TryGetValue(targetId, out var guildMember) ?? false)
+                        if (this._guild?._members.TryGetValue(targetId, out DiscordMember? guildMember) ?? false)
                         {
                             member = guildMember;
                         }
@@ -464,7 +464,7 @@ internal class AuditLogParser
             case DiscordAuditLogActionType.AutoModerationRuleCreate:
             case DiscordAuditLogActionType.AutoModerationRuleUpdate:
             case DiscordAuditLogActionType.AutoModerationRuleDelete:
-                entry = await ParseAutoModerationRuleUpdateEntry(auditLogAction);
+                entry = await this.ParseAutoModerationRuleUpdateEntryAsync(auditLogAction);
                 break;
 
             default:
@@ -515,7 +515,7 @@ internal class AuditLogParser
         DiscordUser? responsibleMember = await this._client.Cache.TryGetMemberAsync(auditLogAction.UserId, this._guildId);
         if (responsibleMember is null)
         {
-            if (this._guild?._members.TryGetValue(auditLogAction.UserId, out var guildMember) ?? false)
+            if (this._guild?._members.TryGetValue(auditLogAction.UserId, out DiscordMember? guildMember) ?? false)
             {
                 responsibleMember = guildMember;
             }
@@ -534,7 +534,7 @@ internal class AuditLogParser
     /// </summary>
     /// <param name="guild"><see cref="DiscordGuild"/> which is the parent of the entry</param>
     /// <param name="auditLogAction"><see cref="AuditLogAction"/> which should be parsed</param>
-    private async Task<DiscordAuditLogAutoModerationRuleEntry> ParseAutoModerationRuleUpdateEntry(AuditLogAction auditLogAction)
+    private async Task<DiscordAuditLogAutoModerationRuleEntry> ParseAutoModerationRuleUpdateEntryAsync(AuditLogAction auditLogAction)
     {
         DiscordAuditLogAutoModerationRuleEntry ruleEntry = new();
 
@@ -679,7 +679,7 @@ internal class AuditLogParser
     /// <param name="auditLogAction"><see cref="AuditLogAction"/> which should be parsed</param>
     /// <param name="threads">Dictionary of <see cref="DiscordThreadChannel"/> to populate entry with thread entities</param>
     /// <returns></returns>
-    internal async Task<DiscordAuditLogThreadEventEntry> ParseThreadUpdateEntry
+    internal async Task<DiscordAuditLogThreadEventEntry> ParseThreadUpdateEntryAsync
     (
         AuditLogAction auditLogAction,
         IDictionary<ulong, DiscordThreadChannel> threads
@@ -759,7 +759,7 @@ internal class AuditLogParser
     /// <param name="auditLogAction"><see cref="AuditLogAction"/> which should be parsed</param>
     /// <param name="events">Dictionary of <see cref="DiscordScheduledGuildEvent"/> to populate entry with event entities</param>
     /// <returns></returns>
-    private async Task<DiscordAuditLogGuildScheduledEventEntry> ParseGuildScheduledEventUpdateEntry
+    private async Task<DiscordAuditLogGuildScheduledEventEntry> ParseGuildScheduledEventUpdateEntryAsync
     (
         AuditLogAction auditLogAction,
         IDictionary<ulong, DiscordScheduledGuildEvent> events
@@ -1223,7 +1223,7 @@ internal class AuditLogParser
     /// <param name="guild"><see cref="DiscordGuild"/> which is the parent of the entry</param>
     /// <param name="auditLogAction"><see cref="AuditLogAction"/> which should be parsed</param>
     /// <returns></returns>
-    internal async Task<DiscordAuditLogOverwriteEntry> ParseOverwriteEntry(AuditLogAction auditLogAction)
+    internal async Task<DiscordAuditLogOverwriteEntry> ParseOverwriteEntryAsync(AuditLogAction auditLogAction)
     {
         ulong overwriteId = auditLogAction.Options.Id;
         ulong channelId = auditLogAction.TargetId.Value;
@@ -1296,7 +1296,7 @@ internal class AuditLogParser
     /// <param name="guild"><see cref="DiscordGuild"/> which is the parent of the entry</param>
     /// <param name="auditLogAction"><see cref="AuditLogAction"/> which should be parsed</param>
     /// <returns></returns>
-    internal async Task<DiscordAuditLogMemberUpdateEntry> ParseMemberUpdateEntry(AuditLogAction auditLogAction)
+    internal async Task<DiscordAuditLogMemberUpdateEntry> ParseMemberUpdateEntryAsync(AuditLogAction auditLogAction)
     {
         ulong memberId = auditLogAction.TargetId.Value;
         DiscordMember? member = await this._client.Cache.TryGetMemberAsync(memberId, this._guildId);
@@ -1434,7 +1434,7 @@ internal class AuditLogParser
     /// <param name="guild"><see cref="DiscordGuild"/> which is the parent of the entry</param>
     /// <param name="auditLogAction"><see cref="AuditLogAction"/> which should be parsed</param>
     /// <returns></returns>
-    internal async Task<DiscordAuditLogInviteEntry> ParseInviteUpdateEntry(AuditLogAction auditLogAction)
+    internal async Task<DiscordAuditLogInviteEntry> ParseInviteUpdateEntryAsync(AuditLogAction auditLogAction)
     {
         DiscordAuditLogInviteEntry entry = new();
 
@@ -1486,7 +1486,7 @@ internal class AuditLogParser
                         memberBefore = await this._client.Cache.TryGetMemberAsync(ulongBefore, this._guildId);
                         if (memberBefore is null)
                         {
-                            if (this._guild?._members.TryGetValue(ulongBefore, out var guildMember) ?? false)
+                            if (this._guild?._members.TryGetValue(ulongBefore, out DiscordMember? guildMember) ?? false)
                             {
                                 memberBefore = guildMember;
                             }
@@ -1505,7 +1505,7 @@ internal class AuditLogParser
                         memberAfter = await this._client.Cache.TryGetMemberAsync(ulongAfter, this._guildId);
                         if (memberAfter is null)
                         {
-                            if (this._guild?._members.TryGetValue(ulongAfter, out var guildMember) ?? false)
+                            if (this._guild?._members.TryGetValue(ulongAfter, out DiscordMember? guildMember) ?? false)
                             {
                                 memberAfter = guildMember;
                             }
@@ -1558,7 +1558,7 @@ internal class AuditLogParser
 
                     DiscordChannel? channel = null;
                     ulong? channelId = null;
-                    if (entry.ChannelChange?.Before.IsDefined(out var optionalChannel) ?? false)
+                    if (entry.ChannelChange?.Before.IsDefined(out CachedEntity<ulong, DiscordChannel> optionalChannel) ?? false)
                     {
                         optionalChannel.TryGetCachedValue(out channel);
                     }
@@ -1628,7 +1628,7 @@ internal class AuditLogParser
     /// <param name="auditLogAction"><see cref="AuditLogAction"/> which should be parsed</param>
     /// <param name="webhooks">Dictionary of <see cref="DiscordWebhook"/> to populate entry with webhook entities</param>
     /// <returns></returns>
-    internal async Task<DiscordAuditLogWebhookEntry> ParseWebhookUpdateEntry
+    internal async Task<DiscordAuditLogWebhookEntry> ParseWebhookUpdateEntryAsync
     (
         AuditLogAction auditLogAction,
         IDictionary<ulong, DiscordWebhook> webhooks

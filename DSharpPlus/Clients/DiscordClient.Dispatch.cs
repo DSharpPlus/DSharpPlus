@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
@@ -2169,7 +2168,7 @@ public sealed partial class DiscordClient
 
     internal async Task OnUserUpdateEventAsync(TransportUser user)
     {
-        DiscordUser usr_old = new()
+        DiscordUser oldUser = new()
         {
             AvatarHash = this.CurrentUser.AvatarHash,
             Discord = this,
@@ -2191,7 +2190,7 @@ public sealed partial class DiscordClient
         this.CurrentUser.Username = user.Username;
         this.CurrentUser.Verified = user.Verified;
 
-        UserUpdateEventArgs ea = new() {UserAfter = this.CurrentUser, UserBefore = usr_old};
+        UserUpdateEventArgs ea = new() {UserAfter = this.CurrentUser, UserBefore = oldUser};
         await this._userUpdated.InvokeAsync(this, ea);
     }
 
@@ -2337,11 +2336,11 @@ public sealed partial class DiscordClient
             new ThreadDeleteEventArgs {Thread = thread, Guild = thread.Guild, Parent = thread.Parent});
     }
 
-    internal async Task OnThreadListSyncEventAsync(ulong guildId, IReadOnlyList<ulong> channel_ids,
+    internal async Task OnThreadListSyncEventAsync(ulong guildId, IReadOnlyList<ulong> channelIds,
     IReadOnlyList<DiscordThreadChannel> threads, IReadOnlyList<DiscordThreadChannelMember> members)
     {
         guildId.Discord = this;
-        IEnumerable<DiscordChannel> channels = channel_ids.Select(x =>
+        IEnumerable<DiscordChannel> channels = channelIds.Select(x =>
             guildId.GetChannel(x) ?? new DiscordChannel {Id = x, GuildId = guildId.Id}); //getting channel objects
 
         foreach (DiscordChannel? channel in channels)
