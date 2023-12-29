@@ -4,6 +4,9 @@
 
 namespace DSharpPlus.Core.Abstractions.Rest.Queries;
 
+/// <summary>
+/// Contains the query parameters for <c>IChannelRestAPI.GetReactionsAsync</c>.
+/// </summary>
 public readonly record struct GetReactionsQuery
 {
     /// <summary>

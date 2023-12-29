@@ -4,6 +4,9 @@
 
 namespace DSharpPlus.Core.Abstractions.Rest.Queries;
 
+/// <summary>
+/// Contains the query parameters for <c>IChannelRestAPI.ListThreadMembersAsync</c>.
+/// </summary>
 public readonly record struct ListThreadMembersQuery
 {
     /// <summary>

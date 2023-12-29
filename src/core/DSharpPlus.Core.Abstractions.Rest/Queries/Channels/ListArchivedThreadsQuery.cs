@@ -6,6 +6,9 @@ using System;
 
 namespace DSharpPlus.Core.Abstractions.Rest.Queries;
 
+/// <summary>
+/// Contains the query parameters for endpoints listing archived threads.
+/// </summary>
 public readonly record struct ListArchivedThreadsQuery
 {
     /// <summary>
