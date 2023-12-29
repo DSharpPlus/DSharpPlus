@@ -23,7 +23,7 @@ public interface IPaginationQuery
     public Snowflake? After { get; init; }
 
     /// <summary>
-    /// The maximum number of entities for this request.
+    /// The maximum number of entities to return from this request.
     /// </summary>
     public int? Limit { get; init; }
 }

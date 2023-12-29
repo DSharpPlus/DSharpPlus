@@ -2,13 +2,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus.Core.Abstractions.Models;
 using DSharpPlus.Core.Abstractions.Rest.Payloads;
+using DSharpPlus.Core.Abstractions.Rest.Queries;
 using DSharpPlus.Core.Abstractions.Rest.Responses;
 
 using Remora.Results;
@@ -111,19 +111,13 @@ public interface IChannelRestAPI
     /// only the first one in the parameter list is respected, independent of the order they are passed in client code.
     /// </remarks>
     /// <param name="channelId">The snowflake identifier of the channel in question.</param>
-    /// <param name="around">The snowflake identifier of the center message of the requested block.</param>
-    /// <param name="before">The snowflake identifier of the first older message than the requested block.</param>
-    /// <param name="after">The snowflake identifier of the first newer message than the requested block.</param>
-    /// <param name="limit">The maximum amount of messages to return.</param>
+    /// <param name="query">Specifies where to get messages from, used for paginating.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<IReadOnlyList<IMessage>>> GetChannelMessagesAsync
     (
         Snowflake channelId,
-        Snowflake? around = null,
-        Snowflake? before = null,
-        Snowflake? after = null,
-        int? limit = null,
+        GetChannelMessagesQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -236,8 +230,7 @@ public interface IChannelRestAPI
     /// <param name="channelId">The snowflake identifier of the message's parent channel.</param>
     /// <param name="messageId">The snowflake identifier of the message in question.</param>
     /// <param name="emoji">The string representation of the queried emoji.</param>
-    /// <param name="after">Specifies a minimum user ID to return from, to paginate queries.</param>
-    /// <param name="limit">The maximum amount of users to return. Defaults to 25.</param>
+    /// <param name="query">Contains query information related to request pagination</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<IReadOnlyList<IUser>>> GetReactionsAsync
@@ -245,8 +238,7 @@ public interface IChannelRestAPI
         Snowflake channelId,
         Snowflake messageId,
         string emoji,
-        Snowflake? after = null,
-        int? limit = null,
+        GetReactionsQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -644,14 +636,16 @@ public interface IChannelRestAPI
     /// </summary>
     /// <param name="threadId">The snowflake identifier of the thread to obtain data from.</param>
     /// <param name="userId">The snowflake identifier of the user to obtain data for.</param>
-    /// <param name="withMember">Whether the returned thread member object should contain guild member data.</param>
+    /// <param name="query">
+    /// Specifies whether the returned thread member object should contain guild member data.
+    /// </param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<IThreadMember>> GetThreadMemberAsync
     (
         Snowflake threadId,
         Snowflake userId,
-        bool? withMember = null,
+        GetThreadMemberQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -660,17 +654,15 @@ public interface IChannelRestAPI
     /// Returns a list of all thread members for the specified thread.
     /// </summary>
     /// <param name="threadId">The snowflake identifier fo the thread to obtain data from.</param>
-    /// <param name="withMember">Whether the returned thread member object should contain guild member data.</param>
-    /// <param name="after">Gets thread members after this snowflake ID.</param>
-    /// <param name="limit">The maximum number of thread members to return.</param>
+    /// <param name="query">
+    /// Specifies additional query information pertaining to pagination and optional additional data.
+    /// </param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<IReadOnlyList<IThreadMember>>> ListThreadMembersAsync
     (
         Snowflake threadId,
-        bool? withMember = null,
-        Snowflake? after = null,
-        int? limit = null,
+        ListThreadMembersQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -679,17 +671,13 @@ public interface IChannelRestAPI
     /// Returns all public, archived threads for this channel including respective thread member objects.
     /// </summary>
     /// <param name="channelId">The snowflake identifier of the thread's parent channel.</param>
-    /// <param name="before">
-    /// Timestamp to filter threads by: only threads archived before this timestamp will be returned.
-    /// </param>
-    /// <param name="limit">The maximum amount of threads to return.</param>
+    /// <param name="query">Contains pagination information for this request.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<ListArchivedThreadsResponse>> ListPublicArchivedThreadsAsync
     (
         Snowflake channelId,
-        DateTimeOffset? before,
-        int? limit = null,
+        ListArchivedThreadsQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -698,17 +686,13 @@ public interface IChannelRestAPI
     /// Returns all private, accessible, archived threads for this channel including respective thread member objects.
     /// </summary>
     /// <param name="channelId">The snowflake identifier of the thread's parent channel.</param>
-    /// <param name="before">
-    /// Timestamp to filter threads by: only threads archived before this timestamp will be returned.
-    /// </param>
-    /// <param name="limit">The maximum amount of threads to return.</param>
+    /// <param name="query">Contains pagination information for this request.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<ListArchivedThreadsResponse>> ListPrivateArchivedThreadsAsync
     (
         Snowflake channelId,
-        DateTimeOffset? before,
-        int? limit = null,
+        ListArchivedThreadsQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -717,15 +701,13 @@ public interface IChannelRestAPI
     /// Returns a list of joined, private, archived threads.
     /// </summary>
     /// <param name="channelId">The nowflake identifier of their parent channel.</param>
-    /// <param name="before">A timestamp to act as upper boundary for archival dates.</param>
-    /// <param name="limit">The maximum amount of threads to return from this request.</param>
+    /// <param name="query">Contains pagination information for this request.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<ListArchivedThreadsResponse>> ListJoinedPrivateArchivedThreadsAsync
     (
         Snowflake channelId,
-        DateTimeOffset? before,
-        int? limit = null,
+        ListArchivedThreadsQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
