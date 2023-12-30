@@ -36,17 +36,17 @@
     <!-- this is inserted as the version prefix for all libraries declaring themselves as public-facing -->
     <_DSharpPlusReleaseVersion>6.0.0</_DSharpPlusReleaseVersion>
 
-    <!-- DSharpPlus.Core.Abstractions.Models -->
-    <_DSharpPlusCoreAbstractionsModelsVersion>0.1.0</_DSharpPlusCoreAbstractionsModelsVersion>
+    <!-- DSharpPlus.Internal.Abstractions.Models -->
+    <_DSharpPlusInternalAbstractionsModelsVersion>0.1.0</_DSharpPlusInternalAbstractionsModelsVersion>
     
-    <!-- DSharpPlus.Core.Models-->
-    <_DSharpPlusCoreModelsVersion>0.1.0</_DSharpPlusCoreModelsVersion>
+    <!-- DSharpPlus.Internal.Models-->
+    <_DSharpPlusInternalModelsVersion>0.1.0</_DSharpPlusInternalModelsVersion>
 
-    <!-- DSharpPlus.Core.Abstractions.Rest -->
-    <_DSharpPlusCoreAbstractionsRestVersion>0.1.0</_DSharpPlusCoreAbstractionsRestVersion>
+    <!-- DSharpPlus.Internal.Abstractions.Rest -->
+    <_DSharpPlusInternalAbstractionsRestVersion>0.1.0</_DSharpPlusInternalAbstractionsRestVersion>
     
-    <!-- DSharpPlus.Core.Rest -->
-    <_DSharpPlusCoreRestVersion>0.1.0</_DSharpPlusCoreRestVersion>
+    <!-- DSharpPlus.Internal.Rest -->
+    <_DSharpPlusInternalRestVersion>0.1.0</_DSharpPlusInternalRestVersion>
   </PropertyGroup>
 
 </Project>

@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <VersionPrefix>$(_DSharpPlusInternalAbstractionsModelsVersion)</VersionPrefix>
+    <Description>$(Description) This package specifies a contract for the serialization models to implement. This definition is library-agnostic.</Description>
+    <OutputType>Library</OutputType>
+
+    <NoWarn>$(NoWarn);CA1040;CA1056</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OneOf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DSharpPlus.Shared\DSharpPlus.Shared.csproj" PackageVersion="$(_DSharpPlusReleaseVersion)" />
+  </ItemGroup>
+
+</Project>

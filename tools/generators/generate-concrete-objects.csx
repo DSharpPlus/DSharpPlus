@@ -42,12 +42,12 @@ AnsiConsole.MarkupLine
 string input, output;
 
 // there are no args passed, proceed with default args:
-// args[0] = src/core/DSharpPlus.Core.Abstractions.Models
-// args[1] = src/core/DSharpPlus.Core.Models
+// args[0] = src/core/DSharpPlus.Internal.Abstractions.Models
+// args[1] = src/core/DSharpPlus.Internal.Models
 if (Args.Count == 0)
 {
-    input = "src/core/DSharpPlus.Core.Abstractions.Models";
-    output = "src/core/DSharpPlus.Core.Models";
+    input = "src/core/DSharpPlus.Internal.Abstractions.Models";
+    output = "src/core/DSharpPlus.Internal.Models";
 }
 
 // there are args passed, which override the given instructions
@@ -201,9 +201,9 @@ for (int i = 0; i < collectedMetadata.Count; i++)
             // License, v. 2.0. If a copy of the MPL was not distributed with this
             // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-            using DSharpPlus.Core.Abstractions.Models;
+            using DSharpPlus.Internal.Abstractions.Models;
 
-            namespace DSharpPlus.Core.Models;
+            namespace DSharpPlus.Internal.Models;
 
             /// <summary>
             /// Placeholder implementation of a marker interface. Please report spotting this to library developers.
@@ -233,7 +233,7 @@ for (int i = 0; i < collectedMetadata.Count; i++)
     // we're going to employ a hack and return "!" as the key if it's a system using, which is higher than any
     // legal namespace name
     IEnumerable<IGrouping<string, string>> groupedUsings = metadata.UsingDirectives!
-    .Append("using DSharpPlus.Core.Abstractions.Models;")
+    .Append("using DSharpPlus.Internal.Abstractions.Models;")
     .Distinct()
     .GroupBy
     (
@@ -278,7 +278,7 @@ for (int i = 0; i < collectedMetadata.Count; i++)
     writer.AppendLine
     (
         $$"""
-        namespace DSharpPlus.Core.Models;
+        namespace DSharpPlus.Internal.Models;
 
         /// <inheritdoc cref="{{metadata.Name}}" />
         public sealed record {{metadata.Name[1..]}} : {{metadata.Name}}

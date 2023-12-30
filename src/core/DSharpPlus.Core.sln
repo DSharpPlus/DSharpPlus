@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core.Abstractions.Models", "DSharpPlus.Core.Abstractions.Models\DSharpPlus.Core.Abstractions.Models.csproj", "{AF8283F9-AC6C-46AB-A4FC-D331C64BFFC9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Internal.Abstractions.Models", "DSharpPlus.Internal.Abstractions.Models\DSharpPlus.Internal.Abstractions.Models.csproj", "{AF8283F9-AC6C-46AB-A4FC-D331C64BFFC9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core.Models", "DSharpPlus.Core.Models\DSharpPlus.Core.Models.csproj", "{9699C432-CC00-48D3-8534-D949C77C6B87}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Internal.Models", "DSharpPlus.Internal.Models\DSharpPlus.Internal.Models.csproj", "{9699C432-CC00-48D3-8534-D949C77C6B87}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Shared", "DSharpPlus.Shared\DSharpPlus.Shared.csproj", "{E9B2D26F-5E11-4198-8E00-A7780572C480}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Core.Abstractions.Rest", "DSharpPlus.Core.Abstractions.Rest\DSharpPlus.Core.Abstractions.Rest.csproj", "{16EFED50-A695-48C3-8B05-C52381C13C9B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Internal.Abstractions.Rest", "DSharpPlus.Internal.Abstractions.Rest\DSharpPlus.Internal.Abstractions.Rest.csproj", "{16EFED50-A695-48C3-8B05-C52381C13C9B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Core.Rest", "DSharpPlus.Core.Rest\DSharpPlus.Core.Rest.csproj", "{4ECD4676-81FD-4E16-B025-D6AE11638E02}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Internal.Rest", "DSharpPlus.Internal.Rest\DSharpPlus.Internal.Rest.csproj", "{4ECD4676-81FD-4E16-B025-D6AE11638E02}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core.Models", "src\core\DSharpPlus.Core.Models\DSharpPlus.Core.Models.csproj", "{FBCCE5A7-0E07-4FCF-B9BB-B913F5A17FB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Internal.Models", "src\core\DSharpPlus.Internal.Models\DSharpPlus.Internal.Models.csproj", "{FBCCE5A7-0E07-4FCF-B9BB-B913F5A17FB2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Shared", "src\core\DSharpPlus.Shared\DSharpPlus.Shared.csproj", "{964AD252-F077-4AB5-8D92-6C594D08F078}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core.Abstractions.Models", "src\core\DSharpPlus.Core.Abstractions.Models\DSharpPlus.Core.Abstractions.Models.csproj", "{E14B0AE9-FE71-4DE4-BEB1-4A8E139DB84C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Internal.Abstractions.Models", "src\core\DSharpPlus.Internal.Abstractions.Models\DSharpPlus.Internal.Abstractions.Models.csproj", "{E14B0AE9-FE71-4DE4-BEB1-4A8E139DB84C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{BC8D8750-48A4-49EF-9D1F-BE4DBA5B500E}"
 EndProject
@@ -19,11 +19,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Generators", "Generators", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.SourceGenerators.Common", "gen\common\DSharpPlus.SourceGenerators.Common.csproj", "{98D2C52C-E3BA-4564-919C-750775B7BA9C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core.Models.Tests", "tests\core\DSharpPlus.Core.Models.Tests\DSharpPlus.Core.Models.Tests.csproj", "{9F25D892-3CB0-4D47-B67D-D3FFFADC03E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Internal.Models.Tests", "tests\core\DSharpPlus.Internal.Models.Tests\DSharpPlus.Internal.Models.Tests.csproj", "{9F25D892-3CB0-4D47-B67D-D3FFFADC03E0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core.Abstractions.Rest", "src\core\DSharpPlus.Core.Abstractions.Rest\DSharpPlus.Core.Abstractions.Rest.csproj", "{CD440954-E19A-4E94-A217-CCC1DC4AF095}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Internal.Abstractions.Rest", "src\core\DSharpPlus.Internal.Abstractions.Rest\DSharpPlus.Internal.Abstractions.Rest.csproj", "{CD440954-E19A-4E94-A217-CCC1DC4AF095}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core.Rest", "src\core\DSharpPlus.Core.Rest\DSharpPlus.Core.Rest.csproj", "{9CEC3D27-9014-48B6-910F-D25233BF8C44}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Internal.Rest", "src\core\DSharpPlus.Internal.Rest\DSharpPlus.Internal.Rest.csproj", "{9CEC3D27-9014-48B6-910F-D25233BF8C44}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

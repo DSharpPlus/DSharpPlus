@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <VersionPrefix>$(_DSharpPlusInternalModelsVersion)</VersionPrefix>
+    <Description>$(Description) This package implements the serialization models mirroring the Discord API.</Description>
+    <OutputType>Library</OutputType>
+
+    <NoWarn>$(NoWarn);CA1812</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DSharpPlus.Internal.Abstractions.Models\DSharpPlus.Internal.Abstractions.Models.csproj" Version="$(_DSharpPlusInternalAbstractionsModelsVersion)" />
+  </ItemGroup>
+
+</Project>
