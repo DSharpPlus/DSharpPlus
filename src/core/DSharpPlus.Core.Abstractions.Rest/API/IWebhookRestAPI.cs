@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Core.Abstractions.Models;
 using DSharpPlus.Core.Abstractions.Rest.Payloads;
-
+using DSharpPlus.Core.Abstractions.Rest.Queries;
 using Remora.Results;
 
 namespace DSharpPlus.Core.Abstractions.Rest.API;
@@ -175,29 +175,22 @@ public interface IWebhookRestAPI
     /// <param name="webhookId">The snowflake identifier of the webhook to execute.</param>
     /// <param name="webhookToken">The webhook token of the webhook to execute.</param>
     /// <param name="payload">A payload of information on the message to send.</param>
-    /// <param name="wait">
-    ///	Specifies whether to wait for server confirmation. If this is set to true, a <see cref="IMessage"/>
-    ///	object will be returned, if not, <see langword="null"/> will be returned on success instead. Defaults to
-    ///	<see langword="false"/>
+    /// <param name="query">
+    ///	Specifies the waiting behaviour of the request as well as whether this webhook should post to a thread.
     ///	</param>
-    /// <param name="threadId">
-    ///	Specifies a thread to send the message to rather than directly to the parent channel. If the thread is
-    ///	archived, this will automatically unarchive it. Only threads with the same parent channel as the webhook
-    ///	can be passed.
-    /// </param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>
-    /// If <paramref name="wait"/> was set to <see langword="true"/>, a <see cref="IMessage"/> object.<br/>
-    /// If <paramref name="wait"/> was set to <see langword="false"/>, <see langword="null"/>.
+    /// If <seealso name="ExecuteWebhookQuery.Wait"/> was set to <see langword="true"/>, a 
+    /// <seealso cref="IMessage"/> object. If <seealso name="ExecuteWebhookQuery.Wait"/> was set to 
+    /// <see langword="false"/>, <see langword="null"/>.
     /// </returns>
     public ValueTask<Result<IMessage?>> ExecuteWebhookAsync
     (
         Snowflake webhookId,
         string webhookToken,
         IExecuteWebhookPayload payload,
-        bool? wait = null,
-        Snowflake? threadId = null,
+        ExecuteWebhookQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -210,7 +203,7 @@ public interface IWebhookRestAPI
     /// The webhook token for your webhook. This must match the token of the original author.
     /// </param>
     /// <param name="messageId">The snowflake identifier of the message in question.</param>
-    /// <param name="threadId">
+    /// <param name="query">
     ///	Specifies the thread to search in rather than the parent channel. Only threads with the same parent channel
     ///	as the webhook can be passed.
     /// </param>
@@ -221,7 +214,7 @@ public interface IWebhookRestAPI
         Snowflake webhookId,
         string webhookToken,
         Snowflake messageId,
-        Snowflake? threadId = null,
+        ThreadIdQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -235,7 +228,7 @@ public interface IWebhookRestAPI
     /// </param>
     /// <param name="messageId">The snowflake identifier of the message in question.</param>
     /// <param name="payload">The information to update this message with.</param>
-    /// <param name="threadId">
+    /// <param name="query">
     ///	Specifies the thread to search in rather than the parent channel. Only threads with the same parent channel
     ///	as the webhook can be passed.
     /// </param>
@@ -248,7 +241,7 @@ public interface IWebhookRestAPI
         string webhookToken,
         Snowflake messageId,
         IEditWebhookMessagePayload payload,
-        Snowflake? threadId = null,
+        ThreadIdQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -261,7 +254,7 @@ public interface IWebhookRestAPI
     /// The webhook token for your webhook. This must match the token of the original author.
     /// </param>
     /// <param name="messageId">The snowflake identifier of the message in question.</param>
-    /// <param name="threadId">
+    /// <param name="query">
     ///	Specifies the thread to search in rather than the parent channel. Only threads with the same parent channel
     ///	as the webhook can be passed.
     /// </param>
@@ -272,7 +265,7 @@ public interface IWebhookRestAPI
         Snowflake webhookId,
         string webhookToken,
         Snowflake messageId,
-        Snowflake? threadId = null,
+        ThreadIdQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
