@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Core.Abstractions.Models;
 using DSharpPlus.Core.Abstractions.Rest.Payloads;
-
+using DSharpPlus.Core.Abstractions.Rest.Queries;
 using Remora.Results;
 
 namespace DSharpPlus.Core.Abstractions.Rest.API;
@@ -64,23 +64,18 @@ public interface IUserRestAPI
     /// Returns a list of partial guild objects representing the guilds the current user has joined.
     /// </summary>
     /// <remarks>
-    /// <paramref name="limit"/> defaults to 200 guilds, which is the maximum number of guilds an user account can join.
-    /// Pagination is therefore not needed for obtaining user guilds, but may be needed for obtaining bot guilds.
+    /// <seealso cref="GetCurrentUserGuildsQuery.Limit"/> defaults to 200 guilds, which is the maximum 
+    /// number of guilds an user account can join. Pagination is therefore not needed for obtaining user 
+    /// guilds, but may be needed for obtaining bot guilds.
     /// </remarks>
-    /// <param name="before">Specifies an upper bound of snowflakes to be returned.</param>
-    /// <param name="after">Specifies a lower bound of snowflakes to be returned.</param>
-    /// <param name="limit">Maximum number of guilds to return, ranging from 1 to 200.</param>
-    /// <param name="withCounts">
-    /// Specifies whether to include approximate member and presence counts in the returned guilds.
+    /// <param name="query">
+    /// Specifies request pagination info, as well as whether guild objects should include member counts.
     /// </param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<IReadOnlyList<IPartialGuild>>> GetCurrentUserGuildsAsync
     (
-        Snowflake? before = null,
-        Snowflake? after = null,
-        int? limit = null,
-        bool? withCounts = null,
+        GetCurrentUserGuildsQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
