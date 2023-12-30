@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus.Core.Abstractions.Models;
+using DSharpPlus.Core.Abstractions.Rest.Queries;
 
 using Remora.Results;
 
@@ -20,17 +21,13 @@ public interface IInviteRestAPI
     /// Returns the queried invite.
     /// </summary>
     /// <param name="inviteCode">Invite code identifying this invite.</param>
-    /// <param name="withCounts">Indicates whether the invite should contain approximate member counts.</param>
-    /// <param name="withExpiration">Indicates whether the invite should contain the expiration time.</param>
-    /// <param name="guildScheduledEventId">The scheduled event to include with the invite.</param>
+    /// <param name="query">Specifies what additional information the invite object should contain.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<IInvite>> GetInviteAsync
     (
         string inviteCode,
-        bool? withCounts = null,
-        bool? withExpiration = null,
-        Snowflake? guildScheduledEventId = null,
+        GetInviteQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
