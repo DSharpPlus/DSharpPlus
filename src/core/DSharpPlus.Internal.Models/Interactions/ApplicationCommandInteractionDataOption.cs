@@ -4,8 +4,8 @@
 
 using System.Collections.Generic;
 
-using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Entities;
+using DSharpPlus.Internal.Abstractions.Models;
 
 using OneOf;
 

@@ -37,6 +37,12 @@ ToolMetadata[] tools =
     },
     new()
     {
+        Name = "generate-rest-payloads",
+        Subset = "core",
+        Type = ToolType.Generator
+    },
+    new()
+    {
         Name = "copy-concrete-implementations",
         Subset = "extensions",
         Type = ToolType.Generator

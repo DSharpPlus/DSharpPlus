@@ -4,4 +4,8 @@
     <VersionPrefix>$(_DSharpPlusInternalRestVersion)</VersionPrefix>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DSharpPlus.Internal.Abstractions.Rest\DSharpPlus.Internal.Abstractions.Rest.csproj" />
+  </ItemGroup>
+
 </Project>
