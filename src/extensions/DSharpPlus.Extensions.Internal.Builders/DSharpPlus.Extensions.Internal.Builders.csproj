@@ -4,7 +4,6 @@
     <VersionPrefix>$(_DSharpPlusExtensionsInternalBuildersVersion)</VersionPrefix>
     <Description>
       $(Description) This package provides useful builder utilities for working directly with the internal models. 
-      It is strictly bound to our concrete model implementation, and may be of limited use.
     </Description>
     <OutputType>Library</OutputType>
   </PropertyGroup>
