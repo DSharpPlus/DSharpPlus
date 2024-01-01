@@ -35,7 +35,7 @@ if (Args is ["-h" or "--help" or "-?"])
 AnsiConsole.MarkupLine
 (
     """
-    [plum1]DSharpPlus Concrete API Object Generator, v0.1.0[/]
+    [plum1]DSharpPlus Concrete API Object Generator, v0.2.0[/]
     """
 );
 

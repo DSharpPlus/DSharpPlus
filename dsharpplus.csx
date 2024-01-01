@@ -34,12 +34,19 @@ ToolMetadata[] tools =
         Name = "generate-concrete-objects",
         Subset = "core",
         Type = ToolType.Generator
+    },
+    new()
+    {
+        Name = "copy-concrete-implementations",
+        Subset = "extensions",
+        Type = ToolType.Generator
     }
 };
 
 string[] subsets =
 {
-    "core"
+    "core",
+    "extensions"
 };
 
 // executes a given tool
@@ -157,7 +164,7 @@ if (Args.Count >= 1 && Args[0] == "publish")
 
 if (Args[0] != "run")
 {
-    AnsiConsole.MarkupLine($"[red]The only supported top-level verbs are 'run' and 'publish', found {Args[0]}.[/]");
+    AnsiConsole.MarkupLine($"[red]The only supported top-level verbs are 'clear', 'run' and 'publish', found {Args[0]}.[/]");
     return 1;
 }
 

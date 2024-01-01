@@ -4,6 +4,7 @@
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
     <LangVersion>preview</LangVersion>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
@@ -33,6 +34,8 @@
 
   <!-- version numbers to ensure we always reference the correct version -->
   <PropertyGroup>
+    <!-- CORE PACKAGE VERSIONS -->
+
     <!-- this is inserted as the version prefix for all libraries declaring themselves as public-facing -->
     <_DSharpPlusReleaseVersion>6.0.0</_DSharpPlusReleaseVersion>
 
@@ -47,6 +50,11 @@
     
     <!-- DSharpPlus.Internal.Rest -->
     <_DSharpPlusInternalRestVersion>0.1.0</_DSharpPlusInternalRestVersion>
+
+    <!-- EXTENSION PACKAGE VERSIONS -->
+
+    <!-- DSharpPlus.Extensions.Internal.Builders -->
+    <_DSharpPlusExtensionsInternalBuildersVersion>0.1.0</_DSharpPlusExtensionsInternalBuildersVersion>
   </PropertyGroup>
 
 </Project>
