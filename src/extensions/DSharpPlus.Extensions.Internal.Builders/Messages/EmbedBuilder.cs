@@ -247,6 +247,9 @@ public static class EmbedBuilderExtensions
         }
     }
 
+    /// <summary>
+    /// Builds the embed. This does not enforce validity.
+    /// </summary>
     public static IEmbed Build(ref this EmbedBuilder builder)
     {
         return new BuiltEmbed

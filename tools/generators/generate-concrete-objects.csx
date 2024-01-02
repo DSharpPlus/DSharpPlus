@@ -91,7 +91,7 @@ if (!changes.Added.Any() && !changes.Modified.Any() && !changes.Removed.Any())
     AnsiConsole.MarkupLine
     (
         """
-        [darkseagreen1_1]There were no changes to the interface definitions, exiting generate-concrete-objects.[/]
+        [darkseagreen1_1]There were no changes to the specified records, exiting generate-concrete-objects.[/]
         """
     );
 

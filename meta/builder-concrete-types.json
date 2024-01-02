@@ -1,3 +1,7 @@
 [
-    "./src/core/DSharpPlus.Internal.Models/Channels/Embed.cs"
+    "./src/core/DSharpPlus.Internal.Models/Channels/Embed.cs",
+    "./src/core/DSharpPlus.Internal.Models/Interactions/InteractionResponse.cs",
+    "./src/core/DSharpPlus.Internal.Models/Interactions/ModalCallbackData.cs",
+    "./src/core/DSharpPlus.Internal.Models/MessageComponents/ActionRowComponent.cs",
+    "./src/core/DSharpPlus.Internal.Models/MessageComponents/TextInputComponent.cs"
 ]

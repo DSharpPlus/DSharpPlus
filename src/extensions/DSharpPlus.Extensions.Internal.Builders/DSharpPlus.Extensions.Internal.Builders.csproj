@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\core\DSharpPlus.Internal.Abstractions.Models\DSharpPlus.Internal.Abstractions.Models.csproj" />
+    <ProjectReference Include="..\..\core\DSharpPlus.Internal.Abstractions.Rest\DSharpPlus.Internal.Abstractions.Rest.csproj" />
   </ItemGroup>
 
 </Project>
