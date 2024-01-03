@@ -337,7 +337,14 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         {
             if (file.FileOptions.HasFlag(AddFileOptions.CloseStream))
             {
-                file.Stream.Dispose();
+                if (file.Stream is RequestStreamWrapper wrapper)
+                {
+                    wrapper.UnderlyingStream.Dispose();
+                }
+                else
+                {
+                    file.Stream.Dispose();
+                }
             }
         }
 
@@ -351,7 +358,14 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         {
             if (file.FileOptions.HasFlag(AddFileOptions.CloseStream))
             {
-                await file.Stream.DisposeAsync();
+                if (file.Stream is RequestStreamWrapper wrapper)
+                {
+                    await wrapper.UnderlyingStream.DisposeAsync();
+                }
+                else
+                {
+                    await file.Stream.DisposeAsync();
+                }
             }
         }
 
