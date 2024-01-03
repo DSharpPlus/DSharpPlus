@@ -924,6 +924,22 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         this._roles = new(returnedRoles.Select(x => new KeyValuePair<ulong, DiscordRole>(x.Id, x)));
         return returnedRoles;
     }
+    
+    /// <summary>
+    /// Removes a specified member from this guild.
+    /// </summary>
+    /// <param name="member">Member to remove.</param>
+    /// <param name="reason">Reason for audit logs.</param>
+    public async Task RemoveMemberAsync(DiscordMember member, string reason = null)
+        => await this.Discord.ApiClient.RemoveGuildMemberAsync(this.Id, member.Id, reason);
+
+    /// <summary>
+    /// Removes a specified member by ID.
+    /// </summary>
+    /// <param name="user_id">ID of the user to remove.</param>
+    /// <param name="reason">Reason for audit logs.</param>
+    public async Task RemoveMemberAsync(ulong user_id, string reason = null)
+        => await this.Discord.ApiClient.RemoveGuildMemberAsync(this.Id, user_id, reason);
 
     /// <summary>
     /// Bans a specified member from this guild.
@@ -938,7 +954,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task BanMemberAsync(DiscordMember member, int delete_message_days = 0, string reason = null)
         => await this.Discord.ApiClient.CreateGuildBanAsync(this.Id, member.Id, delete_message_days, reason);
-
+    
     /// <summary>
     /// Bans a specified user by ID. This doesn't require the user to be in this guild.
     /// </summary>
