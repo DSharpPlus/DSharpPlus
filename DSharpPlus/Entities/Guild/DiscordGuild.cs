@@ -952,7 +952,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task BanMemberAsync(DiscordMember member, int delete_message_days = 0, string? reason = null)
+    public async Task BanMemberAsync(DiscordUser member, int delete_message_days = 0, string? reason = null)
         => await this.Discord.ApiClient.CreateGuildBanAsync(this.Id, member.Id, delete_message_days, reason);
     
     /// <summary>
