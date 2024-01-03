@@ -930,7 +930,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="member">Member to remove.</param>
     /// <param name="reason">Reason for audit logs.</param>
-    public async Task RemoveMemberAsync(DiscordMember member, string? reason = null)
+    public async Task RemoveMemberAsync(DiscordUser member, string? reason = null)
         => await this.Discord.ApiClient.RemoveGuildMemberAsync(this.Id, member.Id, reason);
 
     /// <summary>
