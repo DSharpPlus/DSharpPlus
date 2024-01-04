@@ -4,11 +4,10 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.Caching;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
-
-using Caching;
 
 /// <summary>
 /// Represents a Discord text message.
@@ -17,9 +16,14 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
 {
     internal DiscordMessage()
     {
-        this._jumpLink = new Lazy<Uri>(() =>
+        this._jumpLink = new Lazy<Uri?>(() =>
         {
-            string gid = this.Channel is DiscordDmChannel ? "@me" : this.Channel.GuildId.Value.ToString(CultureInfo.InvariantCulture);
+            if (!this.Channel.TryGetCachedValue(out DiscordChannel? channel))
+            {
+                return null;
+            }
+            
+            string gid = channel is DiscordDmChannel ? "@me" : channel!.GuildId!.Value.ToString(CultureInfo.InvariantCulture);
             string cid = this.ChannelId.ToString(CultureInfo.InvariantCulture);
             string mid = this.Id.ToString(CultureInfo.InvariantCulture);
 
@@ -71,7 +75,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Gets the channel in which the message was sent.
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel? Channel { get; internal set; }
+    public CachedEntity<ulong, DiscordChannel> Channel { get; internal set; }
     
     /// <summary>
     /// Gets the ID of the channel in which the message was sent.
@@ -229,13 +233,6 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     internal InternalDiscordMessageReference? _internalReference { get; set; }
 
     /// <summary>
-    /// Gets the original message reference from the crossposted message.
-    /// </summary>
-    [JsonIgnore]
-    public DiscordMessageReference Reference
-        => this._internalReference.HasValue ? this?.InternalBuildMessageReference() : null;
-
-    /// <summary>
     /// Gets the bitwise flags for this message.
     /// </summary>
     [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
@@ -249,11 +246,11 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         => this.WebhookId != null;
 
     /// <summary>
-    /// Gets the jump link to this message.
+    /// Gets the jump link to this message. This is null when the channel is not cached.
     /// </summary>
     [JsonIgnore]
-    public Uri JumpLink => this._jumpLink.Value;
-    private readonly Lazy<Uri> _jumpLink;
+    public Uri? JumpLink => this._jumpLink.Value;
+    private readonly Lazy<Uri?> _jumpLink;
 
     /// <summary>
     /// Gets stickers for this message.
@@ -286,67 +283,6 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     [JsonProperty("application_id", NullValueHandling = NullValueHandling.Ignore)]
     public ulong? ApplicationId { get; internal set; }
 
-    internal DiscordMessageReference InternalBuildMessageReference()
-    {
-        DiscordClient? client = this.Discord as DiscordClient;
-        ulong? guildId = this._internalReference.Value.GuildId;
-        ulong? channelId = this._internalReference.Value.ChannelId;
-        ulong? messageId = this._internalReference.Value.MessageId;
-
-        DiscordMessageReference reference = new DiscordMessageReference();
-
-        if (guildId.HasValue)
-        {
-            reference.Guild = await this.Discord.Cache.TryGetGuildAsync(guildId.Value);
-                ?? new DiscordGuild
-                {
-                    Id = guildId.Value,
-                    Discord = client
-                };
-        }
-
-        DiscordChannel channel = client.InternalGetCachedChannel(channelId.Value);
-
-        if (channel == null)
-        {
-            reference.Channel = new DiscordChannel
-            {
-                Id = channelId.Value,
-                Discord = client
-            };
-
-            if (guildId.HasValue)
-            {
-                reference.Channel.GuildId = guildId.Value;
-            }
-        }
-
-        else
-        {
-            reference.Channel = channel;
-        }
-
-        if (client.MessageCache != null && client.MessageCache.TryGet(messageId.Value, out DiscordMessage? msg))
-        {
-            reference.Message = msg;
-        }
-        else
-        {
-            reference.Message = new DiscordMessage
-            {
-                ChannelId = this.ChannelId,
-                Discord = client
-            };
-
-            if (messageId.HasValue)
-            {
-                reference.Message.Id = messageId.Value;
-            }
-        }
-
-        return reference;
-    }
-
     private IMention[] GetMentions()
     {
         List<IMention> mentions = new List<IMention>();
@@ -369,9 +305,11 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         return mentions.ToArray();
     }
 
-    internal void PopulateMentions()
+    internal async Task PopulateMentionsAsync()
     {
-        DiscordGuild? guild = this.Channel?.Guild;
+        this.Channel.TryGetCachedValue(out DiscordChannel? channel);
+        DiscordGuild? guild = null;
+        channel?.Guild.TryGetCachedValue(out guild);
         this._mentionedUsers ??= new List<DiscordUser>();
         this._mentionedRoles ??= new List<DiscordRole>();
         this._mentionedChannels ??= new List<DiscordChannel>();
@@ -383,9 +321,9 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         {
             // Assign the Discord instance and update the user cache.
             usr.Discord = this.Discord;
-            this.Discord.Cache.AddUserAsync(usr);
+            await this.Discord.Cache.AddUserAsync(usr);
 
-            if (guild != null && usr is not DiscordMember && guild._members.TryGetValue(usr.Id, out DiscordMember? cachedMember))
+            if (guild is not null && usr is not DiscordMember && guild._members.TryGetValue(usr.Id, out DiscordMember? cachedMember))
             {
                 // If the message is from a guild, but a discord member isn't provided, try to get the discord member out of guild members cache.
                 mentionedUsers.Add(cachedMember);
@@ -400,7 +338,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         // Replace 'this._mentionedUsers'.
         this._mentionedUsers = mentionedUsers.ToList();
 
-        if (guild != null && !string.IsNullOrWhiteSpace(this.Content))
+        if (guild is not null && !string.IsNullOrWhiteSpace(this.Content))
         {
             this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(xid => guild.GetChannel(xid))).ToList();
             this._mentionedRoles = this._mentionedRoles.Union(this._mentionedRoleIds.Select(xid => guild.GetRole(xid))).ToList();
@@ -409,6 +347,49 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
             //mentionedUsers.UnionWith(Utilities.GetUserMentions(this).Select(this.Discord.GetCachedOrEmptyUserInternal));
             //this._mentionedRoles = this._mentionedRoles.Union(Utilities.GetRoleMentions(this).Select(xid => guild.GetRole(xid))).ToList();
         }
+    }
+    
+    /// <summary>
+    /// Gets the referenced message.
+    /// </summary>
+    /// <returns>
+    /// Referenced message, or null if the message is not a reply.
+    /// </returns>
+    public async Task<DiscordMessageReference?> GetReferencedMessageAsync()
+    {
+        if (this._internalReference is null)
+        {
+            return null;
+        }
+        
+        ulong? guildId = this._internalReference?.GuildId;
+        ulong? channelId = this._internalReference?.ChannelId;
+        ulong? messageId = this._internalReference?.MessageId;
+
+        DiscordMessageReference reference = new DiscordMessageReference();
+
+        if (guildId.HasValue)
+        {
+            DiscordGuild? cachedGuild = await this.Discord.Cache.TryGetGuildAsync(guildId.Value);
+            CachedEntity<ulong, DiscordGuild> guild = new(guildId.Value, cachedGuild);
+            reference.Guild = guild;
+        }
+
+        if (channelId.HasValue)
+        {
+            DiscordChannel? channel = await this.Discord.Cache.TryGetChannelAsync(channelId.Value);
+            CachedEntity<ulong, DiscordChannel> cachedChannel = new(channelId.Value, channel);
+            reference.Channel = cachedChannel;
+        }
+        
+        if (messageId.HasValue)
+        {
+            DiscordMessage? message = await this.Discord.Cache.TryGetMessageAsync(messageId.Value);
+            CachedEntity<ulong, DiscordMessage> cachedMessage = new(messageId.Value, message);
+            reference.Message = cachedMessage;
+        }
+
+        return reference;
     }
 
     /// <summary>
@@ -620,9 +601,15 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordThreadChannel> CreateThreadAsync(string name, AutoArchiveDuration archiveAfter, string reason = null)
     {
-        return this.Channel.Type != ChannelType.Text && this.Channel.Type != ChannelType.News
-            ? throw new InvalidOperationException("Threads can only be created within text or news channels.")
-            : await this.Discord.ApiClient.CreateThreadFromMessageAsync(this.Channel.Id, this.Id, name, archiveAfter, reason);
+        if (this.Channel.TryGetCachedValue(out DiscordChannel? channel))
+        {
+            if (channel.Type != ChannelType.Text && channel.Type != ChannelType.News)
+            {
+                throw new InvalidOperationException("Threads can only be created within text or news channels.");
+            }
+        }
+        
+        return await this.Discord.ApiClient.CreateThreadFromMessageAsync(this.Channel.Key, this.Id, name, archiveAfter, reason);
     }
 
     /// <summary>
@@ -662,6 +649,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     public async Task DeleteReactionAsync(DiscordEmoji emoji, DiscordUser user, string reason = null)
         => await this.Discord.ApiClient.DeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, emoji.ToReactionString(), reason);
 
+    //TODO: Make it a IAsyncEnumerable and "inline" this method
     /// <summary>
     /// Gets users that reacted with this emoji.
     /// </summary>
@@ -719,7 +707,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         do
         {
             int fetchSize = remaining > 100 ? 100 : remaining;
-            IReadOnlyList<DiscordUser> fetch = await this.Discord.ApiClient.GetReactionsAsync(this.Channel.Id, this.Id, emoji.ToReactionString(), last, fetchSize);
+            IReadOnlyList<DiscordUser> fetch = await this.Discord.ApiClient.GetReactionsAsync(this.Channel.Key, this.Id, emoji.ToReactionString(), last, fetchSize);
 
             lastCount = fetch.Count;
             remaining -= lastCount;

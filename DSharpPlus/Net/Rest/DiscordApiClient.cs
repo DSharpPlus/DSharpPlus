@@ -135,7 +135,7 @@ public sealed class DiscordApiClient
             }
         }
 
-        ret.PopulateMentions();
+        await ret.PopulateMentionsAsync();
 
         ret._reactions ??= new List<DiscordReaction>();
         foreach (DiscordReaction reaction in ret._reactions)

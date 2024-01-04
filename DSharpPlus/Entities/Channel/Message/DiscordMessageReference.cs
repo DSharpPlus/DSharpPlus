@@ -1,3 +1,4 @@
+using DSharpPlus.Caching;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -10,20 +11,20 @@ public class DiscordMessageReference
     /// <summary>
     /// Gets the original message.
     /// </summary>
-    public DiscordMessage Message { get; internal set; }
+    public CachedEntity<ulong, DiscordMessage> Message { get; internal set; }
 
     /// <summary>
     /// Gets the channel of the original message.
     /// </summary>
-    public DiscordChannel Channel { get; internal set; }
+    public CachedEntity<ulong, DiscordChannel> Channel { get; internal set; }
 
     /// <summary>
     /// Gets the guild of the original message.
     /// </summary>
-    public DiscordGuild Guild { get; internal set; }
+    public CachedEntity<ulong, DiscordGuild> Guild { get; internal set; }
 
     public override string ToString()
-        => $"Guild: {this.Guild.Id}, Channel: {this.Channel.Id}, Message: {this.Message.Id}";
+        => $"Guild: {this.Guild.Key}, Channel: {this.Channel.Key}, Message: {this.Message.Key}";
 
     internal DiscordMessageReference() { }
 }

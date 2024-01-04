@@ -1805,7 +1805,7 @@ public sealed partial class DiscordClient
     {
         message.Discord = this;
         this.PopulateMessageReactionsAndCacheAsync(message, author, member);
-        message.PopulateMentions();
+        await message.PopulateMentionsAsync();
 
         if (message.Channel == null && message.ChannelId == default)
         {
@@ -1817,7 +1817,7 @@ public sealed partial class DiscordClient
         {
             message.ReferencedMessage.Discord = this;
             this.PopulateMessageReactionsAndCacheAsync(message.ReferencedMessage, referenceAuthor, referenceMember);
-            message.ReferencedMessage.PopulateMentions();
+            await message.ReferencedMessage.PopulateMentionsAsync();
         }
 
         foreach (DiscordMessageSticker sticker in message.Stickers)
@@ -1856,7 +1856,7 @@ public sealed partial class DiscordClient
             {
                 message.ReferencedMessage.Discord = this;
                 this.PopulateMessageReactionsAndCacheAsync(message.ReferencedMessage, referenceAuthor, referenceMember);
-                message.ReferencedMessage.PopulateMentions();
+                await message.ReferencedMessage.PopulateMentionsAsync();
             }
         }
         else // previous message was fetched in cache
@@ -1887,7 +1887,7 @@ public sealed partial class DiscordClient
             message.MentionEveryone = eventMessage.MentionEveryone;
         }
 
-        message.PopulateMentions();
+         await message.PopulateMentionsAsync();
 
         MessageUpdateEventArgs ea = new()
         {
