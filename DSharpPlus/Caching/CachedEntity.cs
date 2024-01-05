@@ -7,7 +7,7 @@ public readonly record struct CachedEntity<TKey, TValue> where TValue : class
     public TKey Key { get;  }
     
     //private to encourage a more responsible usage
-    private TValue? Value { get; }
+    private TValue? Value { get; } = null;
     
     public CachedEntity(TKey key, TValue? value)
     {

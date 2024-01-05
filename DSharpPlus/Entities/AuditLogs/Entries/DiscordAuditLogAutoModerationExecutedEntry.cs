@@ -1,4 +1,3 @@
-using DSharpPlus.Enums;
 using DSharpPlus.Caching;
 
 namespace DSharpPlus.Entities.AuditLogs;

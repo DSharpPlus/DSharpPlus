@@ -38,7 +38,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the guild icon's url.
     /// </summary>
     [JsonIgnore]
-    public string IconUrl
+    public string? IconUrl
         => this.GetIconUrl(ImageFormat.Auto, 1024);
 
     /// <summary>
@@ -51,7 +51,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the guild splash's url.
     /// </summary>
     [JsonIgnore]
-    public string SplashUrl
+    public string? SplashUrl
         => !string.IsNullOrWhiteSpace(this.SplashHash) ? $"https://cdn.discordapp.com/splashes/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.SplashHash}.jpg" : null;
 
     /// <summary>
@@ -64,7 +64,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the guild discovery splash's url.
     /// </summary>
     [JsonIgnore]
-    public string DiscoverySplashUrl
+    public string? DiscoverySplashUrl
         => !string.IsNullOrWhiteSpace(this.DiscoverySplashHash) ? $"https://cdn.discordapp.com/discovery-splashes/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.DiscoverySplashHash}.jpg" : null;
 
     /// <summary>
@@ -85,15 +85,6 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
     public Permissions? Permissions { get; set; }
-
-    /// <summary>
-    /// Gets the guild's owner.
-    /// </summary>
-    [JsonIgnore]
-    public DiscordMember Owner
-        => this.Members.TryGetValue(this.OwnerId, out DiscordMember? owner)
-           ? owner
-           : this.Discord.Cache.TryGetMemberAsync(this.OwnerId, this.Id).GetAwaiter().GetResult();
 
     /// <summary>
     /// Gets the guild's voice region ID.
@@ -118,8 +109,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the guild's AFK voice channel.
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel AfkChannel
-        => this.GetChannel(this._afkChannelId);
+    public Task<DiscordChannel?> AfkChannel
+        => this.GetChannelAsync(this._afkChannelId);
 
     /// <summary>
     /// Gets the guild's AFK timeout.
@@ -158,8 +149,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the channel where system messages (such as boost and welcome messages) are sent.
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel SystemChannel => this._systemChannelId.HasValue
-        ? this.GetChannel(this._systemChannelId.Value)
+    public Task<DiscordChannel>? SystemChannel => this._systemChannelId.HasValue
+        ? this.GetChannelAsync(this._systemChannelId.Value)
         : null;
 
     /// <summary>
@@ -175,7 +166,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the guild's safety alerts channel.
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel? SafetyAlertsChannel => this.SafetyAlertsChannelId is not null ? this.GetChannel(this.SafetyAlertsChannelId.Value) : null;
+    public Task<DiscordChannel>? SafetyAlertsChannel => this.SafetyAlertsChannelId is not null 
+    ? this.GetChannelAsync(this.SafetyAlertsChannelId.Value) 
+    : null;
 
     /// <summary>
     /// Gets whether this guild's widget is enabled.
@@ -190,8 +183,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the widget channel for this guild.
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel WidgetChannel => this._widgetChannelId.HasValue
-        ? this.GetChannel(this._widgetChannelId.Value)
+    public Task<DiscordChannel>? WidgetChannel => this._widgetChannelId.HasValue
+        ? this.GetChannelAsync(this._widgetChannelId.Value)
         : null;
 
     [JsonProperty("rules_channel_id")]
@@ -202,8 +195,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <para>This is only available if the guild is considered "discoverable".</para>
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel RulesChannel => this._rulesChannelId.HasValue
-        ? this.GetChannel(this._rulesChannelId.Value)
+    public Task<DiscordChannel>? RulesChannel => this._rulesChannelId.HasValue
+        ? this.GetChannelAsync(this._rulesChannelId.Value)
         : null;
 
     [JsonProperty("public_updates_channel_id")]
@@ -214,8 +207,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <para>This is only available if the guild is considered "discoverable".</para>
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel PublicUpdatesChannel => this._publicUpdatesChannelId.HasValue
-        ? this.GetChannel(this._publicUpdatesChannelId.Value)
+    public Task<DiscordChannel>? PublicUpdatesChannel => this._publicUpdatesChannelId.HasValue
+        ? this.GetChannelAsync(this._publicUpdatesChannelId.Value)
         : null;
 
     /// <summary>
@@ -390,7 +383,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the @everyone role for this guild.
     /// </summary>
     [JsonIgnore]
-    public DiscordRole EveryoneRole
+    public DiscordRole? EveryoneRole
         => this.GetRole(this.Id);
 
     [JsonIgnore]
@@ -493,13 +486,21 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
     #region Guild Methods
 
+
+    /// <summary>
+    /// Gets the guilds owner.
+    /// </summary>
+    /// <param name="updateCache">Whether to always make a REST request and update the member cache.</param>
+    /// <returns>The member object of the guild owner</returns>
+    public Task<DiscordMember> GetOwnerAsync(bool updateCache = false) => this.GetMemberAsync(this.OwnerId, updateCache);
+
     /// <summary>
     /// Gets guild's icon URL, in requested format and size.
     /// </summary>
     /// <param name="imageFormat">The image format of the icon to get.</param>
     /// <param name="imageSize">The maximum size of the icon. Must be a power of two, minimum 16, maximum 4096.</param>
     /// <returns>The URL of the guild's icon.</returns>
-    public string GetIconUrl(ImageFormat imageFormat, ushort imageSize = 1024)
+    public string? GetIconUrl(ImageFormat imageFormat, ushort imageSize = 1024)
     {
 
         if (string.IsNullOrWhiteSpace(this.IconHash))
@@ -1425,7 +1426,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             {
                 DiscordUser user = new(transportMember.User) { Discord = this.Discord };
 
-                user = this.Discord.UpdateUserCache(user);
+                await this.Discord.Cache.AddIfNotPresentAsync(user, user.GetCacheKey());
 
                 DiscordMember member = new (transportMember) { Discord = this.Discord, _guild_id = this.Id };
                 yield return member;
@@ -1512,17 +1513,38 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="id">ID of the role to get.</param>
     /// <returns>Requested role.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public DiscordRole GetRole(ulong id)
+    public DiscordRole? GetRole(ulong id)
         => this._roles.TryGetValue(id, out DiscordRole? role) ? role : null;
 
     /// <summary>
     /// Gets a channel from this guild by its ID.
     /// </summary>
     /// <param name="id">ID of the channel to get.</param>
+    /// <param name="skipCache">Whether to skip the cache check and request the channel via REST.</param>
     /// <returns>Requested channel.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public DiscordChannel GetChannel(ulong id)
-        => this._channels != null && this._channels.TryGetValue(id, out DiscordChannel? channel) ? channel : null;
+    public async Task<DiscordChannel> GetChannelAsync(ulong id, bool skipCache = false){
+        
+        if (skipCache)
+        {
+            return await this.Discord.ApiClient.GetChannelAsync(id);        
+        }
+            
+        if (this._channels is not null && this._channels.TryGetValue(id, out DiscordChannel? channel))
+        {
+            return channel;
+        }
+
+        channel = await this.Discord.Cache.TryGetChannelAsync(id);
+        if (channel is not null)
+        {
+            return channel;
+        }
+
+        channel = await this.Discord.ApiClient.GetChannelAsync(id);
+        return channel;
+    }
+        
 
     /// <summary>
     /// Gets audit log entries for this guild.

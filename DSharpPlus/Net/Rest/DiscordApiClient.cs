@@ -1,6 +1,4 @@
 using System;
-using System.Buffers.Text;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -65,31 +63,23 @@ public sealed class DiscordApiClient
             await this.PopulateMessageAsync(referencedAuthor, message.ReferencedMessage);
         }
 
-        if (message.Channel is not null)
+        if (message.Channel.HasCachedValue)
         {
             return message;
         }
 
-        message.Channel = !message._guildId.HasValue
-            ? new DiscordDmChannel
-            {
-                Id = message.ChannelId,
-                Discord = this._discord!,
-                Type = ChannelType.Private
-            }
-            : new DiscordChannel
-            {
-                Id = message.ChannelId,
-                GuildId = message._guildId,
-                Discord = this._discord!
-            };
+        DiscordChannel? cachedChannel = await this._discord!.Cache.TryGet<DiscordChannel?>(ICacheKey.ForChannel(message.ChannelId));
+
+        CachedEntity<ulong, DiscordChannel> channel = new(message.ChannelId, cachedChannel);
+        message.Channel = channel;
 
         return message;
     }
 
     private async Task PopulateMessageAsync(TransportUser author, DiscordMessage ret)
     {
-        DiscordGuild? guild = ret.Channel?.Guild;
+        ret.Channel.TryGetCachedValue(out DiscordChannel? channel);
+        DiscordGuild? guild = channel?.Guild;
 
         //If this is a webhook, it shouldn't be in the user cache.
         if (author.IsBot && int.Parse(author.Discriminator) == 0)
@@ -103,13 +93,11 @@ public sealed class DiscordApiClient
         {
             // get and cache the user
             DiscordUser? user = await this._discord!.Cache.TryGet<DiscordUser?>(ICacheKey.ForUser(author.Id));
-            if (user is null)
-            {
-                user = new DiscordUser(author)
+            
+            user ??= new DiscordUser(author)
                 {
                     Discord = this._discord!
                 };
-            }
 
             await this._discord.Cache.AddUserAsync(user);
 
@@ -118,14 +106,12 @@ public sealed class DiscordApiClient
             {
                 DiscordMember? member =
                     await this._discord.Cache.TryGet<DiscordMember?>(ICacheKey.ForMember(author.Id, guild.Id));
-                if (member is null)
-                {
-                    member = new DiscordMember(user)
+                
+                member ??= new DiscordMember(user)
                     {
                         Discord = this._discord,
                         _guild_id = guild.Id
                     };
-                }
 
                 ret.Author = member;
             }
