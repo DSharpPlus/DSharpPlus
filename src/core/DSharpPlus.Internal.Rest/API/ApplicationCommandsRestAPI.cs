@@ -506,7 +506,7 @@ public sealed class ApplicationCommandsRestAPI
         return await restClient.ExecuteRequestAsync<IReadOnlyList<IApplicationCommand>>
         (
             HttpMethod.Get,
-            $"applications/{applicationId}/commands",
+            builder.Build(),
             b => b.WithSimpleRoute
                  (
                     new SimpleStringRatelimitRoute
@@ -599,7 +599,7 @@ public sealed class ApplicationCommandsRestAPI
         return await restClient.ExecuteRequestAsync<IReadOnlyList<IApplicationCommand>>
         (
             HttpMethod.Get,
-            $"applications/{applicationId}/commands",
+            builder.Build(),
             b => b.WithSimpleRoute
                  (
                     new SimpleStringRatelimitRoute
