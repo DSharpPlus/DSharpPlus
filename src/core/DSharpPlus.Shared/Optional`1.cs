@@ -21,7 +21,7 @@ public readonly record struct Optional<T> : IOptional
     /// <summary>
     /// Retrieves the underlying value, if present.
     /// </summary>
-    public T? Value
+    public T Value
     {
         get
         {
@@ -30,7 +30,7 @@ public readonly record struct Optional<T> : IOptional
                 ThrowHelper.ThrowOptionalNoValuePresent();
             }
 
-            return this.value;
+            return this.value!;
         }
     }
 

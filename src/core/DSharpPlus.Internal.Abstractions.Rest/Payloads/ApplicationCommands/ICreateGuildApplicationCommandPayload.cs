@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 
 using DSharpPlus.Entities;
+using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Abstractions.Rest.Payloads;
 
@@ -22,6 +23,11 @@ public interface ICreateGuildApplicationCommandPayload
     /// A localization dictionary for the <seealso cref="Name"/> field. Values follow the same restrictions.
     /// </summary>
     public Optional<IReadOnlyDictionary<string, string>?> NameLocalizations { get; }
+
+    /// <summary>
+    /// Up to 25 parameters for this command, or its subcommands.
+    /// </summary>
+    public Optional<IReadOnlyList<IApplicationCommandOption>> Options { get; }
 
     /// <summary>
     /// The description for this chat input command, between 1 and 100 characters.

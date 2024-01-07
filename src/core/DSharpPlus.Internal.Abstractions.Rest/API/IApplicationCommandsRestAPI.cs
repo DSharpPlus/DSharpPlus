@@ -156,7 +156,7 @@ public interface IApplicationCommandsRestAPI
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>The created application command object.</returns>
-    public ValueTask<Result<IApplicationCommand>> CreateGuildApplicationCommandAsync
+    public ValueTask<Result<CreateApplicationCommandResponse>> CreateGuildApplicationCommandAsync
     (
         Snowflake applicationId,
         Snowflake guildId,

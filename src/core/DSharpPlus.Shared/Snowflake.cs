@@ -5,6 +5,7 @@
 #pragma warning disable CA5394
 
 using System;
+using System.Globalization;
 
 namespace DSharpPlus;
 
@@ -23,6 +24,11 @@ public readonly partial record struct Snowflake :
     /// The snowflake's underlying value.
     /// </summary>
     public long Value { get; }
+
+    /// <summary>
+    /// Returns the string representation of this snowflake.
+    /// </summary>
+    public override string ToString() => this.Value.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// The time when this snowflake was created.

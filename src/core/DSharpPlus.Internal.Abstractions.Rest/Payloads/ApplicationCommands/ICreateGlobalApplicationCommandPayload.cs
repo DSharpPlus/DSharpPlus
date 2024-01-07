@@ -35,7 +35,7 @@ public interface ICreateGlobalApplicationCommandPayload
     public Optional<IReadOnlyDictionary<string, string>?> DescriptionLocalizations { get; }
 
     /// <summary>
-    /// Up to 25 parameters for this comand, or its subcommands.
+    /// Up to 25 parameters for this command, or its subcommands.
     /// </summary>
     public Optional<IReadOnlyList<IApplicationCommandOption>> Options { get; }
 

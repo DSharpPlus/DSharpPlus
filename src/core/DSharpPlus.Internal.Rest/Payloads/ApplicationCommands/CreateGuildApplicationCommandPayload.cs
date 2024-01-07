@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 
 using DSharpPlus.Entities;
+using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Abstractions.Rest.Payloads;
 
 namespace DSharpPlus.Internal.Rest.Payloads;
@@ -17,6 +18,9 @@ public sealed record CreateGuildApplicationCommandPayload : ICreateGuildApplicat
 
     /// <inheritdoc/>
     public Optional<IReadOnlyDictionary<string, string>?> NameLocalizations { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<IReadOnlyList<IApplicationCommandOption>> Options { get; init; }
 
     /// <inheritdoc/>
     public Optional<string> Description { get; init; }
