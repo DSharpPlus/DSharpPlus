@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 
 using DSharpPlus.Entities;
+using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Abstractions.Rest.Payloads;
 
@@ -32,6 +33,11 @@ public interface ICreateGlobalApplicationCommandPayload
     /// A localization dictionary for the <seealso cref="Description"/> field. Values follow the same restrictions.
     /// </summary>
     public Optional<IReadOnlyDictionary<string, string>?> DescriptionLocalizations { get; }
+
+    /// <summary>
+    /// Up to 25 parameters for this comand, or its subcommands.
+    /// </summary>
+    public Optional<IReadOnlyList<IApplicationCommandOption>> Options { get; }
 
     /// <summary>
     /// The default permissions needed to see this command.

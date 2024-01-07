@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 
 using DSharpPlus.Entities;
+using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Abstractions.Rest.Payloads;
 
 namespace DSharpPlus.Internal.Rest.Payloads;
@@ -23,6 +24,9 @@ public sealed record CreateGlobalApplicationCommandPayload : ICreateGlobalApplic
 
     /// <inheritdoc/>
     public Optional<IReadOnlyDictionary<string, string>?> DescriptionLocalizations { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<IReadOnlyList<IApplicationCommandOption>> Options { get; init; }
 
     /// <inheritdoc/>
     public Optional<DiscordPermissions?> DefaultMemberPermissions { get; init; }
