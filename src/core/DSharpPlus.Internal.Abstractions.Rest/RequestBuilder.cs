@@ -47,7 +47,7 @@ public class RequestBuilder
     /// Specifies the audit log reason for this request.
     /// </summary>
     /// <returns>The builder for chaining.</returns>
-    public RequestBuilder WithAuditLogReason(string reason)
+    public RequestBuilder WithAuditLogReason(string? reason)
     {
         this.AuditLogReason = reason;
         return this;
