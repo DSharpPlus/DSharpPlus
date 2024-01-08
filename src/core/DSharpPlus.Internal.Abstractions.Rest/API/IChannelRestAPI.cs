@@ -314,7 +314,7 @@ public interface IChannelRestAPI
     /// Bulk-deletes the provided messages.
     /// </summary>
     /// <param name="channelId">The snowflake identifier of the message's parent channel.</param>
-    /// <param name="messageIds">
+    /// <param name="payload">
     /// Up to 100 message IDs to delete. If any messages older than two weeks are included,
     /// or any of the IDs are duplicated, the entire request will fail.
     /// </param>
@@ -325,7 +325,7 @@ public interface IChannelRestAPI
     public ValueTask<Result> BulkDeleteMessagesAsync
     (
         Snowflake channelId,
-        IReadOnlyList<Snowflake> messageIds,
+        IBulkDeleteMessagesPayload payload,
         string? reason = null,
         RequestInfo info = default,
         CancellationToken ct = default
@@ -588,12 +588,12 @@ public interface IChannelRestAPI
     /// <summary>
     /// Adds another member into a thread.
     /// </summary>
-    /// <param name="threadId">The nowflake identifier of the thread to be joined.</param>
+    /// <param name="threadId">The snowflake identifier of the thread to be joined.</param>
     /// <param name="userId">The snowflake identifier of the user to join into the thread.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>Whether the operation was successful.</returns>
-    public ValueTask<Result> AddToThreadAsync
+    public ValueTask<Result> AddThreadMemberAsync
     (
         Snowflake threadId,
         Snowflake userId,
@@ -623,7 +623,7 @@ public interface IChannelRestAPI
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>Whether the operation was successful.</returns>
-    public ValueTask<Result> RemoveFromThreadAsync
+    public ValueTask<Result> RemoveThreadMemberAsync
     (
         Snowflake threadId,
         Snowflake userId,
@@ -707,7 +707,7 @@ public interface IChannelRestAPI
     public ValueTask<Result<ListArchivedThreadsResponse>> ListJoinedPrivateArchivedThreadsAsync
     (
         Snowflake channelId,
-        ListArchivedThreadsQuery query = default,
+        ListJoinedPrivateArchivedThreadsQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
