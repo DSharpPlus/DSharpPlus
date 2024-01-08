@@ -83,7 +83,8 @@ public sealed class ApplicationCommandsRestAPI
                         Route = "applications/:application-id/commands"
                     }
                  )
-                 .WithPayload(payload),
+                 .WithPayload(payload)
+                 .WithFullRatelimit("PUT applications/:application-id/commands"),
             info,
             ct
         );
@@ -140,7 +141,8 @@ public sealed class ApplicationCommandsRestAPI
                         Route = "applications/:application-id/guilds/:guild-id/commands"
                     }
                  )
-                 .WithPayload(payload),
+                 .WithPayload(payload)
+                 .WithFullRatelimit("PUT applications/:application-id/guilds/:guild-id/commands"),
             info,
             ct
         );
@@ -188,7 +190,8 @@ public sealed class ApplicationCommandsRestAPI
                         Route = "applications/:application-id/commands"
                     }
                  )
-                 .WithPayload(payload),
+                 .WithPayload(payload)
+                 .WithFullRatelimit("POST applications/:application-id/commands"),
             info,
             ct
         );
@@ -251,7 +254,8 @@ public sealed class ApplicationCommandsRestAPI
                         Route = "applications/:application-id/guilds/:guild-id/commands"
                     }
                  )
-                 .WithPayload(payload),
+                 .WithPayload(payload)
+                 .WithFullRatelimit("POST applications/:application-id/guilds/:guild-id/commands"),
             info,
             ct
         );
@@ -292,7 +296,8 @@ public sealed class ApplicationCommandsRestAPI
                         Resource = TopLevelResource.Other,
                         Route = "applications/:application-id/commands/:command-id"
                     }
-                 ),
+                 )
+                 .WithFullRatelimit("DELETE applications/:application-id/commands/:command-id"),
             info,
             ct
         );
@@ -322,7 +327,8 @@ public sealed class ApplicationCommandsRestAPI
                         Resource = TopLevelResource.Other,
                         Route = "applications/:application-id/guilds/:guild-id/commands/:command-id"
                     }
-                 ),
+                 )
+                 .WithFullRatelimit("DELETE applications/:application-id/guilds/:guild-id/commands/:command-id"),
             info,
             ct
         );
@@ -373,7 +379,8 @@ public sealed class ApplicationCommandsRestAPI
                         Route = "applications/:application-id/commands/:command-id"
                     }
                  )
-                 .WithPayload(payload),
+                 .WithPayload(payload)
+                 .WithFullRatelimit("PATCH applications/:application-id/commands/:command-id"),
             info,
             ct
         );
@@ -423,7 +430,8 @@ public sealed class ApplicationCommandsRestAPI
                         Route = "applications/:application-id/guilds/:guild-id/commands/:command-id"
                     }
                  )
-                 .WithPayload(payload),
+                 .WithPayload(payload)
+                 .WithFullRatelimit("PATCH applications/:application-id/guilds/:guild-id/commands/:command-id"),
             info,
             ct
         );
@@ -451,7 +459,8 @@ public sealed class ApplicationCommandsRestAPI
                         Resource = TopLevelResource.Other,
                         Route = "applications/:application-id/guilds/:guild-id/commands/:command-id/permissions"
                     }
-                 ),
+                 )
+                 .WithFullRatelimit("GET applications/:application-id/guilds/:guild-id/commands/:command-id/permissions"),
             info,
             ct
         );
@@ -478,7 +487,8 @@ public sealed class ApplicationCommandsRestAPI
                         Resource = TopLevelResource.Other,
                         Route = "applications/:application-id/commands/:command-id"
                     }
-                 ),
+                 )
+                 .WithFullRatelimit("GET applications/:application-id/commands/:command-id"),
             info,
             ct
         );
@@ -515,7 +525,8 @@ public sealed class ApplicationCommandsRestAPI
                         Resource = TopLevelResource.Other,
                         Route = "applications/:application-id/commands"
                     }
-                 ),
+                 )
+                 .WithFullRatelimit("GET applications/:application-id/commands"),
             info,
             ct
         );
@@ -543,7 +554,8 @@ public sealed class ApplicationCommandsRestAPI
                         Resource = TopLevelResource.Other,
                         Route = "applications/:application-id/guilds/:guild-id/commands/:command-id"
                     }
-                 ),
+                 )
+                 .WithFullRatelimit("GET applications/:application-id/guilds/:guild-id/commands/:command-id"),
             info,
             ct
         );
@@ -570,7 +582,8 @@ public sealed class ApplicationCommandsRestAPI
                         Resource = TopLevelResource.Other,
                         Route = "applications/:application-id/guilds/:guild-id/commands/permissions"
                     }
-                 ),
+                 )
+                 .WithFullRatelimit("GET applications/:application-id/guilds/:guild-id/commands/permissions"),
             info,
             ct
         );
@@ -608,7 +621,8 @@ public sealed class ApplicationCommandsRestAPI
                         Resource = TopLevelResource.Other,
                         Route = "applications/:application-id/guilds/:guild-id/commands"
                     }
-                 ),
+                 )
+                 .WithFullRatelimit("GET applications/:application-id/guilds/:guild-id/commands"),
             info,
             ct
         );

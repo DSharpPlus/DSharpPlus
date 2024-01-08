@@ -15,6 +15,12 @@ internal static class RequestBuilderExtensions
         return request;
     }
 
+    public static RequestBuilder WithFullRatelimit(this RequestBuilder request, string route)
+    {
+        request.AddToContext("full-ratelimit", route);
+        return request;
+    }
+
     public static RequestBuilder AsWebhookRequest(this RequestBuilder request, bool isWebhookRequest = true)
     {
         request.AddToContext("is-webhook-request", isWebhookRequest);
