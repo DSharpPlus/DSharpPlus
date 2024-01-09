@@ -60,6 +60,7 @@ public sealed class AutoModerationRestAPI
                     }
                  )
                  .WithRoute($"guilds/{guildId}/auto-moderation/rules")
+                 .WithFullRatelimit($"POST guilds/{guildId}/auto-moderation/rules")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -89,6 +90,7 @@ public sealed class AutoModerationRestAPI
                     }
                  )
                  .WithRoute($"guilds/{guildId}/auto-moderation/rules/:rule-id")
+                 .WithFullRatelimit($"DELETE guilds/{guildId}/auto-moderation/rules/:rule-id")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -118,7 +120,8 @@ public sealed class AutoModerationRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/auto-moderation/rules/:rule-id"),
+                 .WithRoute($"guilds/{guildId}/auto-moderation/rules/:rule-id")
+                 .WithFullRatelimit($"GET guilds/{guildId}/auto-moderation/rules/:rule-id"),
             info,
             ct
         );
@@ -144,7 +147,8 @@ public sealed class AutoModerationRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/auto-moderation/rules"),
+                 .WithRoute($"guilds/{guildId}/auto-moderation/rules")
+                 .WithFullRatelimit($"GET guilds/{guildId}/auto-moderation/rules"),
             info,
             ct
         );
@@ -168,7 +172,7 @@ public sealed class AutoModerationRestAPI
 
         if (payload.ExemptChannels.HasValue && payload.ExemptChannels.Value.Count > 50)
         {
-            return new ValidationError("Ibkt yp to 50 channels can be exempted from an automod rule.");
+            return new ValidationError("Only up to 50 channels can be exempted from an automod rule.");
         }
 
         return await restClient.ExecuteRequestAsync<IAutoModerationRule>
@@ -184,6 +188,7 @@ public sealed class AutoModerationRestAPI
                     }
                  )
                  .WithRoute($"guilds/{guildId}/auto-moderation/rules/:rule-id")
+                 .WithFullRatelimit($"PATCH guilds/{guildId}/auto-moderation/rules/:rule-id")
                  .WithAuditLogReason(reason),
             info,
             ct
