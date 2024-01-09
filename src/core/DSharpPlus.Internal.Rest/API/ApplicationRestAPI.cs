@@ -60,7 +60,8 @@ public sealed class ApplicationRestAPI
                         Route = "applications/@me"
                     }
                  )
-                 .WithPayload(payload),
+                 .WithPayload(payload)
+                 .WithFullRatelimit("PATCH applications/@me"),
             info,
             ct
         );
@@ -85,7 +86,8 @@ public sealed class ApplicationRestAPI
                         Resource = TopLevelResource.Other,
                         Route = "applications/@me"
                     }
-                 ),
+                 )
+                 .WithFullRatelimit("GET applications/@me"),
             info,
             ct
         );

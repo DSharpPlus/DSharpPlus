@@ -82,7 +82,8 @@ public sealed class AuditLogsRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/audit-logs"),
+                 .WithRoute($"guilds/{guildId}/audit-logs")
+                 .WithFullRatelimit($"GET guilds/{guildId}/audit-logs"),
             info,
             ct
         );
