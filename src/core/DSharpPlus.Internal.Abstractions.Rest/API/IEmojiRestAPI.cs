@@ -16,7 +16,7 @@ namespace DSharpPlus.Internal.Abstractions.Rest.API;
 /// <summary>
 /// Provides access to emoji-related rest API calls.
 /// </summary>
-public interface IDiscordEmojiRestResource
+public interface IEmojiRestAPI
 {
     /// <summary>
     /// Fetches a list of emojis for the given guild.
