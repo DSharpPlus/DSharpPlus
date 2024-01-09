@@ -52,7 +52,8 @@ public sealed class ChannelRestAPI
                         Id = threadId
                     }
                  )
-                 .WithRoute($"channels/{threadId}/thread-members/:user-id"),
+                 .WithRoute($"channels/{threadId}/thread-members/:user-id")
+                 .WithFullRatelimit($"PUT channels/{threadId}/thread-members/:user-id"),
             info,
             ct
         );
@@ -83,6 +84,7 @@ public sealed class ChannelRestAPI
                     }
                  )
                  .WithRoute($"channels/{channelId}/messages/bulk-delete")
+                 .WithFullRatelimit($"POST channels/{channelId}/messages/bulk-delete")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -144,6 +146,7 @@ public sealed class ChannelRestAPI
                     }
                  )
                  .WithRoute($"channels/{channelId}/invites")
+                 .WithFullRatelimit($"POST channels/{channelId}/invites")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -205,6 +208,7 @@ public sealed class ChannelRestAPI
                     }
                  )
                  .WithRoute($"channels/{channelId}/messages")
+                 .WithFullRatelimit($"POST channels/{channelId}/messages")
                  .WithPayload(payload),
             info,
             ct
@@ -233,7 +237,8 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id/reactions/:emoji/@me"),
+                 .WithRoute($"channels/{channelId}/messages/:message-id/reactions/:emoji/@me")
+                 .WithFullRatelimit($"PUT channels/{channelId}/messages/:message-id/reactions/:emoji/@me"),
             info,
             ct
         );
@@ -262,7 +267,8 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id/crosspost"),
+                 .WithRoute($"channels/{channelId}/messages/:message-id/crosspost")
+                 .WithFullRatelimit($"POST channels/{channelId}/messages/:message-id/crosspost"),
             info,
             ct
         );
@@ -289,7 +295,8 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id/reactions"),
+                 .WithRoute($"channels/{channelId}/messages/:message-id/reactions")
+                 .WithFullRatelimit($"DELETE channels/{channelId}/messages/:message-id/reactions"),
             info,
             ct
         );
@@ -319,7 +326,8 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id/reactions/:emoji"),
+                 .WithRoute($"channels/{channelId}/messages/:message-id/reactions/:emoji")
+                 .WithFullRatelimit($"DELETE channels/{channelId}/messages/:message-id/reactions/:emoji"),
             info,
             ct
         );
@@ -349,6 +357,7 @@ public sealed class ChannelRestAPI
                     }
                  )
                  .WithRoute($"channels/{channelId}")
+                 .WithFullRatelimit($"DELETE channels/{channelId}")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -378,6 +387,7 @@ public sealed class ChannelRestAPI
                     }
                  )
                  .WithRoute($"channels/{channelId}/permissions/:overwrite-id")
+                 .WithFullRatelimit($"DELETE channels/{channelId}/permissions/:overwrite-id")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -409,6 +419,7 @@ public sealed class ChannelRestAPI
                     }
                  )
                  .WithRoute($"channels/{channelId}/messages/:message-id")
+                 .WithFullRatelimit($"DELETE channels/{channelId}/messages/:message-id")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -439,7 +450,8 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id/reactions/:emoji/@me"),
+                 .WithRoute($"channels/{channelId}/messages/:message-id/reactions/:emoji/@me")
+                 .WithFullRatelimit($"DELETE channels/{channelId}/messages/:message-id/reactions/:emoji/@me"),
             info,
             ct
         );
@@ -470,7 +482,8 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id/reactions/:emoji/:user-id"),
+                 .WithRoute($"channels/{channelId}/messages/:message-id/reactions/:emoji/:user-id")
+                 .WithFullRatelimit($"DELETE channels/{channelId}/messages/:message-id/reactions/:emoji/:user-id"),
             info,
             ct
         );
@@ -502,6 +515,7 @@ public sealed class ChannelRestAPI
                     }
                  )
                  .WithRoute($"channels/{channelId}/permissions/:overwrite-id")
+                 .WithFullRatelimit($"PUT channels/{channelId}/permissions/:overwrite-id")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -544,6 +558,7 @@ public sealed class ChannelRestAPI
                     }
                  )
                  .WithRoute($"channels/{channelId}/messages/:message-id")
+                 .WithFullRatelimit($"PATCH channels/{channelId}/messages/:message-id")
                  .WithPayload(payload),
             info,
             ct
@@ -572,6 +587,7 @@ public sealed class ChannelRestAPI
                     }
                  )
                  .WithRoute($"channels/{channelId}/followers")
+                 .WithFullRatelimit($"POST channels/{channelId}/followers")
                  .WithPayload(payload),
             info,
             ct
@@ -597,7 +613,8 @@ public sealed class ChannelRestAPI
                         Resource = TopLevelResource.Channel,
                         Id = channelId
                     }
-                 ),
+                 )
+                 .WithFullRatelimit($"GET channels/{channelId}"),
             info,
             ct
         );
@@ -614,7 +631,7 @@ public sealed class ChannelRestAPI
         return await restClient.ExecuteRequestAsync<IReadOnlyList<IInvite>>
         (
             HttpMethod.Get,
-            $"channels/{channelId}",
+            $"channels/{channelId}/invites",
             b => b.WithSimpleRoute
                  (
                     new SimpleSnowflakeRatelimitRoute
@@ -622,7 +639,8 @@ public sealed class ChannelRestAPI
                         Resource = TopLevelResource.Channel,
                         Id = channelId
                     }
-                 ),
+                 )
+                 .WithFullRatelimit($"GET channels/{channelId}/invites"),
             info,
             ct
         );
@@ -649,7 +667,8 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id"),
+                 .WithRoute($"channels/{channelId}/messages/:message-id")
+                 .WithFullRatelimit($"GET channels/{channelId}/messages/:message-id"),
             info,
             ct
         );
@@ -704,7 +723,8 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages"),
+                 .WithRoute($"channels/{channelId}/messages")
+                 .WithFullRatelimit($"GET channels/{channelId}/messages"),
             info,
             ct
         );
@@ -730,7 +750,8 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/pins"),
+                 .WithRoute($"channels/{channelId}/pins")
+                 .WithFullRatelimit($"GET channels/{channelId}/pins"),
             info,
             ct
         );
@@ -774,7 +795,8 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id/reactions/:emoji"),
+                 .WithRoute($"channels/{channelId}/messages/:message-id/reactions/:emoji")
+                 .WithFullRatelimit($"GET channels/{channelId}/messages/:message-id/reactions/:emoji"),
             info,
             ct
         );
@@ -812,7 +834,8 @@ public sealed class ChannelRestAPI
                         Id = threadId
                     }
                  )
-                 .WithRoute($"channels/{threadId}/thread-members/:user-id"),
+                 .WithRoute($"channels/{threadId}/thread-members/:user-id")
+                 .WithFullRatelimit($"GET channels/{threadId}/thread-members/:user-id"),
             info,
             ct
         );
@@ -841,6 +864,7 @@ public sealed class ChannelRestAPI
                     }
                  )
                  .WithRoute($"channels/{channelId}/recipients/:user-id")
+                 .WithFullRatelimit($"PUT channels/{channelId}/recipients/:user-id")
                  .WithPayload(payload),
             info,
             ct
@@ -870,7 +894,8 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/recipients/:user-id"),
+                 .WithRoute($"channels/{channelId}/recipients/:user-id")
+                 .WithFullRatelimit($"DELETE channels/{channelId}/recipients/:user-id"),
             info,
             ct
         );
@@ -898,7 +923,8 @@ public sealed class ChannelRestAPI
                         Id = threadId
                     }
                  )
-                 .WithRoute($"channels/{threadId}/recipients/@me"),
+                 .WithRoute($"channels/{threadId}/recipients/@me")
+                 .WithFullRatelimit($"PUT channels/{threadId}/recipients/@me"),
             info,
             ct
         );
@@ -926,7 +952,8 @@ public sealed class ChannelRestAPI
                         Id = threadId
                     }
                  )
-                 .WithRoute($"channels/{threadId}/recipients/@me"),
+                 .WithRoute($"channels/{threadId}/recipients/@me")
+                 .WithFullRatelimit($"DELETE channels/{threadId}/recipients/@me"),
             info,
             ct
         );
@@ -975,7 +1002,8 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/users/@me/threads/archived/private"),
+                 .WithRoute($"channels/{channelId}/users/@me/threads/archived/private")
+                 .WithFullRatelimit($"GET channels/{channelId}/users/@me/threads/archived/private"),
             info,
             ct
         );
@@ -1022,7 +1050,8 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/users/@me/threads/archived/private"),
+                 .WithRoute($"channels/{channelId}/users/@me/threads/archived/private")
+                 .WithFullRatelimit($"GET channels/{channelId}/users/@me/threads/archived/private"),
             info,
             ct
         );
@@ -1069,7 +1098,8 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/threads/archived/public"),
+                 .WithRoute($"channels/{channelId}/threads/archived/public")
+                 .WithFullRatelimit($"GET channels/{channelId}/threads/archived/public"),
             info,
             ct
         );
@@ -1121,7 +1151,8 @@ public sealed class ChannelRestAPI
                         Id = threadId
                     }
                  )
-                 .WithRoute($"channels/{threadId}/thread-members"),
+                 .WithRoute($"channels/{threadId}/thread-members")
+                 .WithFullRatelimit($"GET channels/{threadId}/thread-members"),
             info,
             ct
         );
@@ -1152,7 +1183,8 @@ public sealed class ChannelRestAPI
                         Resource = TopLevelResource.Channel,
                         Id = channelId
                     }
-                 ),
+                 )
+                 .WithFullRatelimit($"PATCH channels/{channelId}"),
             info,
             ct
         );
@@ -1219,6 +1251,7 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
+                 .WithFullRatelimit($"PATCH channels/{channelId}")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -1273,6 +1306,7 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
+                 .WithFullRatelimit($"PATCH channels/{channelId}")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -1302,7 +1336,8 @@ public sealed class ChannelRestAPI
                     }
                  )
                  .WithAuditLogReason(reason)
-                 .WithRoute($"channels/{channelId}/pins/:message-id"),
+                 .WithRoute($"channels/{channelId}/pins/:message-id")
+                 .WithFullRatelimit($"PUT channels/{channelId}/pins/:message-id"),
             info,
             ct
         );
@@ -1331,7 +1366,8 @@ public sealed class ChannelRestAPI
                         Id = threadId
                     }
                  )
-                 .WithRoute($"channels/{threadId}/thread-members/:user-id"),
+                 .WithRoute($"channels/{threadId}/thread-members/:user-id")
+                 .WithFullRatelimit($"DELETE channels/{threadId}/thread-members/:user-id"),
             info,
             ct
         );
@@ -1384,6 +1420,7 @@ public sealed class ChannelRestAPI
                     }
                  )
                  .WithRoute($"channels/{channelId}/messages/:message-id/threads")
+                 .WithFullRatelimit($"POST channels/{channelId}/messages/:message-id/threads")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1470,6 +1507,7 @@ public sealed class ChannelRestAPI
                     }
                  )
                  .WithRoute($"channels/{channelId}/threads")
+                 .WithFullRatelimit($"POST channels/{channelId}/threads")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1521,6 +1559,7 @@ public sealed class ChannelRestAPI
                     }
                  )
                  .WithRoute($"channels/{channelId}/threads")
+                 .WithFullRatelimit($"POST channels/{channelId}/threads")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1548,7 +1587,8 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/typing"),
+                 .WithRoute($"channels/{channelId}/typing")
+                 .WithFullRatelimit($"POST channels/{channelId}/typing"),
             info,
             ct
         );
@@ -1578,7 +1618,8 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/pins/:message-id"),
+                 .WithRoute($"channels/{channelId}/pins/:message-id")
+                 .WithFullRatelimit($"DELETE channels/{channelId}/pins/:message-id"),
             info,
             ct
         );
