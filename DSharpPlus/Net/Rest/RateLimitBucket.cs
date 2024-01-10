@@ -81,7 +81,7 @@ internal record struct RateLimitBucket
             (
                 !headers.TryGetValues("X-RateLimit-Limit", out IEnumerable<string>? limitRaw)
                 || !headers.TryGetValues("X-RateLimit-Remaining", out IEnumerable<string>? remainingRaw)
-                || !headers.TryGetValues("X-RateLimit-Reset", out IEnumerable<string>? ratelimitResetRaw)
+                || !headers.TryGetValues("X-RateLimit-Reset-After", out IEnumerable<string>? ratelimitResetRaw)
             )
             {
                 return false;
@@ -97,7 +97,7 @@ internal record struct RateLimitBucket
                 return false;
             }
 
-            DateTime reset = (DateTimeOffset.UnixEpoch + TimeSpan.FromSeconds(ratelimitReset)).UtcDateTime;
+            DateTime reset = (DateTimeOffset.UtcNow + TimeSpan.FromSeconds(ratelimitReset)).UtcDateTime;
 
             bucket = new(limit, remaining, reset);
             return true;
