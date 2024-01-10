@@ -64,6 +64,11 @@ public enum ChannelType : int
     /// Indicates that this is a forum channel.
     /// </summary>
     GuildForum = 15,
+    
+    /// <summary>
+    /// Indicates that this can only contain threads.
+    /// </summary>
+    GuildMedia = 16,
 
     /// <summary>
     /// Indicates unknown channel type.
