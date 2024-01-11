@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http.Headers;
 
@@ -89,9 +90,9 @@ internal record struct RateLimitBucket
 
             if
             (
-                !int.TryParse(limitRaw.SingleOrDefault(), out int limit)
-                || !int.TryParse(remainingRaw.SingleOrDefault(), out int remaining)
-                || !double.TryParse(ratelimitResetRaw.SingleOrDefault(), out double ratelimitReset)
+                !int.TryParse(limitRaw.SingleOrDefault(), CultureInfo.InvariantCulture, out int limit)
+                || !int.TryParse(remainingRaw.SingleOrDefault(), CultureInfo.InvariantCulture, out int remaining)
+                || !double.TryParse(ratelimitResetRaw.SingleOrDefault(), CultureInfo.InvariantCulture, out double ratelimitReset)
             )
             {
                 return false;
