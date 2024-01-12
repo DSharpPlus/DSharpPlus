@@ -4,7 +4,7 @@
 
 namespace DSharpPlus.Internal.Abstractions.Rest.Queries;
 
-public readonly record struct BanMemberQuery
+public readonly record struct CreateGuildBanQuery
 {
     /// <summary>
     /// Specifies how many seconds worth of message history should be deleted along with this ban.

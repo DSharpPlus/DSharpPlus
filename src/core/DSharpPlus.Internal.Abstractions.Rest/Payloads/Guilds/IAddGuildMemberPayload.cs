@@ -12,8 +12,8 @@ namespace DSharpPlus.Internal.Abstractions.Rest.Payloads;
 public interface IAddGuildMemberPayload
 {
     /// <summary>
-	/// An OAuth2 access token granted with the <c>guilds.join</c> scope.
-	/// </summary>
+    /// An OAuth2 access token granted with the <c>guilds.join</c> scope.
+    /// </summary>
     public string AccessToken { get; }
 
     /// <summary>

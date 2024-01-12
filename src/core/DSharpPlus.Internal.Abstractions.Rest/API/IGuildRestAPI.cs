@@ -363,11 +363,11 @@ public interface IGuildRestAPI
     /// <param name="reason">Specifies an audit log reason for the ban.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
-    public ValueTask<Result> BanMemberAsync
+    public ValueTask<Result> CreateGuildBanAsync
     (
         Snowflake guildId,
         Snowflake userId,
-        BanMemberQuery query = default,
+        CreateGuildBanQuery query = default,
         string? reason = null,
         RequestInfo info = default,
         CancellationToken ct = default
