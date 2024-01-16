@@ -1,0 +1,9 @@
+repos:
+- repo: https://github.com/dotnet/format
+  rev: "v5.1.225507"
+  hooks:
+  - id: dotnet-format
+    name: dotnet-format
+    language: system
+    entry: dotnet format --include
+    types_or: ["c#"]
