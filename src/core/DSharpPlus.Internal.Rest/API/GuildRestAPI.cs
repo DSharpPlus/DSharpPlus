@@ -135,7 +135,35 @@ public sealed class GuildRestAPI
     }
 
     /// <inheritdoc/>
-    public async ValueTask<Result<BeginGuildPruneResponse>> BeginGuildPruneAsync(Snowflake guildId, BeginGuildPruneQuery query = default, string? reason = null, RequestInfo info = default, CancellationToken ct = default) => throw new System.NotImplementedException();
+    public async ValueTask<Result<BeginGuildPruneResponse>> BeginGuildPruneAsync
+    (
+        Snowflake guildId,
+        IBeginGuildPrunePayload payload,
+        string? reason = null,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    )
+    {
+        return await restClient.ExecuteRequestAsync<BeginGuildPruneResponse>
+        (
+            HttpMethod.Post,
+            $"guilds/{guildId}/prune",
+            b => b.WithSimpleRoute
+                 (
+                    new SimpleSnowflakeRatelimitRoute
+                    {
+                        Resource = TopLevelResource.Guild,
+                        Id = guildId
+                    }
+                 )
+                 .WithRoute($"guilds/{guildId}/prune")
+                 .WithFullRatelimit($"PUT guilds/{guildId}/prune")
+                 .WithPayload(payload)
+                 .WithAuditLogReason(reason),
+            info,
+            ct
+        );
+    }
 
     /// <inheritdoc/>
     public async ValueTask<Result<IGuild>> CreateGuildAsync(ICreateGuildPayload payload, RequestInfo info = default, CancellationToken ct = default) => throw new System.NotImplementedException();

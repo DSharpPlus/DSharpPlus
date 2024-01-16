@@ -7,11 +7,11 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
+using DSharpPlus.Entities;
 using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Abstractions.Rest.Payloads;
 using DSharpPlus.Internal.Abstractions.Rest.Queries;
 using DSharpPlus.Internal.Abstractions.Rest.Responses;
-using DSharpPlus.Entities;
 
 using Remora.Results;
 
@@ -513,7 +513,7 @@ public interface IGuildRestAPI
     /// Initiates a prune from the guild in question.
     /// </summary>
     /// <param name="guildId">The snowflake identifier of the guild in question.</param>
-    /// <param name="query">Contains additional information on which users to consider.</param>
+    /// <param name="payload">Contains additional information on which users to consider.</param>
     /// <param name="reason">Optional audit log reason for the prune.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
@@ -521,7 +521,7 @@ public interface IGuildRestAPI
     public ValueTask<Result<BeginGuildPruneResponse>> BeginGuildPruneAsync
     (
         Snowflake guildId,
-        BeginGuildPruneQuery query = default,
+        IBeginGuildPrunePayload payload,
         string? reason = null,
         RequestInfo info = default,
         CancellationToken ct = default
