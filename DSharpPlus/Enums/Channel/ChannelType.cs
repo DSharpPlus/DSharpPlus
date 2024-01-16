@@ -66,7 +66,7 @@ public enum ChannelType : int
     GuildForum = 15,
     
     /// <summary>
-    /// Indicates that this can only contain threads.
+    /// Indicates that this can only contain threads. Similar to GUILD_FORUM channels.
     /// </summary>
     GuildMedia = 16,
 
