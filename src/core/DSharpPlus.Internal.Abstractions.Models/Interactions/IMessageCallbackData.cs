@@ -47,4 +47,6 @@ public interface IMessageCallbackData
     /// Attachments to this message.
     /// </summary>
     public Optional<IReadOnlyList<IPartialAttachment>> Attachments { get; }
+
+    public IReadOnlyList<AttachmentData>? Files { get; }
 }

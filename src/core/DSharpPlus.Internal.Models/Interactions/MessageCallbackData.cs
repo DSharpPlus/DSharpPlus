@@ -32,4 +32,7 @@ public sealed record MessageCallbackData : IMessageCallbackData
 
     /// <inheritdoc/>
     public Optional<IReadOnlyList<IPartialAttachment>> Attachments { get; init; }
+
+    /// <inheritdoc/>
+    public IReadOnlyList<AttachmentData>? Files { get; init; }
 }
