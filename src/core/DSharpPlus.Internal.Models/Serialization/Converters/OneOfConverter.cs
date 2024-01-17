@@ -23,7 +23,7 @@ namespace DSharpPlus.Internal.Models.Serialization.Converters;
 /// </summary>
 public sealed class OneOfConverter<TUnion> : JsonConverter<TUnion>
     where TUnion : IOneOf
-{    
+{
     // using type handles turns out to be marginally faster than Type, but it doesn't fundamentally matter
     // and this might well change in future .NET versions, in which case this code should use Type for ease
     // of reading
@@ -159,8 +159,8 @@ public sealed class OneOfConverter<TUnion> : JsonConverter<TUnion>
 
     public override TUnion? Read
     (
-        ref Utf8JsonReader reader, 
-        Type typeToConvert, 
+        ref Utf8JsonReader reader,
+        Type typeToConvert,
         JsonSerializerOptions options
     )
     {
@@ -178,7 +178,7 @@ public sealed class OneOfConverter<TUnion> : JsonConverter<TUnion>
                 continue;
             }
 
-            return (TUnion)constructionMethods[type.TypeHandle.Value].Invoke(null, new object[] { value })!;
+            return (TUnion)constructionMethods[type.TypeHandle.Value].Invoke(null, [value])!;
         }
 
         throw new JsonException("The value could not be parsed into the given union.");

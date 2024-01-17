@@ -5,7 +5,7 @@
     <Description>$(Description) This package implements the serialization models mirroring the Discord API.</Description>
     <OutputType>Library</OutputType>
 
-    <NoWarn>$(NoWarn);CA1812</NoWarn>
+    <NoWarn>$(NoWarn);CA1812;IDE0005</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
