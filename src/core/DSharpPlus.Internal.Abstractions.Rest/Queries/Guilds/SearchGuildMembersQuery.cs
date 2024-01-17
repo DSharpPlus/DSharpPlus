@@ -11,6 +11,11 @@ namespace DSharpPlus.Internal.Abstractions.Rest.Queries;
 public readonly record struct SearchGuildMembersQuery
 {
     /// <summary>
+    /// The query string to match usernames and nicknames against.
+    /// </summary>
+    public required string Query { get; init; }
+
+    /// <summary>
     /// The amount of guild members to return.
     /// </summary>
     public int? Limit { get; init; }

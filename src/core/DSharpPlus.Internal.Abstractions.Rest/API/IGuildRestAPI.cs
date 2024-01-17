@@ -196,15 +196,13 @@ public interface IGuildRestAPI
     /// Returns a list of guild member objects whose username or nickname starts with the given string.
     /// </summary>
     /// <param name="guildId">The snowflake identifier of the string in question.</param>
-    /// <param name="queryString">The query string to search for.</param>
-    /// <param name="query">The maximum amount of members to return; 1 - 1000.</param>
+    /// <param name="query">The string to search for and the maximum amount of members to return; 1 - 1000.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<IReadOnlyList<IGuildMember>>> SearchGuildMembersAsync
     (
         Snowflake guildId,
-        string queryString,
-        SearchGuildMembersQuery query = default,
+        SearchGuildMembersQuery query,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -485,7 +483,7 @@ public interface IGuildRestAPI
     /// <param name="reason">An optional audit log reason.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
-    public ValueTask<Result> DeleteRoleAsync
+    public ValueTask<Result> DeleteGuildRoleAsync
     (
         Snowflake guildId,
         Snowflake roleId,
@@ -501,7 +499,7 @@ public interface IGuildRestAPI
     /// <param name="query">Provides additional information on which members to count.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
-    public ValueTask<Result<int>> GetGuildPruneCountAsync
+    public ValueTask<Result<GetGuildPruneCountResponse>> GetGuildPruneCountAsync
     (
         Snowflake guildId,
         GetGuildPruneCountQuery query = default,
@@ -606,7 +604,7 @@ public interface IGuildRestAPI
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>The new guild widget object.</returns>
-    public ValueTask<Result<IGuildWidget>> ModifyGuildWidgetSettingsAsync
+    public ValueTask<Result<IGuildWidget>> ModifyGuildWidgetAsync
     (
         Snowflake guildId,
         IGuildWidgetSettings settings,
@@ -645,13 +643,13 @@ public interface IGuildRestAPI
     /// Returns the guild widget image as a binary stream.
     /// </summary>
     /// <param name="guildId">The snowflake identifier of the guild in question.</param>
-    /// <param name="style">The widget style, either "shield" (default) or "banner1" through "banner4".</param>
+    /// <param name="query">The widget style, either "shield" (default) or "banner1" through "banner4".</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     public ValueTask<Result<Stream>> GetGuildWidgetImageAsync
     (
         Snowflake guildId,
-        string? style = null,
+        GetGuildWidgetImageQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );

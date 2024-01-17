@@ -135,7 +135,7 @@ public static class EmbedBuilderExtensions
     {
         builder.Fields = builder.Fields.MapOr<Optional<IReadOnlyList<IEmbedField>>>
         (
-            transformation: fields => new([..fields, field]),
+            transformation: fields => new([.. fields, field]),
             value: new([field])
         );
 
@@ -156,7 +156,7 @@ public static class EmbedBuilderExtensions
             {
                 errors.Add((nameof(EmbedBuilder.Title), "The length of the title cannot exceed 256 characters."));
             }
-            
+
             totalCount += title.Length;
         }
 
@@ -166,13 +166,13 @@ public static class EmbedBuilderExtensions
             {
                 errors.Add((nameof(EmbedBuilder.Description), "The length of the description cannot exceed 4096 characters."));
             }
-            
+
             totalCount += desc.Length;
         }
 
         if (builder.Color.TryGetNonNullValue(out int color))
         {
-            if (color < 0x000000 || color > 0xFFFFFF)
+            if (color is < 0x000000 or > 0xFFFFFF)
             {
                 errors.Add((nameof(EmbedBuilder.Color), "The color code must be between 0x000000 and 0xFFFFFF."));
             }
