@@ -36,6 +36,25 @@ public interface IRestClient
     );
 
     /// <summary>
+    /// Sends a request to the Discord API, serializing every payload element into a separate form parameter.
+    /// </summary>
+    /// <typeparam name="T">The type to deserialize into.</typeparam>
+    /// <param name="method">The HTTP method this request should be sent to.</param>
+    /// <param name="path">The path this request will take.</param>
+    /// <param name="request">Constructs the request to be sent to Discord.</param>
+    /// <param name="info">Specifies additional parameters for this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns>The response from Discord, or an appropriate error.</returns>
+    public ValueTask<Result<T>> ExecuteMultipartPayloadRequestAsync<T>
+    (
+        HttpMethod method,
+        string path,
+        Action<RequestBuilder> request,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
     /// Sends a request to the Discord API.
     /// </summary>
     /// <param name="method">The HTTP method this request should be sent to.</param>
