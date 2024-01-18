@@ -244,7 +244,7 @@ public sealed class StickerRestAPI(IRestClient restClient)
             return new ValidationError("Sticker tags must not exceed 200 characters in length.");
         }
 
-        return await restClient.ExecuteMultipartPayloadRequestAsync<ISticker>
+        return await restClient.ExecuteRequestAsync<ISticker>
         (
             HttpMethod.Patch,
             $"guilds/{guildId}/stickers/{stickerId}",
