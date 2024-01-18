@@ -6041,12 +6041,7 @@ public sealed class DiscordApiClient
     internal async ValueTask<GatewayInfo> GetGatewayInfoAsync()
     {
         Dictionary<string, string> headers = new();
-        string route = Endpoints.GATEWAY + "/";
-        if (this._discord!.Configuration.TokenType == TokenType.Bot)
-        {
-            route += Endpoints.BOT;
-        }
-
+        string route = Endpoints.GATEWAY + "/" + Endpoints.BOT;
         string url = route;
 
         RestRequest request = new()
