@@ -46,6 +46,9 @@ public sealed class DiscordApiClient
         ILogger logger
     ) // This is for meta-clients, such as the webhook client
         => this._rest = new(proxy, timeout, logger);
+    
+    internal DiscordApiClient(RestClient rest)
+        => this._rest = rest;
 
     private DiscordMessage PrepareMessage(JToken msgRaw)
     {
@@ -6038,12 +6041,7 @@ public sealed class DiscordApiClient
     internal async ValueTask<GatewayInfo> GetGatewayInfoAsync()
     {
         Dictionary<string, string> headers = new();
-        string route = Endpoints.GATEWAY + "/";
-        if (this._discord!.Configuration.TokenType == TokenType.Bot)
-        {
-            route += Endpoints.BOT;
-        }
-
+        string route = $"{Endpoints.GATEWAY}/{Endpoints.BOT}";
         string url = route;
 
         RestRequest request = new()
