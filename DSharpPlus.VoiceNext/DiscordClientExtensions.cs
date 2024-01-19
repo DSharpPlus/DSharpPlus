@@ -109,7 +109,7 @@ public static class DiscordClientExtensions
         }
 
         VoiceNextExtension vnext = discord.GetVoiceNext() ?? throw new InvalidOperationException("VoiceNext is not initialized for this Discord client.");
-        VoiceNextConnection vnc = vnext.GetConnection(channel.Guild);
+        VoiceNextConnection? vnc = vnext.GetConnection(channel.Guild);
         return vnc != null
             ? throw new InvalidOperationException("VoiceNext is already connected in this guild.")
             : vnext.ConnectAsync(channel);
