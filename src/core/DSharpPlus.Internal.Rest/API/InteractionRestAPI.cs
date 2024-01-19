@@ -123,14 +123,7 @@ public sealed class InteractionRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"interactions/{interactionId}/{interactionToken}/callback",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Webhook,
-                        Id = interactionId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Webhook, interactionId)
                  .WithRoute($"POST interactions/{interactionId}/{interactionToken}/callback")
                  .AsInteractionRequest()
                  .WithPayload(payload),

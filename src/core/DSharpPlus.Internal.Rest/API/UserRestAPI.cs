@@ -128,14 +128,7 @@ public sealed class UserRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"users/@me/guilds/{guildId}/member",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"GET users/@me/guilds/{guildId}/member"),
             info,
             ct
@@ -220,14 +213,7 @@ public sealed class UserRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"users/@me/guilds/{guildId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"DELETE users/@me/guilds/{guildId}"),
             info,
             ct

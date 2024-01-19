@@ -54,14 +54,7 @@ public sealed class StickerRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"guilds/{guildId}/stickers",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -83,14 +76,7 @@ public sealed class StickerRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"guilds/{guildId}/stickers/{stickerId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"DELETE guilds/{guildId}/stickers/:sticker-id")
                  .WithAuditLogReason(reason),
             info,
@@ -113,14 +99,7 @@ public sealed class StickerRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/stickers/{stickerId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"GET guilds/{guildId}/stickers/:sticker-id"),
             info,
             ct
@@ -157,14 +136,7 @@ public sealed class StickerRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/stickers",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"GET guilds/{guildId}/stickers"),
             info,
             ct
@@ -223,14 +195,7 @@ public sealed class StickerRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"guilds/{guildId}/stickers/{stickerId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"PATCH guilds/{guildId}/stickers/:sticker-id")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),

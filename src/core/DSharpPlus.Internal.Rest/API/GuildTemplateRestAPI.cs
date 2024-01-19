@@ -72,14 +72,7 @@ public sealed class GuildTemplateRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"guilds/{guildId}/templates",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithPayload(payload),
             info,
             ct
@@ -99,14 +92,7 @@ public sealed class GuildTemplateRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"guilds/{guildId}/templates/{templateCode}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"DELETE guilds/{guildId}/templates/:template-code"),
             info,
             ct
@@ -143,14 +129,7 @@ public sealed class GuildTemplateRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/templates",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -180,14 +159,7 @@ public sealed class GuildTemplateRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"guilds/{guildId}/templates/{templateCode}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"PATCH guilds/{guildId}/templates/:template-code")
                  .WithPayload(payload),
             info,
@@ -208,14 +180,7 @@ public sealed class GuildTemplateRestAPI(IRestClient restClient)
         (
             HttpMethod.Put,
             $"guilds/{guildId}/templates/{templateCode}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"PUT guilds/{guildId}/templates/:template-code"),
             info,
             ct

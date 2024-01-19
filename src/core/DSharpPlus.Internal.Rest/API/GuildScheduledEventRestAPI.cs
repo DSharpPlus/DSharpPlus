@@ -38,14 +38,7 @@ public sealed class GuildScheduledEventRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"guilds/{guildId}/scheduled-events",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -66,14 +59,7 @@ public sealed class GuildScheduledEventRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"guilds/{guildId}/scheduled-events/{eventId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"DELETE guilds/{guildId}/scheduled-events/:event-id"),
             info,
             ct
@@ -106,14 +92,7 @@ public sealed class GuildScheduledEventRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"GET guilds/{guildId}/scheduled-events/:event-id"),
             info,
             ct
@@ -164,14 +143,7 @@ public sealed class GuildScheduledEventRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"GET guilds/{guildId}/scheduled-events/:event-id/users"),
             info,
             ct
@@ -201,14 +173,7 @@ public sealed class GuildScheduledEventRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -229,14 +194,7 @@ public sealed class GuildScheduledEventRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"guilds/{guildId}/scheduled-events/{eventId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"POST guilds/{guildId}/scheduled-events/:event-id")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),

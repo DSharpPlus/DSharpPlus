@@ -48,14 +48,7 @@ public sealed class AutoModerationRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"guilds/{guildId}/auto-moderation/rules",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -76,14 +69,7 @@ public sealed class AutoModerationRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"guilds/{guildId}/auto-moderation/rules/{ruleId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"DELETE guilds/{guildId}/auto-moderation/rules/:rule-id")
                  .WithAuditLogReason(reason),
             info,
@@ -106,14 +92,7 @@ public sealed class AutoModerationRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/auto-moderation/rules/{ruleId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"GET guilds/{guildId}/auto-moderation/rules/:rule-id"),
             info,
             ct
@@ -132,14 +111,7 @@ public sealed class AutoModerationRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/auto-moderation/rules",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -170,14 +142,7 @@ public sealed class AutoModerationRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"guilds/{guildId}/auto-moderation/rules/{ruleId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"PATCH guilds/{guildId}/auto-moderation/rules/:rule-id")
                  .WithAuditLogReason(reason),
             info,

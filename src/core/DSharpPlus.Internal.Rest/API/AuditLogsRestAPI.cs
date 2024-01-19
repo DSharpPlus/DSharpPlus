@@ -74,14 +74,7 @@ public sealed class AuditLogsRestAPI
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"GET guilds/{guildId}/audit-logs"),
             info,
             ct

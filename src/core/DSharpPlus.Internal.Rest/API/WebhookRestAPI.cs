@@ -54,14 +54,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"channels/{channelId}/webhooks",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -81,14 +74,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"webhooks/{webhookId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Webhook,
-                        Id = webhookId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Webhook, webhookId)
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -122,14 +108,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             builder.ToString(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Webhook,
-                        Id = webhookId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Webhook, webhookId)
                  .WithRoute($"DELETE webhooks/{webhookId}/:webhook-token/messages/:message-id")
                  .AsWebhookRequest(),
             info,
@@ -153,14 +132,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"webhooks/{webhookId}/{webhookToken}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Webhook,
-                        Id = webhookId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Webhook, webhookId)
                  .WithRoute($"DELETE webhooks/{webhookId}/:webhook-token")
                  .WithAuditLogReason(reason)
                  .AsWebhookRequest(),
@@ -212,14 +184,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Webhook,
-                        Id = webhookId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Webhook, webhookId)
                  .WithRoute($"PATCH webhooks/{webhookId}/:webhook-token/messages/:message-id")
                  .WithPayload(payload)
                  .AsWebhookRequest(),
@@ -276,14 +241,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
             (
                 HttpMethod.Patch,
                 builder.Build(),
-                b => b.WithSimpleRoute
-                     (
-                        new SimpleSnowflakeRatelimitRoute
-                        {
-                            Resource = TopLevelResource.Webhook,
-                            Id = webhookId
-                        }
-                     )
+                b => b.WithSimpleRoute(TopLevelResource.Webhook, webhookId)
                      .WithRoute($"PATCH webhooks/{webhookId}/:webhook-token/messages/:message-id")
                      .WithPayload(payload)
                      .AsWebhookRequest(),
@@ -298,14 +256,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
             (
                 HttpMethod.Patch,
                 builder.Build(),
-                b => b.WithSimpleRoute
-                     (
-                        new SimpleSnowflakeRatelimitRoute
-                        {
-                            Resource = TopLevelResource.Webhook,
-                            Id = webhookId
-                        }
-                     )
+                b => b.WithSimpleRoute(TopLevelResource.Webhook, webhookId)
                      .WithRoute($"PATCH webhooks/{webhookId}/:webhook-token/messages/:message-id")
                      .WithPayload(payload)
                      .AsWebhookRequest(),
@@ -329,14 +280,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"channels/{channelId}/webhooks",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId),
             info,
             ct
         );
@@ -354,14 +298,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/webhooks",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -379,14 +316,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"webhooks/{webhookId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Webhook,
-                        Id = webhookId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Webhook, webhookId),
             info,
             ct
         );
@@ -417,14 +347,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Webhook,
-                        Id = webhookId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Webhook, webhookId)
                  .WithRoute($"PATCH webhooks/{webhookId}/:webhook-token/messages/:message-id"),
             info,
             ct
@@ -444,14 +367,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"webhooks/{webhookId}/{webhookToken}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Webhook,
-                        Id = webhookId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Webhook, webhookId)
                  .AsWebhookRequest(),
             info,
             ct
@@ -489,14 +405,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"webhooks/{webhookId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Webhook,
-                        Id = webhookId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Webhook, webhookId)
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -535,14 +444,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"webhooks/{webhookId}/{webhookToken}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Webhook,
-                        Id = webhookId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Webhook, webhookId)
                  .WithAuditLogReason(reason)
                  .AsWebhookRequest(),
             info,

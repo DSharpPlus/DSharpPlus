@@ -59,14 +59,7 @@ public sealed class StageInstanceRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"stage-instances/{channelId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithRoute($"DELETE stage-instances/{channelId}")
                  .WithAuditLogReason(reason),
             info,
@@ -88,14 +81,7 @@ public sealed class StageInstanceRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"stage-instances/{channelId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithRoute($"GET stage-instances/{channelId}"),
             info,
             ct
@@ -121,14 +107,7 @@ public sealed class StageInstanceRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"stage-instances/{channelId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithRoute($"PATCH stage-instances/{channelId}")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),

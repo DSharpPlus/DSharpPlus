@@ -43,14 +43,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Put,
             $"guilds/{guildId}/members/{userId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"PUT guilds/{guildId}/members/:user-id"),
             info,
             ct
@@ -72,14 +65,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Put,
             $"guilds/{guildId}/members/{userId}/roles/{roleId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"PUT guilds/{guildId}/members/:user-id/roles/:role-id")
                  .WithAuditLogReason(reason),
             info,
@@ -114,14 +100,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Put,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"PUT guilds/{guildId}/bans/:user-id")
                  .WithAuditLogReason(reason),
             info,
@@ -150,14 +129,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"guilds/{guildId}/prune",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -235,14 +207,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"guilds/{guildId}/channels",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -274,14 +239,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"guilds/{guildId}/roles",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -322,14 +280,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"guilds/{guildId}/integrations/{integrationId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"DELETE guilds/{guildId}/integrations/:integration-id")
                  .WithAuditLogReason(reason),
             info,
@@ -353,14 +304,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"guilds/{guildId}/roles/{roleId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"DELETE guilds/{guildId}/roles/:role-id")
                  .WithAuditLogReason(reason),
             info,
@@ -411,14 +355,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/bans/{userId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"GET guilds/{guildId}/bans/:user-id"),
             info,
             ct
@@ -463,14 +400,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -488,14 +418,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/channels",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -513,14 +436,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/integrations",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -538,14 +454,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/invites",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -564,14 +473,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/members/{userId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"GET guilds/{guildId}/members/:user-id"),
             info,
             ct
@@ -590,14 +492,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/onboarding",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -615,14 +510,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/preview",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -661,14 +549,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -686,14 +567,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/roles",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -711,14 +585,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/vanity-url",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -736,14 +603,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/regions",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -761,14 +621,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/welcome-screen",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -786,14 +639,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/widget.json",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -812,14 +658,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/widget.png",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -839,14 +678,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/widget",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -864,14 +696,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/threads/active",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -910,14 +735,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );
@@ -937,14 +755,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"guilds/{guildId}/members/@me",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithPayload(payload),
             info,
             ct
@@ -964,14 +775,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"guilds/{guildId}/voice-states/@me",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithPayload(payload),
             info,
             ct
@@ -1004,14 +808,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"guilds/{guildId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1032,14 +829,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"guilds/{guildId}/channels",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithPayload(payload),
             info,
             ct
@@ -1068,14 +858,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"guilds/{guildId}/members/{userId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"PATCH guilds/{guildId}/members/:user-id")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
@@ -1098,14 +881,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"guilds/{guildId}/mfa",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1127,14 +903,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"guilds/{guildId}/onboarding",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1167,14 +936,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"guilds/{guildId}/roles/{roleId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"PATCH guilds/{guildId}/roles/:role-id")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
@@ -1197,14 +959,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"guilds/{guildId}/roles",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1226,14 +981,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"guilds/{guildId}/welcome-screen",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1255,14 +1003,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"guilds/{guildId}/widget",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithPayload(settings)
                  .WithAuditLogReason(reason),
             info,
@@ -1284,14 +1025,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"guilds/{guildId}/voice-states/{userId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"PATCH guilds/{guildId}/voice-states/:user-id")
                  .WithPayload(payload),
             info,
@@ -1315,14 +1049,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"guilds/{guildId}/bans/{userId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"DELETE guilds/{guildId}/bans/:user-id")
                  .WithAuditLogReason(reason),
             info,
@@ -1346,14 +1073,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"guilds/{guildId}/members/{userId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"DELETE guilds/{guildId}/members/:user-id")
                  .WithAuditLogReason(reason),
             info,
@@ -1378,14 +1098,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"guilds/{guildId}/members/{userId}/roles/{roleId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                  .WithRoute($"DELETE guilds/{guildId}/members/:user-id/roles/:role-id")
                  .WithAuditLogReason(reason),
             info,
@@ -1425,14 +1138,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/members/search",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId),
             info,
             ct
         );

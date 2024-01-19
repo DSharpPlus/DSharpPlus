@@ -41,14 +41,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Put,
             $"channels/{threadId}/thread-members/{userId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = threadId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, threadId)
                  .WithRoute($"PUT channels/{threadId}/thread-members/:user-id"),
             info,
             ct
@@ -71,14 +64,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"channels/{channelId}/messages/bulk-delete",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -131,14 +117,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"channels/{channelId}/invites",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -191,14 +170,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"channels/{channelId}/messages",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithPayload(payload),
             info,
             ct
@@ -219,14 +191,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Put,
             $"channels/{channelId}/messages/{messageId}/reactions/{emoji}/@me",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithRoute($"PUT channels/{channelId}/messages/:message-id/reactions/:emoji/@me"),
             info,
             ct
@@ -248,14 +213,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"channels/{channelId}/messages/{messageId}/crosspost",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithRoute($"POST channels/{channelId}/messages/:message-id/crosspost"),
             info,
             ct
@@ -275,14 +233,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"channels/{channelId}/messages/{messageId}/reactions",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithRoute($"DELETE channels/{channelId}/messages/:message-id/reactions"),
             info,
             ct
@@ -305,14 +256,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"channels/{channelId}/messages/{messageId}/reactions/{emoji}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithRoute($"DELETE channels/{channelId}/messages/:message-id/reactions/:emoji"),
             info,
             ct
@@ -334,14 +278,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"channels/{channelId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -362,14 +299,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"channels/{channelId}/permissions/{overwriteId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -392,14 +322,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"channels/{channelId}/messages/{messageId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithRoute($"DELETE channels/{channelId}/messages/:message-id")
                  .WithAuditLogReason(reason),
             info,
@@ -423,14 +346,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"channels/{channelId}/messages/{messageId}/reactions/{emoji}/@me",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithRoute($"DELETE channels/{channelId}/messages/:message-id/reactions/:emoji/@me"),
             info,
             ct
@@ -454,14 +370,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"channels/{channelId}/messages/{messageId}/reactions/{emoji}/{userId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithRoute($"DELETE channels/{channelId}/messages/:message-id/reactions/:emoji/:user-id"),
             info,
             ct
@@ -485,14 +394,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Put,
             $"channels/{channelId}/permissions/{overwriteId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithRoute($"PUT channels/{channelId}/permissions/:overwrite-id")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
@@ -527,14 +429,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"channels/{channelId}/messages/{messageId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithRoute($"PATCH channels/{channelId}/messages/:message-id")
                  .WithPayload(payload),
             info,
@@ -555,14 +450,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"channels/{channelId}/followers",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithPayload(payload),
             info,
             ct
@@ -581,14 +469,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"channels/{channelId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId),
             info,
             ct
         );
@@ -606,14 +487,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"channels/{channelId}/invites",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId),
             info,
             ct
         );
@@ -632,14 +506,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"channels/{channelId}/messages/{messageId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithRoute($"GET channels/{channelId}/messages/:message-id"),
             info,
             ct
@@ -687,14 +554,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId),
             info,
             ct
         );
@@ -712,14 +572,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"channels/{channelId}/pins",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId),
             info,
             ct
         );
@@ -755,14 +608,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithRoute($"GET channels/{channelId}/messages/:message-id/reactions/:emoji"),
             info,
             ct
@@ -793,14 +639,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = threadId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, threadId)
                  .WithRoute($"GET channels/{threadId}/thread-members/:user-id"),
             info,
             ct
@@ -821,14 +660,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Put,
             $"channels/{channelId}/recipients/{userId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithRoute($"PUT channels/{channelId}/recipients/:user-id")
                  .WithPayload(payload),
             info,
@@ -851,14 +683,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"channels/{channelId}/recipients/{userId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithRoute($"DELETE channels/{channelId}/recipients/:user-id"),
             info,
             ct
@@ -879,14 +704,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Put,
             $"channels/{threadId}/recipients/@me",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = threadId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Channel, threadId),
             info,
             ct
         );
@@ -906,14 +724,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"channels/{threadId}/recipients/@me",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = threadId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Channel, threadId),
             info,
             ct
         );
@@ -954,14 +765,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId),
             info,
             ct
         );
@@ -1000,14 +804,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId),
             info,
             ct
         );
@@ -1046,14 +843,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId),
             info,
             ct
         );
@@ -1097,14 +887,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = threadId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Channel, threadId),
             info,
             ct
         );
@@ -1128,14 +911,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"channels/{channelId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId),
             info,
             ct
         );
@@ -1194,14 +970,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"channels/{channelId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -1248,14 +1017,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"channels/{channelId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -1276,14 +1038,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Put,
             $"channels/{channelId}/pins/{messageId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithAuditLogReason(reason)
                  .WithRoute($"PUT channels/{channelId}/pins/:message-id"),
             info,
@@ -1306,14 +1061,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"channels/{threadId}/thread-members/{userId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = threadId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, threadId)
                  .WithRoute($"DELETE channels/{threadId}/thread-members/:user-id"),
             info,
             ct
@@ -1358,14 +1106,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"channels/{channelId}/messages/{messageId}/threads",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithRoute($"POST channels/{channelId}/messages/:message-id/threads")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
@@ -1444,14 +1185,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"channels/{channelId}/threads",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1494,14 +1228,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"channels/{channelId}/threads",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1521,14 +1248,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"channels/{channelId}/typing",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 ),
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId),
             info,
             ct
         );
@@ -1550,14 +1270,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"channels/{channelId}/pins/{messageId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Channel,
-                        Id = channelId
-                    }
-                 )
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
                  .WithRoute($"DELETE channels/{channelId}/pins/:message-id"),
             info,
             ct
