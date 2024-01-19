@@ -38,16 +38,7 @@ public sealed class UserRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             "users/@me/channels",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "users/@me/channels"
-                    }
-                 )
-                 .WithFullRatelimit($"POST users/@me/channels")
+            b => b.WithRoute($"POST users/@me/channels")
                  .WithPayload(payload),
             info,
             ct
@@ -66,16 +57,7 @@ public sealed class UserRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             "users/@me/channels",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "users/@me/channels"
-                    }
-                 )
-                 .WithFullRatelimit($"POST users/@me/channels")
+            b => b.WithRoute($"POST users/@me/channels")
                  .WithPayload(payload),
             info,
             ct
@@ -94,16 +76,7 @@ public sealed class UserRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"users/@me/applications/{applicationId}/role-connection",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "users/@me/applications/:application-id/role-connection"
-                    }
-                 )
-                 .WithFullRatelimit($"GET users/@me/applications/:application-id/role-connection"),
+            b => b.WithRoute($"GET users/@me/applications/:application-id/role-connection"),
             info,
             ct
         );
@@ -120,16 +93,7 @@ public sealed class UserRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             "users/@me",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "users/@me"
-                    }
-                 )
-                 .WithFullRatelimit($"GET users/@me"),
+            b => b.WithRoute($"GET users/@me"),
             info,
             ct
         );
@@ -146,16 +110,7 @@ public sealed class UserRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             "users/@me/connections",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "users/@me/connections"
-                    }
-                 )
-                 .WithFullRatelimit("GET users/@me/connections"),
+            b => b.WithRoute("GET users/@me/connections"),
             info,
             ct
         );
@@ -175,14 +130,13 @@ public sealed class UserRestAPI(IRestClient restClient)
             $"users/@me/guilds/{guildId}/member",
             b => b.WithSimpleRoute
                  (
-                    new SimpleStringRatelimitRoute
+                    new SimpleSnowflakeRatelimitRoute
                     {
-                        IsFracturable = false,
                         Resource = TopLevelResource.Guild,
-                        Route = $"users/@me/guilds/{guildId}/member"
+                        Id = guildId
                     }
                  )
-                 .WithFullRatelimit($"GET users/@me/guilds/{guildId}/member"),
+                 .WithRoute($"GET users/@me/guilds/{guildId}/member"),
             info,
             ct
         );
@@ -230,16 +184,7 @@ public sealed class UserRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "users/@me/guilds"
-                    }
-                 )
-                 .WithFullRatelimit("GET users/@me/guilds"),
+            b => b.WithRoute("GET users/@me/guilds"),
             info,
             ct
         );
@@ -257,16 +202,7 @@ public sealed class UserRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"users/{userId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "users/:user-id"
-                    }
-                 )
-                 .WithFullRatelimit("GET users/:user-id"),
+            b => b.WithRoute("GET users/:user-id"),
             info,
             ct
         );
@@ -286,14 +222,13 @@ public sealed class UserRestAPI(IRestClient restClient)
             $"users/@me/guilds/{guildId}",
             b => b.WithSimpleRoute
                  (
-                    new SimpleStringRatelimitRoute
+                    new SimpleSnowflakeRatelimitRoute
                     {
-                        IsFracturable = false,
                         Resource = TopLevelResource.Guild,
-                        Route = $"users/@me/guilds/{guildId}"
+                        Id = guildId
                     }
                  )
-                 .WithFullRatelimit($"DELETE users/@me/guilds/{guildId}"),
+                 .WithRoute($"DELETE users/@me/guilds/{guildId}"),
             info,
             ct
         );
@@ -313,16 +248,7 @@ public sealed class UserRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             "users/@me",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "users/@me"
-                    }
-                 )
-                 .WithFullRatelimit("PATCH users/@me")
+            b => b.WithRoute("PATCH users/@me")
                  .WithPayload(payload),
             info,
             ct
@@ -352,16 +278,7 @@ public sealed class UserRestAPI(IRestClient restClient)
         (
             HttpMethod.Put,
             $"users/@me/applications/{applicationId}/role-connection",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "users/@me/applications/:application-id/role-connection"
-                    }
-                 )
-                 .WithFullRatelimit("PUT users/@me/applications/:application-id/role-connection")
+            b => b.WithRoute("PUT users/@me/applications/:application-id/role-connection")
                  .WithPayload(payload),
             info,
             ct

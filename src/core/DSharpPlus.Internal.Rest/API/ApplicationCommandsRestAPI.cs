@@ -18,7 +18,6 @@ using DSharpPlus.Internal.Abstractions.Rest.Errors;
 using DSharpPlus.Internal.Abstractions.Rest.Payloads;
 using DSharpPlus.Internal.Abstractions.Rest.Queries;
 using DSharpPlus.Internal.Abstractions.Rest.Responses;
-using DSharpPlus.Internal.Rest.Ratelimiting;
 using DSharpPlus.Serialization;
 
 using Remora.Results;
@@ -36,13 +35,13 @@ public sealed class ApplicationCommandsRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IReadOnlyList<IApplicationCommand>>> BulkOverwriteGlobalApplicationCommandsAsync
     (
-        Snowflake applicationId, 
-        IReadOnlyList<ICreateGlobalApplicationCommandPayload> payload, 
-        RequestInfo info = default, 
+        Snowflake applicationId,
+        IReadOnlyList<ICreateGlobalApplicationCommandPayload> payload,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
-        foreach(ICreateGlobalApplicationCommandPayload command in payload)
+        foreach (ICreateGlobalApplicationCommandPayload command in payload)
         {
             if (command.Name.Length is > 32 or < 1)
             {
@@ -74,17 +73,8 @@ public sealed class ApplicationCommandsRestAPI
         (
             HttpMethod.Put,
             $"applications/{applicationId}/commands",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/commands"
-                    }
-                 )
-                 .WithPayload(payload)
-                 .WithFullRatelimit("PUT applications/:application-id/commands"),
+            b => b.WithPayload(payload)
+                 .WithRoute("PUT applications/:application-id/commands"),
             info,
             ct
         );
@@ -93,10 +83,10 @@ public sealed class ApplicationCommandsRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IReadOnlyList<IApplicationCommand>>> BulkOverwriteGuildApplicationCommandsAsync
     (
-        Snowflake applicationId, 
-        Snowflake guildId, 
-        IReadOnlyList<ICreateGuildApplicationCommandPayload> payload, 
-        RequestInfo info = default, 
+        Snowflake applicationId,
+        Snowflake guildId,
+        IReadOnlyList<ICreateGuildApplicationCommandPayload> payload,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -132,17 +122,8 @@ public sealed class ApplicationCommandsRestAPI
         (
             HttpMethod.Put,
             $"applications/{applicationId}/guilds/{guildId}/commands",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/guilds/:guild-id/commands"
-                    }
-                 )
-                 .WithPayload(payload)
-                 .WithFullRatelimit("PUT applications/:application-id/guilds/:guild-id/commands"),
+            b => b.WithPayload(payload)
+                 .WithRoute("PUT applications/:application-id/guilds/:guild-id/commands"),
             info,
             ct
         );
@@ -151,9 +132,9 @@ public sealed class ApplicationCommandsRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<CreateApplicationCommandResponse>> CreateGlobalApplicationCommandAsync
     (
-        Snowflake applicationId, 
-        ICreateGlobalApplicationCommandPayload payload, 
-        RequestInfo info = default, 
+        Snowflake applicationId,
+        ICreateGlobalApplicationCommandPayload payload,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -181,17 +162,8 @@ public sealed class ApplicationCommandsRestAPI
         (
             HttpMethod.Post,
             $"applications/{applicationId}/commands",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/commands"
-                    }
-                 )
-                 .WithPayload(payload)
-                 .WithFullRatelimit("POST applications/:application-id/commands"),
+            b => b.WithPayload(payload)
+                 .WithRoute("POST applications/:application-id/commands"),
             info,
             ct
         );
@@ -214,10 +186,10 @@ public sealed class ApplicationCommandsRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<CreateApplicationCommandResponse>> CreateGuildApplicationCommandAsync
     (
-        Snowflake applicationId, 
-        Snowflake guildId, 
-        ICreateGuildApplicationCommandPayload payload, 
-        RequestInfo info = default, 
+        Snowflake applicationId,
+        Snowflake guildId,
+        ICreateGuildApplicationCommandPayload payload,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -245,17 +217,8 @@ public sealed class ApplicationCommandsRestAPI
         (
             HttpMethod.Post,
             $"applications/{applicationId}/guilds/{guildId}/commands",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/guilds/:guild-id/commands"
-                    }
-                 )
-                 .WithPayload(payload)
-                 .WithFullRatelimit("POST applications/:application-id/guilds/:guild-id/commands"),
+            b => b.WithPayload(payload)
+                 .WithRoute("POST applications/:application-id/guilds/:guild-id/commands"),
             info,
             ct
         );
@@ -278,9 +241,9 @@ public sealed class ApplicationCommandsRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> DeleteGlobalApplicationCommandAsync
     (
-        Snowflake applicationId, 
-        Snowflake commandId, 
-        RequestInfo info = default, 
+        Snowflake applicationId,
+        Snowflake commandId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -288,16 +251,7 @@ public sealed class ApplicationCommandsRestAPI
         (
             HttpMethod.Delete,
             $"applications/{applicationId}/commands/{commandId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/commands/:command-id"
-                    }
-                 )
-                 .WithFullRatelimit("DELETE applications/:application-id/commands/:command-id"),
+            b => b.WithRoute("DELETE applications/:application-id/commands/:command-id"),
             info,
             ct
         );
@@ -308,10 +262,10 @@ public sealed class ApplicationCommandsRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> DeleteGuildApplicationCommandAsync
     (
-        Snowflake applicationId, 
-        Snowflake guildId, 
-        Snowflake commandId, 
-        RequestInfo info = default, 
+        Snowflake applicationId,
+        Snowflake guildId,
+        Snowflake commandId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -319,16 +273,7 @@ public sealed class ApplicationCommandsRestAPI
         (
             HttpMethod.Delete,
             $"applications/{applicationId}/guilds/{guildId}/commands/{commandId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/guilds/:guild-id/commands/:command-id"
-                    }
-                 )
-                 .WithFullRatelimit("DELETE applications/:application-id/guilds/:guild-id/commands/:command-id"),
+            b => b.WithRoute("DELETE applications/:application-id/guilds/:guild-id/commands/:command-id"),
             info,
             ct
         );
@@ -339,10 +284,10 @@ public sealed class ApplicationCommandsRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IApplicationCommand>> EditGlobalApplicationCommandAsync
     (
-        Snowflake applicationId, 
-        Snowflake commandId, 
-        IEditGlobalApplicationCommandPayload payload, 
-        RequestInfo info = default, 
+        Snowflake applicationId,
+        Snowflake commandId,
+        IEditGlobalApplicationCommandPayload payload,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -370,17 +315,8 @@ public sealed class ApplicationCommandsRestAPI
         (
             HttpMethod.Patch,
             $"applications/{applicationId}/commands/{commandId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/commands/:command-id"
-                    }
-                 )
-                 .WithPayload(payload)
-                 .WithFullRatelimit("PATCH applications/:application-id/commands/:command-id"),
+            b => b.WithPayload(payload)
+                 .WithRoute("PATCH applications/:application-id/commands/:command-id"),
             info,
             ct
         );
@@ -389,11 +325,11 @@ public sealed class ApplicationCommandsRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IApplicationCommand>> EditGuildApplicationCommandAsync
     (
-        Snowflake applicationId, 
-        Snowflake guildId, 
-        Snowflake commandId, 
-        IEditGuildApplicationCommandPayload payload, 
-        RequestInfo info = default, 
+        Snowflake applicationId,
+        Snowflake guildId,
+        Snowflake commandId,
+        IEditGuildApplicationCommandPayload payload,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -421,17 +357,8 @@ public sealed class ApplicationCommandsRestAPI
         (
             HttpMethod.Patch,
             $"applications/{applicationId}/guild/{guildId}/commands/{commandId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/guilds/:guild-id/commands/:command-id"
-                    }
-                 )
-                 .WithPayload(payload)
-                 .WithFullRatelimit("PATCH applications/:application-id/guilds/:guild-id/commands/:command-id"),
+            b => b.WithPayload(payload)
+                 .WithRoute("PATCH applications/:application-id/guilds/:guild-id/commands/:command-id"),
             info,
             ct
         );
@@ -440,10 +367,10 @@ public sealed class ApplicationCommandsRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IApplicationCommandPermissions>> GetApplicationCommandPermissionsAsync
     (
-        Snowflake applicationId, 
-        Snowflake guildId, 
-        Snowflake commandId, 
-        RequestInfo info = default, 
+        Snowflake applicationId,
+        Snowflake guildId,
+        Snowflake commandId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -451,16 +378,7 @@ public sealed class ApplicationCommandsRestAPI
         (
             HttpMethod.Get,
             $"applications/{applicationId}/guild/{guildId}/commands/{commandId}/permissions",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/guilds/:guild-id/commands/:command-id/permissions"
-                    }
-                 )
-                 .WithFullRatelimit("GET applications/:application-id/guilds/:guild-id/commands/:command-id/permissions"),
+            b => b.WithRoute("GET applications/:application-id/guilds/:guild-id/commands/:command-id/permissions"),
             info,
             ct
         );
@@ -469,9 +387,9 @@ public sealed class ApplicationCommandsRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IApplicationCommand>> GetGlobalApplicationCommandAsync
     (
-        Snowflake applicationId, 
-        Snowflake commandId, 
-        RequestInfo info = default, 
+        Snowflake applicationId,
+        Snowflake commandId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -479,16 +397,7 @@ public sealed class ApplicationCommandsRestAPI
         (
             HttpMethod.Get,
             $"applications/{applicationId}/commands/{commandId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/commands/:command-id"
-                    }
-                 )
-                 .WithFullRatelimit("GET applications/:application-id/commands/:command-id"),
+            b => b.WithRoute("GET applications/:application-id/commands/:command-id"),
             info,
             ct
         );
@@ -497,9 +406,9 @@ public sealed class ApplicationCommandsRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IReadOnlyList<IApplicationCommand>>> GetGlobalApplicationCommandsAsync
     (
-        Snowflake applicationId, 
-        LocalizationQuery query = default, 
-        RequestInfo info = default, 
+        Snowflake applicationId,
+        LocalizationQuery query = default,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -517,16 +426,7 @@ public sealed class ApplicationCommandsRestAPI
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/commands"
-                    }
-                 )
-                 .WithFullRatelimit("GET applications/:application-id/commands"),
+            b => b.WithRoute("GET applications/:application-id/commands"),
             info,
             ct
         );
@@ -536,9 +436,9 @@ public sealed class ApplicationCommandsRestAPI
     public async ValueTask<Result<IApplicationCommand>> GetGuildApplicationCommandAsync
     (
         Snowflake applicationId,
-        Snowflake guildId, 
+        Snowflake guildId,
         Snowflake commandId,
-        RequestInfo info = default, 
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -546,16 +446,7 @@ public sealed class ApplicationCommandsRestAPI
         (
             HttpMethod.Get,
             $"applications/{applicationId}/guilds/{guildId}/commands/{commandId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/guilds/:guild-id/commands/:command-id"
-                    }
-                 )
-                 .WithFullRatelimit("GET applications/:application-id/guilds/:guild-id/commands/:command-id"),
+            b => b.WithRoute("GET applications/:application-id/guilds/:guild-id/commands/:command-id"),
             info,
             ct
         );
@@ -564,9 +455,9 @@ public sealed class ApplicationCommandsRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IReadOnlyList<IApplicationCommandPermissions>>> GetGuildApplicationCommandPermissionsAsync
     (
-        Snowflake applicationId, 
-        Snowflake guildId, 
-        RequestInfo info = default, 
+        Snowflake applicationId,
+        Snowflake guildId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -574,16 +465,7 @@ public sealed class ApplicationCommandsRestAPI
         (
             HttpMethod.Get,
             $"applications/{applicationId}/guild/{guildId}/commands/permissions",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/guilds/:guild-id/commands/permissions"
-                    }
-                 )
-                 .WithFullRatelimit("GET applications/:application-id/guilds/:guild-id/commands/permissions"),
+            b => b.WithRoute("GET applications/:application-id/guilds/:guild-id/commands/permissions"),
             info,
             ct
         );
@@ -592,10 +474,10 @@ public sealed class ApplicationCommandsRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IReadOnlyList<IApplicationCommand>>> GetGuildApplicationCommandsAsync
     (
-        Snowflake applicationId, 
-        Snowflake guildId, 
-        LocalizationQuery query = default, 
-        RequestInfo info = default, 
+        Snowflake applicationId,
+        Snowflake guildId,
+        LocalizationQuery query = default,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -613,16 +495,7 @@ public sealed class ApplicationCommandsRestAPI
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/guilds/:guild-id/commands"
-                    }
-                 )
-                 .WithFullRatelimit("GET applications/:application-id/guilds/:guild-id/commands"),
+            b => b.WithRoute("GET applications/:application-id/guilds/:guild-id/commands"),
             info,
             ct
         );

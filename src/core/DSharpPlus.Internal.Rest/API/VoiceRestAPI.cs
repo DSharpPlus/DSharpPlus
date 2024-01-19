@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Abstractions.Rest;
 using DSharpPlus.Internal.Abstractions.Rest.API;
-using DSharpPlus.Internal.Rest.Ratelimiting;
 
 using Remora.Results;
 
@@ -31,16 +30,7 @@ public sealed class VoiceRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"voice/regions",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "voice/regions"
-                    }
-                 )
-                 .WithFullRatelimit("GET voice/regions"),
+            b => b.WithRoute("GET voice/regions"),
             info,
             ct
         );

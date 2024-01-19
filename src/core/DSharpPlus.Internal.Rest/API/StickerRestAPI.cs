@@ -62,8 +62,6 @@ public sealed class StickerRestAPI(IRestClient restClient)
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/stickers")
-                 .WithFullRatelimit($"POST guilds/{guildId}/stickers")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -93,8 +91,7 @@ public sealed class StickerRestAPI(IRestClient restClient)
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/stickers/:sticker-id")
-                 .WithFullRatelimit($"DELETE guilds/{guildId}/stickers/:sticker-id")
+                 .WithRoute($"DELETE guilds/{guildId}/stickers/:sticker-id")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -124,8 +121,7 @@ public sealed class StickerRestAPI(IRestClient restClient)
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/stickers/:sticker-id")
-                 .WithFullRatelimit($"GET guilds/{guildId}/stickers/:sticker-id"),
+                 .WithRoute($"GET guilds/{guildId}/stickers/:sticker-id"),
             info,
             ct
         );
@@ -143,17 +139,7 @@ public sealed class StickerRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"stickers/{stickerId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "stickers/:sticker-id"
-                    }
-                 )
-                 .WithRoute("stickers/:sticker-id")
-                 .WithFullRatelimit("GET stickers/:sticker-id"),
+            b => b.WithRoute("GET stickers/:sticker-id"),
             info,
             ct
         );
@@ -179,8 +165,7 @@ public sealed class StickerRestAPI(IRestClient restClient)
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/stickers")
-                 .WithFullRatelimit($"GET guilds/{guildId}/stickers"),
+                 .WithRoute($"GET guilds/{guildId}/stickers"),
             info,
             ct
         );
@@ -197,17 +182,7 @@ public sealed class StickerRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             "sticker-packs",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "sticker-packs"
-                    }
-                 )
-                 .WithRoute("sticker-packs")
-                 .WithFullRatelimit("GET sticker-packs"),
+            b => b.WithRoute("GET sticker-packs"),
             info,
             ct
         );
@@ -256,8 +231,7 @@ public sealed class StickerRestAPI(IRestClient restClient)
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/stickers/:sticker-id")
-                 .WithFullRatelimit($"PATCH guilds/{guildId}/stickers/:sticker-id")
+                 .WithRoute($"PATCH guilds/{guildId}/stickers/:sticker-id")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,

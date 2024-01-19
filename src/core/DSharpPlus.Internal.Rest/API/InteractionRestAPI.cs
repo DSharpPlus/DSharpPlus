@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -57,17 +58,8 @@ public sealed class InteractionRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"webhooks/{applicationId}/{interactionToken}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = true,
-                        Resource = TopLevelResource.Webhook,
-                        Route = $"webhooks/{applicationId}/{interactionToken}"
-                    }
-                 )
-                 .WithRoute($"webhooks/{applicationId}/{interactionToken}")
-                 .WithFullRatelimit($"POST webhooks/{applicationId}/{interactionToken}")
+            b => b.WithRoute($"POST webhooks/:application-id/{interactionToken}")
+                 .AsInteractionRequest()
                  .WithPayload(payload),
             info,
             ct
@@ -75,6 +67,7 @@ public sealed class InteractionRestAPI(IRestClient restClient)
     }
 
     /// <inheritdoc/>
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
     public async ValueTask<Result> CreateInteractionResponseAsync
     (
         Snowflake interactionId,
@@ -132,15 +125,14 @@ public sealed class InteractionRestAPI(IRestClient restClient)
             $"interactions/{interactionId}/{interactionToken}/callback",
             b => b.WithSimpleRoute
                  (
-                    new SimpleStringRatelimitRoute
+                    new SimpleSnowflakeRatelimitRoute
                     {
-                        IsFracturable = true,
                         Resource = TopLevelResource.Webhook,
-                        Route = $"interactions/{interactionId}/{interactionToken}"
+                        Id = interactionId
                     }
                  )
-                 .WithRoute($"interactions/{interactionId}/{interactionToken}/callback")
-                 .WithFullRatelimit($"POST interactions/{interactionId}/{interactionToken}/callback")
+                 .WithRoute($"POST interactions/{interactionId}/{interactionToken}/callback")
+                 .AsInteractionRequest()
                  .WithPayload(payload),
             info,
             ct
@@ -163,17 +155,8 @@ public sealed class InteractionRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"webhooks/{applicationId}/{interactionToken}/messages/{messageId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = true,
-                        Resource = TopLevelResource.Webhook,
-                        Route = $"webhooks/{applicationId}/{interactionToken}"
-                    }
-                 )
-                 .WithRoute($"webhooks/{applicationId}/{interactionToken}/messages/:message-id")
-                 .WithFullRatelimit($"DELETE webhooks/{applicationId}/{interactionToken}/messages/:message-id"),
+            b => b.WithRoute($"DELETE webhooks/:application-id/{interactionToken}/messages/:message-id")
+                 .AsInteractionRequest(),
             info,
             ct
         );
@@ -194,17 +177,8 @@ public sealed class InteractionRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"webhooks/{applicationId}/{interactionToken}/messages/@original",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = true,
-                        Resource = TopLevelResource.Webhook,
-                        Route = $"webhooks/{applicationId}/{interactionToken}"
-                    }
-                 )
-                 .WithRoute($"webhooks/{applicationId}/{interactionToken}/messages/@original")
-                 .WithFullRatelimit($"DELETE webhooks/{applicationId}/{interactionToken}/messages/@original"),
+            b => b.WithRoute($"webhooks/:application-id/{interactionToken}/messages/@original")
+                 .AsInteractionRequest(),
             info,
             ct
         );
@@ -237,17 +211,8 @@ public sealed class InteractionRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"webhooks/{applicationId}/{interactionToken}/messages/{messageId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = true,
-                        Resource = TopLevelResource.Webhook,
-                        Route = $"webhooks/{applicationId}/{interactionToken}"
-                    }
-                 )
-                 .WithRoute($"webhooks/{applicationId}/{interactionToken}/messages/:message-id")
-                 .WithFullRatelimit($"PATCH webhooks/{applicationId}/{interactionToken}/messages/:message-id")
+            b => b.WithRoute($"PATCH webhooks/:application-id/{interactionToken}/messages/:message-id")
+                 .AsInteractionRequest()
                  .WithPayload(payload),
             info,
             ct
@@ -278,17 +243,8 @@ public sealed class InteractionRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"webhooks/{applicationId}/{interactionToken}/messages/@original",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = true,
-                        Resource = TopLevelResource.Webhook,
-                        Route = $"webhooks/{applicationId}/{interactionToken}"
-                    }
-                 )
-                 .WithRoute($"webhooks/{applicationId}/{interactionToken}/messages/@original")
-                 .WithFullRatelimit($"PATCH webhooks/{applicationId}/{interactionToken}/messages/@original")
+            b => b.WithRoute($"PATCH webhooks/:application-id/{interactionToken}/messages/@original")
+                 .AsInteractionRequest()
                  .WithPayload(payload),
             info,
             ct
@@ -309,17 +265,8 @@ public sealed class InteractionRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"webhooks/{applicationId}/{interactionToken}/messages/{messageId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = true,
-                        Resource = TopLevelResource.Webhook,
-                        Route = $"webhooks/{applicationId}/{interactionToken}"
-                    }
-                 )
-                 .WithRoute($"webhooks/{applicationId}/{interactionToken}/messages/{messageId}")
-                 .WithFullRatelimit($"GET webhooks/{applicationId}/{interactionToken}/messages/{messageId}"),
+            b => b.WithRoute($"GET webhooks/:application-id/{interactionToken}/messages/{messageId}")
+                 .AsInteractionRequest(),
             info,
             ct
         );
@@ -338,17 +285,8 @@ public sealed class InteractionRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"webhooks/{applicationId}/{interactionToken}/messages/@original",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = true,
-                        Resource = TopLevelResource.Webhook,
-                        Route = $"webhooks/{applicationId}/{interactionToken}"
-                    }
-                 )
-                 .WithRoute($"webhooks/{applicationId}/{interactionToken}/messages/@original")
-                 .WithFullRatelimit($"GET webhooks/{applicationId}/{interactionToken}/messages/@original"),
+            b => b.WithRoute($"GET webhooks/:application-id/{interactionToken}/messages/@original")
+                 .AsInteractionRequest(),
             info,
             ct
         );

@@ -13,24 +13,20 @@ using DSharpPlus.Internal.Abstractions.Rest;
 using DSharpPlus.Internal.Abstractions.Rest.API;
 using DSharpPlus.Internal.Abstractions.Rest.Errors;
 using DSharpPlus.Internal.Abstractions.Rest.Payloads;
-using DSharpPlus.Internal.Rest.Ratelimiting;
 
 using Remora.Results;
 
 namespace DSharpPlus.Internal.Rest.API;
 
 /// <inheritdoc cref="IApplicationRestAPI"/>
-public sealed class ApplicationRestAPI
-(
-    IRestClient restClient
-)
+public sealed class ApplicationRestAPI(IRestClient restClient)
     : IApplicationRestAPI
 {
     /// <inheritdoc/>
     public async ValueTask<Result<IApplication>> EditCurrentApplicationAsync
     (
-        IEditCurrentApplicationPayload payload, 
-        RequestInfo info = default, 
+        IEditCurrentApplicationPayload payload,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -51,17 +47,7 @@ public sealed class ApplicationRestAPI
         (
             HttpMethod.Patch,
             $"applications/@me",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/@me"
-                    }
-                 )
-                 .WithPayload(payload)
-                 .WithFullRatelimit("PATCH applications/@me"),
+            b => b.WithPayload(payload),
             info,
             ct
         );
@@ -70,26 +56,16 @@ public sealed class ApplicationRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IApplication>> GetCurrentApplicationAsync
     (
-        RequestInfo info = default, 
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
         return await restClient.ExecuteRequestAsync<IApplication>
         (
-            HttpMethod.Get,
-            $"applications/@me",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/@me"
-                    }
-                 )
-                 .WithFullRatelimit("GET applications/@me"),
-            info,
-            ct
+            method: HttpMethod.Get,
+            path: $"applications/@me",
+            info: info,
+            ct: ct
         );
     }
 }

@@ -7,7 +7,7 @@ namespace DSharpPlus.Internal.Rest.Ratelimiting;
 /// <summary>
 /// Specifies a route likely defined by its resource and a snowflake.
 /// </summary>
-internal readonly record struct SimpleSnowflakeRatelimitRoute : ISimpleRatelimitRoute
+internal readonly record struct SimpleSnowflakeRatelimitRoute
 {
     public required TopLevelResource Resource { get; init; }
 

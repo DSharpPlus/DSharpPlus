@@ -10,7 +10,6 @@ using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Abstractions.Rest;
 using DSharpPlus.Internal.Abstractions.Rest.API;
 using DSharpPlus.Internal.Abstractions.Rest.Queries;
-using DSharpPlus.Internal.Rest.Ratelimiting;
 
 using Remora.Results;
 
@@ -33,16 +32,7 @@ public sealed class InviteRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"invites/{inviteCode}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = $"invites/:invite-code"
-                    }
-                 )
-                 .WithFullRatelimit($"DELETE invites/:invite-code")
+            b => b.WithRoute($"DELETE invites/:invite-code")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -82,16 +72,7 @@ public sealed class InviteRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = $"invites/:invite-code"
-                    }
-                 )
-                 .WithFullRatelimit($"GET invites/:invite-code"),
+            b => b.WithRoute($"GET invites/:invite-code"),
             info,
             ct
         );

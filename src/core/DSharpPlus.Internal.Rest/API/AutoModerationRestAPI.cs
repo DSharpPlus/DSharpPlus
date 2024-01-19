@@ -21,19 +21,16 @@ using Remora.Results;
 namespace DSharpPlus.Internal.Rest.API;
 
 /// <inheritdoc cref="IAutoModerationRestAPI"/>
-public sealed class AutoModerationRestAPI
-(
-    IRestClient restClient
-)
+public sealed class AutoModerationRestAPI(IRestClient restClient)
     : IAutoModerationRestAPI
 {
     /// <inheritdoc/>
     public async ValueTask<Result<IAutoModerationRule>> CreateAutoModerationRuleAsync
     (
-        Snowflake guildId, 
-        ICreateAutoModerationRulePayload payload, 
-        string? reason = null, 
-        RequestInfo info = default, 
+        Snowflake guildId,
+        ICreateAutoModerationRulePayload payload,
+        string? reason = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -59,8 +56,6 @@ public sealed class AutoModerationRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/auto-moderation/rules")
-                 .WithFullRatelimit($"POST guilds/{guildId}/auto-moderation/rules")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -70,10 +65,10 @@ public sealed class AutoModerationRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> DeleteAutoModerationRuleAsync
     (
-        Snowflake guildId, 
-        Snowflake ruleId, 
-        string? reason = null, 
-        RequestInfo info = default, 
+        Snowflake guildId,
+        Snowflake ruleId,
+        string? reason = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -89,8 +84,7 @@ public sealed class AutoModerationRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/auto-moderation/rules/:rule-id")
-                 .WithFullRatelimit($"DELETE guilds/{guildId}/auto-moderation/rules/:rule-id")
+                 .WithRoute($"DELETE guilds/{guildId}/auto-moderation/rules/:rule-id")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -102,9 +96,9 @@ public sealed class AutoModerationRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IAutoModerationRule>> GetAutoModerationRuleAsync
     (
-        Snowflake guildId, 
-        Snowflake ruleId, 
-        RequestInfo info = default, 
+        Snowflake guildId,
+        Snowflake ruleId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -120,8 +114,7 @@ public sealed class AutoModerationRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/auto-moderation/rules/:rule-id")
-                 .WithFullRatelimit($"GET guilds/{guildId}/auto-moderation/rules/:rule-id"),
+                 .WithRoute($"GET guilds/{guildId}/auto-moderation/rules/:rule-id"),
             info,
             ct
         );
@@ -130,8 +123,8 @@ public sealed class AutoModerationRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IReadOnlyList<IAutoModerationRule>>> ListAutoModerationRulesAsync
     (
-        Snowflake guildId, 
-        RequestInfo info = default, 
+        Snowflake guildId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -146,9 +139,7 @@ public sealed class AutoModerationRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/auto-moderation/rules")
-                 .WithFullRatelimit($"GET guilds/{guildId}/auto-moderation/rules"),
+                 ),
             info,
             ct
         );
@@ -157,11 +148,11 @@ public sealed class AutoModerationRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IAutoModerationRule>> ModifyAutoModerationRuleAsync
     (
-        Snowflake guildId, 
-        Snowflake ruleId, 
-        IModifyAutoModerationRulePayload payload, 
-        string? reason = null, 
-        RequestInfo info = default, 
+        Snowflake guildId,
+        Snowflake ruleId,
+        IModifyAutoModerationRulePayload payload,
+        string? reason = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -187,8 +178,7 @@ public sealed class AutoModerationRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/auto-moderation/rules/:rule-id")
-                 .WithFullRatelimit($"PATCH guilds/{guildId}/auto-moderation/rules/:rule-id")
+                 .WithRoute($"PATCH guilds/{guildId}/auto-moderation/rules/:rule-id")
                  .WithAuditLogReason(reason),
             info,
             ct

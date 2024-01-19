@@ -21,10 +21,7 @@ using Remora.Results;
 namespace DSharpPlus.Internal.Rest.API;
 
 /// <inheritdoc cref="IGuildScheduledEventRestAPI"/>
-public sealed class GuildScheduledEventRestAPI
-(
-    IRestClient restClient
-)
+public sealed class GuildScheduledEventRestAPI(IRestClient restClient)
     : IGuildScheduledEventRestAPI
 {
     /// <inheritdoc/>
@@ -49,8 +46,6 @@ public sealed class GuildScheduledEventRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/scheduled-events")
-                 .WithFullRatelimit($"POST guilds/{guildId}/scheduled-events")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -79,8 +74,7 @@ public sealed class GuildScheduledEventRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/scheduled-events/:event-id")
-                 .WithFullRatelimit($"DELETE guilds/{guildId}/scheduled-events/:event-id"),
+                 .WithRoute($"DELETE guilds/{guildId}/scheduled-events/:event-id"),
             info,
             ct
         );
@@ -120,8 +114,7 @@ public sealed class GuildScheduledEventRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/scheduled-events/:event-id")
-                 .WithFullRatelimit($"GET guilds/{guildId}/scheduled-events/:event-id"),
+                 .WithRoute($"GET guilds/{guildId}/scheduled-events/:event-id"),
             info,
             ct
         );
@@ -179,8 +172,7 @@ public sealed class GuildScheduledEventRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/scheduled-events/:event-id/users")
-                 .WithFullRatelimit($"GET guilds/{guildId}/scheduled-events/:event-id/users"),
+                 .WithRoute($"GET guilds/{guildId}/scheduled-events/:event-id/users"),
             info,
             ct
         );
@@ -216,9 +208,7 @@ public sealed class GuildScheduledEventRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/scheduled-events")
-                 .WithFullRatelimit($"GET guilds/{guildId}/scheduled-events"),
+                 ),
             info,
             ct
         );
@@ -247,8 +237,7 @@ public sealed class GuildScheduledEventRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/scheduled-events/:event-id")
-                 .WithFullRatelimit($"POST guilds/{guildId}/scheduled-events/:event-id")
+                 .WithRoute($"POST guilds/{guildId}/scheduled-events/:event-id")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,

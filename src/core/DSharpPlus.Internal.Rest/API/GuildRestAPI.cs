@@ -26,10 +26,7 @@ using Remora.Results;
 namespace DSharpPlus.Internal.Rest.API;
 
 /// <inheritdoc cref="IGuildRestAPI"/>
-public sealed class GuildRestAPI
-(
-    IRestClient restClient
-)
+public sealed class GuildRestAPI(IRestClient restClient)
     : IGuildRestAPI
 {
     /// <inheritdoc/>
@@ -54,8 +51,7 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/members/:user-id")
-                 .WithFullRatelimit($"PUT guilds/{guildId}/members/:user-id"),
+                 .WithRoute($"PUT guilds/{guildId}/members/:user-id"),
             info,
             ct
         );
@@ -84,8 +80,7 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/members/:user-id/roles/:role-id")
-                 .WithFullRatelimit($"PUT guilds/{guildId}/members/:user-id/roles/:role-id")
+                 .WithRoute($"PUT guilds/{guildId}/members/:user-id/roles/:role-id")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -127,8 +122,7 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/bans/:user-id")
-                 .WithFullRatelimit($"PUT guilds/{guildId}/bans/:user-id")
+                 .WithRoute($"PUT guilds/{guildId}/bans/:user-id")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -164,8 +158,6 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/prune")
-                 .WithFullRatelimit($"PUT guilds/{guildId}/prune")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -195,17 +187,7 @@ public sealed class GuildRestAPI
         (
             HttpMethod.Post,
             $"guilds",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "guilds"
-                    }
-                 )
-                 .WithFullRatelimit($"POST guilds")
-                 .WithPayload(payload),
+            b => b.WithPayload(payload),
             info,
             ct
         );
@@ -261,8 +243,6 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/channels")
-                 .WithFullRatelimit($"POST guilds/{guildId}/channels")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -302,8 +282,6 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/roles")
-                 .WithFullRatelimit($"POST guilds/{guildId}/roles")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -321,19 +299,10 @@ public sealed class GuildRestAPI
     {
         Result<HttpResponseMessage> response = await restClient.ExecuteRequestAsync
         (
-            HttpMethod.Delete,
-            $"guilds/{guildId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
-                 .WithFullRatelimit($"DELETE guilds/{guildId}"),
-            info,
-            ct
+            method: HttpMethod.Delete,
+            path: $"guilds/{guildId}",
+            info: info,
+            ct: ct
         );
 
         return (Result)response;
@@ -361,8 +330,7 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/integrations/:integration-id")
-                 .WithFullRatelimit($"DELETE guilds/{guildId}/integrations/:integration-id")
+                 .WithRoute($"DELETE guilds/{guildId}/integrations/:integration-id")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -393,8 +361,7 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/roles/:role-id")
-                 .WithFullRatelimit($"DELETE guilds/{guildId}/roles/:role-id")
+                 .WithRoute($"DELETE guilds/{guildId}/roles/:role-id")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -424,19 +391,10 @@ public sealed class GuildRestAPI
 
         return await restClient.ExecuteRequestAsync<IGuild>
         (
-            HttpMethod.Get,
-            builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleSnowflakeRatelimitRoute
-                    {
-                        Resource = TopLevelResource.Guild,
-                        Id = guildId
-                    }
-                 )
-                 .WithFullRatelimit($"GET guilds/{guildId}"),
-            info,
-            ct
+            method: HttpMethod.Get,
+            path: builder.Build(),
+            info: info,
+            ct: ct
         );
     }
 
@@ -461,8 +419,7 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/bans/:user-id")
-                 .WithFullRatelimit($"GET guilds/{guildId}/bans/:user-id"),
+                 .WithRoute($"GET guilds/{guildId}/bans/:user-id"),
             info,
             ct
         );
@@ -513,9 +470,7 @@ public sealed class GuildRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/bans")
-                 .WithFullRatelimit($"GET guilds/{guildId}/bans"),
+                 ),
             info,
             ct
         );
@@ -540,9 +495,7 @@ public sealed class GuildRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/channels")
-                 .WithFullRatelimit($"GET guilds/{guildId}/channels"),
+                 ),
             info,
             ct
         );
@@ -567,9 +520,7 @@ public sealed class GuildRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/integrations")
-                 .WithFullRatelimit($"GET guilds/{guildId}/integrations"),
+                 ),
             info,
             ct
         );
@@ -594,9 +545,7 @@ public sealed class GuildRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/invites")
-                 .WithFullRatelimit($"GET guilds/{guildId}/invites"),
+                 ),
             info,
             ct
         );
@@ -623,8 +572,7 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/members/:user-id")
-                 .WithFullRatelimit($"GET guilds/{guildId}/members/:user-id"),
+                 .WithRoute($"GET guilds/{guildId}/members/:user-id"),
             info,
             ct
         );
@@ -649,9 +597,7 @@ public sealed class GuildRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/onboarding")
-                 .WithFullRatelimit($"GET guilds/{guildId}/onboarding"),
+                 ),
             info,
             ct
         );
@@ -676,9 +622,7 @@ public sealed class GuildRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/preview")
-                 .WithFullRatelimit($"GET guilds/{guildId}/preview"),
+                 ),
             info,
             ct
         );
@@ -724,9 +668,7 @@ public sealed class GuildRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/prune")
-                 .WithFullRatelimit($"GET guilds/{guildId}/prune"),
+                 ),
             info,
             ct
         );
@@ -751,9 +693,7 @@ public sealed class GuildRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/roles")
-                 .WithFullRatelimit($"GET guilds/{guildId}/roles"),
+                 ),
             info,
             ct
         );
@@ -778,9 +718,7 @@ public sealed class GuildRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/vanity-url")
-                 .WithFullRatelimit($"GET guilds/{guildId}/vanity-url"),
+                 ),
             info,
             ct
         );
@@ -805,9 +743,7 @@ public sealed class GuildRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/regions")
-                 .WithFullRatelimit($"GET guilds/{guildId}/regions"),
+                 ),
             info,
             ct
         );
@@ -832,9 +768,7 @@ public sealed class GuildRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/welcome-screen")
-                 .WithFullRatelimit($"GET guilds/{guildId}/welcome-screen"),
+                 ),
             info,
             ct
         );
@@ -859,9 +793,7 @@ public sealed class GuildRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/widget.json")
-                 .WithFullRatelimit($"GET guilds/{guildId}/widget.json"),
+                 ),
             info,
             ct
         );
@@ -879,7 +811,7 @@ public sealed class GuildRestAPI
         Result<HttpResponseMessage> response = await restClient.ExecuteRequestAsync
         (
             HttpMethod.Get,
-            $"guilds/{guildId}/widget.json",
+            $"guilds/{guildId}/widget.png",
             b => b.WithSimpleRoute
                  (
                     new SimpleSnowflakeRatelimitRoute
@@ -887,9 +819,7 @@ public sealed class GuildRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/widget.json")
-                 .WithFullRatelimit($"GET guilds/{guildId}/widget.json"),
+                 ),
             info,
             ct
         );
@@ -916,9 +846,7 @@ public sealed class GuildRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/widget")
-                 .WithFullRatelimit($"GET guilds/{guildId}/widget"),
+                 ),
             info,
             ct
         );
@@ -943,9 +871,7 @@ public sealed class GuildRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/threads/active")
-                 .WithFullRatelimit($"GET guilds/{guildId}/threads/active"),
+                 ),
             info,
             ct
         );
@@ -991,9 +917,7 @@ public sealed class GuildRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/members")
-                 .WithFullRatelimit($"GET guilds/{guildId}/members"),
+                 ),
             info,
             ct
         );
@@ -1021,8 +945,6 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/members/@me")
-                 .WithFullRatelimit($"PATCH guilds/{guildId}/members/@me")
                  .WithPayload(payload),
             info,
             ct
@@ -1050,8 +972,6 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/voice-states/@me")
-                 .WithFullRatelimit($"PATCH guilds/{guildId}/voice-states/@me")
                  .WithPayload(payload),
             info,
             ct
@@ -1092,7 +1012,6 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithFullRatelimit($"POST guilds")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1121,8 +1040,6 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/channels")
-                 .WithFullRatelimit($"PATCH guilds/{guildId}/channels")
                  .WithPayload(payload),
             info,
             ct
@@ -1159,8 +1076,7 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/members/:user-id")
-                 .WithFullRatelimit($"PATCH guilds/{guildId}/members/:user-id")
+                 .WithRoute($"PATCH guilds/{guildId}/members/:user-id")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1190,8 +1106,6 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/mfa")
-                 .WithFullRatelimit($"PATCH guilds/{guildId}/mfa")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1221,8 +1135,6 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/onboarding")
-                 .WithFullRatelimit($"PATCH guilds/{guildId}/onboarding")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1263,8 +1175,7 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/roles/:role-id")
-                 .WithFullRatelimit($"PATCH guilds/{guildId}/roles/:role-id")
+                 .WithRoute($"PATCH guilds/{guildId}/roles/:role-id")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1294,8 +1205,6 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/roles")
-                 .WithFullRatelimit($"PATCH guilds/{guildId}/roles")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1325,8 +1234,6 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/welcome-screen")
-                 .WithFullRatelimit($"PATCH guilds/{guildId}/welcome-screen")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1356,8 +1263,6 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/widget")
-                 .WithFullRatelimit($"PATCH guilds/{guildId}/widget")
                  .WithPayload(settings)
                  .WithAuditLogReason(reason),
             info,
@@ -1387,8 +1292,7 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/voice-states/:user-id")
-                 .WithFullRatelimit($"PATCH guilds/{guildId}/voice-states/:user-id")
+                 .WithRoute($"PATCH guilds/{guildId}/voice-states/:user-id")
                  .WithPayload(payload),
             info,
             ct
@@ -1419,8 +1323,7 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/bans/:user-id")
-                 .WithFullRatelimit($"DELETE guilds/{guildId}/bans/:user-id")
+                 .WithRoute($"DELETE guilds/{guildId}/bans/:user-id")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -1451,8 +1354,7 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/members/:user-id")
-                 .WithFullRatelimit($"DELETE guilds/{guildId}/members/:user-id")
+                 .WithRoute($"DELETE guilds/{guildId}/members/:user-id")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -1484,8 +1386,7 @@ public sealed class GuildRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/members/:user-id/roles/:role-id")
-                 .WithFullRatelimit($"DELETE guilds/{guildId}/members/:user-id/roles/:role-id")
+                 .WithRoute($"DELETE guilds/{guildId}/members/:user-id/roles/:role-id")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -1531,9 +1432,7 @@ public sealed class GuildRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/members/search")
-                 .WithFullRatelimit($"DELETE guilds/{guildId}/members/search"),
+                 ),
             info,
             ct
         );

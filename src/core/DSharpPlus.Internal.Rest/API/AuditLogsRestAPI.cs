@@ -28,9 +28,9 @@ public sealed class AuditLogsRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IAuditLog>> ListGuildAuditLogEntriesAsync
     (
-        Snowflake guildId, 
-        ListGuildAuditLogEntriesQuery query = default, 
-        RequestInfo info = default, 
+        Snowflake guildId,
+        ListGuildAuditLogEntriesQuery query = default,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -82,8 +82,7 @@ public sealed class AuditLogsRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/audit-logs")
-                 .WithFullRatelimit($"GET guilds/{guildId}/audit-logs"),
+                 .WithRoute($"GET guilds/{guildId}/audit-logs"),
             info,
             ct
         );

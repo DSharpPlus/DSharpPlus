@@ -25,18 +25,15 @@ using Remora.Results;
 namespace DSharpPlus.Internal.Rest.API;
 
 /// <inheritdoc cref="IChannelRestAPI"/>
-public sealed class ChannelRestAPI
-(
-    IRestClient restClient
-)
+public sealed class ChannelRestAPI(IRestClient restClient)
     : IChannelRestAPI
 {
     /// <inheritdoc/>
     public async ValueTask<Result> AddThreadMemberAsync
     (
-        Snowflake threadId, 
-        Snowflake userId, 
-        RequestInfo info = default, 
+        Snowflake threadId,
+        Snowflake userId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -52,8 +49,7 @@ public sealed class ChannelRestAPI
                         Id = threadId
                     }
                  )
-                 .WithRoute($"channels/{threadId}/thread-members/:user-id")
-                 .WithFullRatelimit($"PUT channels/{threadId}/thread-members/:user-id"),
+                 .WithRoute($"PUT channels/{threadId}/thread-members/:user-id"),
             info,
             ct
         );
@@ -64,10 +60,10 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> BulkDeleteMessagesAsync
     (
-        Snowflake channelId, 
-        IBulkDeleteMessagesPayload payload, 
-        string? reason = null, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        IBulkDeleteMessagesPayload payload,
+        string? reason = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -83,8 +79,6 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/bulk-delete")
-                 .WithFullRatelimit($"POST channels/{channelId}/messages/bulk-delete")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -97,10 +91,10 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IInvite>> CreateChannelInviteAsync
     (
-        Snowflake channelId, 
-        ICreateChannelInvitePayload payload, 
-        string? reason = null, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        ICreateChannelInvitePayload payload,
+        string? reason = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -145,8 +139,6 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/invites")
-                 .WithFullRatelimit($"POST channels/{channelId}/invites")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -157,13 +149,13 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IMessage>> CreateMessageAsync
      (
-        Snowflake channelId, 
+        Snowflake channelId,
         ICreateMessagePayload payload,
         RequestInfo info = default,
         CancellationToken ct = default
     )
     {
-        if 
+        if
         (
             !(payload.Content.HasValue || payload.Embeds.HasValue || payload.StickerIds.HasValue
                 || payload.Components.HasValue || payload.Files is not null)
@@ -207,8 +199,6 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages")
-                 .WithFullRatelimit($"POST channels/{channelId}/messages")
                  .WithPayload(payload),
             info,
             ct
@@ -218,10 +208,10 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> CreateReactionAsync
     (
-        Snowflake channelId, 
-        Snowflake messageId, 
-        string emoji, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        Snowflake messageId,
+        string emoji,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -237,8 +227,7 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id/reactions/:emoji/@me")
-                 .WithFullRatelimit($"PUT channels/{channelId}/messages/:message-id/reactions/:emoji/@me"),
+                 .WithRoute($"PUT channels/{channelId}/messages/:message-id/reactions/:emoji/@me"),
             info,
             ct
         );
@@ -249,9 +238,9 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IMessage>> CrosspostMessageAsync
     (
-        Snowflake channelId, 
-        Snowflake messageId, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        Snowflake messageId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -267,8 +256,7 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id/crosspost")
-                 .WithFullRatelimit($"POST channels/{channelId}/messages/:message-id/crosspost"),
+                 .WithRoute($"POST channels/{channelId}/messages/:message-id/crosspost"),
             info,
             ct
         );
@@ -277,9 +265,9 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> DeleteAllReactionsAsync
     (
-        Snowflake channelId, 
-        Snowflake messageId, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        Snowflake messageId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -295,8 +283,7 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id/reactions")
-                 .WithFullRatelimit($"DELETE channels/{channelId}/messages/:message-id/reactions"),
+                 .WithRoute($"DELETE channels/{channelId}/messages/:message-id/reactions"),
             info,
             ct
         );
@@ -307,10 +294,10 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> DeleteAllReactionsForEmojiAsync
     (
-        Snowflake channelId, 
-        Snowflake messageId, 
-        string emoji, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        Snowflake messageId,
+        string emoji,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -326,8 +313,7 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id/reactions/:emoji")
-                 .WithFullRatelimit($"DELETE channels/{channelId}/messages/:message-id/reactions/:emoji"),
+                 .WithRoute($"DELETE channels/{channelId}/messages/:message-id/reactions/:emoji"),
             info,
             ct
         );
@@ -338,9 +324,9 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IChannel>> DeleteChannelAsync
     (
-        Snowflake channelId, 
-        string? reason = null, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        string? reason = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -356,8 +342,6 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}")
-                 .WithFullRatelimit($"DELETE channels/{channelId}")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -367,8 +351,8 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> DeleteChannelPermissionAsync
     (
-        Snowflake channelId, 
-        Snowflake overwriteId, 
+        Snowflake channelId,
+        Snowflake overwriteId,
         string? reason = null,
         RequestInfo info = default,
         CancellationToken ct = default
@@ -386,8 +370,6 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/permissions/:overwrite-id")
-                 .WithFullRatelimit($"DELETE channels/{channelId}/permissions/:overwrite-id")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -399,10 +381,10 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> DeleteMessageAsync
     (
-        Snowflake channelId, 
-        Snowflake messageId, 
-        string? reason = null, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        Snowflake messageId,
+        string? reason = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -418,8 +400,7 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id")
-                 .WithFullRatelimit($"DELETE channels/{channelId}/messages/:message-id")
+                 .WithRoute($"DELETE channels/{channelId}/messages/:message-id")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -431,10 +412,10 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> DeleteOwnReactionAsync
     (
-        Snowflake channelId, 
-        Snowflake messageId, 
-        string emoji, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        Snowflake messageId,
+        string emoji,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -450,8 +431,7 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id/reactions/:emoji/@me")
-                 .WithFullRatelimit($"DELETE channels/{channelId}/messages/:message-id/reactions/:emoji/@me"),
+                 .WithRoute($"DELETE channels/{channelId}/messages/:message-id/reactions/:emoji/@me"),
             info,
             ct
         );
@@ -462,11 +442,11 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> DeleteUserReactionAsync
     (
-        Snowflake channelId, 
-        Snowflake messageId, 
-        Snowflake userId, 
-        string emoji, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        Snowflake messageId,
+        Snowflake userId,
+        string emoji,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -482,8 +462,7 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id/reactions/:emoji/:user-id")
-                 .WithFullRatelimit($"DELETE channels/{channelId}/messages/:message-id/reactions/:emoji/:user-id"),
+                 .WithRoute($"DELETE channels/{channelId}/messages/:message-id/reactions/:emoji/:user-id"),
             info,
             ct
         );
@@ -494,8 +473,8 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> EditChannelPermissionsAsync
     (
-        Snowflake channelId, 
-        Snowflake overwriteId, 
+        Snowflake channelId,
+        Snowflake overwriteId,
         IEditChannelPermissionsPayload payload,
         string? reason = null,
         RequestInfo info = default,
@@ -514,8 +493,7 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/permissions/:overwrite-id")
-                 .WithFullRatelimit($"PUT channels/{channelId}/permissions/:overwrite-id")
+                 .WithRoute($"PUT channels/{channelId}/permissions/:overwrite-id")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -528,10 +506,10 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IMessage>> EditMessageAsync
     (
-        Snowflake channelId, 
-        Snowflake messageId, 
-        IEditMessagePayload payload, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        Snowflake messageId,
+        IEditMessagePayload payload,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -557,8 +535,7 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id")
-                 .WithFullRatelimit($"PATCH channels/{channelId}/messages/:message-id")
+                 .WithRoute($"PATCH channels/{channelId}/messages/:message-id")
                  .WithPayload(payload),
             info,
             ct
@@ -568,9 +545,9 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IFollowedChannel>> FollowAnnouncementChannelAsync
     (
-        Snowflake channelId, 
-        IFollowAnnouncementChannelPayload payload, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        IFollowAnnouncementChannelPayload payload,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -586,8 +563,6 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/followers")
-                 .WithFullRatelimit($"POST channels/{channelId}/followers")
                  .WithPayload(payload),
             info,
             ct
@@ -597,8 +572,8 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IChannel>> GetChannelAsync
     (
-        Snowflake channelId, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -613,8 +588,7 @@ public sealed class ChannelRestAPI
                         Resource = TopLevelResource.Channel,
                         Id = channelId
                     }
-                 )
-                 .WithFullRatelimit($"GET channels/{channelId}"),
+                 ),
             info,
             ct
         );
@@ -623,8 +597,8 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IReadOnlyList<IInvite>>> GetChannelInvitesAsync
     (
-        Snowflake channelId, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -639,8 +613,7 @@ public sealed class ChannelRestAPI
                         Resource = TopLevelResource.Channel,
                         Id = channelId
                     }
-                 )
-                 .WithFullRatelimit($"GET channels/{channelId}/invites"),
+                 ),
             info,
             ct
         );
@@ -649,9 +622,9 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IMessage>> GetChannelMessageAsync
     (
-        Snowflake channelId, 
-        Snowflake messageId, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        Snowflake messageId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -667,8 +640,7 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id")
-                 .WithFullRatelimit($"GET channels/{channelId}/messages/:message-id"),
+                 .WithRoute($"GET channels/{channelId}/messages/:message-id"),
             info,
             ct
         );
@@ -677,9 +649,9 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IReadOnlyList<IMessage>>> GetChannelMessagesAsync
     (
-        Snowflake channelId, 
-        GetChannelMessagesQuery query = default, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        GetChannelMessagesQuery query = default,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -722,9 +694,7 @@ public sealed class ChannelRestAPI
                         Resource = TopLevelResource.Channel,
                         Id = channelId
                     }
-                 )
-                 .WithRoute($"channels/{channelId}/messages")
-                 .WithFullRatelimit($"GET channels/{channelId}/messages"),
+                 ),
             info,
             ct
         );
@@ -749,9 +719,7 @@ public sealed class ChannelRestAPI
                         Resource = TopLevelResource.Channel,
                         Id = channelId
                     }
-                 )
-                 .WithRoute($"channels/{channelId}/pins")
-                 .WithFullRatelimit($"GET channels/{channelId}/pins"),
+                 ),
             info,
             ct
         );
@@ -760,11 +728,11 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IReadOnlyList<IUser>>> GetReactionsAsync
     (
-        Snowflake channelId, 
-        Snowflake messageId, 
-        string emoji, 
-        ForwardsPaginatedQuery query = default, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        Snowflake messageId,
+        string emoji,
+        ForwardsPaginatedQuery query = default,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -795,8 +763,7 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id/reactions/:emoji")
-                 .WithFullRatelimit($"GET channels/{channelId}/messages/:message-id/reactions/:emoji"),
+                 .WithRoute($"GET channels/{channelId}/messages/:message-id/reactions/:emoji"),
             info,
             ct
         );
@@ -805,10 +772,10 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IThreadMember>> GetThreadMemberAsync
     (
-        Snowflake threadId, 
-        Snowflake userId, 
-        GetThreadMemberQuery query = default, 
-        RequestInfo info = default, 
+        Snowflake threadId,
+        Snowflake userId,
+        GetThreadMemberQuery query = default,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -834,8 +801,7 @@ public sealed class ChannelRestAPI
                         Id = threadId
                     }
                  )
-                 .WithRoute($"channels/{threadId}/thread-members/:user-id")
-                 .WithFullRatelimit($"GET channels/{threadId}/thread-members/:user-id"),
+                 .WithRoute($"GET channels/{threadId}/thread-members/:user-id"),
             info,
             ct
         );
@@ -844,10 +810,10 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> GroupDMAddRecipientAsync
     (
-        Snowflake channelId, 
-        Snowflake userId, 
-        IGroupDMAddRecipientPayload payload, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        Snowflake userId,
+        IGroupDMAddRecipientPayload payload,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -863,8 +829,7 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/recipients/:user-id")
-                 .WithFullRatelimit($"PUT channels/{channelId}/recipients/:user-id")
+                 .WithRoute($"PUT channels/{channelId}/recipients/:user-id")
                  .WithPayload(payload),
             info,
             ct
@@ -876,9 +841,9 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> GroupDMRemoveRecipientAsync
     (
-        Snowflake channelId, 
-        Snowflake userId, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        Snowflake userId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -894,8 +859,7 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/recipients/:user-id")
-                 .WithFullRatelimit($"DELETE channels/{channelId}/recipients/:user-id"),
+                 .WithRoute($"DELETE channels/{channelId}/recipients/:user-id"),
             info,
             ct
         );
@@ -906,8 +870,8 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> JoinThreadAsync
     (
-        Snowflake threadId, 
-        RequestInfo info = default, 
+        Snowflake threadId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -922,9 +886,7 @@ public sealed class ChannelRestAPI
                         Resource = TopLevelResource.Channel,
                         Id = threadId
                     }
-                 )
-                 .WithRoute($"channels/{threadId}/recipients/@me")
-                 .WithFullRatelimit($"PUT channels/{threadId}/recipients/@me"),
+                 ),
             info,
             ct
         );
@@ -935,8 +897,8 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> LeaveThreadAsync
     (
-        Snowflake threadId, 
-        RequestInfo info = default, 
+        Snowflake threadId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -951,9 +913,7 @@ public sealed class ChannelRestAPI
                         Resource = TopLevelResource.Channel,
                         Id = threadId
                     }
-                 )
-                 .WithRoute($"channels/{threadId}/recipients/@me")
-                 .WithFullRatelimit($"DELETE channels/{threadId}/recipients/@me"),
+                 ),
             info,
             ct
         );
@@ -964,9 +924,9 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<ListArchivedThreadsResponse>> ListJoinedPrivateArchivedThreadsAsync
     (
-        Snowflake channelId, 
-        ListJoinedPrivateArchivedThreadsQuery query = default, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        ListJoinedPrivateArchivedThreadsQuery query = default,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -1001,9 +961,7 @@ public sealed class ChannelRestAPI
                         Resource = TopLevelResource.Channel,
                         Id = channelId
                     }
-                 )
-                 .WithRoute($"channels/{channelId}/users/@me/threads/archived/private")
-                 .WithFullRatelimit($"GET channels/{channelId}/users/@me/threads/archived/private"),
+                 ),
             info,
             ct
         );
@@ -1012,9 +970,9 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<ListArchivedThreadsResponse>> ListPrivateArchivedThreadsAsync
     (
-        Snowflake channelId, 
-        ListArchivedThreadsQuery query = default, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        ListArchivedThreadsQuery query = default,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -1049,9 +1007,7 @@ public sealed class ChannelRestAPI
                         Resource = TopLevelResource.Channel,
                         Id = channelId
                     }
-                 )
-                 .WithRoute($"channels/{channelId}/users/@me/threads/archived/private")
-                 .WithFullRatelimit($"GET channels/{channelId}/users/@me/threads/archived/private"),
+                 ),
             info,
             ct
         );
@@ -1061,8 +1017,8 @@ public sealed class ChannelRestAPI
     public async ValueTask<Result<ListArchivedThreadsResponse>> ListPublicArchivedThreadsAsync
     (
         Snowflake channelId,
-        ListArchivedThreadsQuery query = default, 
-        RequestInfo info = default, 
+        ListArchivedThreadsQuery query = default,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -1097,9 +1053,7 @@ public sealed class ChannelRestAPI
                         Resource = TopLevelResource.Channel,
                         Id = channelId
                     }
-                 )
-                 .WithRoute($"channels/{channelId}/threads/archived/public")
-                 .WithFullRatelimit($"GET channels/{channelId}/threads/archived/public"),
+                 ),
             info,
             ct
         );
@@ -1108,9 +1062,9 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IReadOnlyList<IThreadMember>>> ListThreadMembersAsync
     (
-        Snowflake threadId, 
-        ListThreadMembersQuery query = default, 
-        RequestInfo info = default, 
+        Snowflake threadId,
+        ListThreadMembersQuery query = default,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -1150,9 +1104,7 @@ public sealed class ChannelRestAPI
                         Resource = TopLevelResource.Channel,
                         Id = threadId
                     }
-                 )
-                 .WithRoute($"channels/{threadId}/thread-members")
-                 .WithFullRatelimit($"GET channels/{threadId}/thread-members"),
+                 ),
             info,
             ct
         );
@@ -1161,7 +1113,7 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IChannel>> ModifyChannelAsync
     (
-        Snowflake channelId, 
+        Snowflake channelId,
         IModifyGroupDMPayload payload,
         RequestInfo info = default,
         CancellationToken ct = default
@@ -1183,8 +1135,7 @@ public sealed class ChannelRestAPI
                         Resource = TopLevelResource.Channel,
                         Id = channelId
                     }
-                 )
-                 .WithFullRatelimit($"PATCH channels/{channelId}"),
+                 ),
             info,
             ct
         );
@@ -1193,10 +1144,10 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IChannel>> ModifyChannelAsync
     (
-        Snowflake channelId, 
-        IModifyGuildChannelPayload payload, 
-        string? reason = null, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        IModifyGuildChannelPayload payload,
+        string? reason = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -1251,7 +1202,6 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithFullRatelimit($"PATCH channels/{channelId}")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -1261,10 +1211,10 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IChannel>> ModifyChannelAsync
     (
-        Snowflake channelId, 
-        IModifyThreadChannelPayload payload, 
-        string? reason = null, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        IModifyThreadChannelPayload payload,
+        string? reason = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -1306,7 +1256,6 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithFullRatelimit($"PATCH channels/{channelId}")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -1316,10 +1265,10 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> PinMessageAsync
     (
-        Snowflake channelId, 
-        Snowflake messageId, 
-        string? reason = null, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        Snowflake messageId,
+        string? reason = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -1336,8 +1285,7 @@ public sealed class ChannelRestAPI
                     }
                  )
                  .WithAuditLogReason(reason)
-                 .WithRoute($"channels/{channelId}/pins/:message-id")
-                 .WithFullRatelimit($"PUT channels/{channelId}/pins/:message-id"),
+                 .WithRoute($"PUT channels/{channelId}/pins/:message-id"),
             info,
             ct
         );
@@ -1348,9 +1296,9 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> RemoveThreadMemberAsync
     (
-        Snowflake threadId, 
-        Snowflake userId, 
-        RequestInfo info = default, 
+        Snowflake threadId,
+        Snowflake userId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -1366,8 +1314,7 @@ public sealed class ChannelRestAPI
                         Id = threadId
                     }
                  )
-                 .WithRoute($"channels/{threadId}/thread-members/:user-id")
-                 .WithFullRatelimit($"DELETE channels/{threadId}/thread-members/:user-id"),
+                 .WithRoute($"DELETE channels/{threadId}/thread-members/:user-id"),
             info,
             ct
         );
@@ -1378,11 +1325,11 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IChannel>> StartThreadFromMessageAsync
     (
-        Snowflake channelId, 
-        Snowflake messageId, 
-        IStartThreadFromMessagePayload payload, 
-        string? reason = null, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        Snowflake messageId,
+        IStartThreadFromMessagePayload payload,
+        string? reason = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -1419,8 +1366,7 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/messages/:message-id/threads")
-                 .WithFullRatelimit($"POST channels/{channelId}/messages/:message-id/threads")
+                 .WithRoute($"POST channels/{channelId}/messages/:message-id/threads")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1431,10 +1377,10 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IChannel>> StartThreadInForumOrMediaChannelAsync
     (
-        Snowflake channelId, 
-        IStartThreadInForumOrMediaChannelPayload payload, 
-        string? reason = null, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        IStartThreadInForumOrMediaChannelPayload payload,
+        string? reason = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -1466,10 +1412,10 @@ public sealed class ChannelRestAPI
 
         if
         (
-            !(payload.Message.Content.HasValue 
-                || payload.Message.Embeds.HasValue 
+            !(payload.Message.Content.HasValue
+                || payload.Message.Embeds.HasValue
                 || payload.Message.StickerIds.HasValue
-                || payload.Message.Components.HasValue 
+                || payload.Message.Components.HasValue
                 || payload.Files is not null)
         )
         {
@@ -1506,8 +1452,6 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/threads")
-                 .WithFullRatelimit($"POST channels/{channelId}/threads")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1518,10 +1462,10 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IChannel>> StartThreadWithoutMessageAsync
     (
-        Snowflake channelId, 
-        IStartThreadWithoutMessagePayload payload, 
-        string? reason = null, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        IStartThreadWithoutMessagePayload payload,
+        string? reason = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -1558,8 +1502,6 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/threads")
-                 .WithFullRatelimit($"POST channels/{channelId}/threads")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
@@ -1570,8 +1512,8 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> TriggerTypingIndicatorAsync
     (
-        Snowflake channelId, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -1586,9 +1528,7 @@ public sealed class ChannelRestAPI
                         Resource = TopLevelResource.Channel,
                         Id = channelId
                     }
-                 )
-                 .WithRoute($"channels/{channelId}/typing")
-                 .WithFullRatelimit($"POST channels/{channelId}/typing"),
+                 ),
             info,
             ct
         );
@@ -1599,10 +1539,10 @@ public sealed class ChannelRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> UnpinMessageAsync
     (
-        Snowflake channelId, 
-        Snowflake messageId, 
-        string? reason = null, 
-        RequestInfo info = default, 
+        Snowflake channelId,
+        Snowflake messageId,
+        string? reason = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -1618,8 +1558,7 @@ public sealed class ChannelRestAPI
                         Id = channelId
                     }
                  )
-                 .WithRoute($"channels/{channelId}/pins/:message-id")
-                 .WithFullRatelimit($"DELETE channels/{channelId}/pins/:message-id"),
+                 .WithRoute($"DELETE channels/{channelId}/pins/:message-id"),
             info,
             ct
         );

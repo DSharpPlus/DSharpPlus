@@ -30,7 +30,7 @@ public interface IRestClient
     (
         HttpMethod method,
         string path,
-        Action<RequestBuilder> request,
+        Action<RequestBuilder>? request = null,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -49,7 +49,7 @@ public interface IRestClient
     (
         HttpMethod method,
         string path,
-        Action<RequestBuilder> request,
+        Action<RequestBuilder>? request = null,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -67,7 +67,7 @@ public interface IRestClient
     (
         HttpMethod method,
         string path,
-        Action<RequestBuilder> request,
+        Action<RequestBuilder>? request = null,
         RequestInfo info = default,
         CancellationToken ct = default
     );

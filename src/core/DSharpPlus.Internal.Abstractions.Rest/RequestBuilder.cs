@@ -36,7 +36,7 @@ public class RequestBuilder
     /// <summary>
     /// Additional files to upload with this request.
     /// </summary>
-    public IDictionary<string, AttachmentData>? AdditionalFiles { get; set; }
+    public IList<AttachmentData>? AdditionalFiles { get; set; }
 
     /// <summary>
     /// Additional headers to add to this request.
@@ -89,11 +89,11 @@ public class RequestBuilder
     /// Adds a file to attach to the request.
     /// </summary>
     /// <returns>The builder for chaining.</returns>
-    public RequestBuilder AddFile(string name, AttachmentData file)
+    public RequestBuilder AddFile(AttachmentData file)
     {
-        this.AdditionalFiles ??= new Dictionary<string, AttachmentData>();
+        this.AdditionalFiles ??= [];
 
-        this.AdditionalFiles.Add(name, file);
+        this.AdditionalFiles.Add(file);
         return this;
     }
 

@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Abstractions.Rest;
 using DSharpPlus.Internal.Abstractions.Rest.API;
-using DSharpPlus.Internal.Rest.Ratelimiting;
 
 using Remora.Results;
 
@@ -32,16 +31,7 @@ public sealed class SkusRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"applications/{applicationId}/skus",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/skus"
-                    }
-                 )
-                 .WithFullRatelimit("GET applications/:application-id/skus"),
+            b => b.WithRoute("GET applications/:application-id/skus"),
             info,
             ct
         );

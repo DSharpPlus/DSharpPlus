@@ -9,7 +9,7 @@ namespace DSharpPlus.Internal.Rest;
 
 internal static class RequestBuilderExtensions
 {
-    public static RequestBuilder WithSimpleRoute(this RequestBuilder request, ISimpleRatelimitRoute route)
+    public static RequestBuilder WithSimpleRoute(this RequestBuilder request, SimpleSnowflakeRatelimitRoute route)
     {
         request.AddToContext("simple-route", route);
         return request;

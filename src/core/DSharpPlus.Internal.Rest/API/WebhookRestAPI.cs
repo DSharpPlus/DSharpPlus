@@ -62,7 +62,6 @@ public sealed class WebhookRestAPI(IRestClient restClient)
                         Id = channelId
                     }
                  )
-                 .WithFullRatelimit($"POST channels/{channelId}/webhooks")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -90,7 +89,6 @@ public sealed class WebhookRestAPI(IRestClient restClient)
                         Id = webhookId
                     }
                  )
-                 .WithFullRatelimit($"DELETE webhooks/{webhookId}")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -132,7 +130,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
                         Id = webhookId
                     }
                  )
-                 .WithFullRatelimit($"DELETE webhooks/{webhookId}/:webhook-token/messages/:message-id")
+                 .WithRoute($"DELETE webhooks/{webhookId}/:webhook-token/messages/:message-id")
                  .AsWebhookRequest(),
             info,
             ct
@@ -163,7 +161,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
                         Id = webhookId
                     }
                  )
-                 .WithFullRatelimit($"DELETE webhooks/{webhookId}/:webhook-token")
+                 .WithRoute($"DELETE webhooks/{webhookId}/:webhook-token")
                  .WithAuditLogReason(reason)
                  .AsWebhookRequest(),
             info,
@@ -222,7 +220,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
                         Id = webhookId
                     }
                  )
-                 .WithFullRatelimit($"PATCH webhooks/{webhookId}/:webhook-token/messages/:message-id")
+                 .WithRoute($"PATCH webhooks/{webhookId}/:webhook-token/messages/:message-id")
                  .WithPayload(payload)
                  .AsWebhookRequest(),
             info,
@@ -286,7 +284,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
                             Id = webhookId
                         }
                      )
-                     .WithFullRatelimit($"PATCH webhooks/{webhookId}/:webhook-token/messages/:message-id")
+                     .WithRoute($"PATCH webhooks/{webhookId}/:webhook-token/messages/:message-id")
                      .WithPayload(payload)
                      .AsWebhookRequest(),
                 info,
@@ -308,7 +306,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
                             Id = webhookId
                         }
                      )
-                     .WithFullRatelimit($"PATCH webhooks/{webhookId}/:webhook-token/messages/:message-id")
+                     .WithRoute($"PATCH webhooks/{webhookId}/:webhook-token/messages/:message-id")
                      .WithPayload(payload)
                      .AsWebhookRequest(),
                 info,
@@ -338,8 +336,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
                         Resource = TopLevelResource.Channel,
                         Id = channelId
                     }
-                 )
-                 .WithFullRatelimit($"GET channels/{channelId}/webhooks"),
+                 ),
             info,
             ct
         );
@@ -364,8 +361,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithFullRatelimit($"GET guilds/{guildId}/webhooks"),
+                 ),
             info,
             ct
         );
@@ -390,8 +386,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
                         Resource = TopLevelResource.Webhook,
                         Id = webhookId
                     }
-                 )
-                 .WithFullRatelimit($"GET webhooks/{webhookId}"),
+                 ),
             info,
             ct
         );
@@ -430,7 +425,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
                         Id = webhookId
                     }
                  )
-                 .WithFullRatelimit($"PATCH webhooks/{webhookId}/:webhook-token/messages/:message-id"),
+                 .WithRoute($"PATCH webhooks/{webhookId}/:webhook-token/messages/:message-id"),
             info,
             ct
         );
@@ -457,7 +452,6 @@ public sealed class WebhookRestAPI(IRestClient restClient)
                         Id = webhookId
                     }
                  )
-                 .WithFullRatelimit($"GET webhooks/{webhookId}/:webhook-token")
                  .AsWebhookRequest(),
             info,
             ct
@@ -503,7 +497,6 @@ public sealed class WebhookRestAPI(IRestClient restClient)
                         Id = webhookId
                     }
                  )
-                 .WithFullRatelimit($"PATCH webhooks/{webhookId}")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -550,7 +543,6 @@ public sealed class WebhookRestAPI(IRestClient restClient)
                         Id = webhookId
                     }
                  )
-                 .WithFullRatelimit($"PATCH webhooks/{webhookId}/:webhook-token")
                  .WithAuditLogReason(reason)
                  .AsWebhookRequest(),
             info,

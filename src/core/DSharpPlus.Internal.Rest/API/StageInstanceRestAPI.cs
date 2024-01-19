@@ -39,17 +39,7 @@ public sealed class StageInstanceRestAPI(IRestClient restClient)
         (
             HttpMethod.Post,
             $"stage-instances",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "stage-instances"
-                    }
-                 )
-                 .WithFullRatelimit("POST stage-instances")
-                 .WithPayload(payload)
+            b => b.WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -77,7 +67,7 @@ public sealed class StageInstanceRestAPI(IRestClient restClient)
                         Id = channelId
                     }
                  )
-                 .WithFullRatelimit($"DELETE stage-instances/{channelId}")
+                 .WithRoute($"DELETE stage-instances/{channelId}")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -106,7 +96,7 @@ public sealed class StageInstanceRestAPI(IRestClient restClient)
                         Id = channelId
                     }
                  )
-                 .WithFullRatelimit($"GET stage-instances/{channelId}"),
+                 .WithRoute($"GET stage-instances/{channelId}"),
             info,
             ct
         );
@@ -139,7 +129,7 @@ public sealed class StageInstanceRestAPI(IRestClient restClient)
                         Id = channelId
                     }
                  )
-                 .WithFullRatelimit($"PATCH stage-instances/{channelId}")
+                 .WithRoute($"PATCH stage-instances/{channelId}")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,

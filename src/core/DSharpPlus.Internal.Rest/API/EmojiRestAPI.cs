@@ -11,7 +11,6 @@ using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Abstractions.Rest;
 using DSharpPlus.Internal.Abstractions.Rest.API;
 using DSharpPlus.Internal.Abstractions.Rest.Payloads;
-using DSharpPlus.Internal.Rest.Ratelimiting;
 
 using Remora.Results;
 
@@ -22,19 +21,16 @@ namespace DSharpPlus.Internal.Rest.API;
 // 'other' -> emojis/:guild-id so that their erratic behaviour doesn't mess with the rest of our ratelimits.
 
 /// <inheritdoc cref="IEmojiRestAPI"/>
-public sealed class EmojiRestAPI
-(
-    IRestClient restClient
-)
+public sealed class EmojiRestAPI(IRestClient restClient)
     : IEmojiRestAPI
 {
     /// <inheritdoc/>
     public async ValueTask<Result<IEmoji>> CreateGuildEmojiAsync
     (
-        Snowflake guildId, 
-        ICreateGuildEmojiPayload payload, 
-        string? reason = null, 
-        RequestInfo info = default, 
+        Snowflake guildId,
+        ICreateGuildEmojiPayload payload,
+        string? reason = null,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -42,16 +38,7 @@ public sealed class EmojiRestAPI
         (
             HttpMethod.Post,
             $"guilds/{guildId}/emojis",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = true,
-                        Resource = TopLevelResource.Other,
-                        Route = $"emojis/{guildId}"
-                    }
-                 )
-                 .WithFullRatelimit($"POST guilds/{guildId}/emojis")
+            b => b.WithRoute($"POST emojis/{guildId}")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -61,9 +48,9 @@ public sealed class EmojiRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> DeleteGuildEmojiAsync
     (
-        Snowflake guildId, 
-        Snowflake emojiId, 
-        string? reason = null, 
+        Snowflake guildId,
+        Snowflake emojiId,
+        string? reason = null,
         RequestInfo info = default,
         CancellationToken ct = default
     )
@@ -72,16 +59,7 @@ public sealed class EmojiRestAPI
         (
             HttpMethod.Delete,
             $"guilds/{guildId}/emojis/{emojiId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = true,
-                        Resource = TopLevelResource.Other,
-                        Route = $"emojis/{guildId}"
-                    }
-                 )
-                 .WithFullRatelimit($"DELETE guilds/{guildId}/emojis/:emoji-id")
+            b => b.WithFullRatelimit($"DELETE emojis/{guildId}")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -93,8 +71,8 @@ public sealed class EmojiRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IEmoji>> GetGuildEmojiAsync
     (
-        Snowflake guildId, 
-        Snowflake emojiId, 
+        Snowflake guildId,
+        Snowflake emojiId,
         RequestInfo info = default,
         CancellationToken ct = default
     )
@@ -103,16 +81,7 @@ public sealed class EmojiRestAPI
         (
             HttpMethod.Get,
             $"guilds/{guildId}/emojis/{emojiId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = true,
-                        Resource = TopLevelResource.Other,
-                        Route = $"emojis/{guildId}"
-                    }
-                 )
-                 .WithFullRatelimit($"GET guilds/{guildId}/emojis/:emoji-id"),
+            b => b.WithFullRatelimit($"GET emojis/{guildId}"),
             info,
             ct
         );
@@ -121,8 +90,8 @@ public sealed class EmojiRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IReadOnlyList<IEmoji>>> ListGuildEmojisAsync
     (
-        Snowflake guildId, 
-        RequestInfo info = default, 
+        Snowflake guildId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -130,16 +99,7 @@ public sealed class EmojiRestAPI
         (
             HttpMethod.Get,
             $"guilds/{guildId}/emojis",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = true,
-                        Resource = TopLevelResource.Other,
-                        Route = $"emojis/{guildId}"
-                    }
-                 )
-                 .WithFullRatelimit($"GET guilds/{guildId}/emojis"),
+            b => b.WithFullRatelimit($"GET emojis/{guildId}"),
             info,
             ct
         );
@@ -148,8 +108,8 @@ public sealed class EmojiRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IEmoji>> ModifyGuildEmojiAsync
     (
-        Snowflake guildId, 
-        Snowflake emojiId, 
+        Snowflake guildId,
+        Snowflake emojiId,
         IModifyGuildEmojiPayload payload,
         string? reason = null,
         RequestInfo info = default,
@@ -160,16 +120,7 @@ public sealed class EmojiRestAPI
         (
             HttpMethod.Patch,
             $"guilds/{guildId}/emojis/{emojiId}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = true,
-                        Resource = TopLevelResource.Other,
-                        Route = $"emojis/{guildId}"
-                    }
-                 )
-                 .WithFullRatelimit($"GET guilds/{guildId}/emojis/:emoji-id")
+            b => b.WithFullRatelimit($"GET emojis/{guildId}")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,

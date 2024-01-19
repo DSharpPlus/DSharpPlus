@@ -14,23 +14,19 @@ using DSharpPlus.Internal.Abstractions.Rest.API;
 using DSharpPlus.Internal.Abstractions.Rest.Errors;
 using DSharpPlus.Internal.Abstractions.Rest.Payloads;
 using DSharpPlus.Internal.Abstractions.Rest.Queries;
-using DSharpPlus.Internal.Rest.Ratelimiting;
 
 using Remora.Results;
 
 namespace DSharpPlus.Internal.Rest.API;
 
 /// <inheritdoc cref="IEntitlementsRestAPI"/>
-public sealed class EntitlementsRestAPI
-(
-    IRestClient restClient
-)
+public sealed class EntitlementsRestAPI(IRestClient restClient)
     : IEntitlementsRestAPI
 {
     /// <inheritdoc/>
     public async ValueTask<Result<IPartialEntitlement>> CreateTestEntitlementAsync
     (
-        Snowflake applicationId, 
+        Snowflake applicationId,
         ICreateTestEntitlementPayload payload,
         RequestInfo info = default,
         CancellationToken ct = default
@@ -40,17 +36,7 @@ public sealed class EntitlementsRestAPI
         (
             HttpMethod.Post,
             $"applications/{applicationId}/entitlements",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/entitlements"
-                    }
-                 )
-                 .WithFullRatelimit($"POST applications/:application-id/entitlements")
-                 .WithPayload(payload),
+            b => b.WithPayload(payload),
             info,
             ct
         );
@@ -59,26 +45,17 @@ public sealed class EntitlementsRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result> DeleteTestEntitlementAsync
     (
-        Snowflake applicationId, 
-        Snowflake entitlementId, 
-        RequestInfo info = default, 
+        Snowflake applicationId,
+        Snowflake entitlementId,
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
         Result<HttpResponseMessage> response = await restClient.ExecuteRequestAsync
         (
             HttpMethod.Delete,
-            $"applications/{applicationId}/entitlements",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/entitlements/:entitlement-id"
-                    }
-                 )
-                 .WithFullRatelimit($"DELETE applications/:application-id/entitlements/:entitlement-id"),
+            $"applications/{applicationId}/entitlements/{entitlementId}",
+            b => b.WithRoute($"DELETE applications/:application-id/entitlements/:entitlement-id"),
             info,
             ct
         );
@@ -89,9 +66,9 @@ public sealed class EntitlementsRestAPI
     /// <inheritdoc/>
     public async ValueTask<Result<IReadOnlyList<IEntitlement>>> ListEntitlementsAsync
     (
-        Snowflake applicationId, 
+        Snowflake applicationId,
         ListEntitlementsQuery query = default,
-        RequestInfo info = default, 
+        RequestInfo info = default,
         CancellationToken ct = default
     )
     {
@@ -142,20 +119,10 @@ public sealed class EntitlementsRestAPI
 
         return await restClient.ExecuteRequestAsync<IReadOnlyList<IEntitlement>>
         (
-            HttpMethod.Get,
-            builder.Build(),
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/entitlements"
-                    }
-                 )
-                 .WithFullRatelimit($"GET applications/:application-id/entitlements"),
-            info,
-            ct
+            method: HttpMethod.Get,
+            path: builder.Build(),
+            info: info,
+            ct: ct
         );
     }
 }

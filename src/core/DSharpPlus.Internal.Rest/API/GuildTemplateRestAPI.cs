@@ -21,10 +21,7 @@ using Remora.Results;
 namespace DSharpPlus.Internal.Rest.API;
 
 /// <inheritdoc cref="IGuildTemplateRestAPI"/>
-public sealed class GuildTemplateRestAPI
-(
-    IRestClient restClient
-)
+public sealed class GuildTemplateRestAPI(IRestClient restClient)
     : IGuildTemplateRestAPI
 {
     /// <inheritdoc/>
@@ -45,16 +42,7 @@ public sealed class GuildTemplateRestAPI
         (
             HttpMethod.Post,
             $"guilds/templates/{templateCode}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = true,
-                        Resource = TopLevelResource.Other,
-                        Route = $"guilds/templates/{templateCode}"
-                    }
-                 )
-                 .WithFullRatelimit($"POST guilds/templates/{templateCode}")
+            b => b.WithRoute($"POST guilds/templates/:template-code")
                  .WithPayload(payload),
             info,
             ct
@@ -92,8 +80,6 @@ public sealed class GuildTemplateRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/templates")
-                 .WithFullRatelimit($"POST guilds/{guildId}/templates")
                  .WithPayload(payload),
             info,
             ct
@@ -121,8 +107,7 @@ public sealed class GuildTemplateRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/templates/:template-code")
-                 .WithFullRatelimit($"DELETE guilds/{guildId}/templates/:template-code"),
+                 .WithRoute($"DELETE guilds/{guildId}/templates/:template-code"),
             info,
             ct
         );
@@ -140,16 +125,7 @@ public sealed class GuildTemplateRestAPI
         (
             HttpMethod.Get,
             $"guilds/templates/{templateCode}",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = true,
-                        Resource = TopLevelResource.Other,
-                        Route = $"guilds/templates/{templateCode}"
-                    }
-                 )
-                 .WithFullRatelimit($"POST guilds/templates/{templateCode}"),
+            b => b.WithRoute($"POST guilds/templates/:template-code"),
             info,
             ct
         );
@@ -174,9 +150,7 @@ public sealed class GuildTemplateRestAPI
                         Resource = TopLevelResource.Guild,
                         Id = guildId
                     }
-                 )
-                 .WithRoute($"guilds/{guildId}/templates")
-                 .WithFullRatelimit($"DELETE guilds/{guildId}/templates"),
+                 ),
             info,
             ct
         );
@@ -214,8 +188,7 @@ public sealed class GuildTemplateRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/templates/:template-code")
-                 .WithFullRatelimit($"PATCH guilds/{guildId}/templates/:template-code")
+                 .WithRoute($"PATCH guilds/{guildId}/templates/:template-code")
                  .WithPayload(payload),
             info,
             ct
@@ -243,8 +216,7 @@ public sealed class GuildTemplateRestAPI
                         Id = guildId
                     }
                  )
-                 .WithRoute($"guilds/{guildId}/templates/:template-code")
-                 .WithFullRatelimit($"PUT guilds/{guildId}/templates/:template-code"),
+                 .WithRoute($"PUT guilds/{guildId}/templates/:template-code"),
             info,
             ct
         );

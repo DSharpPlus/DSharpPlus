@@ -13,7 +13,6 @@ using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Abstractions.Rest;
 using DSharpPlus.Internal.Abstractions.Rest.API;
 using DSharpPlus.Internal.Abstractions.Rest.Errors;
-using DSharpPlus.Internal.Rest.Ratelimiting;
 
 using Remora.Results;
 
@@ -35,16 +34,7 @@ public sealed class RoleConnectionsRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"applications/{applicationId}/role-connections/metadata",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/role-connections/metadata"
-                    }
-                 )
-                 .WithFullRatelimit("GET applications/:application-id/role-connections/metadata"),
+            b => b.WithRoute("GET applications/:application-id/role-connections/metadata"),
             info,
             ct
         );
@@ -68,16 +58,7 @@ public sealed class RoleConnectionsRestAPI(IRestClient restClient)
         (
             HttpMethod.Put,
             $"applications/{applicationId}/role-connections/metadata",
-            b => b.WithSimpleRoute
-                 (
-                    new SimpleStringRatelimitRoute
-                    {
-                        IsFracturable = false,
-                        Resource = TopLevelResource.Other,
-                        Route = "applications/:application-id/role-connections/metadata"
-                    }
-                 )
-                 .WithFullRatelimit("PUT applications/:application-id/role-connections/metadata")
+            b => b.WithRoute("PUT applications/:application-id/role-connections/metadata")
                  .WithPayload(payload),
             info,
             ct
