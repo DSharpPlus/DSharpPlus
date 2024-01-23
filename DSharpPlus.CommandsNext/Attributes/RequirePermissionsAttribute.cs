@@ -43,7 +43,7 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
             return false;
         }
 
-        Permissions pusr = ctx.Channel.PermissionsFor(usr);
+        Permissions pusr = await ctx.Channel.PermissionsForMemberAsync(usr);
 
         DSharpPlus.Entities.DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
         if (bot == null)
@@ -51,7 +51,7 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
             return false;
         }
 
-        Permissions pbot = ctx.Channel.PermissionsFor(bot);
+        Permissions pbot = await ctx.Channel.PermissionsForMemberAsync(bot);
 
         bool usrok = ctx.Guild.OwnerId == usr.Id;
         bool botok = ctx.Guild.OwnerId == bot.Id;

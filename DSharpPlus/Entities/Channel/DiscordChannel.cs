@@ -215,7 +215,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <summary>
     /// Gets the list of members currently in the channel (if voice channel), or members who can see the channel (otherwise).
     /// </summary>
-    public async Task<IReadOnlyList<DiscordMember>> GetUsersAsync()
+    public async IAsyncEnumerable<DiscordMember> GetUsersAsync()
     {
         if (this.GuildId is null)
         {
@@ -226,22 +226,25 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
 
         if (this.Type is not (ChannelType.Voice or ChannelType.Stage))
         {
-            return guild!.Members.Values.Where(async x => (await this.PermissionsForMemberAsync(x) & Permissions.AccessChannels) == Permissions.AccessChannels).ToList();
+            
+            foreach (DiscordMember member in guild!.Members.Values)
+            {
+                if ((await this.PermissionsForMemberAsync(member) & Permissions.AccessChannels) == Permissions.AccessChannels)
+                {
+                    yield return member;
+                }
+            }
         }
-
-        return guild!.Members.Values.Where(x => x.VoiceState?.ChannelId == this.Id).ToList();
-
-        //TODO: properly implement this
-
-        /*
-        get
+        else
         {
-            return (IReadOnlyList<DiscordMember>)(
-                this.Type == ChannelType.Voice || this.Type == ChannelType.Stage
-                ? this.Guild.Members.Values.Where(x => x.VoiceState?.ChannelId == this.Id).ToList()
-                : this.Guild.Members.Values.Where(x => (this.PermissionsFor(x) & Permissions.AccessChannels) == Permissions.AccessChannels).ToList());
+            foreach (DiscordMember member in guild!.Members.Values)
+            {
+                if (member.VoiceState?.ChannelId == this.Id)
+                {
+                    yield return member;
+                }
+            }
         }
-        */
     }
 
     /// <summary>
@@ -582,7 +585,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public IAsyncEnumerable<DiscordMessage> GetMessagesBeforeAsync(ulong before, int limit = 100)
-        => this.GetMessagesInternalAsync(limit, before, null, null);
+        => this.GetMessagesInternalAsync(limit, before);
 
     /// <summary>
     /// Returns a list of messages after a certain message.
@@ -594,7 +597,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public IAsyncEnumerable<DiscordMessage> GetMessagesAfterAsync(ulong after, int limit = 100)
-        => this.GetMessagesInternalAsync(limit, null, after, null);
+        => this.GetMessagesInternalAsync(limit, null, after);
 
     /// <summary>
     /// Returns a list of messages around a certain message.
@@ -617,7 +620,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public IAsyncEnumerable<DiscordMessage> GetMessagesAsync(int limit = 100) =>
-        this.GetMessagesInternalAsync(limit, null, null, null);
+        this.GetMessagesInternalAsync(limit);
 
     private async IAsyncEnumerable<DiscordMessage> GetMessagesInternalAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
     {
@@ -948,7 +951,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         }
 
         await this.Discord.ApiClient.ModifyGuildMemberAsync(this.GuildId!.Value, member.Id, default, default, default,
-            default, this.Id, default, null);
+            default, this.Id);
     }
 
     /// <summary>
@@ -1084,9 +1087,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         {
             return Permissions.None;
         }
-
-
-
+        
         if (guild.OwnerId == mbr.Id)
         {
             return PermissionMethods.FULL_PERMS;

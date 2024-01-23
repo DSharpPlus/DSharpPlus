@@ -79,6 +79,7 @@ public sealed class DiscordApiClient
     private async Task PopulateMessageAsync(TransportUser author, DiscordMessage ret)
     {
         ret.Channel.TryGetCachedValue(out DiscordChannel? channel);
+        channel ??= await this._discord!.Cache.TryGetChannelAsync(ret.Channel.Key);
         DiscordGuild? guild = channel?.Guild;
 
         //If this is a webhook, it shouldn't be in the user cache.

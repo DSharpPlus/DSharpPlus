@@ -48,7 +48,7 @@ public sealed class RequireBotPermissionsAttribute : CheckBaseAttribute
             return true;
         }
 
-        Permissions pbot = ctx.Channel.PermissionsFor(bot);
+        Permissions pbot = await ctx.Channel.PermissionsForMemberAsync(bot);
 
         return (pbot & Permissions.Administrator) != 0 ? true : (pbot & this.Permissions) == this.Permissions;
     }
