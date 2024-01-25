@@ -48,71 +48,89 @@ public class DiscordVoiceState
     /// <para>This can be cast to a <see cref="DiscordMember"/> if this voice state was in a guild.</para>
     /// </summary>
     [JsonIgnore]
-    public DiscordUser User => this.Guild is not null && this.Guild._members.TryGetValue(this.UserId, out DiscordMember? member)
-        ? member
-        : this.Discord.GetCachedOrEmptyUserInternal(this.UserId);
+    public DiscordUser User
+    {
+        get
+        {
+            if (this.Guild is not null && this.Guild._members.TryGetValue(this.UserId, out DiscordMember? member))
+            {
+                return member;
+            }
+
+            return this.Discord.GetCachedOrEmptyUserInternal(this.UserId);
+        }
+    }
 
     /// <summary>
     /// Gets ID of the session of this voice state.
     /// </summary>
     [JsonProperty("session_id", NullValueHandling = NullValueHandling.Ignore)]
-    public string SessionId { get; init; }
+    public string SessionId { get; internal init; }
 
     /// <summary>
     /// Gets whether this user is deafened.
     /// </summary>
     [JsonProperty("deaf", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsServerDeafened { get; init; }
+    public bool IsServerDeafened { get; internal init; }
 
     /// <summary>
     /// Gets whether this user is muted.
     /// </summary>
     [JsonProperty("mute", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsServerMuted { get; init; }
+    public bool IsServerMuted { get; internal init; }
 
     /// <summary>
     /// Gets whether this user is locally deafened.
     /// </summary>
     [JsonProperty("self_deaf", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsSelfDeafened { get; init; }
+    public bool IsSelfDeafened { get; internal init; }
 
     /// <summary>
     /// Gets whether this user is locally muted.
     /// </summary>
     [JsonProperty("self_mute", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsSelfMuted { get; init; }
+    public bool IsSelfMuted { get; internal init; }
 
     /// <summary>
     /// Gets whether this user's camera is enabled.
     /// </summary>
     [JsonProperty("self_video", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsSelfVideo { get; init; }
+    public bool IsSelfVideo { get; internal init; }
 
     /// <summary>
     /// Gets whether this user is using the Go Live feature.
     /// </summary>
     [JsonProperty("self_stream", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsSelfStream { get; init; }
+    public bool IsSelfStream { get; internal init; }
 
     /// <summary>
     /// Gets whether the current user has suppressed this user.
     /// </summary>
     [JsonProperty("suppress", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsSuppressed { get; init; }
+    public bool IsSuppressed { get; internal init; }
 
     /// <summary>
     /// Gets the time at which this user requested to speak.
     /// </summary>
     [JsonProperty("request_to_speak_timestamp", NullValueHandling = NullValueHandling.Ignore)]
-    public DateTimeOffset? RequestToSpeakTimestamp { get; init; }
+    public DateTimeOffset? RequestToSpeakTimestamp { get; internal init; }
 
     /// <summary>
     /// Gets the member this voice state belongs to.
     /// </summary>
     [JsonIgnore, NotNullIfNotNull(nameof(Guild))]
-    public DiscordMember? Member => this.Guild is not null && this.Guild.Members.TryGetValue(this.TransportMember.User.Id, out DiscordMember? member)
-        ? member :
-        new DiscordMember(this.TransportMember) { Discord = this.Discord };
+    public DiscordMember? Member
+    {
+        get
+        {
+            if (this.Guild is not null && this.Guild.Members.TryGetValue(this.TransportMember.User.Id, out DiscordMember? member))
+            {
+                return member;
+            }
+
+            return new DiscordMember(this.TransportMember) { Discord = this.Discord };
+        }
+    }
 
     [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
     internal TransportMember TransportMember { get; init; }
