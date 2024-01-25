@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
@@ -16,33 +17,31 @@ public class DiscordVoiceState
     /// Gets ID of the guild this voice state is associated with.
     /// </summary>
     [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-    internal ulong? GuildId { get; set; }
+    internal ulong? GuildId { get; init; }
 
     /// <summary>
     /// Gets the guild associated with this voice state.
     /// </summary>
     [JsonIgnore]
-    public DiscordGuild Guild
-        => this.GuildId != null ? this.Discord.Guilds[this.GuildId.Value] : this.Channel?.Guild;
+    public DiscordGuild? Guild => this.GuildId is not null ? this.Discord.Guilds[this.GuildId.Value] : this.Channel?.Guild;
 
     /// <summary>
     /// Gets ID of the channel this user is connected to.
     /// </summary>
     [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Include)]
-    internal ulong? ChannelId { get; set; }
+    internal ulong? ChannelId { get; init; }
 
     /// <summary>
     /// Gets the channel this user is connected to.
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel Channel
-        => this.ChannelId != null && this.ChannelId.Value != 0 ? this.Discord.InternalGetCachedChannel(this.ChannelId.Value) : null;
+    public DiscordChannel? Channel => (this.ChannelId.HasValue && this.ChannelId.Value != 0) ? this.Discord.InternalGetCachedChannel(this.ChannelId.Value) : null;
 
     /// <summary>
     /// Gets ID of the user to which this voice state belongs.
     /// </summary>
     [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
-    internal ulong UserId { get; set; }
+    internal ulong UserId { get; init; }
 
     /// <summary>
     /// Gets the user associated with this voice state.
@@ -53,19 +52,12 @@ public class DiscordVoiceState
     {
         get
         {
-            DiscordUser? usr = null as DiscordUser;
-
-            if (this.Guild != null)
+            if (this.Guild is not null && this.Guild._members.TryGetValue(this.UserId, out DiscordMember? member))
             {
-                usr = this.Guild._members.TryGetValue(this.UserId, out DiscordMember? member) ? member : null;
+                return member;
             }
 
-            if (usr == null)
-            {
-                usr = this.Discord.GetCachedOrEmptyUserInternal(this.UserId);
-            }
-
-            return usr;
+            return this.Discord.GetCachedOrEmptyUserInternal(this.UserId);
         }
     }
 
@@ -73,102 +65,88 @@ public class DiscordVoiceState
     /// Gets ID of the session of this voice state.
     /// </summary>
     [JsonProperty("session_id", NullValueHandling = NullValueHandling.Ignore)]
-    internal string SessionId { get; set; }
+    public string SessionId { get; internal init; }
 
     /// <summary>
     /// Gets whether this user is deafened.
     /// </summary>
     [JsonProperty("deaf", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsServerDeafened { get; internal set; }
+    public bool IsServerDeafened { get; internal init; }
 
     /// <summary>
     /// Gets whether this user is muted.
     /// </summary>
     [JsonProperty("mute", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsServerMuted { get; internal set; }
+    public bool IsServerMuted { get; internal init; }
 
     /// <summary>
     /// Gets whether this user is locally deafened.
     /// </summary>
     [JsonProperty("self_deaf", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsSelfDeafened { get; internal set; }
+    public bool IsSelfDeafened { get; internal init; }
 
     /// <summary>
     /// Gets whether this user is locally muted.
     /// </summary>
     [JsonProperty("self_mute", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsSelfMuted { get; internal set; }
+    public bool IsSelfMuted { get; internal init; }
 
     /// <summary>
     /// Gets whether this user's camera is enabled.
     /// </summary>
     [JsonProperty("self_video", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsSelfVideo { get; internal set; }
+    public bool IsSelfVideo { get; internal init; }
 
     /// <summary>
     /// Gets whether this user is using the Go Live feature.
     /// </summary>
     [JsonProperty("self_stream", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsSelfStream { get; internal set; }
+    public bool IsSelfStream { get; internal init; }
 
     /// <summary>
     /// Gets whether the current user has suppressed this user.
     /// </summary>
     [JsonProperty("suppress", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsSuppressed { get; internal set; }
+    public bool IsSuppressed { get; internal init; }
 
     /// <summary>
     /// Gets the time at which this user requested to speak.
     /// </summary>
     [JsonProperty("request_to_speak_timestamp", NullValueHandling = NullValueHandling.Ignore)]
-    internal DateTimeOffset? RequestToSpeakTimestamp { get; set; }
+    public DateTimeOffset? RequestToSpeakTimestamp { get; internal init; }
 
     /// <summary>
     /// Gets the member this voice state belongs to.
     /// </summary>
-    [JsonIgnore]
-    public DiscordMember Member
-        => this.Guild.Members.TryGetValue(this.TransportMember.User.Id, out DiscordMember? member) ? member : new DiscordMember(this.TransportMember) { Discord = this.Discord };
-
-    [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
-    internal TransportMember TransportMember { get; set; }
-
-    internal DiscordVoiceState() { }
-
-    // copy constructor for reduced boilerplate
-    internal DiscordVoiceState(DiscordVoiceState other)
+    [JsonIgnore, NotNullIfNotNull(nameof(Guild))]
+    public DiscordMember? Member
     {
-        this.Discord = other.Discord;
+        get
+        {
+            if (this.Guild is not null && this.Guild.Members.TryGetValue(this.TransportMember.User.Id, out DiscordMember? member))
+            {
+                return member;
+            }
 
-        this.UserId = other.UserId;
-        this.ChannelId = other.ChannelId;
-        this.GuildId = other.GuildId;
-
-        this.IsServerDeafened = other.IsServerDeafened;
-        this.IsServerMuted = other.IsServerMuted;
-        this.IsSuppressed = other.IsSuppressed;
-        this.IsSelfDeafened = other.IsSelfDeafened;
-        this.IsSelfMuted = other.IsSelfMuted;
-        this.IsSelfStream = other.IsSelfStream;
-        this.IsSelfVideo = other.IsSelfVideo;
-
-        this.SessionId = other.SessionId;
-        this.RequestToSpeakTimestamp = other.RequestToSpeakTimestamp;
+            return new DiscordMember(this.TransportMember) { Discord = this.Discord };
+        }
     }
 
-    internal DiscordVoiceState(DiscordMember m)
+    [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
+    internal TransportMember TransportMember { get; init; }
+
+    internal DiscordVoiceState() { }
+    internal DiscordVoiceState(DiscordMember member)
     {
-        this.Discord = m.Discord as DiscordClient;
-
-        this.UserId = m.Id;
+        this.Discord = (DiscordClient)member.Discord;
+        this.UserId = member.Id;
         this.ChannelId = 0;
-        this.GuildId = m._guild_id;
-
-        this.IsServerDeafened = m.IsDeafened;
-        this.IsServerMuted = m.IsMuted;
+        this.GuildId = member._guild_id;
+        this.IsServerDeafened = member.IsDeafened;
+        this.IsServerMuted = member.IsMuted;
 
         // Values not filled out are values that are not known from a DiscordMember
     }
 
-    public override string ToString() => $"{this.UserId.ToString(CultureInfo.InvariantCulture)} in {(this.GuildId ?? this.Channel.GuildId.Value).ToString(CultureInfo.InvariantCulture)}";
+    public override string ToString() => $"{this.UserId.ToString(CultureInfo.InvariantCulture)} in {(this.GuildId ?? this.Channel?.GuildId)?.ToString(CultureInfo.InvariantCulture)}";
 }
