@@ -11,8 +11,6 @@
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="7.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
-    <PackageVersion Include="ConcurrentHashSet" Version="1.3.0" />
-    <PackageVersion Include="DSharpPlus.VoiceNext.Natives" Version="1.0.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="Polly" Version="8.0.0" />
   </ItemGroup>
