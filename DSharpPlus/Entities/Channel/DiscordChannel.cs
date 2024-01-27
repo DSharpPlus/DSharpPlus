@@ -501,7 +501,8 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         }
 
         DiscordMessage? msg = await this.Discord.Cache.TryGetMessageAsync(id);
-        return msg ?? await this.Discord.ApiClient.GetMessageAsync(this.Id, id);
+        msg ??= await this.Discord.ApiClient.GetMessageAsync(this.Id, id);
+        return msg;
     }
 
     /// <summary>
@@ -644,8 +645,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         {
             throw new InvalidOperationException("Cannot get more than 100 messages around the specified ID.");
         }
-
-        List<DiscordMessage> msgs = new(limit);
+        
         int remaining = limit;
         ulong? last = null;
         bool isbefore = before != null;
@@ -791,8 +791,8 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <summary>
     /// Create a new invite object
     /// </summary>
-    /// <param name="max_age">Duration of invite in seconds before expiry, or 0 for never.  Defaults to 86400.</param>
-    /// <param name="max_uses">Max number of uses or 0 for unlimited.  Defaults to 0</param>
+    /// <param name="maxAge">Duration of invite in seconds before expiry, or 0 for never.  Defaults to 86400.</param>
+    /// <param name="maxUses">Max number of uses or 0 for unlimited.  Defaults to 0</param>
     /// <param name="temporary">Whether this invite only grants temporary membership.  Defaults to false.</param>
     /// <param name="unique">If true, don't try to reuse a similar invite (useful for creating many unique one time use invites)</param>
     /// <param name="reason">Reason for audit logs.</param>
@@ -804,8 +804,8 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, string reason = null, InviteTargetType? targetType = null, ulong? targetUserId = null, ulong? targetApplicationId = null)
-        => await this.Discord.ApiClient.CreateChannelInviteAsync(this.Id, max_age, max_uses, temporary, unique, reason, targetType, targetUserId, targetApplicationId);
+    public async Task<DiscordInvite> CreateInviteAsync(int maxAge = 86400, int maxUses = 0, bool temporary = false, bool unique = false, string reason = null, InviteTargetType? targetType = null, ulong? targetUserId = null, ulong? targetApplicationId = null)
+        => await this.Discord.ApiClient.CreateChannelInviteAsync(this.Id, maxAge, maxUses, temporary, unique, reason, targetType, targetUserId, targetApplicationId);
 
     /// <summary>
     /// Adds a channel permission overwrite for specified member.

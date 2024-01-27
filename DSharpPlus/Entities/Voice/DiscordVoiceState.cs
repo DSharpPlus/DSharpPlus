@@ -66,7 +66,7 @@ public class DiscordVoiceState
 
             if (usr == null)
             {
-                usr = this.Discord.Cache.TryGetUserAsync(this.UserId);
+                usr = await this.Discord.Cache.TryGetUserAsync(this.UserId);
             }
 
             return usr;

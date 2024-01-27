@@ -468,7 +468,7 @@ public sealed partial class DiscordShardedClient
     {
         foreach (DiscordClient s in this._shards.Values)
         {
-            if (s._guilds.TryGetValue(id, out _))
+            if (s._guilds.Contains(id))
             {
                 return s.ShardId;
             }
