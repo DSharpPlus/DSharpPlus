@@ -17,11 +17,11 @@ public class DiscordMessageInteraction : SnowflakeObject
     /// Gets the name of the <see cref="DiscordApplicationCommand"/>.
     /// </summary>
     [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-    public string Name { get; internal set; }
+    public string? Name { get; internal set; }
 
     /// <summary>
     /// Gets the user who invoked the interaction.
     /// </summary>
     [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
-    public DiscordUser User { get; internal set; }
+    public DiscordUser? User { get; internal set; }
 }

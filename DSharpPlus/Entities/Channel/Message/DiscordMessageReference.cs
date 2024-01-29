@@ -10,20 +10,20 @@ public class DiscordMessageReference
     /// <summary>
     /// Gets the original message.
     /// </summary>
-    public DiscordMessage Message { get; internal set; }
+    public DiscordMessage Message { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the channel of the original message.
     /// </summary>
-    public DiscordChannel Channel { get; internal set; }
+    public DiscordChannel Channel { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the guild of the original message.
     /// </summary>
-    public DiscordGuild Guild { get; internal set; }
+    public DiscordGuild? Guild { get; internal set; }
 
     public override string ToString()
-        => $"Guild: {this.Guild.Id}, Channel: {this.Channel.Id}, Message: {this.Message.Id}";
+        => $"Guild: {this.Guild?.Id ?? 0}, Channel: {this.Channel.Id}, Message: {this.Message.Id}";
 
     internal DiscordMessageReference() { }
 }

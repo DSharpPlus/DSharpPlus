@@ -13,13 +13,13 @@ public sealed class DiscordMessageStickerPack : SnowflakeObject
     public IReadOnlyDictionary<ulong, DiscordMessageSticker> Stickers => this._stickers;
 
     [JsonProperty("stickers")]
-    internal Dictionary<ulong, DiscordMessageSticker> _stickers = new();
+    internal Dictionary<ulong, DiscordMessageSticker> _stickers = [];
 
     /// <summary>
     /// Gets the name of this sticker pack.
     /// </summary>
     [JsonProperty("name")]
-    public string Name { get; internal set; }
+    public string Name { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the Id of this pack's SKU.
@@ -37,7 +37,7 @@ public sealed class DiscordMessageStickerPack : SnowflakeObject
     /// Gets the description of this sticker pack.
     /// </summary>
     [JsonProperty("description")]
-    public string Description { get; internal set; }
+    public string Description { get; internal set; } = default!;
 
     /// <summary>
     /// Gets the Id of the sticker pack's banner image.
