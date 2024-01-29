@@ -725,18 +725,21 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         int remaining = limit;
         ulong? last = after;
 
-        int lastCount;
         do
         {
             int fetchSize = remaining > 100 ? 100 : remaining;
             IReadOnlyList<DiscordUser> fetch = await this.Discord.ApiClient.GetReactionsAsync(this.ChannelId, this.Id, emoji.ToReactionString(), last, fetchSize);
 
-            lastCount = fetch.Count;
-            remaining -= lastCount;
+            remaining -= fetch.Count;
+
+            if (fetch.Count == 0)
+            {
+                break;
+            }
 
             users.AddRange(fetch);
             last = fetch[^1]?.Id;
-        } while (remaining > 0 && lastCount > 0);
+        } while (remaining > 0);
 
         return new ReadOnlyCollection<DiscordUser>(users);
     }
