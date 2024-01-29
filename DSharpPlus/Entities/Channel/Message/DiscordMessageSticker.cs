@@ -19,13 +19,13 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     /// Gets the Name of the sticker.
     /// </summary>
     [JsonProperty("name")]
-    public string Name { get; internal set; }
+    public string? Name { get; internal set; }
 
     /// <summary>
     /// Gets the Description of the sticker.
     /// </summary>
     [JsonProperty("description")]
-    public string Description { get; internal set; }
+    public string? Description { get; internal set; }
 
     /// <summary>
     /// Gets the type of sticker.
@@ -37,12 +37,12 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     /// For guild stickers, gets the user that made the sticker.
     /// </summary>
     [JsonProperty("user")]
-    public DiscordUser User { get; internal set; }
+    public DiscordUser? User { get; internal set; }
 
     /// <summary>
     /// Gets the guild associated with this sticker, if any.
     /// </summary>
-    public DiscordGuild Guild => (this.Discord as DiscordClient).InternalGetCachedGuild(this.GuildId);
+    public DiscordGuild Guild => (this.Discord as DiscordClient)!.InternalGetCachedGuild(this.GuildId);
 
     public string StickerUrl => $"https://cdn.discordapp.com/stickers/{this.Id}{this.GetFileTypeExtension()}";
 
@@ -69,19 +69,19 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     /// </summary>
     [JsonIgnore]
     public IReadOnlyList<string> Tags
-        => this.InternalTags != null ? this.InternalTags.Split(',') : Array.Empty<string>();
+        => this.InternalTags != null ? this.InternalTags.Split(',') : [];
 
     /// <summary>
     /// Gets the asset hash of the sticker.
     /// </summary>
     [JsonProperty("asset")]
-    public string Asset { get; internal set; }
+    public string? Asset { get; internal set; }
 
     /// <summary>
     /// Gets the preview asset hash of the sticker.
     /// </summary>
     [JsonProperty("preview_asset", NullValueHandling = NullValueHandling.Ignore)]
-    public string PreviewAsset { get; internal set; }
+    public string? PreviewAsset { get; internal set; }
 
     /// <summary>
     /// Gets the Format type of the sticker.
@@ -90,14 +90,14 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     public StickerFormat FormatType { get; internal set; }
 
     [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
-    internal string InternalTags { get; set; }
+    internal string? InternalTags { get; set; }
 
     public string BannerUrl => $"https://cdn.discordapp.com/app-assets/710982414301790216/store/{this.BannerAssetId}.png?size=4096";
 
     [JsonProperty("banner_asset_id")]
     internal ulong BannerAssetId { get; set; }
 
-    public bool Equals(DiscordMessageSticker other) => this.Id == other.Id;
+    public bool Equals(DiscordMessageSticker? other) => this.Id == other?.Id;
 
     public override string ToString() => $"Sticker {this.Id}; {this.Name}; {this.FormatType}";
 

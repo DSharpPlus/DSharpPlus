@@ -20,19 +20,19 @@ internal class DiscordMentions
     /// Collection roles to serialize
     /// </summary>
     [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<ulong> Roles { get; }
+    public IEnumerable<ulong>? Roles { get; }
 
     /// <summary>
     /// Collection of users to serialize
     /// </summary>
     [JsonProperty("users", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<ulong> Users { get; }
+    public IEnumerable<ulong>? Users { get; }
 
     /// <summary>
     /// The values to be parsed
     /// </summary>
     [JsonProperty("parse", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<string> Parse { get; }
+    public IEnumerable<string>? Parse { get; }
 
     // WHY IS THERE NO DOCSTRING HERE
     [JsonProperty("replied_user", NullValueHandling = NullValueHandling.Ignore)]
@@ -41,7 +41,7 @@ internal class DiscordMentions
     internal DiscordMentions(IEnumerable<IMention> mentions, bool mention = false, bool repliedUser = false)
     {
         //Null check just to be safe
-        if (mentions == null)
+        if (mentions is null)
         {
             return;
         }
@@ -52,21 +52,20 @@ internal class DiscordMentions
         // Doing this allows for "no parsing"
         if (!mentions.Any())
         {
-            this.Parse = Array.Empty<string>();
+            this.Parse = [];
             return;
         }
 
 
         //Prepare a list of allowed IDs. We will be adding to these IDs.
-        HashSet<ulong> roles = new HashSet<ulong>();
-        HashSet<ulong> users = new HashSet<ulong>();
-        HashSet<string> parse = new HashSet<string>();
+        HashSet<ulong> roles = [];
+        HashSet<ulong> users = [];
+        HashSet<string> parse = [];
 
         foreach (IMention m in mentions)
         {
             switch (m)
             {
-                default: throw new NotSupportedException("Type not supported in mentions.");
                 case UserMention u:
                     if (u.Id.HasValue)
                     {
@@ -97,6 +96,8 @@ internal class DiscordMentions
 
                 case RepliedUserMention:
                     break;
+
+                default: throw new NotSupportedException($"The type {m.GetType()} is not supported in allowed mentions.");
             }
         }
 

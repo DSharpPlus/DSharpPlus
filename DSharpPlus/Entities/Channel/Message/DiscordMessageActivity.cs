@@ -17,7 +17,7 @@ public class DiscordMessageActivity
     /// Gets the party id of the activity.
     /// </summary>
     [JsonProperty("party_id")]
-    public string PartyId { get; internal set; }
+    public string? PartyId { get; internal set; }
 
     internal DiscordMessageActivity() { }
 }

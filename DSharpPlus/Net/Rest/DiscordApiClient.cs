@@ -2335,7 +2335,7 @@ public sealed class DiscordApiClient
     (
         ulong channelId,
         ulong messageId,
-        string reason
+        string? reason
     )
     {
         Dictionary<string, string> headers = new();
@@ -4846,7 +4846,7 @@ public sealed class DiscordApiClient
         ulong messageId,
         ulong userId,
         string emoji,
-        string reason
+        string? reason
     )
     {
         Dictionary<string, string> headers = new();

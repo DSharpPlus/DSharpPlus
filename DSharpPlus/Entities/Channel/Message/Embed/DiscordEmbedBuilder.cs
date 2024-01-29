@@ -14,7 +14,7 @@ public sealed class DiscordEmbedBuilder
     /// <summary>
     /// Gets or sets the embed's title.
     /// </summary>
-    public string Title
+    public string? Title
     {
         get => this._title;
         set
@@ -27,12 +27,12 @@ public sealed class DiscordEmbedBuilder
             this._title = value;
         }
     }
-    private string _title;
+    private string? _title;
 
     /// <summary>
     /// Gets or sets the embed's description.
     /// </summary>
-    public string Description
+    public string? Description
     {
         get => this._description;
         set
@@ -45,22 +45,22 @@ public sealed class DiscordEmbedBuilder
             this._description = value;
         }
     }
-    private string _description;
+    private string? _description;
 
     /// <summary>
     /// Gets or sets the url for the embed's title.
     /// </summary>
-    public string Url
+    public string? Url
     {
         get => this._url?.ToString();
         set => this._url = string.IsNullOrEmpty(value) ? null : new Uri(value);
     }
-    private Uri _url;
+    private Uri? _url;
 
     /// <summary>
     /// Gets or sets the embed's color.
     /// </summary>
-    public Optional<DiscordColor> Color { get; set; }
+    public DiscordColor? Color { get; set; }
 
     /// <summary>
     /// Gets or sets the embed's timestamp.
@@ -70,33 +70,33 @@ public sealed class DiscordEmbedBuilder
     /// <summary>
     /// Gets or sets the embed's image url.
     /// </summary>
-    public string ImageUrl
+    public string? ImageUrl
     {
         get => this._imageUri?.ToString();
         set => this._imageUri = string.IsNullOrEmpty(value) ? null : new DiscordUri(value);
     }
-    private DiscordUri _imageUri;
+    private DiscordUri? _imageUri;
 
     /// <summary>
     /// Gets or sets the embed's author.
     /// </summary>
-    public EmbedAuthor Author { get; set; }
+    public EmbedAuthor? Author { get; set; }
 
     /// <summary>
     /// Gets or sets the embed's footer.
     /// </summary>
-    public EmbedFooter Footer { get; set; }
+    public EmbedFooter? Footer { get; set; }
 
     /// <summary>
     /// Gets or sets the embed's thumbnail.
     /// </summary>
-    public EmbedThumbnail Thumbnail { get; set; }
+    public EmbedThumbnail? Thumbnail { get; set; }
 
     /// <summary>
     /// Gets the embed's fields.
     /// </summary>
     public IReadOnlyList<DiscordEmbedField> Fields { get; }
-    private readonly List<DiscordEmbedField> _fields = new();
+    private readonly List<DiscordEmbedField> _fields = [];
 
     /// <summary>
     /// Constructs a new empty embed builder.
@@ -312,7 +312,7 @@ public sealed class DiscordEmbedBuilder
     /// <param name="url">Author's url.</param>
     /// <param name="iconUrl">Author icon's url.</param>
     /// <returns>This embed builder.</returns>
-    public DiscordEmbedBuilder WithAuthor(string name = null, string url = null, string iconUrl = null)
+    public DiscordEmbedBuilder WithAuthor(string? name = null, string? url = null, string? iconUrl = null)
     {
         this.Author = string.IsNullOrEmpty(name) && string.IsNullOrEmpty(url) && string.IsNullOrEmpty(iconUrl)
             ? null
@@ -331,9 +331,9 @@ public sealed class DiscordEmbedBuilder
     /// <param name="text">Footer's text.</param>
     /// <param name="iconUrl">Footer icon's url.</param>
     /// <returns>This embed builder.</returns>
-    public DiscordEmbedBuilder WithFooter(string text = null, string iconUrl = null)
+    public DiscordEmbedBuilder WithFooter(string? text = null, string? iconUrl = null)
     {
-        if (text != null && text.Length > 2048)
+        if (text is not null && text.Length > 2048)
         {
             throw new ArgumentException("Footer text length cannot exceed 2048 characters.", nameof(text));
         }
@@ -359,19 +359,14 @@ public sealed class DiscordEmbedBuilder
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
+            ArgumentNullException.ThrowIfNull(name);
 
             throw new ArgumentException("Name cannot be empty or whitespace.", nameof(name));
         }
+
         if (string.IsNullOrWhiteSpace(value))
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            ArgumentNullException.ThrowIfNull(value);
 
             throw new ArgumentException("Value cannot be empty or whitespace.", nameof(value));
         }
@@ -397,6 +392,7 @@ public sealed class DiscordEmbedBuilder
             Name = name,
             Value = value
         });
+
         return this;
     }
 
@@ -439,16 +435,16 @@ public sealed class DiscordEmbedBuilder
     /// <returns>New discord embed.</returns>
     public DiscordEmbed Build()
     {
-        DiscordEmbed embed = new DiscordEmbed
+        DiscordEmbed embed = new()
         {
             Title = this._title,
             Description = this._description,
             Url = this._url,
-            _color = this.Color.IfPresent(e => e.Value),
+            _color = this.Color is not null ? Optional.FromValue(this.Color.Value.Value) : Optional.FromNoValue<int>(),
             Timestamp = this.Timestamp
         };
 
-        if (this.Footer != null)
+        if (this.Footer is not null)
         {
             embed.Footer = new DiscordEmbedFooter
             {
@@ -457,7 +453,7 @@ public sealed class DiscordEmbedBuilder
             };
         }
 
-        if (this.Author != null)
+        if (this.Author is not null)
         {
             embed.Author = new DiscordEmbedAuthor
             {
@@ -467,12 +463,12 @@ public sealed class DiscordEmbedBuilder
             };
         }
 
-        if (this._imageUri != null)
+        if (this._imageUri is not null)
         {
-            embed.Image = new DiscordEmbedImage { Url = this._imageUri };
+            embed.Image = new DiscordEmbedImage { Url = this._imageUri.Value };
         }
 
-        if (this.Thumbnail != null)
+        if (this.Thumbnail is not null)
         {
             embed.Thumbnail = new DiscordEmbedThumbnail
             {
@@ -492,7 +488,7 @@ public sealed class DiscordEmbedBuilder
     /// </summary>
     /// <param name="builder">Builder to convert.</param>
     public static implicit operator DiscordEmbed(DiscordEmbedBuilder builder)
-        => builder?.Build();
+        => builder.Build();
 
     /// <summary>
     /// Represents an embed author.
@@ -502,7 +498,7 @@ public sealed class DiscordEmbedBuilder
         /// <summary>
         /// Gets or sets the name of the author.
         /// </summary>
-        public string Name
+        public string? Name
         {
             get => this._name;
             set
@@ -515,27 +511,27 @@ public sealed class DiscordEmbedBuilder
                 this._name = value;
             }
         }
-        private string _name;
+        private string? _name;
 
         /// <summary>
         /// Gets or sets the Url to which the author's link leads.
         /// </summary>
-        public string Url
+        public string? Url
         {
             get => this._uri?.ToString();
             set => this._uri = string.IsNullOrEmpty(value) ? null : new Uri(value);
         }
-        internal Uri _uri;
+        internal Uri? _uri;
 
         /// <summary>
         /// Gets or sets the Author's icon url.
         /// </summary>
-        public string IconUrl
+        public string? IconUrl
         {
             get => this._iconUri?.ToString();
             set => this._iconUri = string.IsNullOrEmpty(value) ? null : new DiscordUri(value);
         }
-        internal DiscordUri _iconUri;
+        internal DiscordUri? _iconUri;
     }
 
     /// <summary>
@@ -546,7 +542,7 @@ public sealed class DiscordEmbedBuilder
         /// <summary>
         /// Gets or sets the text of the footer.
         /// </summary>
-        public string Text
+        public string? Text
         {
             get => this._text;
             set
@@ -559,17 +555,17 @@ public sealed class DiscordEmbedBuilder
                 this._text = value;
             }
         }
-        private string _text;
+        private string? _text;
 
         /// <summary>
         /// Gets or sets the Url
         /// </summary>
-        public string IconUrl
+        public string? IconUrl
         {
             get => this._iconUri?.ToString();
             set => this._iconUri = string.IsNullOrEmpty(value) ? null : new DiscordUri(value);
         }
-        internal DiscordUri _iconUri;
+        internal DiscordUri? _iconUri;
     }
 
     /// <summary>
@@ -580,12 +576,12 @@ public sealed class DiscordEmbedBuilder
         /// <summary>
         /// Gets or sets the thumbnail's image url.
         /// </summary>
-        public string Url
+        public string? Url
         {
             get => this._uri?.ToString();
             set => this._uri = string.IsNullOrEmpty(value) ? null : new DiscordUri(value);
         }
-        internal DiscordUri _uri;
+        internal DiscordUri? _uri;
 
         /// <summary>
         /// Gets or sets the thumbnail's height.
