@@ -8,7 +8,6 @@ namespace DSharpPlus.Entities;
 /// </summary>
 public interface IMention { }
 
-
 /// <summary>
 /// Allows a reply to ping the user being replied to.
 /// </summary>
@@ -36,7 +35,11 @@ public readonly struct EveryoneMention : IMention
 /// <summary>
 /// Allows @user pings to mention in the message.
 /// </summary>
-public readonly struct UserMention : IMention
+/// <remarks>
+/// Allows the specific user to be mentioned
+/// </remarks>
+/// <param name="id"></param>
+public readonly struct UserMention(ulong id) : IMention
 {
     /// <summary>
     /// Allow mentioning of all users. Alias to <see cref="UserMention()"/> constructor.
@@ -46,13 +49,7 @@ public readonly struct UserMention : IMention
     /// <summary>
     /// Optional Id of the user that is allowed to be mentioned. If null, then all user mentions will be allowed.
     /// </summary>
-    public ulong? Id { get; }
-
-    /// <summary>
-    /// Allows the specific user to be mentioned
-    /// </summary>
-    /// <param name="id"></param>
-    public UserMention(ulong id) => this.Id = id;
+    public ulong? Id { get; } = id;
 
     /// <summary>
     /// Allows the specific user to be mentioned
@@ -66,7 +63,11 @@ public readonly struct UserMention : IMention
 /// <summary>
 /// Allows @role pings to mention in the message.
 /// </summary>
-public readonly struct RoleMention : IMention
+/// <remarks>
+/// Allows the specific id to be mentioned
+/// </remarks>
+/// <param name="id"></param>
+public readonly struct RoleMention(ulong id) : IMention
 {
     /// <summary>
     /// Allow the mentioning of all roles.  Alias to <see cref="RoleMention()"/> constructor.
@@ -76,13 +77,7 @@ public readonly struct RoleMention : IMention
     /// <summary>
     /// Optional Id of the role that is allowed to be mentioned. If null, then all role mentions will be allowed.
     /// </summary>
-    public ulong? Id { get; }
-
-    /// <summary>
-    /// Allows the specific id to be mentioned
-    /// </summary>
-    /// <param name="id"></param>
-    public RoleMention(ulong id) => this.Id = id;
+    public ulong? Id { get; } = id;
 
     /// <summary>
     /// Allows the specific role to be mentioned
@@ -101,10 +96,10 @@ public static class Mentions
     /// <summary>
     /// All possible mentions - @everyone + @here, users, and roles.
     /// </summary>
-    public static IEnumerable<IMention> All { get; } = new IMention[] { EveryoneMention.All, UserMention.All, RoleMention.All };
+    public static IEnumerable<IMention> All { get; } = [EveryoneMention.All, UserMention.All, RoleMention.All];
 
     /// <summary>
     /// No mentions allowed.
     /// </summary>
-    public static IEnumerable<IMention> None { get; } = Array.Empty<IMention>();
+    public static IEnumerable<IMention> None { get; } = [];
 }
