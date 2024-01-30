@@ -22,7 +22,11 @@ public sealed class DefaultPrefixResolver
 
     public ValueTask<int> ResolvePrefixAsync(CommandsExtension extension, DiscordMessage message)
     {
-        if (message.Content.StartsWith(this.Prefix, StringComparison.OrdinalIgnoreCase))
+        if (string.IsNullOrWhiteSpace(message.Content))
+        {
+            return ValueTask.FromResult(-1);
+        }
+        else if (message.Content.StartsWith(this.Prefix, StringComparison.OrdinalIgnoreCase))
         {
             return ValueTask.FromResult(this.Prefix.Length);
         }

@@ -10,8 +10,10 @@
     <PackageVersion Include="Microsoft.Extensions.Configuration.CommandLine" Version="7.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="7.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="7.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="Polly" Version="8.2.1" />
+    <PackageVersion Include="Ulid" Version="1.3.3" />
   </ItemGroup>
 </Project>
