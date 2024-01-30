@@ -17,7 +17,7 @@ public sealed class ArgumentParseException : CommandsException
     /// Thrown when an argument could not be parsed.
     /// </summary>
     /// <param name="parameter">The parameter which failed to parse properly</param>
-    /// <param name="innerException">Gets the Exception instance that caused the current exception.</param>
+    /// <param name="innerException">The exception instance that caused the current exception.</param>
     /// <param name="message">Custom exception message.</param>
     public ArgumentParseException(CommandParameter parameter, Exception? innerException = null, string? message = null) : base(message ?? $"Failed to parse {parameter.Name}.", innerException)
     {
