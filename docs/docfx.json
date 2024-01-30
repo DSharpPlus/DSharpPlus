@@ -76,8 +76,7 @@
     "fileMetadataFiles": [],
     "template": [
       "default",
-      "modern",
-      "memberpage"
+      "modern"
     ],
     "postProcessors": [
       "ExtractSearchIndex"
