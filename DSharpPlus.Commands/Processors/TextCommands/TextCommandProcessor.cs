@@ -15,22 +15,29 @@ using Microsoft.Extensions.DependencyInjection;
 
 public sealed class TextCommandProcessor(TextCommandConfiguration? configuration = null) : BaseCommandProcessor<MessageCreateEventArgs, ITextArgumentConverter, TextConverterContext, TextCommandContext>
 {
+    public const DiscordIntents RequiredIntents = DiscordIntents.DirectMessages // Required for commands executed in DMs
+                                                | DiscordIntents.GuildMessages; // Required for commands that are executed via bot ping
+
     public TextCommandConfiguration Configuration { get; init; } = configuration ?? new();
     private bool _configured;
 
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {
         await base.ConfigureAsync(extension);
-        if (!this._configured)
+        if (this._configured)
         {
-            this._configured = true;
-            if (!extension.Client.Intents.HasIntent(DiscordIntents.MessageContents) && !this.Configuration.SuppressMissingMessageContentIntentWarning)
-            {
-                TextLogging.MissingMessageContentIntent(this._logger, null);
-                return;
-            }
+            return;
+        }
 
-            extension.Client.MessageCreated += this.ExecuteTextCommandAsync;
+        this._configured = true;
+        extension.Client.MessageCreated += this.ExecuteTextCommandAsync;
+        if (!extension.Client.Intents.HasIntent(DiscordIntents.GuildMessages) && !extension.Client.Intents.HasIntent(DiscordIntents.DirectMessages))
+        {
+            TextLogging.MissingRequiredIntents(this._logger, RequiredIntents, null);
+        }
+        else if (!extension.Client.Intents.HasIntent(DiscordIntents.MessageContents) && !this.Configuration.SuppressMissingMessageContentIntentWarning)
+        {
+            TextLogging.MissingMessageContentIntent(this._logger, null);
         }
     }
 
@@ -40,7 +47,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         {
             throw new InvalidOperationException("TextCommandProcessor has not been configured.");
         }
-        else if (eventArgs.Message.Content.Length == 0
+        else if (string.IsNullOrWhiteSpace(eventArgs.Message.Content)
             || (eventArgs.Author.IsBot && this.Configuration.IgnoreBots)
             || (this._extension.DebugGuildId.HasValue && eventArgs.Guild?.Id != this._extension.DebugGuildId))
         {

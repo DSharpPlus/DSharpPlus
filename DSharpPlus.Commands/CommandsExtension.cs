@@ -138,13 +138,19 @@ public sealed class CommandsExtension : BaseExtension
         }
     }
 
-    public void AddProcessor(ICommandProcessor processor) => this._processors.Add(processor.GetType(), processor);
-    public void AddProcessors(params ICommandProcessor[] processors) => this.AddProcessors((IEnumerable<ICommandProcessor>)processors);
-    public void AddProcessors(IEnumerable<ICommandProcessor> processors)
+    public async ValueTask AddProcessorAsync(ICommandProcessor processor)
+    {
+        this._processors.Add(processor.GetType(), processor);
+        await processor.ConfigureAsync(this);
+    }
+
+    public ValueTask AddProcessorsAsync(params ICommandProcessor[] processors) => this.AddProcessorsAsync((IEnumerable<ICommandProcessor>)processors);
+    public async ValueTask AddProcessorsAsync(IEnumerable<ICommandProcessor> processors)
     {
         foreach (ICommandProcessor processor in processors)
         {
             this._processors.Add(processor.GetType(), processor);
+            await processor.ConfigureAsync(this);
         }
     }
 
