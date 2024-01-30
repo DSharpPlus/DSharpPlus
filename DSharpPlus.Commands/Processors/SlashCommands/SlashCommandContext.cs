@@ -20,7 +20,9 @@ public record SlashCommandContext : CommandContext
             throw new InvalidOperationException("Cannot respond to an interaction twice. Please use FollowupAsync instead.");
         }
 
-        DiscordInteractionResponseBuilder interactionBuilder = new(builder);
+        DiscordInteractionResponseBuilder interactionBuilder = builder is DiscordInteractionResponseBuilder responseBuilder
+            ? responseBuilder
+            : new DiscordInteractionResponseBuilder(builder);
 
         // Don't ping anyone if no mentions are explicitly set
         if (interactionBuilder.Mentions?.Count is null or 0)
@@ -55,7 +57,10 @@ public record SlashCommandContext : CommandContext
             throw new InvalidOperationException("Cannot edit a response that has not been sent yet.");
         }
 
-        DiscordWebhookBuilder webhookBuilder = new(builder);
+        DiscordWebhookBuilder webhookBuilder = builder is DiscordWebhookBuilder messageBuilder
+            ? messageBuilder
+            : new DiscordWebhookBuilder(builder);
+
         await this.Interaction.EditOriginalResponseAsync(webhookBuilder);
     }
 
@@ -83,7 +88,10 @@ public record SlashCommandContext : CommandContext
             throw new InvalidOperationException("Cannot follow up to a response that has not been sent yet.");
         }
 
-        DiscordFollowupMessageBuilder followupBuilder = new(builder);
+        DiscordFollowupMessageBuilder followupBuilder = builder is DiscordFollowupMessageBuilder messageBuilder
+            ? messageBuilder
+            : new DiscordFollowupMessageBuilder(builder);
+
         DiscordMessage message = await this.Interaction.CreateFollowupMessageAsync(followupBuilder);
         this._followupMessages.Add(message.Id, message);
         return message;
@@ -103,8 +111,11 @@ public record SlashCommandContext : CommandContext
             message = await this.Channel.GetMessageAsync(messageId);
         }
 
-        DiscordMessageBuilder messageBuilder = new(builder);
-        this._followupMessages[messageId] = await message.ModifyAsync(messageBuilder);
+        DiscordMessageBuilder editedBuilder = builder is DiscordMessageBuilder messageBuilder
+            ? messageBuilder
+            : new DiscordMessageBuilder(builder);
+
+        this._followupMessages[messageId] = await message.ModifyAsync(editedBuilder);
     }
 
     /// <inheritdoc />
