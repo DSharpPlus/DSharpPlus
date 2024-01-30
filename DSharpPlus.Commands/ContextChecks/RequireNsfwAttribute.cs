@@ -4,6 +4,9 @@ using System;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.Trees;
 
+/// <summary>
+/// Defines that usage of this command is restricted to NSFW channels.
+/// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Delegate)]
 public class RequireNsfwAttribute : ContextCheckAttribute
 {
