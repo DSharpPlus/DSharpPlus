@@ -1118,6 +1118,11 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             return Permissions.None;
         }
         
+        if (role._guild_id != this.Guild.Id)
+        {
+            throw new ArgumentException("Given role does not belong to this channel's guild.");
+        }
+        
         Permissions perms;
 
         // assign @everyone permissions
@@ -1131,6 +1136,17 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         if ((perms & Permissions.Administrator) == Permissions.Administrator)
         {
             return PermissionMethods.FULL_PERMS;
+        }
+        
+        // channel overrides for the role
+        DiscordOverwrite? everyoneRoleOverwrites = this._permissionOverwrites.FirstOrDefault(xo => xo.Id == role.Id);
+        if (everyoneRoleOverwrites is not null)
+        {
+            // assign channel permission overwrites for the role (explicit deny)
+            perms &= ~everyoneRoleOverwrites.Denied;
+        
+            // assign channel permission overwrites for the role (explicit allow)
+            perms |= everyoneRoleOverwrites.Allowed;
         }
         
         // channel overrides for the role
