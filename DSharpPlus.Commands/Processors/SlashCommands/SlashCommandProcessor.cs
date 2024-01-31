@@ -173,11 +173,14 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         Dictionary<ulong, Command> commandsDictionary = [];
         foreach (DiscordApplicationCommand discordCommand in discordCommands)
         {
-            if (!extension.Commands.TryGetValue(discordCommand.Name, out Command? command))
+            // N.B: We need to re-snake case because this check will always fail
+            // for commands that have a space in their name. -Velvet.
+            string adjustedCommandName = ToSnakeCase(discordCommand.Name);
+            if (!extension.Commands.TryGetValue(adjustedCommandName, out Command? command))
             {
                 foreach (Command aliasedCommand in extension.Commands.Values)
                 {
-                    if (aliasedCommand.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName == discordCommand.Name)
+                    if (aliasedCommand.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName == adjustedCommandName)
                     {
                         command = aliasedCommand;
                         break;
@@ -467,13 +470,6 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         StringBuilder stringBuilder = new();
         foreach (char character in str)
         {
-            // kebab-cased, somehow.
-            if (character == '-')
-            {
-                stringBuilder.Append('_');
-                continue;
-            }
-
             // camelCase, PascalCase
             if (char.IsUpper(character))
             {
