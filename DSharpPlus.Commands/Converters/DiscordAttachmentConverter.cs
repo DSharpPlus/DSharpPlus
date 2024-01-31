@@ -15,7 +15,7 @@ public class AttachmentConverter : ISlashArgumentConverter<DiscordAttachment>, I
     public Task<Optional<DiscordAttachment>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs)
     {
         int currentAttachmentArgumentIndex = context.Command.Parameters.Where(argument => argument.Type == typeof(DiscordAttachment)).IndexOf(context.Parameter);
-        return eventArgs.Message.Attachments.Count < currentAttachmentArgumentIndex
+        return eventArgs.Message.Attachments.Count <= currentAttachmentArgumentIndex
             ? Task.FromResult(Optional.FromNoValue<DiscordAttachment>()) // Too many parameters, not enough attachments
             : Task.FromResult(Optional.FromValue(eventArgs.Message.Attachments[currentAttachmentArgumentIndex]));
     }

@@ -206,31 +206,28 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     protected override async Task<IOptional> ExecuteConverterAsync<T>(ITextArgumentConverter converter, TextConverterContext converterContext, MessageCreateEventArgs eventArgs)
     {
         IArgumentConverter<MessageCreateEventArgs, T> strongConverter = (IArgumentConverter<MessageCreateEventArgs, T>)converter;
-        if (converter.RequiresText && !converterContext.NextArgument())
+        if (!converterContext.NextArgument())
         {
             return converterContext.Parameter.DefaultValue.HasValue
                 ? Optional.FromValue(converterContext.Parameter.DefaultValue.Value)
                 : throw new ArgumentParseException(converterContext.Parameter, message: $"Missing text argument for {converterContext.Parameter.Name}.");
         }
-
-        if (!converterContext.Parameter.Attributes.OfType<ParamArrayAttribute>().Any())
+        else if (!converterContext.Parameter.Attributes.OfType<ParamArrayAttribute>().Any())
         {
             return await base.ExecuteConverterAsync<T>(converter, converterContext, eventArgs);
         }
-        else
-        {
-            List<T> values = [];
-            do
-            {
-                Optional<T> optional = await strongConverter.ConvertAsync(converterContext, eventArgs);
-                if (!optional.HasValue)
-                {
-                    break;
-                }
 
-                values.Add(optional.Value);
-            } while (converterContext.NextArgument());
-            return Optional.FromValue(values.ToArray());
-        }
+        List<T> values = [];
+        do
+        {
+            Optional<T> optional = await strongConverter.ConvertAsync(converterContext, eventArgs);
+            if (!optional.HasValue)
+            {
+                break;
+            }
+
+            values.Add(optional.Value);
+        } while (converterContext.NextArgument());
+        return Optional.FromValue(values.ToArray());
     }
 }
