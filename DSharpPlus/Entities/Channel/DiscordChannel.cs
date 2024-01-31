@@ -1102,6 +1102,54 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     }
 
     /// <summary>
+    /// Calculates permissions for a given role.
+    /// </summary>
+    /// <param name="role">Role to calculate permissions for.</param>
+    /// <returns>Calculated permissions for a given role.</returns>
+    public Permissions PermissionsFor(DiscordRole role)
+    {
+        if (this.IsThread)
+        {
+            return this.Parent.PermissionsFor(role);
+        }
+        
+        if (this.IsPrivate || this.Guild is null)
+        {
+            return Permissions.None;
+        }
+        
+        Permissions perms;
+
+        // assign @everyone permissions
+        DiscordRole everyoneRole = this.Guild.EveryoneRole;
+        perms = everyoneRole.Permissions;
+        
+        // add role permissions
+        perms |= role.Permissions;
+        
+        // Administrator grants all permissions and cannot be overridden
+        if ((perms & Permissions.Administrator) == Permissions.Administrator)
+        {
+            return PermissionMethods.FULL_PERMS;
+        }
+        
+        // channel overrides for the role
+        DiscordOverwrite? roleOverwrites = this._permissionOverwrites.FirstOrDefault(xo => xo.Id == role.Id);
+        if (roleOverwrites == null)
+        {
+            return perms;
+        }
+        
+        // assign channel permission overwrites for the role (explicit deny)
+        perms &= ~roleOverwrites.Denied;
+        
+        // assign channel permission overwrites for the role (explicit allow)
+        perms |= roleOverwrites.Allowed;
+        
+        return perms;
+    }
+
+    /// <summary>
     /// Returns a string representation of this channel.
     /// </summary>
     /// <returns>String representation of this channel.</returns>
