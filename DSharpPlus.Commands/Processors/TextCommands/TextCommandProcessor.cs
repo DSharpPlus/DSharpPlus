@@ -60,7 +60,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             return;
         }
 
-        string commandText = eventArgs.Message.Content[prefixLength..];
+        string commandText = eventArgs.Message.Content[prefixLength..].TrimStart();
         int index = commandText.IndexOf(' ');
         if (index == -1)
         {
