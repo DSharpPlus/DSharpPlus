@@ -1138,8 +1138,8 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             return PermissionMethods.FULL_PERMS;
         }
         
-        // channel overrides for the role
-        DiscordOverwrite? everyoneRoleOverwrites = this._permissionOverwrites.FirstOrDefault(xo => xo.Id == role.Id);
+        // channel overrides for the @everyone role
+        DiscordOverwrite? everyoneRoleOverwrites = this._permissionOverwrites.FirstOrDefault(xo => xo.Id == everyoneRole.Id);
         if (everyoneRoleOverwrites is not null)
         {
             // assign channel permission overwrites for the role (explicit deny)
