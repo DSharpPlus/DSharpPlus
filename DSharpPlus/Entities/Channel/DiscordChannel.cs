@@ -1151,7 +1151,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         
         // channel overrides for the role
         DiscordOverwrite? roleOverwrites = this._permissionOverwrites.FirstOrDefault(xo => xo.Id == role.Id);
-        if (roleOverwrites == null)
+        if (roleOverwrites is null)
         {
             return perms;
         }
