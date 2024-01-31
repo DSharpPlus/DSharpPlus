@@ -49,6 +49,17 @@ public record SlashCommandContext : CommandContext
         this.State |= InteractionStatus.ResponseDelayed;
     }
 
+    public async ValueTask DeferResponseAsync(bool ephemeral)
+    {
+        await this.Interaction.CreateResponseAsync
+        (
+            InteractionResponseType.DeferredChannelMessageWithSource,
+            new DiscordInteractionResponseBuilder().AsEphemeral(ephemeral)
+        );
+
+        this.State |= InteractionStatus.ResponseDelayed;
+    }
+
     /// <inheritdoc />
     public override async ValueTask EditResponseAsync(IDiscordMessageBuilder builder)
     {
