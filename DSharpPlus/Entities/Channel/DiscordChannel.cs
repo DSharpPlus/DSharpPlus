@@ -1156,8 +1156,15 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             return perms;
         }
         
+        Permissions roleDenied = roleOverwrites.Denied;
+
+        if (everyoneRoleOverwrites is not null)
+        {
+            roleDenied &= ~everyoneRoleOverwrites.Allowed;
+        }
+        
         // assign channel permission overwrites for the role (explicit deny)
-        perms &= ~roleOverwrites.Denied;
+        perms &= ~roleDenied;
         
         // assign channel permission overwrites for the role (explicit allow)
         perms |= roleOverwrites.Allowed;
