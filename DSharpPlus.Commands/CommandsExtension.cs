@@ -118,6 +118,8 @@ public sealed class CommandsExtension : BaseExtension
     public void AddCommands(IEnumerable<CommandBuilder> commands) => this._commandBuilders.AddRange(commands);
     public void AddCommands(Assembly assembly) => this.AddCommands(assembly.GetTypes());
     public void AddCommands(params CommandBuilder[] commands) => this._commandBuilders.AddRange(commands);
+    public void AddCommands(Type type) => this._commandBuilders.Add(CommandBuilder.From(type));
+    public void AddCommands<T>() => this._commandBuilders.Add(CommandBuilder.From<T>());
     public void AddCommands(IEnumerable<Type> types)
     {
         foreach (Type type in types)
