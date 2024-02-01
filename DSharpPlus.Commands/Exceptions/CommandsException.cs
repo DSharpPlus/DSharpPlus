@@ -2,6 +2,9 @@ namespace DSharpPlus.Commands.Exceptions;
 
 using System;
 
+/// <summary>
+/// A template for command exceptions.
+/// </summary>
 public abstract class CommandsException : Exception
 {
     protected CommandsException() { }

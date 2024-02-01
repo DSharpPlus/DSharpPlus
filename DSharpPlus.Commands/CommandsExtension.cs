@@ -41,6 +41,9 @@ public sealed class CommandsExtension : BaseExtension
     public IReadOnlyDictionary<string, Command> Commands { get; private set; } = new Dictionary<string, Command>();
     private readonly List<CommandBuilder> _commandBuilders = [];
 
+    /// <summary>
+    /// The registered command processors that handle user inputs.
+    /// </summary>
     public IReadOnlyDictionary<Type, ICommandProcessor> Processors { get; private set; } = new Dictionary<Type, ICommandProcessor>();
     private readonly Dictionary<Type, ICommandProcessor> _processors = [];
 
