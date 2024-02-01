@@ -70,6 +70,12 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// </summary>
     public DiscordIntents Intents
         => this.Configuration.Intents;
+    
+    /// <summary>
+    /// Gets whether this client is connected to the gateway.
+    /// </summary>
+    public bool IsConnected 
+        => this._webSocketClient is not null && this._webSocketClient.IsConnected;
 
     /// <summary>
     /// Gets a dictionary of DM channels that have been cached by this client. The dictionary's key is the channel
