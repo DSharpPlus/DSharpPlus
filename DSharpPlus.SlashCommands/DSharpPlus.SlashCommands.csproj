@@ -5,6 +5,7 @@
     <PackageTags>$(PackageTags), commands, slash-commands, interactions</PackageTags>
     <Authors>IDoEverything, Epictek, SakuraIsayeki, sssvt-drabek-stepan, tygore587, VelvetThePanda, OoLunar</Authors>
     <IsPackable>true</IsPackable>
+    <IsTrimmable>false</IsTrimmable>    
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="$(ProjectRoot)\DSharpPlus\DSharpPlus.csproj" />

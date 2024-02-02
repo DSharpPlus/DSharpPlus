@@ -4,6 +4,7 @@
     <Description>A Rest-only client for DSharpPlus.</Description>
     <PackageTags>$(PackageTags), rest-api, oauth2</PackageTags>
     <IsPackable>true</IsPackable>
+    <IsTrimmable>false</IsTrimmable>  
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="$(ProjectRoot)\DSharpPlus\DSharpPlus.csproj" />

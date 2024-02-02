@@ -5,6 +5,7 @@
     <Description>Lavalink implementation for DSharpPlus. Lavalink is an easy and lightweight method of streaming audio to Discord.</Description>
     <PackageTags>$(PackageTags), audio, voice, radio, music, lavalink, lavaplayer</PackageTags>
     <IsPackable>true</IsPackable>
+    <IsTrimmable>false</IsTrimmable>  
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="$(ProjectRoot)\DSharpPlus\DSharpPlus.csproj" />

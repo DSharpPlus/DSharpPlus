@@ -4,6 +4,7 @@
         <Description>An all in one package for managing commands.</Description>
         <PackageTags>$(PackageTags), commands, commandsnext, slash-commands, interactions</PackageTags>
         <IsPackable>true</IsPackable>
+        <IsTrimmable>false</IsTrimmable>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="$(ProjectRoot)\DSharpPlus\DSharpPlus.csproj" />

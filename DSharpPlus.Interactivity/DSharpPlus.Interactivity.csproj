@@ -4,6 +4,7 @@
     <Description>An addon that adds interactivity capabilities to commands.</Description>
     <PackageTags>$(PackageTags), interactive, pagination, reactions</PackageTags>
     <IsPackable>true</IsPackable>
+    <IsTrimmable>false</IsTrimmable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="$(ProjectRoot)\DSharpPlus\DSharpPlus.csproj" />

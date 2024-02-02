@@ -5,6 +5,7 @@
     <Description>Voice implementation for DSharpPlus.</Description>
     <PackageTags>$(PackageTags), audio, voice, radio, music</PackageTags>
     <IsPackable>true</IsPackable>
+    <IsTrimmable>false</IsTrimmable>  
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="$(ProjectRoot)\DSharpPlus\DSharpPlus.csproj" />

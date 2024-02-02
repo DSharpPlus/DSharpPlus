@@ -4,6 +4,7 @@
     <Description>Advanced command framework for DSharpPlus.</Description>
     <PackageTags>$(PackageTags), commands, commandsnext</PackageTags>
     <IsPackable>true</IsPackable>
+    <IsTrimmable>false</IsTrimmable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="$(ProjectRoot)\DSharpPlus\DSharpPlus.csproj" />
