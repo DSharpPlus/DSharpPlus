@@ -840,7 +840,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <summary>
     /// Returns a list of guilds before a certain guild.
     /// <param name="limit">The amount of guilds to fetch.</param>
-    /// <param name="before">Id of the guild before which we fetch the guilds</param>
+    /// <param name="before">The ID of the guild before which we fetch the guilds</param>
     /// <param name="withCount">Whether to include approximate member and presence counts in the returned guilds.</param>
     /// </summary>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
@@ -851,7 +851,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <summary>
     /// Returns a list of guilds after a certain guild.
     /// <param name="limit">The amount of guilds to fetch.</param>
-    /// <param name="after">Id of the guild after which we fetch the guilds.</param>
+    /// <param name="after">The ID of the guild after which we fetch the guilds.</param>
     /// <param name="withCount">Whether to include approximate member and presence counts in the returned guilds.</param>
     /// </summary>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
