@@ -277,5 +277,31 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
         return Nullable.GetUnderlyingType(type) ?? type;
     }
 
-    protected virtual async Task<IOptional> ExecuteConverterAsync<T>(TConverter converter, TConverterContext converterContext, TEventArgs eventArgs) => await ((IArgumentConverter<TEventArgs, T>)converter).ConvertAsync(converterContext, eventArgs);
+    protected virtual async Task<IOptional> ExecuteConverterAsync<T>(TConverter converter, TConverterContext converterContext, TEventArgs eventArgs)
+    {
+        IArgumentConverter<TEventArgs, T> strongConverter = (IArgumentConverter<TEventArgs, T>)converter;
+        if (!converterContext.NextArgument())
+        {
+            return converterContext.Parameter.DefaultValue.HasValue
+                ? Optional.FromValue(converterContext.Parameter.DefaultValue.Value)
+                : throw new ArgumentParseException(converterContext.Parameter, message: $"Missing argument for {converterContext.Parameter.Name}.");
+        }
+        else if (!converterContext.Parameter.Attributes.OfType<ParamArrayAttribute>().Any())
+        {
+            return await strongConverter.ConvertAsync(converterContext, eventArgs);
+        }
+
+        List<T> values = [];
+        do
+        {
+            Optional<T> optional = await strongConverter.ConvertAsync(converterContext, eventArgs);
+            if (!optional.HasValue)
+            {
+                break;
+            }
+
+            values.Add(optional.Value);
+        } while (converterContext.NextArgument());
+        return Optional.FromValue(values.ToArray());
+    }
 }
