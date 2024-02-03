@@ -20,6 +20,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCreateEventArgs, ISlashArgumentConverter, SlashConverterContext, SlashCommandContext>
 {
+    // Required for GuildDownloadCompleted event
+    public const DiscordIntents RequiredIntents = DiscordIntents.Guilds;
+
     public IReadOnlyDictionary<Type, ApplicationCommandOptionType> TypeMappings { get; private set; } = new Dictionary<Type, ApplicationCommandOptionType>();
     public IReadOnlyDictionary<ulong, Command> Commands { get; private set; } = new Dictionary<ulong, Command>();
 
@@ -149,6 +152,25 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
     public void AddApplicationCommands(params DiscordApplicationCommand[] applicationCommands) => this._applicationCommands.AddRange(applicationCommands);
     public void AddApplicationCommands(IEnumerable<DiscordApplicationCommand> applicationCommands) => this._applicationCommands.AddRange(applicationCommands);
+
+    public async ValueTask ClearDiscordSlashCommandsAsync(bool clearGuildCommands = false)
+    {
+        if (this._extension is null)
+        {
+            throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
+        }
+
+        await this._extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(new List<DiscordApplicationCommand>());
+        if (!clearGuildCommands)
+        {
+            return;
+        }
+
+        foreach (ulong guildId in this._extension.Client.Guilds.Keys)
+        {
+            await this._extension.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId, new List<DiscordApplicationCommand>());
+        }
+    }
 
     public async Task RegisterSlashCommandsAsync(CommandsExtension extension)
     {
