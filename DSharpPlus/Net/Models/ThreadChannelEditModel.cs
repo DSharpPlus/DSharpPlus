@@ -32,7 +32,7 @@ public class ThreadChannelEditModel : ChannelEditModel
     /// <summary>
     /// Sets whether non-moderators can add other non-moderators to a thread. Only available on private threads
     /// </summary>
-    public bool? IsInvitable { get; internal set; }
+    public bool? IsInvitable { internal get; set; }
 
     internal ThreadChannelEditModel() { }
 }
