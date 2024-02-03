@@ -8,7 +8,8 @@ using DSharpPlus.Commands.Trees;
 /// <summary>
 /// Represents a base interface for context checks to implement.
 /// </summary>
-public interface IContextCheck
+public interface IContextCheck<TAttribute>
+    where TAttribute : ContextCheckAttribute
 {
-    public ValueTask<Exception?> ExecuteCheckAsync(CommandContext context);
+    public ValueTask<Exception?> ExecuteCheckAsync(TAttribute attribute, CommandContext context);
 }
