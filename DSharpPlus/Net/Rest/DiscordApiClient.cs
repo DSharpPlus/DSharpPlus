@@ -1511,6 +1511,7 @@ public sealed class DiscordApiClient
         AutoArchiveDuration? autoArchiveDuration = null,
         bool? locked = null,
         IEnumerable<ulong>? appliedTags = null,
+        bool? isInvitable = null,
         string? reason = null
     )
     {
@@ -1541,6 +1542,7 @@ public sealed class DiscordApiClient
             IsArchived = isArchived,
             ArchiveDuration = autoArchiveDuration,
             Locked = locked,
+            IsInvitable = isInvitable,
             AppliedTags = appliedTags
         };
 
