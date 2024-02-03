@@ -856,7 +856,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// </summary>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public IAsyncEnumerable<DiscordGuild> GetMessagesAfterAsync(ulong after, int limit = 100, bool? withCount = null)
+    public IAsyncEnumerable<DiscordGuild> GetGuildsAfterAsync(ulong after, int limit = 100, bool? withCount = null)
         => this.GetGuildsInternalAsync(limit, null, after, null);
     
     /// <summary>
@@ -866,7 +866,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// </summary>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public IAsyncEnumerable<DiscordGuild> GetMessagesAsync(int limit = 100, bool? withCount = null) =>
+    public IAsyncEnumerable<DiscordGuild> GetGuildsAsync(int limit = 100, bool? withCount = null) =>
         this.GetGuildsInternalAsync(limit, null, null, withCount);
     
     private async IAsyncEnumerable<DiscordGuild> GetGuildsInternalAsync(int limit = 200, ulong? before = null, ulong? after = null, bool? withCount = null)
