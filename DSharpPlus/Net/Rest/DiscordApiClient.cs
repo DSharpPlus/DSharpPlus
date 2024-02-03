@@ -194,12 +194,16 @@ public sealed class DiscordApiClient
         foreach (JToken token in jArray)
         {
             DiscordGuild guildRest = token.ToDiscordObject<DiscordGuild>();
-            foreach (DiscordRole role in guildRest._roles.Values)
-            {
-                role._guild_id = guildRest.Id;
-                role.Discord = this._discord!;
-            }
 
+            if (guildRest._roles is not null)
+            {
+                foreach (DiscordRole role in guildRest._roles.Values)
+                {
+                    role._guild_id = guildRest.Id;
+                    role.Discord = this._discord!;
+                }
+            }
+            
             guildRest.Discord = this._discord!;
             guilds.Add(guildRest);
         }
