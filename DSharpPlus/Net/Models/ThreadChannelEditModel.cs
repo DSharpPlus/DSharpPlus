@@ -28,6 +28,11 @@ public class ThreadChannelEditModel : ChannelEditModel
     /// Sets the flags for the channel (Either PINNED or REQUIRE_TAG)
     /// </summary>
     public ChannelFlags? Flags { internal get; set; }
+    
+    /// <summary>
+    /// Sets whether non-moderators can add other non-moderators to a thread. Only available on private threads
+    /// </summary>
+    public bool? IsInvitable { get; internal set; }
 
     internal ThreadChannelEditModel() { }
 }
