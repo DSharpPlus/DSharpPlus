@@ -31,8 +31,8 @@ public sealed class Program
 
         client.GuildDownloadCompleted += async (client, eventArgs) =>
         {
-            DiscordGuild guild = client.Guilds[ulong.Parse(guildId, NumberStyles.Number, CultureInfo.InvariantCulture)];
-            DiscordChannel channel = guild.Channels[ulong.Parse(channelId, NumberStyles.Number, CultureInfo.InvariantCulture)];
+            DiscordGuild guild = client.Guilds[ulong.Parse(guildId, CultureInfo.InvariantCulture)];
+            DiscordChannel channel = guild.Channels[ulong.Parse(channelId, CultureInfo.InvariantCulture)];
             StringBuilder builder = new(channelTopic);
             builder.AppendLine();
             builder.AppendLine(Formatter.Bold("GitHub") + ": " + githubUrl);
@@ -62,7 +62,8 @@ public sealed class Program
 
             try
             {
-                await channel.SendMessageAsync($"<@{docBotUserId}> reload");
+                DiscordChannel botUsageChannel = guild.Channels[ulong.Parse(botUsageChannelId, CultureInfo.InvariantCulture)];
+                await botUsageChannel.SendMessageAsync($"<@{docBotUserId}> reload");
             }
             catch (DiscordException error)
             {
