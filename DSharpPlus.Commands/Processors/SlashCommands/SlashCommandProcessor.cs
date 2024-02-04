@@ -391,7 +391,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
         if (!descriptionLocalizations.TryGetValue("en-US", out string? description))
         {
-            description = command.Description;
+            description = parameter.Description;
         }
 
         if (string.IsNullOrWhiteSpace(description))
