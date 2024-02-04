@@ -49,7 +49,6 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
     /// Gets whether the command is enabled by default when the application is added to a guild.
     /// </summary>
     [JsonProperty("default_permission")]
-    [JsonConverter(typeof(DiscordPermissionsAsStringJsonConverter))]
     public bool? DefaultPermission { get; internal set; }
 
     /// <summary>
@@ -62,6 +61,7 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
     /// What permissions this command requires to be invoked.
     /// </summary>
     [JsonProperty("default_member_permissions")]
+    [JsonConverter(typeof(DiscordPermissionsAsStringJsonConverter))]
     public Permissions? DefaultMemberPermissions { get; internal set; }
 
     /// <summary>
