@@ -203,6 +203,28 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     }
 
     /// <summary>
+    /// Removes the embed at the specified index.
+    /// </summary>
+    /// <returns>The current builder for chaining.</returns>
+    public T RemoveEmbedAt(int index)
+    {
+        this._embeds.RemoveAt(index);
+        return (T)this;
+    }
+
+    /// <summary>
+    /// Removes the specified range of embeds.
+    /// </summary>
+    /// <param name="index">The starting index of the embeds to remove.</param>
+    /// <param name="count">The amount of embeds to remove.</param>
+    /// <returns>The current builder for chaining.</returns>
+    public T RemoveEmbeds(int index, int count)
+    {
+        this._embeds.RemoveRange(index, count);
+        return (T)this;
+    }
+
+    /// <summary>
     /// Sets if the message has files to be sent.
     /// </summary>
     /// <param name="fileName">The fileName that the file should be sent as.</param>
