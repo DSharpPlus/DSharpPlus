@@ -2072,7 +2072,7 @@ public sealed class DiscordApiClient
             IsTTS = false,
             HasEmbed = embeds?.Any() ?? false,
             Embeds = embeds,
-            Flags = suppressNotifications ? MessageFlags.SupressNotifications : 0,
+            Flags = suppressNotifications ? MessageFlags.SuppressNotifications : 0,
         };
 
         if (replyMessageId != null)
