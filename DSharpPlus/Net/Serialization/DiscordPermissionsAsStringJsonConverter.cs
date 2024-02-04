@@ -25,5 +25,14 @@ internal sealed class DiscordPermissionsAsStringJsonConverter : JsonConverter<Pe
     }
 
     public override void WriteJson(JsonWriter writer, Permissions value, JsonSerializer serializer)
-        => writer.WriteValue(((ulong)value).ToString(CultureInfo.InvariantCulture));
+    {
+        if ((ulong)value == 0)
+        {
+            writer.WriteNull();
+        }
+        else
+        {
+            writer.WriteValue(((ulong)value).ToString(CultureInfo.InvariantCulture));
+        }
+    }
 }
