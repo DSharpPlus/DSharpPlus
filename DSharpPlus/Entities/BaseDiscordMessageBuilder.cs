@@ -193,6 +193,16 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     }
 
     /// <summary>
+    /// Clears the embeds on the current builder.
+    /// </summary>
+    /// <returns>The current builder for chaining.</returns>
+    public T ClearEmbeds()
+    {
+        this._embeds.Clear();
+        return (T)this;
+    }
+
+    /// <summary>
     /// Sets if the message has files to be sent.
     /// </summary>
     /// <param name="fileName">The fileName that the file should be sent as.</param>
