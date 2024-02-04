@@ -13,6 +13,11 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 
+/// <summary>
+/// A processor that works with text commands.
+/// You need configure a prefix for text commands to work. By default it's !.
+/// </summary>
+/// <param name="configuration"></param>
 public sealed class TextCommandProcessor(TextCommandConfiguration? configuration = null) : BaseCommandProcessor<MessageCreateEventArgs, ITextArgumentConverter, TextConverterContext, TextCommandContext>
 {
     public const DiscordIntents RequiredIntents = DiscordIntents.DirectMessages // Required for commands executed in DMs

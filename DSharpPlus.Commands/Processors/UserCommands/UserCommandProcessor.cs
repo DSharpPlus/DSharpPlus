@@ -19,6 +19,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
+/// <summary>
+/// A processor that works with user commands.
+/// To use user commands, right click on user -> Apps.
+/// </summary>
 public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreateEventArgs>
 {
     public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreateEventArgs>> Converters => this._slashCommandProcessor?.ConverterDelegates ?? new Dictionary<Type, ConverterDelegate<InteractionCreateEventArgs>>();

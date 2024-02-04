@@ -19,6 +19,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
+/// <summary>
+/// A processor that works with message interactions.
+/// To use message commands, right-click on message -> Apps.
+/// </summary>
 public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreateEventArgs>
 {
     public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreateEventArgs>> Converters => this._slashCommandProcessor?.ConverterDelegates ?? new Dictionary<Type, ConverterDelegate<InteractionCreateEventArgs>>();

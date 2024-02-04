@@ -4,7 +4,7 @@ using System;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.Trees;
 /// <summary>
-/// Gets the permissions required by this attribute.
+/// Defines that a command is only usable within a direct message channel.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Delegate)]
 public class DirectMessageUsageAttribute(DirectMessageUsage usage = DirectMessageUsage.AllowDMs) : ContextCheckAttribute

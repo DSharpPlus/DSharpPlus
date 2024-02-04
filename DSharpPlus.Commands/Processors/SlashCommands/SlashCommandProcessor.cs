@@ -18,6 +18,10 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 
+/// <summary>
+/// A processor that works with slash commands.
+/// To use slash commands, you need to type '/', and then either type or find your command in autocomplete menu.
+/// </summary>
 public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCreateEventArgs, ISlashArgumentConverter, SlashConverterContext, SlashCommandContext>
 {
     public IReadOnlyDictionary<Type, ApplicationCommandOptionType> TypeMappings { get; private set; } = new Dictionary<Type, ApplicationCommandOptionType>();
