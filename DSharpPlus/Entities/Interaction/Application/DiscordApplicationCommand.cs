@@ -4,8 +4,6 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 
-using DSharpPlus.Net.Serialization;
-
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -61,7 +59,6 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
     /// What permissions this command requires to be invoked.
     /// </summary>
     [JsonProperty("default_member_permissions")]
-    [JsonConverter(typeof(DiscordPermissionsAsStringJsonConverter))]
     public Permissions? DefaultMemberPermissions { get; internal set; }
 
     /// <summary>
