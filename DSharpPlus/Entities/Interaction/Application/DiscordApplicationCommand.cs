@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+
+using DSharpPlus.Net.Serialization;
+
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -46,6 +49,7 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
     /// Gets whether the command is enabled by default when the application is added to a guild.
     /// </summary>
     [JsonProperty("default_permission")]
+    [JsonConverter(typeof(DiscordPermissionsAsStringJsonConverter))]
     public bool? DefaultPermission { get; internal set; }
 
     /// <summary>
