@@ -6,11 +6,11 @@ using DSharpPlus.Commands.Trees;
 
 namespace DSharpPlus.Commands.ContextChecks;
 
-internal sealed class RequirePermissionsCheck(RequireGuildCheck guildCheck) : IContextCheck<RequirePermissionsAttribute>
+internal sealed class RequirePermissionsCheck : IContextCheck<RequirePermissionsAttribute>
 {
     public async ValueTask<string?> ExecuteCheckAsync(RequirePermissionsAttribute attribute, CommandContext context)
     {
-        if (await guildCheck.ExecuteCheckAsync(null!, context) is not null)
+        if (await new RequireGuildCheck().ExecuteCheckAsync(null!, context) is not null)
         {
             return "This command must be executed within a guild.";
         }
