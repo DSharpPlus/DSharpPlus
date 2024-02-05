@@ -159,6 +159,9 @@ internal sealed class RestThreadChannelModifyPayload
 
     [JsonProperty("locked", NullValueHandling = NullValueHandling.Ignore)]
     public bool? Locked { get; set; }
+    
+    [JsonProperty("invitable", NullValueHandling = NullValueHandling.Ignore)]
+    public bool? IsInvitable { get; set; }
 
     [JsonProperty("applied_tags", NullValueHandling = NullValueHandling.Ignore)]
     public IEnumerable<ulong>? AppliedTags { get; set; }

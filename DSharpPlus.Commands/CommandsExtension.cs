@@ -4,6 +4,7 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -214,7 +215,8 @@ public sealed class CommandsExtension : BaseExtension
         {
             CommandNotFoundException commandNotFoundException => $"Command {Formatter.InlineCode(Formatter.Sanitize(commandNotFoundException.CommandName))} was not found.",
             ArgumentParseException argumentParseException => $"Failed to parse argument {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.Parameter.Name))}.",
-            ChecksFailedException checkFailedException => $"Check {Formatter.InlineCode(Formatter.Sanitize(checkFailedException.Check.GetType().Name))} failed.",
+            ChecksFailedException checksFailedException when checksFailedException.FailingContextChecks.Count == 1 => $"Context Check {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.FailingContextChecks.Keys.First().GetType().Name))} failed.",
+            ChecksFailedException checksFailedException => $"The following context checks failed: {string.Join(", ", checksFailedException.FailingContextChecks.Keys.Select(x => Formatter.InlineCode(Formatter.Sanitize(x.GetType().Name))))}.",
             DiscordException discordException when discordException.Response is not null && (int)discordException.Response.StatusCode >= 500 && (int)discordException.Response.StatusCode < 600 => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? "No further information was provided."}",
             DiscordException discordException when discordException.Response is not null => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? discordException.Message}",
             _ => $"An unexpected error occurred: {eventArgs.Exception.Message}"

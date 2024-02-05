@@ -146,6 +146,71 @@ public sealed class DiscordApiClient
 
     #region Guild
 
+    internal async ValueTask<IReadOnlyList<DiscordGuild>> GetGuildsAsync
+    (
+        int? limit = null,
+        ulong? before = null,
+        ulong? after = null,
+        bool? withCounts = null
+    )
+    {
+        QueryUriBuilder builder = new($"{Endpoints.USERS}/@me/{Endpoints.GUILDS}");
+
+        if (limit is not null)
+        {
+            if (limit < 1 || limit > 200)
+            {
+                throw new ArgumentOutOfRangeException(nameof(limit), "Limit must be a number between 1 and 200.");
+            }
+            builder.AddParameter("limit", limit.Value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        if (before is not null)
+        {
+            builder.AddParameter("before", before.Value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        if (after is not null)
+        {
+            builder.AddParameter("after", after.Value.ToString(CultureInfo.InvariantCulture));
+        }
+        
+        if (withCounts is not null)
+        {
+            builder.AddParameter("with_counts", withCounts.Value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        RestRequest request = new()
+        {
+            Route = $"/{Endpoints.USERS}/@me/{Endpoints.GUILDS}", Url = builder.Build(), Method = HttpMethod.Get
+        };
+
+        RestResponse response = await this._rest.ExecuteRequestAsync(request);
+
+        JArray jArray = JArray.Parse(response.Response!);
+
+        List<DiscordGuild> guilds = new(200);
+
+        foreach (JToken token in jArray)
+        {
+            DiscordGuild guildRest = token.ToDiscordObject<DiscordGuild>();
+
+            if (guildRest._roles is not null)
+            {
+                foreach (DiscordRole role in guildRest._roles.Values)
+                {
+                    role._guild_id = guildRest.Id;
+                    role.Discord = this._discord!;
+                }
+            }
+            
+            guildRest.Discord = this._discord!;
+            guilds.Add(guildRest);
+        }
+
+        return guilds;
+    }
+
     internal async ValueTask<IReadOnlyList<DiscordMember>> SearchMembersAsync
     (
         ulong guildId,
@@ -1511,6 +1576,7 @@ public sealed class DiscordApiClient
         AutoArchiveDuration? autoArchiveDuration = null,
         bool? locked = null,
         IEnumerable<ulong>? appliedTags = null,
+        bool? isInvitable = null,
         string? reason = null
     )
     {
@@ -1541,6 +1607,7 @@ public sealed class DiscordApiClient
             IsArchived = isArchived,
             ArchiveDuration = autoArchiveDuration,
             Locked = locked,
+            IsInvitable = isInvitable,
             AppliedTags = appliedTags
         };
 
@@ -2005,7 +2072,7 @@ public sealed class DiscordApiClient
             IsTTS = false,
             HasEmbed = embeds?.Any() ?? false,
             Embeds = embeds,
-            Flags = suppressNotifications ? MessageFlags.SupressNotifications : 0,
+            Flags = suppressNotifications ? MessageFlags.SuppressNotifications : 0,
         };
 
         if (replyMessageId != null)
@@ -2067,7 +2134,8 @@ public sealed class DiscordApiClient
             IsTTS = builder.IsTTS,
             HasEmbed = builder.Embeds != null,
             Embeds = builder.Embeds,
-            Components = builder.Components
+            Components = builder.Components,
+            Flags = builder.Flags
         };
 
         if (builder.ReplyId != null)

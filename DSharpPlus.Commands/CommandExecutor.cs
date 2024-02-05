@@ -74,16 +74,23 @@ public sealed class CommandExecutor : ICommandExecutor
 
         if (checks.Count != 0)
         {
-            List<Exception> failedChecks = [];
+            Dictionary<ContextCheckAttribute, Exception> failedChecks = [];
 
             // Reverse foreach so we execute the top-most command's checks first.
             for (int i = checks.Count - 1; i >= 0; i--)
             {
-                if (!await checks[i].ExecuteCheckAsync(context))
+                try
                 {
-                    failedChecks.Add(new Exception("placeholder exception until checks are redone"));
-
-                    continue;
+                    if (!await checks[i].ExecuteCheckAsync(context))
+                    {
+                        failedChecks.Add(checks[i], new Exception("placeholder exception until checks are redone"));
+                        continue;
+                    }
+                }
+                // try/catch blocks are free until they catch
+                catch (Exception error)
+                {
+                    failedChecks.Add(checks[i], error);
                 }
             }
 

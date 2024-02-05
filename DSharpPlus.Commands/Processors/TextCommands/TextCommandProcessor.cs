@@ -4,12 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus.Commands.Converters;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Processors.TextCommands.Attributes;
 using DSharpPlus.Commands.Trees;
-using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -60,7 +58,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             return;
         }
 
-        string commandText = eventArgs.Message.Content[prefixLength..];
+        string commandText = eventArgs.Message.Content[prefixLength..].TrimStart();
         int index = commandText.IndexOf(' ');
         if (index == -1)
         {
@@ -202,32 +200,4 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         ServiceScope = converterContext.ServiceScope,
         User = eventArgs.Author
     };
-
-    protected override async Task<IOptional> ExecuteConverterAsync<T>(ITextArgumentConverter converter, TextConverterContext converterContext, MessageCreateEventArgs eventArgs)
-    {
-        IArgumentConverter<MessageCreateEventArgs, T> strongConverter = (IArgumentConverter<MessageCreateEventArgs, T>)converter;
-        if (!converterContext.NextArgument())
-        {
-            return converterContext.Parameter.DefaultValue.HasValue
-                ? Optional.FromValue(converterContext.Parameter.DefaultValue.Value)
-                : throw new ArgumentParseException(converterContext.Parameter, message: $"Missing text argument for {converterContext.Parameter.Name}.");
-        }
-        else if (!converterContext.Parameter.Attributes.OfType<ParamArrayAttribute>().Any())
-        {
-            return await base.ExecuteConverterAsync<T>(converter, converterContext, eventArgs);
-        }
-
-        List<T> values = [];
-        do
-        {
-            Optional<T> optional = await strongConverter.ConvertAsync(converterContext, eventArgs);
-            if (!optional.HasValue)
-            {
-                break;
-            }
-
-            values.Add(optional.Value);
-        } while (converterContext.NextArgument());
-        return Optional.FromValue(values.ToArray());
-    }
 }

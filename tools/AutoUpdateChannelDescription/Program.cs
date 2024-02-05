@@ -17,6 +17,8 @@ public sealed class Program
         string guildId = Environment.GetEnvironmentVariable("DISCORD_GUILD_ID") ?? throw new InvalidOperationException("DISCORD_GUILD_ID environment variable is not set.");
         string channelId = Environment.GetEnvironmentVariable("DISCORD_CHANNEL_ID") ?? throw new InvalidOperationException("DISCORD_CHANNEL_ID environment variable is not set.");
         string channelTopic = Environment.GetEnvironmentVariable("DISCORD_CHANNEL_TOPIC") ?? throw new InvalidOperationException("DISCORD_DESCRIPTION environment variable is not set.");
+        string docBotUserId = Environment.GetEnvironmentVariable("DISCORD_DOC_BOT_USER_ID") ?? throw new InvalidOperationException("DISCORD_DOC_BOT_USER_ID environment variable is not set.");
+        string botUsageChannelId = Environment.GetEnvironmentVariable("DISCORD_BOT_USAGE_CHANNEL_ID") ?? throw new InvalidOperationException("DISCORD_BOT_USAGE_CHANNEL_ID environment variable is not set.");
         string nugetUrl = Environment.GetEnvironmentVariable("NUGET_URL") ?? throw new InvalidOperationException("NUGET_URL environment variable is not set.");
         string githubUrl = Environment.GetEnvironmentVariable("GITHUB_URL") ?? throw new InvalidOperationException("GITHUB_URL environment variable is not set.");
         string? latestStableVersion = Environment.GetEnvironmentVariable("LATEST_STABLE_VERSION");
@@ -29,8 +31,8 @@ public sealed class Program
 
         client.GuildDownloadCompleted += async (client, eventArgs) =>
         {
-            DiscordGuild guild = client.Guilds[ulong.Parse(guildId, NumberStyles.Number, CultureInfo.InvariantCulture)];
-            DiscordChannel channel = guild.Channels[ulong.Parse(channelId, NumberStyles.Number, CultureInfo.InvariantCulture)];
+            DiscordGuild guild = client.Guilds[ulong.Parse(guildId, CultureInfo.InvariantCulture)];
+            DiscordChannel channel = guild.Channels[ulong.Parse(channelId, CultureInfo.InvariantCulture)];
             StringBuilder builder = new(channelTopic);
             builder.AppendLine();
             builder.AppendLine(Formatter.Bold("GitHub") + ": " + githubUrl);
@@ -57,6 +59,16 @@ public sealed class Program
 
             // Update the channel topic with the latest nightly version.
             builder.AppendLine(Formatter.Bold("Latest preview version") + ": " + nugetUrl + "/" + nightlyVersion);
+
+            try
+            {
+                DiscordChannel botUsageChannel = guild.Channels[ulong.Parse(botUsageChannelId, CultureInfo.InvariantCulture)];
+                await botUsageChannel.SendMessageAsync($"<@{docBotUserId}> reload");
+            }
+            catch (DiscordException error)
+            {
+                Console.WriteLine($"Error: HTTP {error.Response!.StatusCode}, {await error.Response.Content.ReadAsStringAsync()}");
+            }
 
             try
             {

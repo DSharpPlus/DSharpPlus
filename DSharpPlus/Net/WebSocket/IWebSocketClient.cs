@@ -28,6 +28,11 @@ public interface IWebSocketClient : IDisposable
     /// Gets the collection of default headers to send when connecting to the remote endpoint.
     /// </summary>
     IReadOnlyDictionary<string, string> DefaultHeaders { get; }
+    
+    /// <summary>
+    /// Gets the current state of the WebSocket connection.
+    /// </summary>
+    bool IsConnected { get; }
 
     /// <summary>
     /// Connects to a specified remote WebSocket endpoint.

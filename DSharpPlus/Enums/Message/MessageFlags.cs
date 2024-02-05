@@ -77,5 +77,5 @@ public enum MessageFlags
     /// Indicates that this message will supress push notifications.
     /// Mentions in the message will still have a mention indicator, however.
     /// </summary>
-    SupressNotifications = 1 << 12
+    SuppressNotifications = 1 << 12
 }

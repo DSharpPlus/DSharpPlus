@@ -70,6 +70,12 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// </summary>
     public DiscordIntents Intents
         => this.Configuration.Intents;
+    
+    /// <summary>
+    /// Gets whether this client is connected to the gateway.
+    /// </summary>
+    public bool IsConnected 
+        => this._webSocketClient is not null && this._webSocketClient.IsConnected;
 
     /// <summary>
     /// Gets a dictionary of DM channels that have been cached by this client. The dictionary's key is the channel
@@ -829,6 +835,91 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="commandId">The ID of the command.</param>
     public async Task DeleteGuildApplicationCommandAsync(ulong guildId, ulong commandId) =>
         await this.ApiClient.DeleteGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, commandId);
+    
+    
+    /// <summary>
+    /// Returns a list of guilds before a certain guild.
+    /// <param name="limit">The amount of guilds to fetch.</param>
+    /// <param name="before">The ID of the guild before which we fetch the guilds</param>
+    /// <param name="withCount">Whether to include approximate member and presence counts in the returned guilds.</param>
+    /// </summary>
+    /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    public IAsyncEnumerable<DiscordGuild> GetGuildsBeforeAsync(ulong before, int limit = 200, bool? withCount = null)
+        => this.GetGuildsInternalAsync(limit, before, null, null);
+
+    /// <summary>
+    /// Returns a list of guilds after a certain guild.
+    /// <param name="limit">The amount of guilds to fetch.</param>
+    /// <param name="after">The ID of the guild after which we fetch the guilds.</param>
+    /// <param name="withCount">Whether to include approximate member and presence counts in the returned guilds.</param>
+    /// </summary>
+    /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    public IAsyncEnumerable<DiscordGuild> GetGuildsAfterAsync(ulong after, int limit = 100, bool? withCount = null)
+        => this.GetGuildsInternalAsync(limit, null, after, null);
+    
+    /// <summary>
+    /// Returns a list of guilds the bot is in.
+    /// <param name="limit">The amount of guilds to fetch.</param>
+    /// <param name="withCount">Whether to include approximate member and presence counts in the returned guilds.</param>
+    /// </summary>
+    /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    public IAsyncEnumerable<DiscordGuild> GetGuildsAsync(int limit = 100, bool? withCount = null) =>
+        this.GetGuildsInternalAsync(limit, null, null, withCount);
+    
+    private async IAsyncEnumerable<DiscordGuild> GetGuildsInternalAsync(int limit = 200, ulong? before = null, ulong? after = null, bool? withCount = null)
+    {
+        if (limit < 0)
+        {
+            throw new ArgumentException("Cannot get a negative number of guilds.");
+        }
+
+        if (limit == 0)
+        {
+            yield break;
+        }
+        
+        List<DiscordGuild> guilds = new(limit);
+        int remaining = limit;
+        ulong? last = null;
+        bool isbefore = before != null;
+
+        int lastCount;
+        do
+        {
+            int fetchSize = remaining > 100 ? 100 : remaining;
+            IReadOnlyList<DiscordGuild> fetchedGuilds = await this.ApiClient.GetGuildsAsync( fetchSize, isbefore ? last ?? before : null, !isbefore ? last ?? after : null, withCount);
+
+            lastCount = fetchedGuilds.Count;
+            remaining -= lastCount;
+            
+            //We sort the returned guilds by ID so that they are in order in case Discord switches the order AGAIN.
+            DiscordGuild[] sortedGuildsArray = fetchedGuilds.ToArray();
+            Array.Sort(sortedGuildsArray, (x, y) => x.Id.CompareTo(y.Id));
+            
+
+            if (!isbefore)
+            {
+                foreach (DiscordGuild guild in sortedGuildsArray)
+                {
+                    yield return guild;
+                }
+                last = sortedGuildsArray.LastOrDefault()?.Id;
+            }
+            else
+            {
+                for (int i = sortedGuildsArray.Length - 1; i >= 0; i--)
+                {
+                    yield return sortedGuildsArray[i];
+                }
+                last = sortedGuildsArray.FirstOrDefault()?.Id;
+            }
+        }
+        while (remaining > 0 && lastCount is > 0 and 100);
+    }
+    
     #endregion
 
     #region Internal Caching Methods

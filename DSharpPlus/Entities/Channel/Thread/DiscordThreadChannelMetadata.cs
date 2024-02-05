@@ -29,7 +29,12 @@ public class DiscordThreadChannelMetadata
     /// </summary>
     [JsonProperty("locked", NullValueHandling = NullValueHandling.Ignore)]
     public bool? IsLocked { get; internal set; }
-
+    
+    /// <summary>
+    /// whether non-moderators can add other non-moderators to a thread. Only available on private threads
+    /// </summary>
+    [JsonProperty("invitable", NullValueHandling = NullValueHandling.Ignore)]
+    public bool? IsInvitable { get; internal set; }
 
     /// <summary>
     /// Gets the time this thread was created. Only populated for threads created after 2022-01-09 (YYYY-MM-DD).
