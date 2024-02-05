@@ -14,6 +14,7 @@ using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Processors;
+using DSharpPlus.Commands.Processors.TextCommands.ContextChecks;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Attributes;
 using DSharpPlus.Entities;
@@ -117,6 +118,13 @@ public sealed class CommandsExtension : BaseExtension
 
         this.Client = client;
         this.Client.SessionCreated += async (_, _) => await this.RefreshAsync();
+
+        this.AddCheck<DirectMessageUsageCheck>();
+        this.AddCheck<RequireApplicationOwnerCheck>();
+        this.AddCheck<RequireGuildCheck>();
+        this.AddCheck<RequireNsfwCheck>();
+        this.AddCheck<RequirePermissionsCheck>();
+        this.AddCheck<TextMessageReplyCheck>();
     }
 
     public void AddCommand(CommandBuilder command) => this._commandBuilders.Add(command);
