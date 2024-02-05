@@ -104,7 +104,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
         this._stickers = [.. baseMessage.Stickers];
         this._mentions = [];
 
-        if (baseMessage._mentionedRoles != null)
+        if (baseMessage._mentionedUsers != null)
         {
             foreach (DiscordUser user in baseMessage._mentionedUsers)
             {
