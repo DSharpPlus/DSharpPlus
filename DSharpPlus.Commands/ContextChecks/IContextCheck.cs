@@ -5,9 +5,14 @@ using DSharpPlus.Commands.Trees;
 namespace DSharpPlus.Commands.ContextChecks;
 
 /// <summary>
+/// Marker interface for context checks, use <seealso cref="IContextCheck{TAttribute}"/> instead.
+/// </summary>
+public interface IContextCheck;
+
+/// <summary>
 /// Represents a base interface for context checks to implement.
 /// </summary>
-public interface IContextCheck<TAttribute>
+public interface IContextCheck<TAttribute> : IContextCheck
     where TAttribute : ContextCheckAttribute
 {
     /// <summary>

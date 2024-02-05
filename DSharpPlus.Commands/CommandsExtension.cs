@@ -5,10 +5,12 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
+using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Processors;
@@ -44,6 +46,9 @@ public sealed class CommandsExtension : BaseExtension
 
     public IReadOnlyDictionary<Type, ICommandProcessor> Processors { get; private set; } = new Dictionary<Type, ICommandProcessor>();
     private readonly Dictionary<Type, ICommandProcessor> _processors = [];
+
+    internal IReadOnlyList<ContextCheckMapEntry> Checks => this.checks;
+    private readonly List<ContextCheckMapEntry> checks = [];
 
     /// <summary>
     /// Executed everytime a command is finished executing.
@@ -159,6 +164,86 @@ public sealed class CommandsExtension : BaseExtension
 
     public TProcessor GetProcessor<TProcessor>() where TProcessor : ICommandProcessor => (TProcessor)this._processors[typeof(TProcessor)];
 
+    /// <summary>
+    /// Adds all public checks from the provided assembly to the extension.
+    /// </summary>
+    public void AddChecks(Assembly assembly)
+    {
+        foreach
+        (
+            Type t in assembly.ExportedTypes.Where
+            (
+                candidate => candidate.GetInterfaces().Any
+                (
+                    x => x.FullName == "DSharpPlus.Commands.ContextChecks.IContextCheck`1"
+                )
+            )
+        )
+        {
+            this.AddCheck(t);
+        }
+    }
+
+    /// <summary>
+    /// Adds a new check to the extension.
+    /// </summary>
+    public void AddCheck<T>()
+        where T : IContextCheck
+        => this.AddCheck(typeof(T));
+
+    /// <summary>
+    /// Adds a new check to the extension.
+    /// </summary>
+    public void AddCheck(Type checkType)
+    {
+        // get all implemented check interfaces, we can pretty easily handle having multiple checks in one type
+        IEnumerable<Type> interfaces = checkType.GetInterfaces()
+            .Where(x => x.FullName == "DSharpPlus.Commands.ContextChecks.IContextCheck`1");
+
+        foreach(Type t in interfaces)
+        {
+            Type attributeType = t.GetGenericArguments()[0];
+
+            MethodInfo method = t.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Where(x => x.Name == nameof(IContextCheck<ContextCheckAttribute>.ExecuteCheckAsync))
+                .Where(x => x.GetParameters()[0].ParameterType == attributeType)
+                .First();
+
+            // create the func for invoking the check here, during startup
+            ParameterExpression check = Expression.Parameter(typeof(object));
+            ParameterExpression attribute = Expression.Parameter(typeof(ContextCheckAttribute));
+            ParameterExpression context = Expression.Parameter(typeof(CommandContext));
+
+            MethodCallExpression call = Expression.Call
+            (
+                instance: check,
+                method: method,
+                arg0: attribute,
+                arg1: context
+            );
+
+            Func<object, ContextCheckAttribute, CommandContext, ValueTask<string?>> func = 
+                Expression.Lambda<Func<object, ContextCheckAttribute, CommandContext, ValueTask<string?>>>
+            (
+                call,
+                check,
+                attribute,
+                context
+            )
+            .Compile();
+
+            this.checks.Add
+            (
+                new()
+                {
+                    AttributeType = attributeType,
+                    CheckType = t,
+                    ExecuteCheckAsync = func
+                }
+            );
+        }
+    }
+    
     public async Task RefreshAsync()
     {
         Dictionary<string, Command> commands = [];

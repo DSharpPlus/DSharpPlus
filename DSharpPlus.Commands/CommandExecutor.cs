@@ -74,23 +74,49 @@ public sealed class CommandExecutor : ICommandExecutor
 
         if (checks.Count != 0)
         {
-            Dictionary<ContextCheckAttribute, Exception> failedChecks = [];
+            List<string> failedChecks = [];
+
+            // first, execute all unconditional checks
+            foreach (ContextCheckMapEntry entry in context.Extension.Checks.Where(x => x.AttributeType == typeof(UnconditionalCheckAttribute)))
+            {
+                try
+                {
+                    object check = ActivatorUtilities.CreateInstance(context.Extension.ServiceProvider, entry.CheckType);
+                    string? result = await entry.ExecuteCheckAsync(check, new UnconditionalCheckAttribute(), context);
+
+                    if (result is not null)
+                    {
+                        failedChecks.Add(result);
+                        continue;
+                    }
+                }
+                catch (Exception error)
+                {
+                    failedChecks.Add($"{error}: {error.Message}\n{error.StackTrace}");
+                }
+            }
 
             // Reverse foreach so we execute the top-most command's checks first.
             for (int i = checks.Count - 1; i >= 0; i--)
             {
-                try
+                foreach (ContextCheckMapEntry entry in context.Extension.Checks.Where(x => x.AttributeType == checks[i].GetType()))
                 {
-                    if (!await checks[i].ExecuteCheckAsync(context))
+                    try
                     {
-                        failedChecks.Add(checks[i], new Exception("placeholder exception until checks are redone"));
-                        continue;
+                        object check = ActivatorUtilities.CreateInstance(context.Extension.ServiceProvider, entry.CheckType);
+                        string? result = await entry.ExecuteCheckAsync(check, checks[i], context);
+
+                        if (result is not null)
+                        {
+                            failedChecks.Add(result);
+                            continue;
+                        }
                     }
-                }
-                // try/catch blocks are free until they catch
-                catch (Exception error)
-                {
-                    failedChecks.Add(checks[i], error);
+                    // try/catch blocks are free until they catch
+                    catch (Exception error)
+                    {
+                        failedChecks.Add($"{error}: {error.Message}\n{error.StackTrace}");
+                    }
                 }
             }
 
