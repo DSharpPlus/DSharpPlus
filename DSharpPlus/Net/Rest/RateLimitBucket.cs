@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http.Headers;
 
@@ -81,7 +82,7 @@ internal record struct RateLimitBucket
             (
                 !headers.TryGetValues("X-RateLimit-Limit", out IEnumerable<string>? limitRaw)
                 || !headers.TryGetValues("X-RateLimit-Remaining", out IEnumerable<string>? remainingRaw)
-                || !headers.TryGetValues("X-RateLimit-Reset", out IEnumerable<string>? ratelimitResetRaw)
+                || !headers.TryGetValues("X-RateLimit-Reset-After", out IEnumerable<string>? ratelimitResetRaw)
             )
             {
                 return false;
@@ -89,15 +90,15 @@ internal record struct RateLimitBucket
 
             if
             (
-                !int.TryParse(limitRaw.SingleOrDefault(), out int limit)
-                || !int.TryParse(remainingRaw.SingleOrDefault(), out int remaining)
-                || !double.TryParse(ratelimitResetRaw.SingleOrDefault(), out double ratelimitReset)
+                !int.TryParse(limitRaw.SingleOrDefault(), CultureInfo.InvariantCulture, out int limit)
+                || !int.TryParse(remainingRaw.SingleOrDefault(), CultureInfo.InvariantCulture, out int remaining)
+                || !double.TryParse(ratelimitResetRaw.SingleOrDefault(), CultureInfo.InvariantCulture, out double ratelimitReset)
             )
             {
                 return false;
             }
 
-            DateTime reset = (DateTimeOffset.UnixEpoch + TimeSpan.FromSeconds(ratelimitReset)).UtcDateTime;
+            DateTime reset = (DateTimeOffset.UtcNow + TimeSpan.FromSeconds(ratelimitReset)).UtcDateTime;
 
             bucket = new(limit, remaining, reset);
             return true;

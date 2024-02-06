@@ -16,19 +16,11 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
 {
     internal DiscordMessage()
     {
-        this._jumpLink = new Lazy<Uri?>(() =>
-        {
-            if (!this.Channel.TryGetCachedValue(out DiscordChannel? channel))
-            {
-                return null;
-            }
-            
-            string gid = channel is DiscordDmChannel ? "@me" : channel!.GuildId!.Value.ToString(CultureInfo.InvariantCulture);
-            string cid = this.ChannelId.ToString(CultureInfo.InvariantCulture);
-            string mid = this.Id.ToString(CultureInfo.InvariantCulture);
+        string gid = this.Channel is DiscordDmChannel ? "@me" : this.Channel?.GuildId?.ToString(CultureInfo.InvariantCulture) ?? "@me";
+        string cid = this.ChannelId.ToString(CultureInfo.InvariantCulture);
+        string mid = this.Id.ToString(CultureInfo.InvariantCulture);
 
-            return new Uri($"https://discord.com/channels/{gid}/{cid}/{mid}");
-        });
+        this.JumpLink = new Uri($"https://discord.com/channels/{gid}/{cid}/{mid}");
     }
 
     internal DiscordMessage(DiscordMessage other)
@@ -39,17 +31,17 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         this._attachments = new List<DiscordAttachment>(other._attachments);
         this._embeds = new List<DiscordEmbed>(other._embeds);
 
-        if (other._mentionedChannels != null)
+        if (other._mentionedChannels is not null)
         {
             this._mentionedChannels = new List<DiscordChannel>(other._mentionedChannels);
         }
 
-        if (other._mentionedRoles != null)
+        if (other._mentionedRoles is not null)
         {
             this._mentionedRoles = new List<DiscordRole>(other._mentionedRoles);
         }
 
-        if (other._mentionedRoleIds != null)
+        if (other._mentionedRoleIds is not null)
         {
             this._mentionedRoleIds = new List<ulong>(other._mentionedRoleIds);
         }
@@ -87,19 +79,19 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Gets the components this message was sent with.
     /// </summary>
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyCollection<DiscordActionRowComponent> Components { get; internal set; }
+    public IReadOnlyCollection<DiscordActionRowComponent>? Components { get; internal set; }
 
     /// <summary>
     /// Gets the user or member that sent the message.
     /// </summary>
     [JsonProperty("author", NullValueHandling = NullValueHandling.Ignore)]
-    public DiscordUser Author { get; internal set; }
+    public DiscordUser? Author { get; internal set; }
 
     /// <summary>
     /// Gets the message's content.
     /// </summary>
     [JsonProperty("content", NullValueHandling = NullValueHandling.Ignore)]
-    public string Content { get; internal set; }
+    public string? Content { get; internal set; }
 
     /// <summary>
     /// Gets the message's creation timestamp.
@@ -142,7 +134,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         => this._mentionedUsers;
 
     [JsonProperty("mentions", NullValueHandling = NullValueHandling.Ignore)]
-    internal List<DiscordUser> _mentionedUsers;
+    internal List<DiscordUser> _mentionedUsers = [];
 
     // TODO this will probably throw an exception in DMs since it tries to wrap around a null List...
     // this is probably low priority but need to find out a clean way to solve it...
@@ -154,10 +146,10 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         => this._mentionedRoles ?? new List<DiscordRole>();
 
     [JsonIgnore]
-    internal List<DiscordRole> _mentionedRoles;
+    internal List<DiscordRole> _mentionedRoles = [];
 
     [JsonProperty("mention_roles")]
-    internal List<ulong> _mentionedRoleIds;
+    internal List<ulong> _mentionedRoleIds = [];
 
     /// <summary>
     /// Gets channels mentioned by this message.
@@ -167,7 +159,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         => this._mentionedChannels;
 
     [JsonIgnore]
-    internal List<DiscordChannel> _mentionedChannels;
+    internal List<DiscordChannel> _mentionedChannels = [];
 
     /// <summary>
     /// Gets files attached to this message.
@@ -177,7 +169,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         => this._attachments;
 
     [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
-    internal List<DiscordAttachment> _attachments = new();
+    internal List<DiscordAttachment> _attachments = [];
 
     /// <summary>
     /// Gets embeds attached to this message.
@@ -187,7 +179,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         => this._embeds;
 
     [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
-    internal List<DiscordEmbed> _embeds = new();
+    internal List<DiscordEmbed> _embeds = [];
 
     /// <summary>
     /// Gets reactions used on this message.
@@ -197,13 +189,13 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         => this._reactions;
 
     [JsonProperty("reactions", NullValueHandling = NullValueHandling.Ignore)]
-    internal List<DiscordReaction> _reactions = new();
+    internal List<DiscordReaction> _reactions = [];
 
     /// <summary>
     /// Gets whether the message is pinned.
     /// </summary>
     [JsonProperty("pinned", NullValueHandling = NullValueHandling.Ignore)]
-    public bool Pinned { get; internal set; }
+    public bool? Pinned { get; internal set; }
 
     /// <summary>
     /// Gets the id of the webhook that generated this message.
@@ -221,13 +213,13 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Gets the message activity in the Rich Presence embed.
     /// </summary>
     [JsonProperty("activity", NullValueHandling = NullValueHandling.Ignore)]
-    public DiscordMessageActivity Activity { get; internal set; }
+    public DiscordMessageActivity? Activity { get; internal set; }
 
     /// <summary>
     /// Gets the message application in the Rich Presence embed.
     /// </summary>
     [JsonProperty("application", NullValueHandling = NullValueHandling.Ignore)]
-    public DiscordMessageApplication Application { get; internal set; }
+    public DiscordMessageApplication? Application { get; internal set; }
 
     [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
     internal InternalDiscordMessageReference? _internalReference { get; set; }
@@ -242,25 +234,24 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Gets whether the message originated from a webhook.
     /// </summary>
     [JsonIgnore]
-    public bool WebhookMessage
+    public bool? WebhookMessage
         => this.WebhookId != null;
 
     /// <summary>
     /// Gets the jump link to this message. This is null when the channel is not cached.
     /// </summary>
     [JsonIgnore]
-    public Uri? JumpLink => this._jumpLink.Value;
-    private readonly Lazy<Uri?> _jumpLink;
+    public Uri JumpLink { get; internal set; }
 
     /// <summary>
     /// Gets stickers for this message.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyList<DiscordMessageSticker> Stickers
+    public IReadOnlyList<DiscordMessageSticker>? Stickers
         => this._stickers;
 
     [JsonProperty("sticker_items", NullValueHandling = NullValueHandling.Ignore)]
-    internal List<DiscordMessageSticker> _stickers = new();
+    internal List<DiscordMessageSticker> _stickers = [];
 
     [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
     internal ulong? _guildId { get; set; }
@@ -269,13 +260,13 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Gets the message object for the referenced message
     /// </summary>
     [JsonProperty("referenced_message", NullValueHandling = NullValueHandling.Ignore)]
-    public DiscordMessage ReferencedMessage { get; internal set; }
+    public DiscordMessage? ReferencedMessage { get; internal set; }
 
     /// <summary>
     /// Gets whether the message is a response to an interaction.
     /// </summary>
     [JsonProperty("interaction", NullValueHandling = NullValueHandling.Ignore)]
-    public DiscordMessageInteraction Interaction { get; internal set; }
+    public DiscordMessageInteraction? Interaction { get; internal set; }
 
     /// <summary>
     /// Gets the id of the interaction application, if a response to an interaction.
@@ -285,24 +276,24 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
 
     private IMention[] GetMentions()
     {
-        List<IMention> mentions = new List<IMention>();
+        List<IMention> mentions = [];
 
-        if (this.ReferencedMessage != null && this._mentionedUsers.Any(r => r.Id == this.ReferencedMessage.Author.Id))
+        if (this.ReferencedMessage is not null && this._mentionedUsers.Any(r => r.Id == this.ReferencedMessage.Author?.Id))
         {
             mentions.Add(new RepliedUserMention()); // Return null to allow all mentions
         }
 
-        if (this._mentionedUsers?.Any() ?? false)
+        if ((this._mentionedUsers?.Count ?? 0) > 0)
         {
-            mentions.AddRange(this._mentionedUsers.Select(m => (IMention)new UserMention(m)));
+            mentions.AddRange(this._mentionedUsers!.Select(m => (IMention)new UserMention(m)));
         }
 
-        if (this._mentionedRoleIds?.Any() ?? false)
+        if ((this._mentionedRoleIds?.Count ?? 0) > 0)
         {
-            mentions.AddRange(this._mentionedRoleIds.Select(r => (IMention)new RoleMention(r)));
+            mentions.AddRange(this._mentionedRoleIds!.Select(r => (IMention)new RoleMention(r)));
         }
 
-        return mentions.ToArray();
+        return [.. mentions];
     }
 
     internal async Task PopulateMentionsAsync()
@@ -310,12 +301,12 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         this.Channel.TryGetCachedValue(out DiscordChannel? channel);
         DiscordGuild? guild = null;
         channel?.Guild.TryGetCachedValue(out guild);
-        this._mentionedUsers ??= new List<DiscordUser>();
-        this._mentionedRoles ??= new List<DiscordRole>();
-        this._mentionedChannels ??= new List<DiscordChannel>();
+        this._mentionedUsers ??= [];
+        this._mentionedRoles ??= [];
+        this._mentionedChannels ??= [];
 
         // Create a Hashset that will replace 'this._mentionedUsers'.
-        HashSet<DiscordUser> mentionedUsers = new HashSet<DiscordUser>(new DiscordUserComparer());
+        HashSet<DiscordUser> mentionedUsers = new(new DiscordUserComparer());
 
         foreach (DiscordUser usr in this._mentionedUsers)
         {
@@ -336,12 +327,12 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         }
 
         // Replace 'this._mentionedUsers'.
-        this._mentionedUsers = mentionedUsers.ToList();
+        this._mentionedUsers = [.. mentionedUsers];
 
         if (guild is not null && !string.IsNullOrWhiteSpace(this.Content))
         {
-            this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(xid => guild.GetChannel(xid))).ToList();
-            this._mentionedRoles = this._mentionedRoles.Union(this._mentionedRoleIds.Select(xid => guild.GetRole(xid))).ToList();
+            this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(guild.GetChannel)).ToList();
+            this._mentionedRoles = this._mentionedRoles.Union(this._mentionedRoleIds.Select(guild.GetRole)).ToList();
 
             //uncomment if this breaks
             //mentionedUsers.UnionWith(Utilities.GetUserMentions(this).Select(this.Discord.GetCachedOrEmptyUserInternal));
@@ -402,7 +393,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordMessage> ModifyAsync(Optional<string> content)
-        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
+        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, this.GetMentions(), default, [], null, default);
 
     /// <summary>
     /// Edits the message.
@@ -414,7 +405,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordMessage> ModifyAsync(Optional<DiscordEmbed> embed = default)
-        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed.HasValue ? new[] { embed.Value } : Array.Empty<DiscordEmbed>(), this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
+        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed.HasValue ? [embed.Value] : Array.Empty<DiscordEmbed>(), this.GetMentions(), default, [], null, default);
 
     /// <summary>
     /// Edits the message.
@@ -427,7 +418,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordMessage> ModifyAsync(Optional<string> content, Optional<DiscordEmbed> embed = default)
-        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed.HasValue ? new[] { embed.Value } : Array.Empty<DiscordEmbed>(), this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
+        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed.HasValue ? [embed.Value] : Array.Empty<DiscordEmbed>(), this.GetMentions(), default, [], null, default);
 
     /// <summary>
     /// Edits the message.
@@ -440,7 +431,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordMessage> ModifyAsync(Optional<string> content, Optional<IEnumerable<DiscordEmbed>> embeds = default)
-        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embeds, this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
+        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embeds, this.GetMentions(), default, [], null, default);
 
     /// <summary>
     /// Edits the message.
@@ -453,9 +444,9 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordMessage> ModifyAsync(DiscordMessageBuilder builder, bool suppressEmbeds = false, IEnumerable<DiscordAttachment> attachments = default)
+    public async Task<DiscordMessage> ModifyAsync(DiscordMessageBuilder builder, bool suppressEmbeds = false, IEnumerable<DiscordAttachment>? attachments = default)
     {
-        builder.Validate(true);
+        builder.Validate();
         return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder._mentions, builder.Components, builder.Files, suppressEmbeds ? MessageFlags.SuppressedEmbeds : null, attachments);
     }
 
@@ -470,11 +461,11 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordMessage> ModifyAsync(Action<DiscordMessageBuilder> action, bool suppressEmbeds = false, IEnumerable<DiscordAttachment> attachments = default)
+    public async Task<DiscordMessage> ModifyAsync(Action<DiscordMessageBuilder> action, bool suppressEmbeds = false, IEnumerable<DiscordAttachment>? attachments = default)
     {
-        DiscordMessageBuilder builder = new DiscordMessageBuilder(this);
+        DiscordMessageBuilder builder = new(this);
         action(builder);
-        builder.Validate(true);
+        builder.Validate();
         return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder._mentions, builder.Components, builder.Files, suppressEmbeds ? MessageFlags.SuppressedEmbeds : null, attachments);
     }
 
@@ -488,7 +479,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task ModifyEmbedSuppressionAsync(bool hideEmbeds)
-        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, default, default, default, Array.Empty<DiscordMessageFile>(), hideEmbeds ? MessageFlags.SuppressedEmbeds : null, default);
+        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, default, default, default, [], hideEmbeds ? MessageFlags.SuppressedEmbeds : null, default);
 
     /// <summary>
     /// Deletes the message.
@@ -498,7 +489,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task DeleteAsync(string reason = null)
+    public async Task DeleteAsync(string? reason = null)
         => await this.Discord.ApiClient.DeleteMessageAsync(this.ChannelId, this.Id, reason);
 
     /// <summary>
@@ -583,7 +574,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordMessage> RespondAsync(Action<DiscordMessageBuilder> action)
     {
-        DiscordMessageBuilder builder = new DiscordMessageBuilder();
+        DiscordMessageBuilder builder = new();
         action(builder);
         return await this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder.WithReply(this.Id, mention: false, failOnInvalidReply: false));
     }
@@ -599,7 +590,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordThreadChannel> CreateThreadAsync(string name, AutoArchiveDuration archiveAfter, string reason = null)
+    public async Task<DiscordThreadChannel> CreateThreadAsync(string name, AutoArchiveDuration archiveAfter, string? reason = null)
     {
         if (this.Channel.TryGetCachedValue(out DiscordChannel? channel))
         {
@@ -646,7 +637,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task DeleteReactionAsync(DiscordEmoji emoji, DiscordUser user, string reason = null)
+    public async Task DeleteReactionAsync(DiscordEmoji emoji, DiscordUser user, string? reason = null)
         => await this.Discord.ApiClient.DeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, emoji.ToReactionString(), reason);
 
     //TODO: Make it a IAsyncEnumerable and "inline" this method
@@ -672,7 +663,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task DeleteAllReactionsAsync(string reason = null)
+    public async Task DeleteAllReactionsAsync(string? reason = null)
         => await this.Discord.ApiClient.DeleteAllReactionsAsync(this.ChannelId, this.Id, reason);
 
     /// <summary>
@@ -696,25 +687,28 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
 
         if (limit == 0)
         {
-            return Array.Empty<DiscordUser>();
+            return [];
         }
 
-        List<DiscordUser> users = new List<DiscordUser>(limit);
+        List<DiscordUser> users = new(limit);
         int remaining = limit;
         ulong? last = after;
 
-        int lastCount;
         do
         {
             int fetchSize = remaining > 100 ? 100 : remaining;
             IReadOnlyList<DiscordUser> fetch = await this.Discord.ApiClient.GetReactionsAsync(this.Channel.Key, this.Id, emoji.ToReactionString(), last, fetchSize);
 
-            lastCount = fetch.Count;
-            remaining -= lastCount;
+            remaining -= fetch.Count;
+
+            if (fetch.Count == 0)
+            {
+                break;
+            }
 
             users.AddRange(fetch);
-            last = fetch.LastOrDefault()?.Id;
-        } while (remaining > 0 && lastCount > 0);
+            last = fetch[^1]?.Id;
+        } while (remaining > 0);
 
         return new ReadOnlyCollection<DiscordUser>(users);
     }
@@ -730,14 +724,14 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordMessage"/>.</returns>
-    public override bool Equals(object obj) => this.Equals(obj as DiscordMessage);
+    public override bool Equals(object? obj) => this.Equals(obj as DiscordMessage);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordMessage"/> is equal to another <see cref="DiscordMessage"/>.
     /// </summary>
     /// <param name="e"><see cref="DiscordMessage"/> to compare to.</param>
     /// <returns>Whether the <see cref="DiscordMessage"/> is equal to this <see cref="DiscordMessage"/>.</returns>
-    public bool Equals(DiscordMessage e) => e is null ? false : ReferenceEquals(this, e) || (this.Id == e.Id && this.ChannelId == e.ChannelId);
+    public bool Equals(DiscordMessage? e) => e is not null && (ReferenceEquals(this, e) || (this.Id == e.Id && this.ChannelId == e.ChannelId));
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordMessage"/>.
@@ -759,15 +753,8 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <param name="e1">First message to compare.</param>
     /// <param name="e2">Second message to compare.</param>
     /// <returns>Whether the two messages are equal.</returns>
-    public static bool operator ==(DiscordMessage e1, DiscordMessage e2)
-    {
-        object? o1 = e1 as object;
-        object? o2 = e2 as object;
-
-        return (o1 == null && o2 != null) || (o1 != null && o2 == null)
-            ? false
-            : (o1 == null && o2 == null) || (e1.Id == e2.Id && e1.ChannelId == e2.ChannelId);
-    }
+    public static bool operator ==(DiscordMessage? e1, DiscordMessage? e2) 
+        => (e1 is not null || e2 is null) && (e1 is null || e2 is not null) && ((e1 is null && e2 is null) || (e1!.Id == e2!.Id && e1.ChannelId == e2.ChannelId));
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordMessage"/> objects are not equal.

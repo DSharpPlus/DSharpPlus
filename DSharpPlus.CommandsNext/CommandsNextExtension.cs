@@ -924,7 +924,7 @@ public class CommandsNextExtension : BaseExtension
 
             CommandHelpMessage helpMessage = helpBuilder.Build();
 
-            DiscordMessageBuilder builder = new DiscordMessageBuilder().WithContent(helpMessage.Content).WithEmbed(helpMessage.Embed);
+            DiscordMessageBuilder builder = new DiscordMessageBuilder().WithContent(helpMessage.Content).AddEmbed(helpMessage.Embed);
 
             if (!ctx.Config.DmHelp || ctx.Channel is DiscordDmChannel || ctx.Guild is null || ctx.Member is null)
             {

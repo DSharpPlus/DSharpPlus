@@ -33,7 +33,7 @@ Version 4.4.2 *should* work on EoL versions Core 3.1 and 5.0 and is supported fr
 
 ### Nightly 5.0
 
-5.0 nightly builds target .NET 7.0, and will target the latest stable .NET version going forward.
+5.0 nightly builds target .NET 8.0, and will target the latest stable .NET version going forward.
 
 ### 6.0 early work
 

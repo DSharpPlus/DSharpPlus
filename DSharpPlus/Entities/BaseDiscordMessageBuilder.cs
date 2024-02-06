@@ -8,16 +8,15 @@ using DSharpPlus.Net;
 namespace DSharpPlus.Entities;
 
 /// <summary>
-/// Interface that provides abstractions for the various message builder types in DSharpPlus,
-/// allowing re-use of code.
+/// An abstraction for the different message builders in DSharpPlus.
 /// </summary>
 public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder where T : BaseDiscordMessageBuilder<T>
     // This has got to be the most big brain thing I have ever done with interfaces lmfao
 {
     /// <summary>
-    /// Message to send on this webhook request.
+    /// The contents of this message.
     /// </summary>
-    public string Content
+    public string? Content
     {
         get => this._content;
         set
@@ -30,14 +29,14 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
             this._content = value;
         }
     }
-    internal string _content;
+    internal string? _content;
 
     public MessageFlags Flags { get; internal set; }
 
     public T SuppressNotifications()
     {
-        this.Flags |= MessageFlags.SupressNotifications;
-        return this as T;
+        this.Flags |= MessageFlags.SuppressNotifications;
+        return (T)this;
     }
 
     public bool IsTTS { get; set; }
@@ -46,29 +45,30 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// Embeds to send on this webhook request.
     /// </summary>
     public IReadOnlyList<DiscordEmbed> Embeds => this._embeds;
-    internal List<DiscordEmbed> _embeds = new();
+    internal List<DiscordEmbed> _embeds = [];
 
     /// <summary>
     /// Files to send on this webhook request.
     /// </summary>
     public IReadOnlyList<DiscordMessageFile> Files => this._files;
-    internal List<DiscordMessageFile> _files = new();
+    internal List<DiscordMessageFile> _files = [];
 
     /// <summary>
     /// Mentions to send on this webhook request.
     /// </summary>
     public IReadOnlyList<IMention> Mentions => this._mentions;
-    internal List<IMention> _mentions = new();
+    internal List<IMention> _mentions = [];
 
     /// <summary>
     /// Components to send on this followup message.
     /// </summary>
     public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
-    internal List<DiscordActionRowComponent> _components = new();
+    internal List<DiscordActionRowComponent> _components = [];
 
     /// <summary>
     /// Thou shalt NOT PASS! ⚡
     /// </summary>
+    // i'm very proud that we have the actual LOTR quote here, not the movie "you shall not pass"
     internal BaseDiscordMessageBuilder() { }
 
     /// <summary>
@@ -79,7 +79,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     protected BaseDiscordMessageBuilder(IDiscordMessageBuilder builder)
     {
         this._content = builder.Content;
-        this._mentions.AddRange(builder.Mentions.ToList());
+        this._mentions.AddRange([.. builder.Mentions]);
         this._embeds.AddRange(builder.Embeds);
         this._components.AddRange(builder.Components);
         this._files.AddRange(builder.Files);
@@ -87,14 +87,14 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     }
 
     /// <summary>
-    /// Sets the Content of the Message.
+    /// Sets the content of the Message.
     /// </summary>
     /// <param name="content">The content to be set.</param>
     /// <returns>The current builder to be chained.</returns>
     public T WithContent(string content)
     {
         this.Content = content;
-        return this as T;
+        return (T)this;
     }
 
     /// <summary>
@@ -106,7 +106,6 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     public T AddComponents(params DiscordComponent[] components)
         => this.AddComponents((IEnumerable<DiscordComponent>)components);
 
-
     /// <summary>
     /// Appends several rows of components to the message
     /// </summary>
@@ -114,19 +113,19 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <returns></returns>
     public T AddComponents(IEnumerable<DiscordActionRowComponent> components)
     {
-        DiscordActionRowComponent[] ara = components.ToArray();
+        int count = components.TryGetNonEnumeratedCount(out int nonEnumerated) ? nonEnumerated : components.Count();
 
-        if (ara.Length + this._components.Count > 5)
+        if (count + this._components.Count > 5)
         {
-            throw new ArgumentException("ActionRow count exceeds maximum of five.");
+            throw new ArgumentOutOfRangeException(nameof(components), "The amount of action rows provided exceeds the maximum of five.");
         }
 
-        foreach (DiscordActionRowComponent? ar in ara)
+        foreach (DiscordActionRowComponent? ar in components)
         {
             this._components.Add(ar);
         }
 
-        return this as T;
+        return (T)this;
     }
 
     /// <summary>
@@ -137,23 +136,22 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
     public T AddComponents(IEnumerable<DiscordComponent> components)
     {
-        DiscordComponent[] cmpArr = components.ToArray();
-        int count = cmpArr.Length;
+        int count = components.TryGetNonEnumeratedCount(out int nonEnumerated) ? nonEnumerated : components.Count();
 
-        if (!cmpArr.Any())
+        if (count == 0)
         {
             throw new ArgumentOutOfRangeException(nameof(components), "You must provide at least one component");
         }
 
         if (count > 5)
         {
-            throw new ArgumentException("Cannot add more than 5 components per action row!");
+            throw new ArgumentOutOfRangeException(nameof(components), "You cannot add more than 5 components per action row!");
         }
 
-        DiscordActionRowComponent comp = new DiscordActionRowComponent(cmpArr);
+        DiscordActionRowComponent comp = new(components);
         this._components.Add(comp);
 
-        return this as T;
+        return (T)this;
     }
 
     /// <summary>
@@ -164,7 +162,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     public T WithTTS(bool isTTS)
     {
         this.IsTTS = isTTS;
-        return this as T;
+        return (T)this;
     }
 
     /// <summary>
@@ -174,13 +172,13 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <returns>The current builder to be chained.</returns>
     public T AddEmbed(DiscordEmbed embed)
     {
-        if (embed == null)
+        if (embed is null)
         {
-            return this as T; //Providing null embeds will produce a 400 response from Discord.//
+            return (T)this; //Providing null embeds will produce a 400 response from Discord.//
         }
 
         this._embeds.Add(embed);
-        return this as T;
+        return (T)this;
     }
 
     /// <summary>
@@ -191,7 +189,39 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     public T AddEmbeds(IEnumerable<DiscordEmbed> embeds)
     {
         this._embeds.AddRange(embeds);
-        return this as T;
+        return (T)this;
+    }
+
+    /// <summary>
+    /// Clears the embeds on the current builder.
+    /// </summary>
+    /// <returns>The current builder for chaining.</returns>
+    public T ClearEmbeds()
+    {
+        this._embeds.Clear();
+        return (T)this;
+    }
+
+    /// <summary>
+    /// Removes the embed at the specified index.
+    /// </summary>
+    /// <returns>The current builder for chaining.</returns>
+    public T RemoveEmbedAt(int index)
+    {
+        this._embeds.RemoveAt(index);
+        return (T)this;
+    }
+
+    /// <summary>
+    /// Removes the specified range of embeds.
+    /// </summary>
+    /// <param name="index">The starting index of the embeds to remove.</param>
+    /// <param name="count">The amount of embeds to remove.</param>
+    /// <returns>The current builder for chaining.</returns>
+    public T RemoveEmbeds(int index, int count)
+    {
+        this._embeds.RemoveRange(index, count);
+        return (T)this;
     }
 
     /// <summary>
@@ -235,14 +265,14 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 
         if (this._files.Any(x => x.FileName == fileName))
         {
-            throw new ArgumentException("A File with that filename already exists");
+            throw new ArgumentException("A file with that filename already exists");
         }
 
         stream = ResolveStream(stream, fileOptions);
         long? resetPosition = fileOptions.HasFlag(AddFileOptions.ResetStream) ? stream.Position : null;
         this._files.Add(new DiscordMessageFile(fileName, stream, resetPosition, fileOptions: fileOptions));
 
-        return this as T;
+        return (T)this;
     }
 
     /// <summary>
@@ -278,15 +308,14 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
             this._files.Add(new DiscordMessageFile(file.Key, stream, resetPosition, fileOptions: fileOptions));
         }
 
-        return this as T;
+        return (T)this;
     }
 
     public T AddFiles(IEnumerable<DiscordMessageFile> files)
     {
         this._files.AddRange(files);
-        return this as T;
+        return (T)this;
     }
-
 
     /// <summary>
     /// Adds the mention to the mentions to parse, etc. with the interaction response.
@@ -295,7 +324,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     public T AddMention(IMention mention)
     {
         this._mentions.Add(mention);
-        return this as T;
+        return (T)this;
     }
 
     /// <summary>
@@ -305,7 +334,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     public T AddMentions(IEnumerable<IMention> mentions)
     {
         this._mentions.AddRange(mentions);
-        return this as T;
+        return (T)this;
     }
 
     /// <summary>
@@ -337,7 +366,14 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         {
             if (file.FileOptions.HasFlag(AddFileOptions.CloseStream))
             {
-                file.Stream.Dispose();
+                if (file.Stream is RequestStreamWrapper wrapper)
+                {
+                    wrapper.UnderlyingStream.Dispose();
+                }
+                else
+                {
+                    file.Stream.Dispose();
+                }
             }
         }
 
@@ -351,7 +387,14 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         {
             if (file.FileOptions.HasFlag(AddFileOptions.CloseStream))
             {
-                await file.Stream.DisposeAsync();
+                if (file.Stream is RequestStreamWrapper wrapper)
+                {
+                    await wrapper.UnderlyingStream.DisposeAsync();
+                }
+                else
+                {
+                    await file.Stream.DisposeAsync();
+                }
             }
         }
 
@@ -459,7 +502,7 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <summary>
     /// Getter / setter for message content.
     /// </summary>
-    string Content { get; set; }
+    string? Content { get; set; }
 
     /// <summary>
     /// Whether this message will play as a text-to-speech message.
@@ -609,11 +652,11 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     IDiscordMessageBuilder AddMentions(IEnumerable<IMention> mentions);
 
     /// <summary>
-    /// Applies <see cref="MessageFlags.SupressNotifications"/> to the message.
+    /// Applies <see cref="MessageFlags.SuppressNotifications"/> to the message.
     /// </summary>
     /// <returns></returns>
     /// <remarks>
-    /// As per <see cref="MessageFlags.SupressNotifications"/>, this does not change the message's allowed mentions
+    /// As per <see cref="MessageFlags.SuppressNotifications"/>, this does not change the message's allowed mentions
     /// (controlled by <see cref="AddMentions"/>), but instead prevents a mention from triggering a push notification.
     /// </remarks>
     IDiscordMessageBuilder SuppressNotifications();

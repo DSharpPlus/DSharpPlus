@@ -2,9 +2,6 @@ using DSharpPlus.Net.Abstractions;
 
 namespace DSharpPlus.Entities.AuditLogs;
 
-using System;
-using System.Diagnostics.CodeAnalysis;
-
 /// <summary>
 /// Represents a description of how a property changed.
 /// </summary>

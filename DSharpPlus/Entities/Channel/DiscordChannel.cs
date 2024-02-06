@@ -730,34 +730,105 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     }
 
     /// <summary>
-    /// Deletes multiple messages if they are less than 14 days old.  If they are older, none of the messages will be deleted and you will receive a <see cref="BadRequestException"/> error.
+    /// Deletes multiple messages if they are less than 14 days old.  If they are older, none of the messages will be deleted and you will receive a <see cref="ArgumentException"/> error.
     /// </summary>
     /// <param name="messages">A collection of messages to delete.</param>
     /// <param name="reason">Reason for audit logs.</param>
-    /// <returns></returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
-    /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
-    /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
-    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task DeleteMessagesAsync(IEnumerable<DiscordMessage> messages, string reason = null)
+    /// <returns>The number of deleted messages</returns>
+    /// <remarks>One api call per 100 messages</remarks>
+    public async Task<int> DeleteMessagesAsync(IReadOnlyList<DiscordMessage> messages, string? reason = null)
     {
-        // don't enumerate more than once
-        ulong[] msgs = messages.Where(x => x.Channel.Key == this.Id).Select(x => x.Id).ToArray();
-        if (messages == null || !msgs.Any())
+        ArgumentNullException.ThrowIfNull(messages, nameof(messages));
+        int count = messages.Count;
+
+        if (count == 0)
         {
             throw new ArgumentException("You need to specify at least one message to delete.");
         }
-
-        if (msgs.Count() < 2)
+        if (count == 1)
         {
-            await this.Discord.ApiClient.DeleteMessageAsync(this.Id, msgs.Single(), reason);
-            return;
+            await this.Discord.ApiClient.DeleteMessageAsync(this.Id, messages[0].Id, reason);
+            return 1;
+        }
+        
+        int deleteCount = 0;
+
+        try
+        {
+            for (int i = 0; i < count; i += 100)
+            {
+                int takeCount = Math.Min(100, count - i);
+                DiscordMessage[] messageBatch = messages.Skip(i).Take(takeCount).ToArray();
+            
+                foreach (DiscordMessage message in messageBatch)
+                {
+                    if (message.ChannelId != this.Id)
+                    {
+                        throw new ArgumentException(
+                            $"You cannot delete messages from channel {message.Channel.Name} through channel {this.Name}!");
+                    }
+                    else if (message.Timestamp < DateTimeOffset.UtcNow.AddDays(-14))
+                    {
+                        throw new ArgumentException("You can only delete messages that are less than 14 days old.");
+                    }
+                }
+                await this.Discord.ApiClient.DeleteMessagesAsync(this.Id,
+                    messageBatch.Select(x => x.Id), reason);
+                deleteCount += takeCount;
+            }
+        }
+        catch (DiscordException e)
+        {
+            throw new BulkDeleteFailedException(deleteCount, e);
         }
 
-        for (int i = 0; i < msgs.Count(); i += 100)
+        return deleteCount;
+    }
+    
+    /// <summary>
+    /// Deletes multiple messages if they are less than 14 days old.
+    /// </summary>
+    /// <param name="messages">A collection of messages to delete.</param>
+    /// <param name="reason">Reason for audit logs.</param>
+    /// <returns>The number of deleted messages</returns>
+    /// <exception cref="BulkDeleteFailedException">Exception which contains the exception which was thrown and the count of messages which were deleted successfully</exception>
+    /// <remarks>One api call per 100 messages</remarks>
+    public async Task<int> DeleteMessagesAsync(IAsyncEnumerable<DiscordMessage> messages, string? reason = null)
+    {
+        List<DiscordMessage> list = new(100);
+        int count = 0;
+        try
         {
-            await this.Discord.ApiClient.DeleteMessagesAsync(this.Id, msgs.Skip(i).Take(100), reason);
+            await foreach (DiscordMessage message in messages)
+            {
+                list.Add(message);
+
+                if (list.Count != 100)
+                {
+                    continue;
+                }
+
+                await this.DeleteMessagesAsync(list, reason);
+                list.Clear();
+                count += 100;
+            }
+
+            if (list.Count > 0)
+            {
+                await this.DeleteMessagesAsync(list, reason);
+                count += list.Count;
+            }
         }
+        catch (BulkDeleteFailedException e)
+        {
+            throw new BulkDeleteFailedException(count + e.MessagesDeleted, e.InnerException);
+        }
+        catch (DiscordException e)
+        {
+            throw new BulkDeleteFailedException(count, e);
+        }
+
+        return count;
     }
 
     /// <summary>
@@ -1141,6 +1212,77 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         perms &= ~mbOverrides.Denied;
         perms |= mbOverrides.Allowed;
 
+        return perms;
+    }
+
+    /// <summary>
+    /// Calculates permissions for a given role.
+    /// </summary>
+    /// <param name="role">Role to calculate permissions for.</param>
+    /// <returns>Calculated permissions for a given role.</returns>
+    public Permissions PermissionsFor(DiscordRole role)
+    {
+        if (this.IsThread)
+        {
+            return this.Parent.PermissionsFor(role);
+        }
+        
+        if (this.IsPrivate || this.Guild is null)
+        {
+            return Permissions.None;
+        }
+        
+        if (role._guild_id != this.Guild.Id)
+        {
+            throw new ArgumentException("Given role does not belong to this channel's guild.");
+        }
+        
+        Permissions perms;
+
+        // assign @everyone permissions
+        DiscordRole everyoneRole = this.Guild.EveryoneRole;
+        perms = everyoneRole.Permissions;
+        
+        // add role permissions
+        perms |= role.Permissions;
+        
+        // Administrator grants all permissions and cannot be overridden
+        if ((perms & Permissions.Administrator) == Permissions.Administrator)
+        {
+            return PermissionMethods.FULL_PERMS;
+        }
+        
+        // channel overrides for the @everyone role
+        DiscordOverwrite? everyoneRoleOverwrites = this._permissionOverwrites.FirstOrDefault(xo => xo.Id == everyoneRole.Id);
+        if (everyoneRoleOverwrites is not null)
+        {
+            // assign channel permission overwrites for the role (explicit deny)
+            perms &= ~everyoneRoleOverwrites.Denied;
+        
+            // assign channel permission overwrites for the role (explicit allow)
+            perms |= everyoneRoleOverwrites.Allowed;
+        }
+        
+        // channel overrides for the role
+        DiscordOverwrite? roleOverwrites = this._permissionOverwrites.FirstOrDefault(xo => xo.Id == role.Id);
+        if (roleOverwrites is null)
+        {
+            return perms;
+        }
+        
+        Permissions roleDenied = roleOverwrites.Denied;
+
+        if (everyoneRoleOverwrites is not null)
+        {
+            roleDenied &= ~everyoneRoleOverwrites.Allowed;
+        }
+        
+        // assign channel permission overwrites for the role (explicit deny)
+        perms &= ~roleDenied;
+        
+        // assign channel permission overwrites for the role (explicit allow)
+        perms |= roleOverwrites.Allowed;
+        
         return perms;
     }
 

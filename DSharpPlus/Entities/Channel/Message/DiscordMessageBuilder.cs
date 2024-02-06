@@ -13,7 +13,8 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     /// <summary>
     /// Gets or sets the embed for the builder. This will always set the builder to have one embed.
     /// </summary>
-    public DiscordEmbed Embed
+    [Obsolete("Use the features for manipulating multiple embeds instead.", true, DiagnosticId = "DSP1001")]
+    public DiscordEmbed? Embed
     {
         get => this._embeds.Count > 0 ? this._embeds[0] : null;
         set
@@ -29,7 +30,8 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     /// <summary>
     /// Gets or sets the sticker for the builder. This will always set the builder to have one sticker.
     /// </summary>
-    public DiscordMessageSticker Sticker
+    [Obsolete("Use the features for manipulating multiple stickers instead.", true, DiagnosticId = "DSP1002")]
+    public DiscordMessageSticker? Sticker
     {
         get => this._stickers.Count > 0 ? this._stickers[0] : null;
         set
@@ -46,7 +48,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     /// The stickers to attach to the message.
     /// </summary>
     public IReadOnlyList<DiscordMessageSticker> Stickers => this._stickers;
-    internal List<DiscordMessageSticker> _stickers = new();
+    internal List<DiscordMessageSticker> _stickers = [];
 
     /// <summary>
     /// Gets the Reply Message ID.
@@ -76,7 +78,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     /// <param name="builder">The builder to copy.</param>
     public DiscordMessageBuilder(DiscordMessageBuilder builder) : base(builder)
     {
-        this.Sticker = builder.Sticker;
+        this._stickers = builder._stickers;
         this.ReplyId = builder.ReplyId;
         this.MentionOnReply = builder.MentionOnReply;
         this.FailOnInvalidReply = builder.FailOnInvalidReply;
@@ -96,13 +98,13 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     {
         this.IsTTS = baseMessage.IsTTS;
         this.ReplyId = baseMessage.ReferencedMessage?.Id;
-        this._components = baseMessage.Components.ToList(); // Calling ToList copies the list instead of referencing it
+        this._components = [.. baseMessage.Components];
         this._content = baseMessage.Content;
-        this._embeds = baseMessage.Embeds.ToList();
-        this._stickers = baseMessage.Stickers.ToList();
-        this._mentions = new();
+        this._embeds = [.. baseMessage.Embeds];
+        this._stickers = [.. baseMessage.Stickers];
+        this._mentions = [];
 
-        if (baseMessage._mentionedRoles != null)
+        if (baseMessage._mentionedUsers != null)
         {
             foreach (DiscordUser user in baseMessage._mentionedUsers)
             {
@@ -125,6 +127,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     /// </summary>
     /// <param name="sticker">The sticker to add.</param>
     /// <returns>The current builder to be chained.</returns>
+    [Obsolete("Use the features for manipulating multiple stickers instead.", true, DiagnosticId = "DSP1002")]
     public DiscordMessageBuilder WithSticker(DiscordMessageSticker sticker)
     {
         this.Sticker = sticker;
@@ -147,6 +150,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     /// </summary>
     /// <param name="embed">The embed that should be set.</param>
     /// <returns>The current builder to be chained.</returns>
+    [Obsolete("Use the features for manipulating multiple embeds instead.", true, DiagnosticId = "DSP1001")]
     public DiscordMessageBuilder WithEmbed(DiscordEmbed embed)
     {
         if (embed == null)
@@ -189,7 +193,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
 
         if (mention)
         {
-            this._mentions ??= new List<IMention>();
+            this._mentions ??= [];
             this._mentions.Add(new RepliedUserMention());
         }
 
@@ -211,28 +215,17 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     /// <returns>The current builder to be chained.</returns>
     public Task<DiscordMessage> ModifyAsync(DiscordMessage msg) => msg.ModifyAsync(this);
 
-    public override void ClearComponents()
-    {
-        this.ReplyId = null;
-        this.MentionOnReply = false;
-        this.Sticker = default;
-        this.FailOnInvalidReply = default;
-
-        base.ClearComponents();
-    }
-
     /// <summary>
     /// Does the validation before we send a the Create/Modify request.
     /// </summary>
-    /// <param name="isModify">Tells the method to perform the Modify Validation or Create Validation.</param>
-    internal void Validate(bool isModify = false)
+    internal void Validate()
     {
         if (this._embeds.Count > 10)
         {
             throw new ArgumentException("A message can only have up to 10 embeds.");
         }
 
-        if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && (!this.Embeds?.Any() ?? true) && this.Sticker is null)
+        if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && (!this.Embeds?.Any() ?? true) && (!this.Stickers?.Any() ?? true))
         {
             throw new ArgumentException("You must specify content, an embed, a sticker, or at least one file.");
         }

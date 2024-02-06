@@ -23,7 +23,7 @@ public class DiscordReaction
     /// Gets the emoji used to react to this message.
     /// </summary>
     [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
-    public DiscordEmoji Emoji { get; internal set; }
+    public DiscordEmoji Emoji { get; internal set; } = default!;
 
     internal DiscordReaction() { }
 }

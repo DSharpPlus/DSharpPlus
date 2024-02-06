@@ -12,13 +12,13 @@ public sealed class DiscordEmbedThumbnail
     /// Gets the source url of the thumbnail (only https).
     /// </summary>
     [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
-    public DiscordUri Url { get; internal set; }
+    public DiscordUri? Url { get; internal set; }
 
     /// <summary>
     /// Gets a proxied url of the thumbnail.
     /// </summary>
     [JsonProperty("proxy_url", NullValueHandling = NullValueHandling.Ignore)]
-    public DiscordUri ProxyUrl { get; internal set; }
+    public DiscordUri? ProxyUrl { get; internal set; }
 
     /// <summary>
     /// Gets the height of the thumbnail.

@@ -66,6 +66,8 @@ jobs:
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
           DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
           DISCORD_CHANNEL_TOPIC: ${{ secrets.DISCORD_CHANNEL_TOPIC }}
+          DISCORD_DOC_BOT_USER_ID: ${{ secrets.DISCORD_DOC_BOT_USER_ID }}
+          DISCORD_BOT_USAGE_CHANNEL_ID: ${{ secrets.DISCORD_BOT_USAGE_CHANNEL_ID }}
           NUGET_URL: ${{ secrets.NUGET_URL }}
           GITHUB_URL : ${{ github.server_url }}/${{ github.repository }}
       - name: Upload Artifact

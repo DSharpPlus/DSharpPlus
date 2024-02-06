@@ -127,7 +127,7 @@ public sealed class VoiceNextExtension : BaseExtension
     /// </summary>
     /// <param name="guild">Guild to get VoiceNext connection for.</param>
     /// <returns>VoiceNext connection for the specified guild.</returns>
-    public VoiceNextConnection GetConnection(DiscordGuild guild)
+    public VoiceNextConnection? GetConnection(DiscordGuild guild)
         => this.ActiveConnections.ContainsKey(guild.Id) ? this.ActiveConnections[guild.Id] : null;
 
     private async Task Vnc_VoiceDisconnected(DiscordGuild guild)

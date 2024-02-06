@@ -26,6 +26,11 @@ public class WebSocketClient : IWebSocketClient
 
     /// <inheritdoc />
     public IReadOnlyDictionary<string, string> DefaultHeaders { get; }
+
+    /// <inheritdoc />
+    public bool IsConnected
+        => this._isConnected;
+    
     private readonly Dictionary<string, string> _defaultHeaders;
 
     private Task _receiverTask;

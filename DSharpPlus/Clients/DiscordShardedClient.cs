@@ -230,104 +230,36 @@ public sealed partial class DiscordShardedClient
         {
             return this._shards.Count;
         }
+        
+        ShardedLoggerFactory loggerFactory = new ShardedLoggerFactory(this.Configuration.LoggerFactory);
+        RestClient restClient = new RestClient(this.Configuration, loggerFactory.CreateLogger("Rest"));
+        DiscordApiClient apiClient = new DiscordApiClient(restClient);
 
-        this.GatewayInfo = await this.GetGatewayInfoAsync();
-        int shardc = this.Configuration.ShardCount == 1 ? this.GatewayInfo.ShardCount : this.Configuration.ShardCount;
-        ShardedLoggerFactory lf = new ShardedLoggerFactory(this.Logger);
-        for (int i = 0; i < shardc; i++)
+        this.GatewayInfo = await apiClient.GetGatewayInfoAsync();
+        int shardCount = this.Configuration.ShardCount == 1 ? this.GatewayInfo.ShardCount : this.Configuration.ShardCount;
+        
+        for (int i = 0; i < shardCount; i++)
         {
             DiscordConfiguration cfg = new DiscordConfiguration(this.Configuration)
             {
                 ShardId = i,
-                ShardCount = shardc,
-                LoggerFactory = lf
+                ShardCount = shardCount,
+                LoggerFactory = loggerFactory
             };
 
-            DiscordClient client = new DiscordClient(cfg);
+            DiscordClient client = new DiscordClient(cfg, restClient);
             if (!this._shards.TryAdd(i, client))
             {
                 throw new InvalidOperationException("Could not initialize shards.");
             }
         }
 
-        return shardc;
+        return shardCount;
     }
 
     #endregion
 
     #region Private Methods/Version Property
-
-    private async Task<GatewayInfo> GetGatewayInfoAsync()
-    {
-        string url = $"{Utilities.GetApiBaseUri()}/{Endpoints.GATEWAY}/{Endpoints.BOT}";
-        HttpClient http = new HttpClient();
-
-        http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
-        http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(this.Configuration));
-
-        this.Logger.LogDebug(LoggerEvents.ShardRest, $"Obtaining gateway information from GET {Endpoints.GATEWAY}/{Endpoints.BOT}...");
-        HttpResponseMessage resp = await http.GetAsync(url);
-
-        http.Dispose();
-
-        if (!resp.IsSuccessStatusCode)
-        {
-            bool ratelimited = await HandleHttpError(url, resp);
-
-            if (ratelimited)
-            {
-                return await this.GetGatewayInfoAsync();
-            }
-        }
-
-        Stopwatch timer = new Stopwatch();
-        timer.Start();
-
-        JObject jo = JObject.Parse(await resp.Content.ReadAsStringAsync());
-        GatewayInfo info = jo.ToDiscordObject<GatewayInfo>();
-
-        //There is a delay from parsing here.
-        timer.Stop();
-
-        info.SessionBucket.ResetAfterInternal -= (int)timer.ElapsedMilliseconds;
-        info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.ResetAfterInternal);
-
-        return info;
-
-        async Task<bool> HandleHttpError(string reqUrl, HttpResponseMessage msg)
-        {
-            int code = (int)msg.StatusCode;
-
-            if (code == 401 || code == 403)
-            {
-                throw new Exception($"Authentication failed, check your token and try again: {code} {msg.ReasonPhrase}");
-            }
-            else if (code == 429)
-            {
-                this.Logger.LogError(LoggerEvents.ShardClientError, $"Ratelimit hit, requeuing request to {reqUrl}");
-
-                Dictionary<string, string> hs = msg.Headers.ToDictionary(xh => xh.Key, xh => string.Join("\n", xh.Value), StringComparer.OrdinalIgnoreCase);
-                int waitInterval = 0;
-
-                if (hs.TryGetValue("Retry-After", out string? retryAfterRaw))
-                {
-                    waitInterval = int.Parse(retryAfterRaw, CultureInfo.InvariantCulture);
-                }
-
-                await Task.Delay(waitInterval);
-                return true;
-            }
-            else if (code >= 500)
-            {
-                throw new Exception($"Internal Server Error: {code} {msg.ReasonPhrase}");
-            }
-            else
-            {
-                throw new Exception($"An unsuccessful HTTP status code was encountered: {code} {msg.ReasonPhrase}");
-            }
-        }
-    }
-
 
     private readonly Lazy<string> _versionString = new(() =>
     {

@@ -67,7 +67,7 @@
     "globalMetadata": {
       "_appTitle": "DSharpPlus",
       "_appName": "DSharpPlus",
-      "_appFooter": "© 2016-2023 DSharpPlus Contributors",
+      "_appFooter": "© 2016-2024 DSharpPlus Contributors",
       "_appLogoPath": "images/logo.png",
       "_appFaviconPath": "images/favicon.ico",
       "_enableSearch": "true"
@@ -76,8 +76,7 @@
     "fileMetadataFiles": [],
     "template": [
       "default",
-      "modern",
-      "memberpage"
+      "modern"
     ],
     "postProcessors": [
       "ExtractSearchIndex"
