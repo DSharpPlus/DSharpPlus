@@ -126,14 +126,12 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreateEv
         await this._extension.CommandExecutor.ExecuteAsync(commandContext);
     }
 
-    public static async Task<DiscordApplicationCommand> ToApplicationCommandAsync(CommandsExtension extension, Command command)
+    public async Task<DiscordApplicationCommand> ToApplicationCommandAsync(CommandsExtension extension, Command command)
     {
         IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
-        if (command.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
+        if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
         {
-            AsyncServiceScope scope = extension.ServiceProvider.CreateAsyncScope();
-            nameLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.name");
-            await scope.DisposeAsync();
+            nameLocalizations = await this._slashCommandProcessor!.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
         }
 
         return new(
