@@ -17,5 +17,5 @@ public class UInt32Converter : ISlashArgumentConverter<uint>, ITextArgumentConve
             ? Task.FromResult(Optional.FromValue(result))
             : Task.FromResult(Optional.FromNoValue<uint>());
 
-    public Task<Optional<uint>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue((uint)context.As<SlashConverterContext>().Argument.Value));
+    public Task<Optional<uint>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue((uint)context.As<InteractionConverterContext>().Argument.Value));
 }

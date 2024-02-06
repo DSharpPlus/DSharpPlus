@@ -68,7 +68,7 @@ public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>
 
     public Task<Optional<DiscordUser>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
     {
-        SlashConverterContext slashContext = context.As<SlashConverterContext>();
+        InteractionConverterContext slashContext = context.As<InteractionConverterContext>();
         return Task.FromResult(Optional.FromValue(slashContext.Interaction.Data.Resolved.Users[(ulong)slashContext.Argument.Value]));
     }
 }

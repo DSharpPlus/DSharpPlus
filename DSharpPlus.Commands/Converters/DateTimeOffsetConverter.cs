@@ -14,7 +14,7 @@ public class DateTimeOffsetConverter : ISlashArgumentConverter<DateTimeOffset>, 
     public bool RequiresText { get; init; } = true;
 
     public Task<Optional<DateTimeOffset>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context.As<TextConverterContext>().Argument);
-    public Task<Optional<DateTimeOffset>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context.As<SlashConverterContext>().Argument.ToString());
+    public Task<Optional<DateTimeOffset>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context.As<InteractionConverterContext>().Argument.ToString());
     public static Task<Optional<DateTimeOffset>> ConvertAsync(string? value) =>
         DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, out DateTimeOffset result)
             ? Task.FromResult(Optional.FromValue(result.ToUniversalTime()))

@@ -8,7 +8,7 @@ using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
 [AttributeUsage(AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
-public class SlashChoiceProviderAttribute(Type providerType) : Attribute
+public class InteractionChoiceProviderAttribute(Type providerType) : Attribute
 {
     public Type ProviderType { get; init; } = providerType ?? throw new ArgumentNullException(nameof(providerType));
 
@@ -35,7 +35,7 @@ public class SlashChoiceProviderAttribute(Type providerType) : Attribute
 }
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
-public sealed class SlashChoiceProviderAttribute<T> : SlashChoiceProviderAttribute where T : IChoiceProvider
+public sealed class SlashChoiceProviderAttribute<T> : InteractionChoiceProviderAttribute where T : IChoiceProvider
 {
     public SlashChoiceProviderAttribute() : base(typeof(T)) { }
 }

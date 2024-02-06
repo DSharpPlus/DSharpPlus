@@ -6,7 +6,7 @@ using System;
 /// Determines the minimum and maximum length that a parameter can accept.
 /// </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class SlashMinMaxLengthAttribute : Attribute
+public sealed class InteractionMinMaxLengthAttribute : Attribute
 {
     /// <summary>
     /// The minimum length that this parameter can accept.
@@ -21,7 +21,7 @@ public sealed class SlashMinMaxLengthAttribute : Attribute
     /// <summary>
     /// Determines the minimum and maximum length that a parameter can accept.
     /// </summary>
-    public SlashMinMaxLengthAttribute()
+    public InteractionMinMaxLengthAttribute()
     {
         if (this.MinLength is not null && this.MaxLength is not null && this.MinLength > this.MaxLength)
         {

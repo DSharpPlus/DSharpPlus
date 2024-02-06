@@ -45,7 +45,7 @@ public partial class DiscordRoleConverter : ISlashArgumentConverter<DiscordRole>
 
     public Task<Optional<DiscordRole>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
     {
-        SlashConverterContext slashContext = context.As<SlashConverterContext>();
+        InteractionConverterContext slashContext = context.As<InteractionConverterContext>();
         return Task.FromResult(Optional.FromValue(slashContext.Interaction.Data.Resolved.Roles[(ulong)slashContext.Argument.Value]));
     }
 }

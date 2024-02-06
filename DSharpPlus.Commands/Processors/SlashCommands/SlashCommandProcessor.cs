@@ -18,7 +18,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 
-public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCreateEventArgs, ISlashArgumentConverter, SlashConverterContext, SlashCommandContext>
+public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCreateEventArgs, ISlashArgumentConverter, InteractionConverterContext, SlashCommandContext>
 {
     // Required for GuildDownloadCompleted event
     public const DiscordIntents RequiredIntents = DiscordIntents.Guilds;
@@ -90,7 +90,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             return;
         }
 
-        SlashConverterContext converterContext = new()
+        InteractionConverterContext converterContext = new()
         {
             Channel = eventArgs.Interaction.Channel,
             Command = command,
@@ -106,7 +106,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             AutoCompleteContext? autoCompleteContext = await this.ParseAutoCompleteArgumentsAsync(converterContext, eventArgs);
             if (autoCompleteContext is not null)
             {
-                IEnumerable<DiscordAutoCompleteChoice> choices = await converterContext.Parameter.Attributes.OfType<SlashAutoCompleteProviderAttribute>().First().AutoCompleteAsync(autoCompleteContext);
+                IEnumerable<DiscordAutoCompleteChoice> choices = await converterContext.Parameter.Attributes.OfType<InteractionAutoCompleteProviderAttribute>().First().AutoCompleteAsync(autoCompleteContext);
                 await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.AutoCompleteResult, new DiscordInteractionResponseBuilder().AddAutoCompleteChoices(choices));
             }
 
@@ -359,7 +359,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         }
 
         SlashMinMaxValueAttribute? minMaxValue = parameter.Attributes.OfType<SlashMinMaxValueAttribute>().FirstOrDefault();
-        SlashMinMaxLengthAttribute? minMaxLength = parameter.Attributes.OfType<SlashMinMaxLengthAttribute>().FirstOrDefault();
+        InteractionMinMaxLengthAttribute? minMaxLength = parameter.Attributes.OfType<InteractionMinMaxLengthAttribute>().FirstOrDefault();
         AsyncServiceScope scope = this._extension.ServiceProvider.CreateAsyncScope();
 
         // Translate the parameter's name and description.
@@ -379,7 +379,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         }
 
         IEnumerable<DiscordApplicationCommandOptionChoice> choices = [];
-        if (parameter.Attributes.OfType<SlashChoiceProviderAttribute>().FirstOrDefault() is SlashChoiceProviderAttribute choiceAttribute)
+        if (parameter.Attributes.OfType<InteractionChoiceProviderAttribute>().FirstOrDefault() is InteractionChoiceProviderAttribute choiceAttribute)
         {
             choices = await choiceAttribute.GrabChoicesAsync(scope.ServiceProvider, parameter);
         }
@@ -405,8 +405,8 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             description: description,
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
-            autocomplete: parameter.Attributes.Any(x => x is SlashAutoCompleteProviderAttribute),
-            channelTypes: parameter.Attributes.OfType<SlashChannelTypesAttribute>().FirstOrDefault()?.ChannelTypes ?? [],
+            autocomplete: parameter.Attributes.Any(x => x is InteractionAutoCompleteProviderAttribute),
+            channelTypes: parameter.Attributes.OfType<InteractionChannelTypesAttribute>().FirstOrDefault()?.ChannelTypes ?? [],
             choices: choices,
             maxLength: minMaxLength?.MaxLength,
             maxValue: minMaxValue?.MaxValue!, // Incorrect nullable annotations within the lib
@@ -417,7 +417,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         );
     }
 
-    private async ValueTask<AutoCompleteContext?> ParseAutoCompleteArgumentsAsync(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs)
+    private async ValueTask<AutoCompleteContext?> ParseAutoCompleteArgumentsAsync(InteractionConverterContext converterContext, InteractionCreateEventArgs eventArgs)
     {
         if (this._extension is null)
         {
@@ -475,7 +475,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         };
     }
 
-    public override SlashCommandContext CreateCommandContext(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs, Dictionary<CommandParameter, object?> parsedArguments) => new()
+    public override SlashCommandContext CreateCommandContext(InteractionConverterContext converterContext, InteractionCreateEventArgs eventArgs, Dictionary<CommandParameter, object?> parsedArguments) => new()
     {
         Arguments = parsedArguments,
         Channel = eventArgs.Interaction.Channel,

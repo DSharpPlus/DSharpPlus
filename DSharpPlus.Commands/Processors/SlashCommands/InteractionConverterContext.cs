@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using DSharpPlus.Commands.Converters;
 using DSharpPlus.Entities;
 
-public record SlashConverterContext : ConverterContext
+public record InteractionConverterContext : ConverterContext
 {
     public required DiscordInteraction Interaction { get; init; }
     public required IReadOnlyList<DiscordInteractionDataOption> Options { get; init; }

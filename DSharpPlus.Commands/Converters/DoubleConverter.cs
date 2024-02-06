@@ -17,5 +17,5 @@ public class DoubleConverter : ISlashArgumentConverter<double>, ITextArgumentCon
             ? Task.FromResult(Optional.FromValue(result))
             : Task.FromResult(Optional.FromNoValue<double>());
 
-    public Task<Optional<double>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue((double)context.As<SlashConverterContext>().Argument.Value));
+    public Task<Optional<double>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue((double)context.As<InteractionConverterContext>().Argument.Value));
 }
