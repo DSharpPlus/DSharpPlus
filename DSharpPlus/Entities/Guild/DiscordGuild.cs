@@ -106,13 +106,6 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     internal ulong _afkChannelId { get; set; } = 0;
 
     /// <summary>
-    /// Gets the guild's AFK voice channel.
-    /// </summary>
-    [JsonIgnore]
-    public Task<DiscordChannel?> AfkChannel
-        => this.GetChannelAsync(this._afkChannelId);
-
-    /// <summary>
     /// Gets the guild's AFK timeout.
     /// </summary>
     [JsonProperty("afk_timeout", NullValueHandling = NullValueHandling.Ignore)]
@@ -490,9 +483,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <summary>
     /// Gets the guilds owner.
     /// </summary>
-    /// <param name="updateCache">Whether to always make a REST request and update the member cache.</param>
+    /// <param name="skipCache">Whether to always make a REST request and update the member cache.</param>
     /// <returns>The member object of the guild owner</returns>
-    public Task<DiscordMember> GetOwnerAsync(bool updateCache = false) => this.GetMemberAsync(this.OwnerId, updateCache);
+    public Task<DiscordMember> GetOwnerAsync(bool skipCache = false) => this.GetMemberAsync(this.OwnerId, skipCache);
 
     /// <summary>
     /// Gets guild's icon URL, in requested format and size.
@@ -1165,6 +1158,20 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     {
         IEnumerable<Task> tasks = this.Channels.Values.Select(xc => xc.DeleteAsync());
         return Task.WhenAll(tasks);
+    }
+
+
+    public ValueTask<DiscordChannel> GetAfkChannelAsync(bool skipCache = false)
+    {
+
+        var channel = this.Channels.Values.FirstOrDefault(xc => xc.Id == this.AfkChannelId);
+        if (channel != null)
+        {
+            this._afkChannel = channel;
+            return new(channel);
+        }
+
+        return new(this.Discord.ApiClient.GetChannelAsync(this.AfkChannelId, this.Id));
     }
 
     /// <summary>

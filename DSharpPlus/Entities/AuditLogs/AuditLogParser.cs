@@ -426,13 +426,10 @@ internal class AuditLogParser
             case DiscordAuditLogActionType.AutoModerationBlockMessage:
             case DiscordAuditLogActionType.AutoModerationFlagToChannel:
             case DiscordAuditLogActionType.AutoModerationUserCommunicationDisabled:
-                entry = new DiscordAuditLogAutoModerationExecutedEntry();
+                DiscordAuditLogAutoModerationExecutedEntry autoModerationEntry = new DiscordAuditLogAutoModerationExecutedEntry();
                 
                 
                 channelId = auditLogAction.Options.ChannelId;
-
-                DiscordAuditLogAutoModerationExecutedEntry autoModerationEntry =
-                    entry as DiscordAuditLogAutoModerationExecutedEntry;
                 
                 if (auditLogAction.TargetId is not null)
                 {
@@ -451,7 +448,7 @@ internal class AuditLogParser
                 DiscordChannel? modActionChanel = await this._client.Cache.TryGetChannelAsync(channelId);
                 if (modActionChanel is null)
                 {
-                    modActionChanel = this._guild?.GetChannel(channelId);
+                    modActionChanel = this._guild?.Channels.TryGetValue(channelId, out DiscordChannel? guildChannel) ?? false ? guildChannel : null;
                 }
                 autoModerationEntry.Channel = new CachedEntity<ulong, DiscordChannel>(channelId, modActionChanel);
                     
@@ -459,6 +456,8 @@ internal class AuditLogParser
                 autoModerationEntry.ResponsibleRule = auditLogAction.Options.AutoModerationRuleName;
                 autoModerationEntry.RuleTriggerType =
                     (DiscordRuleTriggerType)int.Parse(auditLogAction.Options.AutoModerationRuleTriggerType);
+                
+                entry = autoModerationEntry;
                 break;
 
             case DiscordAuditLogActionType.AutoModerationRuleCreate:
@@ -598,11 +597,11 @@ internal class AuditLogParser
                     JArray oldChannelIds = (JArray)change.OldValue;
                     JArray newChanelIds = (JArray)change.NewValue;
 
-                    IEnumerable<ulong>? oldChannelsIds = oldChannelIds?
+                    IEnumerable<ulong>? oldChannelsIds = oldChannelIds
                         .Select(x => x.ToObject<ulong>())
                         .ToList();
                     
-                    IEnumerable<ulong>? newChannelsIds = newChanelIds?
+                    IEnumerable<ulong>? newChannelsIds = newChanelIds
                         .Select(x => x.ToObject<ulong>())
                         .ToList();
 

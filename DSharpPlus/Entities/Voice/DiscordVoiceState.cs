@@ -1,14 +1,11 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Threading.Tasks;
+using DSharpPlus.Caching;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
-
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using Caching;
 
 /// <summary>
 /// Represents a Discord voice state.
@@ -130,7 +127,7 @@ public class DiscordVoiceState
     /// <summary>
     /// Gets the channel this voicestate belongs to.
     /// </summary>
-    /// <param name="skipCache">Whether to skip the cache and always excute a REST request</param>
+    /// <param name="skipCache">Whether to skip the cache and always execute a REST request</param>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -148,7 +145,7 @@ public class DiscordVoiceState
     /// <summary>
     /// Gets the user to which this voicestate belongs
     /// </summary>
-    /// <param name="skipCache">Whether to skip the cache and always excute a REST request</param>
+    /// <param name="skipCache">Whether to skip the cache and always execute a REST request</param>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the user does not exist.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public ValueTask<DiscordUser> GetUserAsync(bool skipCache = false)
@@ -157,7 +154,7 @@ public class DiscordVoiceState
     /// <summary>
     /// Gets the member to which this voicestate belongs
     /// </summary>
-    /// <param name="skipCache">Whether to skip the cache and always excute a REST request</param>
+    /// <param name="skipCache">Whether to skip the cache and always execute a REST request</param>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async ValueTask<DiscordMember> GetMemberAsync(bool skipCache = false)

@@ -28,27 +28,27 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     {
         this.Discord = other.Discord;
 
-        this._attachments = new List<DiscordAttachment>(other._attachments);
-        this._embeds = new List<DiscordEmbed>(other._embeds);
+        this._attachments = [..other._attachments];
+        this._embeds = [..other._embeds];
 
         if (other._mentionedChannels is not null)
         {
-            this._mentionedChannels = new List<DiscordChannel>(other._mentionedChannels);
+            this._mentionedChannels = [..other._mentionedChannels];
         }
 
         if (other._mentionedRoles is not null)
         {
-            this._mentionedRoles = new List<DiscordRole>(other._mentionedRoles);
+            this._mentionedRoles = [..other._mentionedRoles];
         }
 
         if (other._mentionedRoleIds is not null)
         {
-            this._mentionedRoleIds = new List<ulong>(other._mentionedRoleIds);
+            this._mentionedRoleIds = [..other._mentionedRoleIds];
         }
 
-        this._mentionedUsers = new List<DiscordUser>(other._mentionedUsers);
-        this._reactions = new List<DiscordReaction>(other._reactions);
-        this._stickers = new List<DiscordMessageSticker>(other._stickers);
+        this._mentionedUsers = [..other._mentionedUsers];
+        this._reactions = [..other._reactions];
+        this._stickers = [..other._stickers];
 
         this.Author = other.Author;
         this.ChannelId = other.ChannelId;
