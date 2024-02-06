@@ -125,7 +125,7 @@ public sealed class CommandExecutor : ICommandExecutor
                 await context.Extension._commandErrored.InvokeAsync(context.Extension, new CommandErroredEventArgs()
                 {
                     Context = context,
-                    Exception = new ChecksFailedException(failedChecks, context.Command.Name),
+                    Exception = new ChecksFailedException(failedChecks.Distinct().ToList(), context.Command.Name),
                     CommandObject = null
                 });
 
