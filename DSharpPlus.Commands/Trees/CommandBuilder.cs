@@ -131,10 +131,6 @@ public class CommandBuilder
     public static CommandBuilder From(Type type)
     {
         ArgumentNullException.ThrowIfNull(type, nameof(type));
-        if (type.GetCustomAttribute<CommandAttribute>() is null)
-        {
-            throw new ArgumentException($"The type \"{type.FullName ?? type.Name}\" does not have a CommandAttribute.", nameof(type));
-        }
 
         // Add subcommands
         List<CommandBuilder> subCommandBuilders = [];
@@ -159,7 +155,7 @@ public class CommandBuilder
             subCommandBuilders.Add(From(method));
         }
 
-        if (subCommandBuilders.Count == 0)
+        if (type.GetCustomAttribute<CommandAttribute>() is null && subCommandBuilders.Count == 0)
         {
             throw new ArgumentException($"The type \"{type.FullName ?? type.Name}\" does not have any subcommands or methods with a CommandAttribute.", nameof(type));
         }
