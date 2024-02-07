@@ -15,13 +15,7 @@ namespace DSharpPlus.Entities;
 public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
 {
     internal DiscordMessage()
-    {
-        string gid = this.Channel is DiscordDmChannel ? "@me" : this.Channel?.GuildId?.ToString(CultureInfo.InvariantCulture) ?? "@me";
-        string cid = this.ChannelId.ToString(CultureInfo.InvariantCulture);
-        string mid = this.Id.ToString(CultureInfo.InvariantCulture);
-
-        this.JumpLink = new Uri($"https://discord.com/channels/{gid}/{cid}/{mid}");
-    }
+    { }
 
     internal DiscordMessage(DiscordMessage other)
         : this()
@@ -238,12 +232,6 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         => this.WebhookId != null;
 
     /// <summary>
-    /// Gets the jump link to this message. This is null when the channel is not cached.
-    /// </summary>
-    [JsonIgnore]
-    public Uri JumpLink { get; internal set; }
-
-    /// <summary>
     /// Gets stickers for this message.
     /// </summary>
     [JsonIgnore]
@@ -300,7 +288,10 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     {
         this.Channel.TryGetCachedValue(out DiscordChannel? channel);
         DiscordGuild? guild = null;
-        channel?.Guild.TryGetCachedValue(out guild);
+        if (channel is not null)
+        {
+            guild = channel.GuildId.HasValue ? await this.Discord.Cache.TryGetGuildAsync(channel.GuildId.Value) : null;
+        }
         this._mentionedUsers ??= [];
         this._mentionedRoles ??= [];
         this._mentionedChannels ??= [];
@@ -313,11 +304,16 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
             // Assign the Discord instance and update the user cache.
             usr.Discord = this.Discord;
             await this.Discord.Cache.AddUserAsync(usr);
-
-            if (guild is not null && usr is not DiscordMember && guild._members.TryGetValue(usr.Id, out DiscordMember? cachedMember))
+            
+            if (guild is not null && usr is not DiscordMember )
             {
+                DiscordMember? member = await this.Discord.Cache.TryGetMemberAsync(usr.Id, guild.Id);
+                if(member is null && guild._members.TryGetValue(usr.Id, out DiscordMember? cachedMember))
+                {
+                    member = cachedMember;
+                }
                 // If the message is from a guild, but a discord member isn't provided, try to get the discord member out of guild members cache.
-                mentionedUsers.Add(cachedMember);
+                mentionedUsers.Add(member);
             }
             else
             {
@@ -331,13 +327,30 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
 
         if (guild is not null && !string.IsNullOrWhiteSpace(this.Content))
         {
-            this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(guild.GetChannel)).ToList();
-            this._mentionedRoles = this._mentionedRoles.Union(this._mentionedRoleIds.Select(guild.GetRole)).ToList();
+            this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(guild?.)).ToList();
+            this._mentionedRoles = this._mentionedRoles.Union(this._mentionedRoleIds.Select(guild.GetRole)).Where(x => x is not null).ToList();
 
             //uncomment if this breaks
             //mentionedUsers.UnionWith(Utilities.GetUserMentions(this).Select(this.Discord.GetCachedOrEmptyUserInternal));
             //this._mentionedRoles = this._mentionedRoles.Union(Utilities.GetRoleMentions(this).Select(xid => guild.GetRole(xid))).ToList();
         }
+    }
+    
+    /// <summary>
+    /// Gets the jump link to this message. This is null when the channel is not cached.
+    /// </summary>
+    public async ValueTask<Uri?> TryGetJumpLinkAsync()
+    {
+        DiscordChannel? channel = await this.Discord.Cache.TryGetChannelAsync(this.ChannelId);
+        if (channel is null)
+        {
+            return null;
+        }
+        string gid = channel is DiscordDmChannel ? "@me" : channel.GuildId?.ToString(CultureInfo.InvariantCulture) ?? "@me";
+        string cid = this.ChannelId.ToString(CultureInfo.InvariantCulture);
+        string mid = this.Id.ToString(CultureInfo.InvariantCulture);
+
+        return new Uri($"https://discord.com/channels/{gid}/{cid}/{mid}");
     }
     
     /// <summary>
