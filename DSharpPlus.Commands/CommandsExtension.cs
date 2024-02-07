@@ -177,18 +177,12 @@ public sealed class CommandsExtension : BaseExtension
     /// </summary>
     public void AddChecks(Assembly assembly)
     {
-        foreach
-        (
-            Type t in assembly.ExportedTypes.Where
-            (
-                candidate => candidate.GetInterfaces().Any
-                (
-                    x => x.FullName == "DSharpPlus.Commands.ContextChecks.IContextCheck`1"
-                )
-            )
-        )
+        foreach(Type t in assembly.ExportedTypes)
         {
-            this.AddCheck(t);
+            if (t.GetInterface("DSharpPlus.Commands.ContextChecks.IContextCheck`1") is not null)
+            {
+                this.AddCheck(t);
+            }
         }
     }
 
@@ -205,17 +199,17 @@ public sealed class CommandsExtension : BaseExtension
     public void AddCheck(Type checkType)
     {
         // get all implemented check interfaces, we can pretty easily handle having multiple checks in one type
-        IEnumerable<Type> interfaces = checkType.GetInterfaces()
-            .Where(x => x.FullName == "DSharpPlus.Commands.ContextChecks.IContextCheck`1");
-
-        foreach(Type t in interfaces)
+        foreach(Type t in checkType.GetInterfaces())
         {
+            if (t.FullName != "DSharpPlus.Commands.ContextChecks.IContextCheck`1")
+            {
+                continue;
+            }
+
             Type attributeType = t.GetGenericArguments()[0];
 
             MethodInfo method = t.GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .Where(x => x.Name == nameof(IContextCheck<ContextCheckAttribute>.ExecuteCheckAsync))
-                .Where(x => x.GetParameters()[0].ParameterType == attributeType)
-                .First();
+                .First(x => x.Name == "ExecuteCheckAsync" && x.GetParameters()[0].ParameterType == attributeType);
 
             // create the func for invoking the check here, during startup
             ParameterExpression check = Expression.Parameter(typeof(object));
@@ -308,8 +302,8 @@ public sealed class CommandsExtension : BaseExtension
         {
             CommandNotFoundException commandNotFoundException => $"Command {Formatter.InlineCode(Formatter.Sanitize(commandNotFoundException.CommandName))} was not found.",
             ArgumentParseException argumentParseException => $"Failed to parse argument {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.Parameter.Name))}.",
-            ChecksFailedException checksFailedException when checksFailedException.Errors.Count == 1 => $"The following error occurred:\n {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.Errors[0]))}",
-            ChecksFailedException checksFailedException => $"The following context checks failed: {Formatter.InlineCode(Formatter.Sanitize(string.Join("\n\n ", checksFailedException.Errors)))}.",
+            ChecksFailedException checksFailedException when checksFailedException.Errors.Count == 1 => $"The following error occurred: {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.Errors[0]))}",
+            ChecksFailedException checksFailedException => $"The following context checks failed: {Formatter.InlineCode(Formatter.Sanitize(string.Join("\n\n", checksFailedException.Errors)))}.",
             DiscordException discordException when discordException.Response is not null && (int)discordException.Response.StatusCode >= 500 && (int)discordException.Response.StatusCode < 600 => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? "No further information was provided."}",
             DiscordException discordException when discordException.Response is not null => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? discordException.Message}",
             _ => $"An unexpected error occurred: {eventArgs.Exception.Message}"
