@@ -16,11 +16,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
 {
     internal DiscordMessage()
     {
-        string gid = this.Channel is DiscordDmChannel ? "@me" : this.Channel?.GuildId?.ToString(CultureInfo.InvariantCulture) ?? "@me";
-        string cid = this.ChannelId.ToString(CultureInfo.InvariantCulture);
-        string mid = this.Id.ToString(CultureInfo.InvariantCulture);
 
-        this.JumpLink = new Uri($"https://discord.com/channels/{gid}/{cid}/{mid}");
     }
 
     internal DiscordMessage(DiscordMessage other)
@@ -262,7 +258,17 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Gets the jump link to this message.
     /// </summary>
     [JsonIgnore]
-    public Uri JumpLink { get; internal set; }
+    public Uri JumpLink
+    {
+        get
+        {
+            string gid = this.Channel is DiscordDmChannel ? "@me" : this.Channel?.GuildId?.ToString(CultureInfo.InvariantCulture) ?? "@me";
+            string cid = this.ChannelId.ToString(CultureInfo.InvariantCulture);
+            string mid = this.Id.ToString(CultureInfo.InvariantCulture);
+
+            return new Uri($"https://discord.com/channels/{gid}/{cid}/{mid}");
+        }
+    }
 
     /// <summary>
     /// Gets stickers for this message.
