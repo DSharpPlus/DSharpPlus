@@ -8,9 +8,14 @@ namespace DSharpPlus.EventArgs;
 public class GuildIntegrationsUpdateEventArgs : DiscordEventArgs
 {
     /// <summary>
-    /// Gets the guild that had its integrations updated.
+    /// Gets the guild that had its integrations updated. This field is null if the guild was not in cache.
     /// </summary>
-    public DiscordGuild Guild { get; internal set; }
+    public DiscordGuild? Guild { get; internal set; }
+    
+    /// <summary>
+    /// Gets the id of the guild that had its integrations updated.
+    /// </summary>
+    public ulong GuildId { get; internal set; }
 
     internal GuildIntegrationsUpdateEventArgs() : base() { }
 }

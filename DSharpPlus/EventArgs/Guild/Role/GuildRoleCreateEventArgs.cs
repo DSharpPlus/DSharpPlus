@@ -1,3 +1,4 @@
+using DSharpPlus.Caching;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs;
@@ -10,7 +11,8 @@ public class GuildRoleCreateEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the guild in which the role was created.
     /// </summary>
-    public DiscordGuild Guild { get; internal set; }
+    public CachedEntity<ulong, DiscordGuild> Guild { get; internal set; }
+
 
     /// <summary>
     /// Gets the role that was created.

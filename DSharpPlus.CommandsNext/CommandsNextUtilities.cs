@@ -269,7 +269,7 @@ public static class CommandsNextUtilities
                 {
                     try
                     {
-                        array.SetValue(await ctx.CommandsNext.ConvertArgument(rawArgumentList[i], ctx, arg.Type), i - start);
+                        array.SetValue(await ctx.CommandsNext.ConvertArgumentAsync(rawArgumentList[i], ctx, arg.Type), i - start);
                     }
                     catch (Exception ex)
                     {
@@ -285,7 +285,7 @@ public static class CommandsNextUtilities
             {
                 try
                 {
-                    args[i + 2] = rawArgumentList[i] != null ? await ctx.CommandsNext.ConvertArgument(rawArgumentList[i], ctx, arg.Type) : arg.DefaultValue;
+                    args[i + 2] = rawArgumentList[i] != null ? await ctx.CommandsNext.ConvertArgumentAsync(rawArgumentList[i], ctx, arg.Type) : arg.DefaultValue;
                 }
                 catch (Exception ex)
                 {

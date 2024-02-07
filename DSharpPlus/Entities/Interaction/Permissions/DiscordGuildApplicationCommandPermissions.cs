@@ -25,8 +25,9 @@ public class DiscordGuildApplicationCommandPermissions : SnowflakeObject
     /// Gets the guild.
     /// </summary>
     [JsonIgnore]
+    //TODO apply caching
     public DiscordGuild Guild
-        => (this.Discord as DiscordClient).InternalGetCachedGuild(this.GuildId);
+        => (this.Discord as DiscordClient).GetCachedGuild(this.GuildId);
 
     /// <summary>
     /// Gets the permissions for the application command in the guild.

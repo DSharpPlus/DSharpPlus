@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DSharpPlus.Caching;
 using DSharpPlus.Net.Models;
-
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -16,10 +16,33 @@ public class DiscordAutoModerationRule : SnowflakeObject
     internal ulong GuildId { get; set; }
 
     /// <summary>
-    /// Gets the guild which the rule is in.
+    /// Gets the guild which the rule belongs to.
     /// </summary>
-    [JsonIgnore]
-    public DiscordGuild? Guild => this.Discord.Guilds.TryGetValue(this.GuildId, out DiscordGuild? guild) ? guild : null;
+    /// <param name="withCounts">Whether to include approximate presence and member counts in the returned guild.</param>
+    /// <param name="skipCache">Whether to skip the cache and always excute a REST request</param>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the guild is not found.</exception>
+    public async ValueTask<DiscordGuild> GetGuildAsync(bool skipCache = false, bool withCounts = false)
+    {
+        if (Discord is DiscordClient dc)
+        {
+            return await dc.GetGuildAsync(this.GuildId, skipCache, withCounts);
+        }
+
+        if (skipCache)
+        {
+            return await this.Discord.ApiClient.GetGuildAsync(this.GuildId, withCounts);
+        }
+        
+        DiscordGuild? guild = await this.Discord.Cache.TryGet<DiscordGuild>(ICacheKey.ForGuild(this.GuildId));
+        if (guild is not null)
+        {
+            return guild;
+        }
+        
+        return await this.Discord.ApiClient.GetGuildAsync(this.GuildId, withCounts);
+    }
+    
 
     /// <summary>
     /// Gets the rule name.
@@ -33,8 +56,30 @@ public class DiscordAutoModerationRule : SnowflakeObject
     /// <summary>
     /// Gets the user that created the rule.
     /// </summary>
-    [JsonIgnore]
-    public DiscordUser? Creator => this.Discord.TryGetCachedUserInternal(this.CreatorId, out DiscordUser creator) ? creator : null;
+    /// <param name="skipCache">Whether to skip the cache and always excute a REST request</param>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the user is not found.</exception>
+    public async ValueTask<DiscordUser> GetCreatorAsync(bool skipCache = false)
+    {
+        if (Discord is DiscordClient dc)
+        {
+            return await dc.GetUserAsync(this.CreatorId, skipCache);
+        }
+
+        if (skipCache)
+        {
+            return await this.Discord.ApiClient.GetUserAsync(this.CreatorId);
+        }
+            
+        
+        DiscordUser? user = await this.Discord.Cache.TryGetUserAsync(this.CreatorId);
+        if (user is not null)
+        {
+            return user;
+        }
+        
+        return await this.Discord.ApiClient.GetUserAsync(this.CreatorId);
+    }
 
     /// <summary>
     /// Gets the rule event type.

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DSharpPlus.Caching;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs;
@@ -11,8 +12,8 @@ public class GuildMembersChunkEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the guild that requested this chunk.
     /// </summary>
-    public DiscordGuild Guild { get; internal set; }
-
+    public CachedEntity<ulong, DiscordGuild> Guild { get; internal set; }
+    
     /// <summary>
     /// Gets the collection of members returned from this chunk.
     /// </summary>
@@ -41,7 +42,7 @@ public class GuildMembersChunkEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the unique string used to identify the request, if specified.
     /// </summary>
-    public string Nonce { get; set; }
+    public string? Nonce { get; set; }
 
     internal GuildMembersChunkEventArgs() : base() { }
 }

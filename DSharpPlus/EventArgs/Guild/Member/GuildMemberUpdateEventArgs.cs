@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using DSharpPlus.Caching;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs;
@@ -11,9 +12,10 @@ namespace DSharpPlus.EventArgs;
 public class GuildMemberUpdateEventArgs : DiscordEventArgs
 {
     /// <summary>
-    /// Gets the guild in which the update occurred.
+    /// Gets the guild in which the update occurred. This field is null if the guild was not in cache.
     /// </summary>
-    public DiscordGuild Guild { get; internal set; }
+    public CachedEntity<ulong, DiscordGuild> Guild { get; internal set; }
+    
 
     /// <summary>
     /// Get the member with post-update info
@@ -21,9 +23,9 @@ public class GuildMemberUpdateEventArgs : DiscordEventArgs
     public DiscordMember MemberAfter { get; internal set; }
 
     /// <summary>
-    /// Get the member with pre-update info
+    /// Get the member with pre-update info. This field is null if the guild was not in cache.
     /// </summary>
-    public DiscordMember MemberBefore { get; internal set; }
+    public DiscordMember? MemberBefore { get; internal set; }
 
     /// <summary>
     /// Gets a collection containing post-update roles.

@@ -1,6 +1,7 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Threading.Tasks;
+using DSharpPlus.Caching;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
@@ -20,46 +21,16 @@ public class DiscordVoiceState
     internal ulong? GuildId { get; init; }
 
     /// <summary>
-    /// Gets the guild associated with this voice state.
-    /// </summary>
-    [JsonIgnore]
-    public DiscordGuild? Guild => this.GuildId is not null ? this.Discord.Guilds[this.GuildId.Value] : this.Channel?.Guild;
-
-    /// <summary>
     /// Gets ID of the channel this user is connected to.
     /// </summary>
     [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Include)]
     internal ulong? ChannelId { get; init; }
 
     /// <summary>
-    /// Gets the channel this user is connected to.
-    /// </summary>
-    [JsonIgnore]
-    public DiscordChannel? Channel => (this.ChannelId.HasValue && this.ChannelId.Value != 0) ? this.Discord.InternalGetCachedChannel(this.ChannelId.Value) : null;
-
-    /// <summary>
     /// Gets ID of the user to which this voice state belongs.
     /// </summary>
     [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
     internal ulong UserId { get; init; }
-
-    /// <summary>
-    /// Gets the user associated with this voice state.
-    /// <para>This can be cast to a <see cref="DiscordMember"/> if this voice state was in a guild.</para>
-    /// </summary>
-    [JsonIgnore]
-    public DiscordUser User
-    {
-        get
-        {
-            if (this.Guild is not null && this.Guild._members.TryGetValue(this.UserId, out DiscordMember? member))
-            {
-                return member;
-            }
-
-            return this.Discord.GetCachedOrEmptyUserInternal(this.UserId);
-        }
-    }
 
     /// <summary>
     /// Gets ID of the session of this voice state.
@@ -114,24 +85,7 @@ public class DiscordVoiceState
     /// </summary>
     [JsonProperty("request_to_speak_timestamp", NullValueHandling = NullValueHandling.Ignore)]
     public DateTimeOffset? RequestToSpeakTimestamp { get; internal init; }
-
-    /// <summary>
-    /// Gets the member this voice state belongs to.
-    /// </summary>
-    [JsonIgnore, NotNullIfNotNull(nameof(Guild))]
-    public DiscordMember? Member
-    {
-        get
-        {
-            if (this.Guild is not null && this.Guild.Members.TryGetValue(this.TransportMember.User.Id, out DiscordMember? member))
-            {
-                return member;
-            }
-
-            return new DiscordMember(this.TransportMember) { Discord = this.Discord };
-        }
-    }
-
+    
     [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
     internal TransportMember TransportMember { get; init; }
 
@@ -148,5 +102,77 @@ public class DiscordVoiceState
         // Values not filled out are values that are not known from a DiscordMember
     }
 
-    public override string ToString() => $"{this.UserId.ToString(CultureInfo.InvariantCulture)} in {(this.GuildId ?? this.Channel?.GuildId)?.ToString(CultureInfo.InvariantCulture)}";
+    public override string ToString() => $"{this.UserId.ToString(CultureInfo.InvariantCulture)} in channel {ChannelId ?? 0}";
+
+    /// <summary>
+    /// Gets the guild this voicestate belongs to.
+    /// <para>Setting <paramref name="withCounts"/> to true will always make a REST request.</para>
+    /// </summary>
+    /// <param name="withCounts">Whether to include approximate presence and member counts in the returned guild.</param>
+    /// <param name="skipCache">Whether to skip the cache and always excute a REST request</param>
+    /// <returns>The requested Guild.</returns>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the voicestate does not belong the the guild</exception>
+    public ValueTask<DiscordGuild> GetGuildAsync(bool skipCache = false, bool withCounts = false)
+    {
+        if (!GuildId.HasValue)
+        {
+            throw new InvalidOperationException("Voicestate does not belong to a guild");
+        }
+        return Discord.GetGuildAsync(GuildId.Value, withCounts, skipCache);
+    }
+
+    /// <summary>
+    /// Gets the channel this voicestate belongs to.
+    /// </summary>
+    /// <param name="skipCache">Whether to skip the cache and always execute a REST request</param>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <exception cref="InvalidOperationException">This exception is only listed because Discord documents a voice state without a channel being possible, but not when or why</exception>
+    public ValueTask<DiscordChannel> GetChannelAsync(bool skipCache = false)
+    {
+        if (!ChannelId.HasValue)
+        {
+            throw new InvalidOperationException("Voicestate does not belong to a guild");
+        }
+
+        return Discord.GetChannelAsync(ChannelId.Value, skipCache);
+    }
+
+    /// <summary>
+    /// Gets the user to which this voicestate belongs
+    /// </summary>
+    /// <param name="skipCache">Whether to skip the cache and always execute a REST request</param>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the user does not exist.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    public ValueTask<DiscordUser> GetUserAsync(bool skipCache = false)
+        => Discord.GetUserAsync(UserId, skipCache);
+    
+    /// <summary>
+    /// Gets the member to which this voicestate belongs
+    /// </summary>
+    /// <param name="skipCache">Whether to skip the cache and always execute a REST request</param>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    public async ValueTask<DiscordMember> GetMemberAsync(bool skipCache = false)
+    {
+        if (!GuildId.HasValue)
+        {
+            throw new InvalidOperationException("Voicestate does not belong to a guild");
+        }
+
+        if (!skipCache)
+        {
+            DiscordMember? member = await this.Discord.Cache.TryGetMemberAsync(this.UserId, this.GuildId.Value);
+            if (member is not null)
+            {
+                return member;
+            }
+        }
+
+        return await Discord.ApiClient.GetGuildMemberAsync(GuildId.Value, UserId);
+    }
 }

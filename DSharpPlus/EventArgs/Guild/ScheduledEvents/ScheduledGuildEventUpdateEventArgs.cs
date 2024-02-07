@@ -9,7 +9,7 @@ public class ScheduledGuildEventUpdateEventArgs : DiscordEventArgs
     /// <summary>
     /// The event before the update, or null if it wasn't cached.
     /// </summary>
-    public DiscordScheduledGuildEvent EventBefore { get; internal set; }
+    public DiscordScheduledGuildEvent? EventBefore { get; internal set; }
 
     /// <summary>
     /// The event after the update.

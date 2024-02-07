@@ -30,28 +30,26 @@ public sealed class RequireUserPermissionsAttribute : CheckBaseAttribute
         this.IgnoreDms = ignoreDms;
     }
 
-    public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
+    public async override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
     {
         if (ctx.Guild == null)
         {
-            return Task.FromResult(this.IgnoreDms);
+            return this.IgnoreDms;
         }
 
         DSharpPlus.Entities.DiscordMember? usr = ctx.Member;
         if (usr == null)
         {
-            return Task.FromResult(false);
+            return false;
         }
 
         if (usr.Id == ctx.Guild.OwnerId)
         {
-            return Task.FromResult(true);
+            return true;
         }
 
-        Permissions pusr = ctx.Channel.PermissionsFor(usr);
+        Permissions pusr = await ctx.Channel.PermissionsForMemberAsync(usr);
 
-        return (pusr & Permissions.Administrator) != 0
-            ? Task.FromResult(true)
-            : (pusr & this.Permissions) == this.Permissions ? Task.FromResult(true) : Task.FromResult(false);
+        return (pusr & Permissions.Administrator) != 0 || (pusr & this.Permissions) == this.Permissions;
     }
 }

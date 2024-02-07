@@ -49,7 +49,7 @@ public sealed partial class DiscordClient
     /// Fired when this client has successfully completed its handshake with the websocket gateway.
     /// </summary>
     /// <remarks>
-    /// <i><see cref="Guilds"/> will not be populated when this event is fired.</i><br/>
+    /// <i><see cref="_guilds"/> will not be populated when this event is fired.</i><br/>
     /// See also: <see cref="GuildAvailable"/>, <see cref="GuildDownloadCompleted"/>
     /// </remarks>
     public event AsyncEventHandler<DiscordClient, SessionReadyEventArgs> SessionCreated

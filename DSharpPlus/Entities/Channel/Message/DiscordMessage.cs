@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-
+using DSharpPlus.Caching;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -15,40 +15,34 @@ namespace DSharpPlus.Entities;
 public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
 {
     internal DiscordMessage()
-    {
-        string gid = this.Channel is DiscordDmChannel ? "@me" : this.Channel?.GuildId?.ToString(CultureInfo.InvariantCulture) ?? "@me";
-        string cid = this.ChannelId.ToString(CultureInfo.InvariantCulture);
-        string mid = this.Id.ToString(CultureInfo.InvariantCulture);
-
-        this.JumpLink = new Uri($"https://discord.com/channels/{gid}/{cid}/{mid}");
-    }
+    { }
 
     internal DiscordMessage(DiscordMessage other)
         : this()
     {
         this.Discord = other.Discord;
 
-        this._attachments = new List<DiscordAttachment>(other._attachments);
-        this._embeds = new List<DiscordEmbed>(other._embeds);
+        this._attachments = [..other._attachments];
+        this._embeds = [..other._embeds];
 
         if (other._mentionedChannels is not null)
         {
-            this._mentionedChannels = new List<DiscordChannel>(other._mentionedChannels);
+            this._mentionedChannels = [..other._mentionedChannels];
         }
 
         if (other._mentionedRoles is not null)
         {
-            this._mentionedRoles = new List<DiscordRole>(other._mentionedRoles);
+            this._mentionedRoles = [..other._mentionedRoles];
         }
 
         if (other._mentionedRoleIds is not null)
         {
-            this._mentionedRoleIds = new List<ulong>(other._mentionedRoleIds);
+            this._mentionedRoleIds = [..other._mentionedRoleIds];
         }
 
-        this._mentionedUsers = new List<DiscordUser>(other._mentionedUsers);
-        this._reactions = new List<DiscordReaction>(other._reactions);
-        this._stickers = new List<DiscordMessageSticker>(other._stickers);
+        this._mentionedUsers = [..other._mentionedUsers];
+        this._reactions = [..other._reactions];
+        this._stickers = [..other._stickers];
 
         this.Author = other.Author;
         this.ChannelId = other.ChannelId;
@@ -67,14 +61,8 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Gets the channel in which the message was sent.
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel? Channel
-    {
-        get => (this.Discord as DiscordClient)?.InternalGetCachedChannel(this.ChannelId) ?? (this.Discord as DiscordClient)?.InternalGetCachedThread(this.ChannelId) ?? this._channel;
-        internal set => this._channel = value;
-    }
-
-    private DiscordChannel? _channel;
-
+    public CachedEntity<ulong, DiscordChannel> Channel { get; internal set; }
+    
     /// <summary>
     /// Gets the ID of the channel in which the message was sent.
     /// </summary>
@@ -149,7 +137,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// </summary>
     [JsonIgnore]
     public IReadOnlyList<DiscordRole> MentionedRoles
-        => this._mentionedRoles;
+        => this._mentionedRoles ?? new List<DiscordRole>();
 
     [JsonIgnore]
     internal List<DiscordRole> _mentionedRoles = [];
@@ -197,14 +185,6 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     [JsonProperty("reactions", NullValueHandling = NullValueHandling.Ignore)]
     internal List<DiscordReaction> _reactions = [];
 
-    /*
-    /// <summary>
-    /// Gets the nonce sent with the message, if the message was sent by the client.
-    /// </summary>
-    [JsonProperty("nonce", NullValueHandling = NullValueHandling.Ignore)]
-    public ulong? Nonce { get; internal set; }
-    */
-
     /// <summary>
     /// Gets whether the message is pinned.
     /// </summary>
@@ -239,13 +219,6 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     internal InternalDiscordMessageReference? _internalReference { get; set; }
 
     /// <summary>
-    /// Gets the original message reference from the crossposted message.
-    /// </summary>
-    [JsonIgnore]
-    public DiscordMessageReference? Reference
-        => this._internalReference.HasValue ? this?.InternalBuildMessageReference() : null;
-
-    /// <summary>
     /// Gets the bitwise flags for this message.
     /// </summary>
     [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
@@ -257,12 +230,6 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     [JsonIgnore]
     public bool? WebhookMessage
         => this.WebhookId != null;
-
-    /// <summary>
-    /// Gets the jump link to this message.
-    /// </summary>
-    [JsonIgnore]
-    public Uri JumpLink { get; internal set; }
 
     /// <summary>
     /// Gets stickers for this message.
@@ -295,68 +262,6 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     [JsonProperty("application_id", NullValueHandling = NullValueHandling.Ignore)]
     public ulong? ApplicationId { get; internal set; }
 
-    internal DiscordMessageReference InternalBuildMessageReference()
-    {
-        DiscordClient client = (DiscordClient)this.Discord;
-        ulong? guildId = this._internalReference?.GuildId;
-        ulong? channelId = this._internalReference?.ChannelId;
-        ulong? messageId = this._internalReference?.MessageId;
-
-        DiscordMessageReference reference = new();
-
-        if (guildId.HasValue)
-        {
-            reference.Guild = client!._guilds.TryGetValue(guildId.Value, out DiscordGuild? g)
-                ? g
-                : new DiscordGuild
-                {
-                    Id = guildId.Value,
-                    Discord = client
-                };
-        }
-
-        DiscordChannel channel = client.InternalGetCachedChannel(channelId!.Value);
-
-        if (channel is null)
-        {
-            reference.Channel = new DiscordChannel
-            {
-                Id = channelId.Value,
-                Discord = client
-            };
-
-            if (guildId.HasValue)
-            {
-                reference.Channel.GuildId = guildId.Value;
-            }
-        }
-
-        else
-        {
-            reference.Channel = channel;
-        }
-
-        if (client.MessageCache != null && client.MessageCache.TryGet(messageId!.Value, out DiscordMessage? msg))
-        {
-            reference.Message = msg;
-        }
-        else
-        {
-            reference.Message = new DiscordMessage
-            {
-                ChannelId = this.ChannelId,
-                Discord = client
-            };
-
-            if (messageId.HasValue)
-            {
-                reference.Message.Id = messageId.Value;
-            }
-        }
-
-        return reference;
-    }
-
     private IMention[] GetMentions()
     {
         List<IMention> mentions = [];
@@ -379,9 +284,14 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         return [.. mentions];
     }
 
-    internal void PopulateMentions()
+    internal async Task PopulateMentionsAsync()
     {
-        DiscordGuild? guild = this.Channel?.Guild;
+        this.Channel.TryGetCachedValue(out DiscordChannel? channel);
+        DiscordGuild? guild = null;
+        if (channel is not null)
+        {
+            guild = channel.GuildId.HasValue ? await this.Discord.Cache.TryGetGuildAsync(channel.GuildId.Value) : null;
+        }
         this._mentionedUsers ??= [];
         this._mentionedRoles ??= [];
         this._mentionedChannels ??= [];
@@ -393,12 +303,17 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         {
             // Assign the Discord instance and update the user cache.
             usr.Discord = this.Discord;
-            this.Discord.UpdateUserCache(usr);
-
-            if (guild is not null && usr is not DiscordMember && guild._members.TryGetValue(usr.Id, out DiscordMember? cachedMember))
+            await this.Discord.Cache.AddUserAsync(usr);
+            
+            if (guild is not null && usr is not DiscordMember )
             {
+                DiscordMember? member = await this.Discord.Cache.TryGetMemberAsync(usr.Id, guild.Id);
+                if(member is null && guild._members.TryGetValue(usr.Id, out DiscordMember? cachedMember))
+                {
+                    member = cachedMember;
+                }
                 // If the message is from a guild, but a discord member isn't provided, try to get the discord member out of guild members cache.
-                mentionedUsers.Add(cachedMember);
+                mentionedUsers.Add(member);
             }
             else
             {
@@ -412,13 +327,73 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
 
         if (guild is not null && !string.IsNullOrWhiteSpace(this.Content))
         {
-            this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(guild.GetChannel)).ToList();
-            this._mentionedRoles = this._mentionedRoles.Union(this._mentionedRoleIds.Select(guild.GetRole)).ToList();
+            this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(guild?.)).ToList();
+            this._mentionedRoles = this._mentionedRoles.Union(this._mentionedRoleIds.Select(guild.GetRole)).Where(x => x is not null).ToList();
 
             //uncomment if this breaks
             //mentionedUsers.UnionWith(Utilities.GetUserMentions(this).Select(this.Discord.GetCachedOrEmptyUserInternal));
             //this._mentionedRoles = this._mentionedRoles.Union(Utilities.GetRoleMentions(this).Select(xid => guild.GetRole(xid))).ToList();
         }
+    }
+    
+    /// <summary>
+    /// Gets the jump link to this message. This is null when the channel is not cached.
+    /// </summary>
+    public async ValueTask<Uri?> TryGetJumpLinkAsync()
+    {
+        DiscordChannel? channel = await this.Discord.Cache.TryGetChannelAsync(this.ChannelId);
+        if (channel is null)
+        {
+            return null;
+        }
+        string gid = channel is DiscordDmChannel ? "@me" : channel.GuildId?.ToString(CultureInfo.InvariantCulture) ?? "@me";
+        string cid = this.ChannelId.ToString(CultureInfo.InvariantCulture);
+        string mid = this.Id.ToString(CultureInfo.InvariantCulture);
+
+        return new Uri($"https://discord.com/channels/{gid}/{cid}/{mid}");
+    }
+    
+    /// <summary>
+    /// Gets the referenced message.
+    /// </summary>
+    /// <returns>
+    /// Referenced message, or null if the message is not a reply.
+    /// </returns>
+    public async Task<DiscordMessageReference?> GetReferencedMessageAsync()
+    {
+        if (this._internalReference is null)
+        {
+            return null;
+        }
+        
+        ulong? guildId = this._internalReference?.GuildId;
+        ulong? channelId = this._internalReference?.ChannelId;
+        ulong? messageId = this._internalReference?.MessageId;
+
+        DiscordMessageReference reference = new DiscordMessageReference();
+
+        if (guildId.HasValue)
+        {
+            DiscordGuild? cachedGuild = await this.Discord.Cache.TryGetGuildAsync(guildId.Value);
+            CachedEntity<ulong, DiscordGuild> guild = new(guildId.Value, cachedGuild);
+            reference.Guild = guild;
+        }
+
+        if (channelId.HasValue)
+        {
+            DiscordChannel? channel = await this.Discord.Cache.TryGetChannelAsync(channelId.Value);
+            CachedEntity<ulong, DiscordChannel> cachedChannel = new(channelId.Value, channel);
+            reference.Channel = cachedChannel;
+        }
+        
+        if (messageId.HasValue)
+        {
+            DiscordMessage? message = await this.Discord.Cache.TryGetMessageAsync(messageId.Value);
+            CachedEntity<ulong, DiscordMessage> cachedMessage = new(messageId.Value, message);
+            reference.Message = cachedMessage;
+        }
+
+        return reference;
     }
 
     /// <summary>
@@ -630,9 +605,15 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordThreadChannel> CreateThreadAsync(string name, AutoArchiveDuration archiveAfter, string? reason = null)
     {
-        return this.Channel?.Type is not ChannelType.Text and not ChannelType.News
-            ? throw new InvalidOperationException("Threads can only be created within text or news channels.")
-            : await this.Discord.ApiClient.CreateThreadFromMessageAsync(this.Channel.Id, this.Id, name, archiveAfter, reason);
+        if (this.Channel.TryGetCachedValue(out DiscordChannel? channel))
+        {
+            if (channel.Type != ChannelType.Text && channel.Type != ChannelType.News)
+            {
+                throw new InvalidOperationException("Threads can only be created within text or news channels.");
+            }
+        }
+        
+        return await this.Discord.ApiClient.CreateThreadFromMessageAsync(this.Channel.Key, this.Id, name, archiveAfter, reason);
     }
 
     /// <summary>
@@ -672,6 +653,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     public async Task DeleteReactionAsync(DiscordEmoji emoji, DiscordUser user, string? reason = null)
         => await this.Discord.ApiClient.DeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, emoji.ToReactionString(), reason);
 
+    //TODO: Make it a IAsyncEnumerable and "inline" this method
     /// <summary>
     /// Gets users that reacted with this emoji.
     /// </summary>
@@ -728,7 +710,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         do
         {
             int fetchSize = remaining > 100 ? 100 : remaining;
-            IReadOnlyList<DiscordUser> fetch = await this.Discord.ApiClient.GetReactionsAsync(this.ChannelId, this.Id, emoji.ToReactionString(), last, fetchSize);
+            IReadOnlyList<DiscordUser> fetch = await this.Discord.ApiClient.GetReactionsAsync(this.Channel.Key, this.Id, emoji.ToReactionString(), last, fetchSize);
 
             remaining -= fetch.Count;
 

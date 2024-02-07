@@ -12,6 +12,8 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
+using Caching;
+
 /// <summary>
 /// Represents a discord channel.
 /// </summary>
@@ -33,9 +35,19 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <summary>
     /// Gets the category that contains this channel. For threads, gets the channel this thread was created in.
     /// </summary>
-    [JsonIgnore]
-    public DiscordChannel Parent
-        => this.ParentId.HasValue ? this.Guild.GetChannel(this.ParentId.Value) : null;
+    public async Task<DiscordChannel?> GetParentAsync()
+    {
+        if (!this.ParentId.HasValue)
+        {
+            return null;
+        }
+
+        DiscordGuild? guild = await this.GetGuildAsync();
+
+        return guild is not null 
+        ? await guild.GetChannelAsync(this.ParentId.Value) 
+        : null;
+    }
 
     /// <summary>
     /// Gets the name of this channel.
@@ -79,9 +91,23 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <summary>
     /// Gets the guild to which this channel belongs.
     /// </summary>
-    [JsonIgnore]
-    public DiscordGuild Guild
-        => this.GuildId.HasValue && this.Discord.Guilds.TryGetValue(this.GuildId.Value, out DiscordGuild? guild) ? guild : null;
+    public async Task<DiscordGuild?> GetGuildAsync(bool skipCache = false)
+    {
+        if (!this.GuildId.HasValue)
+        {
+            return null;
+        }
+
+        if (skipCache)
+        {
+            return await this.Discord.ApiClient.GetGuildAsync(GuildId.Value, null);
+        }
+
+        DiscordGuild? cachedGuild = await this.Discord.Cache.TryGetGuildAsync(this.GuildId.GetValueOrDefault());
+        return cachedGuild is null 
+                ? await this.Discord.ApiClient.GetGuildAsync(GuildId.Value, null) 
+                : cachedGuild;
+    }
 
     /// <summary>
     /// Gets a collection of permission overwrites for this channel.
@@ -147,47 +173,77 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     public string Mention
         => Formatter.Mention(this);
 
+
     /// <summary>
-    /// Gets this channel's children. This applies only to channel categories.
+    /// Gets the guild-specific default message notifications for this channel.
     /// </summary>
-    [JsonIgnore]
-    public IReadOnlyList<DiscordChannel> Children
+    /// <remarks>
+    /// This function is only valid for guild categories.
+    /// </remarks>
+    public async Task<IEnumerable<DiscordChannel>> GetChildrenAsync()
     {
-        get
+        if (this.Type != ChannelType.Category)
         {
-            return !this.IsCategory
-                ? throw new ArgumentException("Only channel categories contain children.")
-                : this.Guild._channels.Values.Where(e => e.ParentId == this.Id).ToList();
+            throw new ArgumentException("Only channel categories can have children.");
         }
+
+        DiscordGuild? guild = await this.GetGuildAsync();
+
+        return guild is not null 
+            ? guild._channels.Values.Where(xc => xc.ParentId == this.Id) 
+            : [];
     }
 
     /// <summary>
     /// Gets this channel's threads. This applies only to text and news channels.
     /// </summary>
-    [JsonIgnore]
-    public IReadOnlyList<DiscordThreadChannel> Threads
+    public async Task<IReadOnlyList<DiscordThreadChannel>> GetThreadsAsync()
     {
-        get
+        if (this.Type is not (ChannelType.Text or ChannelType.News or ChannelType.GuildForum))
         {
-            return this.Type is not (ChannelType.Text or ChannelType.News or ChannelType.GuildForum)
-                ? throw new ArgumentException("Only text channels can have threads.")
-                : this.Guild._threads.Values.Where(e => e.ParentId == this.Id).ToArray();
+            throw new ArgumentException("Only text channels can have threads.");
         }
+
+        DiscordGuild? guild = await this.GetGuildAsync();
+
+        return guild is not null
+            ? guild._threads.Values.Where(e => e.ParentId == this.Id).ToArray()
+            : [];
+
     }
 
     /// <summary>
     /// Gets the list of members currently in the channel (if voice channel), or members who can see the channel (otherwise).
     /// </summary>
-    [JsonIgnore]
-    public virtual IReadOnlyList<DiscordMember> Users
+    public async IAsyncEnumerable<DiscordMember> GetUsersAsync()
     {
-        get
+        if (this.GuildId is null)
         {
-            return this.Guild == null
-                ? throw new InvalidOperationException("Cannot query users outside of guild channels.")
-                : (IReadOnlyList<DiscordMember>)(this.Type == ChannelType.Voice || this.Type == ChannelType.Stage
-                ? this.Guild.Members.Values.Where(x => x.VoiceState?.ChannelId == this.Id).ToList()
-                : this.Guild.Members.Values.Where(x => (this.PermissionsFor(x) & Permissions.AccessChannels) == Permissions.AccessChannels).ToList());
+            throw new InvalidOperationException("Cannot query users outside of guild channels.");
+        }
+
+        DiscordGuild? guild = await this.GetGuildAsync();
+
+        if (this.Type is not (ChannelType.Voice or ChannelType.Stage))
+        {
+            
+            foreach (DiscordMember member in guild!.Members.Values)
+            {
+                if ((await this.PermissionsForMemberAsync(member) & Permissions.AccessChannels) == Permissions.AccessChannels)
+                {
+                    yield return member;
+                }
+            }
+        }
+        else
+        {
+            foreach (DiscordMember member in guild!.Members.Values)
+            {
+                if (member.VoiceState?.ChannelId == this.Id)
+                {
+                    yield return member;
+                }
+            }
         }
     }
 
@@ -315,10 +371,34 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <param name="end">When this event ends. External events require an end time.</param>
     /// <returns>The created event.</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public Task<DiscordScheduledGuildEvent> CreateGuildEventAsync(string name, string description, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end)
-        => this.Type is not (ChannelType.Voice or ChannelType.Stage) ? throw new InvalidOperationException("Events can only be created on voice an stage chnanels") :
-            this.Guild.CreateEventAsync(name, description, this.Id, this.Type is ChannelType.Stage ? ScheduledGuildEventType.StageInstance : ScheduledGuildEventType.VoiceChannel, privacyLevel, start, end);
+    public async Task<DiscordScheduledGuildEvent> CreateGuildEventAsync(string name, string description, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end)
+    {
+        if (this.GuildId is null)
+        {
+            throw new InvalidOperationException("Events can only be created on guild channels");
+        }
 
+        if(this.Type is not (ChannelType.Voice or ChannelType.Stage))
+        {
+            throw new InvalidOperationException("Events can only be created on voice an stage chnanels");
+        }
+
+        ScheduledGuildEventType type = this.Type is ChannelType.Stage 
+            ? ScheduledGuildEventType.StageInstance 
+            : ScheduledGuildEventType.VoiceChannel;
+
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(start, DateTimeOffset.Now);
+
+        if (end != null && end <= start)
+        {
+            throw new ArgumentOutOfRangeException("The end time for an event must be after the start time.");
+        }
+
+        DiscordScheduledGuildEventMetadata? metadata = null;
+
+        return await this.Discord.ApiClient.CreateScheduledGuildEventAsync(this.GuildId.Value, name, description, start, type, privacyLevel, metadata, end, this.Id);
+    
+    }
     // Please send memes to Naamloos#2887 at discord <3 thank you
 
     /// <summary>
@@ -342,11 +422,21 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordChannel> CloneAsync(string reason = null)
+    public async Task<DiscordChannel> CloneAsync(string? reason = null)
     {
-        if (this.Guild == null)
+        if (this.GuildId is null)
         {
             throw new InvalidOperationException("Non-guild channels cannot be cloned.");
+        }
+
+        if (this.Type is not (ChannelType.Text or ChannelType.Voice or ChannelType.Category or ChannelType.News or ChannelType.Stage or ChannelType.GuildForum))
+        {
+            throw new ArgumentException("Channel type must be text, voice, stage, category, or a forum.", nameof(this.Type));
+        }
+
+        if (this.Type == ChannelType.Category && this.ParentId.HasValue)
+        {
+            throw new ArgumentException("Cannot specify parent of a channel category.", nameof(ParentId));
         }
 
         List<DiscordOverwriteBuilder> ovrs = new();
@@ -370,7 +460,27 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             perUserRateLimit = Optional.FromNoValue<int?>();
         }
 
-        return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, this.Topic, bitrate, userLimit, ovrs, this.IsNSFW, perUserRateLimit, this.QualityMode, this.Position, reason);
+        // technically you can create news/store channels but not always
+        return await this.Discord.ApiClient.CreateGuildChannelAsync
+            (
+                this.GuildId.Value,
+                this.Name,
+                this.Type,
+                this.ParentId,
+                this.Topic,
+                bitrate,
+                userLimit,
+                ovrs,
+                this.IsNSFW,
+                perUserRateLimit,
+                this.QualityMode,
+                this.Position,
+                reason,
+                null,
+                null,
+                null,
+                null
+            );
     }
 
     /// <summary>
@@ -383,16 +493,16 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    /// <remarks>Cached message objects will not be returned if <see cref="DiscordConfiguration.MessageCacheSize"/> is set to zero, if the client does not have the <see cref="DiscordIntents.GuildMessages"/> or <see cref="DiscordIntents.DirectMessages"/> intents, or if the discord client is a <see cref="DiscordShardedClient"/>.</remarks>
     public async Task<DiscordMessage> GetMessageAsync(ulong id, bool skipCache = false)
     {
-        return !skipCache
-            && this.Discord.Configuration.MessageCacheSize > 0
-            && this.Discord is DiscordClient dc
-            && dc.MessageCache != null
-            && dc.MessageCache.TryGet(id, out DiscordMessage? msg)
-            ? msg
-            : await this.Discord.ApiClient.GetMessageAsync(this.Id, id);
+        if (skipCache)
+        {
+            return await this.Discord.ApiClient.GetMessageAsync(this.Id, id);
+        }
+
+        DiscordMessage? msg = await this.Discord.Cache.TryGetMessageAsync(id);
+        msg ??= await this.Discord.ApiClient.GetMessageAsync(this.Id, id);
+        return msg;
     }
 
     /// <summary>
@@ -446,14 +556,11 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task ModifyPositionAsync(int position, string reason = null, bool? lockPermissions = null, ulong? parentId = null)
+    public async Task ModifyPositionAsync(int position, string? reason = null, bool? lockPermissions = null, ulong? parentId = null)
     {
-        if (this.Guild is null)
-        {
-            throw new InvalidOperationException("Cannot modify order of non-guild channels.");
-        }
+        DiscordGuild? guild = await this.GetGuildAsync() ?? throw new InvalidOperationException("Cannot modify position of a channel that is not in a guild.");
 
-        DiscordChannel[] chns = this.Guild._channels.Values.Where(xc => xc.Type == this.Type).OrderBy(xc => xc.Position).ToArray();
+        DiscordChannel[] chns = guild._channels.Values.Where(xc => xc.Type == this.Type).OrderBy(xc => xc.Position).ToArray();
         RestGuildChannelReorderPayload[] pmds = new RestGuildChannelReorderPayload[chns.Length];
         for (int i = 0; i < chns.Length; i++)
         {
@@ -466,7 +573,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             };
         }
 
-        await this.Discord.ApiClient.ModifyGuildChannelPositionAsync(this.Guild.Id, pmds, reason);
+        await this.Discord.ApiClient.ModifyGuildChannelPositionAsync(guild.Id, pmds, reason);
     }
 
     /// <summary>
@@ -479,7 +586,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public IAsyncEnumerable<DiscordMessage> GetMessagesBeforeAsync(ulong before, int limit = 100)
-        => this.GetMessagesInternalAsync(limit, before, null, null);
+        => this.GetMessagesInternalAsync(limit, before);
 
     /// <summary>
     /// Returns a list of messages after a certain message.
@@ -491,7 +598,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public IAsyncEnumerable<DiscordMessage> GetMessagesAfterAsync(ulong after, int limit = 100)
-        => this.GetMessagesInternalAsync(limit, null, after, null);
+        => this.GetMessagesInternalAsync(limit, null, after);
 
     /// <summary>
     /// Returns a list of messages around a certain message.
@@ -514,7 +621,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public IAsyncEnumerable<DiscordMessage> GetMessagesAsync(int limit = 100) =>
-        this.GetMessagesInternalAsync(limit, null, null, null);
+        this.GetMessagesInternalAsync(limit);
 
     private async IAsyncEnumerable<DiscordMessage> GetMessagesInternalAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
     {
@@ -538,8 +645,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         {
             throw new InvalidOperationException("Cannot get more than 100 messages around the specified ID.");
         }
-
-        List<DiscordMessage> msgs = new(limit);
+        
         int remaining = limit;
         ulong? last = null;
         bool isbefore = before != null;
@@ -639,7 +745,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         {
             throw new ArgumentException("You need to specify at least one message to delete.");
         }
-        else if (count == 1)
+        if (count == 1)
         {
             await this.Discord.ApiClient.DeleteMessageAsync(this.Id, messages[0].Id, reason);
             return 1;
@@ -748,7 +854,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync()
     {
-        return this.Guild == null
+        return !this.GuildId.HasValue
             ? throw new ArgumentException("Cannot get the invites of a channel that does not belong to a guild.")
             : await this.Discord.ApiClient.GetChannelInvitesAsync(this.Id);
     }
@@ -756,8 +862,8 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <summary>
     /// Create a new invite object
     /// </summary>
-    /// <param name="max_age">Duration of invite in seconds before expiry, or 0 for never.  Defaults to 86400.</param>
-    /// <param name="max_uses">Max number of uses or 0 for unlimited.  Defaults to 0</param>
+    /// <param name="maxAge">Duration of invite in seconds before expiry, or 0 for never.  Defaults to 86400.</param>
+    /// <param name="maxUses">Max number of uses or 0 for unlimited.  Defaults to 0</param>
     /// <param name="temporary">Whether this invite only grants temporary membership.  Defaults to false.</param>
     /// <param name="unique">If true, don't try to reuse a similar invite (useful for creating many unique one time use invites)</param>
     /// <param name="reason">Reason for audit logs.</param>
@@ -769,8 +875,8 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, string reason = null, InviteTargetType? targetType = null, ulong? targetUserId = null, ulong? targetApplicationId = null)
-        => await this.Discord.ApiClient.CreateChannelInviteAsync(this.Id, max_age, max_uses, temporary, unique, reason, targetType, targetUserId, targetApplicationId);
+    public async Task<DiscordInvite> CreateInviteAsync(int maxAge = 86400, int maxUses = 0, bool temporary = false, bool unique = false, string reason = null, InviteTargetType? targetType = null, ulong? targetUserId = null, ulong? targetApplicationId = null)
+        => await this.Discord.ApiClient.CreateChannelInviteAsync(this.Id, maxAge, maxUses, temporary, unique, reason, targetType, targetUserId, targetApplicationId);
 
     /// <summary>
     /// Adds a channel permission overwrite for specified member.
@@ -915,8 +1021,8 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             throw new ArgumentException("Cannot place a member in a non-voice channel!"); // be a little more angry, let em learn!!1
         }
 
-        await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, member.Id, default, default, default,
-            default, this.Id, default, null);
+        await this.Discord.ApiClient.ModifyGuildMemberAsync(this.GuildId!.Value, member.Id, default, default, default,
+            default, this.Id);
     }
 
     /// <summary>
@@ -1017,7 +1123,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// </summary>
     /// <param name="mbr">Member to calculate permissions for.</param>
     /// <returns>Calculated permissions for a given member.</returns>
-    public Permissions PermissionsFor(DiscordMember mbr)
+    public async Task<Permissions> PermissionsForMemberAsync(DiscordMember mbr)
     {
         // future note: might be able to simplify @everyone role checks to just check any role ... but I'm not sure
         // xoxo, ~uwx
@@ -1037,15 +1143,23 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         // If this is a thread, calculate on the parent; doing this on a thread does not work. //
         if (this.IsThread)
         {
-            return this.Parent.PermissionsFor(mbr);
+            DiscordChannel? parent = await this.GetParentAsync();
+            return await parent!.PermissionsForMemberAsync(mbr);
         }
 
-        if (this.IsPrivate || this.Guild == null)
+        if (this.IsPrivate || this.GuildId is null)
         {
             return Permissions.None;
         }
 
-        if (this.Guild.OwnerId == mbr.Id)
+        DiscordGuild? guild = await this.GetGuildAsync();
+
+        if (guild is null)
+        {
+            return Permissions.None;
+        }
+        
+        if (guild.OwnerId == mbr.Id)
         {
             return PermissionMethods.FULL_PERMS;
         }
@@ -1053,7 +1167,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         Permissions perms;
 
         // assign @everyone permissions
-        DiscordRole everyoneRole = this.Guild.EveryoneRole;
+        DiscordRole everyoneRole = guild.EveryoneRole;
         perms = everyoneRole.Permissions;
 
         // roles that member is in
@@ -1215,7 +1329,13 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         }
 
         DiscordThreadChannel threadChannel = await this.Discord.ApiClient.CreateThreadFromMessageAsync(this.Id, message.Id, name, archiveAfter, reason);
-        this.Guild._threads.AddOrUpdate(threadChannel.Id, threadChannel, (key, old) => threadChannel);
+
+        if (this.GuildId.HasValue)
+        {
+            DiscordGuild? guild = await this.Discord.Cache.TryGetGuildAsync(this.GuildId.Value);
+            guild?._threads.AddOrUpdate(threadChannel.Id, threadChannel, (key, old) => threadChannel);
+        }
+
         return threadChannel;
     }
 
@@ -1246,7 +1366,12 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         }
 
         DiscordThreadChannel threadChannel = await this.Discord.ApiClient.CreateThreadAsync(this.Id, name, archiveAfter, threadType, reason);
-        this.Guild._threads.AddOrUpdate(threadChannel.Id, threadChannel, (key, old) => threadChannel);
+        if (this.GuildId.HasValue)
+        {
+            DiscordGuild? guild = await this.Discord.Cache.TryGetGuildAsync(this.GuildId.Value);
+            guild?._threads.AddOrUpdate(threadChannel.Id, threadChannel, (key, old) => threadChannel);
+        }
+
         return threadChannel;
     }
 

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DSharpPlus.Caching;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -9,7 +10,7 @@ namespace DSharpPlus.Entities;
 public class DiscordWidget : SnowflakeObject
 {
     [JsonIgnore]
-    public DiscordGuild Guild { get; internal set; }
+    public CachedEntity<ulong, DiscordGuild> Guild { get; internal set; }
 
     /// <summary>
     /// Gets the guild's name.

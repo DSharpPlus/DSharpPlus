@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using DSharpPlus.Caching;
 using DSharpPlus.Entities;
 using DSharpPlus.Net;
 using Microsoft.Extensions.Logging;
@@ -40,16 +41,15 @@ public abstract class BaseDiscordClient : IDisposable
     /// </summary>
     public DiscordApplication CurrentApplication { get; internal set; }
 
+    public IReadOnlyCollection<ulong> Guilds => new ReadOnlyCollection<ulong>(_guilds);
+
     /// <summary>
     /// Gets the cached guilds for this client.
     /// </summary>
-    public abstract IReadOnlyDictionary<ulong, DiscordGuild> Guilds { get; }
-
-    /// <summary>
-    /// Gets the cached users for this client.
-    /// </summary>
-    protected internal ConcurrentDictionary<ulong, DiscordUser> UserCache { get; }
-
+    internal List<ulong> _guilds { get; set; }
+    
+    public IDiscordCache Cache { get; }
+    
     /// <summary>
     /// Gets the list of available voice regions. Note that this property will not contain VIP voice regions.
     /// </summary>
@@ -70,7 +70,7 @@ public abstract class BaseDiscordClient : IDisposable
     {
         this.Configuration = new DiscordConfiguration(config);
 
-        if (this.Configuration.LoggerFactory == null)
+        if (this.Configuration.LoggerFactory is null)
         {
             this.Configuration.LoggerFactory = new DefaultLoggerFactory();
             this.Configuration.LoggerFactory.AddProvider(new DefaultLoggerProvider(this));
@@ -78,7 +78,6 @@ public abstract class BaseDiscordClient : IDisposable
         this.Logger = this.Configuration.LoggerFactory.CreateLogger<BaseDiscordClient>();
 
         this.ApiClient = new DiscordApiClient(this, rest_client);
-        this.UserCache = new ConcurrentDictionary<ulong, DiscordUser>();
         this.InternalVoiceRegions = new ConcurrentDictionary<string, DiscordVoiceRegion>();
         this._voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this.InternalVoiceRegions));
 
@@ -99,6 +98,10 @@ public abstract class BaseDiscordClient : IDisposable
                 this.VersionString = $"{vs}, CI build {v.Revision}";
             }
         }
+        
+        this.Cache = this.Configuration.CacheProvider is not null
+            ? this.Configuration.CacheProvider
+            : new DiscordMemoryCache(this.Configuration.CacheConfiguration);
     }
 
     /// <summary>
@@ -174,7 +177,7 @@ public abstract class BaseDiscordClient : IDisposable
         if (this.CurrentUser == null)
         {
             this.CurrentUser = await this.ApiClient.GetCurrentUserAsync();
-            this.UpdateUserCache(this.CurrentUser);
+            await this.Cache.AddUserAsync(this.CurrentUser);
         }
 
         if (this.Configuration.TokenType == TokenType.Bot && this.CurrentApplication == null)
@@ -220,32 +223,17 @@ public abstract class BaseDiscordClient : IDisposable
 
         return await this.ApiClient.GetGatewayInfoAsync();
     }
-
-    internal DiscordUser GetCachedOrEmptyUserInternal(ulong user_id)
+    
+    internal async ValueTask<DiscordUser?> TryGetCachedUserInternalAsync(ulong userId)
     {
-        this.TryGetCachedUserInternal(user_id, out DiscordUser? user);
+        ICacheKey key = ICacheKey.ForUser(userId);
+        
+        DiscordUser? user = await this.Cache.TryGet<DiscordUser>(key);
+
         return user;
     }
-
-    internal bool TryGetCachedUserInternal(ulong user_id, out DiscordUser user)
-    {
-        if (this.UserCache.TryGetValue(user_id, out user))
-        {
-            return true;
-        }
-
-        user = new DiscordUser { Id = user_id, Discord = this };
-        return false;
-    }
-
-    // This previously set properties on the old user and re-injected into the cache.
-    // That's terrible. Instead, insert the new reference and let the old one get GC'd.
-    // End-users are more likely to be holding a reference to the new object via an event or w/e
-    // anyways.
-    // Furthermore, setting properties requires keeping track of where we update cache and updating repeat code.
-    internal DiscordUser UpdateUserCache(DiscordUser newUser)
-        => this.UserCache.AddOrUpdate(newUser.Id, newUser, (_, _) => newUser);
-
+    
+    
     /// <summary>
     /// Disposes this client.
     /// </summary>

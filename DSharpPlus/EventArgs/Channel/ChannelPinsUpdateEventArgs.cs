@@ -1,4 +1,5 @@
 using System;
+using DSharpPlus.Caching;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs;
@@ -9,14 +10,14 @@ namespace DSharpPlus.EventArgs;
 public class ChannelPinsUpdateEventArgs : DiscordEventArgs
 {
     /// <summary>
-    /// Gets the guild in which the update occurred.
+    /// Gets the guild in which the update occurred. This field is null if the channel is not a guild channel.
     /// </summary>
-    public DiscordGuild Guild { get; internal set; }
-
+    public CachedEntity<ulong, DiscordGuild>? Guild { get; internal set; }
+    
     /// <summary>
     /// Gets the channel in which the update occurred.
     /// </summary>
-    public DiscordChannel Channel { get; internal set; }
+    public CachedEntity<ulong, DiscordChannel> Channel { get; internal set; }
 
     /// <summary>
     /// Gets the timestamp of the latest pin.

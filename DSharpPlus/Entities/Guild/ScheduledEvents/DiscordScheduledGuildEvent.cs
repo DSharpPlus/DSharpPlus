@@ -33,16 +33,15 @@ public sealed class DiscordScheduledGuildEvent : SnowflakeObject
     public DateTimeOffset? EndTime { get; internal set; }
 
     /// <summary>
-    /// The guild this event is scheduled for.
+    /// The guild this event is scheduled for. This is null if the guild is not in cache.
     /// </summary>
-    [JsonIgnore]
-    public DiscordGuild Guild => (this.Discord as DiscordClient)!.InternalGetCachedGuild(this.GuildId);
+    [JsonIgnore] public DiscordGuild? Guild { get; internal set; }
 
     /// <summary>
     /// The channel this event is scheduled for, if applicable.
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel? Channel => this.ChannelId.HasValue ? this.Guild.GetChannel(this.ChannelId.Value) : null;
+    public DiscordChannel? Channel { get; internal set; }
 
     /// <summary>
     /// The id of the channel this event is scheduled in, if any.
@@ -54,7 +53,7 @@ public sealed class DiscordScheduledGuildEvent : SnowflakeObject
     /// The id of the guild this event is scheduled for.
     /// </summary>
     [JsonProperty("guild_id")]
-    public ulong GuildId { get; set; }
+    public ulong GuildId { get; internal set; }
 
     /// <summary>
     /// The user that created this event.

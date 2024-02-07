@@ -11,17 +11,10 @@ using DSharpPlus.Net.Models;
 
 namespace DSharpPlus;
 
+using Caching;
+
 public class DiscordRestClient : BaseDiscordClient
 {
-    /// <summary>
-    /// Gets the dictionary of guilds cached by this client.
-    /// </summary>
-    public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds
-        => this._guilds_lazy.Value;
-
-    internal Dictionary<ulong, DiscordGuild> _guilds = new();
-    private Lazy<IReadOnlyDictionary<ulong, DiscordGuild>> _guilds_lazy;
-
     public DiscordRestClient(DiscordConfiguration config) : base(config) => this._disposed = false;
 
     /// <summary>
@@ -31,11 +24,11 @@ public class DiscordRestClient : BaseDiscordClient
     public async Task InitializeCacheAsync()
     {
         await base.InitializeAsync();
-        this._guilds_lazy = new Lazy<IReadOnlyDictionary<ulong, DiscordGuild>>(() => new ReadOnlyDictionary<ulong, DiscordGuild>(this._guilds));
         IReadOnlyList<DiscordGuild> gs = await this.ApiClient.GetCurrentUserGuildsAsync(100, null, null);
-        foreach (DiscordGuild g in gs)
+        foreach (DiscordGuild guild in gs)
         {
-            this._guilds[g.Id] = g;
+            this._guilds.Add(guild.Id);
+            await this.Cache.AddGuildAsync(guild);
         }
     }
 
@@ -412,7 +405,7 @@ public class DiscordRestClient : BaseDiscordClient
                     Discord = this
                 };
 
-                this.UpdateUserCache(usr);
+                await this.Cache.AddUserAsync(usr);
             }
 
             recmbr.AddRange(tms.Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild_id }));
@@ -2312,7 +2305,6 @@ public class DiscordRestClient : BaseDiscordClient
         }
 
         this._disposed = true;
-        this._guilds = null;
         this.ApiClient?._rest?.Dispose();
     }
 }

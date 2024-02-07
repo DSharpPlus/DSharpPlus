@@ -1,3 +1,4 @@
+using DSharpPlus.Caching;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs;
@@ -10,7 +11,12 @@ public class GuildRoleUpdateEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the guild in which the update occurred.
     /// </summary>
-    public DiscordGuild Guild { get; internal set; }
+    public CachedEntity<ulong, DiscordGuild> Guild { get; internal set; }
+    
+    /// <summary>
+    /// Gets the id of the guild in which the update occurred.
+    /// </summary>
+    public ulong GuildId { get; internal set; }
 
     /// <summary>
     /// Gets the post-update role.
@@ -18,9 +24,9 @@ public class GuildRoleUpdateEventArgs : DiscordEventArgs
     public DiscordRole RoleAfter { get; internal set; }
 
     /// <summary>
-    /// Gets the pre-update role.
+    /// Gets the pre-update role. This value is null if the role was created.
     /// </summary>
-    public DiscordRole RoleBefore { get; internal set; }
+    public DiscordRole? RoleBefore { get; internal set; }
 
     internal GuildRoleUpdateEventArgs() : base() { }
 }

@@ -23,9 +23,9 @@ public class VoiceStateUpdateEventArgs : DiscordEventArgs
     public DiscordChannel Channel { get; internal set; }
 
     /// <summary>
-    /// Gets the voice state pre-update.
+    /// Gets the voice state pre-update. This is null if the previous state was not cached.
     /// </summary>
-    public DiscordVoiceState Before { get; internal set; }
+    public DiscordVoiceState? Before { get; internal set; }
 
     /// <summary>
     /// Gets the voice state post-update.
