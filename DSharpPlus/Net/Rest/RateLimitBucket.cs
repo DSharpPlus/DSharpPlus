@@ -113,7 +113,13 @@ internal record struct RateLimitBucket
     {
         if (this.Remaining <= 0)
         {
-            return this.Reset < DateTime.UtcNow;
+            if (this.Reset < DateTime.UtcNow)
+            {
+                this._remaining = this.Maximum - 1;
+                return true;
+            }
+
+            return false;
         }
 
         this._remaining--;
