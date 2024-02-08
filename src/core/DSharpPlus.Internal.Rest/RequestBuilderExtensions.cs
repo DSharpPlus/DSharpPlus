@@ -14,7 +14,7 @@ internal static class RequestBuilderExtensions
         request.AddToContext
         (
             "simple-route",
-            new SimpleSnowflakeRatelimitRoute
+            new SimpleRatelimitRoute
             {
                 Id = id,
                 Resource = resource
@@ -24,9 +24,9 @@ internal static class RequestBuilderExtensions
         return request;
     }
 
-    public static RequestBuilder WithFullRatelimit(this RequestBuilder request, string route)
+    public static RequestBuilder AsExempt(this RequestBuilder request, bool isExempt = true)
     {
-        request.AddToContext("full-ratelimit", route);
+        request.AddToContext("is-exempt", isExempt);
         return request;
     }
 

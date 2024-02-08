@@ -2,6 +2,7 @@
   <ItemGroup>
     <PackageVersion Include="CommunityToolkit.HighPerformance" Version="8.2.2" />
     <PackageVersion Include="Microsoft.CodeAnalysis" Version="4.9.0-2.final" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Http.Polly" Version="8.0.0" />
@@ -9,6 +10,7 @@
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="8.0.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0-preview-23577-04" />
+    <PackageVersion Include="NonBlocking" Version="2.1.2" />
     <PackageVersion Include="OneOf" Version="3.0.263" />
     <PackageVersion Include="Polly" Version="8.2.1" />
     <PackageVersion Include="Remora.Results" Version="7.4.1" />

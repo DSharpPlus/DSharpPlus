@@ -59,7 +59,7 @@ public sealed class EmojiRestAPI(IRestClient restClient)
         (
             HttpMethod.Delete,
             $"guilds/{guildId}/emojis/{emojiId}",
-            b => b.WithFullRatelimit($"DELETE emojis/{guildId}")
+            b => b.WithRoute($"DELETE emojis/{guildId}")
                  .WithAuditLogReason(reason),
             info,
             ct
@@ -81,7 +81,7 @@ public sealed class EmojiRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/emojis/{emojiId}",
-            b => b.WithFullRatelimit($"GET emojis/{guildId}"),
+            b => b.WithRoute($"GET emojis/{guildId}"),
             info,
             ct
         );
@@ -99,7 +99,7 @@ public sealed class EmojiRestAPI(IRestClient restClient)
         (
             HttpMethod.Get,
             $"guilds/{guildId}/emojis",
-            b => b.WithFullRatelimit($"GET emojis/{guildId}"),
+            b => b.WithRoute($"GET emojis/{guildId}"),
             info,
             ct
         );
@@ -120,7 +120,7 @@ public sealed class EmojiRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"guilds/{guildId}/emojis/{emojiId}",
-            b => b.WithFullRatelimit($"GET emojis/{guildId}")
+            b => b.WithRoute($"GET emojis/{guildId}")
                  .WithPayload(payload)
                  .WithAuditLogReason(reason),
             info,

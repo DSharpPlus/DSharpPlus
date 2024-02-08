@@ -125,7 +125,7 @@ public sealed class InteractionRestAPI(IRestClient restClient)
             $"interactions/{interactionId}/{interactionToken}/callback",
             b => b.WithSimpleRoute(TopLevelResource.Webhook, interactionId)
                  .WithRoute($"POST interactions/{interactionId}/{interactionToken}/callback")
-                 .AsInteractionRequest()
+                 .AsExempt()
                  .WithPayload(payload),
             info,
             ct

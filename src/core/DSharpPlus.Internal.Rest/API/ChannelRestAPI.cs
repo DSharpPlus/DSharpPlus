@@ -911,7 +911,8 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         (
             HttpMethod.Patch,
             $"channels/{channelId}",
-            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId),
+            b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
+                 .WithPayload(payload),
             info,
             ct
         );
