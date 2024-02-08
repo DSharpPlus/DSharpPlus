@@ -112,7 +112,7 @@ public readonly record struct Optional<T> : IOptional
     )
     {
         value = this.value;
-        return this.value is not null;
+        return this.value is not null && this.HasValue;
     }
 
     /// <summary>
