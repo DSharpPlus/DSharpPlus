@@ -36,7 +36,7 @@ public readonly record struct Optional<T> : IOptional
         }
     }
 
-    public Optional(T? value)
+    public Optional(T value)
     {
         this.HasValue = true;
         this.value = value;
@@ -47,21 +47,21 @@ public readonly record struct Optional<T> : IOptional
     /// <summary>
     /// Returns the contained value if one is present, or throws the given exception if none is present.
     /// </summary>
-    public readonly T? Expect(Func<Exception> exception)
+    public readonly T Expect(Func<Exception> exception)
     {
         if (!this.HasValue)
         {
             ThrowHelper.ThrowFunc(exception);
         }
 
-        return this.value;
+        return this.value!;
     }
 
     /// <summary>
     /// Returns the contained value if present, or the provided value if not present.
     /// </summary>
-    public readonly T? Or(T value)
-        => this.HasValue ? this.value : value;
+    public readonly T Or(T value)
+        => this.HasValue ? this.value! : value;
 
     /// <summary>
     /// Returns the contained value if present, or the default value for this type if not present.
@@ -72,21 +72,21 @@ public readonly record struct Optional<T> : IOptional
     /// Transforms the given optional to an optional of <typeparamref name="TOther"/> if it has a value,
     /// returning an empty optional if there was no value present.
     /// </summary>
-    public readonly Optional<TOther> Map<TOther>(Func<T?, TOther?> transformation)
+    public readonly Optional<TOther> Map<TOther>(Func<T, TOther> transformation)
     {
         return this.HasValue
-            ? new Optional<TOther>(transformation(this.value))
-            : new Optional<TOther>();
+            ? new Optional<TOther>(transformation(this.value!))
+            : Optional<TOther>.None;
     }
 
     /// <summary>
     /// Transforms the value of the given optional to <typeparamref name="TOther"/>, returning
     /// <paramref name="value"/> if there was no value present.
     /// </summary>
-    public readonly TOther? MapOr<TOther>(Func<T?, TOther?> transformation, TOther? value)
+    public readonly TOther MapOr<TOther>(Func<T, TOther> transformation, TOther value)
     {
         return this.HasValue
-            ? transformation(this.value)
+            ? transformation(this.value!)
             : value;
     }
 
@@ -94,7 +94,7 @@ public readonly record struct Optional<T> : IOptional
     /// Returns a value indicating whether <paramref name="value"/> is set.
     /// </summary>
     /// <param name="value">The value of this optional. This may still be null if the set value was null.</param>
-    public readonly bool TryGetValue(out T? value)
+    public readonly bool TryGetValue([MaybeNullWhen(false)] out T value)
     {
         value = this.value;
         return this.HasValue;
