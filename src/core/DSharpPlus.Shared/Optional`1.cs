@@ -94,7 +94,11 @@ public readonly record struct Optional<T> : IOptional
     /// Returns a value indicating whether <paramref name="value"/> is set.
     /// </summary>
     /// <param name="value">The value of this optional. This may still be null if the set value was null.</param>
-    public readonly bool TryGetValue([MaybeNullWhen(false)] out T value)
+    public readonly bool TryGetValue
+    (
+        [MaybeNullWhen(false)]
+        out T value
+    )
     {
         value = this.value;
         return this.HasValue;
