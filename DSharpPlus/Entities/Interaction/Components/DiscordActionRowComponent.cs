@@ -11,14 +11,8 @@ public sealed class DiscordActionRowComponent : DiscordComponent
     /// <summary>
     /// The components contained within the action row.
     /// </summary>
-    public IReadOnlyCollection<DiscordComponent> Components
-    {
-        get => this._components ?? new List<DiscordComponent>();
-        set => this._components = new List<DiscordComponent>(value);
-    }
-
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-    private List<DiscordComponent> _components;
+    public IReadOnlyList<DiscordComponent> Components { get; internal set; } = [];
 
     public DiscordActionRowComponent(IEnumerable<DiscordComponent> components) : this() => this.Components = components.ToList().AsReadOnly();
     internal DiscordActionRowComponent() => this.Type = ComponentType.ActionRow; // For Json.NET

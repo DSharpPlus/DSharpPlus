@@ -74,23 +74,59 @@ public sealed class CommandExecutor : ICommandExecutor
 
         if (checks.Count != 0)
         {
-            Dictionary<ContextCheckAttribute, Exception> failedChecks = [];
+            List<(ContextCheckAttribute data, string error)> failedChecks = [];
+
+            // first, execute all unconditional checks
+            foreach (ContextCheckMapEntry entry in context.Extension.Checks)
+            {
+                if (entry.AttributeType != typeof(UnconditionalCheckAttribute))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    object check = ActivatorUtilities.CreateInstance(context.Extension.ServiceProvider, entry.CheckType);
+                    string? result = await entry.ExecuteCheckAsync(check, new UnconditionalCheckAttribute(), context);
+
+                    if (result is not null)
+                    {
+                        failedChecks.Add((new UnconditionalCheckAttribute(), result));
+                        continue;
+                    }
+                }
+                catch (Exception error)
+                {
+                    failedChecks.Add((new UnconditionalCheckAttribute(), $"{error}: {error.Message}\n{error.StackTrace}"));
+                }
+            }
 
             // Reverse foreach so we execute the top-most command's checks first.
             for (int i = checks.Count - 1; i >= 0; i--)
             {
-                try
+                foreach (ContextCheckMapEntry entry in context.Extension.Checks)
                 {
-                    if (!await checks[i].ExecuteCheckAsync(context))
+                    if (entry.AttributeType != checks[i].GetType())
                     {
-                        failedChecks.Add(checks[i], new Exception("placeholder exception until checks are redone"));
                         continue;
                     }
-                }
-                // try/catch blocks are free until they catch
-                catch (Exception error)
-                {
-                    failedChecks.Add(checks[i], error);
+
+                    try
+                    {
+                        object check = ActivatorUtilities.CreateInstance(context.Extension.ServiceProvider, entry.CheckType);
+                        string? result = await entry.ExecuteCheckAsync(check, checks[i], context);
+
+                        if (result is not null)
+                        {
+                            failedChecks.Add((checks[i], result));
+                            continue;
+                        }
+                    }
+                    // try/catch blocks are free until they catch
+                    catch (Exception error)
+                    {
+                        failedChecks.Add((checks[i], $"{error}: {error.Message}\n{error.StackTrace}"));
+                    }
                 }
             }
 

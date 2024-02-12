@@ -16,11 +16,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
 {
     internal DiscordMessage()
     {
-        string gid = this.Channel is DiscordDmChannel ? "@me" : this.Channel?.GuildId?.ToString(CultureInfo.InvariantCulture) ?? "@me";
-        string cid = this.ChannelId.ToString(CultureInfo.InvariantCulture);
-        string mid = this.Id.ToString(CultureInfo.InvariantCulture);
 
-        this.JumpLink = new Uri($"https://discord.com/channels/{gid}/{cid}/{mid}");
     }
 
     internal DiscordMessage(DiscordMessage other)
@@ -58,7 +54,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         this.IsTTS = other.IsTTS;
         this.MessageType = other.MessageType;
         this.Pinned = other.Pinned;
-        this._timestampRaw = other._timestampRaw;
+        this.Timestamp = other.Timestamp;
         this.WebhookId = other.WebhookId;
         this.ApplicationId = other.ApplicationId;
     }
@@ -97,16 +93,13 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Gets the message's content.
     /// </summary>
     [JsonProperty("content", NullValueHandling = NullValueHandling.Ignore)]
-    public string? Content { get; internal set; }
+    public string Content { get; internal set; } = "";
 
     /// <summary>
     /// Gets the message's creation timestamp.
     /// </summary>
-    [JsonIgnore]
-    public DateTimeOffset Timestamp => this._timestampRaw ?? this.CreationTimestamp;
-
     [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
-    internal DateTimeOffset? _timestampRaw { get; set; }
+    public DateTimeOffset Timestamp { get; set; }
 
     /// <summary>
     /// Gets the message's edit timestamp. Will be null if the message was not edited.
@@ -118,7 +111,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Gets whether this message was edited.
     /// </summary>
     [JsonIgnore]
-    public bool IsEdited => this.EditedTimestamp != null;
+    public bool IsEdited => this.EditedTimestamp is not null;
 
     /// <summary>
     /// Gets whether the message is a text-to-speech message.
@@ -262,7 +255,17 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Gets the jump link to this message.
     /// </summary>
     [JsonIgnore]
-    public Uri JumpLink { get; internal set; }
+    public Uri JumpLink
+    {
+        get
+        {
+            string gid = this.Channel is DiscordDmChannel ? "@me" : this.Channel?.GuildId?.ToString(CultureInfo.InvariantCulture) ?? "@me";
+            string cid = this.ChannelId.ToString(CultureInfo.InvariantCulture);
+            string mid = this.Id.ToString(CultureInfo.InvariantCulture);
+
+            return new Uri($"https://discord.com/channels/{gid}/{cid}/{mid}");
+        }
+    }
 
     /// <summary>
     /// Gets stickers for this message.

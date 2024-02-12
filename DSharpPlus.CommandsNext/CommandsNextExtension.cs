@@ -969,7 +969,7 @@ public class CommandsNextExtension : BaseExtension
             IsTTS = false,
             _attachments = new List<DiscordAttachment>(),
             _embeds = new List<DiscordEmbed>(),
-            _timestampRaw = now,
+            Timestamp = now,
             _reactions = new List<DiscordReaction>()
         };
 

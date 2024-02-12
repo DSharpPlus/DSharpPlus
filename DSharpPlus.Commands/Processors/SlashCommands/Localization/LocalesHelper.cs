@@ -1,4 +1,4 @@
-namespace DSharpPlus.Commands.Processors.SlashCommands.Translation;
+namespace DSharpPlus.Commands.Processors.SlashCommands.Localization;
 
 using System.Collections.Frozen;
 using System.Collections.Generic;

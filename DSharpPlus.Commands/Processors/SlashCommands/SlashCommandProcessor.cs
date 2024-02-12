@@ -12,11 +12,14 @@ using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Processors.SlashCommands.Attributes;
+using DSharpPlus.Commands.Processors.SlashCommands.Localization;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging;
 
 public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCreateEventArgs, ISlashArgumentConverter, InteractionConverterContext, SlashCommandContext>
 {
@@ -233,12 +236,11 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         // Translate the command's name and description.
         Dictionary<string, string> nameLocalizations = [];
         Dictionary<string, string> descriptionLocalizations = [];
-        if (command.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
+        if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
         {
-            AsyncServiceScope scope = this._extension.ServiceProvider.CreateAsyncScope();
-            nameLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.name");
-            descriptionLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.description");
-            await scope.DisposeAsync();
+            
+            nameLocalizations = await this.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
+            descriptionLocalizations = await this.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
         }
 
         // Convert the subcommands or parameters into application options
@@ -318,12 +320,10 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         // Translate the subcommand's name and description.
         Dictionary<string, string> nameLocalizations = [];
         Dictionary<string, string> descriptionLocalizations = [];
-        if (command.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
+        if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
         {
-            AsyncServiceScope scope = this._extension.ServiceProvider.CreateAsyncScope();
-            nameLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.name");
-            descriptionLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, $"{command.FullName}.description");
-            await scope.DisposeAsync();
+            nameLocalizations = await this.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
+            descriptionLocalizations = await this.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
         }
 
         if (!descriptionLocalizations.TryGetValue("en-US", out string? description))
@@ -360,12 +360,11 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
         SlashMinMaxValueAttribute? minMaxValue = parameter.Attributes.OfType<SlashMinMaxValueAttribute>().FirstOrDefault();
         SlashMinMaxLengthAttribute? minMaxLength = parameter.Attributes.OfType<SlashMinMaxLengthAttribute>().FirstOrDefault();
-        AsyncServiceScope scope = this._extension.ServiceProvider.CreateAsyncScope();
 
         // Translate the parameter's name and description.
         Dictionary<string, string> nameLocalizations = [];
         Dictionary<string, string> descriptionLocalizations = [];
-        if (parameter.Attributes.OfType<SlashLocalizerAttribute>().FirstOrDefault() is SlashLocalizerAttribute localizerAttribute)
+        if (parameter.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
         {
             StringBuilder localeIdBuilder = new();
             localeIdBuilder.Append($"{command.FullName}.parameters.{parameter.Name}");
@@ -374,13 +373,14 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                 localeIdBuilder.Append($".{i}");
             }
 
-            nameLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, localeIdBuilder.ToString() + ".name");
-            descriptionLocalizations = await localizerAttribute.LocalizeAsync(scope.ServiceProvider, localeIdBuilder.ToString() + ".description");
+            nameLocalizations = await this.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".name");
+            descriptionLocalizations = await this.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".description");
         }
 
         IEnumerable<DiscordApplicationCommandOptionChoice> choices = [];
         if (parameter.Attributes.OfType<SlashChoiceProviderAttribute>().FirstOrDefault() is SlashChoiceProviderAttribute choiceAttribute)
         {
+            using AsyncServiceScope scope = this._extension.ServiceProvider.CreateAsyncScope();
             choices = await choiceAttribute.GrabChoicesAsync(scope.ServiceProvider, parameter);
         }
 
@@ -399,7 +399,6 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             description = "No description provided.";
         }
 
-        await scope.DisposeAsync();
         return new(
             name: ToSnakeCase(name),
             description: description,
@@ -417,7 +416,33 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         );
     }
 
-    private async ValueTask<AutoCompleteContext?> ParseAutoCompleteArgumentsAsync(InteractionConverterContext converterContext, InteractionCreateEventArgs eventArgs)
+    internal async ValueTask<Dictionary<string, string>> ExecuteLocalizerAsync(Type localizer, string name)
+    {
+        using AsyncServiceScope scope = this._extension!.ServiceProvider.CreateAsyncScope();
+        IInteractionLocalizer instance;
+        try
+        {
+            instance = (IInteractionLocalizer)ActivatorUtilities.CreateInstance(scope.ServiceProvider, localizer);
+        }
+        catch (Exception)
+        {
+            ILogger<InteractionLocalizerAttribute> logger = this._extension!.ServiceProvider
+                .GetService<ILogger<InteractionLocalizerAttribute>>() ?? NullLogger<InteractionLocalizerAttribute>.Instance;
+
+            logger.LogWarning("Failed to create an instance of {TypeName} for localization of {SymbolName}.", localizer, name);
+            return [];
+        }
+
+        Dictionary<string, string> localized = [];
+        foreach ((DiscordLocale locale, string translation) in await instance.TranslateAsync(name.Replace(' ', '.').ToLowerInvariant()))
+        {
+            localized.Add(locale.ToString().Replace('_', '-'), translation);
+        }
+
+        return localized;
+    }
+
+    private async ValueTask<AutoCompleteContext?> ParseAutoCompleteArgumentsAsync(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs)
     {
         if (this._extension is null)
         {
