@@ -17,7 +17,7 @@ public class UInt16Converter : ISlashArgumentConverter<ushort>, ITextArgumentCon
             ? Task.FromResult(Optional.FromValue(result))
             : Task.FromResult(Optional.FromNoValue<ushort>());
 
-    public Task<Optional<ushort>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => context.As<SlashConverterContext>().Argument.Value is int number && number >= ushort.MinValue && number <= ushort.MaxValue
+    public Task<Optional<ushort>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => context.As<InteractionConverterContext>().Argument.Value is int number && number >= ushort.MinValue && number <= ushort.MaxValue
         ? Task.FromResult(Optional.FromValue((ushort)number))
         : Task.FromResult(Optional.FromNoValue<ushort>());
 }

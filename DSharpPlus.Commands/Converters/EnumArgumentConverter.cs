@@ -23,7 +23,7 @@ public class EnumConverter : ISlashArgumentConverter<Enum>, ITextArgumentConvert
 
     public Task<Optional<Enum>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
     {
-        SlashConverterContext slashConverterContext = context.As<SlashConverterContext>();
+        InteractionConverterContext slashConverterContext = context.As<InteractionConverterContext>();
         object value = Convert.ChangeType(slashConverterContext.Argument.Value, Enum.GetUnderlyingType(context.Parameter.Type), CultureInfo.InvariantCulture);
         return Enum.IsDefined(context.Parameter.Type, value)
             ? Task.FromResult(Optional.FromValue((Enum)Enum.ToObject(context.Parameter.Type, value)))

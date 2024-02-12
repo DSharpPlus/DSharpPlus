@@ -16,7 +16,7 @@ public class ByteConverter : ISlashArgumentConverter<byte>, ITextArgumentConvert
             ? Task.FromResult(Optional.FromValue(result))
             : Task.FromResult(Optional.FromNoValue<byte>());
 
-    public Task<Optional<byte>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => context.As<SlashConverterContext>().Argument.Value is int number && number >= byte.MinValue && number <= byte.MaxValue
+    public Task<Optional<byte>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => context.As<InteractionConverterContext>().Argument.Value is int number && number >= byte.MinValue && number <= byte.MaxValue
             ? Task.FromResult(Optional.FromValue((byte)number))
             : Task.FromResult(Optional.FromNoValue<byte>());
 }

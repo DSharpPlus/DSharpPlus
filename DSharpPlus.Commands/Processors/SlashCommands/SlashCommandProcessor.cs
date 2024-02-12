@@ -21,7 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging;
 
-public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCreateEventArgs, ISlashArgumentConverter, SlashConverterContext, SlashCommandContext>
+public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCreateEventArgs, ISlashArgumentConverter, InteractionConverterContext, SlashCommandContext>
 {
     // Required for GuildDownloadCompleted event
     public const DiscordIntents RequiredIntents = DiscordIntents.Guilds;
@@ -93,7 +93,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             return;
         }
 
-        SlashConverterContext converterContext = new()
+        InteractionConverterContext converterContext = new()
         {
             Channel = eventArgs.Interaction.Channel,
             Command = command,
@@ -442,7 +442,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         return localized;
     }
 
-    private async ValueTask<AutoCompleteContext?> ParseAutoCompleteArgumentsAsync(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs)
+    private async ValueTask<AutoCompleteContext?> ParseAutoCompleteArgumentsAsync(InteractionConverterContext converterContext, InteractionCreateEventArgs eventArgs)
     {
         if (this._extension is null)
         {
@@ -500,7 +500,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         };
     }
 
-    public override SlashCommandContext CreateCommandContext(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs, Dictionary<CommandParameter, object?> parsedArguments) => new()
+    public override SlashCommandContext CreateCommandContext(InteractionConverterContext converterContext, InteractionCreateEventArgs eventArgs, Dictionary<CommandParameter, object?> parsedArguments) => new()
     {
         Arguments = parsedArguments,
         Channel = eventArgs.Interaction.Channel,

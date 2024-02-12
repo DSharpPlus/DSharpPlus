@@ -42,7 +42,7 @@ public partial class DiscordChannelConverter : ISlashArgumentConverter<DiscordCh
 
     public Task<Optional<DiscordChannel>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
     {
-        SlashConverterContext slashContext = context.As<SlashConverterContext>();
+        InteractionConverterContext slashContext = context.As<InteractionConverterContext>();
         return Task.FromResult(Optional.FromValue(slashContext.Interaction.Data.Resolved.Channels[(ulong)slashContext.Argument.Value]));
     }
 }

@@ -17,5 +17,5 @@ public class FloatConverter : ISlashArgumentConverter<float>, ITextArgumentConve
             ? Task.FromResult(Optional.FromValue(result))
             : Task.FromResult(Optional.FromNoValue<float>());
 
-    public Task<Optional<float>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue((float)context.As<SlashConverterContext>().Argument.Value));
+    public Task<Optional<float>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue((float)context.As<InteractionConverterContext>().Argument.Value));
 }

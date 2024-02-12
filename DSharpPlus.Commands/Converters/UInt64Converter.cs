@@ -16,7 +16,7 @@ public class UInt64Converter : ISlashArgumentConverter<ulong>, ITextArgumentConv
     public bool RequiresText { get; init; } = true;
 
     public Task<Optional<ulong>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context.As<TextConverterContext>().Argument);
-    public Task<Optional<ulong>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync((string)context.As<SlashConverterContext>().Argument.Value);
+    public Task<Optional<ulong>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync((string)context.As<InteractionConverterContext>().Argument.Value);
     public static Task<Optional<ulong>> ConvertAsync(string? value) =>
         ulong.TryParse(value, CultureInfo.InvariantCulture, out ulong result)
             ? Task.FromResult(Optional.FromValue(result))

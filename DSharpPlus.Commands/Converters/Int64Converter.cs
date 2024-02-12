@@ -16,7 +16,7 @@ public class Int64Converter : ISlashArgumentConverter<long>, ITextArgumentConver
     public bool RequiresText { get; init; } = true;
 
     public Task<Optional<long>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context.As<TextConverterContext>().Argument);
-    public Task<Optional<long>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync((string)context.As<SlashConverterContext>().Argument.Value);
+    public Task<Optional<long>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync((string)context.As<InteractionConverterContext>().Argument.Value);
     public static Task<Optional<long>> ConvertAsync(string? value) =>
         long.TryParse(value, CultureInfo.InvariantCulture, out long result)
             ? Task.FromResult(Optional.FromValue(result))
