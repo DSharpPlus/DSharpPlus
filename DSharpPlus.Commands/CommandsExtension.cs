@@ -25,9 +25,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using CheckFunc = System.Func
 <
-    object, 
-    DSharpPlus.Commands.ContextChecks.ContextCheckAttribute, 
-    DSharpPlus.Commands.Trees.CommandContext, 
+    object,
+    DSharpPlus.Commands.ContextChecks.ContextCheckAttribute,
+    DSharpPlus.Commands.Trees.CommandContext,
     System.Threading.Tasks.ValueTask<string?>
 >;
 
@@ -185,7 +185,7 @@ public sealed class CommandsExtension : BaseExtension
     /// </summary>
     public void AddChecks(Assembly assembly)
     {
-        foreach(Type t in assembly.GetTypes())
+        foreach (Type t in assembly.GetTypes())
         {
             if (t.GetInterface("DSharpPlus.Commands.ContextChecks.IContextCheck`1") is not null)
             {
@@ -207,7 +207,7 @@ public sealed class CommandsExtension : BaseExtension
     public void AddCheck(Type checkType)
     {
         // get all implemented check interfaces, we can pretty easily handle having multiple checks in one type
-        foreach(Type t in checkType.GetInterfaces())
+        foreach (Type t in checkType.GetInterfaces())
         {
             if (t.FullName != "DSharpPlus.Commands.ContextChecks.IContextCheck`1")
             {
@@ -245,7 +245,7 @@ public sealed class CommandsExtension : BaseExtension
             );
         }
     }
-    
+
     public async Task RefreshAsync()
     {
         Dictionary<string, Command> commands = [];
