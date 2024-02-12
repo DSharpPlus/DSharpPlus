@@ -77,7 +77,12 @@ public sealed class CommandExecutor : ICommandExecutor
             List<(ContextCheckAttribute data, string error)> failedChecks = [];
 
             // first, execute all unconditional checks
-            foreach (ContextCheckMapEntry entry in context.Extension.Checks.Where(x => x.AttributeType == typeof(UnconditionalCheckAttribute)))
+            foreach (ContextCheckMapEntry entry in context.Extension.Checks)
+            {
+                if (entry.AttributeType != typeof(UnconditionalCheckAttribute))
+                {
+                    continue;
+                }
             {
                 try
                 {
@@ -99,7 +104,12 @@ public sealed class CommandExecutor : ICommandExecutor
             // Reverse foreach so we execute the top-most command's checks first.
             for (int i = checks.Count - 1; i >= 0; i--)
             {
-                foreach (ContextCheckMapEntry entry in context.Extension.Checks.Where(x => x.AttributeType == checks[i].GetType()))
+                foreach (ContextCheckMapEntry entry in context.Extension.Checks)
+                {
+                    if (entry.AttributeType != checks[i].GetType())
+                    {
+                        continue;
+                    }
                 {
                     try
                     {
