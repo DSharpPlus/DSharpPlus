@@ -442,7 +442,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         return localized;
     }
 
-    private async ValueTask<AutoCompleteContext?> ParseAutoCompleteArgumentsAsync(SlashConverterContext converterContext, InteractionCreateEventArgs eventArgs)
+    private async ValueTask<AutoCompleteContext?> ParseAutoCompleteArgumentsAsync(InteractionConverterContext converterContext, InteractionCreateEventArgs eventArgs)
     {
         if (this._extension is null)
         {
