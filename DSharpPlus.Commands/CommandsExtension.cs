@@ -23,6 +23,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
+using CheckFunc = System.Func
+<
+    object, 
+    DSharpPlus.Commands.ContextChecks.ContextCheckAttribute, 
+    DSharpPlus.Commands.Trees.CommandContext, 
+    System.Threading.Tasks.ValueTask<string?>
+>;
+
 /// <summary>
 /// An all in one extension for managing commands.
 /// </summary>
@@ -224,15 +232,7 @@ public sealed class CommandsExtension : BaseExtension
                 arg1: context
             );
 
-            Func<object, ContextCheckAttribute, CommandContext, ValueTask<string?>> func = 
-                Expression.Lambda<Func<object, ContextCheckAttribute, CommandContext, ValueTask<string?>>>
-            (
-                call,
-                check,
-                attribute,
-                context
-            )
-            .Compile();
+            CheckFunc func = Expression.Lambda<CheckFunc>(call, check, attribute, context).Compile();
 
             this.checks.Add
             (
