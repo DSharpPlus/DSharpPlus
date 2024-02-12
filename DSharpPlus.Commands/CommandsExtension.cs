@@ -5,13 +5,16 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
+using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Processors;
+using DSharpPlus.Commands.Processors.TextCommands.ContextChecks;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Attributes;
 using DSharpPlus.Entities;
@@ -19,6 +22,14 @@ using DSharpPlus.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+
+using CheckFunc = System.Func
+<
+    object, 
+    DSharpPlus.Commands.ContextChecks.ContextCheckAttribute, 
+    DSharpPlus.Commands.Trees.CommandContext, 
+    System.Threading.Tasks.ValueTask<string?>
+>;
 
 /// <summary>
 /// An all in one extension for managing commands.
@@ -44,6 +55,9 @@ public sealed class CommandsExtension : BaseExtension
 
     public IReadOnlyDictionary<Type, ICommandProcessor> Processors { get; private set; } = new Dictionary<Type, ICommandProcessor>();
     private readonly Dictionary<Type, ICommandProcessor> _processors = [];
+
+    internal IReadOnlyList<ContextCheckMapEntry> Checks => this.checks;
+    private readonly List<ContextCheckMapEntry> checks = [];
 
     /// <summary>
     /// Executed everytime a command is finished executing.
@@ -112,6 +126,13 @@ public sealed class CommandsExtension : BaseExtension
 
         this.Client = client;
         this.Client.SessionCreated += async (_, _) => await this.RefreshAsync();
+
+        this.AddCheck<DirectMessageUsageCheck>();
+        this.AddCheck<RequireApplicationOwnerCheck>();
+        this.AddCheck<RequireGuildCheck>();
+        this.AddCheck<RequireNsfwCheck>();
+        this.AddCheck<RequirePermissionsCheck>();
+        this.AddCheck<TextMessageReplyCheck>();
     }
 
     public void AddCommand(CommandBuilder command) => this._commandBuilders.Add(command);
@@ -159,6 +180,72 @@ public sealed class CommandsExtension : BaseExtension
 
     public TProcessor GetProcessor<TProcessor>() where TProcessor : ICommandProcessor => (TProcessor)this._processors[typeof(TProcessor)];
 
+    /// <summary>
+    /// Adds all public checks from the provided assembly to the extension.
+    /// </summary>
+    public void AddChecks(Assembly assembly)
+    {
+        foreach(Type t in assembly.GetTypes())
+        {
+            if (t.GetInterface("DSharpPlus.Commands.ContextChecks.IContextCheck`1") is not null)
+            {
+                this.AddCheck(t);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Adds a new check to the extension.
+    /// </summary>
+    public void AddCheck<T>()
+        where T : IContextCheck
+        => this.AddCheck(typeof(T));
+
+    /// <summary>
+    /// Adds a new check to the extension.
+    /// </summary>
+    public void AddCheck(Type checkType)
+    {
+        // get all implemented check interfaces, we can pretty easily handle having multiple checks in one type
+        foreach(Type t in checkType.GetInterfaces())
+        {
+            if (t.FullName != "DSharpPlus.Commands.ContextChecks.IContextCheck`1")
+            {
+                continue;
+            }
+
+            Type attributeType = t.GetGenericArguments()[0];
+
+            MethodInfo method = t.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .First(x => x.Name == "ExecuteCheckAsync" && x.GetParameters()[0].ParameterType == attributeType);
+
+            // create the func for invoking the check here, during startup
+            ParameterExpression check = Expression.Parameter(typeof(object));
+            ParameterExpression attribute = Expression.Parameter(typeof(ContextCheckAttribute));
+            ParameterExpression context = Expression.Parameter(typeof(CommandContext));
+
+            MethodCallExpression call = Expression.Call
+            (
+                instance: check,
+                method: method,
+                arg0: attribute,
+                arg1: context
+            );
+
+            CheckFunc func = Expression.Lambda<CheckFunc>(call, check, attribute, context).Compile();
+
+            this.checks.Add
+            (
+                new()
+                {
+                    AttributeType = attributeType,
+                    CheckType = t,
+                    ExecuteCheckAsync = func
+                }
+            );
+        }
+    }
+    
     public async Task RefreshAsync()
     {
         Dictionary<string, Command> commands = [];
@@ -215,8 +302,8 @@ public sealed class CommandsExtension : BaseExtension
         {
             CommandNotFoundException commandNotFoundException => $"Command {Formatter.InlineCode(Formatter.Sanitize(commandNotFoundException.CommandName))} was not found.",
             ArgumentParseException argumentParseException => $"Failed to parse argument {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.Parameter.Name))}.",
-            ChecksFailedException checksFailedException when checksFailedException.FailingContextChecks.Count == 1 => $"Context Check {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.FailingContextChecks.Keys.First().GetType().Name))} failed.",
-            ChecksFailedException checksFailedException => $"The following context checks failed: {string.Join(", ", checksFailedException.FailingContextChecks.Keys.Select(x => Formatter.InlineCode(Formatter.Sanitize(x.GetType().Name))))}.",
+            ChecksFailedException checksFailedException when checksFailedException.Errors.Count == 1 => $"The following error occurred: {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.Errors[0].error))}",
+            ChecksFailedException checksFailedException => $"The following context checks failed: {Formatter.InlineCode(Formatter.Sanitize(string.Join("\n\n", checksFailedException.Errors.Select(x => x.error))))}.",
             DiscordException discordException when discordException.Response is not null && (int)discordException.Response.StatusCode >= 500 && (int)discordException.Response.StatusCode < 600 => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? "No further information was provided."}",
             DiscordException discordException when discordException.Response is not null => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? discordException.Message}",
             _ => $"An unexpected error occurred: {eventArgs.Exception.Message}"
