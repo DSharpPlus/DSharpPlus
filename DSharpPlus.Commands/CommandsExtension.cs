@@ -25,9 +25,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using CheckFunc = System.Func
 <
-    object, 
-    DSharpPlus.Commands.ContextChecks.ContextCheckAttribute, 
-    DSharpPlus.Commands.Trees.CommandContext, 
+    object,
+    DSharpPlus.Commands.ContextChecks.ContextCheckAttribute,
+    CommandContext,
     System.Threading.Tasks.ValueTask<string?>
 >;
 

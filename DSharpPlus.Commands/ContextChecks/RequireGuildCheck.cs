@@ -1,7 +1,5 @@
 using System.Threading.Tasks;
 
-using DSharpPlus.Commands.Trees;
-
 namespace DSharpPlus.Commands.ContextChecks;
 
 internal sealed class RequireGuildCheck : IContextCheck<RequireGuildAttribute>

@@ -1,9 +1,8 @@
 namespace DSharpPlus.Commands.Processors.TextCommands.ContextChecks;
 
 using System.Threading.Tasks;
-
+using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
-using DSharpPlus.Commands.Trees;
 
 internal sealed class TextMessageReplyCheck : IContextCheck<TextMessageReplyAttribute>
 {
