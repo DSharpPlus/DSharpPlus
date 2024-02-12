@@ -106,7 +106,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             AutoCompleteContext? autoCompleteContext = await this.ParseAutoCompleteArgumentsAsync(converterContext, eventArgs);
             if (autoCompleteContext is not null)
             {
-                IEnumerable<DiscordAutoCompleteChoice> choices = await converterContext.Parameter.Attributes.OfType<InteractionAutoCompleteProviderAttribute>().First().AutoCompleteAsync(autoCompleteContext);
+                IEnumerable<DiscordAutoCompleteChoice> choices = await converterContext.Parameter.Attributes.OfType<SlashAutoCompleteProviderAttribute>().First().AutoCompleteAsync(autoCompleteContext);
                 await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.AutoCompleteResult, new DiscordInteractionResponseBuilder().AddAutoCompleteChoices(choices));
             }
 
@@ -359,7 +359,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         }
 
         SlashMinMaxValueAttribute? minMaxValue = parameter.Attributes.OfType<SlashMinMaxValueAttribute>().FirstOrDefault();
-        InteractionMinMaxLengthAttribute? minMaxLength = parameter.Attributes.OfType<InteractionMinMaxLengthAttribute>().FirstOrDefault();
+        SlashMinMaxLengthAttribute? minMaxLength = parameter.Attributes.OfType<SlashMinMaxLengthAttribute>().FirstOrDefault();
         AsyncServiceScope scope = this._extension.ServiceProvider.CreateAsyncScope();
 
         // Translate the parameter's name and description.
@@ -379,7 +379,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         }
 
         IEnumerable<DiscordApplicationCommandOptionChoice> choices = [];
-        if (parameter.Attributes.OfType<InteractionChoiceProviderAttribute>().FirstOrDefault() is InteractionChoiceProviderAttribute choiceAttribute)
+        if (parameter.Attributes.OfType<SlashChoiceProviderAttribute>().FirstOrDefault() is SlashChoiceProviderAttribute choiceAttribute)
         {
             choices = await choiceAttribute.GrabChoicesAsync(scope.ServiceProvider, parameter);
         }
@@ -405,8 +405,8 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             description: description,
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
-            autocomplete: parameter.Attributes.Any(x => x is InteractionAutoCompleteProviderAttribute),
-            channelTypes: parameter.Attributes.OfType<InteractionChannelTypesAttribute>().FirstOrDefault()?.ChannelTypes ?? [],
+            autocomplete: parameter.Attributes.Any(x => x is SlashAutoCompleteProviderAttribute),
+            channelTypes: parameter.Attributes.OfType<SlashChannelTypesAttribute>().FirstOrDefault()?.ChannelTypes ?? [],
             choices: choices,
             maxLength: minMaxLength?.MaxLength,
             maxValue: minMaxValue?.MaxValue!, // Incorrect nullable annotations within the lib

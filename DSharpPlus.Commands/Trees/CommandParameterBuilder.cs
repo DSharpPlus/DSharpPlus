@@ -40,7 +40,7 @@ public class CommandParameterBuilder
     public CommandParameterBuilder WithType(Type type)
     {
         this.Type = type;
-        if (type.IsEnum && !this.Attributes.Any(attribute => attribute is InteractionChoiceProviderAttribute))
+        if (type.IsEnum && !this.Attributes.Any(attribute => attribute is SlashChoiceProviderAttribute))
         {
             this.Attributes.Add(new SlashChoiceProviderAttribute<EnumOptionProvider>());
         }
