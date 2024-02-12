@@ -8,8 +8,8 @@ internal sealed class RequireNsfwCheck : IContextCheck<RequireNsfwAttribute>
     {
         return ValueTask.FromResult
         (
-            context.Channel.IsPrivate || context.Channel.IsNSFW || (context.Guild is not null && context.Guild.IsNSFW) 
-                ? "This command must be executed in a NSFW channel." 
+            context.Channel.IsPrivate || context.Channel.IsNSFW || (context.Guild is not null && context.Guild.IsNSFW)
+                ? "This command must be executed in a NSFW channel."
                 : null
         );
     }

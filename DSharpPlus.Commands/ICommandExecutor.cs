@@ -14,8 +14,8 @@ public interface ICommandExecutor
     /// <param name="cancellationToken">The cancellation token to use.</param>
     public ValueTask ExecuteAsync
     (
-        CommandContext context, 
-        bool awaitCommandExecution = false, 
+        CommandContext context,
+        bool awaitCommandExecution = false,
         CancellationToken cancellationToken = default
     );
 }
