@@ -50,10 +50,5 @@
       <Analyzer Remove="@(Analyzer)" Condition="'%(Analyzer.Filename)' == '$(_RemoveAnalyzer)'"/>
     </ItemGroup>
   </Target>
-
-  <!-- post-process versions that declare themselves to be public-facing -->
-  <PropertyGroup Condition="$(IsPublicFacing) != ''">
-    <VersionPrefix>$(_DSharpPlusReleaseVersion)</VersionPrefix>
-  </PropertyGroup>
   
 </Project>

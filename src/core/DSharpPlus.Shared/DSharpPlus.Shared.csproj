@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <IsPublicFacing>true</IsPublicFacing>
+    <VersionPrefix>$(_DSharpPlusReleaseVersion)</VersionPrefix>
     <Description>$(Description) This package contains shared types between public-facing and internal implementation packages.</Description>
     <OutputType>Library</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
