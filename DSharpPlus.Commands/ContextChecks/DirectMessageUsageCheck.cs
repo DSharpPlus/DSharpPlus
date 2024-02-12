@@ -33,10 +33,7 @@ internal sealed class DirectMessageUsageCheck : IContextCheck<DirectMessageUsage
                 )
             };
 
-            return ValueTask.FromResult<string?>
-            (
-                $"The executed command {requirement} but was executed {dmStatus}."
-            );
+            return ValueTask.FromResult<string?>($"The executed command {requirement} but was executed {dmStatus}.");
         }
     }
 }
