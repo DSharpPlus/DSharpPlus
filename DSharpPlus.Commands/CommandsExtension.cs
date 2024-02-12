@@ -185,7 +185,7 @@ public sealed class CommandsExtension : BaseExtension
     /// </summary>
     public void AddChecks(Assembly assembly)
     {
-        foreach(Type t in assembly.ExportedTypes)
+        foreach(Type t in assembly.GetTypes())
         {
             if (t.GetInterface("DSharpPlus.Commands.ContextChecks.IContextCheck`1") is not null)
             {
