@@ -8,23 +8,23 @@ namespace DSharpPlus.Commands.ContextChecks;
 
 internal sealed class RequirePermissionsCheck : IContextCheck<RequirePermissionsAttribute>
 {
-    public async ValueTask<string?> ExecuteCheckAsync(RequirePermissionsAttribute attribute, CommandContext context)
+    public ValueTask<string?> ExecuteCheckAsync(RequirePermissionsAttribute attribute, CommandContext context)
     {
-        if (await new RequireGuildCheck().ExecuteCheckAsync(null!, context) is not null)
+        if (context.Guild is null)
         {
-            return "This command must be executed within a guild.";
+            return ValueTask.FromResult<string?>(RequireGuildCheck.ErrorMessage);
         }
 
         if (!context.Guild!.CurrentMember.PermissionsIn(context.Channel).HasPermission(attribute.BotPermissions))
         {
-            return "The bot did not have the needed permissions to execute this command.";
+            return ValueTask.FromResult<string?>("The bot did not have the needed permissions to execute this command.");
         }
 
         if (!context.Member!.PermissionsIn(context.Channel).HasPermission(attribute.UserPermissions))
         {
-            return "The executing user did not have the needed permissions to execute this command.";
+            return ValueTask.FromResult<string?>("The executing user did not have the needed permissions to execute this command.");
         }
 
-        return null;
+        return ValueTask.FromResult<string?>(null);
     }
 }
