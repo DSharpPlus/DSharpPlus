@@ -2,8 +2,6 @@
 
 using System.Threading.Tasks;
 
-using DSharpPlus.Commands.Trees;
-
 namespace DSharpPlus.Commands.ContextChecks;
 
 internal sealed class RequirePermissionsCheck : IContextCheck<RequirePermissionsAttribute>

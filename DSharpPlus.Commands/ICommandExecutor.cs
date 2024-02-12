@@ -3,8 +3,6 @@ namespace DSharpPlus.Commands;
 using System.Threading;
 using System.Threading.Tasks;
 
-using DSharpPlus.Commands.Trees;
-
 public interface ICommandExecutor
 {
 

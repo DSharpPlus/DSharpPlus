@@ -27,7 +27,7 @@ using CheckFunc = System.Func
 <
     object,
     DSharpPlus.Commands.ContextChecks.ContextCheckAttribute,
-    DSharpPlus.Commands.Trees.CommandContext,
+    CommandContext,
     System.Threading.Tasks.ValueTask<string?>
 >;
 

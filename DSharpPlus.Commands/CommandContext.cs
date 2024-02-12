@@ -1,7 +1,8 @@
-namespace DSharpPlus.Commands.Trees;
+namespace DSharpPlus.Commands;
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
 
 public abstract record CommandContext : AbstractContext

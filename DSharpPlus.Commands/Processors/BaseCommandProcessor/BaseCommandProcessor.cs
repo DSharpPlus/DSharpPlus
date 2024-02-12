@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using DSharpPlus.Commands;
 using DSharpPlus.Commands.Converters;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
