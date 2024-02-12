@@ -83,7 +83,7 @@ public sealed class CommandExecutor : ICommandExecutor
                 {
                     continue;
                 }
-            {
+
                 try
                 {
                     object check = ActivatorUtilities.CreateInstance(context.Extension.ServiceProvider, entry.CheckType);
@@ -110,7 +110,7 @@ public sealed class CommandExecutor : ICommandExecutor
                     {
                         continue;
                     }
-                {
+
                     try
                     {
                         object check = ActivatorUtilities.CreateInstance(context.Extension.ServiceProvider, entry.CheckType);
