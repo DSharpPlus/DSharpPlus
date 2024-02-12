@@ -74,7 +74,7 @@ public sealed class CommandExecutor : ICommandExecutor
 
         if (checks.Count != 0)
         {
-            List<string> failedChecks = [];
+            List<(ContextCheckAttribute data, string error)> failedChecks = [];
 
             // first, execute all unconditional checks
             foreach (ContextCheckMapEntry entry in context.Extension.Checks.Where(x => x.AttributeType == typeof(UnconditionalCheckAttribute)))
@@ -86,13 +86,13 @@ public sealed class CommandExecutor : ICommandExecutor
 
                     if (result is not null)
                     {
-                        failedChecks.Add(result);
+                        failedChecks.Add((new UnconditionalCheckAttribute(), result));
                         continue;
                     }
                 }
                 catch (Exception error)
                 {
-                    failedChecks.Add($"{error}: {error.Message}\n{error.StackTrace}");
+                    failedChecks.Add((new UnconditionalCheckAttribute(), $"{error}: {error.Message}\n{error.StackTrace}"));
                 }
             }
 
@@ -108,14 +108,14 @@ public sealed class CommandExecutor : ICommandExecutor
 
                         if (result is not null)
                         {
-                            failedChecks.Add(result);
+                            failedChecks.Add((checks[i], result));
                             continue;
                         }
                     }
                     // try/catch blocks are free until they catch
                     catch (Exception error)
                     {
-                        failedChecks.Add($"{error}: {error.Message}\n{error.StackTrace}");
+                        failedChecks.Add((checks[i], $"{error}: {error.Message}\n{error.StackTrace}"));
                     }
                 }
             }
@@ -125,7 +125,7 @@ public sealed class CommandExecutor : ICommandExecutor
                 await context.Extension._commandErrored.InvokeAsync(context.Extension, new CommandErroredEventArgs()
                 {
                     Context = context,
-                    Exception = new ChecksFailedException(failedChecks.Distinct().ToList(), context.Command.Name),
+                    Exception = new ChecksFailedException(failedChecks, context.Command.Name),
                     CommandObject = null
                 });
 
