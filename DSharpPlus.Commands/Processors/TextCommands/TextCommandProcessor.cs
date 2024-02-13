@@ -11,13 +11,15 @@ using DSharpPlus.Commands.Trees;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 
-public sealed class TextCommandProcessor(TextCommandConfiguration? configuration = null) : BaseCommandProcessor<MessageCreateEventArgs, ITextArgumentConverter, TextConverterContext, TextCommandContext>
+public sealed class TextCommandProcessor : BaseCommandProcessor<MessageCreateEventArgs, ITextArgumentConverter, TextConverterContext, TextCommandContext>
 {
     public const DiscordIntents RequiredIntents = DiscordIntents.DirectMessages // Required for commands executed in DMs
                                                 | DiscordIntents.GuildMessages; // Required for commands that are executed via bot ping
 
-    public TextCommandConfiguration Configuration { get; init; } = configuration ?? new();
+    public TextCommandConfiguration Configuration { get; init; }
     private bool _configured;
+
+    public TextCommandProcessor(TextCommandConfiguration? configuration = null) => this.Configuration = configuration ?? new();
 
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {

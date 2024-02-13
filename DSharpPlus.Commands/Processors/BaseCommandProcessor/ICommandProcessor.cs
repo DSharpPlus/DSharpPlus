@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Commands.Converters;
 
-public interface ICommandProcessor
+public interface ICommandProcessor : IAsyncDisposable, IDisposable
 {
     public ValueTask ConfigureAsync(CommandsExtension extension);
 }

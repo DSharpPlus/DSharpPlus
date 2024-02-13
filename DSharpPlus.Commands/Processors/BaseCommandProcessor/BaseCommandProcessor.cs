@@ -123,6 +123,8 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
         public override int GetHashCode() => HashCode.Combine(this.ParameterType, this.ConverterDelegate, this.ConverterInstance, this.ConverterType);
     }
 
+    private static readonly Action<ILogger, string, Exception?> FailedConverterCreation = LoggerMessage.Define<string>(LogLevel.Error, new EventId(1), "Failed to create instance of converter '{FullName}' due to a lack of empty public constructors, lack of a service provider, or lack of services within the service provider.");
+
     public IReadOnlyDictionary<Type, TConverter> Converters { get; protected set; } = new Dictionary<Type, TConverter>();
     public IReadOnlyDictionary<Type, ConverterDelegate<TEventArgs>> ConverterDelegates { get; protected set; } = new Dictionary<Type, ConverterDelegate<TEventArgs>>();
     // Redirect the interface to use the converter delegates property instead of the converters property
@@ -131,8 +133,6 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
     protected readonly Dictionary<Type, LazyConverter> _lazyConverters = [];
     protected CommandsExtension? _extension;
     protected ILogger<BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext>> _logger = NullLogger<BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext>>.Instance;
-
-    private static readonly Action<ILogger, string, Exception?> FailedConverterCreation = LoggerMessage.Define<string>(LogLevel.Error, new EventId(1), "Failed to create instance of converter '{FullName}' due to a lack of empty public constructors, lack of a service provider, or lack of services within the service provider.");
 
     public virtual void AddConverter<T>(TConverter converter) => this.AddConverter(typeof(T), converter);
     public virtual void AddConverter(Type type, TConverter converter) => this.AddConverter(new() { ParameterType = type, ConverterInstance = converter });
@@ -304,5 +304,21 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
             values.Add(optional.Value);
         } while (converterContext.NextArgument());
         return Optional.FromValue(values.ToArray());
+    }
+
+    public virtual ValueTask DisposeAsync()
+    {
+        this.Dispose();
+        GC.SuppressFinalize(this);
+        return default;
+    }
+
+    public virtual void Dispose()
+    {
+        this.Converters = new Dictionary<Type, TConverter>();
+        this.ConverterDelegates = new Dictionary<Type, ConverterDelegate<TEventArgs>>();
+        this._lazyConverters.Clear();
+        this._extension = null;
+        GC.SuppressFinalize(this);
     }
 }

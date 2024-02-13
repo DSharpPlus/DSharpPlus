@@ -506,6 +506,20 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         User = eventArgs.Interaction.User
     };
 
+    public override ValueTask DisposeAsync()
+    {
+        this.Dispose();
+        return default;
+    }
+
+    public override void Dispose()
+    {
+        TypeMappings = new Dictionary<Type, ApplicationCommandOptionType>();
+        Commands = new Dictionary<ulong, Command>();
+        _applicationCommands.Clear();
+        base.Dispose();
+    }
+
     private static string ToSnakeCase(ReadOnlySpan<char> str)
     {
         StringBuilder stringBuilder = new();

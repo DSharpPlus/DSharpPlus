@@ -148,4 +148,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
             nsfw: command.Attributes.Any(x => x is RequireNsfwAttribute)
         );
     }
+
+    public ValueTask DisposeAsync() => default;
+    public void Dispose() { }
 }

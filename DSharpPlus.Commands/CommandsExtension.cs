@@ -57,8 +57,8 @@ public sealed class CommandsExtension : BaseExtension
     public IReadOnlyDictionary<Type, ICommandProcessor> Processors { get; private set; } = new Dictionary<Type, ICommandProcessor>();
     private readonly Dictionary<Type, ICommandProcessor> _processors = [];
 
-    internal IReadOnlyList<ContextCheckMapEntry> Checks => this.checks;
-    private readonly List<ContextCheckMapEntry> checks = [];
+    internal IReadOnlyList<ContextCheckMapEntry> Checks => this._checks;
+    private readonly List<ContextCheckMapEntry> _checks = [];
 
     /// <summary>
     /// Executed everytime a command is finished executing.
@@ -126,8 +126,7 @@ public sealed class CommandsExtension : BaseExtension
         }
 
         this.Client = client;
-        this.Client.SessionCreated += async (_, _) => await this.RefreshAsync();
-
+        this.Client.SessionCreated += (_, _) => this.RefreshAsync();
         this.AddCheck<DirectMessageUsageCheck>();
         this.AddCheck<RequireApplicationOwnerCheck>();
         this.AddCheck<RequireGuildCheck>();
@@ -138,11 +137,11 @@ public sealed class CommandsExtension : BaseExtension
 
     public void AddCommand(CommandBuilder command) => this._commandBuilders.Add(command);
     public void AddCommand(Delegate commandDelegate) => this._commandBuilders.Add(CommandBuilder.From(commandDelegate));
+    public void AddCommands(Type type) => this._commandBuilders.Add(CommandBuilder.From(type));
+    public void AddCommands<T>() => this._commandBuilders.Add(CommandBuilder.From<T>());
     public void AddCommands(IEnumerable<CommandBuilder> commands) => this._commandBuilders.AddRange(commands);
     public void AddCommands(Assembly assembly) => this.AddCommands(assembly.GetTypes());
     public void AddCommands(params CommandBuilder[] commands) => this._commandBuilders.AddRange(commands);
-    public void AddCommands(Type type) => this._commandBuilders.Add(CommandBuilder.From(type));
-    public void AddCommands<T>() => this._commandBuilders.Add(CommandBuilder.From<T>());
     public void AddCommands(IEnumerable<Type> types)
     {
         foreach (Type type in types)
@@ -165,7 +164,12 @@ public sealed class CommandsExtension : BaseExtension
 
     public async ValueTask AddProcessorAsync(ICommandProcessor processor)
     {
-        this._processors.Add(processor.GetType(), processor);
+        if (this._processors.TryGetValue(processor.GetType(), out ICommandProcessor? existingProcessor))
+        {
+            await existingProcessor.DisposeAsync();
+        }
+
+        this._processors[processor.GetType()] = processor;
         await processor.ConfigureAsync(this);
     }
 
@@ -174,12 +178,18 @@ public sealed class CommandsExtension : BaseExtension
     {
         foreach (ICommandProcessor processor in processors)
         {
-            this._processors.Add(processor.GetType(), processor);
+            if (this._processors.TryGetValue(processor.GetType(), out ICommandProcessor? existingProcessor))
+            {
+                await existingProcessor.DisposeAsync();
+            }
+
+            this._processors[processor.GetType()] = processor;
             await processor.ConfigureAsync(this);
         }
     }
 
-    public TProcessor GetProcessor<TProcessor>() where TProcessor : ICommandProcessor => (TProcessor)this._processors[typeof(TProcessor)];
+    public TProcessor GetProcessor<TProcessor>() where TProcessor : ICommandProcessor
+        => (TProcessor)this._processors[typeof(TProcessor)];
 
     /// <summary>
     /// Adds all public checks from the provided assembly to the extension.
@@ -198,8 +208,7 @@ public sealed class CommandsExtension : BaseExtension
     /// <summary>
     /// Adds a new check to the extension.
     /// </summary>
-    public void AddCheck<T>()
-        where T : IContextCheck
+    public void AddCheck<T>() where T : IContextCheck
         => this.AddCheck(typeof(T));
 
     /// <summary>
@@ -216,15 +225,13 @@ public sealed class CommandsExtension : BaseExtension
             }
 
             Type attributeType = t.GetGenericArguments()[0];
-
-            MethodInfo method = checkType.GetMethods(BindingFlags.Public | BindingFlags.Instance)
+            MethodInfo method = t.GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .First(x => x.Name == "ExecuteCheckAsync" && x.GetParameters()[0].ParameterType == attributeType);
 
             // create the func for invoking the check here, during startup
             ParameterExpression check = Expression.Parameter(checkType);
             ParameterExpression attribute = Expression.Parameter(attributeType);
             ParameterExpression context = Expression.Parameter(typeof(CommandContext));
-
             MethodCallExpression call = Expression.Call
             (
                 instance: check,
@@ -234,18 +241,13 @@ public sealed class CommandsExtension : BaseExtension
             );
 
             Type delegateType = typeof(Func<,,,>).MakeGenericType(checkType, attributeType, typeof(CommandContext), typeof(ValueTask<string>));
-
             CheckFunc func = Unsafe.As<CheckFunc>(Expression.Lambda(delegateType, call, check, attribute, context).Compile());
-
-            this.checks.Add
-            (
-                new()
-                {
-                    AttributeType = attributeType,
-                    CheckType = checkType,
-                    ExecuteCheckAsync = func
-                }
-            );
+            this._checks.Add(new()
+            {
+                AttributeType = attributeType,
+                CheckType = checkType,
+                ExecuteCheckAsync = func
+            });
         }
     }
 
@@ -266,18 +268,27 @@ public sealed class CommandsExtension : BaseExtension
         }
 
         this.Commands = commands.ToFrozenDictionary();
-
         foreach (ICommandProcessor processor in this._processors.Values)
         {
             await processor.ConfigureAsync(this);
         }
     }
 
-    // TODO: Disposable pattern for processors
     /// <inheritdoc />
     public override void Dispose()
     {
-        return;
+        foreach (ICommandProcessor processor in this._processors.Values)
+        {
+            processor.Dispose();
+        }
+
+        Commands = new Dictionary<string, Command>();
+        Processors = new Dictionary<Type, ICommandProcessor>();
+        this._commandBuilders.Clear();
+        this._processors.Clear();
+        this._checks.Clear();
+        this._commandExecuted.UnregisterAll();
+        this._commandErrored.UnregisterAll();
     }
 
     /// <summary>

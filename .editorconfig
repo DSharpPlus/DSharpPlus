@@ -26,12 +26,17 @@ charset = utf-8
 ###############################
 [*.{cs,vb}]
 
+# Don't use primary constructors
+csharp_style_prefer_primary_constructors = false:silent
+
 # Organize usings
 dotnet_sort_system_directives_first = true:error
 dotnet_separate_import_directive_groups = true:error
 csharp_qualified_using_at_nested_scope = true:error
+
 # Unfortunately, no java-style usings
 dotnet_diagnostic.IDE0064.severity = none
+
 # Using directive is unnecessary.
 dotnet_diagnostic.IDE0005.severity = error
 
