@@ -22,9 +22,21 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
     private readonly MemoryCache cache;
     private readonly ILogger logger;
     private readonly ConcurrentDictionary<string, string> routeHashes;
+    
+    /// <summary>
+    /// Collection of routes we are waiting for a hash. This is the case when we have a request for which we dont know the
+    /// hash but are waiting for a response to get it.
+    /// </summary>
+    private List<string> waitingForHashRoutes;
+    private SemaphoreSlim waitingForHashListSemaphore = new(1, 1);
+    
+    /// <summary>
+    /// Time to wait for a response to set the hash for a route.
+    /// </summary>
+    private readonly int waitingForHashMilliseconds = 200;
     private static readonly TimeSpan second = TimeSpan.FromSeconds(1);
 
-    public RateLimitPolicy(ILogger logger)
+    public RateLimitPolicy(ILogger logger, int waitingForHashMilliseconds = 200)
     {
         this.globalBucket = new(50, 50, DateTime.UtcNow.AddSeconds(1));
 
@@ -39,6 +51,8 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
 
         this.logger = logger;
         this.routeHashes = new();
+        this.waitingForHashRoutes = new();
+        this.waitingForHashMilliseconds = waitingForHashMilliseconds;
     }
 
     protected override async Task<HttpResponseMessage> ImplementationAsync
@@ -117,6 +131,48 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
                     return synthesizedResponse;
                 }
             }
+            else
+            {
+                this.logger.LogTrace
+                (
+                    LoggerEvents.RatelimitDiag,
+                    "Route has no known bucket: {Route}.",
+                    route
+                );
+            }
+        }
+        else
+        {
+            this.logger.LogTrace
+            (
+                LoggerEvents.RatelimitPreemptive,
+                "Route has no known hash: {Route}.",
+                route
+            );
+            
+            //We dont know the hash of the route, so we check if we have a request where we will get the hash. Otherwise
+            //we will add the route to our list of routes we are waiting for a hash.
+            await this.waitingForHashListSemaphore.WaitAsync(cancellationToken);
+            if (this.waitingForHashRoutes.Contains(route))
+            {
+                HttpResponseMessage synthesizedResponse = new(HttpStatusCode.TooManyRequests);
+                
+                DateTimeOffset reset = instant.AddMilliseconds(this.waitingForHashMilliseconds);
+
+                synthesizedResponse.Headers.RetryAfter = new RetryConditionHeaderValue(reset);
+                synthesizedResponse.Headers.Add("DSharpPlus-Internal-Response", "waitingOnHash");
+
+                this.logger.LogWarning
+                (
+                    LoggerEvents.RatelimitPreemptive,
+                    "Pre-emptive ratelimit triggered, waiting for route hash until {reset:yyyy-MM-dd HH:mm:ss zzz}.",
+                    reset
+                );
+                waitingForHashRoutes.Add(route);
+                return synthesizedResponse;
+            }
+            
+            this.waitingForHashListSemaphore.Release();
         }
 
         // make the actual request
@@ -126,6 +182,14 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
 
         if (!exemptFromGlobalLimit && hasBucketHeader)
         {
+            // the request had no known hash, we remove the route from the waiting list because we got a hash now
+            if (!hashPresent)
+            {
+                await this.waitingForHashListSemaphore.WaitAsync(cancellationToken);
+                this.waitingForHashRoutes.Remove(route);
+                this.waitingForHashListSemaphore.Release();
+            }
+            
             hash = hashHeader?.Single();
 
             if(!RateLimitBucket.TryExtractRateLimitBucket(response.Headers, out RateLimitBucket? extracted))
