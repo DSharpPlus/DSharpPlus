@@ -43,14 +43,6 @@ public sealed class DiscordConfiguration
     public LogLevel MinimumLogLevel { internal get; set; } = LogLevel.Information;
 
     /// <summary>
-    /// <para>Sets whether to rely on Discord for NTP (Network Time Protocol) synchronization with the "X-Ratelimit-Reset-After" header.</para>
-    /// <para>If the system clock is not synced, setting this to true will ensure ratelimits are synced with Discord and reduce the risk of hitting one.</para>
-    /// <para>This should only be set to false if the system clock is synced with NTP.</para>
-    /// <para>Defaults to true.</para>
-    /// </summary>
-    public bool UseRelativeRatelimit { internal get; set; } = true;
-
-    /// <summary>
     /// <para>Allows you to overwrite the time format used by the internal debug logger.</para>
     /// <para>Only applicable when <see cref="LoggerFactory"/> is set left at default value. Defaults to ISO 8601-like format.</para>
     /// </summary>
@@ -194,7 +186,6 @@ public sealed class DiscordConfiguration
         this.Token = other.Token;
         this.TokenType = other.TokenType;
         this.MinimumLogLevel = other.MinimumLogLevel;
-        this.UseRelativeRatelimit = other.UseRelativeRatelimit;
         this.LogTimestampFormat = other.LogTimestampFormat;
         this.LargeThreshold = other.LargeThreshold;
         this.AutoReconnect = other.AutoReconnect;
