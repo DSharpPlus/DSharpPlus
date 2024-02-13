@@ -513,12 +513,6 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         this.TypeMappings = new Dictionary<Type, ApplicationCommandOptionType>();
         this.Commands = new Dictionary<ulong, Command>();
         this._applicationCommands.Clear();
-        if (this._extension is not null)
-        {
-            this._extension.Client.InteractionCreated -= this.ExecuteInteractionAsync;
-            this._extension.Client.GuildDownloadCompleted -= this.RegisterStartupCommandsAsync;
-        }
-
         base.Dispose();
     }
 

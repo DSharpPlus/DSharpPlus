@@ -287,8 +287,6 @@ public sealed class CommandsExtension : BaseExtension
         this._commandBuilders.Clear();
         this._processors.Clear();
         this._checks.Clear();
-        this._commandExecuted.UnregisterAll();
-        this._commandErrored.UnregisterAll();
     }
 
     /// <summary>

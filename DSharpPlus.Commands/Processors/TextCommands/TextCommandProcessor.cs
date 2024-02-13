@@ -202,14 +202,4 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<MessageCreateEve
         ServiceScope = converterContext.ServiceScope,
         User = eventArgs.Author
     };
-
-    public override void Dispose()
-    {
-        if (this._extension is not null)
-        {
-            this._extension.Client.MessageCreated -= this.ExecuteTextCommandAsync;
-        }
-
-        base.Dispose();
-    }
 }
