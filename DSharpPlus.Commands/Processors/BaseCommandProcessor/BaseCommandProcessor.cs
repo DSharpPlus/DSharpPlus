@@ -306,13 +306,6 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
         return Optional.FromValue(values.ToArray());
     }
 
-    public virtual ValueTask DisposeAsync()
-    {
-        this.Dispose();
-        GC.SuppressFinalize(this);
-        return default;
-    }
-
     public virtual void Dispose()
     {
         this.Converters = new Dictionary<Type, TConverter>();

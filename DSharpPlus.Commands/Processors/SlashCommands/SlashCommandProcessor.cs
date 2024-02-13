@@ -48,13 +48,15 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         {
             this._configured = true;
             extension.Client.InteractionCreated += this.ExecuteInteractionAsync;
-            extension.Client.GuildDownloadCompleted += async (client, eventArgs) =>
-            {
-                if (client.ShardId == 0)
-                {
-                    await this.RegisterSlashCommandsAsync(extension);
-                }
-            };
+            extension.Client.GuildDownloadCompleted += this.RegisterStartupCommandsAsync;
+        }
+    }
+
+    private async Task RegisterStartupCommandsAsync(DiscordClient client, GuildDownloadCompletedEventArgs eventArgs)
+    {
+        if (client.ShardId == 0 && this._extension is not null)
+        {
+            await this.RegisterSlashCommandsAsync(_extension);
         }
     }
 
@@ -506,17 +508,17 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         User = eventArgs.Interaction.User
     };
 
-    public override ValueTask DisposeAsync()
-    {
-        this.Dispose();
-        return default;
-    }
-
     public override void Dispose()
     {
-        TypeMappings = new Dictionary<Type, ApplicationCommandOptionType>();
-        Commands = new Dictionary<ulong, Command>();
-        _applicationCommands.Clear();
+        this.TypeMappings = new Dictionary<Type, ApplicationCommandOptionType>();
+        this.Commands = new Dictionary<ulong, Command>();
+        this._applicationCommands.Clear();
+        if (this._extension is not null)
+        {
+            this._extension.Client.InteractionCreated -= this.ExecuteInteractionAsync;
+            this._extension.Client.GuildDownloadCompleted -= this.RegisterStartupCommandsAsync;
+        }
+
         base.Dispose();
     }
 

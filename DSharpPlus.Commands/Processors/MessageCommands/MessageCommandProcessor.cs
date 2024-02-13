@@ -149,6 +149,13 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
         );
     }
 
-    public ValueTask DisposeAsync() => default;
-    public void Dispose() { }
+    public void Dispose()
+    {
+        if (this._extension is not null)
+        {
+            this._extension.Client.ContextMenuInteractionCreated -= this.ExecuteInteractionAsync;
+        }
+
+        this._slashCommandProcessor?.Dispose();
+    }
 }
