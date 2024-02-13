@@ -39,7 +39,8 @@ internal sealed partial class RestClient : IDisposable
         (
             config.Proxy,
             config.HttpTimeout,
-            logger
+            logger,
+            config.TimeoutForInitialApiRequest
         )
     {
         this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(config));
@@ -51,7 +52,8 @@ internal sealed partial class RestClient : IDisposable
     (
         IWebProxy proxy,
         TimeSpan timeout,
-        ILogger logger
+        ILogger logger,
+        int waitingForHashMilliseconds = 200
     )
     {
         this.Logger = logger;

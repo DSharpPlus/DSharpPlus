@@ -36,7 +36,7 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
     private readonly int waitingForHashMilliseconds = 200;
     private static readonly TimeSpan second = TimeSpan.FromSeconds(1);
 
-    public RateLimitPolicy(ILogger logger)
+    public RateLimitPolicy(ILogger logger, int waitingForHashMilliseconds = 200)
     {
         this.globalBucket = new(50, 50, DateTime.UtcNow.AddSeconds(1));
 
@@ -51,6 +51,8 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
 
         this.logger = logger;
         this.routeHashes = new();
+        this.waitingForHashRoutes = new();
+        this.waitingForHashMilliseconds = waitingForHashMilliseconds;
     }
 
     protected override async Task<HttpResponseMessage> ImplementationAsync

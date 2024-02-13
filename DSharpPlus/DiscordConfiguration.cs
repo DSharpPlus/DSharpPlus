@@ -78,6 +78,12 @@ public sealed class DiscordConfiguration
     /// <para>Defaults to <see cref="Stream"/>.</para>
     /// </summary>
     public GatewayCompressionLevel GatewayCompressionLevel { internal get; set; } = GatewayCompressionLevel.Stream;
+    
+    /// <summary>
+    /// <para>Specifies the probing interval in ms to use when first making requests to the API. Should be slightly higher than your average ping to the discord rest api.</para>
+    /// <para>Defaults to 200 ms</para>
+    /// </summary>
+    public int TimeoutForInitialApiRequest { internal get; set; } = 200;
 
     /// <summary>
     /// <para>Sets the size of the global message cache.</para>
