@@ -58,7 +58,7 @@ internal sealed class RateLimitBucket
             );
         }
 
-        this.remaining = this.Maximum;
+        Interlocked.Exchange(ref this.remaining, this.Maximum);
         this.Reset = nextReset;
     }
 
@@ -111,7 +111,7 @@ internal sealed class RateLimitBucket
         {
             if (this.Reset < DateTime.UtcNow)
             {
-                Interlocked.Exchange(ref this.remaining, this.Maximum);
+                this.ResetLimit(DateTime.UtcNow + TimeSpan.FromSeconds(1));
                 Interlocked.Increment(ref this.reserved);
                 return true;
             }
@@ -123,10 +123,11 @@ internal sealed class RateLimitBucket
         return true;
     }
 
-    internal void UpdateBucket(int remaining)
+    internal void UpdateBucket(int remaining, DateTime reset)
     {
         Interlocked.Exchange(ref this.remaining, remaining);
         Interlocked.Decrement(ref this.reserved);
+        this.Reset = reset;
     }
 
     internal void CancelReservation()

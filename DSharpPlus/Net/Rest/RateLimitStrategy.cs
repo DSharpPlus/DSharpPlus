@@ -94,7 +94,7 @@ internal class RateLimitStrategy(ILogger logger, int waitingForHashMilliseconds 
             //We dont know the hash of the route, so we check if we have a request where we will get the hash. Otherwise
             //we will add the route to our list of routes we are waiting for a hash.
             await this.waitingForHashListSemaphore.WaitAsync(context.CancellationToken);
-            if (this.waitingForHashRoutes.Contains(route))
+            if (this.waitingForHashRoutes.Contains(route!))
             {
                 HttpResponseMessage synthesizedResponse = new(HttpStatusCode.TooManyRequests);
 
@@ -183,7 +183,7 @@ internal class RateLimitStrategy(ILogger logger, int waitingForHashMilliseconds 
             }
             else
             {
-                bucket!.UpdateBucket(extracted.remaining);
+                bucket!.UpdateBucket(extracted.Remaining, extracted.Reset);
             }
 
             // the request had no known hash, we remove the route from the waiting list because we got a hash now
