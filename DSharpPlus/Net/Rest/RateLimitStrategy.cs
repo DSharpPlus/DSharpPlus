@@ -110,7 +110,7 @@ internal class RateLimitStrategy(ILogger logger, int waitingForHashMilliseconds 
                     reset
                 );
 
-                waitingForHashRoutes.Add(route!);
+                this.waitingForHashListSemaphore.Release();
                 return Outcome.FromResult(synthesizedResponse);
             }
         }
