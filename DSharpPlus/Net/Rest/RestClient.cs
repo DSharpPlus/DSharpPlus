@@ -82,7 +82,7 @@ internal sealed partial class RestClient : IDisposable
         // we want to break this or introduce configuration
         ResiliencePipelineBuilder<HttpResponseMessage> builder = new();
 
-        builder.AddStrategy(_ => new RateLimitStrategy(logger, waitingForHashMilliseconds), default!)
+        builder.AddStrategy(_ => new RateLimitStrategy(logger, waitingForHashMilliseconds), new RateLimitOptions())
             .AddRetry
             (
                 new()
