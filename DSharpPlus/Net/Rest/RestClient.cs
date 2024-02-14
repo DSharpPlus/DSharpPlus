@@ -25,7 +25,6 @@ internal sealed partial class RestClient : IDisposable
 
     private static readonly Regex routeArgumentRegex = GenerateRouteArgumentRegex();
     private readonly HttpClient httpClient;
-    private readonly BaseDiscordClient? discord;
     private readonly ILogger logger;
     private readonly AsyncManualResetEvent globalRateLimitEvent;
     private readonly ResiliencePipeline<HttpResponseMessage> pipeline;
@@ -38,6 +37,8 @@ internal sealed partial class RestClient : IDisposable
             config.Proxy,
             config.HttpTimeout,
             logger,
+            config.MaximumRatelimitRetries,
+            config.RatelimitRetryDelayFallback,
             config.TimeoutForInitialApiRequest
         )
     {
@@ -51,6 +52,8 @@ internal sealed partial class RestClient : IDisposable
         IWebProxy proxy,
         TimeSpan timeout,
         ILogger logger,
+        int maxRetries = -1,
+        double retryDelayFallback = 2.5,
         int waitingForHashMilliseconds = 200
     )
     {
@@ -86,11 +89,11 @@ internal sealed partial class RestClient : IDisposable
                 {
                     ShouldHandle = result => ValueTask.FromResult
                     (
-                        result.Outcome.Result is not null
+                            ((maxRetries == -1) || (maxRetries >= result.AttemptNumber))
+                            && result.Outcome.Result is not null
                             && (result.Outcome.Result.Headers.Any(xm => xm.Key == "DSharpPlus-Internal-Response")
                             || result.Outcome.Result.StatusCode == HttpStatusCode.TooManyRequests)
                     ),
-                    BackoffType = DelayBackoffType.Linear,
                     DelayGenerator = result =>
                     {
                         if (result.Outcome.Result!.Headers.TryGetValues("X-RateLimit-Reset-After", out IEnumerable<string>? values))
@@ -102,7 +105,7 @@ internal sealed partial class RestClient : IDisposable
                         }
 
                         // do we want to enable configuring this?
-                        return ValueTask.FromResult<TimeSpan?>(TimeSpan.FromSeconds(5));
+                        return ValueTask.FromResult<TimeSpan?>(TimeSpan.FromSeconds(retryDelayFallback));
                     }
                 }
             );
