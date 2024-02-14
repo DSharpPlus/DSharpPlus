@@ -179,6 +179,20 @@ public sealed class DiscordConfiguration
     public IMessageCacheProvider? MessageCacheProvider { internal get; set; } = null;
 
     /// <summary>
+    /// Specifies the maximum amount of retries to attempt when ratelimited. Retries will still try to respect the ratelimit.
+    /// </summary>
+    /// <remarks>
+    /// Setting this value to 0 disables retrying, and setting it to -1 (but not any negative value!) enables infinite retries,
+    /// which is the default setting.
+    /// </remarks>
+    public int MaximumRatelimitRetries { internal get; set; } = -1;
+
+    /// <summary>
+    /// Specifies the delay to use when there was no delay information passed to the rest client. Defaults to 2.5 seconds.
+    /// </summary>
+    public double RatelimitRetryDelayFallback { internal get; set; } = 2.5;
+
+    /// <summary>
     /// Creates a new configuration with default values.
     /// </summary>
     public DiscordConfiguration()

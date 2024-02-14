@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -11,8 +12,6 @@ using DSharpPlus.Exceptions;
 using Microsoft.Extensions.Logging;
 
 using Polly;
-using Polly.Retry;
-using Polly.Wrap;
 
 namespace DSharpPlus.Net;
 
@@ -21,16 +20,14 @@ namespace DSharpPlus.Net;
 /// </summary>
 internal sealed partial class RestClient : IDisposable
 {
-
     [GeneratedRegex(":([a-z_]+)")]
     private static partial Regex GenerateRouteArgumentRegex();
 
-    private static Regex RouteArgumentRegex { get; } = GenerateRouteArgumentRegex();
-    private HttpClient HttpClient { get; }
-    private BaseDiscordClient? Discord { get; }
-    private ILogger Logger { get; }
-    private AsyncManualResetEvent GlobalRateLimitEvent { get; }
-    private AsyncPolicyWrap<HttpResponseMessage> RateLimitPolicy { get; }
+    private static readonly Regex routeArgumentRegex = GenerateRouteArgumentRegex();
+    private readonly HttpClient httpClient;
+    private readonly ILogger logger;
+    private readonly AsyncManualResetEvent globalRateLimitEvent;
+    private readonly ResiliencePipeline<HttpResponseMessage> pipeline;
 
     private volatile bool _disposed;
 
@@ -40,11 +37,13 @@ internal sealed partial class RestClient : IDisposable
             config.Proxy,
             config.HttpTimeout,
             logger,
+            config.MaximumRatelimitRetries,
+            config.RatelimitRetryDelayFallback,
             config.TimeoutForInitialApiRequest
         )
     {
-        this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(config));
-        this.HttpClient.BaseAddress = new(Endpoints.BASE_URI);
+        this.httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(config));
+        this.httpClient.BaseAddress = new(Endpoints.BASE_URI);
     }
 
     // This is for meta-clients, such as the webhook client
@@ -53,10 +52,12 @@ internal sealed partial class RestClient : IDisposable
         IWebProxy proxy,
         TimeSpan timeout,
         ILogger logger,
+        int maxRetries = -1,
+        double retryDelayFallback = 2.5,
         int waitingForHashMilliseconds = 200
     )
     {
-        this.Logger = logger;
+        this.logger = logger;
 
         HttpClientHandler httphandler = new()
         {
@@ -66,28 +67,50 @@ internal sealed partial class RestClient : IDisposable
             Proxy = proxy
         };
 
-        this.HttpClient = new HttpClient(httphandler)
+        this.httpClient = new HttpClient(httphandler)
         {
             BaseAddress = new Uri(Utilities.GetApiBaseUri()),
             Timeout = timeout
         };
 
-        this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
-        this.HttpClient.BaseAddress = new(Endpoints.BASE_URI);
+        this.httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
+        this.httpClient.BaseAddress = new(Endpoints.BASE_URI);
 
-        this.GlobalRateLimitEvent = new AsyncManualResetEvent(true);
+        this.globalRateLimitEvent = new AsyncManualResetEvent(true);
 
         // retrying forever is rather suboptimal, but it's the old behaviour. We should discuss whether
-        // we want to break this.
-        AsyncRetryPolicy<HttpResponseMessage> retry = Policy
-            .HandleResult<HttpResponseMessage>
-            (
-                result => result.Headers.Any(xm => xm.Key == "DSharpPlus-Internal-Response")
-                          || result.StatusCode == HttpStatusCode.TooManyRequests
-            )
-            .RetryForeverAsync();
+        // we want to break this or introduce configuration
+        ResiliencePipelineBuilder<HttpResponseMessage> builder = new();
 
-        this.RateLimitPolicy = Policy.WrapAsync(retry, new RateLimitPolicy(logger));
+        builder.AddStrategy(_ => new RateLimitStrategy(logger, waitingForHashMilliseconds), new RateLimitOptions())
+            .AddRetry
+            (
+                new()
+                {
+                    ShouldHandle = result => ValueTask.FromResult
+                    (
+                            ((maxRetries == -1) || (maxRetries >= result.AttemptNumber))
+                            && result.Outcome.Result is not null
+                            && (result.Outcome.Result.Headers.Any(xm => xm.Key == "DSharpPlus-Internal-Response")
+                            || result.Outcome.Result.StatusCode == HttpStatusCode.TooManyRequests)
+                    ),
+                    DelayGenerator = result =>
+                    {
+                        if (result.Outcome.Result!.Headers.TryGetValues("X-RateLimit-Reset-After", out IEnumerable<string>? values))
+                        {
+                            if (double.TryParse(values.SingleOrDefault(), out double value))
+                            {
+                                return ValueTask.FromResult<TimeSpan?>(TimeSpan.FromSeconds(value));
+                            }
+                        }
+
+                        // do we want to enable configuring this?
+                        return ValueTask.FromResult<TimeSpan?>(TimeSpan.FromSeconds(retryDelayFallback));
+                    }
+                }
+            );
+
+        this.pipeline = builder.Build();
     }
 
     internal async ValueTask<RestResponse> ExecuteRequestAsync<TRequest>
@@ -107,20 +130,19 @@ internal sealed partial class RestClient : IDisposable
 
         try
         {
-            await this.GlobalRateLimitEvent.WaitAsync();
+            await this.globalRateLimitEvent.WaitAsync();
 
-            Context context = new()
-            {
-                ["route"] = request.Route,
-                ["exempt-from-global-limit"] = request.IsExemptFromGlobalLimit
-            };
+            ResilienceContext context = ResilienceContextPool.Shared.Get();
+
+            context.Properties.Set(new("route"), request.Route);
+            context.Properties.Set(new("exempt-from-global-limit"), request.IsExemptFromGlobalLimit);
             
-            using HttpResponseMessage response = await this.RateLimitPolicy.ExecuteAsync
+            using HttpResponseMessage response = await this.pipeline.ExecuteAsync
             (
                 async (_) =>
                 {
                     using HttpRequestMessage req = request.Build();
-                    return await this.HttpClient.SendAsync
+                    return await this.httpClient.SendAsync
                     (
                         req,
                         HttpCompletionOption.ResponseContentRead,
@@ -130,9 +152,12 @@ internal sealed partial class RestClient : IDisposable
                 context
             );
 
+            ResilienceContextPool.Shared.Return(context);
+
             string content = await response.Content.ReadAsStringAsync();
 
-            this.Logger.LogTrace(LoggerEvents.RestRx, "{content}", content);
+            // consider logging headers too
+            this.logger.LogTrace(LoggerEvents.RestRx, "{content}", content);
 
             _ = response.StatusCode switch
             {
@@ -169,7 +194,7 @@ internal sealed partial class RestClient : IDisposable
         }
         catch (Exception ex)
         {
-            this.Logger.LogError
+            this.logger.LogError
             (
                 LoggerEvents.RestError,
                 ex,
@@ -190,11 +215,11 @@ internal sealed partial class RestClient : IDisposable
 
         this._disposed = true;
 
-        this.GlobalRateLimitEvent.Reset();
+        this.globalRateLimitEvent.Reset();
 
         try
         {
-            this.HttpClient?.Dispose();
+            this.httpClient?.Dispose();
         }
         catch { }
     }
