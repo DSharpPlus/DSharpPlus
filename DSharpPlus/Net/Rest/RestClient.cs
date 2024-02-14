@@ -78,8 +78,6 @@ internal sealed partial class RestClient : IDisposable
 
         this.globalRateLimitEvent = new AsyncManualResetEvent(true);
 
-        // retrying forever is rather suboptimal, but it's the old behaviour. We should discuss whether
-        // we want to break this or introduce configuration
         ResiliencePipelineBuilder<HttpResponseMessage> builder = new();
 
         builder.AddRetry
@@ -108,7 +106,6 @@ internal sealed partial class RestClient : IDisposable
                         return ValueTask.FromResult(result.Outcome.Result!.Headers.RetryAfter.Delta);
                     }
 
-                    // do we want to enable configuring this?
                     return ValueTask.FromResult<TimeSpan?>(TimeSpan.FromSeconds(retryDelayFallback));
                 }
             }
