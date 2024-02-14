@@ -44,6 +44,14 @@ internal sealed class RateLimitBucket
         this.Reset = reset;
     }
 
+    public RateLimitBucket()
+    {
+        this.Maximum = 1;
+        this.remaining = 1;
+        this.Reset = DateTime.MaxValue;
+        this.reserved = 0;
+    }
+
     /// <summary>
     /// Resets the bucket to the next reset time.
     /// </summary>

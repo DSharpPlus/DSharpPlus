@@ -109,17 +109,18 @@ internal class RateLimitStrategy(ILogger logger, int waitingForHashMilliseconds 
                     "Pre-emptive ratelimit triggered, waiting for route hash until {reset:yyyy-MM-dd HH:mm:ss zzz}.",
                     reset
                 );
-                waitingForHashRoutes.Add(route);
+
+                waitingForHashRoutes.Add(route!);
                 return Outcome.FromResult(synthesizedResponse);
             }
-
-            this.waitingForHashListSemaphore.Release();
         }
 
         RateLimitBucket? bucket = hash is not null ? this.buckets.GetOrCreateValue(hash) : null;
 
         if (bucket is not null)
         {
+            logger.LogTrace(LoggerEvents.RatelimitDiag, "Checking request, current state is [Remaining: {Remaining}, Reserved: {Reserved}]", bucket.remaining, bucket.reserved);
+
             if (!bucket.CheckNextRequest())
             {
                 HttpResponseMessage synthesizedResponse = new(HttpStatusCode.TooManyRequests);
@@ -136,6 +137,8 @@ internal class RateLimitStrategy(ILogger logger, int waitingForHashMilliseconds 
 
                 return Outcome.FromResult(synthesizedResponse);
             }
+
+            logger.LogTrace(LoggerEvents.RatelimitDiag, "Allowed request, current state is [Remaining: {Remaining}, Reserved: {Reserved}]", bucket.remaining, bucket.reserved);
         }
         else
         {
@@ -171,30 +174,31 @@ internal class RateLimitStrategy(ILogger logger, int waitingForHashMilliseconds 
 
         if (!exemptFromGlobalLimit && hasBucketHeader)
         {
-            hash = hashHeader?.Single();
+            string newHash = hashHeader?.Single()!;
 
             if(!RateLimitBucket.TryExtractRateLimitBucket(response.Headers, out RateLimitBucket? extracted))
             {
                 return outcome;
             }
-            else if (!hashPresent)
+            else if (!hashPresent || hash != newHash)
             {
-                this.buckets.AddOrUpdate(hash!, extracted);
+                this.buckets.AddOrUpdate(newHash, extracted);
             }
             else
             {
                 bucket!.UpdateBucket(extracted.Remaining, extracted.Reset);
             }
 
-            // the request had no known hash, we remove the route from the waiting list because we got a hash now
-            if (!hashPresent)
-            {
-                await this.waitingForHashListSemaphore.WaitAsync(context.CancellationToken);
-                this.waitingForHashRoutes.Remove(route!);
-                this.waitingForHashListSemaphore.Release();
-            }
+            this.routeHashes.AddOrUpdate(route!, newHash!, (_, _) => newHash!);
+        }
 
-            this.routeHashes.AddOrUpdate(route!, hash!, (_, _) => hash!);
+        GC.KeepAlive(hash);
+
+        // the request had no known hash, we remove the route from the waiting list because we got a hash now
+        if (!hashPresent)
+        {
+            this.waitingForHashRoutes.Remove(route!);
+            this.waitingForHashListSemaphore.Release();
         }
 
         return outcome;

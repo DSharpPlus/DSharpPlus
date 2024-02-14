@@ -82,33 +82,38 @@ internal sealed partial class RestClient : IDisposable
         // we want to break this or introduce configuration
         ResiliencePipelineBuilder<HttpResponseMessage> builder = new();
 
-        builder.AddStrategy(_ => new RateLimitStrategy(logger, waitingForHashMilliseconds), new RateLimitOptions())
-            .AddRetry
-            (
-                new()
+        builder.AddRetry
+        (
+            new()
+            {
+                ShouldHandle = result => ValueTask.FromResult
+                (
+                        ((maxRetries == -1) || (maxRetries >= result.AttemptNumber))
+                        && result.Outcome.Result is not null
+                        && (result.Outcome.Result.Headers.Any(xm => xm.Key == "DSharpPlus-Internal-Response")
+                        || result.Outcome.Result.StatusCode == HttpStatusCode.TooManyRequests)
+                ),
+                DelayGenerator = result =>
                 {
-                    ShouldHandle = result => ValueTask.FromResult
-                    (
-                            ((maxRetries == -1) || (maxRetries >= result.AttemptNumber))
-                            && result.Outcome.Result is not null
-                            && (result.Outcome.Result.Headers.Any(xm => xm.Key == "DSharpPlus-Internal-Response")
-                            || result.Outcome.Result.StatusCode == HttpStatusCode.TooManyRequests)
-                    ),
-                    DelayGenerator = result =>
+                    if (result.Outcome.Result!.Headers.TryGetValues("X-RateLimit-Reset-After", out IEnumerable<string>? values))
                     {
-                        if (result.Outcome.Result!.Headers.TryGetValues("X-RateLimit-Reset-After", out IEnumerable<string>? values))
+                        if (double.TryParse(values.SingleOrDefault(), out double value))
                         {
-                            if (double.TryParse(values.SingleOrDefault(), out double value))
-                            {
-                                return ValueTask.FromResult<TimeSpan?>(TimeSpan.FromSeconds(value));
-                            }
+                            return ValueTask.FromResult<TimeSpan?>(TimeSpan.FromSeconds(value));
                         }
-
-                        // do we want to enable configuring this?
-                        return ValueTask.FromResult<TimeSpan?>(TimeSpan.FromSeconds(retryDelayFallback));
                     }
+
+                    if (result.Outcome.Result!.Headers.RetryAfter?.Delta is not null)
+                    {
+                        return ValueTask.FromResult(result.Outcome.Result!.Headers.RetryAfter.Delta);
+                    }
+
+                    // do we want to enable configuring this?
+                    return ValueTask.FromResult<TimeSpan?>(TimeSpan.FromSeconds(retryDelayFallback));
                 }
-            );
+            }
+        )
+        .AddStrategy(_ => new RateLimitStrategy(logger, waitingForHashMilliseconds), new RateLimitOptions());
 
         this.pipeline = builder.Build();
     }
