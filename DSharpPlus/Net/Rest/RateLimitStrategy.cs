@@ -16,56 +16,30 @@ namespace DSharpPlus.Net;
 
 using System.Collections.Generic;
 
-internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
+internal class RateLimitStrategy(ILogger logger, int waitingForHashMilliseconds = 200) : ResilienceStrategy<HttpResponseMessage>
 {
-    private readonly RateLimitBucket globalBucket;
-    private readonly MemoryCache cache;
-    private readonly ILogger logger;
-    private readonly ConcurrentDictionary<string, string> routeHashes;
+    private readonly RateLimitBucket globalBucket = new(50, 50, DateTime.UtcNow.AddSeconds(1));
+    private readonly MemoryCache cache = new(new MemoryCacheOptions{ });
+    private readonly ConcurrentDictionary<string, string> routeHashes = new();
     
     /// <summary>
     /// Collection of routes we are waiting for a hash. This is the case when we have a request for which we dont know the
     /// hash but are waiting for a response to get it.
     /// </summary>
-    private List<string> waitingForHashRoutes;
-    private SemaphoreSlim waitingForHashListSemaphore = new(1, 1);
+    private readonly List<string> waitingForHashRoutes = [];
+    private readonly SemaphoreSlim waitingForHashListSemaphore = new(1, 1);
     
-    /// <summary>
-    /// Time to wait for a response to set the hash for a route.
-    /// </summary>
-    private readonly int waitingForHashMilliseconds = 200;
     private static readonly TimeSpan second = TimeSpan.FromSeconds(1);
 
-    public RateLimitPolicy(ILogger logger, int waitingForHashMilliseconds = 200)
-    {
-        this.globalBucket = new(50, 50, DateTime.UtcNow.AddSeconds(1));
-
-        // we don't actually care about any settings on this cache
-        // in a future day and age, we'll hopefully replace this with an application-global cache, but oh well
-        this.cache = new
-        (
-            new MemoryCacheOptions
-            {
-            }
-        );
-
-        this.logger = logger;
-        this.routeHashes = new();
-        this.waitingForHashRoutes = new();
-        this.waitingForHashMilliseconds = waitingForHashMilliseconds;
-    }
-
-    protected override async Task<HttpResponseMessage> ImplementationAsync
+    protected override async ValueTask<Outcome<HttpResponseMessage>> ExecuteCore<TState>
     (
-        Func<Context, CancellationToken, Task<HttpResponseMessage>> action,
-        Context context,
-        CancellationToken cancellationToken,
-        // since the library doesn't use CA(false) at all (#1533), we will proceed to ignore this 
-        bool continueOnCapturedContext = true
+        Func<ResilienceContext, TState, ValueTask<Outcome<HttpResponseMessage>>> action,
+        ResilienceContext context,
+        TState state
     )
     {
         // fail-fast if we dont have a route to ratelimit to
-        if (!context.TryGetValue("route", out object rawRoute) || rawRoute is not string route)
+        if (!context.Properties.TryGetValue(new("route"), out string? route))
         {
             throw new InvalidOperationException("No route passed. This should be reported to library developers.");
         }
@@ -73,7 +47,7 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
         // get global limit
         bool exemptFromGlobalLimit = false;
 
-        if (context.TryGetValue("exempt-from-global-limit", out object rawExempt) && rawExempt is bool exempt)
+        if (context.Properties.TryGetValue(new("exempt-from-global-limit"), out bool exempt))
         {
             exemptFromGlobalLimit = exempt;
         }
@@ -95,14 +69,14 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
                 synthesizedResponse.Headers.RetryAfter = new RetryConditionHeaderValue(this.globalBucket.Reset - instant);
                 synthesizedResponse.Headers.Add("DSharpPlus-Internal-Response", "global");
 
-                this.logger.LogWarning
+                logger.LogWarning
                 (
                     LoggerEvents.RatelimitPreemptive,
                     "Pre-emptive ratelimit triggered - waiting until {reset:yyyy-MM-dd HH:mm:ss zzz}.",
                     this.globalBucket.Reset
                 );
 
-                return synthesizedResponse;
+                return Outcome.FromResult(synthesizedResponse);
             }
         }
 
@@ -121,19 +95,19 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
                     synthesizedResponse.Headers.RetryAfter = new RetryConditionHeaderValue(bucket.Value.Reset - instant);
                     synthesizedResponse.Headers.Add("DSharpPlus-Internal-Response", "bucket");
 
-                    this.logger.LogWarning
+                    logger.LogWarning
                     (
                         LoggerEvents.RatelimitPreemptive,
                         "Pre-emptive ratelimit triggered - waiting until {reset:yyyy-MM-dd HH:mm:ss zzz}.",
                         bucket.Value.Reset
                     );
 
-                    return synthesizedResponse;
+                    return Outcome.FromResult(synthesizedResponse);
                 }
             }
             else
             {
-                this.logger.LogTrace
+                logger.LogTrace
                 (
                     LoggerEvents.RatelimitDiag,
                     "Route has no known bucket: {Route}.",
@@ -143,7 +117,7 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
         }
         else
         {
-            this.logger.LogTrace
+            logger.LogTrace
             (
                 LoggerEvents.RatelimitPreemptive,
                 "Route has no known hash: {Route}.",
@@ -152,24 +126,24 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
             
             //We dont know the hash of the route, so we check if we have a request where we will get the hash. Otherwise
             //we will add the route to our list of routes we are waiting for a hash.
-            await this.waitingForHashListSemaphore.WaitAsync(cancellationToken);
+            await this.waitingForHashListSemaphore.WaitAsync(context.CancellationToken);
             if (this.waitingForHashRoutes.Contains(route))
             {
                 HttpResponseMessage synthesizedResponse = new(HttpStatusCode.TooManyRequests);
                 
-                DateTimeOffset reset = instant.AddMilliseconds(this.waitingForHashMilliseconds);
+                DateTimeOffset reset = instant.AddMilliseconds(waitingForHashMilliseconds);
 
                 synthesizedResponse.Headers.RetryAfter = new RetryConditionHeaderValue(reset);
                 synthesizedResponse.Headers.Add("DSharpPlus-Internal-Response", "waitingOnHash");
 
-                this.logger.LogWarning
+                logger.LogWarning
                 (
                     LoggerEvents.RatelimitPreemptive,
                     "Pre-emptive ratelimit triggered, waiting for route hash until {reset:yyyy-MM-dd HH:mm:ss zzz}.",
                     reset
                 );
                 waitingForHashRoutes.Add(route);
-                return synthesizedResponse;
+                return Outcome.FromResult(synthesizedResponse);
             }
             
             this.waitingForHashListSemaphore.Release();
@@ -177,7 +151,15 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
 
         // make the actual request
 
-        HttpResponseMessage response = await action(context, cancellationToken);
+        Outcome<HttpResponseMessage> outcome = await action(context, state);
+        
+        if (outcome.Result is null)
+        {
+            return outcome;
+        }
+
+        HttpResponseMessage response = outcome.Result;
+
         bool hasBucketHeader = response.Headers.TryGetValues("X-RateLimit-Bucket", out IEnumerable<string>? hashHeader);
 
         if (!exemptFromGlobalLimit && hasBucketHeader)
@@ -185,7 +167,7 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
             // the request had no known hash, we remove the route from the waiting list because we got a hash now
             if (!hashPresent)
             {
-                await this.waitingForHashListSemaphore.WaitAsync(cancellationToken);
+                await this.waitingForHashListSemaphore.WaitAsync(context.CancellationToken);
                 this.waitingForHashRoutes.Remove(route);
                 this.waitingForHashListSemaphore.Release();
             }
@@ -194,15 +176,16 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
 
             if(!RateLimitBucket.TryExtractRateLimitBucket(response.Headers, out RateLimitBucket? extracted))
             {
-                return response;
+                return outcome;
             }
 
             this.cache.CreateEntry(route)
                 .SetValue(extracted.Value)
                 .Dispose();
 
-            this.routeHashes.AddOrUpdate(route, hash, (_, _) => hash);
+            this.routeHashes.AddOrUpdate(route, hash!, (_, _) => hash!);
         }
-        return response;
+
+        return outcome;
     }
 }
