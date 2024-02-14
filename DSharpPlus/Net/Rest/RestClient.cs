@@ -78,6 +78,8 @@ internal sealed partial class RestClient : IDisposable
 
         this.globalRateLimitEvent = new AsyncManualResetEvent(true);
 
+        RateLimitStrategy rateLimitStrategy = new(logger, waitingForHashMilliseconds);
+
         ResiliencePipelineBuilder<HttpResponseMessage> builder = new();
 
         builder.AddRetry
@@ -101,16 +103,18 @@ internal sealed partial class RestClient : IDisposable
                         }
                     }
 
+#pragma warning disable IDE0046 // Convert to conditional expression
                     if (result.Outcome.Result!.Headers.RetryAfter?.Delta is not null)
                     {
                         return ValueTask.FromResult(result.Outcome.Result!.Headers.RetryAfter.Delta);
                     }
+#pragma warning restore IDE0046
 
                     return ValueTask.FromResult<TimeSpan?>(TimeSpan.FromSeconds(retryDelayFallback));
                 }
             }
         )
-        .AddStrategy(_ => new RateLimitStrategy(logger, waitingForHashMilliseconds), new RateLimitOptions());
+        .AddStrategy(_ => rateLimitStrategy, new RateLimitOptions());
 
         this.pipeline = builder.Build();
     }
