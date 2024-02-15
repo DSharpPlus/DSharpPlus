@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -28,6 +26,7 @@ internal sealed partial class RestClient : IDisposable
     private readonly ILogger logger;
     private readonly AsyncManualResetEvent globalRateLimitEvent;
     private readonly ResiliencePipeline<HttpResponseMessage> pipeline;
+    private readonly RateLimitStrategy rateLimitStrategy;
 
     private volatile bool _disposed;
 
@@ -78,37 +77,21 @@ internal sealed partial class RestClient : IDisposable
 
         this.globalRateLimitEvent = new AsyncManualResetEvent(true);
 
-        // retrying forever is rather suboptimal, but it's the old behaviour. We should discuss whether
-        // we want to break this or introduce configuration
+        this.rateLimitStrategy = new(logger, waitingForHashMilliseconds);
+
         ResiliencePipelineBuilder<HttpResponseMessage> builder = new();
 
-        builder.AddStrategy(_ => new RateLimitStrategy(logger, waitingForHashMilliseconds), new RateLimitOptions())
-            .AddRetry
-            (
-                new()
-                {
-                    ShouldHandle = result => ValueTask.FromResult
-                    (
-                            ((maxRetries == -1) || (maxRetries >= result.AttemptNumber))
-                            && result.Outcome.Result is not null
-                            && (result.Outcome.Result.Headers.Any(xm => xm.Key == "DSharpPlus-Internal-Response")
-                            || result.Outcome.Result.StatusCode == HttpStatusCode.TooManyRequests)
-                    ),
-                    DelayGenerator = result =>
-                    {
-                        if (result.Outcome.Result!.Headers.TryGetValues("X-RateLimit-Reset-After", out IEnumerable<string>? values))
-                        {
-                            if (double.TryParse(values.SingleOrDefault(), out double value))
-                            {
-                                return ValueTask.FromResult<TimeSpan?>(TimeSpan.FromSeconds(value));
-                            }
-                        }
-
-                        // do we want to enable configuring this?
-                        return ValueTask.FromResult<TimeSpan?>(TimeSpan.FromSeconds(retryDelayFallback));
-                    }
-                }
-            );
+        builder.AddRetry
+        (
+            new()
+            {
+                DelayGenerator = result =>
+                    ValueTask.FromResult<TimeSpan?>((result.Outcome.Exception as PreemptiveRatelimitException)?.ResetAfter 
+                        ?? TimeSpan.FromSeconds(retryDelayFallback)),
+                MaxRetryAttempts = maxRetries
+            }
+        )
+        .AddStrategy(_ => rateLimitStrategy, new RateLimitOptions());
 
         this.pipeline = builder.Build();
     }
@@ -216,6 +199,7 @@ internal sealed partial class RestClient : IDisposable
         this._disposed = true;
 
         this.globalRateLimitEvent.Reset();
+        this.rateLimitStrategy.Dispose();
 
         try
         {

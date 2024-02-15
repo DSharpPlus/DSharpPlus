@@ -4,25 +4,20 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Threading;
 
 namespace DSharpPlus.Net;
 
 /// <summary>
 /// Represents a rate limit bucket.
 /// </summary>
-
-// this is 16 bytes, which ensures that we can always move this within at most six CPU cycles on any
-// modern xarch CPU, and eight? cycles on modern aarch CPUs
-// do not change the order of properties without first verifying that `sizeof(RateLimitBucket)` remains
-// 16. note to testers: this requires an unsafe context for... some reason.
-// it is painful to use DateTime over DateTimeOffset here, but DateTimeOffset means double the copy cost.
-internal record struct RateLimitBucket
+internal sealed class RateLimitBucket
 {
     /// <summary>
     /// Gets the number of uses left before pre-emptive rate limit is triggered.
     /// </summary>
     public int Remaining
-        => this._remaining;
+        => this.remaining;
 
     /// <summary>
     /// Gets the timestamp at which the rate limit resets.
@@ -32,9 +27,11 @@ internal record struct RateLimitBucket
     /// <summary>
     /// Gets the maximum number of uses within a single bucket.
     /// </summary>
-    public int Maximum { get; set; }
+    public int Maximum => this.maximum;
 
-    internal volatile int _remaining;
+    internal int maximum;
+    internal int remaining;
+    internal int reserved = 0;
 
     public RateLimitBucket
     (
@@ -43,9 +40,17 @@ internal record struct RateLimitBucket
         DateTime reset
     )
     {
-        this.Maximum = maximum;
-        this._remaining = remaining;
+        this.maximum = maximum;
+        this.remaining = remaining;
         this.Reset = reset;
+    }
+
+    public RateLimitBucket()
+    {
+        this.maximum = 1;
+        this.remaining = 1;
+        this.Reset = DateTime.MaxValue;
+        this.reserved = 0;
     }
 
     /// <summary>
@@ -62,7 +67,7 @@ internal record struct RateLimitBucket
             );
         }
 
-        this._remaining = this.Maximum;
+        Interlocked.Exchange(ref this.remaining, this.Maximum);
         this.Reset = nextReset;
     }
 
@@ -111,18 +116,30 @@ internal record struct RateLimitBucket
 
     internal bool CheckNextRequest()
     {
-        if (this.Remaining <= 0)
+        if (this.Reset < DateTime.UtcNow)
         {
-            if (this.Reset < DateTime.UtcNow)
-            {
-                this._remaining = this.Maximum - 1;
-                return true;
-            }
+            this.ResetLimit(DateTime.UtcNow + TimeSpan.FromSeconds(1));
+            Interlocked.Increment(ref this.reserved);
+            return true;
+        }
 
+        if (this.Remaining - this.reserved <= 0)
+        {
             return false;
         }
 
-        this._remaining--;
+        Interlocked.Increment(ref this.reserved);
         return true;
     }
+
+    internal void UpdateBucket(int maximum, int remaining, DateTime reset)
+    {
+        Interlocked.Exchange(ref this.maximum, maximum);
+        Interlocked.Exchange(ref this.remaining, remaining);
+        Interlocked.Decrement(ref this.reserved);
+        this.Reset = reset;
+    }
+
+    internal void CancelReservation() 
+        => Interlocked.Decrement(ref this.reserved);
 }
