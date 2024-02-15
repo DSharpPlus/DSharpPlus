@@ -42,7 +42,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 #pragma warning disable CS8600
         if (!context.Properties.TryGetValue(new("route"), out string route))
         {
-            throw new InvalidOperationException("No route passed. This should be reported to library developers.");
+            return Outcome.FromException<HttpResponseMessage>(new InvalidOperationException("No route passed. This should be reported to library developers."));
         }
 #pragma warning restore CS8600
 
@@ -133,10 +133,10 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
                     return outcome;
                 }
             }
-            catch
+            catch(Exception e)
             {
                 bucket.CancelReservation();
-                throw;
+                return Outcome.FromException<HttpResponseMessage>(e);
             }
 
             if (!exemptFromGlobalLimit)
@@ -161,7 +161,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
             retry
         );
 
-        throw new PreemptiveRatelimitException(scope, retry - DateTime.UtcNow);
+        return Outcome.FromException<HttpResponseMessage>(new PreemptiveRatelimitException(scope, retry - DateTime.UtcNow));
     }
 
     private void UpdateRateLimitBuckets(HttpResponseMessage response, string oldHash, string route)
