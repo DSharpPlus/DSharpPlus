@@ -2,9 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,23 +12,23 @@ using Polly;
 
 namespace DSharpPlus.Net;
 
-internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>
+internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDisposable
 {
     private readonly RateLimitBucket globalBucket = new(50, 50, DateTime.UtcNow.AddSeconds(1));
     private readonly ConcurrentDictionary<string, RateLimitBucket> buckets = [];
     private readonly ConcurrentDictionary<string, string> routeHashes = [];
 
-    private readonly ValueTask ratelimitCleanerTask;
-
     private readonly ILogger logger;
     private readonly int waitingForHashMilliseconds;
+
+    private bool cancel = false;
 
     public RateLimitStrategy(ILogger logger, int waitingForHashMilliseconds = 200)
     {
         this.logger = logger;
         this.waitingForHashMilliseconds = waitingForHashMilliseconds;
 
-        this.ratelimitCleanerTask = CleanAsync();
+        _ = CleanAsync();
     }
 
     protected override async ValueTask<Outcome<HttpResponseMessage>> ExecuteCore<TState>
@@ -152,15 +150,6 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>
 
     private Outcome<HttpResponseMessage> SynthesizeInternalResponse(string route, DateTime retry, string scope)
     {
-        HttpResponseMessage synthesizedResponse = new(HttpStatusCode.TooManyRequests);
-
-        synthesizedResponse.Headers.RetryAfter = new RetryConditionHeaderValue
-        (
-            retry + TimeSpan.FromMilliseconds(Random.Shared.NextInt64(50))
-        );
-
-        synthesizedResponse.Headers.Add("DSharpPlus-Internal-Response", scope);
-
         string waitingForRoute = scope == "route" ? " for route hash" : "";
 
         logger.LogDebug
@@ -219,6 +208,13 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>
                     this.routeHashes.Remove(pair.Key, out _);
                 }
             }
+
+            if (this.cancel)
+            {
+                return;
+            }
         }
     }
+
+    public void Dispose() => this.cancel = true;
 }

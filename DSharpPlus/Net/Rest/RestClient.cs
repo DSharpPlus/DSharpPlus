@@ -10,7 +10,6 @@ using DSharpPlus.Exceptions;
 using Microsoft.Extensions.Logging;
 
 using Polly;
-using Polly.Retry;
 
 namespace DSharpPlus.Net;
 
@@ -27,6 +26,7 @@ internal sealed partial class RestClient : IDisposable
     private readonly ILogger logger;
     private readonly AsyncManualResetEvent globalRateLimitEvent;
     private readonly ResiliencePipeline<HttpResponseMessage> pipeline;
+    private readonly RateLimitStrategy rateLimitStrategy;
 
     private volatile bool _disposed;
 
@@ -77,7 +77,7 @@ internal sealed partial class RestClient : IDisposable
 
         this.globalRateLimitEvent = new AsyncManualResetEvent(true);
 
-        RateLimitStrategy rateLimitStrategy = new(logger, waitingForHashMilliseconds);
+        this.rateLimitStrategy = new(logger, waitingForHashMilliseconds);
 
         ResiliencePipelineBuilder<HttpResponseMessage> builder = new();
 
@@ -199,6 +199,7 @@ internal sealed partial class RestClient : IDisposable
         this._disposed = true;
 
         this.globalRateLimitEvent.Reset();
+        this.rateLimitStrategy.Dispose();
 
         try
         {
