@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
@@ -14,20 +13,14 @@ using Polly;
 namespace DSharpPlus.Net;
 
 using System.Collections.Generic;
+using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 
 internal class RateLimitStrategy(ILogger logger, int waitingForHashMilliseconds = 200) : ResilienceStrategy<HttpResponseMessage>
 {
     private readonly RateLimitBucket globalBucket = new(50, 50, DateTime.UtcNow.AddSeconds(1));
     private readonly ConditionalWeakTable<string, RateLimitBucket> buckets = [];
-    private readonly ConcurrentDictionary<string, string> routeHashes = new();
-    
-    /// <summary>
-    /// Collection of routes we are waiting for a hash. This is the case when we have a request for which we dont know the
-    /// hash but are waiting for a response to get it.
-    /// </summary>
-    private readonly List<string> waitingForHashRoutes = [];
-    private readonly SemaphoreSlim waitingForHashListSemaphore = new(1, 1);
+    private readonly ConcurrentDictionary<string, string> routeHashes = [];
     
     private static readonly TimeSpan second = TimeSpan.FromSeconds(1);
 
@@ -39,10 +32,12 @@ internal class RateLimitStrategy(ILogger logger, int waitingForHashMilliseconds 
     )
     {
         // fail-fast if we dont have a route to ratelimit to
-        if (!context.Properties.TryGetValue(new("route"), out string? route))
+#pragma warning disable CS8600
+        if (!context.Properties.TryGetValue(new("route"), out string route))
         {
             throw new InvalidOperationException("No route passed. This should be reported to library developers.");
         }
+#pragma warning restore CS8600
 
         // get global limit
         bool exemptFromGlobalLimit = false;
@@ -55,152 +50,137 @@ internal class RateLimitStrategy(ILogger logger, int waitingForHashMilliseconds 
         // check against ratelimits now
         DateTime instant = DateTime.UtcNow;
 
-        if (!exemptFromGlobalLimit)
+        if (!exemptFromGlobalLimit && !this.globalBucket.CheckNextRequest())
         {
-            if (this.globalBucket.Reset < instant)
-            {
-                this.globalBucket.ResetLimit(instant + second);
-            }
-
-            if (!this.globalBucket.CheckNextRequest())
-            {
-                HttpResponseMessage synthesizedResponse = new(HttpStatusCode.TooManyRequests);
-
-                synthesizedResponse.Headers.RetryAfter = new RetryConditionHeaderValue(this.globalBucket.Reset - instant);
-                synthesizedResponse.Headers.Add("DSharpPlus-Internal-Response", "global");
-
-                logger.LogWarning
-                (
-                    LoggerEvents.RatelimitPreemptive,
-                    "Pre-emptive ratelimit triggered - waiting until {reset:yyyy-MM-dd HH:mm:ss zzz}.",
-                    this.globalBucket.Reset
-                );
-
-                return Outcome.FromResult(synthesizedResponse);
-            }
+            return this.SynthesizeInternalResponse(globalBucket.Reset, "global");
         }
 
-        bool hashPresent = this.routeHashes.TryGetValue(route!, out string? hash);
-
-        if (hash is null)
-        {
-            logger.LogTrace
-            (
-                LoggerEvents.RatelimitPreemptive,
-                "Route has no known hash: {Route}.",
-                route
-            );
-
-            //We dont know the hash of the route, so we check if we have a request where we will get the hash. Otherwise
-            //we will add the route to our list of routes we are waiting for a hash.
-            await this.waitingForHashListSemaphore.WaitAsync(context.CancellationToken);
-            if (this.waitingForHashRoutes.Contains(route!))
-            {
-                HttpResponseMessage synthesizedResponse = new(HttpStatusCode.TooManyRequests);
-
-                DateTimeOffset reset = instant.AddMilliseconds(waitingForHashMilliseconds);
-
-                synthesizedResponse.Headers.RetryAfter = new RetryConditionHeaderValue(reset);
-                synthesizedResponse.Headers.Add("DSharpPlus-Internal-Response", "waitingOnHash");
-
-                logger.LogWarning
-                (
-                    LoggerEvents.RatelimitPreemptive,
-                    "Pre-emptive ratelimit triggered, waiting for route hash until {reset:yyyy-MM-dd HH:mm:ss zzz}.",
-                    reset
-                );
-
-                this.waitingForHashListSemaphore.Release();
-                return Outcome.FromResult(synthesizedResponse);
-            }
-        }
-
-        RateLimitBucket? bucket = hash is not null ? this.buckets.GetOrCreateValue(hash) : null;
-
-        if (bucket is not null)
-        {
-            logger.LogTrace(LoggerEvents.RatelimitDiag, "Checking request, current state is [Remaining: {Remaining}, Reserved: {Reserved}]", bucket.remaining, bucket.reserved);
-
-            if (!bucket.CheckNextRequest())
-            {
-                HttpResponseMessage synthesizedResponse = new(HttpStatusCode.TooManyRequests);
-
-                synthesizedResponse.Headers.RetryAfter = new RetryConditionHeaderValue(bucket.Reset - instant);
-                synthesizedResponse.Headers.Add("DSharpPlus-Internal-Response", "bucket");
-
-                logger.LogWarning
-                (
-                    LoggerEvents.RatelimitPreemptive,
-                    "Pre-emptive ratelimit triggered - waiting until {reset:yyyy-MM-dd HH:mm:ss zzz}.",
-                    bucket.Reset
-                );
-
-                return Outcome.FromResult(synthesizedResponse);
-            }
-
-            logger.LogTrace(LoggerEvents.RatelimitDiag, "Allowed request, current state is [Remaining: {Remaining}, Reserved: {Reserved}]", bucket.remaining, bucket.reserved);
-        }
-        else
+        if (!this.routeHashes.TryGetValue(route, out string? hash))
         {
             logger.LogTrace
             (
                 LoggerEvents.RatelimitDiag,
-                "Route has no known bucket: {Route}.",
+                "Route has no known hash: {Route}.",
                 route
             );
-        }
 
-        Outcome<HttpResponseMessage> outcome;
+            this.routeHashes.AddOrUpdate(route, "pending", (_, _) => "pending");
 
-        try
-        {
-            // make the actual request
-            outcome = await action(context, state);
+            Outcome<HttpResponseMessage> outcome = await action(context, state);
 
             if (outcome.Result is null)
             {
                 return outcome;
             }
+
+            if (!exemptFromGlobalLimit)
+            {
+                this.UpdateRateLimitBuckets(outcome.Result, "pending", route);
+            }
+
+            return outcome;
         }
-        catch
+        else if (hash == "pending")
         {
-            bucket?.CancelReservation();
-            throw;
+            return this.SynthesizeInternalResponse
+            (
+                instant + TimeSpan.FromMilliseconds(waitingForHashMilliseconds + Random.Shared.NextInt64(20)),
+                "route"
+            );
         }
+        else
+        {
+            RateLimitBucket bucket = this.buckets.GetOrCreateValue(hash);
 
-        HttpResponseMessage response = outcome.Result;
+            logger.LogTrace
+            (
+                LoggerEvents.RatelimitDiag, 
+                "Checking request, current state is [Remaining: {Remaining}, Reserved: {Reserved}]", 
+                bucket.remaining, 
+                bucket.reserved
+            );
 
-        bool hasBucketHeader = response.Headers.TryGetValues("X-RateLimit-Bucket", out IEnumerable<string>? hashHeader);
+            if (!bucket.CheckNextRequest())
+            {
+                return this.SynthesizeInternalResponse(bucket.Reset + TimeSpan.FromMilliseconds(Random.Shared.NextInt64(20)), "bucket");
+            }
 
-        if (!exemptFromGlobalLimit && hasBucketHeader)
+            logger.LogTrace
+            (
+                LoggerEvents.RatelimitDiag, 
+                "Allowed request, current state is [Remaining: {Remaining}, Reserved: {Reserved}]", 
+                bucket.remaining, 
+                bucket.reserved
+            );
+
+            Outcome<HttpResponseMessage> outcome;
+
+            try
+            {
+                // make the actual request
+                outcome = await action(context, state);
+
+                if (outcome.Result is null)
+                {
+                    return outcome;
+                }
+            }
+            catch
+            {
+                bucket.CancelReservation();
+                throw;
+            }
+
+            if (!exemptFromGlobalLimit)
+            {
+                this.UpdateRateLimitBuckets(outcome.Result, hash, route);
+            }
+
+            return outcome;
+        }
+    }
+
+    private Outcome<HttpResponseMessage> SynthesizeInternalResponse(DateTime retry, string scope)
+    {
+        HttpResponseMessage synthesizedResponse = new(HttpStatusCode.TooManyRequests);
+
+        synthesizedResponse.Headers.RetryAfter = new RetryConditionHeaderValue(retry);
+        synthesizedResponse.Headers.Add("DSharpPlus-Internal-Response", scope);
+
+        string waitingForRoute = scope == "route" ? " for route hash" : "";
+
+        logger.LogInformation
+        (
+            LoggerEvents.RatelimitPreemptive,
+            "Pre-emptive ratelimit triggered - waiting{Route} until {Reset:yyyy-MM-dd HH:mm:ss zzz}.",
+            waitingForRoute,
+            retry
+        );
+
+        return Outcome.FromResult(synthesizedResponse);
+    }
+
+    private void UpdateRateLimitBuckets(HttpResponseMessage response, string oldHash, string route)
+    {
+        if (response.Headers.TryGetValues("X-RateLimit-Bucket", out IEnumerable<string>? hashHeader))
         {
             string newHash = hashHeader?.Single()!;
 
-            if(!RateLimitBucket.TryExtractRateLimitBucket(response.Headers, out RateLimitBucket? extracted))
+            if (!RateLimitBucket.TryExtractRateLimitBucket(response.Headers, out RateLimitBucket? extracted))
             {
-                return outcome;
+                return;
             }
-            else if (!hashPresent || hash != newHash)
+            else if (oldHash != newHash)
             {
                 this.buckets.AddOrUpdate(newHash, extracted);
             }
             else
             {
-                bucket!.UpdateBucket(extracted.Remaining, extracted.Reset);
+                RateLimitBucket bucket = this.buckets.GetOrCreateValue(newHash);
+                bucket.UpdateBucket(extracted.Remaining, extracted.Reset);
             }
 
-            this.routeHashes.AddOrUpdate(route!, newHash!, (_, _) => newHash!);
+            this.routeHashes.AddOrUpdate(route, newHash!, (_, _) => newHash!);
         }
-
-        GC.KeepAlive(hash);
-
-        // the request had no known hash, we remove the route from the waiting list because we got a hash now
-        if (!hashPresent)
-        {
-            this.waitingForHashRoutes.Remove(route!);
-            this.waitingForHashListSemaphore.Release();
-        }
-
-        return outcome;
     }
 }
