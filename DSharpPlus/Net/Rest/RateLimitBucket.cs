@@ -27,8 +27,9 @@ internal sealed class RateLimitBucket
     /// <summary>
     /// Gets the maximum number of uses within a single bucket.
     /// </summary>
-    public int Maximum { get; set; }
+    public int Maximum => this.maximum;
 
+    internal int maximum;
     internal int remaining;
     internal int reserved = 0;
 
@@ -39,14 +40,14 @@ internal sealed class RateLimitBucket
         DateTime reset
     )
     {
-        this.Maximum = maximum;
+        this.maximum = maximum;
         this.remaining = remaining;
         this.Reset = reset;
     }
 
     public RateLimitBucket()
     {
-        this.Maximum = 1;
+        this.maximum = 1;
         this.remaining = 1;
         this.Reset = DateTime.MaxValue;
         this.reserved = 0;
@@ -115,15 +116,15 @@ internal sealed class RateLimitBucket
 
     internal bool CheckNextRequest()
     {
+        if (this.Reset < DateTime.UtcNow)
+        {
+            this.ResetLimit(DateTime.UtcNow + TimeSpan.FromSeconds(1));
+            Interlocked.Increment(ref this.reserved);
+            return true;
+        }
+
         if (this.Remaining - this.reserved <= 0)
         {
-            if (this.Reset < DateTime.UtcNow)
-            {
-                this.ResetLimit(DateTime.UtcNow + TimeSpan.FromSeconds(1));
-                Interlocked.Increment(ref this.reserved);
-                return true;
-            }
-
             return false;
         }
 
@@ -131,13 +132,14 @@ internal sealed class RateLimitBucket
         return true;
     }
 
-    internal void UpdateBucket(int remaining, DateTime reset)
+    internal void UpdateBucket(int maximum, int remaining, DateTime reset)
     {
+        Interlocked.Exchange(ref this.maximum, maximum);
         Interlocked.Exchange(ref this.remaining, remaining);
         Interlocked.Decrement(ref this.reserved);
         this.Reset = reset;
     }
 
-    internal void CancelReservation()
+    internal void CancelReservation() 
         => Interlocked.Decrement(ref this.reserved);
 }

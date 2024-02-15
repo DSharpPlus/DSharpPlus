@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -12,6 +10,7 @@ using DSharpPlus.Exceptions;
 using Microsoft.Extensions.Logging;
 
 using Polly;
+using Polly.Retry;
 
 namespace DSharpPlus.Net;
 
@@ -86,32 +85,10 @@ internal sealed partial class RestClient : IDisposable
         (
             new()
             {
-                ShouldHandle = result => ValueTask.FromResult
-                (
-                        ((maxRetries == -1) || (maxRetries >= result.AttemptNumber))
-                        && result.Outcome.Result is not null
-                        && (result.Outcome.Result.Headers.Any(xm => xm.Key == "DSharpPlus-Internal-Response")
-                        || result.Outcome.Result.StatusCode == HttpStatusCode.TooManyRequests)
-                ),
                 DelayGenerator = result =>
-                {
-                    if (result.Outcome.Result!.Headers.TryGetValues("X-RateLimit-Reset-After", out IEnumerable<string>? values))
-                    {
-                        if (double.TryParse(values.SingleOrDefault(), out double value))
-                        {
-                            return ValueTask.FromResult<TimeSpan?>(TimeSpan.FromSeconds(value));
-                        }
-                    }
-
-#pragma warning disable IDE0046 // Convert to conditional expression
-                    if (result.Outcome.Result!.Headers.RetryAfter?.Delta is not null)
-                    {
-                        return ValueTask.FromResult(result.Outcome.Result!.Headers.RetryAfter.Delta);
-                    }
-#pragma warning restore IDE0046
-
-                    return ValueTask.FromResult<TimeSpan?>(TimeSpan.FromSeconds(retryDelayFallback));
-                }
+                    ValueTask.FromResult<TimeSpan?>((result.Outcome.Exception as PreemptiveRatelimitException)?.ResetAfter 
+                        ?? TimeSpan.FromSeconds(retryDelayFallback)),
+                MaxRetryAttempts = maxRetries
             }
         )
         .AddStrategy(_ => rateLimitStrategy, new RateLimitOptions());
