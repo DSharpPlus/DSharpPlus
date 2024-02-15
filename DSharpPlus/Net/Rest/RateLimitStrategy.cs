@@ -19,8 +19,8 @@ internal class RateLimitStrategy(ILogger logger, int waitingForHashMilliseconds 
     private readonly RateLimitBucket globalBucket = new(50, 50, DateTime.UtcNow.AddSeconds(1));
     private readonly ConditionalWeakTable<string, RateLimitBucket> buckets = [];
     private readonly ConcurrentDictionary<string, string> routeHashes = [];
-    
-    private static readonly TimeSpan second = TimeSpan.FromSeconds(1);
+
+    private int counter = 0;
 
     protected override async ValueTask<Outcome<HttpResponseMessage>> ExecuteCore<TState>
     (
@@ -82,7 +82,7 @@ internal class RateLimitStrategy(ILogger logger, int waitingForHashMilliseconds 
         {
             return this.SynthesizeInternalResponse
             (
-                instant + TimeSpan.FromMilliseconds(waitingForHashMilliseconds + Random.Shared.NextInt64(20)),
+                instant + TimeSpan.FromMilliseconds(waitingForHashMilliseconds),
                 "route"
             );
         }
@@ -100,7 +100,7 @@ internal class RateLimitStrategy(ILogger logger, int waitingForHashMilliseconds 
 
             if (!bucket.CheckNextRequest())
             {
-                return this.SynthesizeInternalResponse(bucket.Reset + TimeSpan.FromMilliseconds(Random.Shared.NextInt64(20)), "bucket");
+                return this.SynthesizeInternalResponse(bucket.Reset, "bucket");
             }
 
             logger.LogTrace
@@ -142,7 +142,11 @@ internal class RateLimitStrategy(ILogger logger, int waitingForHashMilliseconds 
     {
         HttpResponseMessage synthesizedResponse = new(HttpStatusCode.TooManyRequests);
 
-        synthesizedResponse.Headers.RetryAfter = new RetryConditionHeaderValue(retry);
+        synthesizedResponse.Headers.RetryAfter = new RetryConditionHeaderValue
+        (
+            retry + TimeSpan.FromMilliseconds(Random.Shared.NextInt64(25))
+        );
+
         synthesizedResponse.Headers.Add("DSharpPlus-Internal-Response", scope);
 
         string waitingForRoute = scope == "route" ? " for route hash" : "";
