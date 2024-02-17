@@ -75,11 +75,10 @@ internal sealed class RateLimitBucket
     (
         HttpResponseHeaders headers,
 
-        [NotNullWhen(true)]
-        out RateLimitBucket? bucket
+        out RateLimitCandidateBucket bucket
     )
     {
-        bucket = null!;
+        bucket = default;
 
         try
         {

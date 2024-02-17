@@ -175,23 +175,23 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         {
             string newHash = hashHeader?.Single()!;
 
-            if (!RateLimitBucket.TryExtractRateLimitBucket(response.Headers, out RateLimitBucket? extracted))
+            if (!RateLimitBucket.TryExtractRateLimitBucket(response.Headers, out RateLimitCandidateBucket extracted))
             {
                 return;
             }
             else if (oldHash != newHash)
             {
-                this.buckets.AddOrUpdate(newHash, _ => extracted, (_, _) => extracted);
+                this.buckets.AddOrUpdate(newHash, _ => extracted.ToFullBucket(), (_, _) => extracted.ToFullBucket());
             }
             else
             {
                 if (this.buckets.TryGetValue(newHash, out RateLimitBucket? oldBucket))
                 {
-                    oldBucket.UpdateBucket(extracted.maximum, extracted.remaining, extracted.Reset);
+                    oldBucket.UpdateBucket(extracted.Maximum, extracted.Remaining, extracted.Reset);
                 }
                 else
                 {
-                    this.buckets.AddOrUpdate(newHash, _ => extracted, (_, _) => extracted);
+                    this.buckets.AddOrUpdate(newHash, _ => extracted.ToFullBucket(), (_, _) => extracted.ToFullBucket());
                 }
             }
 
