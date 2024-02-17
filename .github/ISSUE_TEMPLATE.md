@@ -7,9 +7,11 @@ Remember, this might decide about the priority of your issue.
 
 # Details
 Next up, the more detailed description. If reporting a problem, you should put as much information about your 
-environent, exceptions, etc. in here. This includes, but is not limited to, .NET Framework version (eg. .NETFX 4.5, 
-.NET Core 2.0), operating system (Windows 7, Debian GNU/Linux 9, etc.), changes made (e.g. custom WebSocket client 
-implementation), IDE (e.g. Visual Studio 2017), exception type, message, and stack trace.
+environent, exceptions, etc. in here. This includes, but is not limited to, .NET version (eg. .NET 8.0, .NET 9 Preview 2),
+operating system (Windows 7, Debian GNU/Linux 9, etc.), changes made (e.g. custom WebSocket client 
+implementation), exception type, message, and stack trace, the DSharpPlus version (eg. 5.0.0-nightly-02086, 4.4.6 stable)
+and a trace log (make sure to redact any tokens, and if you do not feel comfortable posting one on github, you can contact
+us on discord instead).
 
 Remember to include all of your messages in text, as nobody likes a screenshot of text. A good idea is to wrap stack 
 traces in codeblocks, like this:
