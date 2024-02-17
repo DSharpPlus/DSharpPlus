@@ -64,17 +64,14 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
         if (!this.routeHashes.TryGetValue(route, out string? hash))
         {
-            if (!exemptFromGlobalLimit)
-            {
-                logger.LogTrace
-                (
-                    LoggerEvents.RatelimitDiag,
-                    "Route has no known hash: {Route}.",
-                    route
-                );
+            logger.LogTrace
+            (
+                LoggerEvents.RatelimitDiag,
+                "Route has no known hash: {Route}.",
+                route
+            );
 
-                this.routeHashes.AddOrUpdate(route, "pending", (_, _) => "pending");
-            }
+            this.routeHashes.AddOrUpdate(route, "pending", (_, _) => "pending");
 
             Outcome<HttpResponseMessage> outcome = await action(context, state);
 
@@ -84,9 +81,13 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
                 return outcome;
             }
 
-            if (!exemptFromGlobalLimit)
+            this.UpdateRateLimitBuckets(outcome.Result, "pending", route);
+
+            // something went awry, just reset and try again next time. this may be because the endpoint didn't return valid headers,
+            // which is the case for some endpoints, and we don't need to get hung up on this
+            if (this.routeHashes[route] == "pending")
             {
-                this.UpdateRateLimitBuckets(outcome.Result, "pending", route);
+                this.routeHashes.Remove(route, out _);
             }
 
             return outcome;
