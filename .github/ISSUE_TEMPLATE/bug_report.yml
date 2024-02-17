@@ -1,0 +1,77 @@
+name: Bug Report
+description: File a report for a bug in the library. Make sure to open one issue per bug.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        First, give a brief description of what's going wrong. Are you seeing errors you don't think you should be seeing? Is the library doing something
+        unexpected? Are you getting Discord to yell at you because you exceeded ratelimits? Keep in mind that this description will likely decide the
+        priority and effort spent on your issue.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      placeholder: What is going wrong?
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        Next, we'll take a look at some circumstancial information, like versions and operating systems, that will help us diagnose the issue.
+  - type: dropdown
+    id: version
+    attributes:
+        label: What version of the library are you using?
+        multiple: false
+        options:
+          - v4.4.6 (Stable)
+          - v5.0.0-nightly (make sure you are using the latest nightly!)
+    validations:
+      required: true
+  - type: dropdown
+    id: dotnet-version
+    attributes:
+        label: What .NET version are you using? Make sure to use the latest patch release for your major version.
+        multiple: false
+        options:
+          - .NET 6.0
+          - .NET 7.0
+          - .NET 8.0
+          - .NET 9.0 Previews
+    validations:
+      required: true
+  - type: input
+    id: operating-system
+    attributes:
+      label: Operating System
+      placeholder: The operating system your bot was running on when you encountered the issue, eg. Windows 11 23H2 or Alpine Linux 3.19.
+  - type: markdown
+    attributes:
+      value: |
+        Now, we'll look at more specific information. This will further help us diagnose, reproduce and finally fix the issue. Please provide as much detail
+        as possible here, but be careful to not leak any sensitive information, such as tokens.
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction Steps
+      placeholder: Anything that can help us reproduce the issue. A step-by-step guide to reproducing the problem, or your code that caused the issue.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Trace Logs
+      placeholder: The relevant section from a trace log. You can attach a full trace log as a file, or if you are uncomfortable sharing it on GitHub, you can contact us on Discord.
+      render: log
+  - type: textarea
+    id: exception
+    attributes:
+      label: Exceptions or other error messages
+      placeholder: The exception message and stacktrace, other error messages printed out by DSharpPlus, or something else in a similar vein.
+      render: txt
+  - type: textarea
+    id: anything-else
+    attributes:
+      label: Anything else you'd like to share
+      placeholder: This is where anything else related to your issue goes. A self-diagnosis, additional notes, or changes you made to library mechanics such as the websocket client.

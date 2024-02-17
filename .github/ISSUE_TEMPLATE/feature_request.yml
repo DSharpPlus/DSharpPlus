@@ -1,0 +1,40 @@
+name: Feature Request
+description: You have a feature you'd like implemented? There's a Discord feature we don't yet implement? Let us know!
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the feature you want to request. This may include library convenience features, Discord features or your favourite shortcut for
+        writing more concise commands. Keep in mind that this description may decide the priority of your feature request.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      placeholder: Your feature request, described in detail.
+    validations:
+      required: true
+  - type: dropdown
+    id: libraries
+    attributes:
+      label: Specify the libraries you want this feature request to affect
+      multiple: true
+      options:
+        - DSharpPlus, the core library
+        - DSharpPlus.Commands
+        - DSharpPlus.Interactivity
+        - DSharpPlus.Lavalink
+        - DSharpPlus.Rest
+        - DSharpPlus.VoiceNext
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        Now, let's look at what you may have considered before making this feature request. Any alternatively considered designs, reasons why the current
+        implementation is insufficient, or anything else you'd like to tell us about your feature request.
+  - type: textarea
+    id: additional
+    attributes:
+      label: Other considerations
+      placeholder: Anything you considered or would like to tell us.
