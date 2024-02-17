@@ -64,19 +64,23 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
         if (!this.routeHashes.TryGetValue(route, out string? hash))
         {
-            logger.LogTrace
-            (
-                LoggerEvents.RatelimitDiag,
-                "Route has no known hash: {Route}.",
-                route
-            );
+            if (!exemptFromGlobalLimit)
+            {
+                logger.LogTrace
+                (
+                    LoggerEvents.RatelimitDiag,
+                    "Route has no known hash: {Route}.",
+                    route
+                );
 
-            this.routeHashes.AddOrUpdate(route, "pending", (_, _) => "pending");
+                this.routeHashes.AddOrUpdate(route, "pending", (_, _) => "pending");
+            }
 
             Outcome<HttpResponseMessage> outcome = await action(context, state);
 
             if (outcome.Result is null)
             {
+                this.routeHashes.Remove(route, out _);
                 return outcome;
             }
 
