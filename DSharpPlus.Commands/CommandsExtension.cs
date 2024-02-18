@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
@@ -209,19 +210,19 @@ public sealed class CommandsExtension : BaseExtension
         // get all implemented check interfaces, we can pretty easily handle having multiple checks in one type
         foreach (Type t in checkType.GetInterfaces())
         {
-            if (t.FullName != "DSharpPlus.Commands.ContextChecks.IContextCheck`1")
+            if (t.Namespace != "DSharpPlus.Commands.ContextChecks" || t.Name != "IContextCheck`1")
             {
                 continue;
             }
 
             Type attributeType = t.GetGenericArguments()[0];
 
-            MethodInfo method = t.GetMethods(BindingFlags.Public | BindingFlags.Static)
+            MethodInfo method = checkType.GetMethods(BindingFlags.Public | BindingFlags.Instance)
                 .First(x => x.Name == "ExecuteCheckAsync" && x.GetParameters()[0].ParameterType == attributeType);
 
             // create the func for invoking the check here, during startup
-            ParameterExpression check = Expression.Parameter(typeof(object));
-            ParameterExpression attribute = Expression.Parameter(typeof(ContextCheckAttribute));
+            ParameterExpression check = Expression.Parameter(checkType);
+            ParameterExpression attribute = Expression.Parameter(attributeType);
             ParameterExpression context = Expression.Parameter(typeof(CommandContext));
 
             MethodCallExpression call = Expression.Call
@@ -232,14 +233,16 @@ public sealed class CommandsExtension : BaseExtension
                 arg1: context
             );
 
-            CheckFunc func = Expression.Lambda<CheckFunc>(call, check, attribute, context).Compile();
+            Type delegateType = typeof(Func<,,,>).MakeGenericType(checkType, attributeType, typeof(CommandContext), typeof(ValueTask<string>));
+
+            CheckFunc func = Unsafe.As<CheckFunc>(Expression.Lambda(delegateType, call, check, attribute, context).Compile());
 
             this.checks.Add
             (
                 new()
                 {
                     AttributeType = attributeType,
-                    CheckType = t,
+                    CheckType = checkType,
                     ExecuteCheckAsync = func
                 }
             );

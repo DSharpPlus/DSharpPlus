@@ -9,9 +9,9 @@ internal sealed class RequireApplicationOwnerCheck : IContextCheck<RequireApplic
     {
         return ValueTask.FromResult
         (
-            context.Client.CurrentApplication.Owners?.Contains(context.User) ?? context.User.Id == context.Client.CurrentUser.Id
-                ? "This command must be executed by an owner of the application."
-                : null
+            context.Client.CurrentApplication.Owners?.Contains(context.User) == true || context.User.Id == context.Client.CurrentUser.Id
+                ? null    
+                : "This command must be executed by an owner of the application."
         );
     }
 }
