@@ -515,10 +515,12 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
     private static string ToSnakeCase(string str)
     {
         StringBuilder stringBuilder = new();
-        foreach (char character in str)
+        for (int i = 0; i < str.Length; i++)
         {
+            char character = str[i];
+
             // camelCase, PascalCase
-            if (char.IsUpper(character))
+            if (i != 0 && char.IsUpper(character))
             {
                 stringBuilder.Append('_');
             }
