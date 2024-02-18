@@ -63,7 +63,7 @@ public record SlashCommandContext : CommandContext
     }
 
     /// <inheritdoc />
-    public override async ValueTask EditResponseAsync(IDiscordMessageBuilder builder)
+    public override async ValueTask<DiscordMessage> EditResponseAsync(IDiscordMessageBuilder builder)
     {
         if (!this.State.HasFlag(InteractionStatus.ResponseSent) && !this.State.HasFlag(InteractionStatus.ResponseDelayed))
         {
@@ -74,7 +74,7 @@ public record SlashCommandContext : CommandContext
             ? messageBuilder
             : new DiscordWebhookBuilder(builder);
 
-        await this.Interaction.EditOriginalResponseAsync(webhookBuilder);
+        return await this.Interaction.EditOriginalResponseAsync(webhookBuilder);
     }
 
     /// <inheritdoc />
@@ -111,7 +111,7 @@ public record SlashCommandContext : CommandContext
     }
 
     /// <inheritdoc />
-    public override async ValueTask EditFollowupAsync(ulong messageId, IDiscordMessageBuilder builder)
+    public override async ValueTask<DiscordMessage> EditFollowupAsync(ulong messageId, IDiscordMessageBuilder builder)
     {
         if (!this.State.HasFlag(InteractionStatus.ResponseSent))
         {
@@ -129,6 +129,7 @@ public record SlashCommandContext : CommandContext
             : new DiscordMessageBuilder(builder);
 
         this._followupMessages[messageId] = await message.ModifyAsync(editedBuilder);
+        return this._followupMessages[messageId];
     }
 
     /// <inheritdoc />
