@@ -32,7 +32,7 @@ public sealed record TextCommandContext : CommandContext
     }
 
     /// <inheritdoc />
-    public override async ValueTask EditResponseAsync(IDiscordMessageBuilder builder)
+    public override async ValueTask<DiscordMessage> EditResponseAsync(IDiscordMessageBuilder builder)
     {
         if (this.Response is not null)
         {
@@ -46,6 +46,8 @@ public sealed record TextCommandContext : CommandContext
         {
             throw new InvalidOperationException("Cannot edit a response that has not been sent yet.");
         }
+
+        return this.Response!;
     }
 
     /// <inheritdoc />
@@ -95,7 +97,7 @@ public sealed record TextCommandContext : CommandContext
         return followup;
     }
 
-    public override async ValueTask EditFollowupAsync(ulong messageId, IDiscordMessageBuilder builder)
+    public override async ValueTask<DiscordMessage> EditFollowupAsync(ulong messageId, IDiscordMessageBuilder builder)
     {
         if (this.Response is null)
         {
@@ -109,6 +111,7 @@ public sealed record TextCommandContext : CommandContext
 
         DiscordMessageBuilder messageBuilder = new(builder);
         this._followupMessages[messageId] = await message.ModifyAsync(messageBuilder);
+        return this._followupMessages[messageId];
     }
 
     public override async ValueTask<DiscordMessage?> GetFollowupAsync(ulong messageId, bool ignoreCache = false)
