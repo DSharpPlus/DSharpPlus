@@ -146,7 +146,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                 break;
             }
 
-            command = command.Subcommands.First(x => x.Name == option.Name);
+            command = command.Subcommands.First(x => ToSnakeCase(x.Name) == option.Name);
             options = option.Options ?? [];
         }
 
@@ -198,28 +198,23 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         Dictionary<ulong, Command> commandsDictionary = [];
         foreach (DiscordApplicationCommand discordCommand in discordCommands)
         {
-            // N.B: We need to re-snake case because this check will always fail
-            // for commands that have a space in their name. -Velvet.
-            string adjustedCommandName = ToSnakeCase(discordCommand.Name);
-            if (!extension.Commands.TryGetValue(adjustedCommandName, out Command? command))
+            bool commandFound = false;
+            foreach (Command command in extension.Commands.Values)
             {
-                foreach (Command aliasedCommand in extension.Commands.Values)
+                string snakeCaseCommandName = ToSnakeCase(command.Name);
+                if (snakeCaseCommandName == ToSnakeCase(discordCommand.Name) || ToSnakeCase(command.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName) == snakeCaseCommandName)
                 {
-                    if (aliasedCommand.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName == adjustedCommandName)
-                    {
-                        command = aliasedCommand;
-                        break;
-                    }
+                    commandsDictionary.Add(discordCommand.Id, command);
+                    commandFound = true;
+                    break;
                 }
             }
 
-            if (command is null)
+            if (!commandFound)
             {
                 SlashLogging.UnknownCommandName(this._logger, discordCommand.Name, null);
                 continue;
             }
-
-            commandsDictionary.Add(discordCommand.Id, command);
         }
 
         this.Commands = commandsDictionary.ToFrozenDictionary();
@@ -512,13 +507,15 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         User = eventArgs.Interaction.User
     };
 
-    private static string ToSnakeCase(string str)
+    private static string ToSnakeCase(ReadOnlySpan<char> str)
     {
         StringBuilder stringBuilder = new();
-        foreach (char character in str)
+        for (int i = 0; i < str.Length; i++)
         {
+            char character = str[i];
+
             // camelCase, PascalCase
-            if (char.IsUpper(character))
+            if (i != 0 && char.IsUpper(character))
             {
                 stringBuilder.Append('_');
             }
