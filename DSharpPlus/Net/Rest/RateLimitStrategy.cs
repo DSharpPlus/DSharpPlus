@@ -48,9 +48,9 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
         // get trace id for logging
         Ulid traceId = default;
-        if (context.Properties.TryGetValue(new("trace-id"), out Ulid? tid) && tid.HasValue)
+        if (context.Properties.TryGetValue(new("trace-id"), out Ulid tid) )
         {
-            traceId = tid.Value;
+            traceId = tid;
         }
         else
         {
