@@ -46,12 +46,15 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 #pragma warning restore CS8600
 
         // get trace id for logging
-        Ulid? traceId = null;
-        if (context.Properties.TryGetValue(new("trace-id"), out Ulid? tid))
+        Ulid traceId = default;
+        if (context.Properties.TryGetValue(new("trace-id"), out Ulid? tid) && tid.HasValue)
         {
-            traceId = tid;
+            traceId = tid.Value;
         }
-        traceId ??= Ulid.Empty;
+        else
+        {
+            traceId = Ulid.Empty;
+        }
         
 
         // get global limit
@@ -67,7 +70,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
         if (!exemptFromGlobalLimit && !this.globalBucket.CheckNextRequest())
         {
-            return this.SynthesizeInternalResponse(route, globalBucket.Reset, "global");
+            return this.SynthesizeInternalResponse(route, globalBucket.Reset, "global", traceId);
         }
 
         if (!this.routeHashes.TryGetValue(route, out string? hash))
@@ -107,7 +110,8 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
             (
                 route,
                 instant + TimeSpan.FromMilliseconds(waitingForHashMilliseconds),
-                "route"
+                "route",
+                traceId
             );
         }
         else
@@ -125,7 +129,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
             if (!bucket.CheckNextRequest())
             {
-                return this.SynthesizeInternalResponse(route, bucket.Reset, "bucket");
+                return this.SynthesizeInternalResponse(route, bucket.Reset, "bucket", traceId);
             }
 
             logger.LogTrace
@@ -164,7 +168,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         }
     }
 
-    private Outcome<HttpResponseMessage> SynthesizeInternalResponse(string route, DateTime retry, string scope, Ulid traceId = default)
+    private Outcome<HttpResponseMessage> SynthesizeInternalResponse(string route, DateTime retry, string scope, Ulid traceId)
     {
         string waitingForRoute = scope == "route" ? " for route hash" : "";
 
