@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Microsoft.Extensions.Logging;
 using Polly;
 
@@ -172,19 +173,17 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
     {
         string waitingForRoute = scope == "route" ? " for route hash" : "";
 
-        this.logger.LogTrace
-        (
-            LoggerEvents.RatelimitDiag,
-            "Request ID:{TraceId}: Synthesizing preemptive ratelimit for {Scope} {Route}.", 
-            traceId,
-            scope,
-            route
-        );
-
+        string traceIdString = "";
+        if(this.logger.IsEnabled(LogLevel.Trace))
+        {
+            traceIdString = $"Request ID:{traceId}: ";
+        }
+        
         logger.LogDebug
         (
             LoggerEvents.RatelimitPreemptive,
-            "Pre-emptive ratelimit for {Route} triggered - waiting{WaitingForRoute} until {Reset:O}.",
+            "{TraceId}Pre-emptive ratelimit for {Route} triggered - waiting{WaitingForRoute} until {Reset:O}.",
+            traceIdString,
             route,
             waitingForRoute,
             retry
