@@ -14,5 +14,5 @@ public static class CacheKeyExtensions
 
     public static UserCacheKey GetCacheKey(this DiscordUser user) => new(user.Id);
     
-    public static UserPresenceCacheKey GetCacheKey(this DiscordPresence presence) => new(presence.User.Id);
+    public static UserPresenceCacheKey GetCacheKey(this DiscordPresence presence) => new(presence.UserId);
 }

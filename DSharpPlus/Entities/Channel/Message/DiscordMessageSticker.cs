@@ -44,8 +44,15 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     /// <summary>
     /// Gets the guild associated with this sticker, if any.
     /// </summary>
-    public ValueTask<DiscordGuild> GetGuildAsync(bool withCounts = false, bool skipCache = false) 
-        => this.Discord.GetGuildAsync(this.GuildId, withCounts, skipCache);
+    public async ValueTask<DiscordGuild?> GetGuildAsync(bool withCounts = false, bool skipCache = false)
+    {
+        if (this.GuildId is null)
+        {
+            return null;
+        }
+
+        return await this.Discord.GetGuildAsync(this.GuildId!.Value, withCounts, skipCache);
+    }
 
     public string StickerUrl => $"https://cdn.discordapp.com/stickers/{this.Id}{this.GetFileTypeExtension()}";
 
