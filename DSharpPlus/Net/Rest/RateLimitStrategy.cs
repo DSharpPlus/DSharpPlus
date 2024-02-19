@@ -75,7 +75,8 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
             logger.LogTrace
             (
                 LoggerEvents.RatelimitDiag,
-                "Route has no known hash: {Route}.",
+                "Request {TraceId}: Route has no known hash: {Route}.",
+                traceId,
                 route
             );
 
@@ -116,7 +117,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
             logger.LogTrace
             (
                 LoggerEvents.RatelimitDiag,
-                "Checking bucket for request {TraceId}, current state is [Remaining: {Remaining}, Reserved: {Reserved}]",
+                "Request {TraceId}: Checking bucket, current state is [Remaining: {Remaining}, Reserved: {Reserved}]",
                 traceId,
                 bucket.remaining,
                 bucket.reserved
@@ -130,7 +131,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
             logger.LogTrace
             (
                 LoggerEvents.RatelimitDiag,
-                "Allowed request {TraceId}, current state is [Remaining: {Remaining}, Reserved: {Reserved}]",
+                "Request {TraceId}: Allowed request, current state is [Remaining: {Remaining}, Reserved: {Reserved}]",
                 traceId,
                 bucket.remaining,
                 bucket.reserved
@@ -163,9 +164,18 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         }
     }
 
-    private Outcome<HttpResponseMessage> SynthesizeInternalResponse(string route, DateTime retry, string scope)
+    private Outcome<HttpResponseMessage> SynthesizeInternalResponse(string route, DateTime retry, string scope, Ulid traceId = default)
     {
         string waitingForRoute = scope == "route" ? " for route hash" : "";
+
+        this.logger.LogTrace
+        (
+            LoggerEvents.RatelimitDiag,
+            "Request {TraceId}: Synthesizing preemptive ratelimit for {Scope} {Route}.", 
+            traceId,
+            scope,
+            route
+        );
 
         logger.LogDebug
         (
