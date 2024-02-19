@@ -78,7 +78,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
             logger.LogTrace
             (
                 LoggerEvents.RatelimitDiag,
-                "Request {TraceId}: Route has no known hash: {Route}.",
+                "Request ID:{TraceId}: Route has no known hash: {Route}.",
                 traceId,
                 route
             );
@@ -121,7 +121,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
             logger.LogTrace
             (
                 LoggerEvents.RatelimitDiag,
-                "Request {TraceId}: Checking bucket, current state is [Remaining: {Remaining}, Reserved: {Reserved}]",
+                "Request ID:{TraceId}: Checking bucket, current state is [Remaining: {Remaining}, Reserved: {Reserved}]",
                 traceId,
                 bucket.remaining,
                 bucket.reserved
@@ -135,7 +135,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
             logger.LogTrace
             (
                 LoggerEvents.RatelimitDiag,
-                "Request {TraceId}: Allowed request, current state is [Remaining: {Remaining}, Reserved: {Reserved}]",
+                "Request ID:{TraceId}: Allowed request, current state is [Remaining: {Remaining}, Reserved: {Reserved}]",
                 traceId,
                 bucket.remaining,
                 bucket.reserved
@@ -175,7 +175,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         this.logger.LogTrace
         (
             LoggerEvents.RatelimitDiag,
-            "Request {TraceId}: Synthesizing preemptive ratelimit for {Scope} {Route}.", 
+            "Request ID:{TraceId}: Synthesizing preemptive ratelimit for {Scope} {Route}.", 
             traceId,
             scope,
             route
