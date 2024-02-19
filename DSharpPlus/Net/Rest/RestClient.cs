@@ -51,7 +51,7 @@ internal sealed partial class RestClient : IDisposable
         IWebProxy proxy,
         TimeSpan timeout,
         ILogger logger,
-        int maxRetries = -1,
+        int maxRetries = int.MaxValue,
         double retryDelayFallback = 2.5,
         int waitingForHashMilliseconds = 200
     )
