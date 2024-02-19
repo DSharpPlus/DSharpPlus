@@ -114,11 +114,14 @@ internal sealed partial class RestClient : IDisposable
         try
         {
             await this.globalRateLimitEvent.WaitAsync();
+            
+            Ulid traceId = Ulid.NewUlid();
 
             ResilienceContext context = ResilienceContextPool.Shared.Get();
 
             context.Properties.Set(new("route"), request.Route);
             context.Properties.Set(new("exempt-from-global-limit"), request.IsExemptFromGlobalLimit);
+            context.Properties.Set(new("trace-id"), traceId);
             
             using HttpResponseMessage response = await this.pipeline.ExecuteAsync
             (
@@ -140,7 +143,7 @@ internal sealed partial class RestClient : IDisposable
             string content = await response.Content.ReadAsStringAsync();
 
             // consider logging headers too
-            this.logger.LogTrace(LoggerEvents.RestRx, "{content}", content);
+            this.logger.LogTrace(LoggerEvents.RestRx, "Request {TraceId}: {Content}",traceId,  content);
 
             _ = response.StatusCode switch
             {

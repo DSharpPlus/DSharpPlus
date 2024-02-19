@@ -10,5 +10,6 @@
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Polly.Core" />
+    <PackageReference Include="Ulid" />
   </ItemGroup>
 </Project>

@@ -5,9 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Microsoft.Extensions.Logging;
-
 using Polly;
 
 namespace DSharpPlus.Net;
@@ -42,9 +40,19 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 #pragma warning disable CS8600
         if (!context.Properties.TryGetValue(new("route"), out string route))
         {
-            return Outcome.FromException<HttpResponseMessage>(new InvalidOperationException("No route passed. This should be reported to library developers."));
+            return Outcome.FromException<HttpResponseMessage>(
+                new InvalidOperationException("No route passed. This should be reported to library developers."));
         }
 #pragma warning restore CS8600
+
+        // get trace id for logging
+        Ulid? traceId = null;
+        if (context.Properties.TryGetValue(new("trace-id"), out Ulid? tid))
+        {
+            traceId = tid;
+        }
+        traceId ??= Ulid.Empty;
+        
 
         // get global limit
         bool exemptFromGlobalLimit = false;
@@ -107,9 +115,10 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
             logger.LogTrace
             (
-                LoggerEvents.RatelimitDiag, 
-                "Checking request, current state is [Remaining: {Remaining}, Reserved: {Reserved}]", 
-                bucket.remaining, 
+                LoggerEvents.RatelimitDiag,
+                "Checking bucket for request {TraceId}, current state is [Remaining: {Remaining}, Reserved: {Reserved}]",
+                traceId,
+                bucket.remaining,
                 bucket.reserved
             );
 
@@ -120,9 +129,10 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
             logger.LogTrace
             (
-                LoggerEvents.RatelimitDiag, 
-                "Allowed request, current state is [Remaining: {Remaining}, Reserved: {Reserved}]", 
-                bucket.remaining, 
+                LoggerEvents.RatelimitDiag,
+                "Allowed request {TraceId}, current state is [Remaining: {Remaining}, Reserved: {Reserved}]",
+                traceId,
+                bucket.remaining,
                 bucket.reserved
             );
 
@@ -138,7 +148,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
                     return outcome;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 bucket.CancelReservation();
                 return Outcome.FromException<HttpResponseMessage>(e);
@@ -160,13 +170,14 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         logger.LogDebug
         (
             LoggerEvents.RatelimitPreemptive,
-            "Pre-emptive ratelimit for {Route} triggered - waiting{WaitingForRoute} until {Reset:yyyy-MM-dd HH:mm:ss zzz}.",
+            "Pre-emptive ratelimit for {Route} triggered - waiting{WaitingForRoute} until {Reset:O}.",
             route,
             waitingForRoute,
             retry
         );
 
-        return Outcome.FromException<HttpResponseMessage>(new PreemptiveRatelimitException(scope, retry - DateTime.UtcNow));
+        return Outcome.FromException<HttpResponseMessage>(
+            new PreemptiveRatelimitException(scope, retry - DateTime.UtcNow));
     }
 
     private void UpdateRateLimitBuckets(HttpResponseMessage response, string oldHash, string route)
@@ -191,7 +202,8 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
                 }
                 else
                 {
-                    this.buckets.AddOrUpdate(newHash, _ => extracted.ToFullBucket(), (_, _) => extracted.ToFullBucket());
+                    this.buckets.AddOrUpdate(newHash, _ => extracted.ToFullBucket(),
+                        (_, _) => extracted.ToFullBucket());
                 }
             }
 
