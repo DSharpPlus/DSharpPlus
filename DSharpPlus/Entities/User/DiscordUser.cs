@@ -8,6 +8,8 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
+using Caching;
+
 /// <summary>
 /// Represents a Discord user.
 /// </summary>
@@ -186,13 +188,8 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task UnbanAsync(DiscordGuild guild, string reason = null)
         => guild.UnbanMemberAsync(this, reason);
-
-    /// <summary>
-    /// Gets this user's presence.
-    /// </summary>
-    [JsonIgnore]
-    public DiscordPresence Presence
-        => this.Discord is DiscordClient dc ? dc.Presences.TryGetValue(this.Id, out DiscordPresence? presence) ? presence : null : null;
+    
+    public ValueTask<DiscordPresence?> GetPresenceAsync() => this.Discord.Cache.TryGetUserPresenceAsync(this.Id);
 
     /// <summary>
     /// Gets the user's avatar URL, in requested format and size.

@@ -327,8 +327,8 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
 
         if (guild is not null && !string.IsNullOrWhiteSpace(this.Content))
         {
-            this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(guild?.)).ToList();
-            this._mentionedRoles = this._mentionedRoles.Union(this._mentionedRoleIds.Select(guild.GetRole)).Where(x => x is not null).ToList();
+            this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(x => guild.Channels[x])).ToList();
+            this._mentionedRoles = this._mentionedRoles.Union(this._mentionedRoleIds.Select(guild.GetRole)).Where(x => x is not null).ToList()!;
 
             //uncomment if this breaks
             //mentionedUsers.UnionWith(Utilities.GetUserMentions(this).Select(this.Discord.GetCachedOrEmptyUserInternal));

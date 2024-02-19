@@ -12,4 +12,5 @@ public interface ICacheKey
     public static ICacheKey ForMessage(ulong id) => new MessageCacheKey(id);
     public static ICacheKey ForMember(ulong id, ulong guildId) => new MemberCacheKey(id, guildId);
     public static ICacheKey ForUser(ulong id) => new UserCacheKey(id);
+    public static ICacheKey ForUserPresence(ulong id) => new UserPresenceCacheKey(id);
 }

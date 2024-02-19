@@ -84,7 +84,11 @@ public sealed class DiscordApiClient
     {
         ret.Channel.TryGetCachedValue(out DiscordChannel? channel);
         channel ??= await this._discord!.Cache.TryGetChannelAsync(ret.Channel.Key);
-        DiscordGuild? guild = channel?.Guild;
+        DiscordGuild? guild = null;
+        if (channel?.GuildId is not null)
+        {
+            guild = await this._discord!.Cache.TryGetGuildAsync(channel.GuildId.Value);
+        }
 
         //If this is a webhook, it shouldn't be in the user cache.
         if (author.IsBot && int.Parse(author.Discriminator) == 0)
@@ -2208,6 +2212,7 @@ public sealed class DiscordApiClient
 
         foreach (DiscordChannel? ret in channelsRaw)
         {
+            ret.Discord = this._discord!;
             foreach (DiscordOverwrite xo in ret._permissionOverwrites)
             {
                 xo.Discord = this._discord!;

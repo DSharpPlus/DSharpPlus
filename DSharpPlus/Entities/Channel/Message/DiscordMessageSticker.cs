@@ -4,6 +4,8 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
+using System.Threading.Tasks;
+
 /// <summary>
 /// Represents a Discord Sticker.
 /// </summary>
@@ -42,8 +44,8 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     /// <summary>
     /// Gets the guild associated with this sticker, if any.
     /// </summary>
-    /// //TODO apply caching
-    public DiscordGuild Guild => (this.Discord as DiscordClient).GetCachedGuild(this.GuildId);
+    public ValueTask<DiscordGuild> GetGuildAsync(bool withCounts = false, bool skipCache = false) 
+        => this.Discord.GetGuildAsync(this.GuildId, withCounts, skipCache);
 
     public string StickerUrl => $"https://cdn.discordapp.com/stickers/{this.Id}{this.GetFileTypeExtension()}";
 

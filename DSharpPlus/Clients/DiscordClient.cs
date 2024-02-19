@@ -118,16 +118,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
         : base(config, restClient)
     {
         DiscordIntents intents = this.Configuration.Intents;
-        if (intents.HasIntent(DiscordIntents.GuildMessages) || intents.HasIntent(DiscordIntents.DirectMessages))
-        {
-            this.MessageCache = this.Configuration.MessageCacheProvider
-                                ?? (this.Configuration.MessageCacheSize > 0 ? new MessageCache(this.Configuration.MessageCacheSize) : null);
-        }
-
         this.InternalSetup();
 
-        this.Guilds = new ReadOnlyConcurrentDictionary<ulong, DiscordGuild>(this._guilds);
-        this.PrivateChannels = new ReadOnlyConcurrentDictionary<ulong, DiscordDmChannel>(this._privateChannels);
+        this._guilds = new List<ulong>();
+        this.DmChannels = new List<ulong>();
     }
 
     internal void InternalSetup()
@@ -384,57 +378,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <returns></returns>
     public async Task<IReadOnlyList<DiscordMessageStickerPack>> GetStickerPacksAsync()
         => await this.ApiClient.GetStickerPacksAsync();
-
-    /// <summary>
-    /// Gets a user
-    /// </summary>
-    /// <param name="userId">ID of the user</param>
-    /// <param name="skipCache">Whether to always make a REST request and update cache. Passing true will update the user, updating stale properties such as <see cref="DiscordUser.BannerHash"/>.</param>
-    /// <returns></returns>
-    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async ValueTask<DiscordUser> GetUserAsync(ulong userId, bool skipCache = false)
-    {
-        if (!skipCache)
-        {
-            DiscordUser? cachedUser = await this.TryGetCachedUserInternalAsync(userId);
-            if (cachedUser is not null)
-            {
-                return cachedUser;
-            }
-        }
-
-        DiscordUser usr = await this.ApiClient.GetUserAsync(userId);
-
-        // See BaseDiscordClient.UpdateUser for why this is done like this.
-        await this.Cache.Set(usr, usr.GetCacheKey());
-
-        return usr;
-    }
-
-    /// <summary>
-    /// Gets a channel
-    /// </summary>
-    /// <param name="id">The ID of the channel to get.</param>
-    /// <returns></returns>
-    /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async ValueTask<DiscordChannel> GetChannelAsync(ulong id, bool skipCache)
-    {
-        if (skipCache)
-        {
-            return await this.ApiClient.GetChannelAsync(id);
-        }
-
-        DiscordChannel? channel = await this.Cache.TryGetChannelAsync(id);
-        if (channel is not null)
-        {
-            return channel;
-        }
-        
-        return await this.ApiClient.GetChannelAsync(id);
-    }
+    
 
     /// <summary>
     /// Sends a message
@@ -570,43 +514,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
         return await this.ApiClient.CreateGuildFromTemplateAsync(code, name, iconb64);
     }
-
-    /// <summary>
-    /// Gets a guild.
-    /// <para>Setting <paramref name="withCounts"/> to true will always make a REST request.</para>
-    /// </summary>
-    /// <param name="id">The guild ID to search for.</param>
-    /// <param name="withCounts">Whether to include approximate presence and member counts in the returned guild.</param>
-    /// <param name="skipCache">Whether to skip the cache and always excute a REST request</param>
-    /// <returns>The requested Guild.</returns>
-    /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
-    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async ValueTask<DiscordGuild> GetGuildAsync(ulong id, bool? withCounts = null, bool skipCache = false)
-    {
-        if (skipCache)
-        {
-            return await this.ApiClient.GetGuildAsync(id, withCounts);
-        }
-        
-        if (!withCounts.HasValue || !withCounts.Value)
-        {
-            DiscordGuild? cachedGuild = await this.Cache.TryGetGuildAsync(id);
-            if (cachedGuild is not null)
-            {
-                return cachedGuild;
-            }
-        }
-
-        DiscordGuild guild = await this.ApiClient.GetGuildAsync(id, withCounts);
-        IReadOnlyList<DiscordChannel> channels = await this.ApiClient.GetGuildChannelsAsync(guild.Id);
-        foreach (DiscordChannel channel in channels)
-        {
-            guild._channels[channel.Id] = channel;
-        }
-
-        return guild;
-    }
+    
 
     /// <summary>
     /// Gets a guild preview

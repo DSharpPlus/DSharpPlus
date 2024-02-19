@@ -66,7 +66,8 @@ public abstract class BaseDiscordClient : IDisposable
     /// Initializes this Discord API client.
     /// </summary>
     /// <param name="config">Configuration for this client.</param>
-    internal BaseDiscordClient(DiscordConfiguration config, RestClient? rest_client = null)
+    /// <param name="restClient">Rest client to use for this client.</param>
+    internal BaseDiscordClient(DiscordConfiguration config, RestClient? restClient = null)
     {
         this.Configuration = new DiscordConfiguration(config);
 
@@ -77,7 +78,7 @@ public abstract class BaseDiscordClient : IDisposable
         }
         this.Logger = this.Configuration.LoggerFactory.CreateLogger<BaseDiscordClient>();
 
-        this.ApiClient = new DiscordApiClient(this, rest_client);
+        this.ApiClient = new DiscordApiClient(this, restClient);
         this.InternalVoiceRegions = new ConcurrentDictionary<string, DiscordVoiceRegion>();
         this._voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this.InternalVoiceRegions));
 
@@ -232,6 +233,109 @@ public abstract class BaseDiscordClient : IDisposable
 
         return user;
     }
+
+    #region Cached requests
+
+    /// <summary>
+    /// Gets a user
+    /// </summary>
+    /// <param name="userId">ID of the user</param>
+    /// <param name="skipCache">Whether to always make a REST request and update cache. Passing true will update the user, updating stale properties such as <see cref="DiscordUser.BannerHash"/>.</param>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    public async ValueTask<DiscordUser> GetUserAsync(ulong userId, bool skipCache = false)
+    {
+        if (!skipCache)
+        {
+            DiscordUser? cachedUser = await this.TryGetCachedUserInternalAsync(userId);
+            if (cachedUser is not null)
+            {
+                return cachedUser;
+            }
+        }
+
+        DiscordUser usr = await this.ApiClient.GetUserAsync(userId);
+        
+        await this.Cache.Set(usr, usr.GetCacheKey());
+
+        return usr;
+    }
+
+    /// <summary>
+    /// Gets a channel
+    /// </summary>
+    /// <param name="id">The ID of the channel to get.</param>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    public async ValueTask<DiscordChannel> GetChannelAsync(ulong id, bool skipCache)
+    {
+        if (skipCache)
+        {
+            return await this.ApiClient.GetChannelAsync(id);
+        }
+
+        DiscordChannel? channel = await this.Cache.TryGetChannelAsync(id);
+        if (channel is not null)
+        {
+            return channel;
+        }
+        
+        return await this.ApiClient.GetChannelAsync(id);
+    }
+    
+    /// <summary>
+    /// Gets a guild.
+    /// <para>Setting <paramref name="withCounts"/> to true will always make a REST request.</para>
+    /// </summary>
+    /// <param name="id">The guild ID to search for.</param>
+    /// <param name="withChannels">Whether to include guild channels. This will add an additional REST request</param>
+    /// <param name="withCounts">Whether to include approximate presence and member counts in the returned guild.</param>
+    /// <param name="skipCache">Whether to skip the cache and always excute a REST request</param>
+    /// <returns>The requested Guild.</returns>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    public async ValueTask<DiscordGuild> GetGuildAsync(ulong id, bool withChannels = true, bool? withCounts = null, bool skipCache = false)
+    {
+        DiscordGuild guild;
+        if (skipCache)
+        {
+            guild = await this.ApiClient.GetGuildAsync(id, withCounts);
+            
+            if (withChannels)
+            {
+                IReadOnlyList<DiscordChannel> channels = await this.ApiClient.GetGuildChannelsAsync(guild.Id);
+                foreach (DiscordChannel channel in channels)
+                {
+                    guild._channels[channel.Id] = channel;
+                }
+            }
+        }
+        
+        if (!withCounts.HasValue || !withCounts.Value)
+        {
+            DiscordGuild? cachedGuild = await this.Cache.TryGetGuildAsync(id);
+            if (cachedGuild is not null)
+            {
+                return cachedGuild;
+            }
+        }
+
+        guild = await this.ApiClient.GetGuildAsync(id, withCounts);
+        IReadOnlyList<DiscordChannel> channels = await this.ApiClient.GetGuildChannelsAsync(guild.Id);
+        foreach (DiscordChannel channel in channels)
+        {
+            guild._channels[channel.Id] = channel;
+        }
+
+        return guild;
+    }
+    
+
+    #endregion
     
     
     /// <summary>

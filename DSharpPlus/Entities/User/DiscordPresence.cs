@@ -4,6 +4,9 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
+using System.Threading.Tasks;
+using Caching;
+
 /// <summary>
 /// Represents a user presence.
 /// </summary>
@@ -15,13 +18,18 @@ public sealed class DiscordPresence
     // "The user object within this event can be partial, the only field which must be sent is the id field, everything else is optional."
     [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
     internal TransportUser InternalUser { get; set; }
+    
+    /// <summary>
+    /// Gets the id of the user that owns this presence.
+    /// </summary>
+    [JsonIgnore]
+    public ulong UserId => this.InternalUser.Id;
 
     /// <summary>
     /// Gets the user that owns this presence.
     /// </summary>
-    [JsonIgnore]
-    public DiscordUser User
-        => this.Discord.GetCachedOrEmptyUserInternal(this.InternalUser.Id);
+    public ValueTask<DiscordUser> GetUserAsync(bool skipCache = false)
+        => this.Discord.GetUserAsync(this.UserId, skipCache);
 
     /// <summary>
     /// Gets the user's current activity.
@@ -55,9 +63,8 @@ public sealed class DiscordPresence
     /// <summary>
     /// Gets the guild for which this presence was set.
     /// </summary>
-    [JsonIgnore]
-    public DiscordGuild Guild
-        => this.GuildId != 0 ? this.Discord._guilds[this.GuildId] : null;
+    public ValueTask<DiscordGuild> GetGuildAsync(bool withCounts = false, bool skipCache = false)
+        => this.Discord.GetGuildAsync(this.GuildId, withCounts, skipCache);
 
     /// <summary>
     /// Gets this user's platform-dependent status.
