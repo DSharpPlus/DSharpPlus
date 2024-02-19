@@ -301,13 +301,14 @@ public abstract class BaseDiscordClient : IDisposable
     public async ValueTask<DiscordGuild> GetGuildAsync(ulong id, bool withChannels = true, bool? withCounts = null, bool skipCache = false)
     {
         DiscordGuild guild;
+        IReadOnlyList<DiscordChannel> channels;
         if (skipCache)
         {
             guild = await this.ApiClient.GetGuildAsync(id, withCounts);
             
             if (withChannels)
             {
-                IReadOnlyList<DiscordChannel> channels = await this.ApiClient.GetGuildChannelsAsync(guild.Id);
+                channels = await this.ApiClient.GetGuildChannelsAsync(guild.Id);
                 foreach (DiscordChannel channel in channels)
                 {
                     guild._channels[channel.Id] = channel;
@@ -315,7 +316,7 @@ public abstract class BaseDiscordClient : IDisposable
             }
         }
         
-        if (!withCounts.HasValue || !withCounts.Value)
+        if (!withCounts.HasValue || !withCounts.Value || !withChannels)
         {
             DiscordGuild? cachedGuild = await this.Cache.TryGetGuildAsync(id);
             if (cachedGuild is not null)
@@ -325,10 +326,13 @@ public abstract class BaseDiscordClient : IDisposable
         }
 
         guild = await this.ApiClient.GetGuildAsync(id, withCounts);
-        IReadOnlyList<DiscordChannel> channels = await this.ApiClient.GetGuildChannelsAsync(guild.Id);
-        foreach (DiscordChannel channel in channels)
+        if (withChannels)
         {
-            guild._channels[channel.Id] = channel;
+            channels = await this.ApiClient.GetGuildChannelsAsync(guild.Id);
+            foreach (DiscordChannel channel in channels)
+            {
+                guild._channels[channel.Id] = channel;
+            }
         }
 
         return guild;
