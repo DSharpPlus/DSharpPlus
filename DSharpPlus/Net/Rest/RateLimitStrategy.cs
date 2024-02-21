@@ -88,6 +88,11 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
             Outcome<HttpResponseMessage> outcome = await action(context, state);
 
+            if (!exemptFromGlobalLimit)
+            {
+                this.globalBucket.CancelReservation();
+            }
+
             if (outcome.Result is null)
             {
                 this.routeHashes.Remove(route, out _);
@@ -107,6 +112,11 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         }
         else if (hash == "pending")
         {
+            if (!exemptFromGlobalLimit)
+            {
+                this.globalBucket.CancelReservation();
+            }
+
             return this.SynthesizeInternalResponse
             (
                 route,
@@ -130,6 +140,11 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
             if (!bucket.CheckNextRequest())
             {
+                if (!exemptFromGlobalLimit)
+                {
+                    this.globalBucket.CancelReservation();
+                }
+
                 return this.SynthesizeInternalResponse(route, bucket.Reset, "bucket", traceId);
             }
 
@@ -159,6 +174,13 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
                 bucket.CancelReservation();
                 return Outcome.FromException<HttpResponseMessage>(e);
             }
+            finally
+            {
+                if (!exemptFromGlobalLimit)
+                {
+                    this.globalBucket.CancelReservation();
+                }
+            }
 
             if (!exemptFromGlobalLimit)
             {
@@ -172,6 +194,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
     private Outcome<HttpResponseMessage> SynthesizeInternalResponse(string route, DateTime retry, string scope, Ulid traceId)
     {
         string waitingForRoute = scope == "route" ? " for route hash" : "";
+        string global = scope == "global" ? " global" : "";
 
         string traceIdString = "";
         if(this.logger.IsEnabled(LogLevel.Trace))
@@ -182,8 +205,9 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         logger.LogDebug
         (
             LoggerEvents.RatelimitPreemptive,
-            "{TraceId}Pre-emptive ratelimit for {Route} triggered - waiting{WaitingForRoute} until {Reset:O}.",
+            "{TraceId}Pre-emptive{Global} ratelimit for {Route} triggered - waiting{WaitingForRoute} until {Reset:O}.",
             traceIdString,
+            global,
             route,
             waitingForRoute,
             retry

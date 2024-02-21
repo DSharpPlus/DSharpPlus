@@ -141,4 +141,17 @@ internal sealed class RateLimitBucket
 
     internal void CancelReservation() 
         => Interlocked.Decrement(ref this.reserved);
+
+    internal void CompleteReservation()
+    {
+        if (this.Reset < DateTime.UtcNow)
+        {
+            this.ResetLimit(DateTime.UtcNow + TimeSpan.FromSeconds(1));
+            Interlocked.Decrement(ref this.reserved);
+            return;
+        }
+
+        Interlocked.Decrement(ref this.remaining);
+        Interlocked.Decrement(ref this.reserved);
+    }
 }
