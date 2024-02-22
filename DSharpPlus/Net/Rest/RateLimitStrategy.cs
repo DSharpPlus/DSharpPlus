@@ -90,7 +90,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
             if (!exemptFromGlobalLimit)
             {
-                this.globalBucket.CancelReservation();
+                this.globalBucket.CompleteReservation();
             }
 
             if (outcome.Result is null)
@@ -114,7 +114,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         {
             if (!exemptFromGlobalLimit)
             {
-                this.globalBucket.CancelReservation();
+                this.globalBucket.CompleteReservation();
             }
 
             return this.SynthesizeInternalResponse
