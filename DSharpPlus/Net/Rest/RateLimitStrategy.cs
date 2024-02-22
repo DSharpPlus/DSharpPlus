@@ -178,7 +178,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
             {
                 if (!exemptFromGlobalLimit)
                 {
-                    this.globalBucket.CancelReservation();
+                    this.globalBucket.CompleteReservation();
                 }
             }
 
