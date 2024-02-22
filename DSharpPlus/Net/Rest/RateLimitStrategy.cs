@@ -47,16 +47,8 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 #pragma warning restore CS8600
 
         // get trace id for logging
-        Ulid traceId = default;
-        if (context.Properties.TryGetValue(new("trace-id"), out Ulid tid) )
-        {
-            traceId = tid;
-        }
-        else
-        {
-            traceId = Ulid.Empty;
-        }
-        
+        Ulid traceId = context.Properties.TryGetValue(new("trace-id"), out Ulid tid) ? tid : Ulid.Empty;
+
 
         // get global limit
         bool exemptFromGlobalLimit = false;
@@ -166,20 +158,28 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
                 if (outcome.Result is null)
                 {
+                    if (!exemptFromGlobalLimit)
+                    {
+                        this.globalBucket.CancelReservation();
+                    }
+
                     return outcome;
                 }
-            }
-            catch (Exception e)
-            {
-                bucket.CancelReservation();
-                return Outcome.FromException<HttpResponseMessage>(e);
-            }
-            finally
-            {
+
                 if (!exemptFromGlobalLimit)
                 {
                     this.globalBucket.CompleteReservation();
                 }
+            }
+            catch (Exception e)
+            {
+                if (!exemptFromGlobalLimit)
+                {
+                    this.globalBucket.CancelReservation();
+                }
+
+                bucket.CancelReservation();
+                return Outcome.FromException<HttpResponseMessage>(e);
             }
 
             if (!exemptFromGlobalLimit)
