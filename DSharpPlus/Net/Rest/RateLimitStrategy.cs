@@ -201,6 +201,8 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         {
             traceIdString = $"Request ID:{traceId}: ";
         }
+
+        DateTime retryJittered = retry + TimeSpan.FromMilliseconds(Random.Shared.NextInt64(100));
         
         logger.LogDebug
         (
@@ -210,11 +212,11 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
             global,
             route,
             waitingForRoute,
-            retry
+            retryJittered
         );
 
         return Outcome.FromException<HttpResponseMessage>(
-            new PreemptiveRatelimitException(scope, retry - DateTime.UtcNow));
+            new PreemptiveRatelimitException(scope, retryJittered - DateTime.UtcNow));
     }
 
     private void UpdateRateLimitBuckets(HttpResponseMessage response, string oldHash, string route)
