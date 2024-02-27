@@ -51,6 +51,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Tests", "DSharpPlus.Tests\DSharpPlus.Tests.csproj", "{78C5B232-AA4A-4DA0-868E-B5F090929469}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Tools.CodeBlockLanguageListGen", "tools\DSharpPlus.Tools.CodeBlockLanguageListGen\DSharpPlus.Tools.CodeBlockLanguageListGen.csproj", "{CE500A4B-06D0-48B8-ABD8-E021A12AFFA8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DharpPlus.Analyzer", "DharpPlus.Analyzer\DharpPlus.Analyzer\DharpPlus.Analyzer.csproj", "{F36E1EDE-17FC-465D-BA4D-5AB7521A29D9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -110,6 +111,10 @@ Global
 		{CE500A4B-06D0-48B8-ABD8-E021A12AFFA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE500A4B-06D0-48B8-ABD8-E021A12AFFA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE500A4B-06D0-48B8-ABD8-E021A12AFFA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F36E1EDE-17FC-465D-BA4D-5AB7521A29D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F36E1EDE-17FC-465D-BA4D-5AB7521A29D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F36E1EDE-17FC-465D-BA4D-5AB7521A29D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F36E1EDE-17FC-465D-BA4D-5AB7521A29D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
