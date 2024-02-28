@@ -75,7 +75,7 @@ public class HasPermissionAnalyzer : DiagnosticAnalyzer
 
         TypeInfo typeInfo = ctx.SemanticModel.GetTypeInfo(leftBinary.Left);
         if (typeInfo.Type?.Name != "Permissions" || 
-            Utility.CheckIfSameTypeByNamespace(typeInfo, "DSharpPlus.Permissions", ctx.Compilation))
+            !Utility.CheckIfSameTypeByNamespace(typeInfo, "DSharpPlus.Permissions", ctx.Compilation))
         {
             return;
         }
