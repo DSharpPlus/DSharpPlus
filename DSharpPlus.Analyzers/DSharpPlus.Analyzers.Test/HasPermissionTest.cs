@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Analyzer.Test;
+﻿namespace DSharpPlus.Analyzers.Test;
 
 public class HasPermissionTest
 {

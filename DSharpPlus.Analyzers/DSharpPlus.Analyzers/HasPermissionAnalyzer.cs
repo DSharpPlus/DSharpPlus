@@ -1,4 +1,4 @@
-namespace DharpPlus.Analyzer;
+namespace DSharpPlus.Analyzers;
 
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
@@ -37,8 +37,8 @@ public class HasPermissionAnalyzer : DiagnosticAnalyzer
         MessageFormat,
         Category,
         DiagnosticSeverity.Warning,
-        isEnabledByDefault: true,
-        description: Description
+        true,
+        Description
     );
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(Rule);
@@ -69,12 +69,13 @@ public class HasPermissionAnalyzer : DiagnosticAnalyzer
         }
 
         if (leftBinary.Kind() != SyntaxKind.BitwiseAndExpression)
-        { 
+        {
             return;
         }
 
         TypeInfo typeInfo = ctx.SemanticModel.GetTypeInfo(leftBinary.Left);
-        if (typeInfo.Type?.Name != "Permissions" || typeInfo.Type?.ContainingNamespace.Name != "DSharpPlus")
+        if (typeInfo.Type?.Name != "Permissions" || 
+            Utility.CheckIfSameTypeByNamespace(typeInfo, "DSharpPlus.Permissions", ctx.Compilation))
         {
             return;
         }
@@ -88,9 +89,10 @@ public class HasPermissionAnalyzer : DiagnosticAnalyzer
         {
             return;
         }
-        
+
         Diagnostic diagnostic = Diagnostic.Create(
-            Rule, binaryExpression.GetLocation(), 
+            Rule,
+            binaryExpression.GetLocation(),
             leftBinary.Left.GetText().ToString().Trim(),
             leftBinary.Right.GetText().ToString().Trim());
         ctx.ReportDiagnostic(diagnostic);

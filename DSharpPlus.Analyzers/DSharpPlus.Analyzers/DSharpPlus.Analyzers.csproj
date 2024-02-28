@@ -9,9 +9,9 @@
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>
 
-        <RootNamespace>DharpPlus.Analyzer</RootNamespace>
+        <RootNamespace>DSharpPlus.Analyzers</RootNamespace>
 
-        <PackageId>DSharpPlus.Analyzer</PackageId>
+        <PackageId>DSharpPlus.Analyzers</PackageId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -19,8 +19,8 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"/>
     </ItemGroup>
 
     <ItemGroup>

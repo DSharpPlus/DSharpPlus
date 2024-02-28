@@ -4,11 +4,12 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>DSharpPlus.Analyzers.Test</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\DSharpPlus\DSharpPlus.csproj" />
-        <ProjectReference Include="..\DSharpPlus.Analyzer\DSharpPlus.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\DSharpPlus.Analyzers\DSharpPlus.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 
 </Project>
