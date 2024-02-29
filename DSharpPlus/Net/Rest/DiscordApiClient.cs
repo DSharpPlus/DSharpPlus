@@ -3575,7 +3575,13 @@ public sealed class DiscordApiClient
         }
         else
         {
-            return new ReadOnlyCollection<DiscordGuild>(JsonConvert.DeserializeObject<List<DiscordGuild>>(res.Response!)!);
+            List<DiscordGuild> guildsRaw = JsonConvert.DeserializeObject<List<DiscordGuild>>(res.Response!)!.ToList();
+            foreach (DiscordGuild guild in guildsRaw)
+            {
+                guild.Discord = this._discord!;
+
+            }
+            return new ReadOnlyCollection<DiscordGuild>(guildsRaw);
         }
     }
 
