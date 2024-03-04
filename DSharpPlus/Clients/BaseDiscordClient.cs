@@ -66,6 +66,7 @@ public abstract class BaseDiscordClient : IDisposable
     /// Initializes this Discord API client.
     /// </summary>
     /// <param name="config">Configuration for this client.</param>
+    /// <param name="rest_client">Restclient which will be used for the underlying ApiClients</param>
     internal BaseDiscordClient(DiscordConfiguration config, RestClient? rest_client = null)
     {
         this.Configuration = new DiscordConfiguration(config);
