@@ -49,6 +49,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="description">The description of the event, up to 1000 characters.</param>
     /// <param name="channelId">The channel the event will take place in, if applicable.</param>
     /// <param name="type">The type of event. If <see cref="ScheduledGuildEventType.External"/>, a end time must be specified.</param>
+    /// <param name="image">The image of event.</param>
     /// <param name="privacyLevel">The privacy level of the event.</param>
     /// <param name="start">When the event starts. Must be in the future and before the end date, if specified.</param>
     /// <param name="end">When the event ends. Required for <see cref="ScheduledGuildEventType.External"/></param>
