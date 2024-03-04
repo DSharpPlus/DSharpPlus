@@ -483,3 +483,4 @@ $RECYCLE.BIN/
 docs/_site
 DSharpPlus.Test/config.json
 .idea
+.vscode

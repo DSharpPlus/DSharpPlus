@@ -48,6 +48,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Tools.ShardedEve
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Commands", "DSharpPlus.Commands\DSharpPlus.Commands.csproj", "{0CAFE4E5-4742-417B-9279-BEE069D9C0D4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Tests", "DSharpPlus.Tests\DSharpPlus.Tests.csproj", "{78C5B232-AA4A-4DA0-868E-B5F090929469}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -98,6 +100,10 @@ Global
 		{0CAFE4E5-4742-417B-9279-BEE069D9C0D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0CAFE4E5-4742-417B-9279-BEE069D9C0D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0CAFE4E5-4742-417B-9279-BEE069D9C0D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78C5B232-AA4A-4DA0-868E-B5F090929469}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78C5B232-AA4A-4DA0-868E-B5F090929469}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78C5B232-AA4A-4DA0-868E-B5F090929469}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78C5B232-AA4A-4DA0-868E-B5F090929469}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
