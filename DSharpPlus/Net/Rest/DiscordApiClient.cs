@@ -3591,12 +3591,11 @@ public sealed class DiscordApiClient
     )
     {
         string route = $"{Endpoints.USERS}/{Endpoints.ME}/{Endpoints.GUILDS}/{guildId}/member";
-        QueryUriBuilder url = new($"{Endpoints.USERS}/{Endpoints.ME}/{Endpoints.GUILDS}/{guildId}/member");
 
         RestRequest request = new()
         {
             Route = route,
-            Url = url.Build(),
+            Url = route,
             Method = HttpMethod.Get
         };
 
