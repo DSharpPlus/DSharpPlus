@@ -1196,6 +1196,14 @@ public class DiscordRestClient : BaseDiscordClient
         => await this.ApiClient.GetCurrentUserGuildsAsync(limit, before, after);
 
     /// <summary>
+    /// Gets the guild member for the current user in the specified guild. Only works with bearer tokens with the guilds.members.read scope.
+    /// </summary>
+    /// <param name="guildId">Guild ID</param>
+    /// <returns></returns>
+    public async Task<DiscordMember> GetCurrentUserGuildMemberAsync(ulong guildId)
+        => await this.ApiClient.GetCurrentUserGuildMemberAsync(guildId);
+
+    /// <summary>
     /// Modifies guild member.
     /// </summary>
     /// <param name="guild_id">Guild ID</param>

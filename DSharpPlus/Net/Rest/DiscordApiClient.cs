@@ -3584,6 +3584,37 @@ public sealed class DiscordApiClient
             return new ReadOnlyCollection<DiscordGuild>(guildsRaw);
         }
     }
+    
+    internal async ValueTask<DiscordMember> GetCurrentUserGuildMemberAsync
+    (
+        ulong guildId
+    )
+    {
+        string route = $"{Endpoints.USERS}/{Endpoints.ME}/{Endpoints.GUILDS}/{guildId}/member";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = route,
+            Method = HttpMethod.Get
+        };
+
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+
+        TransportMember tm = JsonConvert.DeserializeObject<TransportMember>(res.Response!)!;
+
+        DiscordUser usr = new(tm.User)
+        {
+            Discord = this._discord!
+        };
+        _ = this._discord!.UpdateUserCache(usr);
+
+        return new DiscordMember(tm)
+        {
+            Discord = this._discord,
+            _guild_id = guildId
+        };
+    }
 
     internal async ValueTask ModifyGuildMemberAsync
     (
