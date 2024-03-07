@@ -1,5 +1,3 @@
-namespace DSharpPlus.Tests.Commands.Trees;
-
 using System;
 using System.Linq;
 using DSharpPlus.Commands.Processors.TextCommands.Attributes;
@@ -7,6 +5,8 @@ using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
 using DSharpPlus.Tests.Commands.Cases;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace DSharpPlus.Tests.Commands.Trees;
 
 [TestClass]
 public class CommandBuilderTests
