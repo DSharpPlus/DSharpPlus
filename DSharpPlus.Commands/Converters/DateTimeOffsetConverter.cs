@@ -13,10 +13,11 @@ public class DateTimeOffsetConverter : ISlashArgumentConverter<DateTimeOffset>, 
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.String;
     public bool RequiresText { get; init; } = true;
 
-    public Task<Optional<DateTimeOffset>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context.As<TextConverterContext>().Argument);
-    public Task<Optional<DateTimeOffset>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context.As<InteractionConverterContext>().Argument.ToString());
-    public static Task<Optional<DateTimeOffset>> ConvertAsync(string? value) =>
-        DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, out DateTimeOffset result)
-            ? Task.FromResult(Optional.FromValue(result.ToUniversalTime()))
-            : Task.FromResult(Optional.FromNoValue<DateTimeOffset>());
+    public Task<Optional<DateTimeOffset>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => DateTimeOffset.TryParse(context.As<TextConverterContext>().Argument, CultureInfo.InvariantCulture, out DateTimeOffset result)
+        ? Task.FromResult(Optional.FromValue(result))
+        : Task.FromResult(Optional.FromNoValue<DateTimeOffset>());
+
+    public Task<Optional<DateTimeOffset>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => DateTimeOffset.TryParse(context.As<InteractionConverterContext>().Argument.RawValue, CultureInfo.InvariantCulture, out DateTimeOffset result)
+        ? Task.FromResult(Optional.FromValue(result))
+        : Task.FromResult(Optional.FromNoValue<DateTimeOffset>());
 }

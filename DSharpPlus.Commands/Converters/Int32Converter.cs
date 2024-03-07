@@ -12,10 +12,11 @@ public class Int32Converter : ISlashArgumentConverter<int>, ITextArgumentConvert
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Integer;
     public bool RequiresText { get; init; } = true;
 
-    public Task<Optional<int>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) =>
-        int.TryParse(context.As<TextConverterContext>().Argument, CultureInfo.InvariantCulture, out int result)
-            ? Task.FromResult(Optional.FromValue(result))
-            : Task.FromResult(Optional.FromNoValue<int>());
+    public Task<Optional<int>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => int.TryParse(context.As<TextConverterContext>().Argument, CultureInfo.InvariantCulture, out int result)
+        ? Task.FromResult(Optional.FromValue(result))
+        : Task.FromResult(Optional.FromNoValue<int>());
 
-    public Task<Optional<int>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue((int)context.As<InteractionConverterContext>().Argument.Value));
+    public Task<Optional<int>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => int.TryParse(context.As<InteractionConverterContext>().Argument.RawValue, CultureInfo.InvariantCulture, out int result)
+        ? Task.FromResult(Optional.FromValue(result))
+        : Task.FromResult(Optional.FromNoValue<int>());
 }

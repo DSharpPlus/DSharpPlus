@@ -1,5 +1,6 @@
 namespace DSharpPlus.Commands.Converters;
 
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.Processors.SlashCommands;
@@ -48,9 +49,19 @@ public class AttachmentConverter : ISlashArgumentConverter<DiscordAttachment>, I
             // Too many parameters, not enough attachments
             return Task.FromResult(Optional.FromNoValue<DiscordAttachment>());
         }
+        else if (!ulong.TryParse(context.As<InteractionConverterContext>().Argument.RawValue, CultureInfo.InvariantCulture, out ulong attachmentId))
+        {
+            // Invalid attachment ID
+            return Task.FromResult(Optional.FromNoValue<DiscordAttachment>());
+        }
+        else if (!eventArgs.Interaction.Data.Resolved.Attachments.TryGetValue(attachmentId, out DiscordAttachment? attachment))
+        {
+            // Attachment not found
+            return Task.FromResult(Optional.FromNoValue<DiscordAttachment>());
+        }
         else
         {
-            return Task.FromResult(Optional.FromValue(eventArgs.Interaction.Data.Resolved.Attachments[(ulong)context.As<InteractionConverterContext>().Argument.Value]));
+            return Task.FromResult(Optional.FromValue(attachment));
         }
     }
 }

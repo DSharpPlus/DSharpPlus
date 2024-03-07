@@ -109,7 +109,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             AutoCompleteContext? autoCompleteContext = await this.ParseAutoCompleteArgumentsAsync(converterContext, eventArgs);
             if (autoCompleteContext is not null)
             {
-                IEnumerable<DiscordAutoCompleteChoice> choices = await converterContext.Parameter.Attributes.OfType<SlashAutoCompleteProviderAttribute>().First().AutoCompleteAsync(autoCompleteContext);
+                IEnumerable<DiscordAutoCompleteChoice> choices = await autoCompleteContext.AutoCompleteArgument.Attributes.OfType<SlashAutoCompleteProviderAttribute>().First().AutoCompleteAsync(autoCompleteContext);
                 await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.AutoCompleteResult, new DiscordInteractionResponseBuilder().AddAutoCompleteChoices(choices));
             }
 
@@ -447,15 +447,14 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         Dictionary<CommandParameter, object?> parsedArguments = [];
         try
         {
+            // Parse until we find the parameter that the user is currently typing
             while (converterContext.NextParameter() && !converterContext.Options.ElementAt(converterContext.ParameterIndex).Focused)
             {
                 IOptional optional = await this.ConverterDelegates[this.GetConverterFriendlyBaseType(converterContext.Parameter.Type)](converterContext, eventArgs);
-                if (!optional.HasValue)
-                {
-                    break;
-                }
-
-                parsedArguments.Add(converterContext.Parameter, optional.RawValue);
+                parsedArguments.Add(converterContext.Parameter, optional.HasValue
+                    ? optional.RawValue
+                    : converterContext.Parameter.DefaultValue
+                );
             }
         }
         catch (Exception error)
@@ -491,7 +490,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             Options = converterContext.Options,
             ServiceScope = converterContext.ServiceScope,
             User = eventArgs.Interaction.User,
-            UserInput = converterContext.Options.ElementAt(converterContext.ParameterIndex).Value
+            UserInput = converterContext.Options.ElementAt(converterContext.ParameterIndex).RawValue
         };
     }
 

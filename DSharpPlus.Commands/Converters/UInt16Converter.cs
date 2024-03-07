@@ -12,12 +12,11 @@ public class UInt16Converter : ISlashArgumentConverter<ushort>, ITextArgumentCon
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Integer;
     public bool RequiresText { get; init; } = true;
 
-    public Task<Optional<ushort>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) =>
-        ushort.TryParse(context.As<TextConverterContext>().Argument, CultureInfo.InvariantCulture, out ushort result)
-            ? Task.FromResult(Optional.FromValue(result))
-            : Task.FromResult(Optional.FromNoValue<ushort>());
+    public Task<Optional<ushort>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ushort.TryParse(context.As<TextConverterContext>().Argument, CultureInfo.InvariantCulture, out ushort result)
+        ? Task.FromResult(Optional.FromValue(result))
+        : Task.FromResult(Optional.FromNoValue<ushort>());
 
-    public Task<Optional<ushort>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => context.As<InteractionConverterContext>().Argument.Value is int number && number >= ushort.MinValue && number <= ushort.MaxValue
-        ? Task.FromResult(Optional.FromValue((ushort)number))
+    public Task<Optional<ushort>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ushort.TryParse(context.As<InteractionConverterContext>().Argument.RawValue, CultureInfo.InvariantCulture, out ushort result)
+        ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<ushort>());
 }

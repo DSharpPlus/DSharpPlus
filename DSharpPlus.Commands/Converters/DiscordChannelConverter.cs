@@ -43,7 +43,7 @@ public partial class DiscordChannelConverter : ISlashArgumentConverter<DiscordCh
     public Task<Optional<DiscordChannel>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
     {
         InteractionConverterContext slashContext = context.As<InteractionConverterContext>();
-        return slashContext.Interaction.Data.Resolved is null || !slashContext.Interaction.Data.Resolved.Channels.TryGetValue((ulong)slashContext.Argument.Value, out DiscordChannel? channel)
+        return slashContext.Interaction.Data.Resolved is null || !ulong.TryParse(slashContext.Argument.RawValue, CultureInfo.InvariantCulture, out ulong channelId) || !slashContext.Interaction.Data.Resolved.Channels.TryGetValue(channelId, out DiscordChannel? channel)
             ? Task.FromResult(Optional.FromNoValue<DiscordChannel>())
             : Task.FromResult(Optional.FromValue(channel));
     }

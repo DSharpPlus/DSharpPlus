@@ -15,10 +15,11 @@ public class Int64Converter : ISlashArgumentConverter<long>, ITextArgumentConver
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.String;
     public bool RequiresText { get; init; } = true;
 
-    public Task<Optional<long>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context.As<TextConverterContext>().Argument);
-    public Task<Optional<long>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync((string)context.As<InteractionConverterContext>().Argument.Value);
-    public static Task<Optional<long>> ConvertAsync(string? value) =>
-        long.TryParse(value, CultureInfo.InvariantCulture, out long result)
-            ? Task.FromResult(Optional.FromValue(result))
-            : Task.FromResult(Optional.FromNoValue<long>());
+    public Task<Optional<long>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => long.TryParse(context.As<TextConverterContext>().Argument, CultureInfo.InvariantCulture, out long result)
+        ? Task.FromResult(Optional.FromValue(result))
+        : Task.FromResult(Optional.FromNoValue<long>());
+
+    public Task<Optional<long>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => long.TryParse(context.As<InteractionConverterContext>().Argument.RawValue, CultureInfo.InvariantCulture, out long result)
+        ? Task.FromResult(Optional.FromValue(result))
+        : Task.FromResult(Optional.FromNoValue<long>());
 }
