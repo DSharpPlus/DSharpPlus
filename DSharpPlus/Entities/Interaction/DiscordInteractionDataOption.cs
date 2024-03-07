@@ -28,7 +28,7 @@ public sealed class DiscordInteractionDataOption
     public bool Focused { get; internal set; }
 
     [JsonProperty("value")]
-    internal string InternalValue { get; set; }
+    public string RawValue { get; internal set; }
 
     /// <summary>
     /// Gets the value of this interaction parameter.
@@ -37,16 +37,16 @@ public sealed class DiscordInteractionDataOption
     [JsonIgnore]
     public object Value => this.Type switch
     {
-        ApplicationCommandOptionType.Boolean => bool.Parse(this.InternalValue),
-        ApplicationCommandOptionType.Integer => long.Parse(this.InternalValue),
-        ApplicationCommandOptionType.String => this.InternalValue,
-        ApplicationCommandOptionType.Channel => ulong.Parse(this.InternalValue),
-        ApplicationCommandOptionType.User => ulong.Parse(this.InternalValue),
-        ApplicationCommandOptionType.Role => ulong.Parse(this.InternalValue),
-        ApplicationCommandOptionType.Mentionable => ulong.Parse(this.InternalValue),
-        ApplicationCommandOptionType.Number => double.Parse(this.InternalValue, CultureInfo.InvariantCulture),
-        ApplicationCommandOptionType.Attachment => ulong.Parse(this.InternalValue, CultureInfo.InvariantCulture),
-        _ => this.InternalValue,
+        ApplicationCommandOptionType.Boolean => bool.Parse(this.RawValue),
+        ApplicationCommandOptionType.Integer => long.Parse(this.RawValue),
+        ApplicationCommandOptionType.String => this.RawValue,
+        ApplicationCommandOptionType.Channel => ulong.Parse(this.RawValue),
+        ApplicationCommandOptionType.User => ulong.Parse(this.RawValue),
+        ApplicationCommandOptionType.Role => ulong.Parse(this.RawValue),
+        ApplicationCommandOptionType.Mentionable => ulong.Parse(this.RawValue),
+        ApplicationCommandOptionType.Number => double.Parse(this.RawValue, CultureInfo.InvariantCulture),
+        ApplicationCommandOptionType.Attachment => ulong.Parse(this.RawValue, CultureInfo.InvariantCulture),
+        _ => this.RawValue,
     };
 
     /// <summary>

@@ -69,6 +69,8 @@ public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>
     public Task<Optional<DiscordUser>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
     {
         InteractionConverterContext slashContext = context.As<InteractionConverterContext>();
-        return Task.FromResult(Optional.FromValue(slashContext.Interaction.Data.Resolved.Users[(ulong)slashContext.Argument.Value]));
+        return slashContext.Interaction.Data.Resolved is null || !ulong.TryParse(slashContext.Argument.RawValue, CultureInfo.InvariantCulture, out ulong memberId) || !slashContext.Interaction.Data.Resolved.Users.TryGetValue(memberId, out DiscordUser? user)
+            ? Task.FromResult(Optional.FromNoValue<DiscordUser>())
+            : Task.FromResult(Optional.FromValue(user));
     }
 }

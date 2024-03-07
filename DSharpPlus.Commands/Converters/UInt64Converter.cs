@@ -15,10 +15,11 @@ public class UInt64Converter : ISlashArgumentConverter<ulong>, ITextArgumentConv
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.String;
     public bool RequiresText { get; init; } = true;
 
-    public Task<Optional<ulong>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context.As<TextConverterContext>().Argument);
-    public Task<Optional<ulong>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync((string)context.As<InteractionConverterContext>().Argument.Value);
-    public static Task<Optional<ulong>> ConvertAsync(string? value) =>
-        ulong.TryParse(value, CultureInfo.InvariantCulture, out ulong result)
-            ? Task.FromResult(Optional.FromValue(result))
-            : Task.FromResult(Optional.FromNoValue<ulong>());
+    public Task<Optional<ulong>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ulong.TryParse(context.As<TextConverterContext>().Argument, CultureInfo.InvariantCulture, out ulong result)
+        ? Task.FromResult(Optional.FromValue(result))
+        : Task.FromResult(Optional.FromNoValue<ulong>());
+
+    public Task<Optional<ulong>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ulong.TryParse(context.As<InteractionConverterContext>().Argument.RawValue, CultureInfo.InvariantCulture, out ulong result)
+        ? Task.FromResult(Optional.FromValue(result))
+        : Task.FromResult(Optional.FromNoValue<ulong>());
 }

@@ -18,7 +18,7 @@ public partial class TimeSpanConverter : ISlashArgumentConverter<TimeSpan>, ITex
     public bool RequiresText { get; init; } = true;
 
     public Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context, context.As<TextConverterContext>().Argument);
-    public Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context, context.As<InteractionConverterContext>().Argument.Value.ToString());
+    public Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context, context.As<InteractionConverterContext>().Argument.RawValue);
 
     public static Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context, string? value)
     {

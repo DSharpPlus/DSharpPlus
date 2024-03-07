@@ -10,5 +10,5 @@ public sealed record AutoCompleteContext : AbstractContext
     public required IEnumerable<DiscordInteractionDataOption> Options { get; init; }
     public required IReadOnlyDictionary<CommandParameter, object?> Arguments { get; init; }
     public required CommandParameter AutoCompleteArgument { get; init; }
-    public required object UserInput { get; init; }
+    public required string UserInput { get; init; }
 }

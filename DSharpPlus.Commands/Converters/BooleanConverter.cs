@@ -1,8 +1,5 @@
 namespace DSharpPlus.Commands.Converters;
 
-using System;
-using System.Collections.Frozen;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.TextCommands;
@@ -11,29 +8,17 @@ using DSharpPlus.EventArgs;
 
 public class BooleanConverter : ISlashArgumentConverter<bool>, ITextArgumentConverter<bool>
 {
-    private static readonly FrozenDictionary<string, bool> _values = new Dictionary<string, bool>()
-    {
-        ["true"] = true,
-        ["false"] = false,
-        ["yes"] = true,
-        ["no"] = false,
-        ["y"] = true,
-        ["n"] = false,
-        ["1"] = true,
-        ["0"] = false,
-        ["on"] = true,
-        ["off"] = false,
-        ["enable"] = true,
-        ["disable"] = false,
-        ["enabled"] = true,
-        ["disabled"] = false,
-        ["t"] = true,
-        ["f"] = false
-    }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
-
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Boolean;
     public bool RequiresText { get; init; } = true;
 
-    public Task<Optional<bool>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue(_values.TryGetValue(context.As<TextConverterContext>().Argument, out bool value) && value));
-    public Task<Optional<bool>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => Task.FromResult(Optional.FromValue((bool)context.Argument!));
+    public Task<Optional<bool>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => Task.FromResult(context.As<TextConverterContext>().Argument.ToLowerInvariant() switch
+    {
+        "true" or "yes" or "y" or "1" or "on" or "enable" or "enabled" or "t" => Optional.FromValue(true),
+        "false" or "no" or "n" or "0" or "off" or "disable" or "disabled" or "f" => Optional.FromValue(false),
+        _ => Optional.FromNoValue<bool>()
+    });
+
+    public Task<Optional<bool>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => bool.TryParse(context.As<InteractionConverterContext>().Argument.RawValue, out bool result)
+        ? Task.FromResult(Optional.FromValue(result))
+        : Task.FromResult(Optional.FromNoValue<bool>());
 }
