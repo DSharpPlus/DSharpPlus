@@ -2,6 +2,7 @@ name: Build Commit
 
 on:
   push:
+    branches: [master]
     paths:
       - ".github/workflows/build-commit.yml"
       - "DSharpPlus*/**"
