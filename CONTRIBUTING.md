@@ -8,20 +8,21 @@ When opening a PR, please make sure your branch targets the latest master branch
 
 # Versioning
 
-We follow [SemVer](https://semver.org/) versioning when it comes to pushing stable releases. Ideally, this means you should only be creating PRs for `patch` and `minor` changes. If you wish to introduce a `major` (breaking) change, please discuss it beforehand so we can determine how to integrate it into our next major version. If this involves removing a public facing property/method, mark it with the `Obsolete` attribute instead on the latest release branch.
+We generally attempt to follow [semantic versioning](https://semver.org/) when it comes to pushing stable releases. Ideally, this means you should only be creating PRs for `patch` and `minor` changes. If you wish to introduce a `major` (breaking) change, please discuss it beforehand so we can determine how to integrate it into our next major version. If this involves removing a public facing property/method, mark it with the `Obsolete` attribute instead on the latest release branch.
+
+We may make exceptions to this rule to ease adoption of Discord features and/or changes. In particular, we allow minor versions to break existing code if the scope of such breaks is limited or the change is considered crucially important.
 
 # Proper titles
 
-When opening issues, make sure the title reflects the purpose of the issue or the pull request. Prefer past tense, and
-be brief. Further description belongs inside the issue or PR.
+When opening issues, make sure the title reflects the purpose of the issue or the pull request. Prefer past tense, and be brief. Further description belongs inside the issue or PR.
 
 # New additions
 
-When adding new features, please attempt to add tests for them. Only do so when those tests will not be making calls to the Discord API. Our tests follow a specific naming convention. If any changes are made to the `DSharpPlus.Commands` namespace, then the tests for those will be found in the `DSharpPlus.Tests.Commands` namespace and directory.
+When adding new features that do not correspond to API features, please attempt to add tests for them. Our tests follow a specific naming convention. If any changes are made to the `DSharpPlus.Commands` namespace, then the tests for those will be found in the `DSharpPlus.Tests.Commands` namespace and directory.
 
 # Descriptive changes
 
-We require the commits describe the change made. It can be a short description. If you fixed or resolved an open issue, please reference it by using the # notation.
+We require the commits describe the change made. It can be a short description. If you fixed or resolved an open issue, please refer to it using Github's # links.
 
 Examples of good commit messages:
 
@@ -47,19 +48,26 @@ Examples of bad commit messages:
 
 # Code style
 
-We use [Microsoft C# Coding Conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions) throughout the repository, with several exceptions:
+We use [Microsoft C# Coding Conventions](https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions) throughout the repository, with a series of exceptions:
 
 * Preference of `this`. While this one is not required, it's ill-advised to remove the existing instances thereof.
-* When working with async code, and your method consists of a single `await` statement not in any `if`, `while`, etc. blocks, pass the task through instead of awaiting it. For example:
+* In the same vein, we prefer you not use underscores for private fields in conjunction to using `this`. It is, again, ill-advised to go out of your way to change existing code.
+* Do not use `var`. Always specify the type name.
+* Do not use `ConfigureAwait(false)`. Other ConfigureAwait overloads may be warranted.
+* Use the LINQ methods as opposed to the keyword constructs.
+* Use file-scoped namespaces, and place using directives outside of them (ideally, order System.* directives first and separate groups of directives with empty lines).
+* When working with async code, always await any tasks for the sake of good stack traces. For example:
 
   ```cs
-  public Task DoSomethingAsync()
-    => this.DoAnotherThingAsync();
+  public async Task DoSomethingAsync()
+  {
+      await this.DoAnotherThingAsync();
+  }
 
-  public Task DoAnotherThingAsync()
+  public async Task DoAnotherThingAsync()
   {
       Console.WriteLine("42");
-      return this.DoYetAnotherThingAsync(42);
+      await this.DoYetAnotherThingAsync(42);
   }
 
   public async Task DoYetAnotherThingAsync(int num)
@@ -71,25 +79,25 @@ We use [Microsoft C# Coding Conventions](https://docs.microsoft.com/en-us/dotnet
 
 In addition to these, we also have several preferences:
 
-* Use initializer syntax when possible:
+* Use initializer syntax or collection expressions when possible:
 
   ```cs
-  var a = new Class
+  Class a = new()
   {
       StringNumber = "fourty-two",
       Number = 42
   };
 
-  var b = new Dictionary<string, int>()
+  Dictionary<string, int> b = new()
   {
       ["fourty-two"] = 42,
       ["sixty-nine"] = 69
   };
 
-  var c = [42, 69];
+  int[] c = [42, 69];
 ```
 
-* Inline `out` declarations when possible: `SomeOutMethod(42, out var stringified);`
+* Inline `out` declarations when possible: `SomeOutMethod(42, out string stringified);`
 * Members in classes should be ordered as follows (with few exceptions):
   * Public `const` fields.
   * Non-public `const` fields.
@@ -113,6 +121,8 @@ In addition to these, we also have several preferences:
   * Public events.
   * Non-public events.
 
+Use your own best judgement with regards to this ordering, and prefer intuitiveness over strict adherence.
+
 # Code changes
 
 One of our requirements is that all code change commits must build successfully. This is verified by our CI. When you open a pull request, Github will start an action which will perform a build and create PR artifacts. You can view its summary by visiting it from the checks section on
@@ -120,7 +130,7 @@ the PR overview page.
 
 PRs that do not build will not be accepted.
 
-Furthermore we require that methods you implement on Discord entities have a reflection in the Discord API.
+Furthermore we require that methods you implement on Discord entities have a reflection in the Discord API, and that such entities must be documented in the currently live documentation (PR documentation does not count).
 
 In the event your code change is a style change, XML doc change, or otherwise does not change how the code works, tag the commit with `[ci skip]`.
 
