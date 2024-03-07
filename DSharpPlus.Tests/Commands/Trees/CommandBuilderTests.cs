@@ -1,4 +1,4 @@
-namespace DSharpPlus.Tests.Commands;
+namespace DSharpPlus.Tests.Commands.Trees;
 
 using System;
 using System.Linq;

@@ -33,6 +33,8 @@ jobs:
             7
       - name: Build Project
         run: dotnet build
+      - name: Test Changes
+        run: ./tools/run-tests.sh
   package-commit:
     name: Package Commit
     runs-on: ubuntu-latest

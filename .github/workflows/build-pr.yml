@@ -36,6 +36,8 @@ jobs:
             7
       - name: Build Project
         run: dotnet build
+      - name: Test Changes
+        run: ./tools/run-tests.sh
       - name: Get PR Version
         id: pr
         run: printf "version=%0*d" 5 ${{ github.run_number }} >> "$GITHUB_OUTPUT"
