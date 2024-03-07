@@ -58,6 +58,8 @@ public partial class DiscordMemberConverter : ISlashArgumentConverter<DiscordMem
     public Task<Optional<DiscordMember>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
     {
         InteractionConverterContext slashContext = context.As<InteractionConverterContext>();
-        return Task.FromResult(Optional.FromValue(slashContext.Interaction.Data.Resolved.Members[(ulong)slashContext.Argument.Value]));
+        return slashContext.Interaction.Data.Resolved is null || !slashContext.Interaction.Data.Resolved.Members.TryGetValue((ulong)slashContext.Argument.Value, out DiscordMember? member)
+            ? Task.FromResult(Optional.FromNoValue<DiscordMember>())
+            : Task.FromResult(Optional.FromValue(member));
     }
 }

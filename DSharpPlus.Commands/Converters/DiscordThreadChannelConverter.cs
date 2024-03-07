@@ -46,6 +46,8 @@ public partial class DiscordThreadChannelConverter : ISlashArgumentConverter<Dis
     public Task<Optional<DiscordThreadChannel>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
     {
         InteractionConverterContext slashContext = context.As<InteractionConverterContext>();
-        return Task.FromResult(Optional.FromValue((DiscordThreadChannel)slashContext.Interaction.Data.Resolved.Channels[(ulong)slashContext.Argument.Value]));
+        return slashContext.Interaction.Data.Resolved is null || !slashContext.Interaction.Data.Resolved.Channels.TryGetValue((ulong)slashContext.Argument.Value, out DiscordChannel? channel)
+            ? Task.FromResult(Optional.FromNoValue<DiscordThreadChannel>())
+            : Task.FromResult(Optional.FromValue((DiscordThreadChannel)channel));
     }
 }

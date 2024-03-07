@@ -38,8 +38,19 @@ public class AttachmentConverter : ISlashArgumentConverter<DiscordAttachment>, I
     public Task<Optional<DiscordAttachment>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
     {
         int currentAttachmentArgumentIndex = context.Command.Parameters.Where(argument => argument.Type == typeof(DiscordAttachment)).IndexOf(context.Parameter);
-        return eventArgs.Interaction.Data.Options.Count(argument => argument.Type == ApplicationCommandOptionType.Attachment) < currentAttachmentArgumentIndex
-            ? Task.FromResult(Optional.FromNoValue<DiscordAttachment>()) // Too many parameters, not enough attachments
-            : Task.FromResult(Optional.FromValue(eventArgs.Interaction.Data.Resolved.Attachments[(ulong)context.As<InteractionConverterContext>().Argument.Value]));
+        if (eventArgs.Interaction.Data.Resolved is null)
+        {
+            // Resolved can be null on autocomplete contexts
+            return Task.FromResult(Optional.FromNoValue<DiscordAttachment>());
+        }
+        else if (eventArgs.Interaction.Data.Options.Count(argument => argument.Type == ApplicationCommandOptionType.Attachment) < currentAttachmentArgumentIndex)
+        {
+            // Too many parameters, not enough attachments
+            return Task.FromResult(Optional.FromNoValue<DiscordAttachment>());
+        }
+        else
+        {
+            return Task.FromResult(Optional.FromValue(eventArgs.Interaction.Data.Resolved.Attachments[(ulong)context.As<InteractionConverterContext>().Argument.Value]));
+        }
     }
 }
