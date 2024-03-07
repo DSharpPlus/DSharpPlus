@@ -34,7 +34,7 @@ jobs:
       - name: Build Project
         run: dotnet build
       - name: Test Changes
-        run: ./tools/run-tests.sh
+        run: dotnet test --blame-crash --blame-hang --blame-hang-timeout "30s"
   package-commit:
     name: Package Commit
     runs-on: ubuntu-latest

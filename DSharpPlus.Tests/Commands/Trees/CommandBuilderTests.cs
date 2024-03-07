@@ -23,7 +23,7 @@ public class CommandBuilderTests
         CommandBuilder commandBuilder = CommandBuilder.From(TestTopLevelCommands.PingAsync);
         Command command = commandBuilder.Build();
         Assert.AreEqual("ping", command.Name);
-        Assert.AreEqual("No description provided.", command.Description);
+        Assert.AreEqual(null, command.Description);
         Assert.IsNull(command.Parent);
         Assert.IsNull(command.Target);
         Assert.AreEqual(((Delegate)TestTopLevelCommands.PingAsync).Method, command.Method);
