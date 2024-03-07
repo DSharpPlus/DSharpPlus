@@ -15,10 +15,13 @@ We follow [SemVer](https://semver.org/) versioning when it comes to pushing stab
 When opening issues, make sure the title reflects the purpose of the issue or the pull request. Prefer past tense, and
 be brief. Further description belongs inside the issue or PR.
 
+# New additions
+
+When adding new features, please attempt to add tests for them. Only do so when those tests will not be making calls to the Discord API. Our tests follow a specific naming convention. If any changes are made to the `DSharpPlus.Commands` namespace, then the tests for those will be found in the `DSharpPlus.Tests.Commands` namespace and directory.
+
 # Descriptive changes
 
-We require the commits describe the change made. It can be a short description. If you fixed or resolved an open issue,
-please reference it by using the # notation.
+We require the commits describe the change made. It can be a short description. If you fixed or resolved an open issue, please reference it by using the # notation.
 
 Examples of good commit messages:
 
@@ -29,7 +32,7 @@ Examples of good commit messages:
 
 * ```
   Changed message cache behaviour:
-  
+
   - Messages are now stored globally.
   - Cache now deletes messages when they are deleted from discord.
   - Cache itself is now a ring buffer.
@@ -44,23 +47,21 @@ Examples of bad commit messages:
 
 # Code style
 
-We use [Microsoft C# Coding Conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions)
-throughout the repository, with several exceptions:
+We use [Microsoft C# Coding Conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions) throughout the repository, with several exceptions:
 
 * Preference of `this`. While this one is not required, it's ill-advised to remove the existing instances thereof.
-* When working with async code, and your method consists of a single `await` statement not in any `if`, `while`, etc.
-  blocks, pass the task through instead of awaiting it. For example:
-  
+* When working with async code, and your method consists of a single `await` statement not in any `if`, `while`, etc. blocks, pass the task through instead of awaiting it. For example:
+
   ```cs
   public Task DoSomethingAsync()
     => this.DoAnotherThingAsync();
-      
+
   public Task DoAnotherThingAsync()
   {
       Console.WriteLine("42");
       return this.DoYetAnotherThingAsync(42);
   }
-  
+
   public async Task DoYetAnotherThingAsync(int num)
   {
       if (num == 42)
@@ -78,17 +79,15 @@ In addition to these, we also have several preferences:
       StringNumber = "fourty-two",
       Number = 42
   };
-  
+
   var b = new Dictionary<string, int>()
   {
       ["fourty-two"] = 42,
       ["sixty-nine"] = 69
   };
-  
-  var c = new List<int>() { 42, 69 };
-  
-  var d = new[] { 42, 69 };
-  ```
+
+  var c = [42, 69];
+```
 
 * Inline `out` declarations when possible: `SomeOutMethod(42, out var stringified);`
 * Members in classes should be ordered as follows (with few exceptions):
@@ -116,18 +115,15 @@ In addition to these, we also have several preferences:
 
 # Code changes
 
-One of our requirements is that all code change commits must build successfully. This is verified by our CI. When you
-open a pull request, Github will start an action which will perform a build and create PR artifacts. You can view its summary by visiting it from the checks section on
+One of our requirements is that all code change commits must build successfully. This is verified by our CI. When you open a pull request, Github will start an action which will perform a build and create PR artifacts. You can view its summary by visiting it from the checks section on
 the PR overview page.
 
 PRs that do not build will not be accepted.
 
 Furthermore we require that methods you implement on Discord entities have a reflection in the Discord API.
 
-In the event your code change is a style change, XML doc change, or otherwise does not change how the code works, tag
-the commit with `[ci skip]`.
+In the event your code change is a style change, XML doc change, or otherwise does not change how the code works, tag the commit with `[ci skip]`.
 
 # Non-code changes
 
-In the event you change something outside of code (i.e. a meta-change or documentation), you must tag your commit with
-`[ci skip]`.
+In the event you change something outside of code (i.e. a meta-change or documentation), you must tag your commit with `[ci skip]`.
