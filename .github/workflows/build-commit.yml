@@ -2,6 +2,7 @@ name: Build Commit
 
 on:
   push:
+    branches: [master]
     paths:
       - ".github/workflows/build-commit.yml"
       - "DSharpPlus*/**"
@@ -33,6 +34,8 @@ jobs:
             7
       - name: Build Project
         run: dotnet build
+      - name: Test Changes
+        run: dotnet test --blame-crash --blame-hang --blame-hang-timeout "30s"
   package-commit:
     name: Package Commit
     runs-on: ubuntu-latest
