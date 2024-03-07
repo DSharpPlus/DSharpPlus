@@ -41,5 +41,5 @@ public sealed class SlashAutoCompleteProviderAttribute<T> : SlashAutoCompletePro
 
 public interface IAutoCompleteProvider
 {
-    public ValueTask<Dictionary<string, object>> AutoCompleteAsync(AutoCompleteContext context);
+    public ValueTask<IReadOnlyDictionary<string, object>> AutoCompleteAsync(AutoCompleteContext context);
 }
