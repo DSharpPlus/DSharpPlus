@@ -3,7 +3,7 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.Trees.Attributes;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.Tests.Commands.Cases;
+namespace DSharpPlus.Tests.Commands.Cases.Commands;
 
 public class TestMultiLevelSubCommands
 {

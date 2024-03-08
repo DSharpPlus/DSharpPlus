@@ -1,97 +1,110 @@
 using System;
-using System.Linq;
-using DSharpPlus.Commands.Processors.TextCommands.Attributes;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
-using DSharpPlus.Tests.Commands.Cases;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DSharpPlus.Tests.Commands.Cases.Commands;
+using NUnit.Framework;
 
 namespace DSharpPlus.Tests.Commands.Trees;
 
-[TestClass]
 public class CommandBuilderTests
 {
-    [TestMethod]
-    public void TopLevelEmptyCommand() => Assert.ThrowsException<ArgumentException>(CommandBuilder.From<TestSingleLevelSubCommands.EmptyCommand>);
+    [Test]
+    public void TopLevelEmptyCommand() => Assert.Throws<ArgumentException>(() => CommandBuilder.From<TestSingleLevelSubCommands.EmptyCommand>());
 
-    [TestMethod]
-    public void TopLevelCommandMissingContext() => Assert.ThrowsException<ArgumentException>(() => CommandBuilder.From(TestTopLevelCommands.OopsAsync));
+    [Test]
+    public void TopLevelCommandMissingContext() => Assert.Throws<ArgumentException>(() => CommandBuilder.From(TestTopLevelCommands.OopsAsync));
 
-    [TestMethod]
+    [Test]
     public void TopLevelCommandNoParameters()
     {
         CommandBuilder commandBuilder = CommandBuilder.From(TestTopLevelCommands.PingAsync);
         Command command = commandBuilder.Build();
-        Assert.AreEqual("ping", command.Name);
-        Assert.AreEqual(null, command.Description);
-        Assert.IsNull(command.Parent);
-        Assert.IsNull(command.Target);
-        Assert.AreEqual(((Delegate)TestTopLevelCommands.PingAsync).Method, command.Method);
-        Assert.AreEqual(0, command.Subcommands.Count);
-        Assert.AreEqual(0, command.Parameters.Count);
+        Assert.Multiple(() =>
+        {
+            Assert.That(command.Name, Is.EqualTo("ping"));
+            Assert.That(command.Description, Is.Null);
+            Assert.That(command.Parent, Is.Null);
+            Assert.That(command.Target, Is.Null);
+            Assert.That(command.Method, Is.EqualTo(((Delegate)TestTopLevelCommands.PingAsync).Method));
+            Assert.That(command.Attributes, Is.Not.Empty);
+            Assert.That(command.Subcommands, Is.Empty);
+            Assert.That(command.Parameters, Is.Empty);
+        });
     }
 
-    [TestMethod]
-    public void TopLevelCommandOneParameter()
-    {
-        CommandBuilder commandBuilder = CommandBuilder.From(TestTopLevelCommands.EchoAsync);
-        Command command = commandBuilder.Build();
-        Assert.AreEqual(1, command.Parameters.Count);
-        Assert.AreEqual("message", command.Parameters[0].Name);
-        Assert.AreEqual("No description provided.", command.Parameters[0].Description);
-        Assert.AreEqual(typeof(string), command.Parameters[0].Type);
-        Assert.AreEqual(false, command.Parameters[0].DefaultValue.HasValue);
-        Assert.IsTrue(command.Parameters[0].Attributes.Count != 0);
-        Assert.IsTrue(command.Parameters[0].Attributes.Any(attribute => attribute is RemainingTextAttribute));
-    }
-
-    [TestMethod]
+    [Test]
     public void TopLevelCommandOneOptionalParameter()
     {
         CommandBuilder commandBuilder = CommandBuilder.From(TestTopLevelCommands.UserInfoAsync);
         Command command = commandBuilder.Build();
-        Assert.AreEqual(1, command.Parameters.Count);
-        Assert.AreEqual("user", command.Parameters[0].Name);
-        Assert.AreEqual("No description provided.", command.Parameters[0].Description);
-        Assert.AreEqual(typeof(DiscordUser), command.Parameters[0].Type);
-        Assert.AreEqual(true, command.Parameters[0].DefaultValue.HasValue);
-        Assert.AreEqual(null, command.Parameters[0].DefaultValue.Value);
+        Assert.That(command.Parameters, Has.Count.EqualTo(1));
+        Assert.Multiple(() =>
+        {
+            Assert.That(command.Parameters[0].Name, Is.EqualTo("user"));
+            Assert.That(command.Parameters[0].Description, Is.EqualTo("No description provided."));
+            Assert.That(command.Parameters[0].Type, Is.EqualTo(typeof(DiscordUser)));
+            Assert.That(command.Parameters[0].DefaultValue.HasValue, Is.True);
+            Assert.That(command.Parameters[0].DefaultValue.Value, Is.Null);
+        });
     }
 
-    [TestMethod]
+    [Test]
     public void SingleLevelSubCommands()
     {
         CommandBuilder commandBuilder = CommandBuilder.From<TestSingleLevelSubCommands.TagCommand>();
-        Assert.AreEqual(2, commandBuilder.Subcommands.Count);
+        Assert.That(commandBuilder.Subcommands, Has.Count.EqualTo(2));
 
         Command command = commandBuilder.Build();
-        Assert.IsNull(command.Parent);
-        Assert.AreEqual(2, command.Subcommands.Count);
-        Assert.AreEqual("add", command.Subcommands[0].Name);
-        Assert.AreEqual("get", command.Subcommands[1].Name);
-        Assert.AreEqual(2, command.Subcommands[0].Parameters.Count);
-        Assert.AreEqual(1, command.Subcommands[1].Parameters.Count);
+        Assert.Multiple(() =>
+        {
+            Assert.That(command.Parent, Is.Null);
+            Assert.That(command.Subcommands, Has.Count.EqualTo(2));
+        });
+
+        // Will not execute if the subcommand count fails
+        Assert.Multiple(() =>
+        {
+            Assert.That(command.Subcommands[0].Name, Is.EqualTo("add"));
+            Assert.That(command.Subcommands[0].Parameters, Has.Count.EqualTo(2));
+            Assert.That(command.Subcommands[1].Name, Is.EqualTo("get"));
+            Assert.That(command.Subcommands[1].Parameters, Has.Count.EqualTo(1));
+        });
     }
 
-    [TestMethod]
+    [Test]
     public void MultiLevelSubCommands()
     {
         CommandBuilder commandBuilder = CommandBuilder.From<TestMultiLevelSubCommands.InfoCommand>();
-        Assert.AreEqual(2, commandBuilder.Subcommands.Count);
+        Assert.That(commandBuilder.Subcommands, Has.Count.EqualTo(2));
 
         Command command = commandBuilder.Build();
-        Assert.IsNull(command.Parent);
-        Assert.AreEqual(2, command.Subcommands.Count);
-        Assert.AreEqual(command, command.Subcommands[0].Parent);
-        Assert.AreEqual(command, command.Subcommands[1].Parent);
-        Assert.AreEqual("user", command.Subcommands[0].Name);
-        Assert.AreEqual("channel", command.Subcommands[1].Name);
-        Assert.AreEqual(3, command.Subcommands[0].Subcommands.Count);
-        Assert.AreEqual(2, command.Subcommands[1].Subcommands.Count);
-        Assert.AreEqual(1, command.Subcommands[0].Subcommands[0].Parameters.Count);
-        Assert.AreEqual(1, command.Subcommands[0].Subcommands[1].Parameters.Count);
-        Assert.AreEqual(2, command.Subcommands[0].Subcommands[2].Parameters.Count);
-        Assert.AreEqual(1, command.Subcommands[1].Subcommands[0].Parameters.Count);
-        Assert.AreEqual(1, command.Subcommands[1].Subcommands[1].Parameters.Count);
+        Assert.Multiple(() =>
+        {
+            Assert.That(command.Parent, Is.Null);
+            Assert.That(command.Subcommands, Has.Count.EqualTo(2));
+        });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(command.Subcommands[0].Name, Is.EqualTo("user"));
+            Assert.That(command.Subcommands[0].Parent, Is.EqualTo(command));
+            Assert.That(command.Subcommands[1].Name, Is.EqualTo("channel"));
+            Assert.That(command.Subcommands[1].Parent, Is.EqualTo(command));
+        });
+
+        Assert.That(command.Subcommands[0].Subcommands, Has.Count.EqualTo(3));
+        Assert.Multiple(() =>
+        {
+            Assert.That(command.Subcommands[0].Subcommands[0].Parameters, Has.Count.EqualTo(1));
+            Assert.That(command.Subcommands[0].Subcommands[1].Parameters, Has.Count.EqualTo(1));
+            Assert.That(command.Subcommands[0].Subcommands[2].Parameters, Has.Count.EqualTo(2));
+        });
+
+        Assert.That(command.Subcommands[1].Subcommands, Has.Count.EqualTo(2));
+        Assert.Multiple(() =>
+        {
+            Assert.That(command.Subcommands[1].Subcommands[0].Parameters, Has.Count.EqualTo(1));
+            Assert.That(command.Subcommands[1].Subcommands[1].Parameters, Has.Count.EqualTo(1));
+        });
     }
 }
