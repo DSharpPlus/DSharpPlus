@@ -1,5 +1,3 @@
-namespace DSharpPlus.Tests.Commands.Processors.TextCommands.Parsing;
-
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Commands;
@@ -7,6 +5,8 @@ using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Processors.TextCommands.Parsing;
 using DSharpPlus.Tests.Commands.Cases;
 using NUnit.Framework;
+
+namespace DSharpPlus.Tests.Commands.Processors.TextCommands.Parsing;
 
 public sealed class DefaultTextArgumentSplicerTests
 {
@@ -25,7 +25,7 @@ public sealed class DefaultTextArgumentSplicerTests
     }
 
     [TestCaseSource(typeof(UserInput), nameof(UserInput.ExpectedNormal), null)]
-    public static void ParseNormalArguments(string input, int expectedCount, string[] expectedArguments)
+    public static void ParseNormalArguments(string input, string[] expectedArguments)
     {
         List<string> arguments = [];
         int position = 0;
@@ -40,12 +40,12 @@ public sealed class DefaultTextArgumentSplicerTests
             arguments.Add(argument);
         }
 
-        Assert.That(arguments, Has.Count.EqualTo(expectedCount));
+        Assert.That(arguments, Has.Count.EqualTo(expectedArguments.Length));
         Assert.That(arguments, Is.EqualTo(expectedArguments));
     }
 
     [TestCaseSource(typeof(UserInput), nameof(UserInput.ExpectedQuoted), null)]
-    public static void ParseQuotedArguments(string input, int expectedCount, string[] expectedArguments)
+    public static void ParseQuotedArguments(string input, string[] expectedArguments)
     {
         List<string> arguments = [];
         int position = 0;
@@ -60,12 +60,12 @@ public sealed class DefaultTextArgumentSplicerTests
             arguments.Add(argument);
         }
 
-        Assert.That(arguments, Has.Count.EqualTo(expectedCount));
+        Assert.That(arguments, Has.Count.EqualTo(expectedArguments.Length));
         Assert.That(arguments, Is.EqualTo(expectedArguments));
     }
 
     [TestCaseSource(typeof(UserInput), nameof(UserInput.ExpectedInlineCode), null)]
-    public static void ParseInlineCodeArguments(string input, int expectedCount, string[] expectedArguments)
+    public static void ParseInlineCodeArguments(string input, string[] expectedArguments)
     {
         List<string> arguments = [];
         int position = 0;
@@ -80,12 +80,12 @@ public sealed class DefaultTextArgumentSplicerTests
             arguments.Add(argument);
         }
 
-        Assert.That(arguments, Has.Count.EqualTo(expectedCount));
+        Assert.That(arguments, Has.Count.EqualTo(expectedArguments.Length));
         Assert.That(arguments, Is.EqualTo(expectedArguments));
     }
 
     [TestCaseSource(typeof(UserInput), nameof(UserInput.ExpectedCodeBlock), null)]
-    public static void ParseCodeBlockArguments(string input, int expectedCount, string[] expectedArguments)
+    public static void ParseCodeBlockArguments(string input, string[] expectedArguments)
     {
         List<string> arguments = [];
         int position = 0;
@@ -100,12 +100,12 @@ public sealed class DefaultTextArgumentSplicerTests
             arguments.Add(argument);
         }
 
-        Assert.That(arguments, Has.Count.EqualTo(expectedCount));
+        Assert.That(arguments, Has.Count.EqualTo(expectedArguments.Length));
         Assert.That(arguments, Is.EqualTo(expectedArguments));
     }
 
     [TestCaseSource(typeof(UserInput), nameof(UserInput.ExpectedEscaped), null)]
-    public static void ParseEscapedArguments(string input, int expectedCount, string[] expectedArguments)
+    public static void ParseEscapedArguments(string input, string[] expectedArguments)
     {
         List<string> arguments = [];
         int position = 0;
@@ -120,7 +120,7 @@ public sealed class DefaultTextArgumentSplicerTests
             arguments.Add(argument);
         }
 
-        Assert.That(arguments, Has.Count.EqualTo(expectedCount));
+        Assert.That(arguments, Has.Count.EqualTo(expectedArguments.Length));
         Assert.That(arguments, Is.EqualTo(expectedArguments));
     }
 
