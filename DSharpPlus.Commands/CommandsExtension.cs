@@ -225,7 +225,7 @@ public sealed class CommandsExtension : BaseExtension
             }
 
             Type attributeType = t.GetGenericArguments()[0];
-            MethodInfo method = t.GetMethods(BindingFlags.Public | BindingFlags.Static)
+            MethodInfo method = t.GetMethods(BindingFlags.Public | BindingFlags.Instance)
                 .First(x => x.Name == "ExecuteCheckAsync" && x.GetParameters()[0].ParameterType == attributeType);
 
             // create the func for invoking the check here, during startup
