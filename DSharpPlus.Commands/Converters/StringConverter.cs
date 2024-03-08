@@ -60,7 +60,8 @@ public class StringConverter : ISlashArgumentConverter<string>, ITextArgumentCon
         code = null;
         if (input.Length > 6 && input.StartsWith("```") && input.EndsWith("```") && expectedCodeType.HasFlag(CodeType.Codeblock))
         {
-            code = input[3..^3];
+            int newline = input.IndexOf('\n');
+            code = newline == -1 ? input[3..^3] : input[newline..^3];
         }
         else if (input.Length > 4 && input.StartsWith("``") && input.EndsWith("``") && expectedCodeType.HasFlag(CodeType.Inline))
         {
