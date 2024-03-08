@@ -15,7 +15,11 @@ using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Processors;
+using DSharpPlus.Commands.Processors.MessageCommands;
+using DSharpPlus.Commands.Processors.SlashCommands;
+using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Processors.TextCommands.ContextChecks;
+using DSharpPlus.Commands.Processors.UserCommands;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Attributes;
 using DSharpPlus.Entities;
@@ -55,7 +59,13 @@ public sealed class CommandsExtension : BaseExtension
     private readonly List<CommandBuilder> _commandBuilders = [];
 
     public IReadOnlyDictionary<Type, ICommandProcessor> Processors { get; private set; } = new Dictionary<Type, ICommandProcessor>();
-    private readonly Dictionary<Type, ICommandProcessor> _processors = [];
+    private readonly Dictionary<Type, ICommandProcessor> _processors = new()
+    {
+        [typeof(TextCommandProcessor)] = new TextCommandProcessor(),
+        [typeof(SlashCommandProcessor)] = new SlashCommandProcessor(),
+        [typeof(UserCommandProcessor)] = new UserCommandProcessor(),
+        [typeof(MessageCommandProcessor)] = new MessageCommandProcessor()
+    };
 
     internal IReadOnlyList<ContextCheckMapEntry> Checks => this.checks;
     private readonly List<ContextCheckMapEntry> checks = [];
@@ -180,6 +190,19 @@ public sealed class CommandsExtension : BaseExtension
     }
 
     public TProcessor GetProcessor<TProcessor>() where TProcessor : ICommandProcessor => (TProcessor)this._processors[typeof(TProcessor)];
+
+    public IReadOnlyList<ICommandProcessor> GetProcessors() => this._processors.Values.ToList();
+
+    public bool RemoveProcessor<TProcessor>() where TProcessor : ICommandProcessor
+    {
+        if (this._processors.TryGetValue(typeof(TProcessor), out ICommandProcessor? processor))
+        {
+            processor.Dispose();
+            return this._processors.Remove(typeof(TProcessor));
+        }
+
+        return false;
+    }
 
     /// <summary>
     /// Adds all public checks from the provided assembly to the extension.
