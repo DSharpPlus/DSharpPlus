@@ -27,8 +27,12 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
 
     public async ValueTask ConfigureAsync(CommandsExtension extension)
     {
+        if (this._extension is null)
+        {
+            extension.Client.ContextMenuInteractionCreated += this.ExecuteInteractionAsync;
+        }
+
         this._extension = extension;
-        this._extension.Client.ContextMenuInteractionCreated += this.ExecuteInteractionAsync;
         this._slashCommandProcessor = this._extension.GetProcessor<SlashCommandProcessor>() ?? new SlashCommandProcessor();
         await this._slashCommandProcessor.ConfigureAsync(this._extension);
 
