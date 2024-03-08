@@ -71,11 +71,10 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
 
     public async Task ExecuteInteractionAsync(DiscordClient client, ContextMenuInteractionCreateEventArgs eventArgs)
     {
-        if (this._extension is null || this._slashCommandProcessor is null)
-        {
-            throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
-        }
-        else if (eventArgs.Interaction.Type is not InteractionType.ApplicationCommand || eventArgs.Interaction.Data.Type is not ApplicationCommandType.MessageContextMenu)
+        if (this._extension is null
+            || this._slashCommandProcessor is null
+            || eventArgs.Interaction.Type is not InteractionType.ApplicationCommand
+            || eventArgs.Interaction.Data.Type is not ApplicationCommandType.MessageContextMenu)
         {
             return;
         }

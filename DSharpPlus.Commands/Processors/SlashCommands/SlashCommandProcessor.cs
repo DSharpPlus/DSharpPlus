@@ -30,10 +30,15 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
     public IReadOnlyDictionary<ulong, Command> Commands { get; private set; } = new Dictionary<ulong, Command>();
 
     private readonly List<DiscordApplicationCommand> _applicationCommands = [];
-    private bool _configured;
 
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {
+        if (this._extension is null)
+        {
+            extension.Client.InteractionCreated += this.ExecuteInteractionAsync;
+            extension.Client.GuildDownloadCompleted += this.RegisterStartupCommandsAsync;
+        }
+
         await base.ConfigureAsync(extension);
 
         Dictionary<Type, ApplicationCommandOptionType> typeMappings = [];
@@ -44,12 +49,6 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         }
 
         this.TypeMappings = typeMappings.ToFrozenDictionary();
-        if (!this._configured)
-        {
-            this._configured = true;
-            extension.Client.InteractionCreated += this.ExecuteInteractionAsync;
-            extension.Client.GuildDownloadCompleted += this.RegisterStartupCommandsAsync;
-        }
     }
 
     private async Task RegisterStartupCommandsAsync(DiscordClient client, GuildDownloadCompletedEventArgs eventArgs)
@@ -62,11 +61,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
     public async Task ExecuteInteractionAsync(DiscordClient client, InteractionCreateEventArgs eventArgs)
     {
-        if (this._extension is null)
-        {
-            throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
-        }
-        else if (eventArgs.Interaction.Type is not InteractionType.ApplicationCommand and not InteractionType.AutoComplete || eventArgs.Interaction.Data.Type is not ApplicationCommandType.SlashCommand)
+        if (this._extension is null || eventArgs.Interaction.Type is not InteractionType.ApplicationCommand and not InteractionType.AutoComplete || eventArgs.Interaction.Data.Type is not ApplicationCommandType.SlashCommand)
         {
             return;
         }

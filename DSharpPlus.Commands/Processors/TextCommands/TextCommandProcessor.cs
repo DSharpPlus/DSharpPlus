@@ -17,19 +17,18 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<MessageCreateEve
                                                 | DiscordIntents.GuildMessages; // Required for commands that are executed via bot ping
 
     public TextCommandConfiguration Configuration { get; init; }
-    private bool _configured;
 
     public TextCommandProcessor(TextCommandConfiguration? configuration = null) => this.Configuration = configuration ?? new();
 
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {
-        await base.ConfigureAsync(extension);
-        if (this._configured)
+        if (this._extension is not null)
         {
             return;
         }
 
-        this._configured = true;
+        await base.ConfigureAsync(extension);
+
         extension.Client.MessageCreated += this.ExecuteTextCommandAsync;
         if (!extension.Client.Intents.HasIntent(DiscordIntents.GuildMessages) && !extension.Client.Intents.HasIntent(DiscordIntents.DirectMessages))
         {
@@ -43,13 +42,10 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<MessageCreateEve
 
     public async Task ExecuteTextCommandAsync(DiscordClient client, MessageCreateEventArgs eventArgs)
     {
-        if (this._extension is null)
-        {
-            throw new InvalidOperationException("TextCommandProcessor has not been configured.");
-        }
-        else if (string.IsNullOrWhiteSpace(eventArgs.Message.Content)
-            || (eventArgs.Author.IsBot && this.Configuration.IgnoreBots)
-            || (this._extension.DebugGuildId != 0 && this._extension.DebugGuildId != eventArgs.Guild?.Id))
+        if (this._extension is null // Disposed or not configured
+            || string.IsNullOrWhiteSpace(eventArgs.Message.Content) // Missing message contents intent
+            || (eventArgs.Author.IsBot && this.Configuration.IgnoreBots) // Ignore bots
+            || (this._extension.DebugGuildId != 0 && this._extension.DebugGuildId != eventArgs.Guild?.Id)) // Debug guild is set and the message is not from the debug guild
         {
             return;
         }
