@@ -162,7 +162,7 @@ public sealed class CommandsExtension : BaseExtension
         }
     }
 
-    public ValueTask AddProcessorAsync(ICommandProcessor processor)
+    public async ValueTask AddProcessorAsync(ICommandProcessor processor)
     {
         if (this._processors.TryGetValue(processor.GetType(), out ICommandProcessor? existingProcessor))
         {
@@ -170,7 +170,7 @@ public sealed class CommandsExtension : BaseExtension
         }
 
         this._processors[processor.GetType()] = processor;
-        return processor.ConfigureAsync(this);
+        await processor.ConfigureAsync(this);
     }
 
     public ValueTask AddProcessorsAsync(params ICommandProcessor[] processors) => this.AddProcessorsAsync((IEnumerable<ICommandProcessor>)processors);
