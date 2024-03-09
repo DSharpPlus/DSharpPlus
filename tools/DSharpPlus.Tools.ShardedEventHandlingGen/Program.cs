@@ -71,7 +71,7 @@ public static class Program
         }
 
         File.WriteAllText($"{Environment.CurrentDirectory}/DSharpPlus/Clients/DiscordShardedClient.Events.cs", TemplateFiles["DiscordShardedClient"]
-            .Replace("{{Date}}", DateTimeOffset.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture))
+            .Replace("{{Date}}", DateTimeOffset.UtcNow.ToString("F", CultureInfo.InvariantCulture))
             .Replace("    // {{EventHandlers}}", eventStringBuilder.ToString().TrimEnd())
             .Replace("        // {{EventHandlerSetters}}", eventHandlerStringBuilder.ToString().TrimEnd())
             .Replace("        // {{HookEventHandlers}}", hookMethodLogic.ToString().TrimEnd())

@@ -60,8 +60,28 @@ public class StringConverter : ISlashArgumentConverter<string>, ITextArgumentCon
         code = null;
         if (input.Length > 6 && input.StartsWith("```") && input.EndsWith("```") && expectedCodeType.HasFlag(CodeType.Codeblock))
         {
-            int newline = input.IndexOf('\n');
-            code = newline == -1 ? input[3..^3] : input[newline..^3];
+            for (int i = 0; i < input.Length; i++)
+            {
+                // Read until we hit either a newline or a space.
+                if (!char.IsWhiteSpace(input[i]))
+                {
+                    continue;
+                }
+
+                // Once we've found our first word, remove the triple backticks
+                // and check to see if it's a valid syntax indentifier.
+                else if (!FromCodeAttribute.CodeBlockLanguages.Contains(input[3..i]))
+                {
+                    break;
+                }
+
+                // If it is, we can strip the language identifier and return the code.
+                code = input[(i + 1)..^3];
+                return true;
+            }
+
+            // No valid language identifier was found, so we just strip the triple backticks.
+            code = input[3..^3];
         }
         else if (input.Length > 4 && input.StartsWith("``") && input.EndsWith("``") && expectedCodeType.HasFlag(CodeType.Inline))
         {

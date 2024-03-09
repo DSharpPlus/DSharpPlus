@@ -1,0 +1,14 @@
+{
+  "name": "get-highlight-languages",
+  "version": "1.0.0",
+  "description": "Get all the languages supported by highlight.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "OoLunar, Highlight.Js Contributors",
+  "license": "MIT",
+  "dependencies": {
+    "highlight.js": "^11.9.0"
+  }
+}
