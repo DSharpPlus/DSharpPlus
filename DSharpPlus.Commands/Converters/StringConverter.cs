@@ -70,7 +70,9 @@ public class StringConverter : ISlashArgumentConverter<string>, ITextArgumentCon
 
                 // Once we've found our first word, remove the triple backticks
                 // and check to see if it's a valid syntax indentifier.
-                else if (!FromCodeAttribute.CodeBlockLanguages.Contains(input[3..i]))
+                // Also check to make sure the syntax identifier is on it's own line,
+                // for parity with the Discord client.
+                else if (!FromCodeAttribute.CodeBlockLanguages.Contains(input[3..i]) || input[i + 1] != '\n')
                 {
                     break;
                 }
