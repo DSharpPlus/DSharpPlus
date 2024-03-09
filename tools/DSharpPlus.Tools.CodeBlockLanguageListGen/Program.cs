@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,26 +11,11 @@ namespace DSharpPlus.Tools.CodeBlockLanguageListGen;
 
 public static class Program
 {
-    private static readonly string TemplateFile;
-
-    static Program()
-    {
-        // Load the template file
-        // The filename could probably be hardcoded.
-        Assembly assembly = typeof(Program).Assembly;
-        foreach (string filename in assembly.GetManifestResourceNames())
-        {
-            if (!filename.EndsWith(".template", StringComparison.Ordinal) || assembly.GetManifestResourceStream(filename) is not Stream manifestStream)
-            {
-                continue;
-            }
-
-            TemplateFile = new StreamReader(manifestStream).ReadToEnd();
-            return;
-        }
-
-        throw new InvalidOperationException("Failed to load the template file.");
-    }
+    private static readonly string TemplateFile = new StreamReader(typeof(Program)
+        .Assembly
+        .GetManifestResourceStream("DSharpPlus.Tools.CodeBlockLanguageListGen.FromCodeAttribute.LanguageList.template")
+        ?? throw new InvalidOperationException("Failed to load the template file.")
+    ).ReadToEnd();
 
     public static async Task Main()
     {
@@ -51,7 +35,7 @@ public static class Program
         }
         languageListNode.Append("    }.ToFrozenSet()");
 
-        File.WriteAllText($"{Environment.CurrentDirectory}/DSharpPlus.Commands/ContextChecks/FromCode/FromCodeAttribute.LanguageList.cs", TemplateFile
+        File.WriteAllText($"./DSharpPlus.Commands/ContextChecks/FromCode/FromCodeAttribute.LanguageList.cs", TemplateFile
             .Replace("{{Date}}", DateTimeOffset.UtcNow.ToString("F", CultureInfo.InvariantCulture))
             .Replace("{{CodeBlockLanguages}}", languageListNode.ToString()
         ));

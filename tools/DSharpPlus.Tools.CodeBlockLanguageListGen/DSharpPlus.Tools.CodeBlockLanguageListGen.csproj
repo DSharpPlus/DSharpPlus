@@ -3,7 +3,7 @@
         <OutputType>Exe</OutputType>
     </PropertyGroup>
     <ItemGroup>
-        <EmbeddedResource Include="$(ProjectRoot)\tools\CodeBlockLanguageListGen\*.template" Pack="true" PackagePath="" />
+        <EmbeddedResource Include="$(ProjectRoot)\tools\DSharpPlus.Tools.CodeBlockLanguageListGen\*.template" Pack="true" PackagePath="" />
         <ProjectReference Include="$(ProjectRoot)\DSharpPlus\DSharpPlus.csproj" />
     </ItemGroup>
 </Project>
