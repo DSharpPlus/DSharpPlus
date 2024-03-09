@@ -1,6 +1,6 @@
 using System;
 
-namespace DSharpPlus.Commands.ContextChecks;
+namespace DSharpPlus.Commands.Attributes;
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed partial class FromCodeAttribute : Attribute

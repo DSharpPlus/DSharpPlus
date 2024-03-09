@@ -5,7 +5,7 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 
-namespace DSharpPlus.Commands.ContextChecks;
+namespace DSharpPlus.Commands.Attributes;
 
 public sealed partial class FromCodeAttribute : Attribute
 {

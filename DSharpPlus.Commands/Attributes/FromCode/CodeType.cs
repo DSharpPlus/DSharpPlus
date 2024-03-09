@@ -1,6 +1,6 @@
 using System;
 
-namespace DSharpPlus.Commands.ContextChecks;
+namespace DSharpPlus.Commands.Attributes;
 
 [Flags]
 public enum CodeType
