@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -135,10 +134,42 @@ internal sealed class RateLimitBucket
     {
         Interlocked.Exchange(ref this.maximum, maximum);
         Interlocked.Exchange(ref this.remaining, remaining);
-        Interlocked.Decrement(ref this.reserved);
+
+        if (this.reserved > 0)
+        {
+            Interlocked.Decrement(ref this.reserved);
+        }
+
         this.Reset = reset;
     }
 
-    internal void CancelReservation() 
-        => Interlocked.Decrement(ref this.reserved);
+    internal void CancelReservation()
+    {
+        if (this.reserved > 0)
+        {
+            Interlocked.Decrement(ref this.reserved);
+        }
+    }
+
+    internal void CompleteReservation()
+    {
+        if (this.Reset < DateTime.UtcNow)
+        {
+            this.ResetLimit(DateTime.UtcNow + TimeSpan.FromSeconds(1));
+
+            if (this.reserved > 0)
+            {
+                Interlocked.Decrement(ref this.reserved);
+            }
+
+            return;
+        }
+
+        Interlocked.Decrement(ref this.remaining); 
+        
+        if (this.reserved > 0)
+        {
+            Interlocked.Decrement(ref this.reserved);
+        }
+    }
 }

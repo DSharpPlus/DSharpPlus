@@ -192,6 +192,16 @@ public sealed class DiscordConfiguration
     public double RatelimitRetryDelayFallback { internal get; set; } = 2.5;
 
     /// <summary>
+    /// Specifies the maximum rest requests to attempt per second. Defaults to 15.
+    /// </summary>
+    /// <remarks>
+    /// This is a band-aid for large bots and will be removed in a future version. Do not set this value above 50 unless Discord has
+    /// approved you for an increase, and only increase it if your bot is flooding many different endpoints on different guilds and
+    /// channels. If your bot is heavily flooding very few endpoints, you may even reduce this limit.
+    /// </remarks>
+    public int MaximumRestRequestsPerSecond { internal get; set; } = 15;
+
+    /// <summary>
     /// Creates a new configuration with default values.
     /// </summary>
     public DiscordConfiguration()
@@ -223,5 +233,8 @@ public sealed class DiscordConfiguration
         this.LogUnknownEvents = other.LogUnknownEvents;
         this.LogUnknownAuditlogs = other.LogUnknownAuditlogs;
         this.MessageCacheProvider = other.MessageCacheProvider;
+        this.MaximumRatelimitRetries = other.MaximumRatelimitRetries;
+        this.RatelimitRetryDelayFallback = other.RatelimitRetryDelayFallback;
+        this.MaximumRestRequestsPerSecond = other.MaximumRestRequestsPerSecond;
     }
 }

@@ -38,7 +38,8 @@ internal sealed partial class RestClient : IDisposable
             logger,
             config.MaximumRatelimitRetries,
             config.RatelimitRetryDelayFallback,
-            config.TimeoutForInitialApiRequest
+            config.TimeoutForInitialApiRequest,
+            config.MaximumRestRequestsPerSecond
         )
     {
         this.httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(config));
@@ -53,7 +54,8 @@ internal sealed partial class RestClient : IDisposable
         ILogger logger,
         int maxRetries = int.MaxValue,
         double retryDelayFallback = 2.5,
-        int waitingForHashMilliseconds = 200
+        int waitingForHashMilliseconds = 200,
+        int maximumRequestsPerSecond = 15
     )
     {
         this.logger = logger;
@@ -77,7 +79,7 @@ internal sealed partial class RestClient : IDisposable
 
         this.globalRateLimitEvent = new AsyncManualResetEvent(true);
 
-        this.rateLimitStrategy = new(logger, waitingForHashMilliseconds);
+        this.rateLimitStrategy = new(logger, waitingForHashMilliseconds, maximumRequestsPerSecond);
 
         ResiliencePipelineBuilder<HttpResponseMessage> builder = new();
 
