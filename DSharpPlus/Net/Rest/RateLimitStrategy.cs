@@ -7,13 +7,14 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
+
 using Polly;
 
 namespace DSharpPlus.Net;
 
 internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDisposable
 {
-    private readonly RateLimitBucket globalBucket = new(50, 50, DateTime.UtcNow.AddSeconds(1));
+    private readonly RateLimitBucket globalBucket;
     private readonly ConcurrentDictionary<string, RateLimitBucket> buckets = [];
     private readonly ConcurrentDictionary<string, string> routeHashes = [];
 
@@ -22,10 +23,12 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
     private bool cancel = false;
 
-    public RateLimitStrategy(ILogger logger, int waitingForHashMilliseconds = 200)
+    public RateLimitStrategy(ILogger logger, int waitingForHashMilliseconds = 200, int maximumRestRequestsPerSecond = 15)
     {
         this.logger = logger;
         this.waitingForHashMilliseconds = waitingForHashMilliseconds;
+
+        this.globalBucket = new(maximumRestRequestsPerSecond, maximumRestRequestsPerSecond, DateTime.UtcNow.AddSeconds(1));
 
         _ = CleanAsync();
     }
