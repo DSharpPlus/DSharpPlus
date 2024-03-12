@@ -102,6 +102,10 @@ public abstract class BaseDiscordClient : IDisposable
         }
     }
 
+    /// <inheritdoc cref="RestClient.GetRequestMetrics(bool)"/>
+    public string GetRequestMetrics(bool sinceLastCall = false)
+        => this.ApiClient.GetRequestMetrics(sinceLastCall);
+
     /// <summary>
     /// Gets the current API application.
     /// </summary>

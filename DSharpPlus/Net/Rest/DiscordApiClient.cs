@@ -49,6 +49,10 @@ public sealed class DiscordApiClient
     internal DiscordApiClient(RestClient rest)
         => this._rest = rest;
 
+    /// <inheritdoc cref="RestClient.GetRequestMetrics(bool)"/>
+    public string GetRequestMetrics(bool sinceLastCall = false)
+        => this._rest.GetRequestMetrics(sinceLastCall);
+
     private DiscordMessage PrepareMessage(JToken msgRaw)
     {
         TransportUser author = msgRaw["author"]!.ToDiscordObject<TransportUser>();

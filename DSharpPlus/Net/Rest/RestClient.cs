@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -29,6 +31,9 @@ internal sealed partial class RestClient : IDisposable
     private readonly RateLimitStrategy rateLimitStrategy;
 
     private volatile bool _disposed;
+
+    private RestMetricCollection lifetimeMetrics;
+    private RestMetricCollection sinceLastCall;
 
     internal RestClient(DiscordConfiguration config, ILogger logger)
         : this
@@ -147,32 +152,92 @@ internal sealed partial class RestClient : IDisposable
             // consider logging headers too
             this.logger.LogTrace(LoggerEvents.RestRx, "Request {TraceId}: {Content}",traceId,  content);
 
-            _ = response.StatusCode switch
+            switch(response.StatusCode)
             {
-                HttpStatusCode.BadRequest or HttpStatusCode.MethodNotAllowed =>
-                    throw new BadRequestException(request.Build(), response, content),
+                case HttpStatusCode.BadRequest or HttpStatusCode.MethodNotAllowed:
 
-                HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden =>
-                    throw new UnauthorizedException(request.Build(), response, content),
+                    Interlocked.Increment(ref this.lifetimeMetrics.badRequests);
+                    Interlocked.Increment(ref this.sinceLastCall.badRequests);
 
-                HttpStatusCode.NotFound =>
-                    throw new NotFoundException(request.Build(), response, content),
+                    Interlocked.Increment(ref this.lifetimeMetrics.requests);
+                    Interlocked.Increment(ref this.sinceLastCall.requests);
 
-                HttpStatusCode.RequestEntityTooLarge =>
-                    throw new RequestSizeException(request.Build(), response, content),
+                    throw new BadRequestException(request.Build(), response, content);
 
-                HttpStatusCode.TooManyRequests =>
-                   throw new RateLimitException(request.Build(), response, content),
+                case HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden:
 
-                HttpStatusCode.InternalServerError
+                    Interlocked.Increment(ref this.lifetimeMetrics.forbidden);
+                    Interlocked.Increment(ref this.sinceLastCall.forbidden);
+
+                    Interlocked.Increment(ref this.lifetimeMetrics.requests);
+                    Interlocked.Increment(ref this.sinceLastCall.requests);
+
+                    throw new UnauthorizedException(request.Build(), response, content);
+
+                case HttpStatusCode.NotFound:
+
+                    Interlocked.Increment(ref this.lifetimeMetrics.notFound);
+                    Interlocked.Increment(ref this.sinceLastCall.notFound);
+
+                    Interlocked.Increment(ref this.lifetimeMetrics.requests);
+                    Interlocked.Increment(ref this.sinceLastCall.requests);
+
+                    throw new NotFoundException(request.Build(), response, content);
+
+                case HttpStatusCode.RequestEntityTooLarge:
+
+                    Interlocked.Increment(ref this.lifetimeMetrics.tooLarge);
+                    Interlocked.Increment(ref this.sinceLastCall.tooLarge);
+
+                    Interlocked.Increment(ref this.lifetimeMetrics.requests);
+                    Interlocked.Increment(ref this.sinceLastCall.requests);
+
+                    throw new RequestSizeException(request.Build(), response, content);
+
+                case HttpStatusCode.TooManyRequests:
+
+                    if (response.Headers.TryGetValues("x-ratelimit-scope", out IEnumerable<string>? values) && values.First() == "global")
+                    {
+                        Interlocked.Increment(ref this.lifetimeMetrics.globalRatelimits);
+                        Interlocked.Increment(ref this.sinceLastCall.globalRatelimits);
+                    }
+                    else
+                    {
+                        Interlocked.Increment(ref this.lifetimeMetrics.bucketRatelimits);
+                        Interlocked.Increment(ref this.sinceLastCall.bucketRatelimits);
+                    }
+
+                    Interlocked.Increment(ref this.lifetimeMetrics.ratelimits);
+                    Interlocked.Increment(ref this.sinceLastCall.ratelimits);
+
+                    Interlocked.Increment(ref this.lifetimeMetrics.requests);
+                    Interlocked.Increment(ref this.sinceLastCall.requests);
+
+                    throw new RateLimitException(request.Build(), response, content);
+
+                case HttpStatusCode.InternalServerError
                     or HttpStatusCode.BadGateway
                     or HttpStatusCode.ServiceUnavailable
-                    or HttpStatusCode.GatewayTimeout =>
-                    throw new ServerErrorException(request.Build(), response, content),
+                    or HttpStatusCode.GatewayTimeout:
 
-                // we need to keep the c# compiler happy, and not all branches can/should throw here.
-                _ => 0
-            };
+                    Interlocked.Increment(ref this.lifetimeMetrics.serverError);
+                    Interlocked.Increment(ref this.sinceLastCall.serverError);
+
+                    Interlocked.Increment(ref this.lifetimeMetrics.requests);
+                    Interlocked.Increment(ref this.sinceLastCall.requests);
+
+                    throw new ServerErrorException(request.Build(), response, content);
+
+                default:
+
+                    Interlocked.Increment(ref this.lifetimeMetrics.successful);
+                    Interlocked.Increment(ref this.sinceLastCall.successful);
+
+                    Interlocked.Increment(ref this.lifetimeMetrics.requests);
+                    Interlocked.Increment(ref this.sinceLastCall.requests);
+
+                    break;
+            }
 
             return new RestResponse()
             {
@@ -191,6 +256,25 @@ internal sealed partial class RestClient : IDisposable
             );
 
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Gets the request metrics, optionally since the last time they were checked.
+    /// </summary>
+    /// <param name="sinceLastCall">If set to true, this resets the counter. Lifetime metrics are unaffected.</param>
+    /// <returns>A string representation of the rest metrics.</returns>
+    public string GetRequestMetrics(bool sinceLastCall = false)
+    {
+        if (sinceLastCall)
+        {
+            string metrics = this.sinceLastCall.ToString();
+            this.sinceLastCall = default;
+            return metrics;
+        }
+        else
+        {
+            return this.lifetimeMetrics.ToString();
         }
     }
 

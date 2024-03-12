@@ -109,6 +109,10 @@ public class DiscordWebhookClient
         return wh;
     }
 
+    /// <inheritdoc cref="RestClient.GetRequestMetrics(bool)"/>
+    public string GetRequestMetrics(bool sinceLastCall = false)
+        => this._apiclient.GetRequestMetrics(sinceLastCall);
+
     /// <summary>
     /// Registers a webhook with this client. This retrieves a webhook from webhook URL.
     /// </summary>
