@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace DSharpPlus.Commands.ContextChecks;
 
-public sealed partial class FromCodeAttribute : Attribute
+public partial class FromCodeAttribute : Attribute
 {
     /// <summary>
     /// A list of default languages from Highlight.Js that Discord uses for their codeblocks.

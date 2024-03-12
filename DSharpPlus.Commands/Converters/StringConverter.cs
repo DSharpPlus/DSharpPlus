@@ -58,38 +58,24 @@ public class StringConverter : ISlashArgumentConverter<string>, ITextArgumentCon
     private static bool TryGetCodeBlock(string input, CodeType expectedCodeType, [NotNullWhen(true)] out string? code)
     {
         code = null;
-        if (input.Length > 6 && input.StartsWith("```") && input.EndsWith("```") && expectedCodeType.HasFlag(CodeType.Codeblock))
+        ReadOnlySpan<char> inputSpan = input.AsSpan();
+        if (inputSpan.Length > 6 && inputSpan.StartsWith("```") && inputSpan.EndsWith("```") && expectedCodeType.HasFlag(CodeType.Codeblock))
         {
-            for (int i = 0; i < input.Length; i++)
+            int index = inputSpan.IndexOf('\n');
+            if (index == -1 || !FromCodeAttribute.CodeBlockLanguages.Contains(inputSpan[3..index].ToString()))
             {
-                // Read until we hit either a newline or a space.
-                if (!char.IsWhiteSpace(input[i]))
-                {
-                    continue;
-                }
-
-                // Once we've found our first word, remove the triple backticks
-                // and check to see if it's a valid syntax indentifier.
-                // Also check to make sure the syntax identifier is on it's own line,
-                // for parity with the Discord client.
-                else if (!FromCodeAttribute.CodeBlockLanguages.Contains(input[3..i]) || input[i + 1] != '\n')
-                {
-                    break;
-                }
-
-                // If it is, we can strip the language identifier and return the code.
-                code = input[(i + 1)..^3];
+                code = input[3..^3];
                 return true;
             }
 
-            // No valid language identifier was found, so we just strip the triple backticks.
-            code = input[3..^3];
+            code = input[(index + 1)..^3];
+            return true;
         }
-        else if (input.Length > 4 && input.StartsWith("``") && input.EndsWith("``") && expectedCodeType.HasFlag(CodeType.Inline))
+        else if (inputSpan.Length > 4 && inputSpan.StartsWith("``") && inputSpan.EndsWith("``") && expectedCodeType.HasFlag(CodeType.Inline))
         {
             code = input[2..^2];
         }
-        else if (input.Length > 2 && input.StartsWith('`') && input.EndsWith('`') && expectedCodeType.HasFlag(CodeType.Inline))
+        else if (inputSpan.Length > 2 && inputSpan.StartsWith("`") && inputSpan.EndsWith("`") && expectedCodeType.HasFlag(CodeType.Inline))
         {
             code = input[1..^1];
         }

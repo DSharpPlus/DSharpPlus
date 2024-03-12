@@ -6,7 +6,7 @@ namespace DSharpPlus.Commands.ContextChecks;
 /// Removes the need to manually parse code blocks from a string.
 /// </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed partial class FromCodeAttribute : Attribute
+public partial class FromCodeAttribute : Attribute
 {
     /// <summary>
     /// The type of code block to accept.
