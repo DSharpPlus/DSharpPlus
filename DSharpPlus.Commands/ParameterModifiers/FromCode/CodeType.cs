@@ -1,6 +1,6 @@
 using System;
 
-namespace DSharpPlus.Commands.ContextChecks;
+namespace DSharpPlus.Commands.ParameterModifiers;
 
 /// <summary>
 /// The types of code-formatted text to accept.

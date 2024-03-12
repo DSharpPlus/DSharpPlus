@@ -35,7 +35,7 @@ public static class Program
         }
         languageListNode.Append("    }.ToFrozenSet()");
 
-        File.WriteAllText($"./DSharpPlus.Commands/ContextChecks/FromCode/FromCodeAttribute.LanguageList.cs", TemplateFile
+        File.WriteAllText($"./DSharpPlus.Commands/ParameterModifiers/FromCode/FromCodeAttribute.LanguageList.cs", TemplateFile
             .Replace("{{Date}}", DateTimeOffset.UtcNow.ToString("F", CultureInfo.InvariantCulture))
             .Replace("{{CodeBlockLanguages}}", languageListNode.ToString()
         ));

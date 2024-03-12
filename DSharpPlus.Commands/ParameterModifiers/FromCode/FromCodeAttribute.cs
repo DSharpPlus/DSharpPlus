@@ -1,6 +1,6 @@
 using System;
 
-namespace DSharpPlus.Commands.ContextChecks;
+namespace DSharpPlus.Commands.ParameterModifiers;
 
 /// <summary>
 /// Removes the need to manually parse code blocks from a string.
