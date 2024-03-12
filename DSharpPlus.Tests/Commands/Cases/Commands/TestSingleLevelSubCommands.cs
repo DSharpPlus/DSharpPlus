@@ -4,7 +4,7 @@ using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Processors.TextCommands.Attributes;
 using DSharpPlus.Commands.Trees.Attributes;
 
-namespace DSharpPlus.Tests.Commands.Cases;
+namespace DSharpPlus.Tests.Commands.Cases.Commands;
 
 public class TestSingleLevelSubCommands
 {
