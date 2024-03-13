@@ -191,9 +191,9 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             applicationCommands.Add(await this.ToApplicationCommandAsync(command));
         }
 
-        IReadOnlyList<DiscordApplicationCommand> discordCommands = extension.DebugGuildId is null
+        IReadOnlyList<DiscordApplicationCommand> discordCommands = extension.DebugGuildId is 0
             ? await extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(applicationCommands)
-            : await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId.Value, applicationCommands);
+            : await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, applicationCommands);
 
         Dictionary<ulong, Command> commandsDictionary = [];
         foreach (DiscordApplicationCommand discordCommand in discordCommands)

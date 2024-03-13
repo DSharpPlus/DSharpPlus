@@ -41,7 +41,7 @@ public sealed class CommandsExtension : BaseExtension
     public IServiceProvider ServiceProvider { get; init; }
 
     /// <inheritdoc cref="CommandsConfiguration.DebugGuildId"/>
-    public ulong? DebugGuildId { get; init; }
+    public ulong DebugGuildId { get; init; }
 
     /// <inheritdoc cref="CommandsConfiguration.UseDefaultCommandErrorHandler"/>
     public bool UseDefaultCommandErrorHandler { get; init; }

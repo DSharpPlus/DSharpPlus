@@ -13,9 +13,9 @@ public sealed record CommandsConfiguration
     public required IServiceProvider ServiceProvider { get; set; }
 
     /// <summary>
-    /// The guild id to use for debugging.
+    /// The guild id to use for debugging. Leave as 0 to disable.
     /// </summary>
-    public ulong? DebugGuildId { get; set; }
+    public ulong DebugGuildId { get; set; }
 
     /// <summary>
     /// Whether to enable the default command error handler.
