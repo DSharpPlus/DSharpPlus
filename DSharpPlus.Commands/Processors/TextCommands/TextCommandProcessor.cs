@@ -47,7 +47,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         }
         else if (string.IsNullOrWhiteSpace(eventArgs.Message.Content)
             || (eventArgs.Author.IsBot && this.Configuration.IgnoreBots)
-            || (this._extension.DebugGuildId == 0 && eventArgs.Guild?.Id != this._extension.DebugGuildId))
+            || (this._extension.DebugGuildId != 0 && this._extension.DebugGuildId != eventArgs.Guild?.Id))
         {
             return;
         }
