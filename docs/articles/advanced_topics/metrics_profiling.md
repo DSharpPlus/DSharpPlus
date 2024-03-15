@@ -9,7 +9,8 @@ Understanding the characteristics of your application is important, particularly
 Unfortunately, DSharpPlus does not lend itself very well to conventional profiling, and while we intend
 to improve the general usability of the library with respect to performance and profiling, we also intend
 to provide our own means to gather insight into what's happening. Currently, we track REST requests and
-their outcomes, and we intend to add more insights - feel free to let us know via a feature request!
+their outcomes, and we intend to add more insights - feel free to let us know via a 
+[feature request](https://github.com/DSharpPlus/DSharpPlus/issues/new?assignees=&labels=enhancement&projects=&template=feature_request.yml)!
 
 ## Rest Metrics
 
