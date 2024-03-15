@@ -1,6 +1,6 @@
 namespace DSharpPlus.Metrics;
 
-internal record struct LiveRestCollection
+internal record struct LiveRequestMetrics
 {
     // these are fields so that we can use Interlocked.Increment directly
     public int requests;

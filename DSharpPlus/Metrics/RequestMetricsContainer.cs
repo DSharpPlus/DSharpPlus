@@ -8,8 +8,8 @@ namespace DSharpPlus.Metrics;
 
 internal sealed class RequestMetricsContainer
 {
-    private LiveRestCollection lifetime = default;
-    private LiveRestCollection temporal = default;
+    private LiveRequestMetrics lifetime = default;
+    private LiveRequestMetrics temporal = default;
     private DateTimeOffset lastReset = DateTimeOffset.UtcNow;
     private readonly DateTimeOffset creation = DateTimeOffset.UtcNow;
 
