@@ -602,7 +602,7 @@ public sealed class DiscordApiClient
         RestRequest request = new()
         {
             Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/:user_id",
-            Url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/:{userId}",
+            Url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/{userId}",
             Method = HttpMethod.Put,
             Payload = DiscordJson.SerializeObject(payload)
         };
