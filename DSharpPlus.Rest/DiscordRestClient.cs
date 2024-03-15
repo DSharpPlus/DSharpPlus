@@ -369,16 +369,16 @@ public class DiscordRestClient : BaseDiscordClient
     /// <summary>
     /// Adds a member to a guild
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
-    /// <param name="user_id">User ID</param>
-    /// <param name="access_token">Access token</param>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="userId">User ID</param>
+    /// <param name="accessToken">Access token</param>
     /// <param name="nick">User nickname</param>
     /// <param name="roles">User roles</param>
     /// <param name="muted">Whether this user should be muted on join</param>
     /// <param name="deafened">Whether this user should be deafened on join</param>
-    /// <returns>Only returns the member if the was not already in the guild</returns>
-    public async Task<DiscordMember?> AddGuildMemberAsync(ulong guild_id, ulong user_id, string access_token, string nick, IEnumerable<DiscordRole> roles, bool muted, bool deafened)
-        => await this.ApiClient.AddGuildMemberAsync(guild_id, user_id, access_token, muted, deafened, nick, roles);
+    /// <returns>Only returns the member if they were not already in the guild</returns>
+    public async Task<DiscordMember?> AddGuildMemberAsync(ulong guildId, ulong userId, string accessToken, string nick, IEnumerable<DiscordRole> roles, bool muted, bool deafened)
+        => await this.ApiClient.AddGuildMemberAsync(guildId, userId, accessToken, muted, deafened, nick, roles);
 
     /// <summary>
     /// Gets all guild members
