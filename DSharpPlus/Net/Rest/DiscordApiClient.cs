@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
+using DSharpPlus.Metrics;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
 
@@ -50,7 +51,7 @@ public sealed class DiscordApiClient
         => this._rest = rest;
 
     /// <inheritdoc cref="RestClient.GetRequestMetrics(bool)"/>
-    public string GetRequestMetrics(bool sinceLastCall = false)
+    public RequestMetricsCollection GetRequestMetrics(bool sinceLastCall = false)
         => this._rest.GetRequestMetrics(sinceLastCall);
 
     private DiscordMessage PrepareMessage(JToken msgRaw)
