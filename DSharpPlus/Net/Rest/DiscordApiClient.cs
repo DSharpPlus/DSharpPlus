@@ -584,7 +584,7 @@ public sealed class DiscordApiClient
         _ = await this._rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<DiscordMember> AddGuildMemberAsync
+    internal async ValueTask<DiscordMember?> AddGuildMemberAsync
     (
         ulong guildId,
         ulong userId,
@@ -613,8 +613,18 @@ public sealed class DiscordApiClient
         };
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
+        
+        if (res.ResponseCode == HttpStatusCode.NoContent)
+        {
+            // User was already in the guild, Discord doesn't return the member object in this case
+            return null;
+        }
 
         TransportMember transport = JsonConvert.DeserializeObject<TransportMember>(res.Response!)!;
+        
+        DiscordUser usr = new(transport.User) { Discord = this._discord! };
+
+        this._discord!.UpdateUserCache(usr);
 
         return new DiscordMember(transport) { Discord = this._discord!, _guild_id = guildId };
     }

@@ -376,8 +376,8 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="roles">User roles</param>
     /// <param name="muted">Whether this user should be muted on join</param>
     /// <param name="deafened">Whether this user should be deafened on join</param>
-    /// <returns></returns>
-    public async Task<DiscordMember> AddGuildMemberAsync(ulong guild_id, ulong user_id, string access_token, string nick, IEnumerable<DiscordRole> roles, bool muted, bool deafened)
+    /// <returns>Only returns the member if the was not already in the guild</returns>
+    public async Task<DiscordMember?> AddGuildMemberAsync(ulong guild_id, ulong user_id, string access_token, string nick, IEnumerable<DiscordRole> roles, bool muted, bool deafened)
         => await this.ApiClient.AddGuildMemberAsync(guild_id, user_id, access_token, muted, deafened, nick, roles);
 
     /// <summary>
