@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
+using DSharpPlus.Metrics;
 using DSharpPlus.Net;
 using Microsoft.Extensions.Logging;
 
@@ -108,6 +109,10 @@ public class DiscordWebhookClient
 
         return wh;
     }
+
+    /// <inheritdoc cref="RestClient.GetRequestMetrics(bool)"/>
+    public RequestMetricsCollection GetRequestMetrics(bool sinceLastCall = false)
+        => this._apiclient.GetRequestMetrics(sinceLastCall);
 
     /// <summary>
     /// Registers a webhook with this client. This retrieves a webhook from webhook URL.

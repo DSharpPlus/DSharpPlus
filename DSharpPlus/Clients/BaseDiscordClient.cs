@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using DSharpPlus.Metrics;
 using DSharpPlus.Net;
 using Microsoft.Extensions.Logging;
 
@@ -101,6 +102,10 @@ public abstract class BaseDiscordClient : IDisposable
             }
         }
     }
+
+    /// <inheritdoc cref="RestClient.GetRequestMetrics(bool)"/>
+    public RequestMetricsCollection GetRequestMetrics(bool sinceLastCall = false)
+        => this.ApiClient.GetRequestMetrics(sinceLastCall);
 
     /// <summary>
     /// Gets the current API application.

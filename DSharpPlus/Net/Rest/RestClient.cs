@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus.Exceptions;
-
+using DSharpPlus.Metrics;
 using Microsoft.Extensions.Logging;
 
 using Polly;
@@ -27,6 +27,7 @@ internal sealed partial class RestClient : IDisposable
     private readonly AsyncManualResetEvent globalRateLimitEvent;
     private readonly ResiliencePipeline<HttpResponseMessage> pipeline;
     private readonly RateLimitStrategy rateLimitStrategy;
+    private readonly RequestMetricsContainer metrics = new();
 
     private volatile bool _disposed;
 
@@ -147,32 +148,46 @@ internal sealed partial class RestClient : IDisposable
             // consider logging headers too
             this.logger.LogTrace(LoggerEvents.RestRx, "Request {TraceId}: {Content}",traceId,  content);
 
-            _ = response.StatusCode switch
+            switch(response.StatusCode)
             {
-                HttpStatusCode.BadRequest or HttpStatusCode.MethodNotAllowed =>
-                    throw new BadRequestException(request.Build(), response, content),
+                case HttpStatusCode.BadRequest or HttpStatusCode.MethodNotAllowed:
 
-                HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden =>
-                    throw new UnauthorizedException(request.Build(), response, content),
+                    this.metrics.RegisterBadRequest();
+                    throw new BadRequestException(request.Build(), response, content);
 
-                HttpStatusCode.NotFound =>
-                    throw new NotFoundException(request.Build(), response, content),
+                case HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden:
 
-                HttpStatusCode.RequestEntityTooLarge =>
-                    throw new RequestSizeException(request.Build(), response, content),
+                    this.metrics.RegisterForbidden();
+                    throw new UnauthorizedException(request.Build(), response, content);
 
-                HttpStatusCode.TooManyRequests =>
-                   throw new RateLimitException(request.Build(), response, content),
+                case HttpStatusCode.NotFound:
 
-                HttpStatusCode.InternalServerError
+                    this.metrics.RegisterNotFound();
+                    throw new NotFoundException(request.Build(), response, content);
+
+                case HttpStatusCode.RequestEntityTooLarge:
+
+                    this.metrics.RegisterRequestTooLarge();
+                    throw new RequestSizeException(request.Build(), response, content);
+
+                case HttpStatusCode.TooManyRequests:
+
+                    this.metrics.RegisterRatelimitHit(response.Headers);
+                    throw new RateLimitException(request.Build(), response, content);
+
+                case HttpStatusCode.InternalServerError
                     or HttpStatusCode.BadGateway
                     or HttpStatusCode.ServiceUnavailable
-                    or HttpStatusCode.GatewayTimeout =>
-                    throw new ServerErrorException(request.Build(), response, content),
+                    or HttpStatusCode.GatewayTimeout:
 
-                // we need to keep the c# compiler happy, and not all branches can/should throw here.
-                _ => 0
-            };
+                    this.metrics.RegisterServerError();
+                    throw new ServerErrorException(request.Build(), response, content);
+
+                default:
+
+                    this.metrics.RegisterSuccess();
+                    break;
+            }
 
             return new RestResponse()
             {
@@ -193,6 +208,14 @@ internal sealed partial class RestClient : IDisposable
             throw;
         }
     }
+
+    /// <summary>
+    /// Gets the request metrics, optionally since the last time they were checked.
+    /// </summary>
+    /// <param name="sinceLastCall">If set to true, this resets the counter. Lifetime metrics are unaffected.</param>
+    /// <returns>A snapshot of the rest metrics.</returns>
+    public RequestMetricsCollection GetRequestMetrics(bool sinceLastCall = false) 
+        => sinceLastCall ? this.metrics.GetTemporalMetrics() : this.metrics.GetLifetimeMetrics();
 
     public void Dispose()
     {
