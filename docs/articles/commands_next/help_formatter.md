@@ -87,4 +87,4 @@ That's all there is to it.
 ![Fresh New Look][0]
 
 <!-- LINKS -->
-[0]:  ../../images/commands_help_formatter_01.png
+[0]:  ../../images/commands_next_help_formatter_01.png
