@@ -3,7 +3,6 @@ namespace DSharpPlus.Commands;
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -51,6 +50,9 @@ public sealed class CommandsExtension : BaseExtension
     /// <inheritdoc cref="CommandsConfiguration.UseDefaultCommandErrorHandler"/>
     public bool UseDefaultCommandErrorHandler { get; init; }
 
+    /// <inheritdoc cref="CommandsConfiguration.RegisterDefaultCommandProcessors"/>
+    public bool RegisterDefaultCommandProcessors { get; init; }
+
     public CommandExecutor CommandExecutor { get; init; } = new();
 
     /// <summary>
@@ -59,14 +61,11 @@ public sealed class CommandsExtension : BaseExtension
     public IReadOnlyDictionary<string, Command> Commands { get; private set; } = new Dictionary<string, Command>();
     private readonly List<CommandBuilder> _commandBuilders = [];
 
-    public IReadOnlyDictionary<Type, ICommandProcessor> Processors { get; private set; } = new Dictionary<Type, ICommandProcessor>();
-    private readonly Dictionary<Type, ICommandProcessor> _processors = new()
-    {
-        [typeof(TextCommandProcessor)] = new TextCommandProcessor(),
-        [typeof(SlashCommandProcessor)] = new SlashCommandProcessor(),
-        [typeof(UserCommandProcessor)] = new UserCommandProcessor(),
-        [typeof(MessageCommandProcessor)] = new MessageCommandProcessor()
-    };
+    /// <summary>
+    /// All registered command processors.
+    /// </summary>
+    public IReadOnlyDictionary<Type, ICommandProcessor> Processors => this._processors;
+    private readonly Dictionary<Type, ICommandProcessor> _processors = [];
 
     internal IReadOnlyList<ContextCheckMapEntry> Checks => this.checks;
     private readonly List<ContextCheckMapEntry> checks = [];
@@ -190,23 +189,6 @@ public sealed class CommandsExtension : BaseExtension
         }
     }
 
-    public bool TryGetProcessor<TProcessor>([NotNullWhen(true)] out TProcessor? processor) where TProcessor : ICommandProcessor
-    {
-        if (this._processors.TryGetValue(typeof(TProcessor), out ICommandProcessor? processorBase))
-        {
-            processor = (TProcessor)processorBase;
-            return true;
-        }
-
-        processor = default!;
-        return false;
-    }
-
-    public TProcessor GetProcessor<TProcessor>() where TProcessor : ICommandProcessor
-        => (TProcessor)this._processors[typeof(TProcessor)];
-
-    public IReadOnlyList<ICommandProcessor> GetProcessors() => this._processors.Values.ToList();
-
     /// <summary>
     /// Adds all public checks from the provided assembly to the extension.
     /// </summary>
@@ -292,6 +274,13 @@ public sealed class CommandsExtension : BaseExtension
         }
 
         this.Commands = commands.ToFrozenDictionary();
+        if (this.RegisterDefaultCommandProcessors)
+        {
+            _processors.TryAdd(typeof(TextCommandProcessor), new TextCommandProcessor());
+            _processors.TryAdd(typeof(SlashCommandProcessor), new SlashCommandProcessor());
+            _processors.TryAdd(typeof(MessageCommandProcessor), new MessageCommandProcessor());
+            _processors.TryAdd(typeof(UserCommandProcessor), new UserCommandProcessor());
+        }
 
         foreach (ICommandProcessor processor in this._processors.Values)
         {
@@ -299,7 +288,6 @@ public sealed class CommandsExtension : BaseExtension
         }
     }
 
-    // TODO: Disposable pattern for processors
     /// <inheritdoc />
     public override void Dispose()
     {
