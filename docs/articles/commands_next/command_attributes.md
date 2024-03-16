@@ -1,5 +1,5 @@
 ---
-uid: articles.commands.command_attributes
+uid: articles.commands_next.command_attributes
 title: Command Attributes
 ---
 

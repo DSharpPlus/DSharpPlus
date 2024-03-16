@@ -362,7 +362,7 @@ while playing tracks.
 There are also open source examples such as Emzi0767's [Companion Cube Bot][2] and [Turret Bot][3].
 
 <!-- LINKS -->
-[0]:  xref:articles.commands.intro
+[0]:  xref:articles.commands_next.intro
 [1]:  xref:DSharpPlus.Lavalink.LavalinkGuildConnection
 [2]:  https://github.com/Emzi0767/Discord-Companion-Cube-Bot
 [3]:  https://github.com/Emzi0767/Discord-Music-Turret-Bot

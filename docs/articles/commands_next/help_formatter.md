@@ -1,5 +1,5 @@
 ---
-uid: articles.commands.help_formatter
+uid: articles.commands_next.help_formatter
 title: Help Formatter
 ---
 

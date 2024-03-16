@@ -227,8 +227,8 @@ Discord. For more information, see the [Lavalink][8] article.
 [1]:  xref:articles.beyond_basics.events
 [2]:  xref:articles.beyond_basics.messagebuilder
 [3]:  xref:articles.beyond_basics.logging.default
-[4]:  xref:articles.commands.dependency_injection
-[5]:  xref:articles.commands.dependency_injection#modules
-[6]:  xref:articles.commands.help_formatter
-[7]:  xref:articles.commands.command_handler
+[4]:  xref:articles.commands_next.dependency_injection
+[5]:  xref:articles.commands_next.dependency_injection#modules
+[6]:  xref:articles.commands_next.help_formatter
+[7]:  xref:articles.commands_next.command_handler
 [8]:  xref:articles.audio.lavalink.setup
