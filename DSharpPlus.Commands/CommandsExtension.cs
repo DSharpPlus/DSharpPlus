@@ -189,6 +189,8 @@ public sealed class CommandsExtension : BaseExtension
         }
     }
 
+    public TProcessor GetProcessor<TProcessor>() where TProcessor : ICommandProcessor => (TProcessor)this._processors[typeof(TProcessor)];
+
     /// <summary>
     /// Adds all public checks from the provided assembly to the extension.
     /// </summary>
