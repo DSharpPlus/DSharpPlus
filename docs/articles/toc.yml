@@ -23,7 +23,7 @@
     topicUid: articles.beyond_basics.sharding
   - name: Message Builder
     topicUid: articles.beyond_basics.messagebuilder
-- name: Commands
+- name: CommandsNext
   items:
   - name: Introduction
     topicUid: articles.commands_next.intro
