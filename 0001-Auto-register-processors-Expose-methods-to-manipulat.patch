@@ -1,0 +1,64 @@
+From 6fbc243e4e984cae26e68f75fba11595c8301569 Mon Sep 17 00:00:00 2001
+From: Lunar Starstrum <lunar@forsaken-borders.net>
+Date: Thu, 7 Mar 2024 20:11:05 -0600
+Subject: [PATCH 1/2] Auto register processors; Expose methods to manipulate
+ processors
+
+---
+ DSharpPlus.Commands/CommandsExtension.cs | 25 +++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
+
+diff --git a/DSharpPlus.Commands/CommandsExtension.cs b/DSharpPlus.Commands/CommandsExtension.cs
+index 034bdbdb..23b93a5e 100644
+--- a/DSharpPlus.Commands/CommandsExtension.cs
++++ b/DSharpPlus.Commands/CommandsExtension.cs
+@@ -15,7 +15,11 @@ using DSharpPlus.Commands.ContextChecks;
+ using DSharpPlus.Commands.EventArgs;
+ using DSharpPlus.Commands.Exceptions;
+ using DSharpPlus.Commands.Processors;
++using DSharpPlus.Commands.Processors.MessageCommands;
++using DSharpPlus.Commands.Processors.SlashCommands;
++using DSharpPlus.Commands.Processors.TextCommands;
+ using DSharpPlus.Commands.Processors.TextCommands.ContextChecks;
++using DSharpPlus.Commands.Processors.UserCommands;
+ using DSharpPlus.Commands.Trees;
+ using DSharpPlus.Commands.Trees.Attributes;
+ using DSharpPlus.Entities;
+@@ -55,7 +59,13 @@ public sealed class CommandsExtension : BaseExtension
+     private readonly List<CommandBuilder> _commandBuilders = [];
+ 
+     public IReadOnlyDictionary<Type, ICommandProcessor> Processors { get; private set; } = new Dictionary<Type, ICommandProcessor>();
+-    private readonly Dictionary<Type, ICommandProcessor> _processors = [];
++    private readonly Dictionary<Type, ICommandProcessor> _processors = new()
++    {
++        [typeof(TextCommandProcessor)] = new TextCommandProcessor(),
++        [typeof(SlashCommandProcessor)] = new SlashCommandProcessor(),
++        [typeof(UserCommandProcessor)] = new UserCommandProcessor(),
++        [typeof(MessageCommandProcessor)] = new MessageCommandProcessor()
++    };
+ 
+     internal IReadOnlyList<ContextCheckMapEntry> Checks => this._checks;
+     private readonly List<ContextCheckMapEntry> _checks = [];
+@@ -191,6 +201,19 @@ public sealed class CommandsExtension : BaseExtension
+     public TProcessor GetProcessor<TProcessor>() where TProcessor : ICommandProcessor
+         => (TProcessor)this._processors[typeof(TProcessor)];
+ 
++    public IReadOnlyList<ICommandProcessor> GetProcessors() => this._processors.Values.ToList();
++
++    public bool RemoveProcessor<TProcessor>() where TProcessor : ICommandProcessor
++    {
++        if (this._processors.TryGetValue(typeof(TProcessor), out ICommandProcessor? processor))
++        {
++            processor.Dispose();
++            return this._processors.Remove(typeof(TProcessor));
++        }
++
++        return false;
++    }
++
+     /// <summary>
+     /// Adds all public checks from the provided assembly to the extension.
+     /// </summary>
+-- 
+2.44.0
+

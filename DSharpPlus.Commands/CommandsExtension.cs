@@ -3,6 +3,7 @@ namespace DSharpPlus.Commands;
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -189,20 +190,22 @@ public sealed class CommandsExtension : BaseExtension
         }
     }
 
-    public TProcessor GetProcessor<TProcessor>() where TProcessor : ICommandProcessor => (TProcessor)this._processors[typeof(TProcessor)];
-
-    public IReadOnlyList<ICommandProcessor> GetProcessors() => this._processors.Values.ToList();
-
-    public bool RemoveProcessor<TProcessor>() where TProcessor : ICommandProcessor
+    public bool TryGetProcessor<TProcessor>([NotNullWhen(true)] out TProcessor? processor) where TProcessor : ICommandProcessor
     {
-        if (this._processors.TryGetValue(typeof(TProcessor), out ICommandProcessor? processor))
+        if (this._processors.TryGetValue(typeof(TProcessor), out ICommandProcessor? processorBase))
         {
-            processor.Dispose();
-            return this._processors.Remove(typeof(TProcessor));
+            processor = (TProcessor)processorBase;
+            return true;
         }
 
+        processor = default!;
         return false;
     }
+
+    public TProcessor GetProcessor<TProcessor>() where TProcessor : ICommandProcessor
+        => (TProcessor)this._processors[typeof(TProcessor)];
+
+    public IReadOnlyList<ICommandProcessor> GetProcessors() => this._processors.Values.ToList();
 
     /// <summary>
     /// Adds all public checks from the provided assembly to the extension.
