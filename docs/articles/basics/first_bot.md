@@ -250,4 +250,4 @@ Now that you have a basic bot up and running, you should take a look at the foll
 [15]: ../../images/basics_first_bot_12.png
 [17]: ../../images/basics_first_bot_13.png
 [18]: xref:articles.beyond_basics.events
-[19]: xref:articles.commands.intro
+[19]: xref:articles.commands_next.intro

@@ -1,5 +1,5 @@
 ---
-uid: articles.commands.argument_converters
+uid: articles.commands_next.argument_converters
 title: Argument Converter
 ---
 

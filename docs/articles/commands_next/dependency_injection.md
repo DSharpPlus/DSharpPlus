@@ -1,5 +1,5 @@
 ---
-uid: articles.commands.dependency_injection
+uid: articles.commands_next.dependency_injection
 title: Dependency Injection
 ---
 
@@ -111,5 +111,5 @@ Scoped    | Once for each command module.
 Transient | Each time its requested.
 
 <!-- LINKS -->
-[0]:  xref:articles.commands.intro#argument-converters
+[0]:  xref:articles.commands_next.intro#argument-converters
 [1]:  ../../images/commands_next_dependency_injection_01.png

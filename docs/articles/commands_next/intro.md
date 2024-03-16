@@ -1,5 +1,5 @@
 ---
-uid: articles.commands.intro
+uid: articles.commands_next.intro
 title: CommandsNext Introduction
 ---
 
@@ -363,11 +363,11 @@ Now that you've gotten an understanding of CommandsNext, it'd be a good idea che
 [6]:  https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/interpolated
 [7]:  ../../images/commands_next_intro_04.png
 [8]:  #command-overloads
-[9]:  xref:articles.commands.argument_converters
+[9]:  xref:articles.commands_next.argument_converters
 [10]: ../../images/commands_next_intro_05.png
 [11]: ../../images/commands_next_intro_06.png
 [12]: ../../images/commands_next_intro_07.png
 [13]: ../../images/commands_next_intro_08.png
-[14]: xref:articles.commands.command_attributes
-[15]: xref:articles.commands.help_formatter
-[16]: xref:articles.commands.dependency_injection
+[14]: xref:articles.commands_next.command_attributes
+[15]: xref:articles.commands_next.help_formatter
+[16]: xref:articles.commands_next.dependency_injection
