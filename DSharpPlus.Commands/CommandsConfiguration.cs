@@ -21,4 +21,13 @@ public sealed record CommandsConfiguration
     /// Whether to enable the default command error handler.
     /// </summary>
     public bool UseDefaultCommandErrorHandler { get; set; } = true;
+
+    /// <summary>
+    /// Whether to register default command processors when they're not found in the processor list.
+    /// </summary>
+    /// <remarks>
+    /// You may still provide your own custom processors via <see cref="CommandsExtension.AddProcessorsAsync(Processors.ICommandProcessor[])"/>,
+    /// as this configuration option will only add the default processors if they're not found in the list.
+    /// </remarks>
+    public bool RegisterDefaultCommandProcessors { get; set; } = true;
 }
