@@ -1,5 +1,5 @@
 ---
-uid: articles.commands.command_handler
+uid: articles.commands_next.command_handler
 title: Custom Command Handler
 ---
 

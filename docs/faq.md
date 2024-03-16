@@ -80,7 +80,7 @@ You can use either of the following methods (prefer the first one if possible, s
 - The overload for @DSharpPlus.DiscordClient.UpdateStatusAsync(DSharpPlus.Entities.DiscordActivity,System.Nullable{DSharpPlus.Entities.UserStatus},System.Nullable{System.DateTimeOffset}) OR @DSharpPlus.DiscordShardedClient.UpdateStatusAsync(DSharpPlus.Entities.DiscordActivity,System.Nullable{DSharpPlus.Entities.UserStatus},System.Nullable{System.DateTimeOffset}) (for the sharded client) at any point after the connection has been established.
 
 #### Am I able to retrieve an entity by name?
-Yes, if you have the parent object. For example, if you are searching for a role in a guild, use LINQ on the `Roles` property and filter by 
+Yes, if you have the parent object. For example, if you are searching for a role in a guild, use LINQ on the `Roles` property and filter by
 `DiscordRole.Name`. If you do not have the parent object or the property is not populated, you will either have to request it or find an
 alternative way of solving your problem.
 
@@ -130,5 +130,10 @@ methods and custom helper methods.
 [1]: xref:articles.preamble
 [2]: https://dotnet.microsoft.com/download
 [3]: xref:articles.audio.voicenext.prerequisites
-[4]: xref:articles.beyond_basics.intents
-[5]: ./images/faq_spiderman.png
+[4]: xref:articles.beyond_basics.events
+[5]: xref:articles.commands_next.dependency_injection
+[6]: ./images/faq_01.png
+[7]: ./images/faq_02.png
+[8]: xref:articles.beyond_basics.intents
+[9]: ./images/faq_03.png
+[10]: https://github.com/JamesNK/Newtonsoft.Json
