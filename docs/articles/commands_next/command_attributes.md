@@ -3,6 +3,9 @@ uid: articles.commands_next.command_attributes
 title: Command Attributes
 ---
 
+>[!WARNING]
+> CommandsNext has been replaced by [Commands](xref:articles.commands.introduction). Both this article and CommandsNext itself is no longer maintained and may contain outdated information. CommandsNext will be deprecated in version 5.1.0 of DSharpPlus.
+
 ## Built-In Attributes
 
 CommandsNext has a variety of built-in attributes to enhance your commands and provide some access control.

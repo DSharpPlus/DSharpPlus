@@ -3,6 +3,9 @@ uid: articles.commands_next.intro
 title: CommandsNext Introduction
 ---
 
+>[!WARNING]
+> CommandsNext has been replaced by [Commands](xref:articles.commands.introduction). Both this article and CommandsNext itself is no longer maintained and may contain outdated information. CommandsNext will be deprecated in version 5.1.0 of DSharpPlus.
+
 >[!NOTE]
 > This article assumes you've recently read the article on *[writing your first bot][0]*.
 
