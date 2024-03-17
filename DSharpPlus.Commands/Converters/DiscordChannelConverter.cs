@@ -18,19 +18,17 @@ public partial class DiscordChannelConverter : ISlashArgumentConverter<DiscordCh
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Channel;
     public bool RequiresText { get; init; } = true;
 
-    public Task<Optional<DiscordChannel>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs)
+    public Task<Optional<DiscordChannel>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
     {
-        string value = context.As<TextConverterContext>().Argument;
-
         // Attempt to parse the channel id
-        if (!ulong.TryParse(value, CultureInfo.InvariantCulture, out ulong channelId))
+        if (!ulong.TryParse(context.Argument, CultureInfo.InvariantCulture, out ulong channelId))
         {
             // Value could be a channel mention.
-            Match match = _getChannelRegex().Match(value);
+            Match match = _getChannelRegex().Match(context.Argument);
             if (!match.Success || !ulong.TryParse(match.Groups[1].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out channelId))
             {
                 // Attempt to find a channel by name, case insensitive.
-                DiscordChannel? namedChannel = context.Guild!.Channels.Values.FirstOrDefault(channel => channel.Name.Equals(value, StringComparison.OrdinalIgnoreCase));
+                DiscordChannel? namedChannel = context.Guild!.Channels.Values.FirstOrDefault(channel => channel.Name.Equals(context.Argument, StringComparison.OrdinalIgnoreCase));
                 return Task.FromResult(namedChannel is not null ? Optional.FromValue(namedChannel) : Optional.FromNoValue<DiscordChannel>());
             }
         }
@@ -40,11 +38,9 @@ public partial class DiscordChannelConverter : ISlashArgumentConverter<DiscordCh
             : Task.FromResult(Optional.FromNoValue<DiscordChannel>());
     }
 
-    public Task<Optional<DiscordChannel>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
-    {
-        InteractionConverterContext slashContext = context.As<InteractionConverterContext>();
-        return slashContext.Interaction.Data.Resolved is null || !ulong.TryParse(slashContext.Argument.RawValue, CultureInfo.InvariantCulture, out ulong channelId) || !slashContext.Interaction.Data.Resolved.Channels.TryGetValue(channelId, out DiscordChannel? channel)
+    public Task<Optional<DiscordChannel>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => context.Interaction.Data.Resolved is null
+        || !ulong.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out ulong channelId)
+        || !context.Interaction.Data.Resolved.Channels.TryGetValue(channelId, out DiscordChannel? channel)
             ? Task.FromResult(Optional.FromNoValue<DiscordChannel>())
             : Task.FromResult(Optional.FromValue(channel));
-    }
 }

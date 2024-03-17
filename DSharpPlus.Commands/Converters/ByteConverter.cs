@@ -12,11 +12,11 @@ public class ByteConverter : ISlashArgumentConverter<byte>, ITextArgumentConvert
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Integer;
     public bool RequiresText { get; init; } = true;
 
-    public Task<Optional<byte>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => byte.TryParse(context.As<TextConverterContext>().Argument, CultureInfo.InvariantCulture, out byte result)
+    public Task<Optional<byte>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => byte.TryParse(context.Argument, CultureInfo.InvariantCulture, out byte result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<byte>());
 
-    public Task<Optional<byte>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => byte.TryParse(context.As<InteractionConverterContext>().Argument.RawValue, CultureInfo.InvariantCulture, out byte result)
+    public Task<Optional<byte>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => byte.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out byte result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<byte>());
 }

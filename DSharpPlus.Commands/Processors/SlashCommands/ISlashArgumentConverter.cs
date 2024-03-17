@@ -8,4 +8,4 @@ public interface ISlashArgumentConverter : IArgumentConverter
     public ApplicationCommandOptionType ParameterType { get; init; }
 }
 
-public interface ISlashArgumentConverter<T> : ISlashArgumentConverter, IArgumentConverter<InteractionCreateEventArgs, T>;
+public interface ISlashArgumentConverter<T> : ISlashArgumentConverter, IArgumentConverter<InteractionConverterContext, InteractionCreateEventArgs, T>;

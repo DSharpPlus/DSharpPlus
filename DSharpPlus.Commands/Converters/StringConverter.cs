@@ -16,31 +16,29 @@ public class StringConverter : ISlashArgumentConverter<string>, ITextArgumentCon
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.String;
     public bool RequiresText { get; init; } = true;
 
-    public Task<Optional<string>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs)
+    public Task<Optional<string>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
     {
-        TextConverterContext textContext = context.As<TextConverterContext>();
         foreach (Attribute attribute in context.Parameter.Attributes)
         {
             if (attribute is RemainingTextAttribute)
             {
-                return Task.FromResult(Optional.FromValue(textContext.Argument));
+                return Task.FromResult(Optional.FromValue(context.Argument));
             }
             else if (attribute is FromCodeAttribute codeAttribute)
             {
-                return TryGetCodeBlock(textContext.Argument, codeAttribute.CodeType, out string? code)
+                return TryGetCodeBlock(context.Argument, codeAttribute.CodeType, out string? code)
                     ? Task.FromResult(Optional.FromValue(code))
                     : Task.FromResult(Optional.FromNoValue<string>());
             }
         }
 
-        TextConverterContext textConverterContext = context.As<TextConverterContext>();
-        return Task.FromResult(Optional.FromValue(textConverterContext.RawArguments[textConverterContext.CurrentArgumentIndex..]));
+        return Task.FromResult(Optional.FromValue(context.RawArguments[context.CurrentArgumentIndex..]));
     }
 
     [SuppressMessage("Roslyn", "IDE0046", Justification = "Ternary rabbit hole.")]
-    public Task<Optional<string>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
+    public Task<Optional<string>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs)
     {
-        string? value = (string)context.As<InteractionConverterContext>().Argument.Value;
+        string value = (string)context.Argument.Value;
         if (context.Parameter.Attributes.FirstOrDefault(x => x is FromCodeAttribute) is not FromCodeAttribute codeAttribute)
         {
             return Task.FromResult(Optional.FromValue(context.As<InteractionConverterContext>().Argument.RawValue));

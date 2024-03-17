@@ -15,11 +15,11 @@ public class UInt64Converter : ISlashArgumentConverter<ulong>, ITextArgumentConv
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.String;
     public bool RequiresText { get; init; } = true;
 
-    public Task<Optional<ulong>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ulong.TryParse(context.As<TextConverterContext>().Argument, CultureInfo.InvariantCulture, out ulong result)
+    public Task<Optional<ulong>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => ulong.TryParse(context.Argument, CultureInfo.InvariantCulture, out ulong result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<ulong>());
 
-    public Task<Optional<ulong>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ulong.TryParse(context.As<InteractionConverterContext>().Argument.RawValue, CultureInfo.InvariantCulture, out ulong result)
+    public Task<Optional<ulong>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => ulong.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out ulong result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<ulong>());
 }

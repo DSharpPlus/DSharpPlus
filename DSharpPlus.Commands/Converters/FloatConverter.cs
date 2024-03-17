@@ -12,11 +12,11 @@ public class FloatConverter : ISlashArgumentConverter<float>, ITextArgumentConve
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Number;
     public bool RequiresText { get; init; } = true;
 
-    public Task<Optional<float>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => float.TryParse(context.As<TextConverterContext>().Argument, CultureInfo.InvariantCulture, out float result)
+    public Task<Optional<float>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => float.TryParse(context.Argument, CultureInfo.InvariantCulture, out float result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<float>());
 
-    public Task<Optional<float>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => float.TryParse(context.As<InteractionConverterContext>().Argument.RawValue, CultureInfo.InvariantCulture, out float result)
+    public Task<Optional<float>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => float.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out float result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<float>());
 }
