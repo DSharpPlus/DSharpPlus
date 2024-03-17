@@ -27,6 +27,8 @@
   items:
   - name: Introduction
     topicUid: articles.commands.introduction
+  - name: Custom Argument Converters
+    topicUid: articles.commands.custom_argument_converters
 - name: CommandsNext
   items:
   - name: Introduction
