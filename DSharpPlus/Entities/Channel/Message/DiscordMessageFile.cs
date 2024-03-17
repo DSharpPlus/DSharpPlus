@@ -3,11 +3,19 @@ using System.IO;
 namespace DSharpPlus.Entities;
 
 /// <summary>
-/// Represents the File that should be sent to Discord from the <see cref="DiscordMessageBuilder"/>.
+/// Represents files that should be sent to Discord as part of a <seealso cref="DiscordMessageBuilder"/>.
 /// </summary>
-public class DiscordMessageFile
+public record struct DiscordMessageFile
 {
-    internal DiscordMessageFile(string fileName, Stream stream, long? resetPositionTo, string fileType = null, string contentType = null, AddFileOptions fileOptions = AddFileOptions.None)
+    public DiscordMessageFile
+    (
+        string fileName,
+        Stream stream,
+        long? resetPositionTo = null,
+        string? fileType = null,
+        string? contentType = null,
+        AddFileOptions fileOptions = AddFileOptions.None
+    )
     {
         this.FileName = fileName ?? "file";
         this.FileType = fileType;
@@ -27,9 +35,9 @@ public class DiscordMessageFile
     /// </summary>
     public Stream Stream { get; internal set; }
 
-    internal string FileType { get; set; }
+    internal string? FileType { get; set; }
 
-    internal string ContentType { get; set; }
+    internal string? ContentType { get; set; }
 
     /// <summary>
     /// Gets the position the File should be reset to.

@@ -2404,7 +2404,7 @@ public sealed class DiscordApiClient
 
         if (files is not null)
         {
-            foreach (DiscordMessageFile? file in files.Where(x => x.ResetPositionTo.HasValue))
+            foreach (DiscordMessageFile file in files.Where(x => x.ResetPositionTo.HasValue))
             {
                 file.Stream.Position = file.ResetPositionTo!.Value;
             }
@@ -5867,7 +5867,7 @@ public sealed class DiscordApiClient
             DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
             ret.Discord = this._discord!;
 
-            foreach (DiscordMessageFile? file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
+            foreach (DiscordMessageFile file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
             {
                 file.Stream.Position = file.ResetPositionTo!.Value;
             }
