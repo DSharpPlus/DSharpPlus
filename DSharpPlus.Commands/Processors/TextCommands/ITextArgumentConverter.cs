@@ -8,4 +8,4 @@ public interface ITextArgumentConverter : IArgumentConverter
     public bool RequiresText { get; init; }
 }
 
-public interface ITextArgumentConverter<T> : ITextArgumentConverter, IArgumentConverter<MessageCreateEventArgs, T>;
+public interface ITextArgumentConverter<T> : ITextArgumentConverter, IArgumentConverter<TextConverterContext, MessageCreateEventArgs, T>;

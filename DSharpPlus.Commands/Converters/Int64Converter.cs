@@ -15,11 +15,11 @@ public class Int64Converter : ISlashArgumentConverter<long>, ITextArgumentConver
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.String;
     public bool RequiresText { get; init; } = true;
 
-    public Task<Optional<long>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => long.TryParse(context.As<TextConverterContext>().Argument, CultureInfo.InvariantCulture, out long result)
+    public Task<Optional<long>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => long.TryParse(context.Argument, CultureInfo.InvariantCulture, out long result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<long>());
 
-    public Task<Optional<long>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => long.TryParse(context.As<InteractionConverterContext>().Argument.RawValue, CultureInfo.InvariantCulture, out long result)
+    public Task<Optional<long>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => long.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out long result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<long>());
 }

@@ -14,7 +14,7 @@ public class AttachmentConverter : ISlashArgumentConverter<DiscordAttachment>, I
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Attachment;
     public bool RequiresText { get; init; }
 
-    public Task<Optional<DiscordAttachment>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs)
+    public Task<Optional<DiscordAttachment>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
     {
         DiscordMessage message = eventArgs.Message;
         int currentAttachmentArgumentIndex = context.Command.Parameters.Where(argument => argument.Type == typeof(DiscordAttachment)).IndexOf(context.Parameter);
@@ -36,7 +36,7 @@ public class AttachmentConverter : ISlashArgumentConverter<DiscordAttachment>, I
             : Task.FromResult(Optional.FromValue(message.Attachments[currentAttachmentArgumentIndex]));
     }
 
-    public Task<Optional<DiscordAttachment>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
+    public Task<Optional<DiscordAttachment>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs)
     {
         int currentAttachmentArgumentIndex = context.Command.Parameters.Where(argument => argument.Type == typeof(DiscordAttachment)).IndexOf(context.Parameter);
         if (eventArgs.Interaction.Data.Resolved is null)
@@ -49,7 +49,7 @@ public class AttachmentConverter : ISlashArgumentConverter<DiscordAttachment>, I
             // Too many parameters, not enough attachments
             return Task.FromResult(Optional.FromNoValue<DiscordAttachment>());
         }
-        else if (!ulong.TryParse(context.As<InteractionConverterContext>().Argument.RawValue, CultureInfo.InvariantCulture, out ulong attachmentId))
+        else if (!ulong.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out ulong attachmentId))
         {
             // Invalid attachment ID
             return Task.FromResult(Optional.FromNoValue<DiscordAttachment>());

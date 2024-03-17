@@ -12,11 +12,11 @@ public class DoubleConverter : ISlashArgumentConverter<double>, ITextArgumentCon
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Number;
     public bool RequiresText { get; init; } = true;
 
-    public Task<Optional<double>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => double.TryParse(context.As<TextConverterContext>().Argument, CultureInfo.InvariantCulture, out double result)
+    public Task<Optional<double>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => double.TryParse(context.Argument, CultureInfo.InvariantCulture, out double result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<double>());
 
-    public Task<Optional<double>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => double.TryParse(context.As<InteractionConverterContext>().Argument.RawValue, CultureInfo.InvariantCulture, out double result)
+    public Task<Optional<double>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => double.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out double result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<double>());
 }

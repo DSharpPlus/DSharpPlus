@@ -18,22 +18,21 @@ public partial class DiscordRoleConverter : ISlashArgumentConverter<DiscordRole>
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Role;
     public bool RequiresText { get; init; } = true;
 
-    public Task<Optional<DiscordRole>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs)
+    public Task<Optional<DiscordRole>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
     {
         if (context.Guild is null)
         {
             return Task.FromResult(Optional.FromNoValue<DiscordRole>());
         }
 
-        string value = context.As<TextConverterContext>().Argument;
-        if (!ulong.TryParse(value, CultureInfo.InvariantCulture, out ulong roleId))
+        if (!ulong.TryParse(context.Argument, CultureInfo.InvariantCulture, out ulong roleId))
         {
             // value can be a raw channel id or a channel mention. The regex will match both.
-            Match match = _getRoleRegex().Match(value);
+            Match match = _getRoleRegex().Match(context.Argument);
             if (!match.Success || !ulong.TryParse(match.Captures[0].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out roleId))
             {
                 // Attempt to find a role by name, case sensitive.
-                DiscordRole? namedRole = context.Guild.Roles.Values.FirstOrDefault(role => role.Name.Equals(value, StringComparison.Ordinal));
+                DiscordRole? namedRole = context.Guild.Roles.Values.FirstOrDefault(role => role.Name.Equals(context.Argument, StringComparison.Ordinal));
                 return Task.FromResult(namedRole is not null ? Optional.FromValue(namedRole) : Optional.FromNoValue<DiscordRole>());
             }
         }
@@ -43,11 +42,9 @@ public partial class DiscordRoleConverter : ISlashArgumentConverter<DiscordRole>
             : Task.FromResult(Optional.FromNoValue<DiscordRole>());
     }
 
-    public Task<Optional<DiscordRole>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
-    {
-        InteractionConverterContext slashContext = context.As<InteractionConverterContext>();
-        return slashContext.Interaction.Data.Resolved is null || !ulong.TryParse(slashContext.Argument.RawValue, CultureInfo.InvariantCulture, out ulong roleId) || !slashContext.Interaction.Data.Resolved.Roles.TryGetValue(roleId, out DiscordRole? role)
+    public Task<Optional<DiscordRole>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => context.Interaction.Data.Resolved is null
+        || !ulong.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out ulong roleId)
+        || !context.Interaction.Data.Resolved.Roles.TryGetValue(roleId, out DiscordRole? role)
             ? Task.FromResult(Optional.FromNoValue<DiscordRole>())
             : Task.FromResult(Optional.FromValue(role));
-    }
 }

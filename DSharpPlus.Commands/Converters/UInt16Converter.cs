@@ -12,11 +12,11 @@ public class UInt16Converter : ISlashArgumentConverter<ushort>, ITextArgumentCon
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Integer;
     public bool RequiresText { get; init; } = true;
 
-    public Task<Optional<ushort>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ushort.TryParse(context.As<TextConverterContext>().Argument, CultureInfo.InvariantCulture, out ushort result)
+    public Task<Optional<ushort>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => ushort.TryParse(context.Argument, CultureInfo.InvariantCulture, out ushort result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<ushort>());
 
-    public Task<Optional<ushort>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ushort.TryParse(context.As<InteractionConverterContext>().Argument.RawValue, CultureInfo.InvariantCulture, out ushort result)
+    public Task<Optional<ushort>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => ushort.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out ushort result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<ushort>());
 }

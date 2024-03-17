@@ -67,11 +67,11 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
                 throw new InvalidOperationException($"Type {this.ConverterType.FullName} does not implement {typeof(TConverter).FullName}");
             }
 
-            // Check if the type implements IArgumentConverter<TEventArgs, T>
+            // Check if the type implements IArgumentConverter<TConverterContext, TEventArgs, T>
             Type genericArgumentConverter = this.ConverterType
                 .GetInterfaces()
-                .FirstOrDefault(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IArgumentConverter<,>))
-                ?? throw new InvalidOperationException($"Type {this.ConverterType.FullName} does not implement {typeof(IArgumentConverter<,>).FullName}");
+                .FirstOrDefault(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IArgumentConverter<,,>))
+                ?? throw new InvalidOperationException($"Type {this.ConverterType.FullName} does not implement {typeof(IArgumentConverter<,,>).FullName}");
 
             return (TConverter)ActivatorUtilities.CreateInstance(serviceProvider, this.ConverterType);
         }
@@ -149,15 +149,15 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
             }
 
             // Check if the type implements IArgumentConverter<TEventArgs, T>
-            Type? genericArgumentConverter = type.GetInterfaces().FirstOrDefault(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IArgumentConverter<,>));
+            Type? genericArgumentConverter = type.GetInterfaces().FirstOrDefault(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IArgumentConverter<,,>));
             if (genericArgumentConverter is null)
             {
-                BaseCommandLogging.InvalidArgumentConverterImplementation(this._logger, type.FullName ?? type.Name, typeof(IArgumentConverter<,>).FullName ?? typeof(IArgumentConverter<,>).Name, null);
+                BaseCommandLogging.InvalidArgumentConverterImplementation(this._logger, type.FullName ?? type.Name, typeof(IArgumentConverter<,,>).FullName ?? typeof(IArgumentConverter<,,>).Name, null);
                 continue;
             }
 
-            // GenericTypeArguments[1] here is the T in IArgumentConverter<TEventArgs, T>
-            this.AddConverter(new() { ParameterType = genericArgumentConverter.GenericTypeArguments[1], ConverterType = type });
+            // GenericTypeArguments[2] here is the T in IArgumentConverter<TConverterContext, TEventArgs, T>
+            this.AddConverter(new() { ParameterType = genericArgumentConverter.GenericTypeArguments[2], ConverterType = type });
         }
     }
 
@@ -280,7 +280,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
 
     protected virtual async Task<IOptional> ExecuteConverterAsync<T>(TConverter converter, TConverterContext converterContext, TEventArgs eventArgs)
     {
-        IArgumentConverter<TEventArgs, T> strongConverter = (IArgumentConverter<TEventArgs, T>)converter;
+        IArgumentConverter<TConverterContext, TEventArgs, T> strongConverter = (IArgumentConverter<TConverterContext, TEventArgs, T>)converter;
         if (!converterContext.NextArgument())
         {
             return converterContext.Parameter.DefaultValue.HasValue

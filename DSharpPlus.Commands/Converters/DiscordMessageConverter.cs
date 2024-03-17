@@ -17,8 +17,8 @@ public partial class DiscordMessageConverter : ISlashArgumentConverter<DiscordMe
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.String;
     public bool RequiresText { get; init; } = true;
 
-    public Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context, context.As<TextConverterContext>().Argument);
-    public Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context, context.As<InteractionConverterContext>().Argument.RawValue);
+    public Task<Optional<DiscordMessage>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context, context.Argument);
+    public Task<Optional<DiscordMessage>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context, context.Argument.RawValue);
 
     public static async Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context, string? value)
     {

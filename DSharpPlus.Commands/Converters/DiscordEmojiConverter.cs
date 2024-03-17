@@ -11,9 +11,10 @@ public class DiscordEmojiConverter : ISlashArgumentConverter<DiscordEmoji>, ITex
     public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.String;
     public bool RequiresText { get; init; } = true;
 
-    public Task<Optional<DiscordEmoji>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context, context.As<TextConverterContext>().Argument);
-    public Task<Optional<DiscordEmoji>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context, context.As<InteractionConverterContext>().Argument.RawValue);
-    public static Task<Optional<DiscordEmoji>> ConvertAsync(ConverterContext context, string? value) => !string.IsNullOrWhiteSpace(value) && (DiscordEmoji.TryFromUnicode(context.Client, value, out DiscordEmoji? emoji) || DiscordEmoji.TryFromName(context.Client, value, out emoji))
-        ? Task.FromResult(Optional.FromValue(emoji))
-        : Task.FromResult(Optional.FromNoValue<DiscordEmoji>());
+    public Task<Optional<DiscordEmoji>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context, context.Argument);
+    public Task<Optional<DiscordEmoji>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context, context.Argument.RawValue);
+    public static Task<Optional<DiscordEmoji>> ConvertAsync(ConverterContext context, string? value) => !string.IsNullOrWhiteSpace(value)
+        && (DiscordEmoji.TryFromUnicode(context.Client, value, out DiscordEmoji? emoji) || DiscordEmoji.TryFromName(context.Client, value, out emoji))
+            ? Task.FromResult(Optional.FromValue(emoji))
+            : Task.FromResult(Optional.FromNoValue<DiscordEmoji>());
 }

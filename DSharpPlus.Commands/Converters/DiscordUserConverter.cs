@@ -24,21 +24,20 @@ public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>
 
     public DiscordUserConverter(ILogger<DiscordUserConverter>? logger = null) => this._logger = logger ?? NullLogger<DiscordUserConverter>.Instance;
 
-    public async Task<Optional<DiscordUser>> ConvertAsync(ConverterContext context, MessageCreateEventArgs eventArgs)
+    public async Task<Optional<DiscordUser>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
     {
         if (context.Guild is null)
         {
             return Optional.FromNoValue<DiscordUser>();
         }
 
-        string value = context.As<TextConverterContext>().Argument;
-        if (!ulong.TryParse(value, CultureInfo.InvariantCulture, out ulong memberId))
+        if (!ulong.TryParse(context.Argument, CultureInfo.InvariantCulture, out ulong memberId))
         {
-            Match match = _getMemberRegex().Match(value);
+            Match match = _getMemberRegex().Match(context.Argument);
             if (!match.Success || !ulong.TryParse(match.Groups[1].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out memberId))
             {
                 // Attempt to find a member by name, case sensitive.
-                DiscordUser? namedMember = context.Guild.Members.Values.FirstOrDefault(member => member.DisplayName.Equals(value, StringComparison.Ordinal));
+                DiscordUser? namedMember = context.Guild.Members.Values.FirstOrDefault(member => member.DisplayName.Equals(context.Argument, StringComparison.Ordinal));
                 return namedMember is not null ? Optional.FromValue(namedMember) : Optional.FromNoValue<DiscordUser>();
             }
         }
@@ -66,11 +65,9 @@ public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>
         return Optional.FromNoValue<DiscordUser>();
     }
 
-    public Task<Optional<DiscordUser>> ConvertAsync(ConverterContext context, InteractionCreateEventArgs eventArgs)
-    {
-        InteractionConverterContext slashContext = context.As<InteractionConverterContext>();
-        return slashContext.Interaction.Data.Resolved is null || !ulong.TryParse(slashContext.Argument.RawValue, CultureInfo.InvariantCulture, out ulong memberId) || !slashContext.Interaction.Data.Resolved.Users.TryGetValue(memberId, out DiscordUser? user)
+    public Task<Optional<DiscordUser>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => context.Interaction.Data.Resolved is null
+        || !ulong.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out ulong memberId)
+        || !context.Interaction.Data.Resolved.Users.TryGetValue(memberId, out DiscordUser? user)
             ? Task.FromResult(Optional.FromNoValue<DiscordUser>())
             : Task.FromResult(Optional.FromValue(user));
-    }
 }
