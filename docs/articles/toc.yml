@@ -31,6 +31,8 @@
     topicUid: articles.commands.custom_argument_converters
   - name: Custom Command Checks
     topicUid: articles.commands.custom_command_checks
+  - name: Custom Error Handler
+    topicUid: articles.commands.custom_error_handler
 - name: CommandsNext
   items:
   - name: Introduction
