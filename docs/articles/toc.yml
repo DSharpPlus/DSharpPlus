@@ -29,6 +29,8 @@
     topicUid: articles.commands.introduction
   - name: Custom Argument Converters
     topicUid: articles.commands.custom_argument_converters
+  - name: Custom Command Checks
+    topicUid: articles.commands.custom_command_checks
 - name: CommandsNext
   items:
   - name: Introduction
