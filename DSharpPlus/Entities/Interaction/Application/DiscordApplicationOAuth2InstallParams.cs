@@ -23,5 +23,5 @@ public sealed class DiscordApplicationOAuth2InstallParams
     [JsonProperty("scopes")]
     public IReadOnlyList<string> Scopes { get; internal set;  }
 
-    internal DiscordApplicationOAuth2InstallParams() { }
+    public DiscordApplicationOAuth2InstallParams() { }
 }
