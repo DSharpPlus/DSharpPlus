@@ -59,7 +59,15 @@ public class DirectMessageUsageCheck : IContextCheck<DirectMessageUsageAttribute
 }
 ```
 
-As seen here, we return `null` when the command is allowed to be executed. If the command is not allowed to be executed, we return an error string which can be retrieved from the `CommandsExtension.CommandErrored` event. Then we use the check like such:
+As seen here, we return `null` when the command is allowed to be executed. If the command is not allowed to be executed, we return an error string which can be retrieved from the `CommandsExtension.CommandErrored` event.
+
+Now, for the most important part, we need to register the check:
+
+```cs
+commandsExtension.AddCheck<DirectMessageUsageCheck>();
+```
+
+Then we use the check like such:
 
 ```cs
 [Command("dm")]
