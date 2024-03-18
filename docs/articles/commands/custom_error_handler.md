@@ -1,9 +1,9 @@
 ---
-uid: articles.commands.command_errored
-title: Command Errored
+uid: articles.commands.custom_error_handler
+title: Custom Error Handler
 ---
 
-# Command Errored
+# Custom Error Handler
 Oh no! Someone tried to execute a command, but for whatever reason, it failed! This article will help you understand why commands might fail and how to handle them.
 
 There are a few reasons why a command might fail. Here are a few common ones:
