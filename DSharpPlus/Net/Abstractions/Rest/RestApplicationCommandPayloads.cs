@@ -38,6 +38,13 @@ internal class RestApplicationCommandCreatePayload
 
     [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
     public bool? NSFW { get; set; }
+    
+    [JsonProperty("contexts", NullValueHandling = NullValueHandling.Ignore)]
+    public IEnumerable<InteractionContextType> AllowedContexts { get; set; }
+    
+    [JsonProperty("integration_types", NullValueHandling = NullValueHandling.Ignore)]
+    public IEnumerable<ApplicationIntegrationType> InstallTypes { get; set; }
+    
 }
 
 internal class RestApplicationCommandEditPayload
@@ -68,6 +75,12 @@ internal class RestApplicationCommandEditPayload
 
     [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
     public Optional<bool?> NSFW { get; set; }
+    
+    [JsonProperty("contexts", NullValueHandling = NullValueHandling.Ignore)]
+    public Optional<IEnumerable<InteractionContextType>> AllowedContexts { get; set; }
+    
+    [JsonProperty("integration_types", NullValueHandling = NullValueHandling.Ignore)]
+    public Optional<IEnumerable<ApplicationIntegrationType>> InstallTypes { get; set; }
 }
 
 internal class RestInteractionResponsePayload
