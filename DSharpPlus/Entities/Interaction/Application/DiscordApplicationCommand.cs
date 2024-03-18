@@ -78,6 +78,18 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
 
     [JsonProperty("description_localizations")]
     public IReadOnlyDictionary<string, string> DescriptionLocalizations { get; internal set; }
+    
+    /// <summary>
+    /// Contexts in which this command can be invoked.
+    /// </summary>
+    [JsonProperty("contexts")]
+    public IReadOnlyList<InteractionContextType> Contexts { get; internal set; }
+    
+    /// <summary>
+    /// Contexts in which this command can be installed.
+    /// </summary>
+    [JsonProperty("integration_types")]
+    public IReadOnlyList<ApplicationIntegrationType> IntegrationTypes { get; internal set; }
 
     /// <summary>
     /// Gets the command's mention string.
