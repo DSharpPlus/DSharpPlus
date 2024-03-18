@@ -79,19 +79,7 @@ public sealed class CommandsExtension : BaseExtension
     /// <summary>
     /// Executed everytime a command has errored.
     /// </summary>
-    public event AsyncEventHandler<CommandsExtension, CommandErroredEventArgs> CommandErrored
-    {
-        add
-        {
-            if (this.UseDefaultCommandErrorHandler)
-            {
-                this._commandErrored.Unregister(DefaultCommandErrorHandlerAsync);
-            }
-
-            this._commandErrored.Register(value);
-        }
-        remove => this._commandErrored.Unregister(value);
-    }
+    public event AsyncEventHandler<CommandsExtension, CommandErroredEventArgs> CommandErrored { add => this._commandErrored.Register(value); remove => this._commandErrored.Unregister(value); }
     internal readonly AsyncEvent<CommandsExtension, CommandErroredEventArgs> _commandErrored = new("COMMANDS_COMMAND_ERRORED", EverythingWentWrongErrorHandler);
 
     /// <summary>
@@ -112,8 +100,7 @@ public sealed class CommandsExtension : BaseExtension
         this.UseDefaultCommandErrorHandler = configuration.UseDefaultCommandErrorHandler;
         if (this.UseDefaultCommandErrorHandler)
         {
-            // We don't do `this.CommandErrored += DefaultCommandErrorHandlerAsync` because that'll immediately remove the event handler.
-            this._commandErrored.Register(DefaultCommandErrorHandlerAsync);
+            this.CommandErrored += DefaultCommandErrorHandlerAsync;
         }
 
         // Attempt to get the user defined logging, otherwise setup a null logger since the D#+ Default Logger is internal.
