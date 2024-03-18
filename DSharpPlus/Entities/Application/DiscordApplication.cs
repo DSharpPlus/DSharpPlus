@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
-using Newtonsoft.Json;
 
 /// <summary>
 /// Represents an OAuth2 application.

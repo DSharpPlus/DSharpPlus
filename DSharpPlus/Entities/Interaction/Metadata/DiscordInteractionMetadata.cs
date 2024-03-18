@@ -7,9 +7,7 @@ public abstract class DiscordInteractionMetadata : SnowflakeObject
 {
     [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
     public string? Name { get; internal set; }
-    
-    
-    
+
     [JsonProperty("type")]
     public InteractionType Type { get; internal set; }
 
@@ -29,5 +27,4 @@ public abstract class DiscordInteractionMetadata : SnowflakeObject
     public ulong? OriginalMessageID { get; internal set; }
     
     internal DiscordInteractionMetadata() { }
-    
 }

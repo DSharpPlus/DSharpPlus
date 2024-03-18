@@ -44,7 +44,6 @@ internal class RestApplicationCommandCreatePayload
     
     [JsonProperty("integration_types", NullValueHandling = NullValueHandling.Ignore)]
     public IEnumerable<ApplicationIntegrationType> InstallTypes { get; set; }
-    
 }
 
 internal class RestApplicationCommandEditPayload
