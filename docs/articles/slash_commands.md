@@ -4,6 +4,8 @@ title: Slash Commands
 ---
 
 # Slash Commands
+>[!WARNING]
+> `DSharpPlus.SlashCommands` has been replaced by [Commands](xref:articles.commands.introduction). Both this article and `DSharpPlus.SlashCommands` itself is no longer maintained and may contain outdated information. `DSharpPlus.SlashCommands` will be deprecated in version 5.1.0 of DSharpPlus.
 
 ## Introduction
 
