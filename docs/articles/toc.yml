@@ -35,6 +35,8 @@
     topicUid: articles.commands.custom_error_handler
   - name: Command Processors
     items:
+    - name: Introduction
+      topicUid: articles.commands.command_processors.introduction
     - name: Slash Commands
       items:
       - name: Choice Providers vs AutoComplete

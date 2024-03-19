@@ -28,7 +28,7 @@ The user can type in any text they type. As they type in the text, Discord will 
 > [!WARNING]
 > The user **is not required** to choose from the the suggestions provided. They can send any value they want, and it's up to your bot to handle the value.
 
-# Which one should I use?
+## Which one should I use?
 If you have a small, fixed list of options, use a choice provider. If you have a large list of options or the list of options can change at runtime, use auto-complete.
 
 Some valid use-cases for choice providers include:
