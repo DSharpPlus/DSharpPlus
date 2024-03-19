@@ -33,6 +33,12 @@
     topicUid: articles.commands.custom_context_checks
   - name: Custom Error Handler
     topicUid: articles.commands.custom_error_handler
+  - name: Command Processors
+    items:
+    - name: Slash Commands
+      items:
+      - name: Choice Providers vs AutoComplete
+        topicUid: articles.commands.command_processors.slash_commands.choice_provider_vs_autocomplete
 - name: CommandsNext
   items:
   - name: Introduction
