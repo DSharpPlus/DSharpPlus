@@ -53,7 +53,7 @@ public sealed class CommandsExtension : BaseExtension
     /// <inheritdoc cref="CommandsConfiguration.RegisterDefaultCommandProcessors"/>
     public bool RegisterDefaultCommandProcessors { get; init; }
 
-    public CommandExecutor CommandExecutor { get; init; } = new();
+    public ICommandExecutor CommandExecutor { get; init; }
 
     /// <summary>
     /// The registered commands that the users can execute.
@@ -98,6 +98,8 @@ public sealed class CommandsExtension : BaseExtension
         this.ServiceProvider = configuration.ServiceProvider;
         this.DebugGuildId = configuration.DebugGuildId;
         this.UseDefaultCommandErrorHandler = configuration.UseDefaultCommandErrorHandler;
+        this.RegisterDefaultCommandProcessors = configuration.RegisterDefaultCommandProcessors;
+        this.CommandExecutor = configuration.CommandExecutor;
         if (this.UseDefaultCommandErrorHandler)
         {
             this.CommandErrored += DefaultCommandErrorHandlerAsync;
