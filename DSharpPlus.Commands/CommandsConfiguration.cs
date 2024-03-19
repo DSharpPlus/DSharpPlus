@@ -30,4 +30,12 @@ public sealed record CommandsConfiguration
     /// as this configuration option will only add the default processors if they're not found in the list.
     /// </remarks>
     public bool RegisterDefaultCommandProcessors { get; set; } = true;
+
+    /// <summary>
+    /// The command executor to use for command execution.
+    /// </summary>
+    /// <remarks>
+    /// The command executor is responsible for executing context checks, making full use of the dependency injection system, executing the command method itself, and handling errors.
+    /// </remarks>
+    public ICommandExecutor CommandExecutor { get; set; } = new CommandExecutor();
 }
