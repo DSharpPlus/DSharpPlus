@@ -232,7 +232,7 @@ public sealed partial class DiscordShardedClient
         }
         
         ShardedLoggerFactory loggerFactory = new ShardedLoggerFactory(this.Configuration.LoggerFactory);
-        RestClient restClient = new RestClient(this.Configuration, loggerFactory.CreateLogger("Rest"));
+        RestClient restClient = new RestClient(this.Configuration, loggerFactory.CreateLogger<RestClient>());
         DiscordApiClient apiClient = new DiscordApiClient(restClient);
 
         this.GatewayInfo = await apiClient.GetGatewayInfoAsync();
