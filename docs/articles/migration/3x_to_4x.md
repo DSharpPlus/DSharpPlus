@@ -75,9 +75,9 @@ Using the @DSharpPlus.Entities.DiscordMessageBuilder can be found [here][2].
 Logging was overhauled and now some of the Properties on @DSharpPlus.DiscordConfiguration along with some of the events
 on @DSharpPlus.DiscordClient are Gone/Modified/Added. Below is a listing of what changed:
 
-* **@DSharpPlus.DiscordConfiguration.LoggerFactory** - this is where you can specify your own logging factory to help
+* @DSharpPlus.DiscordConfiguration.LoggerFactory - this is where you can specify your own logging factory to help
   augment the output of the log messages, redirect the output to other locations, etc.
-* **@DSharpPlus.DiscordConfiguration.MinimumLogLevel** - this replaces LogLevel
+* @DSharpPlus.DiscordConfiguration.MinimumLogLevel - this replaces LogLevel
 * **DebugLogger** - this has been removed.
 * **UseInternalLogHandler** - this has been removed.
 * **DebugLogMessageEventArgs** - this event has been removed.
