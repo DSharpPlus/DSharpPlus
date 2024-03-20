@@ -37,7 +37,7 @@ public static class OptionalTypeInfoResolver
                             (
                                 property.PropertyType.GetGenericArguments()[0]!
                             )
-                            .CreateDelegate(typeof(Func<object, object?, bool>))
+                            .CreateDelegate<Func<object, object?, bool>>()
                         );
                     }
                 }
