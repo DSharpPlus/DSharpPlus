@@ -22,7 +22,7 @@ public class StringConverter : ISlashArgumentConverter<string>, ITextArgumentCon
         {
             if (attribute is RemainingTextAttribute)
             {
-                return Task.FromResult(Optional.FromValue(context.Argument));
+                return Task.FromResult(Optional.FromValue(context.RawArguments[context.CurrentArgumentIndex..]));
             }
             else if (attribute is FromCodeAttribute codeAttribute)
             {
@@ -32,7 +32,7 @@ public class StringConverter : ISlashArgumentConverter<string>, ITextArgumentCon
             }
         }
 
-        return Task.FromResult(Optional.FromValue(context.RawArguments[context.CurrentArgumentIndex..]));
+        return Task.FromResult(Optional.FromValue(context.Argument));
     }
 
     [SuppressMessage("Roslyn", "IDE0046", Justification = "Ternary rabbit hole.")]
