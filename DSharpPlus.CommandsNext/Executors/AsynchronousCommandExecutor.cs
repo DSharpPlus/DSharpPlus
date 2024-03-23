@@ -10,7 +10,7 @@ public sealed class AsynchronousCommandExecutor : ICommandExecutor
 {
     Task ICommandExecutor.ExecuteAsync(CommandContext ctx)
     {
-        _ = Task.Run(() => ctx.CommandsNext.ExecuteCommandAsync(ctx));
+        _ = ctx.CommandsNext.ExecuteCommandAsync(ctx);
         return Task.CompletedTask;
     }
 

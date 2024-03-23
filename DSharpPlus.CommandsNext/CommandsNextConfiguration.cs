@@ -119,7 +119,7 @@ public sealed class CommandsNextConfiguration
     /// <para>Gets or sets the default command executor.</para>
     /// <para>This alters the behaviour, execution, and scheduling method of command execution.</para>
     /// </summary>
-    public ICommandExecutor CommandExecutor { internal get; set; } = new SynchronousCommandExecutor();
+    public ICommandExecutor CommandExecutor { internal get; set; } = new AsynchronousCommandExecutor();
 
     /// <summary>
     /// Creates a new instance of <see cref="CommandsNextConfiguration"/>.
