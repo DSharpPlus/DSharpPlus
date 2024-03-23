@@ -8,8 +8,8 @@ namespace DSharpPlus.CommandsNext.Executors;
 /// </summary>
 public sealed class SynchronousCommandExecutor : ICommandExecutor
 {
-    async Task ICommandExecutor.ExecuteAsync(CommandContext ctx)
-        => await ctx.CommandsNext.ExecuteCommandAsync(ctx);
+    Task ICommandExecutor.ExecuteAsync(CommandContext ctx)
+        => ctx.CommandsNext.ExecuteCommandAsync(ctx);
 
     void IDisposable.Dispose()
     { }
