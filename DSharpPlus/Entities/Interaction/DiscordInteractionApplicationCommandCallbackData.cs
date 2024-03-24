@@ -31,4 +31,7 @@ internal class DiscordInteractionApplicationCommandCallbackData
 
     [JsonProperty("choices")]
     public IReadOnlyCollection<DiscordAutoCompleteChoice> Choices { get; internal set; }
+    
+    [JsonProperty("poll", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordPoll Poll { get; internal set; }
 }
