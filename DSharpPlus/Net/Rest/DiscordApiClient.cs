@@ -2217,7 +2217,8 @@ public sealed class DiscordApiClient
             HasEmbed = builder.Embeds != null,
             Embeds = builder.Embeds,
             Components = builder.Components,
-            Flags = builder.Flags
+            Flags = builder.Flags,
+            Poll = builder.Poll != null ? new RestMessagePollPayload(builder.Poll) : null,
         };
 
         if (builder.ReplyId != null)
