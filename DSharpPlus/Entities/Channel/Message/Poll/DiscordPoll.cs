@@ -9,21 +9,25 @@ public sealed class DiscordPoll
     /// <summary>
     /// Gets the question for this poll. Only text is supported.
     /// </summary>
+    [JsonProperty("question")]
     public DiscordPollMedia Question { get; internal set; }
     
     /// <summary>
     /// Gets the answers available in the poll.
     /// </summary>
+    [JsonProperty("answers")]
     public IReadOnlyList<DiscordPollAnswer> Answers { get; internal set; }
     
     /// <summary>
     /// Gets the expiry date for this poll.
     /// </summary>
+    [JsonProperty("expiry")]
     public DateTimeOffset Expiry { get; internal set; }
     
     /// <summary>
     /// Whether the poll allows for multiple answers.
     /// </summary>
+    [JsonProperty("allow_multiselect")]
     public bool AllowMultisect { get; internal set; }
     
     /// <summary>
