@@ -498,6 +498,14 @@ public sealed partial class DiscordClient
         remove => this._messagesBulkDeleted.Unregister(value);
     }
     private AsyncEvent<DiscordClient, MessageBulkDeleteEventArgs> _messagesBulkDeleted;
+    
+    public event AsyncEventHandler<DiscordClient, MessagePollVoteEventArgs> MessagePollVoted
+    {
+        add => this._messagePollVoted.Register(value);
+        remove => this._messagePollVoted.Unregister(value);
+    }
+    
+    private AsyncEvent<DiscordClient, MessagePollVoteEventArgs> _messagePollVoted;
 
     #endregion
 
