@@ -10,6 +10,7 @@ using DSharpPlus.Net;
 
 namespace DSharpPlus.Lavalink;
 
+[Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 public sealed class LavalinkExtension : BaseExtension
 {
     /// <summary>
