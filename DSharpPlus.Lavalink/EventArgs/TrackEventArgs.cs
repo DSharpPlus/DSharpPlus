@@ -1,3 +1,5 @@
+using System;
+
 using DSharpPlus.AsyncEvents;
 
 namespace DSharpPlus.Lavalink.EventArgs;
@@ -14,6 +16,7 @@ internal enum EventType
 /// <summary>
 /// Represents arguments for a track playback start event.
 /// </summary>
+[Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 public sealed class TrackStartEventArgs : AsyncEventArgs
 {
     /// <summary>
@@ -42,6 +45,7 @@ internal struct TrackFinishData
 /// <summary>
 /// Represents arguments for a track playback finish event.
 /// </summary>
+[Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 public sealed class TrackFinishEventArgs : AsyncEventArgs
 {
     /// <summary>
@@ -107,6 +111,7 @@ internal struct TrackStuckData
 /// <summary>
 /// Represents event arguments for a track stuck event.
 /// </summary>
+[Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 public sealed class TrackStuckEventArgs : AsyncEventArgs
 {
     /// <summary>
@@ -141,6 +146,7 @@ internal struct TrackExceptionData
 /// <summary>
 /// Represents event arguments for a track exception event.
 /// </summary>
+[Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 public sealed class TrackExceptionEventArgs : AsyncEventArgs
 {
     /// <summary>
