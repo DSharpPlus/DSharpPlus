@@ -6,6 +6,7 @@ namespace DSharpPlus.Lavalink.EventArgs;
 /// <summary>
 /// Represents arguments for player update event.
 /// </summary>
+[Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 public sealed class PlayerUpdateEventArgs : AsyncEventArgs
 {
     /// <summary>

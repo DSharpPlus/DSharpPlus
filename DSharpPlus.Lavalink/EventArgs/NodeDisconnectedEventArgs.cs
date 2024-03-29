@@ -1,3 +1,5 @@
+using System;
+
 using DSharpPlus.AsyncEvents;
 
 namespace DSharpPlus.Lavalink.EventArgs;
@@ -5,6 +7,7 @@ namespace DSharpPlus.Lavalink.EventArgs;
 /// <summary>
 /// Represents event arguments for Lavalink node disconnection.
 /// </summary>
+[Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 public sealed class NodeDisconnectedEventArgs : AsyncEventArgs
 {
     /// <summary>

@@ -3,6 +3,10 @@ uid: articles.audio.lavalink.setup
 title: Lavalink Setup
 ---
 
+>[!WARNING]
+> `DSharpPlus.Lavalink` has been deprecated, and this article may contain outdated information. Both the extension and this article will be removed
+> in the future.
+
 # Lavalink - the newer, better way to do music
 
 [Lavalink][0] is a standalone program, written in Java. It's a lightweight solution for playing music from sources such

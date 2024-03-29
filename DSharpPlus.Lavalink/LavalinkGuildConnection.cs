@@ -13,11 +13,13 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Lavalink;
 
+[Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 internal delegate void ChannelDisconnectedEventHandler(LavalinkGuildConnection node);
 
 /// <summary>
 /// Represents a Lavalink connection to a channel.
 /// </summary>
+[Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 public sealed class LavalinkGuildConnection
 {
     /// <summary>

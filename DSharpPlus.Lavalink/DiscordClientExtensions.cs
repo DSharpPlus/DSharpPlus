@@ -15,6 +15,7 @@ public static class DiscordClientExtensions
     /// </summary>
     /// <param name="client">Discord client to create Lavalink instance for.</param>
     /// <returns>Lavalink client instance.</returns>
+    [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
     public static LavalinkExtension UseLavalink(this DiscordClient client)
     {
         if (client.GetExtension<LavalinkExtension>() != null)
@@ -37,6 +38,8 @@ public static class DiscordClientExtensions
     /// </summary>
     /// <param name="client">Discord sharded client to create Lavalink instances for.</param>
     /// <returns>A dictionary of created Lavalink clients.</returns>
+
+    [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
     public static async Task<IReadOnlyDictionary<int, LavalinkExtension>> UseLavalinkAsync(this DiscordShardedClient client)
     {
         Dictionary<int, LavalinkExtension> modules = new Dictionary<int, LavalinkExtension>();
@@ -56,6 +59,7 @@ public static class DiscordClientExtensions
     /// </summary>
     /// <param name="client">Discord client to get Lavalink instance for.</param>
     /// <returns>Lavalink client instance.</returns>
+    [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
     public static LavalinkExtension GetLavalink(this DiscordClient client)
         => client.GetExtension<LavalinkExtension>();
 
@@ -64,6 +68,7 @@ public static class DiscordClientExtensions
     /// </summary>
     /// <param name="client">The shard client to retrieve <see cref="LavalinkExtension"/> instances from.</param>
     /// <returns>A dictionary containing <see cref="LavalinkExtension"/> instances for each shard.</returns>
+    [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
     public static async Task<IReadOnlyDictionary<int, LavalinkExtension>> GetLavalinkAsync(this DiscordShardedClient client)
     {
         await client.InitializeShardsAsync();
@@ -83,6 +88,7 @@ public static class DiscordClientExtensions
     /// <param name="channel">Channel to connect to.</param>
     /// <param name="node">Lavalink node to connect through.</param>
     /// <returns>If successful, the Lavalink client.</returns>
+    [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
     public static Task ConnectAsync(this DiscordChannel channel, LavalinkNodeConnection node)
     {
         if (channel == null)

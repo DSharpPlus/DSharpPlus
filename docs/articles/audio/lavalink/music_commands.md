@@ -3,6 +3,10 @@ uid: articles.audio.lavalink.music_commands
 title: Lavalink Music Commands
 ---
 
+>[!WARNING]
+> `DSharpPlus.Lavalink` has been deprecated, and this article may contain outdated information. Both the extension and this article will be removed
+> in the future.
+
 # Adding Music Commands
 
 This article assumes that you know how to use CommandsNext. If you do not, you should learn [here][0]

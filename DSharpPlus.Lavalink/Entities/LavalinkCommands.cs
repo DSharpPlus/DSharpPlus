@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Lavalink.Entities;
 
+[Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 internal sealed class LavalinkConfigureResume : LavalinkPayload
 {
     [JsonProperty("key")]
@@ -20,6 +21,7 @@ internal sealed class LavalinkConfigureResume : LavalinkPayload
     }
 }
 
+[Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 internal sealed class LavalinkDestroy : LavalinkPayload
 {
     public LavalinkDestroy(LavalinkGuildConnection lvl)
@@ -27,6 +29,7 @@ internal sealed class LavalinkDestroy : LavalinkPayload
     { }
 }
 
+[Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 internal sealed class LavalinkPlay : LavalinkPayload
 {
     [JsonProperty("track")]
@@ -36,6 +39,7 @@ internal sealed class LavalinkPlay : LavalinkPayload
         : base("play", lvl.GuildIdString) => this.Track = track.TrackString;
 }
 
+[Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 internal sealed class LavalinkPlayPartial : LavalinkPayload
 {
     [JsonProperty("track")]
@@ -56,6 +60,7 @@ internal sealed class LavalinkPlayPartial : LavalinkPayload
     }
 }
 
+[Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 internal sealed class LavalinkPause : LavalinkPayload
 {
     [JsonProperty("pause")]
@@ -65,6 +70,7 @@ internal sealed class LavalinkPause : LavalinkPayload
         : base("pause", lvl.GuildIdString) => this.Pause = pause;
 }
 
+[Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 internal sealed class LavalinkStop : LavalinkPayload
 {
     public LavalinkStop(LavalinkGuildConnection lvl)
@@ -72,6 +78,7 @@ internal sealed class LavalinkStop : LavalinkPayload
     { }
 }
 
+[Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 internal sealed class LavalinkSeek : LavalinkPayload
 {
     [JsonProperty("position")]
@@ -81,6 +88,7 @@ internal sealed class LavalinkSeek : LavalinkPayload
         : base("seek", lvl.GuildIdString) => this.Position = (long)position.TotalMilliseconds;
 }
 
+[Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 internal sealed class LavalinkVolume : LavalinkPayload
 {
     [JsonProperty("volume")]
@@ -90,6 +98,7 @@ internal sealed class LavalinkVolume : LavalinkPayload
         : base("volume", lvl.GuildIdString) => this.Volume = volume;
 }
 
+[Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 internal sealed class LavalinkEqualizer : LavalinkPayload
 {
     [JsonProperty("bands")]
