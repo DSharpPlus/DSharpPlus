@@ -1,12 +1,75 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+
 namespace DSharpPlus.Entities;
 
 public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
 {
     [JsonProperty("channel_types", NullValueHandling = NullValueHandling.Ignore)]
     public IReadOnlyList<ChannelType> ChannelTypes { get; internal set; }
+    
+    [JsonProperty("default_values", NullValueHandling = NullValueHandling.Ignore)]
+    private List<DiscordSelectDefaultValue> _defaultValues = new();
+    
+    /// <summary>
+    /// The default values for this component.
+    /// </summary>
+    [JsonIgnore]
+    public IReadOnlyList<DiscordSelectDefaultValue> DefaultValues => _defaultValues;
+
+    /// <summary>
+    /// Adds a default role to this component.
+    /// </summary>
+    /// <param name="role">Role to add</param>
+    public DiscordChannelSelectComponent AddDefaultRole(DiscordRole role)
+    {
+        DiscordSelectDefaultValue defaultValue = new(role.Id, DiscordSelectDefaultValueType.Role);
+        _defaultValues.Add(defaultValue);
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a collections of DiscordRoles to this component.
+    /// </summary>
+    /// <param name="roles">Collection of DiscordRoles</param>
+    public DiscordChannelSelectComponent AddDefaultRoles(IEnumerable<DiscordRole> roles)
+    {
+        foreach (DiscordRole value in roles)
+        {
+            DiscordSelectDefaultValue defaultValue = new(value.Id, DiscordSelectDefaultValueType.Role);
+            _defaultValues.Add(defaultValue);
+        }
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a default role to this component.
+    /// </summary>
+    /// <param name="id">Id of a DiscordRole</param>
+    public DiscordChannelSelectComponent AddDefaultRole(ulong id)
+    {
+        DiscordSelectDefaultValue defaultValue = new(id, DiscordSelectDefaultValueType.Role);
+        _defaultValues.Add(defaultValue);
+        return this;
+    }
+
+    /// <summary>
+    /// Collections of role ids to add as default values.
+    /// </summary>
+    /// <param name="ids">Collection of DiscordRole ids</param>
+    public DiscordChannelSelectComponent AddDefaultChannels(IEnumerable<ulong> ids)
+    {
+        foreach (ulong value in ids)
+        {
+            DiscordSelectDefaultValue defaultValue = new(value, DiscordSelectDefaultValueType.Channel);
+            _defaultValues.Add(defaultValue);
+        }
+
+        return this;
+    }
+    
 
     /// <summary>
     /// Enables this component.
@@ -39,13 +102,14 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
     /// <param name="disabled">Whether this component is disabled.</param>
     /// <param name="minOptions">The minimum amount of options to be selected.</param>
     /// <param name="maxOptions">The maximum amount of options to be selected, up to 25.</param>
-    public DiscordChannelSelectComponent(string customId, string placeholder, IEnumerable<ChannelType>? channelTypes = null, bool disabled = false, int minOptions = 1, int maxOptions = 1) : this()
-    {
-        this.CustomId = customId;
-        this.Placeholder = placeholder;
+    public DiscordChannelSelectComponent
+    (
+        string customId,
+        string placeholder,
+        IEnumerable<ChannelType>? channelTypes = null,
+        bool disabled = false,
+        int minOptions = 1,
+        int maxOptions = 1
+    ) : base(ComponentType.ChannelSelect, customId, placeholder, disabled, minOptions, maxOptions) =>
         this.ChannelTypes = channelTypes?.ToList();
-        this.Disabled = disabled;
-        this.MinimumSelectedValues = minOptions;
-        this.MaximumSelectedValues = maxOptions;
-    }
 }

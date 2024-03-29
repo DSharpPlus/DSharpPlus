@@ -1,7 +1,47 @@
+using System.Collections.Generic;
+using Newtonsoft.Json;
+
 namespace DSharpPlus.Entities;
 
 public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectComponent
 {
+    [JsonProperty("default_values", NullValueHandling = NullValueHandling.Ignore)]
+    private List<DiscordSelectDefaultValue> _defaultValues = new();
+    
+    /// <summary>
+    /// The default values for this component.
+    /// </summary>
+    [JsonIgnore]
+    public IReadOnlyList<DiscordSelectDefaultValue> DefaultValues => _defaultValues;
+
+    /// <summary>
+    /// Adds a default role, channel or user to this component.
+    /// </summary>
+    /// <param name="type">type of the default</param>
+    /// <param name="id">Id of the default</param>
+    public DiscordMentionableSelectComponent AddDefault(DiscordSelectDefaultValueType type, ulong id)
+    {
+        DiscordSelectDefaultValue defaultValue = new(id, type);
+        _defaultValues.Add(defaultValue);
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a collections of DiscordRoles, DiscordChannels or DiscordUser to this component. All the ids must be of the same type.
+    /// </summary>
+    /// <param name="type">Type of the defaults</param>
+    /// <param name="ids">Collection of DiscordRoles</param>
+    public DiscordMentionableSelectComponent AddDefaults(DiscordSelectDefaultValueType type, IEnumerable<ulong> ids)
+    {
+        foreach (ulong id in ids)
+        {
+            DiscordSelectDefaultValue defaultValue = new(id, type);
+            _defaultValues.Add(defaultValue);
+        }
+
+        return this;
+    }
+    
     /// <summary>
     /// Enables this component.
     /// </summary>
@@ -31,12 +71,6 @@ public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectCompone
     /// <param name="disabled">Whether this component is disabled.</param>
     /// <param name="minOptions">The minimum amount of options to be selected.</param>
     /// <param name="maxOptions">The maximum amount of options to be selected, up to 25.</param>
-    public DiscordMentionableSelectComponent(string customId, string placeholder, bool disabled = false, int minOptions = 1, int maxOptions = 1) : this()
-    {
-        this.CustomId = customId;
-        this.Placeholder = placeholder;
-        this.Disabled = disabled;
-        this.MinimumSelectedValues = minOptions;
-        this.MaximumSelectedValues = maxOptions;
-    }
+    public DiscordMentionableSelectComponent(string customId, string placeholder, bool disabled = false, int minOptions = 1, int maxOptions = 1) 
+    : base(ComponentType.MentionableSelect, customId, placeholder, disabled, minOptions, maxOptions) { }
 }
