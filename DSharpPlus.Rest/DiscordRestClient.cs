@@ -347,6 +347,17 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns></returns>
     public async Task CreateGuildBanAsync(ulong guild_id, ulong user_id, int delete_message_days, string reason)
         => await this.ApiClient.CreateGuildBanAsync(guild_id, user_id, delete_message_days, reason);
+    
+    /// <summary>
+    /// Creates multiple guild bans
+    /// </summary>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="userIds">Collection of user ids to ban</param>
+    /// <param name="deleteMessageSeconds">Timespan in seconds to delete messages from the banned users</param>
+    /// <param name="reason">Auditlog reason</param>
+    /// <returns></returns>
+    public async Task<DiscordBulkBan> CreateGuildBansAsync(ulong guildId, IEnumerable<ulong> userIds, int deleteMessageSeconds, string reason)
+        => await this.ApiClient.CreateGuildBulkBanAsync(guildId, userIds, deleteMessageSeconds, reason);
 
     /// <summary>
     /// Removes a guild ban
