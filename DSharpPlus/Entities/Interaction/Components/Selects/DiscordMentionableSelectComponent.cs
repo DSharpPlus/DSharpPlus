@@ -17,7 +17,7 @@ public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectCompone
     public IReadOnlyList<DiscordSelectDefaultValue> DefaultValues => _defaultValues;
 
     /// <summary>
-    /// Adds a default role, channel or user to this component.
+    /// Adds a default role or user to this component.
     /// </summary>
     /// <param name="type">type of the default</param>
     /// <param name="id">Id of the default</param>
@@ -34,7 +34,7 @@ public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectCompone
     }
 
     /// <summary>
-    /// Adds a collections of DiscordRoles, DiscordChannels or DiscordUser to this component. All the ids must be of the same type.
+    /// Adds a collections of DiscordRoles or DiscordUsers to this component. All the ids must be of the same type.
     /// </summary>
     /// <param name="type">Type of the defaults</param>
     /// <param name="ids">Collection of DiscordRoles</param>
