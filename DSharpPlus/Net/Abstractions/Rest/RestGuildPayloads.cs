@@ -374,7 +374,7 @@ internal class RestGuildUpdateUserVoiceStatePayload
 internal class RestGuildBulkBanPayload
 {
     [JsonProperty("delete_message_seconds", NullValueHandling = NullValueHandling.Ignore)]
-    public int? DeleteMessageDays { get; set; }
+    public int? DeleteMessageSeconds { get; set; }
 
     [JsonProperty("user_ids")]
     public IEnumerable<ulong> UserIds { get; set; }

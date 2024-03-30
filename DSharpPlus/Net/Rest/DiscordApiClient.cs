@@ -598,7 +598,7 @@ public sealed class DiscordApiClient
                 },
             Payload = DiscordJson.SerializeObject(new RestGuildBulkBanPayload
             {
-                DeleteMessageDays = deleteMessagesSeconds,
+                DeleteMessageSeconds = deleteMessagesSeconds,
                 UserIds = userIds
             })
         };
@@ -607,6 +607,8 @@ public sealed class DiscordApiClient
         
         DiscordBulkBan bulkBan = JsonConvert.DeserializeObject<DiscordBulkBan>(response.Response!)!;
         
+        
+        List<DiscordUser> bannedUsers = new(bulkBan.BannedUserIds.Count());
         foreach (ulong userId in bulkBan.BannedUserIds)
         {
             if (!this._discord!.TryGetCachedUserInternal(userId, out DiscordUser? user))
@@ -615,9 +617,11 @@ public sealed class DiscordApiClient
                 user = this._discord.UpdateUserCache(user);
             }
 
-            bulkBan.BannedUsers = bulkBan.BannedUsers.Append(user);
+            bannedUsers.Add(user);
         }
+        bulkBan.BannedUsers = bannedUsers;
         
+        List<DiscordUser> failedUsers = new(bulkBan.FailedUserIds.Count());
         foreach (ulong userId in bulkBan.FailedUserIds)
         {
             if (!this._discord!.TryGetCachedUserInternal(userId, out DiscordUser? user))
@@ -626,8 +630,9 @@ public sealed class DiscordApiClient
                 user = this._discord.UpdateUserCache(user);
             }
 
-            bulkBan.FailedUsers = bulkBan.FailedUsers.Append(user);
+            failedUsers.Add(user);
         }
+        bulkBan.FailedUsers = failedUsers;
         
         return bulkBan;
     }
