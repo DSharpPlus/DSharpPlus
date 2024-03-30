@@ -19,25 +19,25 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
     public IReadOnlyList<DiscordSelectDefaultValue> DefaultValues => _defaultValues;
 
     /// <summary>
-    /// Adds a default role to this component.
+    /// Adds a default channel to this component.
     /// </summary>
-    /// <param name="role">Role to add</param>
-    public DiscordChannelSelectComponent AddDefaultRole(DiscordRole role)
+    /// <param name="channel">Channel to add</param>
+    public DiscordChannelSelectComponent AddDefaultRole(DiscordChannel channel)
     {
-        DiscordSelectDefaultValue defaultValue = new(role.Id, DiscordSelectDefaultValueType.Role);
+        DiscordSelectDefaultValue defaultValue = new(channel.Id, DiscordSelectDefaultValueType.Channel);
         _defaultValues.Add(defaultValue);
         return this;
     }
 
     /// <summary>
-    /// Adds a collections of DiscordRoles to this component.
+    /// Adds a collections of DiscordChannel to add as default values.
     /// </summary>
-    /// <param name="roles">Collection of DiscordRoles</param>
-    public DiscordChannelSelectComponent AddDefaultRoles(IEnumerable<DiscordRole> roles)
+    /// <param name="channels">Collection of DiscordChannel</param>
+    public DiscordChannelSelectComponent AddDefaultChannels(IEnumerable<DiscordChannel> channels)
     {
-        foreach (DiscordRole value in roles)
+        foreach (DiscordChannel value in channels)
         {
-            DiscordSelectDefaultValue defaultValue = new(value.Id, DiscordSelectDefaultValueType.Role);
+            DiscordSelectDefaultValue defaultValue = new(value.Id, DiscordSelectDefaultValueType.Channel);
             _defaultValues.Add(defaultValue);
         }
 
@@ -45,20 +45,20 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
     }
 
     /// <summary>
-    /// Adds a default role to this component.
+    /// Adds a default channel to this component.
     /// </summary>
-    /// <param name="id">Id of a DiscordRole</param>
-    public DiscordChannelSelectComponent AddDefaultRole(ulong id)
+    /// <param name="id">Id of a DiscordChannel</param>
+    public DiscordChannelSelectComponent AddDefaultChannel(ulong id)
     {
-        DiscordSelectDefaultValue defaultValue = new(id, DiscordSelectDefaultValueType.Role);
+        DiscordSelectDefaultValue defaultValue = new(id, DiscordSelectDefaultValueType.Channel);
         _defaultValues.Add(defaultValue);
         return this;
     }
 
     /// <summary>
-    /// Collections of role ids to add as default values.
+    /// Collections of channel ids to add as default values.
     /// </summary>
-    /// <param name="ids">Collection of DiscordRole ids</param>
+    /// <param name="ids">Collection of DiscordChannel ids</param>
     public DiscordChannelSelectComponent AddDefaultChannels(IEnumerable<ulong> ids)
     {
         foreach (ulong value in ids)
