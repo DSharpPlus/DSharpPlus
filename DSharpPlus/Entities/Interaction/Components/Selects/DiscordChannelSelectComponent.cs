@@ -22,7 +22,7 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
     /// Adds a default channel to this component.
     /// </summary>
     /// <param name="channel">Channel to add</param>
-    public DiscordChannelSelectComponent AddDefaultRole(DiscordChannel channel)
+    public DiscordChannelSelectComponent AddDefaultChannel(DiscordChannel channel)
     {
         DiscordSelectDefaultValue defaultValue = new(channel.Id, DiscordSelectDefaultValueType.Channel);
         _defaultValues.Add(defaultValue);
@@ -30,7 +30,7 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
     }
 
     /// <summary>
-    /// Adds a collections of DiscordChannel to add as default values.
+    /// Adds a collections of DiscordChannel as default values.
     /// </summary>
     /// <param name="channels">Collection of DiscordChannel</param>
     public DiscordChannelSelectComponent AddDefaultChannels(IEnumerable<DiscordChannel> channels)
