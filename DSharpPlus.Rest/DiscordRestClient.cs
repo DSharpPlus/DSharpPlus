@@ -1,15 +1,15 @@
-namespace DSharpPlus;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Entities;
-using Exceptions;
-using Net.Abstractions;
-using Net.Models;
+using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
+using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Models;
+
+namespace DSharpPlus;
 
 public class DiscordRestClient : BaseDiscordClient
 {
