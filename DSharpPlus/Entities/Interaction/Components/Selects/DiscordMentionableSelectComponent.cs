@@ -3,6 +3,8 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
+using System;
+
 public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectComponent
 {
     [JsonProperty("default_values", NullValueHandling = NullValueHandling.Ignore)]
@@ -21,6 +23,11 @@ public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectCompone
     /// <param name="id">Id of the default</param>
     public DiscordMentionableSelectComponent AddDefault(DiscordSelectDefaultValueType type, ulong id)
     {
+        if (type == DiscordSelectDefaultValueType.Channel)
+        {
+            throw new ArgumentException("Mentionable select components do not support channel defaults");
+        }
+        
         DiscordSelectDefaultValue defaultValue = new(id, type);
         _defaultValues.Add(defaultValue);
         return this;
@@ -33,6 +40,11 @@ public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectCompone
     /// <param name="ids">Collection of DiscordRoles</param>
     public DiscordMentionableSelectComponent AddDefaults(DiscordSelectDefaultValueType type, IEnumerable<ulong> ids)
     {
+        if (type == DiscordSelectDefaultValueType.Channel)
+        {
+            throw new ArgumentException("Mentionable select components do not support channel defaults");
+        }
+        
         foreach (ulong id in ids)
         {
             DiscordSelectDefaultValue defaultValue = new(id, type);
