@@ -1,15 +1,15 @@
+namespace DSharpPlus;
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus.Entities;
-using DSharpPlus.Exceptions;
-using DSharpPlus.Net.Abstractions;
-using DSharpPlus.Net.Models;
-
-namespace DSharpPlus;
+using Entities;
+using Exceptions;
+using Net.Abstractions;
+using Net.Models;
 
 public class DiscordRestClient : BaseDiscordClient
 {
@@ -17,10 +17,9 @@ public class DiscordRestClient : BaseDiscordClient
     /// Gets the dictionary of guilds cached by this client.
     /// </summary>
     public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds
-        => this._guilds_lazy.Value;
+        => this._guilds;
 
     internal Dictionary<ulong, DiscordGuild> _guilds = new();
-    private Lazy<IReadOnlyDictionary<ulong, DiscordGuild>> _guilds_lazy;
 
     public DiscordRestClient(DiscordConfiguration config) : base(config) => this._disposed = false;
 
@@ -31,11 +30,10 @@ public class DiscordRestClient : BaseDiscordClient
     public async Task InitializeCacheAsync()
     {
         await base.InitializeAsync();
-        this._guilds_lazy = new Lazy<IReadOnlyDictionary<ulong, DiscordGuild>>(() => new ReadOnlyDictionary<ulong, DiscordGuild>(this._guilds));
-        IReadOnlyList<DiscordGuild> gs = await this.ApiClient.GetCurrentUserGuildsAsync(100, null, null);
-        foreach (DiscordGuild g in gs)
+        IReadOnlyList<DiscordGuild> currentUserGuilds = await this.ApiClient.GetCurrentUserGuildsAsync();
+        foreach (DiscordGuild guild in currentUserGuilds)
         {
-            this._guilds[g.Id] = g;
+            this._guilds[guild.Id] = guild;
         }
     }
 
@@ -115,7 +113,7 @@ public class DiscordRestClient : BaseDiscordClient
                 throw new ArgumentException("Location must be supplied if the event is an external event.");
             }
 
-            if (model.Channel.HasValue && model.Channel.Value != null)
+            if (model.Channel.HasValue && model.Channel.Value is not null)
             {
                 throw new ArgumentException("Channel must not be supplied if the event is an external event.");
             }
@@ -146,7 +144,7 @@ public class DiscordRestClient : BaseDiscordClient
     {
         int remaining = limit;
         ulong? last = null;
-        bool isAfter = after != null;
+        bool isAfter = after is not null;
 
         List<DiscordUser> users = new();
 
@@ -182,25 +180,25 @@ public class DiscordRestClient : BaseDiscordClient
     /// <summary>
     /// Searches the given guild for members who's display name start with the specified name.
     /// </summary>
-    /// <param name="guild_id">The ID of the guild to search.</param>
+    /// <param name="guildId">The ID of the guild to search.</param>
     /// <param name="name">The name to search for.</param>
     /// <param name="limit">The maximum amount of members to return. Max 1000. Defaults to 1.</param>
     /// <returns>The members found, if any.</returns>
-    public async Task<IReadOnlyList<DiscordMember>> SearchMembersAsync(ulong guild_id, string name, int? limit = 1)
-        => await this.ApiClient.SearchMembersAsync(guild_id, name, limit);
+    public async Task<IReadOnlyList<DiscordMember>> SearchMembersAsync(ulong guildId, string name, int? limit = 1)
+        => await this.ApiClient.SearchMembersAsync(guildId, name, limit);
 
     /// <summary>
     /// Creates a new guild
     /// </summary>
     /// <param name="name">New guild's name</param>
-    /// <param name="region_id">New guild's region ID</param>
+    /// <param name="regionId">New guild's region ID</param>
     /// <param name="iconb64">New guild's icon (base64)</param>
-    /// <param name="verification_level">New guild's verification level</param>
-    /// <param name="default_message_notifications">New guild's default message notification level</param>
-    /// <param name="system_channel_flags">New guild's system channel flags</param>
+    /// <param name="verificationLevel">New guild's verification level</param>
+    /// <param name="defaultMessageNotifications">New guild's default message notification level</param>
+    /// <param name="systemChannelFlags">New guild's system channel flags</param>
     /// <returns></returns>
-    public async Task<DiscordGuild> CreateGuildAsync(string name, string region_id, string iconb64, VerificationLevel? verification_level, DefaultMessageNotifications? default_message_notifications, SystemChannelFlags? system_channel_flags)
-        => await this.ApiClient.CreateGuildAsync(name, region_id, iconb64, verification_level, default_message_notifications, system_channel_flags);
+    public async Task<DiscordGuild> CreateGuildAsync(string name, string regionId, string iconb64, VerificationLevel? verificationLevel, DefaultMessageNotifications? defaultMessageNotifications, SystemChannelFlags? systemChannelFlags)
+        => await this.ApiClient.CreateGuildAsync(name, regionId, iconb64, verificationLevel, defaultMessageNotifications, systemChannelFlags);
 
     /// <summary>
     /// Creates a guild from a template. This requires the bot to be in less than 10 guilds total.
@@ -223,17 +221,17 @@ public class DiscordRestClient : BaseDiscordClient
     /// <summary>
     /// Modifies a guild
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <param name="name">New guild Name</param>
     /// <param name="region">New guild voice region</param>
-    /// <param name="verification_level">New guild verification level</param>
-    /// <param name="default_message_notifications">New guild default message notification level</param>
-    /// <param name="mfa_level">New guild MFA level</param>
-    /// <param name="explicit_content_filter">New guild explicit content filter level</param>
-    /// <param name="afk_channel_id">New guild AFK channel ID</param>
-    /// <param name="afk_timeout">New guild AFK timeout in seconds</param>
+    /// <param name="verificationLevel">New guild verification level</param>
+    /// <param name="defaultMessageNotifications">New guild default message notification level</param>
+    /// <param name="mfaLevel">New guild MFA level</param>
+    /// <param name="explicitContentFilter">New guild explicit content filter level</param>
+    /// <param name="afkChannelId">New guild AFK channel ID</param>
+    /// <param name="afkTimeout">New guild AFK timeout in seconds</param>
     /// <param name="iconb64">New guild icon (base64)</param>
-    /// <param name="owner_id">New guild owner ID</param>
+    /// <param name="ownerId">New guild owner ID</param>
     /// <param name="splashb64">New guild splash (base64)</param>
     /// <param name="systemChannelId">New guild system channel ID</param>
     /// <param name="banner">New guild banner</param>
@@ -246,25 +244,25 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="systemChannelFlags">New system channel flags</param>
     /// <param name="reason">Modify reason</param>
     /// <returns></returns>
-    public async Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Optional<string> name,
-        Optional<string> region, Optional<VerificationLevel> verification_level,
-        Optional<DefaultMessageNotifications> default_message_notifications, Optional<MfaLevel> mfa_level,
-        Optional<ExplicitContentFilter> explicit_content_filter, Optional<ulong?> afk_channel_id,
-        Optional<int> afk_timeout, Optional<string> iconb64, Optional<ulong> owner_id, Optional<string> splashb64,
+    public async Task<DiscordGuild> ModifyGuildAsync(ulong guildId, Optional<string> name,
+        Optional<string> region, Optional<VerificationLevel> verificationLevel,
+        Optional<DefaultMessageNotifications> defaultMessageNotifications, Optional<MfaLevel> mfaLevel,
+        Optional<ExplicitContentFilter> explicitContentFilter, Optional<ulong?> afkChannelId,
+        Optional<int> afkTimeout, Optional<string> iconb64, Optional<ulong> ownerId, Optional<string> splashb64,
         Optional<ulong?> systemChannelId, Optional<string> banner, Optional<string> description,
         Optional<string> discorverySplash, Optional<IEnumerable<string>> features, Optional<string> preferredLocale,
         Optional<ulong?> publicUpdatesChannelId, Optional<ulong?> rulesChannelId, Optional<SystemChannelFlags> systemChannelFlags,
         string reason)
-        => await this.ApiClient.ModifyGuildAsync(guild_id, name, region, verification_level, default_message_notifications, mfa_level, explicit_content_filter, afk_channel_id, afk_timeout, iconb64,
-            owner_id, splashb64, systemChannelId, banner, description, discorverySplash, features, preferredLocale, publicUpdatesChannelId, rulesChannelId, systemChannelFlags, reason);
+        => await this.ApiClient.ModifyGuildAsync(guildId, name, region, verificationLevel, defaultMessageNotifications, mfaLevel, explicitContentFilter, afkChannelId, afkTimeout, iconb64,
+            ownerId, splashb64, systemChannelId, banner, description, discorverySplash, features, preferredLocale, publicUpdatesChannelId, rulesChannelId, systemChannelFlags, reason);
 
     /// <summary>
     /// Modifies a guild
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <param name="action">Guild modifications</param>
     /// <returns></returns>
-    public async Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Action<GuildEditModel> action)
+    public async Task<DiscordGuild> ModifyGuildAsync(ulong guildId, Action<GuildEditModel> action)
     {
         GuildEditModel mdl = new();
         action(mdl);
@@ -278,7 +276,7 @@ public class DiscordRestClient : BaseDiscordClient
         }
 
         Optional<string> iconb64 = Optional.FromNoValue<string>();
-        if (mdl.Icon.HasValue && mdl.Icon.Value != null)
+        if (mdl.Icon.HasValue && mdl.Icon.Value is not null)
         {
             using ImageTool imgtool = new(mdl.Icon.Value);
             iconb64 = imgtool.GetBase64();
@@ -289,7 +287,7 @@ public class DiscordRestClient : BaseDiscordClient
         }
 
         Optional<string> splashb64 = Optional.FromNoValue<string>();
-        if (mdl.Splash.HasValue && mdl.Splash.Value != null)
+        if (mdl.Splash.HasValue && mdl.Splash.Value is not null)
         {
             using ImageTool imgtool = new(mdl.Splash.Value);
             splashb64 = imgtool.GetBase64();
@@ -301,7 +299,7 @@ public class DiscordRestClient : BaseDiscordClient
 
         Optional<string> bannerb64 = Optional.FromNoValue<string>();
 
-        if (mdl.Banner.HasValue && mdl.Banner.Value != null)
+        if (mdl.Banner.HasValue && mdl.Banner.Value is not null)
         {
             using ImageTool imgtool = new(mdl.Banner.Value);
             bannerb64 = imgtool.GetBase64();
@@ -311,7 +309,7 @@ public class DiscordRestClient : BaseDiscordClient
             bannerb64 = null;
         }
 
-        return await this.ApiClient.ModifyGuildAsync(guild_id, mdl.Name, mdl.Region.IfPresent(x => x.Id), mdl.VerificationLevel, mdl.DefaultMessageNotifications,
+        return await this.ApiClient.ModifyGuildAsync(guildId, mdl.Name, mdl.Region.IfPresent(x => x.Id), mdl.VerificationLevel, mdl.DefaultMessageNotifications,
             mdl.MfaLevel, mdl.ExplicitContentFilter, mdl.AfkChannel.IfPresent(x => x?.Id), mdl.AfkTimeout, iconb64, mdl.Owner.IfPresent(x => x.Id),
             splashb64, mdl.SystemChannel.IfPresent(x => x?.Id), bannerb64, mdl.Description, mdl.DiscoverySplash, mdl.Features, mdl.PreferredLocale,
             mdl.PublicUpdatesChannel.IfPresent(e => e?.Id), mdl.RulesChannel.IfPresent(e => e?.Id), mdl.SystemChannelFlags, mdl.AuditLogReason);
@@ -320,33 +318,33 @@ public class DiscordRestClient : BaseDiscordClient
     /// <summary>
     /// Gets guild bans.
     /// </summary>
-    /// <param name="guild_id">The ID of the guild to get the bans from.</param>
+    /// <param name="guildId">The ID of the guild to get the bans from.</param>
     /// <param name="limit">The number of users to return (up to maximum 1000, default 1000).</param>
     /// <param name="before">Consider only users before the given user ID.</param>
     /// <param name="after">Consider only users after the given user ID.</param>
     /// <returns>A collection of the guild's bans.</returns>
-    public async Task<IReadOnlyList<DiscordBan>> GetGuildBansAsync(ulong guild_id, int? limit = null, ulong? before = null, ulong? after = null)
-        => await this.ApiClient.GetGuildBansAsync(guild_id, limit, before, after);
+    public async Task<IReadOnlyList<DiscordBan>> GetGuildBansAsync(ulong guildId, int? limit = null, ulong? before = null, ulong? after = null)
+        => await this.ApiClient.GetGuildBansAsync(guildId, limit, before, after);
 
     /// <summary>
     /// Gets the ban of the specified user. Requires Ban Members permission.
     /// </summary>
-    /// <param name="guild_id">The ID of the guild to get the ban from.</param>
-    /// <param name="user_id">The ID of the user to get the ban for.</param>
+    /// <param name="guildId">The ID of the guild to get the ban from.</param>
+    /// <param name="userId">The ID of the user to get the ban for.</param>
     /// <returns>A guild ban object.</returns>
-    public async Task<DiscordBan> GetGuildBanAsync(ulong guild_id, ulong user_id)
-        => await this.ApiClient.GetGuildBanAsync(guild_id, user_id);
+    public async Task<DiscordBan> GetGuildBanAsync(ulong guildId, ulong userId)
+        => await this.ApiClient.GetGuildBanAsync(guildId, userId);
 
     /// <summary>
     /// Creates guild ban
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
-    /// <param name="user_id">User ID</param>
-    /// <param name="delete_message_days">Days to delete messages</param>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="userId">User ID</param>
+    /// <param name="deleteMessageDays">Days to delete messages</param>
     /// <param name="reason">Reason why this member was banned</param>
     /// <returns></returns>
-    public async Task CreateGuildBanAsync(ulong guild_id, ulong user_id, int delete_message_days, string reason)
-        => await this.ApiClient.CreateGuildBanAsync(guild_id, user_id, delete_message_days, reason);
+    public async Task CreateGuildBanAsync(ulong guildId, ulong userId, int deleteMessageDays, string reason)
+        => await this.ApiClient.CreateGuildBanAsync(guildId, userId, deleteMessageDays, reason);
     
     /// <summary>
     /// Creates multiple guild bans
@@ -362,20 +360,20 @@ public class DiscordRestClient : BaseDiscordClient
     /// <summary>
     /// Removes a guild ban
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
-    /// <param name="user_id">User to unban</param>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="userId">User to unban</param>
     /// <param name="reason">Reason why this member was unbanned</param>
     /// <returns></returns>
-    public async Task RemoveGuildBanAsync(ulong guild_id, ulong user_id, string reason)
-        => await this.ApiClient.RemoveGuildBanAsync(guild_id, user_id, reason);
+    public async Task RemoveGuildBanAsync(ulong guildId, ulong userId, string reason)
+        => await this.ApiClient.RemoveGuildBanAsync(guildId, userId, reason);
 
     /// <summary>
     /// Leaves a guild
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <returns></returns>
-    public async Task LeaveGuildAsync(ulong guild_id)
-        => await this.ApiClient.LeaveGuildAsync(guild_id);
+    public async Task LeaveGuildAsync(ulong guildId)
+        => await this.ApiClient.LeaveGuildAsync(guildId);
 
     /// <summary>
     /// Adds a member to a guild
@@ -394,11 +392,11 @@ public class DiscordRestClient : BaseDiscordClient
     /// <summary>
     /// Gets all guild members
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <param name="limit">Member download limit</param>
     /// <param name="after">Gets members after this ID</param>
     /// <returns></returns>
-    public async Task<IReadOnlyList<DiscordMember>> ListGuildMembersAsync(ulong guild_id, int? limit, ulong? after)
+    public async Task<IReadOnlyList<DiscordMember>> ListGuildMembersAsync(ulong guildId, int? limit, ulong? after)
     {
         List<DiscordMember> recmbr = new();
 
@@ -407,7 +405,7 @@ public class DiscordRestClient : BaseDiscordClient
         ulong? last = after;
         while (recd == lim)
         {
-            IReadOnlyList<TransportMember> tms = await this.ApiClient.ListGuildMembersAsync(guild_id, lim, last == 0 ? null : (ulong?)last);
+            IReadOnlyList<TransportMember> tms = await this.ApiClient.ListGuildMembersAsync(guildId, lim, last == 0 ? null : last);
             recd = tms.Count;
 
             foreach (TransportMember xtm in tms)
@@ -427,7 +425,7 @@ public class DiscordRestClient : BaseDiscordClient
                 this.UpdateUserCache(usr);
             }
 
-            recmbr.AddRange(tms.Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild_id }));
+            recmbr.AddRange(tms.Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guildId }));
         }
 
         return new ReadOnlyCollection<DiscordMember>(recmbr);
@@ -436,116 +434,116 @@ public class DiscordRestClient : BaseDiscordClient
     /// <summary>
     /// Add role to guild member
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
-    /// <param name="user_id">User ID</param>
-    /// <param name="role_id">Role ID</param>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="userId">User ID</param>
+    /// <param name="roleId">Role ID</param>
     /// <param name="reason">Reason this role gets added</param>
     /// <returns></returns>
-    public async Task AddGuildMemberRoleAsync(ulong guild_id, ulong user_id, ulong role_id, string reason)
-        => await this.ApiClient.AddGuildMemberRoleAsync(guild_id, user_id, role_id, reason);
+    public async Task AddGuildMemberRoleAsync(ulong guildId, ulong userId, ulong roleId, string reason)
+        => await this.ApiClient.AddGuildMemberRoleAsync(guildId, userId, roleId, reason);
 
     /// <summary>
     /// Remove role from member
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
-    /// <param name="user_id">User ID</param>
-    /// <param name="role_id">Role ID</param>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="userId">User ID</param>
+    /// <param name="roleId">Role ID</param>
     /// <param name="reason">Reason this role gets removed</param>
     /// <returns></returns>
-    public async Task RemoveGuildMemberRoleAsync(ulong guild_id, ulong user_id, ulong role_id, string reason)
-        => await this.ApiClient.RemoveGuildMemberRoleAsync(guild_id, user_id, role_id, reason);
+    public async Task RemoveGuildMemberRoleAsync(ulong guildId, ulong userId, ulong roleId, string reason)
+        => await this.ApiClient.RemoveGuildMemberRoleAsync(guildId, userId, roleId, reason);
 
     /// <summary>
     /// Updates a role's position
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
-    /// <param name="role_id">Role ID</param>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="roleId">Role ID</param>
     /// <param name="position">Role position</param>
     /// <param name="reason">Reason this position was modified</param>
     /// <returns></returns>
-    public async Task UpdateRolePositionAsync(ulong guild_id, ulong role_id, int position, string reason = null)
+    public async Task UpdateRolePositionAsync(ulong guildId, ulong roleId, int position, string reason = null)
     {
         List<RestGuildRoleReorderPayload> rgrrps = new()
         {
             new()
             {
-                RoleId = role_id
+                RoleId = roleId
             }
         };
-        await this.ApiClient.ModifyGuildRolePositionsAsync(guild_id, rgrrps, reason);
+        await this.ApiClient.ModifyGuildRolePositionsAsync(guildId, rgrrps, reason);
     }
 
     /// <summary>
     /// Updates a channel's position
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
-    /// <param name="channel_id">Channel ID</param>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="channelId">Channel ID</param>
     /// <param name="position">Channel position</param>
     /// <param name="reason">Reason this position was modified</param>
     /// <param name="lockPermissions">Whether to sync channel permissions with the parent, if moving to a new category.</param>
     /// <param name="parentId">The new parent id if the channel is to be moved to a new category.</param>
     /// <returns></returns>
-    public async Task UpdateChannelPositionAsync(ulong guild_id, ulong channel_id, int position, string reason, bool? lockPermissions = null, ulong? parentId = null)
+    public async Task UpdateChannelPositionAsync(ulong guildId, ulong channelId, int position, string reason, bool? lockPermissions = null, ulong? parentId = null)
     {
         List<RestGuildChannelReorderPayload> rgcrps = new()
         {
             new()
             {
-                ChannelId = channel_id,
+                ChannelId = channelId,
                 Position = position,
                 LockPermissions = lockPermissions,
                 ParentId = parentId
             }
         };
-        await this.ApiClient.ModifyGuildChannelPositionAsync(guild_id, rgcrps, reason);
+        await this.ApiClient.ModifyGuildChannelPositionAsync(guildId, rgcrps, reason);
     }
 
     /// <summary>
     /// Gets a guild's widget
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <returns></returns>
-    public async Task<DiscordWidget> GetGuildWidgetAsync(ulong guild_id)
-        => await this.ApiClient.GetGuildWidgetAsync(guild_id);
+    public async Task<DiscordWidget> GetGuildWidgetAsync(ulong guildId)
+        => await this.ApiClient.GetGuildWidgetAsync(guildId);
 
     /// <summary>
     /// Gets a guild's widget settings
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <returns></returns>
-    public async Task<DiscordWidgetSettings> GetGuildWidgetSettingsAsync(ulong guild_id)
-        => await this.ApiClient.GetGuildWidgetSettingsAsync(guild_id);
+    public async Task<DiscordWidgetSettings> GetGuildWidgetSettingsAsync(ulong guildId)
+        => await this.ApiClient.GetGuildWidgetSettingsAsync(guildId);
 
     /// <summary>
     /// Modifies a guild's widget settings
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <param name="enabled">If the widget is enabled or not</param>
-    /// <param name="channel_id">Widget channel ID</param>
+    /// <param name="channelId">Widget channel ID</param>
     /// <param name="reason">Reason the widget settings were modified</param>
     /// <returns></returns>
-    public async Task<DiscordWidgetSettings> ModifyGuildWidgetSettingsAsync(ulong guild_id, bool? enabled = null, ulong? channel_id = null, string reason = null)
-        => await this.ApiClient.ModifyGuildWidgetSettingsAsync(guild_id, enabled, channel_id, reason);
+    public async Task<DiscordWidgetSettings> ModifyGuildWidgetSettingsAsync(ulong guildId, bool? enabled = null, ulong? channelId = null, string reason = null)
+        => await this.ApiClient.ModifyGuildWidgetSettingsAsync(guildId, enabled, channelId, reason);
 
     /// <summary>
     /// Gets a guild's membership screening form.
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <returns>The guild's membership screening form.</returns>
-    public async Task<DiscordGuildMembershipScreening> GetGuildMembershipScreeningFormAsync(ulong guild_id)
-        => await this.ApiClient.GetGuildMembershipScreeningFormAsync(guild_id);
+    public async Task<DiscordGuildMembershipScreening> GetGuildMembershipScreeningFormAsync(ulong guildId)
+        => await this.ApiClient.GetGuildMembershipScreeningFormAsync(guildId);
 
     /// <summary>
     /// Modifies a guild's membership screening form.
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <param name="action">Action to perform</param>
     /// <returns>The modified screening form.</returns>
-    public async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, Action<MembershipScreeningEditModel> action)
+    public async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guildId, Action<MembershipScreeningEditModel> action)
     {
         MembershipScreeningEditModel mdl = new();
         action(mdl);
-        return await this.ApiClient.ModifyGuildMembershipScreeningFormAsync(guild_id, mdl.Enabled, mdl.Fields, mdl.Description);
+        return await this.ApiClient.ModifyGuildMembershipScreeningFormAsync(guildId, mdl.Enabled, mdl.Fields, mdl.Description);
     }
 
     /// <summary>
@@ -775,170 +773,170 @@ public class DiscordRestClient : BaseDiscordClient
     /// <summary>
     /// Gets message in a channel
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="message_id">Message ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
     /// <returns></returns>
-    public async Task<DiscordMessage> GetMessageAsync(ulong channel_id, ulong message_id)
-        => await this.ApiClient.GetMessageAsync(channel_id, message_id);
+    public async Task<DiscordMessage> GetMessageAsync(ulong channelId, ulong messageId)
+        => await this.ApiClient.GetMessageAsync(channelId, messageId);
 
     /// <summary>
     /// Sends a message
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
+    /// <param name="channelId">Channel ID</param>
     /// <param name="content">Message (text) content</param>
     /// <returns></returns>
-    public async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content)
-        => await this.ApiClient.CreateMessageAsync(channel_id, content, null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
+    public async Task<DiscordMessage> CreateMessageAsync(ulong channelId, string content)
+        => await this.ApiClient.CreateMessageAsync(channelId, content, null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
 
     /// <summary>
     /// Sends a message
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
+    /// <param name="channelId">Channel ID</param>
     /// <param name="embed">Embed to attach</param>
     /// <returns></returns>
-    public async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordEmbed embed)
-        => await this.ApiClient.CreateMessageAsync(channel_id, null, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
+    public async Task<DiscordMessage> CreateMessageAsync(ulong channelId, DiscordEmbed embed)
+        => await this.ApiClient.CreateMessageAsync(channelId, null, embed is not null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
 
     /// <summary>
     /// Sends a message
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
+    /// <param name="channelId">Channel ID</param>
     /// <param name="content">Message (text) content</param>
     /// <param name="embed">Embed to attach</param>
     /// <returns></returns>
-    public async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, DiscordEmbed embed)
-        => await this.ApiClient.CreateMessageAsync(channel_id, content, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
+    public async Task<DiscordMessage> CreateMessageAsync(ulong channelId, string content, DiscordEmbed embed)
+        => await this.ApiClient.CreateMessageAsync(channelId, content, embed is not null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
 
     /// <summary>
     /// Sends a message
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
+    /// <param name="channelId">Channel ID</param>
     /// <param name="builder">The Discord Message builder.</param>
     /// <returns></returns>
-    public async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordMessageBuilder builder)
-        => await this.ApiClient.CreateMessageAsync(channel_id, builder);
+    public async Task<DiscordMessage> CreateMessageAsync(ulong channelId, DiscordMessageBuilder builder)
+        => await this.ApiClient.CreateMessageAsync(channelId, builder);
 
     /// <summary>
     /// Sends a message
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
+    /// <param name="channelId">Channel ID</param>
     /// <param name="action">The Discord Message builder.</param>
     /// <returns></returns>
-    public async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, Action<DiscordMessageBuilder> action)
+    public async Task<DiscordMessage> CreateMessageAsync(ulong channelId, Action<DiscordMessageBuilder> action)
     {
         DiscordMessageBuilder builder = new();
         action(builder);
-        return await this.ApiClient.CreateMessageAsync(channel_id, builder);
+        return await this.ApiClient.CreateMessageAsync(channelId, builder);
     }
 
     /// <summary>
     /// Gets channels from a guild
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <returns></returns>
-    public async Task<IReadOnlyList<DiscordChannel>> GetGuildChannelsAsync(ulong guild_id)
-        => await this.ApiClient.GetGuildChannelsAsync(guild_id);
+    public async Task<IReadOnlyList<DiscordChannel>> GetGuildChannelsAsync(ulong guildId)
+        => await this.ApiClient.GetGuildChannelsAsync(guildId);
 
     /// <summary>
     /// Gets messages from a channel
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
+    /// <param name="channelId">Channel ID</param>
     /// <param name="limit">Limit of messages to get</param>
     /// <param name="before">Gets messages before this ID</param>
     /// <param name="after">Gets messages after this ID</param>
     /// <param name="around">Gets messages around this ID</param>
     /// <returns></returns>
-    public async Task<IReadOnlyList<DiscordMessage>> GetChannelMessagesAsync(ulong channel_id, int limit, ulong? before, ulong? after, ulong? around)
-        => await this.ApiClient.GetChannelMessagesAsync(channel_id, limit, before, after, around);
+    public async Task<IReadOnlyList<DiscordMessage>> GetChannelMessagesAsync(ulong channelId, int limit, ulong? before, ulong? after, ulong? around)
+        => await this.ApiClient.GetChannelMessagesAsync(channelId, limit, before, after, around);
 
     /// <summary>
     /// Gets a message from a channel
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="message_id">Message ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
     /// <returns></returns>
-    public async Task<DiscordMessage> GetChannelMessageAsync(ulong channel_id, ulong message_id)
-        => await this.ApiClient.GetChannelMessageAsync(channel_id, message_id);
+    public async Task<DiscordMessage> GetChannelMessageAsync(ulong channelId, ulong messageId)
+        => await this.ApiClient.GetChannelMessageAsync(channelId, messageId);
 
     /// <summary>
     /// Edits a message
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="message_id">Message ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
     /// <param name="content">New message content</param>
     /// <returns></returns>
-    public async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content)
-        => await this.ApiClient.EditMessageAsync(channel_id, message_id, content, default, default, default, Array.Empty<DiscordMessageFile>(), null, default);
+    public async Task<DiscordMessage> EditMessageAsync(ulong channelId, ulong messageId, Optional<string> content)
+        => await this.ApiClient.EditMessageAsync(channelId, messageId, content, default, default, default, Array.Empty<DiscordMessageFile>());
 
     /// <summary>
     /// Edits a message
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="message_id">Message ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
     /// <param name="embed">New message embed</param>
     /// <returns></returns>
-    public async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<DiscordEmbed> embed)
-        => await this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed.HasValue ? new[] { embed.Value } : Array.Empty<DiscordEmbed>(), default, default, Array.Empty<DiscordMessageFile>(), null, default);
+    public async Task<DiscordMessage> EditMessageAsync(ulong channelId, ulong messageId, Optional<DiscordEmbed> embed)
+        => await this.ApiClient.EditMessageAsync(channelId, messageId, default, embed.HasValue ? new[] { embed.Value } : Array.Empty<DiscordEmbed>(), default, default, Array.Empty<DiscordMessageFile>());
 
     /// <summary>
     /// Edits a message
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="message_id">Message ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
     /// <param name="builder">The builder of the message to edit.</param>
     /// <param name="suppressEmbeds">Whether to suppress embeds on the message.</param>
     /// <param name="attachments">Attached files to keep.</param>
     /// <returns></returns>
-    public async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, DiscordMessageBuilder builder, bool suppressEmbeds = false, IEnumerable<DiscordAttachment> attachments = default)
+    public async Task<DiscordMessage> EditMessageAsync(ulong channelId, ulong messageId, DiscordMessageBuilder builder, bool suppressEmbeds = false, IEnumerable<DiscordAttachment> attachments = default)
     {
         builder.Validate();
 
-        return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder._mentions, builder.Components, builder.Files, suppressEmbeds ? MessageFlags.SuppressedEmbeds : null, attachments);
+        return await this.ApiClient.EditMessageAsync(channelId, messageId, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder._mentions, builder.Components, builder.Files, suppressEmbeds ? MessageFlags.SuppressedEmbeds : null, attachments);
     }
 
     /// <summary>
     /// Modifies the visibility of embeds in a message.
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="message_id">Message ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
     /// <param name="hideEmbeds">Whether to hide all embeds.</param>
-    public async Task ModifyEmbedSuppressionAsync(ulong channel_id, ulong message_id, bool hideEmbeds)
-        => await this.ApiClient.EditMessageAsync(channel_id, message_id, default, default, default, default, Array.Empty<DiscordMessageFile>(), hideEmbeds ? MessageFlags.SuppressedEmbeds : null, default);
+    public async Task ModifyEmbedSuppressionAsync(ulong channelId, ulong messageId, bool hideEmbeds)
+        => await this.ApiClient.EditMessageAsync(channelId, messageId, default, default, default, default, Array.Empty<DiscordMessageFile>(), hideEmbeds ? MessageFlags.SuppressedEmbeds : null);
 
     /// <summary>
     /// Deletes a message
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="message_id">Message ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
     /// <param name="reason">Why this message was deleted</param>
     /// <returns></returns>
-    public async Task DeleteMessageAsync(ulong channel_id, ulong message_id, string reason)
-        => await this.ApiClient.DeleteMessageAsync(channel_id, message_id, reason);
+    public async Task DeleteMessageAsync(ulong channelId, ulong messageId, string reason)
+        => await this.ApiClient.DeleteMessageAsync(channelId, messageId, reason);
 
     /// <summary>
     /// Deletes multiple messages
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="message_ids">Message IDs</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageIds">Message IDs</param>
     /// <param name="reason">Reason these messages were deleted</param>
     /// <returns></returns>
-    public async Task DeleteMessagesAsync(ulong channel_id, IEnumerable<ulong> message_ids, string reason)
-        => await this.ApiClient.DeleteMessagesAsync(channel_id, message_ids, reason);
+    public async Task DeleteMessagesAsync(ulong channelId, IEnumerable<ulong> messageIds, string reason)
+        => await this.ApiClient.DeleteMessagesAsync(channelId, messageIds, reason);
 
     /// <summary>
     /// Gets a channel's invites
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
+    /// <param name="channelId">Channel ID</param>
     /// <returns></returns>
-    public async Task<IReadOnlyList<DiscordInvite>> GetChannelInvitesAsync(ulong channel_id)
-        => await this.ApiClient.GetChannelInvitesAsync(channel_id);
+    public async Task<IReadOnlyList<DiscordInvite>> GetChannelInvitesAsync(ulong channelId)
+        => await this.ApiClient.GetChannelInvitesAsync(channelId);
 
     /// <summary>
     /// Creates a channel invite
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="max_age">For how long the invite should exist</param>
-    /// <param name="max_uses">How often the invite may be used</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="maxAge">For how long the invite should exist</param>
+    /// <param name="maxUses">How often the invite may be used</param>
     /// <param name="temporary">Whether this invite should be temporary</param>
     /// <param name="unique">Whether this invite should be unique (false might return an existing invite)</param>
     /// <param name="reason">Why you made an invite</param>
@@ -946,112 +944,112 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="targetUserId">The ID of the target user.</param>
     /// <param name="targetApplicationId">The ID of the target application.</param>
     /// <returns></returns>
-    public async Task<DiscordInvite> CreateChannelInviteAsync(ulong channel_id, int max_age, int max_uses, bool temporary, bool unique, string reason, InviteTargetType? targetType = null, ulong? targetUserId = null, ulong? targetApplicationId = null)
-        => await this.ApiClient.CreateChannelInviteAsync(channel_id, max_age, max_uses, temporary, unique, reason, targetType, targetUserId, targetApplicationId);
+    public async Task<DiscordInvite> CreateChannelInviteAsync(ulong channelId, int maxAge, int maxUses, bool temporary, bool unique, string reason, InviteTargetType? targetType = null, ulong? targetUserId = null, ulong? targetApplicationId = null)
+        => await this.ApiClient.CreateChannelInviteAsync(channelId, maxAge, maxUses, temporary, unique, reason, targetType, targetUserId, targetApplicationId);
 
     /// <summary>
     /// Deletes channel overwrite
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="overwrite_id">Overwrite ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="overwriteId">Overwrite ID</param>
     /// <param name="reason">Reason it was deleted</param>
     /// <returns></returns>
-    public async Task DeleteChannelPermissionAsync(ulong channel_id, ulong overwrite_id, string reason)
-        => await this.ApiClient.DeleteChannelPermissionAsync(channel_id, overwrite_id, reason);
+    public async Task DeleteChannelPermissionAsync(ulong channelId, ulong overwriteId, string reason)
+        => await this.ApiClient.DeleteChannelPermissionAsync(channelId, overwriteId, reason);
 
     /// <summary>
     /// Edits channel overwrite
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="overwrite_id">Overwrite ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="overwriteId">Overwrite ID</param>
     /// <param name="allow">Permissions to allow</param>
     /// <param name="deny">Permissions to deny</param>
     /// <param name="type">Overwrite type</param>
     /// <param name="reason">Reason this overwrite was created</param>
     /// <returns></returns>
-    public async Task EditChannelPermissionsAsync(ulong channel_id, ulong overwrite_id, Permissions allow, Permissions deny, string type, string reason)
-        => await this.ApiClient.EditChannelPermissionsAsync(channel_id, overwrite_id, allow, deny, type, reason);
+    public async Task EditChannelPermissionsAsync(ulong channelId, ulong overwriteId, Permissions allow, Permissions deny, string type, string reason)
+        => await this.ApiClient.EditChannelPermissionsAsync(channelId, overwriteId, allow, deny, type, reason);
 
     /// <summary>
     /// Send a typing indicator to a channel
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
+    /// <param name="channelId">Channel ID</param>
     /// <returns></returns>
-    public async Task TriggerTypingAsync(ulong channel_id)
-        => await this.ApiClient.TriggerTypingAsync(channel_id);
+    public async Task TriggerTypingAsync(ulong channelId)
+        => await this.ApiClient.TriggerTypingAsync(channelId);
 
     /// <summary>
     /// Gets pinned messages
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
+    /// <param name="channelId">Channel ID</param>
     /// <returns></returns>
-    public async Task<IReadOnlyList<DiscordMessage>> GetPinnedMessagesAsync(ulong channel_id)
-        => await this.ApiClient.GetPinnedMessagesAsync(channel_id);
+    public async Task<IReadOnlyList<DiscordMessage>> GetPinnedMessagesAsync(ulong channelId)
+        => await this.ApiClient.GetPinnedMessagesAsync(channelId);
 
     /// <summary>
     /// Unpins a message
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="message_id">Message ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
     /// <returns></returns>
-    public async Task UnpinMessageAsync(ulong channel_id, ulong message_id)
-        => await this.ApiClient.UnpinMessageAsync(channel_id, message_id);
+    public async Task UnpinMessageAsync(ulong channelId, ulong messageId)
+        => await this.ApiClient.UnpinMessageAsync(channelId, messageId);
 
     /// <summary>
     /// Joins a group DM
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
+    /// <param name="channelId">Channel ID</param>
     /// <param name="nickname">DM nickname</param>
     /// <returns></returns>
-    public async Task JoinGroupDmAsync(ulong channel_id, string nickname)
-        => await this.ApiClient.AddGroupDmRecipientAsync(channel_id, this.CurrentUser.Id, this.Configuration.Token, nickname);
+    public async Task JoinGroupDmAsync(ulong channelId, string nickname)
+        => await this.ApiClient.AddGroupDmRecipientAsync(channelId, this.CurrentUser.Id, this.Configuration.Token, nickname);
 
     /// <summary>
     /// Adds a member to a group DM
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="user_id">User ID</param>
-    /// <param name="access_token">User's access token</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="userId">User ID</param>
+    /// <param name="accessToken">User's access token</param>
     /// <param name="nickname">Nickname for user</param>
     /// <returns></returns>
-    public async Task GroupDmAddRecipientAsync(ulong channel_id, ulong user_id, string access_token, string nickname)
-        => await this.ApiClient.AddGroupDmRecipientAsync(channel_id, user_id, access_token, nickname);
+    public async Task GroupDmAddRecipientAsync(ulong channelId, ulong userId, string accessToken, string nickname)
+        => await this.ApiClient.AddGroupDmRecipientAsync(channelId, userId, accessToken, nickname);
 
     /// <summary>
     /// Leaves a group DM
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
+    /// <param name="channelId">Channel ID</param>
     /// <returns></returns>
-    public async Task LeaveGroupDmAsync(ulong channel_id)
-        => await this.ApiClient.RemoveGroupDmRecipientAsync(channel_id, this.CurrentUser.Id);
+    public async Task LeaveGroupDmAsync(ulong channelId)
+        => await this.ApiClient.RemoveGroupDmRecipientAsync(channelId, this.CurrentUser.Id);
 
     /// <summary>
     /// Removes a member from a group DM
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="user_id">User ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="userId">User ID</param>
     /// <returns></returns>
-    public async Task GroupDmRemoveRecipientAsync(ulong channel_id, ulong user_id)
-        => await this.ApiClient.RemoveGroupDmRecipientAsync(channel_id, user_id);
+    public async Task GroupDmRemoveRecipientAsync(ulong channelId, ulong userId)
+        => await this.ApiClient.RemoveGroupDmRecipientAsync(channelId, userId);
 
     /// <summary>
     /// Creates a group DM
     /// </summary>
-    /// <param name="access_tokens">Access tokens</param>
+    /// <param name="accessTokens">Access tokens</param>
     /// <param name="nicks">Nicknames per user</param>
     /// <returns></returns>
-    public async Task<DiscordDmChannel> CreateGroupDmAsync(IEnumerable<string> access_tokens, IDictionary<ulong, string> nicks)
-        => await this.ApiClient.CreateGroupDmAsync(access_tokens, nicks);
+    public async Task<DiscordDmChannel> CreateGroupDmAsync(IEnumerable<string> accessTokens, IDictionary<ulong, string> nicks)
+        => await this.ApiClient.CreateGroupDmAsync(accessTokens, nicks);
 
     /// <summary>
     /// Creates a group DM with current user
     /// </summary>
-    /// <param name="access_tokens">Access tokens</param>
+    /// <param name="accessTokens">Access tokens</param>
     /// <param name="nicks">Nicknames</param>
     /// <returns></returns>
-    public async Task<DiscordDmChannel> CreateGroupDmWithCurrentUserAsync(IEnumerable<string> access_tokens, IDictionary<ulong, string> nicks)
+    public async Task<DiscordDmChannel> CreateGroupDmWithCurrentUserAsync(IEnumerable<string> accessTokens, IDictionary<ulong, string> nicks)
     {
-        List<string> a = access_tokens.ToList();
+        List<string> a = accessTokens.ToList();
         a.Add(this.Configuration.Token);
         return await this.ApiClient.CreateGroupDmAsync(a, nicks);
     }
@@ -1059,30 +1057,30 @@ public class DiscordRestClient : BaseDiscordClient
     /// <summary>
     /// Creates a DM
     /// </summary>
-    /// <param name="recipient_id">Recipient user ID</param>
+    /// <param name="recipientId">Recipient user ID</param>
     /// <returns></returns>
-    public async Task<DiscordDmChannel> CreateDmAsync(ulong recipient_id)
-        => await this.ApiClient.CreateDmAsync(recipient_id);
+    public async Task<DiscordDmChannel> CreateDmAsync(ulong recipientId)
+        => await this.ApiClient.CreateDmAsync(recipientId);
 
     /// <summary>
     /// Follows a news channel
     /// </summary>
-    /// <param name="channel_id">ID of the channel to follow</param>
-    /// <param name="webhook_channel_id">ID of the channel to crosspost messages to</param>
+    /// <param name="channelId">ID of the channel to follow</param>
+    /// <param name="webhookChannelId">ID of the channel to crosspost messages to</param>
     /// <exception cref="UnauthorizedException">Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> on the target channel</exception>
-    public async Task<DiscordFollowedChannel> FollowChannelAsync(ulong channel_id, ulong webhook_channel_id)
-        => await this.ApiClient.FollowChannelAsync(channel_id, webhook_channel_id);
+    public async Task<DiscordFollowedChannel> FollowChannelAsync(ulong channelId, ulong webhookChannelId)
+        => await this.ApiClient.FollowChannelAsync(channelId, webhookChannelId);
 
     /// <summary>
     /// Publishes a message in a news channel to following channels
     /// </summary>
-    /// <param name="channel_id">ID of the news channel the message to crosspost belongs to</param>
-    /// <param name="message_id">ID of the message to crosspost</param>
+    /// <param name="channelId">ID of the news channel the message to crosspost belongs to</param>
+    /// <param name="messageId">ID of the message to crosspost</param>
     /// <exception cref="UnauthorizedException">
     ///     Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> and/or <see cref="Permissions.SendMessages"/>
     /// </exception>
-    public async Task<DiscordMessage> CrosspostMessageAsync(ulong channel_id, ulong message_id)
-        => await this.ApiClient.CrosspostMessageAsync(channel_id, message_id);
+    public async Task<DiscordMessage> CrosspostMessageAsync(ulong channelId, ulong messageId)
+        => await this.ApiClient.CrosspostMessageAsync(channelId, messageId);
 
     /// <summary>
     /// Creates a stage instance in a stage channel.
@@ -1153,30 +1151,30 @@ public class DiscordRestClient : BaseDiscordClient
     /// <summary>
     /// Gets guild member
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
-    /// <param name="member_id">Member ID</param>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="memberId">Member ID</param>
     /// <returns></returns>
-    public async Task<DiscordMember> GetGuildMemberAsync(ulong guild_id, ulong member_id)
-        => await this.ApiClient.GetGuildMemberAsync(guild_id, member_id);
+    public async Task<DiscordMember> GetGuildMemberAsync(ulong guildId, ulong memberId)
+        => await this.ApiClient.GetGuildMemberAsync(guildId, memberId);
 
     /// <summary>
     /// Removes guild member
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
-    /// <param name="user_id">User ID</param>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="userId">User ID</param>
     /// <param name="reason">Why this user was removed</param>
     /// <returns></returns>
-    public async Task RemoveGuildMemberAsync(ulong guild_id, ulong user_id, string reason)
-        => await this.ApiClient.RemoveGuildMemberAsync(guild_id, user_id, reason);
+    public async Task RemoveGuildMemberAsync(ulong guildId, ulong userId, string reason)
+        => await this.ApiClient.RemoveGuildMemberAsync(guildId, userId, reason);
 
     /// <summary>
     /// Modifies current user
     /// </summary>
     /// <param name="username">New username</param>
-    /// <param name="base64_avatar">New avatar (base64)</param>
+    /// <param name="base64Avatar">New avatar (base64)</param>
     /// <returns></returns>
-    public async Task<DiscordUser> ModifyCurrentUserAsync(string username, string base64_avatar)
-        => new DiscordUser(await this.ApiClient.ModifyCurrentUserAsync(username, base64_avatar)) { Discord = this };
+    public async Task<DiscordUser> ModifyCurrentUserAsync(string username, string base64Avatar)
+        => new DiscordUser(await this.ApiClient.ModifyCurrentUserAsync(username, base64Avatar)) { Discord = this };
 
     /// <summary>
     /// Modifies current user
@@ -1187,7 +1185,7 @@ public class DiscordRestClient : BaseDiscordClient
     public async Task<DiscordUser> ModifyCurrentUserAsync(string username = null, Stream avatar = null)
     {
         string av64 = null;
-        if (avatar != null)
+        if (avatar is not null)
         {
             using ImageTool imgtool = new(avatar);
             av64 = imgtool.GetBase64();
@@ -1217,49 +1215,49 @@ public class DiscordRestClient : BaseDiscordClient
     /// <summary>
     /// Modifies guild member.
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
-    /// <param name="user_id">User ID</param>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="userId">User ID</param>
     /// <param name="nick">New nickname</param>
-    /// <param name="role_ids">New roles</param>
+    /// <param name="roleIds">New roles</param>
     /// <param name="mute">Whether this user should be muted</param>
     /// <param name="deaf">Whether this user should be deafened</param>
-    /// <param name="voice_channel_id">Voice channel to move this user to</param>
-    /// <param name="communication_disabled_until">How long this member should be timed out for. Requires MODERATE_MEMBERS permission.</param>
+    /// <param name="voiceChannelId">Voice channel to move this user to</param>
+    /// <param name="communicationDisabledUntil">How long this member should be timed out for. Requires MODERATE_MEMBERS permission.</param>
     /// <param name="reason">Reason this user was modified</param>
     /// <returns></returns>
-    public async Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, Optional<string> nick,
-        Optional<IEnumerable<ulong>> role_ids, Optional<bool> mute, Optional<bool> deaf,
-        Optional<ulong?> voice_channel_id, Optional<DateTimeOffset?> communication_disabled_until, string reason)
-        => await this.ApiClient.ModifyGuildMemberAsync(guild_id, user_id, nick, role_ids, mute, deaf, voice_channel_id, communication_disabled_until, reason);
+    public async Task ModifyGuildMemberAsync(ulong guildId, ulong userId, Optional<string> nick,
+        Optional<IEnumerable<ulong>> roleIds, Optional<bool> mute, Optional<bool> deaf,
+        Optional<ulong?> voiceChannelId, Optional<DateTimeOffset?> communicationDisabledUntil, string reason)
+        => await this.ApiClient.ModifyGuildMemberAsync(guildId, userId, nick, roleIds, mute, deaf, voiceChannelId, communicationDisabledUntil, reason);
 
     /// <summary>
     /// Modifies a member
     /// </summary>
-    /// <param name="member_id">Member ID</param>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="memberId">Member ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <param name="action">Modifications</param>
     /// <returns></returns>
-    public async Task ModifyAsync(ulong member_id, ulong guild_id, Action<MemberEditModel> action)
+    public async Task ModifyAsync(ulong memberId, ulong guildId, Action<MemberEditModel> action)
     {
         MemberEditModel mdl = new();
         action(mdl);
 
-        if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value != null && mdl.VoiceChannel.Value.Type != ChannelType.Voice && mdl.VoiceChannel.Value.Type != ChannelType.Stage)
+        if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value is not null && mdl.VoiceChannel.Value.Type != ChannelType.Voice && mdl.VoiceChannel.Value.Type != ChannelType.Stage)
         {
             throw new ArgumentException("Given channel is not a voice or stage channel.", nameof(mdl.VoiceChannel));
         }
 
-        if (mdl.Nickname.HasValue && this.CurrentUser.Id == member_id)
+        if (mdl.Nickname.HasValue && this.CurrentUser.Id == memberId)
         {
-            await this.ApiClient.ModifyCurrentMemberAsync(guild_id, mdl.Nickname.Value,
+            await this.ApiClient.ModifyCurrentMemberAsync(guildId, mdl.Nickname.Value,
                 mdl.AuditLogReason);
-            await this.ApiClient.ModifyGuildMemberAsync(guild_id, member_id, Optional.FromNoValue<string>(),
+            await this.ApiClient.ModifyGuildMemberAsync(guildId, memberId, Optional.FromNoValue<string>(),
                 mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
                 mdl.VoiceChannel.IfPresent(e => e?.Id), default, mdl.AuditLogReason);
         }
         else
         {
-            await this.ApiClient.ModifyGuildMemberAsync(guild_id, member_id, mdl.Nickname,
+            await this.ApiClient.ModifyGuildMemberAsync(guildId, memberId, mdl.Nickname,
                 mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
                 mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.CommunicationDisabledUntil, mdl.AuditLogReason);
         }
@@ -1268,12 +1266,12 @@ public class DiscordRestClient : BaseDiscordClient
     /// <summary>
     /// Changes the current user in a guild.
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <param name="nickname">Nickname to set</param>
     /// <param name="reason">Audit log reason</param>
     /// <returns></returns>
-    public async Task ModifyCurrentMemberAsync(ulong guild_id, string nickname, string reason)
-        => await this.ApiClient.ModifyCurrentMemberAsync(guild_id, nickname, reason);
+    public async Task ModifyCurrentMemberAsync(ulong guildId, string nickname, string reason)
+        => await this.ApiClient.ModifyCurrentMemberAsync(guildId, nickname, reason);
 
     #endregion
 
@@ -1281,25 +1279,25 @@ public class DiscordRestClient : BaseDiscordClient
     /// <summary>
     /// Gets roles
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <returns></returns>
-    public async Task<IReadOnlyList<DiscordRole>> GetGuildRolesAsync(ulong guild_id)
-        => await this.ApiClient.GetGuildRolesAsync(guild_id);
+    public async Task<IReadOnlyList<DiscordRole>> GetGuildRolesAsync(ulong guildId)
+        => await this.ApiClient.GetGuildRolesAsync(guildId);
 
     /// <summary>
     /// Gets a guild.
     /// </summary>
-    /// <param name="guild_id">The guild ID to search for.</param>
-    /// <param name="with_counts">Whether to include approximate presence and member counts in the returned guild.</param>
+    /// <param name="guildId">The guild ID to search for.</param>
+    /// <param name="withCounts">Whether to include approximate presence and member counts in the returned guild.</param>
     /// <returns></returns>
-    public async Task<DiscordGuild> GetGuildAsync(ulong guild_id, bool? with_counts = null)
-        => await this.ApiClient.GetGuildAsync(guild_id, with_counts);
+    public async Task<DiscordGuild> GetGuildAsync(ulong guildId, bool? withCounts = null)
+        => await this.ApiClient.GetGuildAsync(guildId, withCounts);
 
     /// <summary>
     /// Modifies a role
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
-    /// <param name="role_id">Role ID</param>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="roleId">Role ID</param>
     /// <param name="name">New role name</param>
     /// <param name="permissions">New role permissions</param>
     /// <param name="color">New role color</param>
@@ -1309,38 +1307,38 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="icon">The icon to add to this role</param>
     /// <param name="emoji">The emoji to add to this role. Must be unicode.</param>
     /// <returns></returns>
-    public async Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, string name, Permissions? permissions, DiscordColor? color, bool? hoist, bool? mentionable, string reason, Stream icon, DiscordEmoji emoji)
-        => await this.ApiClient.ModifyGuildRoleAsync(guild_id, role_id, name, permissions, color.HasValue ? (int?)color.Value.Value : null, hoist, mentionable, icon, emoji?.ToString(), reason);
+    public async Task<DiscordRole> ModifyGuildRoleAsync(ulong guildId, ulong roleId, string name, Permissions? permissions, DiscordColor? color, bool? hoist, bool? mentionable, string reason, Stream icon, DiscordEmoji emoji)
+        => await this.ApiClient.ModifyGuildRoleAsync(guildId, roleId, name, permissions, color.HasValue ? color.Value.Value : null, hoist, mentionable, icon, emoji?.ToString(), reason);
 
     /// <summary>
     /// Modifies a role
     /// </summary>
-    /// <param name="role_id">Role ID</param>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="roleId">Role ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <param name="action">Modifications</param>
     /// <returns></returns>
-    public async Task ModifyGuildRoleAsync(ulong role_id, ulong guild_id, Action<RoleEditModel> action)
+    public async Task ModifyGuildRoleAsync(ulong roleId, ulong guildId, Action<RoleEditModel> action)
     {
         RoleEditModel mdl = new();
         action(mdl);
 
-        await this.ModifyGuildRoleAsync(guild_id, role_id, mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason, mdl.Icon, mdl.Emoji);
+        await this.ModifyGuildRoleAsync(guildId, roleId, mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason, mdl.Icon, mdl.Emoji);
     }
 
     /// <summary>
     /// Deletes a role
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
-    /// <param name="role_id">Role ID</param>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="roleId">Role ID</param>
     /// <param name="reason">Reason why this role was deleted</param>
     /// <returns></returns>
-    public async Task DeleteGuildRoleAsync(ulong guild_id, ulong role_id, string reason)
-        => await this.ApiClient.DeleteRoleAsync(guild_id, role_id, reason);
+    public async Task DeleteGuildRoleAsync(ulong guildId, ulong roleId, string reason)
+        => await this.ApiClient.DeleteRoleAsync(guildId, roleId, reason);
 
     /// <summary>
     /// Creates a new role
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <param name="name">Role name</param>
     /// <param name="permissions">Role permissions</param>
     /// <param name="color">Role color</param>
@@ -1350,146 +1348,146 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="icon">The icon to add to this role</param>
     /// <param name="emoji">The emoji to add to this role. Must be unicode.</param>
     /// <returns></returns>
-    public async Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason, Stream icon = null, DiscordEmoji emoji = null)
-        => await this.ApiClient.CreateGuildRoleAsync(guild_id, name, permissions, color, hoist, mentionable, icon, emoji?.ToString(), reason);
+    public async Task<DiscordRole> CreateGuildRoleAsync(ulong guildId, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason, Stream icon = null, DiscordEmoji emoji = null)
+        => await this.ApiClient.CreateGuildRoleAsync(guildId, name, permissions, color, hoist, mentionable, icon, emoji?.ToString(), reason);
     #endregion
 
     #region Prune
     /// <summary>
     /// Get a guild's prune count.
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <param name="days">Days to check for</param>
-    /// <param name="include_roles">The roles to be included in the prune.</param>
+    /// <param name="includeRoles">The roles to be included in the prune.</param>
     /// <returns></returns>
-    public async Task<int> GetGuildPruneCountAsync(ulong guild_id, int days, IEnumerable<ulong> include_roles)
-        => await this.ApiClient.GetGuildPruneCountAsync(guild_id, days, include_roles);
+    public async Task<int> GetGuildPruneCountAsync(ulong guildId, int days, IEnumerable<ulong> includeRoles)
+        => await this.ApiClient.GetGuildPruneCountAsync(guildId, days, includeRoles);
 
     /// <summary>
     /// Begins a guild prune.
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <param name="days">Days to prune for</param>
-    /// <param name="compute_prune_count">Whether to return the prune count after this method completes. This is discouraged for larger guilds.</param>
-    /// <param name="include_roles">The roles to be included in the prune.</param>
+    /// <param name="computePruneCount">Whether to return the prune count after this method completes. This is discouraged for larger guilds.</param>
+    /// <param name="includeRoles">The roles to be included in the prune.</param>
     /// <param name="reason">Reason why this guild was pruned</param>
     /// <returns></returns>
-    public async Task<int?> BeginGuildPruneAsync(ulong guild_id, int days, bool compute_prune_count, IEnumerable<ulong> include_roles, string reason)
-        => await this.ApiClient.BeginGuildPruneAsync(guild_id, days, compute_prune_count, include_roles, reason);
+    public async Task<int?> BeginGuildPruneAsync(ulong guildId, int days, bool computePruneCount, IEnumerable<ulong> includeRoles, string reason)
+        => await this.ApiClient.BeginGuildPruneAsync(guildId, days, computePruneCount, includeRoles, reason);
     #endregion
 
     #region GuildVarious
     /// <summary>
     /// Gets guild integrations
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <returns></returns>
-    public async Task<IReadOnlyList<DiscordIntegration>> GetGuildIntegrationsAsync(ulong guild_id)
-        => await this.ApiClient.GetGuildIntegrationsAsync(guild_id);
+    public async Task<IReadOnlyList<DiscordIntegration>> GetGuildIntegrationsAsync(ulong guildId)
+        => await this.ApiClient.GetGuildIntegrationsAsync(guildId);
 
     /// <summary>
     /// Creates guild integration
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <param name="type">Integration type</param>
     /// <param name="id">Integration id</param>
     /// <returns></returns>
-    public async Task<DiscordIntegration> CreateGuildIntegrationAsync(ulong guild_id, string type, ulong id)
-        => await this.ApiClient.CreateGuildIntegrationAsync(guild_id, type, id);
+    public async Task<DiscordIntegration> CreateGuildIntegrationAsync(ulong guildId, string type, ulong id)
+        => await this.ApiClient.CreateGuildIntegrationAsync(guildId, type, id);
 
     /// <summary>
     /// Modifies a guild integration
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
-    /// <param name="integration_id">Integration ID</param>
-    /// <param name="expire_behaviour">Expiration behaviour</param>
-    /// <param name="expire_grace_period">Expiration grace period</param>
-    /// <param name="enable_emoticons">Whether to enable emojis for this integration</param>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="integrationId">Integration ID</param>
+    /// <param name="expireBehaviour">Expiration behaviour</param>
+    /// <param name="expireGracePeriod">Expiration grace period</param>
+    /// <param name="enableEmoticons">Whether to enable emojis for this integration</param>
     /// <returns></returns>
-    public async Task<DiscordIntegration> ModifyGuildIntegrationAsync(ulong guild_id, ulong integration_id, int expire_behaviour, int expire_grace_period, bool enable_emoticons)
-        => await this.ApiClient.ModifyGuildIntegrationAsync(guild_id, integration_id, expire_behaviour, expire_grace_period, enable_emoticons);
+    public async Task<DiscordIntegration> ModifyGuildIntegrationAsync(ulong guildId, ulong integrationId, int expireBehaviour, int expireGracePeriod, bool enableEmoticons)
+        => await this.ApiClient.ModifyGuildIntegrationAsync(guildId, integrationId, expireBehaviour, expireGracePeriod, enableEmoticons);
 
     /// <summary>
     /// Removes a guild integration
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <param name="integration">Integration to remove</param>
     /// <param name="reason">Reason why this integration was removed</param>
     /// <returns></returns>
-    public async Task DeleteGuildIntegrationAsync(ulong guild_id, DiscordIntegration integration, string reason = null)
-        => await this.ApiClient.DeleteGuildIntegrationAsync(guild_id, integration.Id, reason);
+    public async Task DeleteGuildIntegrationAsync(ulong guildId, DiscordIntegration integration, string reason = null)
+        => await this.ApiClient.DeleteGuildIntegrationAsync(guildId, integration.Id, reason);
 
     /// <summary>
     /// Syncs guild integration
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
-    /// <param name="integration_id">Integration ID</param>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="integrationId">Integration ID</param>
     /// <returns></returns>
-    public async Task SyncGuildIntegrationAsync(ulong guild_id, ulong integration_id)
-        => await this.ApiClient.SyncGuildIntegrationAsync(guild_id, integration_id);
+    public async Task SyncGuildIntegrationAsync(ulong guildId, ulong integrationId)
+        => await this.ApiClient.SyncGuildIntegrationAsync(guildId, integrationId);
 
     /// <summary>
     /// Get a guild's voice region
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <returns></returns>
-    public async Task<IReadOnlyList<DiscordVoiceRegion>> GetGuildVoiceRegionsAsync(ulong guild_id)
-        => await this.ApiClient.GetGuildVoiceRegionsAsync(guild_id);
+    public async Task<IReadOnlyList<DiscordVoiceRegion>> GetGuildVoiceRegionsAsync(ulong guildId)
+        => await this.ApiClient.GetGuildVoiceRegionsAsync(guildId);
 
     /// <summary>
     /// Get a guild's invites
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <returns></returns>
-    public async Task<IReadOnlyList<DiscordInvite>> GetGuildInvitesAsync(ulong guild_id)
-        => await this.ApiClient.GetGuildInvitesAsync(guild_id);
+    public async Task<IReadOnlyList<DiscordInvite>> GetGuildInvitesAsync(ulong guildId)
+        => await this.ApiClient.GetGuildInvitesAsync(guildId);
 
     /// <summary>
     /// Gets a guild's templates.
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <returns>All of the guild's templates.</returns>
-    public async Task<IReadOnlyList<DiscordGuildTemplate>> GetGuildTemplatesAsync(ulong guild_id)
-        => await this.ApiClient.GetGuildTemplatesAsync(guild_id);
+    public async Task<IReadOnlyList<DiscordGuildTemplate>> GetGuildTemplatesAsync(ulong guildId)
+        => await this.ApiClient.GetGuildTemplatesAsync(guildId);
 
     /// <summary>
     /// Creates a guild template.
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <param name="name">Name of the template.</param>
     /// <param name="description">Description of the template.</param>
     /// <returns>The template created.</returns>
-    public async Task<DiscordGuildTemplate> CreateGuildTemplateAsync(ulong guild_id, string name, string description = null)
-        => await this.ApiClient.CreateGuildTemplateAsync(guild_id, name, description);
+    public async Task<DiscordGuildTemplate> CreateGuildTemplateAsync(ulong guildId, string name, string description = null)
+        => await this.ApiClient.CreateGuildTemplateAsync(guildId, name, description);
 
     /// <summary>
     /// Syncs the template to the current guild's state.
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <param name="code">The code of the template to sync.</param>
     /// <returns>The template synced.</returns>
-    public async Task<DiscordGuildTemplate> SyncGuildTemplateAsync(ulong guild_id, string code)
-        => await this.ApiClient.SyncGuildTemplateAsync(guild_id, code);
+    public async Task<DiscordGuildTemplate> SyncGuildTemplateAsync(ulong guildId, string code)
+        => await this.ApiClient.SyncGuildTemplateAsync(guildId, code);
 
     /// <summary>
     /// Modifies the template's metadata.
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <param name="code">The template's code.</param>
     /// <param name="name">Name of the template.</param>
     /// <param name="description">Description of the template.</param>
     /// <returns>The template modified.</returns>
-    public async Task<DiscordGuildTemplate> ModifyGuildTemplateAsync(ulong guild_id, string code, string name = null, string description = null)
-        => await this.ApiClient.ModifyGuildTemplateAsync(guild_id, code, name, description);
+    public async Task<DiscordGuildTemplate> ModifyGuildTemplateAsync(ulong guildId, string code, string name = null, string description = null)
+        => await this.ApiClient.ModifyGuildTemplateAsync(guildId, code, name, description);
 
     /// <summary>
     /// Deletes the template.
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <param name="code">The code of the template to delete.</param>
     /// <returns>The deleted template.</returns>
-    public async Task<DiscordGuildTemplate> DeleteGuildTemplateAsync(ulong guild_id, string code)
-        => await this.ApiClient.DeleteGuildTemplateAsync(guild_id, code);
+    public async Task<DiscordGuildTemplate> DeleteGuildTemplateAsync(ulong guildId, string code)
+        => await this.ApiClient.DeleteGuildTemplateAsync(guildId, code);
 
     /// <summary>
     /// Gets a guild's welcome screen.
@@ -1525,21 +1523,21 @@ public class DiscordRestClient : BaseDiscordClient
     /// <summary>
     /// Gets an invite.
     /// </summary>
-    /// <param name="invite_code">The invite code.</param>
+    /// <param name="inviteCode">The invite code.</param>
     /// <param name="withCounts">Whether to include presence and total member counts in the returned invite.</param>
     /// <param name="withExpiration">Whether to include the expiration date in the returned invite.</param>
     /// <returns></returns>
-    public async Task<DiscordInvite> GetInviteAsync(string invite_code, bool? withCounts = null, bool? withExpiration = null)
-        => await this.ApiClient.GetInviteAsync(invite_code, withCounts, withExpiration);
+    public async Task<DiscordInvite> GetInviteAsync(string inviteCode, bool? withCounts = null, bool? withExpiration = null)
+        => await this.ApiClient.GetInviteAsync(inviteCode, withCounts, withExpiration);
 
     /// <summary>
     /// Removes an invite
     /// </summary>
-    /// <param name="invite_code">Invite code</param>
+    /// <param name="inviteCode">Invite code</param>
     /// <param name="reason">Reason why this invite was removed</param>
     /// <returns></returns>
-    public async Task<DiscordInvite> DeleteInviteAsync(string invite_code, string reason)
-        => await this.ApiClient.DeleteInviteAsync(invite_code, reason);
+    public async Task<DiscordInvite> DeleteInviteAsync(string inviteCode, string reason)
+        => await this.ApiClient.DeleteInviteAsync(inviteCode, reason);
     #endregion
 
     #region Connections
@@ -1555,255 +1553,255 @@ public class DiscordRestClient : BaseDiscordClient
     /// <summary>
     /// Creates a new webhook
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
+    /// <param name="channelId">Channel ID</param>
     /// <param name="name">Webhook name</param>
-    /// <param name="base64_avatar">Webhook avatar (base64)</param>
+    /// <param name="base64Avatar">Webhook avatar (base64)</param>
     /// <param name="reason">Reason why this webhook was created</param>
     /// <returns></returns>
-    public async Task<DiscordWebhook> CreateWebhookAsync(ulong channel_id, string name, string base64_avatar, string reason)
-        => await this.ApiClient.CreateWebhookAsync(channel_id, name, base64_avatar, reason);
+    public async Task<DiscordWebhook> CreateWebhookAsync(ulong channelId, string name, string base64Avatar, string reason)
+        => await this.ApiClient.CreateWebhookAsync(channelId, name, base64Avatar, reason);
 
     /// <summary>
     /// Creates a new webhook
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
+    /// <param name="channelId">Channel ID</param>
     /// <param name="name">Webhook name</param>
     /// <param name="avatar">Webhook avatar</param>
     /// <param name="reason">Reason why this webhook was created</param>
     /// <returns></returns>
-    public async Task<DiscordWebhook> CreateWebhookAsync(ulong channel_id, string name, Stream avatar = null, string reason = null)
+    public async Task<DiscordWebhook> CreateWebhookAsync(ulong channelId, string name, Stream avatar = null, string reason = null)
     {
         string av64 = null;
-        if (avatar != null)
+        if (avatar is not null)
         {
             using ImageTool imgtool = new(avatar);
             av64 = imgtool.GetBase64();
         }
 
-        return await this.ApiClient.CreateWebhookAsync(channel_id, name, av64, reason);
+        return await this.ApiClient.CreateWebhookAsync(channelId, name, av64, reason);
     }
 
     /// <summary>
     /// Gets all webhooks from a channel
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
+    /// <param name="channelId">Channel ID</param>
     /// <returns></returns>
-    public async Task<IReadOnlyList<DiscordWebhook>> GetChannelWebhooksAsync(ulong channel_id)
-        => await this.ApiClient.GetChannelWebhooksAsync(channel_id);
+    public async Task<IReadOnlyList<DiscordWebhook>> GetChannelWebhooksAsync(ulong channelId)
+        => await this.ApiClient.GetChannelWebhooksAsync(channelId);
 
     /// <summary>
     /// Gets all webhooks from a guild
     /// </summary>
-    /// <param name="guild_id">Guild ID</param>
+    /// <param name="guildId">Guild ID</param>
     /// <returns></returns>
-    public async Task<IReadOnlyList<DiscordWebhook>> GetGuildWebhooksAsync(ulong guild_id)
-        => await this.ApiClient.GetGuildWebhooksAsync(guild_id);
+    public async Task<IReadOnlyList<DiscordWebhook>> GetGuildWebhooksAsync(ulong guildId)
+        => await this.ApiClient.GetGuildWebhooksAsync(guildId);
 
     /// <summary>
     /// Gets a webhook
     /// </summary>
-    /// <param name="webhook_id">Webhook ID</param>
+    /// <param name="webhookId">Webhook ID</param>
     /// <returns></returns>
-    public async Task<DiscordWebhook> GetWebhookAsync(ulong webhook_id)
-        => await this.ApiClient.GetWebhookAsync(webhook_id);
+    public async Task<DiscordWebhook> GetWebhookAsync(ulong webhookId)
+        => await this.ApiClient.GetWebhookAsync(webhookId);
 
     /// <summary>
     /// Gets a webhook with its token (when user is not in said guild)
     /// </summary>
-    /// <param name="webhook_id">Webhook ID</param>
-    /// <param name="webhook_token">Webhook token</param>
+    /// <param name="webhookId">Webhook ID</param>
+    /// <param name="webhookToken">Webhook token</param>
     /// <returns></returns>
-    public async Task<DiscordWebhook> GetWebhookWithTokenAsync(ulong webhook_id, string webhook_token)
-        => await this.ApiClient.GetWebhookWithTokenAsync(webhook_id, webhook_token);
+    public async Task<DiscordWebhook> GetWebhookWithTokenAsync(ulong webhookId, string webhookToken)
+        => await this.ApiClient.GetWebhookWithTokenAsync(webhookId, webhookToken);
 
     /// <summary>
     /// Modifies a webhook
     /// </summary>
-    /// <param name="webhook_id">Webhook ID</param>
+    /// <param name="webhookId">Webhook ID</param>
     /// <param name="channelId">The new channel ID the webhook should be moved to.</param>
     /// <param name="name">New webhook name</param>
-    /// <param name="base64_avatar">New webhook avatar (base64)</param>
+    /// <param name="base64Avatar">New webhook avatar (base64)</param>
     /// <param name="reason">Reason why this webhook was modified</param>
     /// <returns></returns>
-    public async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, ulong channelId, string name, string base64_avatar, string reason)
-        => await this.ApiClient.ModifyWebhookAsync(webhook_id, channelId, name, base64_avatar, reason);
+    public async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhookId, ulong channelId, string name, string base64Avatar, string reason)
+        => await this.ApiClient.ModifyWebhookAsync(webhookId, channelId, name, base64Avatar, reason);
 
     /// <summary>
     /// Modifies a webhook
     /// </summary>
-    /// <param name="webhook_id">Webhook ID</param>
+    /// <param name="webhookId">Webhook ID</param>
     /// <param name="channelId">The new channel ID the webhook should be moved to.</param>
     /// <param name="name">New webhook name</param>
     /// <param name="avatar">New webhook avatar</param>
     /// <param name="reason">Reason why this webhook was modified</param>
     /// <returns></returns>
-    public async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, ulong channelId, string name, Stream avatar, string reason)
+    public async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhookId, ulong channelId, string name, Stream avatar, string reason)
     {
         string av64 = null;
-        if (avatar != null)
+        if (avatar is not null)
         {
             using ImageTool imgtool = new(avatar);
             av64 = imgtool.GetBase64();
         }
 
-        return await this.ApiClient.ModifyWebhookAsync(webhook_id, channelId, name, av64, reason);
+        return await this.ApiClient.ModifyWebhookAsync(webhookId, channelId, name, av64, reason);
     }
 
     /// <summary>
     /// Modifies a webhook (when user is not in said guild)
     /// </summary>
-    /// <param name="webhook_id">Webhook ID</param>
+    /// <param name="webhookId">Webhook ID</param>
     /// <param name="name">New webhook name</param>
-    /// <param name="base64_avatar">New webhook avatar (base64)</param>
-    /// <param name="webhook_token">Webhook token</param>
+    /// <param name="base64Avatar">New webhook avatar (base64)</param>
+    /// <param name="webhookToken">Webhook token</param>
     /// <param name="reason">Reason why this webhook was modified</param>
     /// <returns></returns>
-    public async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, string name, string base64_avatar, string webhook_token, string reason)
-        => await this.ApiClient.ModifyWebhookAsync(webhook_id, name, base64_avatar, webhook_token, reason);
+    public async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhookId, string name, string base64Avatar, string webhookToken, string reason)
+        => await this.ApiClient.ModifyWebhookAsync(webhookId, name, base64Avatar, webhookToken, reason);
 
     /// <summary>
     /// Modifies a webhook (when user is not in said guild)
     /// </summary>
-    /// <param name="webhook_id">Webhook ID</param>
+    /// <param name="webhookId">Webhook ID</param>
     /// <param name="name">New webhook name</param>
     /// <param name="avatar">New webhook avatar</param>
-    /// <param name="webhook_token">Webhook token</param>
+    /// <param name="webhookToken">Webhook token</param>
     /// <param name="reason">Reason why this webhook was modified</param>
     /// <returns></returns>
-    public async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, string name, Stream avatar, string webhook_token, string reason)
+    public async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhookId, string name, Stream avatar, string webhookToken, string reason)
     {
         string av64 = null;
-        if (avatar != null)
+        if (avatar is not null)
         {
             using ImageTool imgtool = new(avatar);
             av64 = imgtool.GetBase64();
         }
 
-        return await this.ApiClient.ModifyWebhookAsync(webhook_id, name, av64, webhook_token, reason);
+        return await this.ApiClient.ModifyWebhookAsync(webhookId, name, av64, webhookToken, reason);
     }
 
     /// <summary>
     /// Deletes a webhook
     /// </summary>
-    /// <param name="webhook_id">Webhook ID</param>
+    /// <param name="webhookId">Webhook ID</param>
     /// <param name="reason">Reason this webhook was deleted</param>
     /// <returns></returns>
-    public async Task DeleteWebhookAsync(ulong webhook_id, string reason)
-        => await this.ApiClient.DeleteWebhookAsync(webhook_id, reason);
+    public async Task DeleteWebhookAsync(ulong webhookId, string reason)
+        => await this.ApiClient.DeleteWebhookAsync(webhookId, reason);
 
     /// <summary>
     /// Deletes a webhook (when user is not in said guild)
     /// </summary>
-    /// <param name="webhook_id">Webhook ID</param>
+    /// <param name="webhookId">Webhook ID</param>
     /// <param name="reason">Reason this webhook was removed</param>
-    /// <param name="webhook_token">Webhook token</param>
+    /// <param name="webhookToken">Webhook token</param>
     /// <returns></returns>
-    public async Task DeleteWebhookAsync(ulong webhook_id, string reason, string webhook_token)
-        => await this.ApiClient.DeleteWebhookAsync(webhook_id, webhook_token, reason);
+    public async Task DeleteWebhookAsync(ulong webhookId, string reason, string webhookToken)
+        => await this.ApiClient.DeleteWebhookAsync(webhookId, webhookToken, reason);
 
     /// <summary>
     /// Sends a message to a webhook
     /// </summary>
-    /// <param name="webhook_id">Webhook ID</param>
-    /// <param name="webhook_token">Webhook token</param>
+    /// <param name="webhookId">Webhook ID</param>
+    /// <param name="webhookToken">Webhook token</param>
     /// <param name="builder">Webhook builder filled with data to send.</param>
     /// <returns></returns>
-    public async Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, DiscordWebhookBuilder builder)
-        => await this.ApiClient.ExecuteWebhookAsync(webhook_id, webhook_token, builder);
+    public async Task<DiscordMessage> ExecuteWebhookAsync(ulong webhookId, string webhookToken, DiscordWebhookBuilder builder)
+        => await this.ApiClient.ExecuteWebhookAsync(webhookId, webhookToken, builder);
 
     /// <summary>
     /// Edits a previously-sent webhook message.
     /// </summary>
-    /// <param name="webhook_id">Webhook ID</param>
-    /// <param name="webhook_token">Webhook token</param>
+    /// <param name="webhookId">Webhook ID</param>
+    /// <param name="webhookToken">Webhook token</param>
     /// <param name="messageId">The ID of the message to edit.</param>
     /// <param name="builder">The builder of the message to edit.</param>
     /// <param name="attachments">Attached files to keep.</param>
     /// <returns>The modified <see cref="DiscordMessage"/></returns>
-    public async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong messageId, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments = default)
+    public async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhookId, string webhookToken, ulong messageId, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments = default)
     {
         builder.Validate(true);
 
-        return await this.ApiClient.EditWebhookMessageAsync(webhook_id, webhook_token, messageId, builder, attachments);
+        return await this.ApiClient.EditWebhookMessageAsync(webhookId, webhookToken, messageId, builder, attachments);
     }
 
     /// <summary>
     /// Deletes a message that was created by a webhook.
     /// </summary>
-    /// <param name="webhook_id">Webhook ID</param>
-    /// <param name="webhook_token">Webhook token</param>
+    /// <param name="webhookId">Webhook ID</param>
+    /// <param name="webhookToken">Webhook token</param>
     /// <param name="messageId">The ID of the message to delete</param>
     /// <returns></returns>
-    public async Task DeleteWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong messageId)
-        => await this.ApiClient.DeleteWebhookMessageAsync(webhook_id, webhook_token, messageId);
+    public async Task DeleteWebhookMessageAsync(ulong webhookId, string webhookToken, ulong messageId)
+        => await this.ApiClient.DeleteWebhookMessageAsync(webhookId, webhookToken, messageId);
     #endregion
 
     #region Reactions
     /// <summary>
     /// Creates a new reaction
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="message_id">Message ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
     /// <param name="emoji">Emoji to react</param>
     /// <returns></returns>
-    public async Task CreateReactionAsync(ulong channel_id, ulong message_id, string emoji)
-        => await this.ApiClient.CreateReactionAsync(channel_id, message_id, emoji);
+    public async Task CreateReactionAsync(ulong channelId, ulong messageId, string emoji)
+        => await this.ApiClient.CreateReactionAsync(channelId, messageId, emoji);
 
     /// <summary>
     /// Deletes own reaction
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="message_id">Message ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
     /// <param name="emoji">Emoji to remove from reaction</param>
     /// <returns></returns>
-    public async Task DeleteOwnReactionAsync(ulong channel_id, ulong message_id, string emoji)
-        => await this.ApiClient.DeleteOwnReactionAsync(channel_id, message_id, emoji);
+    public async Task DeleteOwnReactionAsync(ulong channelId, ulong messageId, string emoji)
+        => await this.ApiClient.DeleteOwnReactionAsync(channelId, messageId, emoji);
 
     /// <summary>
     /// Deletes someone elses reaction
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="message_id">Message ID</param>
-    /// <param name="user_id">User ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
+    /// <param name="userId">User ID</param>
     /// <param name="emoji">Emoji to remove</param>
     /// <param name="reason">Reason why this reaction was removed</param>
     /// <returns></returns>
-    public async Task DeleteUserReactionAsync(ulong channel_id, ulong message_id, ulong user_id, string emoji, string reason)
-        => await this.ApiClient.DeleteUserReactionAsync(channel_id, message_id, user_id, emoji, reason);
+    public async Task DeleteUserReactionAsync(ulong channelId, ulong messageId, ulong userId, string emoji, string reason)
+        => await this.ApiClient.DeleteUserReactionAsync(channelId, messageId, userId, emoji, reason);
 
     /// <summary>
     /// Gets all users that reacted with a specific emoji to a message
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="message_id">Message ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
     /// <param name="emoji">Emoji to check for</param>
-    /// <param name="after_id">Whether to search for reactions after this message id.</param>
+    /// <param name="afterId">Whether to search for reactions after this message id.</param>
     /// <param name="limit">The maximum amount of reactions to fetch.</param>
     /// <returns></returns>
-    public async Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji, ulong? after_id = null, int limit = 25)
-        => await this.ApiClient.GetReactionsAsync(channel_id, message_id, emoji, after_id, limit);
+    public async Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channelId, ulong messageId, string emoji, ulong? afterId = null, int limit = 25)
+        => await this.ApiClient.GetReactionsAsync(channelId, messageId, emoji, afterId, limit);
 
     /// <summary>
     /// Gets all users that reacted with a specific emoji to a message
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="message_id">Message ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
     /// <param name="emoji">Emoji to check for</param>
-    /// <param name="after_id">Whether to search for reactions after this message id.</param>
+    /// <param name="afterId">Whether to search for reactions after this message id.</param>
     /// <param name="limit">The maximum amount of reactions to fetch.</param>
     /// <returns></returns>
-    public async Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, DiscordEmoji emoji, ulong? after_id = null, int limit = 25)
-        => await this.ApiClient.GetReactionsAsync(channel_id, message_id, emoji.ToReactionString(), after_id, limit);
+    public async Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channelId, ulong messageId, DiscordEmoji emoji, ulong? afterId = null, int limit = 25)
+        => await this.ApiClient.GetReactionsAsync(channelId, messageId, emoji.ToReactionString(), afterId, limit);
 
     /// <summary>
     /// Deletes all reactions from a message
     /// </summary>
-    /// <param name="channel_id">Channel ID</param>
-    /// <param name="message_id">Message ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
     /// <param name="reason">Reason why all reactions were removed</param>
     /// <returns></returns>
-    public async Task DeleteAllReactionsAsync(ulong channel_id, ulong message_id, string reason)
-        => await this.ApiClient.DeleteAllReactionsAsync(channel_id, message_id, reason);
+    public async Task DeleteAllReactionsAsync(ulong channelId, ulong messageId, string reason)
+        => await this.ApiClient.DeleteAllReactionsAsync(channelId, messageId, reason);
 
     /// <summary>
     /// Deletes all reactions of a specific reaction for a message.
