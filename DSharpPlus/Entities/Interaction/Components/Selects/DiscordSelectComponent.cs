@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+
 namespace DSharpPlus.Entities;
 
 /// <summary>
@@ -37,13 +38,7 @@ public sealed class DiscordSelectComponent : BaseDiscordSelectComponent
 
     internal DiscordSelectComponent() => this.Type = ComponentType.StringSelect;
 
-    public DiscordSelectComponent(string customId, string placeholder, IEnumerable<DiscordSelectComponentOption> options, bool disabled = false, int minOptions = 1, int maxOptions = 1) : this()
-    {
-        this.CustomId = customId;
-        this.Options = options.ToArray();
-        this.Placeholder = placeholder;
-        this.Disabled = disabled;
-        this.MinimumSelectedValues = minOptions;
-        this.MaximumSelectedValues = maxOptions;
-    }
+    public DiscordSelectComponent(string customId, string placeholder, IEnumerable<DiscordSelectComponentOption> options, bool disabled = false, int minOptions = 1, int maxOptions = 1) 
+        : base(ComponentType.StringSelect, customId, placeholder, disabled, minOptions, maxOptions) 
+        => this.Options = options.ToArray();
 }
