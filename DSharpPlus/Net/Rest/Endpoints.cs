@@ -16,6 +16,7 @@ internal static class Endpoints
     public const string AVATARS = "avatars";
     public const string BANS = "bans";
     public const string BOT = "bot";
+    public const string BULK_BAN = "bulk-ban";
     public const string BULK_DELETE = "bulk-delete";
     public const string CALLBACK = "callback";
     public const string CHANNELS = "channels";

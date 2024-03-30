@@ -568,6 +568,74 @@ public sealed class DiscordApiClient
 
         _ = await this._rest.ExecuteRequestAsync(request);
     }
+    
+    internal async ValueTask<DiscordBulkBan> CreateGuildBulkBanAsync(ulong guildId, IEnumerable<ulong> userIds, int? deleteMessagesSeconds = null, string? reason = null)
+    {
+        if (userIds.TryGetNonEnumeratedCount(out int count) && count > 200)
+        {
+            throw new ArgumentException("You can only ban up to 200 users at once.");
+        } 
+        else if (userIds.Count() > 200)
+        {
+            throw new ArgumentException("You can only ban up to 200 users at once.");
+        }
+        
+        if (deleteMessagesSeconds is not null && (deleteMessagesSeconds < 0 || deleteMessagesSeconds > 604800))
+        {
+            throw new ArgumentException("Delete message seconds must be a number between 0 and 604800 (7 days).", nameof(deleteMessagesSeconds));
+        }
+        
+        RestRequest request = new()
+        {
+            Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.BULK_BAN}",
+            Url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.BULK_BAN}",
+            Method = HttpMethod.Post,
+            Headers = string.IsNullOrWhiteSpace(reason)
+                ? null
+                : new Dictionary<string, string>
+                {
+                    [REASON_HEADER_NAME] = reason
+                },
+            Payload = DiscordJson.SerializeObject(new RestGuildBulkBanPayload
+            {
+                DeleteMessageSeconds = deleteMessagesSeconds,
+                UserIds = userIds
+            })
+        };
+        
+        RestResponse response = await this._rest.ExecuteRequestAsync(request);
+        
+        DiscordBulkBan bulkBan = JsonConvert.DeserializeObject<DiscordBulkBan>(response.Response!)!;
+        
+        
+        List<DiscordUser> bannedUsers = new(bulkBan.BannedUserIds.Count());
+        foreach (ulong userId in bulkBan.BannedUserIds)
+        {
+            if (!this._discord!.TryGetCachedUserInternal(userId, out DiscordUser? user))
+            {
+                user = new DiscordUser(new TransportUser { Id = userId }) { Discord = this._discord };
+                user = this._discord.UpdateUserCache(user);
+            }
+
+            bannedUsers.Add(user);
+        }
+        bulkBan.BannedUsers = bannedUsers;
+        
+        List<DiscordUser> failedUsers = new(bulkBan.FailedUserIds.Count());
+        foreach (ulong userId in bulkBan.FailedUserIds)
+        {
+            if (!this._discord!.TryGetCachedUserInternal(userId, out DiscordUser? user))
+            {
+                user = new DiscordUser(new TransportUser { Id = userId }) { Discord = this._discord };
+                user = this._discord.UpdateUserCache(user);
+            }
+
+            failedUsers.Add(user);
+        }
+        bulkBan.FailedUsers = failedUsers;
+        
+        return bulkBan;
+    }
 
     internal async ValueTask LeaveGuildAsync
     (
