@@ -90,7 +90,7 @@ internal static class CommandEmitUtil
     /// <param name="method"></param>
     private static void EmitMethodWrapper(ILGenerator dynamicMethodIlGenerator, MethodInfo method)
     {
-        ParameterInfo[] parameters = method.GetParameters();
+        // If there is an object to execute the method on, load it onto the stack.
         if (!method.IsStatic)
         {
             // Load the instance (this) onto the stack.
@@ -102,7 +102,8 @@ internal static class CommandEmitUtil
             }
         }
 
-        // Load the arguments onto the stack.
+        // Load each element of the parameter array onto the stack.
+        ParameterInfo[] parameters = method.GetParameters();
         for (int i = 0; i < parameters.Length; i++)
         {
             // Ldarg_1 loads the array of arguments.
@@ -114,19 +115,13 @@ internal static class CommandEmitUtil
             // Ldelem_Ref loads the element at the given index from the array.
             dynamicMethodIlGenerator.Emit(OpCodes.Ldelem_Ref);
 
-            // Unbox value types or cast reference types.
+            // Unbox value types - reference types don't need any special handling because they're just pointers
             if (parameters[i].ParameterType.IsValueType)
             {
                 // If the parameter is a value type, unbox it.
                 // This is necessary because the argument is stored as an object (reference type)
                 // when it needs to be treated as a value type.
                 dynamicMethodIlGenerator.Emit(OpCodes.Unbox_Any, parameters[i].ParameterType);
-            }
-            else
-            {
-                // If the parameter is a reference type, cast it
-                // to the expected argument type for type safety.
-                dynamicMethodIlGenerator.Emit(OpCodes.Castclass, parameters[i].ParameterType);
             }
         }
 
