@@ -24,7 +24,7 @@ public class DirectMessageUsageAttribute : ContextCheckAttribute
 This is the attribute that you will apply to the command method.
 
 ## Implementing the context check
-Now we're going to implement the logic which checks if the command is allowed to be executed. The interface `IContextCheck<T>` is used to define the check method. The `T` is the attribute that was applied to the command. In this case, it's the `DirectMessageUsageAttribute`, but it can be any check attribute - there can be multiple checks for one attribute.
+Now we're going to implement the logic which checks if the command is allowed to be executed. The interface `IContextCheck<T>` is used to define the check method. The `T` is the attribute that was applied to the command. In this case, it's the `DirectMessageUsageAttribute`, but it can be any check attribute - if desired, there can be multiple checks for one attribute.
 
 If the check was successful, the method should return `null`. If it was unsuccessful, the method should return a string that will then be provided
 to `CommandsExtension.CommandErrored`. 
@@ -63,7 +63,7 @@ public class DirectMessageUsageCheck : IContextCheck<DirectMessageUsageAttribute
 ```
 
 > [!WARNING]
-> Your check may inspect the command context to get more information, but it should not make any API calls, especially none that may alter state such as `RespondAsync`. This is an easy source of bugs, and depending on what you call you may stall an interaction over the three-second limit, which will break your interactions.
+> Your check may inspect the command context to get more information, but you should be careful making any API calls, especially such that may alter state such as `RespondAsync`. This is an easy source of bugs, and you should be aware of the three-second limit for initial responses to interactions.
 
 Now, for the most important part, we need to register the check:
 
@@ -89,6 +89,6 @@ A single check class can also implement multiple checks, like so:
 public class Check : IContextCheck<FirstAttribute>, IContextCheck<SecondAttribute>;
 ```
 
-This means that all other code in that class can be shared between the two check methods, but this should be used with caution - it means that both checks are registered at once and cannot be removed independently of each other, and it means the same construction ceremony will run for both checks.
+This means that all other code in that class can be shared between the two check methods, but this should be used with caution - since checks are registered per type, you lose granularity over which checks should be executed; and it means the same construction ceremony will run for both checks.
 
-There is no limit on how many different checks can reference the same attribute, they will all be supplied with that attribute. If you need a check that always runs, you can target `UnconditionalCheckAttribute`.
+There is no limit on how many different checks can reference the same attribute, they will all be supplied with that attribute. Checks targeting `UnconditionalCheckAttribute` will always be executed, regardless of whether the attribute is applied or not.
