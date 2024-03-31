@@ -24,8 +24,8 @@ internal static class AnonymousDelegateUtil
         (
             $"This command executor only supports ValueTask and Task return types for commands, found " +
             $"{method.ReturnType} on command method " +
-            $"{(method.DeclaringType is not null ? $"{method.DeclaringType.FullName}." : "")}" +
-            $"{method.Name}"
+            method.DeclaringType is not null ? $"{method.DeclaringType?.FullName ?? "<missing type>"}." : "" +
+            method.Name
         );
     }
 }
