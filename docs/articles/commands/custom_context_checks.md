@@ -11,7 +11,7 @@ A context check contains two important pieces:
 - The check itself. This is the method that determines if the command can be executed.
 
 ## Implementing a context check attribute
-To create a context check, you will need to create a new attribute that inherits from `ContextCheckAttribute`. This attribute will be applied to the command method and may contain metadata for the check method to use.
+Any context check needs an attribute associated with it. This attribute will be applied to your command methods and needs to inherit from `ContextCheckAttribute`. It should contain the necessary metadata your check needs to determine whether or not to execute the command. For the purposes of this article, we'll create the following attribute:
 
 ```cs
 public class DirectMessageUsageAttribute : ContextCheckAttribute
@@ -21,10 +21,8 @@ public class DirectMessageUsageAttribute : ContextCheckAttribute
 }
 ```
 
-This is the attribute that you will apply to the command method.
-
 ## Implementing the context check
-Now we're going to implement the logic which checks if the command is allowed to be executed. The interface `IContextCheck<T>` is used to define the check method. The `T` is the attribute that was applied to the command. In this case, it's the `DirectMessageUsageAttribute`, but it can be any check attribute - if desired, there can be multiple checks for one attribute.
+Now we're going to implement the logic which checks if the command is allowed to be executed. The `IContextCheck<T>` interface is used to define the check method. The `T` is the attribute that was applied to the command. In this case, it's the `DirectMessageUsageAttribute`, but it can be any check attribute - if desired, there can be multiple checks for attribute.
 
 If the check was successful, the method should return `null`. If it was unsuccessful, the method should return a string that will then be provided
 to `CommandsExtension.CommandErrored`. 
