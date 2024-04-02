@@ -10,8 +10,8 @@ A context check contains two important pieces:
 - The attribute that will be applied to the command. This contains parameters that will be passed to the executing check.
 - The check itself. This is the method that determines if the command can be executed.
 
-## Implementing a Context Check Attribute
-To create a context check, you will need to create a new attribute that inherits from `CheckBaseAttribute`. This attribute will be applied to the command method and will contain the parameters that will be passed to the check method.
+## Implementing a context check attribute
+Any context check needs an attribute associated with it. This attribute will be applied to your command methods and needs to inherit from `ContextCheckAttribute`. It should contain the necessary metadata your check needs to determine whether or not to execute the command. For the purposes of this article, we'll create the following attribute:
 
 ```cs
 public class DirectMessageUsageAttribute : ContextCheckAttribute
@@ -21,10 +21,11 @@ public class DirectMessageUsageAttribute : ContextCheckAttribute
 }
 ```
 
-This is the attribute that you will apply to the command method.
+## Implementing the context check
+Now we're going to implement the logic which checks if the command is allowed to be executed. The `IContextCheck<T>` interface is used to define the check method. The `T` is the attribute that was applied to the command. In this case, it's the `DirectMessageUsageAttribute`, but it can be any check attribute - if desired, there can be multiple checks for attribute.
 
-## Implementing the Check Method
-Now we're going to implement the logic which checks if the command is allowed to be executed. The `IContextCheck<T>` interface is used to define the check method. The `T` is the attribute/parameters that's associated with the command. In this case, it's the `DirectMessageUsageAttribute`.
+If the check was successful, the method should return `null`. If it was unsuccessful, the method should return a string that will then be provided
+to `CommandsExtension.CommandErrored`. 
 
 ```cs
 public class DirectMessageUsageCheck : IContextCheck<DirectMessageUsageAttribute>
@@ -59,7 +60,8 @@ public class DirectMessageUsageCheck : IContextCheck<DirectMessageUsageAttribute
 }
 ```
 
-As seen here, we return `null` when the command is allowed to be executed. If the command is not allowed to be executed, we return an error string which can be retrieved from the `CommandsExtension.CommandErrored` event.
+> [!WARNING]
+> Your check may inspect the command context to get more information, but you should be careful making any API calls, especially such that may alter state such as `RespondAsync`. This is an easy source of bugs, and you should be aware of the three-second limit for initial responses to interactions.
 
 Now, for the most important part, we need to register the check:
 
@@ -74,3 +76,17 @@ Then we use the check like such:
 [DirectMessageUsage(DirectMessageUsage.RequireDMs)]
 public async ValueTask RequireDMs(CommandContext commandContext) => await commandContext.RespondAsync("This command was executed in a DM!");
 ```
+
+## Advanced Features
+
+The classes you use to implement checks participate in dependency injection, and you can request any type you previously supplied to the service provider in a public constructor. Useful applications include, but are not limited to, logging or tracking how often a command executes.
+
+A single check class can also implement multiple checks, like so:
+
+```cs
+public class Check : IContextCheck<FirstAttribute>, IContextCheck<SecondAttribute>;
+```
+
+This means that all other code in that class can be shared between the two check methods, but this should be used with caution - since checks are registered per type, you lose granularity over which checks should be executed; and it means the same construction ceremony will run for both checks.
+
+There is no limit on how many different checks can reference the same attribute, they will all be supplied with that attribute. Checks targeting `UnconditionalCheckAttribute` will always be executed, regardless of whether the attribute is applied or not.
