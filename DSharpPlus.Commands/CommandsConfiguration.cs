@@ -37,5 +37,5 @@ public sealed record CommandsConfiguration
     /// <remarks>
     /// The command executor is responsible for executing context checks, making full use of the dependency injection system, executing the command method itself, and handling errors.
     /// </remarks>
-    public ICommandExecutor CommandExecutor { get; set; } = new CommandExecutor();
+    public ICommandExecutor CommandExecutor { get; set; } = new DefaultCommandExecutor();
 }
