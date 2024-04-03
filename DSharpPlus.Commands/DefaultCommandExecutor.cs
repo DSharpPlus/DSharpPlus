@@ -33,7 +33,7 @@ public class DefaultCommandExecutor : ICommandExecutor
     /// <param name="cancellationToken">The cancellation token to cancel the command execution.</param>
     public virtual async ValueTask ExecuteAsync(CommandContext context, CancellationToken cancellationToken = default)
     {
-        // Do some safety checks to ensure the command is both executable
+        // Do some safety checks
         if (!IsCommandExecutable(context, out string? errorMessage))
         {
             await InvokeCommandErroredEventAsync(context.Extension, new CommandErroredEventArgs()
