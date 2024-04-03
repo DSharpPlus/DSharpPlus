@@ -22,7 +22,7 @@ public class StringConverter : ISlashArgumentConverter<string>, ITextArgumentCon
         {
             if (attribute is RemainingTextAttribute)
             {
-                return Task.FromResult(Optional.FromValue(context.RawArguments[context.CurrentArgumentIndex..]));
+                return Task.FromResult(Optional.FromValue(context.RawArguments[context.CurrentArgumentIndex..].TrimStart()));
             }
             else if (attribute is FromCodeAttribute codeAttribute)
             {
