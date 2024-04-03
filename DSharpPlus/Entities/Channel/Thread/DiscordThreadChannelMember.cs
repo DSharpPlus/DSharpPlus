@@ -45,7 +45,7 @@ public class DiscordThreadChannelMember
     /// </summary>
     [JsonIgnore]
     public DiscordGuild Guild
-        => this.Discord._guilds.TryGetValue(this._guild_id, out DiscordGuild? guild) ? guild : null;
+        => this.Discord._guildIds.TryGetValue(this._guild_id, out DiscordGuild? guild) ? guild : null;
 
     [JsonIgnore]
     internal ulong _guild_id;

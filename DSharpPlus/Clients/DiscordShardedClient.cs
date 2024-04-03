@@ -400,7 +400,7 @@ public sealed partial class DiscordShardedClient
     {
         foreach (DiscordClient s in this._shards.Values)
         {
-            if (s._guilds.Contains(id))
+            if (s._guildIds.Contains(id))
             {
                 return s.ShardId;
             }

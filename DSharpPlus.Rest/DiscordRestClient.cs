@@ -27,7 +27,7 @@ public class DiscordRestClient : BaseDiscordClient
         IReadOnlyList<DiscordGuild> gs = await this.ApiClient.GetCurrentUserGuildsAsync(100, null, null);
         foreach (DiscordGuild guild in gs)
         {
-            this._guilds.Add(guild.Id);
+            this._guildIds.Add(guild.Id);
             await this.Cache.AddGuildAsync(guild);
         }
     }

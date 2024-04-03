@@ -105,7 +105,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.Cache = this.Configuration.CacheProvider ?? new DiscordMemoryCache(this.Configuration.CacheConfiguration);
         this.InternalSetup();
 
-        this._guilds = new List<ulong>();
+        this._guildIds = new List<ulong>();
         this.DmChannels = new List<ulong>();
     }
     
@@ -120,7 +120,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         DiscordIntents intents = this.Configuration.Intents;
         this.InternalSetup();
 
-        this._guilds = new List<ulong>();
+        this._guildIds = new List<ulong>();
         this.DmChannels = new List<ulong>();
     }
 
@@ -206,7 +206,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this._threadMembersUpdated = new AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs>("THREAD_MEMBERS_UPDATED", this.EventErrorHandler);
         #endregion
 
-        this._guilds.Clear();
+        this._guildIds.Clear();
     }
 
     #endregion

@@ -41,12 +41,12 @@ public abstract class BaseDiscordClient : IDisposable
     /// </summary>
     public DiscordApplication CurrentApplication { get; internal set; }
 
-    public IReadOnlyCollection<ulong> Guilds => new ReadOnlyCollection<ulong>(_guilds);
+    public IReadOnlyCollection<ulong> Guilds => new ReadOnlyCollection<ulong>(this._guildIds);
 
     /// <summary>
     /// Gets the cached guilds for this client.
     /// </summary>
-    internal List<ulong> _guilds { get; set; }
+    internal List<ulong> _guildIds { get; set; }
     
     public IDiscordCache Cache { get; }
     

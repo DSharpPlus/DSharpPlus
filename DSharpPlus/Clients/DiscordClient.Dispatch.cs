@@ -656,12 +656,12 @@ public sealed partial class DiscordClient
             await this.Cache.AddChannelAsync(channel);
         }
 
-        this._guilds.Clear();
+        this._guildIds.Clear();
 
         IEnumerable<DiscordGuild> guilds = rawGuilds.ToDiscordObject<IEnumerable<DiscordGuild>>();
         foreach (DiscordGuild guild in guilds)
         {
-            this._guilds.Add(guild.Id);
+            this._guildIds.Add(guild.Id);
             guild.Discord = this;
             guild._channels ??= new ConcurrentDictionary<ulong, DiscordChannel>();
             guild._threads ??= new ConcurrentDictionary<ulong, DiscordThreadChannel>();
@@ -1092,7 +1092,7 @@ public sealed partial class DiscordClient
         }
 
         DiscordGuild? foundGuild = await this.Cache.TryGetGuildAsync(guild.Id);
-        bool exists = this._guilds.Contains(guild.Id);
+        bool exists = this._guildIds.Contains(guild.Id);
 
 
         guild.Discord = this;
@@ -1202,7 +1202,7 @@ public sealed partial class DiscordClient
         }
         else
         {
-            this._guilds.Add(guild.Id);
+            this._guildIds.Add(guild.Id);
             await this._guildCreated.InvokeAsync(this, new GuildCreateEventArgs { Guild = guild });
         }
 

@@ -3570,7 +3570,7 @@ public sealed class DiscordApiClient
             IEnumerable<RestUserGuild> guildsRaw = JsonConvert.DeserializeObject<IEnumerable<RestUserGuild>>(res.Response!)!;
             IEnumerable<DiscordGuild> guilds = guildsRaw.Select
             (
-                xug => (this._discord as DiscordClient)?._guilds[xug.Id]
+                xug => (this._discord as DiscordClient)?._guildIds[xug.Id]
             )
             .Where(static guild => guild is not null)!;
             return new ReadOnlyCollection<DiscordGuild>(new List<DiscordGuild>(guilds));
@@ -3725,7 +3725,7 @@ public sealed class DiscordApiClient
         if (this._discord is DiscordClient discordClient)
         {
             await discordClient.OnGuildUpdateEventAsync(guildRest, rawMembers);
-            return discordClient._guilds[guildRest.Id];
+            return discordClient._guildIds[guildRest.Id];
         }
         else
         {
@@ -5098,7 +5098,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        this._discord!._guilds.TryGetValue(guildId, out DiscordGuild? guild);
+        this._discord!._guildIds.TryGetValue(guildId, out DiscordGuild? guild);
 
         JObject emojiRaw = JObject.Parse(res.Response!);
         DiscordGuildEmoji emoji = emojiRaw.ToDiscordObject<DiscordGuildEmoji>();
@@ -5153,7 +5153,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        this._discord!._guilds.TryGetValue(guildId, out DiscordGuild? guild);
+        this._discord!._guildIds.TryGetValue(guildId, out DiscordGuild? guild);
 
         JObject emojiRaw = JObject.Parse(res.Response!);
         DiscordGuildEmoji emoji = emojiRaw.ToDiscordObject<DiscordGuildEmoji>();
@@ -5206,7 +5206,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        this._discord!._guilds.TryGetValue(guildId, out DiscordGuild? guild);
+        this._discord!._guildIds.TryGetValue(guildId, out DiscordGuild? guild);
 
         JObject emojiRaw = JObject.Parse(res.Response!);
         DiscordGuildEmoji emoji = emojiRaw.ToDiscordObject<DiscordGuildEmoji>();
