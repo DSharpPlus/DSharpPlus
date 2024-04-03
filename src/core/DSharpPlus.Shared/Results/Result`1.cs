@@ -2,9 +2,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-
 using DSharpPlus.Results.Errors;
+using DSharpPlus.Results.ExceptionServices;
 
 namespace DSharpPlus.Results;
 
@@ -47,4 +49,90 @@ public readonly record struct Result<TValue>
 
     public static implicit operator Result<TValue>(TValue value)
         => new(value);
+
+    public static implicit operator bool(Result<TValue> result)
+        => result.IsSuccess;
+
+    /// <summary>
+    /// Throws the result error as an exception, if applicable.
+    /// </summary>
+    [DebuggerHidden]
+    [StackTraceHidden]
+    public void Expect()
+    {
+        if (!this.IsSuccess)
+        {
+            throw ExceptionMarshaller.MarshalResultErrorToException(this.Error);
+        }
+    }
+
+    /// <summary>
+    /// Throws the result error as an exception according to the provided transform, if applicable.
+    /// </summary>
+    [DebuggerHidden]
+    [StackTraceHidden]
+    public void Expect(Func<Result<TValue>, Exception> transform)
+    {
+        if (!this.IsSuccess)
+        {
+            throw transform(this);
+        }
+    }
+
+    /// <summary>
+    /// Unwraps the result, throwing an exception if unsuccessful.
+    /// </summary>
+    public TValue Unwrap()
+    {
+        this.Expect();
+        return this.Value;
+    }
+
+    /// <summary>
+    /// Unwraps the result, returning a provided default value if unsuccessful.
+    /// </summary>
+    public TValue UnwrapOr(TValue defaultValue)
+        => this.IsSuccess ? this.Value : defaultValue;
+
+    /// <summary>
+    /// Unwraps the result, returning the default value if unsuccessful.
+    /// </summary>
+    public TValue? UnwrapOrDefault()
+        => this.IsSuccess ? this.Value : default;
+
+    /// <summary>
+    /// Unwraps the result, returning the result of evaluating the provided function if unsuccessful.
+    /// </summary>
+    public TValue UnwrapOrElse(Func<Result<TValue>, TValue> fallback)
+        => this.IsSuccess ? this.Value : fallback(this);
+
+    /// <summary>
+    /// Transforms the result value according to the provided function, returning either the transformed result or a failed result.
+    /// </summary>
+    public Result<TResult> Map<TResult>(Func<TValue, TResult> transform)
+        => this.IsSuccess ? new(transform(this.Value)) : new(this.Error);
+
+    /// <summary>
+    /// Transforms the result error according to the provided function, returning either a successful result or the transformed result.
+    /// </summary>
+    public Result<TValue> MapError(Func<Error, Error> transform)
+        => this.IsSuccess ? this : new(transform(this.Error));
+
+    /// <summary>
+    /// Transforms the result value according to the provided function, returning either the transformed result or the provided default value.
+    /// </summary>
+    public Result<TResult?> MapOr<TResult>(Func<TValue, TResult> transform, TResult fallback)
+        => this.IsSuccess ? new(transform(this.Value)) : new(fallback);
+
+    /// <summary>
+    /// Transforms the result value according to the provided function, returning either the transformed result or a default value.
+    /// </summary>
+    public Result<TResult?> MapOrDefault<TResult>(Func<TValue, TResult> transform)
+        => this.IsSuccess ? new(transform(this.Value)) : new(default(TResult));
+
+    /// <summary>
+    /// Transforms the result value and error according to the provided functions.
+    /// </summary>
+    public Result<TResult> MapOrElse<TResult>(Func<TValue, TResult> transformValue, Func<Error, Error> transformError)
+        => this.IsSuccess ? new(transformValue(this.Value)) : new(transformError(this.Error));
 }
