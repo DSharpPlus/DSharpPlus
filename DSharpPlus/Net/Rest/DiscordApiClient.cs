@@ -5046,7 +5046,7 @@ public sealed class DiscordApiClient
 
         IEnumerable<JObject> emojisRaw = JsonConvert.DeserializeObject<IEnumerable<JObject>>(res.Response!)!;
 
-        this._discord!._guilds.TryGetValue(guildId, out DiscordGuild? guild);
+        this._discord!._guildIds.TryGetValue(guildId, out DiscordGuild? guild);
         Dictionary<ulong, DiscordUser> users = new();
         List<DiscordGuildEmoji> emojis = new();
         foreach (JObject rawEmoji in emojisRaw)
