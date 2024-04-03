@@ -104,9 +104,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         }
 
         DiscordGuild? cachedGuild = await this.Discord.Cache.TryGetGuildAsync(this.GuildId.GetValueOrDefault());
-        return cachedGuild is null 
-                ? await this.Discord.ApiClient.GetGuildAsync(GuildId.Value, null) 
-                : cachedGuild;
+        return cachedGuild ?? await this.Discord.ApiClient.GetGuildAsync(this.GuildId.Value, null);
     }
 
     /// <summary>
@@ -765,7 +763,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
                     if (message.ChannelId != this.Id)
                     {
                         throw new ArgumentException(
-                            $"You cannot delete messages from channel {message.Channel.Name} through channel {this.Name}!");
+                            $"You cannot delete messages from channel {message.Channel.Key} through channel {this.Id}!");
                     }
                     else if (message.Timestamp < DateTimeOffset.UtcNow.AddDays(-14))
                     {
@@ -1220,19 +1218,27 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// </summary>
     /// <param name="role">Role to calculate permissions for.</param>
     /// <returns>Calculated permissions for a given role.</returns>
-    public Permissions PermissionsFor(DiscordRole role)
+    public async Task<Permissions> PermissionsForRoleAsync(DiscordRole role)
     {
         if (this.IsThread)
         {
-            return this.Parent.PermissionsFor(role);
+            DiscordChannel? parent = await this.GetParentAsync();
+            return await parent!.PermissionsForRoleAsync(role);
         }
-        
-        if (this.IsPrivate || this.Guild is null)
+
+        if (this.IsPrivate || this.GuildId is null)
         {
             return Permissions.None;
         }
-        
-        if (role._guild_id != this.Guild.Id)
+
+        DiscordGuild? guild = await this.GetGuildAsync();
+
+        if (guild is null)
+        {
+            return Permissions.None;
+        }
+
+        if (role._guild_id != guild.Id)
         {
             throw new ArgumentException("Given role does not belong to this channel's guild.");
         }
@@ -1240,7 +1246,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         Permissions perms;
 
         // assign @everyone permissions
-        DiscordRole everyoneRole = this.Guild.EveryoneRole;
+        DiscordRole everyoneRole = guild.EveryoneRole;
         perms = everyoneRole.Permissions;
         
         // add role permissions
