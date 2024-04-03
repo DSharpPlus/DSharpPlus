@@ -76,7 +76,7 @@ public class DefaultCommandExecutor : ICommandExecutor
         // Otherwise, invoke the CommandExecuted event.
         else
         {
-            await context.Extension._commandExecuted.InvokeAsync(context.Extension, new CommandExecutedEventArgs()
+            await InvokeCommandExecutedEventAsync(context.Extension, new CommandExecutedEventArgs()
             {
                 Context = context,
                 CommandObject = commandObject
@@ -252,9 +252,7 @@ public class DefaultCommandExecutor : ICommandExecutor
             if (!context.Command.Method!.DeclaringType!.IsAbstract || !context.Command.Method.DeclaringType.IsSealed)
             {
                 // The delegate's object was provided, so we can use that.
-                commandObject = context.Command.Target is not null
-                    ? context.Command.Target
-                    : ActivatorUtilities.CreateInstance(context.ServiceProvider, context.Command.Method.DeclaringType);
+                commandObject = context.Command.Target ?? ActivatorUtilities.CreateInstance(context.ServiceProvider, context.Command.Method.DeclaringType);
             }
 
             // Grab the method that wraps Task/ValueTask execution.
@@ -281,10 +279,19 @@ public class DefaultCommandExecutor : ICommandExecutor
     }
 
     /// <summary>
-    /// Invokes the <see cref="CommandsExtension.CommandExecuted"/> event, which isn't normally exposed to the public API.
+    /// Invokes the <see cref="CommandsExtension.CommandErrored"/> event, which isn't normally exposed to the public API.
     /// </summary>
     /// <param name="extension">The extension/shard that the event is being invoked on.</param>
     /// <param name="eventArgs">The event arguments to pass to the event.</param>
     protected virtual async ValueTask InvokeCommandErroredEventAsync(CommandsExtension extension, CommandErroredEventArgs eventArgs)
         => await extension._commandErrored.InvokeAsync(extension, eventArgs);
+
+
+    /// <summary>
+    /// Invokes the <see cref="CommandsExtension.CommandExecuted"/> event, which isn't normally exposed to the public API.
+    /// </summary>
+    /// <param name="extension">The extension/shard that the event is being invoked on.</param>
+    /// <param name="eventArgs">The event arguments to pass to the event.</param>
+    protected virtual async ValueTask InvokeCommandExecutedEventAsync(CommandsExtension extension, CommandExecutedEventArgs eventArgs)
+        => await extension._commandExecuted.InvokeAsync(extension, eventArgs);
 }
