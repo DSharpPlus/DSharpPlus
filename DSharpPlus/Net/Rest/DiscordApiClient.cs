@@ -2788,11 +2788,7 @@ public sealed class DiscordApiClient
         DiscordDmChannel ret = JsonConvert.DeserializeObject<DiscordDmChannel>(res.Response!)!;
         ret.Discord = this._discord!;
 
-        if (this._discord is DiscordClient dc)
-        {
-            _ = dc._privateChannels.TryAdd(ret.Id, ret);
-        }
-
+        await this._discord!.Cache.AddChannelAsync(ret);
         return ret;
     }
 
