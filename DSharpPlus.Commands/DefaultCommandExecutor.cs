@@ -1,5 +1,3 @@
-namespace DSharpPlus.Commands;
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -16,6 +14,8 @@ using DSharpPlus.Commands.Invocation;
 using DSharpPlus.Commands.Trees;
 using Microsoft.Extensions.DependencyInjection;
 
+namespace DSharpPlus.Commands;
+
 public class DefaultCommandExecutor : ICommandExecutor
 {
     /// <summary>
@@ -23,62 +23,68 @@ public class DefaultCommandExecutor : ICommandExecutor
     /// </summary>
     protected readonly ConcurrentDictionary<Ulid, Func<object?, object?[], ValueTask>> _commandWrappers = new();
 
-    /// <inheritdoc/>
-    [SuppressMessage("Quality", "CA2012", Justification = "The worker does not pool instances and has its own error handling.")]
-    public virtual async ValueTask ExecuteAsync(CommandContext context, bool awaitCommandExecution = false, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// This method will ensure that the command is executable, execute all context checks, and then execute the command, and invoke the appropriate events.
+    /// </summary>
+    /// <remarks>
+    /// If any exceptions caused by the command were to occur, they will be delegated to the <see cref="CommandsExtension.CommandErrored"/> event.
+    /// </remarks>
+    /// <param name="context">The context of the command being executed.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the command execution.</param>
+    public virtual async ValueTask ExecuteAsync(CommandContext context, CancellationToken cancellationToken = default)
     {
-        if (!awaitCommandExecution)
+        // Do some safety checks to ensure the command is both executable
+        if (!IsCommandExecutable(context, out string? errorMessage))
         {
-            _ = WorkerAsync(context);
+            await InvokeCommandErroredEventAsync(context.Extension, new CommandErroredEventArgs()
+            {
+                Context = context,
+                Exception = new CommandNotExecutableException(context.Command, errorMessage),
+                CommandObject = null
+            });
+
+            return;
         }
+
+        // Execute all context checks and return any that failed.
+        IReadOnlyList<ContextCheckFailedData> failedChecks = await ExecuteContextChecksAsync(context);
+        if (failedChecks.Count > 0)
+        {
+            await InvokeCommandErroredEventAsync(context.Extension, new CommandErroredEventArgs()
+            {
+                Context = context,
+                Exception = new ChecksFailedException(failedChecks, context.Command),
+                CommandObject = null
+            });
+
+            return;
+        }
+
+        // Execute the command
+        (object? commandObject, Exception? error) = await ExecuteCoreAsync(context);
+
+        // If the command threw an exception, invoke the CommandErrored event.
+        if (error is not null)
+        {
+            await InvokeCommandErroredEventAsync(context.Extension, new CommandErroredEventArgs()
+            {
+                Context = context,
+                Exception = error,
+                CommandObject = commandObject
+            });
+        }
+        // Otherwise, invoke the CommandExecuted event.
         else
         {
-            await WorkerAsync(context);
-        }
-    }
-
-    /// <summary>
-    /// This method will execute the command provided without any safety checks, context checks or event invocation.
-    /// </summary>
-    /// <param name="context">The context of the command being executed.</param>
-    /// <returns>A tuple containing the command object and any error that occurred during execution. The command object may be null when the delegate is static and is from a static class.</returns>
-    public virtual async ValueTask<(object? CommandObject, Exception? Error)> UnconditionallyExecuteAsync(CommandContext context)
-    {
-        // Keep the command object in scope so it can be accessed after the command has been executed.
-        object? commandObject = null;
-
-        try
-        {
-            // If the class isn't static, we need to create an instance of it.
-            if (!context.Command.Method!.DeclaringType!.IsAbstract || !context.Command.Method.DeclaringType.IsSealed)
+            await context.Extension._commandExecuted.InvokeAsync(context.Extension, new CommandExecutedEventArgs()
             {
-                // The delegate's object was provided, so we can use that.
-                commandObject = context.Command.Target is not null
-                    ? context.Command.Target
-                    : ActivatorUtilities.CreateInstance(context.ServiceProvider, context.Command.Method.DeclaringType);
-            }
-
-            // Grab the method that wraps Task/ValueTask execution.
-            if (!this._commandWrappers.TryGetValue(context.Command.Id, out Func<object?, object?[], ValueTask>? wrapper))
-            {
-                wrapper = CommandEmitUtil.GetCommandInvocationFunc(context.Command.Method, context.Command.Target);
-                this._commandWrappers[context.Command.Id] = wrapper;
-            }
-
-            // Execute the command and return the result.
-            await wrapper(commandObject, [context, .. context.Arguments.Values]);
-            return (commandObject, null);
+                Context = context,
+                CommandObject = commandObject
+            });
         }
-        catch (Exception error)
-        {
-            // The command threw. Trim down the stack trace as much as we can to provide helpful information to the developer.
-            if (error is TargetInvocationException targetInvocationError && targetInvocationError.InnerException is not null)
-            {
-                error = ExceptionDispatchInfo.Capture(targetInvocationError.InnerException).SourceException;
-            }
 
-            return (commandObject, error);
-        }
+        // Dispose of the service scope if it was created.
+        context.ServiceScope.Dispose();
     }
 
     /// <summary>
@@ -112,25 +118,13 @@ public class DefaultCommandExecutor : ICommandExecutor
         return true;
     }
 
+    /// <summary>
+    /// Executes any context checks tied
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
     protected virtual async ValueTask<IReadOnlyList<ContextCheckFailedData>> ExecuteContextChecksAsync(CommandContext context)
     {
-        // Add all of the checks attached to the delegate first.
-        List<ContextCheckAttribute> checks = new(context.Command.Attributes.OfType<ContextCheckAttribute>());
-
-        // Add the parent's checks last so we can execute the checks in order.
-        Command? parent = context.Command.Parent;
-        while (parent is not null)
-        {
-            checks.AddRange(parent.Attributes.OfType<ContextCheckAttribute>());
-            parent = parent.Parent;
-        }
-
-        // If there are no checks, we can skip this step.
-        if (checks.Count == 0)
-        {
-            return [];
-        }
-
         // Execute all checks and return any that failed.
         List<ContextCheckFailedData> failedChecks = [];
 
@@ -173,6 +167,23 @@ public class DefaultCommandExecutor : ICommandExecutor
                     Exception = error
                 });
             }
+        }
+
+        // Add all of the checks attached to the delegate first.
+        List<ContextCheckAttribute> checks = new(context.Command.Attributes.OfType<ContextCheckAttribute>());
+
+        // Add the parent's checks last so we can execute the checks in order.
+        Command? parent = context.Command.Parent;
+        while (parent is not null)
+        {
+            checks.AddRange(parent.Attributes.OfType<ContextCheckAttribute>());
+            parent = parent.Parent;
+        }
+
+        // If there are no checks, we can skip this step.
+        if (checks.Count == 0)
+        {
+            return [];
         }
 
         // Reverse foreach so we execute the top-most command's checks first.
@@ -226,72 +237,54 @@ public class DefaultCommandExecutor : ICommandExecutor
     }
 
     /// <summary>
+    /// This method will execute the command provided without any safety checks, context checks or event invocation.
+    /// </summary>
+    /// <param name="context">The context of the command being executed.</param>
+    /// <returns>A tuple containing the command object and any error that occurred during execution. The command object may be null when the delegate is static and is from a static class.</returns>
+    public virtual async ValueTask<(object? CommandObject, Exception? Error)> ExecuteCoreAsync(CommandContext context)
+    {
+        // Keep the command object in scope so it can be accessed after the command has been executed.
+        object? commandObject = null;
+
+        try
+        {
+            // If the class isn't static, we need to create an instance of it.
+            if (!context.Command.Method!.DeclaringType!.IsAbstract || !context.Command.Method.DeclaringType.IsSealed)
+            {
+                // The delegate's object was provided, so we can use that.
+                commandObject = context.Command.Target is not null
+                    ? context.Command.Target
+                    : ActivatorUtilities.CreateInstance(context.ServiceProvider, context.Command.Method.DeclaringType);
+            }
+
+            // Grab the method that wraps Task/ValueTask execution.
+            if (!this._commandWrappers.TryGetValue(context.Command.Id, out Func<object?, object?[], ValueTask>? wrapper))
+            {
+                wrapper = CommandEmitUtil.GetCommandInvocationFunc(context.Command.Method, context.Command.Target);
+                this._commandWrappers[context.Command.Id] = wrapper;
+            }
+
+            // Execute the command and return the result.
+            await wrapper(commandObject, [context, .. context.Arguments.Values]);
+            return (commandObject, null);
+        }
+        catch (Exception error)
+        {
+            // The command threw. Unwrap the stack trace as much as we can to provide helpful information to the developer.
+            if (error is TargetInvocationException targetInvocationError && targetInvocationError.InnerException is not null)
+            {
+                error = ExceptionDispatchInfo.Capture(targetInvocationError.InnerException).SourceException;
+            }
+
+            return (commandObject, error);
+        }
+    }
+
+    /// <summary>
     /// Invokes the <see cref="CommandsExtension.CommandExecuted"/> event, which isn't normally exposed to the public API.
     /// </summary>
     /// <param name="extension">The extension/shard that the event is being invoked on.</param>
     /// <param name="eventArgs">The event arguments to pass to the event.</param>
-    protected virtual async ValueTask InvokedCommandErroredEventAsync(CommandsExtension extension, CommandErroredEventArgs eventArgs) => await extension._commandErrored.InvokeAsync(extension, eventArgs);
-
-    /// <summary>
-    /// This method will ensure that the command is executable, execute all context checks, and then execute the command, and invoke the appropriate events.
-    /// </summary>
-    /// <remarks>
-    /// This method - without exception - should never throw. If any errors were to occur, they will be delegated to the <see cref="CommandsExtension.CommandErrored"/> event.
-    /// </remarks>
-    /// <param name="context">The context of the command being executed.</param>
-    protected virtual async ValueTask WorkerAsync(CommandContext context)
-    {
-        // Do some safety checks to ensure the command is both executable
-        if (!IsCommandExecutable(context, out string? errorMessage))
-        {
-            await InvokedCommandErroredEventAsync(context.Extension, new CommandErroredEventArgs()
-            {
-                Context = context,
-                Exception = new CommandNotExecutableException(context.Command, errorMessage),
-                CommandObject = null
-            });
-
-            return;
-        }
-
-        // Execute all context checks and return any that failed.
-        IReadOnlyList<ContextCheckFailedData> failedChecks = await ExecuteContextChecksAsync(context);
-        if (failedChecks.Count > 0)
-        {
-            await InvokedCommandErroredEventAsync(context.Extension, new CommandErroredEventArgs()
-            {
-                Context = context,
-                Exception = new ChecksFailedException(failedChecks, context.Command),
-                CommandObject = null
-            });
-
-            return;
-        }
-
-        // Execute the command
-        (object? commandObject, Exception? error) = await UnconditionallyExecuteAsync(context);
-
-        // If the command threw an exception, invoke the CommandErrored event.
-        if (error is not null)
-        {
-            await InvokedCommandErroredEventAsync(context.Extension, new CommandErroredEventArgs()
-            {
-                Context = context,
-                Exception = error,
-                CommandObject = commandObject
-            });
-        }
-        // Otherwise, invoke the CommandExecuted event.
-        else
-        {
-            await context.Extension._commandExecuted.InvokeAsync(context.Extension, new CommandExecutedEventArgs()
-            {
-                Context = context,
-                CommandObject = commandObject
-            });
-        }
-
-        // Dispose of the service scope if it was created.
-        context.ServiceScope.Dispose();
-    }
+    protected virtual async ValueTask InvokeCommandErroredEventAsync(CommandsExtension extension, CommandErroredEventArgs eventArgs)
+        => await extension._commandErrored.InvokeAsync(extension, eventArgs);
 }

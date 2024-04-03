@@ -21,6 +21,7 @@ internal static class CommandEmitUtil
     {
         // This method is very likely to be an anonymous delegate, which happens to be very slow to invoke.
         // We're going to take the slow path here and simply do `MethodInfo.Invoke`, for lack of a better way.
+        // Not that there's any other path to take here, so I guess it isn't "slow" when there's nothing else to compare it too...
         if (method.Name.Contains('<') && method.Name.Contains('>') && method.GetCustomAttribute<CompilerGeneratedAttribute>() is not null)
         {
             return AnonymousDelegateUtil.GetAnonymousInvocationFunc(method, target);
@@ -35,8 +36,6 @@ internal static class CommandEmitUtil
         }
 
         // This could happen for `void` methods when the user explicitly builds a command tree with them.
-        // We probably don't want to support `void` since the user will never be able to respond to the command...
-        // Unless if it was done through context checks... Hm.
         throw new InvalidOperationException
         (
             $"This command executor only supports ValueTask and Task return types for commands, found " +
@@ -95,9 +94,9 @@ internal static class CommandEmitUtil
         {
             // Load the instance (this) onto the stack.
             dynamicMethodIlGenerator.Emit(OpCodes.Ldarg_0);
+
             if (method.DeclaringType!.IsValueType)
             {
-                // Change the handling behavior (unbox) of the instance (this) from a reference type to a value type.
                 dynamicMethodIlGenerator.Emit(OpCodes.Unbox_Any, method.DeclaringType);
             }
         }
@@ -106,13 +105,13 @@ internal static class CommandEmitUtil
         ParameterInfo[] parameters = method.GetParameters();
         for (int i = 0; i < parameters.Length; i++)
         {
-            // Ldarg_1 loads the array of arguments.
+            // ldarg.1 loads the array of arguments.
             dynamicMethodIlGenerator.Emit(OpCodes.Ldarg_1);
 
-            // Ldc_I4 loads the index of the current argument.
+            // ldc.i4 loads the index of the current argument.
             dynamicMethodIlGenerator.Emit(OpCodes.Ldc_I4, i);
 
-            // Ldelem_Ref loads the element at the given index from the array.
+            // ldelem.ref loads the element at the given index from the array.
             dynamicMethodIlGenerator.Emit(OpCodes.Ldelem_Ref);
 
             // Unbox value types - reference types don't need any special handling because they're just pointers
