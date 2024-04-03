@@ -832,21 +832,28 @@ public sealed class DiscordApiClient
 
         DiscordWidget ret = json.ToDiscordObject<DiscordWidget>();
         ret.Discord = this._discord!;
-        ret.Guild = this._discord!._guilds[guildId];
+        DiscordGuild? guild = await this._discord!.Cache.TryGetGuildAsync(guildId);
+        
+        ret.Guild = new CachedEntity<ulong, DiscordGuild>(guildId, guild);
 
-        ret.Channels = ret.Guild is null
-            ? rawChannels.Select(r => new DiscordChannel
+        List<DiscordChannel> channels = new(rawChannels.Count);
+        foreach (JToken jToken in rawChannels)
+        {
+            DiscordChannel channel = jToken.ToDiscordObject<DiscordChannel>();
+            
+            DiscordChannel? cachedChannel = await this._discord!.Cache.TryGetChannelAsync(channel.Id);
+            if (cachedChannel is not null)
             {
-                Id = (ulong)r["id"]!,
-                Name = r["name"]!.ToString(),
-                Position = (int)r["position"]!
-            }).ToList()
-            : rawChannels.Select(r =>
-            {
-                DiscordChannel c = ret.Guild.GetChannel((ulong)r["id"]!);
-                c.Position = (int)r["position"]!;
-                return c;
-            }).ToList();
+                channels.Add(cachedChannel);
+                continue;
+            }
+            
+            channel.Discord = this._discord!;
+            channel.GuildId = guildId;
+            channels.Add(channel);
+        }
+        
+        ret.Channels = channels;
 
         return ret;
     }
@@ -866,7 +873,9 @@ public sealed class DiscordApiClient
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         DiscordWidgetSettings ret = JsonConvert.DeserializeObject<DiscordWidgetSettings>(res.Response!)!;
-        ret.Guild = this._discord!._guilds[guildId];
+        DiscordGuild? guild = await this._discord!.Cache.TryGetGuildAsync(guildId);
+        ret.Discord = this._discord!;
+        ret.Guild = new CachedEntity<ulong, DiscordGuild>(guildId, guild);
 
         return ret;
     }
@@ -902,7 +911,9 @@ public sealed class DiscordApiClient
         RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
         DiscordWidgetSettings ret = JsonConvert.DeserializeObject<DiscordWidgetSettings>(res.Response!)!;
-        ret.Guild = this._discord!._guilds[guildId];
+        DiscordGuild? guild = await this._discord!.Cache.TryGetGuildAsync(guildId);
+        ret.Discord = this._discord!;
+        ret.Guild = new CachedEntity<ulong, DiscordGuild>(guildId, guild);
 
         return ret;
     }

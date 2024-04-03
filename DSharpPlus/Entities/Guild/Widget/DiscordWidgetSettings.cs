@@ -2,12 +2,23 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
+using System.Threading.Tasks;
+using Caching;
+
 /// <summary>
 /// Represents a Discord guild's widget settings.
 /// </summary>
 public class DiscordWidgetSettings
 {
-    internal DiscordGuild Guild { get; set; }
+    /// <summary>
+    /// DicordClient associated with this entity.
+    /// </summary>
+    public BaseDiscordClient Discord { get; internal set; }
+    
+    /// <summary>
+    /// Guild associated with this entity.
+    /// </summary>
+    public CachedEntity<ulong, DiscordGuild> Guild { get; internal set; }
 
     /// <summary>
     /// Gets the guild's widget channel id.
@@ -18,9 +29,19 @@ public class DiscordWidgetSettings
     /// <summary>
     /// Gets the guild's widget channel.
     /// </summary>
-    public DiscordChannel Channel
-        => this.Guild?.GetChannel(this.ChannelId);
-
+    public async ValueTask<DiscordChannel> GetChannelAsync()
+    {
+        DiscordChannel? cachedChannel = await this.Discord.Cache.TryGetChannelAsync(this.ChannelId);
+        if (cachedChannel is not null)
+        {
+            return cachedChannel;
+        }
+        else
+        {
+            return await this.Discord.GetChannelAsync(this.ChannelId);
+        }
+    }
+    
     /// <summary>
     /// Gets if the guild's widget is enabled.
     /// </summary>
