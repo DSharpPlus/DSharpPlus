@@ -29,8 +29,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
     internal bool _isShard = false;
 
-    internal IDiscordCache Cache { get; }
-
     private List<BaseExtension> _extensions = new();
     private StatusUpdate _status = null;
 
