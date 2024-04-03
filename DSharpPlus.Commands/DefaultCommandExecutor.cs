@@ -149,7 +149,7 @@ public class DefaultCommandExecutor : ICommandExecutor
             try
             {
                 // Create the check instance
-                object check = ActivatorUtilities.CreateInstance(context.Extension.ServiceProvider, entry.CheckType);
+                object check = ActivatorUtilities.CreateInstance(context.ServiceProvider, entry.CheckType);
 
                 // Execute it
                 string? result = await entry.ExecuteCheckAsync(check, unconditionalCheck, context);
@@ -192,7 +192,7 @@ public class DefaultCommandExecutor : ICommandExecutor
                 try
                 {
                     // Create the check instance
-                    object check = ActivatorUtilities.CreateInstance(context.Extension.ServiceProvider, entry.CheckType);
+                    object check = ActivatorUtilities.CreateInstance(context.ServiceProvider, entry.CheckType);
 
                     // Execute it
                     string? result = await entry.ExecuteCheckAsync(check, checkAttribute, context);
