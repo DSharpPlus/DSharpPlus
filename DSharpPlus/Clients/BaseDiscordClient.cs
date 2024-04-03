@@ -270,7 +270,7 @@ public abstract class BaseDiscordClient : IDisposable
     /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async ValueTask<DiscordChannel> GetChannelAsync(ulong id, bool skipCache)
+    public async ValueTask<DiscordChannel> GetChannelAsync(ulong id, bool skipCache = false)
     {
         if (skipCache)
         {
