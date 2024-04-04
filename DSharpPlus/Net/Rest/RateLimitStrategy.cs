@@ -200,13 +200,13 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         string global = scope == "global" ? " global" : "";
 
         string traceIdString = "";
-        if(this.logger.IsEnabled(LogLevel.Trace))
+        if (this.logger.IsEnabled(LogLevel.Trace))
         {
             traceIdString = $"Request ID:{traceId}: ";
         }
 
         DateTime retryJittered = retry + TimeSpan.FromMilliseconds(Random.Shared.NextInt64(100));
-        
+
         logger.LogDebug
         (
             LoggerEvents.RatelimitPreemptive,
@@ -261,7 +261,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         {
             foreach (KeyValuePair<string, string> pair in this.routeHashes)
             {
-                if (this.buckets[pair.Value].Reset < DateTime.UtcNow + TimeSpan.FromSeconds(1))
+                if (this.buckets.TryGetValue(pair.Value, out RateLimitBucket? bucket) && bucket.Reset < DateTime.UtcNow + TimeSpan.FromSeconds(1))
                 {
                     this.buckets.Remove(pair.Value, out _);
                     this.routeHashes.Remove(pair.Key, out _);
