@@ -19,12 +19,12 @@ public readonly record struct Result<TValue>
     /// The value this operation returned, if applicable.
     /// </summary>
     [AllowNull]
-    public TValue Value { get; init; }
+    public TValue Value { get; private init; }
 
     /// <summary>
     /// The error this operation returned, if applicable.
     /// </summary>
-    public Error? Error { get; init; }
+    public Error? Error { get; private init; }
 
     /// <summary>
     /// Indicates whether this operation was successful.
@@ -71,11 +71,11 @@ public readonly record struct Result<TValue>
     /// </summary>
     [DebuggerHidden]
     [StackTraceHidden]
-    public void Expect(Func<Result<TValue>, Exception> transform)
+    public void Expect(Func<Error, Exception> transform)
     {
         if (!this.IsSuccess)
         {
-            throw transform(this);
+            throw transform(this.Error);
         }
     }
 
@@ -135,4 +135,20 @@ public readonly record struct Result<TValue>
     /// </summary>
     public Result<TResult> MapOrElse<TResult>(Func<TValue, TResult> transformValue, Func<Error, Error> transformError)
         => this.IsSuccess ? new(transformValue(this.Value)) : new(transformError(this.Error));
+
+#pragma warning disable CA1000
+
+    /// <summary>
+    /// Creates a new failed result from the specified error.
+    /// </summary>
+    public static Result<TValue> FromError(Error error) => new(error);
+
+    /// <summary>
+    /// Creates a new successful result from the specified value.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static Result<TValue> FromSuccess(TValue value) => new(value);
+
+#pragma warning restore CA1000
 }

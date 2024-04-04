@@ -16,10 +16,12 @@ namespace DSharpPlus.Results;
 /// </summary>
 public readonly record struct Result
 {
+    public static Result Success => default;
+
     /// <summary>
     /// The error this operation returned, if applicable.
     /// </summary>
-    public Error? Error { get; init; }
+    public Error? Error { get; private init; }
 
     /// <summary>
     /// Indicates whether this operation was successful.
@@ -58,11 +60,11 @@ public readonly record struct Result
     /// </summary>
     [DebuggerHidden]
     [StackTraceHidden]
-    public void Expect(Func<Result, Exception> transform)
+    public void Expect(Func<Error, Exception> transform)
     {
         if (!this.IsSuccess)
         {
-            throw transform(this);
+            throw transform(this.Error);
         }
     }
 
