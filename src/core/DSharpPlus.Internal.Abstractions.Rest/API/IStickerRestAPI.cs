@@ -5,12 +5,10 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Remora.Results;
-
 using DSharpPlus.Internal.Abstractions.Models;
-using DSharpPlus.Internal.Abstractions.Rest.Responses;
 using DSharpPlus.Internal.Abstractions.Rest.Payloads;
+using DSharpPlus.Internal.Abstractions.Rest.Responses;
+using DSharpPlus.Results;
 
 namespace DSharpPlus.Internal.Abstractions.Rest.API;
 

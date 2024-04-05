@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-using Remora.Results;
+using DSharpPlus.Results.Errors;
 
 namespace DSharpPlus.Internal.Abstractions.Rest.Errors;
 
@@ -10,4 +10,4 @@ namespace DSharpPlus.Internal.Abstractions.Rest.Errors;
 /// Represents an error encountered during parameter validation.
 /// </summary>
 /// <param name="message">The human-readable error message.</param>
-public record ValidationError(string message) : ResultError(message);
+public record ValidationError(string message) : Error(message);

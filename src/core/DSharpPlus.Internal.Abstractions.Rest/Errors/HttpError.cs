@@ -4,14 +4,14 @@
 
 using System.Net;
 
-using Remora.Results;
+using DSharpPlus.Results.Errors;
 
 namespace DSharpPlus.Internal.Abstractions.Rest.Errors;
 
 /// <summary>
 /// Represents a HTTP error returned by an API call.
 /// </summary>
-public sealed record HttpError : ResultError
+public sealed record HttpError : Error
 {
     /// <summary>
     /// The encountered status code.

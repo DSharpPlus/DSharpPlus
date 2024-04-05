@@ -9,7 +9,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-
 using DSharpPlus.Entities;
 using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Abstractions.Rest;
@@ -18,9 +17,8 @@ using DSharpPlus.Internal.Abstractions.Rest.Errors;
 using DSharpPlus.Internal.Abstractions.Rest.Payloads;
 using DSharpPlus.Internal.Abstractions.Rest.Queries;
 using DSharpPlus.Internal.Abstractions.Rest.Responses;
+using DSharpPlus.Results;
 using DSharpPlus.Serialization;
-
-using Remora.Results;
 
 namespace DSharpPlus.Internal.Rest.API;
 
@@ -177,9 +175,9 @@ public sealed class ApplicationCommandsRestAPI
         {
             CreatedCommand = serializationService.DeserializeModel<IApplicationCommand>
             (
-                await response.Entity.Content.ReadAsByteArrayAsync(ct)
+                await response.Value.Content.ReadAsByteArrayAsync(ct)
             ),
-            IsNewlyCreated = response.Entity.StatusCode == HttpStatusCode.Created
+            IsNewlyCreated = response.Value.StatusCode == HttpStatusCode.Created
         };
     }
 
@@ -232,9 +230,9 @@ public sealed class ApplicationCommandsRestAPI
         {
             CreatedCommand = serializationService.DeserializeModel<IApplicationCommand>
             (
-                await response.Entity.Content.ReadAsByteArrayAsync(ct)
+                await response.Value.Content.ReadAsByteArrayAsync(ct)
             ),
-            IsNewlyCreated = response.Entity.StatusCode == HttpStatusCode.Created
+            IsNewlyCreated = response.Value.StatusCode == HttpStatusCode.Created
         };
     }
 
@@ -247,7 +245,7 @@ public sealed class ApplicationCommandsRestAPI
         CancellationToken ct = default
     )
     {
-        Result<HttpResponseMessage> response = await restClient.ExecuteRequestAsync
+        return await restClient.ExecuteRequestAsync
         (
             HttpMethod.Delete,
             $"applications/{applicationId}/commands/{commandId}",
@@ -255,8 +253,6 @@ public sealed class ApplicationCommandsRestAPI
             info,
             ct
         );
-
-        return (Result)response;
     }
 
     /// <inheritdoc/>
@@ -269,7 +265,7 @@ public sealed class ApplicationCommandsRestAPI
         CancellationToken ct = default
     )
     {
-        Result<HttpResponseMessage> response = await restClient.ExecuteRequestAsync
+        return await restClient.ExecuteRequestAsync
         (
             HttpMethod.Delete,
             $"applications/{applicationId}/guilds/{guildId}/commands/{commandId}",
@@ -277,8 +273,6 @@ public sealed class ApplicationCommandsRestAPI
             info,
             ct
         );
-
-        return (Result)response;
     }
 
     /// <inheritdoc/>

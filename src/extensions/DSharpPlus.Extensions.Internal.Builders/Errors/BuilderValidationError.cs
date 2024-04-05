@@ -7,14 +7,14 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 
-using Remora.Results;
+using DSharpPlus.Results.Errors;
 
 namespace DSharpPlus.Extensions.Internal.Builders.Errors;
 
 /// <summary>
 /// Represents an error encountered when attempting to validate a builder.
 /// </summary>
-public record BuilderValidationError : ResultError
+public record BuilderValidationError : Error
 {
     /// <summary>
     /// If this error was caused by any specific parameters, contains the names of the invalid parameters.
@@ -27,7 +27,7 @@ public record BuilderValidationError : ResultError
     /// <param name="message">The human-readable error message.</param>
     /// <param name="parameters">If applicable, the names of parameters that failed validation.</param>
     public BuilderValidationError(string message, params (string Key, string Value)[] parameters)
-        : base(message) 
+        : base(message)
     {
         if (parameters.Length == 0)
         {

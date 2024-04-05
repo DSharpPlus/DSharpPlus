@@ -16,8 +16,7 @@ using DSharpPlus.Internal.Abstractions.Rest.Errors;
 using DSharpPlus.Internal.Abstractions.Rest.Payloads;
 using DSharpPlus.Internal.Abstractions.Rest.Responses;
 using DSharpPlus.Internal.Rest.Ratelimiting;
-
-using Remora.Results;
+using DSharpPlus.Results;
 
 namespace DSharpPlus.Internal.Rest.API;
 

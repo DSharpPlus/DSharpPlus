@@ -4,7 +4,7 @@
 
 using System.Net.Http;
 
-using Remora.Results;
+using DSharpPlus.Results;
 
 namespace DSharpPlus.Internal.Rest.Ratelimiting;
 

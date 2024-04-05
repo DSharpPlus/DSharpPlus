@@ -13,7 +13,6 @@
     <PackageVersion Include="NonBlocking" Version="2.1.2" />
     <PackageVersion Include="OneOf" Version="3.0.263" />
     <PackageVersion Include="Polly" Version="8.2.1" />
-    <PackageVersion Include="Remora.Results" Version="7.4.1" />
     <PackageVersion Include="System.IO.Hashing" Version="8.0.0" />
     <PackageVersion Include="System.IO.Pipelines" Version="8.0.0" />
     <PackageVersion Include="System.Net.Http" Version="4.3.4" />

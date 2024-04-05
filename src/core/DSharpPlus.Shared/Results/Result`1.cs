@@ -53,6 +53,9 @@ public readonly record struct Result<TValue>
     public static implicit operator bool(Result<TValue> result)
         => result.IsSuccess;
 
+    public static implicit operator Result(Result<TValue> result)
+        => result.IsSuccess ? Result.Success : new(result.Error);
+
     /// <summary>
     /// Throws the result error as an exception, if applicable.
     /// </summary>

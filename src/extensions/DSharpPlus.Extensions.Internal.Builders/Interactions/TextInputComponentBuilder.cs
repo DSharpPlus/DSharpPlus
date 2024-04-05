@@ -12,7 +12,7 @@ using DSharpPlus.Extensions.Internal.Builders.Errors;
 using DSharpPlus.Extensions.Internal.Builders.Implementations;
 using DSharpPlus.Internal.Abstractions.Models;
 
-using Remora.Results;
+using DSharpPlus.Results;
 
 namespace DSharpPlus.Extensions.Internal.Builders.Interactions;
 
@@ -54,7 +54,7 @@ public static class TextInputComponentBuilderExtensions
     /// <returns>The component builder for chaining.</returns>
     public static ref TextInputComponentBuilder WithCustomId
     (
-        ref this TextInputComponentBuilder builder, 
+        ref this TextInputComponentBuilder builder,
         string customId
     )
     {

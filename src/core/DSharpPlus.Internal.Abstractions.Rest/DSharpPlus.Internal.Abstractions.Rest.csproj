@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Remora.Results" />
     <PackageReference Include="System.IO.Pipelines" />
   </ItemGroup>
 

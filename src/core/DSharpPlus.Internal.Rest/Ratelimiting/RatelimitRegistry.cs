@@ -15,6 +15,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus.Internal.Abstractions.Rest;
+using DSharpPlus.Results;
+using DSharpPlus.Results.Errors;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -23,8 +25,6 @@ using Microsoft.Extensions.Primitives;
 using NonBlocking;
 
 using Polly;
-
-using Remora.Results;
 
 namespace DSharpPlus.Internal.Rest.Ratelimiting;
 
@@ -214,7 +214,7 @@ public sealed class RatelimitRegistry : IRatelimitRegistry
             && !double.TryParse(rawReset?.SingleOrDefault(), out reset)
         )
         {
-            return new ArgumentInvalidError("response.Headers", "Failed to parse an X-RateLimit-Reset header from the response.");
+            return new ArgumentError("response.Headers", "Failed to parse an X-RateLimit-Reset header from the response.");
         }
 
         Context? context = request.GetPolicyExecutionContext();
@@ -249,7 +249,7 @@ public sealed class RatelimitRegistry : IRatelimitRegistry
         // update the bucket, first by extracting the other relevant information...
         if (!headers.TryGetValues("X-RateLimit-Bucket", out IEnumerable<string>? rawBucket))
         {
-            return new ArgumentInvalidError("response.Headers", "Failed to parse an X-RateLimit-Bucket header from the response.");
+            return new ArgumentError("response.Headers", "Failed to parse an X-RateLimit-Bucket header from the response.");
         }
 
         string hash = rawBucket.Single();
@@ -261,7 +261,7 @@ public sealed class RatelimitRegistry : IRatelimitRegistry
             && !short.TryParse(rawLimit?.SingleOrDefault(), out limit)
         )
         {
-            return new ArgumentInvalidError("response.Headers", "Failed to parse an X-RateLimit-Limit header from the response.");
+            return new ArgumentError("response.Headers", "Failed to parse an X-RateLimit-Limit header from the response.");
         }
 
         if
@@ -270,7 +270,7 @@ public sealed class RatelimitRegistry : IRatelimitRegistry
             && !short.TryParse(rawRemaining?.SingleOrDefault(), out remaining)
         )
         {
-            return new ArgumentInvalidError("response.Headers", "Failed to parse an X-RateLimit-Remaining header from the response.");
+            return new ArgumentError("response.Headers", "Failed to parse an X-RateLimit-Remaining header from the response.");
         }
 
         this.dirty = true;

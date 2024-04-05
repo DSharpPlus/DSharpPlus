@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Remora.Results;
+using DSharpPlus.Results;
 
 namespace DSharpPlus.Internal.Abstractions.Rest;
 

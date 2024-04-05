@@ -5,11 +5,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-
-using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Entities;
-
-using Remora.Results;
+using DSharpPlus.Internal.Abstractions.Models;
+using DSharpPlus.Results;
 
 namespace DSharpPlus.Internal.Abstractions.Rest.API;
 

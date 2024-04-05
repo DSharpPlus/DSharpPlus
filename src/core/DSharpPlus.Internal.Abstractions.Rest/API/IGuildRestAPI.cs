@@ -12,8 +12,7 @@ using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Abstractions.Rest.Payloads;
 using DSharpPlus.Internal.Abstractions.Rest.Queries;
 using DSharpPlus.Internal.Abstractions.Rest.Responses;
-
-using Remora.Results;
+using DSharpPlus.Results;
 
 namespace DSharpPlus.Internal.Abstractions.Rest.API;
 

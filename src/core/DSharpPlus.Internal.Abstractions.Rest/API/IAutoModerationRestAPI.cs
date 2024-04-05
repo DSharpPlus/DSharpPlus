@@ -8,8 +8,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Abstractions.Rest.Payloads;
-
-using Remora.Results;
+using DSharpPlus.Results;
 
 namespace DSharpPlus.Internal.Abstractions.Rest.API;
 

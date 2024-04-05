@@ -7,15 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using DSharpPlus.Entities;
 using DSharpPlus.Extensions.Internal.Builders.Errors;
 using DSharpPlus.Extensions.Internal.Builders.Implementations;
 using DSharpPlus.Internal.Abstractions.Models;
-
+using DSharpPlus.Results;
 using OneOf;
-
-using Remora.Results;
 
 namespace DSharpPlus.Extensions.Internal.Builders.Interactions;
 
@@ -68,7 +65,7 @@ public static class ModalBuilderExtensions
             return ref builder;
         }
 
-        builder.Components = [..builder.Components, component];
+        builder.Components = [.. builder.Components, component];
         return ref builder;
     }
 
@@ -136,7 +133,7 @@ public static class ModalBuilderExtensions
                     CustomId = builder.CustomId,
                     Components = builder.Components.Select<ITextInputComponent, IActionRowComponent>
                     (
-                        x => 
+                        x =>
                         {
                             return new BuiltActionRowComponent
                             {
