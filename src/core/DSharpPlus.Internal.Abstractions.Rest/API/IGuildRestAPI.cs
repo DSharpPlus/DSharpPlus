@@ -388,6 +388,26 @@ public interface IGuildRestAPI
     );
 
     /// <summary>
+    /// Bans up to 200 users from the given guild.
+    /// </summary>
+    /// <param name="guildId">The snowflake identifier of the guild in question.</param>
+    /// <param name="payload">
+    /// The snowflake identifiers of the users to ban, and the amount of seconds to delete messages from.
+    /// </param>
+    /// <param name="reason">An optional audit log reason for the bans.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns>The snowflake identifiers of users that were banned and users that could not be banned.</returns>
+    public ValueTask<Result<BulkGuildBanResponse>> BulkGuildBanAsync
+    (
+        Snowflake guildId,
+        IBulkGuildBanPayload payload,
+        string? reason = null,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
     /// Fetches the role list of the specified guild.
     /// </summary>
     /// <param name="guildId">The snowflake identifier of the guild in question.</param>

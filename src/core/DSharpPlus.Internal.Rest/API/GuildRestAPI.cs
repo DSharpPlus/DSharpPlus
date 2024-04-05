@@ -1142,4 +1142,36 @@ public sealed class GuildRestAPI(IRestClient restClient)
             ct
         );
     }
+
+    /// <inheritdoc/>
+    public async ValueTask<Result<BulkGuildBanResponse>> BulkGuildBanAsync
+    (
+        Snowflake guildId,
+        IBulkGuildBanPayload payload,
+        string? reason = null,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    )
+    {
+        if (payload.DeleteMessageSeconds is { HasValue: true, Value: < 0 or > 604800 })
+        {
+            return new ValidationError("The seconds to delete messages from must be between 0 and 604800, or 7 days.");
+        }
+
+        if (payload.UserIds.Count > 200)
+        {
+            return new ValidationError("Up to 200 users may be bulk-banned at once.");
+        }
+
+        return await restClient.ExecuteRequestAsync<BulkGuildBanResponse>
+        (
+            HttpMethod.Post,
+            $"guilds/{guildId}/bulk-ban",
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
+                .WithPayload(payload)
+                .WithAuditLogReason(reason),
+            info,
+            ct
+        );
+    }
 }
