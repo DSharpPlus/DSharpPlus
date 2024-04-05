@@ -58,11 +58,17 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             return;
         }
 
+        // Remove the prefix
         string commandText = eventArgs.Message.Content[prefixLength..].TrimStart();
-        int index = commandText.IndexOf(' ');
-        if (index == -1)
+
+        // Declare the index here for scope, keep reading until a whitespace character is found.
+        int index;
+        for (index = 0; index < commandText.Length; index++)
         {
-            index = commandText.Length;
+            if (char.IsWhiteSpace(commandText[index]))
+            {
+                break;
+            }
         }
 
         AsyncServiceScope scope = this._extension.ServiceProvider.CreateAsyncScope();
@@ -144,8 +150,8 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
 
         if (command.Method is null)
         {
-            Command? defaultHelpCommand = command.Subcommands.FirstOrDefault(subcommand => subcommand.Attributes.OfType<DefaultGroupCommandAttribute>().Any());
-            if (defaultHelpCommand is null)
+            Command? defaultGroupCommand = command.Subcommands.FirstOrDefault(subcommand => subcommand.Attributes.OfType<DefaultGroupCommandAttribute>().Any());
+            if (defaultGroupCommand is null)
             {
                 await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
                 {
@@ -166,7 +172,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
                 return;
             }
 
-            command = defaultHelpCommand;
+            command = defaultGroupCommand;
         }
 
         TextConverterContext converterContext = new()
