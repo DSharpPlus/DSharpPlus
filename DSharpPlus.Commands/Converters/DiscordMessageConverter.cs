@@ -46,17 +46,20 @@ public partial class DiscordMessageConverter : ISlashArgumentConverter<DiscordMe
             {
                 return Optional.FromNoValue<DiscordMessage>();
             }
-            else if (guild.Channels.TryGetValue(channelId, out DiscordChannel? guildChannel))
-            {
-                channel = guildChannel;
-            }
             // guildGroup is null which means the link used @me, which means DM's. At this point, we can only get the message if the DM is with the bot.
             else if (guildGroup is null && channelId == context.Client.CurrentUser.Id)
             {
                 channel = context.Client.PrivateChannels.TryGetValue(context.User.Id, out DiscordDmChannel? dmChannel) ? dmChannel : null;
             }
+            else if (guild.Channels.TryGetValue(channelId, out DiscordChannel? guildChannel))
+            {
+                channel = guildChannel;
+            }
+            else if (guild.Threads.TryGetValue(channelId, out DiscordThreadChannel? threadChannel))
+            {
+                channel = threadChannel;
+            }
         }
-
 
         if (channel is null)
         {
