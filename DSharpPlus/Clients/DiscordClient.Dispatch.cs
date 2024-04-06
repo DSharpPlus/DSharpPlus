@@ -2590,7 +2590,7 @@ public sealed partial class DiscordClient
 
             await this._modalSubmitted.InvokeAsync(this, mea);
         }
-        else if (interaction.Data.Target.HasValue) // Context-Menu. //
+        else if (interaction.Data.Type is ApplicationCommandType.MessageContextMenu or ApplicationCommandType.UserContextMenu) // Context-Menu. //
         {
             ulong targetId = interaction.Data.Target.Value;
             DiscordUser targetUser = null;

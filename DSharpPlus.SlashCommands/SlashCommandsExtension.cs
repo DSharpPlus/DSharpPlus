@@ -629,7 +629,7 @@ public sealed class SlashCommandsExtension : BaseExtension
     {
         _ = Task.Run(async () =>
         {
-            if (e.Interaction.Type == InteractionType.ApplicationCommand)
+            if (e.Interaction is {Type: InteractionType.ApplicationCommand, Data.Type: ApplicationCommandType.SlashCommand})
             {
                 StringBuilder qualifiedName = new StringBuilder(e.Interaction.Data.Name);
                 DiscordInteractionDataOption[] options = e.Interaction.Data.Options?.ToArray() ?? Array.Empty<DiscordInteractionDataOption>();
