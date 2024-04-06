@@ -33,9 +33,22 @@ public partial class DiscordChannelConverter : ISlashArgumentConverter<DiscordCh
             }
         }
 
-        return context.Guild!.GetChannel(channelId) is DiscordChannel guildChannel
-            ? Task.FromResult(Optional.FromValue(guildChannel))
-            : Task.FromResult(Optional.FromNoValue<DiscordChannel>());
+        if (context.Guild is null)
+        {
+            return channelId == context.User.Id && context.Client.PrivateChannels.TryGetValue(channelId, out DiscordDmChannel? dmChannel)
+                ? Task.FromResult(Optional.FromValue<DiscordChannel>(dmChannel))
+                : Task.FromResult(Optional.FromNoValue<DiscordChannel>());
+        }
+        else if (context.Guild.Channels.TryGetValue(channelId, out DiscordChannel? guildChannel))
+        {
+            return Task.FromResult(Optional.FromValue(guildChannel));
+        }
+        else if (context.Guild.Threads.TryGetValue(channelId, out DiscordThreadChannel? threadChannel))
+        {
+            return Task.FromResult(Optional.FromValue<DiscordChannel>(threadChannel));
+        }
+
+        return Task.FromResult(Optional.FromNoValue<DiscordChannel>());
     }
 
     public Task<Optional<DiscordChannel>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => context.Interaction.Data.Resolved is null
