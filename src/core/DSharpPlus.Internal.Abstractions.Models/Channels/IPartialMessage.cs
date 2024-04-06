@@ -142,7 +142,7 @@ public interface IPartialMessage
     /// <summary>
     /// Additional metadata if this message is the original response to an interaction.
     /// </summary>
-    public Optional<IMessageInteraction> Interaction { get; }
+    public Optional<IMessageInteractionMetadata> InteractionMetadata { get; }
 
     /// <summary>
     /// The thread that was started from this message.

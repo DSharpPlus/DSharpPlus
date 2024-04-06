@@ -67,15 +67,21 @@ public interface IApplicationCommand
     public DiscordPermissions? DefaultMemberPermissions { get; }
 
     /// <summary>
-    /// Indicates whether this command is available in DMs with the app. This is only applicable
-    /// to globally-scoped commands.
-    /// </summary>
-    public Optional<bool> DmPermission { get; }
-
-    /// <summary>
     /// Indicates whether this command is age-restricted.
     /// </summary>
     public Optional<bool> Nsfw { get; }
+
+    /// <summary>
+    /// Specifies installation contexts where this command is available; only for globally-scoped commands. Defaults to
+    /// <seealso cref="DiscordApplicationIntegrationType.GuildInstall"/>.
+    /// </summary>
+    public Optional<IReadOnlyList<DiscordApplicationIntegrationType>> IntegrationTypes { get; }
+
+    /// <summary>
+    /// Specifies contexts where this command can be used; only for globally-scoped commands. Defaults to including all
+    /// context types.
+    /// </summary>
+    public Optional<IReadOnlyList<DiscordInteractionContextType>?> Contexts { get; }
 
     /// <summary>
     /// An autoincrementing version identifier updated during substantial changes.

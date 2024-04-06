@@ -141,6 +141,11 @@ public interface IPartialApplication
     public Optional<IInstallParameters> InstallParams { get; }
 
     /// <summary>
+    /// The default scopes and permissions for each supported installation context.
+    /// </summary>
+    public Optional<IReadOnlyDictionary<DiscordApplicationIntegrationType, IApplicationIntegrationTypeConfiguration>> IntegrationTypesConfig { get; }
+
+    /// <summary>
     /// The default custom authorization link for this application, if enabled.
     /// </summary>
     public Optional<string> CustomInstallUrl { get; }

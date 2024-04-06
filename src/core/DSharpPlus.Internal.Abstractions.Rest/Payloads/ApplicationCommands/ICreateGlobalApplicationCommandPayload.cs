@@ -45,17 +45,24 @@ public interface ICreateGlobalApplicationCommandPayload
     public Optional<DiscordPermissions?> DefaultMemberPermissions { get; }
 
     /// <summary>
-    /// Indicates whether this command is available in DMs with this app.
-    /// </summary>
-    public Optional<bool?> DmPermission { get; }
-
-    /// <summary>
     /// The type of this command.
     /// </summary>
     public Optional<DiscordApplicationCommandType> Type { get; }
-    
+
     /// <summary>
     /// Indicates whether this command is age-restricted.
     /// </summary>
     public Optional<bool> Nsfw { get; }
+
+    /// <summary>
+    /// Specifies installation contexts where this command is available; only for globally-scoped commands. Defaults to
+    /// <seealso cref="DiscordApplicationIntegrationType.GuildInstall"/>.
+    /// </summary>
+    public IReadOnlyList<DiscordApplicationIntegrationType> IntegrationTypes { get; }
+
+    /// <summary>
+    /// Specifies contexts where this command can be used; only for globally-scoped commands. Defaults to including all
+    /// context types.
+    /// </summary>
+    public IReadOnlyList<DiscordInteractionContextType> Contexts { get; }
 }

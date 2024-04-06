@@ -32,11 +32,14 @@ public sealed record CreateGlobalApplicationCommandPayload : ICreateGlobalApplic
     public Optional<DiscordPermissions?> DefaultMemberPermissions { get; init; }
 
     /// <inheritdoc/>
-    public Optional<bool?> DmPermission { get; init; }
-
-    /// <inheritdoc/>
     public Optional<DiscordApplicationCommandType> Type { get; init; }
 
     /// <inheritdoc/>
     public Optional<bool> Nsfw { get; init; }
+
+    /// <inheritdoc/>
+    public required IReadOnlyList<DiscordApplicationIntegrationType> IntegrationTypes { get; init; }
+
+    /// <inheritdoc/>
+    public required IReadOnlyList<DiscordInteractionContextType> Contexts { get; init; }
 }

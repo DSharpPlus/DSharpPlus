@@ -98,5 +98,15 @@ public interface IInteraction
     /// <summary>
     /// For monetized apps, any entitlements for the invoking user.
     /// </summary>
-    public Optional<IReadOnlyList<IEntitlement>> Entitlements { get; }
+    public IReadOnlyList<IEntitlement> Entitlements { get; }
+
+    /// <summary>
+    /// The user or guild IDs the integration is authorized in for the given context.
+    /// </summary>
+    public IReadOnlyDictionary<DiscordApplicationIntegrationType, Snowflake> AuthorizingIntegrationOwners { get; }
+
+    /// <summary>
+    /// The context the interaction was triggered in.
+    /// </summary>
+    public Optional<DiscordInteractionContextType> Context { get; }
 }

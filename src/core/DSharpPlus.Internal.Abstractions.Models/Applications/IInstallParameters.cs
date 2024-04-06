@@ -14,12 +14,12 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 public interface IInstallParameters
 {
     /// <summary>
-    /// The OAuth2 scopes to add the application to the server with.
+    /// The OAuth2 scopes to add the application to the present context with.
     /// </summary>
     public IReadOnlyList<string> Scopes { get; }
 
     /// <summary>
-    /// The permissions to request for the bot role.
+    /// The permissions to request for the present context.
     /// </summary>
     public DiscordPermissions Permissions { get; }
 }

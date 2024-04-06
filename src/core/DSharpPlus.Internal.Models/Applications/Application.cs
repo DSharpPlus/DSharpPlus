@@ -88,5 +88,8 @@ public sealed record Application : IApplication
     public Optional<IInstallParameters> InstallParams { get; init; }
 
     /// <inheritdoc/>
+    public Optional<IReadOnlyDictionary<DiscordApplicationIntegrationType, IApplicationIntegrationTypeConfiguration>> IntegrationTypesConfig { get; init; }
+
+    /// <inheritdoc/>
     public Optional<string> CustomInstallUrl { get; init; }
 }

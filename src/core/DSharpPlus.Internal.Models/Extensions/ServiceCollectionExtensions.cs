@@ -45,6 +45,7 @@ public static class ServiceCollectionExtensions
                 options.Converters.Add(new AutoModerationActionConverter());
                 options.Converters.Add(new DiscordPermissionConverter());
                 options.Converters.Add(new MessageComponentConverter());
+                options.Converters.Add(new ApplicationIntegrationTypeKeyConverter());
 
                 options.TypeInfoResolverChain.Add(OptionalTypeInfoResolver.Default);
                 options.TypeInfoResolverChain.Add(NullBooleanTypeInfoResolver.Default);
@@ -63,6 +64,7 @@ public static class ServiceCollectionExtensions
                 options.AddModel<IPartialApplicationCommandPermissions, PartialApplicationCommandPermissions>();
 
                 options.AddModel<IApplication, Application>();
+                options.AddModel<IApplicationIntegrationTypeConfiguration, ApplicationIntegrationTypeConfiguration>();
                 options.AddModel<IInstallParameters, InstallParameters>();
                 options.AddModel<IPartialApplication, PartialApplication>();
 
@@ -92,6 +94,7 @@ public static class ServiceCollectionExtensions
                 options.AddModel<IForumTag, ForumTag>();
                 options.AddModel<IMessage, Message>();
                 options.AddModel<IMessageActivity, MessageActivity>();
+                options.AddModel<IMessageInteractionMetadata, MessageInteractionMetadata>();
                 options.AddModel<IMessageReference, MessageReference>();
                 options.AddModel<IPartialAttachment, PartialAttachment>();
                 options.AddModel<IPartialChannel, PartialChannel>();
@@ -135,7 +138,6 @@ public static class ServiceCollectionExtensions
                 options.AddModel<IInteractionResponse, InteractionResponse>();
                 options.AddModel<IMessageCallbackData, MessageCallbackData>();
                 options.AddModel<IMessageComponentInteractionData, MessageComponentInteractionData>();
-                options.AddModel<IMessageInteraction, MessageInteraction>();
                 options.AddModel<IModalCallbackData, ModalCallbackData>();
                 options.AddModel<IModalInteractionData, ModalInteractionData>();
                 options.AddModel<IResolvedData, ResolvedData>();

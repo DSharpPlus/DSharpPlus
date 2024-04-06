@@ -60,5 +60,11 @@ public sealed record Interaction : IInteraction
     public Optional<string> GuildLocale { get; init; }
 
     /// <inheritdoc/>
-    public Optional<IReadOnlyList<IEntitlement>> Entitlements { get; init; }
+    public required IReadOnlyList<IEntitlement> Entitlements { get; init; }
+
+    /// <inheritdoc/>
+    public required IReadOnlyDictionary<DiscordApplicationIntegrationType, Snowflake> AuthorizingIntegrationOwners { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<DiscordInteractionContextType> Context { get; init; }
 }

@@ -43,10 +43,13 @@ public sealed record ApplicationCommand : IApplicationCommand
     public DiscordPermissions? DefaultMemberPermissions { get; init; }
 
     /// <inheritdoc/>
-    public Optional<bool> DmPermission { get; init; }
+    public Optional<bool> Nsfw { get; init; }
 
     /// <inheritdoc/>
-    public Optional<bool> Nsfw { get; init; }
+    public Optional<IReadOnlyList<DiscordApplicationIntegrationType>> IntegrationTypes { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<IReadOnlyList<DiscordInteractionContextType>?> Contexts { get; init; }
 
     /// <inheritdoc/>
     public required Snowflake Version { get; init; }

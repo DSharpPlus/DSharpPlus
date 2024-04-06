@@ -86,7 +86,7 @@ public sealed record PartialMessage : IPartialMessage
     public Optional<IPartialMessage?> ReferencedMessage { get; init; }
 
     /// <inheritdoc/>
-    public Optional<IMessageInteraction> Interaction { get; init; }
+    public Optional<IMessageInteractionMetadata> InteractionMetadata { get; init; }
 
     /// <inheritdoc/>
     public Optional<IPartialChannel> Thread { get; init; }
