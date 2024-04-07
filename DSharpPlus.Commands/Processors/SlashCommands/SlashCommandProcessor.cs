@@ -284,7 +284,9 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             description_localizations: descriptionLocalizations,
             allowDMUsage: command.Attributes.Any(x => x is AllowDMUsageAttribute),
             defaultMemberPermissions: command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? Permissions.None,
-            nsfw: command.Attributes.Any(x => x is RequireNsfwAttribute)
+            nsfw: command.Attributes.Any(x => x is RequireNsfwAttribute),
+            contexts: command.Attributes.OfType<SlashAllowedContextsAttribute>().FirstOrDefault()?.AllowedContexts ?? [],
+            integrationTypes: command.Attributes.OfType<SlashInstallTypeAttribute>().FirstOrDefault()?.InstallTypes ?? []
         );
     }
 

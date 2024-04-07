@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 
 /// <summary>
 /// Represents an OAuth2 application.
@@ -77,6 +79,9 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// Gets the team which owns this application.
     /// </summary>
     public DiscordTeam? Team { get; internal set; }
+    
+    [JsonProperty("integration_types_config")]
+    public IReadOnlyDictionary<ApplicationIntegrationType, ApplicationIntegrationTypeConfiguration?> IntegrationTypeConfigurations { get; internal set; }
 
     private IReadOnlyList<DiscordApplicationAsset>? Assets { get; set; }
 
