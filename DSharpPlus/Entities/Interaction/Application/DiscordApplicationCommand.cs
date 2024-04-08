@@ -83,13 +83,13 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
     /// Contexts in which this command can be invoked.
     /// </summary>
     [JsonProperty("contexts")]
-    public IReadOnlyList<InteractionContextType> Contexts { get; internal set; }
+    public IReadOnlyList<InteractionContextType>? Contexts { get; internal set; }
     
     /// <summary>
     /// Contexts in which this command can be installed.
     /// </summary>
     [JsonProperty("integration_types")]
-    public IReadOnlyList<ApplicationIntegrationType> IntegrationTypes { get; internal set; }
+    public IReadOnlyList<ApplicationIntegrationType>? IntegrationTypes { get; internal set; }
 
     /// <summary>
     /// Gets the command's mention string.
@@ -171,8 +171,8 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
         this.AllowDMUsage = allowDMUsage;
         this.DefaultMemberPermissions = defaultMemberPermissions;
         this.NSFW = nsfw;
-        this.Contexts = contexts ?? new List<InteractionContextType>();
-        this.IntegrationTypes = integrationTypes ?? new List<ApplicationIntegrationType>();
+        this.Contexts = contexts ?? [InteractionContextType.Guild | InteractionContextType.BotDM];
+        this.IntegrationTypes = integrationTypes ?? [ApplicationIntegrationType.GuildInstall];
     }
 
     /// <summary>
