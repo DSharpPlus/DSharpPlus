@@ -1,7 +1,7 @@
-namespace DSharpPlus.Commands.Processors.SlashCommands.Attributes;
-
 using System;
 using System.Collections.Generic;
+
+namespace DSharpPlus.Commands.Processors.SlashCommands.Attributes;
 
 /// <summary>
 /// Specifies the installation context for a command or module.

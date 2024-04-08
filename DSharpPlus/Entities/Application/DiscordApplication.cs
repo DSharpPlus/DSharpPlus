@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
-
 /// <summary>
 /// Represents an OAuth2 application.
 /// </summary>
