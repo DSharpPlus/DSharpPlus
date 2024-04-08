@@ -285,7 +285,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             allowDMUsage: command.Attributes.Any(x => x is AllowDMUsageAttribute),
             defaultMemberPermissions: command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? Permissions.None,
             nsfw: command.Attributes.Any(x => x is RequireNsfwAttribute),
-            contexts: command.Attributes.OfType<SlashAllowedContextsAttribute>().FirstOrDefault()?.AllowedContexts ?? [InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel],
+            contexts: command.Attributes.OfType<SlashAllowedContextsAttribute>().FirstOrDefault()?.AllowedContexts ?? [InteractionContextType.Guild, InteractionContextType.BotDM],
             integrationTypes: command.Attributes.OfType<SlashInstallTypeAttribute>().FirstOrDefault()?.InstallTypes ?? [ApplicationIntegrationType.GuildInstall]
         );
     }

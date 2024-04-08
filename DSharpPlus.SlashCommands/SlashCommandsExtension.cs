@@ -510,7 +510,7 @@ public sealed class SlashCommandsExtension : BaseExtension
     {
         SlashCommandAllowedContextsAttribute[] attributes = (SlashCommandAllowedContextsAttribute[])method.GetCustomAttributes(typeof(SlashCommandAllowedContextsAttribute), false);
         IReadOnlyList<InteractionContextType> contexts = attributes.SelectMany(x => x.AllowedContexts).ToList();
-        return contexts.Any() ? contexts : [InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel];
+        return contexts.Any() ? contexts : [InteractionContextType.Guild, InteractionContextType.BotDM];
     }
 
     private IReadOnlyDictionary<string, string> GetNameLocalizations(ICustomAttributeProvider method)
