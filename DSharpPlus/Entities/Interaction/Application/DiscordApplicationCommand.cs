@@ -171,8 +171,8 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
         this.AllowDMUsage = allowDMUsage;
         this.DefaultMemberPermissions = defaultMemberPermissions;
         this.NSFW = nsfw;
-        this.Contexts = contexts ?? [InteractionContextType.Guild | InteractionContextType.BotDM];
-        this.IntegrationTypes = integrationTypes ?? [ApplicationIntegrationType.GuildInstall];
+        this.Contexts = contexts;
+        this.IntegrationTypes = integrationTypes;
     }
 
     /// <summary>
