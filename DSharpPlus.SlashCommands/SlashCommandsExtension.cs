@@ -502,15 +502,13 @@ public sealed class SlashCommandsExtension : BaseExtension
     private IReadOnlyList<ApplicationIntegrationType>? GetSlashCommandInstallTypes(ICustomAttributeProvider method)
     {
         SlashCommandInstallTypeAttribute[] attributes = (SlashCommandInstallTypeAttribute[])method.GetCustomAttributes(typeof(SlashCommandInstallTypeAttribute), false);
-        IReadOnlyList<ApplicationIntegrationType> installTypes = attributes.SelectMany(x => x.InstallTypes).ToList();
-        return installTypes.Any() ? installTypes : null;
+        return attributes.FirstOrDefault()?.InstallTypes;
     }
 
     private IReadOnlyList<InteractionContextType>? GetSlashCommandAllowedContexts(ICustomAttributeProvider method)
     {
         SlashCommandAllowedContextsAttribute[] attributes = (SlashCommandAllowedContextsAttribute[])method.GetCustomAttributes(typeof(SlashCommandAllowedContextsAttribute), false);
-        IReadOnlyList<InteractionContextType> contexts = attributes.SelectMany(x => x.AllowedContexts).ToList();
-        return contexts.Any() ? contexts : null;
+        return attributes.FirstOrDefault()?.AllowedContexts;
     }
 
     private IReadOnlyDictionary<string, string> GetNameLocalizations(ICustomAttributeProvider method)
