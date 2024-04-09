@@ -1,4 +1,4 @@
-namespace DSharpPlus;
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents the video quality mode of a voice channel. This is applicable to voice channels only.

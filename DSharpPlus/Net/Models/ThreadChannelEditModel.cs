@@ -1,3 +1,4 @@
+using DSharpPlus.Entities;
 using System.Collections.Generic;
 
 namespace DSharpPlus.Net.Models;

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Net;
+using DSharpPlus.Entities;
 using DSharpPlus.Net.Udp;
 using DSharpPlus.Net.WebSocket;
 using Microsoft.Extensions.Logging;

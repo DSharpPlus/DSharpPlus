@@ -1,5 +1,5 @@
 using DSharpPlus.Entities;
-namespace DSharpPlus;
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// The style for a <see cref="TextInputComponent"/>

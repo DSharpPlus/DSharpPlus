@@ -1,3 +1,4 @@
+using DSharpPlus.Entities;
 using System;
 namespace DSharpPlus.SlashCommands;
 

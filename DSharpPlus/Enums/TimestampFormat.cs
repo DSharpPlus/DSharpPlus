@@ -1,4 +1,4 @@
-namespace DSharpPlus;
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Denotes the type of formatting to use for timestamps.

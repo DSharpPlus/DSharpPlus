@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DSharpPlus.Entities;
 using Newtonsoft.Json;
 namespace DSharpPlus.EventArgs;
 

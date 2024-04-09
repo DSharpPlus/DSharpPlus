@@ -1,4 +1,4 @@
-namespace DSharpPlus;
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a button's style/color.

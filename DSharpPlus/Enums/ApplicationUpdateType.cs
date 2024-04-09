@@ -1,4 +1,4 @@
-namespace DSharpPlus;
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Defines the type of entity that was updated.

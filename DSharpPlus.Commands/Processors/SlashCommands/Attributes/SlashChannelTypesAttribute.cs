@@ -1,5 +1,6 @@
 namespace DSharpPlus.Commands.Processors.SlashCommands.Attributes;
 
+using DSharpPlus.Entities;
 using System;
 
 [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]

@@ -1,5 +1,6 @@
 namespace DSharpPlus.Commands.ContextChecks;
 
+using DSharpPlus.Entities;
 using System;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Delegate)]

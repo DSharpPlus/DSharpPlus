@@ -1,6 +1,6 @@
 using System;
 
-namespace DSharpPlus;
+namespace DSharpPlus.Entities;
 
 public static class PermissionMethods
 {

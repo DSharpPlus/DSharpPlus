@@ -1719,7 +1719,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public DiscordChannel GetDefaultChannel() =>
         this._channels?.Values.Where(xc => xc.Type == ChannelType.Text)
             .OrderBy(xc => xc.Position)
-            .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & DSharpPlus.Permissions.AccessChannels) == DSharpPlus.Permissions.AccessChannels);
+            .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & DSharpPlus.Entities.Permissions.AccessChannels) == DSharpPlus.Entities.Permissions.AccessChannels);
 
     /// <summary>
     /// Gets the guild's widget

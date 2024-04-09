@@ -1,5 +1,6 @@
 #pragma warning disable IDE0046
 
+using DSharpPlus.Entities;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Commands.ContextChecks;

@@ -1,5 +1,5 @@
 using System;
-namespace DSharpPlus;
+namespace DSharpPlus.Entities;
 
 [Flags]
 public enum ChannelFlags
