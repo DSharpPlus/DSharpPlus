@@ -78,7 +78,10 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// Gets the team which owns this application.
     /// </summary>
     public DiscordTeam? Team { get; internal set; }
-    
+
+    /// <summary>
+    /// Default scopes and permissions for each supported installation context.
+    /// </summary>
     [JsonProperty("integration_types_config")]
     public IReadOnlyDictionary<ApplicationIntegrationType, ApplicationIntegrationTypeConfiguration?> IntegrationTypeConfigurations { get; internal set; }
 
