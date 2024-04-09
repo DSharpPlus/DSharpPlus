@@ -98,5 +98,11 @@ public sealed class DiscordScheduledGuildEvent : SnowflakeObject
     [JsonProperty("image")]
     public string? Image { get; internal set; }
 
+    /// <summary>
+    /// The shareable link to this event.
+    /// </summary>
+    [JsonIgnore]
+    public string ShareLink => $"https://discord.com/events/{GuildId}/{Id}";
+
     internal DiscordScheduledGuildEvent() { }
 }
