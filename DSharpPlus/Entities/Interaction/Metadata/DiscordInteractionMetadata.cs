@@ -5,6 +5,9 @@ namespace DSharpPlus.Entities;
 
 public abstract class DiscordInteractionMetadata : SnowflakeObject
 {
+    /// <summary>
+    /// The name of the invoked command.
+    /// </summary>
     [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
     public string? Name { get; internal set; }
 
