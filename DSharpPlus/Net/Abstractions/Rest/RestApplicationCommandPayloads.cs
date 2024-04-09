@@ -40,10 +40,10 @@ internal class RestApplicationCommandCreatePayload
     public bool? NSFW { get; set; }
     
     [JsonProperty("contexts", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<InteractionContextType> AllowedContexts { get; set; }
+    public IEnumerable<InteractionContextType>? AllowedContexts { get; set; }
     
     [JsonProperty("integration_types", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<ApplicationIntegrationType> InstallTypes { get; set; }
+    public IEnumerable<ApplicationIntegrationType>? InstallTypes { get; set; }
 }
 
 internal class RestApplicationCommandEditPayload
