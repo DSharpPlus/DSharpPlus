@@ -227,8 +227,8 @@ public sealed class SlashCommandsExtension : BaseExtension
 
                             IReadOnlyDictionary<string, string> nameLocalizations = this.GetNameLocalizations(submethod);
                             IReadOnlyDictionary<string, string> descriptionLocalizations = this.GetDescriptionLocalizations(submethod);
-                            IReadOnlyList<ApplicationIntegrationType>? integrationTypes = this.GetSlashCommandInstallTypes(submethod);
-                            IReadOnlyList<InteractionContextType>? contexts = this.GetSlashCommandAllowedContexts(submethod);
+                            IReadOnlyList<ApplicationIntegrationType>? integrationTypes = this.GetInteractionInstallTypes(submethod);
+                            IReadOnlyList<InteractionContextType>? contexts = this.GetInteractionAllowedContexts(submethod);
 
                             //Creates the subcommand and adds it to the main command
                             DiscordApplicationCommandOption subpayload = new DiscordApplicationCommandOption(commandAttribute.Name, commandAttribute.Description, ApplicationCommandOptionType.SubCommand, null, null, options, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
@@ -329,8 +329,8 @@ public sealed class SlashCommandsExtension : BaseExtension
 
                             IReadOnlyDictionary<string, string> nameLocalizations = this.GetNameLocalizations(method);
                             IReadOnlyDictionary<string, string> descriptionLocalizations = this.GetDescriptionLocalizations(method);
-                            IReadOnlyList<ApplicationIntegrationType>? integrationTypes = this.GetSlashCommandInstallTypes(method);
-                            IReadOnlyList<InteractionContextType>? contexts = this.GetSlashCommandAllowedContexts(method);
+                            IReadOnlyList<ApplicationIntegrationType>? integrationTypes = this.GetInteractionInstallTypes(method);
+                            IReadOnlyList<InteractionContextType>? contexts = this.GetInteractionAllowedContexts(method);
 
                             bool allowDMs = (method.GetCustomAttribute<GuildOnlyAttribute>() ?? method.DeclaringType.GetCustomAttribute<GuildOnlyAttribute>()) is null;
                             Permissions? v2Permissions = (method.GetCustomAttribute<SlashCommandPermissionsAttribute>() ?? method.DeclaringType.GetCustomAttribute<SlashCommandPermissionsAttribute>())?.Permissions;
@@ -499,15 +499,15 @@ public sealed class SlashCommandsExtension : BaseExtension
         return options;
     }
 
-    private IReadOnlyList<ApplicationIntegrationType>? GetSlashCommandInstallTypes(ICustomAttributeProvider method)
+    private IReadOnlyList<ApplicationIntegrationType>? GetInteractionInstallTypes(ICustomAttributeProvider method)
     {
-        SlashCommandInstallTypeAttribute[] attributes = (SlashCommandInstallTypeAttribute[])method.GetCustomAttributes(typeof(SlashCommandInstallTypeAttribute), false);
+        InteractionInstallTypeAttribute[] attributes = (InteractionInstallTypeAttribute[])method.GetCustomAttributes(typeof(InteractionInstallTypeAttribute), false);
         return attributes.FirstOrDefault()?.InstallTypes;
     }
 
-    private IReadOnlyList<InteractionContextType>? GetSlashCommandAllowedContexts(ICustomAttributeProvider method)
+    private IReadOnlyList<InteractionContextType>? GetInteractionAllowedContexts(ICustomAttributeProvider method)
     {
-        SlashCommandAllowedContextsAttribute[] attributes = (SlashCommandAllowedContextsAttribute[])method.GetCustomAttributes(typeof(SlashCommandAllowedContextsAttribute), false);
+        InteractionAllowedContextsAttribute[] attributes = (InteractionAllowedContextsAttribute[])method.GetCustomAttributes(typeof(InteractionAllowedContextsAttribute), false);
         return attributes.FirstOrDefault()?.AllowedContexts;
     }
 
