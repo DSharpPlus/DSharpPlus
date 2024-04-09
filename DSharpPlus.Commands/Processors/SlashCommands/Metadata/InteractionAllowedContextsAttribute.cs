@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DSharpPlus.Commands.Processors.SlashCommands.Attributes;
+namespace DSharpPlus.Commands.Processors.SlashCommands.Metadata;
 
 /// <summary>
 /// Specifies the allowed interaction contexts for a command.
