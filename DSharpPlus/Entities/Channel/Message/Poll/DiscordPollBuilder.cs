@@ -1,8 +1,8 @@
-namespace DSharpPlus.Entities;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a builder for <see cref="DiscordPoll"/>s.
