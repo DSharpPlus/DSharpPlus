@@ -100,14 +100,24 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </remarks>
     [JsonProperty("app_permissions", NullValueHandling = NullValueHandling.Ignore)]
     public Permissions AppPermissions { get; internal set; }
-    
+
     /// <summary>
     /// Gets the interactions that authorized the interaction.
     ///     <para>
     ///         This dictionary contains the following:
-    ///             - If the interaction is installed to a user, a key of <see cref="ApplicationIntegrationType.User"/> and a value of the user's ID.
-    ///             - If the interaction is installed to a guild, a key of <see cref="ApplicationIntegrationType.Guild"/> and a value of the guild's ID.
-    ///                 - IF the interaction was sent from a guild context, the above holds true, otherwise the ID is 0. 
+    ///         <list type="bullet">
+    ///             <item>
+    ///                 If the interaction is installed to a user, a key of <see cref="ApplicationIntegrationType.User"/> and a value of the user's ID.
+    ///             </item>
+    ///             <item>
+    ///                 If the interaction is installed to a guild, a key of <see cref="ApplicationIntegrationType.Guild"/> and a value of the guild's ID.
+    ///                 <list type="bullet">
+    ///                     <item>
+    ///                         IF the interaction was sent from a guild context, the above holds true, otherwise the ID is 0. 
+    ///                     </item>
+    ///                 </list>
+    ///             </item>
+    ///         </list>
     ///     </para>
     /// </summary>
     [JsonIgnore]
