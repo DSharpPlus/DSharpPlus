@@ -6,6 +6,7 @@ namespace DSharpPlus.SlashCommands;
 /// <summary>
 /// Specifies the installation context for a command or module.
 /// </summary>
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 public class SlashCommandInstallTypeAttribute(params ApplicationIntegrationType[]  installTypes) : Attribute
 {
     /// <summary>
