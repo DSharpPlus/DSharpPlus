@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+
 namespace DSharpPlus.Entities;
 
 /// <summary>
