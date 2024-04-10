@@ -227,8 +227,8 @@ public sealed class SlashCommandsExtension : BaseExtension
 
                             IReadOnlyDictionary<string, string> nameLocalizations = this.GetNameLocalizations(submethod);
                             IReadOnlyDictionary<string, string> descriptionLocalizations = this.GetDescriptionLocalizations(submethod);
-                            IReadOnlyList<ApplicationIntegrationType>? integrationTypes = this.GetSlashCommandInstallTypes(submethod);
-                            IReadOnlyList<InteractionContextType>? contexts = this.GetSlashCommandAllowedContexts(submethod);
+                            IReadOnlyList<ApplicationIntegrationType>? integrationTypes = this.GetInteractionCommandInstallTypes(submethod);
+                            IReadOnlyList<InteractionContextType>? contexts = this.GetInteractionCommandAllowedContexts(submethod);
 
                             //Creates the subcommand and adds it to the main command
                             DiscordApplicationCommandOption subpayload = new DiscordApplicationCommandOption(commandAttribute.Name, commandAttribute.Description, ApplicationCommandOptionType.SubCommand, null, null, options, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
@@ -329,8 +329,8 @@ public sealed class SlashCommandsExtension : BaseExtension
 
                             IReadOnlyDictionary<string, string> nameLocalizations = this.GetNameLocalizations(method);
                             IReadOnlyDictionary<string, string> descriptionLocalizations = this.GetDescriptionLocalizations(method);
-                            IReadOnlyList<ApplicationIntegrationType>? integrationTypes = this.GetSlashCommandInstallTypes(method);
-                            IReadOnlyList<InteractionContextType>? contexts = this.GetSlashCommandAllowedContexts(method);
+                            IReadOnlyList<ApplicationIntegrationType>? integrationTypes = this.GetInteractionCommandInstallTypes(method);
+                            IReadOnlyList<InteractionContextType>? contexts = this.GetInteractionCommandAllowedContexts(method);
 
                             bool allowDMs = (method.GetCustomAttribute<GuildOnlyAttribute>() ?? method.DeclaringType.GetCustomAttribute<GuildOnlyAttribute>()) is null;
                             Permissions? v2Permissions = (method.GetCustomAttribute<SlashCommandPermissionsAttribute>() ?? method.DeclaringType.GetCustomAttribute<SlashCommandPermissionsAttribute>())?.Permissions;
@@ -357,7 +357,9 @@ public sealed class SlashCommandsExtension : BaseExtension
                             ContextMenuAttribute? contextAttribute = contextMethod.GetCustomAttribute<ContextMenuAttribute>();
                             bool allowDMUsage = (contextMethod.GetCustomAttribute<GuildOnlyAttribute>() ?? contextMethod.DeclaringType.GetCustomAttribute<GuildOnlyAttribute>()) is null;
                             Permissions? permissions = (contextMethod.GetCustomAttribute<SlashCommandPermissionsAttribute>() ?? contextMethod.DeclaringType.GetCustomAttribute<SlashCommandPermissionsAttribute>())?.Permissions;
-                            DiscordApplicationCommand command = new DiscordApplicationCommand(contextAttribute.Name, null, type: contextAttribute.Type, defaultPermission: contextAttribute.DefaultPermission, allowDMUsage: allowDMUsage, defaultMemberPermissions: permissions, nsfw: contextAttribute.NSFW);
+                            IReadOnlyList<ApplicationIntegrationType>? integrationTypes = this.GetInteractionCommandInstallTypes(contextMethod);
+                            IReadOnlyList<InteractionContextType>? contexts = this.GetInteractionCommandAllowedContexts(contextMethod);
+                            DiscordApplicationCommand command = new DiscordApplicationCommand(contextAttribute.Name, null, type: contextAttribute.Type, defaultPermission: contextAttribute.DefaultPermission, allowDMUsage: allowDMUsage, defaultMemberPermissions: permissions, nsfw: contextAttribute.NSFW, integrationTypes: integrationTypes, contexts: contexts);
 
                             ParameterInfo[] parameters = contextMethod.GetParameters();
                             if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(ContextMenuContext)))
@@ -499,15 +501,15 @@ public sealed class SlashCommandsExtension : BaseExtension
         return options;
     }
 
-    private IReadOnlyList<ApplicationIntegrationType>? GetSlashCommandInstallTypes(ICustomAttributeProvider method)
+    private IReadOnlyList<ApplicationIntegrationType>? GetInteractionCommandInstallTypes(ICustomAttributeProvider method)
     {
-        SlashCommandInstallTypeAttribute[] attributes = (SlashCommandInstallTypeAttribute[])method.GetCustomAttributes(typeof(SlashCommandInstallTypeAttribute), false);
+        InteractionCommandInstallTypeAttribute[] attributes = (InteractionCommandInstallTypeAttribute[])method.GetCustomAttributes(typeof(InteractionCommandInstallTypeAttribute), false);
         return attributes.FirstOrDefault()?.InstallTypes;
     }
 
-    private IReadOnlyList<InteractionContextType>? GetSlashCommandAllowedContexts(ICustomAttributeProvider method)
+    private IReadOnlyList<InteractionContextType>? GetInteractionCommandAllowedContexts(ICustomAttributeProvider method)
     {
-        SlashCommandAllowedContextsAttribute[] attributes = (SlashCommandAllowedContextsAttribute[])method.GetCustomAttributes(typeof(SlashCommandAllowedContextsAttribute), false);
+        InteractionCommandAllowedContextsAttribute[] attributes = (InteractionCommandAllowedContextsAttribute[])method.GetCustomAttributes(typeof(InteractionCommandAllowedContextsAttribute), false);
         return attributes.FirstOrDefault()?.AllowedContexts;
     }
 
