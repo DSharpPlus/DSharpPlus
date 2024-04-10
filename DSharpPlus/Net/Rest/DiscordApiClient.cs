@@ -5418,7 +5418,9 @@ public sealed class DiscordApiClient
                 DescriptionLocalizations = command.DescriptionLocalizations,
                 AllowDMUsage = command.AllowDMUsage,
                 DefaultMemberPermissions = command.DefaultMemberPermissions,
-                NSFW = command.NSFW
+                NSFW = command.NSFW,
+                AllowedContexts = command.Contexts,
+                InstallTypes = command.IntegrationTypes,
             });
         }
 
@@ -5461,7 +5463,9 @@ public sealed class DiscordApiClient
             DescriptionLocalizations = command.DescriptionLocalizations,
             AllowDMUsage = command.AllowDMUsage,
             DefaultMemberPermissions = command.DefaultMemberPermissions,
-            NSFW = command.NSFW
+            NSFW = command.NSFW,
+            AllowedContexts = command.Contexts,
+            InstallTypes = command.IntegrationTypes,
         };
 
         string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.COMMANDS}";
@@ -5519,7 +5523,9 @@ public sealed class DiscordApiClient
         IReadOnlyDictionary<string, string>? nameLocalizations = null,
         IReadOnlyDictionary<string, string>? descriptionLocalizations = null,
         Optional<bool> allowDmUsage = default,
-        Optional<Permissions?> defaultMemberPermissions = default
+        Optional<Permissions?> defaultMemberPermissions = default,
+        Optional<IEnumerable<InteractionContextType>> allowedContexts = default,
+        Optional<IEnumerable<ApplicationIntegrationType>> installTypes = default
     )
     {
         RestApplicationCommandEditPayload pld = new()
@@ -5533,6 +5539,8 @@ public sealed class DiscordApiClient
             AllowDMUsage = allowDmUsage,
             DefaultMemberPermissions = defaultMemberPermissions,
             NSFW = nsfw,
+            AllowedContexts = allowedContexts,
+            InstallTypes = installTypes,
         };
 
         string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.COMMANDS}/:command_id";

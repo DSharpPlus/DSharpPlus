@@ -90,6 +90,47 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     [JsonProperty("guild_locale")]
     public string? GuildLocale { get; internal set; }
+    
+    /// <summary>
+    /// The permissions allowed to the application for the given context.
+    /// </summary>
+    /// <remarks>
+    /// For guilds, this will be the bot's permissions. For group DMs, this is `ATTACH_FILES`, `EMBED_LINKS`, and `MENTION_EVERYONE`.
+    /// In the context of the bot's DM, it also includes `USE_EXTERNAL_EMOJI`.  
+    /// </remarks>
+    [JsonProperty("app_permissions", NullValueHandling = NullValueHandling.Ignore)]
+    public Permissions AppPermissions { get; internal set; }
+
+    /// <summary>
+    /// Gets the interactions that authorized the interaction.
+    ///     <para>
+    ///         This dictionary contains the following:
+    ///         <list type="bullet">
+    ///             <item>
+    ///                 If the interaction is installed to a user, a key of <see cref="ApplicationIntegrationType.User"/> and a value of the user's ID.
+    ///             </item>
+    ///             <item>
+    ///                 If the interaction is installed to a guild, a key of <see cref="ApplicationIntegrationType.Guild"/> and a value of the guild's ID.
+    ///                 <list type="bullet">
+    ///                     <item>
+    ///                         IF the interaction was sent from a guild context, the above holds true, otherwise the ID is 0. 
+    ///                     </item>
+    ///                 </list>
+    ///             </item>
+    ///         </list>
+    ///     </para>
+    /// </summary>
+    [JsonIgnore]
+    public IReadOnlyDictionary<ApplicationIntegrationType, ulong> AuthorizingIntegrationOwners => this._authorizingIntegrationOwners;
+    
+    [JsonProperty("authorizing_integration_owners", NullValueHandling = NullValueHandling.Ignore)]
+    private Dictionary<ApplicationIntegrationType, ulong> _authorizingIntegrationOwners;
+    
+    /// <summary>
+    /// Represents the context in which the interaction was executed in
+    /// </summary>
+    [JsonProperty("context", NullValueHandling = NullValueHandling.Ignore)]
+    public InteractionContextType? Context { get; internal set; }
 
     /// <summary>
     /// Creates a response to this interaction.

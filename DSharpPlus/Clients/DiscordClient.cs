@@ -1037,7 +1037,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 {
                     if (!intents.HasIntent(DiscordIntents.GuildMembers)) // no need to update if we already have the member events
                     {
-                        _ = guild._members.TryUpdate(usr.Id, (DiscordMember)usr, member);
+                        _ = guild?._members.TryUpdate(usr.Id, (DiscordMember)usr, member);
                     }
                 }
             }

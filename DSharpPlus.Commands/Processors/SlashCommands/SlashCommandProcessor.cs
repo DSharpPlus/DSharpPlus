@@ -13,6 +13,7 @@ using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Processors.SlashCommands.Attributes;
 using DSharpPlus.Commands.Processors.SlashCommands.Localization;
+using DSharpPlus.Commands.Processors.SlashCommands.Metadata;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Attributes;
 using DSharpPlus.Entities;
@@ -284,7 +285,9 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             description_localizations: descriptionLocalizations,
             allowDMUsage: command.Attributes.Any(x => x is AllowDMUsageAttribute),
             defaultMemberPermissions: command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? Permissions.None,
-            nsfw: command.Attributes.Any(x => x is RequireNsfwAttribute)
+            nsfw: command.Attributes.Any(x => x is RequireNsfwAttribute),
+            contexts: command.Attributes.OfType<InteractionAllowedContextsAttribute>().FirstOrDefault()?.AllowedContexts,
+            integrationTypes: command.Attributes.OfType<InteractionInstallTypeAttribute>().FirstOrDefault()?.InstallTypes
         );
     }
 
