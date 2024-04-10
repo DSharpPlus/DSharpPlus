@@ -52,6 +52,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         this.EditedTimestamp = other.EditedTimestamp;
         this.Id = other.Id;
         this.IsTTS = other.IsTTS;
+        this.Poll = other.Poll;
         this.MessageType = other.MessageType;
         this.Pinned = other.Pinned;
         this.Timestamp = other.Timestamp;
@@ -285,6 +286,12 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// </summary>
     [JsonProperty("referenced_message", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordMessage? ReferencedMessage { get; internal set; }
+
+    /// <summary>
+    /// Gets the poll object for the message.
+    /// </summary>
+    [JsonProperty("poll", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordPoll? Poll { get; internal set; }
 
     /// <summary>
     /// Gets whether the message is a response to an interaction.
