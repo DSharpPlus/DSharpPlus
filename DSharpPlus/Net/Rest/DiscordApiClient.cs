@@ -5785,21 +5785,21 @@ public sealed class DiscordApiClient
         ulong interactionId,
         string interactionToken,
         InteractionResponseType type,
-        DiscordInteractionResponseBuilder builder
+        DiscordInteractionResponseBuilder? builder
     )
     {
         if (builder?.Embeds != null)
         {
             foreach (DiscordEmbed embed in builder.Embeds)
             {
-                if (embed.Timestamp != null)
+                if (embed.Timestamp is not null)
                 {
                     embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
                 }
             }
         }
 
-        RestInteractionResponsePayload pld = new()
+        RestInteractionResponsePayload payload = new()
         {
             Type = type,
             Data = builder is not null
@@ -5824,14 +5824,14 @@ public sealed class DiscordApiClient
         {
             if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count > 0 || builder.IsTTS == true || builder.Mentions != null)
             {
-                values["payload_json"] = DiscordJson.SerializeObject(pld);
+                values["payload_json"] = DiscordJson.SerializeObject(payload);
             }
         }
 
         string route = $"{Endpoints.INTERACTIONS}/{interactionId}/:interaction_token/{Endpoints.CALLBACK}";
         string url = $"{Endpoints.INTERACTIONS}/{interactionId}/{interactionToken}/{Endpoints.CALLBACK}";
 
-        if (builder is not null)
+        if (builder is not null && builder.Files.Count != 0)
         {
             MultipartRestRequest request = new()
             {
@@ -5859,7 +5859,7 @@ public sealed class DiscordApiClient
                 Route = route,
                 Url = url,
                 Method = HttpMethod.Post,
-                Payload = DiscordJson.SerializeObject(pld)
+                Payload = DiscordJson.SerializeObject(payload)
             };
 
             await this._rest.ExecuteRequestAsync(request);
