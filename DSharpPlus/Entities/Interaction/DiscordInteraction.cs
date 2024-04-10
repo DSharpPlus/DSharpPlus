@@ -1,10 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
-
-using System;
 
 /// <summary>
 /// Represents an interaction that was invoked.
@@ -15,7 +14,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// Gets the response state of the interaction.
     /// </summary>
     [JsonIgnore]
-    public InteractionResponseState ResponseState { get; internal set; }
+    public DiscordInteractionResponseState ResponseState { get; private set; }
     
     /// <summary>
     /// Gets the type of interaction invoked.
@@ -147,14 +146,14 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// <param name="builder">The data, if any, to send.</param>
     public async Task CreateResponseAsync(InteractionResponseType type, DiscordInteractionResponseBuilder builder = null)
     {
-        if (this.ResponseState is not InteractionResponseState.Unacknowledged)
+        if (this.ResponseState is not DiscordInteractionResponseState.Unacknowledged)
         {
             throw new InvalidOperationException("A response has already been made to this interaction.");
         }
 
         this.ResponseState = type == InteractionResponseType.DeferredChannelMessageWithSource
-            ? InteractionResponseState.Deferred
-            : InteractionResponseState.Replied;
+            ? DiscordInteractionResponseState.Deferred
+            : DiscordInteractionResponseState.Replied;
         
         await this.Discord.ApiClient.CreateInteractionResponseAsync(this.Id, this.Token, type, builder);
     }
@@ -184,7 +183,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     {
         builder.Validate(isInteractionResponse: true);
         
-        if (this.ResponseState is InteractionResponseState.Unacknowledged)
+        if (this.ResponseState is DiscordInteractionResponseState.Unacknowledged)
         {
             throw new InvalidOperationException("A response has not been made to this interaction.");
         }
@@ -197,7 +196,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>>
     public async Task DeleteOriginalResponseAsync()
     {
-        if (this.ResponseState is InteractionResponseState.Unacknowledged)
+        if (this.ResponseState is DiscordInteractionResponseState.Unacknowledged)
         {
             throw new InvalidOperationException("A response has not been made to this interaction.");
         }
@@ -214,7 +213,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     {
         builder.Validate();
 
-        this.ResponseState = InteractionResponseState.Replied;
+        this.ResponseState = DiscordInteractionResponseState.Replied;
         
         return await this.Discord.ApiClient.CreateFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, builder);
     }
@@ -225,12 +224,12 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// <param name="messageId">The id of the follow up message.</param>
     public async Task<DiscordMessage> GetFollowupMessageAsync(ulong messageId)
     {
-        if (this.ResponseState is not InteractionResponseState.Replied)
+        if (this.ResponseState is not DiscordInteractionResponseState.Replied)
         {
             throw new InvalidOperationException("A response has not been made to this interaction.");
         }
         
-        await this.Discord.ApiClient.GetFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId);
+        return await this.Discord.ApiClient.GetFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId);
     }
 
     /// <summary>
@@ -253,7 +252,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// <param name="messageId">The id of the follow up message.</param>
     public async Task DeleteFollowupMessageAsync(ulong messageId)
     {
-        if (this.ResponseState is not InteractionResponseState.Replied)
+        if (this.ResponseState is not DiscordInteractionResponseState.Replied)
         {
             throw new InvalidOperationException("A response has not been made to this interaction.");
         }

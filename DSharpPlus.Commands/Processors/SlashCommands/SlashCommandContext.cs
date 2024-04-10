@@ -14,7 +14,7 @@ public record SlashCommandContext : CommandContext
     /// <inheritdoc />
     public override async ValueTask RespondAsync(IDiscordMessageBuilder builder)
     {
-        if (this.Interaction.ResponseState is InteractionResponseState.Replied)
+        if (this.Interaction.ResponseState is DiscordInteractionResponseState.Replied)
         {
             throw new InvalidOperationException("Cannot respond to an interaction twice. Please use FollowupAsync instead.");
         }
@@ -27,11 +27,11 @@ public record SlashCommandContext : CommandContext
             interactionBuilder.AddMentions(Mentions.None);
         }
 
-        if (this.Interaction.ResponseState is InteractionResponseState.Unacknowledged)
+        if (this.Interaction.ResponseState is DiscordInteractionResponseState.Unacknowledged)
         {
             await this.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, interactionBuilder);
         }
-        else if (this.Interaction.ResponseState is InteractionResponseState.Deferred)
+        else if (this.Interaction.ResponseState is DiscordInteractionResponseState.Deferred)
         {
             await this.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder(interactionBuilder));
         }
