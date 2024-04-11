@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -135,18 +134,34 @@ public class CommandParameterBuilder
 
     public class EnumOptionProvider : IChoiceProvider
     {
-        public ValueTask<Dictionary<string, object>> ProvideAsync(CommandParameter parameter)
+        public ValueTask<IReadOnlyDictionary<string, object>> ProvideAsync(CommandParameter parameter)
         {
-            string[] enumNames = Enum.GetNames(parameter.Type);
-            Array enumValues = Enum.GetValuesAsUnderlyingType(parameter.Type);
-
-            Dictionary<string, object> choices = [];
-            for (int i = 0; i < enumNames.Length; i++)
+            List<string> enumNames = [];
+            foreach (FieldInfo fieldInfo in parameter.Type.GetFields())
             {
-                choices.Add(enumNames[i], Convert.ToDouble(enumValues.GetValue(i), CultureInfo.InvariantCulture));
+                if (fieldInfo.IsSpecialName || !fieldInfo.IsStatic)
+                {
+                    continue;
+                }
+                else if (fieldInfo.GetCustomAttribute<DisplayNameAttribute>() is DisplayNameAttribute displayNameAttribute)
+                {
+                    enumNames.Add(displayNameAttribute.DisplayName);
+                }
+                else
+                {
+                    enumNames.Add(fieldInfo.Name);
+                }
             }
 
-            return ValueTask.FromResult(choices);
+            Dictionary<string, object> choices = [];
+            Array enumValues = Enum.GetValuesAsUnderlyingType(parameter.Type);
+            for (int i = 0; i < enumNames.Count; i++)
+            {
+                string? value = enumValues.GetValue(i)?.ToString() ?? throw new InvalidOperationException($"Failed to get the value of the enum {parameter.Type.Name} for element {enumNames[i]}");
+                choices.Add(enumNames[i], value.ToString());
+            }
+
+            return ValueTask.FromResult<IReadOnlyDictionary<string, object>>(choices);
         }
     }
 }
