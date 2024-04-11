@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -135,7 +134,7 @@ public class CommandParameterBuilder
 
     public class EnumOptionProvider : IChoiceProvider
     {
-        public ValueTask<Dictionary<string, object>> ProvideAsync(CommandParameter parameter)
+        public ValueTask<IReadOnlyDictionary<string, object>> ProvideAsync(CommandParameter parameter)
         {
             List<string> enumNames = [];
             foreach (FieldInfo fieldInfo in parameter.Type.GetFields())
@@ -154,15 +153,15 @@ public class CommandParameterBuilder
                 }
             }
 
-            Array enumValues = Enum.GetValuesAsUnderlyingType(parameter.Type);
-
             Dictionary<string, object> choices = [];
+            Array enumValues = Enum.GetValuesAsUnderlyingType(parameter.Type);
             for (int i = 0; i < enumNames.Count; i++)
             {
-                choices.Add(enumNames[i], Convert.ToDouble(enumValues.GetValue(i), CultureInfo.InvariantCulture));
+                string? value = enumValues.GetValue(i)?.ToString() ?? throw new InvalidOperationException($"Failed to get the value of the enum {parameter.Type.Name} for element {enumNames[i]}");
+                choices.Add(enumNames[i], value.ToString());
             }
 
-            return ValueTask.FromResult(choices);
+            return ValueTask.FromResult<IReadOnlyDictionary<string, object>>(choices);
         }
     }
 }

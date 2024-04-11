@@ -42,5 +42,5 @@ public sealed class SlashChoiceProviderAttribute<T> : SlashChoiceProviderAttribu
 
 public interface IChoiceProvider
 {
-    public ValueTask<Dictionary<string, object>> ProvideAsync(CommandParameter parameter);
+    public ValueTask<IReadOnlyDictionary<string, object>> ProvideAsync(CommandParameter parameter);
 }
