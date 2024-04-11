@@ -137,11 +137,27 @@ public class CommandParameterBuilder
     {
         public ValueTask<Dictionary<string, object>> ProvideAsync(CommandParameter parameter)
         {
-            string[] enumNames = Enum.GetNames(parameter.Type);
+            List<string> enumNames = [];
+            foreach (FieldInfo fieldInfo in parameter.Type.GetFields())
+            {
+                if (fieldInfo.IsSpecialName || !fieldInfo.IsStatic)
+                {
+                    continue;
+                }
+                else if (fieldInfo.GetCustomAttribute<DisplayNameAttribute>() is DisplayNameAttribute displayNameAttribute)
+                {
+                    enumNames.Add(displayNameAttribute.DisplayName);
+                }
+                else
+                {
+                    enumNames.Add(fieldInfo.Name);
+                }
+            }
+
             Array enumValues = Enum.GetValuesAsUnderlyingType(parameter.Type);
 
             Dictionary<string, object> choices = [];
-            for (int i = 0; i < enumNames.Length; i++)
+            for (int i = 0; i < enumNames.Count; i++)
             {
                 choices.Add(enumNames[i], Convert.ToDouble(enumValues.GetValue(i), CultureInfo.InvariantCulture));
             }
