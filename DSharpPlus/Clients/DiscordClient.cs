@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
@@ -838,38 +839,49 @@ public sealed partial class DiscordClient : BaseDiscordClient
     
     
     /// <summary>
-    /// Returns a list of guilds before a certain guild.
+    /// Returns a list of guilds before a certain guild. One api request per 200 guilds
     /// <param name="limit">The amount of guilds to fetch.</param>
     /// <param name="before">The ID of the guild before which we fetch the guilds</param>
     /// <param name="withCount">Whether to include approximate member and presence counts in the returned guilds.</param>
+    /// <param name="cancellationToken">Cancels the enumeration before doing the next api request</param>
     /// </summary>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public IAsyncEnumerable<DiscordGuild> GetGuildsBeforeAsync(ulong before, int limit = 200, bool? withCount = null)
-        => this.GetGuildsInternalAsync(limit, before, null, null);
+    public IAsyncEnumerable<DiscordGuild> GetGuildsBeforeAsync(ulong before, int limit = 200, bool? withCount = null, CancellationToken cancellationToken = default)
+        => this.GetGuildsInternalAsync(limit, before, withCount: withCount, cancellationToken: cancellationToken);
 
     /// <summary>
-    /// Returns a list of guilds after a certain guild.
+    /// Returns a list of guilds after a certain guild. One api request per 200 guilds
     /// <param name="limit">The amount of guilds to fetch.</param>
     /// <param name="after">The ID of the guild after which we fetch the guilds.</param>
     /// <param name="withCount">Whether to include approximate member and presence counts in the returned guilds.</param>
+    /// <param name="cancellationToken">Cancels the enumeration before doing the next api request</param>
     /// </summary>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public IAsyncEnumerable<DiscordGuild> GetGuildsAfterAsync(ulong after, int limit = 100, bool? withCount = null)
-        => this.GetGuildsInternalAsync(limit, null, after, null);
+    public IAsyncEnumerable<DiscordGuild> GetGuildsAfterAsync(ulong after, int limit = 200, bool? withCount = null, CancellationToken cancellationToken = default)
+        => this.GetGuildsInternalAsync(limit, after: after, withCount: withCount, cancellationToken: cancellationToken);
     
     /// <summary>
-    /// Returns a list of guilds the bot is in.
+    /// Returns a list of guilds the bot is in. One api request per 200 guilds
     /// <param name="limit">The amount of guilds to fetch.</param>
     /// <param name="withCount">Whether to include approximate member and presence counts in the returned guilds.</param>
+    /// <param name="cancellationToken">Cancels the enumeration before doing the next api request</param>
     /// </summary>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public IAsyncEnumerable<DiscordGuild> GetGuildsAsync(int limit = 100, bool? withCount = null) =>
-        this.GetGuildsInternalAsync(limit, null, null, withCount);
+    public IAsyncEnumerable<DiscordGuild> GetGuildsAsync(int limit = 200, bool? withCount = null, CancellationToken cancellationToken = default) =>
+        this.GetGuildsInternalAsync(limit, withCount: withCount, cancellationToken: cancellationToken);
     
-    private async IAsyncEnumerable<DiscordGuild> GetGuildsInternalAsync(int limit = 200, ulong? before = null, ulong? after = null, bool? withCount = null)
+    private async IAsyncEnumerable<DiscordGuild> GetGuildsInternalAsync
+    (
+        int limit = 200,
+        ulong? before = null,
+        ulong? after = null,
+        bool? withCount = null,
+        [EnumeratorCancellation]
+        CancellationToken cancellationToken = default
+    )
     {
         if (limit < 0)
         {
@@ -889,7 +901,9 @@ public sealed partial class DiscordClient : BaseDiscordClient
         int lastCount;
         do
         {
-            int fetchSize = remaining > 100 ? 100 : remaining;
+            if (cancellationToken.IsCancellationRequested) yield break;
+            
+            int fetchSize = remaining > 200 ? 200 : remaining;
             IReadOnlyList<DiscordGuild> fetchedGuilds = await this.ApiClient.GetGuildsAsync( fetchSize, isbefore ? last ?? before : null, !isbefore ? last ?? after : null, withCount);
 
             lastCount = fetchedGuilds.Count;
