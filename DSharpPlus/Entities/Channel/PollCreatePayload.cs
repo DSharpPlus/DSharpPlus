@@ -33,7 +33,7 @@ public sealed class PollCreatePayload
     /// Gets the layout type for this poll. Defaults to <see cref="DiscordPollLayoutType.Default"/>.
     /// </summary>
     [JsonProperty("layout_type", NullValueHandling = NullValueHandling.Ignore)]
-    public DiscordPollLayoutType Layout { get; internal set; } = DiscordPollLayoutType.Default;
+    public DiscordPollLayoutType? Layout { get; internal set; }
 
     internal PollCreatePayload() { }
 
