@@ -16,7 +16,6 @@ using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Entities.AuditLogs;
 
-
 internal static class AuditLogParser
 {
     /// <summary>
@@ -101,7 +100,11 @@ internal static class AuditLogParser
         IOrderedEnumerable<AuditLogAction>? auditLogActions = auditLog.Entries.OrderByDescending(xa => xa.Id);
         foreach (AuditLogAction? auditLogAction in auditLogActions)
         {
-            if (cancellationToken.IsCancellationRequested) yield break;
+            if (cancellationToken.IsCancellationRequested)
+            {
+                yield break;
+            }
+            
             DiscordAuditLogEntry? entry =
                 await ParseAuditLogEntryAsync(guild, auditLogAction, members, threads, webhooks, events);
 

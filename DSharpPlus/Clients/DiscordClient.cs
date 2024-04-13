@@ -839,7 +839,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     
     
     /// <summary>
-    /// Returns a list of guilds before a certain guild. One api request per 200 guilds
+    /// Returns a list of guilds before a certain guild. This will execute one API request per 200 guilds.
     /// <param name="limit">The amount of guilds to fetch.</param>
     /// <param name="before">The ID of the guild before which we fetch the guilds</param>
     /// <param name="withCount">Whether to include approximate member and presence counts in the returned guilds.</param>
@@ -851,7 +851,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         => this.GetGuildsInternalAsync(limit, before, withCount: withCount, cancellationToken: cancellationToken);
 
     /// <summary>
-    /// Returns a list of guilds after a certain guild. One api request per 200 guilds
+    /// Returns a list of guilds after a certain guild. This will execute one API request per 200 guilds.
     /// <param name="limit">The amount of guilds to fetch.</param>
     /// <param name="after">The ID of the guild after which we fetch the guilds.</param>
     /// <param name="withCount">Whether to include approximate member and presence counts in the returned guilds.</param>
@@ -863,7 +863,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         => this.GetGuildsInternalAsync(limit, after: after, withCount: withCount, cancellationToken: cancellationToken);
     
     /// <summary>
-    /// Returns a list of guilds the bot is in. One api request per 200 guilds
+    /// Returns a list of guilds the bot is in. This will execute one API request per 200 guilds.
     /// <param name="limit">The amount of guilds to fetch.</param>
     /// <param name="withCount">Whether to include approximate member and presence counts in the returned guilds.</param>
     /// <param name="cancellationToken">Cancels the enumeration before doing the next api request</param>
@@ -901,7 +901,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
         int lastCount;
         do
         {
-            if (cancellationToken.IsCancellationRequested) yield break;
+            if (cancellationToken.IsCancellationRequested)
+            {
+                yield break;
+            }
             
             int fetchSize = remaining > 200 ? 200 : remaining;
             IReadOnlyList<DiscordGuild> fetchedGuilds = await this.ApiClient.GetGuildsAsync( fetchSize, isbefore ? last ?? before : null, !isbefore ? last ?? after : null, withCount);

@@ -472,7 +472,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     }
 
     /// <summary>
-    /// Returns a list of messages before a certain message. Does one request per 100 messages
+    /// Returns a list of messages before a certain message. This will execute one API request per 100 messages.
     /// <param name="limit">The amount of messages to fetch.</param>
     /// <param name="before">Message to fetch before from.</param>
     /// <param name="cancellationToken">Cancels the enumeration before doing the next api request</param>
@@ -485,7 +485,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         => this.GetMessagesInternalAsync(limit, before, cancellationToken: cancellationToken);
 
     /// <summary>
-    /// Returns a list of messages after a certain message. Does one request per 100 messages
+    /// Returns a list of messages after a certain message. This will execute one API request per 100 messages.
     /// <param name="limit">The amount of messages to fetch.</param>
     /// <param name="after">Message to fetch after from.</param>
     /// <param name="cancellationToken">Cancels the enumeration before doing the next api request</param>
@@ -498,7 +498,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         => this.GetMessagesInternalAsync(limit, after: after, cancellationToken: cancellationToken);
 
     /// <summary>
-    /// Returns a list of messages around a certain message. Does one request per 100 messages
+    /// Returns a list of messages around a certain message. This will execute one API request per 100 messages.
     /// <param name="limit">The amount of messages to fetch.</param>
     /// <param name="around">Message to fetch around from.</param>
     /// <param name="cancellationToken">Cancels the enumeration before doing the next api request</param>
@@ -511,7 +511,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         => this.GetMessagesInternalAsync(limit, around: around, cancellationToken: cancellationToken);
 
     /// <summary>
-    /// Returns a list of messages from the last message in the channel. Does one request per 100 messages
+    /// Returns a list of messages from the last message in the channel. This will execute one API request per 100 messages.
     /// <param name="limit">The amount of messages to fetch.</param>
     /// <param name="cancellationToken">Cancels the enumeration before doing the next api request</param>
     /// </summary>
@@ -561,7 +561,10 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         int lastCount;
         do
         {
-            if (cancellationToken.IsCancellationRequested) yield break;
+            if (cancellationToken.IsCancellationRequested)
+            {
+                yield break;
+            }
             
             int fetchSize = remaining > 100 ? 100 : remaining;
             IReadOnlyList<DiscordMessage> fetchedMessages = await this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, fetchSize, isbefore ? last ?? before : null, !isbefore ? last ?? after : null, around);

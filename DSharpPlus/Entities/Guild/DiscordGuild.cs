@@ -1453,18 +1453,26 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     }
 
     /// <summary>
-    /// Retrieves a full list of members from Discord. This method will bypass cache. Does one api request per 1000 member
+    /// Retrieves a full list of members from Discord. This method will bypass cache. This will execute one API request per 1000 entities.
     /// </summary>
     /// <param name="cancellationToken">Cancels the enumeration before the next api request</param>
     /// <returns>A collection of all members in this guild.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async IAsyncEnumerable<DiscordMember> GetAllMembersAsync( [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<DiscordMember> GetAllMembersAsync
+    ( 
+        [EnumeratorCancellation] 
+        CancellationToken cancellationToken = default
+    )
     {
         int recievedLastCall = 1000;
         ulong last = 0ul;
         while (recievedLastCall > 0)
         {
-            if (cancellationToken.IsCancellationRequested) yield break;
+            if (cancellationToken.IsCancellationRequested)
+            {
+                yield break;
+            }
+            
             IReadOnlyList<TransportMember> tms = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : last);
             recievedLastCall = tms.Count;
 
