@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Abstractions;
@@ -470,53 +472,65 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     }
 
     /// <summary>
-    /// Returns a list of messages before a certain message.
+    /// Returns a list of messages before a certain message. This will execute one API request per 100 messages.
     /// <param name="limit">The amount of messages to fetch.</param>
     /// <param name="before">Message to fetch before from.</param>
+    /// <param name="cancellationToken">Cancels the enumeration before doing the next api request</param>
     /// </summary>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public IAsyncEnumerable<DiscordMessage> GetMessagesBeforeAsync(ulong before, int limit = 100)
-        => this.GetMessagesInternalAsync(limit, before, null, null);
+    public IAsyncEnumerable<DiscordMessage> GetMessagesBeforeAsync(ulong before, int limit = 100, CancellationToken cancellationToken = default)
+        => this.GetMessagesInternalAsync(limit, before, cancellationToken: cancellationToken);
 
     /// <summary>
-    /// Returns a list of messages after a certain message.
+    /// Returns a list of messages after a certain message. This will execute one API request per 100 messages.
     /// <param name="limit">The amount of messages to fetch.</param>
     /// <param name="after">Message to fetch after from.</param>
+    /// <param name="cancellationToken">Cancels the enumeration before doing the next api request</param>
     /// </summary>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public IAsyncEnumerable<DiscordMessage> GetMessagesAfterAsync(ulong after, int limit = 100)
-        => this.GetMessagesInternalAsync(limit, null, after, null);
+    public IAsyncEnumerable<DiscordMessage> GetMessagesAfterAsync(ulong after, int limit = 100, CancellationToken cancellationToken = default)
+        => this.GetMessagesInternalAsync(limit, after: after, cancellationToken: cancellationToken);
 
     /// <summary>
-    /// Returns a list of messages around a certain message.
+    /// Returns a list of messages around a certain message. This will execute one API request per 100 messages.
     /// <param name="limit">The amount of messages to fetch.</param>
     /// <param name="around">Message to fetch around from.</param>
+    /// <param name="cancellationToken">Cancels the enumeration before doing the next api request</param>
     /// </summary>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public IAsyncEnumerable<DiscordMessage> GetMessagesAroundAsync(ulong around, int limit = 100)
-        => this.GetMessagesInternalAsync(limit, null, null, around);
+    public IAsyncEnumerable<DiscordMessage> GetMessagesAroundAsync(ulong around, int limit = 100, CancellationToken cancellationToken = default)
+        => this.GetMessagesInternalAsync(limit, around: around, cancellationToken: cancellationToken);
 
     /// <summary>
-    /// Returns a list of messages from the last message in the channel.
+    /// Returns a list of messages from the last message in the channel. This will execute one API request per 100 messages.
     /// <param name="limit">The amount of messages to fetch.</param>
+    /// <param name="cancellationToken">Cancels the enumeration before doing the next api request</param>
     /// </summary>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public IAsyncEnumerable<DiscordMessage> GetMessagesAsync(int limit = 100) =>
-        this.GetMessagesInternalAsync(limit, null, null, null);
+    public IAsyncEnumerable<DiscordMessage> GetMessagesAsync(int limit = 100, CancellationToken cancellationToken = default) =>
+        this.GetMessagesInternalAsync(limit, cancellationToken: cancellationToken);
 
-    private async IAsyncEnumerable<DiscordMessage> GetMessagesInternalAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
+    private async IAsyncEnumerable<DiscordMessage> GetMessagesInternalAsync
+    (
+        int limit = 100,
+        ulong? before = null,
+        ulong? after = null,
+        ulong? around = null,
+        [EnumeratorCancellation]
+        CancellationToken cancellationToken = default
+    )
     {
         if (!Utilities.IsTextableChannel(this))
         {
@@ -547,6 +561,11 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         int lastCount;
         do
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                yield break;
+            }
+            
             int fetchSize = remaining > 100 ? 100 : remaining;
             IReadOnlyList<DiscordMessage> fetchedMessages = await this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, fetchSize, isbefore ? last ?? before : null, !isbefore ? last ?? after : null, around);
 
@@ -680,7 +699,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     }
     
     /// <summary>
-    /// Deletes multiple messages if they are less than 14 days old.
+    /// Deletes multiple messages if they are less than 14 days old. Does one api request per 100 
     /// </summary>
     /// <param name="messages">A collection of messages to delete.</param>
     /// <param name="reason">Reason for audit logs.</param>
