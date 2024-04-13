@@ -10,7 +10,7 @@ public static class SystemChannelFlagsExtension
     /// <param name="baseFlags">The existing flags.</param>
     /// <param name="flag">The flag to search for.</param>
     /// <returns></returns>
-    public static bool HasSystemChannelFlag(this SystemChannelFlags baseFlags, SystemChannelFlags flag) => (baseFlags & flag) == flag;
+    public static bool HasSystemChannelFlag(this DiscordSystemChannelFlags baseFlags, DiscordSystemChannelFlags flag) => (baseFlags & flag) == flag;
 }
 
 /// <summary>

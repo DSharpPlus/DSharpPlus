@@ -4,7 +4,7 @@ namespace DSharpPlus.Entities;
 
 public static class PermissionMethods
 {
-    internal static Permissions FULL_PERMS { get; } = (Permissions)2199023255551L;
+    internal static DiscordPermissions FULL_PERMS { get; } = (DiscordPermissions)2199023255551L;
 
     /// <summary>
     /// Calculates whether this permission set contains the given permission.
@@ -12,8 +12,8 @@ public static class PermissionMethods
     /// <param name="p">The permissions to calculate from</param>
     /// <param name="permission">permission you want to check</param>
     /// <returns></returns>
-    public static bool HasPermission(this Permissions p, Permissions permission)
-        => p.HasFlag(Permissions.Administrator) || (p & permission) == permission;
+    public static bool HasPermission(this DiscordPermissions p, DiscordPermissions permission)
+        => p.HasFlag(DiscordPermissions.Administrator) || (p & permission) == permission;
 
     /// <summary>
     /// Grants permissions.
@@ -21,7 +21,7 @@ public static class PermissionMethods
     /// <param name="p">The permissions to add to.</param>
     /// <param name="grant">Permission to add.</param>
     /// <returns></returns>
-    public static Permissions Grant(this Permissions p, Permissions grant) => p | grant;
+    public static DiscordPermissions Grant(this DiscordPermissions p, DiscordPermissions grant) => p | grant;
 
     /// <summary>
     /// Revokes permissions.
@@ -29,7 +29,7 @@ public static class PermissionMethods
     /// <param name="p">The permissions to take from.</param>
     /// <param name="revoke">Permission to take.</param>
     /// <returns></returns>
-    public static Permissions Revoke(this Permissions p, Permissions revoke) => p & ~revoke;
+    public static DiscordPermissions Revoke(this DiscordPermissions p, DiscordPermissions revoke) => p & ~revoke;
 }
 
 /// <summary>

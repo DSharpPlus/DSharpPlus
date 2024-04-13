@@ -1,7 +1,7 @@
 namespace DSharpPlus.Entities;
 
 /// <summary>
-/// Represents the type of an <see cref="Entities.DiscordApplicationCommand"/>.
+/// Represents the type of a <see cref="DiscordApplicationCommand"/>.
 /// </summary>
 public enum DiscordApplicationCommandType
 {
@@ -9,14 +9,17 @@ public enum DiscordApplicationCommandType
     /// This command is registered as a slash-command, aka "Chat Input".
     /// </summary>
     SlashCommand = 1,
+
     /// <summary>
     /// This command is registered as a user context menu, and is applicable when interacting a user.
     /// </summary>
     UserContextMenu = 2,
+
     /// <summary>
     /// This command is registered as a message context menu, and is applicable when interacting with a message.
     /// </summary>
     MessageContextMenu = 3,
+
     /// <summary>
     /// Inbound only: An auto-complete option is being interacted with.
     /// </summary>

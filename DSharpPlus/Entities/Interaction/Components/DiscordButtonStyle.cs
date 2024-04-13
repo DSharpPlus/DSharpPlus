@@ -9,14 +9,17 @@ public enum DiscordButtonStyle : int
     /// Blurple button.
     /// </summary>
     Primary = 1,
+
     /// <summary>
     /// Grey button.
     /// </summary>
     Secondary = 2,
+
     /// <summary>
     /// Green button.
     /// </summary>
     Success = 3,
+    
     /// <summary>
     /// Red button.
     /// </summary>

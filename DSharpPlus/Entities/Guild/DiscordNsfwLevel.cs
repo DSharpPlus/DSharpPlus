@@ -10,14 +10,17 @@ public enum DiscordNsfwLevel
     /// Indicates a server's nsfw level is the default.
     /// </summary>
     Default = 0,
+    
     /// <summary>
     /// Indicates a server's content contains explicit material.
     /// </summary>
     Explicit = 1,
+
     /// <summary>
     /// Indicates a server's content is safe for work (SFW).
     /// </summary>
     Safe = 2,
+
     /// <summary>
     /// Indicates a server's content is age-gated.
     /// </summary>

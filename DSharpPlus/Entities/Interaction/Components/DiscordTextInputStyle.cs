@@ -1,7 +1,7 @@
 namespace DSharpPlus.Entities;
 
 /// <summary>
-/// The style for a <see cref="TextInputComponent"/>
+/// The style for a <see cref="DiscordTextInputComponent"/>
 /// </summary>
 public enum DiscordTextInputStyle
 {
