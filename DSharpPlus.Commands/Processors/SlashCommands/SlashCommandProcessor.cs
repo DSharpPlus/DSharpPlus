@@ -27,7 +27,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
     // Required for GuildDownloadCompleted event
     public const DiscordIntents RequiredIntents = DiscordIntents.Guilds;
 
-    public IReadOnlyDictionary<Type, ApplicationCommandOptionType> TypeMappings { get; private set; } = new Dictionary<Type, ApplicationCommandOptionType>();
+    public IReadOnlyDictionary<Type, DiscordApplicationCommandOptionType> TypeMappings { get; private set; } = new Dictionary<Type, DiscordApplicationCommandOptionType>();
     public IReadOnlyDictionary<ulong, Command> Commands { get; private set; } = new Dictionary<ulong, Command>();
 
     private readonly List<DiscordApplicationCommand> _applicationCommands = [];
@@ -37,7 +37,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
     {
         await base.ConfigureAsync(extension);
 
-        Dictionary<Type, ApplicationCommandOptionType> typeMappings = [];
+        Dictionary<Type, DiscordApplicationCommandOptionType> typeMappings = [];
         foreach (LazyConverter lazyConverter in this._lazyConverters.Values)
         {
             ISlashArgumentConverter converter = lazyConverter.GetConverter(this._extension.ServiceProvider);
@@ -65,7 +65,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         {
             throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
         }
-        else if (eventArgs.Interaction.Type is not InteractionType.ApplicationCommand and not InteractionType.AutoComplete || eventArgs.Interaction.Data.Type is not ApplicationCommandType.SlashCommand)
+        else if (eventArgs.Interaction.Type is not DiscordInteractionType.ApplicationCommand and not DiscordInteractionType.AutoComplete || eventArgs.Interaction.Data.Type is not DiscordApplicationCommandType.SlashCommand)
         {
             return;
         }
@@ -105,13 +105,13 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             User = eventArgs.Interaction.User
         };
 
-        if (eventArgs.Interaction.Type is InteractionType.AutoComplete)
+        if (eventArgs.Interaction.Type is DiscordInteractionType.AutoComplete)
         {
             AutoCompleteContext? autoCompleteContext = await this.ParseAutoCompleteArgumentsAsync(converterContext, eventArgs);
             if (autoCompleteContext is not null)
             {
                 IEnumerable<DiscordAutoCompleteChoice> choices = await autoCompleteContext.AutoCompleteArgument.Attributes.OfType<SlashAutoCompleteProviderAttribute>().First().AutoCompleteAsync(autoCompleteContext);
-                await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.AutoCompleteResult, new DiscordInteractionResponseBuilder().AddAutoCompleteChoices(choices));
+                await eventArgs.Interaction.CreateResponseAsync(DiscordInteractionResponseType.AutoCompleteResult, new DiscordInteractionResponseBuilder().AddAutoCompleteChoices(choices));
             }
 
             converterContext.ServiceScope.Dispose();
@@ -142,7 +142,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         while (options.Any())
         {
             DiscordInteractionDataOption option = options.First();
-            if (option.Type is not ApplicationCommandOptionType.SubCommandGroup and not ApplicationCommandOptionType.SubCommand)
+            if (option.Type is not DiscordApplicationCommandOptionType.SubCommandGroup and not DiscordApplicationCommandOptionType.SubCommand)
             {
                 break;
             }
@@ -184,7 +184,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         {
             // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
             // If there isn't, default to SlashCommands
-            if (command.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute && !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(ApplicationCommandType.SlashCommand))
+            if (command.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute && !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.SlashCommand))
             {
                 continue;
             }
@@ -280,11 +280,11 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             name: ToSnakeCase(nameLocalizations.TryGetValue("en-US", out string? name) ? name : command.Name),
             description: description,
             options: options,
-            type: ApplicationCommandType.SlashCommand,
+            type: DiscordApplicationCommandType.SlashCommand,
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
             allowDMUsage: command.Attributes.Any(x => x is AllowDMUsageAttribute),
-            defaultMemberPermissions: command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? Permissions.None,
+            defaultMemberPermissions: command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? DiscordPermissions.None,
             nsfw: command.Attributes.Any(x => x is RequireNsfwAttribute),
             contexts: command.Attributes.OfType<InteractionAllowedContextsAttribute>().FirstOrDefault()?.AllowedContexts,
             integrationTypes: command.Attributes.OfType<InteractionInstallTypeAttribute>().FirstOrDefault()?.InstallTypes
@@ -339,7 +339,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             description: description,
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
-            type: command.Subcommands.Any() ? ApplicationCommandOptionType.SubCommandGroup : ApplicationCommandOptionType.SubCommand,
+            type: command.Subcommands.Any() ? DiscordApplicationCommandOptionType.SubCommandGroup : DiscordApplicationCommandOptionType.SubCommand,
             options: options
         );
     }
@@ -351,7 +351,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
         }
 
-        if (!this.TypeMappings.TryGetValue(this.GetConverterFriendlyBaseType(parameter.Type), out ApplicationCommandOptionType type))
+        if (!this.TypeMappings.TryGetValue(this.GetConverterFriendlyBaseType(parameter.Type), out DiscordApplicationCommandOptionType type))
         {
             throw new InvalidOperationException($"No type mapping found for parameter type '{parameter.Type.Name}'");
         }

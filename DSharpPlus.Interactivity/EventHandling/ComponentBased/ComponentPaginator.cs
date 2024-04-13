@@ -59,7 +59,7 @@ internal class ComponentPaginator : IPaginator
             return;
         }
 
-        await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+        await e.Interaction.CreateResponseAsync(DiscordInteractionResponseType.DeferredMessageUpdate);
 
         if (await req.GetUserAsync() != e.User)
         {

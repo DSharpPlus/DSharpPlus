@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
 
+using DSharpPlus.Entities;
+
 namespace DSharpPlus.CommandsNext.Attributes;
 
 /// <summary>
@@ -12,7 +14,7 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
     /// <summary>
     /// Gets the permissions required by this attribute.
     /// </summary>
-    public Permissions Permissions { get; }
+    public DiscordPermissions Permissions { get; }
 
     /// <summary>
     /// Gets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.
@@ -24,7 +26,7 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
     /// </summary>
     /// <param name="permissions">Permissions required to execute this command.</param>
     /// <param name="ignoreDms">Sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.</param>
-    public RequirePermissionsAttribute(Permissions permissions, bool ignoreDms = true)
+    public RequirePermissionsAttribute(DiscordPermissions permissions, bool ignoreDms = true)
     {
         this.Permissions = permissions;
         this.IgnoreDms = ignoreDms;
@@ -43,7 +45,7 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
             return false;
         }
 
-        Permissions pusr = ctx.Channel.PermissionsFor(usr);
+        DiscordPermissions pusr = ctx.Channel.PermissionsFor(usr);
 
         DSharpPlus.Entities.DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
         if (bot == null)
@@ -51,19 +53,19 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
             return false;
         }
 
-        Permissions pbot = ctx.Channel.PermissionsFor(bot);
+        DiscordPermissions pbot = ctx.Channel.PermissionsFor(bot);
 
         bool usrok = ctx.Guild.OwnerId == usr.Id;
         bool botok = ctx.Guild.OwnerId == bot.Id;
 
         if (!usrok)
         {
-            usrok = (pusr & Permissions.Administrator) != 0 || (pusr & this.Permissions) == this.Permissions;
+            usrok = (pusr & DiscordPermissions.Administrator) != 0 || (pusr & this.Permissions) == this.Permissions;
         }
 
         if (!botok)
         {
-            botok = (pbot & Permissions.Administrator) != 0 || (pbot & this.Permissions) == this.Permissions;
+            botok = (pbot & DiscordPermissions.Administrator) != 0 || (pbot & this.Permissions) == this.Permissions;
         }
 
         return usrok && botok;

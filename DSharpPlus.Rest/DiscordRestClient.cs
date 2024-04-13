@@ -197,7 +197,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="defaultMessageNotifications">New guild's default message notification level</param>
     /// <param name="systemChannelFlags">New guild's system channel flags</param>
     /// <returns></returns>
-    public async Task<DiscordGuild> CreateGuildAsync(string name, string regionId, string iconb64, VerificationLevel? verificationLevel, DiscordDefaultMessageNotifications? defaultMessageNotifications, SystemChannelFlags? systemChannelFlags)
+    public async Task<DiscordGuild> CreateGuildAsync(string name, string regionId, string iconb64, DiscordVerificationLevel? verificationLevel, DiscordDefaultMessageNotifications? defaultMessageNotifications, DiscordSystemChannelFlags? systemChannelFlags)
         => await this.ApiClient.CreateGuildAsync(name, regionId, iconb64, verificationLevel, defaultMessageNotifications, systemChannelFlags);
 
     /// <summary>
@@ -245,13 +245,13 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="reason">Modify reason</param>
     /// <returns></returns>
     public async Task<DiscordGuild> ModifyGuildAsync(ulong guildId, Optional<string> name,
-        Optional<string> region, Optional<VerificationLevel> verificationLevel,
+        Optional<string> region, Optional<DiscordVerificationLevel> verificationLevel,
         Optional<DiscordDefaultMessageNotifications> defaultMessageNotifications, Optional<DiscordMfaLevel> mfaLevel,
         Optional<DiscordExplicitContentFilter> explicitContentFilter, Optional<ulong?> afkChannelId,
         Optional<int> afkTimeout, Optional<string> iconb64, Optional<ulong> ownerId, Optional<string> splashb64,
         Optional<ulong?> systemChannelId, Optional<string> banner, Optional<string> description,
         Optional<string> discorverySplash, Optional<IEnumerable<string>> features, Optional<string> preferredLocale,
-        Optional<ulong?> publicUpdatesChannelId, Optional<ulong?> rulesChannelId, Optional<SystemChannelFlags> systemChannelFlags,
+        Optional<ulong?> publicUpdatesChannelId, Optional<ulong?> rulesChannelId, Optional<DiscordSystemChannelFlags> systemChannelFlags,
         string reason)
         => await this.ApiClient.ModifyGuildAsync(guildId, name, region, verificationLevel, defaultMessageNotifications, mfaLevel, explicitContentFilter, afkChannelId, afkTimeout, iconb64,
             ownerId, splashb64, systemChannelId, banner, description, discorverySplash, features, preferredLocale, publicUpdatesChannelId, rulesChannelId, systemChannelFlags, reason);
@@ -269,7 +269,7 @@ public class DiscordRestClient : BaseDiscordClient
 
         if (mdl.AfkChannel.HasValue)
         {
-            if (mdl.AfkChannel.Value.Type != ChannelType.Voice)
+            if (mdl.AfkChannel.Value.Type != DiscordChannelType.Voice)
             {
                 throw new ArgumentException("AFK channel needs to be a voice channel!");
             }
@@ -602,7 +602,7 @@ public class DiscordRestClient : BaseDiscordClient
     (
         ulong id,
         string name,
-        ChannelType type,
+        DiscordChannelType type,
         ulong? parent,
         Optional<string> topic,
         int? bitrate,
@@ -610,16 +610,16 @@ public class DiscordRestClient : BaseDiscordClient
         IEnumerable<DiscordOverwriteBuilder> overwrites,
         bool? nsfw,
         Optional<int?> perUserRateLimit,
-        VideoQualityMode? qualityMode,
+        DiscordVideoQualityMode? qualityMode,
         int? position,
         string reason,
-        AutoArchiveDuration? defaultAutoArchiveDuration = null,
+        DiscordAutoArchiveDuration? defaultAutoArchiveDuration = null,
         DefaultReaction? defaultReactionEmoji = null,
         IEnumerable<DiscordForumTagBuilder> availableTags = null,
-        DefaultSortOrder? defaultSortOrder = null
+        DiscordDefaultSortOrder? defaultSortOrder = null
     )
     {
-        return type is not (ChannelType.Text or ChannelType.Voice or ChannelType.Category or ChannelType.News or ChannelType.Stage or ChannelType.GuildForum)
+        return type is not (DiscordChannelType.Text or DiscordChannelType.Voice or DiscordChannelType.Category or DiscordChannelType.News or DiscordChannelType.Stage or DiscordChannelType.GuildForum)
             ? throw new ArgumentException("Channel type must be text, voice, stage, category, or a forum.", nameof(type))
             : await this.ApiClient.CreateGuildChannelAsync
         (
@@ -680,17 +680,17 @@ public class DiscordRestClient : BaseDiscordClient
         int? userLimit,
         Optional<int?> perUserRateLimit,
         Optional<DiscordVoiceRegion> rtcRegion,
-        VideoQualityMode? qualityMode,
-        Optional<ChannelType> type,
+        DiscordVideoQualityMode? qualityMode,
+        Optional<DiscordChannelType> type,
         IEnumerable<DiscordOverwriteBuilder> permissionOverwrites,
         string reason,
-        Optional<ChannelFlags> flags,
+        Optional<DiscordChannelFlags> flags,
         IEnumerable<DiscordForumTagBuilder>? availableTags,
-        Optional<AutoArchiveDuration?> defaultAutoArchiveDuration,
+        Optional<DiscordAutoArchiveDuration?> defaultAutoArchiveDuration,
         Optional<DefaultReaction?> defaultReactionEmoji,
         Optional<int> defaultPerUserRatelimit,
-        Optional<DefaultSortOrder?> defaultSortOrder,
-        Optional<DefaultForumLayout> defaultForumLayout
+        Optional<DiscordDefaultSortOrder?> defaultSortOrder,
+        Optional<DiscordDefaultForumLayout> defaultForumLayout
     )
         => await this.ApiClient.ModifyChannelAsync
         (
@@ -891,7 +891,7 @@ public class DiscordRestClient : BaseDiscordClient
     {
         builder.Validate();
 
-        return await this.ApiClient.EditMessageAsync(channelId, messageId, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder._mentions, builder.Components, builder.Files, suppressEmbeds ? MessageFlags.SuppressedEmbeds : null, attachments);
+        return await this.ApiClient.EditMessageAsync(channelId, messageId, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder._mentions, builder.Components, builder.Files, suppressEmbeds ? DiscordMessageFlags.SuppressedEmbeds : null, attachments);
     }
 
     /// <summary>
@@ -901,7 +901,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="messageId">Message ID</param>
     /// <param name="hideEmbeds">Whether to hide all embeds.</param>
     public async Task ModifyEmbedSuppressionAsync(ulong channelId, ulong messageId, bool hideEmbeds)
-        => await this.ApiClient.EditMessageAsync(channelId, messageId, default, default, default, default, Array.Empty<DiscordMessageFile>(), hideEmbeds ? MessageFlags.SuppressedEmbeds : null);
+        => await this.ApiClient.EditMessageAsync(channelId, messageId, default, default, default, default, Array.Empty<DiscordMessageFile>(), hideEmbeds ? DiscordMessageFlags.SuppressedEmbeds : null);
 
     /// <summary>
     /// Deletes a message
@@ -944,7 +944,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="targetUserId">The ID of the target user.</param>
     /// <param name="targetApplicationId">The ID of the target application.</param>
     /// <returns></returns>
-    public async Task<DiscordInvite> CreateChannelInviteAsync(ulong channelId, int maxAge, int maxUses, bool temporary, bool unique, string reason, InviteTargetType? targetType = null, ulong? targetUserId = null, ulong? targetApplicationId = null)
+    public async Task<DiscordInvite> CreateChannelInviteAsync(ulong channelId, int maxAge, int maxUses, bool temporary, bool unique, string reason, DiscordInviteTargetType? targetType = null, ulong? targetUserId = null, ulong? targetApplicationId = null)
         => await this.ApiClient.CreateChannelInviteAsync(channelId, maxAge, maxUses, temporary, unique, reason, targetType, targetUserId, targetApplicationId);
 
     /// <summary>
@@ -967,7 +967,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="type">Overwrite type</param>
     /// <param name="reason">Reason this overwrite was created</param>
     /// <returns></returns>
-    public async Task EditChannelPermissionsAsync(ulong channelId, ulong overwriteId, Permissions allow, Permissions deny, string type, string reason)
+    public async Task EditChannelPermissionsAsync(ulong channelId, ulong overwriteId, DiscordPermissions allow, DiscordPermissions deny, string type, string reason)
         => await this.ApiClient.EditChannelPermissionsAsync(channelId, overwriteId, allow, deny, type, reason);
 
     /// <summary>
@@ -1077,7 +1077,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="channelId">ID of the news channel the message to crosspost belongs to</param>
     /// <param name="messageId">ID of the message to crosspost</param>
     /// <exception cref="UnauthorizedException">
-    ///     Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> and/or <see cref="Permissions.SendMessages"/>
+    ///     Thrown when the current user doesn't have <see cref="DiscordPermissions.ManageWebhooks"/> and/or <see cref="DiscordPermissions.SendMessages"/>
     /// </exception>
     public async Task<DiscordMessage> CrosspostMessageAsync(ulong channelId, ulong messageId)
         => await this.ApiClient.CrosspostMessageAsync(channelId, messageId);
@@ -1090,7 +1090,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="privacyLevel">The privacy level of the stage instance.</param>
     /// <param name="reason">The reason the stage instance was created.</param>
     /// <returns>The created stage instance.</returns>
-    public async Task<DiscordStageInstance> CreateStageInstanceAsync(ulong channelId, string topic, PrivacyLevel? privacyLevel = null, string reason = null)
+    public async Task<DiscordStageInstance> CreateStageInstanceAsync(ulong channelId, string topic, DiscordStagePrivacyLevel? privacyLevel = null, string reason = null)
         => await this.ApiClient.CreateStageInstanceAsync(channelId, topic, privacyLevel, reason);
 
     /// <summary>
@@ -1242,7 +1242,7 @@ public class DiscordRestClient : BaseDiscordClient
         MemberEditModel mdl = new();
         action(mdl);
 
-        if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value is not null && mdl.VoiceChannel.Value.Type != ChannelType.Voice && mdl.VoiceChannel.Value.Type != ChannelType.Stage)
+        if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value is not null && mdl.VoiceChannel.Value.Type != DiscordChannelType.Voice && mdl.VoiceChannel.Value.Type != DiscordChannelType.Stage)
         {
             throw new ArgumentException("Given channel is not a voice or stage channel.", nameof(mdl.VoiceChannel));
         }
@@ -1307,7 +1307,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="icon">The icon to add to this role</param>
     /// <param name="emoji">The emoji to add to this role. Must be unicode.</param>
     /// <returns></returns>
-    public async Task<DiscordRole> ModifyGuildRoleAsync(ulong guildId, ulong roleId, string name, Permissions? permissions, DiscordColor? color, bool? hoist, bool? mentionable, string reason, Stream icon, DiscordEmoji emoji)
+    public async Task<DiscordRole> ModifyGuildRoleAsync(ulong guildId, ulong roleId, string name, DiscordPermissions? permissions, DiscordColor? color, bool? hoist, bool? mentionable, string reason, Stream icon, DiscordEmoji emoji)
         => await this.ApiClient.ModifyGuildRoleAsync(guildId, roleId, name, permissions, color.HasValue ? color.Value.Value : null, hoist, mentionable, icon, emoji?.ToString(), reason);
 
     /// <summary>
@@ -1348,7 +1348,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="icon">The icon to add to this role</param>
     /// <param name="emoji">The emoji to add to this role. Must be unicode.</param>
     /// <returns></returns>
-    public async Task<DiscordRole> CreateGuildRoleAsync(ulong guildId, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason, Stream icon = null, DiscordEmoji emoji = null)
+    public async Task<DiscordRole> CreateGuildRoleAsync(ulong guildId, string name, DiscordPermissions? permissions, int? color, bool? hoist, bool? mentionable, string reason, Stream icon = null, DiscordEmoji emoji = null)
         => await this.ApiClient.CreateGuildRoleAsync(guildId, name, permissions, color, hoist, mentionable, icon, emoji?.ToString(), reason);
     #endregion
 
@@ -1933,7 +1933,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="interactionToken">The token of the interaction</param>
     /// <param name="type">The type of the response.</param>
     /// <param name="builder">The data, if any, to send.</param>
-    public async Task CreateInteractionResponseAsync(ulong interactionId, string interactionToken, InteractionResponseType type, DiscordInteractionResponseBuilder builder = null) =>
+    public async Task CreateInteractionResponseAsync(ulong interactionId, string interactionToken, DiscordInteractionResponseType type, DiscordInteractionResponseBuilder builder = null) =>
         await this.ApiClient.CreateInteractionResponseAsync(interactionId, interactionToken, type, builder);
 
     /// <summary>
@@ -2136,7 +2136,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="name">The name of the thread.</param>
     /// <param name="archiveAfter">The auto archive duration.</param>
     /// <param name="reason">Reason for audit logs.</param>
-    public async Task<DiscordThreadChannel> CreateThreadFromMessageAsync(ulong channelId, ulong messageId, string name, AutoArchiveDuration archiveAfter, string reason = null)
+    public async Task<DiscordThreadChannel> CreateThreadFromMessageAsync(ulong channelId, ulong messageId, string name, DiscordAutoArchiveDuration archiveAfter, string reason = null)
        => await this.ApiClient.CreateThreadFromMessageAsync(channelId, messageId, name, archiveAfter, reason);
 
     /// <summary>
@@ -2148,7 +2148,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="threadType">The type of the thread.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    public async Task<DiscordThreadChannel> CreateThreadAsync(ulong channelId, string name, AutoArchiveDuration archiveAfter, ChannelType threadType, string reason = null)
+    public async Task<DiscordThreadChannel> CreateThreadAsync(ulong channelId, string name, DiscordAutoArchiveDuration archiveAfter, DiscordChannelType threadType, string reason = null)
        => await this.ApiClient.CreateThreadAsync(channelId, name, archiveAfter, threadType, reason);
 
     /// <summary>

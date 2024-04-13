@@ -13,12 +13,12 @@ internal sealed class RequirePermissionsCheck : IContextCheck<RequirePermissions
             return ValueTask.FromResult<string?>(RequireGuildCheck.ErrorMessage);
         }
 
-        if (!context.Guild!.CurrentMember.PermissionsIn(context.Channel).HasPermission(attribute.BotPermissions))
+        if (!context.Guild!.CurrentMember.PermissionsIn(context.Channel).HasFlag(attribute.BotPermissions))
         {
             return ValueTask.FromResult<string?>("The bot did not have the needed permissions to execute this command.");
         }
 
-        if (!context.Member!.PermissionsIn(context.Channel).HasPermission(attribute.UserPermissions))
+        if (!context.Member!.PermissionsIn(context.Channel).HasFlag(attribute.UserPermissions))
         {
             return ValueTask.FromResult<string?>("The executing user did not have the needed permissions to execute this command.");
         }

@@ -1,5 +1,7 @@
 using System;
 
+using DSharpPlus.Entities;
+
 namespace DSharpPlus.SlashCommands;
 
 /// <summary>
@@ -16,7 +18,7 @@ public sealed class ContextMenuAttribute : Attribute
     /// <summary>
     /// Gets the type of this context menu.
     /// </summary>
-    public ApplicationCommandType Type { get; internal set; }
+    public DiscordApplicationCommandType Type { get; internal set; }
 
     /// <summary>
     /// Gets whether this command is enabled by default.
@@ -35,9 +37,9 @@ public sealed class ContextMenuAttribute : Attribute
     /// <param name="name">The name of the context menu.</param>
     /// <param name="defaultPermission">Sets whether the command should be enabled by default.</param>
     /// <param name="nsfw">Sets whether the command is age restricted.</param>
-    public ContextMenuAttribute(ApplicationCommandType type, string name, bool defaultPermission = true, bool nsfw = false)
+    public ContextMenuAttribute(DiscordApplicationCommandType type, string name, bool defaultPermission = true, bool nsfw = false)
     {
-        if (type == ApplicationCommandType.SlashCommand)
+        if (type == DiscordApplicationCommandType.SlashCommand)
         {
             throw new ArgumentException("Context menus cannot be of type SlashCommand.");
         }

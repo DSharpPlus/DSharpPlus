@@ -9,7 +9,7 @@ using DSharpPlus.EventArgs;
 
 public class UInt32Converter : ISlashArgumentConverter<uint>, ITextArgumentConverter<uint>
 {
-    public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Integer;
+    public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Integer;
     public bool RequiresText { get; init; } = true;
 
     public Task<Optional<uint>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => uint.TryParse(context.Argument, CultureInfo.InvariantCulture, out uint result)

@@ -29,7 +29,7 @@ public record SlashCommandContext : CommandContext
 
         if (this.Interaction.ResponseState is DiscordInteractionResponseState.Unacknowledged)
         {
-            await this.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, interactionBuilder);
+            await this.Interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, interactionBuilder);
         }
         else if (this.Interaction.ResponseState is DiscordInteractionResponseState.Deferred)
         {

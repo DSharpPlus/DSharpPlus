@@ -308,7 +308,7 @@ public sealed class LavalinkNodeConnection
             return this._connectedGuilds[channel.Guild.Id];
         }
 
-        if (channel.Guild == null || (channel.Type != ChannelType.Voice && channel.Type != ChannelType.Stage))
+        if (channel.Guild == null || (channel.Type != DiscordChannelType.Voice && channel.Type != DiscordChannelType.Stage))
         {
             throw new ArgumentException("Invalid channel specified.", nameof(channel));
         }

@@ -15,7 +15,7 @@ public partial class DiscordRoleConverter : ISlashArgumentConverter<DiscordRole>
     [GeneratedRegex(@"^<@&(\d+?)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
     private static partial Regex _getRoleRegex();
 
-    public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Role;
+    public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Role;
     public bool RequiresText { get; init; } = true;
 
     public Task<Optional<DiscordRole>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)

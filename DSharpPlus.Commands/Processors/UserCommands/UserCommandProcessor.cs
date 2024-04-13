@@ -42,7 +42,7 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreateEv
         foreach (Command command in this._extension.Commands.Values)
         {
             // User commands must be explicitly defined as such, otherwise they are ignored.
-            if (!command.Attributes.Any(x => x is SlashCommandTypesAttribute slashCommandTypesAttribute && slashCommandTypesAttribute.ApplicationCommandTypes.Contains(ApplicationCommandType.UserContextMenu)))
+            if (!command.Attributes.Any(x => x is SlashCommandTypesAttribute slashCommandTypesAttribute && slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.UserContextMenu)))
             {
                 continue;
             }
@@ -76,7 +76,7 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreateEv
         {
             throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
         }
-        else if (eventArgs.Interaction.Type is not InteractionType.ApplicationCommand || eventArgs.Interaction.Data.Type is not ApplicationCommandType.UserContextMenu)
+        else if (eventArgs.Interaction.Type is not DiscordInteractionType.ApplicationCommand || eventArgs.Interaction.Data.Type is not DiscordApplicationCommandType.UserContextMenu)
         {
             return;
         }
@@ -142,10 +142,10 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreateEv
         return new(
             name: command.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName ?? command.Name,
             description: string.Empty,
-            type: ApplicationCommandType.UserContextMenu,
+            type: DiscordApplicationCommandType.UserContextMenu,
             name_localizations: nameLocalizations,
             allowDMUsage: command.Attributes.Any(x => x is AllowDMUsageAttribute),
-            defaultMemberPermissions: command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? Permissions.None,
+            defaultMemberPermissions: command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? DiscordPermissions.None,
             nsfw: command.Attributes.Any(x => x is RequireNsfwAttribute),
             contexts: command.Attributes.OfType<InteractionAllowedContextsAttribute>().FirstOrDefault()?.AllowedContexts,
             integrationTypes: command.Attributes.OfType<InteractionInstallTypeAttribute>().FirstOrDefault()?.InstallTypes

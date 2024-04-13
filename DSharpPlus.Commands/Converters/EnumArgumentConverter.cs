@@ -10,7 +10,7 @@ using DSharpPlus.EventArgs;
 
 public class EnumConverter : ISlashArgumentConverter<Enum>, ITextArgumentConverter<Enum>
 {
-    public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Integer;
+    public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Integer;
     public bool RequiresText { get; init; } = true;
 
     public Task<Optional<Enum>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => Task.FromResult(Enum.TryParse(context.Parameter.Type, context.Argument, true, out object? result)

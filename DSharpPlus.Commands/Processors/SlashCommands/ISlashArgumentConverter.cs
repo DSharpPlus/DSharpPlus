@@ -1,11 +1,12 @@
 namespace DSharpPlus.Commands.Processors.SlashCommands;
 
 using DSharpPlus.Commands.Converters;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
 public interface ISlashArgumentConverter : IArgumentConverter
 {
-    public ApplicationCommandOptionType ParameterType { get; init; }
+    public DiscordApplicationCommandOptionType ParameterType { get; init; }
 }
 
 public interface ISlashArgumentConverter<T> : ISlashArgumentConverter, IArgumentConverter<InteractionConverterContext, InteractionCreateEventArgs, T>;

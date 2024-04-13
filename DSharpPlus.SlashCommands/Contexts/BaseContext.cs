@@ -70,7 +70,7 @@ public class BaseContext
     /// <summary>
     /// Gets the type of this interaction.
     /// </summary>
-    public ApplicationCommandType Type { get; internal set; }
+    public DiscordApplicationCommandType Type { get; internal set; }
 
     /// <summary>
     /// <para>Gets the service provider.</para>
@@ -85,12 +85,12 @@ public class BaseContext
     /// </summary>
     /// <param name="type">The type of the response.</param>
     /// <param name="builder">The data to be sent, if any.</param>
-    public Task CreateResponseAsync(InteractionResponseType type, DiscordInteractionResponseBuilder builder = null)
+    public Task CreateResponseAsync(DiscordInteractionResponseType type, DiscordInteractionResponseBuilder builder = null)
         => this.Interaction.CreateResponseAsync(type, builder);
 
-    /// <inheritdoc cref="CreateResponseAsync(DSharpPlus.InteractionResponseType,DSharpPlus.Entities.DiscordInteractionResponseBuilder)"/>
+    /// <inheritdoc cref="CreateResponseAsync(DiscordInteractionResponseType,DiscordInteractionResponseBuilder)"/>
     public Task CreateResponseAsync(DiscordInteractionResponseBuilder builder)
-        => this.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+        => this.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, builder);
 
     /// <summary>
     /// Creates a response to this interaction.
@@ -115,7 +115,7 @@ public class BaseContext
     /// </summary>
     /// <param name="ephemeral">Whether the response should be ephemeral.</param>
     public Task DeferAsync(bool ephemeral = false)
-        => this.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(ephemeral));
+        => this.CreateResponseAsync(DiscordInteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(ephemeral));
 
     /// <summary>
     /// Edits the interaction response.
