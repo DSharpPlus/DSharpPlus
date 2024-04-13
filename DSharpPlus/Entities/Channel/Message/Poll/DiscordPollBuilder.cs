@@ -1,3 +1,4 @@
+using DSharpPlus.Entities.Channel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,9 +27,9 @@ public class DiscordPollBuilder
     private readonly List<DiscordPollMedia> _options = new();
     
     /// <summary>
-    /// Gets or sets the expiry date for this poll.
+    /// Gets or sets the duration for this poll in hours.
     /// </summary>
-    public DateTimeOffset Expiry { get; set; } = DateTimeOffset.UtcNow.AddHours(1);
+    public int Duration { get; set; } = 1;
 
     /// <summary>
     /// Sets the question for this poll.
@@ -68,44 +69,44 @@ public class DiscordPollBuilder
         this.IsMultipleChoice = isMultiChoice;
         return this;
     }
-    
+
     /// <summary>
     /// Sets the expiry date for this poll.
     /// </summary>
-    /// <param name="expiry">When the poll is to expire.</param>
+    /// <param name="hours">How many hours the poll should last.</param>
     /// <returns>The modified builder to chain calls with.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if <paramref name="expiry"/> is in the past or more than 7 days in the future.</exception>
-    public DiscordPollBuilder WithExpiry(DateTimeOffset expiry)
+    /// <exception cref="InvalidOperationException">Thrown if <paramref name="hours"/> is in the past or more than 7 days in the future.</exception>
+    public DiscordPollBuilder WithDuration(int hours)
     {
-        if (expiry < DateTimeOffset.UtcNow)
+        if (hours < 1)
         {
-            throw new InvalidOperationException("Expiry date must be in the future.");
+            throw new InvalidOperationException("Duration must be at least 1 hour.");
         }
         
-        if (expiry - DateTimeOffset.UtcNow > TimeSpan.FromDays(7))
+        if (hours > (24 * 7))
         {
-            throw new InvalidOperationException("Expiry date must be within 7 days.");
+            throw new InvalidOperationException("Duration must be less then 7 days/168 hours.");
         }
         
-        this.Expiry = expiry;
+        this.Duration = hours;
         return this;
     }
-    
+
     /// <summary>
     /// Builds the poll.
     /// </summary>
-    /// <returns>A <see cref="DiscordPoll"/> to pass to methods.</returns>
+    /// <returns>A <see cref="PollCreatePayload"/> to pass to methods.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the poll has less than two options.</exception>
-    public DiscordPoll Build()
+    public PollCreatePayload Build()
     {
         if (this._options.Count < 2)
         {
             throw new InvalidOperationException("A poll must have at least two options.");
         }
 
-        return new DiscordPoll
+        return new PollCreatePayload
         {
-            Expiry = this.Expiry,
+            Duration = this.Duration,
             AllowMultisect = this.IsMultipleChoice,
             Question = new DiscordPollMedia { Text = this.Question },
             Answers = this._options.Select(x => new DiscordPollAnswer { AnswerData = x }).ToList(),
