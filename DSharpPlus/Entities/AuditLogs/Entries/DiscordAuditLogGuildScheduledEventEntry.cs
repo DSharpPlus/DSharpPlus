@@ -63,7 +63,7 @@ public sealed class DiscordAuditLogGuildScheduledEventEntry : DiscordAuditLogEnt
     /// <summary>
     /// Gets change in privacy level.
     /// </summary>
-    public PropertyChange<ScheduledGuildEventPrivacyLevel?> PrivacyLevel { get; internal set; }
+    public PropertyChange<DiscordScheduledGuildEventPrivacyLevel?> PrivacyLevel { get; internal set; }
 
     /// <summary>
     /// Gets the change in status.

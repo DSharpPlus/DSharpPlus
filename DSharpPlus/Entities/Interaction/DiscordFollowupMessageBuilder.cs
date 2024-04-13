@@ -14,7 +14,7 @@ public sealed class DiscordFollowupMessageBuilder : BaseDiscordMessageBuilder<Di
     public bool IsEphemeral { get; set; }
 
     internal int? _flags
-        => this.IsEphemeral ? (int?)(this.Flags | MessageFlags.Ephemeral) : null;
+        => this.IsEphemeral ? (int?)(this.Flags | DiscordMessageFlags.Ephemeral) : null;
 
     /// <summary>
     /// Constructs a new followup message builder

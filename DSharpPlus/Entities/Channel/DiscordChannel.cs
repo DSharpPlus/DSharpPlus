@@ -49,7 +49,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// Gets the type of this channel.
     /// </summary>
     [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-    public virtual ChannelType Type { get; internal set; }
+    public virtual DiscordChannelType Type { get; internal set; }
 
     /// <summary>
     /// Gets the position of this channel.
@@ -62,21 +62,21 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// </summary>
     [JsonIgnore]
     public bool IsPrivate
-        => this.Type == ChannelType.Private || this.Type == ChannelType.Group;
+        => this.Type == DiscordChannelType.Private || this.Type == DiscordChannelType.Group;
 
     /// <summary>
     /// Gets whether this channel is a channel category.
     /// </summary>
     [JsonIgnore]
     public bool IsCategory
-        => this.Type == ChannelType.Category;
+        => this.Type == DiscordChannelType.Category;
 
     /// <summary>
     /// Gets whether this channel is a thread.
     /// </summary>
     [JsonIgnore]
     public bool IsThread
-        => this.Type == ChannelType.PrivateThread || this.Type == ChannelType.PublicThread || this.Type == ChannelType.NewsThread;
+        => this.Type is DiscordChannelType.PrivateThread or DiscordChannelType.PublicThread or DiscordChannelType.NewsThread;
 
     /// <summary>
     /// Gets the guild to which this channel belongs.
@@ -125,7 +125,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
 
     /// <summary>
     /// <para>Gets the slow mode delay configured for this channel.</para>
-    /// <para>All bots, as well as users with <see cref="Permissions.ManageChannels"/> or <see cref="Permissions.ManageMessages"/> permissions in the channel are exempt from slow mode.</para>
+    /// <para>All bots, as well as users with <see cref="DiscordPermissions.ManageChannels"/> or <see cref="DiscordPermissions.ManageMessages"/> permissions in the channel are exempt from slow mode.</para>
     /// </summary>
     [JsonProperty("rate_limit_per_user")]
     public int? PerUserRateLimit { get; internal set; }
@@ -134,7 +134,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// Gets this channel's video quality mode. This is applicable to voice channels only.
     /// </summary>
     [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
-    public VideoQualityMode? QualityMode { get; internal set; }
+    public DiscordVideoQualityMode? QualityMode { get; internal set; }
 
     /// <summary>
     /// Gets when the last pinned message was pinned.
@@ -171,7 +171,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     {
         get
         {
-            return this.Type is not (ChannelType.Text or ChannelType.News or ChannelType.GuildForum)
+            return this.Type is not (DiscordChannelType.Text or DiscordChannelType.News or DiscordChannelType.GuildForum)
                 ? throw new ArgumentException("Only text channels can have threads.")
                 : this.Guild._threads.Values.Where(e => e.ParentId == this.Id).ToArray();
         }
@@ -185,11 +185,11 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     {
         get
         {
-            return this.Guild == null
+            return this.Guild is null
                 ? throw new InvalidOperationException("Cannot query users outside of guild channels.")
-                : (IReadOnlyList<DiscordMember>)(this.Type == ChannelType.Voice || this.Type == ChannelType.Stage
+                : (IReadOnlyList<DiscordMember>)(this.Type == DiscordChannelType.Voice || this.Type == DiscordChannelType.Stage
                 ? this.Guild.Members.Values.Where(x => x.VoiceState?.ChannelId == this.Id).ToList()
-                : this.Guild.Members.Values.Where(x => (this.PermissionsFor(x) & Permissions.AccessChannels) == Permissions.AccessChannels).ToList());
+                : this.Guild.Members.Values.Where(x => (this.PermissionsFor(x) & DiscordPermissions.AccessChannels) == DiscordPermissions.AccessChannels).ToList());
         }
     }
 
@@ -214,7 +214,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <para>Only sent on the resolved channels of interaction responses for application commands.</para>
     /// </summary>
     [JsonProperty("permissions")]
-    public Permissions? UserPermissions { get; internal set; }
+    public DiscordPermissions? UserPermissions { get; internal set; }
 
     internal DiscordChannel() => this._permissionOverwritesLazy = new Lazy<IReadOnlyList<DiscordOverwrite>>(() => new ReadOnlyCollection<DiscordOverwrite>(this._permissionOverwrites));
 
@@ -312,14 +312,14 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// </summary>
     /// <param name="name">The name of the event, up to 100 characters.</param>
     /// <param name="description">The description of this event, up to 1000 characters.</param>
-    /// <param name="privacyLevel">The privacy level. Currently only <see cref="ScheduledGuildEventPrivacyLevel.GuildOnly"/> is supported</param>
+    /// <param name="privacyLevel">The privacy level. Currently only <see cref="DiscordScheduledGuildEventPrivacyLevel.GuildOnly"/> is supported</param>
     /// <param name="start">When this event starts.</param>
     /// <param name="end">When this event ends. External events require an end time.</param>
     /// <returns>The created event.</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public Task<DiscordScheduledGuildEvent> CreateGuildEventAsync(string name, string description, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end)
-        => this.Type is not (ChannelType.Voice or ChannelType.Stage) ? throw new InvalidOperationException("Events can only be created on voice an stage chnanels") :
-            this.Guild.CreateEventAsync(name, description, this.Id, this.Type is ChannelType.Stage ? ScheduledGuildEventType.StageInstance : ScheduledGuildEventType.VoiceChannel, privacyLevel, start, end);
+    public Task<DiscordScheduledGuildEvent> CreateGuildEventAsync(string name, string description, DiscordScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end)
+        => this.Type is not (DiscordChannelType.Voice or DiscordChannelType.Stage) ? throw new InvalidOperationException("Events can only be created on voice an stage chnanels") :
+            this.Guild.CreateEventAsync(name, description, this.Id, this.Type is DiscordChannelType.Stage ? ScheduledGuildEventType.StageInstance : ScheduledGuildEventType.VoiceChannel, privacyLevel, start, end);
 
     // Please send memes to Naamloos#2887 at discord <3 thank you
 
@@ -361,13 +361,13 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         int? userLimit = this.UserLimit;
         Optional<int?> perUserRateLimit = this.PerUserRateLimit;
 
-        if (this.Type != ChannelType.Voice)
+        if (this.Type != DiscordChannelType.Voice)
         {
             bitrate = null;
             userLimit = null;
         }
 
-        if (this.Type != ChannelType.Text)
+        if (this.Type != DiscordChannelType.Text)
         {
             perUserRateLimit = Optional.FromNoValue<int?>();
         }
@@ -607,7 +607,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<ThreadQueryResult> ListPublicArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0)
     {
-        return this.Type != ChannelType.Text && this.Type != ChannelType.News
+        return this.Type != DiscordChannelType.Text && this.Type != DiscordChannelType.News
             ? throw new InvalidOperationException()
             : await this.Discord.ApiClient.ListPublicArchivedThreadsAsync(this.GuildId.Value, this.Id, before?.ToString("o"), limit);
     }
@@ -616,13 +616,13 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// Gets the threads that are private and archived for this channel.
     /// </summary>
     /// <returns>A <seealso cref="ThreadQueryResult"/> containing the threads for this query and if an other call will yield more threads.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> and the <see cref="Permissions.ManageThreads"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ReadMessageHistory"/> and the <see cref="Permissions.ManageThreads"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<ThreadQueryResult> ListPrivateArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0)
     {
-        return this.Type != ChannelType.Text && this.Type != ChannelType.News
+        return this.Type != DiscordChannelType.Text && this.Type != DiscordChannelType.News
             ? throw new InvalidOperationException()
             : await this.Discord.ApiClient.ListPrivateArchivedThreadsAsync(this.GuildId.Value, this.Id, limit, before?.ToString("o"));
     }
@@ -631,13 +631,13 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// Gets the private and archived threads that the current member has joined in this channel.
     /// </summary>
     /// <returns>A <seealso cref="ThreadQueryResult"/> containing the threads for this query and if an other call will yield more threads.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ReadMessageHistory"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<ThreadQueryResult> ListJoinedPrivateArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0)
     {
-        return this.Type != ChannelType.Text && this.Type != ChannelType.News
+        return this.Type != DiscordChannelType.Text && this.Type != DiscordChannelType.News
             ? throw new InvalidOperationException()
             : await this.Discord.ApiClient.ListJoinedPrivateArchivedThreadsAsync(this.GuildId.Value, this.Id, limit, (ulong?)before?.ToUnixTimeSeconds());
     }
@@ -788,7 +788,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, string reason = null, InviteTargetType? targetType = null, ulong? targetUserId = null, ulong? targetApplicationId = null)
+    public async Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, string reason = null, DiscordInviteTargetType? targetType = null, ulong? targetUserId = null, ulong? targetApplicationId = null)
         => await this.Discord.ApiClient.CreateChannelInviteAsync(this.Id, max_age, max_uses, temporary, unique, reason, targetType, targetUserId, targetApplicationId);
 
     /// <summary>
@@ -799,11 +799,11 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <param name="deny">The permissions to deny.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageRoles"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task AddOverwriteAsync(DiscordMember member, Permissions allow = Permissions.None, Permissions deny = Permissions.None, string reason = null)
+    public async Task AddOverwriteAsync(DiscordMember member, DiscordPermissions allow = DiscordPermissions.None, DiscordPermissions deny = DiscordPermissions.None, string? reason = null)
         => await this.Discord.ApiClient.EditChannelPermissionsAsync(this.Id, member.Id, allow, deny, "member", reason);
 
     /// <summary>
@@ -814,11 +814,11 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <param name="deny">The permissions to deny.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageRoles"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task AddOverwriteAsync(DiscordRole role, Permissions allow = Permissions.None, Permissions deny = Permissions.None, string reason = null)
+    public async Task AddOverwriteAsync(DiscordRole role, DiscordPermissions allow = DiscordPermissions.None, DiscordPermissions deny = DiscordPermissions.None, string? reason = null)
         => await this.Discord.ApiClient.EditChannelPermissionsAsync(this.Id, role.Id, allow, deny, "role", reason);
 
     /// <summary>
@@ -876,7 +876,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<IReadOnlyList<DiscordMessage>> GetPinnedMessagesAsync()
     {
-        return !Utilities.IsTextableChannel(this) || this.Type is ChannelType.Voice
+        return !Utilities.IsTextableChannel(this) || this.Type is DiscordChannelType.Voice
             ? throw new ArgumentException("A non-text channel does not have pinned messages.")
             : await this.Discord.ApiClient.GetPinnedMessagesAsync(this.Id);
     }
@@ -929,7 +929,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task PlaceMemberAsync(DiscordMember member)
     {
-        if (this.Type != ChannelType.Voice && this.Type != ChannelType.Stage)
+        if (this.Type is not DiscordChannelType.Voice and not DiscordChannelType.Stage)
         {
             throw new ArgumentException("Cannot place a member in a non-voice channel!"); // be a little more angry, let em learn!!1
         }
@@ -946,7 +946,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="UnauthorizedException">Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> on the target channel</exception>
     public async Task<DiscordFollowedChannel> FollowAsync(DiscordChannel targetChannel)
     {
-        return this.Type != ChannelType.News
+        return this.Type != DiscordChannelType.News
             ? throw new ArgumentException("Cannot follow a non-news channel.")
             : await this.Discord.ApiClient.FollowChannelAsync(this.Id, targetChannel.Id);
     }
@@ -961,7 +961,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// </exception>
     public async Task<DiscordMessage> CrosspostMessageAsync(DiscordMessage message)
     {
-        return (message.Flags & MessageFlags.Crossposted) == MessageFlags.Crossposted
+        return (message.Flags & DiscordMessageFlags.Crossposted) == DiscordMessageFlags.Crossposted
             ? throw new ArgumentException("Message is already crossposted.")
             : await this.Discord.ApiClient.CrosspostMessageAsync(this.Id, message.Id);
     }
@@ -974,7 +974,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="ArgumentException">Thrown when the channel is not a stage channel.</exception>
     public async Task UpdateCurrentUserVoiceStateAsync(bool? suppress, DateTimeOffset? requestToSpeakTimestamp = null)
     {
-        if (this.Type != ChannelType.Stage)
+        if (this.Type != DiscordChannelType.Stage)
         {
             throw new ArgumentException("Voice state can only be updated in a stage channel.");
         }
@@ -989,9 +989,9 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <param name="privacyLevel">The privacy level of the stage instance.</param>
     /// <param name="reason">The reason the stage instance was created.</param>
     /// <returns>The created stage instance.</returns>
-    public async Task<DiscordStageInstance> CreateStageInstanceAsync(string topic, PrivacyLevel? privacyLevel = null, string reason = null)
+    public async Task<DiscordStageInstance> CreateStageInstanceAsync(string topic, DiscordStagePrivacyLevel? privacyLevel = null, string reason = null)
     {
-        return this.Type != ChannelType.Stage
+        return this.Type != DiscordChannelType.Stage
             ? throw new ArgumentException("A stage instance can only be created in a stage channel.")
             : await this.Discord.ApiClient.CreateStageInstanceAsync(this.Id, topic, privacyLevel, reason);
     }
@@ -1002,7 +1002,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <returns>The stage instance in the channel.</returns>
     public async Task<DiscordStageInstance> GetStageInstanceAsync()
     {
-        return this.Type != ChannelType.Stage
+        return this.Type != DiscordChannelType.Stage
             ? throw new ArgumentException("A stage instance can only be created in a stage channel.")
             : await this.Discord.ApiClient.GetStageInstanceAsync(this.Id);
     }
@@ -1014,7 +1014,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <returns>The modified stage instance.</returns>
     public async Task<DiscordStageInstance> ModifyStageInstanceAsync(Action<StageInstanceEditModel> action)
     {
-        if (this.Type != ChannelType.Stage)
+        if (this.Type != DiscordChannelType.Stage)
         {
             throw new ArgumentException("A stage instance can only be created in a stage channel.");
         }
@@ -1036,7 +1036,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// </summary>
     /// <param name="mbr">Member to calculate permissions for.</param>
     /// <returns>Calculated permissions for a given member.</returns>
-    public Permissions PermissionsFor(DiscordMember mbr)
+    public DiscordPermissions PermissionsFor(DiscordMember mbr)
     {
         // future note: might be able to simplify @everyone role checks to just check any role ... but I'm not sure
         // xoxo, ~uwx
@@ -1059,9 +1059,9 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             return this.Parent.PermissionsFor(mbr);
         }
 
-        if (this.IsPrivate || this.Guild == null)
+        if (this.IsPrivate || this.Guild is null)
         {
-            return Permissions.None;
+            return DiscordPermissions.None;
         }
 
         if (this.Guild.OwnerId == mbr.Id)
@@ -1069,7 +1069,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             return PermissionMethods.FULL_PERMS;
         }
 
-        Permissions perms;
+        DiscordPermissions perms;
 
         // assign @everyone permissions
         DiscordRole everyoneRole = this.Guild.EveryoneRole;
@@ -1079,10 +1079,10 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         DiscordRole[] mbRoles = mbr.Roles.Where(xr => xr.Id != everyoneRole.Id).ToArray();
 
         // assign permissions from member's roles (in order)
-        perms |= mbRoles.Aggregate(Permissions.None, (c, role) => c | role.Permissions);
+        perms |= mbRoles.Aggregate(DiscordPermissions.None, (c, role) => c | role.Permissions);
 
         // Administrator grants all permissions and cannot be overridden
-        if ((perms & Permissions.Administrator) == Permissions.Administrator)
+        if ((perms & DiscordPermissions.Administrator) == DiscordPermissions.Administrator)
         {
             return PermissionMethods.FULL_PERMS;
         }
@@ -1102,9 +1102,9 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         }
 
         // assign channel permission overwrites for member's roles (explicit deny)
-        perms &= ~mbRoleOverrides.Aggregate(Permissions.None, (c, overs) => c | overs.Denied);
+        perms &= ~mbRoleOverrides.Aggregate(DiscordPermissions.None, (c, overs) => c | overs.Denied);
         // assign channel permission overwrites for member's roles (explicit allow)
-        perms |= mbRoleOverrides.Aggregate(Permissions.None, (c, overs) => c | overs.Allowed);
+        perms |= mbRoleOverrides.Aggregate(DiscordPermissions.None, (c, overs) => c | overs.Allowed);
 
         // channel overrides for just this member
         DiscordOverwrite? mbOverrides = this._permissionOverwrites.FirstOrDefault(xo => xo.Id == mbr.Id);
@@ -1125,7 +1125,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// </summary>
     /// <param name="role">Role to calculate permissions for.</param>
     /// <returns>Calculated permissions for a given role.</returns>
-    public Permissions PermissionsFor(DiscordRole role)
+    public DiscordPermissions PermissionsFor(DiscordRole role)
     {
         if (this.IsThread)
         {
@@ -1134,7 +1134,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         
         if (this.IsPrivate || this.Guild is null)
         {
-            return Permissions.None;
+            return DiscordPermissions.None;
         }
         
         if (role._guild_id != this.Guild.Id)
@@ -1142,7 +1142,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             throw new ArgumentException("Given role does not belong to this channel's guild.");
         }
         
-        Permissions perms;
+        DiscordPermissions perms;
 
         // assign @everyone permissions
         DiscordRole everyoneRole = this.Guild.EveryoneRole;
@@ -1152,7 +1152,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         perms |= role.Permissions;
         
         // Administrator grants all permissions and cannot be overridden
-        if ((perms & Permissions.Administrator) == Permissions.Administrator)
+        if ((perms & DiscordPermissions.Administrator) == DiscordPermissions.Administrator)
         {
             return PermissionMethods.FULL_PERMS;
         }
@@ -1175,7 +1175,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             return perms;
         }
         
-        Permissions roleDenied = roleOverwrites.Denied;
+        DiscordPermissions roleDenied = roleOverwrites.Denied;
 
         if (everyoneRoleOverwrites is not null)
         {
@@ -1198,12 +1198,12 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     public override string ToString()
     {
 #pragma warning disable IDE0046 // we don't want this to become a double ternary
-        if (this.Type == ChannelType.Category)
+        if (this.Type == DiscordChannelType.Category)
         {
             return $"Channel Category {this.Name} ({this.Id})";
         }
 
-        return this.Type == ChannelType.Text || this.Type == ChannelType.News
+        return this.Type is DiscordChannelType.Text or DiscordChannelType.News
             ? $"Channel #{this.Name} ({this.Id})"
             : !string.IsNullOrWhiteSpace(this.Name) ? $"Channel {this.Name} ({this.Id})" : $"Channel {this.Id}";
 #pragma warning restore IDE0046
@@ -1222,9 +1222,9 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="NotFoundException">Thrown when the channel or message does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordThreadChannel> CreateThreadAsync(DiscordMessage message, string name, AutoArchiveDuration archiveAfter, string reason = null)
+    public async Task<DiscordThreadChannel> CreateThreadAsync(DiscordMessage message, string name, DiscordAutoArchiveDuration archiveAfter, string reason = null)
     {
-        if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
+        if (this.Type != DiscordChannelType.Text && this.Type != DiscordChannelType.News)
         {
             throw new ArgumentException("Threads can only be created within text or news channels.");
         }
@@ -1249,17 +1249,17 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="NotFoundException">Thrown when the channel or message does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordThreadChannel> CreateThreadAsync(string name, AutoArchiveDuration archiveAfter, ChannelType threadType, string reason = null)
+    public async Task<DiscordThreadChannel> CreateThreadAsync(string name, DiscordAutoArchiveDuration archiveAfter, DiscordChannelType threadType, string reason = null)
     {
-        if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
+        if (this.Type is not DiscordChannelType.Text and not DiscordChannelType.News)
         {
             throw new InvalidOperationException("Threads can only be created within text or news channels.");
         }
-        else if (this.Type != ChannelType.News && threadType == ChannelType.NewsThread)
+        else if (this.Type != DiscordChannelType.News && threadType == DiscordChannelType.NewsThread)
         {
             throw new InvalidOperationException("News threads can only be created within a news channels.");
         }
-        else if (threadType != ChannelType.PublicThread && threadType != ChannelType.PrivateThread && threadType != ChannelType.NewsThread)
+        else if (threadType is not DiscordChannelType.PublicThread and not DiscordChannelType.PrivateThread and not DiscordChannelType.NewsThread)
         {
             throw new ArgumentException("Given channel type for creating a thread is not a valid type of thread.");
         }

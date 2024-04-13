@@ -7,7 +7,7 @@ namespace DSharpPlus.Entities;
 public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
 {
     [JsonProperty("channel_types", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyList<ChannelType> ChannelTypes { get; internal set; }
+    public IReadOnlyList<DiscordChannelType> ChannelTypes { get; internal set; }
     
     [JsonProperty("default_values", NullValueHandling = NullValueHandling.Ignore)]
     private List<DiscordSelectDefaultValue> _defaultValues = new();
@@ -91,7 +91,7 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
         return this;
     }
 
-    internal DiscordChannelSelectComponent() => this.Type = ComponentType.ChannelSelect;
+    internal DiscordChannelSelectComponent() => this.Type = DiscordComponentType.ChannelSelect;
 
     /// <summary>
     /// Creates a new channel select component.
@@ -106,10 +106,10 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
     (
         string customId,
         string placeholder,
-        IEnumerable<ChannelType>? channelTypes = null,
+        IEnumerable<DiscordChannelType>? channelTypes = null,
         bool disabled = false,
         int minOptions = 1,
         int maxOptions = 1
-    ) : base(ComponentType.ChannelSelect, customId, placeholder, disabled, minOptions, maxOptions) =>
+    ) : base(DiscordComponentType.ChannelSelect, customId, placeholder, disabled, minOptions, maxOptions) =>
         this.ChannelTypes = channelTypes?.ToList();
 }

@@ -53,7 +53,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="end">When the event ends. Required for <see cref="ScheduledGuildEventType.External"/></param>
     /// <param name="location">Where this location takes place.</param>
     /// <returns>The created event.</returns>
-    public async Task<DiscordScheduledGuildEvent> CreateScheduledGuildEventAsync(ulong guildId, string name, string description, ulong? channelId, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, Stream? image = null, string location = null)
+    public async Task<DiscordScheduledGuildEvent> CreateScheduledGuildEventAsync(ulong guildId, string name, string description, ulong? channelId, ScheduledGuildEventType type, DiscordScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, Stream? image = null, string location = null)
         => await this.ApiClient.CreateScheduledGuildEventAsync(guildId, name, description, start, type, privacyLevel, new DiscordScheduledGuildEventMetadata(location), end, channelId, image);
 
     /// <summary>
@@ -197,7 +197,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="defaultMessageNotifications">New guild's default message notification level</param>
     /// <param name="systemChannelFlags">New guild's system channel flags</param>
     /// <returns></returns>
-    public async Task<DiscordGuild> CreateGuildAsync(string name, string regionId, string iconb64, VerificationLevel? verificationLevel, DefaultMessageNotifications? defaultMessageNotifications, SystemChannelFlags? systemChannelFlags)
+    public async Task<DiscordGuild> CreateGuildAsync(string name, string regionId, string iconb64, VerificationLevel? verificationLevel, DiscordDefaultMessageNotifications? defaultMessageNotifications, SystemChannelFlags? systemChannelFlags)
         => await this.ApiClient.CreateGuildAsync(name, regionId, iconb64, verificationLevel, defaultMessageNotifications, systemChannelFlags);
 
     /// <summary>
@@ -246,8 +246,8 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns></returns>
     public async Task<DiscordGuild> ModifyGuildAsync(ulong guildId, Optional<string> name,
         Optional<string> region, Optional<VerificationLevel> verificationLevel,
-        Optional<DefaultMessageNotifications> defaultMessageNotifications, Optional<MfaLevel> mfaLevel,
-        Optional<ExplicitContentFilter> explicitContentFilter, Optional<ulong?> afkChannelId,
+        Optional<DiscordDefaultMessageNotifications> defaultMessageNotifications, Optional<DiscordMfaLevel> mfaLevel,
+        Optional<DiscordExplicitContentFilter> explicitContentFilter, Optional<ulong?> afkChannelId,
         Optional<int> afkTimeout, Optional<string> iconb64, Optional<ulong> ownerId, Optional<string> splashb64,
         Optional<ulong?> systemChannelId, Optional<string> banner, Optional<string> description,
         Optional<string> discorverySplash, Optional<IEnumerable<string>> features, Optional<string> preferredLocale,

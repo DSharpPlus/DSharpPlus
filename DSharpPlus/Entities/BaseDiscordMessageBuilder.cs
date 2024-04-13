@@ -31,11 +31,11 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     }
     internal string? _content;
 
-    public MessageFlags Flags { get; internal set; }
+    public DiscordMessageFlags Flags { get; internal set; }
 
     public T SuppressNotifications()
     {
-        this.Flags |= MessageFlags.SuppressNotifications;
+        this.Flags |= DiscordMessageFlags.SuppressNotifications;
         return (T)this;
     }
 
@@ -529,7 +529,7 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// </summary>
     IReadOnlyList<IMention> Mentions { get; }
 
-    MessageFlags Flags { get; }
+    DiscordMessageFlags Flags { get; }
 
     /// <summary>
     /// Adds content to this message

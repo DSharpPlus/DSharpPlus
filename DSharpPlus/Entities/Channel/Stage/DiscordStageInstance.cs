@@ -46,7 +46,7 @@ public sealed class DiscordStageInstance : SnowflakeObject
     /// Gets the privacy level of this stage instance.
     /// </summary>
     [JsonProperty("privacy_level")]
-    public PrivacyLevel PrivacyLevel { get; internal set; }
+    public DiscordStagePrivacyLevel PrivacyLevel { get; internal set; }
 
     /// <summary>
     /// Gets whether or not stage discovery is disabled.

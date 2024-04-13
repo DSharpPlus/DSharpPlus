@@ -15,7 +15,7 @@ public abstract class DiscordInteractionMetadata : SnowflakeObject
     /// Type of interaction.
     /// </summary>
     [JsonProperty("type")]
-    public InteractionType Type { get; internal set; }
+    public DiscordInteractionType Type { get; internal set; }
 
     /// <summary>
     /// Discord user object for the invoking user, if invoked in a DM.

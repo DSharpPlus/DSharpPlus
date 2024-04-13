@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using DSharpPlus.Entities;
+
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions;
@@ -48,7 +50,7 @@ internal sealed class RestUserGuild
     public bool? IsOwner { get; set; }
 
     [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
-    public Permissions Permissions { get; set; }
+    public DiscordPermissions Permissions { get; set; }
 }
 
 internal sealed class RestUserGuildListPayload

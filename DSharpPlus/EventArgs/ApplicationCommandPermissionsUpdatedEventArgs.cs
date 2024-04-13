@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using DSharpPlus.Entities;
+
 using Newtonsoft.Json;
 namespace DSharpPlus.EventArgs;
 
@@ -47,5 +49,5 @@ public class ApplicationCommandPermissionUpdate
     ///
     /// </summary>
     [JsonProperty("type")]
-    public ApplicationCommandPermissionType Type { get; internal set; }
+    public DiscordApplicationCommandPermissionType Type { get; internal set; }
 }

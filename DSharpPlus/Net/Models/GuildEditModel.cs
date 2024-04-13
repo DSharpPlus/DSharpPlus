@@ -24,22 +24,22 @@ public class GuildEditModel : BaseEditModel
     /// <summary>
     /// The new guild verification level.
     /// </summary>
-    public Optional<VerificationLevel> VerificationLevel { internal get; set; }
+    public Optional<DiscordVerificationLevel> VerificationLevel { internal get; set; }
 
     /// <summary>
     /// The new guild default message notification level.
     /// </summary>
-    public Optional<DefaultMessageNotifications> DefaultMessageNotifications { internal get; set; }
+    public Optional<DiscordDefaultMessageNotifications> DefaultMessageNotifications { internal get; set; }
 
     /// <summary>
     /// The new guild MFA level.
     /// </summary>
-    public Optional<MfaLevel> MfaLevel { internal get; set; }
+    public Optional<DiscordMfaLevel> MfaLevel { internal get; set; }
 
     /// <summary>
     /// The new guild explicit content filter level.
     /// </summary>
-    public Optional<ExplicitContentFilter> ExplicitContentFilter { internal get; set; }
+    public Optional<DiscordExplicitContentFilter> ExplicitContentFilter { internal get; set; }
 
     /// <summary>
     /// The new AFK voice channel.
@@ -104,7 +104,7 @@ public class GuildEditModel : BaseEditModel
     /// <summary>
     /// The new system channel flags for the guild
     /// </summary>
-    public Optional<SystemChannelFlags> SystemChannelFlags { get; set; }
+    public Optional<DiscordSystemChannelFlags> SystemChannelFlags { get; set; }
 
     internal GuildEditModel()
     {

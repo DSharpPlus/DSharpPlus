@@ -36,9 +36,9 @@ public sealed class DiscordSelectComponent : BaseDiscordSelectComponent
         return this;
     }
 
-    internal DiscordSelectComponent() => this.Type = ComponentType.StringSelect;
+    internal DiscordSelectComponent() => this.Type = DiscordComponentType.StringSelect;
 
     public DiscordSelectComponent(string customId, string placeholder, IEnumerable<DiscordSelectComponentOption> options, bool disabled = false, int minOptions = 1, int maxOptions = 1) 
-        : base(ComponentType.StringSelect, customId, placeholder, disabled, minOptions, maxOptions) 
+        : base(DiscordComponentType.StringSelect, customId, placeholder, disabled, minOptions, maxOptions) 
         => this.Options = options.ToArray();
 }

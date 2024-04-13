@@ -1,9 +1,9 @@
-namespace DSharpPlus.Entities;
+namespace DSharpPlus;
 
 /// <summary>
 /// Token type
 /// </summary>
-public enum DiscordTokenType
+public enum TokenType
 {
     /// <summary>
     /// Bot token type

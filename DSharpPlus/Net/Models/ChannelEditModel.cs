@@ -57,13 +57,13 @@ public class ChannelEditModel : BaseEditModel
     /// <summary>
     /// <para>Sets the voice channel's video quality.</para>
     /// </summary>
-    public VideoQualityMode? QualityMode { internal get; set; }
+    public DiscordVideoQualityMode? QualityMode { internal get; set; }
 
     /// <summary>
     /// <para>Sets the channel's type.</para>
     /// <para>This can only be used to convert between text and news channels.</para>
     /// </summary>
-    public Optional<ChannelType> Type { internal get; set; }
+    public Optional<DiscordChannelType> Type { internal get; set; }
 
     /// <summary>
     /// <para>Sets the channel's permission overwrites.</para>
@@ -73,12 +73,12 @@ public class ChannelEditModel : BaseEditModel
     /// <summary>
     /// <para>Sets the channel's auto-archive duration.</para>
     /// </summary>
-    public Optional<AutoArchiveDuration?> DefaultAutoArchiveDuration { internal get; set; }
+    public Optional<DiscordAutoArchiveDuration?> DefaultAutoArchiveDuration { internal get; set; }
 
     /// <summary>
     /// <para>Sets the channel's flags (forum channels and posts only).</para>
     /// </summary>
-    public Optional<ChannelFlags> Flags { internal get; set; }
+    public Optional<DiscordChannelFlags> Flags { internal get; set; }
 
     /// <summary>
     /// <para>Sets the channel's available tags.</para>
@@ -99,12 +99,12 @@ public class ChannelEditModel : BaseEditModel
     /// <summary>
     /// Sets the default sort order of posts in this channel.
     /// </summary>
-    public Optional<DefaultSortOrder?> DefaultSortOrder { internal get; set; }
+    public Optional<DiscordDefaultSortOrder?> DefaultSortOrder { internal get; set; }
 
     /// <summary>
     /// Sets the default layout of posts in this channel.
     /// </summary>
-    public Optional<DefaultForumLayout> DefaultForumLayout { internal get; set; }
+    public Optional<DiscordDefaultForumLayout> DefaultForumLayout { internal get; set; }
 
     internal ChannelEditModel() { }
 }

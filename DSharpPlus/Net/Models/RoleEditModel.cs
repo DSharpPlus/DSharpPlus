@@ -12,7 +12,7 @@ public class RoleEditModel : BaseEditModel
     /// <summary>
     /// New role permissions
     /// </summary>
-    public Permissions? Permissions { internal get; set; }
+    public DiscordPermissions? Permissions { internal get; set; }
     /// <summary>
     /// New role color
     /// </summary>

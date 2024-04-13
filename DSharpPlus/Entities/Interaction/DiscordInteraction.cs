@@ -20,7 +20,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// Gets the type of interaction invoked.
     /// </summary>
     [JsonProperty("type")]
-    public InteractionType Type { get; internal set; }
+    public DiscordInteractionType Type { get; internal set; }
 
     /// <summary>
     /// Gets the command data for this interaction.
@@ -52,7 +52,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     [JsonIgnore]
     public DiscordChannel Channel
-        => (this.Discord as DiscordClient).InternalGetCachedChannel(this.ChannelId) ?? (DiscordChannel)(this.Discord as DiscordClient).InternalGetCachedThread(this.ChannelId) ?? (this.Guild == null ? new DiscordDmChannel { Id = this.ChannelId, Type = ChannelType.Private, Discord = this.Discord, Recipients = new DiscordUser[] { this.User } } : null);
+        => (this.Discord as DiscordClient).InternalGetCachedChannel(this.ChannelId) ?? (DiscordChannel)(this.Discord as DiscordClient).InternalGetCachedThread(this.ChannelId) ?? (this.Guild == null ? new DiscordDmChannel { Id = this.ChannelId, Type = DiscordChannelType.Private, Discord = this.Discord, Recipients = new DiscordUser[] { this.User } } : null);
 
     /// <summary>
     /// Gets the user that invoked this interaction.
@@ -106,7 +106,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// In the context of the bot's DM, it also includes `USE_EXTERNAL_EMOJI`.  
     /// </remarks>
     [JsonProperty("app_permissions", NullValueHandling = NullValueHandling.Ignore)]
-    public Permissions AppPermissions { get; internal set; }
+    public DiscordPermissions AppPermissions { get; internal set; }
 
     /// <summary>
     /// Gets the interactions that authorized the interaction.
@@ -114,10 +114,10 @@ public sealed class DiscordInteraction : SnowflakeObject
     ///         This dictionary contains the following:
     ///         <list type="bullet">
     ///             <item>
-    ///                 If the interaction is installed to a user, a key of <see cref="ApplicationIntegrationType.User"/> and a value of the user's ID.
+    ///                 If the interaction is installed to a user, a key of <see cref="DiscordApplicationIntegrationType.User"/> and a value of the user's ID.
     ///             </item>
     ///             <item>
-    ///                 If the interaction is installed to a guild, a key of <see cref="ApplicationIntegrationType.Guild"/> and a value of the guild's ID.
+    ///                 If the interaction is installed to a guild, a key of <see cref="DiscordApplicationIntegrationType.Guild"/> and a value of the guild's ID.
     ///                 <list type="bullet">
     ///                     <item>
     ///                         IF the interaction was sent from a guild context, the above holds true, otherwise the ID is 0. 
@@ -144,14 +144,14 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     /// <param name="type">The type of the response.</param>
     /// <param name="builder">The data, if any, to send.</param>
-    public async Task CreateResponseAsync(InteractionResponseType type, DiscordInteractionResponseBuilder builder = null)
+    public async Task CreateResponseAsync(DiscordInteractionResponseType type, DiscordInteractionResponseBuilder builder = null)
     {
         if (this.ResponseState is not DiscordInteractionResponseState.Unacknowledged)
         {
             throw new InvalidOperationException("A response has already been made to this interaction.");
         }
 
-        this.ResponseState = type == InteractionResponseType.DeferredChannelMessageWithSource
+        this.ResponseState = type == DiscordInteractionResponseType.DeferredChannelMessageWithSource
             ? DiscordInteractionResponseState.Deferred
             : DiscordInteractionResponseState.Replied;
         
@@ -163,7 +163,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     /// <param name="ephemeral">Whether the response should be ephemeral.</param>
     public Task DeferAsync(bool ephemeral = false) => this.CreateResponseAsync(
-        InteractionResponseType.DeferredChannelMessageWithSource,
+        DiscordInteractionResponseType.DeferredChannelMessageWithSource,
         new DiscordInteractionResponseBuilder().AsEphemeral(ephemeral));
 
     /// <summary>

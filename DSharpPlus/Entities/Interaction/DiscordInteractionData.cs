@@ -57,11 +57,11 @@ public sealed class DiscordInteractionData : SnowflakeObject
     /// The type of component that invoked this interaction, if applicable.
     /// </summary>
     [JsonProperty("component_type", NullValueHandling = NullValueHandling.Ignore)]
-    public ComponentType ComponentType { get; internal set; }
+    public DiscordComponentType ComponentType { get; internal set; }
 
     [JsonProperty("values", NullValueHandling = NullValueHandling.Ignore)]
     public string[] Values { get; internal set; } = Array.Empty<string>();
 
     [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-    public ApplicationCommandType Type { get; internal set; }
+    public DiscordApplicationCommandType Type { get; internal set; }
 }

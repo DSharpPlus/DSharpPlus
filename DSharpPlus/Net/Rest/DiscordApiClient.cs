@@ -65,7 +65,7 @@ public sealed class DiscordApiClient
 
         JToken? referencedMsg = msgRaw["referenced_message"];
 
-        if (message.MessageType == MessageType.Reply && !string.IsNullOrWhiteSpace(referencedMsg?.ToString()))
+        if (message.MessageType == DiscordMessageType.Reply && !string.IsNullOrWhiteSpace(referencedMsg?.ToString()))
         {
             TransportUser referencedAuthor = referencedMsg["author"]!.ToDiscordObject<TransportUser>();
             message.ReferencedMessage.Discord = this._discord!;
@@ -82,7 +82,7 @@ public sealed class DiscordApiClient
             {
                 Id = message.ChannelId,
                 Discord = this._discord!,
-                Type = ChannelType.Private
+                Type = DiscordChannelType.Private
             }
             : new DiscordChannel
             {
@@ -291,9 +291,9 @@ public sealed class DiscordApiClient
         string name,
         string regionId,
         Optional<string> iconb64 = default,
-        VerificationLevel? verificationLevel = null,
-        DefaultMessageNotifications? defaultMessageNotifications = null,
-        SystemChannelFlags? systemChannelFlags = null
+        DiscordVerificationLevel? verificationLevel = null,
+        DiscordDefaultMessageNotifications? defaultMessageNotifications = null,
+        DiscordSystemChannelFlags? systemChannelFlags = null
     )
     {
         RestGuildCreatePayload payload = new()
@@ -384,10 +384,10 @@ public sealed class DiscordApiClient
         ulong guildId,
         Optional<string> name = default,
         Optional<string> region = default,
-        Optional<VerificationLevel> verificationLevel = default,
-        Optional<DefaultMessageNotifications> defaultMessageNotifications = default,
-        Optional<MfaLevel> mfaLevel = default,
-        Optional<ExplicitContentFilter> explicitContentFilter = default,
+        Optional<DiscordVerificationLevel> verificationLevel = default,
+        Optional<DiscordDefaultMessageNotifications> defaultMessageNotifications = default,
+        Optional<DiscordMfaLevel> mfaLevel = default,
+        Optional<DiscordExplicitContentFilter> explicitContentFilter = default,
         Optional<ulong?> afkChannelId = default,
         Optional<int> afkTimeout = default,
         Optional<string> iconb64 = default,
@@ -401,7 +401,7 @@ public sealed class DiscordApiClient
         Optional<string> preferredLocale = default,
         Optional<ulong?> publicUpdatesChannelId = default,
         Optional<ulong?> rulesChannelId = default,
-        Optional<SystemChannelFlags> systemChannelFlags = default,
+        Optional<DiscordSystemChannelFlags> systemChannelFlags = default,
         string? reason = null
     )
     {
@@ -1488,21 +1488,21 @@ public sealed class DiscordApiClient
     (
         ulong guildId,
         string name,
-        ChannelType type,
+        DiscordChannelType type,
         ulong? parent,
         Optional<string> topic,
         int? bitrate,
         int? userLimit,
-        IEnumerable<DiscordOverwriteBuilder> overwrites,
+        IEnumerable<DiscordOverwriteBuilder>? overwrites,
         bool? nsfw,
         Optional<int?> perUserRateLimit,
-        VideoQualityMode? qualityMode,
+        DiscordVideoQualityMode? qualityMode,
         int? position,
         string reason,
-        AutoArchiveDuration? defaultAutoArchiveDuration,
+        DiscordAutoArchiveDuration? defaultAutoArchiveDuration,
         DefaultReaction? defaultReactionEmoji,
-        IEnumerable<DiscordForumTagBuilder> forumTags,
-        DefaultSortOrder? defaultSortOrder
+        IEnumerable<DiscordForumTagBuilder>? forumTags,
+        DiscordDefaultSortOrder? defaultSortOrder
 
     )
     {
@@ -1557,7 +1557,7 @@ public sealed class DiscordApiClient
         foreach (DiscordOverwrite xo in ret._permissionOverwrites)
         {
             xo.Discord = this._discord!;
-            xo._channel_id = ret.Id;
+            xo.channelId = ret.Id;
         }
 
         return ret;
@@ -1575,16 +1575,16 @@ public sealed class DiscordApiClient
         int? userLimit = null,
         Optional<int?> perUserRateLimit = default,
         Optional<string> rtcRegion = default,
-        VideoQualityMode? qualityMode = null,
-        Optional<ChannelType> type = default,
+        DiscordVideoQualityMode? qualityMode = null,
+        Optional<DiscordChannelType> type = default,
         IEnumerable<DiscordOverwriteBuilder>? permissionOverwrites = null,
-        Optional<ChannelFlags> flags = default,
+        Optional<DiscordChannelFlags> flags = default,
         IEnumerable<DiscordForumTagBuilder>? availableTags = null,
-        Optional<AutoArchiveDuration?> defaultAutoArchiveDuration = default,
+        Optional<DiscordAutoArchiveDuration?> defaultAutoArchiveDuration = default,
         Optional<DefaultReaction?> defaultReactionEmoji = default,
         Optional<int> defaultPerUserRatelimit = default,
-        Optional<DefaultSortOrder?> defaultSortOrder = default,
-        Optional<DefaultForumLayout> defaultForumLayout = default,
+        Optional<DiscordDefaultSortOrder?> defaultSortOrder = default,
+        Optional<DiscordDefaultForumLayout> defaultForumLayout = default,
         string? reason = null
     )
     {
@@ -1651,11 +1651,11 @@ public sealed class DiscordApiClient
         int? userLimit = null,
         Optional<int?> perUserRateLimit = default,
         Optional<string> rtcRegion = default,
-        VideoQualityMode? qualityMode = null,
-        Optional<ChannelType> type = default,
+        DiscordVideoQualityMode? qualityMode = null,
+        Optional<DiscordChannelType> type = default,
         IEnumerable<DiscordOverwriteBuilder>? permissionOverwrites = null,
         bool? isArchived = null,
-        AutoArchiveDuration? autoArchiveDuration = null,
+        DiscordAutoArchiveDuration? autoArchiveDuration = null,
         bool? locked = null,
         IEnumerable<ulong>? appliedTags = null,
         bool? isInvitable = null,
@@ -1751,7 +1751,7 @@ public sealed class DiscordApiClient
         string description,
         DateTimeOffset startTime,
         ScheduledGuildEventType type,
-        ScheduledGuildEventPrivacyLevel privacyLevel,
+        DiscordScheduledGuildEventPrivacyLevel privacyLevel,
         DiscordScheduledGuildEventMetadata? metadata = null,
         DateTimeOffset? endTime = null,
         ulong? channelId = null,
@@ -1915,7 +1915,7 @@ public sealed class DiscordApiClient
         Optional<DateTimeOffset> startTime = default,
         Optional<DateTimeOffset> endTime = default,
         Optional<ScheduledGuildEventType> type = default,
-        Optional<ScheduledGuildEventPrivacyLevel> privacyLevel = default,
+        Optional<DiscordScheduledGuildEventPrivacyLevel> privacyLevel = default,
         Optional<DiscordScheduledGuildEventMetadata> metadata = default,
         Optional<ScheduledGuildEventStatus> status = default,
         Optional<Stream> coverImage = default,
@@ -2003,7 +2003,7 @@ public sealed class DiscordApiClient
         foreach (DiscordOverwrite xo in ret._permissionOverwrites)
         {
             xo.Discord = this._discord!;
-            xo._channel_id = ret.Id;
+            xo.channelId = ret.Id;
         }
 
         return ret;
@@ -2154,7 +2154,7 @@ public sealed class DiscordApiClient
             IsTTS = false,
             HasEmbed = embeds?.Any() ?? false,
             Embeds = embeds,
-            Flags = suppressNotifications ? MessageFlags.SuppressNotifications : 0,
+            Flags = suppressNotifications ? DiscordMessageFlags.SuppressNotifications : 0,
         };
 
         if (replyMessageId != null)
@@ -2308,7 +2308,7 @@ public sealed class DiscordApiClient
             foreach (DiscordOverwrite xo in ret._permissionOverwrites)
             {
                 xo.Discord = this._discord!;
-                xo._channel_id = ret.Id;
+                xo.channelId = ret.Id;
             }
         }
 
@@ -2398,7 +2398,7 @@ public sealed class DiscordApiClient
         Optional<IEnumerable<IMention>> mentions = default,
         IReadOnlyList<DiscordActionRowComponent>? components = null,
         IReadOnlyCollection<DiscordMessageFile>? files = null,
-        MessageFlags? flags = null,
+        DiscordMessageFlags? flags = null,
         IEnumerable<DiscordAttachment>? attachments = null
     )
     {
@@ -2579,7 +2579,7 @@ public sealed class DiscordApiClient
         bool temporary,
         bool unique,
         string reason,
-        InviteTargetType? targetType = null,
+        DiscordInviteTargetType? targetType = null,
         ulong? targetUserId = null,
         ulong? targetApplicationId = null
     )
@@ -2652,8 +2652,8 @@ public sealed class DiscordApiClient
     (
         ulong channelId,
         ulong overwriteId,
-        Permissions allow,
-        Permissions deny,
+        DiscordPermissions allow,
+        DiscordPermissions deny,
         string type,
         string? reason = null
     )
@@ -2929,11 +2929,12 @@ public sealed class DiscordApiClient
     (
         ulong channelId,
         string topic,
-        PrivacyLevel? privacyLevel = null,
+        DiscordStagePrivacyLevel? privacyLevel = null,
         string? reason = null
     )
     {
         Dictionary<string, string> headers = new();
+
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
@@ -2993,11 +2994,12 @@ public sealed class DiscordApiClient
     (
         ulong channelId,
         Optional<string> topic = default,
-        Optional<PrivacyLevel> privacyLevel = default,
+        Optional<DiscordStagePrivacyLevel> privacyLevel = default,
         string? reason = null
     )
     {
         Dictionary<string, string> headers = new();
+
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
@@ -3097,7 +3099,7 @@ public sealed class DiscordApiClient
         ulong channelId,
         ulong messageId,
         string name,
-        AutoArchiveDuration archiveAfter,
+        DiscordAutoArchiveDuration archiveAfter,
         string? reason = null
     )
     {
@@ -3137,8 +3139,8 @@ public sealed class DiscordApiClient
     (
         ulong channelId,
         string name,
-        AutoArchiveDuration archiveAfter,
-        ChannelType type,
+        DiscordAutoArchiveDuration archiveAfter,
+        DiscordChannelType type,
         string? reason = null
     )
     {
@@ -3857,7 +3859,7 @@ public sealed class DiscordApiClient
         ulong guildId,
         ulong roleId,
         string? name = null,
-        Permissions? permissions = null,
+        DiscordPermissions? permissions = null,
         int? color = null,
         bool? hoist = null,
         bool? mentionable = null,
@@ -3943,7 +3945,7 @@ public sealed class DiscordApiClient
     (
         ulong guildId,
         string name,
-        Permissions? permissions = null,
+        DiscordPermissions? permissions = null,
         int? color = null,
         bool? hoist = null,
         bool? mentionable = null,
@@ -5523,7 +5525,7 @@ public sealed class DiscordApiClient
         IReadOnlyDictionary<string, string>? nameLocalizations = null,
         IReadOnlyDictionary<string, string>? descriptionLocalizations = null,
         Optional<bool> allowDmUsage = default,
-        Optional<Permissions?> defaultMemberPermissions = default,
+        Optional<DiscordPermissions?> defaultMemberPermissions = default,
         Optional<IEnumerable<InteractionContextType>> allowedContexts = default,
         Optional<IEnumerable<ApplicationIntegrationType>> installTypes = default
     )
@@ -5733,7 +5735,7 @@ public sealed class DiscordApiClient
         IReadOnlyDictionary<string, string>? nameLocalizations = null,
         IReadOnlyDictionary<string, string>? descriptionLocalizations = null,
         Optional<bool> allowDmUsage = default,
-        Optional<Permissions?> defaultMemberPermissions = default
+        Optional<DiscordPermissions?> defaultMemberPermissions = default
     )
     {
         RestApplicationCommandEditPayload pld = new()
@@ -5792,7 +5794,7 @@ public sealed class DiscordApiClient
     (
         ulong interactionId,
         string interactionToken,
-        InteractionResponseType type,
+        DiscordInteractionResponseType type,
         DiscordInteractionResponseBuilder? builder
     )
     {
@@ -6260,7 +6262,7 @@ public sealed class DiscordApiClient
         ulong channelId,
         string name,
         DiscordMessageBuilder message,
-        AutoArchiveDuration? autoArchiveDuration = null,
+        DiscordAutoArchiveDuration? autoArchiveDuration = null,
         int? rateLimitPerUser = null,
         IEnumerable<ulong>? appliedTags = null
     )

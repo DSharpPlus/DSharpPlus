@@ -39,7 +39,7 @@ public abstract class BaseDiscordSelectComponent : DiscordComponent
     
     internal BaseDiscordSelectComponent
     (
-        ComponentType type,
+        DiscordComponentType type,
         string customId,
         string placeholder,
         bool disabled = false,

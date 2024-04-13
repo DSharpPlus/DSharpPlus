@@ -10,7 +10,7 @@ public static class MessageFlagExtensions
     /// <param name="baseFlags">The existing flags.</param>
     /// <param name="flag">The flags to search for.</param>
     /// <returns></returns>
-    public static bool HasMessageFlag(this MessageFlags baseFlags, MessageFlags flag) => (baseFlags & flag) == flag;
+    public static bool HasMessageFlag(this DiscordMessageFlags baseFlags, DiscordMessageFlags flag) => (baseFlags & flag) == flag;
 }
 
 /// <summary>

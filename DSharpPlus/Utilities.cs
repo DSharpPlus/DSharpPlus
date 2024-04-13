@@ -24,18 +24,18 @@ public static partial class Utilities
     /// Gets the version of the library
     /// </summary>
     private static string VersionHeader { get; set; }
-    private static Dictionary<Permissions, string> PermissionStrings { get; set; }
+    private static Dictionary<DiscordPermissions, string> PermissionStrings { get; set; }
 
     internal static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
 
     static Utilities()
     {
-        PermissionStrings = new Dictionary<Permissions, string>();
-        Type t = typeof(Permissions);
+        PermissionStrings = new Dictionary<DiscordPermissions, string>();
+        Type t = typeof(DiscordPermissions);
         TypeInfo ti = t.GetTypeInfo();
-        IEnumerable<Permissions> vals = Enum.GetValues(t).Cast<Permissions>();
+        IEnumerable<DiscordPermissions> vals = Enum.GetValues(t).Cast<DiscordPermissions>();
 
-        foreach (Permissions xv in vals)
+        foreach (DiscordPermissions xv in vals)
         {
             string xsv = xv.ToString();
             MemberInfo? xmv = ti.DeclaredMembers.FirstOrDefault(xm => xm.Name == xsv);
@@ -176,15 +176,15 @@ public static partial class Utilities
     internal static bool IsTextableChannel(DiscordChannel channel)
         => channel.Type switch
         {
-            ChannelType.Text => true,
-            ChannelType.Voice => true,
-            ChannelType.Group => true,
-            ChannelType.Private => true,
-            ChannelType.PublicThread => true,
-            ChannelType.PrivateThread => true,
-            ChannelType.NewsThread => true,
-            ChannelType.News => true,
-            ChannelType.Stage => true,
+            DiscordChannelType.Text => true,
+            DiscordChannelType.Voice => true,
+            DiscordChannelType.Group => true,
+            DiscordChannelType.Private => true,
+            DiscordChannelType.PublicThread => true,
+            DiscordChannelType.PrivateThread => true,
+            DiscordChannelType.NewsThread => true,
+            DiscordChannelType.News => true,
+            DiscordChannelType.Stage => true,
             _ => false,
         };
 
@@ -266,9 +266,9 @@ public static partial class Utilities
     /// </summary>
     /// <param name="perm">Permissions enumeration to convert.</param>
     /// <returns>Human-readable permissions.</returns>
-    public static string ToPermissionString(this Permissions perm)
+    public static string ToPermissionString(this DiscordPermissions perm)
     {
-        if (perm == Permissions.None)
+        if (perm == DiscordPermissions.None)
         {
             return PermissionStrings[perm];
         }
@@ -276,7 +276,7 @@ public static partial class Utilities
         perm &= PermissionMethods.FULL_PERMS;
 
         IEnumerable<string> strs = PermissionStrings
-            .Where(xkvp => xkvp.Key != Permissions.None && (perm & xkvp.Key) == xkvp.Key)
+            .Where(xkvp => xkvp.Key != DiscordPermissions.None && (perm & xkvp.Key) == xkvp.Key)
             .Select(xkvp => xkvp.Value);
 
         return string.Join(", ", strs.OrderBy(xs => xs));

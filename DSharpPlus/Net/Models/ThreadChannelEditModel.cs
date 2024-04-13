@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 
+using DSharpPlus.Entities;
+
 namespace DSharpPlus.Net.Models;
 
 public class ThreadChannelEditModel : ChannelEditModel
@@ -12,7 +14,7 @@ public class ThreadChannelEditModel : ChannelEditModel
     /// <summary>
     /// Sets AutoArchiveDuration of the thread
     /// </summary>
-    public AutoArchiveDuration? AutoArchiveDuration { internal get; set; }
+    public DiscordAutoArchiveDuration? AutoArchiveDuration { internal get; set; }
 
     /// <summary>
     /// Sets if anyone can unarchive a thread
@@ -27,7 +29,7 @@ public class ThreadChannelEditModel : ChannelEditModel
     /// <summary>
     /// Sets the flags for the channel (Either PINNED or REQUIRE_TAG)
     /// </summary>
-    public ChannelFlags? Flags { internal get; set; }
+    public DiscordChannelFlags? Flags { internal get; set; }
     
     /// <summary>
     /// Sets whether non-moderators can add other non-moderators to a thread. Only available on private threads

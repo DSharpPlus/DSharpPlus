@@ -62,7 +62,7 @@ public class ApplicationCommandEditModel
     /// <summary>
     /// Sets the requisite permissions for the command.
     /// </summary>
-    public Optional<Permissions?> DefaultMemberPermissions { internal get; set; }
+    public Optional<DiscordPermissions?> DefaultMemberPermissions { internal get; set; }
 
     /// <summary>
     /// Sets whether this command is age restricted.

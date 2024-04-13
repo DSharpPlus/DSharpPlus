@@ -24,7 +24,7 @@ public class ScheduledGuildEventEditModel : BaseEditModel
     /// <summary>
     /// The new privacy of the event.
     /// </summary>
-    public Optional<ScheduledGuildEventPrivacyLevel> PrivacyLevel { get; set; }
+    public Optional<DiscordScheduledGuildEventPrivacyLevel> PrivacyLevel { get; set; }
 
     /// <summary>
     /// The type of the event.

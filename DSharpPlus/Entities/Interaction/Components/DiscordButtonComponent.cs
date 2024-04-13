@@ -12,7 +12,7 @@ public sealed class DiscordButtonComponent : DiscordComponent
     /// The style of the button.
     /// </summary>
     [JsonProperty("style", NullValueHandling = NullValueHandling.Ignore)]
-    public ButtonStyle Style { get; internal set; }
+    public DiscordButtonStyle Style { get; internal set; }
 
     /// <summary>
     /// The text to apply to the button. If this is not specified <see cref="Emoji"/> becomes required.
@@ -55,7 +55,7 @@ public sealed class DiscordButtonComponent : DiscordComponent
     /// <summary>
     /// Constructs a new <see cref="DiscordButtonComponent"/>.
     /// </summary>
-    internal DiscordButtonComponent() => this.Type = ComponentType.Button;
+    internal DiscordButtonComponent() => this.Type = DiscordComponentType.Button;
 
 
     /// <summary>
@@ -79,13 +79,13 @@ public sealed class DiscordButtonComponent : DiscordComponent
     /// <param name="label">The text to display on the button, up to 80 characters. Can be left blank if <paramref name="emoji"/>is set.</param>
     /// <param name="disabled">Whether this button should be initialized as being disabled. User sees a greyed out button that cannot be interacted with.</param>
     /// <param name="emoji">The emoji to add to the button. This is required if <paramref name="label"/> is empty or null.</param>
-    public DiscordButtonComponent(ButtonStyle style, string customId, string label, bool disabled = false, DiscordComponentEmoji emoji = null)
+    public DiscordButtonComponent(DiscordButtonStyle style, string customId, string label, bool disabled = false, DiscordComponentEmoji emoji = null)
     {
         this.Style = style;
         this.Label = label;
         this.CustomId = customId;
         this.Disabled = disabled;
         this.Emoji = emoji;
-        this.Type = ComponentType.Button;
+        this.Type = DiscordComponentType.Button;
     }
 }

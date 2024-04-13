@@ -3,7 +3,7 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Privacy level for a <see cref="DiscordScheduledGuildEvent"/>.
 /// </summary>
-public enum ScheduledGuildEventPrivacyLevel
+public enum DiscordScheduledGuildEventPrivacyLevel
 {
     /// <summary>
     /// This event is public.

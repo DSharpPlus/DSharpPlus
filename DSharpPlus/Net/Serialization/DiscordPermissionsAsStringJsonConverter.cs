@@ -3,28 +3,30 @@ namespace DSharpPlus.Net.Serialization;
 using System;
 using System.Globalization;
 
+using DSharpPlus.Entities;
+
 using Newtonsoft.Json;
 
 /// <summary>
 /// Facilitates serializing permissions as string.
 /// </summary>
-internal sealed class DiscordPermissionsAsStringJsonConverter : JsonConverter<Permissions>
+internal sealed class DiscordPermissionsAsStringJsonConverter : JsonConverter<DiscordPermissions>
 {
-    public override Permissions ReadJson
+    public override DiscordPermissions ReadJson
     (
         JsonReader reader,
         Type objectType,
-        Permissions existingValue,
+        DiscordPermissions existingValue,
         bool hasExistingValue,
         JsonSerializer serializer
     )
     {
         string? value = reader.ReadAsString();
 
-        return value is not null ? (Permissions)ulong.Parse(value) : existingValue;
+        return value is not null ? (DiscordPermissions)ulong.Parse(value) : existingValue;
     }
 
-    public override void WriteJson(JsonWriter writer, Permissions value, JsonSerializer serializer)
+    public override void WriteJson(JsonWriter writer, DiscordPermissions value, JsonSerializer serializer)
     {
         if ((ulong)value == 0)
         {

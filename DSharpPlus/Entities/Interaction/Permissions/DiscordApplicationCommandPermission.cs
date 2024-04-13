@@ -17,7 +17,7 @@ public class DiscordApplicationCommandPermission
     /// Gets the type of the permission.
     /// </summary>
     [JsonProperty("type")]
-    public ApplicationCommandPermissionType Type { get; internal set; }
+    public DiscordApplicationCommandPermissionType Type { get; internal set; }
 
     /// <summary>
     /// Gets whether the command is enabled for the role or user.
@@ -33,7 +33,7 @@ public class DiscordApplicationCommandPermission
     public DiscordApplicationCommandPermission(DiscordRole role, bool permission)
     {
         this.Id = role.Id;
-        this.Type = ApplicationCommandPermissionType.Role;
+        this.Type = DiscordApplicationCommandPermissionType.Role;
         this.Permission = permission;
     }
 
@@ -45,7 +45,7 @@ public class DiscordApplicationCommandPermission
     public DiscordApplicationCommandPermission(DiscordMember member, bool permission)
     {
         this.Id = member.Id;
-        this.Type = ApplicationCommandPermissionType.User;
+        this.Type = DiscordApplicationCommandPermissionType.User;
         this.Permission = permission;
     }
 

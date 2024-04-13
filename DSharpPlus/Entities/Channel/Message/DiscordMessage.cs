@@ -214,7 +214,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Gets the type of the message.
     /// </summary>
     [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-    public MessageType? MessageType { get; internal set; }
+    public DiscordMessageType? MessageType { get; internal set; }
 
     /// <summary>
     /// Gets the message activity in the Rich Presence embed.
@@ -242,7 +242,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Gets the bitwise flags for this message.
     /// </summary>
     [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
-    public MessageFlags? Flags { get; internal set; }
+    public DiscordMessageFlags? Flags { get; internal set; }
 
     /// <summary>
     /// Gets whether the message originated from a webhook.
@@ -488,7 +488,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     public async Task<DiscordMessage> ModifyAsync(DiscordMessageBuilder builder, bool suppressEmbeds = false, IEnumerable<DiscordAttachment>? attachments = default)
     {
         builder.Validate();
-        return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder._mentions, builder.Components, builder.Files, suppressEmbeds ? MessageFlags.SuppressedEmbeds : null, attachments);
+        return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder._mentions, builder.Components, builder.Files, suppressEmbeds ? DiscordMessageFlags.SuppressedEmbeds : null, attachments);
     }
 
     /// <summary>
@@ -507,7 +507,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         DiscordMessageBuilder builder = new(this);
         action(builder);
         builder.Validate();
-        return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder._mentions, builder.Components, builder.Files, suppressEmbeds ? MessageFlags.SuppressedEmbeds : null, attachments);
+        return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder._mentions, builder.Components, builder.Files, suppressEmbeds ? DiscordMessageFlags.SuppressedEmbeds : null, attachments);
     }
 
     /// <summary>
@@ -515,12 +515,12 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// </summary>
     /// <param name="hideEmbeds">Whether to hide all embeds.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task ModifyEmbedSuppressionAsync(bool hideEmbeds)
-        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, default, default, default, [], hideEmbeds ? MessageFlags.SuppressedEmbeds : null, default);
+        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, default, default, default, [], hideEmbeds ? DiscordMessageFlags.SuppressedEmbeds : null, default);
 
     /// <summary>
     /// Deletes the message.
@@ -627,13 +627,13 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <param name="archiveAfter">The auto archive duration of the thread. Three and seven day archive options are locked behind level 2 and level 3 server boosts respectively.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns>The created thread.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.SendMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordThreadChannel> CreateThreadAsync(string name, AutoArchiveDuration archiveAfter, string? reason = null)
+    public async Task<DiscordThreadChannel> CreateThreadAsync(string name, DiscordAutoArchiveDuration archiveAfter, string? reason = null)
     {
-        return this.Channel?.Type is not ChannelType.Text and not ChannelType.News
+        return this.Channel?.Type is not DiscordChannelType.Text and not DiscordChannelType.News
             ? throw new InvalidOperationException("Threads can only be created within text or news channels.")
             : await this.Discord.ApiClient.CreateThreadFromMessageAsync(this.Channel.Id, this.Id, name, archiveAfter, reason);
     }
@@ -643,7 +643,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// </summary>
     /// <param name="emoji">The emoji you want to react with, either an emoji or name:id</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AddReactions"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.AddReactions"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>

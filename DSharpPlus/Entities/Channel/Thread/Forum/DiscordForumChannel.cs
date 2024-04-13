@@ -10,7 +10,7 @@ namespace DSharpPlus.Entities;
 public sealed class DiscordForumChannel : DiscordChannel
 {
     [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-    public override ChannelType Type => ChannelType.GuildForum;
+    public override DiscordChannelType Type => DiscordChannelType.GuildForum;
 
     /// <summary>
     /// Gets the topic of the forum. This doubles as the guidelines for the forum.
@@ -42,13 +42,13 @@ public sealed class DiscordForumChannel : DiscordChannel
     /// The default sort order of posts in the forum.
     /// </summary>
     [JsonProperty("default_sort_order", NullValueHandling = NullValueHandling.Ignore)]
-    public DefaultSortOrder? DefaultSortOrder { get; internal set; }
+    public DiscordDefaultSortOrder? DefaultSortOrder { get; internal set; }
 
     /// <summary>
-    /// The default layout of posts in the forum. Defaults to <see cref="DefaultForumLayout.ListView"/>
+    /// The default layout of posts in the forum. Defaults to <see cref="DiscordDefaultForumLayout.ListView"/>
     /// </summary>
     [JsonProperty("default_forum_layout", NullValueHandling = NullValueHandling.Ignore)]
-    public DefaultForumLayout? DefaultLayout { get; internal set; }
+    public DiscordDefaultForumLayout? DefaultLayout { get; internal set; }
 
     /// <summary>
     /// Creates a forum post.

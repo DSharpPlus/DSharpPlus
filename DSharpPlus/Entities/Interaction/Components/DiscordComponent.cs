@@ -12,7 +12,7 @@ public class DiscordComponent
     /// The type of component this represents.
     /// </summary>
     [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-    public ComponentType Type { get; internal set; }
+    public DiscordComponentType Type { get; internal set; }
 
     /// <summary>
     /// The Id of this component, if applicable. Not applicable on ActionRow(s) and link buttons.
@@ -21,5 +21,4 @@ public class DiscordComponent
     public string CustomId { get; internal set; }
 
     internal DiscordComponent() { }
-
 }

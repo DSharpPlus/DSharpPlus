@@ -40,7 +40,7 @@ public sealed class DiscordAuditLogChannelEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the description of channel's type change.
     /// </summary>
-    public PropertyChange<ChannelType?> TypeChange { get; internal set; }
+    public PropertyChange<DiscordChannelType?> TypeChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of channel's nsfw flag change.
@@ -69,7 +69,7 @@ public sealed class DiscordAuditLogChannelEntry : DiscordAuditLogEntry
 
     public PropertyChange<int?> UserLimit { get; internal set; }
 
-    public PropertyChange<ChannelFlags?> Flags { get; internal set; }
+    public PropertyChange<DiscordChannelFlags?> Flags { get; internal set; }
 
     public PropertyChange<IEnumerable<DiscordForumTag>> AvailableTags { get; internal set; }
 

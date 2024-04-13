@@ -140,7 +140,7 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// Gets the user's premium type.
     /// </summary>
     [JsonProperty("premium_type", NullValueHandling = NullValueHandling.Ignore)]
-    public virtual PremiumType? PremiumType { get; internal set; }
+    public virtual DiscordPremiumType? PremiumType { get; internal set; }
 
     /// <summary>
     /// Gets the user's chosen language
@@ -152,13 +152,13 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// Gets the user's flags for OAuth.
     /// </summary>
     [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
-    public virtual UserFlags? OAuthFlags { get; internal set; }
+    public virtual DiscordUserFlags? OAuthFlags { get; internal set; }
 
     /// <summary>
     /// Gets the user's flags.
     /// </summary>
     [JsonProperty("public_flags", NullValueHandling = NullValueHandling.Ignore)]
-    public virtual UserFlags? Flags { get; internal set; }
+    public virtual DiscordUserFlags? Flags { get; internal set; }
 
     /// <summary>
     /// Gets the user's mention string.

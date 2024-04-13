@@ -11,7 +11,7 @@ public class DiscordMessageActivity
     /// Gets the activity type.
     /// </summary>
     [JsonProperty("type")]
-    public MessageActivityType Type { get; internal set; }
+    public DiscordMessageActivityType Type { get; internal set; }
 
     /// <summary>
     /// Gets the party id of the activity.

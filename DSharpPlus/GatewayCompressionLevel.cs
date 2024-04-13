@@ -1,9 +1,9 @@
-namespace DSharpPlus.Entities;
+namespace DSharpPlus;
 
 /// <summary>
 /// Determines at which level should the WebSocket traffic be compressed.
 /// </summary>
-public enum DiscordGatewayCompressionLevel : byte
+public enum GatewayCompressionLevel : byte
 {
     /// <summary>
     /// Defines that traffic should not be compressed at all.

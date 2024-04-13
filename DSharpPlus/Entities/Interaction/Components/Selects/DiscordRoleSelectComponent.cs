@@ -85,7 +85,7 @@ public sealed class DiscordRoleSelectComponent : BaseDiscordSelectComponent
         return this;
     }
 
-    internal DiscordRoleSelectComponent() => this.Type = ComponentType.RoleSelect;
+    internal DiscordRoleSelectComponent() => this.Type = DiscordComponentType.RoleSelect;
 
     /// <summary>
     /// Creates a new role select component.
@@ -96,5 +96,5 @@ public sealed class DiscordRoleSelectComponent : BaseDiscordSelectComponent
     /// <param name="minOptions">The minimum amount of options to be selected.</param>
     /// <param name="maxOptions">The maximum amount of options to be selected, up to 25.</param>
     public DiscordRoleSelectComponent(string customId, string placeholder, bool disabled = false, int minOptions = 1, int maxOptions = 1) 
-        : base(ComponentType.RoleSelect, customId, placeholder, disabled, minOptions, maxOptions) { }
+        : base(DiscordComponentType.RoleSelect, customId, placeholder, disabled, minOptions, maxOptions) { }
 }

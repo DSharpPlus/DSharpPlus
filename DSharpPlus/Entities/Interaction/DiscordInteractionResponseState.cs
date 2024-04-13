@@ -3,7 +3,7 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents the state of an interaction regarding responding.
 /// </summary>
-public enum DiscordDiscordInteractionResponseState
+public enum DiscordInteractionResponseState
 {
     /// <summary>
     /// The interaction has not been acknowledged; a response is required.

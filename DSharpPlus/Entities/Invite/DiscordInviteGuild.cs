@@ -70,7 +70,7 @@ public class DiscordInviteGuild : SnowflakeObject
     /// Gets the guild's verification level.
     /// </summary>
     [JsonProperty("verification_level", NullValueHandling = NullValueHandling.Ignore)]
-    public VerificationLevel VerificationLevel { get; internal set; }
+    public DiscordVerificationLevel VerificationLevel { get; internal set; }
 
     /// <summary>
     /// Gets vanity URL code for this guild, when applicable.

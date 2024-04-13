@@ -30,7 +30,7 @@ public class ForumPostBuilder
     /// <summary>
     /// When to automatically archive the post.
     /// </summary>
-    public AutoArchiveDuration? AutoArchiveDuration { get; set; }
+    public DiscordAutoArchiveDuration? AutoArchiveDuration { get; set; }
 
     /// <summary>
     /// Creates a new forum post builder.
@@ -86,7 +86,7 @@ public class ForumPostBuilder
     /// </summary>
     /// <param name="autoArchiveDuration">The duration in which the post will automatically archive</param>
     /// <returns>The builder to chain calls with</returns>
-    public ForumPostBuilder WithAutoArchiveDuration(AutoArchiveDuration autoArchiveDuration)
+    public ForumPostBuilder WithAutoArchiveDuration(DiscordAutoArchiveDuration autoArchiveDuration)
     {
         this.AutoArchiveDuration = autoArchiveDuration;
         return this;

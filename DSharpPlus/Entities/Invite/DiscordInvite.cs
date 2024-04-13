@@ -45,7 +45,7 @@ public class DiscordInvite
     /// Gets the target application for this invite.
     /// </summary>
     [JsonProperty("target_type", NullValueHandling = NullValueHandling.Ignore)]
-    public InviteTargetType? TargetType { get; internal set; }
+    public DiscordInviteTargetType? TargetType { get; internal set; }
 
     /// <summary>
     /// Gets the approximate guild online member count for the invite.

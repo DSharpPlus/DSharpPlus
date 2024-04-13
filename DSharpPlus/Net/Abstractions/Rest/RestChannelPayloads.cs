@@ -11,7 +11,7 @@ internal sealed class RestChannelCreatePayload
     public string Name { get; set; }
 
     [JsonProperty("type")]
-    public ChannelType Type { get; set; }
+    public DiscordChannelType Type { get; set; }
 
     [JsonProperty("parent_id", NullValueHandling = NullValueHandling.Ignore)]
     public ulong? Parent { get; set; }
@@ -35,13 +35,13 @@ internal sealed class RestChannelCreatePayload
     public Optional<int?> PerUserRateLimit { get; set; }
 
     [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
-    public VideoQualityMode? QualityMode { get; set; }
+    public DiscordVideoQualityMode? QualityMode { get; set; }
 
     [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
     public int? Position { get; set; }
 
     [JsonProperty("default_auth_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
-    public AutoArchiveDuration? DefaultAutoArchiveDuration { get; set; }
+    public DiscordAutoArchiveDuration? DefaultAutoArchiveDuration { get; set; }
 
     [JsonProperty("default_reaction_emoji", NullValueHandling = NullValueHandling.Ignore)]
     public DefaultReaction? DefaultReaction { get; set; }
@@ -50,7 +50,7 @@ internal sealed class RestChannelCreatePayload
     public IEnumerable<DiscordForumTagBuilder>? AvailableTags { get; set; }
 
     [JsonProperty("default_sort_order", NullValueHandling = NullValueHandling.Ignore)]
-    public DefaultSortOrder? DefaultSortOrder { get; set; }
+    public DiscordDefaultSortOrder? DefaultSortOrder { get; set; }
 }
 
 internal sealed class RestChannelModifyPayload
@@ -59,7 +59,7 @@ internal sealed class RestChannelModifyPayload
     public required string Name { get; set; }
 
     [JsonProperty("type")]
-    public Optional<ChannelType> Type { get; set; }
+    public Optional<DiscordChannelType> Type { get; set; }
 
     [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
     public int? Position { get; set; }
@@ -89,16 +89,16 @@ internal sealed class RestChannelModifyPayload
     public Optional<string> RtcRegion { get; set; }
 
     [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
-    public VideoQualityMode? QualityMode { get; set; }
+    public DiscordVideoQualityMode? QualityMode { get; set; }
 
     [JsonProperty("default_auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
-    public Optional<AutoArchiveDuration?> DefaultAutoArchiveDuration { get; set; }
+    public Optional<DiscordAutoArchiveDuration?> DefaultAutoArchiveDuration { get; set; }
 
     [JsonProperty("default_sort_order", NullValueHandling = NullValueHandling.Ignore)]
-    public Optional<DefaultSortOrder?> DefaultSortOrder { get; set; }
+    public Optional<DiscordDefaultSortOrder?> DefaultSortOrder { get; set; }
 
     [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
-    public Optional<ChannelFlags> Flags { get; set; }
+    public Optional<DiscordChannelFlags> Flags { get; set; }
 
     [JsonProperty("default_reaction_emoji", NullValueHandling = NullValueHandling.Ignore)]
     public Optional<DefaultReaction?> DefaultReaction { get; set; }
@@ -110,7 +110,7 @@ internal sealed class RestChannelModifyPayload
     public IEnumerable<DiscordForumTagBuilder>? AvailableTags { get; set; }
 
     [JsonProperty("default_forum_layout", NullValueHandling = NullValueHandling.Ignore)]
-    public Optional<DefaultForumLayout> DefaultForumLayout { get; set; }
+    public Optional<DiscordDefaultForumLayout> DefaultForumLayout { get; set; }
 }
 
 internal sealed class RestThreadChannelModifyPayload
@@ -119,7 +119,7 @@ internal sealed class RestThreadChannelModifyPayload
     public required string Name { get; set; }
 
     [JsonProperty("type")]
-    public Optional<ChannelType> Type { get; set; }
+    public Optional<DiscordChannelType> Type { get; set; }
 
     [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
     public int? Position { get; set; }
@@ -149,13 +149,13 @@ internal sealed class RestThreadChannelModifyPayload
     public Optional<string> RtcRegion { get; set; }
 
     [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
-    public VideoQualityMode? QualityMode { get; set; }
+    public DiscordVideoQualityMode? QualityMode { get; set; }
 
     [JsonProperty("archived", NullValueHandling = NullValueHandling.Ignore)]
     public bool? IsArchived { get; set; }
 
     [JsonProperty("auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
-    public AutoArchiveDuration? ArchiveDuration { get; set; }
+    public DiscordAutoArchiveDuration? ArchiveDuration { get; set; }
 
     [JsonProperty("locked", NullValueHandling = NullValueHandling.Ignore)]
     public bool? Locked { get; set; }
@@ -185,7 +185,7 @@ internal class RestChannelMessageEditPayload
     public IReadOnlyCollection<DiscordActionRowComponent>? Components { get; set; }
 
     [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
-    public MessageFlags? Flags { get; set; }
+    public DiscordMessageFlags? Flags { get; set; }
 
     [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
     public IEnumerable<DiscordAttachment>? Attachments { get; set; }
@@ -257,7 +257,7 @@ internal sealed class RestChannelInviteCreatePayload
     public bool Unique { get; set; }
 
     [JsonProperty("target_type", NullValueHandling = NullValueHandling.Ignore)]
-    public InviteTargetType? TargetType { get; set; }
+    public DiscordInviteTargetType? TargetType { get; set; }
 
     [JsonProperty("target_user_id", NullValueHandling = NullValueHandling.Ignore)]
     public ulong? TargetUserId { get; set; }
@@ -269,10 +269,10 @@ internal sealed class RestChannelInviteCreatePayload
 internal sealed class RestChannelPermissionEditPayload
 {
     [JsonProperty("allow", NullValueHandling = NullValueHandling.Ignore)]
-    public Permissions Allow { get; set; }
+    public DiscordPermissions Allow { get; set; }
 
     [JsonProperty("deny", NullValueHandling = NullValueHandling.Ignore)]
-    public Permissions Deny { get; set; }
+    public DiscordPermissions Deny { get; set; }
 
     [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
     public string Type { get; set; }
@@ -302,7 +302,7 @@ internal sealed class RestCreateStageInstancePayload
     public string Topic { get; set; }
 
     [JsonProperty("privacy_level", NullValueHandling = NullValueHandling.Ignore)]
-    public PrivacyLevel? PrivacyLevel { get; set; }
+    public DiscordStagePrivacyLevel? PrivacyLevel { get; set; }
 }
 
 internal sealed class RestModifyStageInstancePayload
@@ -311,7 +311,7 @@ internal sealed class RestModifyStageInstancePayload
     public Optional<string> Topic { get; set; }
 
     [JsonProperty("privacy_level")]
-    public Optional<PrivacyLevel> PrivacyLevel { get; set; }
+    public Optional<DiscordStagePrivacyLevel> PrivacyLevel { get; set; }
 }
 
 internal sealed class RestBecomeStageSpeakerInstancePayload

@@ -11,7 +11,7 @@ public class DiscordMessageInteraction : SnowflakeObject
     /// Gets the type of the interaction.
     /// </summary>
     [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-    public InteractionType Type { get; internal set; }
+    public DiscordInteractionType Type { get; internal set; }
 
     /// <summary>
     /// Gets the name of the <see cref="DiscordApplicationCommand"/>.

@@ -46,7 +46,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// <summary>
     /// Gets the application's flags.
     /// </summary>
-    public ApplicationFlags? Flags { get; internal set; }
+    public DiscordApplicationFlags? Flags { get; internal set; }
 
     /// <summary>
     /// Gets the application's owners.
@@ -83,7 +83,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// Default scopes and permissions for each supported installation context.
     /// </summary>
     [JsonProperty("integration_types_config")]
-    public IReadOnlyDictionary<ApplicationIntegrationType, ApplicationIntegrationTypeConfiguration?> IntegrationTypeConfigurations { get; internal set; }
+    public IReadOnlyDictionary<ApplicationIntegrationType, DiscordApplicationIntegrationTypeConfiguration?> IntegrationTypeConfigurations { get; internal set; }
 
     private IReadOnlyList<DiscordApplicationAsset>? Assets { get; set; }
 
@@ -150,7 +150,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         return this.Assets;
     }
 
-    public string GenerateBotOAuth(Permissions permissions = Permissions.None)
+    public string GenerateBotOAuth(DiscordPermissions permissions = DiscordPermissions.None)
     {
         permissions &= PermissionMethods.FULL_PERMS;
         // hey look, it's not all annoying and blue :P
@@ -171,7 +171,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// </param>
     /// <param name="permissions">Permissions for your bot. Only required if the <seealso cref="DiscordOAuthScope.Bot"/> scope is passed.</param>
     /// <param name="scopes">OAuth scopes for your application.</param>
-    public string GenerateOAuthUri(string? redirectUri = null, Permissions? permissions = null, params DiscordOAuthScope[] scopes)
+    public string GenerateOAuthUri(string? redirectUri = null, DiscordPermissions? permissions = null, params DiscordOAuthScope[] scopes)
     {
         permissions &= PermissionMethods.FULL_PERMS;
 
