@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus.Net.Abstractions;
@@ -25,7 +27,9 @@ internal static class AuditLogParser
     internal static async IAsyncEnumerable<DiscordAuditLogEntry> ParseAuditLogToEntriesAsync
     (
         DiscordGuild guild,
-        AuditLog auditLog
+        AuditLog auditLog,
+        [EnumeratorCancellation]
+        CancellationToken cancellationToken = default
     )
     {
         BaseDiscordClient client = guild.Discord;
@@ -96,6 +100,11 @@ internal static class AuditLogParser
         IOrderedEnumerable<AuditLogAction>? auditLogActions = auditLog.Entries.OrderByDescending(xa => xa.Id);
         foreach (AuditLogAction? auditLogAction in auditLogActions)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                yield break;
+            }
+            
             DiscordAuditLogEntry? entry =
                 await ParseAuditLogEntryAsync(guild, auditLogAction, members, threads, webhooks, events);
 
