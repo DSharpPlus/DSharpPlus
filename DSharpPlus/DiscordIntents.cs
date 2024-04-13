@@ -169,13 +169,13 @@ public enum DiscordIntents
     AutoModerationExecution = 1 << 21,
 
     /// <summary>
-    ///  Whetever to include add and remove of a poll vote.
+    ///  Whetever to include add and remove of a poll votes events in guilds.
     /// <para>This includes <see cref="DiscordClient.MessagePollVoted"/></para>
     /// </summary>
     GuildMessagePolls = 1 << 24,
 
     /// <summary>
-    ///  Whetever to include add and remove of a poll vote.
+    ///  Whetever to include add and remove of a poll votes events in direct messages.
     /// <para>This includes <see cref="DiscordClient.MessagePollVoted"/></para>
     /// </summary>
     DirectMessagePolls = 1 << 25,
