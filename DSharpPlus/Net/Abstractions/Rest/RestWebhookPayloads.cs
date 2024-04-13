@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DSharpPlus.Entities;
+using DSharpPlus.Entities.Channel;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions;
@@ -46,7 +47,7 @@ internal sealed class RestWebhookExecutePayload
     public DiscordMentions? Mentions { get; set; }
     
     [JsonProperty("poll", NullValueHandling = NullValueHandling.Ignore)]
-    public DiscordPoll? Poll { get; set; }
+    public PollCreatePayload? Poll { get; set; }
 }
 
 internal sealed class RestWebhookMessageEditPayload

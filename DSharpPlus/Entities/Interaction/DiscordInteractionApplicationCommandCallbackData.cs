@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DSharpPlus.Entities.Channel;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -33,5 +34,5 @@ internal class DiscordInteractionApplicationCommandCallbackData
     public IReadOnlyCollection<DiscordAutoCompleteChoice> Choices { get; internal set; }
     
     [JsonProperty("poll", NullValueHandling = NullValueHandling.Ignore)]
-    public DiscordPoll Poll { get; internal set; }
+    public PollCreatePayload? Poll { get; internal set; }
 }
