@@ -29,7 +29,7 @@ public class ScheduledGuildEventEditModel : BaseEditModel
     /// <summary>
     /// The type of the event.
     /// </summary>
-    public Optional<ScheduledGuildEventType> Type { get; set; }
+    public Optional<DiscordScheduledGuildEventType> Type { get; set; }
 
     /// <summary>
     /// The new time of the event.
@@ -49,7 +49,7 @@ public class ScheduledGuildEventEditModel : BaseEditModel
     /// <summary>
     /// The new status of the event.
     /// </summary>
-    public Optional<ScheduledGuildEventStatus> Status { get; set; }
+    public Optional<DiscordScheduledGuildEventStatus> Status { get; set; }
 
     /// <summary>
     /// The cover image for this event.

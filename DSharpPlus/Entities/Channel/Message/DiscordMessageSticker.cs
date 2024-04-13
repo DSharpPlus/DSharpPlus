@@ -31,7 +31,7 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     /// Gets the type of sticker.
     /// </summary>
     [JsonProperty("type")]
-    public StickerType Type { get; internal set; }
+    public DiscordStickerType Type { get; internal set; }
 
     /// <summary>
     /// For guild stickers, gets the user that made the sticker.
@@ -87,7 +87,7 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     /// Gets the Format type of the sticker.
     /// </summary>
     [JsonProperty("format_type")]
-    public StickerFormat FormatType { get; internal set; }
+    public DiscordStickerFormat FormatType { get; internal set; }
 
     [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
     internal string? InternalTags { get; set; }
@@ -103,19 +103,19 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
 
     private string GetFileTypeExtension() => this.FormatType switch
     {
-        StickerFormat.PNG or StickerFormat.APNG => ".png",
-        StickerFormat.LOTTIE => ".json",
+        DiscordStickerFormat.PNG or DiscordStickerFormat.APNG => ".png",
+        DiscordStickerFormat.LOTTIE => ".json",
         _ => ".png"
     };
 }
 
-public enum StickerType
+public enum DiscordStickerType
 {
     Standard = 1,
     Guild = 2
 }
 
-public enum StickerFormat
+public enum DiscordStickerFormat
 {
     PNG = 1,
     APNG = 2,

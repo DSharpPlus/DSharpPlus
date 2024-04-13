@@ -20,7 +20,7 @@ public class PresenceUpdateEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the user's status.
     /// </summary>
-    public UserStatus Status { get; internal set; }
+    public DiscordUserStatus Status { get; internal set; }
 
     /// <summary>
     /// Gets the user's old presence.

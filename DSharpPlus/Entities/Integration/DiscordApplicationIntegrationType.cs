@@ -3,7 +3,7 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents the type of integration for an application.
 /// </summary>
-public enum ApplicationIntegrationType
+public enum DiscordApplicationIntegrationType
 {
     /// <summary>
     /// Represents that the integration can be installed for a guild.

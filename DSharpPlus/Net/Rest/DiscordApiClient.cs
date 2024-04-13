@@ -1750,7 +1750,7 @@ public sealed class DiscordApiClient
         string name,
         string description,
         DateTimeOffset startTime,
-        ScheduledGuildEventType type,
+        DiscordScheduledGuildEventType type,
         DiscordScheduledGuildEventPrivacyLevel privacyLevel,
         DiscordScheduledGuildEventMetadata? metadata = null,
         DateTimeOffset? endTime = null,
@@ -1914,10 +1914,10 @@ public sealed class DiscordApiClient
         Optional<ulong?> channelId = default,
         Optional<DateTimeOffset> startTime = default,
         Optional<DateTimeOffset> endTime = default,
-        Optional<ScheduledGuildEventType> type = default,
+        Optional<DiscordScheduledGuildEventType> type = default,
         Optional<DiscordScheduledGuildEventPrivacyLevel> privacyLevel = default,
         Optional<DiscordScheduledGuildEventMetadata> metadata = default,
-        Optional<ScheduledGuildEventStatus> status = default,
+        Optional<DiscordScheduledGuildEventStatus> status = default,
         Optional<Stream> coverImage = default,
         string? reason = null
     )
@@ -5526,8 +5526,8 @@ public sealed class DiscordApiClient
         IReadOnlyDictionary<string, string>? descriptionLocalizations = null,
         Optional<bool> allowDmUsage = default,
         Optional<DiscordPermissions?> defaultMemberPermissions = default,
-        Optional<IEnumerable<InteractionContextType>> allowedContexts = default,
-        Optional<IEnumerable<ApplicationIntegrationType>> installTypes = default
+        Optional<IEnumerable<DiscordInteractionContextType>> allowedContexts = default,
+        Optional<IEnumerable<DiscordApplicationIntegrationType>> installTypes = default
     )
     {
         RestApplicationCommandEditPayload pld = new()

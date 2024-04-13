@@ -3,7 +3,7 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents the type of context in which an interaction was created.
 /// </summary>
-public enum InteractionContextType
+public enum DiscordInteractionContextType
 {
     /// <summary>
     /// The interaction is in a guild.

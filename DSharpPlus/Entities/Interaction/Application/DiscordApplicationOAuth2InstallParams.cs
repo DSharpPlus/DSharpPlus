@@ -7,7 +7,7 @@ namespace DSharpPlus.Entities;
 /// Represents the default installation configuration for an integration.
 /// </summary>
 /// <remarks>
-/// <see cref="Permissions"/> is ignored in the case of <see cref="ApplicationIntegrationType.UserInstall"/>.
+/// <see cref="Permissions"/> is ignored in the case of <see cref="DiscordApplicationIntegrationType.UserInstall"/>.
 /// </remarks>
 public sealed class DiscordApplicationOAuth2InstallParams
 {

@@ -3,7 +3,7 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Declares the type of a <see cref="DiscordScheduledGuildEvent"/>.
 /// </summary>
-public enum ScheduledGuildEventType
+public enum DiscordScheduledGuildEventType
 {
     /// <summary>
     /// The event will be hosted in a stage channel.

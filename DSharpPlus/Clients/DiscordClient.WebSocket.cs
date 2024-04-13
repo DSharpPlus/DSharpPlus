@@ -84,7 +84,7 @@ public sealed partial class DiscordClient
                 Discord = this,
                 RawActivity = new TransportActivity(),
                 Activity = new DiscordActivity(),
-                Status = UserStatus.Online,
+                Status = DiscordUserStatus.Online,
                 InternalUser = new TransportUser
                 {
                     Id = this.CurrentUser.Id,
@@ -99,7 +99,7 @@ public sealed partial class DiscordClient
             DiscordPresence pr = this._presences[this.CurrentUser.Id];
             pr.RawActivity = new TransportActivity();
             pr.Activity = new DiscordActivity();
-            pr.Status = UserStatus.Online;
+            pr.Status = DiscordUserStatus.Online;
         }
 
         Volatile.Write(ref this._skippedHeartbeats, 0);
@@ -356,7 +356,7 @@ public sealed partial class DiscordClient
 
     #region Internal Gateway Methods
 
-    internal async Task InternalUpdateStatusAsync(DiscordActivity activity, UserStatus? userStatus, DateTimeOffset? idleSince)
+    internal async Task InternalUpdateStatusAsync(DiscordActivity activity, DiscordUserStatus? userStatus, DateTimeOffset? idleSince)
     {
         if (activity != null && activity.Name != null && activity.Name.Length > 128)
         {
@@ -371,7 +371,7 @@ public sealed partial class DiscordClient
             Activity = new TransportActivity(act),
             IdleSince = since_unix,
             IsAFK = idleSince != null,
-            Status = userStatus ?? UserStatus.Online
+            Status = userStatus ?? DiscordUserStatus.Online
         };
 
         // Solution to have status persist between sessions
@@ -392,7 +392,7 @@ public sealed partial class DiscordClient
             {
                 Discord = this,
                 Activity = act,
-                Status = userStatus ?? UserStatus.Online,
+                Status = userStatus ?? DiscordUserStatus.Online,
                 InternalUser = new TransportUser { Id = this.CurrentUser.Id }
             };
         }

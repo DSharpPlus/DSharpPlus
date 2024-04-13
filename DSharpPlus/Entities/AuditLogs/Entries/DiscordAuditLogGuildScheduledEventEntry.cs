@@ -48,7 +48,7 @@ public sealed class DiscordAuditLogGuildScheduledEventEntry : DiscordAuditLogEnt
     /// <summary>
     /// Gets the change of type for the event.
     /// </summary>
-    public PropertyChange<ScheduledGuildEventType?> Type { get; internal set; }
+    public PropertyChange<DiscordScheduledGuildEventType?> Type { get; internal set; }
 
     /// <summary>
     /// Gets the change in image hash.
@@ -68,7 +68,7 @@ public sealed class DiscordAuditLogGuildScheduledEventEntry : DiscordAuditLogEnt
     /// <summary>
     /// Gets the change in status.
     /// </summary>
-    public PropertyChange<ScheduledGuildEventStatus?> Status { get; internal set; }
+    public PropertyChange<DiscordScheduledGuildEventStatus?> Status { get; internal set; }
 
     public DiscordAuditLogGuildScheduledEventEntry() { }
 }

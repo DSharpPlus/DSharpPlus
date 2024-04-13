@@ -72,7 +72,7 @@ public sealed class DiscordScheduledGuildEvent : SnowflakeObject
     /// The current status of this event.
     /// </summary>
     [JsonProperty("status")]
-    public ScheduledGuildEventStatus Status { get; internal set; }
+    public DiscordScheduledGuildEventStatus Status { get; internal set; }
 
     /// <summary>
     /// Metadata associated with this event.
@@ -84,7 +84,7 @@ public sealed class DiscordScheduledGuildEvent : SnowflakeObject
     /// What type of event this is.
     /// </summary>
     [JsonProperty("entity_type")]
-    public ScheduledGuildEventType Type { get; internal set; }
+    public DiscordScheduledGuildEventType Type { get; internal set; }
 
     /// <summary>
     /// How many users are interested in this event.

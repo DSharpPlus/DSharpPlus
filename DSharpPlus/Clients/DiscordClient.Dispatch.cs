@@ -874,7 +874,7 @@ public sealed partial class DiscordClient
 
         evt.Guild._scheduledEvents[evt.Id] = evt;
 
-        if (evt.Status is ScheduledGuildEventStatus.Completed)
+        if (evt.Status is DiscordScheduledGuildEventStatus.Completed)
         {
             await this._scheduledGuildEventCompleted.InvokeAsync(this, new ScheduledGuildEventCompletedEventArgs() { Event = evt });
         }

@@ -759,7 +759,7 @@ internal static class AuditLogParser
                     break;
 
                 case "entity_type":
-                    entry.Type = PropertyChange<ScheduledGuildEventType?>.From(change);
+                    entry.Type = PropertyChange<DiscordScheduledGuildEventType?>.From(change);
                     break;
 
                 case "image_hash":
@@ -775,7 +775,7 @@ internal static class AuditLogParser
                     break;
 
                 case "status":
-                    entry.Status = PropertyChange<ScheduledGuildEventStatus?>.From(change);
+                    entry.Status = PropertyChange<DiscordScheduledGuildEventStatus?>.From(change);
                     break;
 
                 default:
@@ -1528,11 +1528,11 @@ internal static class AuditLogParser
                     break;
 
                 case "type":
-                    entry.TypeChange = PropertyChange<StickerType?>.From(change);
+                    entry.TypeChange = PropertyChange<DiscordStickerType?>.From(change);
                     break;
 
                 case "format_type":
-                    entry.FormatChange = PropertyChange<StickerFormat?>.From(change);
+                    entry.FormatChange = PropertyChange<DiscordStickerFormat?>.From(change);
                     break;
 
                 default:

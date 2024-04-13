@@ -83,7 +83,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// Default scopes and permissions for each supported installation context.
     /// </summary>
     [JsonProperty("integration_types_config")]
-    public IReadOnlyDictionary<ApplicationIntegrationType, DiscordApplicationIntegrationTypeConfiguration?> IntegrationTypeConfigurations { get; internal set; }
+    public IReadOnlyDictionary<DiscordApplicationIntegrationType, DiscordApplicationIntegrationTypeConfiguration?> IntegrationTypeConfigurations { get; internal set; }
 
     private IReadOnlyList<DiscordApplicationAsset>? Assets { get; set; }
 

@@ -128,16 +128,16 @@ public sealed class DiscordInteraction : SnowflakeObject
     ///     </para>
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<ApplicationIntegrationType, ulong> AuthorizingIntegrationOwners => this._authorizingIntegrationOwners;
+    public IReadOnlyDictionary<DiscordApplicationIntegrationType, ulong> AuthorizingIntegrationOwners => this._authorizingIntegrationOwners;
     
     [JsonProperty("authorizing_integration_owners", NullValueHandling = NullValueHandling.Ignore)]
-    private Dictionary<ApplicationIntegrationType, ulong> _authorizingIntegrationOwners;
+    private Dictionary<DiscordApplicationIntegrationType, ulong> _authorizingIntegrationOwners;
     
     /// <summary>
     /// Represents the context in which the interaction was executed in
     /// </summary>
     [JsonProperty("context", NullValueHandling = NullValueHandling.Ignore)]
-    public InteractionContextType? Context { get; internal set; }
+    public DiscordInteractionContextType? Context { get; internal set; }
 
     /// <summary>
     /// Creates a response to this interaction.

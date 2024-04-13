@@ -550,16 +550,16 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="name">The name of the event to create, up to 100 characters.</param>
     /// <param name="description">The description of the event, up to 1000 characters.</param>
-    /// <param name="channelId">If a <see cref="ScheduledGuildEventType.StageInstance"/> or <see cref="ScheduledGuildEventType.VoiceChannel"/>, the id of the channel the event will be hosted in</param>
+    /// <param name="channelId">If a <see cref="DiscordScheduledGuildEventType.StageInstance"/> or <see cref="DiscordScheduledGuildEventType.VoiceChannel"/>, the id of the channel the event will be hosted in</param>
     /// <param name="type">The type of the event. <see paramref="channelId"/> must be supplied if not an external event.</param>
     /// <param name="privacyLevel">The privacy level of thi</param>
     /// <param name="start">When this event starts. Must be in the future, and before the end date.</param>
-    /// <param name="end">When this event ends. If supplied, must be in the future and after the end date. This is required for <see cref="ScheduledGuildEventType.External"/>.</param>
-    /// <param name="location">Where this event takes place, up to 100 characters. Only applicable if the type is <see cref="ScheduledGuildEventType.External"/></param>
+    /// <param name="end">When this event ends. If supplied, must be in the future and after the end date. This is required for <see cref="DiscordScheduledGuildEventType.External"/>.</param>
+    /// <param name="location">Where this event takes place, up to 100 characters. Only applicable if the type is <see cref="DiscordScheduledGuildEventType.External"/></param>
     /// <param name="image">A cover image for this event.</param>
     /// <param name="reason">Reason for audit log.</param>
     /// <returns>The created event.</returns>
-    public async Task<DiscordScheduledGuildEvent> CreateEventAsync(string name, string description, ulong? channelId, ScheduledGuildEventType type, DiscordScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, string? location = null, Stream? image = null, string? reason = null)
+    public async Task<DiscordScheduledGuildEvent> CreateEventAsync(string name, string description, ulong? channelId, DiscordScheduledGuildEventType type, DiscordScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, string? location = null, Stream? image = null, string? reason = null)
     {
         if (start <= DateTimeOffset.Now)
         {
@@ -574,13 +574,13 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         DiscordScheduledGuildEventMetadata? metadata = null;
         switch (type)
         {
-            case ScheduledGuildEventType.StageInstance or ScheduledGuildEventType.VoiceChannel when channelId == null:
+            case DiscordScheduledGuildEventType.StageInstance or DiscordScheduledGuildEventType.VoiceChannel when channelId == null:
                 throw new ArgumentException($"{nameof(channelId)} must not be null when type is {type}", nameof(channelId));
-            case ScheduledGuildEventType.External when channelId != null:
+            case DiscordScheduledGuildEventType.External when channelId != null:
                 throw new ArgumentException($"{nameof(channelId)} must be null when using external event type", nameof(channelId));
-            case ScheduledGuildEventType.External when location == null:
+            case DiscordScheduledGuildEventType.External when location == null:
                 throw new ArgumentException($"{nameof(location)} must not be null when using external event type", nameof(location));
-            case ScheduledGuildEventType.External when end == null:
+            case DiscordScheduledGuildEventType.External when end == null:
                 throw new ArgumentException($"{nameof(end)} must not be null when using external event type", nameof(end));
         }
 
@@ -603,9 +603,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="InvalidOperationException"></exception>
     public Task StartEventAsync(DiscordScheduledGuildEvent guildEvent)
     {
-        return guildEvent.Status is not ScheduledGuildEventStatus.Scheduled
+        return guildEvent.Status is not DiscordScheduledGuildEventStatus.Scheduled
             ? throw new InvalidOperationException("The event must be scheduled for it to be started.")
-            : this.ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Active);
+            : this.ModifyEventAsync(guildEvent, m => m.Status = DiscordScheduledGuildEventStatus.Active);
     }
 
     /// <summary>
@@ -614,9 +614,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="guildEvent">The event to delete.</param>
     public Task CancelEventAsync(DiscordScheduledGuildEvent guildEvent)
     {
-        return guildEvent.Status is not ScheduledGuildEventStatus.Scheduled
+        return guildEvent.Status is not DiscordScheduledGuildEventStatus.Scheduled
             ? throw new InvalidOperationException("The event must be scheduled for it to be cancelled.")
-            : this.ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Cancelled);
+            : this.ModifyEventAsync(guildEvent, m => m.Status = DiscordScheduledGuildEventStatus.Cancelled);
     }
 
     /// <summary>
@@ -632,19 +632,19 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         ScheduledGuildEventEditModel model = new();
         mdl(model);
 
-        if (model.Type.HasValue && model.Type.Value is not ScheduledGuildEventType.External)
+        if (model.Type.HasValue && model.Type.Value is not DiscordScheduledGuildEventType.External)
         {
             if (!model.Channel.HasValue)
             {
                 throw new ArgumentException("Channel must be supplied if the event is a stage instance or voice channel event.");
             }
 
-            if (model.Type.Value is ScheduledGuildEventType.StageInstance && model.Channel.Value.Type is not DiscordChannelType.Stage)
+            if (model.Type.Value is DiscordScheduledGuildEventType.StageInstance && model.Channel.Value.Type is not DiscordChannelType.Stage)
             {
                 throw new ArgumentException("Channel must be a stage channel if the event is a stage instance event.");
             }
 
-            if (model.Type.Value is ScheduledGuildEventType.VoiceChannel && model.Channel.Value.Type is not DiscordChannelType.Voice)
+            if (model.Type.Value is DiscordScheduledGuildEventType.VoiceChannel && model.Channel.Value.Type is not DiscordChannelType.Voice)
             {
                 throw new ArgumentException("Channel must be a voice channel if the event is a voice channel event.");
             }
@@ -655,7 +655,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             }
         }
 
-        if (model.Type.HasValue && model.Type.Value is ScheduledGuildEventType.External)
+        if (model.Type.HasValue && model.Type.Value is DiscordScheduledGuildEventType.External)
         {
             if (!model.EndTime.HasValue)
             {
@@ -673,12 +673,12 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             }
         }
 
-        if (guildEvent.Status is ScheduledGuildEventStatus.Completed)
+        if (guildEvent.Status is DiscordScheduledGuildEventStatus.Completed)
         {
             throw new ArgumentException("The event must not be completed for it to be modified.");
         }
 
-        if (guildEvent.Status is ScheduledGuildEventStatus.Cancelled)
+        if (guildEvent.Status is DiscordScheduledGuildEventStatus.Cancelled)
         {
             throw new ArgumentException("The event must not be cancelled for it to be modified.");
         }
@@ -687,13 +687,13 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         {
             switch (model.Status.Value)
             {
-                case ScheduledGuildEventStatus.Scheduled:
+                case DiscordScheduledGuildEventStatus.Scheduled:
                     throw new ArgumentException("Status must not be set to scheduled.");
-                case ScheduledGuildEventStatus.Active when guildEvent.Status is not ScheduledGuildEventStatus.Scheduled:
+                case DiscordScheduledGuildEventStatus.Active when guildEvent.Status is not DiscordScheduledGuildEventStatus.Scheduled:
                     throw new ArgumentException("Event status must be scheduled to progress to active.");
-                case ScheduledGuildEventStatus.Completed when guildEvent.Status is not ScheduledGuildEventStatus.Active:
+                case DiscordScheduledGuildEventStatus.Completed when guildEvent.Status is not DiscordScheduledGuildEventStatus.Active:
                     throw new ArgumentException("Event status must be active to progress to completed.");
-                case ScheduledGuildEventStatus.Cancelled when guildEvent.Status is not ScheduledGuildEventStatus.Scheduled:
+                case DiscordScheduledGuildEventStatus.Cancelled when guildEvent.Status is not DiscordScheduledGuildEventStatus.Scheduled:
                     throw new ArgumentException("Event status must be scheduled to progress to cancelled.");
             }
         }
@@ -1910,11 +1910,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="format">The image format of the sticker.</param>
     /// <param name="reason">The reason this sticker is being created.</param>
 
-    public async Task<DiscordMessageSticker> CreateStickerAsync(string name, string description, string tags, Stream imageContents, StickerFormat format, string reason = null)
+    public async Task<DiscordMessageSticker> CreateStickerAsync(string name, string description, string tags, Stream imageContents, DiscordStickerFormat format, string reason = null)
     {
         string contentType = null, extension = null;
 
-        if (format == StickerFormat.PNG || format == StickerFormat.APNG)
+        if (format == DiscordStickerFormat.PNG || format == DiscordStickerFormat.APNG)
         {
             contentType = "image/png";
             extension = "png";

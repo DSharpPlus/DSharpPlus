@@ -68,12 +68,12 @@ public sealed class DiscordAuditLogStickerEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the description of sticker's type change.
     /// </summary>
-    public PropertyChange<StickerType?> TypeChange { get; internal set; }
+    public PropertyChange<DiscordStickerType?> TypeChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of sticker's format change.
     /// </summary>
-    public PropertyChange<StickerFormat?> FormatChange { get; internal set; }
+    public PropertyChange<DiscordStickerFormat?> FormatChange { get; internal set; }
 
     internal DiscordAuditLogStickerEntry() { }
 }

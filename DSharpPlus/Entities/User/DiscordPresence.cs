@@ -47,7 +47,7 @@ public sealed class DiscordPresence
     /// Gets this user's status.
     /// </summary>
     [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
-    public UserStatus Status { get; internal set; }
+    public DiscordUserStatus Status { get; internal set; }
 
     [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
     internal ulong GuildId { get; set; }
@@ -93,17 +93,17 @@ public sealed class DiscordClientStatus
     /// Gets the user's status set for an active desktop (Windows, Linux, Mac) application session.
     /// </summary>
     [JsonProperty("desktop", NullValueHandling = NullValueHandling.Ignore)]
-    public Optional<UserStatus> Desktop { get; internal set; }
+    public Optional<DiscordUserStatus> Desktop { get; internal set; }
 
     /// <summary>
     /// Gets the user's status set for an active mobile (iOS, Android) application session.
     /// </summary>
     [JsonProperty("mobile", NullValueHandling = NullValueHandling.Ignore)]
-    public Optional<UserStatus> Mobile { get; internal set; }
+    public Optional<DiscordUserStatus> Mobile { get; internal set; }
 
     /// <summary>
     /// Gets the user's status set for an active web (browser, bot account) application session.
     /// </summary>
     [JsonProperty("web", NullValueHandling = NullValueHandling.Ignore)]
-    public Optional<UserStatus> Web { get; internal set; }
+    public Optional<DiscordUserStatus> Web { get; internal set; }
 }

@@ -147,7 +147,7 @@ internal sealed class RestScheduledGuildEventCreatePayload
     public DiscordScheduledGuildEventPrivacyLevel PrivacyLevel { get; set; }
 
     [JsonProperty("entity_type", NullValueHandling = NullValueHandling.Ignore)]
-    public ScheduledGuildEventType Type { get; set; }
+    public DiscordScheduledGuildEventType Type { get; set; }
 
     [JsonProperty("scheduled_start_time", NullValueHandling = NullValueHandling.Ignore)]
     public DateTimeOffset StartTime { get; set; }
@@ -177,7 +177,7 @@ internal sealed class RestScheduledGuildEventModifyPayload
     public Optional<DiscordScheduledGuildEventPrivacyLevel> PrivacyLevel { get; set; }
 
     [JsonProperty("entity_type", NullValueHandling = NullValueHandling.Ignore)]
-    public Optional<ScheduledGuildEventType> Type { get; set; }
+    public Optional<DiscordScheduledGuildEventType> Type { get; set; }
 
     [JsonProperty("scheduled_start_time", NullValueHandling = NullValueHandling.Ignore)]
     public Optional<DateTimeOffset> StartTime { get; set; }
@@ -189,7 +189,7 @@ internal sealed class RestScheduledGuildEventModifyPayload
     public Optional<DiscordScheduledGuildEventMetadata> Metadata { get; set; }
 
     [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
-    public Optional<ScheduledGuildEventStatus> Status { get; set; }
+    public Optional<DiscordScheduledGuildEventStatus> Status { get; set; }
 
     [JsonProperty("image", NullValueHandling = NullValueHandling.Ignore)]
     public Optional<string> CoverImage { get; set; }

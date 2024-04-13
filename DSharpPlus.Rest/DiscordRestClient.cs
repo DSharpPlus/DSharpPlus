@@ -46,14 +46,14 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="name">The name of the event, up to 100 characters.</param>
     /// <param name="description">The description of the event, up to 1000 characters.</param>
     /// <param name="channelId">The channel the event will take place in, if applicable.</param>
-    /// <param name="type">The type of event. If <see cref="ScheduledGuildEventType.External"/>, a end time must be specified.</param>
+    /// <param name="type">The type of event. If <see cref="DiscordScheduledGuildEventType.External"/>, a end time must be specified.</param>
     /// <param name="image">The image of event.</param>
     /// <param name="privacyLevel">The privacy level of the event.</param>
     /// <param name="start">When the event starts. Must be in the future and before the end date, if specified.</param>
-    /// <param name="end">When the event ends. Required for <see cref="ScheduledGuildEventType.External"/></param>
+    /// <param name="end">When the event ends. Required for <see cref="DiscordScheduledGuildEventType.External"/></param>
     /// <param name="location">Where this location takes place.</param>
     /// <returns>The created event.</returns>
-    public async Task<DiscordScheduledGuildEvent> CreateScheduledGuildEventAsync(ulong guildId, string name, string description, ulong? channelId, ScheduledGuildEventType type, DiscordScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, Stream? image = null, string location = null)
+    public async Task<DiscordScheduledGuildEvent> CreateScheduledGuildEventAsync(ulong guildId, string name, string description, ulong? channelId, DiscordScheduledGuildEventType type, DiscordScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, Stream? image = null, string location = null)
         => await this.ApiClient.CreateScheduledGuildEventAsync(guildId, name, description, start, type, privacyLevel, new DiscordScheduledGuildEventMetadata(location), end, channelId, image);
 
     /// <summary>
@@ -93,7 +93,7 @@ public class DiscordRestClient : BaseDiscordClient
         ScheduledGuildEventEditModel model = new();
         mdl(model);
 
-        if (model.Type.HasValue && model.Type.Value is ScheduledGuildEventType.StageInstance or ScheduledGuildEventType.VoiceChannel)
+        if (model.Type.HasValue && model.Type.Value is DiscordScheduledGuildEventType.StageInstance or DiscordScheduledGuildEventType.VoiceChannel)
         {
             if (!model.Channel.HasValue)
             {
@@ -101,7 +101,7 @@ public class DiscordRestClient : BaseDiscordClient
             }
         }
 
-        if (model.Type.HasValue && model.Type.Value is ScheduledGuildEventType.External)
+        if (model.Type.HasValue && model.Type.Value is DiscordScheduledGuildEventType.External)
         {
             if (!model.EndTime.HasValue)
             {
@@ -120,7 +120,7 @@ public class DiscordRestClient : BaseDiscordClient
         }
 
         // We only have an ID to work off of, so we have no validation as to the current state of the event.
-        return model.Status.HasValue && model.Status.Value is ScheduledGuildEventStatus.Scheduled
+        return model.Status.HasValue && model.Status.Value is DiscordScheduledGuildEventStatus.Scheduled
             ? throw new ArgumentException("Status cannot be set to scheduled.")
             : await this.ApiClient.ModifyScheduledGuildEventAsync(
             guildId, eventId,
@@ -2082,11 +2082,11 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="format">The image format of the sticker.</param>
     /// <param name="reason">The reason this sticker is being created.</param>
 
-    public async Task<DiscordMessageSticker> CreateGuildStickerAsync(ulong guildId, string name, string description, string tags, Stream imageContents, StickerFormat format, string reason = null)
+    public async Task<DiscordMessageSticker> CreateGuildStickerAsync(ulong guildId, string name, string description, string tags, Stream imageContents, DiscordStickerFormat format, string reason = null)
     {
         string contentType, extension;
 
-        if (format == StickerFormat.PNG || format == StickerFormat.APNG)
+        if (format == DiscordStickerFormat.PNG || format == DiscordStickerFormat.APNG)
         {
             contentType = "image/png";
             extension = "png";

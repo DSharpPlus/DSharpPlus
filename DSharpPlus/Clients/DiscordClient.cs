@@ -275,7 +275,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.UnauthorizedException">Thrown when an invalid token was provided.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task ConnectAsync(DiscordActivity activity = null, UserStatus? status = null, DateTimeOffset? idlesince = null)
+    public async Task ConnectAsync(DiscordActivity activity = null, DiscordUserStatus? status = null, DateTimeOffset? idlesince = null)
     {
         // Check if connection lock is already set, and set it if it isn't
         if (!this.ConnectionLock.Wait(0))
@@ -300,7 +300,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             this._status = new StatusUpdate()
             {
                 Activity = new TransportActivity(activity),
-                Status = status ?? UserStatus.Online,
+                Status = status ?? DiscordUserStatus.Online,
                 IdleSince = since_unix,
                 IsAFK = idlesince != null,
                 _activity = activity
@@ -668,7 +668,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="userStatus">Status of the user.</param>
     /// <param name="idleSince">Since when is the client performing the specified activity.</param>
     /// <returns></returns>
-    public Task UpdateStatusAsync(DiscordActivity activity = null, UserStatus? userStatus = null, DateTimeOffset? idleSince = null)
+    public Task UpdateStatusAsync(DiscordActivity activity = null, DiscordUserStatus? userStatus = null, DateTimeOffset? idleSince = null)
         => this.InternalUpdateStatusAsync(activity, userStatus, idleSince);
 
     /// <summary>

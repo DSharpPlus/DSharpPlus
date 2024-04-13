@@ -3,7 +3,7 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents the status of a <see cref="DiscordScheduledGuildEvent"/>.
 /// </summary>
-public enum ScheduledGuildEventStatus
+public enum DiscordScheduledGuildEventStatus
 {
     /// <summary>
     /// This event is scheduled.

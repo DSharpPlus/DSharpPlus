@@ -10,7 +10,7 @@ namespace DSharpPlus.Entities;
 /// Represents user status.
 /// </summary>
 [JsonConverter(typeof(UserStatusConverter))]
-public enum UserStatus
+public enum DiscordUserStatus
 {
     /// <summary>
     /// User is offline.
@@ -42,27 +42,27 @@ internal sealed class UserStatusConverter : JsonConverter
 {
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
     {
-        if (value is UserStatus status)
+        if (value is DiscordUserStatus status)
         {
             switch (status) // reader.Value can be a string, DateTime or DateTimeOffset (yes, it's weird)
             {
-                case UserStatus.Online:
+                case DiscordUserStatus.Online:
                     writer.WriteValue("online");
                     return;
 
-                case UserStatus.Idle:
+                case DiscordUserStatus.Idle:
                     writer.WriteValue("idle");
                     return;
 
-                case UserStatus.DoNotDisturb:
+                case DiscordUserStatus.DoNotDisturb:
                     writer.WriteValue("dnd");
                     return;
 
-                case UserStatus.Invisible:
+                case DiscordUserStatus.Invisible:
                     writer.WriteValue("invisible");
                     return;
 
-                case UserStatus.Offline:
+                case DiscordUserStatus.Offline:
                 default:
                     writer.WriteValue("offline");
                     return;
@@ -76,15 +76,15 @@ internal sealed class UserStatusConverter : JsonConverter
         // offline or invisible, the corresponding field is not present.
         return (reader.Value?.ToString().ToLowerInvariant()) switch // reader.Value can be a string, DateTime or DateTimeOffset (yes, it's weird)
         {
-            "online" => UserStatus.Online,
-            "idle" => UserStatus.Idle,
-            "dnd" => UserStatus.DoNotDisturb,
-            "invisible" => UserStatus.Invisible,
-            _ => UserStatus.Offline,
+            "online" => DiscordUserStatus.Online,
+            "idle" => DiscordUserStatus.Idle,
+            "dnd" => DiscordUserStatus.DoNotDisturb,
+            "invisible" => DiscordUserStatus.Invisible,
+            _ => DiscordUserStatus.Offline,
         };
     }
 
-    public override bool CanConvert(Type objectType) => objectType == typeof(UserStatus);
+    public override bool CanConvert(Type objectType) => objectType == typeof(DiscordUserStatus);
 }
 
 /// <summary>
@@ -105,7 +105,7 @@ public sealed class DiscordActivity
     /// <summary>
     /// Gets or sets the activity type.
     /// </summary>
-    public ActivityType ActivityType { get; set; }
+    public DiscordActivityType ActivityType { get; set; }
 
     /// <summary>
     /// Gets the rich presence details, if present.
@@ -120,7 +120,7 @@ public sealed class DiscordActivity
     /// <summary>
     /// Creates a new, empty instance of a <see cref="DiscordActivity"/>.
     /// </summary>
-    public DiscordActivity() => this.ActivityType = ActivityType.Playing;
+    public DiscordActivity() => this.ActivityType = DiscordActivityType.Playing;
 
     /// <summary>
     /// Creates a new instance of a <see cref="DiscordActivity"/> with specified name.
@@ -129,7 +129,7 @@ public sealed class DiscordActivity
     public DiscordActivity(string name)
     {
         this.Name = name;
-        this.ActivityType = ActivityType.Playing;
+        this.ActivityType = DiscordActivityType.Playing;
     }
 
     /// <summary>
@@ -137,13 +137,13 @@ public sealed class DiscordActivity
     /// </summary>
     /// <param name="name">Name of the activity.</param>
     /// <param name="type">Type of the activity.</param>
-    public DiscordActivity(string name, ActivityType type)
+    public DiscordActivity(string name, DiscordActivityType type)
     {
-        if (type == ActivityType.Custom)
+        if (type == DiscordActivityType.Custom)
         {
             this.Name = "Custom Status";
             this.CustomStatus = new DiscordCustomStatus() { Name = name };
-            this.ActivityType = ActivityType.Custom;
+            this.ActivityType = DiscordActivityType.Custom;
         }
         else
         {
@@ -176,7 +176,7 @@ public sealed class DiscordActivity
     internal void UpdateWith(TransportActivity rawActivity)
     {
         this.Name = rawActivity?.Name;
-        this.ActivityType = rawActivity != null ? rawActivity.ActivityType : ActivityType.Playing;
+        this.ActivityType = rawActivity != null ? rawActivity.ActivityType : DiscordActivityType.Playing;
         this.StreamUrl = rawActivity?.StreamUrl;
 
         if (rawActivity?.IsRichPresence() == true && this.RichPresence != null)
@@ -417,7 +417,7 @@ public sealed class DiscordRichPresence
 /// <summary>
 /// Determines the type of a user activity.
 /// </summary>
-public enum ActivityType
+public enum DiscordActivityType
 {
     /// <summary>
     /// Indicates the user is playing a game.
