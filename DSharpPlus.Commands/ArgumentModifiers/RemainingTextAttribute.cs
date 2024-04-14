@@ -1,4 +1,4 @@
-namespace DSharpPlus.Commands.Processors.TextCommands.Attributes;
+namespace DSharpPlus.Commands.ArgumentModifiers;
 
 using System;
 

@@ -6,8 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
-using DSharpPlus.Commands.Processors.TextCommands.Attributes;
 using DSharpPlus.Commands.Trees;
+using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 

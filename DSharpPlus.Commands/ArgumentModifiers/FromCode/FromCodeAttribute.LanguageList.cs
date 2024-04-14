@@ -5,7 +5,7 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 
-namespace DSharpPlus.Commands.ParameterModifiers;
+namespace DSharpPlus.Commands.ArgumentModifiers;
 
 partial class FromCodeAttribute : Attribute
 {

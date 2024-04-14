@@ -21,7 +21,6 @@ using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Processors.TextCommands.ContextChecks;
 using DSharpPlus.Commands.Processors.UserCommands;
 using DSharpPlus.Commands.Trees;
-using DSharpPlus.Commands.Trees.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using Microsoft.Extensions.DependencyInjection;

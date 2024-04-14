@@ -7,7 +7,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using DSharpPlus.Commands;
-using DSharpPlus.Commands.Trees.Attributes;
 
 public class CommandBuilder
 {
