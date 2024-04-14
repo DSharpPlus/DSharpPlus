@@ -1,8 +1,6 @@
-namespace DSharpPlus.Commands.Processors.SlashCommands.Attributes;
+namespace DSharpPlus.Commands.Processors.SlashCommands.Localization;
 
 using System;
-
-using DSharpPlus.Commands.Processors.SlashCommands.Localization;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
 public class InteractionLocalizerAttribute(Type localizerType) : Attribute

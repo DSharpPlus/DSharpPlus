@@ -1,6 +1,6 @@
 using System;
 
-namespace DSharpPlus.Commands.ParameterModifiers;
+namespace DSharpPlus.Commands.ArgumentModifiers;
 
 /// <summary>
 /// The types of code-formatted text to accept.
