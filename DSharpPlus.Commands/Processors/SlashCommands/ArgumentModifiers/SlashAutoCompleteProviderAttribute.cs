@@ -1,4 +1,4 @@
-namespace DSharpPlus.Commands.Processors.SlashCommands.Modifiers;
+namespace DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 
 using System;
 using System.Collections.Generic;

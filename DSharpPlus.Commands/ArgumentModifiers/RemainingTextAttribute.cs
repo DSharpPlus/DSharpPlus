@@ -1,4 +1,4 @@
-namespace DSharpPlus.Commands.ParameterModifiers;
+namespace DSharpPlus.Commands.ArgumentModifiers;
 
 using System;
 

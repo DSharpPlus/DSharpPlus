@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.TextCommands;
-using DSharpPlus.Commands.ParameterModifiers;
+using DSharpPlus.Commands.ArgumentModifiers;
 
 namespace DSharpPlus.Tests.Commands.Cases.Commands;
 
