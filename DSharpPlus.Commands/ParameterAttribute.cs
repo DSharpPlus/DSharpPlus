@@ -1,4 +1,6 @@
-namespace DSharpPlus.Commands.Trees.Attributes;
+using DSharpPlus.Commands.Trees.Attributes;
+
+namespace DSharpPlus.Commands;
 
 using System;
 
