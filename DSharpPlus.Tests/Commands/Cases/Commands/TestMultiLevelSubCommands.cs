@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using DSharpPlus.Commands;
-using DSharpPlus.Commands.Trees.Attributes;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Tests.Commands.Cases.Commands;
