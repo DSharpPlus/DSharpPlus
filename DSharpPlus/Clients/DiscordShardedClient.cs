@@ -209,7 +209,7 @@ public sealed partial class DiscordShardedClient
     /// <param name="userStatus">Status of the user.</param>
     /// <param name="idleSince">Since when is the client performing the specified activity.</param>
     /// <returns>Asynchronous operation.</returns>
-    public async Task UpdateStatusAsync(DiscordActivity activity = null, UserStatus? userStatus = null, DateTimeOffset? idleSince = null)
+    public async Task UpdateStatusAsync(DiscordActivity activity = null, DiscordUserStatus? userStatus = null, DateTimeOffset? idleSince = null)
     {
         List<Task> tasks = new List<Task>();
         foreach (DiscordClient client in this._shards.Values)

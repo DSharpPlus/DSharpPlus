@@ -16,7 +16,7 @@ public class DiscordThreadChannelMetadata
     /// Gets the duration in minutes to automatically archive the thread after recent activity. Can be set to: 60, 1440, 4320, 10080.
     /// </summary>
     [JsonProperty("auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
-    public AutoArchiveDuration AutoArchiveDuration { get; internal set; }
+    public DiscordAutoArchiveDuration AutoArchiveDuration { get; internal set; }
 
     /// <summary>
     /// Gets the time timestamp for when the thread's archive status was last changed.

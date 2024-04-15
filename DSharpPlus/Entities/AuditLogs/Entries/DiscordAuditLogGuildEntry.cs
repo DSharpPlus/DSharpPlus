@@ -48,7 +48,7 @@ public sealed class DiscordAuditLogGuildEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the description of verification level's change.
     /// </summary>
-    public PropertyChange<VerificationLevel?> VerificationLevelChange { get; internal set; }
+    public PropertyChange<DiscordVerificationLevel?> VerificationLevelChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of afk channel's change.
@@ -63,7 +63,7 @@ public sealed class DiscordAuditLogGuildEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the description of notification settings' change.
     /// </summary>
-    public PropertyChange<DefaultMessageNotifications?> NotificationSettingsChange { get; internal set; }
+    public PropertyChange<DiscordDefaultMessageNotifications?> NotificationSettingsChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of system message channel's change.
@@ -73,12 +73,12 @@ public sealed class DiscordAuditLogGuildEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the description of explicit content filter settings' change.
     /// </summary>
-    public PropertyChange<ExplicitContentFilter?> ExplicitContentFilterChange { get; internal set; }
+    public PropertyChange<DiscordExplicitContentFilter?> ExplicitContentFilterChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of guild's mfa level change.
     /// </summary>
-    public PropertyChange<MfaLevel?> MfaLevelChange { get; internal set; }
+    public PropertyChange<DiscordMfaLevel?> MfaLevelChange { get; internal set; }
 
     /// <summary>
     /// Gets the description of invite splash's change.

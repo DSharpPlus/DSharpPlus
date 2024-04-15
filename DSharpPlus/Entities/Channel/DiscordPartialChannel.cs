@@ -40,7 +40,7 @@ public class DiscordPartialChannel
     /// Gets the type of this channel.
     /// </summary>
     [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-    public ChannelType? Type { get; internal set; }
+    public DiscordChannelType? Type { get; internal set; }
 
     /// <summary>
     /// Gets the position of this channel.
@@ -83,7 +83,7 @@ public class DiscordPartialChannel
 
     /// <summary>
     /// <para>Gets the slow mode delay configured for this channel.</para>
-    /// <para>All bots, as well as users with <see cref="Permissions.ManageChannels"/> or <see cref="Permissions.ManageMessages"/> permissions in the channel are exempt from slow mode.</para>
+    /// <para>All bots, as well as users with <see cref="DiscordPermissions.ManageChannels"/> or <see cref="DiscordPermissions.ManageMessages"/> permissions in the channel are exempt from slow mode.</para>
     /// </summary>
     [JsonProperty("rate_limit_per_user", NullValueHandling = NullValueHandling.Ignore)]
     public int? PerUserRateLimit { get; internal set; }
@@ -92,7 +92,7 @@ public class DiscordPartialChannel
     /// Gets this channel's video quality mode. This is applicable to voice channels only.
     /// </summary>
     [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
-    public VideoQualityMode? QualityMode { get; internal set; }
+    public DiscordVideoQualityMode? QualityMode { get; internal set; }
 
     /// <summary>
     /// Gets when the last pinned message was pinned.
@@ -117,7 +117,7 @@ public class DiscordPartialChannel
     /// <para>Only sent on the resolved channels of interaction responses for application commands.</para>
     /// </summary>
     [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
-    public Permissions? UserPermissions { get; internal set; }
+    public DiscordPermissions? UserPermissions { get; internal set; }
 
     internal DiscordPartialChannel()
     {

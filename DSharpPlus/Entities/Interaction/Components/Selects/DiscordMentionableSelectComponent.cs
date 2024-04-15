@@ -73,7 +73,7 @@ public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectCompone
         return this;
     }
 
-    internal DiscordMentionableSelectComponent() => this.Type = ComponentType.MentionableSelect;
+    internal DiscordMentionableSelectComponent() => this.Type = DiscordComponentType.MentionableSelect;
 
     /// <summary>
     /// Creates a new mentionable select component.
@@ -84,5 +84,5 @@ public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectCompone
     /// <param name="minOptions">The minimum amount of options to be selected.</param>
     /// <param name="maxOptions">The maximum amount of options to be selected, up to 25.</param>
     public DiscordMentionableSelectComponent(string customId, string placeholder, bool disabled = false, int minOptions = 1, int maxOptions = 1) 
-    : base(ComponentType.MentionableSelect, customId, placeholder, disabled, minOptions, maxOptions) { }
+    : base(DiscordComponentType.MentionableSelect, customId, placeholder, disabled, minOptions, maxOptions) { }
 }

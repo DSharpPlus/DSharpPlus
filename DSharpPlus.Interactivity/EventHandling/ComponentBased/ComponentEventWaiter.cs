@@ -96,7 +96,7 @@ internal class ComponentEventWaiter : IDisposable
         {
             if (creq.Message == args.Message && creq.IsMatch(args))
             {
-                await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+                await args.Interaction.CreateResponseAsync(DiscordInteractionResponseType.DeferredMessageUpdate);
 
                 if (creq.IsMatch(args))
                 {

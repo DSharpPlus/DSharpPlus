@@ -8,10 +8,10 @@ namespace DSharpPlus.SlashCommands;
 /// Specifies the installation context for a command or module.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-public class InteractionCommandInstallTypeAttribute(params ApplicationIntegrationType[]  installTypes) : Attribute
+public class InteractionCommandInstallTypeAttribute(params DiscordApplicationIntegrationType[]  installTypes) : Attribute
 {
     /// <summary>
     /// The contexts the command is allowed to be installed to.
     /// </summary>
-    public IReadOnlyList<ApplicationIntegrationType> InstallTypes { get; } = installTypes;
+    public IReadOnlyList<DiscordApplicationIntegrationType> InstallTypes { get; } = installTypes;
 }

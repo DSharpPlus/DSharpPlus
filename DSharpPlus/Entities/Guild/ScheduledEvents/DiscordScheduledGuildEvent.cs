@@ -66,13 +66,13 @@ public sealed class DiscordScheduledGuildEvent : SnowflakeObject
     /// The privacy of this event.
     /// </summary>
     [JsonProperty("privacy_level")]
-    public ScheduledGuildEventPrivacyLevel PrivacyLevel { get; internal set; }
+    public DiscordScheduledGuildEventPrivacyLevel PrivacyLevel { get; internal set; }
 
     /// <summary>
     /// The current status of this event.
     /// </summary>
     [JsonProperty("status")]
-    public ScheduledGuildEventStatus Status { get; internal set; }
+    public DiscordScheduledGuildEventStatus Status { get; internal set; }
 
     /// <summary>
     /// Metadata associated with this event.
@@ -84,7 +84,7 @@ public sealed class DiscordScheduledGuildEvent : SnowflakeObject
     /// What type of event this is.
     /// </summary>
     [JsonProperty("entity_type")]
-    public ScheduledGuildEventType Type { get; internal set; }
+    public DiscordScheduledGuildEventType Type { get; internal set; }
 
     /// <summary>
     /// How many users are interested in this event.

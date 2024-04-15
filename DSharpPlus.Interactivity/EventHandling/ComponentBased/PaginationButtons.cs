@@ -20,11 +20,11 @@ public class PaginationButtons
 
     public PaginationButtons()
     {
-        this.SkipLeft = new(ButtonStyle.Secondary, "leftskip", null, false, new(DiscordEmoji.FromUnicode("⏮")));
-        this.Left = new(ButtonStyle.Secondary, "left", null, false, new(DiscordEmoji.FromUnicode("◀")));
-        this.Stop = new(ButtonStyle.Secondary, "stop", null, false, new(DiscordEmoji.FromUnicode("⏹")));
-        this.Right = new(ButtonStyle.Secondary, "right", null, false, new(DiscordEmoji.FromUnicode("▶")));
-        this.SkipRight = new(ButtonStyle.Secondary, "rightskip", null, false, new(DiscordEmoji.FromUnicode("⏭")));
+        this.SkipLeft = new(DiscordButtonStyle.Secondary, "leftskip", null, false, new(DiscordEmoji.FromUnicode("⏮")));
+        this.Left = new(DiscordButtonStyle.Secondary, "left", null, false, new(DiscordEmoji.FromUnicode("◀")));
+        this.Stop = new(DiscordButtonStyle.Secondary, "stop", null, false, new(DiscordEmoji.FromUnicode("⏹")));
+        this.Right = new(DiscordButtonStyle.Secondary, "right", null, false, new(DiscordEmoji.FromUnicode("▶")));
+        this.SkipRight = new(DiscordButtonStyle.Secondary, "rightskip", null, false, new(DiscordEmoji.FromUnicode("⏭")));
     }
 
     public PaginationButtons(PaginationButtons other)

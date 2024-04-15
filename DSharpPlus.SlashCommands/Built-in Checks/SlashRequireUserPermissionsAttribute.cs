@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
 
+using DSharpPlus.Entities;
+
 namespace DSharpPlus.SlashCommands.Attributes;
 
 /// <summary>
@@ -12,7 +14,7 @@ public sealed class SlashRequireUserPermissionsAttribute : SlashCheckBaseAttribu
     /// <summary>
     /// Gets the permissions required by this attribute.
     /// </summary>
-    public Permissions Permissions { get; }
+    public DiscordPermissions Permissions { get; }
 
     /// <summary>
     /// Gets or sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.
@@ -24,7 +26,7 @@ public sealed class SlashRequireUserPermissionsAttribute : SlashCheckBaseAttribu
     /// </summary>
     /// <param name="permissions">Permissions required to execute this command.</param>
     /// <param name="ignoreDms">Sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.</param>
-    public SlashRequireUserPermissionsAttribute(Permissions permissions, bool ignoreDms = true)
+    public SlashRequireUserPermissionsAttribute(DiscordPermissions permissions, bool ignoreDms = true)
     {
         this.Permissions = permissions;
         this.IgnoreDms = ignoreDms;
@@ -51,9 +53,9 @@ public sealed class SlashRequireUserPermissionsAttribute : SlashCheckBaseAttribu
             return Task.FromResult(true);
         }
 
-        Permissions pusr = ctx.Channel.PermissionsFor(usr);
+        DiscordPermissions pusr = ctx.Channel.PermissionsFor(usr);
 
-        return (pusr & Permissions.Administrator) != 0
+        return (pusr & DiscordPermissions.Administrator) != 0
             ? Task.FromResult(true)
             : (pusr & this.Permissions) == this.Permissions ? Task.FromResult(true) : Task.FromResult(false);
     }

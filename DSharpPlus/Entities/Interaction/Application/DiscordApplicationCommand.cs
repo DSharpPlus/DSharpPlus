@@ -23,7 +23,7 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
     /// Gets the type of this application command.
     /// </summary>
     [JsonProperty("type")]
-    public ApplicationCommandType Type { get; internal set; }
+    public DiscordApplicationCommandType Type { get; internal set; }
 
     /// <summary>
     /// Gets the name of this command.
@@ -59,7 +59,7 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
     /// What permissions this command requires to be invoked.
     /// </summary>
     [JsonProperty("default_member_permissions")]
-    public Permissions? DefaultMemberPermissions { get; internal set; }
+    public DiscordPermissions? DefaultMemberPermissions { get; internal set; }
 
     /// <summary>
     /// Whether this command is age-restricted.
@@ -83,13 +83,13 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
     /// Contexts in which this command can be invoked.
     /// </summary>
     [JsonProperty("contexts")]
-    public IReadOnlyList<InteractionContextType>? Contexts { get; internal set; }
+    public IReadOnlyList<DiscordInteractionContextType>? Contexts { get; internal set; }
     
     /// <summary>
     /// Contexts in which this command can be installed.
     /// </summary>
     [JsonProperty("integration_types")]
-    public IReadOnlyList<ApplicationIntegrationType>? IntegrationTypes { get; internal set; }
+    public IReadOnlyList<DiscordApplicationIntegrationType>? IntegrationTypes { get; internal set; }
 
     /// <summary>
     /// Gets the command's mention string.
@@ -118,18 +118,18 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
         string name, 
         string description, 
         IEnumerable<DiscordApplicationCommandOption> options = null, 
-        bool? defaultPermission = null, 
-        ApplicationCommandType type = ApplicationCommandType.SlashCommand, 
+        bool? defaultPermission = null,
+        DiscordApplicationCommandType type = DiscordApplicationCommandType.SlashCommand, 
         IReadOnlyDictionary<string, string> name_localizations = null, 
         IReadOnlyDictionary<string, string> description_localizations = null, 
-        bool? allowDMUsage = null, 
-        Permissions? defaultMemberPermissions = null, 
+        bool? allowDMUsage = null,
+        DiscordPermissions? defaultMemberPermissions = null, 
         bool? nsfw = null,
-        IReadOnlyList<InteractionContextType>? contexts = null,
-        IReadOnlyList<ApplicationIntegrationType>? integrationTypes = null
+        IReadOnlyList<DiscordInteractionContextType>? contexts = null,
+        IReadOnlyList<DiscordApplicationIntegrationType>? integrationTypes = null
     )
     {
-        if (type is ApplicationCommandType.SlashCommand)
+        if (type is DiscordApplicationCommandType.SlashCommand)
         {
             if (!Utilities.IsValidSlashCommandName(name))
             {

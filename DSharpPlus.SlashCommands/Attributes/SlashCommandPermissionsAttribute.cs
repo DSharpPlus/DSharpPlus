@@ -1,10 +1,12 @@
 using System;
+
+using DSharpPlus.Entities;
 namespace DSharpPlus.SlashCommands;
 
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
 public class SlashCommandPermissionsAttribute : Attribute
 {
-    public Permissions Permissions { get; }
+    public DiscordPermissions Permissions { get; }
 
-    public SlashCommandPermissionsAttribute(Permissions permissions) => this.Permissions = permissions;
+    public SlashCommandPermissionsAttribute(DiscordPermissions permissions) => this.Permissions = permissions;
 }

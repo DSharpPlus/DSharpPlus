@@ -18,7 +18,7 @@ public partial class DiscordMemberConverter : ISlashArgumentConverter<DiscordMem
     [GeneratedRegex("""^<@!?(\d+?)>$""", RegexOptions.Compiled | RegexOptions.ECMAScript)]
     private static partial Regex _getMemberRegex();
 
-    public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.User;
+    public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.User;
     public bool RequiresText { get; init; } = true;
     private readonly ILogger<DiscordMemberConverter> _logger;
 

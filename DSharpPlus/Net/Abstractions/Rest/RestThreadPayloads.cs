@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using DSharpPlus.Entities;
+
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions;
@@ -9,10 +11,10 @@ internal sealed class RestThreadCreatePayload
     public required string Name { get; set; }
 
     [JsonProperty("auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
-    public AutoArchiveDuration ArchiveAfter { get; set; }
+    public DiscordAutoArchiveDuration ArchiveAfter { get; set; }
 
     [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-    public ChannelType? Type { get; set; }
+    public DiscordChannelType? Type { get; set; }
 }
 
 internal sealed class RestForumPostCreatePayload
@@ -21,7 +23,7 @@ internal sealed class RestForumPostCreatePayload
     public required string Name { get; set; }
 
     [JsonProperty("auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
-    public AutoArchiveDuration? ArchiveAfter { get; set; }
+    public DiscordAutoArchiveDuration? ArchiveAfter { get; set; }
 
     [JsonProperty("rate_limit_per_user", NullValueHandling = NullValueHandling.Include)]
     public int? RateLimitPerUser { get; set; }

@@ -90,7 +90,7 @@ public class InteractivityExtension : BaseExtension
         PollBehaviour pollbehaviour = behaviour ?? this.Config.PollBehaviour;
         DiscordMember thismember = await m.Channel.Guild.GetMemberAsync(this.Client.CurrentUser.Id);
 
-        if (pollbehaviour == PollBehaviour.DeleteEmojis && m.Channel.PermissionsFor(thismember).HasPermission(Permissions.ManageMessages))
+        if (pollbehaviour == PollBehaviour.DeleteEmojis && m.Channel.PermissionsFor(thismember).HasPermission(DiscordPermissions.ManageMessages))
         {
             await m.DeleteAllReactionsAsync();
         }
@@ -197,7 +197,7 @@ public class InteractivityExtension : BaseExtension
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Button))
+        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is DiscordComponentType.Button))
         {
             throw new ArgumentException("Provided message does not contain any button components.");
         }
@@ -205,7 +205,7 @@ public class InteractivityExtension : BaseExtension
         ComponentInteractionCreateEventArgs? res = await this.ComponentEventWaiter
             .WaitForMatchAsync(new(message,
                 c =>
-                    c.Interaction.Data.ComponentType == ComponentType.Button &&
+                    c.Interaction.Data.ComponentType == DiscordComponentType.Button &&
                     buttons.Any(b => b.CustomId == c.Id), token));
 
         return new(res is null, res);
@@ -242,7 +242,7 @@ public class InteractivityExtension : BaseExtension
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Button))
+        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is DiscordComponentType.Button))
         {
             throw new ArgumentException("Provided message does not contain any button components.");
         }
@@ -252,7 +252,7 @@ public class InteractivityExtension : BaseExtension
         ComponentInteractionCreateEventArgs? result =
             await this
             .ComponentEventWaiter
-            .WaitForMatchAsync(new(message, c => c.Interaction.Data.ComponentType == ComponentType.Button && ids.Contains(c.Id), token))
+            .WaitForMatchAsync(new(message, c => c.Interaction.Data.ComponentType == DiscordComponentType.Button && ids.Contains(c.Id), token))
             ;
 
         return new(result is null, result);
@@ -291,14 +291,14 @@ public class InteractivityExtension : BaseExtension
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Button))
+        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is DiscordComponentType.Button))
         {
             throw new ArgumentException("Provided message does not contain any button components.");
         }
 
         ComponentInteractionCreateEventArgs? result = await this
             .ComponentEventWaiter
-            .WaitForMatchAsync(new(message, (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.User == user, token))
+            .WaitForMatchAsync(new(message, (c) => c.Interaction.Data.ComponentType is DiscordComponentType.Button && c.User == user, token))
             ;
 
         return new(result is null, result);
@@ -338,7 +338,7 @@ public class InteractivityExtension : BaseExtension
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Button))
+        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is DiscordComponentType.Button))
         {
             throw new ArgumentException("Provided message does not contain any button components.");
         }
@@ -350,7 +350,7 @@ public class InteractivityExtension : BaseExtension
 
         ComponentInteractionCreateEventArgs? result = await this
             .ComponentEventWaiter
-            .WaitForMatchAsync(new(message, (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.Id == id, token))
+            .WaitForMatchAsync(new(message, (c) => c.Interaction.Data.ComponentType is DiscordComponentType.Button && c.Id == id, token))
             ;
 
         return new(result is null, result);
@@ -383,14 +383,14 @@ public class InteractivityExtension : BaseExtension
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Button))
+        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is DiscordComponentType.Button))
         {
             throw new ArgumentException("Provided message does not contain any button components.");
         }
 
         ComponentInteractionCreateEventArgs? result = await this
             .ComponentEventWaiter
-            .WaitForMatchAsync(new(message, c => c.Interaction.Data.ComponentType is ComponentType.Button && predicate(c), token))
+            .WaitForMatchAsync(new(message, c => c.Interaction.Data.ComponentType is DiscordComponentType.Button && predicate(c), token))
             ;
 
         return new(result is null, result);
@@ -490,14 +490,13 @@ public class InteractivityExtension : BaseExtension
     private bool IsSelect(DiscordComponent component)
         => this.IsSelect(component.Type);
 
-    private bool IsSelect(ComponentType type)
+    private bool IsSelect(DiscordComponentType type)
         => type is
-            ComponentType.StringSelect or
-            ComponentType.UserSelect or
-            ComponentType.RoleSelect or
-            ComponentType.MentionableSelect or
-            ComponentType.ChannelSelect;
-
+            DiscordComponentType.StringSelect or
+            DiscordComponentType.UserSelect or
+            DiscordComponentType.RoleSelect or
+            DiscordComponentType.MentionableSelect or
+            DiscordComponentType.ChannelSelect;
 
     /// <summary>
     /// Waits for a dropdown to be interacted with by a specific user.
@@ -954,7 +953,7 @@ public class InteractivityExtension : BaseExtension
                 .AsEphemeral(ephemeral)
                 .AddComponents(buttonArray);
 
-            await interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+            await interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, builder);
             message = await interaction.GetOriginalResponseAsync();
         }
 
@@ -1114,8 +1113,8 @@ public class InteractivityExtension : BaseExtension
     {
         Task at = this.Config.ResponseBehavior switch
         {
-            InteractionResponseBehavior.Ack => interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate),
-            InteractionResponseBehavior.Respond => interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new() { Content = this.Config.ResponseMessage, IsEphemeral = true }),
+            InteractionResponseBehavior.Ack => interaction.CreateResponseAsync(DiscordInteractionResponseType.DeferredMessageUpdate),
+            InteractionResponseBehavior.Respond => interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder() { Content = this.Config.ResponseMessage, IsEphemeral = true }),
             InteractionResponseBehavior.Ignore => Task.CompletedTask,
             _ => throw new ArgumentException("Unknown enum value.")
         };

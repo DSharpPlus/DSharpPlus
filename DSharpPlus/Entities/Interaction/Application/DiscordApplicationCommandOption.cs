@@ -15,7 +15,7 @@ public sealed class DiscordApplicationCommandOption
     /// Gets the type of this command parameter.
     /// </summary>
     [JsonProperty("type")]
-    public ApplicationCommandOptionType Type { get; internal set; }
+    public DiscordApplicationCommandOptionType Type { get; internal set; }
 
     /// <summary>
     /// Gets the name of this command parameter.
@@ -54,10 +54,10 @@ public sealed class DiscordApplicationCommandOption
     public IReadOnlyCollection<DiscordApplicationCommandOption> Options { get; internal set; }
 
     /// <summary>
-    /// Gets the channel types this command parameter is restricted to, if of type <see cref="ApplicationCommandOptionType.Channel"/>..
+    /// Gets the channel types this command parameter is restricted to, if of type <see cref="DiscordApplicationCommandOptionType.Channel"/>..
     /// </summary>
     [JsonProperty("channel_types", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyCollection<ChannelType> ChannelTypes { get; internal set; }
+    public IReadOnlyCollection<DiscordChannelType> ChannelTypes { get; internal set; }
 
     /// <summary>
     /// Gets the minimum value for this slash command parameter.
@@ -104,15 +104,15 @@ public sealed class DiscordApplicationCommandOption
     /// <param name="required">Whether the parameter is required.</param>
     /// <param name="choices">The optional choice selection for this parameter.</param>
     /// <param name="options">The optional subcommands for this parameter.</param>
-    /// <param name="channelTypes">The channel types to be restricted to for this parameter, if of type <see cref="ApplicationCommandOptionType.Channel"/>.</param>
+    /// <param name="channelTypes">The channel types to be restricted to for this parameter, if of type <see cref="DiscordApplicationCommandOptionType.Channel"/>.</param>
     /// <param name="autocomplete">Whether this parameter is autocomplete. If true, <paramref name="choices"/> must not be provided.</param>
-    /// <param name="minValue">The minimum value for this parameter. Only valid for types <see cref="ApplicationCommandOptionType.Integer"/> or <see cref="ApplicationCommandOptionType.Number"/>.</param>
-    /// <param name="maxValue">The maximum value for this parameter. Only valid for types <see cref="ApplicationCommandOptionType.Integer"/> or <see cref="ApplicationCommandOptionType.Number"/>.</param>
+    /// <param name="minValue">The minimum value for this parameter. Only valid for types <see cref="DiscordApplicationCommandOptionType.Integer"/> or <see cref="DiscordApplicationCommandOptionType.Number"/>.</param>
+    /// <param name="maxValue">The maximum value for this parameter. Only valid for types <see cref="DiscordApplicationCommandOptionType.Integer"/> or <see cref="DiscordApplicationCommandOptionType.Number"/>.</param>
     /// <param name="name_localizations">Name localizations for this parameter.</param>
     /// <param name="description_localizations">Description localizations for this parameter.</param>
-    /// <param name="minLength">The minimum allowed length for this parameter. Only valid for type <see cref="ApplicationCommandOptionType.String"/>.</param>
-    /// <param name="maxLength">The maximum allowed length for this parameter. Only valid for type <see cref="ApplicationCommandOptionType.String"/>.</param>
-    public DiscordApplicationCommandOption(string name, string description, ApplicationCommandOptionType type, bool? required = null, IEnumerable<DiscordApplicationCommandOptionChoice> choices = null, IEnumerable<DiscordApplicationCommandOption> options = null, IEnumerable<ChannelType> channelTypes = null, bool? autocomplete = null, object minValue = null, object maxValue = null, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, int? minLength = null, int? maxLength = null)
+    /// <param name="minLength">The minimum allowed length for this parameter. Only valid for type <see cref="DiscordApplicationCommandOptionType.String"/>.</param>
+    /// <param name="maxLength">The maximum allowed length for this parameter. Only valid for type <see cref="DiscordApplicationCommandOptionType.String"/>.</param>
+    public DiscordApplicationCommandOption(string name, string description, DiscordApplicationCommandOptionType type, bool? required = null, IEnumerable<DiscordApplicationCommandOptionChoice> choices = null, IEnumerable<DiscordApplicationCommandOption> options = null, IEnumerable<DiscordChannelType> channelTypes = null, bool? autocomplete = null, object minValue = null, object maxValue = null, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, int? minLength = null, int? maxLength = null)
     {
         if (!Utilities.IsValidSlashCommandName(name))
         {
@@ -136,7 +136,7 @@ public sealed class DiscordApplicationCommandOption
 
         ReadOnlyCollection<DiscordApplicationCommandOptionChoice>? choiceList = choices != null ? new ReadOnlyCollection<DiscordApplicationCommandOptionChoice>(choices.ToList()) : null;
         ReadOnlyCollection<DiscordApplicationCommandOption>? optionList = options != null ? new ReadOnlyCollection<DiscordApplicationCommandOption>(options.ToList()) : null;
-        ReadOnlyCollection<ChannelType>? channelTypeList = channelTypes != null ? new ReadOnlyCollection<ChannelType>(channelTypes.ToList()) : null;
+        ReadOnlyCollection<DiscordChannelType>? channelTypeList = channelTypes != null ? new ReadOnlyCollection<DiscordChannelType>(channelTypes.ToList()) : null;
 
         this.Name = name;
         this.Description = description;

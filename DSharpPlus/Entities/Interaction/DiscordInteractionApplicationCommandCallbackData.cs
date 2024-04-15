@@ -24,7 +24,7 @@ internal class DiscordInteractionApplicationCommandCallbackData
     public DiscordMentions Mentions { get; internal set; }
 
     [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
-    public MessageFlags? Flags { get; internal set; }
+    public DiscordMessageFlags? Flags { get; internal set; }
 
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
     public IReadOnlyCollection<DiscordActionRowComponent> Components { get; internal set; }

@@ -14,8 +14,8 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
     /// </summary>
     public bool IsEphemeral
     {
-        get => (this.Flags & MessageFlags.Ephemeral) == MessageFlags.Ephemeral;
-        set => _ = value ? this.Flags |= MessageFlags.Ephemeral : this.Flags &= ~MessageFlags.Ephemeral;
+        get => (this.Flags & DiscordMessageFlags.Ephemeral) == DiscordMessageFlags.Ephemeral;
+        set => _ = value ? this.Flags |= DiscordMessageFlags.Ephemeral : this.Flags &= ~DiscordMessageFlags.Ephemeral;
     }
 
     /// <summary>

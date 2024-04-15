@@ -19,7 +19,7 @@ public sealed class DiscordInteractionDataOption
     /// Gets the type of this interaction parameter.
     /// </summary>
     [JsonProperty("type")]
-    public ApplicationCommandOptionType Type { get; internal set; }
+    public DiscordApplicationCommandOptionType Type { get; internal set; }
 
     /// <summary>
     /// If this is an autocomplete option: Whether this option is currently active.
@@ -37,15 +37,15 @@ public sealed class DiscordInteractionDataOption
     [JsonIgnore]
     public object Value => this.Type switch
     {
-        ApplicationCommandOptionType.Boolean => bool.Parse(this.RawValue),
-        ApplicationCommandOptionType.Integer => long.Parse(this.RawValue),
-        ApplicationCommandOptionType.String => this.RawValue,
-        ApplicationCommandOptionType.Channel => ulong.Parse(this.RawValue),
-        ApplicationCommandOptionType.User => ulong.Parse(this.RawValue),
-        ApplicationCommandOptionType.Role => ulong.Parse(this.RawValue),
-        ApplicationCommandOptionType.Mentionable => ulong.Parse(this.RawValue),
-        ApplicationCommandOptionType.Number => double.Parse(this.RawValue, CultureInfo.InvariantCulture),
-        ApplicationCommandOptionType.Attachment => ulong.Parse(this.RawValue, CultureInfo.InvariantCulture),
+        DiscordApplicationCommandOptionType.Boolean => bool.Parse(this.RawValue),
+        DiscordApplicationCommandOptionType.Integer => long.Parse(this.RawValue),
+        DiscordApplicationCommandOptionType.String => this.RawValue,
+        DiscordApplicationCommandOptionType.Channel => ulong.Parse(this.RawValue),
+        DiscordApplicationCommandOptionType.User => ulong.Parse(this.RawValue),
+        DiscordApplicationCommandOptionType.Role => ulong.Parse(this.RawValue),
+        DiscordApplicationCommandOptionType.Mentionable => ulong.Parse(this.RawValue),
+        DiscordApplicationCommandOptionType.Number => double.Parse(this.RawValue, CultureInfo.InvariantCulture),
+        DiscordApplicationCommandOptionType.Attachment => ulong.Parse(this.RawValue, CultureInfo.InvariantCulture),
         _ => this.RawValue,
     };
 

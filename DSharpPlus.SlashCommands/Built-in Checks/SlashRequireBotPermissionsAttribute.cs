@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
 
+using DSharpPlus.Entities;
+
 namespace DSharpPlus.SlashCommands.Attributes;
 
 /// <summary>
@@ -12,7 +14,7 @@ public sealed class SlashRequireBotPermissionsAttribute : SlashCheckBaseAttribut
     /// <summary>
     /// Gets the permissions required by this attribute.
     /// </summary>
-    public Permissions Permissions { get; }
+    public DiscordPermissions Permissions { get; }
 
     /// <summary>
     /// Gets or sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.
@@ -24,7 +26,7 @@ public sealed class SlashRequireBotPermissionsAttribute : SlashCheckBaseAttribut
     /// </summary>
     /// <param name="permissions">Permissions required to execute this command.</param>
     /// <param name="ignoreDms">Sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.</param>
-    public SlashRequireBotPermissionsAttribute(Permissions permissions, bool ignoreDms = true)
+    public SlashRequireBotPermissionsAttribute(DiscordPermissions permissions, bool ignoreDms = true)
     {
         this.Permissions = permissions;
         this.IgnoreDms = ignoreDms;
@@ -51,8 +53,8 @@ public sealed class SlashRequireBotPermissionsAttribute : SlashCheckBaseAttribut
             return true;
         }
 
-        Permissions pbot = ctx.Channel.PermissionsFor(bot);
+        DiscordPermissions pbot = ctx.Channel.PermissionsFor(bot);
 
-        return (pbot & Permissions.Administrator) != 0 ? true : (pbot & this.Permissions) == this.Permissions;
+        return (pbot & DiscordPermissions.Administrator) != 0 ? true : (pbot & this.Permissions) == this.Permissions;
     }
 }

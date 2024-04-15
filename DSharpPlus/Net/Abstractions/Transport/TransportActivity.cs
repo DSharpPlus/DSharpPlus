@@ -28,7 +28,7 @@ internal sealed class TransportActivity
     /// Gets or sets the livesteam type.
     /// </summary>
     [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-    public ActivityType ActivityType { get; internal set; }
+    public DiscordActivityType ActivityType { get; internal set; }
 
     /// <summary>
     /// Gets or sets the details.

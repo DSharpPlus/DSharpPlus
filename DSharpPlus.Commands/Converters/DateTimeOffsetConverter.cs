@@ -10,7 +10,7 @@ using DSharpPlus.EventArgs;
 
 public class DateTimeOffsetConverter : ISlashArgumentConverter<DateTimeOffset>, ITextArgumentConverter<DateTimeOffset>
 {
-    public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.String;
+    public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.String;
     public bool RequiresText { get; init; } = true;
 
     public Task<Optional<DateTimeOffset>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => DateTimeOffset.TryParse(context.Argument, CultureInfo.InvariantCulture, out DateTimeOffset result)

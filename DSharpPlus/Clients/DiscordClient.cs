@@ -275,7 +275,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.UnauthorizedException">Thrown when an invalid token was provided.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task ConnectAsync(DiscordActivity activity = null, UserStatus? status = null, DateTimeOffset? idlesince = null)
+    public async Task ConnectAsync(DiscordActivity activity = null, DiscordUserStatus? status = null, DateTimeOffset? idlesince = null)
     {
         // Check if connection lock is already set, and set it if it isn't
         if (!this.ConnectionLock.Wait(0))
@@ -300,7 +300,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             this._status = new StatusUpdate()
             {
                 Activity = new TransportActivity(activity),
-                Status = status ?? UserStatus.Online,
+                Status = status ?? DiscordUserStatus.Online,
                 IdleSince = since_unix,
                 IsAFK = idlesince != null,
                 _activity = activity
@@ -527,17 +527,22 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordGuild> CreateGuildAsync(string name, string region = null, Optional<Stream> icon = default, VerificationLevel? verificationLevel = null,
-        DefaultMessageNotifications? defaultMessageNotifications = null,
-        SystemChannelFlags? systemChannelFlags = null)
+    public async Task<DiscordGuild> CreateGuildAsync
+    (
+        string name, 
+        string? region = null,
+        Optional<Stream> icon = default, 
+        DiscordVerificationLevel? verificationLevel = null,
+        DiscordDefaultMessageNotifications? defaultMessageNotifications = null,
+        DiscordSystemChannelFlags? systemChannelFlags = null
+    )
     {
-        Optional<string> iconb64 = Optional.FromNoValue<string>();
+        Optional<string?> iconb64 = Optional.FromNoValue<string?>();
+
         if (icon.HasValue && icon.Value != null)
         {
-            using (ImageTool imgtool = new ImageTool(icon.Value))
-            {
-                iconb64 = imgtool.GetBase64();
-            }
+            using ImageTool imgtool = new(icon.Value);
+            iconb64 = imgtool.GetBase64();
         }
         else if (icon.HasValue)
         {
@@ -558,13 +563,12 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordGuild> CreateGuildFromTemplateAsync(string code, string name, Optional<Stream> icon = default)
     {
-        Optional<string> iconb64 = Optional.FromNoValue<string>();
+        Optional<string?> iconb64 = Optional.FromNoValue<string?>();
+
         if (icon.HasValue && icon.Value != null)
         {
-            using (ImageTool imgtool = new ImageTool(icon.Value))
-            {
-                iconb64 = imgtool.GetBase64();
-            }
+            using ImageTool imgtool = new(icon.Value);
+            iconb64 = imgtool.GetBase64();
         }
         else if (icon.HasValue)
         {
@@ -664,7 +668,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="userStatus">Status of the user.</param>
     /// <param name="idleSince">Since when is the client performing the specified activity.</param>
     /// <returns></returns>
-    public Task UpdateStatusAsync(DiscordActivity activity = null, UserStatus? userStatus = null, DateTimeOffset? idleSince = null)
+    public Task UpdateStatusAsync(DiscordActivity activity = null, DiscordUserStatus? userStatus = null, DateTimeOffset? idleSince = null)
         => this.InternalUpdateStatusAsync(activity, userStatus, idleSince);
 
     /// <summary>
@@ -1011,8 +1015,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
             {
                 Id = message.ChannelId,
                 Discord = this,
-                Type = ChannelType.Private,
-                Recipients = new DiscordUser[] { message.Author }
+                Type = DiscordChannelType.Private,
+                Recipients = [message.Author]
             }
             : new DiscordChannel
             {
@@ -1093,7 +1097,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 foreach (DiscordOverwrite overwrite in channel._permissionOverwrites)
                 {
                     overwrite.Discord = this;
-                    overwrite._channel_id = channel.Id;
+                    overwrite.channelId = channel.Id;
                 }
 
                 guild._channels[channel.Id] = channel;

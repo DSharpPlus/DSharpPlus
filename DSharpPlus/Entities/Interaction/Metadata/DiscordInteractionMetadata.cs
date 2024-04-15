@@ -15,7 +15,7 @@ public abstract class DiscordInteractionMetadata : SnowflakeObject
     /// Type of interaction.
     /// </summary>
     [JsonProperty("type")]
-    public InteractionType Type { get; internal set; }
+    public DiscordInteractionType Type { get; internal set; }
 
     /// <summary>
     /// Discord user object for the invoking user, if invoked in a DM.
@@ -33,13 +33,13 @@ public abstract class DiscordInteractionMetadata : SnowflakeObject
     /// Mapping of installation contexts that the interaction was authorized for to related user or guild IDs.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<ApplicationIntegrationType, ulong> AuthorizingIntegrationOwners => this._authorizingIntegrationOwners;
+    public IReadOnlyDictionary<DiscordApplicationIntegrationType, ulong> AuthorizingIntegrationOwners => this._authorizingIntegrationOwners;
 
     /// <summary>
     /// Mapping of installation contexts that the interaction was authorized for to related user or guild IDs.
     /// </summary>
     [JsonProperty("authorizing_integration_owners", NullValueHandling = NullValueHandling.Ignore)]
-    private Dictionary<ApplicationIntegrationType, ulong> _authorizingIntegrationOwners;
+    private Dictionary<DiscordApplicationIntegrationType, ulong> _authorizingIntegrationOwners;
 
     /// <summary>
     /// ID of the original response message, present only on follow-up messages.

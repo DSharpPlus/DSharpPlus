@@ -2,14 +2,16 @@ namespace DSharpPlus.Commands.ContextChecks;
 
 using System;
 
+using DSharpPlus.Entities;
+
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Delegate)]
 public class RequirePermissionsAttribute : RequireGuildAttribute
 {
-    public Permissions BotPermissions { get; init; }
-    public Permissions UserPermissions { get; init; }
+    public DiscordPermissions BotPermissions { get; init; }
+    public DiscordPermissions UserPermissions { get; init; }
 
-    public RequirePermissionsAttribute(Permissions permissions) => this.BotPermissions = this.UserPermissions = permissions;
-    public RequirePermissionsAttribute(Permissions botPermissions, Permissions userPermissions)
+    public RequirePermissionsAttribute(DiscordPermissions permissions) => this.BotPermissions = this.UserPermissions = permissions;
+    public RequirePermissionsAttribute(DiscordPermissions botPermissions, DiscordPermissions userPermissions)
     {
         this.BotPermissions = botPermissions;
         this.UserPermissions = userPermissions;

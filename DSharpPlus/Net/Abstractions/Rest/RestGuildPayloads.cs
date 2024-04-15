@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 
 using DSharpPlus.Entities;
+
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions;
@@ -27,10 +27,10 @@ internal class RestGuildCreatePayload
     public Optional<string> IconBase64 { get; set; }
 
     [JsonProperty("verification_level", NullValueHandling = NullValueHandling.Ignore)]
-    public VerificationLevel? VerificationLevel { get; set; }
+    public DiscordVerificationLevel? VerificationLevel { get; set; }
 
     [JsonProperty("default_message_notifications", NullValueHandling = NullValueHandling.Ignore)]
-    public DefaultMessageNotifications? DefaultMessageNotifications { get; set; }
+    public DiscordDefaultMessageNotifications? DefaultMessageNotifications { get; set; }
 
     [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
     public IEnumerable<DiscordRole> Roles { get; set; }
@@ -39,7 +39,7 @@ internal class RestGuildCreatePayload
     public IEnumerable<RestChannelCreatePayload> Channels { get; set; }
 
     [JsonProperty("system_channel_flags", NullValueHandling = NullValueHandling.Ignore)]
-    public SystemChannelFlags? SystemChannelFlags { get; set; }
+    public DiscordSystemChannelFlags? SystemChannelFlags { get; set; }
 }
 
 internal sealed class RestGuildCreateFromTemplatePayload
@@ -63,10 +63,10 @@ internal sealed class RestGuildModifyPayload
     public Optional<string> IconBase64 { get; set; }
 
     [JsonProperty("verification_level")]
-    public Optional<VerificationLevel> VerificationLevel { get; set; }
+    public Optional<DiscordVerificationLevel> VerificationLevel { get; set; }
 
     [JsonProperty("default_message_notifications")]
-    public Optional<DefaultMessageNotifications> DefaultMessageNotifications { get; set; }
+    public Optional<DiscordDefaultMessageNotifications> DefaultMessageNotifications { get; set; }
 
     [JsonProperty("owner_id")]
     public Optional<ulong> OwnerId { get; set; }
@@ -81,10 +81,10 @@ internal sealed class RestGuildModifyPayload
     public Optional<int> AfkTimeout { get; set; }
 
     [JsonProperty("mfa_level")]
-    public Optional<MfaLevel> MfaLevel { get; set; }
+    public Optional<DiscordMfaLevel> MfaLevel { get; set; }
 
     [JsonProperty("explicit_content_filter")]
-    public Optional<ExplicitContentFilter> ExplicitContentFilter { get; set; }
+    public Optional<DiscordExplicitContentFilter> ExplicitContentFilter { get; set; }
 
     [JsonProperty("system_channel_id", NullValueHandling = NullValueHandling.Include)]
     public Optional<ulong?> SystemChannelId { get; set; }
@@ -96,7 +96,7 @@ internal sealed class RestGuildModifyPayload
     public Optional<string> DiscoverySplash { get; set; }
 
     [JsonProperty("system_channel_flags")]
-    public Optional<SystemChannelFlags> SystemChannelFlags { get; set; }
+    public Optional<DiscordSystemChannelFlags> SystemChannelFlags { get; set; }
 
     [JsonProperty("rules_channel_id")]
     public Optional<ulong?> RulesChannelId { get; set; }
@@ -144,10 +144,10 @@ internal sealed class RestScheduledGuildEventCreatePayload
     public ulong? ChannelId { get; set; }
 
     [JsonProperty("privacy_level", NullValueHandling = NullValueHandling.Ignore)]
-    public ScheduledGuildEventPrivacyLevel PrivacyLevel { get; set; }
+    public DiscordScheduledGuildEventPrivacyLevel PrivacyLevel { get; set; }
 
     [JsonProperty("entity_type", NullValueHandling = NullValueHandling.Ignore)]
-    public ScheduledGuildEventType Type { get; set; }
+    public DiscordScheduledGuildEventType Type { get; set; }
 
     [JsonProperty("scheduled_start_time", NullValueHandling = NullValueHandling.Ignore)]
     public DateTimeOffset StartTime { get; set; }
@@ -174,10 +174,10 @@ internal sealed class RestScheduledGuildEventModifyPayload
     public Optional<ulong?> ChannelId { get; set; }
 
     [JsonProperty("privacy_level", NullValueHandling = NullValueHandling.Ignore)]
-    public Optional<ScheduledGuildEventPrivacyLevel> PrivacyLevel { get; set; }
+    public Optional<DiscordScheduledGuildEventPrivacyLevel> PrivacyLevel { get; set; }
 
     [JsonProperty("entity_type", NullValueHandling = NullValueHandling.Ignore)]
-    public Optional<ScheduledGuildEventType> Type { get; set; }
+    public Optional<DiscordScheduledGuildEventType> Type { get; set; }
 
     [JsonProperty("scheduled_start_time", NullValueHandling = NullValueHandling.Ignore)]
     public Optional<DateTimeOffset> StartTime { get; set; }
@@ -189,7 +189,7 @@ internal sealed class RestScheduledGuildEventModifyPayload
     public Optional<DiscordScheduledGuildEventMetadata> Metadata { get; set; }
 
     [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
-    public Optional<ScheduledGuildEventStatus> Status { get; set; }
+    public Optional<DiscordScheduledGuildEventStatus> Status { get; set; }
 
     [JsonProperty("image", NullValueHandling = NullValueHandling.Ignore)]
     public Optional<string> CoverImage { get; set; }
@@ -246,7 +246,7 @@ internal sealed class RestGuildRolePayload
     public string? Name { get; set; }
 
     [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
-    public Permissions? Permissions { get; set; }
+    public DiscordPermissions? Permissions { get; set; }
 
     [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
     public int? Color { get; set; }

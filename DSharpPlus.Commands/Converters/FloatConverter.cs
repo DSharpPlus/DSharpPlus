@@ -9,7 +9,7 @@ using DSharpPlus.EventArgs;
 
 public class FloatConverter : ISlashArgumentConverter<float>, ITextArgumentConverter<float>
 {
-    public ApplicationCommandOptionType ParameterType { get; init; } = ApplicationCommandOptionType.Number;
+    public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Number;
     public bool RequiresText { get; init; } = true;
 
     public Task<Optional<float>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => float.TryParse(context.Argument, CultureInfo.InvariantCulture, out float result)

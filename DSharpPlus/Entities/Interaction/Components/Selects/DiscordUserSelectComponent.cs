@@ -89,7 +89,7 @@ public sealed class DiscordUserSelectComponent : BaseDiscordSelectComponent
         return this;
     }
 
-    internal DiscordUserSelectComponent() => this.Type = ComponentType.UserSelect;
+    internal DiscordUserSelectComponent() => this.Type = DiscordComponentType.UserSelect;
 
     /// <summary>
     /// Creates a new user select component.
@@ -100,5 +100,5 @@ public sealed class DiscordUserSelectComponent : BaseDiscordSelectComponent
     /// <param name="minOptions">The minimum amount of options to be selected.</param>
     /// <param name="maxOptions">The maximum amount of options to be selected, up to 25.</param>
     public DiscordUserSelectComponent(string customId, string placeholder, bool disabled = false, int minOptions = 1, int maxOptions = 1)
-    : base(ComponentType.UserSelect, customId, placeholder, disabled, minOptions, maxOptions) { }
+    : base(DiscordComponentType.UserSelect, customId, placeholder, disabled, minOptions, maxOptions) { }
 }

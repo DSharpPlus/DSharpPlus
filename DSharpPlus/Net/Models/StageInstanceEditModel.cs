@@ -12,5 +12,5 @@ public class StageInstanceEditModel : BaseEditModel
     /// <summary>
     /// The new stage instance privacy level.
     /// </summary>
-    public Optional<PrivacyLevel> PrivacyLevel { internal get; set; }
+    public Optional<DiscordStagePrivacyLevel> PrivacyLevel { internal get; set; }
 }

@@ -15,5 +15,5 @@ public sealed class DiscordActionRowComponent : DiscordComponent
     public IReadOnlyList<DiscordComponent> Components { get; internal set; } = [];
 
     public DiscordActionRowComponent(IEnumerable<DiscordComponent> components) : this() => this.Components = components.ToList().AsReadOnly();
-    internal DiscordActionRowComponent() => this.Type = ComponentType.ActionRow; // For Json.NET
+    internal DiscordActionRowComponent() => this.Type = DiscordComponentType.ActionRow; // For Json.NET
 }

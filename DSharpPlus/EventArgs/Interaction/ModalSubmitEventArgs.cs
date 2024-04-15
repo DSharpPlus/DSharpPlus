@@ -23,7 +23,7 @@ public class ModalSubmitEventArgs : InteractionCreateEventArgs
 
         foreach (DiscordActionRowComponent component in interaction.Data._components)
         {
-            if (component.Components.First() is TextInputComponent input)
+            if (component.Components.First() is DiscordTextInputComponent input)
             {
                 dict.Add(input.CustomId, input.Value);
             }

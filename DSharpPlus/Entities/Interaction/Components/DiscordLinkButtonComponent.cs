@@ -34,7 +34,7 @@ public class DiscordLinkButtonComponent : DiscordComponent
     internal int Style { get; } = 5; // Link = 5; Discord throws 400 otherwise //
 
 
-    internal DiscordLinkButtonComponent() => this.Type = ComponentType.Button;
+    internal DiscordLinkButtonComponent() => this.Type = DiscordComponentType.Button;
 
     /// <summary>
     /// Constructs a new <see cref="DiscordLinkButtonComponent"/>. This type of button does not send back and interaction when pressed.

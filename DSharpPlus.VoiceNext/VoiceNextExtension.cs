@@ -60,17 +60,17 @@ public sealed class VoiceNextExtension : BaseExtension
     /// <returns>VoiceNext connection for this channel.</returns>
     public async Task<VoiceNextConnection> ConnectAsync(DiscordChannel channel)
     {
-        if (channel.Type != ChannelType.Voice && channel.Type != ChannelType.Stage)
+        if (channel.Type is not DiscordChannelType.Voice and not DiscordChannelType.Stage)
         {
-            throw new ArgumentException(nameof(channel), "Invalid channel specified; needs to be voice or stage channel");
+            throw new ArgumentException("Invalid channel specified; needs to be voice or stage channel", nameof(channel));
         }
 
-        if (channel.Guild == null)
+        if (channel.Guild is null)
         {
-            throw new ArgumentException(nameof(channel), "Invalid channel specified; needs to be guild channel");
+            throw new ArgumentException("Invalid channel specified; needs to be guild channel", nameof(channel));
         }
 
-        if (!channel.PermissionsFor(channel.Guild.CurrentMember).HasPermission(Permissions.AccessChannels | Permissions.UseVoice))
+        if (!channel.PermissionsFor(channel.Guild.CurrentMember).HasPermission(DiscordPermissions.AccessChannels | DiscordPermissions.UseVoice))
         {
             throw new InvalidOperationException("You need AccessChannels and UseVoice permission to connect to this voice channel");
         }

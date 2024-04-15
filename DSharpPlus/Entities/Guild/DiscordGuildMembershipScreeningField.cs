@@ -13,7 +13,7 @@ public class DiscordGuildMembershipScreeningField
     /// Gets the type of the field.
     /// </summary>
     [JsonProperty("field_type", NullValueHandling = NullValueHandling.Ignore)]
-    public MembershipScreeningFieldType Type { get; internal set; }
+    public DiscordMembershipScreeningFieldType Type { get; internal set; }
 
     /// <summary>
     /// Gets the title of the field.
@@ -33,7 +33,7 @@ public class DiscordGuildMembershipScreeningField
     [JsonProperty("required", NullValueHandling = NullValueHandling.Ignore)]
     public bool IsRequired { get; internal set; }
 
-    public DiscordGuildMembershipScreeningField(MembershipScreeningFieldType type, string label, IEnumerable<string> values, bool required = true)
+    public DiscordGuildMembershipScreeningField(DiscordMembershipScreeningFieldType type, string label, IEnumerable<string> values, bool required = true)
     {
         this.Type = type;
         this.Label = label;

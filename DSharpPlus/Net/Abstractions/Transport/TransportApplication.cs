@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using DSharpPlus.Entities;
+
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions;
@@ -43,7 +45,7 @@ internal sealed class TransportApplication
     public TransportTeam Team { get; set; }
 
     [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
-    public ApplicationFlags? Flags { get; set; }
+    public DiscordApplicationFlags? Flags { get; set; }
 
     // These are dispatch (store) properties - can't imagine them being needed in bots
     //[JsonProperty("verify_key", NullValueHandling = NullValueHandling.Include)]

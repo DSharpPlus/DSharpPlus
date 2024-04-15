@@ -173,7 +173,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// Gets the permissions for the current member.
     /// </summary>
     [JsonIgnore]
-    public Permissions Permissions => this.GetPermissions();
+    public DiscordPermissions Permissions => this.GetPermissions();
 
 
 
@@ -284,7 +284,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// Gets the user's flags.
     /// </summary>
     [JsonIgnore]
-    public override UserFlags? OAuthFlags
+    public override DiscordUserFlags? OAuthFlags
     {
         get => this.User.OAuthFlags;
         internal set => this.User.OAuthFlags = value;
@@ -294,7 +294,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// Gets the member's flags for OAuth.
     /// </summary>
     [JsonIgnore]
-    public override UserFlags? Flags
+    public override DiscordUserFlags? Flags
     {
         get => this.User.Flags;
         internal set => this.User.Flags = value;
@@ -460,7 +460,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         MemberEditModel mdl = new MemberEditModel();
         action(mdl);
 
-        if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value != null && mdl.VoiceChannel.Value.Type != ChannelType.Voice && mdl.VoiceChannel.Value.Type != ChannelType.Stage)
+        if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value != null && mdl.VoiceChannel.Value.Type != DiscordChannelType.Voice && mdl.VoiceChannel.Value.Type != DiscordChannelType.Stage)
         {
             throw new ArgumentException("Given channel is not a voice or stage channel.", nameof(mdl.VoiceChannel));
         }
@@ -586,7 +586,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <exception cref="ArgumentException">Thrown when the channel in not a voice channel.</exception>
     public async Task UpdateVoiceStateAsync(DiscordChannel channel, bool? suppress)
     {
-        if (channel.Type != ChannelType.Stage)
+        if (channel.Type != DiscordChannelType.Stage)
         {
             throw new ArgumentException("Voice state can only be updated in a stage channel.");
         }
@@ -599,7 +599,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// </summary>
     /// <param name="channel">Channel to calculate permissions for.</param>
     /// <returns>Calculated permissions for this member in the channel.</returns>
-    public Permissions PermissionsIn(DiscordChannel channel)
+    public DiscordPermissions PermissionsIn(DiscordChannel channel)
         => channel.PermissionsFor(this);
 
     /// <summary>
@@ -711,23 +711,23 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <summary>
     /// Get's the current member's roles based on the sum of the permissions of their given roles.
     /// </summary>
-    private Permissions GetPermissions()
+    private DiscordPermissions GetPermissions()
     {
         if (this.Guild.OwnerId == this.Id)
         {
             return PermissionMethods.FULL_PERMS;
         }
 
-        Permissions perms;
+        DiscordPermissions perms;
 
         // assign @everyone permissions
         DiscordRole everyoneRole = this.Guild.EveryoneRole;
         perms = everyoneRole.Permissions;
 
         // assign permissions from member's roles (in order)
-        perms |= this.Roles.Aggregate(Permissions.None, (c, role) => c | role.Permissions);
+        perms |= this.Roles.Aggregate(DiscordPermissions.None, (c, role) => c | role.Permissions);
 
         // Administrator grants all permissions and cannot be overridden
-        return (perms & Permissions.Administrator) == Permissions.Administrator ? PermissionMethods.FULL_PERMS : perms;
+        return (perms & DiscordPermissions.Administrator) == DiscordPermissions.Administrator ? PermissionMethods.FULL_PERMS : perms;
     }
 }

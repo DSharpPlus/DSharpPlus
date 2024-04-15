@@ -1,3 +1,5 @@
+using DSharpPlus.Entities;
+
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions;
@@ -38,16 +40,16 @@ internal class TransportUser
     public string Email { get; internal set; }
 
     [JsonProperty("premium_type", NullValueHandling = NullValueHandling.Ignore)]
-    public PremiumType? PremiumType { get; internal set; }
+    public DiscordPremiumType? PremiumType { get; internal set; }
 
     [JsonProperty("locale", NullValueHandling = NullValueHandling.Ignore)]
     public string Locale { get; internal set; }
 
     [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
-    public UserFlags? OAuthFlags { get; internal set; }
+    public DiscordUserFlags? OAuthFlags { get; internal set; }
 
     [JsonProperty("public_flags", NullValueHandling = NullValueHandling.Ignore)]
-    public UserFlags? Flags { get; internal set; }
+    public DiscordUserFlags? Flags { get; internal set; }
 
     internal TransportUser() { }
 
