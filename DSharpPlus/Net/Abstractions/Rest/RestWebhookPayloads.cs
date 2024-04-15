@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using DSharpPlus.Entities;
-using DSharpPlus.Entities.Channel;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions;

@@ -1,4 +1,4 @@
-using DSharpPlus.Entities.Channel;
+using DSharpPlus.Net.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

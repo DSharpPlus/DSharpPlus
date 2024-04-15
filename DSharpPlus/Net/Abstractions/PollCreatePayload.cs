@@ -1,7 +1,8 @@
+using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace DSharpPlus.Entities.Channel;
+namespace DSharpPlus.Net.Abstractions;
 
 public sealed class PollCreatePayload
 {
