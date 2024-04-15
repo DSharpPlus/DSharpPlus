@@ -1,7 +1,7 @@
-using DSharpPlus.Net.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DSharpPlus.Net.Abstractions;
 
 namespace DSharpPlus.Entities;
 
