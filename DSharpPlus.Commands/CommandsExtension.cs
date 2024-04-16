@@ -328,7 +328,7 @@ public sealed class CommandsExtension : BaseExtension
                 typeof(ValueTask<string>)
             );
 
-            ParameterCheckFunc func = Unsafe.As<ParameterCheckFunc>(Expression.Lambda(delegateType, call, check, attribute, context)
+            ParameterCheckFunc func = Unsafe.As<ParameterCheckFunc>(Expression.Lambda(delegateType, call, check, attribute, info, context)
                 .Compile());
 
             this.parameterChecks.Add

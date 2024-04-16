@@ -7,12 +7,14 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
+
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Invocation;
 using DSharpPlus.Commands.Trees;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Commands;
@@ -55,6 +57,20 @@ public class DefaultCommandExecutor : ICommandExecutor
             {
                 Context = context,
                 Exception = new ChecksFailedException(failedChecks, context.Command),
+                CommandObject = null
+            });
+
+            return;
+        }
+
+        IReadOnlyList<ParameterCheckFailedData> failedParameterChecks = await ExecuteParameterChecksAsync(context);
+
+        if (failedChecks.Count > 0)
+        {
+            await InvokeCommandErroredEventAsync(context.Extension, new CommandErroredEventArgs()
+            {
+                Context = context,
+                Exception = new ParameterChecksFailedException(failedParameterChecks, context.Command),
                 CommandObject = null
             });
 
