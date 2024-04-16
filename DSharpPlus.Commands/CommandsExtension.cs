@@ -147,6 +147,8 @@ public sealed class CommandsExtension : BaseExtension
         this.AddCheck<RequireNsfwCheck>();
         this.AddCheck<RequirePermissionsCheck>();
         this.AddCheck<TextMessageReplyCheck>();
+
+        this.AddParameterCheck<RequireHierarchyCheck>();
     }
 
     public void AddCommand(Type type) => this._commandBuilders.Add(CommandBuilder.From(type));
@@ -281,7 +283,7 @@ public sealed class CommandsExtension : BaseExtension
     /// Adds a new check to the extension.
     /// </summary>
     public void AddParameterCheck<T>()
-        where T : IContextCheck
+        where T : IParameterCheck
         => this.AddParameterCheck(typeof(T));
 
     /// <summary>
