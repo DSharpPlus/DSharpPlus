@@ -65,7 +65,7 @@ public class DefaultCommandExecutor : ICommandExecutor
 
         IReadOnlyList<ParameterCheckFailedData> failedParameterChecks = await ExecuteParameterChecksAsync(context);
 
-        if (failedChecks.Count > 0)
+        if (failedParameterChecks.Count > 0)
         {
             await InvokeCommandErroredEventAsync(context.Extension, new CommandErroredEventArgs()
             {
