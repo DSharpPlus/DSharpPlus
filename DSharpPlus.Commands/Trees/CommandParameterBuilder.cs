@@ -116,7 +116,7 @@ public class CommandParameterBuilder
             commandParameterBuilder.WithDefaultValue(parameterInfo.DefaultValue);
         }
 
-        if (parameterInfo.GetCustomAttribute<ParameterAttribute>() is { } attribute)
+        if (parameterInfo.GetCustomAttribute<ParameterAttribute>() is ParameterAttribute attribute)
         {
             commandParameterBuilder.WithName(attribute.Name);
         }
