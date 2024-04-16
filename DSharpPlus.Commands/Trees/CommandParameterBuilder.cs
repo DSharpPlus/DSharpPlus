@@ -116,8 +116,11 @@ public class CommandParameterBuilder
             commandParameterBuilder.WithDefaultValue(parameterInfo.DefaultValue);
         }
 
-        // Might be set by the `ArgumentAttribute`
-        if (string.IsNullOrWhiteSpace(commandParameterBuilder.Name) && !string.IsNullOrWhiteSpace(parameterInfo.Name))
+        if (parameterInfo.GetCustomAttribute<ParameterAttribute>() is { } attribute)
+        {
+            commandParameterBuilder.WithName(attribute.Name);
+        }
+        else if (!string.IsNullOrWhiteSpace(parameterInfo.Name))
         {
             commandParameterBuilder.WithName(parameterInfo.Name);
         }

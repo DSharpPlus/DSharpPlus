@@ -1,10 +1,8 @@
-using DSharpPlus.Commands;
+using System;
 
 namespace DSharpPlus.Commands;
 
-using System;
-
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Delegate)]
+[AttributeUsage(AttributeTargets.Parameter)]
 public sealed class ParameterAttribute : Attribute
 {
     /// <summary>
