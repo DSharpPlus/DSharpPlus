@@ -7,4 +7,4 @@ namespace DSharpPlus.Commands.ContextChecks.ParameterChecks;
 /// </summary>
 /// <param name="Parameter">The parameter as represented in the command tree.</param>
 /// <param name="Value">The processed value of the parameter.</param>
-public sealed record ParameterCheckInfo(CommandParameter Parameter, object Value);
+public sealed record ParameterCheckInfo(CommandParameter Parameter, object? Value);

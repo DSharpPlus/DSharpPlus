@@ -8,6 +8,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Commands.ContextChecks.ParameterChecks;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Invocation;
@@ -229,6 +230,62 @@ public class DefaultCommandExecutor : ICommandExecutor
                         ErrorMessage = error.Message,
                         Exception = error
                     });
+                }
+            }
+        }
+
+        return failedChecks;
+    }
+
+    public virtual async ValueTask<IReadOnlyList<ParameterCheckFailedData>> ExecuteParameterChecksAsync(CommandContext context)
+    {
+        List<ParameterCheckFailedData> failedChecks = [];
+
+        // iterate over all parameters and their attributes.
+        foreach (CommandParameter parameter in context.Command.Parameters)
+        {
+            foreach (ParameterCheckAttribute checkAttribute in parameter.Attributes.OfType<ParameterCheckAttribute>())
+            {
+                ParameterCheckInfo info = new(parameter, context.Arguments[parameter]);
+
+                // execute each check, skipping over non-matching ones
+                foreach (ParameterCheckMapEntry entry in context.Extension.ParameterChecks)
+                {
+                    if (entry.AttributeType != checkAttribute.GetType())
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        // create the check instance
+                        object check = ActivatorUtilities.CreateInstance(context.ServiceProvider, entry.CheckType);
+
+                        // execute the check
+                        string? result = await entry.ExecuteCheckAsync(check, checkAttribute, info, context);
+
+                        // it failed, add it to the list and continue with the others
+                        if (result is not null)
+                        {
+                            failedChecks.Add(new()
+                            {
+                                ParameterCheckAttribute = checkAttribute,
+                                ErrorMessage = result
+                            });
+
+                            continue;
+                        }
+                    }
+                    // if an error occurred, add it to the list and continue, making sure to set the error message.
+                    catch (Exception error)
+                    {
+                        failedChecks.Add(new()
+                        {
+                            ParameterCheckAttribute = checkAttribute,
+                            ErrorMessage = error.Message,
+                            Exception = error
+                        });
+                    }
                 }
             }
         }
