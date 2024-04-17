@@ -732,7 +732,6 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     public async Task<DiscordMessage> EndPollAsync()
         => await this.Discord.ApiClient.EndPollAsync(this.ChannelId, this.Id);
 
-
     /// <summary>
     /// Retrieves a full list of users that voted a specified answer on a poll. This will execute one API request per 100 entities.
     /// </summary>
