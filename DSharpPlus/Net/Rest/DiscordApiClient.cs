@@ -5152,6 +5152,72 @@ public sealed class DiscordApiClient
     }
     #endregion
 
+    #region Polls
+
+    internal async ValueTask<IReadOnlyList<DiscordUser>> GetPollAnswerVotersAsync
+    (
+        ulong channelId,
+        ulong messageId,
+        int answerId,
+        ulong? after,
+        int? limit
+    )
+    {
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.POLLS}/:message_id/{Endpoints.ANSWERS}/:answer_id";
+        QueryUriBuilder url = new($"{Endpoints.CHANNELS}/{channelId}/{Endpoints.POLLS}/{messageId}/{Endpoints.ANSWERS}/{answerId}");
+
+
+        if (limit > 0)
+        {
+            url.AddParameter("limit", limit.Value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        if (after > 0)
+        {
+            url.AddParameter("after", after.Value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url.Build(),
+            Method = HttpMethod.Get
+        };
+
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+
+        JToken jto = JToken.Parse(res.Response!);
+
+        return (jto as JArray ?? jto["users"] as JArray)!
+            .Select(j => j.ToDiscordObject<DiscordUser>())
+            .ToList();
+    }
+
+    internal async ValueTask<DiscordMessage> EndPollAsync
+    (
+        ulong channelId,
+        ulong messageId
+    )
+    {
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.POLLS}/:message_id/expire";
+        string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.POLLS}/{messageId}/expire";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post
+        };
+
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+
+        DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
+
+        return ret;
+    }
+
+    #endregion
+
     #region Emoji
     internal async ValueTask<IReadOnlyList<DiscordGuildEmoji>> GetGuildEmojisAsync
     (

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
@@ -718,6 +720,57 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task DeleteReactionsEmojiAsync(DiscordEmoji emoji)
         => await this.Discord.ApiClient.DeleteReactionsEmojiAsync(this.ChannelId, this.Id, emoji.ToReactionString());
+
+    /// <summary>
+    /// Immediately ends the poll. You cannot end polls from other users.
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageMessages"/> permission or if the poll is not owned by the client.</exception>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the message does not have a poll.</exception>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    public async Task<DiscordMessage> EndPollAsync()
+        => await this.Discord.ApiClient.EndPollAsync(this.ChannelId, this.Id);
+
+
+    /// <summary>
+    /// Retrieves a full list of users that voted a specified answer on a poll. This will execute one API request per 100 entities.
+    /// </summary>
+    /// <param name="answerId">The id of the answer to get the voters of.</param>
+    /// <param name="cancellationToken">Cancels the enumeration before the next api request</param>
+    /// <returns>A collection of all users that voted the specified answer on the poll.</returns>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    public async IAsyncEnumerable<DiscordUser> GetAllPollAnswerVotersAsync
+    (
+        int answerId,
+        [EnumeratorCancellation]
+        CancellationToken cancellationToken = default
+    )
+    {
+        int recievedLastCall = 100;
+        ulong? last = null;
+        while (recievedLastCall == 100)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                yield break;
+            }
+
+            IReadOnlyList<DiscordUser> users = await this.Discord.ApiClient.GetPollAnswerVotersAsync(this.ChannelId, this.Id, answerId, last, 100);
+            recievedLastCall = users.Count;
+
+            foreach (DiscordUser user in users)
+            {
+                user.Discord = this.Discord;
+
+                _ = this.Discord.UpdateUserCache(user);
+
+                yield return user;
+            }
+
+            last = users.LastOrDefault()?.Id;
+        }
+    }
 
     private async Task<IReadOnlyList<DiscordUser>> GetReactionsInternalAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null)
     {

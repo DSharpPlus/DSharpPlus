@@ -47,6 +47,8 @@ internal static class Endpoints
     public const string PRUNE = "prune";
     public const string PUBLIC = "public";
     public const string REACTIONS = "reactions";
+    public const string POLLS = "polls";
+    public const string ANSWERS = "answers";
     public const string RECIPIENTS = "recipients";
     public const string REGIONS = "regions";
     public const string ROLES = "roles";
