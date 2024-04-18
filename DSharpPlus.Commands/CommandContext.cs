@@ -1,9 +1,10 @@
 namespace DSharpPlus.Commands;
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
+
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Represents a base context for application command contexts.
@@ -51,7 +52,8 @@ public abstract record CommandContext : AbstractContext
     /// </summary>
     /// <param name="content">Content to send in the response.</param>
     /// <param name="embed">Embed to send in the response.</param>
-    public virtual ValueTask<DiscordMessage> EditResponseAsync(string content, DiscordEmbed embed) => this.EditResponseAsync(new DiscordMessageBuilder().WithContent(content).AddEmbed(embed));
+    public virtual ValueTask<DiscordMessage> EditResponseAsync(string content, DiscordEmbed embed) => 
+        this.EditResponseAsync(new DiscordMessageBuilder().WithContent(content).AddEmbed(embed));
 
     /// <inheritdoc cref="EditResponseAsync(string, DiscordEmbed)"/>
     /// <param name="builder">The message builder.</param>
@@ -85,17 +87,20 @@ public abstract record CommandContext : AbstractContext
     /// <param name="content">Content to send in the followup message.</param>
     /// <param name="embed">Embed to send in the followup message.</param>
     /// <returns>The created message.</returns>
-    public virtual ValueTask<DiscordMessage> FollowupAsync(string content, DiscordEmbed embed) => this.FollowupAsync(new DiscordMessageBuilder().WithContent(content).AddEmbed(embed));
+    public virtual ValueTask<DiscordMessage> FollowupAsync(string content, DiscordEmbed embed) => 
+        this.FollowupAsync(new DiscordMessageBuilder().WithContent(content).AddEmbed(embed));
 
     /// <inheritdoc cref="FollowupAsync(string, DiscordEmbed)"/>
     /// <param name="builder">The followup message to be sent.</param>
     public abstract ValueTask<DiscordMessage> FollowupAsync(IDiscordMessageBuilder builder);
 
     /// <inheritdoc cref="EditFollowupAsync(ulong, string, DiscordEmbed)"/>
-    public virtual ValueTask<DiscordMessage> EditFollowupAsync(ulong messageId, string content) => this.EditFollowupAsync(messageId, new DiscordMessageBuilder().WithContent(content));
+    public virtual ValueTask<DiscordMessage> EditFollowupAsync(ulong messageId, string content) => 
+        this.EditFollowupAsync(messageId, new DiscordMessageBuilder().WithContent(content));
 
     /// <inheritdoc cref="EditFollowupAsync(ulong, string, DiscordEmbed)"/>
-    public virtual ValueTask<DiscordMessage> EditFollowupAsync(ulong messageId, DiscordEmbed embed) => this.EditFollowupAsync(messageId, new DiscordMessageBuilder().AddEmbed(embed));
+    public virtual ValueTask<DiscordMessage> EditFollowupAsync(ulong messageId, DiscordEmbed embed) => 
+        this.EditFollowupAsync(messageId, new DiscordMessageBuilder().AddEmbed(embed));
 
     /// <summary>
     /// Edits a followup message.
@@ -104,7 +109,8 @@ public abstract record CommandContext : AbstractContext
     /// <param name="content">Content to send in the followup message.</param>
     /// <param name="embed">Embed to send in the followup message.</param>
     /// <returns>The edited message.</returns>
-    public virtual ValueTask<DiscordMessage> EditFollowupAsync(ulong messageId, string content, DiscordEmbed embed) => this.EditFollowupAsync(messageId, new DiscordMessageBuilder().WithContent(content).AddEmbed(embed));
+    public virtual ValueTask<DiscordMessage> EditFollowupAsync(ulong messageId, string content, DiscordEmbed embed) => 
+        this.EditFollowupAsync(messageId, new DiscordMessageBuilder().WithContent(content).AddEmbed(embed));
 
     /// <inheritdoc cref="EditFollowupAsync(ulong, string, DiscordEmbed)"/>
     /// <param name="messageId">The id of the followup message to edit.</param>
