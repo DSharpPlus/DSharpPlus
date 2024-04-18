@@ -1508,6 +1508,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 {
                     Discord = this.Discord
                 });
+
                 yield return new(transportMember)
                 {
                     Discord = this.Discord,
