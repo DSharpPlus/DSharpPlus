@@ -345,7 +345,13 @@ public enum DiscordPermissions : long
     /// Allows sending voice messages.
     /// </summary>
     [PermissionString("Send Voice Messages")]
-    SendVoiceMessages = 0x0000400000000000
+    SendVoiceMessages = 0x0000400000000000,
+
+    /// <summary>
+    /// Allows sending polls.
+    /// </summary>
+    [PermissionString("Send Polls")]
+    SendPolls = 0x0002000000000000,
 }
 
 /// <summary>
