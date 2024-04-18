@@ -1490,32 +1490,33 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         CancellationToken cancellationToken = default
     )
     {
+        int recievedLastCall = 1000;
         ulong last = 0ul;
-        for (int i = MemberCount; i > 0;)
+        while (recievedLastCall == 1000)
         {
             if (cancellationToken.IsCancellationRequested)
             {
                 yield break;
             }
 
-            IReadOnlyList<TransportMember> tms = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : last);
+            IReadOnlyList<TransportMember> transportMembers = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : last);
+            recievedLastCall = transportMembers.Count;
 
-            foreach (TransportMember transportMember in tms)
+            foreach (TransportMember transportMember in transportMembers)
             {
-                DiscordUser user = new(transportMember.User) { Discord = this.Discord };
-
-                _ = this.Discord.UpdateUserCache(user);
-
-                DiscordMember member = new(transportMember) { Discord = this.Discord, _guild_id = this.Id };
-                yield return member;
+                this.Discord.UpdateUserCache(new(transportMember.User)
+                {
+                    Discord = this.Discord
+                });
+                yield return new(transportMember)
+                {
+                    Discord = this.Discord,
+                    _guild_id = this.Id
+                };
             }
 
-            if (tms.Count < 1000)
-            {
-                yield break;
-            }
-
-            i -= tms.Count;
+            TransportMember? lastMember = transportMembers.LastOrDefault();
+            last = lastMember?.User.Id ?? 0;
         }
     }
 
