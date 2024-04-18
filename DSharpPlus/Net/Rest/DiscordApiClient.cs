@@ -5199,8 +5199,8 @@ public sealed class DiscordApiClient
         ulong messageId
     )
     {
-        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.POLLS}/:message_id/expire";
-        string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.POLLS}/{messageId}/expire";
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.POLLS}/:message_id/{Endpoints.EXPIRE}";
+        string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.POLLS}/{messageId}/{Endpoints.EXPIRE}";
 
         RestRequest request = new()
         {
