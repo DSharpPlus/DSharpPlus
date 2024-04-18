@@ -22,7 +22,7 @@ public sealed class DiscordPoll
     /// Gets the expiry date for this poll.
     /// </summary>
     [JsonProperty("expiry")]
-    public DateTimeOffset Expiry { get; internal set; }
+    public DateTimeOffset? Expiry { get; internal set; }
     
     /// <summary>
     /// Whether the poll allows for multiple answers.
