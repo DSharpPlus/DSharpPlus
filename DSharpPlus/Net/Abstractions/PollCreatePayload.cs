@@ -42,8 +42,8 @@ public sealed class PollCreatePayload
     {
         this.Question = poll.Question;
         this.Answers = poll.Answers;
-        this.Duration = poll.Expiry.Hour;
         this.AllowMultisect = poll.AllowMultisect;
         this.Layout = poll.Layout;
+        this.Duration = poll.Expiry?.Hour ?? 0;
     }
 }
