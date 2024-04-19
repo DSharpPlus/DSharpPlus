@@ -21,15 +21,15 @@ public static class ExceptionMarshaller
     public static Exception MarshalResultErrorToException(Error error)
     {
         // if we previously failed to marshal this into an error, just get the original exception
-        if (error.GetType() == typeof(MarshalError))
+        if (error is MarshalError marshalError)
         {
-            return ((MarshalError)(object)error).Exception;
+            return marshalError.Exception;
         }
 
         // if this is freely convertible, just do that
-        if (error.GetType().IsAssignableTo(typeof(ExceptionError)))
+        if (error is ExceptionError exceptionError)
         {
-            return ((ExceptionError)(object)error).ToException();
+            return exceptionError.ToException();
         }
 
         return new MarshalException(error);
@@ -40,9 +40,9 @@ public static class ExceptionMarshaller
     /// </summary>
     public static Error MarshalExceptionToResultError(Exception exception)
     {
-        if (exception.GetType() == typeof(MarshalException))
+        if (exception is MarshalException marshalException)
         {
-            return ((MarshalException)(object)exception).Error;
+            return marshalException.Error;
         }
 
         // see if we can find a matching error in a sufficiently similarly named namespace,
