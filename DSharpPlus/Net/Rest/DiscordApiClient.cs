@@ -2218,7 +2218,7 @@ public sealed class DiscordApiClient
             Embeds = builder.Embeds,
             Components = builder.Components,
             Flags = builder.Flags,
-            Poll = builder.Poll,
+            Poll = builder.Poll?.BuildInternal(),
         };
 
         if (builder.ReplyId != null)
@@ -4816,7 +4816,7 @@ public sealed class DiscordApiClient
             IsTTS = builder.IsTTS,
             Embeds = builder.Embeds,
             Components = builder.Components,
-            Poll = builder.Poll,
+            Poll = builder.Poll?.BuildInternal(),
         };
 
         if (builder.Mentions != null)
@@ -5892,7 +5892,7 @@ public sealed class DiscordApiClient
                 Flags = builder.Flags,
                 Components = builder.Components,
                 Choices = builder.Choices,
-                Poll = builder.Poll,
+                Poll = builder.Poll?.BuildInternal(),
             }
             : null
         };

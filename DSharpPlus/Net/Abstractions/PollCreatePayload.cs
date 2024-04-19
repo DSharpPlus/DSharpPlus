@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
@@ -44,6 +45,13 @@ public sealed class PollCreatePayload
         this.Answers = poll.Answers;
         this.AllowMultisect = poll.AllowMultisect;
         this.Layout = poll.Layout;
-        this.Duration = poll.Expiry?.Hour ?? 0;
+    }
+
+    internal PollCreatePayload(DiscordPollBuilder builder)
+    {
+        this.Question = new DiscordPollMedia { Text = builder.Question };
+        this.Answers = builder.Options.Select(x => new DiscordPollAnswer { AnswerData = x }).ToList();
+        this.AllowMultisect = builder.IsMultipleChoice;
+        this.Duration = builder.Duration;
     }
 }

@@ -98,7 +98,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     public DiscordMessageBuilder(DiscordMessage baseMessage)
     {
         this.IsTTS = baseMessage.IsTTS;
-        this.Poll = baseMessage.Poll == null ? null : new PollCreatePayload(baseMessage.Poll);
+        this.Poll = baseMessage.Poll == null ? null : new DiscordPollBuilder(baseMessage.Poll);
         this.ReplyId = baseMessage.ReferencedMessage?.Id;
         this._components = [.. baseMessage.Components];
         this._content = baseMessage.Content;

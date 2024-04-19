@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Net;
-using DSharpPlus.Net.Abstractions;
 
 namespace DSharpPlus.Entities;
 
@@ -45,7 +44,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <summary>
     /// Gets or sets a poll for this message.
     /// </summary>
-    public PollCreatePayload? Poll { get; set; }
+    public DiscordPollBuilder? Poll { get; set; }
 
     /// <summary>
     /// Embeds to send on this webhook request.
@@ -172,7 +171,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         return (T)this;
     }
     
-    public T WithPoll(PollCreatePayload poll)
+    public T WithPoll(DiscordPollBuilder poll)
     {
         this.Poll = poll;
         return (T)this;
@@ -525,7 +524,7 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <summary>
     /// Gets or sets a poll for this message.
     /// </summary>
-    PollCreatePayload? Poll { get; set; }
+    DiscordPollBuilder? Poll { get; set; }
 
     /// <summary>
     /// All embeds on this message.

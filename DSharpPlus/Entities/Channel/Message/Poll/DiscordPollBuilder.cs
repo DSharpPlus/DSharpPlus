@@ -95,21 +95,28 @@ public class DiscordPollBuilder
     /// <summary>
     /// Builds the poll.
     /// </summary>
-    /// <returns>A <see cref="PollCreatePayload"/> to pass to methods.</returns>
+    /// <returns>A <see cref="PollCreatePayload"/> to build the create request.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the poll has less than two options.</exception>
-    public PollCreatePayload Build()
+    internal PollCreatePayload BuildInternal()
     {
         if (this._options.Count < 2)
         {
             throw new InvalidOperationException("A poll must have at least two options.");
         }
 
-        return new PollCreatePayload
+        return new PollCreatePayload(this);
+    }
+
+    public DiscordPollBuilder() { }
+
+    public DiscordPollBuilder(DiscordPoll poll)
+    {
+        this.WithQuestion(poll.Question.Text);
+        this.AsMultipleChoice(poll.AllowMultisect);
+
+        foreach (DiscordPollAnswer option in poll.Answers)
         {
-            Duration = this.Duration,
-            AllowMultisect = this.IsMultipleChoice,
-            Question = new DiscordPollMedia { Text = this.Question },
-            Answers = this._options.Select(x => new DiscordPollAnswer { AnswerData = x }).ToList(),
-        };
+            this.AddOption(option.AnswerData.Text, option.AnswerData.Emoji);
+        }
     }
 }
