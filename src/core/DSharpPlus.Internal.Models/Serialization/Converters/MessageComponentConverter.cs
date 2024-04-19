@@ -5,9 +5,8 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
-using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Entities;
+using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Models.Serialization.Converters;
 

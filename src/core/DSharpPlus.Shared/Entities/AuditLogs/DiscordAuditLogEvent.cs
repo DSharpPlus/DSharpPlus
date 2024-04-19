@@ -416,7 +416,7 @@ public enum DiscordAuditLogEvent
     /// Metadata is provided for an auto moderation rule object.
     /// </remarks>
     AutoModerationRuleDeleted = 142,
-    
+
     /// <summary>
     /// A message was blocked by the discord automod.
     /// </summary>

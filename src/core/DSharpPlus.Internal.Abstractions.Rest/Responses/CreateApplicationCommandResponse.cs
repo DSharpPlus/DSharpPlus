@@ -14,7 +14,7 @@ public readonly record struct CreateApplicationCommandResponse
     /// <summary>
     /// Indicates whether this command was newly created or whether it already existed.
     /// </summary>
-    public required bool IsNewlyCreated { get; init;  }
+    public required bool IsNewlyCreated { get; init; }
 
     /// <summary>
     /// The created command.

@@ -19,8 +19,8 @@ public sealed class ImageDataConverter : JsonConverter<ImageData>
 
     public override void Write
     (
-        Utf8JsonWriter writer, 
-        ImageData value, 
+        Utf8JsonWriter writer,
+        ImageData value,
         JsonSerializerOptions options
     )
     {

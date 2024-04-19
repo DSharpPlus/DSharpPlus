@@ -77,14 +77,11 @@ public sealed class GuildScheduledEventRestAPI(IRestClient restClient)
         CancellationToken ct = default
     )
     {
-        QueryBuilder builder = new()
-        {
-            RootUri = $"guilds/{guildId}/scheduled-events/{eventId}"
-        };
+        QueryBuilder builder = new($"guilds/{guildId}/scheduled-events/{eventId}");
 
         if (query.WithUserCount is not null)
         {
-            builder.AddParameter("with_user_count", query.WithUserCount.Value.ToString().ToLowerInvariant());
+            _ = builder.AddParameter("with_user_count", query.WithUserCount.Value.ToString().ToLowerInvariant());
         }
 
         return await restClient.ExecuteRequestAsync<IScheduledEvent>
@@ -108,10 +105,7 @@ public sealed class GuildScheduledEventRestAPI(IRestClient restClient)
         CancellationToken ct = default
     )
     {
-        QueryBuilder builder = new()
-        {
-            RootUri = $"guilds/{guildId}/scheduled-events/{eventId}/users"
-        };
+        QueryBuilder builder = new($"guilds/{guildId}/scheduled-events/{eventId}/users");
 
         if (query.Limit is not null)
         {
@@ -120,22 +114,22 @@ public sealed class GuildScheduledEventRestAPI(IRestClient restClient)
                 return new ValidationError("The amount of scheduled event users to request must be between 1 and 100.");
             }
 
-            builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
+            _ = builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
         }
 
         if (query.WithMember is not null)
         {
-            builder.AddParameter("with_member", query.WithMember.Value.ToString().ToLowerInvariant());
+            _ = builder.AddParameter("with_member", query.WithMember.Value.ToString().ToLowerInvariant());
         }
 
         if (query.Before is not null)
         {
-            builder.AddParameter("before", query.Before.Value.ToString());
+            _ = builder.AddParameter("before", query.Before.Value.ToString());
         }
 
         if (query.After is not null)
         {
-            builder.AddParameter("after", query.After.Value.ToString());
+            _ = builder.AddParameter("after", query.After.Value.ToString());
         }
 
         return await restClient.ExecuteRequestAsync<IReadOnlyList<IScheduledEventUser>>
@@ -158,14 +152,11 @@ public sealed class GuildScheduledEventRestAPI(IRestClient restClient)
         CancellationToken ct = default
     )
     {
-        QueryBuilder builder = new()
-        {
-            RootUri = $"guilds/{guildId}/scheduled-events"
-        };
+        QueryBuilder builder = new($"guilds/{guildId}/scheduled-events");
 
         if (query.WithUserCount is not null)
         {
-            builder.AddParameter("with_user_count", query.WithUserCount.Value.ToString().ToLowerInvariant());
+            _ = builder.AddParameter("with_user_count", query.WithUserCount.Value.ToString().ToLowerInvariant());
         }
 
         return await restClient.ExecuteRequestAsync<IReadOnlyList<IScheduledEvent>>

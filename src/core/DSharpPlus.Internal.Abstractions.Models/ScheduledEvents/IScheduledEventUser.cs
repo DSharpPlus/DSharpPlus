@@ -13,7 +13,7 @@ public interface IScheduledEventUser
     /// The snowflake identifier of the event this user has subscribed to.
     /// </summary>
     public Snowflake GuildScheduledEventId { get; }
-    
+
     /// <summary>
     /// The user which subscribed to the event.
     /// </summary>

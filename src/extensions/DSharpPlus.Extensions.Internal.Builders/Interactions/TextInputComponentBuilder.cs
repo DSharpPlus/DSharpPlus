@@ -231,7 +231,10 @@ public static class TextInputComponentBuilderExtensions
     {
         ArgumentNullException.ThrowIfNull(builder.CustomId);
         ArgumentNullException.ThrowIfNull(builder.Label);
-        ArgumentNullException.ThrowIfNull(builder.Style);
+        if (!builder.Style.HasValue)
+        {
+            throw new ArgumentNullException(nameof(builder.Style));
+        }
 
         return new BuiltTextInputComponent
         {

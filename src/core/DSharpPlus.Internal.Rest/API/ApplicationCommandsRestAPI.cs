@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+
 using DSharpPlus.Entities;
 using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Abstractions.Rest;
@@ -406,14 +407,11 @@ public sealed class ApplicationCommandsRestAPI
         CancellationToken ct = default
     )
     {
-        QueryBuilder builder = new()
-        {
-            RootUri = $"applications/{applicationId}/commands"
-        };
+        QueryBuilder builder = new($"applications/{applicationId}/commands");
 
         if (query.WithLocalizations is not null)
         {
-            builder.AddParameter("with_localizations", query.WithLocalizations.Value.ToString().ToLowerInvariant());
+            _ = builder.AddParameter("with_localizations", query.WithLocalizations.Value.ToString().ToLowerInvariant());
         }
 
         return await restClient.ExecuteRequestAsync<IReadOnlyList<IApplicationCommand>>
@@ -475,14 +473,11 @@ public sealed class ApplicationCommandsRestAPI
         CancellationToken ct = default
     )
     {
-        QueryBuilder builder = new()
-        {
-            RootUri = $"applications/{applicationId}/guilds/{guildId}/commands"
-        };
+        QueryBuilder builder = new($"applications/{applicationId}/guilds/{guildId}/commands");
 
         if (query.WithLocalizations is not null)
         {
-            builder.AddParameter("with_localizations", query.WithLocalizations.Value.ToString().ToLowerInvariant());
+            _ = builder.AddParameter("with_localizations", query.WithLocalizations.Value.ToString().ToLowerInvariant());
         }
 
         return await restClient.ExecuteRequestAsync<IReadOnlyList<IApplicationCommand>>

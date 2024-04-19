@@ -94,14 +94,11 @@ public sealed class WebhookRestAPI(IRestClient restClient)
         CancellationToken ct = default
     )
     {
-        QueryBuilder builder = new()
-        {
-            RootUri = $"webhooks/{webhookId}/{webhookToken}/messages/{messageId}"
-        };
+        QueryBuilder builder = new($"webhooks/{webhookId}/{webhookToken}/messages/{messageId}");
 
         if (query.ThreadId is not null)
         {
-            builder.AddParameter("thread_id", query.ThreadId.Value.ToString());
+            _ = builder.AddParameter("thread_id", query.ThreadId.Value.ToString());
         }
 
         Result<HttpResponseMessage> response = await restClient.ExecuteRequestAsync
@@ -170,14 +167,11 @@ public sealed class WebhookRestAPI(IRestClient restClient)
             return new ValidationError("A webhook message cannot contain more than 5 action rows.");
         }
 
-        QueryBuilder builder = new()
-        {
-            RootUri = $"webhooks/{webhookId}/{webhookToken}/messages/{messageId}"
-        };
+        QueryBuilder builder = new($"webhooks/{webhookId}/{webhookToken}/messages/{messageId}");
 
         if (query.ThreadId is not null)
         {
-            builder.AddParameter("thread_id", query.ThreadId.Value.ToString());
+            _ = builder.AddParameter("thread_id", query.ThreadId.Value.ToString());
         }
 
         return await restClient.ExecuteRequestAsync<IMessage>
@@ -232,19 +226,16 @@ public sealed class WebhookRestAPI(IRestClient restClient)
             }
         }
 
-        QueryBuilder builder = new()
-        {
-            RootUri = $"webhooks/{webhookId}/{webhookToken}"
-        };
+        QueryBuilder builder = new($"webhooks/{webhookId}/{webhookToken}");
 
         if (query.ThreadId is not null)
         {
-            builder.AddParameter("thread_id", query.ThreadId.Value.ToString());
+            _ = builder.AddParameter("thread_id", query.ThreadId.Value.ToString());
         }
 
         if (query.Wait is not null)
         {
-            builder.AddParameter("wait", query.Wait.Value.ToString().ToLowerInvariant());
+            _ = builder.AddParameter("wait", query.Wait.Value.ToString().ToLowerInvariant());
         }
 
         if (query.Wait == true)
@@ -346,14 +337,11 @@ public sealed class WebhookRestAPI(IRestClient restClient)
         CancellationToken ct = default
     )
     {
-        QueryBuilder builder = new()
-        {
-            RootUri = $"webhooks/{webhookId}/{webhookToken}/messages/{messageId}"
-        };
+        QueryBuilder builder = new($"webhooks/{webhookId}/{webhookToken}/messages/{messageId}");
 
         if (query.ThreadId is not null)
         {
-            builder.AddParameter("thread_id", query.ThreadId.Value.ToString());
+            _ = builder.AddParameter("thread_id", query.ThreadId.Value.ToString());
         }
 
         return await restClient.ExecuteRequestAsync<IMessage>

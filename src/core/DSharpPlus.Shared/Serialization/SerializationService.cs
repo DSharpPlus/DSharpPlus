@@ -71,7 +71,7 @@ public sealed partial class SerializationService<T> : ISerializationService<T>
     public TModel DeserializeModel<TModel>
     (
         ReadOnlySpan<byte> data
-    ) 
+    )
         where TModel : notnull
     {
         return this.format switch
@@ -84,19 +84,19 @@ public sealed partial class SerializationService<T> : ISerializationService<T>
     /// <inheritdoc/>
     public void SerializeModel<TModel>
     (
-        TModel model, 
+        TModel model,
         ArrayPoolBufferWriter<byte> target
-    ) 
+    )
         where TModel : notnull
     {
         switch (this.format)
         {
             case "json":
-            {
-                using Utf8JsonWriter writer = new(target);
-                JsonSerializer.Serialize(writer, model, this.jsonOptions!);
-                break;
-            }
+                {
+                    using Utf8JsonWriter writer = new(target);
+                    JsonSerializer.Serialize(writer, model, this.jsonOptions!);
+                    break;
+                }
             default:
                 throw new InvalidOperationException($"The model could not be serialized to {this.format}.");
         }

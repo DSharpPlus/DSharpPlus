@@ -35,7 +35,7 @@ public enum DiscordUserFlags
     /// <summary>
     /// First of two badges for bug hunters. Discord doesn't tell us any further information.
     /// </summary>
-    BugHunterLevel1 = 1 << 3, 
+    BugHunterLevel1 = 1 << 3,
 
     /// <summary>
     /// Profile badge indicating this user is a member of the HypeSquad House of Bravery.
@@ -60,12 +60,12 @@ public enum DiscordUserFlags
     /// <summary>
     /// Profile badge indicating... what, exactly? Discord doesn't tell us.
     /// </summary>
-    TeamUser = 1 << 10, 
+    TeamUser = 1 << 10,
 
     /// <summary>
     /// Bug hunter badge, Level 2
     /// </summary>
-    BugHunterLevel2 = 1 << 14, 
+    BugHunterLevel2 = 1 << 14,
 
     /// <summary>
     /// Profile badge indicating this bot is a verified bot.

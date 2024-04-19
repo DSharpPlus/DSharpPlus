@@ -40,7 +40,7 @@ public class AuditLogChangeTests
         this.serializer = provider.GetRequiredService<ISerializationService<AuditLogChangeTests>>();
     }
 
-    private static readonly byte[] IntPayload = 
+    private static readonly byte[] IntPayload =
     """
     {
         "key": "$test",
@@ -48,7 +48,7 @@ public class AuditLogChangeTests
         "old_value": 83
     }
     """u8.ToArray();
-    
+
     private static readonly byte[] StringPayload =
     """
     {
@@ -73,7 +73,7 @@ public class AuditLogChangeTests
         "new_value": "this is the new value"
     }
     """u8.ToArray();
-    
+
     [Fact]
     public void TestIntegerPayload()
     {

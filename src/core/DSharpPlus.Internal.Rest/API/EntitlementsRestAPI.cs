@@ -76,44 +76,41 @@ public sealed class EntitlementsRestAPI(IRestClient restClient)
             return new ValidationError("The limit of entitlements to list must be between 1 and 100.");
         }
 
-        QueryBuilder builder = new()
-        {
-            RootUri = $"applications/{applicationId}/entitlements"
-        };
+        QueryBuilder builder = new($"applications/{applicationId}/entitlements");
 
         if (query.UserId is not null)
         {
-            builder.AddParameter("user_id", query.UserId.Value.ToString());
+            _ = builder.AddParameter("user_id", query.UserId.Value.ToString());
         }
 
         if (query.SkuIds is not null)
         {
-            builder.AddParameter("sku_ids", query.SkuIds);
+            _ = builder.AddParameter("sku_ids", query.SkuIds);
         }
 
         if (query.Before is not null)
         {
-            builder.AddParameter("before", query.Before.Value.ToString());
+            _ = builder.AddParameter("before", query.Before.Value.ToString());
         }
 
         if (query.After is not null)
         {
-            builder.AddParameter("after", query.After.Value.ToString());
+            _ = builder.AddParameter("after", query.After.Value.ToString());
         }
 
         if (query.Limit is not null)
         {
-            builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
+            _ = builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
         }
 
         if (query.GuildId is not null)
         {
-            builder.AddParameter("guild_id", query.GuildId.Value.ToString());
+            _ = builder.AddParameter("guild_id", query.GuildId.Value.ToString());
         }
 
         if (query.ExcludeEnded is not null)
         {
-            builder.AddParameter("exclude_ended", query.ExcludeEnded.Value.ToString().ToLowerInvariant());
+            _ = builder.AddParameter("exclude_ended", query.ExcludeEnded.Value.ToString().ToLowerInvariant());
         }
 
         return await restClient.ExecuteRequestAsync<IReadOnlyList<IEntitlement>>

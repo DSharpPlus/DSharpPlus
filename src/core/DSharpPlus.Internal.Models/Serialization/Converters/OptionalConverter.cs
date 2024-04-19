@@ -13,13 +13,13 @@ namespace DSharpPlus.Internal.Models.Serialization.Converters;
 /// </summary>
 public sealed class OptionalConverter<T> : JsonConverter<Optional<T>>
 {
-    public override Optional<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) 
+    public override Optional<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         => new(JsonSerializer.Deserialize<T>(ref reader, options)!);
 
     public override void Write
     (
-        Utf8JsonWriter writer, 
-        Optional<T> value, 
+        Utf8JsonWriter writer,
+        Optional<T> value,
         JsonSerializerOptions options
     )
     {

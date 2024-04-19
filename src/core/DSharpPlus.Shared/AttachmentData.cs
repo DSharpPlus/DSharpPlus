@@ -2,13 +2,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-using System.Buffers;
-using System.Diagnostics;
 using System;
+using System.Buffers;
+using System.Buffers.Text;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Pipelines;
 using System.Threading.Tasks;
-using System.Buffers.Text;
 
 namespace DSharpPlus;
 
@@ -18,7 +18,7 @@ namespace DSharpPlus;
 public readonly record struct AttachmentData
 {
     private readonly Stream stream;
-    
+
     /// <summary>
     /// The media type of this attachment. Defaults to empty, in which case it will be interpreted according to
     /// the file extension as provided by <seealso cref="Filename"/>.
@@ -104,7 +104,7 @@ public readonly record struct AttachmentData
 
         PipeReader reader = PipeReader.Create
         (
-            this.stream, 
+            this.stream,
             new StreamPipeReaderOptions
             (
                 bufferSize: 12288,

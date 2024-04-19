@@ -540,27 +540,24 @@ public sealed class ChannelRestAPI(IRestClient restClient)
             return new ValidationError("The limit for messages to request at once must be between 1 and 100.");
         }
 
-        QueryBuilder builder = new()
-        {
-            RootUri = $"channels/{channelId}/messages"
-        };
+        QueryBuilder builder = new($"channels/{channelId}/messages");
 
         if (query.Limit is not null)
         {
-            builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
+            _ = builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
         }
 
         if (query.Around is not null)
         {
-            builder.AddParameter("around", query.Around.Value.ToString());
+            _ = builder.AddParameter("around", query.Around.Value.ToString());
         }
         else if (query.Before is not null)
         {
-            builder.AddParameter("before", query.Before.Value.ToString());
+            _ = builder.AddParameter("before", query.Before.Value.ToString());
         }
         else if (query.After is not null)
         {
-            builder.AddParameter("after", query.After.Value.ToString());
+            _ = builder.AddParameter("after", query.After.Value.ToString());
         }
 
         return await restClient.ExecuteRequestAsync<IReadOnlyList<IMessage>>
@@ -607,14 +604,11 @@ public sealed class ChannelRestAPI(IRestClient restClient)
             return new ValidationError("The limit of reactions to request must be between 1 and 100.");
         }
 
-        QueryBuilder builder = new()
-        {
-            RootUri = $"channels/{channelId}/messages/{messageId}/reactions/{emoji}"
-        };
+        QueryBuilder builder = new($"channels/{channelId}/messages/{messageId}/reactions/{emoji}");
 
         if (query.After is not null)
         {
-            builder.AddParameter("after", query.After.Value.ToString());
+            _ = builder.AddParameter("after", query.After.Value.ToString());
         }
 
         return await restClient.ExecuteRequestAsync<IReadOnlyList<IUser>>
@@ -638,14 +632,11 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         CancellationToken ct = default
     )
     {
-        QueryBuilder builder = new()
-        {
-            RootUri = $"channels/{threadId}/thread-members/{userId}"
-        };
+        QueryBuilder builder = new($"channels/{threadId}/thread-members/{userId}");
 
         if (query.WithMember is not null)
         {
-            builder.AddParameter("after", query.WithMember.Value.ToString().ToLowerInvariant());
+            _ = builder.AddParameter("after", query.WithMember.Value.ToString().ToLowerInvariant());
         }
 
         return await restClient.ExecuteRequestAsync<IThreadMember>
@@ -759,19 +750,16 @@ public sealed class ChannelRestAPI(IRestClient restClient)
             return new ValidationError("The limit of threads to return must be between 1 and 100.");
         }
 
-        QueryBuilder builder = new()
-        {
-            RootUri = $"channels/{channelId}/users/@me/threads/archived/private"
-        };
+        QueryBuilder builder = new($"channels/{channelId}/users/@me/threads/archived/private");
 
         if (query.Limit is not null)
         {
-            builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
+            _ = builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
         }
 
         if (query.Before is not null)
         {
-            builder.AddParameter("before", query.Before.Value.ToString());
+            _ = builder.AddParameter("before", query.Before.Value.ToString());
         }
 
         return await restClient.ExecuteRequestAsync<ListArchivedThreadsResponse>
@@ -798,19 +786,16 @@ public sealed class ChannelRestAPI(IRestClient restClient)
             return new ValidationError("The limit of threads to return must be between 1 and 100.");
         }
 
-        QueryBuilder builder = new()
-        {
-            RootUri = $"channels/{channelId}/users/@me/threads/archived/private"
-        };
+        QueryBuilder builder = new($"channels/{channelId}/users/@me/threads/archived/private");
 
         if (query.Limit is not null)
         {
-            builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
+            _ = builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
         }
 
         if (query.Before is not null)
         {
-            builder.AddParameter("before", query.Before.Value.ToString("o", CultureInfo.InvariantCulture));
+            _ = builder.AddParameter("before", query.Before.Value.ToString("o", CultureInfo.InvariantCulture));
         }
 
         return await restClient.ExecuteRequestAsync<ListArchivedThreadsResponse>
@@ -837,19 +822,16 @@ public sealed class ChannelRestAPI(IRestClient restClient)
             return new ValidationError("The limit of threads to return must be between 1 and 100.");
         }
 
-        QueryBuilder builder = new()
-        {
-            RootUri = $"channels/{channelId}/threads/archived/public"
-        };
+        QueryBuilder builder = new($"channels/{channelId}/threads/archived/public");
 
         if (query.Limit is not null)
         {
-            builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
+            _ = builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
         }
 
         if (query.Before is not null)
         {
-            builder.AddParameter("before", query.Before.Value.ToString("o", CultureInfo.InvariantCulture));
+            _ = builder.AddParameter("before", query.Before.Value.ToString("o", CultureInfo.InvariantCulture));
         }
 
         return await restClient.ExecuteRequestAsync<ListArchivedThreadsResponse>
@@ -876,24 +858,21 @@ public sealed class ChannelRestAPI(IRestClient restClient)
             return new ValidationError("The limit of threads to return must be between 1 and 100.");
         }
 
-        QueryBuilder builder = new()
-        {
-            RootUri = $"channels/{threadId}/thread-members"
-        };
+        QueryBuilder builder = new($"channels/{threadId}/thread-members");
 
         if (query.Limit is not null)
         {
-            builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
+            _ = builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
         }
 
         if (query.After is not null)
         {
-            builder.AddParameter("after", query.After.Value.ToString());
+            _ = builder.AddParameter("after", query.After.Value.ToString());
         }
 
         if (query.WithMember is not null)
         {
-            builder.AddParameter("with_member", query.WithMember.Value.ToString().ToLowerInvariant());
+            _ = builder.AddParameter("with_member", query.WithMember.Value.ToString().ToLowerInvariant());
         }
 
         return await restClient.ExecuteRequestAsync<IReadOnlyList<IThreadMember>>

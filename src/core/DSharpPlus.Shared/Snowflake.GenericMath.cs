@@ -5,12 +5,12 @@
 #pragma warning disable CA1031
 
 using System;
-using System.Numerics;
-using System.Globalization;
+using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Buffers.Binary;
 
 namespace DSharpPlus;
 
@@ -939,7 +939,7 @@ public readonly partial record struct Snowflake :
         => -value.Value;
 
     /// <inheritdoc/>
-    public static Snowflake operator -(Snowflake left,Snowflake right)
+    public static Snowflake operator -(Snowflake left, Snowflake right)
         => left.Value - right.Value;
 
     /// <inheritdoc/>

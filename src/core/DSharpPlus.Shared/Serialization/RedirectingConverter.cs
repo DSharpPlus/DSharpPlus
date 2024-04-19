@@ -16,8 +16,8 @@ internal sealed class RedirectingConverter<TInterface, TModel> : JsonConverter<T
 {
     public override TInterface? Read
     (
-        ref Utf8JsonReader reader, 
-        Type typeToConvert, 
+        ref Utf8JsonReader reader,
+        Type typeToConvert,
         JsonSerializerOptions options
     )
     {
@@ -31,8 +31,8 @@ internal sealed class RedirectingConverter<TInterface, TModel> : JsonConverter<T
 
     public override void Write
     (
-        Utf8JsonWriter writer, 
-        TInterface value, 
+        Utf8JsonWriter writer,
+        TInterface value,
         JsonSerializerOptions options
     )
     {

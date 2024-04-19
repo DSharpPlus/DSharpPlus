@@ -85,14 +85,11 @@ public sealed class GuildRestAPI(IRestClient restClient)
         CancellationToken ct = default
     )
     {
-        QueryBuilder builder = new()
-        {
-            RootUri = $"guilds/{guildId}/bans/{userId}"
-        };
+        QueryBuilder builder = new($"guilds/{guildId}/bans/{userId}");
 
         if (query.DeleteMessageSeconds is not null)
         {
-            builder.AddParameter("delete_message_seconds", query.DeleteMessageSeconds.Value.ToString(CultureInfo.InvariantCulture));
+            _ = builder.AddParameter("delete_message_seconds", query.DeleteMessageSeconds.Value.ToString(CultureInfo.InvariantCulture));
         }
 
         Result<HttpResponseMessage> response = await restClient.ExecuteRequestAsync
@@ -322,14 +319,11 @@ public sealed class GuildRestAPI(IRestClient restClient)
         CancellationToken ct = default
     )
     {
-        QueryBuilder builder = new()
-        {
-            RootUri = $"guilds/{guildId}"
-        };
+        QueryBuilder builder = new($"guilds/{guildId}");
 
         if (query.WithCounts.HasValue)
         {
-            builder.AddParameter("with_counts", query.WithCounts.Value.ToString().ToLowerInvariant());
+            _ = builder.AddParameter("with_counts", query.WithCounts.Value.ToString().ToLowerInvariant());
         }
 
         return await restClient.ExecuteRequestAsync<IGuild>
@@ -370,10 +364,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         CancellationToken ct = default
     )
     {
-        QueryBuilder builder = new()
-        {
-            RootUri = $"guilds/{guildId}/bans"
-        };
+        QueryBuilder builder = new($"guilds/{guildId}/bans");
 
         if (query.Limit.HasValue)
         {
@@ -382,17 +373,17 @@ public sealed class GuildRestAPI(IRestClient restClient)
                 return new ValidationError("The amount of bans to request must be between 1 and 1000.");
             }
 
-            builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
+            _ = builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
         }
 
         if (query.Before.HasValue)
         {
-            builder.AddParameter("before", query.Before.Value.ToString());
+            _ = builder.AddParameter("before", query.Before.Value.ToString());
         }
 
         if (query.After.HasValue)
         {
-            builder.AddParameter("after", query.After.Value.ToString());
+            _ = builder.AddParameter("after", query.After.Value.ToString());
         }
 
         return await restClient.ExecuteRequestAsync<IReadOnlyList<IBan>>
@@ -524,10 +515,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         CancellationToken ct = default
     )
     {
-        QueryBuilder builder = new()
-        {
-            RootUri = $"guilds/{guildId}/prune"
-        };
+        QueryBuilder builder = new($"guilds/{guildId}/prune");
 
         if (query.Days.HasValue)
         {
@@ -536,12 +524,12 @@ public sealed class GuildRestAPI(IRestClient restClient)
                 return new ValidationError("The number of days to prune must be between 1 and 30.");
             }
 
-            builder.AddParameter("days", query.Days.Value.ToString(CultureInfo.InvariantCulture));
+            _ = builder.AddParameter("days", query.Days.Value.ToString(CultureInfo.InvariantCulture));
         }
 
         if (query.IncludeRoles is not null)
         {
-            builder.AddParameter("include_roles", query.IncludeRoles);
+            _ = builder.AddParameter("include_roles", query.IncludeRoles);
         }
 
         return await restClient.ExecuteRequestAsync<GetGuildPruneCountResponse>
@@ -710,10 +698,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
         CancellationToken ct = default
     )
     {
-        QueryBuilder builder = new()
-        {
-            RootUri = $"guilds/{guildId}/members"
-        };
+        QueryBuilder builder = new($"guilds/{guildId}/members");
 
         if (query.Limit is not null)
         {
@@ -722,12 +707,12 @@ public sealed class GuildRestAPI(IRestClient restClient)
                 return new ValidationError("The amount of members to query at once must be between 1 and 1000.");
             }
 
-            builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
+            _ = builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
         }
 
         if (query.After is not null)
         {
-            builder.AddParameter("after", query.After.Value.ToString());
+            _ = builder.AddParameter("after", query.After.Value.ToString());
         }
 
         return await restClient.ExecuteRequestAsync<IReadOnlyList<IGuildMember>>
@@ -1116,12 +1101,9 @@ public sealed class GuildRestAPI(IRestClient restClient)
         CancellationToken ct = default
     )
     {
-        QueryBuilder builder = new()
-        {
-            RootUri = $"guilds/{guildId}/members/search"
-        };
+        QueryBuilder builder = new($"guilds/{guildId}/members/search");
 
-        builder.AddParameter("query", query.Query);
+        _ = builder.AddParameter("query", query.Query);
 
         if (query.Limit is not null)
         {
@@ -1130,7 +1112,7 @@ public sealed class GuildRestAPI(IRestClient restClient)
                 return new ValidationError("The amount of members to request must be between 1 and 1000.");
             }
 
-            builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
+            _ = builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
         }
 
         return await restClient.ExecuteRequestAsync<IReadOnlyList<IGuildMember>>

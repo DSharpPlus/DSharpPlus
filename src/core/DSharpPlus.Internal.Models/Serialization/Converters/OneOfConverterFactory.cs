@@ -20,7 +20,7 @@ public sealed class OneOfConverterFactory : JsonConverterFactory
 
     public override JsonConverter? CreateConverter
     (
-        Type typeToConvert, 
+        Type typeToConvert,
         JsonSerializerOptions options
     )
     {

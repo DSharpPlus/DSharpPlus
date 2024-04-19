@@ -13,7 +13,7 @@ namespace DSharpPlus.Entities;
 public enum DiscordGuildMemberFlags
 {
     None = 0,
-    
+
     /// <summary>
     /// Indicates that this member has left and rejoined this guild.
     /// </summary>

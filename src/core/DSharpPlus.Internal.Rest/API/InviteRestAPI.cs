@@ -47,24 +47,21 @@ public sealed class InviteRestAPI(IRestClient restClient)
         CancellationToken ct = default
     )
     {
-        QueryBuilder builder = new()
-        {
-            RootUri = $"invites/{inviteCode}"
-        };
+        QueryBuilder builder = new($"invites/{inviteCode}");
 
         if (query.WithCounts is not null)
         {
-            builder.AddParameter("with_counts", query.WithCounts.Value.ToString().ToLowerInvariant());
+            _ = builder.AddParameter("with_counts", query.WithCounts.Value.ToString().ToLowerInvariant());
         }
 
         if (query.WithExpiration is not null)
         {
-            builder.AddParameter("with_expiration", query.WithExpiration.Value.ToString().ToLowerInvariant());
+            _ = builder.AddParameter("with_expiration", query.WithExpiration.Value.ToString().ToLowerInvariant());
         }
 
         if (query.GuildScheduledEventId is not null)
         {
-            builder.AddParameter("guild_scheduled_event_id", query.GuildScheduledEventId.Value.ToString());
+            _ = builder.AddParameter("guild_scheduled_event_id", query.GuildScheduledEventId.Value.ToString());
         }
 
         return await restClient.ExecuteRequestAsync<IInvite>

@@ -142,10 +142,7 @@ public sealed class UserRestAPI(IRestClient restClient)
         CancellationToken ct = default
     )
     {
-        QueryBuilder builder = new()
-        {
-            RootUri = "users/@me/guilds"
-        };
+        QueryBuilder builder = new("users/@me/guilds");
 
         if (query.Limit is not null)
         {
@@ -154,22 +151,22 @@ public sealed class UserRestAPI(IRestClient restClient)
                 return new ValidationError("The limit of guilds to request must be between 1 and 200.");
             }
 
-            builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
+            _ = builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
         }
 
         if (query.Before is not null)
         {
-            builder.AddParameter("before", query.Before.Value.ToString());
+            _ = builder.AddParameter("before", query.Before.Value.ToString());
         }
 
         if (query.After is not null)
         {
-            builder.AddParameter("after", query.After.Value.ToString());
+            _ = builder.AddParameter("after", query.After.Value.ToString());
         }
 
         if (query.WithCounts is not null)
         {
-            builder.AddParameter("with_counts", query.WithCounts.Value.ToString().ToLowerInvariant());
+            _ = builder.AddParameter("with_counts", query.WithCounts.Value.ToString().ToLowerInvariant());
         }
 
         return await restClient.ExecuteRequestAsync<IReadOnlyList<IPartialGuild>>

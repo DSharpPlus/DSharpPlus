@@ -3,9 +3,8 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 using System;
-
-using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Entities;
+using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Abstractions.Rest.Payloads;
 
@@ -32,7 +31,7 @@ public interface ICreateGuildScheduledEventPayload
     /// <summary>
     /// Privacy level for this scheduled event.
     /// </summary>
-    public DiscordScheduledEventPrivacyLevel PrivacyLevel { get;}
+    public DiscordScheduledEventPrivacyLevel PrivacyLevel { get; }
 
     /// <summary>
     /// Indicates the time at which this event is scheduled to start.

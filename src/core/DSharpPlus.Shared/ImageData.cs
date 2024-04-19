@@ -99,11 +99,11 @@ public readonly record struct ImageData
 
             OperationStatus status = Base64.EncodeToUtf8
             (
-                bytes:         readSpan[..currentLength], 
-                utf8:          writeSpan, 
-                bytesConsumed: out int consumed, 
-                bytesWritten:  out int written, 
-                isFinalBlock:  false
+                bytes: readSpan[..currentLength],
+                utf8: writeSpan,
+                bytesConsumed: out int consumed,
+                bytesWritten: out int written,
+                isFinalBlock: false
             );
 
             Debug.Assert(status is OperationStatus.Done or OperationStatus.NeedMoreData);
