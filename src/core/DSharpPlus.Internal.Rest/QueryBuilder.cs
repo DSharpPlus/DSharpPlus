@@ -12,10 +12,8 @@ namespace DSharpPlus.Internal.Rest;
 /// <summary>
 /// Constructs a new query from the specified parameters.
 /// </summary>
-internal record struct QueryBuilder
+internal record struct QueryBuilder(string RootUri)
 {
-    public string RootUri { get; set; }
-
     public DictionarySlim<string, string> Parameters { get; set; }
 
     public readonly QueryBuilder AddParameter(string key, string value)

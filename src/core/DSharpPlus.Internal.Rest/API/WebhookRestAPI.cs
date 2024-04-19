@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -216,6 +217,19 @@ public sealed class WebhookRestAPI(IRestClient restClient)
         if (payload.Components.TryGetNonNullValue(out IReadOnlyList<IActionRowComponent>? components) && components.Count > 5)
         {
             return new ValidationError("A webhook message cannot contain more than 5 action rows.");
+        }
+
+        if (payload.Poll.TryGetNonNullValue(out ICreatePoll? poll))
+        {
+            if (poll.Question.Text is { HasValue: true, Value.Length: > 300 })
+            {
+                return new ValidationError("The poll must specify a question that cannot exceed 300 characters.");
+            }
+
+            if (poll.Answers.Any(answer => answer.PollMedia.Text is { HasValue: true, Value.Length: > 55 }))
+            {
+                return new ValidationError("The answer text of a poll cannot exceed 55 characters.");
+            }
         }
 
         QueryBuilder builder = new()

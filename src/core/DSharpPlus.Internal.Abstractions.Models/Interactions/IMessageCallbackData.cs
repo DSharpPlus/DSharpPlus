@@ -48,5 +48,10 @@ public interface IMessageCallbackData
     /// </summary>
     public Optional<IReadOnlyList<IPartialAttachment>> Attachments { get; }
 
+    /// <summary>
+    /// The poll to create along with this message.
+    /// </summary>
+    public Optional<ICreatePoll> Poll { get; }
+
     public IReadOnlyList<AttachmentData>? Files { get; }
 }

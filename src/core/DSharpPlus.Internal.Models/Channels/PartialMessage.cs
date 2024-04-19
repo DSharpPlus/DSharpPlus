@@ -102,4 +102,10 @@ public sealed record PartialMessage : IPartialMessage
 
     /// <inheritdoc/>
     public Optional<IRoleSubscriptionData> RoleSubscriptionData { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<IResolvedData> Resolved { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<ICreatePoll> Poll { get; init; }
 }

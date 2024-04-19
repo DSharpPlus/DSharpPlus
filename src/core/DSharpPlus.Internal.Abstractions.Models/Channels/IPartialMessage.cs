@@ -169,4 +169,14 @@ public interface IPartialMessage
     /// Metadata for the role subscription purchase or renewal that prompted this message.
     /// </summary>
     public Optional<IRoleSubscriptionData> RoleSubscriptionData { get; }
+
+    /// <summary>
+    /// Resolved data for users, members, channels and roles in this messages auto-populated select menus.
+    /// </summary>
+    public Optional<IResolvedData> Resolved { get; }
+
+    /// <summary>
+    /// A poll being created with this message.
+    /// </summary>
+    public Optional<ICreatePoll> Poll { get; }
 }

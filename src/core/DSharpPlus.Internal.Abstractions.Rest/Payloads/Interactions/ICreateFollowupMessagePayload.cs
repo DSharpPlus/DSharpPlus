@@ -3,9 +3,8 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 using System.Collections.Generic;
-
-using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Entities;
+using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Abstractions.Rest.Payloads;
 
@@ -56,4 +55,9 @@ public interface ICreateFollowupMessagePayload
     /// Additional message flags for this message. SuppressEmbeds and Ephemeral can be set.
     /// </summary>
     public Optional<DiscordMessageFlags> Flags { get; }
+
+    /// <summary>
+    /// The poll object created with this message.
+    /// </summary>
+    public Optional<ICreatePoll> Poll { get; }
 }

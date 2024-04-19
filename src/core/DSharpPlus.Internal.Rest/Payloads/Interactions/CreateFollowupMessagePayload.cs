@@ -36,4 +36,7 @@ public sealed record CreateFollowupMessagePayload : ICreateFollowupMessagePayloa
 
     /// <inheritdoc/>
     public Optional<DiscordMessageFlags> Flags { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<ICreatePoll> Poll { get; init; }
 }

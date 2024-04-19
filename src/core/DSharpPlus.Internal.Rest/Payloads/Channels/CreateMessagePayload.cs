@@ -45,4 +45,10 @@ public sealed record CreateMessagePayload : ICreateMessagePayload
 
     /// <inheritdoc/>
     public Optional<DiscordMessageFlags> Flags { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<bool> EnforceNonce { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<ICreatePoll> Poll { get; init; }
 }

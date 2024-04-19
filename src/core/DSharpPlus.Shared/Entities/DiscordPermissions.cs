@@ -235,5 +235,10 @@ public enum DiscordPermissions : ulong
     /// <summary>
     /// Allows members to send voice messages.
     /// </summary>
-    SendVoiceMessages = 1L << 46
+    SendVoiceMessages = 1L << 46,
+
+    /// <summary>
+    /// Allows members to send polls.
+    /// </summary>
+    SendPolls = 1L << 49
 }

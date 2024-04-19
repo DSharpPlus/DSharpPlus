@@ -5,6 +5,7 @@
 #pragma warning disable IDE0046
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -53,6 +54,19 @@ public sealed class InteractionRestAPI(IRestClient restClient)
             return new ValidationError("Only up to 10 embeds can be sent with a message.");
         }
 
+        if (payload.Poll.TryGetNonNullValue(out ICreatePoll? poll))
+        {
+            if (poll.Question.Text is { HasValue: true, Value.Length: > 300 })
+            {
+                return new ValidationError("The poll must specify a question that cannot exceed 300 characters.");
+            }
+
+            if (poll.Answers.Any(answer => answer.PollMedia.Text is { HasValue: true, Value.Length: > 55 }))
+            {
+                return new ValidationError("The answer text of a poll cannot exceed 55 characters.");
+            }
+        }
+
         return await restClient.ExecuteRequestAsync<IMessage>
         (
             HttpMethod.Post,
@@ -96,6 +110,19 @@ public sealed class InteractionRestAPI(IRestClient restClient)
             if (message.Embeds.HasValue && message.Embeds.Value.Count > 10)
             {
                 return new ValidationError("Only up to 10 embeds can be sent with a message.");
+            }
+
+            if (message.Poll.TryGetNonNullValue(out ICreatePoll? poll))
+            {
+                if (poll.Question.Text is { HasValue: true, Value.Length: > 300 })
+                {
+                    return new ValidationError("The poll must specify a question that cannot exceed 300 characters.");
+                }
+
+                if (poll.Answers.Any(answer => answer.PollMedia.Text is { HasValue: true, Value.Length: > 55 }))
+                {
+                    return new ValidationError("The answer text of a poll cannot exceed 55 characters.");
+                }
             }
         }
         else if (payload.Type is DiscordInteractionCallbackType.Modal)

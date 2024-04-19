@@ -3,9 +3,8 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 using System.Collections.Generic;
-
-using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Entities;
+using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Abstractions.Rest.Payloads;
 
@@ -68,4 +67,16 @@ public interface ICreateMessagePayload
     /// Message flags, combined as bitfield. Only <see cref="DiscordMessageFlags.SuppressEmbeds"/> can be set.
     /// </summary>
     public Optional<DiscordMessageFlags> Flags { get; }
+
+    /// <summary>
+    /// If this is set to true and a <seealso cref="Nonce"/> is present, it will be checked for uniqueness in the past few
+    /// minutes. If another message was created by this user with the same nonce, that message will be returned and no new
+    /// message will be created.
+    /// </summary>
+    public Optional<bool> EnforceNonce { get; }
+
+    /// <summary>
+    /// A poll attached to this message.
+    /// </summary>
+    public Optional<ICreatePoll> Poll { get; }
 }

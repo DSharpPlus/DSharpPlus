@@ -3,9 +3,8 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 using System.Collections.Generic;
-
-using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Entities;
+using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Abstractions.Rest.Payloads;
 
@@ -73,4 +72,9 @@ public interface IExecuteWebhookPayload
     /// The snowflake identifiers of tags to apply to the thread, if applicable.
     /// </summary>
     public Optional<IReadOnlyList<Snowflake>> AppliedTags { get; }
+
+    /// <summary>
+    /// The poll object created with this message.
+    /// </summary>
+    public Optional<ICreatePoll> Poll { get; }
 }

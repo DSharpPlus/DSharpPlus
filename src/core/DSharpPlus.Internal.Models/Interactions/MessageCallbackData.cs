@@ -34,5 +34,8 @@ public sealed record MessageCallbackData : IMessageCallbackData
     public Optional<IReadOnlyList<IPartialAttachment>> Attachments { get; init; }
 
     /// <inheritdoc/>
+    public Optional<ICreatePoll> Poll { get; init; }
+
+    /// <inheritdoc/>
     public IReadOnlyList<AttachmentData>? Files { get; init; }
 }

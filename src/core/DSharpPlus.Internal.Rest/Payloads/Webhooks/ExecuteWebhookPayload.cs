@@ -48,4 +48,7 @@ public sealed record ExecuteWebhookPayload : IExecuteWebhookPayload
 
     /// <inheritdoc/>
     public Optional<IReadOnlyList<Snowflake>> AppliedTags { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<ICreatePoll> Poll { get; init; }
 }
