@@ -210,6 +210,9 @@ internal sealed class RestChannelMessageCreatePayload : RestChannelMessageEditPa
 
     [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
     public InternalDiscordMessageReference? MessageReference { get; set; }
+    
+    [JsonProperty("poll", NullValueHandling = NullValueHandling.Ignore)]
+    public PollCreatePayload? Poll { get; set; }
 }
 
 internal sealed class RestChannelMessageCreateMultipartPayload
@@ -228,6 +231,9 @@ internal sealed class RestChannelMessageCreateMultipartPayload
 
     [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
     public InternalDiscordMessageReference? MessageReference { get; set; }
+    
+    [JsonProperty("poll", NullValueHandling = NullValueHandling.Ignore)]
+    public PollCreatePayload? Poll { get; set; }
 }
 
 internal sealed class RestChannelMessageBulkDeletePayload

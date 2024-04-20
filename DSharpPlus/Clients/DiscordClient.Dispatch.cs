@@ -328,6 +328,14 @@ public sealed partial class DiscordClient
             case "message_delete_bulk":
                 await this.OnMessageBulkDeleteEventAsync(dat["ids"].ToDiscordObject<ulong[]>(), (ulong)dat["channel_id"], (ulong?)dat["guild_id"]);
                 break;
+            
+            case "message_poll_vote_add":
+                await this.OnMessagePollVoteEventAsync(dat.ToDiscordObject<DiscordPollVoteUpdate>(), true);
+                break;
+
+            case "message_poll_vote_remove":
+                await this.OnMessagePollVoteEventAsync(dat.ToDiscordObject<DiscordPollVoteUpdate>(), false);
+                break;
 
             #endregion
 
@@ -1661,6 +1669,7 @@ public sealed partial class DiscordClient
             message._attachments.AddRange(event_message._attachments);
             message.Pinned = event_message.Pinned;
             message.IsTTS = event_message.IsTTS;
+            message.Poll = event_message.Poll;
 
             // Mentions
             message._mentionedUsers.Clear();
@@ -1729,6 +1738,19 @@ public sealed partial class DiscordClient
             Guild = guild,
         };
         await this._messageDeleted.InvokeAsync(this, ea);
+    }
+    
+    private async Task OnMessagePollVoteEventAsync(DiscordPollVoteUpdate voteUpdate, bool wasAdded)
+    {
+        voteUpdate.WasAdded = wasAdded;
+        voteUpdate._client = this;
+        
+        MessagePollVoteEventArgs ea = new MessagePollVoteEventArgs
+        {
+            PollVoteUpdate = voteUpdate
+        };
+        
+        await this._messagePollVoted.InvokeAsync(this, ea);
     }
 
     internal async Task OnMessageBulkDeleteEventAsync(ulong[] messageIds, ulong channelId, ulong? guildId)

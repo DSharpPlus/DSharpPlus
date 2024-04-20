@@ -44,6 +44,9 @@ internal sealed class RestWebhookExecutePayload
 
     [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordMentions? Mentions { get; set; }
+    
+    [JsonProperty("poll", NullValueHandling = NullValueHandling.Ignore)]
+    public PollCreatePayload? Poll { get; set; }
 }
 
 internal sealed class RestWebhookMessageEditPayload
