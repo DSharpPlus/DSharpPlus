@@ -1,6 +1,6 @@
-namespace DSharpPlus.Entities;
-
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents media for a poll. It is the backplane for poll options.
@@ -17,10 +17,11 @@ public sealed class DiscordPollMedia
     /// </remarks>
     [JsonProperty("text", NullValueHandling = NullValueHandling.Ignore)]
     public string? Text { get; internal set; }
-    
+
     /// <summary>
     /// Gets the emoji for the field, if any.
     /// </summary>
+    [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordComponentEmoji? Emoji { get; internal set; }
     
     internal DiscordPollMedia() {}

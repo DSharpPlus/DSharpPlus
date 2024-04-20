@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.Net.Abstractions;
 
 namespace DSharpPlus.Entities;
 
@@ -97,6 +98,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     public DiscordMessageBuilder(DiscordMessage baseMessage)
     {
         this.IsTTS = baseMessage.IsTTS;
+        this.Poll = baseMessage.Poll == null ? null : new DiscordPollBuilder(baseMessage.Poll);
         this.ReplyId = baseMessage.ReferencedMessage?.Id;
         this._components = [.. baseMessage.Components];
         this._content = baseMessage.Content;
@@ -225,9 +227,9 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
             throw new ArgumentException("A message can only have up to 10 embeds.");
         }
 
-        if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && (!this.Embeds?.Any() ?? true) && (!this.Stickers?.Any() ?? true))
+        if (this.Poll == null && this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && (!this.Embeds?.Any() ?? true) && (!this.Stickers?.Any() ?? true))
         {
-            throw new ArgumentException("You must specify content, an embed, a sticker, or at least one file.");
+            throw new ArgumentException("You must specify content, an embed, a sticker, a poll, or at least one file.");
         }
 
         if (this.Components.Count > 5)

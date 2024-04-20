@@ -44,7 +44,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <summary>
     /// Gets or sets a poll for this message.
     /// </summary>
-    public DiscordPoll? Poll { get; set; }
+    public DiscordPollBuilder? Poll { get; set; }
 
     /// <summary>
     /// Embeds to send on this webhook request.
@@ -171,7 +171,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         return (T)this;
     }
     
-    public T WithPoll(DiscordPoll poll)
+    public T WithPoll(DiscordPollBuilder poll)
     {
         this.Poll = poll;
         return (T)this;
@@ -520,11 +520,11 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// Whether this message will play as a text-to-speech message.
     /// </summary>
     bool IsTTS { get; set; }
-    
+
     /// <summary>
     /// Gets or sets a poll for this message.
     /// </summary>
-    DiscordPoll? Poll { get; set; }
+    DiscordPollBuilder? Poll { get; set; }
 
     /// <summary>
     /// All embeds on this message.

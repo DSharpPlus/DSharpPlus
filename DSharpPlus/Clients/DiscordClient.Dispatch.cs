@@ -329,8 +329,12 @@ public sealed partial class DiscordClient
                 await this.OnMessageBulkDeleteEventAsync(dat["ids"].ToDiscordObject<ulong[]>(), (ulong)dat["channel_id"], (ulong?)dat["guild_id"]);
                 break;
             
-            case "message_poll_vote_add" or "message_poll_vote_remove":
-                await this.OnMessagePollVoteEventAsync(dat.ToDiscordObject<DiscordPollVoteUpdate>(), payload.EventName.Contains("remove"));
+            case "message_poll_vote_add":
+                await this.OnMessagePollVoteEventAsync(dat.ToDiscordObject<DiscordPollVoteUpdate>(), true);
+                break;
+
+            case "message_poll_vote_remove":
+                await this.OnMessagePollVoteEventAsync(dat.ToDiscordObject<DiscordPollVoteUpdate>(), false);
                 break;
 
             #endregion
@@ -1665,6 +1669,7 @@ public sealed partial class DiscordClient
             message._attachments.AddRange(event_message._attachments);
             message.Pinned = event_message.Pinned;
             message.IsTTS = event_message.IsTTS;
+            message.Poll = event_message.Poll;
 
             // Mentions
             message._mentionedUsers.Clear();

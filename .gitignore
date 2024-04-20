@@ -484,3 +484,4 @@ docs/_site
 DSharpPlus.Test/config.json
 .idea
 .vscode
+*.DotSettings

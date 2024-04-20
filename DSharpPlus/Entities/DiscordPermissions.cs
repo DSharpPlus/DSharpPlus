@@ -4,7 +4,7 @@ namespace DSharpPlus.Entities;
 
 public static class PermissionMethods
 {
-    internal static DiscordPermissions FULL_PERMS { get; } = (DiscordPermissions)2199023255551L;
+    internal static DiscordPermissions FULL_PERMS { get; } = (DiscordPermissions)703687441776639L;
 
     /// <summary>
     /// Calculates whether this permission set contains the given permission.
@@ -69,7 +69,7 @@ public enum DiscordPermissions : long
     /// Indicates all permissions are granted
     /// </summary>
     [PermissionString("All permissions")]
-    All = 2199023255551,
+    All = 703687441776639,
 
     /// <summary>
     /// Allows creation of instant channel invites.
@@ -345,7 +345,13 @@ public enum DiscordPermissions : long
     /// Allows sending voice messages.
     /// </summary>
     [PermissionString("Send Voice Messages")]
-    SendVoiceMessages = 0x0000400000000000
+    SendVoiceMessages = 0x0000400000000000,
+
+    /// <summary>
+    /// Allows sending polls.
+    /// </summary>
+    [PermissionString("Send Polls")]
+    SendPolls = 0x0002000000000000,
 }
 
 /// <summary>
