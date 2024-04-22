@@ -322,6 +322,32 @@ public static partial class Utilities
         value = kvp.Value;
     }
 
+    /// <summary>
+    /// Creates a snowflake from a given <see cref="DateTimeOffset"/>. This can be used to provide "timestamps" for methods
+    /// like <see cref="DiscordChannel.GetMessagesAfterAsync"/>.
+    /// </summary>
+    /// <param name="dateTimeOffset">DateTimeOffset to create a snowflake from.</param>
+    /// <returns>Returns a snowflake representing the given date and time.</returns>
+    public static ulong CreateSnowflake(DateTimeOffset dateTimeOffset)
+    {
+        var diff = dateTimeOffset - DiscordClient._discordEpoch;
+        return (ulong)diff.TotalMilliseconds << 22;
+    }
+    
+    /// <summary>
+    /// Creates a snowflake from a given <see cref="DateTime"/>.
+    /// This can be used to provide "timestamps" for methods
+    /// like <see cref="DiscordChannel.GetMessagesAfterAsync"/>.
+    /// </summary>
+    /// <param name="dateTimeOffset">DateTimeOffset to create a snowflake from.</param>
+    /// <returns>Returns a snowflake representing the given date and time.</returns>
+    /// <remarks>THIS METHOD ASSUMES THAT THE DATETIME IS IN UTC.</remarks>
+    public static ulong CreateSnowflake(DateTime dateTime)
+    {
+        var diff = dateTime - DiscordClient._discordEpoch;
+        return (ulong)diff.TotalMilliseconds << 22;
+    }
+
     [GeneratedRegex("<@(\\d+)>", RegexOptions.ECMAScript)]
     private static partial Regex UserMentionRegex();
 
