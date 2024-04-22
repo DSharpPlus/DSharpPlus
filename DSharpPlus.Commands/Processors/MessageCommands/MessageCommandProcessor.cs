@@ -1,5 +1,10 @@
 namespace DSharpPlus.Commands.Processors.MessageCommands;
 
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.Converters;
 using DSharpPlus.Commands.EventArgs;
@@ -11,16 +16,9 @@ using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
 
 public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreateEventArgs>
 {

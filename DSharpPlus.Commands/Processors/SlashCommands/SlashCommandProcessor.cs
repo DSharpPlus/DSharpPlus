@@ -1,20 +1,5 @@
 namespace DSharpPlus.Commands.Processors.SlashCommands;
 
-using DSharpPlus.Commands.ContextChecks;
-using DSharpPlus.Commands.EventArgs;
-using DSharpPlus.Commands.Exceptions;
-using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
-using DSharpPlus.Commands.Processors.SlashCommands.Localization;
-using DSharpPlus.Commands.Processors.SlashCommands.Metadata;
-using DSharpPlus.Commands.Trees;
-using DSharpPlus.Commands.Trees.Metadata;
-using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
-
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
@@ -23,6 +8,19 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Commands.EventArgs;
+using DSharpPlus.Commands.Exceptions;
+using DSharpPlus.Commands.Processors.SlashCommands.Localization;
+using DSharpPlus.Commands.Processors.SlashCommands.Metadata;
+using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
+using DSharpPlus.Commands.Trees;
+using DSharpPlus.Commands.Trees.Metadata;
+using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCreateEventArgs, ISlashArgumentConverter, InteractionConverterContext, SlashCommandContext>
 {
