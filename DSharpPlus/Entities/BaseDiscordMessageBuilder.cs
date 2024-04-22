@@ -40,6 +40,11 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     }
 
     public bool IsTTS { get; set; }
+    
+    /// <summary>
+    /// Gets or sets a poll for this message.
+    /// </summary>
+    public DiscordPollBuilder? Poll { get; set; }
 
     /// <summary>
     /// Embeds to send on this webhook request.
@@ -84,6 +89,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         this._components.AddRange(builder.Components);
         this._files.AddRange(builder.Files);
         this.IsTTS = builder.IsTTS;
+        this.Poll = builder.Poll;
     }
 
     /// <summary>
@@ -162,6 +168,12 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     public T WithTTS(bool isTTS)
     {
         this.IsTTS = isTTS;
+        return (T)this;
+    }
+    
+    public T WithPoll(DiscordPollBuilder poll)
+    {
+        this.Poll = poll;
         return (T)this;
     }
 
@@ -508,6 +520,11 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// Whether this message will play as a text-to-speech message.
     /// </summary>
     bool IsTTS { get; set; }
+
+    /// <summary>
+    /// Gets or sets a poll for this message.
+    /// </summary>
+    DiscordPollBuilder? Poll { get; set; }
 
     /// <summary>
     /// All embeds on this message.

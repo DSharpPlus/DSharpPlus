@@ -2217,7 +2217,8 @@ public sealed class DiscordApiClient
             HasEmbed = builder.Embeds != null,
             Embeds = builder.Embeds,
             Components = builder.Components,
-            Flags = builder.Flags
+            Flags = builder.Flags,
+            Poll = builder.Poll?.BuildInternal(),
         };
 
         if (builder.ReplyId != null)
@@ -4815,6 +4816,7 @@ public sealed class DiscordApiClient
             IsTTS = builder.IsTTS,
             Embeds = builder.Embeds,
             Components = builder.Components,
+            Poll = builder.Poll?.BuildInternal(),
         };
 
         if (builder.Mentions != null)
@@ -5148,6 +5150,72 @@ public sealed class DiscordApiClient
 
         await this._rest.ExecuteRequestAsync(request);
     }
+    #endregion
+
+    #region Polls
+
+    internal async ValueTask<IReadOnlyList<DiscordUser>> GetPollAnswerVotersAsync
+    (
+        ulong channelId,
+        ulong messageId,
+        int answerId,
+        ulong? after,
+        int? limit
+    )
+    {
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.POLLS}/:message_id/{Endpoints.ANSWERS}/:answer_id";
+        QueryUriBuilder url = new($"{Endpoints.CHANNELS}/{channelId}/{Endpoints.POLLS}/{messageId}/{Endpoints.ANSWERS}/{answerId}");
+
+
+        if (limit > 0)
+        {
+            url.AddParameter("limit", limit.Value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        if (after > 0)
+        {
+            url.AddParameter("after", after.Value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url.Build(),
+            Method = HttpMethod.Get
+        };
+
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+
+        JToken jto = JToken.Parse(res.Response!);
+
+        return (jto as JArray ?? jto["users"] as JArray)!
+            .Select(j => j.ToDiscordObject<DiscordUser>())
+            .ToList();
+    }
+
+    internal async ValueTask<DiscordMessage> EndPollAsync
+    (
+        ulong channelId,
+        ulong messageId
+    )
+    {
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.POLLS}/:message_id/{Endpoints.EXPIRE}";
+        string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.POLLS}/{messageId}/{Endpoints.EXPIRE}";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post
+        };
+
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+
+        DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
+
+        return ret;
+    }
+
     #endregion
 
     #region Emoji
@@ -5823,7 +5891,8 @@ public sealed class DiscordApiClient
                 Mentions = new DiscordMentions(builder.Mentions ?? Mentions.All, builder.Mentions?.Any() ?? false),
                 Flags = builder.Flags,
                 Components = builder.Components,
-                Choices = builder.Choices
+                Choices = builder.Choices,
+                Poll = builder.Poll?.BuildInternal(),
             }
             : null
         };

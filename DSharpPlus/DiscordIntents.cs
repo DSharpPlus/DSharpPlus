@@ -169,12 +169,24 @@ public enum DiscordIntents
     AutoModerationExecution = 1 << 21,
 
     /// <summary>
+    ///  Whetever to include add and remove of a poll votes events in guilds.
+    /// <para>This includes <see cref="DiscordClient.MessagePollVoted"/></para>
+    /// </summary>
+    GuildMessagePolls = 1 << 24,
+
+    /// <summary>
+    ///  Whetever to include add and remove of a poll votes events in direct messages.
+    /// <para>This includes <see cref="DiscordClient.MessagePollVoted"/></para>
+    /// </summary>
+    DirectMessagePolls = 1 << 25,
+
+    /// <summary>
     /// Includes all unprivileged intents.
     /// <para>These are all intents excluding <see cref="DiscordIntents.GuildMembers"/> and <see cref="DiscordIntents.GuildPresences"/>.</para>
     /// </summary>
     AllUnprivileged = Guilds | GuildModeration | GuildEmojisAndStickers | GuildIntegrations | GuildWebhooks | GuildInvites | GuildVoiceStates | GuildMessages |
                       GuildMessageReactions | GuildMessageTyping | DirectMessages | DirectMessageReactions | DirectMessageTyping | ScheduledGuildEvents |
-                      AutoModerationEvents | AutoModerationExecution,
+                      AutoModerationEvents | AutoModerationExecution | GuildMessagePolls | DirectMessagePolls,
 
     /// <summary>
     /// Includes all intents.
