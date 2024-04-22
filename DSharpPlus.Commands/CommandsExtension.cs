@@ -144,6 +144,7 @@ public sealed class CommandsExtension : BaseExtension
 
     public void AddCommand(CommandBuilder command) => this._commandBuilders.Add(command);
     public void AddCommands(IEnumerable<CommandBuilder> commands) => this._commandBuilders.AddRange(commands);
+    public void AddCommands(params CommandBuilder[] commands) => this._commandBuilders.AddRange(commands);
 
     public void AddCommands(Assembly assembly) => this.AddCommands(assembly.GetTypes());
     public void AddCommands(Assembly assembly, params ulong[] guildIds) => this.AddCommands(assembly.GetTypes(), guildIds);
