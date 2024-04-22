@@ -1,20 +1,11 @@
 namespace DSharpPlus.Commands.Processors.SlashCommands;
 
-using System;
-using System.Collections.Frozen;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
+using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Commands.Processors.SlashCommands.Localization;
 using DSharpPlus.Commands.Processors.SlashCommands.Metadata;
-using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
@@ -23,6 +14,15 @@ using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+
+using System;
+using System.Collections.Frozen;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCreateEventArgs, ISlashArgumentConverter, InteractionConverterContext, SlashCommandContext>
 {
@@ -180,8 +180,9 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
     public async Task RegisterSlashCommandsAsync(CommandsExtension extension)
     {
-        List<DiscordApplicationCommand> applicationCommands = [];
-        applicationCommands.AddRange(this._applicationCommands);
+        List<DiscordApplicationCommand> globalApplicationCommands = [];
+        Dictionary<ulong, List<DiscordApplicationCommand>> guildsApplicationCommands = [];
+        globalApplicationCommands.AddRange(this._applicationCommands);
         foreach (Command command in extension.Commands.Values)
         {
             // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
@@ -191,12 +192,35 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                 continue;
             }
 
-            applicationCommands.Add(await this.ToApplicationCommandAsync(command));
+            if (command.GuildIds.Count > 0)
+            {
+                foreach (ulong guildId in command.GuildIds)
+                {
+                    if (!guildsApplicationCommands.TryGetValue(guildId, out List<DiscordApplicationCommand>? guildCommands))
+                    {
+                        guildCommands = [];
+                        guildsApplicationCommands.Add(guildId, guildCommands);
+                    }
+
+                    guildCommands.Add(await this.ToApplicationCommandAsync(command));
+                }
+
+                continue;
+            }
+
+            globalApplicationCommands.Add(await this.ToApplicationCommandAsync(command));
         }
 
-        IReadOnlyList<DiscordApplicationCommand> discordCommands = extension.DebugGuildId is 0
-            ? await extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(applicationCommands)
-            : await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, applicationCommands);
+        List<DiscordApplicationCommand> discordCommands = [];
+
+        discordCommands.AddRange(extension.DebugGuildId is 0
+            ? await extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(globalApplicationCommands)
+            : await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, globalApplicationCommands));
+
+        foreach ((ulong guildId, List<DiscordApplicationCommand> guildCommands) in guildsApplicationCommands)
+        {
+            discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId, guildCommands));
+        }
 
         Dictionary<ulong, Command> commandsDictionary = [];
         foreach (DiscordApplicationCommand discordCommand in discordCommands)

@@ -1,15 +1,5 @@
 namespace DSharpPlus.Commands;
 
-using System;
-using System.Collections.Frozen;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.EventArgs;
@@ -23,9 +13,21 @@ using DSharpPlus.Commands.Processors.UserCommands;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+
+using System;
+using System.Collections.Frozen;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
 
 using CheckFunc = System.Func
 <
@@ -134,21 +136,32 @@ public sealed class CommandsExtension : BaseExtension
         this.AddCheck<TextMessageReplyCheck>();
     }
 
-    public void AddCommand(Type type) => this._commandBuilders.Add(CommandBuilder.From(type));
-    public void AddCommand(CommandBuilder command) => this._commandBuilders.Add(command);
     public void AddCommand(Delegate commandDelegate) => this._commandBuilders.Add(CommandBuilder.From(commandDelegate));
+    public void AddCommand(Delegate commandDelegate, params ulong[] guildIds) => this._commandBuilders.Add(CommandBuilder.From(commandDelegate).WithGuildIds(guildIds));
+
+    public void AddCommand(Type type) => this._commandBuilders.Add(CommandBuilder.From(type));
+    public void AddCommand(Type type, params ulong[] guildIds) => this._commandBuilders.Add(CommandBuilder.From(type, guildIds));
+
+    public void AddCommand(CommandBuilder command) => this._commandBuilders.Add(command);
     public void AddCommands(IEnumerable<CommandBuilder> commands) => this._commandBuilders.AddRange(commands);
+
     public void AddCommands(Assembly assembly) => this.AddCommands(assembly.GetTypes());
+    public void AddCommands(Assembly assembly, params ulong[] guildIds) => this.AddCommands(assembly.GetTypes(), guildIds);
+
     public void AddCommands(Type type) => this.AddCommands([type]);
+    public void AddCommands(Type type, params ulong[] guildIds) => this.AddCommands([type], guildIds);
+
     public void AddCommands<T>() => this._commandBuilders.Add(CommandBuilder.From<T>());
-    public void AddCommands(params CommandBuilder[] commands) => this._commandBuilders.AddRange(commands);
-    public void AddCommands(IEnumerable<Type> types)
+    public void AddCommands<T>(params ulong[] guildIds) => this._commandBuilders.Add(CommandBuilder.From<T>(guildIds));
+
+    public void AddCommands(IEnumerable<Type> types) => this.AddCommands(types, []);
+    public void AddCommands(IEnumerable<Type> types, params ulong[] guildIds)
     {
         foreach (Type type in types)
         {
             if (type.GetCustomAttribute<CommandAttribute>() is not null)
             {
-                this._commandBuilders.Add(CommandBuilder.From(type));
+                this._commandBuilders.Add(CommandBuilder.From(type, guildIds));
                 continue;
             }
 
@@ -156,7 +169,7 @@ public sealed class CommandsExtension : BaseExtension
             {
                 if (method.GetCustomAttribute<CommandAttribute>() is not null)
                 {
-                    this._commandBuilders.Add(CommandBuilder.From(method));
+                    this._commandBuilders.Add(CommandBuilder.From(method, guildIds));
                 }
             }
         }

@@ -1,12 +1,13 @@
 namespace DSharpPlus.Commands.Trees;
 
+using DSharpPlus.Commands;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-using DSharpPlus.Commands;
 
 public class CommandBuilder
 {
@@ -18,6 +19,7 @@ public class CommandBuilder
     public List<CommandBuilder> Subcommands { get; set; } = [];
     public List<CommandParameterBuilder> Parameters { get; set; } = [];
     public List<Attribute> Attributes { get; set; } = [];
+    public List<ulong> GuildIds { get; set; } = [];
 
     public CommandBuilder WithName(string name)
     {
@@ -89,6 +91,12 @@ public class CommandBuilder
         return this;
     }
 
+    public CommandBuilder WithGuildIds(IEnumerable<ulong> guildIds)
+    {
+        this.GuildIds = new(guildIds);
+        return this;
+    }
+
     [MemberNotNull(nameof(Name), nameof(Subcommands), nameof(Parameters), nameof(Attributes))]
     public Command Build()
     {
@@ -105,6 +113,7 @@ public class CommandBuilder
         this.WithSubcommands(this.Subcommands);
         this.WithParameters(this.Parameters);
         this.WithAttributes(this.Attributes);
+        this.WithGuildIds(this.GuildIds);
 
         return new(this.Subcommands)
         {
@@ -115,20 +124,28 @@ public class CommandBuilder
             Target = this.Target,
             Parent = this.Parent,
             Parameters = this.Parameters.Select(x => x.Build()).ToArray(),
-            Attributes = this.Attributes
+            Attributes = this.Attributes,
+            GuildIds = this.GuildIds
         };
     }
 
-    /// <inheritdoc cref="From(Type)"/>
+    /// <inheritdoc cref="From(Type, ulong[])"/>
+    public static CommandBuilder From<T>() => From(typeof(T), []);
+
+    /// <inheritdoc cref="From(Type, ulong[])"/>
     /// <typeparam name="T">The type that'll be searched for subcommands.</typeparam>
-    public static CommandBuilder From<T>() => From(typeof(T));
+    public static CommandBuilder From<T>(params ulong[] guildIds) => From(typeof(T), guildIds);
+
+    /// <inheritdoc cref="From(Type, ulong[])"/>
+    public static CommandBuilder From(Type type) => From(type, []);
 
     /// <summary>
-    /// Creates a group command from the specified <paramref name="type"/>.
+    /// Creates a new group <see cref="CommandBuilder"/> from the specified <paramref name="type"/>.
     /// </summary>
     /// <param name="type">The type that'll be searched for subcommands.</param>
+    /// <param name="guildIds">The guild IDs that this command will be registered in.</param>
     /// <returns>A new <see cref="CommandBuilder"/> which does it's best to build a pre-filled <see cref="CommandBuilder"/> from the specified <paramref name="type"/>.</returns>
-    public static CommandBuilder From(Type type)
+    public static CommandBuilder From(Type type, params ulong[] guildIds)
     {
         ArgumentNullException.ThrowIfNull(type, nameof(type));
 
@@ -141,7 +158,7 @@ public class CommandBuilder
                 continue;
             }
 
-            subCommandBuilders.Add(From(subCommand));
+            subCommandBuilders.Add(From(subCommand, guildIds));
         }
 
         // Add methods
@@ -152,7 +169,7 @@ public class CommandBuilder
                 continue;
             }
 
-            subCommandBuilders.Add(From(method));
+            subCommandBuilders.Add(From(method, guildIds));
         }
 
         if (type.GetCustomAttribute<CommandAttribute>() is not null && subCommandBuilders.Count == 0)
@@ -163,6 +180,7 @@ public class CommandBuilder
         CommandBuilder commandBuilder = new();
         commandBuilder.WithAttributes(type.GetCustomAttributes());
         commandBuilder.WithSubcommands(subCommandBuilders);
+        commandBuilder.WithGuildIds(guildIds);
 
         // Might be set through the `DescriptionAttribute`
         if (string.IsNullOrEmpty(commandBuilder.Description))
@@ -173,15 +191,23 @@ public class CommandBuilder
         return commandBuilder;
     }
 
-    public static CommandBuilder From(Delegate method) => From(method.Method, method.Target);
+    /// <inheritdoc cref="From(MethodInfo, object?, ulong[])"/>
+    public static CommandBuilder From(Delegate method) => From(method.Method, method.Target, []);
+
+    /// <inheritdoc cref="From(MethodInfo, object?, ulong[])"/>
+    public static CommandBuilder From(Delegate method, params ulong[] guildIds) => From(method.Method, method.Target, guildIds);
+
+    /// <inheritdoc cref="From(MethodInfo, object?, ulong[])"/>
+    public static CommandBuilder From(MethodInfo method, object? target = null) => From(method, target, []);
 
     /// <summary>
     /// Creates a new <see cref="CommandBuilder"/> from the specified <paramref name="method"/>.
     /// </summary>
     /// <param name="method">The method that'll be invoked when the command is executed.</param>
     /// <param name="target">The object/class instance of which <paramref name="method"/> will create a delegate with.</param>
+    /// <param name="guildIds">The guild IDs that this command will be registered in.</param>
     /// <returns>A new <see cref="CommandBuilder"/> which does it's best to build a pre-filled <see cref="CommandBuilder"/> from the specified <paramref name="method"/>.</returns>
-    public static CommandBuilder From(MethodInfo method, object? target = null)
+    public static CommandBuilder From(MethodInfo method, object? target = null, params ulong[] guildIds)
     {
         ArgumentNullException.ThrowIfNull(method, nameof(method));
         if (method.GetCustomAttribute<CommandAttribute>() is null)
@@ -199,6 +225,7 @@ public class CommandBuilder
         commandBuilder.WithAttributes(method.GetCustomAttributes());
         commandBuilder.WithDelegate(method, target);
         commandBuilder.WithParameters(parameters[1..].Select(CommandParameterBuilder.From));
+        commandBuilder.WithGuildIds(guildIds);
         return commandBuilder;
     }
 }
