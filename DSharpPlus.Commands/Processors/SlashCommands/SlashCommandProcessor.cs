@@ -185,13 +185,18 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         {
             // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
             // If there isn't, default to SlashCommands
-            if (command.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute && !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.SlashCommand))
+            if (command.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute && 
+                !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.SlashCommand))
             {
                 continue;
             }
 
             if (command.GuildIds.Count > 0)
             {
+                globalApplicationCommands.Add(await this.ToApplicationCommandAsync(command));
+                continue;
+            }
+
                 foreach (ulong guildId in command.GuildIds)
                 {
                     if (!guildsApplicationCommands.TryGetValue(guildId, out List<DiscordApplicationCommand>? guildCommands))
