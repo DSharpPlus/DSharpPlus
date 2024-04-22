@@ -191,34 +191,29 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                 continue;
             }
 
-            if (command.GuildIds.Count > 0)
+            if (command.GuildIds.Count == 0)
             {
                 globalApplicationCommands.Add(await this.ToApplicationCommandAsync(command));
                 continue;
             }
 
-                foreach (ulong guildId in command.GuildIds)
+            foreach (ulong guildId in command.GuildIds)
+            {
+                if (!guildsApplicationCommands.TryGetValue(guildId, out List<DiscordApplicationCommand>? guildCommands))
                 {
-                    if (!guildsApplicationCommands.TryGetValue(guildId, out List<DiscordApplicationCommand>? guildCommands))
-                    {
-                        guildCommands = [];
-                        guildsApplicationCommands.Add(guildId, guildCommands);
-                    }
-
-                    guildCommands.Add(await this.ToApplicationCommandAsync(command));
+                    guildCommands = [];
+                    guildsApplicationCommands.Add(guildId, guildCommands);
                 }
 
-                continue;
+                guildCommands.Add(await this.ToApplicationCommandAsync(command));
             }
-
-            globalApplicationCommands.Add(await this.ToApplicationCommandAsync(command));
         }
 
         List<DiscordApplicationCommand> discordCommands = [];
-        if (extension.DebugGuildId is 0)
+        if (extension.DebugGuildId == 0)
         {
             discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, globalApplicationCommands));
-            discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, guildsApplicationCommands.SelectMany(x => x.Value)));
+            discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, guildsApplicationCommands.SelectMany(x => x.Value).Distinct()));
         }
         else
         {
