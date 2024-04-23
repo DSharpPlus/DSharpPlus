@@ -129,6 +129,7 @@ public sealed class CommandsExtension : BaseExtension
         this.AddCheck<DirectMessageUsageCheck>();
         this.AddCheck<RequireApplicationOwnerCheck>();
         this.AddCheck<RequireGuildCheck>();
+        this.AddCheck<RequireGuildIdsCheck>();
         this.AddCheck<RequireNsfwCheck>();
         this.AddCheck<RequirePermissionsCheck>();
         this.AddCheck<TextMessageReplyCheck>();
