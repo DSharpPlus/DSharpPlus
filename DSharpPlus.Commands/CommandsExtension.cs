@@ -129,14 +129,13 @@ public sealed class CommandsExtension : BaseExtension
         this.AddCheck<DirectMessageUsageCheck>();
         this.AddCheck<RequireApplicationOwnerCheck>();
         this.AddCheck<RequireGuildCheck>();
-        this.AddCheck<RequireGuildIdsCheck>();
         this.AddCheck<RequireNsfwCheck>();
         this.AddCheck<RequirePermissionsCheck>();
         this.AddCheck<TextMessageReplyCheck>();
     }
 
     public void AddCommand(Delegate commandDelegate) => this._commandBuilders.Add(CommandBuilder.From(commandDelegate));
-    public void AddCommand(Delegate commandDelegate, params ulong[] guildIds) => this._commandBuilders.Add(CommandBuilder.From(commandDelegate).WithGuildIds(guildIds));
+    public void AddCommand(Delegate commandDelegate, params ulong[] guildIds) => this._commandBuilders.Add(CommandBuilder.From(commandDelegate, guildIds));
 
     public void AddCommand(Type type) => this._commandBuilders.Add(CommandBuilder.From(type));
     public void AddCommand(Type type, params ulong[] guildIds) => this._commandBuilders.Add(CommandBuilder.From(type, guildIds));

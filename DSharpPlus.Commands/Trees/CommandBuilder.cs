@@ -148,6 +148,11 @@ public class CommandBuilder
     {
         ArgumentNullException.ThrowIfNull(type, nameof(type));
 
+        RegisterToGuildsAttribute? registerToGuildsAttribute = type.GetCustomAttribute<RegisterToGuildsAttribute>();
+        ulong[] totalGuildIds = registerToGuildsAttribute is not null 
+            ? guildIds.Concat(registerToGuildsAttribute.GuildIds).Distinct().ToArray()
+            : guildIds;
+
         // Add subcommands
         List<CommandBuilder> subCommandBuilders = [];
         foreach (Type subCommand in type.GetNestedTypes(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
@@ -157,7 +162,7 @@ public class CommandBuilder
                 continue;
             }
 
-            subCommandBuilders.Add(From(subCommand, guildIds));
+            subCommandBuilders.Add(From(subCommand, totalGuildIds));
         }
 
         // Add methods
@@ -168,7 +173,7 @@ public class CommandBuilder
                 continue;
             }
 
-            subCommandBuilders.Add(From(method, guildIds));
+            subCommandBuilders.Add(From(method, totalGuildIds));
         }
 
         if (type.GetCustomAttribute<CommandAttribute>() is not null && subCommandBuilders.Count == 0)
@@ -179,7 +184,7 @@ public class CommandBuilder
         CommandBuilder commandBuilder = new();
         commandBuilder.WithAttributes(type.GetCustomAttributes());
         commandBuilder.WithSubcommands(subCommandBuilders);
-        commandBuilder.WithGuildIds(guildIds);
+        commandBuilder.WithGuildIds(totalGuildIds);
 
         // Might be set through the `DescriptionAttribute`
         if (string.IsNullOrEmpty(commandBuilder.Description))
@@ -220,11 +225,17 @@ public class CommandBuilder
             throw new ArgumentException($"The command method \"{(method.DeclaringType is not null ? $"{method.DeclaringType.FullName}.{method.Name}" : method.Name)}\" must have a parameter and it must be a type of {nameof(CommandContext)}.", nameof(method));
         }
 
+        RegisterToGuildsAttribute? registerToGuildsAttribute = method.GetCustomAttribute<RegisterToGuildsAttribute>();
+        ulong[] totalGuildIds = registerToGuildsAttribute is not null
+            ? guildIds.Concat(registerToGuildsAttribute.GuildIds).Distinct().ToArray()
+            : guildIds;
+
         CommandBuilder commandBuilder = new();
         commandBuilder.WithAttributes(method.GetCustomAttributes());
         commandBuilder.WithDelegate(method, target);
         commandBuilder.WithParameters(parameters[1..].Select(CommandParameterBuilder.From));
-        commandBuilder.WithGuildIds(guildIds);
+        commandBuilder.WithGuildIds(totalGuildIds);
+
         return commandBuilder;
     }
 }
