@@ -212,17 +212,17 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         List<DiscordApplicationCommand> discordCommands = [];
         if (extension.DebugGuildId == 0)
         {
-            discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, globalApplicationCommands));
-            discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, guildsApplicationCommands.SelectMany(x => x.Value).Distinct()));
-        }
-        else
-        {
             discordCommands.AddRange(await extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(globalApplicationCommands));
 
             foreach ((ulong guildId, List<DiscordApplicationCommand> guildCommands) in guildsApplicationCommands)
             {
                 discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId, guildCommands));
             }
+        }
+        else
+        {
+            discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, globalApplicationCommands));
+            discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, guildsApplicationCommands.SelectMany(x => x.Value).Distinct()));
         }
 
         Dictionary<ulong, Command> commandsDictionary = [];
