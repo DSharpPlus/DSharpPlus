@@ -185,7 +185,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         {
             // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
             // If there isn't, default to SlashCommands
-            if (command.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute && 
+            if (command.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute &&
                 !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.SlashCommand))
             {
                 continue;
@@ -222,7 +222,10 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         else
         {
             discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, globalApplicationCommands));
-            discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, guildsApplicationCommands.SelectMany(x => x.Value).Distinct()));
+            discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, guildsApplicationCommands
+                .SelectMany(x => x.Value)
+                .GroupBy(x => x.Name)
+                .Select(x => x.First())));
         }
 
         Dictionary<ulong, Command> commandsDictionary = [];
