@@ -145,7 +145,7 @@ public class CommandParameterBuilder
                 {
                     continue;
                 }
-                else if (fieldInfo.GetCustomAttribute<DisplayNameAttribute>() is DisplayNameAttribute displayNameAttribute)
+                else if (fieldInfo.GetCustomAttribute<ChoiceDisplayNameAttribute>() is ChoiceDisplayNameAttribute displayNameAttribute)
                 {
                     enumNames.Add(displayNameAttribute.DisplayName);
                 }
