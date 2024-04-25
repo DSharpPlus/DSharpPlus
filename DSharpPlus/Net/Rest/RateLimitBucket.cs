@@ -48,7 +48,7 @@ internal sealed class RateLimitBucket
     {
         this.maximum = 1;
         this.remaining = 1;
-        this.Reset = DateTime.MaxValue;
+        this.Reset = DateTime.UtcNow + TimeSpan.FromSeconds(10);
         this.reserved = 0;
     }
 
