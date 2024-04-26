@@ -94,7 +94,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
                 return outcome;
             }
 
-            this.UpdateRateLimitBuckets(outcome.Result, "pending", route);
+            this.UpdateRateLimitBuckets(outcome.Result, "pending", route, traceId);
 
             // something went awry, just reset and try again next time. this may be because the endpoint didn't return valid headers,
             // which is the case for some endpoints, and we don't need to get hung up on this
@@ -187,7 +187,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
             if (!exemptFromGlobalLimit)
             {
-                this.UpdateRateLimitBuckets(outcome.Result, hash, route);
+                this.UpdateRateLimitBuckets(outcome.Result, hash, route, traceId);
             }
 
             return outcome;
@@ -222,7 +222,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
             new PreemptiveRatelimitException(scope, retryJittered - DateTime.UtcNow));
     }
 
-    private void UpdateRateLimitBuckets(HttpResponseMessage response, string oldHash, string route)
+    private void UpdateRateLimitBuckets(HttpResponseMessage response, string oldHash, string route, Ulid id)
     {
         if (response.Headers.TryGetValues("X-RateLimit-Bucket", out IEnumerable<string>? hashHeader))
         {
@@ -234,6 +234,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
             }
             else if (oldHash != newHash)
             {
+                this.logger.LogTrace("Request ID:{ID} - Initial bucket capacity: {max}", id, extracted.Maximum);
                 this.buckets.AddOrUpdate(newHash, _ => extracted.ToFullBucket(), (_, _) => extracted.ToFullBucket());
             }
             else
@@ -244,6 +245,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
                 }
                 else
                 {
+                    this.logger.LogTrace("Request ID:{ID} - Initial bucket capacity: {max}", id, extracted.Maximum);
                     this.buckets.AddOrUpdate(newHash, _ => extracted.ToFullBucket(),
                         (_, _) => extracted.ToFullBucket());
                 }
