@@ -458,7 +458,12 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             while (converterContext.NextParameter())
             {
                 DiscordInteractionDataOption? option = converterContext.Options.FirstOrDefault(x => x.Name.Equals(converterContext.Parameter.Name, StringComparison.OrdinalIgnoreCase));
-                if (option is not null && option.Focused)
+                if (option is null)
+                {
+                    continue;
+                }
+
+                if (option.Focused)
                 {
                     autoCompleteParameter = converterContext.Parameter;
                     autoCompleteOption = option;
