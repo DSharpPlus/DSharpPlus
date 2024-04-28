@@ -222,6 +222,8 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         else
         {
             discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, globalApplicationCommands));
+
+            //If the same command is registered in multiple guilds, only add it once to the debug guild
             discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, guildsApplicationCommands
                 .SelectMany(x => x.Value)
                 .GroupBy(x => x.Name)
