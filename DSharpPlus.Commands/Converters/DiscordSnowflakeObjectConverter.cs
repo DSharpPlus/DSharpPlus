@@ -5,8 +5,6 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 public partial class DiscordSnowflakeObjectConverter : ISlashArgumentConverter<SnowflakeObject>
@@ -14,31 +12,37 @@ public partial class DiscordSnowflakeObjectConverter : ISlashArgumentConverter<S
     public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Mentionable;
     public bool RequiresText { get; init; } = true;
     private readonly ILogger<DiscordSnowflakeObjectConverter> _logger;
+    private readonly ISlashArgumentConverter<DiscordMember> discordMemberSlashArgumentConverter;
+    private readonly ISlashArgumentConverter<DiscordRole> discordRoleSlashArgumentConverter;
+    private readonly ISlashArgumentConverter<DiscordUser> discordUserSlashArgumentConverter;
 
-    public DiscordSnowflakeObjectConverter(ILogger<DiscordSnowflakeObjectConverter>? logger = null) => this._logger = logger ?? NullLogger<DiscordSnowflakeObjectConverter>.Instance;
-
-    public Task<Optional<SnowflakeObject>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs)
+    public DiscordSnowflakeObjectConverter(ISlashArgumentConverter<DiscordMember> discordMemberSlashArgumentConverter, ISlashArgumentConverter<DiscordRole> discordRoleSlashArgumentConverter, ISlashArgumentConverter<DiscordUser> discordUserSlashArgumentConverter, ILogger<DiscordSnowflakeObjectConverter>? logger = null)
     {
-        DiscordInteractionDataOption option = eventArgs.Interaction.Data.Options.Single(x =>
-                    x.Name.Equals(context.Parameter.Name, StringComparison.InvariantCultureIgnoreCase));
+        this.discordMemberSlashArgumentConverter = discordMemberSlashArgumentConverter;
+        this.discordRoleSlashArgumentConverter = discordRoleSlashArgumentConverter;
+        this.discordUserSlashArgumentConverter = discordUserSlashArgumentConverter;
+        this._logger = this._logger = logger ?? NullLogger<DiscordSnowflakeObjectConverter>.Instance;
+    }
 
-        //Checks through resolved
-        if (eventArgs.Interaction.Data.Resolved.Roles != null && eventArgs.Interaction.Data.Resolved.Roles.TryGetValue((ulong)option.Value, out DiscordRole? role))
+    public async Task<Optional<SnowflakeObject>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs)
+    {
+        //Checks through existing converters
+        if (await discordRoleSlashArgumentConverter.ConvertAsync(context, eventArgs) is Optional<DiscordRole> role && role.HasValue)
         {
-            return Task.FromResult(Optional.FromValue<SnowflakeObject>(role));            
+            return Optional.FromValue<SnowflakeObject>(role.Value);
         }
-        else if (eventArgs.Interaction.Data.Resolved.Members != null && eventArgs.Interaction.Data.Resolved.Members.TryGetValue((ulong)option.Value, out DiscordMember? member))
+        else if (await discordMemberSlashArgumentConverter.ConvertAsync(context, eventArgs) is Optional<DiscordMember> member && member.HasValue)
         {
-            return Task.FromResult(Optional.FromValue<SnowflakeObject>(member));
+            return Optional.FromValue<SnowflakeObject>(member.Value);
         }
-        else if (eventArgs.Interaction.Data.Resolved.Users != null && eventArgs.Interaction.Data.Resolved.Users.TryGetValue((ulong)option.Value, out DiscordUser? user))
+        else if (await discordUserSlashArgumentConverter.ConvertAsync(context, eventArgs) is Optional<DiscordUser> user && user.HasValue)
         {
-            return Task.FromResult(Optional.FromValue<SnowflakeObject>(user));
+            return Optional.FromValue<SnowflakeObject>(user.Value);
         }
         else
         {
             this._logger.LogError("Failed to resolve SnowflakeObject type."); 
-            return Task.FromResult(Optional.FromNoValue<SnowflakeObject>());
+            return Optional.FromNoValue<SnowflakeObject>();
         }
     }
 }
