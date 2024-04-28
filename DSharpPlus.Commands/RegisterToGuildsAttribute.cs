@@ -11,7 +11,6 @@ public class RegisterToGuildsAttribute : Attribute
     /// </summary>
     public IReadOnlyList<ulong> GuildIds { get; init; }
 
-
     /// <summary>
     /// Creates a new instance of the <see cref="RegisterToGuildsAttribute"/> class.
     /// </summary>
@@ -25,5 +24,4 @@ public class RegisterToGuildsAttribute : Attribute
 
         this.GuildIds = guildIds;
     }
-
 }
