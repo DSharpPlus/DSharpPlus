@@ -20,39 +20,19 @@ public sealed class RequireHierarchyCheck :
         CommandContext context
     )
     {
-        // no value is always hierarchically lower than any user
-        if (info.Value is null)
+        return info.Value switch
         {
-            return ValueTask.FromResult<string?>(null);
-        }
-
-        // no guild means no hierarchy.
-        if (context.Guild is null)
-        {
-            return ValueTask.FromResult<string?>(null);
-        }
-
-        if (info.Value is DiscordRole role)
-        {
-            return ValueTask.FromResult
-            (
-                context.Guild.CurrentMember.Hierarchy > role.Position
-                    ? null
-                    : "The provided role was higher than the highest role of the bot user."
-            );
-        }
-
-        if (info.Value is DiscordMember member)
-        {
-            return ValueTask.FromResult
-            (
-                context.Guild.CurrentMember.Hierarchy > member.Hierarchy
-                    ? null
-                    : "The provided member's highest role was higher than the highest role of the bot user."
-            );
-        }
-
-        return ValueTask.FromResult<string?>("The provided parameter was neither a role nor an user, failed to check hierarchy.");
+            _ when context.Guild is null => ValueTask.FromResult<string?>(null),
+            null => ValueTask.FromResult<string?>(null),
+            DiscordRole role when context.Guild.CurrentMember.Hierarchy > role.Position => ValueTask.FromResult<string?>(null),
+            DiscordRole => ValueTask.FromResult<string?>("The provided role was higher than the highest role of the bot user."),
+            DiscordMember member when context.Guild.CurrentMember.Hierarchy > member.Hierarchy
+                => ValueTask.FromResult<string?>(null),
+            DiscordMember => ValueTask.FromResult<string?>(
+                "The provided member's highest role was higher than the highest role of the bot user."),
+            _ => ValueTask.FromResult<string?>(
+                "The provided parameter was neither a role nor an user, failed to check hierarchy.")
+        };
     }
 
     public ValueTask<string?> ExecuteCheckAsync
@@ -62,39 +42,17 @@ public sealed class RequireHierarchyCheck :
         CommandContext context
     )
     {
-        // no value is always hierarchically lower than any user
-        if (info.Value is null)
+        return info.Value switch
         {
-            return ValueTask.FromResult<string?>(null);
-        }
-
-        // no guild means no hierarchy.
-        if (context.Guild is null)
-        {
-            return ValueTask.FromResult<string?>(null);
-        }
-
-        if (info.Value is DiscordRole role)
-        {
-            return ValueTask.FromResult
-            (
-                // this should? never be null if we're in a guild
-                context.Member!.Hierarchy > role.Position
-                    ? null
-                    : "The provided role was higher than the highest role of the executing user."
-            );
-        }
-
-        if (info.Value is DiscordMember member)
-        {
-            return ValueTask.FromResult
-            (
-                context.Member!.Hierarchy > member.Hierarchy
-                    ? null
-                    : "The provided member's highest role was higher than the highest role of the executing user."
-            );
-        }
-
-        return ValueTask.FromResult<string?>("The provided parameter was neither a role nor an user, failed to check hierarchy.");
+            _ when context.Guild is null => ValueTask.FromResult<string?>(null),
+            DiscordRole role when context.Member!.Hierarchy > role.Position => ValueTask.FromResult<string?>(null),
+            DiscordRole => ValueTask.FromResult<string?>(
+                "The provided role was higher than the highest role of the executing user."),
+            DiscordMember member when context.Member!.Hierarchy > member.Hierarchy => ValueTask.FromResult<string?>(null),
+            DiscordMember => ValueTask.FromResult<string?>(
+                "The provided member's highest role was higher than the highest role of the executing user."),
+            _ => ValueTask.FromResult<string?>(
+                "The provided parameter was neither a role nor an user, failed to check hierarchy.")
+        };
     }
 }
