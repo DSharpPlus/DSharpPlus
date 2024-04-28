@@ -191,9 +191,11 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                 continue;
             }
 
+            DiscordApplicationCommand applicationCommand = await this.ToApplicationCommandAsync(command);
+
             if (command.GuildIds.Count == 0)
             {
-                globalApplicationCommands.Add(await this.ToApplicationCommandAsync(command));
+                globalApplicationCommands.Add(applicationCommand);
                 continue;
             }
 
@@ -205,7 +207,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                     guildsApplicationCommands.Add(guildId, guildCommands);
                 }
 
-                guildCommands.Add(await this.ToApplicationCommandAsync(command));
+                guildCommands.Add(applicationCommand);
             }
         }
 
