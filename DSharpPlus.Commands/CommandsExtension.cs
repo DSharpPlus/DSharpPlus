@@ -168,7 +168,7 @@ public sealed class CommandsExtension : BaseExtension
             {
                 if (method.GetCustomAttribute<CommandAttribute>() is not null)
                 {
-                    this._commandBuilders.Add(CommandBuilder.From(method, guildIds));
+                    this._commandBuilders.Add(CommandBuilder.From(method, null, guildIds));
                 }
             }
         }
