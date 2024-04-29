@@ -13,22 +13,21 @@ public partial class DiscordSnowflakeObjectConverter : ISlashArgumentConverter<S
     public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Mentionable;
     public bool RequiresText { get; init; } = true;
 
-    private readonly DiscordMemberConverter discordMemberSlashArgumentConverter;
-    private readonly DiscordRoleConverter discordRoleSlashArgumentConverter;
-    private readonly DiscordUserConverter discordUserSlashArgumentConverter;
     private readonly ILogger<DiscordSnowflakeObjectConverter> _logger;
+    private readonly DiscordMemberConverter discordMemberSlashArgumentConverter;
+    private readonly DiscordUserConverter discordUserSlashArgumentConverter;
+    private readonly DiscordRoleConverter discordRoleSlashArgumentConverter;
 
     public DiscordSnowflakeObjectConverter(
-        DiscordMemberConverter discordMemberSlashArgumentConverter,
-        DiscordRoleConverter discordRoleSlashArgumentConverter,
-        DiscordUserConverter discordUserSlashArgumentConverter,
-        ILogger<DiscordSnowflakeObjectConverter>? logger = null
+        ILogger<DiscordSnowflakeObjectConverter>? logger = null,
+        ILogger<DiscordMemberConverter>? discordMemberSlashArgumentConverter = null,
+        ILogger<DiscordUserConverter>? discordUserSlashArgumentConverter = null
     )
     {
-        this.discordMemberSlashArgumentConverter = discordMemberSlashArgumentConverter;
-        this.discordRoleSlashArgumentConverter = discordRoleSlashArgumentConverter;
-        this.discordUserSlashArgumentConverter = discordUserSlashArgumentConverter;
         this._logger = logger ?? NullLogger<DiscordSnowflakeObjectConverter>.Instance;
+        this.discordMemberSlashArgumentConverter = new DiscordMemberConverter(discordMemberSlashArgumentConverter ?? NullLogger<DiscordMemberConverter>.Instance);
+        this.discordUserSlashArgumentConverter = new DiscordUserConverter(discordUserSlashArgumentConverter ?? NullLogger<DiscordUserConverter>.Instance);
+        this.discordRoleSlashArgumentConverter = new DiscordRoleConverter();
     }
 
     public async Task<Optional<SnowflakeObject>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs)
