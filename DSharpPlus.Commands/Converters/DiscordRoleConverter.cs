@@ -29,7 +29,7 @@ public partial class DiscordRoleConverter : ISlashArgumentConverter<DiscordRole>
         {
             // value can be a raw channel id or a channel mention. The regex will match both.
             Match match = _getRoleRegex().Match(context.Argument);
-            if (!match.Success || !ulong.TryParse(match.Captures[0].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out roleId))
+            if (!match.Success || !ulong.TryParse(match.Groups[1].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out roleId))
             {
                 // Attempt to find a role by name, case sensitive.
                 DiscordRole? namedRole = context.Guild.Roles.Values.FirstOrDefault(role => role.Name.Equals(context.Argument, StringComparison.Ordinal));
