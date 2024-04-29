@@ -2,6 +2,9 @@
 
 We're really happy to accept contributions. However we also ask that you follow several rules when doing so.
 
+> [!NOTE]
+> We do not merge pull requests for undocumented or in-PR Discord features. Before we merge support for any Discord feature, we require the relevant docs PR to be merged first.
+
 # Proper base
 
 When opening a PR, please make sure your branch targets the latest master branch. Also make sure your branch is even with the target branch, to avoid unnecessary surprises.
