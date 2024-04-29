@@ -13,18 +13,12 @@ public partial class DiscordSnowflakeObjectConverter : ISlashArgumentConverter<S
     public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Mentionable;
     public bool RequiresText { get; init; } = true;
 
-    private readonly ILogger<DiscordSnowflakeObjectConverter> _logger;
     private readonly DiscordMemberConverter discordMemberSlashArgumentConverter;
     private readonly DiscordUserConverter discordUserSlashArgumentConverter;
     private readonly DiscordRoleConverter discordRoleSlashArgumentConverter;
 
-    public DiscordSnowflakeObjectConverter(
-        ILogger<DiscordSnowflakeObjectConverter>? logger = null,
-        ILogger<DiscordMemberConverter>? discordMemberSlashArgumentConverter = null,
-        ILogger<DiscordUserConverter>? discordUserSlashArgumentConverter = null
-    )
+    public DiscordSnowflakeObjectConverter(ILogger<DiscordMemberConverter>? discordMemberSlashArgumentConverter = null, ILogger<DiscordUserConverter>? discordUserSlashArgumentConverter = null)
     {
-        this._logger = logger ?? NullLogger<DiscordSnowflakeObjectConverter>.Instance;
         this.discordMemberSlashArgumentConverter = new DiscordMemberConverter(discordMemberSlashArgumentConverter ?? NullLogger<DiscordMemberConverter>.Instance);
         this.discordUserSlashArgumentConverter = new DiscordUserConverter(discordUserSlashArgumentConverter ?? NullLogger<DiscordUserConverter>.Instance);
         this.discordRoleSlashArgumentConverter = new DiscordRoleConverter();
@@ -45,11 +39,8 @@ public partial class DiscordSnowflakeObjectConverter : ISlashArgumentConverter<S
         {
             return Optional.FromValue<SnowflakeObject>(user.Value);
         }
-        else
-        {
-            this._logger.LogError("Failed to resolve SnowflakeObject type.");
-            return Optional.FromNoValue<SnowflakeObject>();
-        }
+
+        return Optional.FromNoValue<SnowflakeObject>();
     }
 
     // Duplicated logic for overload resolving
@@ -68,10 +59,7 @@ public partial class DiscordSnowflakeObjectConverter : ISlashArgumentConverter<S
         {
             return Optional.FromValue<SnowflakeObject>(user.Value);
         }
-        else
-        {
-            this._logger.LogError("Failed to resolve SnowflakeObject type.");
-            return Optional.FromNoValue<SnowflakeObject>();
-        }
+
+        return Optional.FromNoValue<SnowflakeObject>();
     }
 }
