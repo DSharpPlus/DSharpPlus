@@ -480,8 +480,9 @@ $RECYCLE.BIN/
 *.swp
 
 # DSharpPlus changes
-docs/_site
-DSharpPlus.Test/config.json
 .idea
 .vscode
 *.DotSettings
+*.patch
+docs/_site
+DSharpPlus.Test/config.json

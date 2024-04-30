@@ -5,44 +5,44 @@ root = true
 
 # All files
 [*]
+tab_width = 4
+end_of_line = crlf
 indent_style = space
 
 # XML project files
 [*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj}]
-indent_size = 4
+indent_size = 2
 
 # XML config files
 [*.{props,targets,ruleset,config,nuspec,resx,vsixmanifest,vsct}]
 indent_size = 2
-
-# Code files
-[*.cs]
-indent_size = 4
-insert_final_newline = true
-charset = utf-8
 
 ###############################
 # .NET Coding Conventions     #
 ###############################
 [*.{cs,vb}]
 
+# Suppress CS1591: Missing XML comment for publicly visible type or member
+dotnet_diagnostic.CS1591.severity = none
+
+# Suppress IDE0058: Expression value is never used
+dotnet_diagnostic.IDE0058.severity = none
+
 # Organize usings
 dotnet_sort_system_directives_first = true:error
 dotnet_separate_import_directive_groups = true:error
-csharp_qualified_using_at_nested_scope = true:error
+
 # Unfortunately, no java-style usings
 dotnet_diagnostic.IDE0064.severity = none
+
 # Using directive is unnecessary.
 dotnet_diagnostic.IDE0005.severity = error
 
-# Yell at people when they don't include the file header template
-dotnet_diagnostic.IDE0073.severity = error
-
 # this. preferences
-dotnet_style_qualification_for_field = true:silent
-dotnet_style_qualification_for_property = true:silent
-dotnet_style_qualification_for_method = true:silent
-dotnet_style_qualification_for_event = true:silent
+dotnet_style_qualification_for_field = false:error
+dotnet_style_qualification_for_property = false:error
+dotnet_style_qualification_for_method = false:error
+dotnet_style_qualification_for_event = false:error
 
 # Language keywords vs BCL types preferences
 dotnet_style_predefined_type_for_locals_parameters_members = true:error
@@ -55,7 +55,7 @@ dotnet_style_parentheses_in_other_binary_operators = always_for_clarity:error
 dotnet_style_parentheses_in_other_operators = never_if_unnecessary:error
 
 # Modifier preferences
-dotnet_style_require_accessibility_modifiers = true:error
+dotnet_style_require_accessibility_modifiers = always:error
 dotnet_style_readonly_field = true:error
 
 # Expression-level preferences
@@ -70,6 +70,13 @@ dotnet_style_prefer_inferred_anonymous_type_member_names = true:error
 dotnet_style_prefer_auto_properties = true:error
 dotnet_style_prefer_conditional_expression_over_assignment = true:error
 dotnet_style_prefer_conditional_expression_over_return = true:error
+
+# Don't force namespaces to match their folder names (DSharpPlus.Entities)
+dotnet_diagnostic.IDE0130.severity = none
+dotnet_style_namespace_match_folder = false
+
+dotnet_style_prefer_simplified_boolean_expressions = true:error
+dotnet_style_operator_placement_when_wrapping = beginning_of_line:error
 
 ###############################
 # Naming Conventions          #
@@ -103,13 +110,6 @@ dotnet_naming_style.async_suffix.capitalization = pascal_case
 dotnet_naming_symbols.async_methods.applicable_kinds = method
 dotnet_naming_symbols.async_methods.required_modifiers = async
 
-# Don't force namespaces to match their folder names
-dotnet_diagnostic.IDE0130.severity = none
-dotnet_style_prefer_simplified_boolean_expressions = true:suggestion
-dotnet_style_operator_placement_when_wrapping = beginning_of_line
-tab_width = 4
-end_of_line = crlf
-
 ###############################
 # C# Coding Conventions       #
 ###############################
@@ -122,15 +122,6 @@ csharp_style_namespace_declarations = file_scoped:error
 csharp_style_var_for_built_in_types = false:error
 csharp_style_var_when_type_is_apparent = false:error
 csharp_style_var_elsewhere = false:error
-
-# Expression-bodied members
-csharp_style_expression_bodied_methods = when_on_single_line:error
-csharp_style_expression_bodied_constructors = when_on_single_line:error
-csharp_style_expression_bodied_operators = when_on_single_line:error
-csharp_style_expression_bodied_properties = when_on_single_line:error
-csharp_style_expression_bodied_indexers = when_on_single_line:error
-csharp_style_expression_bodied_accessors = when_on_single_line:error
-csharp_style_expression_bodied_lambdas = when_on_single_line:warning
 
 # Pattern matching preferences
 csharp_style_pattern_matching_over_is_with_cast_check = true:error
@@ -154,6 +145,9 @@ csharp_style_inlined_variable_declaration = true:error
 # C# Formatting Rules         #
 ###############################
 
+# https://stackoverflow.com/q/63369382/10942966
+csharp_qualified_using_at_nested_scope = true:error
+
 # New line preferences
 csharp_new_line_before_open_brace = all
 csharp_new_line_before_else = true
@@ -164,6 +158,9 @@ csharp_new_line_before_members_in_anonymous_types = true
 csharp_new_line_between_query_expression_clauses = true
 
 # Indentation preferences
+charset = utf-8
+indent_size = 4
+insert_final_newline = true
 csharp_indent_case_contents = true
 csharp_indent_switch_labels = true
 csharp_indent_labels = flush_left
@@ -184,8 +181,15 @@ csharp_space_between_method_call_empty_parameter_list_parentheses = false
 # Wrapping preferences
 csharp_preserve_single_line_statements = true
 csharp_preserve_single_line_blocks = true
-csharp_using_directive_placement = inside_namespace:silent
-csharp_prefer_simple_using_statement = true:suggestion
-csharp_style_prefer_method_group_conversion = true:silent
-csharp_style_prefer_top_level_statements = true:silent
-csharp_style_expression_bodied_local_functions = false:warning
+
+# Use regular constructors over primary constructors
+csharp_style_prefer_primary_constructors = false:error
+
+# Expression-bodied members
+csharp_style_expression_bodied_methods = true:error
+csharp_style_expression_bodied_constructors = true:error
+csharp_style_expression_bodied_operators = true:error
+csharp_style_expression_bodied_properties = true:error
+csharp_style_expression_bodied_indexers = true:error
+csharp_style_expression_bodied_accessors = true:error
+csharp_style_expression_bodied_lambdas = true:error
