@@ -28,77 +28,77 @@ public class GuildMemberUpdateEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets a collection containing post-update roles.
     /// </summary>
-    public IReadOnlyList<DiscordRole> RolesAfter => new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(this.MemberAfter.Roles));
+    public IReadOnlyList<DiscordRole> RolesAfter => new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(MemberAfter.Roles));
 
     /// <summary>
     /// Gets a collection containing pre-update roles.
     /// </summary>
-    public IReadOnlyList<DiscordRole> RolesBefore => new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(this.MemberBefore.Roles));
+    public IReadOnlyList<DiscordRole> RolesBefore => new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(MemberBefore.Roles));
 
     /// <summary>
     /// Gets the member's new nickname.
     /// </summary>
-    public string NicknameAfter => this.MemberAfter.Nickname;
+    public string NicknameAfter => MemberAfter.Nickname;
 
     /// <summary>
     /// Gets the member's old nickname.
     /// </summary>
-    public string NicknameBefore => this.MemberBefore.Nickname;
+    public string NicknameBefore => MemberBefore.Nickname;
 
     /// <summary>
     /// Gets the member's old guild avatar hash.
     /// </summary>
-    public string GuildAvatarHashBefore => this.MemberBefore.GuildAvatarHash;
+    public string GuildAvatarHashBefore => MemberBefore.GuildAvatarHash;
 
     /// <summary>
     /// Gets the member's new guild avatar hash.
     /// </summary>
-    public string GuildAvatarHashAfter => this.MemberAfter.GuildAvatarHash;
+    public string GuildAvatarHashAfter => MemberAfter.GuildAvatarHash;
 
     /// <summary>
     /// Gets the member's old username.
     /// </summary>
-    public string UsernameBefore => this.MemberBefore.Username;
+    public string UsernameBefore => MemberBefore.Username;
 
     /// <summary>
     /// Gets the member's new username.
     /// </summary>
-    public string UsernameAfter => this.MemberAfter.Username;
+    public string UsernameAfter => MemberAfter.Username;
 
     /// <summary>
     /// Gets the member's old avatar hash.
     /// </summary>
-    public string AvatarHashBefore => this.MemberBefore.AvatarHash;
+    public string AvatarHashBefore => MemberBefore.AvatarHash;
 
     /// <summary>
     /// Gets the member's new avatar hash.
     /// </summary>
-    public string AvatarHashAfter => this.MemberAfter.AvatarHash;
+    public string AvatarHashAfter => MemberAfter.AvatarHash;
 
     /// <summary>
     /// Gets whether the member had passed membership screening before the update
     /// </summary>
-    public bool? PendingBefore => this.MemberBefore.IsPending;
+    public bool? PendingBefore => MemberBefore.IsPending;
 
     /// <summary>
     /// Gets whether the member had passed membership screening after the update
     /// </summary>
-    public bool? PendingAfter => this.MemberAfter.IsPending;
+    public bool? PendingAfter => MemberAfter.IsPending;
 
     /// <summary>
     /// Gets the member's communication restriction before the update
     /// </summary>
-    public DateTimeOffset? CommunicationDisabledUntilBefore => this.MemberBefore.CommunicationDisabledUntil;
+    public DateTimeOffset? CommunicationDisabledUntilBefore => MemberBefore.CommunicationDisabledUntil;
 
     /// <summary>
     /// Gets the member's communication restriction after the update
     /// </summary>
-    public DateTimeOffset? CommunicationDisabledUntilAfter => this.MemberAfter.CommunicationDisabledUntil;
+    public DateTimeOffset? CommunicationDisabledUntilAfter => MemberAfter.CommunicationDisabledUntil;
 
     /// <summary>
     /// Gets the member that was updated.
     /// </summary>
-    public DiscordMember Member => this.MemberAfter;
+    public DiscordMember Member => MemberAfter;
 
     internal GuildMemberUpdateEventArgs() : base() { }
 }

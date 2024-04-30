@@ -20,5 +20,5 @@ public class ChannelTypesAttribute : Attribute
     /// Defines allowed channel types for a channel parameter.
     /// </summary>
     /// <param name="channelTypes">The channel types to allow.</param>
-    public ChannelTypesAttribute(params DiscordChannelType[] channelTypes) => this.ChannelTypes = channelTypes;
+    public ChannelTypesAttribute(params DiscordChannelType[] channelTypes) => ChannelTypes = channelTypes;
 }

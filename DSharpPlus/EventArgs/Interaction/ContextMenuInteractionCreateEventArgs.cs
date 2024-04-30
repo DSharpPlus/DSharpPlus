@@ -11,7 +11,7 @@ public sealed class ContextMenuInteractionCreateEventArgs : InteractionCreateEve
     /// <summary>
     /// The user that invoked this interaction. Can be casted to a member if this was on a guild.
     /// </summary>
-    public DiscordUser User => this.Interaction.User;
+    public DiscordUser User => Interaction.User;
 
     /// <summary>
     /// The user this interaction targets, if applicable.

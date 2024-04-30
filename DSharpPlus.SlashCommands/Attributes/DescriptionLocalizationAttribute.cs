@@ -14,7 +14,7 @@ public sealed class DescriptionLocalizationAttribute : Attribute
 
     public DescriptionLocalizationAttribute(Localization locale, string description)
     {
-        this.Description = description;
-        this.Locale = LocaleHelper.LocaleToStrings[locale];
+        Description = description;
+        Locale = LocaleHelper.LocaleToStrings[locale];
     }
 }

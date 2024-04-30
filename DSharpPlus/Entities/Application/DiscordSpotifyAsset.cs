@@ -8,16 +8,16 @@ public sealed class DiscordSpotifyAsset : DiscordAsset
     /// Gets the URL of this asset.
     /// </summary>
     public override Uri Url
-        => this._url;
+        => _url;
 
     private readonly Uri _url;
 
     public DiscordSpotifyAsset(string pId)
     {
-        this.Id = pId;
-        string[] ids = this.Id.Split(':');
+        Id = pId;
+        string[] ids = Id.Split(':');
         string id = ids[1];
 
-        this._url = new Uri($"https://i.scdn.co/image/{id}");
+        _url = new Uri($"https://i.scdn.co/image/{id}");
     }
 }

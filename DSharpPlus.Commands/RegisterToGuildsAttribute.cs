@@ -22,6 +22,6 @@ public class RegisterToGuildsAttribute : Attribute
             throw new ArgumentException("You must provide at least one guild ID.");
         }
 
-        this.GuildIds = guildIds;
+        GuildIds = guildIds;
     }
 }

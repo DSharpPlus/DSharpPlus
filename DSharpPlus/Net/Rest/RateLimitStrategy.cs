@@ -28,7 +28,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         this.logger = logger;
         this.waitingForHashMilliseconds = waitingForHashMilliseconds;
 
-        this.globalBucket = new(maximumRestRequestsPerSecond, maximumRestRequestsPerSecond, DateTime.UtcNow.AddSeconds(1));
+        globalBucket = new(maximumRestRequestsPerSecond, maximumRestRequestsPerSecond, DateTime.UtcNow.AddSeconds(1));
 
         _ = CleanAsync();
     }
@@ -64,12 +64,12 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         // check against ratelimits now
         DateTime instant = DateTime.UtcNow;
 
-        if (!exemptFromGlobalLimit && !this.globalBucket.CheckNextRequest())
+        if (!exemptFromGlobalLimit && !globalBucket.CheckNextRequest())
         {
-            return this.SynthesizeInternalResponse(route, globalBucket.Reset, "global", traceId);
+            return SynthesizeInternalResponse(route, globalBucket.Reset, "global", traceId);
         }
 
-        if (!this.routeHashes.TryGetValue(route, out string? hash))
+        if (!routeHashes.TryGetValue(route, out string? hash))
         {
             logger.LogTrace
             (
@@ -79,28 +79,28 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
                 route
             );
 
-            this.routeHashes.AddOrUpdate(route, "pending", (_, _) => "pending");
+            routeHashes.AddOrUpdate(route, "pending", (_, _) => "pending");
 
             Outcome<HttpResponseMessage> outcome = await action(context, state);
 
             if (!exemptFromGlobalLimit)
             {
-                this.globalBucket.CompleteReservation();
+                globalBucket.CompleteReservation();
             }
 
             if (outcome.Result is null)
             {
-                this.routeHashes.Remove(route, out _);
+                routeHashes.Remove(route, out _);
                 return outcome;
             }
 
-            this.UpdateRateLimitBuckets(outcome.Result, "pending", route, traceId);
+            UpdateRateLimitBuckets(outcome.Result, "pending", route, traceId);
 
             // something went awry, just reset and try again next time. this may be because the endpoint didn't return valid headers,
             // which is the case for some endpoints, and we don't need to get hung up on this
-            if (this.routeHashes[route] == "pending")
+            if (routeHashes[route] == "pending")
             {
-                this.routeHashes.Remove(route, out _);
+                routeHashes.Remove(route, out _);
             }
 
             return outcome;
@@ -109,10 +109,10 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         {
             if (!exemptFromGlobalLimit)
             {
-                this.globalBucket.CancelReservation();
+                globalBucket.CancelReservation();
             }
 
-            return this.SynthesizeInternalResponse
+            return SynthesizeInternalResponse
             (
                 route,
                 instant + TimeSpan.FromMilliseconds(waitingForHashMilliseconds),
@@ -122,7 +122,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         }
         else
         {
-            RateLimitBucket bucket = this.buckets.GetOrAdd(hash, _ => new());
+            RateLimitBucket bucket = buckets.GetOrAdd(hash, _ => new());
 
             logger.LogTrace
             (
@@ -137,10 +137,10 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
             {
                 if (!exemptFromGlobalLimit)
                 {
-                    this.globalBucket.CancelReservation();
+                    globalBucket.CancelReservation();
                 }
 
-                return this.SynthesizeInternalResponse(route, bucket.Reset, "bucket", traceId);
+                return SynthesizeInternalResponse(route, bucket.Reset, "bucket", traceId);
             }
 
             logger.LogTrace
@@ -163,7 +163,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
                 {
                     if (!exemptFromGlobalLimit)
                     {
-                        this.globalBucket.CancelReservation();
+                        globalBucket.CancelReservation();
                     }
 
                     return outcome;
@@ -171,14 +171,14 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
                 if (!exemptFromGlobalLimit)
                 {
-                    this.globalBucket.CompleteReservation();
+                    globalBucket.CompleteReservation();
                 }
             }
             catch (Exception e)
             {
                 if (!exemptFromGlobalLimit)
                 {
-                    this.globalBucket.CancelReservation();
+                    globalBucket.CancelReservation();
                 }
 
                 bucket.CancelReservation();
@@ -187,7 +187,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
             if (!exemptFromGlobalLimit)
             {
-                this.UpdateRateLimitBuckets(outcome.Result, hash, route, traceId);
+                UpdateRateLimitBuckets(outcome.Result, hash, route, traceId);
             }
 
             return outcome;
@@ -200,7 +200,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         string global = scope == "global" ? " global" : "";
 
         string traceIdString = "";
-        if (this.logger.IsEnabled(LogLevel.Trace))
+        if (logger.IsEnabled(LogLevel.Trace))
         {
             traceIdString = $"Request ID:{traceId}: ";
         }
@@ -234,24 +234,24 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
             }
             else if (oldHash != newHash)
             {
-                this.logger.LogTrace("Request ID:{ID} - Initial bucket capacity: {max}", id, extracted.Maximum);
-                this.buckets.AddOrUpdate(newHash, _ => extracted.ToFullBucket(), (_, _) => extracted.ToFullBucket());
+                logger.LogTrace("Request ID:{ID} - Initial bucket capacity: {max}", id, extracted.Maximum);
+                buckets.AddOrUpdate(newHash, _ => extracted.ToFullBucket(), (_, _) => extracted.ToFullBucket());
             }
             else
             {
-                if (this.buckets.TryGetValue(newHash, out RateLimitBucket? oldBucket))
+                if (buckets.TryGetValue(newHash, out RateLimitBucket? oldBucket))
                 {
                     oldBucket.UpdateBucket(extracted.Maximum, extracted.Remaining, extracted.Reset);
                 }
                 else
                 {
-                    this.logger.LogTrace("Request ID:{ID} - Initial bucket capacity: {max}", id, extracted.Maximum);
-                    this.buckets.AddOrUpdate(newHash, _ => extracted.ToFullBucket(),
+                    logger.LogTrace("Request ID:{ID} - Initial bucket capacity: {max}", id, extracted.Maximum);
+                    buckets.AddOrUpdate(newHash, _ => extracted.ToFullBucket(),
                         (_, _) => extracted.ToFullBucket());
                 }
             }
 
-            this.routeHashes.AddOrUpdate(route, newHash!, (_, _) => newHash!);
+            routeHashes.AddOrUpdate(route, newHash!, (_, _) => newHash!);
         }
     }
 
@@ -261,21 +261,21 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
         while (await timer.WaitForNextTickAsync())
         {
-            foreach (KeyValuePair<string, string> pair in this.routeHashes)
+            foreach (KeyValuePair<string, string> pair in routeHashes)
             {
-                if (this.buckets.TryGetValue(pair.Value, out RateLimitBucket? bucket) && bucket.Reset < DateTime.UtcNow + TimeSpan.FromSeconds(1))
+                if (buckets.TryGetValue(pair.Value, out RateLimitBucket? bucket) && bucket.Reset < DateTime.UtcNow + TimeSpan.FromSeconds(1))
                 {
-                    this.buckets.Remove(pair.Value, out _);
-                    this.routeHashes.Remove(pair.Key, out _);
+                    buckets.Remove(pair.Value, out _);
+                    routeHashes.Remove(pair.Key, out _);
                 }
             }
 
-            if (this.cancel)
+            if (cancel)
             {
                 return;
             }
         }
     }
 
-    public void Dispose() => this.cancel = true;
+    public void Dispose() => cancel = true;
 }

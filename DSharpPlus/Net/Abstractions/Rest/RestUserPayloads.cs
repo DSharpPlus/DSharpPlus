@@ -32,7 +32,7 @@ internal sealed class RestUserUpdateCurrentPayload
     public bool AvatarSet { get; set; }
 
     public bool ShouldSerializeAvatarBase64()
-        => this.AvatarSet;
+        => AvatarSet;
 }
 
 internal sealed class RestUserGuild

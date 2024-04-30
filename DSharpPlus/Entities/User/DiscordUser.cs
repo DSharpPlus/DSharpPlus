@@ -16,21 +16,21 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     internal DiscordUser() { }
     internal DiscordUser(TransportUser transport)
     {
-        this.Id = transport.Id;
-        this.Username = transport.Username;
-        this.Discriminator = transport.Discriminator;
-        this.GlobalName = transport.GlobalDisplayName;
-        this.AvatarHash = transport.AvatarHash;
-        this._bannerColor = transport.BannerColor;
-        this.BannerHash = transport.BannerHash;
-        this.IsBot = transport.IsBot;
-        this.MfaEnabled = transport.MfaEnabled;
-        this.Verified = transport.Verified;
-        this.Email = transport.Email;
-        this.PremiumType = transport.PremiumType;
-        this.Locale = transport.Locale;
-        this.Flags = transport.Flags;
-        this.OAuthFlags = transport.OAuthFlags;
+        Id = transport.Id;
+        Username = transport.Username;
+        Discriminator = transport.Discriminator;
+        GlobalName = transport.GlobalDisplayName;
+        AvatarHash = transport.AvatarHash;
+        _bannerColor = transport.BannerColor;
+        BannerHash = transport.BannerHash;
+        IsBot = transport.IsBot;
+        MfaEnabled = transport.MfaEnabled;
+        Verified = transport.Verified;
+        Email = transport.Email;
+        PremiumType = transport.PremiumType;
+        Locale = transport.Locale;
+        Flags = transport.Flags;
+        OAuthFlags = transport.OAuthFlags;
     }
 
     /// <summary>
@@ -60,13 +60,13 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
 
     [JsonIgnore]
     internal int DiscriminatorInt
-        => int.Parse(this.Discriminator, NumberStyles.Integer, CultureInfo.InvariantCulture);
+        => int.Parse(Discriminator, NumberStyles.Integer, CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Gets the user's banner color, if set. Mutually exclusive with <see cref="BannerHash"/>.
     /// </summary>
     public virtual DiscordColor? BannerColor
-        => !this._bannerColor.HasValue ? null : new DiscordColor(this._bannerColor.Value);
+        => !_bannerColor.HasValue ? null : new DiscordColor(_bannerColor.Value);
 
     [JsonProperty("accent_color")]
     internal int? _bannerColor;
@@ -76,7 +76,7 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// </summary>
     [JsonIgnore]
     public string BannerUrl
-        => string.IsNullOrEmpty(this.BannerHash) ? null : $"https://cdn.discordapp.com/banners/{this.Id}/{this.BannerHash}.{(this.BannerHash.StartsWith("a") ? "gif" : "png")}?size=4096";
+        => string.IsNullOrEmpty(BannerHash) ? null : $"https://cdn.discordapp.com/banners/{Id}/{BannerHash}.{(BannerHash.StartsWith("a") ? "gif" : "png")}?size=4096";
 
     /// <summary>
     /// Gets the user's profile banner hash. Mutually exclusive with <see cref="BannerColor"/>.
@@ -95,14 +95,14 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// </summary>
     [JsonIgnore]
     public string AvatarUrl
-        => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (this.AvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/avatars/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.AvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/avatars/{this.Id}/{this.AvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
+        => !string.IsNullOrWhiteSpace(AvatarHash) ? (AvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/avatars/{Id.ToString(CultureInfo.InvariantCulture)}/{AvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.png?size=1024") : DefaultAvatarUrl;
 
     /// <summary>
     /// Gets the URL of default avatar for this user.
     /// </summary>
     [JsonIgnore]
     public string DefaultAvatarUrl
-        => $"https://cdn.discordapp.com/embed/avatars/{(this.DiscriminatorInt is 0 ? (this.Id >> 22) % 6 : (ulong)this.DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture)}.png?size=1024";
+        => $"https://cdn.discordapp.com/embed/avatars/{(DiscriminatorInt is 0 ? (Id >> 22) % 6 : (ulong)DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture)}.png?size=1024";
 
     /// <summary>
     /// Gets whether the user is a bot.
@@ -172,7 +172,7 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// </summary>
     [JsonIgnore]
     public bool IsCurrent
-        => this.Id == this.Discord.CurrentUser.Id;
+        => Id == Discord.CurrentUser.Id;
 
     /// <summary>
     /// Unbans this user from a guild.
@@ -192,7 +192,7 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// </summary>
     [JsonIgnore]
     public DiscordPresence Presence
-        => this.Discord is DiscordClient dc ? dc.Presences.TryGetValue(this.Id, out DiscordPresence? presence) ? presence : null : null;
+        => Discord is DiscordClient dc ? dc.Presences.TryGetValue(Id, out DiscordPresence? presence) ? presence : null : null;
 
     /// <summary>
     /// Gets the user's avatar URL, in requested format and size.
@@ -226,21 +226,21 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
             ImageFormat.Jpeg => "jpg",
             ImageFormat.Png => "png",
             ImageFormat.WebP => "webp",
-            ImageFormat.Auto => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (this.AvatarHash.StartsWith("a_") ? "gif" : "png") : "png",
+            ImageFormat.Auto => !string.IsNullOrWhiteSpace(AvatarHash) ? (AvatarHash.StartsWith("a_") ? "gif" : "png") : "png",
             _ => throw new ArgumentOutOfRangeException(nameof(imageFormat)),
         };
         string stringImageSize = imageSize.ToString(CultureInfo.InvariantCulture);
 
         // If the avatar hash is set, get their avatar. If it isn't set, grab the default avatar calculated from their discriminator.
-        if (!string.IsNullOrWhiteSpace(this.AvatarHash))
+        if (!string.IsNullOrWhiteSpace(AvatarHash))
         {
-            string userId = this.Id.ToString(CultureInfo.InvariantCulture);
-            return $"https://cdn.discordapp.com/{Endpoints.AVATARS}/{userId}/{this.AvatarHash}.{stringImageFormat}?size={stringImageSize}";
+            string userId = Id.ToString(CultureInfo.InvariantCulture);
+            return $"https://cdn.discordapp.com/{Endpoints.AVATARS}/{userId}/{AvatarHash}.{stringImageFormat}?size={stringImageSize}";
         }
         else
         {
             // https://discord.com/developers/docs/reference#image-formatting-cdn-endpoints: In the case of the Default User Avatar endpoint, the value for `user_discriminator` in the path should be the user's discriminator `modulo 5—Test#1337` would be `1337 % 5`, which evaluates to 2.
-            string defaultAvatarType = (this.DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture);
+            string defaultAvatarType = (DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture);
             return $"https://cdn.discordapp.com/embed/{Endpoints.AVATARS}/{defaultAvatarType}.{stringImageFormat}?size={stringImageSize}";
         }
     }
@@ -249,27 +249,27 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// Returns a string representation of this user.
     /// </summary>
     /// <returns>String representation of this user.</returns>
-    public override string ToString() => $"User {this.Id}; {this.Username}#{this.Discriminator}";
+    public override string ToString() => $"User {Id}; {Username}#{Discriminator}";
 
     /// <summary>
     /// Checks whether this <see cref="DiscordUser"/> is equal to another object.
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordUser"/>.</returns>
-    public override bool Equals(object obj) => this.Equals(obj as DiscordUser);
+    public override bool Equals(object obj) => Equals(obj as DiscordUser);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordUser"/> is equal to another <see cref="DiscordUser"/>.
     /// </summary>
     /// <param name="e"><see cref="DiscordUser"/> to compare to.</param>
     /// <returns>Whether the <see cref="DiscordUser"/> is equal to this <see cref="DiscordUser"/>.</returns>
-    public bool Equals(DiscordUser e) => e is null ? false : ReferenceEquals(this, e) ? true : this.Id == e.Id;
+    public bool Equals(DiscordUser e) => e is not null && (ReferenceEquals(this, e) || Id == e.Id);
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordUser"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="DiscordUser"/>.</returns>
-    public override int GetHashCode() => this.Id.GetHashCode();
+    public override int GetHashCode() => Id.GetHashCode();
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordUser"/> objects are equal.
@@ -282,7 +282,7 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
         object? o1 = e1 as object;
         object? o2 = e2 as object;
 
-        return (o1 == null && o2 != null) || (o1 != null && o2 == null) ? false : o1 == null && o2 == null ? true : e1.Id == e2.Id;
+        return (o1 != null || o2 == null) && (o1 == null || o2 != null) && (o1 == null && o2 == null || e1.Id == e2.Id);
     }
 
     /// <summary>

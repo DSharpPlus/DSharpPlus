@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using DSharpPlus.Net.Abstractions;
 
 namespace DSharpPlus.Entities;
@@ -14,18 +13,18 @@ public class DiscordPollBuilder
     /// Gets or sets the question for this poll.
     /// </summary>
     public string Question { get; set; }
-    
+
     /// <summary>
     /// Gets or sets whether this poll is multiple choice.
     /// </summary>
     public bool IsMultipleChoice { get; set; }
-    
+
     /// <summary>
     /// Gets the options for this poll.
     /// </summary>
-    public IReadOnlyList<DiscordPollMedia> Options => this._options;
+    public IReadOnlyList<DiscordPollMedia> Options => _options;
     private readonly List<DiscordPollMedia> _options = new();
-    
+
     /// <summary>
     /// Gets or sets the duration for this poll in hours.
     /// </summary>
@@ -38,10 +37,10 @@ public class DiscordPollBuilder
     /// <returns>The modified builder to chain calls with.</returns>
     public DiscordPollBuilder WithQuestion(string question)
     {
-        this.Question = question;
+        Question = question;
         return this;
     }
-    
+
     /// <summary>
     /// Adds an option to this poll.
     /// </summary>
@@ -55,10 +54,10 @@ public class DiscordPollBuilder
             ArgumentNullException.ThrowIfNullOrWhiteSpace(text);
         }
 
-        this._options.Add(new DiscordPollMedia { Text = text, Emoji = emoji });
+        _options.Add(new DiscordPollMedia { Text = text, Emoji = emoji });
         return this;
     }
-    
+
     /// <summary>
     /// Sets whether this poll is multiple choice.
     /// </summary>
@@ -66,7 +65,7 @@ public class DiscordPollBuilder
     /// <returns>The modified builder to chain calls with.</returns>
     public DiscordPollBuilder AsMultipleChoice(bool isMultiChoice = true)
     {
-        this.IsMultipleChoice = isMultiChoice;
+        IsMultipleChoice = isMultiChoice;
         return this;
     }
 
@@ -82,13 +81,13 @@ public class DiscordPollBuilder
         {
             throw new InvalidOperationException("Duration must be at least 1 hour.");
         }
-        
+
         if (hours > (24 * 7))
         {
             throw new InvalidOperationException("Duration must be less then 7 days/168 hours.");
         }
-        
-        this.Duration = hours;
+
+        Duration = hours;
         return this;
     }
 
@@ -99,24 +98,21 @@ public class DiscordPollBuilder
     /// <exception cref="InvalidOperationException">Thrown if the poll has less than two options.</exception>
     internal PollCreatePayload BuildInternal()
     {
-        if (this._options.Count < 2)
-        {
-            throw new InvalidOperationException("A poll must have at least two options.");
-        }
-
-        return new PollCreatePayload(this);
+        return _options.Count < 2
+            ? throw new InvalidOperationException("A poll must have at least two options.")
+            : new PollCreatePayload(this);
     }
 
     public DiscordPollBuilder() { }
 
     public DiscordPollBuilder(DiscordPoll poll)
     {
-        this.WithQuestion(poll.Question.Text);
-        this.AsMultipleChoice(poll.AllowMultisect);
+        WithQuestion(poll.Question.Text);
+        AsMultipleChoice(poll.AllowMultisect);
 
         foreach (DiscordPollAnswer option in poll.Answers)
         {
-            this.AddOption(option.AnswerData.Text, option.AnswerData.Emoji);
+            AddOption(option.AnswerData.Text, option.AnswerData.Emoji);
         }
     }
 }

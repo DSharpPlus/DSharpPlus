@@ -31,23 +31,23 @@ public class CommandsNextExtension : BaseExtension
     private Dictionary<Type, string> UserFriendlyTypeNames { get; }
     internal Dictionary<Type, IArgumentConverter> ArgumentConverters { get; }
     internal CultureInfo DefaultParserCulture
-        => this.Config.DefaultParserCulture;
+        => Config.DefaultParserCulture;
 
     /// <summary>
     /// Gets the service provider this CommandsNext module was configured with.
     /// </summary>
     public IServiceProvider Services
-        => this.Config.Services;
+        => Config.Services;
 
     internal CommandsNextExtension(CommandsNextConfiguration cfg)
     {
-        this.Config = new CommandsNextConfiguration(cfg);
-        this.TopLevelCommands = new Dictionary<string, Command>();
-        this._registeredCommandsLazy = new Lazy<IReadOnlyDictionary<string, Command>>(() => new ReadOnlyDictionary<string, Command>(this.TopLevelCommands));
-        this.HelpFormatter = new HelpFormatterFactory();
-        this.HelpFormatter.SetFormatterType<DefaultHelpFormatter>();
+        Config = new CommandsNextConfiguration(cfg);
+        TopLevelCommands = new Dictionary<string, Command>();
+        _registeredCommandsLazy = new Lazy<IReadOnlyDictionary<string, Command>>(() => new ReadOnlyDictionary<string, Command>(TopLevelCommands));
+        HelpFormatter = new HelpFormatterFactory();
+        HelpFormatter.SetFormatterType<DefaultHelpFormatter>();
 
-        this.ArgumentConverters = new Dictionary<Type, IArgumentConverter>
+        ArgumentConverters = new Dictionary<Type, IArgumentConverter>
         {
             [typeof(string)] = new StringConverter(),
             [typeof(bool)] = new BoolConverter(),
@@ -77,7 +77,7 @@ public class CommandsNextExtension : BaseExtension
             [typeof(DiscordColor)] = new DiscordColorConverter()
         };
 
-        this.UserFriendlyTypeNames = new Dictionary<Type, string>()
+        UserFriendlyTypeNames = new Dictionary<Type, string>()
         {
             [typeof(string)] = "string",
             [typeof(bool)] = "boolean",
@@ -108,7 +108,7 @@ public class CommandsNextExtension : BaseExtension
 
         Type ncvt = typeof(NullableConverter<>);
         Type nt = typeof(Nullable<>);
-        Type[] cvts = this.ArgumentConverters.Keys.ToArray();
+        Type[] cvts = ArgumentConverters.Keys.ToArray();
         foreach (Type? xt in cvts)
         {
             TypeInfo xti = xt.GetTypeInfo();
@@ -120,33 +120,33 @@ public class CommandsNextExtension : BaseExtension
             Type xcvt = ncvt.MakeGenericType(xt);
             Type xnt = nt.MakeGenericType(xt);
 
-            if (this.ArgumentConverters.ContainsKey(xcvt) || Activator.CreateInstance(xcvt) is not IArgumentConverter xcv)
+            if (ArgumentConverters.ContainsKey(xcvt) || Activator.CreateInstance(xcvt) is not IArgumentConverter xcv)
             {
                 continue;
             }
 
-            this.ArgumentConverters[xnt] = xcv;
-            this.UserFriendlyTypeNames[xnt] = this.UserFriendlyTypeNames[xt];
+            ArgumentConverters[xnt] = xcv;
+            UserFriendlyTypeNames[xnt] = UserFriendlyTypeNames[xt];
         }
 
         Type t = typeof(CommandsNextExtension);
         IEnumerable<MethodInfo> ms = t.GetTypeInfo().DeclaredMethods;
         MethodInfo? m = ms.FirstOrDefault(xm => xm.Name == nameof(ConvertArgument) && xm.ContainsGenericParameters && !xm.IsStatic && xm.IsPublic);
-        this.ConvertGeneric = m;
+        ConvertGeneric = m;
     }
 
     /// <summary>
     /// Sets the help formatter to use with the default help command.
     /// </summary>
     /// <typeparam name="T">Type of the formatter to use.</typeparam>
-    public void SetHelpFormatter<T>() where T : BaseHelpFormatter => this.HelpFormatter.SetFormatterType<T>();
+    public void SetHelpFormatter<T>() where T : BaseHelpFormatter => HelpFormatter.SetFormatterType<T>();
 
     /// <summary>
     /// Disposes of this the resources used by CNext.
     /// </summary>
     public override void Dispose()
     {
-        this.Config.CommandExecutor.Dispose();
+        Config.CommandExecutor.Dispose();
 
         // Satisfy rule CA1816. Can be removed if this class is sealed.
         GC.SuppressFinalize(this);
@@ -160,32 +160,32 @@ public class CommandsNextExtension : BaseExtension
     /// <exception cref="InvalidOperationException"/>
     protected internal override void Setup(DiscordClient client)
     {
-        if (this.Client != null)
+        if (Client != null)
         {
             throw new InvalidOperationException("What did I tell you?");
         }
 
-        this.Client = client;
+        Client = client;
 
-        this._executed = new AsyncEvent<CommandsNextExtension, CommandExecutionEventArgs>("COMMAND_EXECUTED", this.Client.EventErrorHandler);
-        this._error = new AsyncEvent<CommandsNextExtension, CommandErrorEventArgs>("COMMAND_ERRORED", this.Client.EventErrorHandler);
+        _executed = new AsyncEvent<CommandsNextExtension, CommandExecutionEventArgs>("COMMAND_EXECUTED", Client.EventErrorHandler);
+        _error = new AsyncEvent<CommandsNextExtension, CommandErrorEventArgs>("COMMAND_ERRORED", Client.EventErrorHandler);
 
-        if (this.Config.UseDefaultCommandHandler)
+        if (Config.UseDefaultCommandHandler)
         {
-            this.Client.MessageCreated += this.HandleCommandsAsync;
+            Client.MessageCreated += HandleCommandsAsync;
         }
         else
         {
-            this.Client.Logger.LogWarning(CommandsNextEvents.Misc, "Not attaching default command handler - if this is intentional, you can ignore this message");
+            Client.Logger.LogWarning(CommandsNextEvents.Misc, "Not attaching default command handler - if this is intentional, you can ignore this message");
         }
 
-        if (this.Config.EnableDefaultHelp)
+        if (Config.EnableDefaultHelp)
         {
-            this.RegisterCommands(typeof(DefaultHelpModule), null, Enumerable.Empty<CheckBaseAttribute>(), out List<CommandBuilder>? tcmds);
+            RegisterCommands(typeof(DefaultHelpModule), null, Enumerable.Empty<CheckBaseAttribute>(), out List<CommandBuilder>? tcmds);
 
-            if (this.Config.DefaultHelpChecks.Any())
+            if (Config.DefaultHelpChecks.Any())
             {
-                CheckBaseAttribute[] checks = this.Config.DefaultHelpChecks.ToArray();
+                CheckBaseAttribute[] checks = Config.DefaultHelpChecks.ToArray();
 
                 for (int i = 0; i < tcmds.Count; i++)
                 {
@@ -197,14 +197,14 @@ public class CommandsNextExtension : BaseExtension
             {
                 foreach (CommandBuilder xc in tcmds)
                 {
-                    this.AddToCommandDictionary(xc.Build(null));
+                    AddToCommandDictionary(xc.Build(null));
                 }
             }
         }
 
-        if (this.Config.CommandExecutor is ParallelQueuedCommandExecutor pqce)
+        if (Config.CommandExecutor is ParallelQueuedCommandExecutor pqce)
         {
-            this.Client.Logger.LogDebug(CommandsNextEvents.Misc, "Using parallel executor with degree {0}", pqce.Parallelism);
+            Client.Logger.LogDebug(CommandsNextEvents.Misc, "Using parallel executor with degree {0}", pqce.Parallelism);
         }
     }
     #endregion
@@ -217,31 +217,31 @@ public class CommandsNextExtension : BaseExtension
             return;
         }
 
-        if (!this.Config.EnableDms && e.Channel.IsPrivate)
+        if (!Config.EnableDms && e.Channel.IsPrivate)
         {
             return;
         }
 
         int mpos = -1;
-        if (this.Config.EnableMentionPrefix)
+        if (Config.EnableMentionPrefix)
         {
-            mpos = e.Message.GetMentionPrefixLength(this.Client.CurrentUser);
+            mpos = e.Message.GetMentionPrefixLength(Client.CurrentUser);
         }
 
-        if (this.Config.StringPrefixes.Any())
+        if (Config.StringPrefixes.Any())
         {
-            foreach (string pfix in this.Config.StringPrefixes)
+            foreach (string pfix in Config.StringPrefixes)
             {
                 if (mpos == -1 && !string.IsNullOrWhiteSpace(pfix))
                 {
-                    mpos = e.Message.GetStringPrefixLength(pfix, this.Config.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
+                    mpos = e.Message.GetStringPrefixLength(pfix, Config.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
                 }
             }
         }
 
-        if (mpos == -1 && this.Config.PrefixResolver != null)
+        if (mpos == -1 && Config.PrefixResolver != null)
         {
-            mpos = await this.Config.PrefixResolver(e.Message);
+            mpos = await Config.PrefixResolver(e.Message);
         }
 
         if (mpos == -1)
@@ -253,18 +253,18 @@ public class CommandsNextExtension : BaseExtension
         string cnt = e.Message.Content.Substring(mpos);
 
         int __ = 0;
-        string? fname = cnt.ExtractNextArgument(ref __, this.Config.QuotationMarks);
+        string? fname = cnt.ExtractNextArgument(ref __, Config.QuotationMarks);
 
-        Command? cmd = this.FindCommand(cnt, out string? args);
-        CommandContext ctx = this.CreateContext(e.Message, pfx, cmd, args);
+        Command? cmd = FindCommand(cnt, out string? args);
+        CommandContext ctx = CreateContext(e.Message, pfx, cmd, args);
 
         if (cmd is null)
         {
-            await this._error.InvokeAsync(this, new CommandErrorEventArgs { Context = ctx, Exception = new CommandNotFoundException(fname ?? "UnknownCmd") });
+            await _error.InvokeAsync(this, new CommandErrorEventArgs { Context = ctx, Exception = new CommandNotFoundException(fname ?? "UnknownCmd") });
             return;
         }
 
-        await this.Config.CommandExecutor.ExecuteAsync(ctx);
+        await Config.CommandExecutor.ExecuteAsync(ctx);
     }
 
     /// <summary>
@@ -277,22 +277,22 @@ public class CommandsNextExtension : BaseExtension
     {
         rawArguments = null;
 
-        bool ignoreCase = !this.Config.CaseSensitive;
+        bool ignoreCase = !Config.CaseSensitive;
         int pos = 0;
-        string? next = commandString.ExtractNextArgument(ref pos, this.Config.QuotationMarks);
+        string? next = commandString.ExtractNextArgument(ref pos, Config.QuotationMarks);
         if (next is null)
         {
             return null;
         }
 
-        if (!this.RegisteredCommands.TryGetValue(next, out Command? cmd))
+        if (!RegisteredCommands.TryGetValue(next, out Command? cmd))
         {
             if (!ignoreCase)
             {
                 return null;
             }
 
-            KeyValuePair<string, Command> cmdKvp = this.RegisteredCommands.FirstOrDefault(x => x.Key.Equals(next, StringComparison.InvariantCultureIgnoreCase));
+            KeyValuePair<string, Command> cmdKvp = RegisteredCommands.FirstOrDefault(x => x.Key.Equals(next, StringComparison.InvariantCultureIgnoreCase));
             if (cmdKvp.Value is null)
             {
                 return null;
@@ -311,7 +311,7 @@ public class CommandsNextExtension : BaseExtension
         {
             CommandGroup? cm2 = cmd as CommandGroup;
             int oldPos = pos;
-            next = commandString.ExtractNextArgument(ref pos, this.Config.QuotationMarks);
+            next = commandString.ExtractNextArgument(ref pos, Config.QuotationMarks);
             if (next is null)
             {
                 break;
@@ -344,14 +344,14 @@ public class CommandsNextExtension : BaseExtension
     {
         CommandContext ctx = new CommandContext
         {
-            Client = this.Client,
+            Client = Client,
             Command = cmd,
             Message = msg,
-            Config = this.Config,
+            Config = Config,
             RawArgumentString = rawArguments ?? "",
             Prefix = prefix,
             CommandsNext = this,
-            Services = this.Services
+            Services = Services
         };
 
         if (cmd is not null && (cmd.Module is TransientCommandModule || cmd.Module == null))
@@ -380,22 +380,22 @@ public class CommandsNextExtension : BaseExtension
                 return;
             }
 
-            await this.RunAllChecksAsync(cmd, ctx);
+            await RunAllChecksAsync(cmd, ctx);
 
             CommandResult res = await cmd.ExecuteAsync(ctx);
 
             if (res.IsSuccessful)
             {
-                await this._executed.InvokeAsync(this, new CommandExecutionEventArgs { Context = res.Context });
+                await _executed.InvokeAsync(this, new CommandExecutionEventArgs { Context = res.Context });
             }
             else
             {
-                await this._error.InvokeAsync(this, new CommandErrorEventArgs { Context = res.Context, Exception = res.Exception });
+                await _error.InvokeAsync(this, new CommandErrorEventArgs { Context = res.Context, Exception = res.Exception });
             }
         }
         catch (Exception ex)
         {
-            await this._error.InvokeAsync(this, new CommandErrorEventArgs { Context = ctx, Exception = ex });
+            await _error.InvokeAsync(this, new CommandErrorEventArgs { Context = ctx, Exception = ex });
         }
         finally
         {
@@ -410,7 +410,7 @@ public class CommandsNextExtension : BaseExtension
     {
         if (cmd.Parent is not null)
         {
-            await this.RunAllChecksAsync(cmd.Parent, ctx);
+            await RunAllChecksAsync(cmd.Parent, ctx);
         }
 
         IEnumerable<CheckBaseAttribute> fchecks = await cmd.RunChecksAsync(ctx, false);
@@ -426,7 +426,7 @@ public class CommandsNextExtension : BaseExtension
     /// Gets a dictionary of registered top-level commands.
     /// </summary>
     public IReadOnlyDictionary<string, Command> RegisteredCommands
-        => this._registeredCommandsLazy.Value;
+        => _registeredCommandsLazy.Value;
 
     private Dictionary<string, Command> TopLevelCommands { get; set; }
     private readonly Lazy<IReadOnlyDictionary<string, Command>> _registeredCommandsLazy;
@@ -444,7 +444,7 @@ public class CommandsNextExtension : BaseExtension
         });
         foreach (Type? xt in types)
         {
-            this.RegisterCommands(xt);
+            RegisterCommands(xt);
         }
     }
 
@@ -455,7 +455,7 @@ public class CommandsNextExtension : BaseExtension
     public void RegisterCommands<T>() where T : BaseCommandModule
     {
         Type t = typeof(T);
-        this.RegisterCommands(t);
+        RegisterCommands(t);
     }
 
     /// <summary>
@@ -474,13 +474,13 @@ public class CommandsNextExtension : BaseExtension
             throw new ArgumentNullException(nameof(t), "Type must be a class, which cannot be abstract or static.");
         }
 
-        this.RegisterCommands(t, null, Enumerable.Empty<CheckBaseAttribute>(), out List<CommandBuilder>? tempCommands);
+        RegisterCommands(t, null, Enumerable.Empty<CheckBaseAttribute>(), out List<CommandBuilder>? tempCommands);
 
         if (tempCommands != null)
         {
             foreach (CommandBuilder command in tempCommands)
             {
-                this.AddToCommandDictionary(command.Build(null));
+                AddToCommandDictionary(command.Build(null));
             }
         }
     }
@@ -495,7 +495,7 @@ public class CommandsNextExtension : BaseExtension
         ICommandModule module = new CommandModuleBuilder()
             .WithType(t)
             .WithLifespan(moduleLifespan)
-            .Build(this.Services);
+            .Build(Services);
 
         // restrict parent lifespan to more or equally restrictive
         if (currentParent?.Module is TransientCommandModule && moduleLifespan != ModuleLifespan.Transient)
@@ -510,7 +510,7 @@ public class CommandsNextExtension : BaseExtension
         bool moduleHidden = false;
         List<CheckBaseAttribute> moduleChecks = new List<CheckBaseAttribute>();
 
-        groupBuilder.WithCategory(this.ExtractCategoryAttribute(t));
+        groupBuilder.WithCategory(ExtractCategoryAttribute(t));
 
         foreach (Attribute xa in moduleAttributes)
         {
@@ -537,7 +537,7 @@ public class CommandsNextExtension : BaseExtension
                         }
                     }
 
-                    if (!this.Config.CaseSensitive)
+                    if (!Config.CaseSensitive)
                     {
                         moduleName = moduleName.ToLowerInvariant();
                     }
@@ -559,7 +559,7 @@ public class CommandsNextExtension : BaseExtension
                 case AliasesAttribute a:
                     foreach (string xalias in a.Aliases)
                     {
-                        groupBuilder.WithAlias(this.Config.CaseSensitive ? xalias : xalias.ToLowerInvariant());
+                        groupBuilder.WithAlias(Config.CaseSensitive ? xalias : xalias.ToLowerInvariant());
                     }
 
                     break;
@@ -620,7 +620,7 @@ public class CommandsNextExtension : BaseExtension
                 }
             }
 
-            if (!this.Config.CaseSensitive)
+            if (!Config.CaseSensitive)
             {
                 commandName = commandName.ToLowerInvariant();
             }
@@ -656,7 +656,7 @@ public class CommandsNextExtension : BaseExtension
                 }
             }
 
-            commandBuilder.WithCategory(this.ExtractCategoryAttribute(m));
+            commandBuilder.WithCategory(ExtractCategoryAttribute(m));
 
             foreach (Attribute xa in attrs)
             {
@@ -665,7 +665,7 @@ public class CommandsNextExtension : BaseExtension
                     case AliasesAttribute a:
                         foreach (string xalias in a.Aliases)
                         {
-                            commandBuilder.WithAlias(this.Config.CaseSensitive ? xalias : xalias.ToLowerInvariant());
+                            commandBuilder.WithAlias(Config.CaseSensitive ? xalias : xalias.ToLowerInvariant());
                         }
 
                         break;
@@ -699,7 +699,7 @@ public class CommandsNextExtension : BaseExtension
             .Where(xt => xt.IsModuleCandidateType() && xt.DeclaredConstructors.Any(xc => xc.IsPublic));
         foreach (TypeInfo? type in types)
         {
-            this.RegisterCommands(type.AsType(),
+            RegisterCommands(type.AsType(),
                 groupBuilder,
                 !isModule ? moduleChecks : Enumerable.Empty<CheckBaseAttribute>(),
                 out List<CommandBuilder>? tempCommands);
@@ -745,7 +745,7 @@ public class CommandsNextExtension : BaseExtension
     {
         foreach (CommandBuilder cmd in cmds)
         {
-            this.AddToCommandDictionary(cmd.Build(null));
+            AddToCommandDictionary(cmd.Build(null));
         }
     }
 
@@ -760,10 +760,10 @@ public class CommandsNextExtension : BaseExtension
             throw new InvalidOperationException("Cannot unregister nested commands.");
         }
 
-        List<string> keys = this.RegisteredCommands.Where(x => cmds.Contains(x.Value)).Select(x => x.Key).ToList();
+        List<string> keys = RegisteredCommands.Where(x => cmds.Contains(x.Value)).Select(x => x.Key).ToList();
         foreach (string? key in keys)
         {
-            this.TopLevelCommands.Remove(key);
+            TopLevelCommands.Remove(key);
         }
     }
 
@@ -778,7 +778,7 @@ public class CommandsNextExtension : BaseExtension
 
         // extract from types
 
-        return this.ExtractCategoryAttribute(method.DeclaringType);
+        return ExtractCategoryAttribute(method.DeclaringType);
     }
 
     private string? ExtractCategoryAttribute(Type type)
@@ -808,16 +808,16 @@ public class CommandsNextExtension : BaseExtension
             return;
         }
 
-        if (this.TopLevelCommands.ContainsKey(cmd.Name) || cmd.Aliases.Any(xs => this.TopLevelCommands.ContainsKey(xs)))
+        if (TopLevelCommands.ContainsKey(cmd.Name) || cmd.Aliases.Any(xs => TopLevelCommands.ContainsKey(xs)))
         {
             throw new DuplicateCommandException(cmd.QualifiedName);
         }
 
-        this.TopLevelCommands[cmd.Name] = cmd;
+        TopLevelCommands[cmd.Name] = cmd;
 
         foreach (string xs in cmd.Aliases)
         {
-            this.TopLevelCommands[xs] = cmd;
+            TopLevelCommands[xs] = cmd;
         }
     }
     #endregion
@@ -958,7 +958,7 @@ public class CommandsNextExtension : BaseExtension
         // create fake message
         DiscordMessage msg = new DiscordMessage
         {
-            Discord = this.Client,
+            Discord = Client,
             Author = actor,
             Channel = channel,
             ChannelId = channel.Id,
@@ -987,7 +987,7 @@ public class CommandsNextExtension : BaseExtension
             }
             else
             {
-                mentionedUsers = Utilities.GetUserMentions(msg).Select(this.Client.GetCachedOrEmptyUserInternal).ToList();
+                mentionedUsers = Utilities.GetUserMentions(msg).Select(Client.GetCachedOrEmptyUserInternal).ToList();
             }
         }
 
@@ -997,14 +997,14 @@ public class CommandsNextExtension : BaseExtension
 
         CommandContext ctx = new CommandContext
         {
-            Client = this.Client,
+            Client = Client,
             Command = cmd,
             Message = msg,
-            Config = this.Config,
+            Config = Config,
             RawArgumentString = rawArguments ?? "",
             Prefix = prefix,
             CommandsNext = this,
-            Services = this.Services
+            Services = Services
         };
 
         if (cmd is not null && (cmd.Module is TransientCommandModule || cmd.Module is null))
@@ -1029,12 +1029,12 @@ public class CommandsNextExtension : BaseExtension
     public async Task<object> ConvertArgument<T>(string value, CommandContext ctx)
     {
         Type t = typeof(T);
-        if (!this.ArgumentConverters.ContainsKey(t))
+        if (!ArgumentConverters.ContainsKey(t))
         {
             throw new ArgumentException("There is no converter specified for given type.", nameof(T));
         }
 
-        if (this.ArgumentConverters[t] is not IArgumentConverter<T> cv)
+        if (ArgumentConverters[t] is not IArgumentConverter<T> cv)
         {
             throw new ArgumentException("Invalid converter registered for this type.", nameof(T));
         }
@@ -1052,7 +1052,7 @@ public class CommandsNextExtension : BaseExtension
     /// <returns>Converted object.</returns>
     public async Task<object> ConvertArgument(string? value, CommandContext ctx, Type type)
     {
-        MethodInfo m = this.ConvertGeneric.MakeGenericMethod(type);
+        MethodInfo m = ConvertGeneric.MakeGenericMethod(type);
         try
         {
             return await (Task<object>)m.Invoke(this, new object?[] { value, ctx });
@@ -1077,7 +1077,7 @@ public class CommandsNextExtension : BaseExtension
 
         Type t = typeof(T);
         TypeInfo ti = t.GetTypeInfo();
-        this.ArgumentConverters[t] = converter;
+        ArgumentConverters[t] = converter;
 
         if (!ti.IsValueType)
         {
@@ -1086,7 +1086,7 @@ public class CommandsNextExtension : BaseExtension
 
         Type nullableConverterType = typeof(NullableConverter<>).MakeGenericType(t);
         Type nullableType = typeof(Nullable<>).MakeGenericType(t);
-        if (this.ArgumentConverters.ContainsKey(nullableType))
+        if (ArgumentConverters.ContainsKey(nullableType))
         {
             return;
         }
@@ -1095,7 +1095,7 @@ public class CommandsNextExtension : BaseExtension
 
         if (nullableConverter is not null)
         {
-            this.ArgumentConverters[nullableType] = nullableConverter;
+            ArgumentConverters[nullableType] = nullableConverter;
         }
     }
 
@@ -1107,14 +1107,14 @@ public class CommandsNextExtension : BaseExtension
     {
         Type t = typeof(T);
         TypeInfo ti = t.GetTypeInfo();
-        if (this.ArgumentConverters.ContainsKey(t))
+        if (ArgumentConverters.ContainsKey(t))
         {
-            this.ArgumentConverters.Remove(t);
+            ArgumentConverters.Remove(t);
         }
 
-        if (this.UserFriendlyTypeNames.ContainsKey(t))
+        if (UserFriendlyTypeNames.ContainsKey(t))
         {
-            this.UserFriendlyTypeNames.Remove(t);
+            UserFriendlyTypeNames.Remove(t);
         }
 
         if (!ti.IsValueType)
@@ -1123,13 +1123,13 @@ public class CommandsNextExtension : BaseExtension
         }
 
         Type nullableType = typeof(Nullable<>).MakeGenericType(t);
-        if (!this.ArgumentConverters.ContainsKey(nullableType))
+        if (!ArgumentConverters.ContainsKey(nullableType))
         {
             return;
         }
 
-        this.ArgumentConverters.Remove(nullableType);
-        this.UserFriendlyTypeNames.Remove(nullableType);
+        ArgumentConverters.Remove(nullableType);
+        UserFriendlyTypeNames.Remove(nullableType);
     }
 
     /// <summary>
@@ -1146,12 +1146,12 @@ public class CommandsNextExtension : BaseExtension
 
         Type t = typeof(T);
         TypeInfo ti = t.GetTypeInfo();
-        if (!this.ArgumentConverters.ContainsKey(t))
+        if (!ArgumentConverters.ContainsKey(t))
         {
             throw new InvalidOperationException("Cannot register a friendly name for a type which has no associated converter.");
         }
 
-        this.UserFriendlyTypeNames[t] = value;
+        UserFriendlyTypeNames[t] = value;
 
         if (!ti.IsValueType)
         {
@@ -1159,7 +1159,7 @@ public class CommandsNextExtension : BaseExtension
         }
 
         Type nullableType = typeof(Nullable<>).MakeGenericType(t);
-        this.UserFriendlyTypeNames[nullableType] = value;
+        UserFriendlyTypeNames[nullableType] = value;
     }
 
     /// <summary>
@@ -1169,16 +1169,16 @@ public class CommandsNextExtension : BaseExtension
     /// <returns>User-friendly type name.</returns>
     public string GetUserFriendlyTypeName(Type t)
     {
-        if (this.UserFriendlyTypeNames.ContainsKey(t))
+        if (UserFriendlyTypeNames.ContainsKey(t))
         {
-            return this.UserFriendlyTypeNames[t];
+            return UserFriendlyTypeNames[t];
         }
 
         TypeInfo ti = t.GetTypeInfo();
         if (ti.IsGenericTypeDefinition && t.GetGenericTypeDefinition() == typeof(Nullable<>))
         {
             Type tn = ti.GenericTypeArguments[0];
-            return this.UserFriendlyTypeNames.ContainsKey(tn) ? this.UserFriendlyTypeNames[tn] : tn.Name;
+            return UserFriendlyTypeNames.ContainsKey(tn) ? UserFriendlyTypeNames[tn] : tn.Name;
         }
 
         return t.Name;
@@ -1192,7 +1192,7 @@ public class CommandsNextExtension : BaseExtension
     /// </summary>
     /// <returns>A string comparer.</returns>
     internal IEqualityComparer<string> GetStringComparer()
-        => this.Config.CaseSensitive
+        => Config.CaseSensitive
             ? StringComparer.Ordinal
             : StringComparer.OrdinalIgnoreCase;
     #endregion
@@ -1203,8 +1203,8 @@ public class CommandsNextExtension : BaseExtension
     /// </summary>
     public event AsyncEventHandler<CommandsNextExtension, CommandExecutionEventArgs> CommandExecuted
     {
-        add => this._executed.Register(value);
-        remove => this._executed.Unregister(value);
+        add => _executed.Register(value);
+        remove => _executed.Unregister(value);
     }
     private AsyncEvent<CommandsNextExtension, CommandExecutionEventArgs> _executed = null!;
 
@@ -1213,15 +1213,15 @@ public class CommandsNextExtension : BaseExtension
     /// </summary>
     public event AsyncEventHandler<CommandsNextExtension, CommandErrorEventArgs> CommandErrored
     {
-        add => this._error.Register(value);
-        remove => this._error.Unregister(value);
+        add => _error.Register(value);
+        remove => _error.Unregister(value);
     }
     private AsyncEvent<CommandsNextExtension, CommandErrorEventArgs> _error = null!;
 
     private Task OnCommandExecuted(CommandExecutionEventArgs e)
-        => this._executed.InvokeAsync(this, e);
+        => _executed.InvokeAsync(this, e);
 
     private Task OnCommandErrored(CommandErrorEventArgs e)
-        => this._error.InvokeAsync(this, e);
+        => _error.InvokeAsync(this, e);
     #endregion
 }

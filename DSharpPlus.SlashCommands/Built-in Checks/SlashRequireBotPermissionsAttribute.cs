@@ -28,8 +28,8 @@ public sealed class SlashRequireBotPermissionsAttribute : SlashCheckBaseAttribut
     /// <param name="ignoreDms">Sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.</param>
     public SlashRequireBotPermissionsAttribute(DiscordPermissions permissions, bool ignoreDms = true)
     {
-        this.Permissions = permissions;
-        this.IgnoreDms = ignoreDms;
+        Permissions = permissions;
+        IgnoreDms = ignoreDms;
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ public sealed class SlashRequireBotPermissionsAttribute : SlashCheckBaseAttribut
     {
         if (ctx.Guild == null)
         {
-            return this.IgnoreDms;
+            return IgnoreDms;
         }
 
         Entities.DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
@@ -55,6 +55,6 @@ public sealed class SlashRequireBotPermissionsAttribute : SlashCheckBaseAttribut
 
         DiscordPermissions pbot = ctx.Channel.PermissionsFor(bot);
 
-        return (pbot & DiscordPermissions.Administrator) != 0 ? true : (pbot & this.Permissions) == this.Permissions;
+        return (pbot & DiscordPermissions.Administrator) != 0 || (pbot & Permissions) == Permissions;
     }
 }

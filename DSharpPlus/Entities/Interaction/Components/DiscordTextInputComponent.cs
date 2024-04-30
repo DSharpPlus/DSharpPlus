@@ -49,7 +49,7 @@ public sealed class DiscordTextInputComponent : DiscordComponent
     [JsonProperty("style")]
     public DiscordTextInputStyle Style { get; set; }
 
-    public DiscordTextInputComponent() => this.Type = DiscordComponentType.FormInput;
+    public DiscordTextInputComponent() => Type = DiscordComponentType.FormInput;
 
     /// <summary>
     /// Constructs a new text input field.
@@ -67,22 +67,22 @@ public sealed class DiscordTextInputComponent : DiscordComponent
         string label,
         string customId,
         string? placeholder = null,
-        string? value = null, 
-        bool required = true, 
-        DiscordTextInputStyle style = 
-        DiscordTextInputStyle.Short, 
-        int min_length = 0, 
+        string? value = null,
+        bool required = true,
+        DiscordTextInputStyle style =
+        DiscordTextInputStyle.Short,
+        int min_length = 0,
         int? max_length = null
     )
     {
-        this.CustomId = customId;
-        this.Type = DiscordComponentType.FormInput;
-        this.Label = label;
-        this.Required = required;
-        this.Placeholder = placeholder;
-        this.MinimumLength = min_length;
-        this.MaximumLength = max_length;
-        this.Style = style;
-        this.Value = value;
+        CustomId = customId;
+        Type = DiscordComponentType.FormInput;
+        Label = label;
+        Required = required;
+        Placeholder = placeholder;
+        MinimumLength = min_length;
+        MaximumLength = max_length;
+        Style = style;
+        Value = value;
     }
 }

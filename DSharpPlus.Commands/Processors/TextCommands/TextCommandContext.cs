@@ -19,7 +19,7 @@ public sealed record TextCommandContext : CommandContext
         // Reply to the message that invoked the command if no reply is set
         if (messageBuilder.ReplyId is null)
         {
-            messageBuilder.WithReply(this.Message.Id);
+            messageBuilder.WithReply(Message.Id);
         }
 
         // Don't ping anyone if no mentions are explicitly set
@@ -28,52 +28,52 @@ public sealed record TextCommandContext : CommandContext
             messageBuilder.WithAllowedMentions(Mentions.None);
         }
 
-        this.Response = await this.Channel.SendMessageAsync(messageBuilder);
+        Response = await Channel.SendMessageAsync(messageBuilder);
     }
 
     /// <inheritdoc />
     public override async ValueTask<DiscordMessage> EditResponseAsync(IDiscordMessageBuilder builder)
     {
-        if (this.Response is not null)
+        if (Response is not null)
         {
-            this.Response = await this.Response.ModifyAsync(new DiscordMessageBuilder(builder));
+            Response = await Response.ModifyAsync(new DiscordMessageBuilder(builder));
         }
-        else if (this.Delayed)
+        else if (Delayed)
         {
-            await this.RespondAsync(builder);
+            await RespondAsync(builder);
         }
         else
         {
             throw new InvalidOperationException("Cannot edit a response that has not been sent yet.");
         }
 
-        return this.Response!;
+        return Response!;
     }
 
     /// <inheritdoc />
     public override async ValueTask DeleteResponseAsync()
     {
-        if (this.Response is null)
+        if (Response is null)
         {
             throw new InvalidOperationException("Cannot delete a response that has not been sent yet.");
         }
 
-        await this.Response.DeleteAsync();
+        await Response.DeleteAsync();
     }
 
     /// <inheritdoc />
-    public override ValueTask<DiscordMessage?> GetResponseAsync() => ValueTask.FromResult(this.Response);
+    public override ValueTask<DiscordMessage?> GetResponseAsync() => ValueTask.FromResult(Response);
 
     /// <inheritdoc />
     public override async ValueTask DeferResponseAsync()
     {
-        await this.Channel.TriggerTypingAsync();
-        this.Delayed = true;
+        await Channel.TriggerTypingAsync();
+        Delayed = true;
     }
 
     public override async ValueTask<DiscordMessage> FollowupAsync(IDiscordMessageBuilder builder)
     {
-        if (this.Response is null)
+        if (Response is null)
         {
             throw new InvalidOperationException("Cannot send a followup message before the initial response.");
         }
@@ -83,7 +83,7 @@ public sealed record TextCommandContext : CommandContext
         // Reply to the original message if no reply is set, to indicate that this message is related to the command
         if (messageBuilder.ReplyId is null)
         {
-            messageBuilder.WithReply(this.Response.Id);
+            messageBuilder.WithReply(Response.Id);
         }
 
         // Don't ping anyone if no mentions are explicitly set
@@ -92,40 +92,40 @@ public sealed record TextCommandContext : CommandContext
             messageBuilder.WithAllowedMentions(Mentions.None);
         }
 
-        DiscordMessage followup = await this.Channel.SendMessageAsync(messageBuilder);
-        this._followupMessages.Add(followup.Id, followup);
+        DiscordMessage followup = await Channel.SendMessageAsync(messageBuilder);
+        _followupMessages.Add(followup.Id, followup);
         return followup;
     }
 
     public override async ValueTask<DiscordMessage> EditFollowupAsync(ulong messageId, IDiscordMessageBuilder builder)
     {
-        if (this.Response is null)
+        if (Response is null)
         {
             throw new InvalidOperationException("Cannot edit a followup message before the initial response.");
         }
 
-        if (!this._followupMessages.TryGetValue(messageId, out DiscordMessage? message))
+        if (!_followupMessages.TryGetValue(messageId, out DiscordMessage? message))
         {
             throw new InvalidOperationException("Cannot edit a followup message that does not exist.");
         }
 
         DiscordMessageBuilder messageBuilder = new(builder);
-        this._followupMessages[messageId] = await message.ModifyAsync(messageBuilder);
-        return this._followupMessages[messageId];
+        _followupMessages[messageId] = await message.ModifyAsync(messageBuilder);
+        return _followupMessages[messageId];
     }
 
     public override async ValueTask<DiscordMessage?> GetFollowupAsync(ulong messageId, bool ignoreCache = false)
     {
-        if (this.Response is null)
+        if (Response is null)
         {
             throw new InvalidOperationException("Cannot get a followup message before the initial response.");
         }
 
         // Fetch the follow up message if we don't have it cached.
-        if (ignoreCache || !this._followupMessages.TryGetValue(messageId, out DiscordMessage? message))
+        if (ignoreCache || !_followupMessages.TryGetValue(messageId, out DiscordMessage? message))
         {
-            message = await this.Channel.GetMessageAsync(messageId, true);
-            this._followupMessages[messageId] = message;
+            message = await Channel.GetMessageAsync(messageId, true);
+            _followupMessages[messageId] = message;
         }
 
         return message;
@@ -133,12 +133,12 @@ public sealed record TextCommandContext : CommandContext
 
     public override async ValueTask DeleteFollowupAsync(ulong messageId)
     {
-        if (this.Response is null)
+        if (Response is null)
         {
             throw new InvalidOperationException("Cannot delete a followup message before the initial response.");
         }
 
-        if (!this._followupMessages.TryGetValue(messageId, out DiscordMessage? message))
+        if (!_followupMessages.TryGetValue(messageId, out DiscordMessage? message))
         {
             throw new InvalidOperationException("Cannot delete a followup message that does not exist.");
         }

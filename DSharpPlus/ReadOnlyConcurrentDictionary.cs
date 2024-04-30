@@ -18,25 +18,25 @@ internal readonly struct ReadOnlyConcurrentDictionary<TKey, TValue> : IReadOnlyD
     /// Creates a new read-only view of the given dictionary.
     /// </summary>
     /// <param name="underlyingDict">Dictionary to create a view over.</param>
-    public ReadOnlyConcurrentDictionary(ConcurrentDictionary<TKey, TValue> underlyingDict) => this._underlyingDict = underlyingDict;
+    public ReadOnlyConcurrentDictionary(ConcurrentDictionary<TKey, TValue> underlyingDict) => _underlyingDict = underlyingDict;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => this._underlyingDict.GetEnumerator();
+    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _underlyingDict.GetEnumerator();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)this._underlyingDict).GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_underlyingDict).GetEnumerator();
 
-    public int Count => this._underlyingDict.Count;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool ContainsKey(TKey key) => this._underlyingDict.ContainsKey(key);
+    public int Count => _underlyingDict.Count;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool TryGetValue(TKey key, out TValue value) => this._underlyingDict.TryGetValue(key, out value);
+    public bool ContainsKey(TKey key) => _underlyingDict.ContainsKey(key);
 
-    public TValue this[TKey key] => this._underlyingDict[key];
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool TryGetValue(TKey key, out TValue value) => _underlyingDict.TryGetValue(key, out value);
 
-    public IEnumerable<TKey> Keys => this._underlyingDict.Keys;
+    public TValue this[TKey key] => _underlyingDict[key];
 
-    public IEnumerable<TValue> Values => this._underlyingDict.Values;
+    public IEnumerable<TKey> Keys => _underlyingDict.Keys;
+
+    public IEnumerable<TValue> Values => _underlyingDict.Values;
 }

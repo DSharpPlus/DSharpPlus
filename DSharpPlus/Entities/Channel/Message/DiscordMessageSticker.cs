@@ -42,9 +42,9 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     /// <summary>
     /// Gets the guild associated with this sticker, if any.
     /// </summary>
-    public DiscordGuild Guild => (this.Discord as DiscordClient)!.InternalGetCachedGuild(this.GuildId);
+    public DiscordGuild Guild => (Discord as DiscordClient)!.InternalGetCachedGuild(GuildId);
 
-    public string StickerUrl => $"https://cdn.discordapp.com/stickers/{this.Id}{this.GetFileTypeExtension()}";
+    public string StickerUrl => $"https://cdn.discordapp.com/stickers/{Id}{GetFileTypeExtension()}";
 
     /// <summary>
     /// Gets the Id of the sticker this guild belongs to, if any.
@@ -69,7 +69,7 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     /// </summary>
     [JsonIgnore]
     public IReadOnlyList<string> Tags
-        => this.InternalTags != null ? this.InternalTags.Split(',') : [];
+        => InternalTags != null ? InternalTags.Split(',') : [];
 
     /// <summary>
     /// Gets the asset hash of the sticker.
@@ -92,16 +92,16 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
     internal string? InternalTags { get; set; }
 
-    public string BannerUrl => $"https://cdn.discordapp.com/app-assets/710982414301790216/store/{this.BannerAssetId}.png?size=4096";
+    public string BannerUrl => $"https://cdn.discordapp.com/app-assets/710982414301790216/store/{BannerAssetId}.png?size=4096";
 
     [JsonProperty("banner_asset_id")]
     internal ulong BannerAssetId { get; set; }
 
-    public bool Equals(DiscordMessageSticker? other) => this.Id == other?.Id;
+    public bool Equals(DiscordMessageSticker? other) => Id == other?.Id;
 
-    public override string ToString() => $"Sticker {this.Id}; {this.Name}; {this.FormatType}";
+    public override string ToString() => $"Sticker {Id}; {Name}; {FormatType}";
 
-    private string GetFileTypeExtension() => this.FormatType switch
+    private string GetFileTypeExtension() => FormatType switch
     {
         DiscordStickerFormat.PNG or DiscordStickerFormat.APNG => ".png",
         DiscordStickerFormat.LOTTIE => ".json",

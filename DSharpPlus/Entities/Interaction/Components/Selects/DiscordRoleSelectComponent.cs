@@ -6,8 +6,8 @@ namespace DSharpPlus.Entities;
 public sealed class DiscordRoleSelectComponent : BaseDiscordSelectComponent
 {
     [JsonProperty("default_values", NullValueHandling = NullValueHandling.Ignore)]
-    private List<DiscordSelectDefaultValue> _defaultValues = new();
-    
+    private readonly List<DiscordSelectDefaultValue> _defaultValues = new();
+
     /// <summary>
     /// The default values for this component.
     /// </summary>
@@ -65,14 +65,14 @@ public sealed class DiscordRoleSelectComponent : BaseDiscordSelectComponent
 
         return this;
     }
-    
+
     /// <summary>
     /// Enables this component.
     /// </summary>
     /// <returns>The current component.</returns>
     public DiscordRoleSelectComponent Enable()
     {
-        this.Disabled = false;
+        Disabled = false;
         return this;
     }
     /// <summary>
@@ -81,11 +81,11 @@ public sealed class DiscordRoleSelectComponent : BaseDiscordSelectComponent
     /// <returns>The current component.</returns>
     public DiscordRoleSelectComponent Disable()
     {
-        this.Disabled = true;
+        Disabled = true;
         return this;
     }
 
-    internal DiscordRoleSelectComponent() => this.Type = DiscordComponentType.RoleSelect;
+    internal DiscordRoleSelectComponent() => Type = DiscordComponentType.RoleSelect;
 
     /// <summary>
     /// Creates a new role select component.
@@ -95,6 +95,6 @@ public sealed class DiscordRoleSelectComponent : BaseDiscordSelectComponent
     /// <param name="disabled">Whether this component is disabled.</param>
     /// <param name="minOptions">The minimum amount of options to be selected.</param>
     /// <param name="maxOptions">The maximum amount of options to be selected, up to 25.</param>
-    public DiscordRoleSelectComponent(string customId, string placeholder, bool disabled = false, int minOptions = 1, int maxOptions = 1) 
+    public DiscordRoleSelectComponent(string customId, string placeholder, bool disabled = false, int minOptions = 1, int maxOptions = 1)
         : base(DiscordComponentType.RoleSelect, customId, placeholder, disabled, minOptions, maxOptions) { }
 }

@@ -22,7 +22,7 @@ public readonly record struct RequestMetricsCollection
     /// <summary>
     /// The failed requests made during the specified duration.
     /// </summary>
-    public int FailedRequests => this.TotalRequests - this.SuccessfulRequests;
+    public int FailedRequests => TotalRequests - SuccessfulRequests;
 
     /// <summary>
     /// The amount of ratelimits hit during the specified duration.
@@ -74,94 +74,94 @@ public readonly record struct RequestMetricsCollection
     /// </summary>
     public override readonly string ToString()
     {
-        StringBuilder builder = new($"Total Requests: {this.TotalRequests} during {this.Duration}\n");
+        StringBuilder builder = new($"Total Requests: {TotalRequests} during {Duration}\n");
 
-        if (this.SuccessfulRequests > 0)
+        if (SuccessfulRequests > 0)
         {
             builder.AppendLine
             (
                 CultureInfo.CurrentCulture,
-                $"Successful Requests: {this.SuccessfulRequests} ({Percentage(this.TotalRequests, this.SuccessfulRequests)})"
+                $"Successful Requests: {SuccessfulRequests} ({Percentage(TotalRequests, SuccessfulRequests)})"
             );
         }
 
-        if (this.FailedRequests > 0)
+        if (FailedRequests > 0)
         {
             builder.AppendLine
             (
                 CultureInfo.CurrentCulture,
-                $"Failed Requests: {this.FailedRequests} ({Percentage(this.TotalRequests, this.FailedRequests)})"
+                $"Failed Requests: {FailedRequests} ({Percentage(TotalRequests, FailedRequests)})"
             );
 
-            if (this.RatelimitsHit > 0)
+            if (RatelimitsHit > 0)
             {
                 builder.AppendLine
                 (
                     CultureInfo.CurrentCulture,
-                    $"  - Ratelimits hit: {this.RatelimitsHit} ({Percentage(this.TotalRequests, this.RatelimitsHit)})"
+                    $"  - Ratelimits hit: {RatelimitsHit} ({Percentage(TotalRequests, RatelimitsHit)})"
                 );
 
-                if (this.GlobalRatelimitsHit > 0)
+                if (GlobalRatelimitsHit > 0)
                 {
                     builder.AppendLine
                     (
                         CultureInfo.CurrentCulture,
-                        $"    - Global ratelimits hit: {this.GlobalRatelimitsHit} ({Percentage(this.TotalRequests, this.GlobalRatelimitsHit)})"
+                        $"    - Global ratelimits hit: {GlobalRatelimitsHit} ({Percentage(TotalRequests, GlobalRatelimitsHit)})"
                     );
                 }
 
-                if (this.BucketRatelimitsHit > 0)
+                if (BucketRatelimitsHit > 0)
                 {
                     builder.AppendLine
                     (
                         CultureInfo.CurrentCulture,
-                        $"    - Bucket ratelimits hit: {this.BucketRatelimitsHit} ({Percentage(this.TotalRequests, this.BucketRatelimitsHit)})"
+                        $"    - Bucket ratelimits hit: {BucketRatelimitsHit} ({Percentage(TotalRequests, BucketRatelimitsHit)})"
                     );
                 }
             }
 
-            if (this.BadRequests > 0)
+            if (BadRequests > 0)
             {
                 builder.AppendLine
                 (
                     CultureInfo.CurrentCulture,
-                    $"  - Bad requests executed: {this.BadRequests} ({Percentage(this.TotalRequests, this.BadRequests)})"
+                    $"  - Bad requests executed: {BadRequests} ({Percentage(TotalRequests, BadRequests)})"
                 );
             }
 
-            if (this.Forbidden > 0)
+            if (Forbidden > 0)
             {
                 builder.AppendLine
                 (
                     CultureInfo.CurrentCulture,
-                    $"  - Forbidden/Unauthorized requests executed: {this.Forbidden} ({Percentage(this.TotalRequests, this.Forbidden)})"
+                    $"  - Forbidden/Unauthorized requests executed: {Forbidden} ({Percentage(TotalRequests, Forbidden)})"
                 );
             }
 
-            if (this.NotFound > 0)
+            if (NotFound > 0)
             {
                 builder.AppendLine
                 (
                     CultureInfo.CurrentCulture,
-                    $"  - Requests not found: {this.NotFound} ({Percentage(this.TotalRequests, this.NotFound)})"
+                    $"  - Requests not found: {NotFound} ({Percentage(TotalRequests, NotFound)})"
                 );
             }
 
-            if (this.TooLarge > 0)
+            if (TooLarge > 0)
             {
                 builder.AppendLine
                 (
                     CultureInfo.CurrentCulture,
-                    $"  - Requests too large: {this.TooLarge} ({Percentage(this.TotalRequests, this.TooLarge)})"
+                    $"  - Requests too large: {TooLarge} ({Percentage(TotalRequests, TooLarge)})"
                 );
             }
 
-            if (this.ServerErrors > 0)
+            if (ServerErrors > 0)
             {
                 builder.AppendLine
                 (
                     CultureInfo.CurrentCulture,
-                    $"  - Server errors: {this.ServerErrors} ({Percentage(this.TotalRequests, this.ServerErrors)})"
+                    $"  - Server errors: {ServerErrors} ({Percentage(TotalRequests, ServerErrors)})"
                 );
             }
         }

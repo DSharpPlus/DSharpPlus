@@ -310,37 +310,37 @@ public enum DiscordPermissions : long
     /// </summary>
     [PermissionString("Moderate Members")]
     ModerateMembers = 0x0000010000000000,
-    
+
     /// <summary>
     /// Allows for viewing role subscription insights.
     /// </summary>
     [PermissionString("View Creator Monetization Analytics")]
     ViewCreatorMonetizationAnalytics = 0x0000020000000000,
-    
+
     /// <summary>
     /// Allows for using soundboard in a voice channel.
     /// </summary>
     [PermissionString("Use Soundboard")]
     UseSoundboard = 0x0000040000000000,
-    
+
     /// <summary>
     /// Allows for creating emojis, stickers, soundboard sounds, editing and deleting those created by the current user.
     /// </summary>
     [PermissionString("Create Guild Expressions")]
     CreateGuildExpressions = 0x0000080000000000,
-    
+
     /// <summary>
     /// Allows for creating scheduled events, editing and deleting those created by the current user.
     /// </summary>
     [PermissionString("Create Events")]
-    CreateEvents = 	0x0000100000000000,
-    
+    CreateEvents = 0x0000100000000000,
+
     /// <summary>
     /// Allows the usage of custom soundboard sounds from other servers.
     /// </summary>
     [PermissionString("Use External Sounds")]
     UseExternalSounds = 0x0000200000000000,
-    
+
     /// <summary>
     /// Allows sending voice messages.
     /// </summary>
@@ -369,5 +369,5 @@ public sealed class PermissionStringAttribute : Attribute
     /// Defines a readable name for this permission.
     /// </summary>
     /// <param name="str">Readable name for this permission.</param>
-    public PermissionStringAttribute(string str) => this.String = str;
+    public PermissionStringAttribute(string str) => String = str;
 }

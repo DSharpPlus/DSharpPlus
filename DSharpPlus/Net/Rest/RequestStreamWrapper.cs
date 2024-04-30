@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Net;
+namespace DSharpPlus.Net;
 
 using System;
 using System.IO;
@@ -9,66 +9,66 @@ public class RequestStreamWrapper : Stream, IDisposable
 {
     public Stream UnderlyingStream { get; init; }
 
-    private void CheckDisposed() => ObjectDisposedException.ThrowIf(this.UnderlyingStream is null, this);
+    private void CheckDisposed() => ObjectDisposedException.ThrowIf(UnderlyingStream is null, this);
 
     //basically these two methods are the whole purpose of this class
     protected override void Dispose(bool disposing) { /* NOT TODAY MY FRIEND */ }
-    protected new void Dispose() => this.Dispose(true);
+    protected new void Dispose() => Dispose(true);
 
     public RequestStreamWrapper(Stream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        this.UnderlyingStream = stream;
+        UnderlyingStream = stream;
     }
 
     /// <inheritdoc cref="Stream.CanRead"/>
-    public override bool CanRead => this.UnderlyingStream.CanRead;
+    public override bool CanRead => UnderlyingStream.CanRead;
 
     /// <inheritdoc cref="Stream.CanSeek"/>
-    public override bool CanSeek => this.UnderlyingStream.CanSeek;
+    public override bool CanSeek => UnderlyingStream.CanSeek;
 
     /// <inheritdoc cref="Stream.CanWrite"/>
-    public override bool CanWrite => this.UnderlyingStream.CanWrite;
+    public override bool CanWrite => UnderlyingStream.CanWrite;
 
     /// <inheritdoc cref="Stream.Flush"/>
-    public override void Flush() => this.UnderlyingStream.Flush();
+    public override void Flush() => UnderlyingStream.Flush();
 
     /// <inheritdoc cref="Stream.Length"/>
     public override long Length
     {
         get
         {
-            this.CheckDisposed();
-            return this.UnderlyingStream.Length;
+            CheckDisposed();
+            return UnderlyingStream.Length;
         }
     }
 
     /// <inheritdoc cref="Stream.Position"/>
     public override long Position
     {
-        get => this.UnderlyingStream.Position;
-        set => this.UnderlyingStream.Position = value;
+        get => UnderlyingStream.Position;
+        set => UnderlyingStream.Position = value;
     }
 
     /// <inheritdoc cref="Stream.Read(byte[], int, int)"/>
     public override int Read(byte[] buffer, int offset, int count)
     {
         CheckDisposed();
-        return this.UnderlyingStream.Read(buffer, offset, count);
+        return UnderlyingStream.Read(buffer, offset, count);
     }
 
     /// <inheritdoc cref="Stream.Seek(long, SeekOrigin)"/>
     public override long Seek(long offset, SeekOrigin origin)
     {
         CheckDisposed();
-        return this.UnderlyingStream.Seek(offset, origin);
+        return UnderlyingStream.Seek(offset, origin);
     }
 
     /// <inheritdoc cref="Stream.SetLength(long)"/>
-    public override void SetLength(long value) => this.UnderlyingStream.SetLength(value);
+    public override void SetLength(long value) => UnderlyingStream.SetLength(value);
 
     /// <inheritdoc cref="Stream.Write(byte[], int, int)"/>
-    public override void Write(byte[] buffer, int offset, int count) => this.UnderlyingStream.Write(buffer, offset, count);
+    public override void Write(byte[] buffer, int offset, int count) => UnderlyingStream.Write(buffer, offset, count);
 
     void IDisposable.Dispose() => Dispose(false);
 }

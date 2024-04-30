@@ -41,17 +41,17 @@ public sealed class PollCreatePayload
 
     internal PollCreatePayload(DiscordPoll poll)
     {
-        this.Question = poll.Question;
-        this.Answers = poll.Answers;
-        this.AllowMultisect = poll.AllowMultisect;
-        this.Layout = poll.Layout;
+        Question = poll.Question;
+        Answers = poll.Answers;
+        AllowMultisect = poll.AllowMultisect;
+        Layout = poll.Layout;
     }
 
     internal PollCreatePayload(DiscordPollBuilder builder)
     {
-        this.Question = new DiscordPollMedia { Text = builder.Question };
-        this.Answers = builder.Options.Select(x => new DiscordPollAnswer { AnswerData = x }).ToList();
-        this.AllowMultisect = builder.IsMultipleChoice;
-        this.Duration = builder.Duration;
+        Question = new DiscordPollMedia { Text = builder.Question };
+        Answers = builder.Options.Select(x => new DiscordPollAnswer { AnswerData = x }).ToList();
+        AllowMultisect = builder.IsMultipleChoice;
+        Duration = builder.Duration;
     }
 }

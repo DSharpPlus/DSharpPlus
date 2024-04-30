@@ -8,22 +8,16 @@ namespace DSharpPlus.CommandsNext.Converters;
 
 public class DateTimeConverter : IArgumentConverter<DateTime>
 {
-    Task<Optional<DateTime>> IArgumentConverter<DateTime>.ConvertAsync(string value, CommandContext ctx)
-    {
-        return DateTime.TryParse(value, ctx.CommandsNext.DefaultParserCulture, DateTimeStyles.None, out DateTime result)
+    Task<Optional<DateTime>> IArgumentConverter<DateTime>.ConvertAsync(string value, CommandContext ctx) => DateTime.TryParse(value, ctx.CommandsNext.DefaultParserCulture, DateTimeStyles.None, out DateTime result)
             ? Task.FromResult(new Optional<DateTime>(result))
             : Task.FromResult(Optional.FromNoValue<DateTime>());
-    }
 }
 
 public class DateTimeOffsetConverter : IArgumentConverter<DateTimeOffset>
 {
-    Task<Optional<DateTimeOffset>> IArgumentConverter<DateTimeOffset>.ConvertAsync(string value, CommandContext ctx)
-    {
-        return DateTimeOffset.TryParse(value, ctx.CommandsNext.DefaultParserCulture, DateTimeStyles.None, out DateTimeOffset result)
+    Task<Optional<DateTimeOffset>> IArgumentConverter<DateTimeOffset>.ConvertAsync(string value, CommandContext ctx) => DateTimeOffset.TryParse(value, ctx.CommandsNext.DefaultParserCulture, DateTimeStyles.None, out DateTimeOffset result)
             ? Task.FromResult(Optional.FromValue(result))
             : Task.FromResult(Optional.FromNoValue<DateTimeOffset>());
-    }
 }
 
 public class TimeSpanConverter : IArgumentConverter<TimeSpan>

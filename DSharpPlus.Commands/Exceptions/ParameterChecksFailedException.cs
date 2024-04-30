@@ -12,7 +12,7 @@ public class ParameterChecksFailedException : CommandsException
 
     public ParameterChecksFailedException(IReadOnlyList<ParameterCheckFailedData> errors, Command command, string? message = null) : base(message ?? $"Checks for {command.FullName} failed.")
     {
-        this.Command = command;
-        this.Errors = errors;
+        Command = command;
+        Errors = errors;
     }
 }

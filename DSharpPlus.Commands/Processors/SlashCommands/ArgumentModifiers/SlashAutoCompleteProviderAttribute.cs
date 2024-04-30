@@ -16,7 +16,7 @@ public class SlashAutoCompleteProviderAttribute(Type autoCompleteType) : Attribu
         IAutoCompleteProvider autoCompleteProvider;
         try
         {
-            autoCompleteProvider = (IAutoCompleteProvider)ActivatorUtilities.CreateInstance(context.ServiceProvider, this.AutoCompleteType);
+            autoCompleteProvider = (IAutoCompleteProvider)ActivatorUtilities.CreateInstance(context.ServiceProvider, AutoCompleteType);
         }
         catch (Exception)
         {

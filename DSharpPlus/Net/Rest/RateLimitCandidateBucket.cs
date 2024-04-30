@@ -7,6 +7,6 @@ using System;
 /// </summary>
 internal readonly record struct RateLimitCandidateBucket(int Maximum, int Remaining, DateTime Reset)
 {
-    public RateLimitBucket ToFullBucket() 
-        => new(this.Maximum, this.Remaining, this.Reset);
+    public RateLimitBucket ToFullBucket()
+        => new(Maximum, Remaining, Reset);
 }

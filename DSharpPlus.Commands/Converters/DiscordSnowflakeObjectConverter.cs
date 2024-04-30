@@ -21,7 +21,7 @@ public partial class DiscordSnowflakeObjectConverter : ISlashArgumentConverter<S
     {
         this.discordMemberSlashArgumentConverter = new DiscordMemberConverter(discordMemberSlashArgumentConverter ?? NullLogger<DiscordMemberConverter>.Instance);
         this.discordUserSlashArgumentConverter = new DiscordUserConverter(discordUserSlashArgumentConverter ?? NullLogger<DiscordUserConverter>.Instance);
-        this.discordRoleSlashArgumentConverter = new DiscordRoleConverter();
+        discordRoleSlashArgumentConverter = new DiscordRoleConverter();
     }
 
     public async Task<Optional<SnowflakeObject>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs)

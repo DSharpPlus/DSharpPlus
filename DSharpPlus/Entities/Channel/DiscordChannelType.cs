@@ -64,7 +64,7 @@ public enum DiscordChannelType : int
     /// Indicates that this is a forum channel.
     /// </summary>
     GuildForum = 15,
-    
+
     /// <summary>
     /// Indicates that this channel is a guild media channel and can only contain threads. Similar to GUILD_FORUM channels.
     /// </summary>

@@ -60,8 +60,8 @@ internal sealed class TransportActivity
     [JsonIgnore]
     public ulong? ApplicationId
     {
-        get => this.ApplicationIdStr != null ? (ulong?)ulong.Parse(this.ApplicationIdStr, CultureInfo.InvariantCulture) : null;
-        internal set => this.ApplicationIdStr = value?.ToString(CultureInfo.InvariantCulture);
+        get => ApplicationIdStr != null ? (ulong?)ulong.Parse(ApplicationIdStr, CultureInfo.InvariantCulture) : null;
+        internal set => ApplicationIdStr = value?.ToString(CultureInfo.InvariantCulture);
     }
 
     [JsonProperty("application_id", NullValueHandling = NullValueHandling.Ignore)]
@@ -119,17 +119,17 @@ internal sealed class TransportActivity
             return;
         }
 
-        this.Name = game.Name;
-        this.State = game.CustomStatus?.Name!;
-        this.ActivityType = game.ActivityType;
-        this.StreamUrl = game.StreamUrl;
+        Name = game.Name;
+        State = game.CustomStatus?.Name!;
+        ActivityType = game.ActivityType;
+        StreamUrl = game.StreamUrl;
     }
 
     public bool IsRichPresence()
-        => this.Details != null || this.State != null || this.ApplicationId != null || this.Instance != null || this.Party != null || this.Assets != null || this.Secrets != null || this.Timestamps != null;
+        => Details != null || State != null || ApplicationId != null || Instance != null || Party != null || Assets != null || Secrets != null || Timestamps != null;
 
     public bool IsCustomStatus()
-        => this.Name == "Custom Status";
+        => Name == "Custom Status";
 
     /// <summary>
     /// Represents information about assets attached to a rich presence.
@@ -206,7 +206,7 @@ internal sealed class TransportActivity
         /// </summary>
         [JsonIgnore]
         public DateTimeOffset? Start
-            => this._start != null ? (DateTimeOffset?)Utilities.GetDateTimeOffsetFromMilliseconds(this._start.Value, false) : null;
+            => _start != null ? (DateTimeOffset?)Utilities.GetDateTimeOffsetFromMilliseconds(_start.Value, false) : null;
 
         [JsonProperty("start", NullValueHandling = NullValueHandling.Ignore)]
         internal long? _start;
@@ -216,7 +216,7 @@ internal sealed class TransportActivity
         /// </summary>
         [JsonIgnore]
         public DateTimeOffset? End
-            => this._end != null ? (DateTimeOffset?)Utilities.GetDateTimeOffsetFromMilliseconds(this._end.Value, false) : null;
+            => _end != null ? (DateTimeOffset?)Utilities.GetDateTimeOffsetFromMilliseconds(_end.Value, false) : null;
 
         [JsonProperty("end", NullValueHandling = NullValueHandling.Ignore)]
         internal long? _end;
@@ -259,7 +259,7 @@ internal sealed class GamePartySizeConverter : JsonConverter
 
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
     {
-        JArray arr = this.ReadArrayObject(reader, serializer);
+        JArray arr = ReadArrayObject(reader, serializer);
         return new TransportActivity.GameParty.GamePartySize
         {
             Current = (long)arr[0],
@@ -267,12 +267,9 @@ internal sealed class GamePartySizeConverter : JsonConverter
         };
     }
 
-    private JArray ReadArrayObject(JsonReader reader, JsonSerializer serializer)
-    {
-        return serializer.Deserialize<JToken>(reader) is not JArray arr || arr.Count != 2
+    private JArray ReadArrayObject(JsonReader reader, JsonSerializer serializer) => serializer.Deserialize<JToken>(reader) is not JArray arr || arr.Count != 2
             ? throw new JsonSerializationException("Expected array of length 2")
             : arr;
-    }
 
     public override bool CanConvert(Type objectType) => objectType == typeof(TransportActivity.GameParty.GamePartySize);
 }

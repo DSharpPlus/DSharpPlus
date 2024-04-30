@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus.Net.Abstractions;
 
 namespace DSharpPlus.Entities;
 
@@ -17,13 +16,13 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     [Obsolete("Use the features for manipulating multiple embeds instead.", true, DiagnosticId = "DSP1001")]
     public DiscordEmbed? Embed
     {
-        get => this._embeds.Count > 0 ? this._embeds[0] : null;
+        get => _embeds.Count > 0 ? _embeds[0] : null;
         set
         {
-            this._embeds.Clear();
+            _embeds.Clear();
             if (value != null)
             {
-                this._embeds.Add(value);
+                _embeds.Add(value);
             }
         }
     }
@@ -34,13 +33,13 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     [Obsolete("Use the features for manipulating multiple stickers instead.", true, DiagnosticId = "DSP1002")]
     public DiscordMessageSticker? Sticker
     {
-        get => this._stickers.Count > 0 ? this._stickers[0] : null;
+        get => _stickers.Count > 0 ? _stickers[0] : null;
         set
         {
-            this._stickers.Clear();
+            _stickers.Clear();
             if (value != null)
             {
-                this._stickers.Add(value);
+                _stickers.Add(value);
             }
         }
     }
@@ -48,7 +47,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     /// <summary>
     /// The stickers to attach to the message.
     /// </summary>
-    public IReadOnlyList<DiscordMessageSticker> Stickers => this._stickers;
+    public IReadOnlyList<DiscordMessageSticker> Stickers => _stickers;
     internal List<DiscordMessageSticker> _stickers = [];
 
     /// <summary>
@@ -79,10 +78,10 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     /// <param name="builder">The builder to copy.</param>
     public DiscordMessageBuilder(DiscordMessageBuilder builder) : base(builder)
     {
-        this._stickers = builder._stickers;
-        this.ReplyId = builder.ReplyId;
-        this.MentionOnReply = builder.MentionOnReply;
-        this.FailOnInvalidReply = builder.FailOnInvalidReply;
+        _stickers = builder._stickers;
+        ReplyId = builder.ReplyId;
+        MentionOnReply = builder.MentionOnReply;
+        FailOnInvalidReply = builder.FailOnInvalidReply;
     }
 
     /// <summary>
@@ -97,20 +96,20 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     /// <param name="baseMessage">The message to copy.</param>
     public DiscordMessageBuilder(DiscordMessage baseMessage)
     {
-        this.IsTTS = baseMessage.IsTTS;
-        this.Poll = baseMessage.Poll == null ? null : new DiscordPollBuilder(baseMessage.Poll);
-        this.ReplyId = baseMessage.ReferencedMessage?.Id;
-        this._components = [.. baseMessage.Components];
-        this._content = baseMessage.Content;
-        this._embeds = [.. baseMessage.Embeds];
-        this._stickers = [.. baseMessage.Stickers];
-        this._mentions = [];
+        IsTTS = baseMessage.IsTTS;
+        Poll = baseMessage.Poll == null ? null : new DiscordPollBuilder(baseMessage.Poll);
+        ReplyId = baseMessage.ReferencedMessage?.Id;
+        _components = [.. baseMessage.Components];
+        _content = baseMessage.Content;
+        _embeds = [.. baseMessage.Embeds];
+        _stickers = [.. baseMessage.Stickers];
+        _mentions = [];
 
         if (baseMessage._mentionedUsers != null)
         {
             foreach (DiscordUser user in baseMessage._mentionedUsers)
             {
-                this._mentions.Add(new UserMention(user.Id));
+                _mentions.Add(new UserMention(user.Id));
             }
         }
 
@@ -119,7 +118,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
         {
             foreach (DiscordRole role in baseMessage._mentionedRoles)
             {
-                this._mentions.Add(new RoleMention(role.Id));
+                _mentions.Add(new RoleMention(role.Id));
             }
         }
     }
@@ -132,7 +131,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     [Obsolete("Use the features for manipulating multiple stickers instead.", true, DiagnosticId = "DSP1002")]
     public DiscordMessageBuilder WithSticker(DiscordMessageSticker sticker)
     {
-        this.Sticker = sticker;
+        Sticker = sticker;
         return this;
     }
 
@@ -143,7 +142,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     /// <returns>The current builder to be chained.</returns>
     public DiscordMessageBuilder WithStickers(IEnumerable<DiscordMessageSticker> stickers)
     {
-        this._stickers = stickers.ToList();
+        _stickers = stickers.ToList();
         return this;
     }
 
@@ -160,7 +159,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
             return this;
         }
 
-        this.Embed = embed;
+        Embed = embed;
         return this;
     }
 
@@ -170,7 +169,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     /// <param name="allowedMention">The allowed Mention that should be sent.</param>
     /// <returns>The current builder to be chained.</returns>
     public DiscordMessageBuilder WithAllowedMention(IMention allowedMention)
-        => this.AddMention(allowedMention);
+        => AddMention(allowedMention);
 
     /// <summary>
     /// Sets if the message has allowed mentions.
@@ -178,7 +177,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     /// <param name="allowedMentions">The allowed Mentions that should be sent.</param>
     /// <returns>The current builder to be chained.</returns>
     public DiscordMessageBuilder WithAllowedMentions(IEnumerable<IMention> allowedMentions)
-        => this.AddMentions(allowedMentions);
+        => AddMentions(allowedMentions);
 
     /// <summary>
     /// Sets if the message is a reply
@@ -189,14 +188,14 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     /// <returns>The current builder to be chained.</returns>
     public DiscordMessageBuilder WithReply(ulong? messageId, bool mention = false, bool failOnInvalidReply = false)
     {
-        this.ReplyId = messageId;
-        this.MentionOnReply = mention;
-        this.FailOnInvalidReply = failOnInvalidReply;
+        ReplyId = messageId;
+        MentionOnReply = mention;
+        FailOnInvalidReply = failOnInvalidReply;
 
         if (mention)
         {
-            this._mentions ??= [];
-            this._mentions.Add(new RepliedUserMention());
+            _mentions ??= [];
+            _mentions.Add(new RepliedUserMention());
         }
 
         return this;
@@ -222,27 +221,27 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     /// </summary>
     internal void Validate()
     {
-        if (this._embeds.Count > 10)
+        if (_embeds.Count > 10)
         {
             throw new ArgumentException("A message can only have up to 10 embeds.");
         }
 
-        if (this.Poll == null && this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && (!this.Embeds?.Any() ?? true) && (!this.Stickers?.Any() ?? true))
+        if (Poll == null && Files?.Count == 0 && string.IsNullOrEmpty(Content) && (!Embeds?.Any() ?? true) && (!Stickers?.Any() ?? true))
         {
             throw new ArgumentException("You must specify content, an embed, a sticker, a poll, or at least one file.");
         }
 
-        if (this.Components.Count > 5)
+        if (Components.Count > 5)
         {
             throw new InvalidOperationException("You can only have 5 action rows per message.");
         }
 
-        if (this.Components.Any(c => c.Components.Count > 5))
+        if (Components.Any(c => c.Components.Count > 5))
         {
             throw new InvalidOperationException("Action rows can only have 5 components");
         }
 
-        if (this.Stickers?.Count > 3)
+        if (Stickers?.Count > 3)
         {
             throw new InvalidOperationException("You can only have 3 stickers per message.");
         }

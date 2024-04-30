@@ -28,8 +28,8 @@ public sealed class SlashRequirePermissionsAttribute : SlashCheckBaseAttribute
     /// <param name="ignoreDms">Sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.</param>
     public SlashRequirePermissionsAttribute(DiscordPermissions permissions, bool ignoreDms = true)
     {
-        this.Permissions = permissions;
-        this.IgnoreDms = ignoreDms;
+        Permissions = permissions;
+        IgnoreDms = ignoreDms;
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ public sealed class SlashRequirePermissionsAttribute : SlashCheckBaseAttribute
     {
         if (ctx.Guild == null)
         {
-            return this.IgnoreDms;
+            return IgnoreDms;
         }
 
         Entities.DiscordMember usr = ctx.Member;
@@ -63,12 +63,12 @@ public sealed class SlashRequirePermissionsAttribute : SlashCheckBaseAttribute
 
         if (!usrok)
         {
-            usrok = (pusr & DiscordPermissions.Administrator) != 0 || (pusr & this.Permissions) == this.Permissions;
+            usrok = (pusr & DiscordPermissions.Administrator) != 0 || (pusr & Permissions) == Permissions;
         }
 
         if (!botok)
         {
-            botok = (pbot & DiscordPermissions.Administrator) != 0 || (pbot & this.Permissions) == this.Permissions;
+            botok = (pbot & DiscordPermissions.Administrator) != 0 || (pbot & Permissions) == Permissions;
         }
 
         return usrok && botok;

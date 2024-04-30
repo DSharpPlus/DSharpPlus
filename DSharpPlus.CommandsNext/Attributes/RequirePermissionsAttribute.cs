@@ -28,15 +28,15 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
     /// <param name="ignoreDms">Sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.</param>
     public RequirePermissionsAttribute(DiscordPermissions permissions, bool ignoreDms = true)
     {
-        this.Permissions = permissions;
-        this.IgnoreDms = ignoreDms;
+        Permissions = permissions;
+        IgnoreDms = ignoreDms;
     }
 
     public override async Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
     {
         if (ctx.Guild == null)
         {
-            return this.IgnoreDms;
+            return IgnoreDms;
         }
 
         DSharpPlus.Entities.DiscordMember? usr = ctx.Member;
@@ -60,12 +60,12 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
 
         if (!usrok)
         {
-            usrok = (pusr & DiscordPermissions.Administrator) != 0 || (pusr & this.Permissions) == this.Permissions;
+            usrok = (pusr & DiscordPermissions.Administrator) != 0 || (pusr & Permissions) == Permissions;
         }
 
         if (!botok)
         {
-            botok = (pbot & DiscordPermissions.Administrator) != 0 || (pbot & this.Permissions) == this.Permissions;
+            botok = (pbot & DiscordPermissions.Administrator) != 0 || (pbot & Permissions) == Permissions;
         }
 
         return usrok && botok;

@@ -14,14 +14,14 @@ public sealed class DiscordFollowupMessageBuilder : BaseDiscordMessageBuilder<Di
     public bool IsEphemeral { get; set; }
 
     internal int? _flags
-        => this.IsEphemeral ? (int?)(this.Flags | DiscordMessageFlags.Ephemeral) : null;
+        => IsEphemeral ? (int?)(Flags | DiscordMessageFlags.Ephemeral) : null;
 
     /// <summary>
     /// Constructs a new followup message builder
     /// </summary>
     public DiscordFollowupMessageBuilder() { }
 
-    public DiscordFollowupMessageBuilder(DiscordFollowupMessageBuilder builder) : base(builder) => this.IsEphemeral = builder.IsEphemeral;
+    public DiscordFollowupMessageBuilder(DiscordFollowupMessageBuilder builder) : base(builder) => IsEphemeral = builder.IsEphemeral;
 
     /// <summary>
     /// Copies the common properties from the passed builder.
@@ -36,7 +36,7 @@ public sealed class DiscordFollowupMessageBuilder : BaseDiscordMessageBuilder<Di
     /// <returns>The builder to chain calls with.</returns>
     public DiscordFollowupMessageBuilder AsEphemeral(bool ephemeral = true)
     {
-        this.IsEphemeral = ephemeral;
+        IsEphemeral = ephemeral;
         return this;
     }
 
@@ -45,14 +45,14 @@ public sealed class DiscordFollowupMessageBuilder : BaseDiscordMessageBuilder<Di
     /// </summary>
     public override void Clear()
     {
-        this.IsEphemeral = false;
+        IsEphemeral = false;
 
         base.Clear();
     }
 
     internal void Validate()
     {
-        if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && !this.Embeds.Any())
+        if (Files?.Count == 0 && string.IsNullOrEmpty(Content) && !Embeds.Any())
         {
             throw new ArgumentException("You must specify content, an embed, or at least one file.");
         }

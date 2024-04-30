@@ -40,9 +40,9 @@ public sealed class SlashCooldownAttribute : SlashCheckBaseAttribute
     /// <param name="bucketType">Type of cooldown bucket. This allows controlling whether the bucket will be cooled down per user, guild, channel, or globally.</param>
     public SlashCooldownAttribute(int maxUses, double resetAfter, SlashCooldownBucketType bucketType)
     {
-        this.MaxUses = maxUses;
-        this.Reset = TimeSpan.FromSeconds(resetAfter);
-        this.BucketType = bucketType;
+        MaxUses = maxUses;
+        Reset = TimeSpan.FromSeconds(resetAfter);
+        BucketType = bucketType;
     }
 
     /// <summary>
@@ -52,7 +52,7 @@ public sealed class SlashCooldownAttribute : SlashCheckBaseAttribute
     /// <returns>Requested cooldown bucket, or null if one wasn't present.</returns>
     public SlashCommandCooldownBucket GetBucket(InteractionContext ctx)
     {
-        string bid = this.GetBucketId(ctx, out _, out _, out _);
+        string bid = GetBucketId(ctx, out _, out _, out _);
         _buckets.TryGetValue(bid, out SlashCommandCooldownBucket? bucket);
         return bucket;
     }
@@ -64,7 +64,7 @@ public sealed class SlashCooldownAttribute : SlashCheckBaseAttribute
     /// <returns>Remaining cooldown, or zero if no cooldown is active.</returns>
     public TimeSpan GetRemainingCooldown(InteractionContext ctx)
     {
-        SlashCommandCooldownBucket? bucket = this.GetBucket(ctx);
+        SlashCommandCooldownBucket? bucket = GetBucket(ctx);
         return (bucket is null || bucket.RemainingUses > 0) ? TimeSpan.Zero : bucket.ResetsAt - DateTimeOffset.UtcNow;
     }
 
@@ -79,19 +79,19 @@ public sealed class SlashCooldownAttribute : SlashCheckBaseAttribute
     private string GetBucketId(InteractionContext ctx, out ulong userId, out ulong channelId, out ulong guildId)
     {
         userId = 0ul;
-        if (this.BucketType.HasFlag(SlashCooldownBucketType.User))
+        if (BucketType.HasFlag(SlashCooldownBucketType.User))
         {
             userId = ctx.User.Id;
         }
 
         channelId = 0ul;
-        if (this.BucketType.HasFlag(SlashCooldownBucketType.Channel))
+        if (BucketType.HasFlag(SlashCooldownBucketType.Channel))
         {
             channelId = ctx.Channel.Id;
         }
 
         guildId = 0ul;
-        if (this.BucketType.HasFlag(SlashCooldownBucketType.Guild))
+        if (BucketType.HasFlag(SlashCooldownBucketType.Guild))
         {
             if (ctx.Guild == null)
             {
@@ -109,10 +109,10 @@ public sealed class SlashCooldownAttribute : SlashCheckBaseAttribute
 
     public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
     {
-        string bucketId = this.GetBucketId(ctx, out ulong userId, out ulong channelId, out ulong guildId);
+        string bucketId = GetBucketId(ctx, out ulong userId, out ulong channelId, out ulong guildId);
         if (!_buckets.TryGetValue(bucketId, out SlashCommandCooldownBucket? bucket))
         {
-            bucket = new SlashCommandCooldownBucket(ctx.QualifiedName, ctx.Client.CurrentUser.Id, this.MaxUses, this.Reset, userId, channelId, guildId);
+            bucket = new SlashCommandCooldownBucket(ctx.QualifiedName, ctx.Client.CurrentUser.Id, MaxUses, Reset, userId, channelId, guildId);
             _buckets.AddOrUpdate(bucketId, bucket, (key, value) => bucket);
         }
 
@@ -184,7 +184,7 @@ public sealed class SlashCommandCooldownBucket : IEquatable<SlashCommandCooldown
     /// <summary>
     /// Gets the remaining number of uses before the cooldown is triggered.
     /// </summary>
-    public int RemainingUses => Volatile.Read(ref this._remainingUses);
+    public int RemainingUses => Volatile.Read(ref _remainingUses);
     private int _remainingUses;
 
     /// <summary>
@@ -219,17 +219,17 @@ public sealed class SlashCommandCooldownBucket : IEquatable<SlashCommandCooldown
     /// <param name="guildId">ID of the guild with which this cooldown is associated.</param>
     internal SlashCommandCooldownBucket(string fullCommandName, ulong botId, int maxUses, TimeSpan resetAfter, ulong userId = 0, ulong channelId = 0, ulong guildId = 0)
     {
-        this.FullCommandName = fullCommandName;
-        this.BotId = botId;
-        this.MaxUses = maxUses;
-        this.ResetsAt = DateTimeOffset.UtcNow + resetAfter;
-        this.Reset = resetAfter;
-        this.UserId = userId;
-        this.ChannelId = channelId;
-        this.GuildId = guildId;
-        this.BucketId = MakeId(fullCommandName, botId, userId, channelId, guildId);
-        this._remainingUses = maxUses;
-        this._usageSemaphore = new SemaphoreSlim(1, 1);
+        FullCommandName = fullCommandName;
+        BotId = botId;
+        MaxUses = maxUses;
+        ResetsAt = DateTimeOffset.UtcNow + resetAfter;
+        Reset = resetAfter;
+        UserId = userId;
+        ChannelId = channelId;
+        GuildId = guildId;
+        BucketId = MakeId(fullCommandName, botId, userId, channelId, guildId);
+        _remainingUses = maxUses;
+        _usageSemaphore = new SemaphoreSlim(1, 1);
     }
 
     /// <summary>
@@ -238,28 +238,28 @@ public sealed class SlashCommandCooldownBucket : IEquatable<SlashCommandCooldown
     /// <returns>Whether decrement succeeded or not.</returns>
     internal async Task<bool> DecrementUseAsync()
     {
-        await this._usageSemaphore.WaitAsync();
+        await _usageSemaphore.WaitAsync();
 
         // if we're past reset time...
         DateTimeOffset now = DateTimeOffset.UtcNow;
-        if (now >= this.ResetsAt)
+        if (now >= ResetsAt)
         {
             // ...do the reset and set a new reset time
-            Interlocked.Exchange(ref this._remainingUses, this.MaxUses);
-            this.ResetsAt = now + this.Reset;
+            Interlocked.Exchange(ref _remainingUses, MaxUses);
+            ResetsAt = now + Reset;
         }
 
         // check if we have any uses left, if we do...
         bool success = false;
-        if (this.RemainingUses > 0)
+        if (RemainingUses > 0)
         {
             // ...decrement, and return success...
-            Interlocked.Decrement(ref this._remainingUses);
+            Interlocked.Decrement(ref _remainingUses);
             success = true;
         }
 
         // ...otherwise just fail
-        this._usageSemaphore.Release();
+        _usageSemaphore.Release();
         return success;
     }
 
@@ -267,21 +267,21 @@ public sealed class SlashCommandCooldownBucket : IEquatable<SlashCommandCooldown
     /// Returns a string representation of this command cooldown bucket.
     /// </summary>
     /// <returns>String representation of this command cooldown bucket.</returns>
-    public override string ToString() => $"Command bucket {this.BucketId}";
+    public override string ToString() => $"Command bucket {BucketId}";
 
     /// <summary>
     /// Checks whether this <see cref="SlashCommandCooldownBucket"/> is equal to another object.
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="SlashCommandCooldownBucket"/>.</returns>
-    public override bool Equals(object obj) => obj is SlashCommandCooldownBucket cooldownBucket && this.Equals(cooldownBucket);
+    public override bool Equals(object obj) => obj is SlashCommandCooldownBucket cooldownBucket && Equals(cooldownBucket);
 
     /// <summary>
     /// Checks whether this <see cref="SlashCommandCooldownBucket"/> is equal to another <see cref="SlashCommandCooldownBucket"/>.
     /// </summary>
     /// <param name="other"><see cref="SlashCommandCooldownBucket"/> to compare to.</param>
     /// <returns>Whether the <see cref="SlashCommandCooldownBucket"/> is equal to this <see cref="SlashCommandCooldownBucket"/>.</returns>
-    public bool Equals(SlashCommandCooldownBucket other) => other is not null && (ReferenceEquals(this, other) || (this.UserId == other.UserId && this.ChannelId == other.ChannelId && this.GuildId == other.GuildId));
+    public bool Equals(SlashCommandCooldownBucket other) => other is not null && (ReferenceEquals(this, other) || (UserId == other.UserId && ChannelId == other.ChannelId && GuildId == other.GuildId));
 
     /// <summary>
     /// Gets the hash code for this <see cref="SlashCommandCooldownBucket"/>.
@@ -291,9 +291,9 @@ public sealed class SlashCommandCooldownBucket : IEquatable<SlashCommandCooldown
     {
         int hash = 13;
 
-        hash = (hash * 7) + this.UserId.GetHashCode();
-        hash = (hash * 7) + this.ChannelId.GetHashCode();
-        hash = (hash * 7) + this.GuildId.GetHashCode();
+        hash = (hash * 7) + UserId.GetHashCode();
+        hash = (hash * 7) + ChannelId.GetHashCode();
+        hash = (hash * 7) + GuildId.GetHashCode();
 
         return hash;
     }

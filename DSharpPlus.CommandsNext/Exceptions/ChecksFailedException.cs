@@ -34,8 +34,8 @@ public class ChecksFailedException : Exception
     public ChecksFailedException(Command command, CommandContext ctx, IEnumerable<CheckBaseAttribute> failedChecks)
         : base("One or more pre-execution checks failed.")
     {
-        this.Command = command;
-        this.Context = ctx;
-        this.FailedChecks = new ReadOnlyCollection<CheckBaseAttribute>(new List<CheckBaseAttribute>(failedChecks));
+        Command = command;
+        Context = ctx;
+        FailedChecks = new ReadOnlyCollection<CheckBaseAttribute>(new List<CheckBaseAttribute>(failedChecks));
     }
 }

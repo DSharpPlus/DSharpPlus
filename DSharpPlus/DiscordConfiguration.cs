@@ -1,8 +1,6 @@
 using System;
 using System.IO;
 using System.Net;
-
-using DSharpPlus.Entities;
 using DSharpPlus.Net.Udp;
 using DSharpPlus.Net.WebSocket;
 using Microsoft.Extensions.Logging;
@@ -19,7 +17,7 @@ public sealed class DiscordConfiguration
     /// </summary>
     public string Token
     {
-        internal get => this._token;
+        internal get => _token;
         set
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -27,7 +25,7 @@ public sealed class DiscordConfiguration
                 throw new ArgumentNullException(nameof(value), "Token cannot be null, empty, or all whitespace.");
             }
 
-            this._token = value.Trim();
+            _token = value.Trim();
         }
     }
     private string _token = "";
@@ -80,7 +78,7 @@ public sealed class DiscordConfiguration
     /// <para>Defaults to <see cref="Stream"/>.</para>
     /// </summary>
     public GatewayCompressionLevel GatewayCompressionLevel { internal get; set; } = GatewayCompressionLevel.Stream;
-    
+
     /// <summary>
     /// Specifies the probing interval in ms to use when first making requests to the API. This should be slightly higher than your average ping to the discord rest api.
     /// <br/>
@@ -139,8 +137,8 @@ public sealed class DiscordConfiguration
     /// </summary>
     public WebSocketClientFactoryDelegate WebSocketClientFactory
     {
-        internal get => this._webSocketClientFactory;
-        set => this._webSocketClientFactory = value ?? throw new InvalidOperationException("You need to supply a valid WebSocket client factory method.");
+        internal get => _webSocketClientFactory;
+        set => _webSocketClientFactory = value ?? throw new InvalidOperationException("You need to supply a valid WebSocket client factory method.");
     }
     private WebSocketClientFactoryDelegate _webSocketClientFactory = WebSocketClient.CreateNew;
 
@@ -151,8 +149,8 @@ public sealed class DiscordConfiguration
     /// </summary>
     public UdpClientFactoryDelegate UdpClientFactory
     {
-        internal get => this._udpClientFactory;
-        set => this._udpClientFactory = value ?? throw new InvalidOperationException("You need to supply a valid UDP client factory method.");
+        internal get => _udpClientFactory;
+        set => _udpClientFactory = value ?? throw new InvalidOperationException("You need to supply a valid UDP client factory method.");
     }
     private UdpClientFactoryDelegate _udpClientFactory = DspUdpClient.CreateNew;
 
@@ -215,28 +213,28 @@ public sealed class DiscordConfiguration
     /// <param name="other">Client configuration to clone.</param>
     public DiscordConfiguration(DiscordConfiguration other)
     {
-        this.Token = other.Token;
-        this.TokenType = other.TokenType;
-        this.MinimumLogLevel = other.MinimumLogLevel;
-        this.LogTimestampFormat = other.LogTimestampFormat;
-        this.LargeThreshold = other.LargeThreshold;
-        this.AutoReconnect = other.AutoReconnect;
-        this.ShardId = other.ShardId;
-        this.ShardCount = other.ShardCount;
-        this.GatewayCompressionLevel = other.GatewayCompressionLevel;
-        this.MessageCacheSize = other.MessageCacheSize;
-        this.WebSocketClientFactory = other.WebSocketClientFactory;
-        this.UdpClientFactory = other.UdpClientFactory;
-        this.Proxy = other.Proxy;
-        this.HttpTimeout = other.HttpTimeout;
-        this.ReconnectIndefinitely = other.ReconnectIndefinitely;
-        this.Intents = other.Intents;
-        this.LoggerFactory = other.LoggerFactory;
-        this.LogUnknownEvents = other.LogUnknownEvents;
-        this.LogUnknownAuditlogs = other.LogUnknownAuditlogs;
-        this.MessageCacheProvider = other.MessageCacheProvider;
-        this.MaximumRatelimitRetries = other.MaximumRatelimitRetries;
-        this.RatelimitRetryDelayFallback = other.RatelimitRetryDelayFallback;
-        this.MaximumRestRequestsPerSecond = other.MaximumRestRequestsPerSecond;
+        Token = other.Token;
+        TokenType = other.TokenType;
+        MinimumLogLevel = other.MinimumLogLevel;
+        LogTimestampFormat = other.LogTimestampFormat;
+        LargeThreshold = other.LargeThreshold;
+        AutoReconnect = other.AutoReconnect;
+        ShardId = other.ShardId;
+        ShardCount = other.ShardCount;
+        GatewayCompressionLevel = other.GatewayCompressionLevel;
+        MessageCacheSize = other.MessageCacheSize;
+        WebSocketClientFactory = other.WebSocketClientFactory;
+        UdpClientFactory = other.UdpClientFactory;
+        Proxy = other.Proxy;
+        HttpTimeout = other.HttpTimeout;
+        ReconnectIndefinitely = other.ReconnectIndefinitely;
+        Intents = other.Intents;
+        LoggerFactory = other.LoggerFactory;
+        LogUnknownEvents = other.LogUnknownEvents;
+        LogUnknownAuditlogs = other.LogUnknownAuditlogs;
+        MessageCacheProvider = other.MessageCacheProvider;
+        MaximumRatelimitRetries = other.MaximumRatelimitRetries;
+        RatelimitRetryDelayFallback = other.RatelimitRetryDelayFallback;
+        MaximumRestRequestsPerSecond = other.MaximumRestRequestsPerSecond;
     }
 }

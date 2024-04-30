@@ -75,15 +75,12 @@ public static partial class Utilities
 
     internal static string GetFormattedToken(BaseDiscordClient client) => GetFormattedToken(client.Configuration);
 
-    internal static string GetFormattedToken(DiscordConfiguration config)
+    internal static string GetFormattedToken(DiscordConfiguration config) => config.TokenType switch
     {
-        return config.TokenType switch
-        {
-            TokenType.Bearer => $"Bearer {config.Token}",
-            TokenType.Bot => $"Bot {config.Token}",
-            _ => throw new ArgumentException("Invalid token type specified.", nameof(config.Token)),
-        };
-    }
+        TokenType.Bearer => $"Bearer {config.Token}",
+        TokenType.Bot => $"Bot {config.Token}",
+        _ => throw new ArgumentException("Invalid token type specified.", nameof(config.Token)),
+    };
 
     internal static string GetUserAgent()
         => VersionHeader;
@@ -330,10 +327,10 @@ public static partial class Utilities
     /// <returns>Returns a snowflake representing the given date and time.</returns>
     public static ulong CreateSnowflake(DateTimeOffset dateTimeOffset)
     {
-        var diff = dateTimeOffset.ToUnixTimeMilliseconds() - DiscordClient._discordEpoch.ToUnixTimeMilliseconds();
+        long diff = dateTimeOffset.ToUnixTimeMilliseconds() - DiscordClient._discordEpoch.ToUnixTimeMilliseconds();
         return (ulong)diff << 22;
     }
-    
+
     [GeneratedRegex("<@(\\d+)>", RegexOptions.ECMAScript)]
     private static partial Regex UserMentionRegex();
 

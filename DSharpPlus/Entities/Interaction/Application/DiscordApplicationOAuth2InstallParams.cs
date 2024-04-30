@@ -16,12 +16,12 @@ public sealed class DiscordApplicationOAuth2InstallParams
     /// </summary>
     [JsonProperty("permissions")]
     public DiscordPermissions Permissions { get; internal set; }
-    
+
     /// <summary>
     /// Represents scopes granted to the integration.
     /// </summary>
     [JsonProperty("scopes")]
-    public IReadOnlyList<string> Scopes { get; internal set;  }
+    public IReadOnlyList<string> Scopes { get; internal set; }
 
     public DiscordApplicationOAuth2InstallParams() { }
 }

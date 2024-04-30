@@ -9,12 +9,12 @@ public enum DiscordInteractionContextType
     /// The interaction is in a guild.
     /// </summary>
     Guild,
-    
+
     /// <summary>
     /// The interaction is in a DM with the bot associated with the application. (This is to say, your bot.)
     /// </summary>
     BotDM,
-    
+
     /// <summary>
     /// The interaction is in a [group] DM.
     /// </summary>

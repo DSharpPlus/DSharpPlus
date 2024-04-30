@@ -17,7 +17,7 @@ public class ModuleLifespanAttribute : Attribute
     /// Defines a lifespan for this command module.
     /// </summary>
     /// <param name="lifespan">Lifespan for this module.</param>
-    public ModuleLifespanAttribute(ModuleLifespan lifespan) => this.Lifespan = lifespan;
+    public ModuleLifespanAttribute(ModuleLifespan lifespan) => Lifespan = lifespan;
 }
 
 /// <summary>

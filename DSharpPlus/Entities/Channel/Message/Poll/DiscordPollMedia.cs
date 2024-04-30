@@ -23,6 +23,6 @@ public sealed class DiscordPollMedia
     /// </summary>
     [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordComponentEmoji? Emoji { get; internal set; }
-    
-    internal DiscordPollMedia() {}
+
+    internal DiscordPollMedia() { }
 }

@@ -21,11 +21,11 @@ public class StageInstanceUpdateEventArgs : DiscordEventArgs
     /// Gets the guild the stage instance is in.
     /// </summary>
     public DiscordGuild Guild
-        => this.StageInstanceAfter.Guild;
+        => StageInstanceAfter.Guild;
 
     /// <summary>
     /// Gets the channel the stage instance is in.
     /// </summary>
     public DiscordChannel Channel
-        => this.StageInstanceAfter.Channel;
+        => StageInstanceAfter.Channel;
 }

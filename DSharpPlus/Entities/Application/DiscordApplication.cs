@@ -21,7 +21,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// Gets the application's icon.
     /// </summary>
     public override string? Icon
-        => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png?size=1024" : null;
+        => !string.IsNullOrWhiteSpace(IconHash) ? $"https://cdn.discordapp.com/app-icons/{Id.ToString(CultureInfo.InvariantCulture)}/{IconHash}.png?size=1024" : null;
 
     /// <summary>
     /// Gets the application's icon hash.
@@ -72,7 +72,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// Gets this application's cover image URL.
     /// </summary>
     public override string? CoverImageUrl
-        => $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.CoverImageHash}.png?size=1024";
+        => $"https://cdn.discordapp.com/app-icons/{Id.ToString(CultureInfo.InvariantCulture)}/{CoverImageHash}.png?size=1024";
 
     /// <summary>
     /// Gets the team which owns this application.
@@ -124,10 +124,10 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
 
         string ssize = size.ToString(CultureInfo.InvariantCulture);
 
-        if (!string.IsNullOrWhiteSpace(this.CoverImageHash))
+        if (!string.IsNullOrWhiteSpace(CoverImageHash))
         {
-            string id = this.Id.ToString(CultureInfo.InvariantCulture);
-            return $"https://cdn.discordapp.com/avatars/{id}/{this.CoverImageHash}.{formatString}?size={ssize}";
+            string id = Id.ToString(CultureInfo.InvariantCulture);
+            return $"https://cdn.discordapp.com/avatars/{id}/{CoverImageHash}.{formatString}?size={ssize}";
         }
         else
         {
@@ -142,12 +142,12 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// <returns>This application's assets.</returns>
     public async Task<IReadOnlyList<DiscordApplicationAsset>> GetAssetsAsync(bool updateCache = false)
     {
-        if (updateCache || this.Assets == null)
+        if (updateCache || Assets == null)
         {
-            this.Assets = await this.Discord.ApiClient.GetApplicationAssetsAsync(this);
+            Assets = await Discord.ApiClient.GetApplicationAssetsAsync(this);
         }
 
-        return this.Assets;
+        return Assets;
     }
 
     public string GenerateBotOAuth(DiscordPermissions permissions = DiscordPermissions.None)
@@ -155,7 +155,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         permissions &= PermissionMethods.FULL_PERMS;
         // hey look, it's not all annoying and blue :P
         return new QueryUriBuilder("https://discord.com/oauth2/authorize")
-            .AddParameter("client_id", this.Id.ToString(CultureInfo.InvariantCulture))
+            .AddParameter("client_id", Id.ToString(CultureInfo.InvariantCulture))
             .AddParameter("scope", "bot")
             .AddParameter("permissions", ((long)permissions).ToString(CultureInfo.InvariantCulture))
             .ToString();
@@ -183,7 +183,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         }
 
         QueryUriBuilder queryBuilder = new QueryUriBuilder("https://discord.com/oauth2/authorize")
-            .AddParameter("client_id", this.Id.ToString(CultureInfo.InvariantCulture))
+            .AddParameter("client_id", Id.ToString(CultureInfo.InvariantCulture))
             .AddParameter("scope", scopeBuilder.ToString().Trim());
 
         if (permissions != null)
@@ -206,20 +206,20 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordApplication"/>.</returns>
-    public override bool Equals(object? obj) => this.Equals(obj as DiscordApplication);
+    public override bool Equals(object? obj) => Equals(obj as DiscordApplication);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordApplication"/> is equal to another <see cref="DiscordApplication"/>.
     /// </summary>
     /// <param name="e"><see cref="DiscordApplication"/> to compare to.</param>
     /// <returns>Whether the <see cref="DiscordApplication"/> is equal to this <see cref="DiscordApplication"/>.</returns>
-    public bool Equals(DiscordApplication? e) => e is not null && (ReferenceEquals(this, e) || this.Id == e.Id);
+    public bool Equals(DiscordApplication? e) => e is not null && (ReferenceEquals(this, e) || Id == e.Id);
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordApplication"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="DiscordApplication"/>.</returns>
-    public override int GetHashCode() => this.Id.GetHashCode();
+    public override int GetHashCode() => Id.GetHashCode();
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordApplication"/> objects are equal.
@@ -227,13 +227,10 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// <param name="right">First application to compare.</param>
     /// <param name="left">Second application to compare.</param>
     /// <returns>Whether the two applications are equal.</returns>
-    public static bool operator ==(DiscordApplication right, DiscordApplication left)
-    {
-        return (right is not null || left is null)
-            && (right is null || left is not null) 
-            && ((right is null && left is null) 
+    public static bool operator ==(DiscordApplication right, DiscordApplication left) => (right is not null || left is null)
+            && (right is null || left is not null)
+            && ((right is null && left is null)
                 || right!.Id == left!.Id);
-    }
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordApplication"/> objects are not equal.
@@ -244,34 +241,31 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     public static bool operator !=(DiscordApplication e1, DiscordApplication e2)
         => !(e1 == e2);
 
-    private static string? TranslateOAuthScope(DiscordOAuthScope scope)
+    private static string? TranslateOAuthScope(DiscordOAuthScope scope) => scope switch
     {
-        return scope switch
-        {
-            DiscordOAuthScope.Identify => "identify",
-            DiscordOAuthScope.Email => "email",
-            DiscordOAuthScope.Connections => "connections",
-            DiscordOAuthScope.Guilds => "guilds",
-            DiscordOAuthScope.GuildsJoin => "guilds.join",
-            DiscordOAuthScope.GuildsMembersRead => "guilds.members.read",
-            DiscordOAuthScope.GdmJoin => "gdm.join",
-            DiscordOAuthScope.Rpc => "rpc",
-            DiscordOAuthScope.RpcNotificationsRead => "rpc.notifications.read",
-            DiscordOAuthScope.RpcVoiceRead => "rpc.voice.read",
-            DiscordOAuthScope.RpcVoiceWrite => "rpc.voice.write",
-            DiscordOAuthScope.RpcActivitiesWrite => "rpc.activities.write",
-            DiscordOAuthScope.Bot => "bot",
-            DiscordOAuthScope.WebhookIncoming => "webhook.incoming",
-            DiscordOAuthScope.MessagesRead => "messages.read",
-            DiscordOAuthScope.ApplicationsBuildsUpload => "applications.builds.upload",
-            DiscordOAuthScope.ApplicationsBuildsRead => "applications.builds.read",
-            DiscordOAuthScope.ApplicationsCommands => "applications.commands",
-            DiscordOAuthScope.ApplicationsStoreUpdate => "applications.store.update",
-            DiscordOAuthScope.ApplicationsEntitlements => "applications.entitlements",
-            DiscordOAuthScope.ActivitiesRead => "activities.read",
-            DiscordOAuthScope.ActivitiesWrite => "activities.write",
-            DiscordOAuthScope.RelationshipsRead => "relationships.read",
-            _ => null
-        };
-    }
+        DiscordOAuthScope.Identify => "identify",
+        DiscordOAuthScope.Email => "email",
+        DiscordOAuthScope.Connections => "connections",
+        DiscordOAuthScope.Guilds => "guilds",
+        DiscordOAuthScope.GuildsJoin => "guilds.join",
+        DiscordOAuthScope.GuildsMembersRead => "guilds.members.read",
+        DiscordOAuthScope.GdmJoin => "gdm.join",
+        DiscordOAuthScope.Rpc => "rpc",
+        DiscordOAuthScope.RpcNotificationsRead => "rpc.notifications.read",
+        DiscordOAuthScope.RpcVoiceRead => "rpc.voice.read",
+        DiscordOAuthScope.RpcVoiceWrite => "rpc.voice.write",
+        DiscordOAuthScope.RpcActivitiesWrite => "rpc.activities.write",
+        DiscordOAuthScope.Bot => "bot",
+        DiscordOAuthScope.WebhookIncoming => "webhook.incoming",
+        DiscordOAuthScope.MessagesRead => "messages.read",
+        DiscordOAuthScope.ApplicationsBuildsUpload => "applications.builds.upload",
+        DiscordOAuthScope.ApplicationsBuildsRead => "applications.builds.read",
+        DiscordOAuthScope.ApplicationsCommands => "applications.commands",
+        DiscordOAuthScope.ApplicationsStoreUpdate => "applications.store.update",
+        DiscordOAuthScope.ApplicationsEntitlements => "applications.entitlements",
+        DiscordOAuthScope.ActivitiesRead => "activities.read",
+        DiscordOAuthScope.ActivitiesWrite => "activities.write",
+        DiscordOAuthScope.RelationshipsRead => "relationships.read",
+        _ => null
+    };
 }

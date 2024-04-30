@@ -22,7 +22,7 @@ public partial class DiscordMemberConverter : ISlashArgumentConverter<DiscordMem
     public bool RequiresText { get; init; } = true;
     private readonly ILogger<DiscordMemberConverter> _logger;
 
-    public DiscordMemberConverter(ILogger<DiscordMemberConverter>? logger = null) => this._logger = logger ?? NullLogger<DiscordMemberConverter>.Instance;
+    public DiscordMemberConverter(ILogger<DiscordMemberConverter>? logger = null) => _logger = logger ?? NullLogger<DiscordMemberConverter>.Instance;
 
     public async Task<Optional<DiscordMember>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
     {
@@ -49,7 +49,7 @@ public partial class DiscordMemberConverter : ISlashArgumentConverter<DiscordMem
         }
         catch (DiscordException error)
         {
-            this._logger.LogError(error, "Failed to get member from guild.");
+            _logger.LogError(error, "Failed to get member from guild.");
             return Optional.FromNoValue<DiscordMember>();
         }
     }

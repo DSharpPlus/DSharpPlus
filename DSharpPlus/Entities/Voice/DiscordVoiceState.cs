@@ -23,7 +23,7 @@ public class DiscordVoiceState
     /// Gets the guild associated with this voice state.
     /// </summary>
     [JsonIgnore]
-    public DiscordGuild? Guild => this.GuildId is not null ? this.Discord.Guilds[this.GuildId.Value] : this.Channel?.Guild;
+    public DiscordGuild? Guild => GuildId is not null ? Discord.Guilds[GuildId.Value] : Channel?.Guild;
 
     /// <summary>
     /// Gets ID of the channel this user is connected to.
@@ -35,7 +35,7 @@ public class DiscordVoiceState
     /// Gets the channel this user is connected to.
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel? Channel => (this.ChannelId.HasValue && this.ChannelId.Value != 0) ? this.Discord.InternalGetCachedChannel(this.ChannelId.Value) : null;
+    public DiscordChannel? Channel => (ChannelId.HasValue && ChannelId.Value != 0) ? Discord.InternalGetCachedChannel(ChannelId.Value) : null;
 
     /// <summary>
     /// Gets ID of the user to which this voice state belongs.
@@ -48,18 +48,9 @@ public class DiscordVoiceState
     /// <para>This can be cast to a <see cref="DiscordMember"/> if this voice state was in a guild.</para>
     /// </summary>
     [JsonIgnore]
-    public DiscordUser User
-    {
-        get
-        {
-            if (this.Guild is not null && this.Guild._members.TryGetValue(this.UserId, out DiscordMember? member))
-            {
-                return member;
-            }
-
-            return this.Discord.GetCachedOrEmptyUserInternal(this.UserId);
-        }
-    }
+    public DiscordUser User => Guild is not null && Guild._members.TryGetValue(UserId, out DiscordMember? member)
+                ? member
+                : Discord.GetCachedOrEmptyUserInternal(UserId);
 
     /// <summary>
     /// Gets ID of the session of this voice state.
@@ -119,18 +110,9 @@ public class DiscordVoiceState
     /// Gets the member this voice state belongs to.
     /// </summary>
     [JsonIgnore, NotNullIfNotNull(nameof(Guild))]
-    public DiscordMember? Member
-    {
-        get
-        {
-            if (this.Guild is not null && this.Guild.Members.TryGetValue(this.TransportMember.User.Id, out DiscordMember? member))
-            {
-                return member;
-            }
-
-            return new DiscordMember(this.TransportMember) { Discord = this.Discord };
-        }
-    }
+    public DiscordMember? Member => Guild is not null && Guild.Members.TryGetValue(TransportMember.User.Id, out DiscordMember? member)
+                ? member
+                : new DiscordMember(TransportMember) { Discord = Discord };
 
     [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
     internal TransportMember TransportMember { get; init; }
@@ -138,15 +120,15 @@ public class DiscordVoiceState
     internal DiscordVoiceState() { }
     internal DiscordVoiceState(DiscordMember member)
     {
-        this.Discord = (DiscordClient)member.Discord;
-        this.UserId = member.Id;
-        this.ChannelId = 0;
-        this.GuildId = member._guild_id;
-        this.IsServerDeafened = member.IsDeafened;
-        this.IsServerMuted = member.IsMuted;
+        Discord = (DiscordClient)member.Discord;
+        UserId = member.Id;
+        ChannelId = 0;
+        GuildId = member._guild_id;
+        IsServerDeafened = member.IsDeafened;
+        IsServerMuted = member.IsMuted;
 
         // Values not filled out are values that are not known from a DiscordMember
     }
 
-    public override string ToString() => $"{this.UserId.ToString(CultureInfo.InvariantCulture)} in {(this.GuildId ?? this.Channel?.GuildId)?.ToString(CultureInfo.InvariantCulture)}";
+    public override string ToString() => $"{UserId.ToString(CultureInfo.InvariantCulture)} in {(GuildId ?? Channel?.GuildId)?.ToString(CultureInfo.InvariantCulture)}";
 }

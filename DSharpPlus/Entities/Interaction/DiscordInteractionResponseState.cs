@@ -9,12 +9,12 @@ public enum DiscordInteractionResponseState
     /// The interaction has not been acknowledged; a response is required.
     /// </summary>
     Unacknowledged = 0,
-    
+
     /// <summary>
     /// The interaction was deferred; a followup or edit is required.
     /// </summary>
     Deferred = 1,
-    
+
     /// <summary>
     /// The interaction was replied to; no further action is required.
     /// </summary>

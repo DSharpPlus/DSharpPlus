@@ -49,7 +49,7 @@ public sealed class DiscordApplicationCommandOptionChoice
         {
             throw new ArgumentException
             (
-                "Application command choice name cannot be empty or longer than 100 characters.", 
+                "Application command choice name cannot be empty or longer than 100 characters.",
                 nameof(name)
             );
         }
@@ -68,8 +68,8 @@ public sealed class DiscordApplicationCommandOptionChoice
             );
         }
 
-        this.Name = name;
-        this.Value = value;
-        this.NameLocalizations = localizations;
+        Name = name;
+        Value = value;
+        NameLocalizations = localizations;
     }
 }

@@ -26,12 +26,12 @@ internal class CollectRequest<T> : IDisposable where T : AsyncEventArgs
     /// <param name="timeout">Timeout time</param>
     public CollectRequest(Func<T, bool> predicate, TimeSpan timeout)
     {
-        this._tcs = new TaskCompletionSource<bool>();
-        this._ct = new CancellationTokenSource(timeout);
-        this._predicate = predicate;
-        this._ct.Token.Register(() => this._tcs.TrySetResult(true));
-        this._timeout = timeout;
-        this._collected = new ConcurrentHashSet<T>();
+        _tcs = new TaskCompletionSource<bool>();
+        _ct = new CancellationTokenSource(timeout);
+        _predicate = predicate;
+        _ct.Token.Register(() => _tcs.TrySetResult(true));
+        _timeout = timeout;
+        _collected = new ConcurrentHashSet<T>();
     }
 
     /// <summary>
@@ -39,14 +39,14 @@ internal class CollectRequest<T> : IDisposable where T : AsyncEventArgs
     /// </summary>
     public void Dispose()
     {
-        this._ct.Dispose();
-        this._tcs = null!;
-        this._predicate = null!;
+        _ct.Dispose();
+        _tcs = null!;
+        _predicate = null!;
 
-        if (this._collected != null)
+        if (_collected != null)
         {
-            this._collected.Clear();
-            this._collected = null!;
+            _collected.Clear();
+            _collected = null!;
         }
     }
 }

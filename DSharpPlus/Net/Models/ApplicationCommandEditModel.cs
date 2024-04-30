@@ -11,7 +11,7 @@ public class ApplicationCommandEditModel
     /// </summary>
     public Optional<string> Name
     {
-        internal get => this._name;
+        internal get => _name;
         set
         {
             if (value.Value.Length > 32)
@@ -19,7 +19,7 @@ public class ApplicationCommandEditModel
                 throw new ArgumentException("Application command name cannot exceed 32 characters.", nameof(value));
             }
 
-            this._name = value;
+            _name = value;
         }
     }
 
@@ -30,7 +30,7 @@ public class ApplicationCommandEditModel
     /// </summary>
     public Optional<string> Description
     {
-        internal get => this._description;
+        internal get => _description;
         set
         {
             if (value.Value.Length > 100)
@@ -38,7 +38,7 @@ public class ApplicationCommandEditModel
                 throw new ArgumentException("Application command description cannot exceed 100 characters.", nameof(value));
             }
 
-            this._description = value;
+            _description = value;
         }
     }
 

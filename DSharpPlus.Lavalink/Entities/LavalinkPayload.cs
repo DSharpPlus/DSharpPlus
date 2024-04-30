@@ -10,11 +10,11 @@ internal abstract class LavalinkPayload
     [JsonProperty("guildId", NullValueHandling = NullValueHandling.Ignore)]
     public string GuildId { get; }
 
-    internal LavalinkPayload(string opcode) => this.Operation = opcode;
+    internal LavalinkPayload(string opcode) => Operation = opcode;
 
     internal LavalinkPayload(string opcode, string guildId)
     {
-        this.Operation = opcode;
-        this.GuildId = guildId;
+        Operation = opcode;
+        GuildId = guildId;
     }
 }

@@ -11,21 +11,21 @@ public class DiscordPollVoteUpdate
     /// Gets or sets a client for this vote update.
     /// </summary>
     internal DiscordClient _client;
-    
+
     /// <summary>
     /// Gets whether this vote was added or removed. <c>true</c> if it was added, <c>false</c> if it was removed.
     /// </summary>
     [JsonIgnore]
     public bool WasAdded { get; internal set; }
-    
+
     /// <summary>
     /// Gets the user that added or removed a vote.
     /// </summary>
-    public DiscordUser User => this._client.GetCachedOrEmptyUserInternal(this.UserId);
-    
+    public DiscordUser User => _client.GetCachedOrEmptyUserInternal(UserId);
+
     [JsonIgnore]
-    public DiscordChannel Channel => this._client.InternalGetCachedChannel(this.ChannelId);
-    
+    public DiscordChannel Channel => _client.InternalGetCachedChannel(ChannelId);
+
     /// <summary>
     /// Gets the message that the poll is attached to.
     /// </summary>
@@ -36,29 +36,29 @@ public class DiscordPollVoteUpdate
     // Should this pull from cache as an auto-property? Perhaps having a hard-set message pulled from cache further up
     // instead. 
     [JsonIgnore]
-    public DiscordMessage? Message 
-        => this._client.MessageCache?.TryGet(MessageId, out DiscordMessage? msg) ?? false ? msg : null;
-    
+    public DiscordMessage? Message
+        => _client.MessageCache?.TryGet(MessageId, out DiscordMessage? msg) ?? false ? msg : null;
+
     /// <summary>
     /// Gets the guild this poll was sent in, if applicable.
     /// </summary>
-    public DiscordGuild? Guild 
-        => this.GuildId.HasValue ? this._client.InternalGetCachedGuild(this.GuildId.Value) : null;
-    
+    public DiscordGuild? Guild
+        => GuildId.HasValue ? _client.InternalGetCachedGuild(GuildId.Value) : null;
+
     [JsonProperty("user_id")]
     internal ulong UserId { get; set; }
-    
+
     [JsonProperty("channel_id")]
     internal ulong ChannelId { get; set; }
-    
+
     [JsonProperty("message_id")]
     internal ulong MessageId { get; set; }
-    
+
     [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
     internal ulong? GuildId { get; set; }
-    
+
     [JsonProperty("answer_id")]
     internal int AnswerId { get; set; }
-    
-    internal DiscordPollVoteUpdate() {}
+
+    internal DiscordPollVoteUpdate() { }
 }

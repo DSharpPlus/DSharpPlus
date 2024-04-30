@@ -19,12 +19,9 @@ public class DefaultHelpFormatter : BaseHelpFormatter
     /// </summary>
     /// <param name="ctx">Context in which this formatter is being invoked.</param>
     public DefaultHelpFormatter(CommandContext ctx)
-        : base(ctx)
-    {
-        this.EmbedBuilder = new DiscordEmbedBuilder()
+        : base(ctx) => EmbedBuilder = new DiscordEmbedBuilder()
             .WithTitle("Help")
             .WithColor(0x007FFF);
-    }
 
     /// <summary>
     /// Sets the command this help message will be for.
@@ -33,18 +30,18 @@ public class DefaultHelpFormatter : BaseHelpFormatter
     /// <returns>This help formatter.</returns>
     public override BaseHelpFormatter WithCommand(Command command)
     {
-        this.Command = command;
+        Command = command;
 
-        this.EmbedBuilder.WithDescription($"{Formatter.InlineCode(command.Name)}: {command.Description ?? "No description provided."}");
+        EmbedBuilder.WithDescription($"{Formatter.InlineCode(command.Name)}: {command.Description ?? "No description provided."}");
 
         if (command is CommandGroup cgroup && cgroup.IsExecutableWithoutSubcommands)
         {
-            this.EmbedBuilder.WithDescription($"{this.EmbedBuilder.Description}\n\nThis group can be executed as a standalone command.");
+            EmbedBuilder.WithDescription($"{EmbedBuilder.Description}\n\nThis group can be executed as a standalone command.");
         }
 
         if (command.Aliases.Count > 0)
         {
-            this.EmbedBuilder.AddField("Aliases", string.Join(", ", command.Aliases.Select(Formatter.InlineCode)), false);
+            EmbedBuilder.AddField("Aliases", string.Join(", ", command.Aliases.Select(Formatter.InlineCode)), false);
         }
 
         if (command.Overloads.Count > 0)
@@ -64,13 +61,13 @@ public class DefaultHelpFormatter : BaseHelpFormatter
 
                 foreach (CommandArgument arg in ovl.Arguments)
                 {
-                    sb.Append('`').Append(arg.Name).Append(" (").Append(this.CommandsNext.GetUserFriendlyTypeName(arg.Type)).Append(")`: ").Append(arg.Description ?? "No description provided.").Append('\n');
+                    sb.Append('`').Append(arg.Name).Append(" (").Append(CommandsNext.GetUserFriendlyTypeName(arg.Type)).Append(")`: ").Append(arg.Description ?? "No description provided.").Append('\n');
                 }
 
                 sb.Append('\n');
             }
 
-            this.EmbedBuilder.AddField("Arguments", sb.ToString().Trim(), false);
+            EmbedBuilder.AddField("Arguments", sb.ToString().Trim(), false);
         }
 
         return this;
@@ -89,14 +86,14 @@ public class DefaultHelpFormatter : BaseHelpFormatter
         // no known categories, proceed without categorization
         if (categories.Count() == 1 && categories.Single().Key == null)
         {
-            this.EmbedBuilder.AddField(this.Command is not null ? "Subcommands" : "Commands", string.Join(", ", subcommands.Select(x => Formatter.InlineCode(x.Name))), false);
+            EmbedBuilder.AddField(Command is not null ? "Subcommands" : "Commands", string.Join(", ", subcommands.Select(x => Formatter.InlineCode(x.Name))), false);
 
             return this;
         }
 
         foreach (IGrouping<string?, Command>? category in categories)
         {
-            this.EmbedBuilder.AddField(category.Key ?? "Uncategorized commands", string.Join(", ", category.Select(xm => Formatter.InlineCode(xm.Name))), false);
+            EmbedBuilder.AddField(category.Key ?? "Uncategorized commands", string.Join(", ", category.Select(xm => Formatter.InlineCode(xm.Name))), false);
         }
 
         return this;
@@ -108,11 +105,11 @@ public class DefaultHelpFormatter : BaseHelpFormatter
     /// <returns>Data for the help message.</returns>
     public override CommandHelpMessage Build()
     {
-        if (this.Command is null)
+        if (Command is null)
         {
-            this.EmbedBuilder.WithDescription("Listing all top-level commands and groups. Specify a command to see more information.");
+            EmbedBuilder.WithDescription("Listing all top-level commands and groups. Specify a command to see more information.");
         }
 
-        return new CommandHelpMessage(embed: this.EmbedBuilder.Build());
+        return new CommandHelpMessage(embed: EmbedBuilder.Build());
     }
 }

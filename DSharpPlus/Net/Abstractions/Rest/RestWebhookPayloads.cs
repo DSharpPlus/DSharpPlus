@@ -19,7 +19,7 @@ internal sealed class RestWebhookPayload
     public bool AvatarSet { get; set; }
 
     public bool ShouldSerializeAvatarBase64()
-        => this.AvatarSet;
+        => AvatarSet;
 }
 
 internal sealed class RestWebhookExecutePayload
@@ -44,7 +44,7 @@ internal sealed class RestWebhookExecutePayload
 
     [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordMentions? Mentions { get; set; }
-    
+
     [JsonProperty("poll", NullValueHandling = NullValueHandling.Ignore)]
     public PollCreatePayload? Poll { get; set; }
 }

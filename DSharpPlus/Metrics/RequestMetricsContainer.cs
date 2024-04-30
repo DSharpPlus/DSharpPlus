@@ -13,120 +13,117 @@ internal sealed class RequestMetricsContainer
     private DateTimeOffset lastReset = DateTimeOffset.UtcNow;
     private readonly DateTimeOffset creation = DateTimeOffset.UtcNow;
 
-    public RequestMetricsCollection GetLifetimeMetrics()
+    public RequestMetricsCollection GetLifetimeMetrics() => new()
     {
-        return new()
-        {
-            Duration = DateTimeOffset.UtcNow - this.creation,
+        Duration = DateTimeOffset.UtcNow - creation,
 
-            BadRequests = this.lifetime.badRequests,
-            BucketRatelimitsHit = this.lifetime.bucketRatelimits,
-            Forbidden = this.lifetime.forbidden,
-            GlobalRatelimitsHit = this.lifetime.globalRatelimits,
-            NotFound = this.lifetime.notFound,
-            RatelimitsHit = this.lifetime.ratelimits,
-            ServerErrors = this.lifetime.serverError,
-            SuccessfulRequests = this.lifetime.successful,
-            TooLarge = this.lifetime.tooLarge,
-            TotalRequests = this.lifetime.requests
-        };
-    }
+        BadRequests = lifetime.badRequests,
+        BucketRatelimitsHit = lifetime.bucketRatelimits,
+        Forbidden = lifetime.forbidden,
+        GlobalRatelimitsHit = lifetime.globalRatelimits,
+        NotFound = lifetime.notFound,
+        RatelimitsHit = lifetime.ratelimits,
+        ServerErrors = lifetime.serverError,
+        SuccessfulRequests = lifetime.successful,
+        TooLarge = lifetime.tooLarge,
+        TotalRequests = lifetime.requests
+    };
 
     public RequestMetricsCollection GetTemporalMetrics()
     {
         RequestMetricsCollection collection = new()
         {
-            Duration = DateTimeOffset.UtcNow - this.lastReset,
+            Duration = DateTimeOffset.UtcNow - lastReset,
 
-            BadRequests = this.temporal.badRequests,
-            BucketRatelimitsHit = this.temporal.bucketRatelimits,
-            Forbidden = this.temporal.forbidden,
-            GlobalRatelimitsHit = this.temporal.globalRatelimits,
-            NotFound = this.temporal.notFound,
-            RatelimitsHit = this.temporal.ratelimits,
-            ServerErrors = this.temporal.serverError,
-            SuccessfulRequests = this.temporal.successful,
-            TooLarge = this.temporal.tooLarge,
-            TotalRequests = this.temporal.requests
+            BadRequests = temporal.badRequests,
+            BucketRatelimitsHit = temporal.bucketRatelimits,
+            Forbidden = temporal.forbidden,
+            GlobalRatelimitsHit = temporal.globalRatelimits,
+            NotFound = temporal.notFound,
+            RatelimitsHit = temporal.ratelimits,
+            ServerErrors = temporal.serverError,
+            SuccessfulRequests = temporal.successful,
+            TooLarge = temporal.tooLarge,
+            TotalRequests = temporal.requests
         };
 
-        this.lastReset = DateTimeOffset.UtcNow;
-        this.temporal = default;
+        lastReset = DateTimeOffset.UtcNow;
+        temporal = default;
 
         return collection;
     }
 
     public void RegisterBadRequest()
     {
-        Interlocked.Increment(ref this.lifetime.badRequests);
-        Interlocked.Increment(ref this.temporal.badRequests);
+        Interlocked.Increment(ref lifetime.badRequests);
+        Interlocked.Increment(ref temporal.badRequests);
 
-        Interlocked.Increment(ref this.lifetime.requests);
-        Interlocked.Increment(ref this.temporal.requests);
+        Interlocked.Increment(ref lifetime.requests);
+        Interlocked.Increment(ref temporal.requests);
     }
 
     public void RegisterForbidden()
     {
-        Interlocked.Increment(ref this.lifetime.forbidden);
-        Interlocked.Increment(ref this.temporal.forbidden);
+        Interlocked.Increment(ref lifetime.forbidden);
+        Interlocked.Increment(ref temporal.forbidden);
 
-        Interlocked.Increment(ref this.lifetime.requests);
-        Interlocked.Increment(ref this.temporal.requests);
+        Interlocked.Increment(ref lifetime.requests);
+        Interlocked.Increment(ref temporal.requests);
     }
 
     public void RegisterNotFound()
     {
-        Interlocked.Increment(ref this.lifetime.notFound);
-        Interlocked.Increment(ref this.temporal.notFound);
+        Interlocked.Increment(ref lifetime.notFound);
+        Interlocked.Increment(ref temporal.notFound);
 
-        Interlocked.Increment(ref this.lifetime.requests);
-        Interlocked.Increment(ref this.temporal.requests);
+        Interlocked.Increment(ref lifetime.requests);
+        Interlocked.Increment(ref temporal.requests);
     }
 
     public void RegisterRequestTooLarge()
     {
-        Interlocked.Increment(ref this.lifetime.tooLarge);
-        Interlocked.Increment(ref this.temporal.tooLarge);
+        Interlocked.Increment(ref lifetime.tooLarge);
+        Interlocked.Increment(ref temporal.tooLarge);
 
-        Interlocked.Increment(ref this.lifetime.requests);
-        Interlocked.Increment(ref this.temporal.requests);
+        Interlocked.Increment(ref lifetime.requests);
+        Interlocked.Increment(ref temporal.requests);
     }
 
     public void RegisterRatelimitHit(HttpResponseHeaders headers)
     {
         if (headers.TryGetValues("x-ratelimit-scope", out IEnumerable<string>? values) && values.First() == "global")
         {
-            Interlocked.Increment(ref this.lifetime.globalRatelimits);
-            Interlocked.Increment(ref this.temporal.globalRatelimits);
+            Interlocked.Increment(ref lifetime.globalRatelimits);
+            Interlocked.Increment(ref temporal.globalRatelimits);
         }
         else
         {
-            Interlocked.Increment(ref this.lifetime.bucketRatelimits);
-            Interlocked.Increment(ref this.temporal.bucketRatelimits);
+            Interlocked.Increment(ref lifetime.bucketRatelimits);
+            Interlocked.Increment(ref temporal.bucketRatelimits);
         }
 
-        Interlocked.Increment(ref this.lifetime.ratelimits);
-        Interlocked.Increment(ref this.temporal.ratelimits);
+        Interlocked.Increment(ref lifetime.ratelimits);
+        Interlocked.Increment(ref temporal.ratelimits);
 
-        Interlocked.Increment(ref this.lifetime.requests);
-        Interlocked.Increment(ref this.temporal.requests);
+        Interlocked.Increment(ref lifetime.requests);
+        Interlocked.Increment(ref temporal.requests);
     }
 
     public void RegisterServerError()
     {
-        Interlocked.Increment(ref this.lifetime.serverError);
-        Interlocked.Increment(ref this.temporal.serverError);
+        Interlocked.Increment(ref lifetime.serverError);
+        Interlocked.Increment(ref temporal.serverError);
 
-        Interlocked.Increment(ref this.lifetime.requests);
-        Interlocked.Increment(ref this.temporal.requests);
+        Interlocked.Increment(ref lifetime.requests);
+        Interlocked.Increment(ref temporal.requests);
     }
 
     public void RegisterSuccess()
     {
-        Interlocked.Increment(ref this.lifetime.successful);
-        Interlocked.Increment(ref this.temporal.successful);
+        Interlocked.Increment(ref lifetime.successful);
+        Interlocked.Increment(ref temporal.successful);
 
-        Interlocked.Increment(ref this.lifetime.requests);
-        Interlocked.Increment(ref this.temporal.requests);
+        Interlocked.Increment(ref lifetime.requests);
+        Interlocked.Increment(ref temporal.requests);
     }
 }

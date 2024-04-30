@@ -10,10 +10,10 @@ public class RequirePermissionsAttribute : RequireGuildAttribute
     public DiscordPermissions BotPermissions { get; init; }
     public DiscordPermissions UserPermissions { get; init; }
 
-    public RequirePermissionsAttribute(DiscordPermissions permissions) => this.BotPermissions = this.UserPermissions = permissions;
+    public RequirePermissionsAttribute(DiscordPermissions permissions) => BotPermissions = UserPermissions = permissions;
     public RequirePermissionsAttribute(DiscordPermissions botPermissions, DiscordPermissions userPermissions)
     {
-        this.BotPermissions = botPermissions;
-        this.UserPermissions = userPermissions;
+        BotPermissions = botPermissions;
+        UserPermissions = userPermissions;
     }
 }

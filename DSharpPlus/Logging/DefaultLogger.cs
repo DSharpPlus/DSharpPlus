@@ -16,13 +16,13 @@ public class DefaultLogger : ILogger<BaseDiscordClient>
 
     internal DefaultLogger(LogLevel minLevel = LogLevel.Information, string timestampFormat = "yyyy-MM-dd HH:mm:ss zzz")
     {
-        this.MinimumLevel = minLevel;
-        this.TimestampFormat = timestampFormat;
+        MinimumLevel = minLevel;
+        TimestampFormat = timestampFormat;
     }
 
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
     {
-        if (!this.IsEnabled(logLevel))
+        if (!IsEnabled(logLevel))
         {
             return;
         }
@@ -31,7 +31,7 @@ public class DefaultLogger : ILogger<BaseDiscordClient>
         {
             string? ename = eventId.Name;
             ename = ename?.Length > 12 ? ename?.Substring(0, 12) : ename;
-            Console.Write($"[{DateTimeOffset.Now.ToString(this.TimestampFormat)}] [{eventId.Id,-4}/{ename,-12}] ");
+            Console.Write($"[{DateTimeOffset.Now.ToString(TimestampFormat)}] [{eventId.Id,-4}/{ename,-12}] ");
 
             switch (logLevel)
             {
@@ -89,7 +89,7 @@ public class DefaultLogger : ILogger<BaseDiscordClient>
     }
 
     public bool IsEnabled(LogLevel logLevel)
-        => logLevel >= this.MinimumLevel;
+        => logLevel >= MinimumLevel;
 
     public IDisposable BeginScope<TState>(TState state) => throw new NotImplementedException();
 }

@@ -6,16 +6,16 @@ public abstract record ConverterContext : AbstractContext
 {
     public virtual object? Argument { get; protected set; }
     public int ParameterIndex { get; private set; } = -1;
-    public CommandParameter Parameter => this.Command.Parameters[this.ParameterIndex];
+    public CommandParameter Parameter => Command.Parameters[ParameterIndex];
 
     public bool NextParameter()
     {
-        if (this.ParameterIndex + 1 >= this.Command.Parameters.Count)
+        if (ParameterIndex + 1 >= Command.Parameters.Count)
         {
             return false;
         }
 
-        this.ParameterIndex++;
+        ParameterIndex++;
         return true;
     }
 

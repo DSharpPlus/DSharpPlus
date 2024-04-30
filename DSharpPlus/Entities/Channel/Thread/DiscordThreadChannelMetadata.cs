@@ -29,7 +29,7 @@ public class DiscordThreadChannelMetadata
     /// </summary>
     [JsonProperty("locked", NullValueHandling = NullValueHandling.Ignore)]
     public bool? IsLocked { get; internal set; }
-    
+
     /// <summary>
     /// whether non-moderators can add other non-moderators to a thread. Only available on private threads
     /// </summary>
@@ -40,7 +40,7 @@ public class DiscordThreadChannelMetadata
     /// Gets the time this thread was created. Only populated for threads created after 2022-01-09 (YYYY-MM-DD).
     /// </summary>
     public DateTimeOffset? CreationTimestamp
-        => !string.IsNullOrWhiteSpace(this.CreateTimestampRaw) && DateTimeOffset.TryParse(this.CreateTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset dto) ?
+        => !string.IsNullOrWhiteSpace(CreateTimestampRaw) && DateTimeOffset.TryParse(CreateTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset dto) ?
             dto : null;
 
     [JsonProperty("create_timestamp", NullValueHandling = NullValueHandling.Ignore)]

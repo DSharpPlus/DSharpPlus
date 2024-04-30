@@ -20,16 +20,16 @@ public readonly record struct DiscordUri
 
     internal DiscordUri(Uri value)
     {
-        this.uri = value.AbsoluteUri;
-        this.Type = DiscordUriType.Standard;
+        uri = value.AbsoluteUri;
+        Type = DiscordUriType.Standard;
     }
 
     internal DiscordUri(string value)
     {
         ArgumentNullException.ThrowIfNull(value);
 
-        this.uri = value;
-        this.Type = IsStandard(uri) ? DiscordUriType.Standard : DiscordUriType.NonStandard;
+        uri = value;
+        Type = IsStandard(uri) ? DiscordUriType.Standard : DiscordUriType.NonStandard;
     }
 
     private static bool IsStandard(string value) => !value.StartsWith("attachment://");
@@ -38,7 +38,7 @@ public readonly record struct DiscordUri
     /// Returns a string representation of this DiscordUri.
     /// </summary>
     /// <returns>This DiscordUri, as a string.</returns>
-    public override string? ToString() => this.uri;
+    public override string? ToString() => uri;
 
     /// <summary>
     /// Converts this DiscordUri into a canonical representation of a <see cref="Uri"/> if it can be represented as
@@ -48,14 +48,14 @@ public readonly record struct DiscordUri
     /// <exception cref="UriFormatException">If <see cref="Type"/> is not <see cref="DiscordUriType.Standard"/>, as
     /// that would mean creating an invalid Uri, which would result in loss of data.</exception>
     public Uri? ToUri()
-        => this.Type == DiscordUriType.Standard
-            ? new Uri(this.uri)
+        => Type == DiscordUriType.Standard
+            ? new Uri(uri)
             : throw new UriFormatException(
-                $@"DiscordUri ""{this.uri}"" would be invalid as a regular URI, please check the {nameof(this.Type)} property first.");
+                $@"DiscordUri ""{uri}"" would be invalid as a regular URI, please check the {nameof(Type)} property first.");
 
     internal sealed class DiscordUriJsonConverter : JsonConverter
     {
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) 
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
             => writer.WriteValue((value as DiscordUri?)?.uri);
 
         public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)

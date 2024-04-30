@@ -16,7 +16,7 @@ internal sealed class RateLimitBucket
     /// Gets the number of uses left before pre-emptive rate limit is triggered.
     /// </summary>
     public int Remaining
-        => this.remaining;
+        => remaining;
 
     /// <summary>
     /// Gets the timestamp at which the rate limit resets.
@@ -26,7 +26,7 @@ internal sealed class RateLimitBucket
     /// <summary>
     /// Gets the maximum number of uses within a single bucket.
     /// </summary>
-    public int Maximum => this.maximum;
+    public int Maximum => maximum;
 
     internal int maximum;
     internal int remaining;
@@ -41,15 +41,15 @@ internal sealed class RateLimitBucket
     {
         this.maximum = maximum;
         this.remaining = remaining;
-        this.Reset = reset;
+        Reset = reset;
     }
 
     public RateLimitBucket()
     {
-        this.maximum = 1;
-        this.remaining = 1;
-        this.Reset = DateTime.UtcNow + TimeSpan.FromSeconds(10);
-        this.reserved = 0;
+        maximum = 1;
+        remaining = 1;
+        Reset = DateTime.UtcNow + TimeSpan.FromSeconds(10);
+        reserved = 0;
     }
 
     /// <summary>
@@ -57,7 +57,7 @@ internal sealed class RateLimitBucket
     /// </summary>
     internal void ResetLimit(DateTime nextReset)
     {
-        if (nextReset < this.Reset)
+        if (nextReset < Reset)
         {
             throw new ArgumentOutOfRangeException
             (
@@ -66,8 +66,8 @@ internal sealed class RateLimitBucket
             );
         }
 
-        Interlocked.Exchange(ref this.remaining, this.Maximum);
-        this.Reset = nextReset;
+        Interlocked.Exchange(ref remaining, Maximum);
+        Reset = nextReset;
     }
 
     public static bool TryExtractRateLimitBucket
@@ -114,19 +114,19 @@ internal sealed class RateLimitBucket
 
     internal bool CheckNextRequest()
     {
-        if (this.Reset < DateTime.UtcNow)
+        if (Reset < DateTime.UtcNow)
         {
-            this.ResetLimit(DateTime.UtcNow + TimeSpan.FromSeconds(1));
-            Interlocked.Increment(ref this.reserved);
+            ResetLimit(DateTime.UtcNow + TimeSpan.FromSeconds(1));
+            Interlocked.Increment(ref reserved);
             return true;
         }
 
-        if (this.Remaining - this.reserved <= 0)
+        if (Remaining - reserved <= 0)
         {
             return false;
         }
 
-        Interlocked.Increment(ref this.reserved);
+        Interlocked.Increment(ref reserved);
         return true;
     }
 
@@ -135,41 +135,41 @@ internal sealed class RateLimitBucket
         Interlocked.Exchange(ref this.maximum, maximum);
         Interlocked.Exchange(ref this.remaining, remaining);
 
-        if (this.reserved > 0)
+        if (reserved > 0)
         {
-            Interlocked.Decrement(ref this.reserved);
+            Interlocked.Decrement(ref reserved);
         }
 
-        this.Reset = reset;
+        Reset = reset;
     }
 
     internal void CancelReservation()
     {
-        if (this.reserved > 0)
+        if (reserved > 0)
         {
-            Interlocked.Decrement(ref this.reserved);
+            Interlocked.Decrement(ref reserved);
         }
     }
 
     internal void CompleteReservation()
     {
-        if (this.Reset < DateTime.UtcNow)
+        if (Reset < DateTime.UtcNow)
         {
-            this.ResetLimit(DateTime.UtcNow + TimeSpan.FromSeconds(1));
+            ResetLimit(DateTime.UtcNow + TimeSpan.FromSeconds(1));
 
-            if (this.reserved > 0)
+            if (reserved > 0)
             {
-                Interlocked.Decrement(ref this.reserved);
+                Interlocked.Decrement(ref reserved);
             }
 
             return;
         }
 
-        Interlocked.Decrement(ref this.remaining); 
-        
-        if (this.reserved > 0)
+        Interlocked.Decrement(ref remaining);
+
+        if (reserved > 0)
         {
-            Interlocked.Decrement(ref this.reserved);
+            Interlocked.Decrement(ref reserved);
         }
     }
 }

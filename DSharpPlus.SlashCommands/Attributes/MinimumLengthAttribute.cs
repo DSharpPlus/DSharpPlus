@@ -39,5 +39,5 @@ public class MinimumLengthAttribute : Attribute
     /// <summary>
     /// Sets a minimum allowed length for this slash command option. Only valid for <see cref="string"/> parameters.
     /// </summary>
-    public MinimumLengthAttribute(int value) => this.Value = value;
+    public MinimumLengthAttribute(int value) => Value = value;
 }

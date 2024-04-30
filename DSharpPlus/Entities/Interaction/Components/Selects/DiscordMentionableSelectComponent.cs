@@ -8,8 +8,8 @@ using System;
 public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectComponent
 {
     [JsonProperty("default_values", NullValueHandling = NullValueHandling.Ignore)]
-    private List<DiscordSelectDefaultValue> _defaultValues = new();
-    
+    private readonly List<DiscordSelectDefaultValue> _defaultValues = new();
+
     /// <summary>
     /// The default values for this component.
     /// </summary>
@@ -27,7 +27,7 @@ public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectCompone
         {
             throw new ArgumentException("Mentionable select components do not support channel defaults");
         }
-        
+
         DiscordSelectDefaultValue defaultValue = new(id, type);
         _defaultValues.Add(defaultValue);
         return this;
@@ -44,7 +44,7 @@ public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectCompone
         {
             throw new ArgumentException("Mentionable select components do not support channel defaults");
         }
-        
+
         foreach (ulong id in ids)
         {
             DiscordSelectDefaultValue defaultValue = new(id, type);
@@ -53,14 +53,14 @@ public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectCompone
 
         return this;
     }
-    
+
     /// <summary>
     /// Enables this component.
     /// </summary>
     /// <returns>The current component.</returns>
     public DiscordMentionableSelectComponent Enable()
     {
-        this.Disabled = false;
+        Disabled = false;
         return this;
     }
     /// <summary>
@@ -69,11 +69,11 @@ public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectCompone
     /// <returns>The current component.</returns>
     public DiscordMentionableSelectComponent Disable()
     {
-        this.Disabled = true;
+        Disabled = true;
         return this;
     }
 
-    internal DiscordMentionableSelectComponent() => this.Type = DiscordComponentType.MentionableSelect;
+    internal DiscordMentionableSelectComponent() => Type = DiscordComponentType.MentionableSelect;
 
     /// <summary>
     /// Creates a new mentionable select component.
@@ -83,6 +83,6 @@ public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectCompone
     /// <param name="disabled">Whether this component is disabled.</param>
     /// <param name="minOptions">The minimum amount of options to be selected.</param>
     /// <param name="maxOptions">The maximum amount of options to be selected, up to 25.</param>
-    public DiscordMentionableSelectComponent(string customId, string placeholder, bool disabled = false, int minOptions = 1, int maxOptions = 1) 
+    public DiscordMentionableSelectComponent(string customId, string placeholder, bool disabled = false, int minOptions = 1, int maxOptions = 1)
     : base(DiscordComponentType.MentionableSelect, customId, placeholder, disabled, minOptions, maxOptions) { }
 }

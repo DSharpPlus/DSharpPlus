@@ -14,8 +14,8 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
     /// </summary>
     public bool IsEphemeral
     {
-        get => (this.Flags & DiscordMessageFlags.Ephemeral) == DiscordMessageFlags.Ephemeral;
-        set => _ = value ? this.Flags |= DiscordMessageFlags.Ephemeral : this.Flags &= ~DiscordMessageFlags.Ephemeral;
+        get => (Flags & DiscordMessageFlags.Ephemeral) == DiscordMessageFlags.Ephemeral;
+        set => _ = value ? Flags |= DiscordMessageFlags.Ephemeral : Flags &= ~DiscordMessageFlags.Ephemeral;
     }
 
     /// <summary>
@@ -31,7 +31,7 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
     /// <summary>
     /// The choices to send on this interaction response. Mutually exclusive with content, embed, and components.
     /// </summary>
-    public IReadOnlyList<DiscordAutoCompleteChoice> Choices => this._choices;
+    public IReadOnlyList<DiscordAutoCompleteChoice> Choices => _choices;
     private readonly List<DiscordAutoCompleteChoice> _choices = new();
 
     /// <summary>
@@ -51,8 +51,8 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
     /// <param name="builder">The builder to copy.</param>
     public DiscordInteractionResponseBuilder(DiscordInteractionResponseBuilder builder) : base(builder)
     {
-        this.IsEphemeral = builder.IsEphemeral;
-        this._choices.AddRange(builder._choices);
+        IsEphemeral = builder.IsEphemeral;
+        _choices.AddRange(builder._choices);
     }
 
     /// <summary>
@@ -67,7 +67,7 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
             throw new ArgumentException("Title must be between 1 and 256 characters.");
         }
 
-        this.Title = title;
+        Title = title;
         return this;
     }
 
@@ -83,7 +83,7 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
             throw new ArgumentException("Custom ID must be between 1 and 100 characters.");
         }
 
-        this.CustomId = id;
+        CustomId = id;
         return this;
     }
 
@@ -94,12 +94,12 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
     /// <returns>The current builder to chain calls with.</returns>
     public DiscordInteractionResponseBuilder AddAutoCompleteChoice(DiscordAutoCompleteChoice choice)
     {
-        if (this._choices.Count >= 25)
+        if (_choices.Count >= 25)
         {
             throw new ArgumentException("Maximum of 25 choices per response.");
         }
 
-        this._choices.Add(choice);
+        _choices.Add(choice);
         return this;
     }
 
@@ -110,12 +110,12 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
     /// <returns>The current builder to chain calls with.</returns>
     public DiscordInteractionResponseBuilder AddAutoCompleteChoices(IEnumerable<DiscordAutoCompleteChoice> choices)
     {
-        if (this._choices.Count >= 25 || this._choices.Count + choices.Count() > 25)
+        if (_choices.Count >= 25 || _choices.Count + choices.Count() > 25)
         {
             throw new ArgumentException("Maximum of 25 choices per response.");
         }
 
-        this._choices.AddRange(choices);
+        _choices.AddRange(choices);
         return this;
     }
 
@@ -125,7 +125,7 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
     /// <param name="choices">The choices to add.</param>
     /// <returns>The current builder to chain calls with.</returns>
     public DiscordInteractionResponseBuilder AddAutoCompleteChoices(params DiscordAutoCompleteChoice[] choices)
-        => this.AddAutoCompleteChoices((IEnumerable<DiscordAutoCompleteChoice>)choices);
+        => AddAutoCompleteChoices((IEnumerable<DiscordAutoCompleteChoice>)choices);
 
     /// <summary>
     /// Sets the interaction response to be ephemeral.
@@ -133,7 +133,7 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
     /// <param name="ephemeral">Ephemeral.</param>
     public DiscordInteractionResponseBuilder AsEphemeral(bool ephemeral = true)
     {
-        this.IsEphemeral = ephemeral;
+        IsEphemeral = ephemeral;
         return this;
     }
 
@@ -142,8 +142,8 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
     /// </summary>
     public override void Clear()
     {
-        this.IsEphemeral = false;
-        this._choices.Clear();
+        IsEphemeral = false;
+        _choices.Clear();
 
         base.Clear();
     }

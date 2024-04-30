@@ -10,7 +10,7 @@ namespace DSharpPlus;
 /// </summary>
 internal class AsyncManualResetEvent
 {
-    public bool IsSet => this._tsc != null && this._tsc.Task.IsCompleted;
+    public bool IsSet => _tsc != null && _tsc.Task.IsCompleted;
 
     private TaskCompletionSource<bool> _tsc;
 
@@ -20,25 +20,25 @@ internal class AsyncManualResetEvent
 
     public AsyncManualResetEvent(bool initialState)
     {
-        this._tsc = new TaskCompletionSource<bool>();
+        _tsc = new TaskCompletionSource<bool>();
 
         if (initialState)
         {
-            this._tsc.TrySetResult(true);
+            _tsc.TrySetResult(true);
         }
     }
 
-    public Task WaitAsync() => this._tsc.Task;
+    public Task WaitAsync() => _tsc.Task;
 
-    public Task SetAsync() => Task.Run(() => this._tsc.TrySetResult(true));
+    public Task SetAsync() => Task.Run(() => _tsc.TrySetResult(true));
 
     public void Reset()
     {
         while (true)
         {
-            TaskCompletionSource<bool> tsc = this._tsc;
+            TaskCompletionSource<bool> tsc = _tsc;
 
-            if (!tsc.Task.IsCompleted || Interlocked.CompareExchange(ref this._tsc, new TaskCompletionSource<bool>(), tsc) == tsc)
+            if (!tsc.Task.IsCompleted || Interlocked.CompareExchange(ref _tsc, new TaskCompletionSource<bool>(), tsc) == tsc)
             {
                 return;
             }

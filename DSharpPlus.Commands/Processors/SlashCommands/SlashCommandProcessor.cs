@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
+using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Commands.Processors.SlashCommands.Localization;
 using DSharpPlus.Commands.Processors.SlashCommands.Metadata;
-using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
@@ -38,22 +38,22 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         await base.ConfigureAsync(extension);
 
         Dictionary<Type, DiscordApplicationCommandOptionType> typeMappings = [];
-        foreach (LazyConverter lazyConverter in this._lazyConverters.Values)
+        foreach (LazyConverter lazyConverter in _lazyConverters.Values)
         {
-            ISlashArgumentConverter converter = lazyConverter.GetConverter(this._extension.ServiceProvider);
+            ISlashArgumentConverter converter = lazyConverter.GetConverter(_extension.ServiceProvider);
             typeMappings.Add(lazyConverter.ParameterType, converter.ParameterType);
         }
 
-        this.TypeMappings = typeMappings.ToFrozenDictionary();
-        if (!this._configured)
+        TypeMappings = typeMappings.ToFrozenDictionary();
+        if (!_configured)
         {
-            this._configured = true;
-            extension.Client.InteractionCreated += this.ExecuteInteractionAsync;
+            _configured = true;
+            extension.Client.InteractionCreated += ExecuteInteractionAsync;
             extension.Client.GuildDownloadCompleted += async (client, eventArgs) =>
             {
                 if (client.ShardId == 0)
                 {
-                    await this.RegisterSlashCommandsAsync(extension);
+                    await RegisterSlashCommandsAsync(extension);
                 }
             };
         }
@@ -61,7 +61,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
     public async Task ExecuteInteractionAsync(DiscordClient client, InteractionCreateEventArgs eventArgs)
     {
-        if (this._extension is null)
+        if (_extension is null)
         {
             throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
         }
@@ -70,17 +70,17 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             return;
         }
 
-        AsyncServiceScope serviceScope = this._extension.ServiceProvider.CreateAsyncScope();
-        if (!this.TryFindCommand(eventArgs.Interaction, out Command? command, out IEnumerable<DiscordInteractionDataOption>? options))
+        AsyncServiceScope serviceScope = _extension.ServiceProvider.CreateAsyncScope();
+        if (!TryFindCommand(eventArgs.Interaction, out Command? command, out IEnumerable<DiscordInteractionDataOption>? options))
         {
-            await this._extension._commandErrored.InvokeAsync(this._extension, new CommandErroredEventArgs()
+            await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
             {
                 Context = new SlashCommandContext()
                 {
                     Arguments = new Dictionary<CommandParameter, object?>(),
                     Channel = eventArgs.Interaction.Channel,
                     Command = null!,
-                    Extension = this._extension,
+                    Extension = _extension,
                     ServiceScope = serviceScope,
                     User = eventArgs.Interaction.User,
                     Interaction = eventArgs.Interaction,
@@ -98,7 +98,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         {
             Channel = eventArgs.Interaction.Channel,
             Command = command,
-            Extension = this._extension,
+            Extension = _extension,
             Interaction = eventArgs.Interaction,
             Options = options.ToList(),
             ServiceScope = serviceScope,
@@ -107,7 +107,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
         if (eventArgs.Interaction.Type is DiscordInteractionType.AutoComplete)
         {
-            AutoCompleteContext? autoCompleteContext = await this.ParseAutoCompleteArgumentsAsync(converterContext, eventArgs);
+            AutoCompleteContext? autoCompleteContext = await ParseAutoCompleteArgumentsAsync(converterContext, eventArgs);
             if (autoCompleteContext is not null)
             {
                 IEnumerable<DiscordAutoCompleteChoice> choices = await autoCompleteContext.AutoCompleteArgument.Attributes.OfType<SlashAutoCompleteProviderAttribute>().First().AutoCompleteAsync(autoCompleteContext);
@@ -118,20 +118,20 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         }
         else
         {
-            CommandContext? commandContext = await this.ParseArgumentsAsync(converterContext, eventArgs);
+            CommandContext? commandContext = await ParseArgumentsAsync(converterContext, eventArgs);
             if (commandContext is null)
             {
                 converterContext.ServiceScope.Dispose();
                 return;
             }
 
-            await this._extension.CommandExecutor.ExecuteAsync(commandContext);
+            await _extension.CommandExecutor.ExecuteAsync(commandContext);
         }
     }
 
     public bool TryFindCommand(DiscordInteraction interaction, [NotNullWhen(true)] out Command? command, [NotNullWhen(true)] out IEnumerable<DiscordInteractionDataOption>? options)
     {
-        if (!this.Commands.TryGetValue(interaction.Data.Id, out command))
+        if (!Commands.TryGetValue(interaction.Data.Id, out command))
         {
             options = null;
             return false;
@@ -154,25 +154,25 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         return true;
     }
 
-    public void AddApplicationCommands(params DiscordApplicationCommand[] applicationCommands) => this._applicationCommands.AddRange(applicationCommands);
-    public void AddApplicationCommands(IEnumerable<DiscordApplicationCommand> applicationCommands) => this._applicationCommands.AddRange(applicationCommands);
+    public void AddApplicationCommands(params DiscordApplicationCommand[] applicationCommands) => _applicationCommands.AddRange(applicationCommands);
+    public void AddApplicationCommands(IEnumerable<DiscordApplicationCommand> applicationCommands) => _applicationCommands.AddRange(applicationCommands);
 
     public async ValueTask ClearDiscordSlashCommandsAsync(bool clearGuildCommands = false)
     {
-        if (this._extension is null)
+        if (_extension is null)
         {
             throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
         }
 
-        await this._extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(new List<DiscordApplicationCommand>());
+        await _extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(new List<DiscordApplicationCommand>());
         if (!clearGuildCommands)
         {
             return;
         }
 
-        foreach (ulong guildId in this._extension.Client.Guilds.Keys)
+        foreach (ulong guildId in _extension.Client.Guilds.Keys)
         {
-            await this._extension.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId, new List<DiscordApplicationCommand>());
+            await _extension.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId, new List<DiscordApplicationCommand>());
         }
     }
 
@@ -180,7 +180,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
     {
         List<DiscordApplicationCommand> globalApplicationCommands = [];
         Dictionary<ulong, List<DiscordApplicationCommand>> guildsApplicationCommands = [];
-        globalApplicationCommands.AddRange(this._applicationCommands);
+        globalApplicationCommands.AddRange(_applicationCommands);
         foreach (Command command in extension.Commands.Values)
         {
             // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
@@ -191,7 +191,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                 continue;
             }
 
-            DiscordApplicationCommand applicationCommand = await this.ToApplicationCommandAsync(command);
+            DiscordApplicationCommand applicationCommand = await ToApplicationCommandAsync(command);
 
             if (command.GuildIds.Count == 0)
             {
@@ -249,18 +249,18 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
             if (!commandFound)
             {
-                SlashLogging.UnknownCommandName(this._logger, discordCommand.Name, null);
+                SlashLogging.UnknownCommandName(_logger, discordCommand.Name, null);
                 continue;
             }
         }
 
-        this.Commands = commandsDictionary.ToFrozenDictionary();
-        SlashLogging.RegisteredCommands(this._logger, this.Commands.Count, null);
+        Commands = commandsDictionary.ToFrozenDictionary();
+        SlashLogging.RegisteredCommands(_logger, Commands.Count, null);
     }
 
     public async Task<DiscordApplicationCommand> ToApplicationCommandAsync(Command command)
     {
-        if (this._extension is null)
+        if (_extension is null)
         {
             throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
         }
@@ -271,8 +271,8 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
         {
 
-            nameLocalizations = await this.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
-            descriptionLocalizations = await this.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
+            nameLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
+            descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
         }
 
         // Convert the subcommands or parameters into application options
@@ -281,7 +281,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         {
             foreach (Command subCommand in command.Subcommands)
             {
-                options.Add(await this.ToApplicationParameterAsync(subCommand));
+                options.Add(await ToApplicationParameterAsync(subCommand));
             }
         }
         else
@@ -293,11 +293,11 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                     // Fill til 25
                     for (int i = options.Count; i < 24; i++)
                     {
-                        options.Add(await this.ToApplicationParameterAsync(command, parameter, i));
+                        options.Add(await ToApplicationParameterAsync(command, parameter, i));
                     }
                 }
 
-                options.Add(await this.ToApplicationParameterAsync(command, parameter));
+                options.Add(await ToApplicationParameterAsync(command, parameter));
             }
         }
 
@@ -329,7 +329,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
     public async Task<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command)
     {
-        if (this._extension is null)
+        if (_extension is null)
         {
             throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
         }
@@ -340,14 +340,14 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         {
             foreach (Command subCommand in command.Subcommands)
             {
-                options.Add(await this.ToApplicationParameterAsync(subCommand));
+                options.Add(await ToApplicationParameterAsync(subCommand));
             }
         }
         else
         {
             foreach (CommandParameter parameter in command.Parameters)
             {
-                options.Add(await this.ToApplicationParameterAsync(command, parameter));
+                options.Add(await ToApplicationParameterAsync(command, parameter));
             }
         }
 
@@ -356,8 +356,8 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         Dictionary<string, string> descriptionLocalizations = [];
         if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
         {
-            nameLocalizations = await this.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
-            descriptionLocalizations = await this.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
+            nameLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
+            descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
         }
 
         if (!descriptionLocalizations.TryGetValue("en-US", out string? description))
@@ -382,12 +382,12 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
     private async Task<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command, CommandParameter parameter, int? i = null)
     {
-        if (this._extension is null)
+        if (_extension is null)
         {
             throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
         }
 
-        if (!this.TypeMappings.TryGetValue(this.GetConverterFriendlyBaseType(parameter.Type), out DiscordApplicationCommandOptionType type))
+        if (!TypeMappings.TryGetValue(GetConverterFriendlyBaseType(parameter.Type), out DiscordApplicationCommandOptionType type))
         {
             throw new InvalidOperationException($"No type mapping found for parameter type '{parameter.Type.Name}'");
         }
@@ -407,14 +407,14 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                 localeIdBuilder.Append($".{i}");
             }
 
-            nameLocalizations = await this.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".name");
-            descriptionLocalizations = await this.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".description");
+            nameLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".name");
+            descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".description");
         }
 
         IEnumerable<DiscordApplicationCommandOptionChoice> choices = [];
         if (parameter.Attributes.OfType<SlashChoiceProviderAttribute>().FirstOrDefault() is SlashChoiceProviderAttribute choiceAttribute)
         {
-            using AsyncServiceScope scope = this._extension.ServiceProvider.CreateAsyncScope();
+            using AsyncServiceScope scope = _extension.ServiceProvider.CreateAsyncScope();
             choices = await choiceAttribute.GrabChoicesAsync(scope.ServiceProvider, parameter);
         }
 
@@ -452,7 +452,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
     internal async ValueTask<Dictionary<string, string>> ExecuteLocalizerAsync(Type localizer, string name)
     {
-        using AsyncServiceScope scope = this._extension!.ServiceProvider.CreateAsyncScope();
+        using AsyncServiceScope scope = _extension!.ServiceProvider.CreateAsyncScope();
         IInteractionLocalizer instance;
         try
         {
@@ -460,7 +460,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         }
         catch (Exception)
         {
-            ILogger<InteractionLocalizerAttribute> logger = this._extension!.ServiceProvider
+            ILogger<InteractionLocalizerAttribute> logger = _extension!.ServiceProvider
                 .GetService<ILogger<InteractionLocalizerAttribute>>() ?? NullLogger<InteractionLocalizerAttribute>.Instance;
 
             logger.LogWarning("Failed to create an instance of {TypeName} for localization of {SymbolName}.", localizer, name);
@@ -478,7 +478,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
     private async ValueTask<AutoCompleteContext?> ParseAutoCompleteArgumentsAsync(InteractionConverterContext converterContext, InteractionCreateEventArgs eventArgs)
     {
-        if (this._extension is null)
+        if (_extension is null)
         {
             return null;
         }
@@ -505,7 +505,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                     break;
                 }
 
-                IOptional optional = await this.ConverterDelegates[this.GetConverterFriendlyBaseType(converterContext.Parameter.Type)](converterContext, eventArgs);
+                IOptional optional = await ConverterDelegates[GetConverterFriendlyBaseType(converterContext.Parameter.Type)](converterContext, eventArgs);
                 parsedArguments.Add(converterContext.Parameter, optional.HasValue
                     ? optional.RawValue
                     : converterContext.Parameter.DefaultValue
@@ -520,7 +520,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         }
         catch (Exception error)
         {
-            await this._extension._commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
+            await _extension._commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
             {
                 Context = new SlashCommandContext()
                 {
@@ -560,7 +560,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         Arguments = parsedArguments,
         Channel = eventArgs.Interaction.Channel,
         Command = converterContext.Command,
-        Extension = this._extension ?? throw new InvalidOperationException("SlashCommandProcessor has not been configured."),
+        Extension = _extension ?? throw new InvalidOperationException("SlashCommandProcessor has not been configured."),
         Interaction = eventArgs.Interaction,
         Options = converterContext.Options,
         ServiceScope = converterContext.ServiceScope,
