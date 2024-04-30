@@ -23,6 +23,7 @@ using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using System.Diagnostics;
 
 public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCreateEventArgs, ISlashArgumentConverter, InteractionConverterContext, SlashCommandContext>
 {
@@ -480,7 +481,8 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
             if (autoCompleteParameter is null || autoCompleteOption is null)
             {
-                throw new InvalidOperationException("Cannot find the parameter that the user is currently typing.");
+                _logger.LogWarning("Cannot find the auto complete parameter that the user is currently typing - this should be reported to library developers.");
+                return null;
             }
         }
         catch (Exception error)
