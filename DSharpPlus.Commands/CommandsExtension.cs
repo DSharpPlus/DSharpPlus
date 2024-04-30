@@ -10,8 +10,10 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Commands.ContextChecks.ParameterChecks;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Processors;
@@ -23,6 +25,7 @@ using DSharpPlus.Commands.Processors.UserCommands;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -31,6 +34,15 @@ using CheckFunc = System.Func
 <
     object,
     DSharpPlus.Commands.ContextChecks.ContextCheckAttribute,
+    CommandContext,
+    System.Threading.Tasks.ValueTask<string?>
+>;
+
+using ParameterCheckFunc = System.Func
+<
+    object,
+    DSharpPlus.Commands.ContextChecks.ParameterChecks.ParameterCheckAttribute,
+    DSharpPlus.Commands.ContextChecks.ParameterChecks.ParameterCheckInfo,
     CommandContext,
     System.Threading.Tasks.ValueTask<string?>
 >;
@@ -68,6 +80,9 @@ public sealed class CommandsExtension : BaseExtension
 
     public IReadOnlyList<ContextCheckMapEntry> Checks => this.checks;
     private readonly List<ContextCheckMapEntry> checks = [];
+
+    public IReadOnlyList<ParameterCheckMapEntry> ParameterChecks => this.parameterChecks;
+    private readonly List<ParameterCheckMapEntry> parameterChecks = [];
 
     /// <summary>
     /// Executed everytime a command is finished executing.
@@ -132,6 +147,8 @@ public sealed class CommandsExtension : BaseExtension
         this.AddCheck<RequireNsfwCheck>();
         this.AddCheck<RequirePermissionsCheck>();
         this.AddCheck<TextMessageReplyCheck>();
+
+        this.AddParameterCheck<RequireHierarchyCheck>();
     }
 
     public void AddCommand(Type type) => this._commandBuilders.Add(CommandBuilder.From(type));
@@ -237,6 +254,84 @@ public sealed class CommandsExtension : BaseExtension
             CheckFunc func = Unsafe.As<CheckFunc>(Expression.Lambda(delegateType, call, check, attribute, context).Compile());
 
             this.checks.Add
+            (
+                new()
+                {
+                    AttributeType = attributeType,
+                    CheckType = checkType,
+                    ExecuteCheckAsync = func
+                }
+            );
+        }
+    }
+
+    /// <summary>
+    /// Adds all parameter checks from the provided assembly to the extension.
+    /// </summary>
+    public void AddParameterChecks(Assembly assembly)
+    {
+        foreach (Type t in assembly.GetTypes())
+        {
+            if (t.GetInterface("DSharpPlus.Commands.ContextChecks.ParameterChecks.IParameterCheck`1") is not null)
+            {
+                this.AddParameterCheck(t);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Adds a new check to the extension.
+    /// </summary>
+    public void AddParameterCheck<T>()
+        where T : IParameterCheck
+        => this.AddParameterCheck(typeof(T));
+
+    /// <summary>
+    /// Adds a new check to the extension.
+    /// </summary>
+    public void AddParameterCheck(Type checkType)
+    {
+        // get all implemented check interfaces, we can pretty easily handle having multiple checks in one type
+        foreach (Type t in checkType.GetInterfaces())
+        {
+            if (t.Namespace != "DSharpPlus.Commands.ContextChecks.ParameterChecks" || t.Name != "IParameterCheck`1")
+            {
+                continue;
+            }
+
+            Type attributeType = t.GetGenericArguments()[0];
+
+            MethodInfo method = checkType.GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .First(x => x.Name == "ExecuteCheckAsync" && x.GetParameters()[0].ParameterType == attributeType);
+
+            // create the func for invoking the check here, during startup
+            ParameterExpression check = Expression.Parameter(checkType);
+            ParameterExpression attribute = Expression.Parameter(attributeType);
+            ParameterExpression info = Expression.Parameter(typeof(ParameterCheckInfo));
+            ParameterExpression context = Expression.Parameter(typeof(CommandContext));
+
+            MethodCallExpression call = Expression.Call
+            (
+                instance: check,
+                method: method,
+                arg0: attribute,
+                arg1: info,
+                arg2: context
+            );
+
+            Type delegateType = typeof(Func<,,,,>).MakeGenericType
+            (
+                checkType, 
+                attributeType,
+                typeof(ParameterCheckInfo),
+                typeof(CommandContext), 
+                typeof(ValueTask<string>)
+            );
+
+            ParameterCheckFunc func = Unsafe.As<ParameterCheckFunc>(Expression.Lambda(delegateType, call, check, attribute, info, context)
+                .Compile());
+
+            this.parameterChecks.Add
             (
                 new()
                 {
