@@ -1,8 +1,8 @@
+namespace DSharpPlus.Entities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents either a forum channel or a post in the forum.

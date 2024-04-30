@@ -1,6 +1,5 @@
-using System;
-
 namespace DSharpPlus.CommandsNext.Attributes;
+using System;
 
 /// <summary>
 /// Defines a lifespan for this command module.

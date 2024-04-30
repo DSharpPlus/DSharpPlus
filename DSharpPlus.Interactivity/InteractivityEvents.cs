@@ -1,6 +1,5 @@
-using Microsoft.Extensions.Logging;
-
 namespace DSharpPlus.Interactivity;
+using Microsoft.Extensions.Logging;
 
 /// <summary>
 /// Contains well-defined event IDs used by the Interactivity extension.

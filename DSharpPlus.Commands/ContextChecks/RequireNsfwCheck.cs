@@ -1,6 +1,5 @@
-using System.Threading.Tasks;
-
 namespace DSharpPlus.Commands.ContextChecks;
+using System.Threading.Tasks;
 
 internal sealed class RequireNsfwCheck : IContextCheck<RequireNsfwAttribute>
 {

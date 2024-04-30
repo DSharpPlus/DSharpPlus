@@ -1,3 +1,4 @@
+namespace DSharpPlus.Interactivity;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,8 +10,6 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
-
-namespace DSharpPlus.Interactivity;
 
 /// <summary>
 /// Extension class for DSharpPlus.Interactivity
@@ -250,7 +249,7 @@ public class InteractivityExtension : BaseExtension
         IEnumerable<string> ids = message.Components.SelectMany(m => m.Components).Select(c => c.CustomId);
 
         ComponentInteractionCreateEventArgs? result =
-            await 
+            await
             ComponentEventWaiter
             .WaitForMatchAsync(new(message, c => c.Interaction.Data.ComponentType == DiscordComponentType.Button && ids.Contains(c.Id), token))
             ;
@@ -296,7 +295,7 @@ public class InteractivityExtension : BaseExtension
             throw new ArgumentException("Provided message does not contain any button components.");
         }
 
-        ComponentInteractionCreateEventArgs? result = await 
+        ComponentInteractionCreateEventArgs? result = await
             ComponentEventWaiter
             .WaitForMatchAsync(new(message, (c) => c.Interaction.Data.ComponentType is DiscordComponentType.Button && c.User == user, token))
             ;
@@ -348,7 +347,7 @@ public class InteractivityExtension : BaseExtension
             throw new ArgumentException($"Provided message does not contain button with Id of '{id}'.");
         }
 
-        ComponentInteractionCreateEventArgs? result = await 
+        ComponentInteractionCreateEventArgs? result = await
             ComponentEventWaiter
             .WaitForMatchAsync(new(message, (c) => c.Interaction.Data.ComponentType is DiscordComponentType.Button && c.Id == id, token))
             ;
@@ -388,7 +387,7 @@ public class InteractivityExtension : BaseExtension
             throw new ArgumentException("Provided message does not contain any button components.");
         }
 
-        ComponentInteractionCreateEventArgs? result = await 
+        ComponentInteractionCreateEventArgs? result = await
             ComponentEventWaiter
             .WaitForMatchAsync(new(message, c => c.Interaction.Data.ComponentType is DiscordComponentType.Button && predicate(c), token))
             ;
@@ -430,7 +429,7 @@ public class InteractivityExtension : BaseExtension
             throw new ArgumentException("Provided message does not contain any select components.");
         }
 
-        ComponentInteractionCreateEventArgs? result = await 
+        ComponentInteractionCreateEventArgs? result = await
             ComponentEventWaiter
             .WaitForMatchAsync(new(message, c => IsSelect(c.Interaction.Data.ComponentType) && predicate(c), token))
             ;
@@ -479,7 +478,7 @@ public class InteractivityExtension : BaseExtension
             throw new ArgumentException($"Provided message does not contain select component with Id of '{id}'.");
         }
 
-        ComponentInteractionCreateEventArgs? result = await 
+        ComponentInteractionCreateEventArgs? result = await
             ComponentEventWaiter
             .WaitForMatchAsync(new(message, (c) => IsSelect(c.Interaction.Data.ComponentType) && c.Id == id, token))
             ;
@@ -539,7 +538,7 @@ public class InteractivityExtension : BaseExtension
             throw new ArgumentException($"Provided message does not contain button with Id of '{id}'.");
         }
 
-        ComponentInteractionCreateEventArgs? result = await 
+        ComponentInteractionCreateEventArgs? result = await
             ComponentEventWaiter
             .WaitForMatchAsync(new(message, (c) => c.Id == id && c.User == user, token));
 

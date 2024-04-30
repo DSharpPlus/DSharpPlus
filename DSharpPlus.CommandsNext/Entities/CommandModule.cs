@@ -1,6 +1,5 @@
-using System;
-
 namespace DSharpPlus.CommandsNext.Entities;
+using System;
 
 /// <summary>
 /// Represents a base interface for all types of command modules.

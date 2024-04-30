@@ -1,6 +1,5 @@
-using DSharpPlus.Entities;
-
 namespace DSharpPlus.Net.Models;
+using DSharpPlus.Entities;
 
 public class MembershipScreeningEditModel : BaseEditModel
 {

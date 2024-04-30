@@ -1,7 +1,6 @@
+namespace DSharpPlus.Commands.ContextChecks;
 using System.Linq;
 using System.Threading.Tasks;
-
-namespace DSharpPlus.Commands.ContextChecks;
 
 internal sealed class RequireApplicationOwnerCheck : IContextCheck<RequireApplicationOwnerAttribute>
 {

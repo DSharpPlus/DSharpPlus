@@ -1,6 +1,5 @@
-using System;
-
 namespace DSharpPlus.EventArgs;
+using System;
 
 /// <summary>
 /// Represents arguments for <see cref="DiscordClient.SocketClosed"/> event.

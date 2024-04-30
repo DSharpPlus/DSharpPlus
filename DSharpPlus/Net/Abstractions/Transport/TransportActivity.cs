@@ -1,11 +1,10 @@
+namespace DSharpPlus.Net.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-namespace DSharpPlus.Net.Abstractions;
 
 /// <summary>
 /// Represents a game a user is playing.

@@ -1,8 +1,7 @@
+namespace DSharpPlus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
-namespace DSharpPlus;
 
 internal class QueryUriBuilder
 {

@@ -1,6 +1,5 @@
-using Newtonsoft.Json;
-
 namespace DSharpPlus.Net.Abstractions;
+using Newtonsoft.Json;
 
 internal sealed class FollowedChannelAddPayload
 {

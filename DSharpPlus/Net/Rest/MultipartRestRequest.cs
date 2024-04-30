@@ -21,14 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+namespace DSharpPlus.Net;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
 using DSharpPlus.Entities;
-
-namespace DSharpPlus.Net;
 
 /// <summary>
 /// Represents a multipart HTTP request.

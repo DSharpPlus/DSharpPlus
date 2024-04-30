@@ -1,6 +1,5 @@
-using System;
-
 namespace DSharpPlus.SlashCommands;
+using System;
 
 /// <summary>
 /// Marks this method as a slash command.

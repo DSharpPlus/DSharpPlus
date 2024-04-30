@@ -1,7 +1,6 @@
+namespace DSharpPlus.CommandsNext.Attributes;
 using System;
 using System.Threading.Tasks;
-
-namespace DSharpPlus.CommandsNext.Attributes;
 
 /// <summary>
 /// Represents a base for all command pre-execution check attributes.

@@ -1,7 +1,6 @@
+namespace DSharpPlus.CommandsNext.Converters;
 using System;
 using System.Collections.Generic;
-
-namespace DSharpPlus.CommandsNext.Converters;
 
 public struct ArgumentBindingResult
 {

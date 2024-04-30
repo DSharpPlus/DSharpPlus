@@ -1,6 +1,5 @@
-using DSharpPlus.AsyncEvents;
-
 namespace DSharpPlus.SlashCommands.EventArgs;
+using DSharpPlus.AsyncEvents;
 
 /// <summary>
 /// Represents arguments for a <see cref="SlashCommandsExtension.ContextMenuInvoked"/>

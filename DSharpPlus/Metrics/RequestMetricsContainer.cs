@@ -1,10 +1,9 @@
+namespace DSharpPlus.Metrics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading;
-
-namespace DSharpPlus.Metrics;
 
 internal sealed class RequestMetricsContainer
 {

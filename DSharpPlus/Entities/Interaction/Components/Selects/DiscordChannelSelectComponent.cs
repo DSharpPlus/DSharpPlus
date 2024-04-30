@@ -1,8 +1,7 @@
+namespace DSharpPlus.Entities;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-
-namespace DSharpPlus.Entities;
 
 public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
 {

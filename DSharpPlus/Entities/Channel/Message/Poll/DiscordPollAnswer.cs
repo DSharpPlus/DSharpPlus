@@ -1,6 +1,5 @@
-using Newtonsoft.Json;
-
 namespace DSharpPlus.Entities;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Represents an answer to a poll.

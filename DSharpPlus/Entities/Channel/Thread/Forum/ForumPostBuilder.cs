@@ -1,6 +1,6 @@
+namespace DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
-namespace DSharpPlus.Entities;
 
 /// <summary>
 /// A builder to create a forum post.

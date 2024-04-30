@@ -1,9 +1,8 @@
+namespace DSharpPlus.Net;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
-
-namespace DSharpPlus.Net;
 
 /// <summary>
 /// Represents a non-multipart HTTP request.

@@ -1,6 +1,5 @@
-using Newtonsoft.Json;
-
 namespace DSharpPlus.Entities;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Gets a count of a poll answer.

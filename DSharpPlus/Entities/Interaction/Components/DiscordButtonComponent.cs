@@ -1,6 +1,6 @@
+namespace DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Newtonsoft.Json;
-namespace DSharpPlus.Entities;
 
 
 /// <summary>

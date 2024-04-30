@@ -1,7 +1,6 @@
+namespace DSharpPlus.AsyncEvents;
 using System;
 using System.Threading.Tasks;
-
-namespace DSharpPlus.AsyncEvents;
 
 /// <summary>
 /// Provides a registration surface for asynchronous events using C# language event syntax. 

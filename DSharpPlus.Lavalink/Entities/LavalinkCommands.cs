@@ -1,8 +1,7 @@
+namespace DSharpPlus.Lavalink.Entities;
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-
-namespace DSharpPlus.Lavalink.Entities;
 
 [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 internal sealed class LavalinkConfigureResume : LavalinkPayload

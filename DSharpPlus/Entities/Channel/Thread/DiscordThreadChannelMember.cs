@@ -1,7 +1,6 @@
+namespace DSharpPlus.Entities;
 using System;
 using Newtonsoft.Json;
-
-namespace DSharpPlus.Entities;
 
 public class DiscordThreadChannelMember
 {
@@ -70,7 +69,7 @@ public class DiscordThreadChannelMember
     /// </summary>
     /// <param name="e"><see cref="DiscordThreadChannelMember"/> to compare to.</param>
     /// <returns>Whether the <see cref="DiscordThreadChannelMember"/> is equal to this <see cref="DiscordThreadChannelMember"/>.</returns>
-    public bool Equals(DiscordThreadChannelMember e) => e is not null && (ReferenceEquals(this, e) || Id == e.Id && ThreadId == e.ThreadId);
+    public bool Equals(DiscordThreadChannelMember e) => e is not null && (ReferenceEquals(this, e) || (Id == e.Id && ThreadId == e.ThreadId));
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordThreadChannelMember"/>.
@@ -98,7 +97,7 @@ public class DiscordThreadChannelMember
         object? o2 = e2 as object;
 
         return (o1 != null || o2 == null) && (o1 == null || o2 != null)
-&& (o1 == null && o2 == null || e1.Id == e2.Id && e1.ThreadId == e2.ThreadId);
+&& ((o1 == null && o2 == null) || (e1.Id == e2.Id && e1.ThreadId == e2.ThreadId));
     }
 
     /// <summary>

@@ -1,9 +1,8 @@
+namespace DSharpPlus;
 using System;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Logging;
-
-namespace DSharpPlus;
 
 public sealed partial class DiscordClient
 {

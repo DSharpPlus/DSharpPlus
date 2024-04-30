@@ -1,6 +1,5 @@
-using Newtonsoft.Json;
-
 namespace DSharpPlus.Entities;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Represents a discord role tags.

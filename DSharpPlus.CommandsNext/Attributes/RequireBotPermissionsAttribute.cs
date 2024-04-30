@@ -1,9 +1,8 @@
+namespace DSharpPlus.CommandsNext.Attributes;
 using System;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
-
-namespace DSharpPlus.CommandsNext.Attributes;
 
 /// <summary>
 /// Defines that usage of this command is only possible when the bot is granted a specific permission.

@@ -1,11 +1,10 @@
+namespace DSharpPlus.Net;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading;
-
-namespace DSharpPlus.Net;
 
 /// <summary>
 /// Represents a rate limit bucket.

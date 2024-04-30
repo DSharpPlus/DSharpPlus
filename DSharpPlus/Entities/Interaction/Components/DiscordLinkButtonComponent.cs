@@ -1,5 +1,5 @@
-using Newtonsoft.Json;
 namespace DSharpPlus.Entities;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Represents a link button. Clicking a link button does not send an interaction.

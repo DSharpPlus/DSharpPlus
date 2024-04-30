@@ -1,5 +1,5 @@
-using System;
 namespace DSharpPlus.SlashCommands;
+using System;
 
 /// <summary>
 /// Indicates that a global application command cannot be invoked in DMs.

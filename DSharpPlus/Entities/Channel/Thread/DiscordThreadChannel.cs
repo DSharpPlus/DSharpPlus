@@ -1,3 +1,4 @@
+namespace DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,8 +6,6 @@ using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Models;
 using Newtonsoft.Json;
-
-namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a Discord thread in a channel.

@@ -1,9 +1,8 @@
+namespace DSharpPlus.Lavalink;
 using System;
 using System.IO;
 using System.Text;
 using DSharpPlus.Lavalink.EventArgs;
-
-namespace DSharpPlus.Lavalink;
 
 /// <summary>
 /// Various utilities for Lavalink.

@@ -1,6 +1,5 @@
-using System.Collections.Generic;
-
 namespace DSharpPlus.Entities;
+using System.Collections.Generic;
 
 /// <summary>
 /// Interface for mentionables

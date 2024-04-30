@@ -1,6 +1,6 @@
+namespace DSharpPlus.Entities;
 using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
-namespace DSharpPlus.Entities;
 
 /// <summary>
 /// A component to attach to a message.

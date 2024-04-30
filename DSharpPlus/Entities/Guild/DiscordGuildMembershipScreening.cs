@@ -1,8 +1,7 @@
+namespace DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-
-namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a guild's membership screening form.

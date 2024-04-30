@@ -1,7 +1,6 @@
+namespace DSharpPlus.CommandsNext.Converters;
 using System;
 using Microsoft.Extensions.DependencyInjection;
-
-namespace DSharpPlus.CommandsNext.Converters;
 
 internal class HelpFormatterFactory
 {

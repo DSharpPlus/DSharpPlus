@@ -1,6 +1,5 @@
-using Newtonsoft.Json;
-
 namespace DSharpPlus.Net.Abstractions;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Represents a websocket payload exchanged between Discord and the client.

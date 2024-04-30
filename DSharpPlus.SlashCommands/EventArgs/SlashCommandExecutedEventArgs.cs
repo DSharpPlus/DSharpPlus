@@ -1,6 +1,5 @@
-using DSharpPlus.AsyncEvents;
-
 namespace DSharpPlus.SlashCommands.EventArgs;
+using DSharpPlus.AsyncEvents;
 
 /// <summary>
 /// Represents the arguments for a <see cref="SlashCommandsExtension.SlashCommandExecuted"/> event.

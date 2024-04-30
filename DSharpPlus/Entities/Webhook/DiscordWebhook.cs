@@ -1,11 +1,10 @@
+namespace DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using DSharpPlus.Net;
 using Newtonsoft.Json;
-
-namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents information about a Discord webhook.
@@ -217,7 +216,7 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
         object? o1 = e1 as object;
         object? o2 = e2 as object;
 
-        return (o1 != null || o2 == null) && (o1 == null || o2 != null) && (o1 == null && o2 == null || e1.Id == e2.Id);
+        return (o1 != null || o2 == null) && (o1 == null || o2 != null) && ((o1 == null && o2 == null) || e1.Id == e2.Id);
     }
 
     /// <summary>

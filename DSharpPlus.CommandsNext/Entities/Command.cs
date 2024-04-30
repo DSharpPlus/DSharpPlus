@@ -1,3 +1,4 @@
+namespace DSharpPlus.CommandsNext;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +8,6 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
-
-namespace DSharpPlus.CommandsNext;
 
 /// <summary>
 /// Represents a command.

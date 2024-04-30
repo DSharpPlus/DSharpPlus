@@ -1,11 +1,10 @@
+namespace DSharpPlus.CommandsNext.Converters;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
-
-namespace DSharpPlus.CommandsNext.Converters;
 
 public class DiscordUserConverter : IArgumentConverter<DiscordUser>
 {

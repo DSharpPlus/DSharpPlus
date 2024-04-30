@@ -1,11 +1,10 @@
+namespace DSharpPlus;
 using System;
 using System.IO;
 using System.Net;
 using DSharpPlus.Net.Udp;
 using DSharpPlus.Net.WebSocket;
 using Microsoft.Extensions.Logging;
-
-namespace DSharpPlus;
 
 /// <summary>
 /// Represents configuration for <see cref="DiscordClient"/> and <see cref="DiscordShardedClient"/>.

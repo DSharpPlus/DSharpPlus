@@ -1,3 +1,4 @@
+namespace DSharpPlus;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,8 +9,6 @@ using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
-
-namespace DSharpPlus;
 
 public class DiscordRestClient : BaseDiscordClient
 {

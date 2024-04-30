@@ -1,7 +1,6 @@
+namespace DSharpPlus.SlashCommands;
 using System;
 using System.Threading.Tasks;
-
-namespace DSharpPlus.SlashCommands;
 
 /// <summary>
 /// The base class for a pre-execution check for a slash command.

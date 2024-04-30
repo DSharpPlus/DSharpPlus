@@ -1,8 +1,7 @@
+namespace DSharpPlus.Commands.ContextChecks;
 #pragma warning disable IDE0046
 
 using System.Threading.Tasks;
-
-namespace DSharpPlus.Commands.ContextChecks;
 
 internal sealed class RequirePermissionsCheck : IContextCheck<RequirePermissionsAttribute>
 {

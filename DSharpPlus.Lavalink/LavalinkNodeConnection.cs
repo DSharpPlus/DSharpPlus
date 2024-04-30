@@ -1,3 +1,4 @@
+namespace DSharpPlus.Lavalink;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -16,8 +17,6 @@ using DSharpPlus.Net.WebSocket;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-namespace DSharpPlus.Lavalink;
 
 [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 internal delegate void NodeDisconnectedEventHandler(LavalinkNodeConnection node);

@@ -1,3 +1,4 @@
+namespace DSharpPlus.CommandsNext;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -8,8 +9,6 @@ using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Executors;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
-
-namespace DSharpPlus.CommandsNext;
 
 /// <summary>
 /// <para>Represents a delegate for a function that takes a message, and returns the position of the start of command invocation in the message. It has to return -1 if prefix is not present.</para>

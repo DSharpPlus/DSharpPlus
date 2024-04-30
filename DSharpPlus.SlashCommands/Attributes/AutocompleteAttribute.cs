@@ -21,9 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-
 namespace DSharpPlus.SlashCommands;
+using System;
 
 /// <summary>
 /// Handles autocomplete choices for a slash command parameter.

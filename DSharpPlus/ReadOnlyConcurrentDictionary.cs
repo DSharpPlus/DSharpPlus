@@ -1,9 +1,8 @@
+namespace DSharpPlus;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-
-namespace DSharpPlus;
 
 /// <summary>
 /// Read-only view of a given <see cref="ConcurrentDictionary{TKey,TValue}"/>.

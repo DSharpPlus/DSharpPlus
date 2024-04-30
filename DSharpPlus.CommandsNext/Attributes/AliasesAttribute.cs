@@ -1,9 +1,8 @@
+namespace DSharpPlus.CommandsNext.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-
-namespace DSharpPlus.CommandsNext.Attributes;
 
 /// <summary>
 /// Adds aliases to this command or group.

@@ -1,6 +1,5 @@
-using System;
-
 namespace DSharpPlus.AsyncEvents;
+using System;
 
 /// <summary>
 /// A base class for arguments passed to an event handler.

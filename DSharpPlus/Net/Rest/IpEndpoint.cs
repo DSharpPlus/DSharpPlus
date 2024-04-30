@@ -1,6 +1,5 @@
-using System.Net;
-
 namespace DSharpPlus.Net;
+using System.Net;
 
 /// <summary>
 /// Represents a network connection IP endpoint.

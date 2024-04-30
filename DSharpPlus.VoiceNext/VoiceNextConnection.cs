@@ -1,3 +1,4 @@
+namespace DSharpPlus.VoiceNext;
 using System;
 using System.Buffers;
 using System.Buffers.Binary;
@@ -21,8 +22,6 @@ using DSharpPlus.VoiceNext.EventArgs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-namespace DSharpPlus.VoiceNext;
 
 internal delegate Task VoiceDisconnectedEventHandler(DiscordGuild guild);
 

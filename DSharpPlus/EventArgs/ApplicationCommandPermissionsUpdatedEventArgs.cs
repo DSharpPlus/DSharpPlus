@@ -1,8 +1,8 @@
+namespace DSharpPlus.EventArgs;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 
 using Newtonsoft.Json;
-namespace DSharpPlus.EventArgs;
 
 public class ApplicationCommandPermissionsUpdatedEventArgs : DiscordEventArgs
 {

@@ -1,7 +1,6 @@
+namespace DSharpPlus.VoiceNext.Codec;
 using System;
 using System.Runtime.InteropServices;
-
-namespace DSharpPlus.VoiceNext.Codec;
 
 /// <summary>
 /// This is an interop class. It contains wrapper methods for Opus and Sodium.

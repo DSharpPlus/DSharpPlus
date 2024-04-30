@@ -1,7 +1,6 @@
+namespace DSharpPlus.Entities;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-
-namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a discord welcome screen object.

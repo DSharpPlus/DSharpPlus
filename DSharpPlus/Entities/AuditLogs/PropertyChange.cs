@@ -21,9 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using DSharpPlus.Net.Abstractions;
-
 namespace DSharpPlus.Entities.AuditLogs;
+using DSharpPlus.Net.Abstractions;
 
 /// <summary>
 /// Represents a description of how a property changed.

@@ -1,6 +1,5 @@
-using Newtonsoft.Json;
-
 namespace DSharpPlus.Lavalink.Entities;
+using Newtonsoft.Json;
 
 internal sealed class VoiceStateUpdatePayload
 {

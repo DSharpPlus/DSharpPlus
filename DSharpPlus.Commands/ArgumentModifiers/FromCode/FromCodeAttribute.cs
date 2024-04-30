@@ -1,6 +1,5 @@
-using System;
-
 namespace DSharpPlus.Commands.ArgumentModifiers;
+using System;
 
 /// <summary>
 /// Removes the need to manually parse code blocks from a string.

@@ -1,6 +1,5 @@
-using System;
-
 namespace DSharpPlus.SlashCommands;
+using System;
 
 /// <summary>
 /// Specifies a locale for a slash command description. The longest description is the one that counts toward character limits.

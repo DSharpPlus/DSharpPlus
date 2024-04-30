@@ -1,3 +1,4 @@
+namespace DSharpPlus.Interactivity.EventHandling;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,8 +9,6 @@ using ConcurrentCollections;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Logging;
-
-namespace DSharpPlus.Interactivity.EventHandling;
 
 internal class Poller
 {

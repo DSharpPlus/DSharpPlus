@@ -1,6 +1,5 @@
-using System;
-
 namespace DSharpPlus.Commands.ContextChecks.ParameterChecks;
+using System;
 
 /// <summary>
 /// Contains information about a failed parameter check.

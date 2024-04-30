@@ -1,6 +1,5 @@
-using DSharpPlus.Entities;
-
 namespace DSharpPlus.EventArgs;
+using DSharpPlus.Entities;
 
 /// <summary>
 /// Represents arguments for UserSpeaking event.

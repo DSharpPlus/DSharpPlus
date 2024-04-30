@@ -1,6 +1,5 @@
-using DSharpPlus.Entities;
-
 namespace DSharpPlus.CommandsNext.Entities;
+using DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a formatted help message.

@@ -1,9 +1,8 @@
+namespace DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using DSharpPlus.Net.Abstractions;
-
-namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a team consisting of users. A team can own an application.

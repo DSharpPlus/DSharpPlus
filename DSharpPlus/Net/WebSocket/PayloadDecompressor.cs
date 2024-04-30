@@ -1,9 +1,8 @@
+namespace DSharpPlus.Net.WebSocket;
 using System;
 using System.Buffers.Binary;
 using System.IO;
 using System.IO.Compression;
-
-namespace DSharpPlus.Net.WebSocket;
 
 internal sealed class PayloadDecompressor : IDisposable
 {

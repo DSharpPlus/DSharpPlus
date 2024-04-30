@@ -1,3 +1,4 @@
+namespace DSharpPlus.Interactivity.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -6,8 +7,6 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
-
-namespace DSharpPlus.Interactivity.Extensions;
 
 /// <summary>
 /// Interactivity extension methods for <see cref="DiscordChannel"/>.

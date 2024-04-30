@@ -1,6 +1,5 @@
-using Microsoft.Extensions.Logging;
-
 namespace DSharpPlus.CommandsNext;
+using Microsoft.Extensions.Logging;
 
 /// <summary>
 /// Contains well-defined event IDs used by CommandsNext.
