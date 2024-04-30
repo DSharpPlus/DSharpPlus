@@ -8,5 +8,5 @@ public class SlashCommandPermissionsAttribute : Attribute
 {
     public DiscordPermissions Permissions { get; }
 
-    public SlashCommandPermissionsAttribute(DiscordPermissions permissions) => this.Permissions = permissions;
+    public SlashCommandPermissionsAttribute(DiscordPermissions permissions) => Permissions = permissions;
 }

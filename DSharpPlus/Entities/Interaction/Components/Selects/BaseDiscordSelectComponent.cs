@@ -31,12 +31,12 @@ public abstract class BaseDiscordSelectComponent : DiscordComponent
     /// </summary>
     [JsonProperty("max_values", NullValueHandling = NullValueHandling.Ignore)]
     public int? MaximumSelectedValues { get; internal set; }
-    
+
     // used by Newtonsoft.Json
     public BaseDiscordSelectComponent()
     {
     }
-    
+
     internal BaseDiscordSelectComponent
     (
         DiscordComponentType type,
@@ -47,24 +47,24 @@ public abstract class BaseDiscordSelectComponent : DiscordComponent
         int maxOptions = 1
     )
     {
-        this.Type = type;
-        this.CustomId = customId;
-        this.Placeholder = placeholder;
-        this.Disabled = disabled;
-        this.MinimumSelectedValues = minOptions;
-        this.MaximumSelectedValues = maxOptions;
-        
-        if (this.MinimumSelectedValues < 0)
+        Type = type;
+        CustomId = customId;
+        Placeholder = placeholder;
+        Disabled = disabled;
+        MinimumSelectedValues = minOptions;
+        MaximumSelectedValues = maxOptions;
+
+        if (MinimumSelectedValues < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(minOptions), "Minimum selected values must be greater than or equal to zero.");
         }
-        
-        if (this.MaximumSelectedValues < 1)
+
+        if (MaximumSelectedValues < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(maxOptions), "Maximum selected values must be greater than or equal to one.");
         }
-        
-        if (this.MinimumSelectedValues > this.MaximumSelectedValues)
+
+        if (MinimumSelectedValues > MaximumSelectedValues)
         {
             throw new ArgumentOutOfRangeException(nameof(minOptions), "Minimum selected values must be less than or equal to maximum selected values.");
         }

@@ -20,13 +20,13 @@ public class MessageReactionsClearEventArgs : DiscordEventArgs
     /// DM channels in which no prior messages were received or sent.
     /// </remarks>
     public DiscordChannel Channel
-        => this.Message.Channel;
+        => Message.Channel;
 
     /// <summary>
     /// Gets the guild in which the reactions were cleared.
     /// </summary>
     public DiscordGuild Guild
-        => this.Channel.Guild;
+        => Channel.Guild;
 
     internal MessageReactionsClearEventArgs() : base() { }
 }

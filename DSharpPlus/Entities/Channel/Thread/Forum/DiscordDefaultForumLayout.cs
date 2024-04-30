@@ -9,7 +9,7 @@ public enum DiscordDefaultForumLayout
     /// The channel doesn't have a set layout.
     /// </summary>
     Unset,
-    
+
     /// <summary>
     /// Posts will be displayed in a list format.
     /// </summary>

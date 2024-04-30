@@ -43,8 +43,8 @@ public sealed class DiscordEmbed
     /// Gets the embed's color.
     /// </summary>
     [JsonIgnore]
-    public DiscordColor? Color => this._color.HasValue
-        ? (DiscordColor)this._color.Value
+    public DiscordColor? Color => _color.HasValue
+        ? (DiscordColor)_color.Value
         : null;
 
     [JsonProperty("color", NullValueHandling = NullValueHandling.Include)]
@@ -92,5 +92,5 @@ public sealed class DiscordEmbed
     [JsonProperty("fields", NullValueHandling = NullValueHandling.Ignore)]
     public IReadOnlyList<DiscordEmbedField>? Fields { get; internal set; }
 
-    internal DiscordEmbed() {}
+    internal DiscordEmbed() { }
 }

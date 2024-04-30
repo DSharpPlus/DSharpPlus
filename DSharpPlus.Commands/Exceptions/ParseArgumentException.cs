@@ -10,6 +10,6 @@ public sealed class ArgumentParseException : CommandsException
     public ArgumentParseException(CommandParameter parameter, Exception? innerException = null, string? message = null) : base(message ?? $"Failed to parse {parameter.Name}.", innerException)
     {
         ArgumentNullException.ThrowIfNull(parameter, nameof(parameter));
-        this.Parameter = parameter;
+        Parameter = parameter;
     }
 }

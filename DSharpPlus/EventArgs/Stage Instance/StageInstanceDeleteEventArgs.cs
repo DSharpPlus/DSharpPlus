@@ -16,11 +16,11 @@ public class StageInstanceDeleteEventArgs : DiscordEventArgs
     /// Gets the guild the stage instance was in.
     /// </summary>
     public DiscordGuild Guild
-        => this.StageInstance.Guild;
+        => StageInstance.Guild;
 
     /// <summary>
     /// Gets the channel the stage instance was in.
     /// </summary>
     public DiscordChannel Channel
-        => this.StageInstance.Channel;
+        => StageInstance.Channel;
 }

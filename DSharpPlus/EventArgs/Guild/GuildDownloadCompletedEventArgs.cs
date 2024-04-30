@@ -14,5 +14,5 @@ public class GuildDownloadCompletedEventArgs : DiscordEventArgs
     public IReadOnlyDictionary<ulong, DiscordGuild> Guilds { get; }
 
     internal GuildDownloadCompletedEventArgs(IReadOnlyDictionary<ulong, DiscordGuild> guilds)
-        : base() => this.Guilds = guilds;
+        : base() => Guilds = guilds;
 }

@@ -28,17 +28,17 @@ public sealed class SlashMinMaxLengthAttribute : Attribute
     /// </summary>
     public SlashMinMaxLengthAttribute()
     {
-        if (this.MinLength < MinLengthMinimum || this.MinLength > MinLengthMaximum)
+        if (MinLength < MinLengthMinimum || MinLength > MinLengthMaximum)
         {
             throw new ArgumentException($"The minimum length cannot be less than {MinLengthMinimum} and greater than {MinLengthMaximum}.");
         }
 
-        if (this.MaxLength < MaxLengthMinimum || this.MaxLength > MaxLengthMaximum)
+        if (MaxLength < MaxLengthMinimum || MaxLength > MaxLengthMaximum)
         {
             throw new ArgumentException($"The maximum length cannot be less than {MaxLengthMinimum} and greater than {MaxLengthMaximum}.");
         }
 
-        if (this.MinLength > this.MaxLength)
+        if (MinLength > MaxLength)
         {
             throw new ArgumentException("The minimum length cannot be greater than the maximum length.");
         }

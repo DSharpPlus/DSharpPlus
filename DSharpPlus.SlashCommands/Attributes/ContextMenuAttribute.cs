@@ -44,9 +44,9 @@ public sealed class ContextMenuAttribute : Attribute
             throw new ArgumentException("Context menus cannot be of type SlashCommand.");
         }
 
-        this.Type = type;
-        this.Name = name;
-        this.DefaultPermission = defaultPermission;
-        this.NSFW = nsfw;
+        Type = type;
+        Name = name;
+        DefaultPermission = defaultPermission;
+        NSFW = nsfw;
     }
 }

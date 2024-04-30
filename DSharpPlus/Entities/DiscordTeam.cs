@@ -24,7 +24,7 @@ public sealed class DiscordTeam : SnowflakeObject, IEquatable<DiscordTeam>
     /// Gets the team's icon.
     /// </summary>
     public string Icon
-        => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/team-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png?size=1024" : null;
+        => !string.IsNullOrWhiteSpace(IconHash) ? $"https://cdn.discordapp.com/team-icons/{Id.ToString(CultureInfo.InvariantCulture)}/{IconHash}.png?size=1024" : null;
 
     /// <summary>
     /// Gets the owner of the team.
@@ -38,9 +38,9 @@ public sealed class DiscordTeam : SnowflakeObject, IEquatable<DiscordTeam>
 
     internal DiscordTeam(TransportTeam tt)
     {
-        this.Id = tt.Id;
-        this.Name = tt.Name;
-        this.IconHash = tt.IconHash;
+        Id = tt.Id;
+        Name = tt.Name;
+        IconHash = tt.IconHash;
     }
 
     /// <summary>
@@ -64,14 +64,14 @@ public sealed class DiscordTeam : SnowflakeObject, IEquatable<DiscordTeam>
     /// </summary>
     /// <returns>Hash code of this team.</returns>
     public override int GetHashCode()
-        => this.Id.GetHashCode();
+        => Id.GetHashCode();
 
     /// <summary>
     /// Converts this team to its string representation.
     /// </summary>
     /// <returns>The string representation of this team.</returns>
     public override string ToString()
-        => $"Team: {this.Name} ({this.Id})";
+        => $"Team: {Name} ({Id})";
 
     public static bool operator ==(DiscordTeam left, DiscordTeam right)
         => left?.Id == right?.Id;
@@ -107,8 +107,8 @@ public sealed class DiscordTeamMember : IEquatable<DiscordTeamMember>
 
     internal DiscordTeamMember(TransportTeamMember ttm)
     {
-        this.MembershipStatus = (DiscordTeamMembershipStatus)ttm.MembershipState;
-        this.Permissions = new ReadOnlySet<string>(new HashSet<string>(ttm.Permissions));
+        MembershipStatus = (DiscordTeamMembershipStatus)ttm.MembershipState;
+        Permissions = new ReadOnlySet<string>(new HashSet<string>(ttm.Permissions));
     }
 
     /// <summary>
@@ -134,8 +134,8 @@ public sealed class DiscordTeamMember : IEquatable<DiscordTeamMember>
     public override int GetHashCode()
     {
         int hash = 13;
-        hash = (hash * 7) + this.User.GetHashCode();
-        hash = (hash * 7) + this.Team.GetHashCode();
+        hash = (hash * 7) + User.GetHashCode();
+        hash = (hash * 7) + Team.GetHashCode();
         return hash;
     }
 
@@ -144,7 +144,7 @@ public sealed class DiscordTeamMember : IEquatable<DiscordTeamMember>
     /// </summary>
     /// <returns>String representation of this team member.</returns>
     public override string ToString()
-        => $"Team member: {this.User.Username}#{this.User.Discriminator} ({this.User.Id}), part of team {this.Team.Name} ({this.Team.Id})";
+        => $"Team member: {User.Username}#{User.Discriminator} ({User.Id}), part of team {Team.Name} ({Team.Id})";
 
     public static bool operator ==(DiscordTeamMember left, DiscordTeamMember right)
         => left?.Team?.Id == right?.Team?.Id && left?.User?.Id == right?.User?.Id;

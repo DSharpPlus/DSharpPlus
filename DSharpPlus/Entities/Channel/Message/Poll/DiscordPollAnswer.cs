@@ -12,7 +12,7 @@ public class DiscordPollAnswer
     /// </summary>
     [JsonProperty("answer_id")]
     public int AnswerId { get; internal set; }
-    
+
     /// <summary>
     /// Gets the data for the answer.
     /// </summary>

@@ -1,6 +1,6 @@
-using DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.Commands.Processors.SlashCommands.Metadata;
 

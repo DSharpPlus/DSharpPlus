@@ -22,7 +22,7 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
     /// Gets IDs the roles this emoji is enabled for.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyList<ulong> Roles => this._rolesLazy.Value;
+    public IReadOnlyList<ulong> Roles => _rolesLazy.Value;
 
     [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
     internal List<ulong> _roles;
@@ -50,17 +50,11 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
     /// Gets the image URL of this emoji.
     /// </summary>
     [JsonIgnore]
-    public string Url
-    {
-        get
-        {
-            return this.Id == 0
+    public string Url => Id == 0
                 ? throw new InvalidOperationException("Cannot get URL of unicode emojis.")
-                : this.IsAnimated
-                ? $"https://cdn.discordapp.com/emojis/{this.Id.ToString(CultureInfo.InvariantCulture)}.gif"
-                : $"https://cdn.discordapp.com/emojis/{this.Id.ToString(CultureInfo.InvariantCulture)}.png";
-        }
-    }
+                : IsAnimated
+                ? $"https://cdn.discordapp.com/emojis/{Id.ToString(CultureInfo.InvariantCulture)}.gif"
+                : $"https://cdn.discordapp.com/emojis/{Id.ToString(CultureInfo.InvariantCulture)}.png";
 
     /// <summary>
     /// Gets whether the emoji is available for use.
@@ -69,44 +63,41 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
     [JsonProperty("available", NullValueHandling = NullValueHandling.Ignore)]
     public bool IsAvailable { get; internal set; }
 
-    internal DiscordEmoji() => this._rolesLazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._roles));
+    internal DiscordEmoji() => _rolesLazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(_roles));
 
     /// <summary>
     /// Gets emoji's name in non-Unicode format (eg. :thinking: instead of the Unicode representation of the emoji).
     /// </summary>
     public string GetDiscordName()
     {
-        DiscordNameLookup.TryGetValue(this.Name, out string? name);
+        DiscordNameLookup.TryGetValue(Name, out string? name);
 
-        return name ?? $":{this.Name}:";
+        return name ?? $":{Name}:";
     }
 
     /// <summary>
     /// Returns a string representation of this emoji.
     /// </summary>
     /// <returns>String representation of this emoji.</returns>
-    public override string ToString()
-    {
-        return this.Id != 0
-            ? this.IsAnimated
-                ? $"<a:{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}>"
-                : $"<:{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}>"
-            : this.Name;
-    }
+    public override string ToString() => Id != 0
+            ? IsAnimated
+                ? $"<a:{Name}:{Id.ToString(CultureInfo.InvariantCulture)}>"
+                : $"<:{Name}:{Id.ToString(CultureInfo.InvariantCulture)}>"
+            : Name;
 
     /// <summary>
     /// Checks whether this <see cref="DiscordEmoji"/> is equal to another object.
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordEmoji"/>.</returns>
-    public override bool Equals(object obj) => this.Equals(obj as DiscordEmoji);
+    public override bool Equals(object obj) => Equals(obj as DiscordEmoji);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordEmoji"/> is equal to another <see cref="DiscordEmoji"/>.
     /// </summary>
     /// <param name="e"><see cref="DiscordEmoji"/> to compare to.</param>
     /// <returns>Whether the <see cref="DiscordEmoji"/> is equal to this <see cref="DiscordEmoji"/>.</returns>
-    public bool Equals(DiscordEmoji e) => e is null ? false : ReferenceEquals(this, e) || (this.Id == e.Id && (this.Id != 0 || this.Name == e.Name));
+    public bool Equals(DiscordEmoji e) => e is not null && (ReferenceEquals(this, e) || (Id == e.Id && (Id != 0 || Name == e.Name)));
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordEmoji"/>.
@@ -115,14 +106,14 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
     public override int GetHashCode()
     {
         int hash = 13;
-        hash = (hash * 7) + this.Id.GetHashCode();
-        hash = (hash * 7) + this.Name.GetHashCode();
+        hash = (hash * 7) + Id.GetHashCode();
+        hash = (hash * 7) + Name.GetHashCode();
 
         return hash;
     }
 
     internal string ToReactionString()
-        => this.Id != 0 ? $"{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}" : this.Name;
+        => Id != 0 ? $"{Name}:{Id.ToString(CultureInfo.InvariantCulture)}" : Name;
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordEmoji"/> objects are equal.
@@ -169,12 +160,9 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
     /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
     /// <param name="unicodeEntity">Unicode entity to create the object from.</param>
     /// <returns>Create <see cref="DiscordEmoji"/> object.</returns>
-    public static DiscordEmoji FromUnicode(BaseDiscordClient client, string unicodeEntity)
-    {
-        return !IsValidUnicode(unicodeEntity)
+    public static DiscordEmoji FromUnicode(BaseDiscordClient client, string unicodeEntity) => !IsValidUnicode(unicodeEntity)
             ? throw new ArgumentException("Specified unicode entity is not a valid unicode emoji.", nameof(unicodeEntity))
             : new DiscordEmoji { Name = unicodeEntity, Discord = client };
-    }
 
     /// <summary>
     /// Creates an emoji object from a unicode entity.

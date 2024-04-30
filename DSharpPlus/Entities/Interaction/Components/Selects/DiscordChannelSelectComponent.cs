@@ -8,10 +8,10 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
 {
     [JsonProperty("channel_types", NullValueHandling = NullValueHandling.Ignore)]
     public IReadOnlyList<DiscordChannelType> ChannelTypes { get; internal set; }
-    
+
     [JsonProperty("default_values", NullValueHandling = NullValueHandling.Ignore)]
-    private List<DiscordSelectDefaultValue> _defaultValues = new();
-    
+    private readonly List<DiscordSelectDefaultValue> _defaultValues = new();
+
     /// <summary>
     /// The default values for this component.
     /// </summary>
@@ -69,7 +69,7 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
 
         return this;
     }
-    
+
 
     /// <summary>
     /// Enables this component.
@@ -77,7 +77,7 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
     /// <returns>The current component.</returns>
     public DiscordChannelSelectComponent Enable()
     {
-        this.Disabled = false;
+        Disabled = false;
         return this;
     }
 
@@ -87,11 +87,11 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
     /// <returns>The current component.</returns>
     public DiscordChannelSelectComponent Disable()
     {
-        this.Disabled = true;
+        Disabled = true;
         return this;
     }
 
-    internal DiscordChannelSelectComponent() => this.Type = DiscordComponentType.ChannelSelect;
+    internal DiscordChannelSelectComponent() => Type = DiscordComponentType.ChannelSelect;
 
     /// <summary>
     /// Creates a new channel select component.
@@ -111,5 +111,5 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
         int minOptions = 1,
         int maxOptions = 1
     ) : base(DiscordComponentType.ChannelSelect, customId, placeholder, disabled, minOptions, maxOptions) =>
-        this.ChannelTypes = channelTypes?.ToList();
+        ChannelTypes = channelTypes?.ToList();
 }

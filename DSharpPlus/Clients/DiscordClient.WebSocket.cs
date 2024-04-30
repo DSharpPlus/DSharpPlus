@@ -48,10 +48,10 @@ public sealed partial class DiscordClient
     {
         if (startNewSession)
         {
-            this._sessionId = null;
+            _sessionId = null;
         }
 
-        _ = this._webSocketClient.DisconnectAsync(code, message);
+        _ = _webSocketClient.DisconnectAsync(code, message);
         return Task.CompletedTask;
     }
 
@@ -61,14 +61,14 @@ public sealed partial class DiscordClient
         SocketLock socketLock = null;
         try
         {
-            if (this.GatewayInfo == null)
+            if (GatewayInfo == null)
             {
-                await this.InternalUpdateGatewayAsync();
+                await InternalUpdateGatewayAsync();
             }
 
-            await this.InitializeAsync();
+            await InitializeAsync();
 
-            socketLock = this.GetSocketLock();
+            socketLock = GetSocketLock();
             await socketLock.LockAsync();
         }
         catch
@@ -77,9 +77,9 @@ public sealed partial class DiscordClient
             throw;
         }
 
-        if (!this.Presences.ContainsKey(this.CurrentUser.Id))
+        if (!Presences.ContainsKey(CurrentUser.Id))
         {
-            this._presences[this.CurrentUser.Id] = new DiscordPresence
+            _presences[CurrentUser.Id] = new DiscordPresence
             {
                 Discord = this,
                 RawActivity = new TransportActivity(),
@@ -87,50 +87,50 @@ public sealed partial class DiscordClient
                 Status = DiscordUserStatus.Online,
                 InternalUser = new TransportUser
                 {
-                    Id = this.CurrentUser.Id,
-                    Username = this.CurrentUser.Username,
-                    Discriminator = this.CurrentUser.Discriminator,
-                    AvatarHash = this.CurrentUser.AvatarHash
+                    Id = CurrentUser.Id,
+                    Username = CurrentUser.Username,
+                    Discriminator = CurrentUser.Discriminator,
+                    AvatarHash = CurrentUser.AvatarHash
                 }
             };
         }
         else
         {
-            DiscordPresence pr = this._presences[this.CurrentUser.Id];
+            DiscordPresence pr = _presences[CurrentUser.Id];
             pr.RawActivity = new TransportActivity();
             pr.Activity = new DiscordActivity();
             pr.Status = DiscordUserStatus.Online;
         }
 
-        Volatile.Write(ref this._skippedHeartbeats, 0);
+        Volatile.Write(ref _skippedHeartbeats, 0);
 
-        this._webSocketClient = this.Configuration.WebSocketClientFactory(this.Configuration.Proxy);
-        this._payloadDecompressor = this.Configuration.GatewayCompressionLevel != GatewayCompressionLevel.None
-            ? new PayloadDecompressor(this.Configuration.GatewayCompressionLevel)
+        _webSocketClient = Configuration.WebSocketClientFactory(Configuration.Proxy);
+        _payloadDecompressor = Configuration.GatewayCompressionLevel != GatewayCompressionLevel.None
+            ? new PayloadDecompressor(Configuration.GatewayCompressionLevel)
             : null;
 
-        this._cancelTokenSource = new CancellationTokenSource();
-        this._cancelToken = this._cancelTokenSource.Token;
+        _cancelTokenSource = new CancellationTokenSource();
+        _cancelToken = _cancelTokenSource.Token;
 
-        this._webSocketClient.Connected += SocketOnConnect;
-        this._webSocketClient.Disconnected += SocketOnDisconnect;
-        this._webSocketClient.MessageReceived += SocketOnMessage;
-        this._webSocketClient.ExceptionThrown += SocketOnException;
+        _webSocketClient.Connected += SocketOnConnect;
+        _webSocketClient.Disconnected += SocketOnDisconnect;
+        _webSocketClient.MessageReceived += SocketOnMessage;
+        _webSocketClient.ExceptionThrown += SocketOnException;
 
-        QueryUriBuilder gwuri = new QueryUriBuilder(this.GatewayUri.ToString())
+        QueryUriBuilder gwuri = new QueryUriBuilder(GatewayUri.ToString())
             .AddParameter("v", "10")
             .AddParameter("encoding", "json");
 
-        if (this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Stream)
+        if (Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Stream)
         {
             gwuri.AddParameter("compress", "zlib-stream");
         }
 
-        await this._webSocketClient.ConnectAsync(new Uri(gwuri.Build()));
+        await _webSocketClient.ConnectAsync(new Uri(gwuri.Build()));
 
         Task SocketOnConnect(IWebSocketClient sender, SocketEventArgs e)
         {
-            return this._socketOpened.InvokeAsync(this, e);
+            return _socketOpened.InvokeAsync(this, e);
         }
 
         async Task SocketOnMessage(IWebSocketClient sender, SocketMessageEventArgs e)
@@ -143,9 +143,9 @@ public sealed partial class DiscordClient
             else if (e is SocketBinaryMessageEventArgs ebin) // :DDDD
             {
                 using MemoryStream ms = new MemoryStream();
-                if (!this._payloadDecompressor.TryDecompress(new ArraySegment<byte>(ebin.Message), ms))
+                if (!_payloadDecompressor.TryDecompress(new ArraySegment<byte>(ebin.Message), ms))
                 {
-                    this.Logger.LogError(LoggerEvents.WebSocketReceiveFailure, "Payload decompression failed");
+                    Logger.LogError(LoggerEvents.WebSocketReceiveFailure, "Payload decompression failed");
                     return;
                 }
 
@@ -156,55 +156,55 @@ public sealed partial class DiscordClient
 
             try
             {
-                this.Logger.LogTrace(LoggerEvents.GatewayWsRx, msg);
-                await this.HandleSocketMessageAsync(msg);
+                Logger.LogTrace(LoggerEvents.GatewayWsRx, msg);
+                await HandleSocketMessageAsync(msg);
             }
             catch (Exception ex)
             {
-                this.Logger.LogError(LoggerEvents.WebSocketReceiveFailure, ex, "Socket handler suppressed an exception");
+                Logger.LogError(LoggerEvents.WebSocketReceiveFailure, ex, "Socket handler suppressed an exception");
             }
         }
 
         Task SocketOnException(IWebSocketClient sender, SocketErrorEventArgs e)
         {
-            return this._socketErrored.InvokeAsync(this, e);
+            return _socketErrored.InvokeAsync(this, e);
         }
 
         async Task SocketOnDisconnect(IWebSocketClient sender, SocketCloseEventArgs e)
         {
             // release session and connection
-            this.ConnectionLock.Set();
-            this._sessionLock.Set();
+            ConnectionLock.Set();
+            _sessionLock.Set();
 
-            if (!this._disposed)
+            if (!_disposed)
             {
-                this._cancelTokenSource.Cancel();
+                _cancelTokenSource.Cancel();
             }
 
-            this.Logger.LogDebug(LoggerEvents.ConnectionClose, "Connection closed ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
-            await this._socketClosed.InvokeAsync(this, e);
+            Logger.LogDebug(LoggerEvents.ConnectionClose, "Connection closed ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
+            await _socketClosed.InvokeAsync(this, e);
 
-            if (this.Configuration.AutoReconnect && (e.CloseCode <= 4003 || (e.CloseCode >= 4005 && e.CloseCode <= 4009) || e.CloseCode >= 5000))
+            if (Configuration.AutoReconnect && (e.CloseCode <= 4003 || (e.CloseCode >= 4005 && e.CloseCode <= 4009) || e.CloseCode >= 5000))
             {
-                this.Logger.LogCritical(LoggerEvents.ConnectionClose, "Connection terminated ({CloseCode}, '{CloseMessage}'), reconnecting", e.CloseCode, e.CloseMessage);
+                Logger.LogCritical(LoggerEvents.ConnectionClose, "Connection terminated ({CloseCode}, '{CloseMessage}'), reconnecting", e.CloseCode, e.CloseMessage);
 
-                if (this._status == null)
+                if (_status == null)
                 {
-                    await this.ConnectAsync();
+                    await ConnectAsync();
                 }
                 else
-                    if (this._status.IdleSince.HasValue)
+                    if (_status.IdleSince.HasValue)
                 {
-                    await this.ConnectAsync(this._status._activity, this._status.Status, Utilities.GetDateTimeOffsetFromMilliseconds(this._status.IdleSince.Value));
+                    await ConnectAsync(_status._activity, _status.Status, Utilities.GetDateTimeOffsetFromMilliseconds(_status.IdleSince.Value));
                 }
                 else
                 {
-                    await this.ConnectAsync(this._status._activity, this._status.Status);
+                    await ConnectAsync(_status._activity, _status.Status);
                 }
             }
             else
             {
-                this.Logger.LogInformation(LoggerEvents.ConnectionClose, "Connection terminated ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
+                Logger.LogInformation(LoggerEvents.ConnectionClose, "Connection terminated ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
             }
         }
     }
@@ -216,136 +216,136 @@ public sealed partial class DiscordClient
     internal async Task HandleSocketMessageAsync(string data)
     {
         GatewayPayload? payload = JsonConvert.DeserializeObject<GatewayPayload>(data);
-        this._lastSequence = payload.Sequence ?? this._lastSequence;
+        _lastSequence = payload.Sequence ?? _lastSequence;
         switch (payload.OpCode)
         {
             case GatewayOpCode.Dispatch:
-                await this.HandleDispatchAsync(payload);
+                await HandleDispatchAsync(payload);
                 break;
 
             case GatewayOpCode.Heartbeat:
-                await this.OnHeartbeatAsync((long)payload.Data);
+                await OnHeartbeatAsync((long)payload.Data);
                 break;
 
             case GatewayOpCode.Reconnect:
-                await this.OnReconnectAsync();
+                await OnReconnectAsync();
                 break;
 
             case GatewayOpCode.InvalidSession:
-                await this.OnInvalidateSessionAsync((bool)payload.Data);
+                await OnInvalidateSessionAsync((bool)payload.Data);
                 break;
 
             case GatewayOpCode.Hello:
-                await this.OnHelloAsync((payload.Data as JObject).ToDiscordObject<GatewayHello>());
+                await OnHelloAsync((payload.Data as JObject).ToDiscordObject<GatewayHello>());
                 break;
 
             case GatewayOpCode.HeartbeatAck:
-                await this.OnHeartbeatAckAsync();
+                await OnHeartbeatAckAsync();
                 break;
 
             default:
-                this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown Discord opcode: {Op}\nPayload: {Payload}", payload.OpCode, payload.Data);
+                Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown Discord opcode: {Op}\nPayload: {Payload}", payload.OpCode, payload.Data);
                 break;
         }
     }
 
     internal async Task OnHeartbeatAsync(long seq)
     {
-        this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received HEARTBEAT (OP1)");
-        await this.SendHeartbeatAsync(seq);
+        Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received HEARTBEAT (OP1)");
+        await SendHeartbeatAsync(seq);
     }
 
     internal async Task OnReconnectAsync()
     {
-        this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received RECONNECT (OP7)");
-        await this.InternalReconnectAsync(code: 4000, message: "OP7 acknowledged");
+        Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received RECONNECT (OP7)");
+        await InternalReconnectAsync(code: 4000, message: "OP7 acknowledged");
     }
 
     internal async Task OnInvalidateSessionAsync(bool data)
     {
         // begin a session if one is not open already
-        if (this._sessionLock.Wait(0))
+        if (_sessionLock.Wait(0))
         {
-            this._sessionLock.Reset();
+            _sessionLock.Reset();
         }
 
         // we are sending a fresh resume/identify, so lock the socket
-        SocketLock socketLock = this.GetSocketLock();
+        SocketLock socketLock = GetSocketLock();
         await socketLock.LockAsync();
         socketLock.UnlockAfter(TimeSpan.FromSeconds(5));
 
         if (data)
         {
-            this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received INVALID_SESSION (OP9, true)");
+            Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received INVALID_SESSION (OP9, true)");
             await Task.Delay(6000);
-            await this.SendResumeAsync();
+            await SendResumeAsync();
         }
         else
         {
-            this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received INVALID_SESSION (OP9, false)");
-            this._sessionId = null;
-            await this.SendIdentifyAsync(this._status);
+            Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received INVALID_SESSION (OP9, false)");
+            _sessionId = null;
+            await SendIdentifyAsync(_status);
         }
     }
 
     internal async Task OnHelloAsync(GatewayHello hello)
     {
-        this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received HELLO (OP10)");
+        Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received HELLO (OP10)");
 
-        if (this._sessionLock.Wait(0))
+        if (_sessionLock.Wait(0))
         {
-            this._sessionLock.Reset();
-            this.GetSocketLock().UnlockAfter(TimeSpan.FromSeconds(5));
+            _sessionLock.Reset();
+            GetSocketLock().UnlockAfter(TimeSpan.FromSeconds(5));
         }
         else
         {
-            this.Logger.LogWarning(LoggerEvents.SessionUpdate, "Attempt to start a session while another session is active");
+            Logger.LogWarning(LoggerEvents.SessionUpdate, "Attempt to start a session while another session is active");
             return;
         }
 
-        Interlocked.CompareExchange(ref this._skippedHeartbeats, 0, 0);
-        this._heartbeatInterval = hello.HeartbeatInterval;
-        this._heartbeatTask = Task.Run(this.HeartbeatLoopAsync, this._cancelToken);
+        Interlocked.CompareExchange(ref _skippedHeartbeats, 0, 0);
+        _heartbeatInterval = hello.HeartbeatInterval;
+        _heartbeatTask = Task.Run(HeartbeatLoopAsync, _cancelToken);
 
-        if (string.IsNullOrEmpty(this._sessionId))
+        if (string.IsNullOrEmpty(_sessionId))
         {
-            await this.SendIdentifyAsync(this._status);
+            await SendIdentifyAsync(_status);
         }
         else
         {
-            await this.SendResumeAsync();
+            await SendResumeAsync();
         }
     }
 
     internal async Task OnHeartbeatAckAsync()
     {
-        Interlocked.Decrement(ref this._skippedHeartbeats);
+        Interlocked.Decrement(ref _skippedHeartbeats);
 
-        int ping = (int)(DateTime.Now - this._lastHeartbeat).TotalMilliseconds;
+        int ping = (int)(DateTime.Now - _lastHeartbeat).TotalMilliseconds;
 
-        this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received HEARTBEAT_ACK (OP11, {Heartbeat}ms)", ping);
+        Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received HEARTBEAT_ACK (OP11, {Heartbeat}ms)", ping);
 
-        Volatile.Write(ref this._ping, ping);
+        Volatile.Write(ref _ping, ping);
 
         HeartbeatEventArgs args = new HeartbeatEventArgs
         {
-            Ping = this.Ping,
+            Ping = Ping,
             Timestamp = DateTimeOffset.Now
         };
 
-        await this._heartbeated.InvokeAsync(this, args);
+        await _heartbeated.InvokeAsync(this, args);
     }
 
     internal async Task HeartbeatLoopAsync()
     {
-        this.Logger.LogDebug(LoggerEvents.Heartbeat, "Heartbeat task started");
-        CancellationToken token = this._cancelToken;
+        Logger.LogDebug(LoggerEvents.Heartbeat, "Heartbeat task started");
+        CancellationToken token = _cancelToken;
         try
         {
             while (true)
             {
-                await this.SendHeartbeatAsync(this._lastSequence);
-                await Task.Delay(this._heartbeatInterval, token);
+                await SendHeartbeatAsync(_lastSequence);
+                await Task.Delay(_heartbeatInterval, token);
                 token.ThrowIfCancellationRequested();
             }
         }
@@ -375,7 +375,7 @@ public sealed partial class DiscordClient
         };
 
         // Solution to have status persist between sessions
-        this._status = status;
+        _status = status;
         GatewayPayload status_update = new GatewayPayload
         {
             OpCode = GatewayOpCode.StatusUpdate,
@@ -384,21 +384,21 @@ public sealed partial class DiscordClient
 
         string statusstr = JsonConvert.SerializeObject(status_update);
 
-        await this.SendRawPayloadAsync(statusstr);
+        await SendRawPayloadAsync(statusstr);
 
-        if (!this._presences.ContainsKey(this.CurrentUser.Id))
+        if (!_presences.ContainsKey(CurrentUser.Id))
         {
-            this._presences[this.CurrentUser.Id] = new DiscordPresence
+            _presences[CurrentUser.Id] = new DiscordPresence
             {
                 Discord = this,
                 Activity = act,
                 Status = userStatus ?? DiscordUserStatus.Online,
-                InternalUser = new TransportUser { Id = this.CurrentUser.Id }
+                InternalUser = new TransportUser { Id = CurrentUser.Id }
             };
         }
         else
         {
-            DiscordPresence pr = this._presences[this.CurrentUser.Id];
+            DiscordPresence pr = _presences[CurrentUser.Id];
             pr.Activity = act;
             pr.Status = userStatus ?? pr.Status;
         }
@@ -406,21 +406,21 @@ public sealed partial class DiscordClient
 
     internal async Task SendHeartbeatAsync(long seq)
     {
-        bool more_than_5 = Volatile.Read(ref this._skippedHeartbeats) > 5;
-        bool guilds_comp = Volatile.Read(ref this._guildDownloadCompleted);
+        bool more_than_5 = Volatile.Read(ref _skippedHeartbeats) > 5;
+        bool guilds_comp = Volatile.Read(ref _guildDownloadCompleted);
 
         if (guilds_comp && more_than_5)
         {
-            this.Logger.LogCritical(LoggerEvents.HeartbeatFailure, "Server failed to acknowledge more than 5 heartbeats - connection is zombie");
+            Logger.LogCritical(LoggerEvents.HeartbeatFailure, "Server failed to acknowledge more than 5 heartbeats - connection is zombie");
 
             ZombiedEventArgs args = new ZombiedEventArgs
             {
-                Failures = Volatile.Read(ref this._skippedHeartbeats),
+                Failures = Volatile.Read(ref _skippedHeartbeats),
                 GuildDownloadCompleted = true
             };
-            await this._zombied.InvokeAsync(this, args);
+            await _zombied.InvokeAsync(this, args);
 
-            await this.InternalReconnectAsync(code: 4001, message: "Too many heartbeats missed");
+            await InternalReconnectAsync(code: 4001, message: "Too many heartbeats missed");
 
             return;
         }
@@ -429,27 +429,27 @@ public sealed partial class DiscordClient
         {
             ZombiedEventArgs args = new ZombiedEventArgs
             {
-                Failures = Volatile.Read(ref this._skippedHeartbeats),
+                Failures = Volatile.Read(ref _skippedHeartbeats),
                 GuildDownloadCompleted = false
             };
-            await this._zombied.InvokeAsync(this, args);
+            await _zombied.InvokeAsync(this, args);
 
-            this.Logger.LogWarning(LoggerEvents.HeartbeatFailure, "Server failed to acknowledge more than 5 heartbeats, but the guild download is still running - check your connection speed");
+            Logger.LogWarning(LoggerEvents.HeartbeatFailure, "Server failed to acknowledge more than 5 heartbeats, but the guild download is still running - check your connection speed");
         }
 
-        Volatile.Write(ref this._lastSequence, seq);
-        this.Logger.LogTrace(LoggerEvents.Heartbeat, "Sending heartbeat");
+        Volatile.Write(ref _lastSequence, seq);
+        Logger.LogTrace(LoggerEvents.Heartbeat, "Sending heartbeat");
         GatewayPayload heartbeat = new GatewayPayload
         {
             OpCode = GatewayOpCode.Heartbeat,
             Data = seq
         };
         string heartbeat_str = JsonConvert.SerializeObject(heartbeat);
-        await this.SendRawPayloadAsync(heartbeat_str);
+        await SendRawPayloadAsync(heartbeat_str);
 
-        this._lastHeartbeat = DateTimeOffset.Now;
+        _lastHeartbeat = DateTimeOffset.Now;
 
-        Interlocked.Increment(ref this._skippedHeartbeats);
+        Interlocked.Increment(ref _skippedHeartbeats);
     }
 
     internal async Task SendIdentifyAsync(StatusUpdate status)
@@ -457,15 +457,15 @@ public sealed partial class DiscordClient
         GatewayIdentify identify = new GatewayIdentify
         {
             Token = Utilities.GetFormattedToken(this),
-            Compress = this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Payload,
-            LargeThreshold = this.Configuration.LargeThreshold,
+            Compress = Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Payload,
+            LargeThreshold = Configuration.LargeThreshold,
             ShardInfo = new ShardInfo
             {
-                ShardId = this.Configuration.ShardId,
-                ShardCount = this.Configuration.ShardCount
+                ShardId = Configuration.ShardId,
+                ShardCount = Configuration.ShardCount
             },
             Presence = status,
-            Intents = this.Configuration.Intents
+            Intents = Configuration.Intents
         };
         GatewayPayload payload = new GatewayPayload
         {
@@ -473,9 +473,9 @@ public sealed partial class DiscordClient
             Data = identify
         };
         string payloadstr = JsonConvert.SerializeObject(payload);
-        await this.SendRawPayloadAsync(payloadstr);
+        await SendRawPayloadAsync(payloadstr);
 
-        this.Logger.LogDebug(LoggerEvents.Intents, "Registered gateway intents ({Intents})", this.Configuration.Intents);
+        Logger.LogDebug(LoggerEvents.Intents, "Registered gateway intents ({Intents})", Configuration.Intents);
     }
 
     internal async Task SendResumeAsync()
@@ -483,8 +483,8 @@ public sealed partial class DiscordClient
         GatewayResume resume = new GatewayResume
         {
             Token = Utilities.GetFormattedToken(this),
-            SessionId = this._sessionId,
-            SequenceNumber = Volatile.Read(ref this._lastSequence)
+            SessionId = _sessionId,
+            SequenceNumber = Volatile.Read(ref _lastSequence)
         };
         GatewayPayload resume_payload = new GatewayPayload
         {
@@ -493,20 +493,20 @@ public sealed partial class DiscordClient
         };
         string resumestr = JsonConvert.SerializeObject(resume_payload);
 
-        await this.SendRawPayloadAsync(resumestr);
+        await SendRawPayloadAsync(resumestr);
     }
 
     internal async Task InternalUpdateGatewayAsync()
     {
-        Net.GatewayInfo info = await this.GetGatewayInfoAsync();
-        this.GatewayInfo = info;
-        this.GatewayUri = new Uri(info.Url);
+        Net.GatewayInfo info = await GetGatewayInfoAsync();
+        GatewayInfo = info;
+        GatewayUri = new Uri(info.Url);
     }
 
     internal async Task SendRawPayloadAsync(string jsonPayload)
     {
-        this.Logger.LogTrace(LoggerEvents.GatewayWsTx, jsonPayload);
-        await this._webSocketClient.SendMessageAsync(jsonPayload);
+        Logger.LogTrace(LoggerEvents.GatewayWsTx, jsonPayload);
+        await _webSocketClient.SendMessageAsync(jsonPayload);
     }
 
     /// <summary>
@@ -517,7 +517,7 @@ public sealed partial class DiscordClient
     /// <typeparam name="T">The type of data that the object belongs to.</typeparam>
     /// <returns>A task representing the payload being sent.</returns>
     [Obsolete("This method should not be used unless you know what you're doing. Instead, look towards the other explicitly implemented methods which come with client-side validation.")]
-    public Task SendPayloadAsync<T>(GatewayOpCode opCode, T data) => this.SendPayloadAsync(opCode, (object?)data);
+    public Task SendPayloadAsync<T>(GatewayOpCode opCode, T data) => SendPayloadAsync(opCode, (object?)data);
 
     /// <inheritdoc cref="SendPayloadAsync{T}(GatewayOpCode, T)"/>
     [Obsolete("This method should not be used unless you know what you're doing. Instead, look towards the other explicitly implemented methods which come with client-side validation.")]
@@ -530,14 +530,14 @@ public sealed partial class DiscordClient
         };
 
         string payloadString = DiscordJson.SerializeObject(payload);
-        return this.SendRawPayloadAsync(payloadString);
+        return SendRawPayloadAsync(payloadString);
     }
     #endregion
 
     #region Semaphore Methods
 
     private SocketLock GetSocketLock()
-        => _socketLocks.GetOrAdd(this.CurrentApplication.Id, appId => new SocketLock(appId, this.GatewayInfo.SessionBucket.MaxConcurrency));
+        => _socketLocks.GetOrAdd(CurrentApplication.Id, appId => new SocketLock(appId, GatewayInfo.SessionBucket.MaxConcurrency));
 
     #endregion
 }

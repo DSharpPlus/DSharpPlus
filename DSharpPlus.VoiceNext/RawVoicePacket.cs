@@ -6,14 +6,14 @@ internal readonly struct RawVoicePacket
 {
     public RawVoicePacket(Memory<byte> bytes, int duration, bool silence)
     {
-        this.Bytes = bytes;
-        this.Duration = duration;
-        this.Silence = silence;
-        this.RentedBuffer = null;
+        Bytes = bytes;
+        Duration = duration;
+        Silence = silence;
+        RentedBuffer = null;
     }
 
     public RawVoicePacket(Memory<byte> bytes, int duration, bool silence, byte[] rentedBuffer)
-        : this(bytes, duration, silence) => this.RentedBuffer = rentedBuffer;
+        : this(bytes, duration, silence) => RentedBuffer = rentedBuffer;
 
     public readonly Memory<byte> Bytes;
     public readonly int Duration;

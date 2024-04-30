@@ -34,16 +34,16 @@ public sealed class DiscordOverwriteBuilder
     /// </summary>
     public DiscordOverwriteBuilder(DiscordMember member)
     {
-        this.Target = member;
-        this.Type = DiscordOverwriteType.Member;
+        Target = member;
+        Type = DiscordOverwriteType.Member;
     }
     /// <summary>
     /// Creates a new Discord permission overwrite builder for a role. This class can be used to construct permission overwrites for guild channels, used when creating channels.
     /// </summary>
     public DiscordOverwriteBuilder(DiscordRole role)
     {
-        this.Target = role;
-        this.Type = DiscordOverwriteType.Role;
+        Target = role;
+        Type = DiscordOverwriteType.Role;
     }
 
     /// <summary>
@@ -53,7 +53,7 @@ public sealed class DiscordOverwriteBuilder
     /// <returns>This builder.</returns>
     public DiscordOverwriteBuilder Allow(DiscordPermissions permission)
     {
-        this.Allowed |= permission;
+        Allowed |= permission;
         return this;
     }
 
@@ -64,7 +64,7 @@ public sealed class DiscordOverwriteBuilder
     /// <returns>This builder.</returns>
     public DiscordOverwriteBuilder Deny(DiscordPermissions permission)
     {
-        this.Denied |= permission;
+        Denied |= permission;
         return this;
     }
 
@@ -75,8 +75,8 @@ public sealed class DiscordOverwriteBuilder
     /// <returns>This builder.</returns>
     public DiscordOverwriteBuilder For(DiscordMember member)
     {
-        this.Target = member;
-        this.Type = DiscordOverwriteType.Member;
+        Target = member;
+        Type = DiscordOverwriteType.Member;
         return this;
     }
 
@@ -87,8 +87,8 @@ public sealed class DiscordOverwriteBuilder
     /// <returns>This builder.</returns>
     public DiscordOverwriteBuilder For(DiscordRole role)
     {
-        this.Target = role;
-        this.Type = DiscordOverwriteType.Role;
+        Target = role;
+        Type = DiscordOverwriteType.Role;
         return this;
     }
 
@@ -99,10 +99,10 @@ public sealed class DiscordOverwriteBuilder
     /// <returns>This builder.</returns>
     public async Task<DiscordOverwriteBuilder> FromAsync(DiscordOverwrite other)
     {
-        this.Allowed = other.Allowed;
-        this.Denied = other.Denied;
-        this.Type = other.Type;
-        this.Target = this.Type == DiscordOverwriteType.Member ? await other.GetMemberAsync() : await other.GetRoleAsync();
+        Allowed = other.Allowed;
+        Denied = other.Denied;
+        Type = other.Type;
+        Target = Type == DiscordOverwriteType.Member ? await other.GetMemberAsync() : await other.GetRoleAsync();
 
         return this;
     }
@@ -111,16 +111,13 @@ public sealed class DiscordOverwriteBuilder
     /// Builds this DiscordOverwrite.
     /// </summary>
     /// <returns>Use this object for creation of new overwrites.</returns>
-    internal DiscordRestOverwrite Build()
+    internal DiscordRestOverwrite Build() => new DiscordRestOverwrite()
     {
-        return new DiscordRestOverwrite()
-        {
-            Allow = this.Allowed,
-            Deny = this.Denied,
-            Id = this.Target.Id,
-            Type = this.Type,
-        };
-    }
+        Allow = Allowed,
+        Deny = Denied,
+        Id = Target.Id,
+        Type = Type,
+    };
 }
 
 internal struct DiscordRestOverwrite

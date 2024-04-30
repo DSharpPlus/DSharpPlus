@@ -12,7 +12,7 @@ internal class PreemptiveRatelimitException : Exception
     [SetsRequiredMembers]
     public PreemptiveRatelimitException(string scope, TimeSpan resetAfter)
     {
-        this.Scope = scope;
-        this.ResetAfter = resetAfter;
+        Scope = scope;
+        ResetAfter = resetAfter;
     }
 }

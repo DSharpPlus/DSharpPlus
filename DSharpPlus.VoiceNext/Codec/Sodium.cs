@@ -18,15 +18,12 @@ internal sealed class Sodium : IDisposable
     private byte[] Buffer { get; }
     private ReadOnlyMemory<byte> Key { get; }
 
-    static Sodium()
+    static Sodium() => SupportedModes = new ReadOnlyDictionary<string, EncryptionMode>(new Dictionary<string, EncryptionMode>()
     {
-        SupportedModes = new ReadOnlyDictionary<string, EncryptionMode>(new Dictionary<string, EncryptionMode>()
-        {
-            ["xsalsa20_poly1305_lite"] = EncryptionMode.XSalsa20_Poly1305_Lite,
-            ["xsalsa20_poly1305_suffix"] = EncryptionMode.XSalsa20_Poly1305_Suffix,
-            ["xsalsa20_poly1305"] = EncryptionMode.XSalsa20_Poly1305
-        });
-    }
+        ["xsalsa20_poly1305_lite"] = EncryptionMode.XSalsa20_Poly1305_Lite,
+        ["xsalsa20_poly1305_suffix"] = EncryptionMode.XSalsa20_Poly1305_Suffix,
+        ["xsalsa20_poly1305"] = EncryptionMode.XSalsa20_Poly1305
+    });
 
     public Sodium(ReadOnlyMemory<byte> key)
     {
@@ -35,10 +32,10 @@ internal sealed class Sodium : IDisposable
             throw new ArgumentException($"Invalid Sodium key size. Key needs to have a length of {Interop.SodiumKeySize} bytes.", nameof(key));
         }
 
-        this.Key = key;
+        Key = key;
 
-        this.CSPRNG = RandomNumberGenerator.Create();
-        this.Buffer = new byte[Interop.SodiumNonceSize];
+        CSPRNG = RandomNumberGenerator.Create();
+        Buffer = new byte[Interop.SodiumNonceSize];
     }
 
     public void GenerateNonce(ReadOnlySpan<byte> rtpHeader, Span<byte> target)
@@ -67,8 +64,8 @@ internal sealed class Sodium : IDisposable
             throw new ArgumentException($"Invalid nonce buffer size. Target buffer for the nonce needs to have a capacity of {Interop.SodiumNonceSize} bytes.", nameof(target));
         }
 
-        this.CSPRNG.GetBytes(this.Buffer);
-        this.Buffer.AsSpan().CopyTo(target);
+        CSPRNG.GetBytes(Buffer);
+        Buffer.AsSpan().CopyTo(target);
     }
 
     public void GenerateNonce(uint nonce, Span<byte> target)
@@ -144,7 +141,7 @@ internal sealed class Sodium : IDisposable
         }
 
         int result;
-        if ((result = Interop.Encrypt(source, target, this.Key.Span, nonce)) != 0)
+        if ((result = Interop.Encrypt(source, target, Key.Span, nonce)) != 0)
         {
             throw new CryptographicException($"Could not encrypt the buffer. Sodium returned code {result}.");
         }
@@ -163,13 +160,13 @@ internal sealed class Sodium : IDisposable
         }
 
         int result;
-        if ((result = Interop.Decrypt(source, target, this.Key.Span, nonce)) != 0)
+        if ((result = Interop.Decrypt(source, target, Key.Span, nonce)) != 0)
         {
             throw new CryptographicException($"Could not decrypt the buffer. Sodium returned code {result}.");
         }
     }
 
-    public void Dispose() => this.CSPRNG.Dispose();
+    public void Dispose() => CSPRNG.Dispose();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static KeyValuePair<string, EncryptionMode> SelectMode(IEnumerable<string> availableModes)

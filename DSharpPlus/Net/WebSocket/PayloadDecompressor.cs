@@ -22,37 +22,37 @@ internal sealed class PayloadDecompressor : IDisposable
             throw new InvalidOperationException("Decompressor requires a valid compression mode.");
         }
 
-        this.CompressionLevel = compressionLevel;
-        this.CompressedStream = new MemoryStream();
-        if (this.CompressionLevel == GatewayCompressionLevel.Stream)
+        CompressionLevel = compressionLevel;
+        CompressedStream = new MemoryStream();
+        if (CompressionLevel == GatewayCompressionLevel.Stream)
         {
-            this.DecompressorStream = new DeflateStream(this.CompressedStream, CompressionMode.Decompress);
+            DecompressorStream = new DeflateStream(CompressedStream, CompressionMode.Decompress);
         }
     }
 
     public bool TryDecompress(ArraySegment<byte> compressed, MemoryStream decompressed)
     {
-        DeflateStream zlib = this.CompressionLevel == GatewayCompressionLevel.Stream
-            ? this.DecompressorStream
-            : new DeflateStream(this.CompressedStream, CompressionMode.Decompress, true);
+        DeflateStream zlib = CompressionLevel == GatewayCompressionLevel.Stream
+            ? DecompressorStream
+            : new DeflateStream(CompressedStream, CompressionMode.Decompress, true);
 
         if (compressed.Array[0] == ZlibPrefix)
         {
-            this.CompressedStream.Write(compressed.Array, compressed.Offset + 2, compressed.Count - 2);
+            CompressedStream.Write(compressed.Array, compressed.Offset + 2, compressed.Count - 2);
         }
         else
         {
-            this.CompressedStream.Write(compressed.Array, compressed.Offset, compressed.Count);
+            CompressedStream.Write(compressed.Array, compressed.Offset, compressed.Count);
         }
 
-        this.CompressedStream.Flush();
-        this.CompressedStream.Position = 0;
+        CompressedStream.Flush();
+        CompressedStream.Position = 0;
 
         Span<byte> cspan = compressed.AsSpan();
         uint suffix = BinaryPrimitives.ReadUInt32BigEndian(cspan.Slice(cspan.Length - 4));
-        if (this.CompressionLevel == GatewayCompressionLevel.Stream && suffix != ZlibFlush)
+        if (CompressionLevel == GatewayCompressionLevel.Stream && suffix != ZlibFlush)
         {
-            if (this.CompressionLevel == GatewayCompressionLevel.Payload)
+            if (CompressionLevel == GatewayCompressionLevel.Payload)
             {
                 zlib.Dispose();
             }
@@ -68,10 +68,10 @@ internal sealed class PayloadDecompressor : IDisposable
         catch { return false; }
         finally
         {
-            this.CompressedStream.Position = 0;
-            this.CompressedStream.SetLength(0);
+            CompressedStream.Position = 0;
+            CompressedStream.SetLength(0);
 
-            if (this.CompressionLevel == GatewayCompressionLevel.Payload)
+            if (CompressionLevel == GatewayCompressionLevel.Payload)
             {
                 zlib.Dispose();
             }
@@ -80,7 +80,7 @@ internal sealed class PayloadDecompressor : IDisposable
 
     public void Dispose()
     {
-        this.DecompressorStream?.Dispose();
-        this.CompressedStream.Dispose();
+        DecompressorStream?.Dispose();
+        CompressedStream.Dispose();
     }
 }

@@ -10,7 +10,7 @@ public sealed class DiscordMessageStickerPack : SnowflakeObject
     /// <summary>
     /// Gets the stickers contained in this pack.
     /// </summary>
-    public IReadOnlyDictionary<ulong, DiscordMessageSticker> Stickers => this._stickers;
+    public IReadOnlyDictionary<ulong, DiscordMessageSticker> Stickers => _stickers;
 
     [JsonProperty("stickers")]
     internal Dictionary<ulong, DiscordMessageSticker> _stickers = [];

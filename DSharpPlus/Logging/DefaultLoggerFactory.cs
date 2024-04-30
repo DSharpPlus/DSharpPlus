@@ -9,27 +9,27 @@ internal class DefaultLoggerFactory : ILoggerFactory
     private List<ILoggerProvider> Providers { get; } = new List<ILoggerProvider>();
     private bool _isDisposed = false;
 
-    public void AddProvider(ILoggerProvider provider) => this.Providers.Add(provider);
+    public void AddProvider(ILoggerProvider provider) => Providers.Add(provider);
 
     public ILogger CreateLogger(string categoryName) =>
-        this._isDisposed
+        _isDisposed
             ? throw new InvalidOperationException("This logger factory is already disposed.")
-            : new CompositeDefaultLogger(this.Providers);
+            : new CompositeDefaultLogger(Providers);
 
     public void Dispose()
     {
-        if (this._isDisposed)
+        if (_isDisposed)
         {
             return;
         }
 
-        this._isDisposed = true;
+        _isDisposed = true;
 
-        foreach (ILoggerProvider provider in this.Providers)
+        foreach (ILoggerProvider provider in Providers)
         {
             provider.Dispose();
         }
 
-        this.Providers.Clear();
+        Providers.Clear();
     }
 }

@@ -43,10 +43,10 @@ public sealed class ImageTool : IDisposable
             throw new ArgumentException("The stream needs to be both readable and seekable.", nameof(stream));
         }
 
-        this.SourceStream = stream;
-        this.SourceStream.Seek(0, SeekOrigin.Begin);
+        SourceStream = stream;
+        SourceStream.Seek(0, SeekOrigin.Begin);
 
-        this.format = 0;
+        format = 0;
     }
 
     /// <summary>
@@ -55,38 +55,38 @@ public sealed class ImageTool : IDisposable
     /// <returns>Detected format.</returns>
     public ImageFormat GetFormat()
     {
-        if (this.format != ImageFormat.Unknown)
+        if (format != ImageFormat.Unknown)
         {
-            return this.format;
+            return format;
         }
 
-        using (BinaryReader br = new(this.SourceStream, Utilities.UTF8, true))
+        using (BinaryReader br = new(SourceStream, Utilities.UTF8, true))
         {
             ulong bgn64 = br.ReadUInt64();
             if (bgn64 == PNG_MAGIC)
             {
-                return this.format = ImageFormat.Png;
+                return format = ImageFormat.Png;
             }
 
             bgn64 &= GIF_MASK;
             if (bgn64 == GIF_MAGIC_1 || bgn64 == GIF_MAGIC_2)
             {
-                return this.format = ImageFormat.Gif;
+                return format = ImageFormat.Gif;
             }
 
             uint bgn32 = (uint)(bgn64 & MASK32);
             if (bgn32 == WEBP_MAGIC_1 && br.ReadUInt32() == WEBP_MAGIC_2)
             {
-                return this.format = ImageFormat.WebP;
+                return format = ImageFormat.WebP;
             }
 
             ushort bgn16 = (ushort)(bgn32 & MASK16);
             if (bgn16 == JPEG_MAGIC_1)
             {
-                this.SourceStream.Seek(-2, SeekOrigin.End);
+                SourceStream.Seek(-2, SeekOrigin.End);
                 if (br.ReadUInt16() == JPEG_MAGIC_2)
                 {
-                    return this.format = ImageFormat.Jpeg;
+                    return format = ImageFormat.Jpeg;
                 }
             }
         }
@@ -103,9 +103,9 @@ public sealed class ImageTool : IDisposable
         const int readLength = 12288;
         const int writeLength = 16384;
 
-        ImageFormat fmt = this.GetFormat();
+        ImageFormat fmt = GetFormat();
 
-        int contentLength = Base64.GetMaxEncodedToUtf8Length((int)this.SourceStream.Length);
+        int contentLength = Base64.GetMaxEncodedToUtf8Length((int)SourceStream.Length);
 
         int formatLength = (int)fmt switch
         {
@@ -129,9 +129,9 @@ public sealed class ImageTool : IDisposable
         totalWritten += 19;
         totalWritten += formatLength;
 
-        while (processed < this.SourceStream.Length - readLength)
+        while (processed < SourceStream.Length - readLength)
         {
-            this.SourceStream.Read(readBuffer);
+            SourceStream.Read(readBuffer);
 
             Base64.EncodeToUtf8(readBuffer, b64Buffer.AsSpan().Slice(totalWritten, writeLength), out int _, out int written, false);
 
@@ -139,9 +139,9 @@ public sealed class ImageTool : IDisposable
             totalWritten += written;
         }
 
-        int remainingLength = (int)this.SourceStream.Length - processed;
+        int remainingLength = (int)SourceStream.Length - processed;
 
-        this.SourceStream.Read(readBufferBacking, 0, remainingLength);
+        SourceStream.Read(readBufferBacking, 0, remainingLength);
 
         Base64.EncodeToUtf8(readBufferBacking.AsSpan()[..remainingLength], b64Buffer.AsSpan()[totalWritten..], out int _, out int lastWritten);
 
@@ -156,7 +156,7 @@ public sealed class ImageTool : IDisposable
     /// <summary>
     /// Disposes this image tool.
     /// </summary>
-    public void Dispose() => this.SourceStream?.Dispose();
+    public void Dispose() => SourceStream?.Dispose();
 }
 
 /// <summary>

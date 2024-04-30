@@ -19,7 +19,7 @@ public enum DiscordButtonStyle : int
     /// Green button.
     /// </summary>
     Success = 3,
-    
+
     /// <summary>
     /// Red button.
     /// </summary>

@@ -14,5 +14,5 @@ public sealed class StatisticsReceivedEventArgs : AsyncEventArgs
     public LavalinkStatistics Statistics { get; }
 
 
-    internal StatisticsReceivedEventArgs(LavalinkStatistics stats) => this.Statistics = stats;
+    internal StatisticsReceivedEventArgs(LavalinkStatistics stats) => Statistics = stats;
 }

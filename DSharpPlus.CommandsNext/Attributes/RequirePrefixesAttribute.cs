@@ -32,9 +32,9 @@ public sealed class RequirePrefixesAttribute : CheckBaseAttribute
             throw new ArgumentNullException(nameof(prefixes), "The allowed prefix collection cannot be null or empty.");
         }
 
-        this.Prefixes = prefixes;
+        Prefixes = prefixes;
     }
 
     public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
-        => Task.FromResult((help && this.ShowInHelp) || this.Prefixes.Contains(ctx.Prefix, ctx.CommandsNext.GetStringComparer()));
+        => Task.FromResult((help && ShowInHelp) || Prefixes.Contains(ctx.Prefix, ctx.CommandsNext.GetStringComparer()));
 }

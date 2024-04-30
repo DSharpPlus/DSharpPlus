@@ -35,18 +35,18 @@ public sealed class DiscordInteractionDataOption
     /// <para>This can be cast to a <see langword="long"/>, <see langword="bool"></see>, <see langword="string"></see>, <see langword="double"></see> or <see langword="ulong"/> depending on the <see cref="Type"/></para>
     /// </summary>
     [JsonIgnore]
-    public object Value => this.Type switch
+    public object Value => Type switch
     {
-        DiscordApplicationCommandOptionType.Boolean => bool.Parse(this.RawValue),
-        DiscordApplicationCommandOptionType.Integer => long.Parse(this.RawValue),
-        DiscordApplicationCommandOptionType.String => this.RawValue,
-        DiscordApplicationCommandOptionType.Channel => ulong.Parse(this.RawValue),
-        DiscordApplicationCommandOptionType.User => ulong.Parse(this.RawValue),
-        DiscordApplicationCommandOptionType.Role => ulong.Parse(this.RawValue),
-        DiscordApplicationCommandOptionType.Mentionable => ulong.Parse(this.RawValue),
-        DiscordApplicationCommandOptionType.Number => double.Parse(this.RawValue, CultureInfo.InvariantCulture),
-        DiscordApplicationCommandOptionType.Attachment => ulong.Parse(this.RawValue, CultureInfo.InvariantCulture),
-        _ => this.RawValue,
+        DiscordApplicationCommandOptionType.Boolean => bool.Parse(RawValue),
+        DiscordApplicationCommandOptionType.Integer => long.Parse(RawValue),
+        DiscordApplicationCommandOptionType.String => RawValue,
+        DiscordApplicationCommandOptionType.Channel => ulong.Parse(RawValue),
+        DiscordApplicationCommandOptionType.User => ulong.Parse(RawValue),
+        DiscordApplicationCommandOptionType.Role => ulong.Parse(RawValue),
+        DiscordApplicationCommandOptionType.Mentionable => ulong.Parse(RawValue),
+        DiscordApplicationCommandOptionType.Number => double.Parse(RawValue, CultureInfo.InvariantCulture),
+        DiscordApplicationCommandOptionType.Attachment => ulong.Parse(RawValue, CultureInfo.InvariantCulture),
+        _ => RawValue,
     };
 
     /// <summary>

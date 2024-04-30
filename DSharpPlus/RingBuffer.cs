@@ -25,7 +25,7 @@ public class RingBuffer<T> : ICollection<T>
     /// Gets the number of items in this ring buffer.
     /// </summary>
     public int Count
-        => this._reached_end ? this.Capacity : this.CurrentIndex;
+        => _reached_end ? Capacity : CurrentIndex;
 
     /// <summary>
     /// Gets whether this ring buffer is read-only.
@@ -51,9 +51,9 @@ public class RingBuffer<T> : ICollection<T>
             throw new ArgumentOutOfRangeException(nameof(size), "Size must be positive.");
         }
 
-        this.CurrentIndex = 0;
-        this.Capacity = size;
-        this.InternalBuffer = new T[this.Capacity];
+        CurrentIndex = 0;
+        Capacity = size;
+        InternalBuffer = new T[Capacity];
     }
 
     /// <summary>
@@ -80,11 +80,11 @@ public class RingBuffer<T> : ICollection<T>
             throw new ArgumentException(nameof(elements), "The collection cannot be null or empty.");
         }
 
-        this.CurrentIndex = index;
-        this.InternalBuffer = elements.ToArray();
-        this.Capacity = this.InternalBuffer.Length;
+        CurrentIndex = index;
+        InternalBuffer = elements.ToArray();
+        Capacity = InternalBuffer.Length;
 
-        if (this.CurrentIndex >= this.InternalBuffer.Length || this.CurrentIndex < 0)
+        if (CurrentIndex >= InternalBuffer.Length || CurrentIndex < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(index), "Index must be less than buffer capacity, and greater than zero.");
         }
@@ -96,12 +96,12 @@ public class RingBuffer<T> : ICollection<T>
     /// <param name="item">Item to insert.</param>
     public void Add(T item)
     {
-        this.InternalBuffer[this.CurrentIndex++] = item;
+        InternalBuffer[CurrentIndex++] = item;
 
-        if (this.CurrentIndex == this.Capacity)
+        if (CurrentIndex == Capacity)
         {
-            this.CurrentIndex = 0;
-            this._reached_end = true;
+            CurrentIndex = 0;
+            _reached_end = true;
         }
     }
 
@@ -113,19 +113,19 @@ public class RingBuffer<T> : ICollection<T>
     /// <returns>Whether an item that matches the predicate was found or not.</returns>
     public bool TryGet(Func<T, bool> predicate, out T item)
     {
-        for (int i = this.CurrentIndex; i < this.InternalBuffer.Length; i++)
+        for (int i = CurrentIndex; i < InternalBuffer.Length; i++)
         {
-            if (this.InternalBuffer[i] != null && predicate(this.InternalBuffer[i]))
+            if (InternalBuffer[i] != null && predicate(InternalBuffer[i]))
             {
-                item = this.InternalBuffer[i];
+                item = InternalBuffer[i];
                 return true;
             }
         }
-        for (int i = 0; i < this.CurrentIndex; i++)
+        for (int i = 0; i < CurrentIndex; i++)
         {
-            if (this.InternalBuffer[i] != null && predicate(this.InternalBuffer[i]))
+            if (InternalBuffer[i] != null && predicate(InternalBuffer[i]))
             {
-                item = this.InternalBuffer[i];
+                item = InternalBuffer[i];
                 return true;
             }
         }
@@ -139,12 +139,12 @@ public class RingBuffer<T> : ICollection<T>
     /// </summary>
     public void Clear()
     {
-        for (int i = 0; i < this.InternalBuffer.Length; i++)
+        for (int i = 0; i < InternalBuffer.Length; i++)
         {
-            this.InternalBuffer[i] = default;
+            InternalBuffer[i] = default;
         }
 
-        this.CurrentIndex = 0;
+        CurrentIndex = 0;
     }
 
     /// <summary>
@@ -160,7 +160,7 @@ public class RingBuffer<T> : ICollection<T>
     /// </summary>
     /// <param name="predicate">Predicate used to check for the item.</param>
     /// <returns>Whether the buffer contains the item.</returns>
-    public bool Contains(Func<T, bool> predicate) => this.InternalBuffer.Any(predicate);
+    public bool Contains(Func<T, bool> predicate) => InternalBuffer.Any(predicate);
 
     /// <summary>
     /// Copies this ring buffer to target array, attempting to maintain the order of items within.
@@ -175,14 +175,14 @@ public class RingBuffer<T> : ICollection<T>
         }
 
         int ci = 0;
-        for (int i = this.CurrentIndex; i < this.InternalBuffer.Length; i++)
+        for (int i = CurrentIndex; i < InternalBuffer.Length; i++)
         {
-            array[ci++] = this.InternalBuffer[i];
+            array[ci++] = InternalBuffer[i];
         }
 
-        for (int i = 0; i < this.CurrentIndex; i++)
+        for (int i = 0; i < CurrentIndex; i++)
         {
-            array[ci++] = this.InternalBuffer[i];
+            array[ci++] = InternalBuffer[i];
         }
     }
 
@@ -200,11 +200,11 @@ public class RingBuffer<T> : ICollection<T>
     /// <returns>Whether an item was removed or not.</returns>
     public bool Remove(Func<T, bool> predicate)
     {
-        for (int i = 0; i < this.InternalBuffer.Length; i++)
+        for (int i = 0; i < InternalBuffer.Length; i++)
         {
-            if (this.InternalBuffer[i] != null && predicate(this.InternalBuffer[i]))
+            if (InternalBuffer[i] != null && predicate(InternalBuffer[i]))
             {
-                this.InternalBuffer[i] = default;
+                InternalBuffer[i] = default;
                 return true;
             }
         }
@@ -216,18 +216,15 @@ public class RingBuffer<T> : ICollection<T>
     /// Returns an enumerator for this ring buffer.
     /// </summary>
     /// <returns>Enumerator for this ring buffer.</returns>
-    public IEnumerator<T> GetEnumerator()
-    {
-        return !this._reached_end
-            ? this.InternalBuffer.AsEnumerable().GetEnumerator()
-            : this.InternalBuffer.Skip(this.CurrentIndex)
-            .Concat(this.InternalBuffer.Take(this.CurrentIndex))
+    public IEnumerator<T> GetEnumerator() => !_reached_end
+            ? InternalBuffer.AsEnumerable().GetEnumerator()
+            : InternalBuffer.Skip(CurrentIndex)
+            .Concat(InternalBuffer.Take(CurrentIndex))
             .GetEnumerator();
-    }
 
     /// <summary>
     /// Returns an enumerator for this ring buffer.
     /// </summary>
     /// <returns>Enumerator for this ring buffer.</returns>
-    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

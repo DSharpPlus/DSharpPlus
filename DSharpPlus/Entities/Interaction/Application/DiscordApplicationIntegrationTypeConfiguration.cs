@@ -12,6 +12,6 @@ public sealed class DiscordApplicationIntegrationTypeConfiguration
     /// </summary>
     [JsonProperty("oauth2_install_params")]
     public DiscordApplicationOAuth2InstallParams OAuth2InstallParams { get; internal set; } = default!;
-    
+
     public DiscordApplicationIntegrationTypeConfiguration() { }
 }

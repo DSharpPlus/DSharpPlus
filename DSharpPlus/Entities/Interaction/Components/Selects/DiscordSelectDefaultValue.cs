@@ -7,10 +7,10 @@ public class DiscordSelectDefaultValue
 {
     [JsonProperty("id")]
     public ulong Id { get; internal set; }
-    
+
     [JsonProperty("type")]
     public string Type { get; internal set; }
-    
+
     public DiscordSelectDefaultValue(ulong id, DiscordSelectDefaultValueType type)
     {
         Id = id;

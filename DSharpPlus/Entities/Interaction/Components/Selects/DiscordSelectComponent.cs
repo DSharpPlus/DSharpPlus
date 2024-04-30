@@ -22,7 +22,7 @@ public sealed class DiscordSelectComponent : BaseDiscordSelectComponent
     /// <returns>The current component.</returns>
     public DiscordSelectComponent Enable()
     {
-        this.Disabled = false;
+        Disabled = false;
         return this;
     }
 
@@ -32,13 +32,13 @@ public sealed class DiscordSelectComponent : BaseDiscordSelectComponent
     /// <returns>The current component.</returns>
     public DiscordSelectComponent Disable()
     {
-        this.Disabled = true;
+        Disabled = true;
         return this;
     }
 
-    internal DiscordSelectComponent() => this.Type = DiscordComponentType.StringSelect;
+    internal DiscordSelectComponent() => Type = DiscordComponentType.StringSelect;
 
-    public DiscordSelectComponent(string customId, string placeholder, IEnumerable<DiscordSelectComponentOption> options, bool disabled = false, int minOptions = 1, int maxOptions = 1) 
-        : base(DiscordComponentType.StringSelect, customId, placeholder, disabled, minOptions, maxOptions) 
-        => this.Options = options.ToArray();
+    public DiscordSelectComponent(string customId, string placeholder, IEnumerable<DiscordSelectComponentOption> options, bool disabled = false, int minOptions = 1, int maxOptions = 1)
+        : base(DiscordComponentType.StringSelect, customId, placeholder, disabled, minOptions, maxOptions)
+        => Options = options.ToArray();
 }

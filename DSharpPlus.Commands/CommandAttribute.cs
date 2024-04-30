@@ -25,6 +25,6 @@ public sealed class CommandAttribute : Attribute
             throw new ArgumentOutOfRangeException(nameof(name), "The name of the command must be between 1 and 32 characters.");
         }
 
-        this.Name = name;
+        Name = name;
     }
 }

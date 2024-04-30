@@ -22,7 +22,7 @@ public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>
     public bool RequiresText { get; init; } = true;
     private readonly ILogger<DiscordUserConverter> _logger;
 
-    public DiscordUserConverter(ILogger<DiscordUserConverter>? logger = null) => this._logger = logger ?? NullLogger<DiscordUserConverter>.Instance;
+    public DiscordUserConverter(ILogger<DiscordUserConverter>? logger = null) => _logger = logger ?? NullLogger<DiscordUserConverter>.Instance;
 
     public async Task<Optional<DiscordUser>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
     {
@@ -59,7 +59,7 @@ public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>
         }
         catch (DiscordException error)
         {
-            this._logger.LogError(error, "Failed to get user from client.");
+            _logger.LogError(error, "Failed to get user from client.");
         }
 
         return Optional.FromNoValue<DiscordUser>();

@@ -68,19 +68,19 @@ public sealed class InteractivityConfiguration
     /// <param name="other">Configuration the properties of which are to be copied.</param>
     public InteractivityConfiguration(InteractivityConfiguration other)
     {
-        this.PaginationButtons = other.PaginationButtons;
-        this.ButtonBehavior = other.ButtonBehavior;
-        this.PaginationBehaviour = other.PaginationBehaviour;
-        this.PaginationDeletion = other.PaginationDeletion;
-        this.ResponseBehavior = other.ResponseBehavior;
-        this.PaginationEmojis = other.PaginationEmojis;
-        this.ResponseMessage = other.ResponseMessage;
-        this.PollBehaviour = other.PollBehaviour;
-        this.Timeout = other.Timeout;
+        PaginationButtons = other.PaginationButtons;
+        ButtonBehavior = other.ButtonBehavior;
+        PaginationBehaviour = other.PaginationBehaviour;
+        PaginationDeletion = other.PaginationDeletion;
+        ResponseBehavior = other.ResponseBehavior;
+        PaginationEmojis = other.PaginationEmojis;
+        ResponseMessage = other.ResponseMessage;
+        PollBehaviour = other.PollBehaviour;
+        Timeout = other.Timeout;
 
-        if (this.ResponseBehavior is InteractionResponseBehavior.Respond && string.IsNullOrWhiteSpace(this.ResponseMessage))
+        if (ResponseBehavior is InteractionResponseBehavior.Respond && string.IsNullOrWhiteSpace(ResponseMessage))
         {
-            throw new ArgumentException($"{nameof(this.ResponseMessage)} cannot be null, empty, or whitespace when {nameof(this.ResponseBehavior)} is set to respond.");
+            throw new ArgumentException($"{nameof(ResponseMessage)} cannot be null, empty, or whitespace when {nameof(ResponseBehavior)} is set to respond.");
         }
     }
 }

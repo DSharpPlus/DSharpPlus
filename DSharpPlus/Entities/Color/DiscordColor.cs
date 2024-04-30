@@ -20,25 +20,25 @@ public partial struct DiscordColor
     /// Gets the red component of this color as an 8-bit integer.
     /// </summary>
     public byte R
-        => (byte)((this.Value >> 16) & 0xFF);
+        => (byte)((Value >> 16) & 0xFF);
 
     /// <summary>
     /// Gets the green component of this color as an 8-bit integer.
     /// </summary>
     public byte G
-        => (byte)((this.Value >> 8) & 0xFF);
+        => (byte)((Value >> 8) & 0xFF);
 
     /// <summary>
     /// Gets the blue component of this color as an 8-bit integer.
     /// </summary>
     public byte B
-        => (byte)(this.Value & 0xFF);
+        => (byte)(Value & 0xFF);
 
     /// <summary>
     /// Creates a new color with specified value.
     /// </summary>
     /// <param name="color">Value of the color.</param>
-    public DiscordColor(int color) => this.Value = color;
+    public DiscordColor(int color) => Value = color;
 
     /// <summary>
     /// Creates a new color with specified values for red, green, and blue components.
@@ -46,7 +46,7 @@ public partial struct DiscordColor
     /// <param name="r">Value of the red component.</param>
     /// <param name="g">Value of the green component.</param>
     /// <param name="b">Value of the blue component.</param>
-    public DiscordColor(byte r, byte g, byte b) => this.Value = (r << 16) | (g << 8) | b;
+    public DiscordColor(byte r, byte g, byte b) => Value = (r << 16) | (g << 8) | b;
 
     /// <summary>
     /// Creates a new color with specified values for red, green, and blue components.
@@ -65,7 +65,7 @@ public partial struct DiscordColor
         byte gb = (byte)(g * 255);
         byte bb = (byte)(b * 255);
 
-        this.Value = (rb << 16) | (gb << 8) | bb;
+        Value = (rb << 16) | (gb << 8) | bb;
     }
 
     /// <summary>
@@ -99,14 +99,14 @@ public partial struct DiscordColor
             throw new ArgumentException(nameof(color), "Colors must consist of hexadecimal characters only.");
         }
 
-        this.Value = int.Parse(color, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        Value = int.Parse(color, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
     }
 
     /// <summary>
     /// Gets a string representation of this color.
     /// </summary>
     /// <returns>String representation of this color.</returns>
-    public override string ToString() => $"#{this.Value:X6}";
+    public override string ToString() => $"#{Value:X6}";
 
     public static implicit operator DiscordColor(int value)
         => new(value);

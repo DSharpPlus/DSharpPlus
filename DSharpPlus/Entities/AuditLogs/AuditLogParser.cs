@@ -82,18 +82,14 @@ internal static class AuditLogParser
 
         IEnumerable<DiscordMember>? discordMembers = users.Select
         (
-            user => 
-            {
-                return guild._members is not null && guild._members.TryGetValue(user.Id, out DiscordMember? member)
+            user => guild._members is not null && guild._members.TryGetValue(user.Id, out DiscordMember? member)
                     ? member
-                    : new DiscordMember 
-                    { 
-                        Discord = guild.Discord, 
-                        Id = user.Id, 
-                        _guild_id = guild.Id 
-                    };
-            }
-        );
+                    : new DiscordMember
+                    {
+                        Discord = guild.Discord,
+                        Id = user.Id,
+                        _guild_id = guild.Id
+                    });
 
         Dictionary<ulong, DiscordMember> members = discordMembers.ToDictionary(xm => xm.Id, xm => xm);
 
@@ -104,7 +100,7 @@ internal static class AuditLogParser
             {
                 yield break;
             }
-            
+
             DiscordAuditLogEntry? entry =
                 await ParseAuditLogEntryAsync(guild, auditLogAction, members, threads, webhooks, events);
 
@@ -288,10 +284,10 @@ internal static class AuditLogParser
                     if (messageEntry.Channel is not null)
                     {
                         guild.Discord.UserCache.TryGetValue(auditLogAction.UserId, out DiscordUser? user);
-                        messageEntry.Target = user ?? new DiscordUser 
-                        { 
-                            Id = auditLogAction.UserId, 
-                            Discord = guild.Discord 
+                        messageEntry.Target = user ?? new DiscordUser
+                        {
+                            Id = auditLogAction.UserId,
+                            Discord = guild.Discord
                         };
                     }
 
@@ -332,10 +328,10 @@ internal static class AuditLogParser
                     if (auditLogAction.TargetId.HasValue)
                     {
                         dc.UserCache.TryGetValue(auditLogAction.TargetId.Value, out DiscordUser? user);
-                        messagePinEntry.Target = user ?? new DiscordUser 
-                        { 
-                            Id = auditLogAction.TargetId.Value, 
-                            Discord = guild.Discord 
+                        messagePinEntry.Target = user ?? new DiscordUser
+                        {
+                            Id = auditLogAction.TargetId.Value,
+                            Discord = guild.Discord
                         };
                     }
 
@@ -450,10 +446,10 @@ internal static class AuditLogParser
                     autoModerationEntry.TargetUser =
                         members.TryGetValue(auditLogAction.TargetId.Value, out DiscordMember? targetMember)
                             ? targetMember
-                            : new DiscordUser 
-                            { 
-                                Id = auditLogAction.TargetId.Value, 
-                                Discord = guild.Discord 
+                            : new DiscordUser
+                            {
+                                Id = auditLogAction.TargetId.Value,
+                                Discord = guild.Discord
                             };
                 }
 
@@ -739,12 +735,12 @@ internal static class AuditLogParser
                     entry.Name = PropertyChange<string?>.From(change);
                     break;
                 case "channel_id":
-                    
+
                     ulong.TryParse(change.NewValue as string, NumberStyles.Integer,
                         CultureInfo.InvariantCulture, out ulong newChannelId);
                     ulong.TryParse(change.OldValue as string, NumberStyles.Integer,
                         CultureInfo.InvariantCulture, out ulong oldChannelId);
-                    
+
                     entry.Channel = new PropertyChange<DiscordChannel?>
                     {
                         Before =

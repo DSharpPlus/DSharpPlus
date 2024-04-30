@@ -329,10 +329,10 @@ public class DefaultCommandExecutor : ICommandExecutor
             }
 
             // Grab the method that wraps Task/ValueTask execution.
-            if (!this._commandWrappers.TryGetValue(context.Command.Id, out Func<object?, object?[], ValueTask>? wrapper))
+            if (!_commandWrappers.TryGetValue(context.Command.Id, out Func<object?, object?[], ValueTask>? wrapper))
             {
                 wrapper = CommandEmitUtil.GetCommandInvocationFunc(context.Command.Method, context.Command.Target);
-                this._commandWrappers[context.Command.Id] = wrapper;
+                _commandWrappers[context.Command.Id] = wrapper;
             }
 
             // Execute the command and return the result.

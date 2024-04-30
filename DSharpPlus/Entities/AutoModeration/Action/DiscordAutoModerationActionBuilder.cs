@@ -22,7 +22,7 @@ public class DiscordAutoModerationActionBuilder
     /// <returns>This builder.</returns>
     public DiscordAutoModerationActionBuilder WithRuleActionType(DiscordRuleActionType type)
     {
-        this.Type = type;
+        Type = type;
 
         return this;
     }
@@ -34,7 +34,7 @@ public class DiscordAutoModerationActionBuilder
     /// <returns>This builder.</returns>
     public DiscordAutoModerationActionBuilder WithActionMetadata(DiscordRuleActionMetadata metadata)
     {
-        this.Metadata = metadata;
+        Metadata = metadata;
 
         return this;
     }
@@ -45,7 +45,7 @@ public class DiscordAutoModerationActionBuilder
     /// <returns>The built rule.</returns>
     public DiscordAutoModerationAction Build() => new()
     {
-        Type = this.Type,
-        Metadata = this.Metadata
+        Type = Type,
+        Metadata = Metadata
     };
 }

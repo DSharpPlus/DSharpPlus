@@ -37,5 +37,5 @@ public class SessionBucket
     internal int ResetAfterInternal { get; set; }
 
     public override string ToString()
-        => $"[{this.Remaining}/{this.Total}] {this.ResetAfter}. {this.MaxConcurrency}x concurrency";
+        => $"[{Remaining}/{Total}] {ResetAfter}. {MaxConcurrency}x concurrency";
 }

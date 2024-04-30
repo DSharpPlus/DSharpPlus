@@ -15,7 +15,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     [JsonIgnore]
     public DiscordInteractionResponseState ResponseState { get; private set; }
-    
+
     /// <summary>
     /// Gets the type of interaction invoked.
     /// </summary>
@@ -39,7 +39,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     [JsonIgnore]
     public DiscordGuild Guild
-        => (this.Discord as DiscordClient).InternalGetCachedGuild(this.GuildId);
+        => (Discord as DiscordClient).InternalGetCachedGuild(GuildId);
 
     /// <summary>
     /// Gets the Id of the channel that invoked this interaction.
@@ -52,7 +52,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     [JsonIgnore]
     public DiscordChannel Channel
-        => (this.Discord as DiscordClient).InternalGetCachedChannel(this.ChannelId) ?? (DiscordChannel)(this.Discord as DiscordClient).InternalGetCachedThread(this.ChannelId) ?? (this.Guild == null ? new DiscordDmChannel { Id = this.ChannelId, Type = DiscordChannelType.Private, Discord = this.Discord, Recipients = new DiscordUser[] { this.User } } : null);
+        => (Discord as DiscordClient).InternalGetCachedChannel(ChannelId) ?? (DiscordChannel)(Discord as DiscordClient).InternalGetCachedThread(ChannelId) ?? (Guild == null ? new DiscordDmChannel { Id = ChannelId, Type = DiscordChannelType.Private, Discord = Discord, Recipients = new DiscordUser[] { User } } : null);
 
     /// <summary>
     /// Gets the user that invoked this interaction.
@@ -97,7 +97,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     [JsonProperty("guild_locale")]
     public string? GuildLocale { get; internal set; }
-    
+
     /// <summary>
     /// The permissions allowed to the application for the given context.
     /// </summary>
@@ -128,11 +128,11 @@ public sealed class DiscordInteraction : SnowflakeObject
     ///     </para>
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<DiscordApplicationIntegrationType, ulong> AuthorizingIntegrationOwners => this._authorizingIntegrationOwners;
-    
+    public IReadOnlyDictionary<DiscordApplicationIntegrationType, ulong> AuthorizingIntegrationOwners => _authorizingIntegrationOwners;
+
     [JsonProperty("authorizing_integration_owners", NullValueHandling = NullValueHandling.Ignore)]
-    private Dictionary<DiscordApplicationIntegrationType, ulong> _authorizingIntegrationOwners;
-    
+    private readonly Dictionary<DiscordApplicationIntegrationType, ulong> _authorizingIntegrationOwners;
+
     /// <summary>
     /// Represents the context in which the interaction was executed in
     /// </summary>
@@ -146,23 +146,23 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// <param name="builder">The data, if any, to send.</param>
     public async Task CreateResponseAsync(DiscordInteractionResponseType type, DiscordInteractionResponseBuilder builder = null)
     {
-        if (this.ResponseState is not DiscordInteractionResponseState.Unacknowledged)
+        if (ResponseState is not DiscordInteractionResponseState.Unacknowledged)
         {
             throw new InvalidOperationException("A response has already been made to this interaction.");
         }
 
-        this.ResponseState = type == DiscordInteractionResponseType.DeferredChannelMessageWithSource
+        ResponseState = type == DiscordInteractionResponseType.DeferredChannelMessageWithSource
             ? DiscordInteractionResponseState.Deferred
             : DiscordInteractionResponseState.Replied;
-        
-        await this.Discord.ApiClient.CreateInteractionResponseAsync(this.Id, this.Token, type, builder);
+
+        await Discord.ApiClient.CreateInteractionResponseAsync(Id, Token, type, builder);
     }
 
     /// <summary>
     ///     Creates a deferred response to this interaction.
     /// </summary>
     /// <param name="ephemeral">Whether the response should be ephemeral.</param>
-    public Task DeferAsync(bool ephemeral = false) => this.CreateResponseAsync(
+    public Task DeferAsync(bool ephemeral = false) => CreateResponseAsync(
         DiscordInteractionResponseType.DeferredChannelMessageWithSource,
         new DiscordInteractionResponseBuilder().AsEphemeral(ephemeral));
 
@@ -171,7 +171,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     /// <returns>The original message that was sent.</returns>
     public async Task<DiscordMessage> GetOriginalResponseAsync() =>
-        await this.Discord.ApiClient.GetOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token);
+        await Discord.ApiClient.GetOriginalInteractionResponseAsync(Discord.CurrentApplication.Id, Token);
 
     /// <summary>
     /// Edits the original interaction response.
@@ -182,13 +182,10 @@ public sealed class DiscordInteraction : SnowflakeObject
     public async Task<DiscordMessage> EditOriginalResponseAsync(DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments = default)
     {
         builder.Validate(isInteractionResponse: true);
-        
-        if (this.ResponseState is DiscordInteractionResponseState.Unacknowledged)
-        {
-            throw new InvalidOperationException("A response has not been made to this interaction.");
-        }
 
-        return await this.Discord.ApiClient.EditOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token, builder, attachments);
+        return ResponseState is DiscordInteractionResponseState.Unacknowledged
+            ? throw new InvalidOperationException("A response has not been made to this interaction.")
+            : await Discord.ApiClient.EditOriginalInteractionResponseAsync(Discord.CurrentApplication.Id, Token, builder, attachments);
     }
 
     /// <summary>
@@ -196,12 +193,12 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>>
     public async Task DeleteOriginalResponseAsync()
     {
-        if (this.ResponseState is DiscordInteractionResponseState.Unacknowledged)
+        if (ResponseState is DiscordInteractionResponseState.Unacknowledged)
         {
             throw new InvalidOperationException("A response has not been made to this interaction.");
         }
-        
-        await this.Discord.ApiClient.DeleteOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token);
+
+        await Discord.ApiClient.DeleteOriginalInteractionResponseAsync(Discord.CurrentApplication.Id, Token);
     }
 
     /// <summary>
@@ -213,9 +210,9 @@ public sealed class DiscordInteraction : SnowflakeObject
     {
         builder.Validate();
 
-        this.ResponseState = DiscordInteractionResponseState.Replied;
-        
-        return await this.Discord.ApiClient.CreateFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, builder);
+        ResponseState = DiscordInteractionResponseState.Replied;
+
+        return await Discord.ApiClient.CreateFollowupMessageAsync(Discord.CurrentApplication.Id, Token, builder);
     }
 
     /// <summary>
@@ -224,12 +221,9 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// <param name="messageId">The id of the follow up message.</param>
     public async Task<DiscordMessage> GetFollowupMessageAsync(ulong messageId)
     {
-        if (this.ResponseState is not DiscordInteractionResponseState.Replied)
-        {
-            throw new InvalidOperationException("A response has not been made to this interaction.");
-        }
-        
-        return await this.Discord.ApiClient.GetFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId);
+        return ResponseState is not DiscordInteractionResponseState.Replied
+            ? throw new InvalidOperationException("A response has not been made to this interaction.")
+            : await Discord.ApiClient.GetFollowupMessageAsync(Discord.CurrentApplication.Id, Token, messageId);
     }
 
     /// <summary>
@@ -243,7 +237,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     {
         builder.Validate(isFollowup: true);
 
-        return await this.Discord.ApiClient.EditFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId, builder, attachments);
+        return await Discord.ApiClient.EditFollowupMessageAsync(Discord.CurrentApplication.Id, Token, messageId, builder, attachments);
     }
 
     /// <summary>
@@ -252,11 +246,11 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// <param name="messageId">The id of the follow up message.</param>
     public async Task DeleteFollowupMessageAsync(ulong messageId)
     {
-        if (this.ResponseState is not DiscordInteractionResponseState.Replied)
+        if (ResponseState is not DiscordInteractionResponseState.Replied)
         {
             throw new InvalidOperationException("A response has not been made to this interaction.");
         }
-        
-        await this.Discord.ApiClient.DeleteFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId);
+
+        await Discord.ApiClient.DeleteFollowupMessageAsync(Discord.CurrentApplication.Id, Token, messageId);
     }
 }

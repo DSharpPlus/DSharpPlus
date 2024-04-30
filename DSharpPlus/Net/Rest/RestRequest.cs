@@ -39,19 +39,19 @@ internal readonly record struct RestRequest : IRestRequest
     {
         HttpRequestMessage request = new()
         {
-            Method = this.Method,
-            RequestUri = new($"{Endpoints.BASE_URI}/{this.Url}")
+            Method = Method,
+            RequestUri = new($"{Endpoints.BASE_URI}/{Url}")
         };
 
-        if (this.Payload is not null)
+        if (Payload is not null)
         {
-            request.Content = new StringContent(this.Payload);
+            request.Content = new StringContent(Payload);
             request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
         }
 
-        if (this.Headers is not null)
+        if (Headers is not null)
         {
-            foreach (KeyValuePair<string, string> header in this.Headers)
+            foreach (KeyValuePair<string, string> header in Headers)
             {
                 request.Headers.Add(header.Key, Uri.EscapeDataString(header.Value));
             }

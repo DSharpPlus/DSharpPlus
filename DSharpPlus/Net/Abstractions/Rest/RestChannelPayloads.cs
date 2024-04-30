@@ -159,7 +159,7 @@ internal sealed class RestThreadChannelModifyPayload
 
     [JsonProperty("locked", NullValueHandling = NullValueHandling.Ignore)]
     public bool? Locked { get; set; }
-    
+
     [JsonProperty("invitable", NullValueHandling = NullValueHandling.Ignore)]
     public bool? IsInvitable { get; set; }
 
@@ -194,10 +194,10 @@ internal class RestChannelMessageEditPayload
     public bool HasEmbed { get; set; }
 
     public bool ShouldSerializeContent()
-        => this.HasContent;
+        => HasContent;
 
     public bool ShouldSerializeEmbed()
-        => this.HasEmbed;
+        => HasEmbed;
 }
 
 internal sealed class RestChannelMessageCreatePayload : RestChannelMessageEditPayload
@@ -210,7 +210,7 @@ internal sealed class RestChannelMessageCreatePayload : RestChannelMessageEditPa
 
     [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
     public InternalDiscordMessageReference? MessageReference { get; set; }
-    
+
     [JsonProperty("poll", NullValueHandling = NullValueHandling.Ignore)]
     public PollCreatePayload? Poll { get; set; }
 }
@@ -231,7 +231,7 @@ internal sealed class RestChannelMessageCreateMultipartPayload
 
     [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
     public InternalDiscordMessageReference? MessageReference { get; set; }
-    
+
     [JsonProperty("poll", NullValueHandling = NullValueHandling.Ignore)]
     public PollCreatePayload? Poll { get; set; }
 }

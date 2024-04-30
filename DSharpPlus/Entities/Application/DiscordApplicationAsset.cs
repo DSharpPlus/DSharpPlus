@@ -36,31 +36,31 @@ public sealed class DiscordApplicationAsset : DiscordAsset, IEquatable<DiscordAp
     /// Gets the Url of this asset.
     /// </summary>
     public override Uri Url
-        => new($"https://cdn.discordapp.com/app-assets/{this.Application.Id.ToString(CultureInfo.InvariantCulture)}/{this.Id}.png");
+        => new($"https://cdn.discordapp.com/app-assets/{Application.Id.ToString(CultureInfo.InvariantCulture)}/{Id}.png");
 
     internal DiscordApplicationAsset() { }
 
-    internal DiscordApplicationAsset(DiscordApplication app) => this.Discord = app.Discord;
+    internal DiscordApplicationAsset(DiscordApplication app) => Discord = app.Discord;
 
     /// <summary>
     /// Checks whether this <see cref="DiscordApplicationAsset"/> is equal to another object.
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordApplicationAsset"/>.</returns>
-    public override bool Equals(object? obj) => this.Equals(obj as DiscordApplicationAsset);
+    public override bool Equals(object? obj) => Equals(obj as DiscordApplicationAsset);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordApplicationAsset"/> is equal to another <see cref="DiscordApplicationAsset"/>.
     /// </summary>
     /// <param name="e"><see cref="DiscordApplicationAsset"/> to compare to.</param>
     /// <returns>Whether the <see cref="DiscordApplicationAsset"/> is equal to this <see cref="DiscordApplicationAsset"/>.</returns>
-    public bool Equals(DiscordApplicationAsset? e) => e is not null && (ReferenceEquals(this, e) || this.Id == e.Id);
+    public bool Equals(DiscordApplicationAsset? e) => e is not null && (ReferenceEquals(this, e) || Id == e.Id);
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordApplication"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="DiscordApplication"/>.</returns>
-    public override int GetHashCode() => this.Id.GetHashCode();
+    public override int GetHashCode() => Id.GetHashCode();
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordApplicationAsset"/> objects are equal.
@@ -68,13 +68,10 @@ public sealed class DiscordApplicationAsset : DiscordAsset, IEquatable<DiscordAp
     /// <param name="right">First application asset to compare.</param>
     /// <param name="left">Second application asset to compare.</param>
     /// <returns>Whether the two application assets not equal.</returns>
-    public static bool operator ==(DiscordApplicationAsset right, DiscordApplicationAsset left)
-    {
-        return (right is not null || left is null)
+    public static bool operator ==(DiscordApplicationAsset right, DiscordApplicationAsset left) => (right is not null || left is null)
             && (right is null || left is not null)
             && ((right is null && left is null)
                 || right!.Id == left!.Id);
-    }
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordApplicationAsset"/> objects are not equal.

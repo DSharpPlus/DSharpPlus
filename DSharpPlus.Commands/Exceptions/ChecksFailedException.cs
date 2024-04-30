@@ -12,7 +12,7 @@ public sealed class ChecksFailedException : CommandsException
 
     public ChecksFailedException(IReadOnlyList<ContextCheckFailedData> errors, Command command, string? message = null) : base(message ?? $"Checks for {command.FullName} failed.")
     {
-        this.Command = command;
-        this.Errors = errors;
+        Command = command;
+        Errors = errors;
     }
 }

@@ -3,7 +3,6 @@ namespace DSharpPlus.Net.Models;
 using System.Collections.Generic;
 
 using DSharpPlus.Entities;
-using DSharpPlus.Entities.AutoModeration;
 
 public class AutoModerationRuleEditModel : BaseEditModel
 {

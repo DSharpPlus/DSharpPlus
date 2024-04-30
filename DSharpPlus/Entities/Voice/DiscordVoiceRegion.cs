@@ -63,9 +63,9 @@ public class DiscordVoiceRegion
     public bool Equals(DiscordVoiceRegion region)
         => this == region;
 
-    public override bool Equals(object obj) => this.Equals(obj as DiscordVoiceRegion);
+    public override bool Equals(object obj) => Equals(obj as DiscordVoiceRegion);
 
-    public override int GetHashCode() => this.Id.GetHashCode();
+    public override int GetHashCode() => Id.GetHashCode();
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordVoiceRegion"/> objects are equal.
@@ -78,7 +78,7 @@ public class DiscordVoiceRegion
         object? o1 = left as object;
         object? o2 = right as object;
 
-        return (o1 == null && o2 != null) || (o1 != null && o2 == null) ? false : o1 == null && o2 == null ? true : left.Id == right.Id;
+        return (o1 != null || o2 == null) && (o1 == null || o2 != null) && (o1 == null && o2 == null || left.Id == right.Id);
     }
 
     /// <summary>

@@ -11,8 +11,8 @@ public class NotFoundException : DiscordException
     internal NotFoundException(HttpRequestMessage request, HttpResponseMessage response, string content)
         : base("Not found: " + response.StatusCode)
     {
-        this.Request = request;
-        this.Response = response;
+        Request = request;
+        Response = response;
 
         try
         {
@@ -25,7 +25,7 @@ public class NotFoundException : DiscordException
                 && message.ValueKind == JsonValueKind.String
             )
             {
-                this.JsonMessage = message.GetString();
+                JsonMessage = message.GetString();
             }
         }
         catch { }

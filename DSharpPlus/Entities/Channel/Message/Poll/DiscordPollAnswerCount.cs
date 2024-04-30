@@ -16,7 +16,7 @@ public sealed class DiscordPollAnswerCount
     // to then build your dictionary. - Velvet
     [JsonProperty("answer_id")]
     public int AnswerId { get; internal set; }
-    
+
     /// <summary>
     /// Gets a (potentially approximate) count of how many users voted for this answer.
     /// </summary>
@@ -24,12 +24,12 @@ public sealed class DiscordPollAnswerCount
     /// This count isn't guaranteed to be precise unless <see cref="DiscordPollResult.IsFinalized"/> is <c>true</c>.
     /// </remarks>
     public int Count { get; internal set; }
-    
+
     /// <summary>
     /// Gets whether the current user voted for this answer.
     /// </summary>
     [JsonProperty("me_voted")]
     public bool SelfVoted { get; internal set; }
-    
+
     internal DiscordPollAnswerCount() { }
 }

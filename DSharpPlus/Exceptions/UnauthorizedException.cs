@@ -11,8 +11,8 @@ public class UnauthorizedException : DiscordException
     internal UnauthorizedException(HttpRequestMessage request, HttpResponseMessage response, string content)
         : base("Unauthorized: " + response.StatusCode)
     {
-        this.Request = request;
-        this.Response = response;
+        Request = request;
+        Response = response;
 
         try
         {
@@ -25,7 +25,7 @@ public class UnauthorizedException : DiscordException
                 && message.ValueKind == JsonValueKind.String
             )
             {
-                this.JsonMessage = message.GetString();
+                JsonMessage = message.GetString();
             }
         }
         catch { }

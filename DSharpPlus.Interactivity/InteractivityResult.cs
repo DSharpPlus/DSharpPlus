@@ -17,7 +17,7 @@ public readonly struct InteractivityResult<T>
 
     internal InteractivityResult(bool timedout, T result)
     {
-        this.TimedOut = timedout;
-        this.Result = result;
+        TimedOut = timedout;
+        Result = result;
     }
 }

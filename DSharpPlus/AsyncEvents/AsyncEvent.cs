@@ -7,5 +7,5 @@ public abstract class AsyncEvent
 {
     public string Name { get; }
 
-    protected internal AsyncEvent(string name) => this.Name = name;
+    protected internal AsyncEvent(string name) => Name = name;
 }

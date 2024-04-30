@@ -17,7 +17,7 @@ public class ModalSubmitEventArgs : InteractionCreateEventArgs
 
     internal ModalSubmitEventArgs(DiscordInteraction interaction)
     {
-        this.Interaction = interaction;
+        Interaction = interaction;
 
         Dictionary<string, string> dict = new Dictionary<string, string>();
 
@@ -29,6 +29,6 @@ public class ModalSubmitEventArgs : InteractionCreateEventArgs
             }
         }
 
-        this.Values = dict;
+        Values = dict;
     }
 }
