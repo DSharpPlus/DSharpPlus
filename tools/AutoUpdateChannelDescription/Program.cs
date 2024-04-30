@@ -1,4 +1,5 @@
 namespace DSharpPlus.Tools.AutoUpdateChannelDescription;
+
 using System;
 using System.Globalization;
 using System.Linq;

@@ -1,4 +1,5 @@
 namespace DSharpPlus.Lavalink;
+
 using DSharpPlus.Entities;
 using DSharpPlus.Net;
 

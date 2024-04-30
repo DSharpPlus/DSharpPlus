@@ -1,4 +1,5 @@
 namespace DSharpPlus.Entities;
+
 using System;
 using Newtonsoft.Json;
 

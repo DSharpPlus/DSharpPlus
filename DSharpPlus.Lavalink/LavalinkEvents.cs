@@ -1,4 +1,5 @@
 namespace DSharpPlus.Lavalink;
+
 using Microsoft.Extensions.Logging;
 
 /// <summary>

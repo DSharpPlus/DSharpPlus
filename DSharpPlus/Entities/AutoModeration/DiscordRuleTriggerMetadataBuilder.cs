@@ -1,4 +1,5 @@
 namespace DSharpPlus.Entities.AutoModeration;
+
 using System;
 using System.Collections.Generic;
 

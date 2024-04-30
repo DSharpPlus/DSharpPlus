@@ -1,4 +1,5 @@
 namespace DSharpPlus.Lavalink.EventArgs;
+
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Lavalink.Entities;
 

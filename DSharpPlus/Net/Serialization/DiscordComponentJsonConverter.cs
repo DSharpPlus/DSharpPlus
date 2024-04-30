@@ -1,4 +1,5 @@
 namespace DSharpPlus.Net.Serialization;
+
 using System;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;

@@ -1,4 +1,5 @@
 namespace DSharpPlus.Net.Abstractions;
+
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;

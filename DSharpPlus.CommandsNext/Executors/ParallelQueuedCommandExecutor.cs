@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandsNext.Executors;
+
 using System;
 using System.Threading;
 using System.Threading.Channels;

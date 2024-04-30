@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 namespace DSharpPlus.SlashCommands;
+
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;

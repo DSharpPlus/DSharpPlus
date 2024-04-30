@@ -1,4 +1,5 @@
 namespace DSharpPlus.AsyncEvents;
+
 using System;
 using System.Threading.Tasks;
 

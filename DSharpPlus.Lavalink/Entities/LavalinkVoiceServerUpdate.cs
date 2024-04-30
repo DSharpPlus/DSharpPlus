@@ -1,4 +1,5 @@
 namespace DSharpPlus.Lavalink.Entities;
+
 using System.Globalization;
 using DSharpPlus.EventArgs;
 using Newtonsoft.Json;

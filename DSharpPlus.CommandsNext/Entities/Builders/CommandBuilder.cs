@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandsNext.Builders;
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

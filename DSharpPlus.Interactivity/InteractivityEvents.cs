@@ -1,4 +1,5 @@
 namespace DSharpPlus.Interactivity;
+
 using Microsoft.Extensions.Logging;
 
 /// <summary>

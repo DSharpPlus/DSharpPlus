@@ -1,4 +1,5 @@
 namespace DSharpPlus.Tests.Commands.Trees;
+
 using System;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;

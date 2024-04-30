@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandsNext;
+
 using DSharpPlus.AsyncEvents;
 
 /// <summary>

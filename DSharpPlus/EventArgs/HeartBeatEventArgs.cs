@@ -1,4 +1,5 @@
 namespace DSharpPlus.EventArgs;
+
 using System;
 
 /// <summary>

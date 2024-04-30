@@ -1,4 +1,5 @@
 namespace DSharpPlus.Tests.Commands.Cases.Commands;
+
 using System.Threading.Tasks;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ArgumentModifiers;

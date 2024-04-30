@@ -1,4 +1,5 @@
 namespace DSharpPlus.Interactivity.Extensions;
+
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;

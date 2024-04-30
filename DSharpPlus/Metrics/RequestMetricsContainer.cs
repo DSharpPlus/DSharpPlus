@@ -1,4 +1,5 @@
 namespace DSharpPlus.Metrics;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;

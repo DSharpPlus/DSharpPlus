@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandsNext.Builders;
+
 using System;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Entities;

@@ -1,4 +1,5 @@
 namespace DSharpPlus.Entities;
+
 using System;
 using System.Globalization;
 using System.Linq;

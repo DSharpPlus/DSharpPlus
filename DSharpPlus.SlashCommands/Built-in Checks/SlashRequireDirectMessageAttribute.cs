@@ -1,4 +1,5 @@
 namespace DSharpPlus.SlashCommands.Attributes;
+
 using System;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;

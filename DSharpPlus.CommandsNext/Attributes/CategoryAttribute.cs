@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandsNext.Attributes;
+
 using System;
 
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]

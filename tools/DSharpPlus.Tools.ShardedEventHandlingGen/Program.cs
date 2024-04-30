@@ -1,4 +1,5 @@
 namespace DSharpPlus.Tools.ShardedEventHandlingGen;
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

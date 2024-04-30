@@ -1,4 +1,5 @@
 namespace DSharpPlus.Net.Models;
+
 using System.IO;
 using DSharpPlus.Entities;
 

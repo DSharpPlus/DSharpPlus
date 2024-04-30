@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandsNext;
+
 using System.Threading.Tasks;
 
 /// <summary>

@@ -1,4 +1,5 @@
 namespace DSharpPlus.Net;
+
 using Newtonsoft.Json;
 
 /// <summary>

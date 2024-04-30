@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 namespace DSharpPlus.Entities.AuditLogs;
+
 using DSharpPlus.Net.Abstractions;
 
 /// <summary>

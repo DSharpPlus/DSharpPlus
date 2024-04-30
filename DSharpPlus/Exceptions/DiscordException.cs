@@ -1,4 +1,5 @@
 namespace DSharpPlus.Exceptions;
+
 using System;
 using System.Net.Http;
 

@@ -1,4 +1,5 @@
 namespace DSharpPlus.Net.Models;
+
 using DSharpPlus.Entities;
 
 public class StickerEditModel : BaseEditModel

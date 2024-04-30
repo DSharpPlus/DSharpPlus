@@ -1,4 +1,5 @@
 namespace DSharpPlus.Commands.Exceptions;
+
 using System.Collections.Generic;
 
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;

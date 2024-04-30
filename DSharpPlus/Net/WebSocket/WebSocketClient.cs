@@ -1,4 +1,5 @@
 namespace DSharpPlus.Net.WebSocket;
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

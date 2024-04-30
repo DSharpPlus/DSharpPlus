@@ -1,4 +1,5 @@
 namespace DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
+
 using System;
 
 /// <summary>

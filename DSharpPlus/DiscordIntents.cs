@@ -1,4 +1,5 @@
 namespace DSharpPlus;
+
 using System;
 
 public static class DiscordIntentExtensions

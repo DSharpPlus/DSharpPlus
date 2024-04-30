@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandsNext.Entities;
+
 using System;
 
 /// <summary>

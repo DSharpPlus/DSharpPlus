@@ -1,4 +1,5 @@
 namespace DSharpPlus.Net.Abstractions;
+
 using Newtonsoft.Json;
 
 /// <summary>

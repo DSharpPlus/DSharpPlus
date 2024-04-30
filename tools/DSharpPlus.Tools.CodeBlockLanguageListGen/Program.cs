@@ -1,4 +1,5 @@
 namespace DSharpPlus.Tools.CodeBlockLanguageListGen;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

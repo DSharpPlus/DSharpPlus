@@ -1,4 +1,5 @@
 namespace DSharpPlus.Metrics;
+
 using System;
 using System.Globalization;
 using System.Text;
