@@ -450,16 +450,38 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         }
 
         Dictionary<CommandParameter, object?> parsedArguments = [];
+        CommandParameter? autoCompleteParameter = null;
+        DiscordInteractionDataOption? autoCompleteOption = null;
         try
         {
             // Parse until we find the parameter that the user is currently typing
-            while (converterContext.NextParameter() && !converterContext.Options.ElementAt(converterContext.ParameterIndex).Focused)
+            while (converterContext.NextParameter())
             {
+                //TODO: Change this comparison to use StringComparison.Ordinal once the automatic conversion to snake_case is no longer applied.
+                DiscordInteractionDataOption? option = converterContext.Options.FirstOrDefault(x => x.Name.Equals(converterContext.Parameter.Name, StringComparison.OrdinalIgnoreCase));
+                if (option is null)
+                {
+                    continue;
+                }
+
+                if (option.Focused)
+                {
+                    autoCompleteParameter = converterContext.Parameter;
+                    autoCompleteOption = option;
+                    break;
+                }
+
                 IOptional optional = await this.ConverterDelegates[this.GetConverterFriendlyBaseType(converterContext.Parameter.Type)](converterContext, eventArgs);
                 parsedArguments.Add(converterContext.Parameter, optional.HasValue
                     ? optional.RawValue
                     : converterContext.Parameter.DefaultValue
                 );
+            }
+
+            if (autoCompleteParameter is null || autoCompleteOption is null)
+            {
+                _logger.LogWarning("Cannot find the auto complete parameter that the user is currently typing - this should be reported to library developers.");
+                return null;
             }
         }
         catch (Exception error)
@@ -487,7 +509,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         return new AutoCompleteContext()
         {
             Arguments = parsedArguments,
-            AutoCompleteArgument = converterContext.Parameter,
+            AutoCompleteArgument = autoCompleteParameter,
             Channel = eventArgs.Interaction.Channel,
             Command = converterContext.Command,
             Extension = converterContext.Extension,
@@ -495,7 +517,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             Options = converterContext.Options,
             ServiceScope = converterContext.ServiceScope,
             User = eventArgs.Interaction.User,
-            UserInput = converterContext.Options.ElementAt(converterContext.ParameterIndex).RawValue
+            UserInput = autoCompleteOption.RawValue
         };
     }
 
