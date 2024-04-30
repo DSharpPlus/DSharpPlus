@@ -151,21 +151,33 @@ public sealed class CommandsExtension : BaseExtension
         this.AddParameterCheck<RequireHierarchyCheck>();
     }
 
-    public void AddCommand(Type type) => this._commandBuilders.Add(CommandBuilder.From(type));
-    public void AddCommand(CommandBuilder command) => this._commandBuilders.Add(command);
     public void AddCommand(Delegate commandDelegate) => this._commandBuilders.Add(CommandBuilder.From(commandDelegate));
+    public void AddCommand(Delegate commandDelegate, params ulong[] guildIds) => this._commandBuilders.Add(CommandBuilder.From(commandDelegate, guildIds));
+
+    public void AddCommand(Type type) => this._commandBuilders.Add(CommandBuilder.From(type));
+    public void AddCommand(Type type, params ulong[] guildIds) => this._commandBuilders.Add(CommandBuilder.From(type, guildIds));
+
+    public void AddCommand(CommandBuilder command) => this._commandBuilders.Add(command);
     public void AddCommands(IEnumerable<CommandBuilder> commands) => this._commandBuilders.AddRange(commands);
-    public void AddCommands(Assembly assembly) => this.AddCommands(assembly.GetTypes());
-    public void AddCommands(Type type) => this.AddCommands([type]);
-    public void AddCommands<T>() => this._commandBuilders.Add(CommandBuilder.From<T>());
     public void AddCommands(params CommandBuilder[] commands) => this._commandBuilders.AddRange(commands);
-    public void AddCommands(IEnumerable<Type> types)
+
+    public void AddCommands(Assembly assembly) => this.AddCommands(assembly.GetTypes());
+    public void AddCommands(Assembly assembly, params ulong[] guildIds) => this.AddCommands(assembly.GetTypes(), guildIds);
+
+    public void AddCommands(Type type) => this.AddCommands([type]);
+    public void AddCommands(Type type, params ulong[] guildIds) => this.AddCommands([type], guildIds);
+
+    public void AddCommands<T>() => this._commandBuilders.Add(CommandBuilder.From<T>());
+    public void AddCommands<T>(params ulong[] guildIds) => this._commandBuilders.Add(CommandBuilder.From<T>(guildIds));
+
+    public void AddCommands(IEnumerable<Type> types) => this.AddCommands(types, []);
+    public void AddCommands(IEnumerable<Type> types, params ulong[] guildIds)
     {
         foreach (Type type in types)
         {
             if (type.GetCustomAttribute<CommandAttribute>() is not null)
             {
-                this._commandBuilders.Add(CommandBuilder.From(type));
+                this._commandBuilders.Add(CommandBuilder.From(type, guildIds));
                 continue;
             }
 
@@ -173,7 +185,7 @@ public sealed class CommandsExtension : BaseExtension
             {
                 if (method.GetCustomAttribute<CommandAttribute>() is not null)
                 {
-                    this._commandBuilders.Add(CommandBuilder.From(method));
+                    this._commandBuilders.Add(CommandBuilder.From(method, guildIds: guildIds));
                 }
             }
         }

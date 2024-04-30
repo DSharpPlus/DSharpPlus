@@ -84,29 +84,30 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
                     break;
                 }
             }
+        }
 
-            // No alias was found
-            if (command is null)
+        // No alias was found
+        if (command is null ||
+            (command.GuildIds.Count > 0 && !command.GuildIds.Contains(eventArgs.Guild?.Id ?? 0)))
+        {
+            await this._extension._commandErrored.InvokeAsync(this._extension, new CommandErroredEventArgs()
             {
-                await this._extension._commandErrored.InvokeAsync(this._extension, new CommandErroredEventArgs()
+                Context = new TextCommandContext()
                 {
-                    Context = new TextCommandContext()
-                    {
-                        Arguments = new Dictionary<CommandParameter, object?>(),
-                        Channel = eventArgs.Channel,
-                        Command = null!,
-                        Extension = this._extension,
-                        Message = eventArgs.Message,
-                        ServiceScope = scope,
-                        User = eventArgs.Author
-                    },
-                    Exception = new CommandNotFoundException(commandText[..index]),
-                    CommandObject = null
-                });
+                    Arguments = new Dictionary<CommandParameter, object?>(),
+                    Channel = eventArgs.Channel,
+                    Command = null!,
+                    Extension = this._extension,
+                    Message = eventArgs.Message,
+                    ServiceScope = scope,
+                    User = eventArgs.Author
+                },
+                Exception = new CommandNotFoundException(commandText[..index]),
+                CommandObject = null
+            });
 
-                await scope.DisposeAsync();
-                return;
-            }
+            await scope.DisposeAsync();
+            return;
         }
 
         // If there is a space after the command's name, skip it.

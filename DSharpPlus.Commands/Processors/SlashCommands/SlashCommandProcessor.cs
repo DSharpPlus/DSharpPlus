@@ -8,7 +8,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
@@ -19,7 +18,6 @@ using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -180,23 +178,59 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
     public async Task RegisterSlashCommandsAsync(CommandsExtension extension)
     {
-        List<DiscordApplicationCommand> applicationCommands = [];
-        applicationCommands.AddRange(this._applicationCommands);
+        List<DiscordApplicationCommand> globalApplicationCommands = [];
+        Dictionary<ulong, List<DiscordApplicationCommand>> guildsApplicationCommands = [];
+        globalApplicationCommands.AddRange(this._applicationCommands);
         foreach (Command command in extension.Commands.Values)
         {
             // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
             // If there isn't, default to SlashCommands
-            if (command.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute && !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.SlashCommand))
+            if (command.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute &&
+                !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.SlashCommand))
             {
                 continue;
             }
 
-            applicationCommands.Add(await this.ToApplicationCommandAsync(command));
+            DiscordApplicationCommand applicationCommand = await this.ToApplicationCommandAsync(command);
+
+            if (command.GuildIds.Count == 0)
+            {
+                globalApplicationCommands.Add(applicationCommand);
+                continue;
+            }
+
+            foreach (ulong guildId in command.GuildIds)
+            {
+                if (!guildsApplicationCommands.TryGetValue(guildId, out List<DiscordApplicationCommand>? guildCommands))
+                {
+                    guildCommands = [];
+                    guildsApplicationCommands.Add(guildId, guildCommands);
+                }
+
+                guildCommands.Add(applicationCommand);
+            }
         }
 
-        IReadOnlyList<DiscordApplicationCommand> discordCommands = extension.DebugGuildId is 0
-            ? await extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(applicationCommands)
-            : await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, applicationCommands);
+        List<DiscordApplicationCommand> discordCommands = [];
+        if (extension.DebugGuildId == 0)
+        {
+            discordCommands.AddRange(await extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(globalApplicationCommands));
+
+            foreach ((ulong guildId, List<DiscordApplicationCommand> guildCommands) in guildsApplicationCommands)
+            {
+                discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId, guildCommands));
+            }
+        }
+        else
+        {
+            discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, globalApplicationCommands));
+
+            //If the same command is registered in multiple guilds, only add it once to the debug guild
+            discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, guildsApplicationCommands
+                .SelectMany(x => x.Value)
+                .GroupBy(x => x.Name)
+                .Select(x => x.First())));
+        }
 
         Dictionary<ulong, Command> commandsDictionary = [];
         foreach (DiscordApplicationCommand discordCommand in discordCommands)
