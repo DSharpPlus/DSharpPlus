@@ -431,15 +431,34 @@ public sealed class CommandsExtension : BaseExtension
             if (8 + eventArgs.Exception.StackTrace.Length + stringBuilder.Length >= 2000)
             {
                 stringBuilder.Append($"```\n{eventArgs.Exception.StackTrace}\n```");
+                messageBuilder.WithContent(stringBuilder.ToString());
             }
-            // Otherwise, we'll have to upload it as a file
+            // If the exception message exceeds the message character limit, cram it all into an attatched file with a simple message in the content.
+            else if (stringBuilder.Length >= 2000)
+            {
+                messageBuilder.WithContent("Exception Message exceeds character limit, see attached file.");
+                string formattedFile = $"{stringBuilder}{Environment.NewLine}{Environment.NewLine}Stack Trace:{Environment.NewLine}{eventArgs.Exception.StackTrace}";
+                messageBuilder.AddFile("MessageAndStackTrace.txt", new MemoryStream(Encoding.UTF8.GetBytes(formattedFile)), AddFileOptions.CloseStream);
+            }
+            // Otherwise, display the exception message in the content and the trace in an attached file
             else
             {
+                messageBuilder.WithContent(stringBuilder.ToString());
                 messageBuilder.AddFile("StackTrace.txt", new MemoryStream(Encoding.UTF8.GetBytes(eventArgs.Exception.StackTrace)), AddFileOptions.CloseStream);
             }
         }
+        // If no stack trace, and the message is still too long, attatch a file with the message and use a simple message in the content.
+        else if (stringBuilder.Length >= 2000)
+        {
+            messageBuilder.WithContent("Exception Message exceeds character limit, see attached file.");
+            messageBuilder.AddFile("Message.txt", new MemoryStream(Encoding.UTF8.GetBytes(stringBuilder.ToString())), AddFileOptions.CloseStream);
+        }
+        // Otherwise, if no stack trace and the Exception message will fit, send the message as content
+        else
+        {
+            messageBuilder.WithContent(stringBuilder.ToString());
+        }
 
-        messageBuilder.WithContent(stringBuilder.ToString());
         await eventArgs.Context.RespondAsync(messageBuilder);
     }
 }
