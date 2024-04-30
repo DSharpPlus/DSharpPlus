@@ -1,4 +1,5 @@
 namespace DSharpPlus.SlashCommands;
+
 using System.Collections.Generic;
 
 /// <summary>

@@ -1,4 +1,5 @@
 namespace DSharpPlus.VoiceNext.EventArgs;
+
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 

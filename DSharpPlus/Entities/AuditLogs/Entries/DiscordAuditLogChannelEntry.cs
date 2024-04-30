@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 namespace DSharpPlus.Entities.AuditLogs;
+
 using System.Collections.Generic;
 
 public sealed class DiscordAuditLogChannelEntry : DiscordAuditLogEntry

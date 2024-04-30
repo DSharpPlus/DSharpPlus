@@ -1,4 +1,5 @@
 namespace DSharpPlus.Interactivity.EventHandling;
+
 using System;
 using System.Collections.Concurrent;
 using System.Threading;

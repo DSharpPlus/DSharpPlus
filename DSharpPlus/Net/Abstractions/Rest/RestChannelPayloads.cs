@@ -1,4 +1,5 @@
 namespace DSharpPlus.Net.Abstractions;
+
 using System;
 using System.Collections.Generic;
 using DSharpPlus.Entities;

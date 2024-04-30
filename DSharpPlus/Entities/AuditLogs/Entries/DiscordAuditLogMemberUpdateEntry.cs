@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 namespace DSharpPlus.Entities.AuditLogs;
+
 using System;
 using System.Collections.Generic;
 

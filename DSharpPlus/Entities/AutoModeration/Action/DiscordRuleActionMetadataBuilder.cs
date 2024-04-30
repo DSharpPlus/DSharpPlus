@@ -1,4 +1,5 @@
 namespace DSharpPlus.Entities.AutoModeration.Action;
+
 using System;
 
 /// <summary>

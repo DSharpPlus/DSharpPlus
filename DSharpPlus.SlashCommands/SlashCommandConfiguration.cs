@@ -1,4 +1,5 @@
 namespace DSharpPlus.SlashCommands;
+
 using System;
 using Microsoft.Extensions.DependencyInjection;
 

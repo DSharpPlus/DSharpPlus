@@ -1,4 +1,5 @@
 namespace DSharpPlus.VoiceNext;
+
 using System;
 
 /// <summary>

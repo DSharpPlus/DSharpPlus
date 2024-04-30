@@ -1,4 +1,5 @@
 namespace DSharpPlus.Lavalink.Entities;
+
 using Newtonsoft.Json;
 
 internal abstract class LavalinkPayload

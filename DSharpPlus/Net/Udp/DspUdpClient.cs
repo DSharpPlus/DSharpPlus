@@ -1,4 +1,5 @@
 namespace DSharpPlus.Net.Udp;
+
 using System;
 using System.Collections.Concurrent;
 using System.Net.Sockets;

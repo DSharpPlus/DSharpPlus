@@ -1,4 +1,5 @@
 namespace DSharpPlus;
+
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Caching.Memory;
 

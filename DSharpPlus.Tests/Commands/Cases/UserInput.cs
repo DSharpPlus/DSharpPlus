@@ -1,4 +1,5 @@
 namespace DSharpPlus.Tests.Commands.Cases;
+
 using System.Collections.Generic;
 using NUnit.Framework;
 

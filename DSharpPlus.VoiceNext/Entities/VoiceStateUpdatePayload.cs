@@ -1,4 +1,5 @@
 namespace DSharpPlus.VoiceNext.Entities;
+
 using Newtonsoft.Json;
 
 internal sealed class VoiceStateUpdatePayload

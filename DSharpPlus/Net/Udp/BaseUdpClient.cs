@@ -1,4 +1,5 @@
 namespace DSharpPlus.Net.Udp;
+
 using System.Threading.Tasks;
 
 /// <summary>

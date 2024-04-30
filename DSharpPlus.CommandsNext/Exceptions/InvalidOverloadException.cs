@@ -1,4 +1,5 @@
 namespace DSharpPlus.CommandsNext.Exceptions;
+
 using System;
 using System.Reflection;
 

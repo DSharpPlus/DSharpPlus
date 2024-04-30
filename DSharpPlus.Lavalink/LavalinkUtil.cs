@@ -1,4 +1,5 @@
 namespace DSharpPlus.Lavalink;
+
 using System;
 using System.IO;
 using System.Text;
