@@ -173,7 +173,7 @@ public class CommandBuilder
                 continue;
             }
 
-            subCommandBuilders.Add(From(method, totalGuildIds));
+            subCommandBuilders.Add(From(method, guildIds: totalGuildIds));
         }
 
         if (type.GetCustomAttribute<CommandAttribute>() is not null && subCommandBuilders.Count == 0)
