@@ -1,6 +1,5 @@
-using System.Threading.Tasks;
-
 namespace DSharpPlus.Commands.ContextChecks.ParameterChecks;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Marker interface for parameter checks. Use <see cref="IParameterCheck{TAttribute}"/> instead.

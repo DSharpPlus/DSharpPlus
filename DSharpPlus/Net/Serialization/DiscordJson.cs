@@ -1,3 +1,4 @@
+namespace DSharpPlus.Net.Serialization;
 using System;
 using System.Globalization;
 using System.IO;
@@ -5,8 +6,6 @@ using System.Text;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-namespace DSharpPlus.Net.Serialization;
 
 public static class DiscordJson
 {

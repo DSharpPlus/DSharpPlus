@@ -1,8 +1,7 @@
+namespace DSharpPlus.Commands.Processors.SlashCommands.Metadata;
 using System;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
-
-namespace DSharpPlus.Commands.Processors.SlashCommands.Metadata;
 
 /// <summary>
 /// Specifies the installation context for a command or module.

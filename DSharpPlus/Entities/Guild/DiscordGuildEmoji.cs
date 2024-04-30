@@ -1,8 +1,7 @@
+namespace DSharpPlus.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-
-namespace DSharpPlus.Entities;
 
 public sealed class DiscordGuildEmoji : DiscordEmoji
 {

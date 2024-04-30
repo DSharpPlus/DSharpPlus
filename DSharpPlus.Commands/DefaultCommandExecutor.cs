@@ -1,3 +1,4 @@
+namespace DSharpPlus.Commands;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -16,8 +17,6 @@ using DSharpPlus.Commands.Invocation;
 using DSharpPlus.Commands.Trees;
 
 using Microsoft.Extensions.DependencyInjection;
-
-namespace DSharpPlus.Commands;
 
 public class DefaultCommandExecutor : ICommandExecutor
 {

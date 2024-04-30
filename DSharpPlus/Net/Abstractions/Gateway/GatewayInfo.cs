@@ -1,6 +1,5 @@
-using Newtonsoft.Json;
-
 namespace DSharpPlus.Net;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Represents information used to identify with Discord.

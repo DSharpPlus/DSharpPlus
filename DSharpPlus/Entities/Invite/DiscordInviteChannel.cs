@@ -1,6 +1,5 @@
-using Newtonsoft.Json;
-
 namespace DSharpPlus.Entities;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Represents the channel to which an invite is linked.

@@ -1,3 +1,4 @@
+namespace DSharpPlus.Tools.AutoUpdateChannelDescription;
 using System;
 using System.Globalization;
 using System.Linq;
@@ -6,8 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
-
-namespace DSharpPlus.Tools.AutoUpdateChannelDescription;
 
 public sealed class Program
 {

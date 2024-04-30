@@ -1,8 +1,7 @@
+namespace DSharpPlus.VoiceNext.Entities;
 using System;
 using DSharpPlus.Entities;
 using DSharpPlus.VoiceNext.Codec;
-
-namespace DSharpPlus.VoiceNext.Entities;
 
 internal class AudioSender : IDisposable
 {

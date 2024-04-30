@@ -1,8 +1,8 @@
+namespace DSharpPlus.EventArgs;
 using System.Collections.Generic;
 using System.Linq;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
-namespace DSharpPlus.EventArgs;
 
 /// <summary>
 /// Fired when a modal is submitted. Note that this event is fired only if the modal is submitted by the user, and not if the modal is closed.

@@ -1,3 +1,4 @@
+namespace DSharpPlus;
 #pragma warning disable CS0618
 using System;
 using System.Collections.Concurrent;
@@ -10,8 +11,6 @@ using DSharpPlus.Entities;
 using DSharpPlus.Metrics;
 using DSharpPlus.Net;
 using Microsoft.Extensions.Logging;
-
-namespace DSharpPlus;
 
 /// <summary>
 /// Represents a common base for various Discord client implementations.

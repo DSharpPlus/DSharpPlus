@@ -1,9 +1,8 @@
+namespace DSharpPlus.CommandsNext.Builders;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using DSharpPlus.CommandsNext.Entities;
-
-namespace DSharpPlus.CommandsNext.Builders;
 
 /// <summary>
 /// Represents an interface to build a command group.

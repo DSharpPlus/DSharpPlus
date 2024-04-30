@@ -1,9 +1,8 @@
+namespace DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-
-namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents an interaction that was invoked.
@@ -219,12 +218,9 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// Gets a follow up message.
     /// </summary>
     /// <param name="messageId">The id of the follow up message.</param>
-    public async Task<DiscordMessage> GetFollowupMessageAsync(ulong messageId)
-    {
-        return ResponseState is not DiscordInteractionResponseState.Replied
+    public async Task<DiscordMessage> GetFollowupMessageAsync(ulong messageId) => ResponseState is not DiscordInteractionResponseState.Replied
             ? throw new InvalidOperationException("A response has not been made to this interaction.")
             : await Discord.ApiClient.GetFollowupMessageAsync(Discord.CurrentApplication.Id, Token, messageId);
-    }
 
     /// <summary>
     /// Edits a follow up message.

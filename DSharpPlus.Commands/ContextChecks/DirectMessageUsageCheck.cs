@@ -1,7 +1,6 @@
+namespace DSharpPlus.Commands.ContextChecks;
 using System.Diagnostics;
 using System.Threading.Tasks;
-
-namespace DSharpPlus.Commands.ContextChecks;
 
 internal sealed class DirectMessageUsageCheck : IContextCheck<DirectMessageUsageAttribute>
 {

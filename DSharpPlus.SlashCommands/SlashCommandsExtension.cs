@@ -1,3 +1,4 @@
+namespace DSharpPlus.SlashCommands;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,8 +16,6 @@ using DSharpPlus.SlashCommands.EventArgs;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
-namespace DSharpPlus.SlashCommands;
 
 /// <summary>
 /// A class that handles slash commands for a client.
@@ -606,12 +605,9 @@ public sealed class SlashCommandsExtension : BaseExtension
             return DiscordApplicationCommandOptionType.Number;
         }
 
-        if (type == typeof(DiscordChannel))
-        {
-            return DiscordApplicationCommandOptionType.Channel;
-        }
-
-        return type == typeof(DiscordUser)
+        return type == typeof(DiscordChannel)
+            ? DiscordApplicationCommandOptionType.Channel
+            : type == typeof(DiscordUser)
             ? DiscordApplicationCommandOptionType.User
             : type == typeof(DiscordRole)
             ? DiscordApplicationCommandOptionType.Role

@@ -1,7 +1,6 @@
+namespace DSharpPlus.Net.Abstractions;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-
-namespace DSharpPlus.Net.Abstractions;
 
 internal sealed class TransportTeam
 {

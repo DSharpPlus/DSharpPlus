@@ -1,6 +1,5 @@
-using System;
-
 namespace DSharpPlus.CommandsNext.Attributes;
+using System;
 
 /// <summary>
 /// Prevents this field or property from having its value injected by dependency injection.

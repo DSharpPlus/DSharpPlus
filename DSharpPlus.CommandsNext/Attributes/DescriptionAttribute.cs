@@ -1,6 +1,5 @@
-using System;
-
 namespace DSharpPlus.CommandsNext.Attributes;
+using System;
 
 /// <summary>
 /// Gives this command, group, or argument a description, which is used when listing help.

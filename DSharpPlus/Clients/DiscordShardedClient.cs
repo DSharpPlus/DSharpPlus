@@ -1,3 +1,4 @@
+namespace DSharpPlus;
 #pragma warning disable CS0618
 using System;
 using System.Collections.Concurrent;
@@ -10,8 +11,6 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net;
 using Microsoft.Extensions.Logging;
-
-namespace DSharpPlus;
 
 /// <summary>
 /// A Discord client that shards automatically.

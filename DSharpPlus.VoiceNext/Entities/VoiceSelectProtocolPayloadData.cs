@@ -1,6 +1,5 @@
-using Newtonsoft.Json;
-
 namespace DSharpPlus.VoiceNext.Entities;
+using Newtonsoft.Json;
 
 internal class VoiceSelectProtocolPayloadData
 {

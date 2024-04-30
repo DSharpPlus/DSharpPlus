@@ -1,8 +1,7 @@
+namespace DSharpPlus.Entities;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-
-namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a field in a guild's membership screening form

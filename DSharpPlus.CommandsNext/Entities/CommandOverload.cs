@@ -1,7 +1,6 @@
+namespace DSharpPlus.CommandsNext;
 using System;
 using System.Collections.Generic;
-
-namespace DSharpPlus.CommandsNext;
 
 /// <summary>
 /// Represents a specific overload of a command.

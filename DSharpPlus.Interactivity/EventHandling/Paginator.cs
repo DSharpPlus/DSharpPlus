@@ -1,3 +1,4 @@
+namespace DSharpPlus.Interactivity.EventHandling;
 using System;
 using System.Threading.Tasks;
 using ConcurrentCollections;
@@ -5,8 +6,6 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Enums;
 using Microsoft.Extensions.Logging;
-
-namespace DSharpPlus.Interactivity.EventHandling;
 
 internal class Paginator : IPaginator
 {

@@ -1,7 +1,6 @@
+namespace DSharpPlus.Exceptions;
 using System.Net.Http;
 using System.Text.Json;
-
-namespace DSharpPlus.Exceptions;
 
 /// <summary>
 /// Represents an exception thrown when the request sent to Discord is too large.

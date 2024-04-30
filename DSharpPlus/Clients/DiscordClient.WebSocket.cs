@@ -1,3 +1,4 @@
+namespace DSharpPlus;
 using System;
 using System.Collections.Concurrent;
 using System.IO;
@@ -11,8 +12,6 @@ using DSharpPlus.Net.WebSocket;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-namespace DSharpPlus;
 
 public sealed partial class DiscordClient
 {

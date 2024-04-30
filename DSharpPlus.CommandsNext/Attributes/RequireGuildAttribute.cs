@@ -1,6 +1,5 @@
-using System.Threading.Tasks;
-
 namespace DSharpPlus.CommandsNext.Attributes;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Defines that a command is only usable within a guild.

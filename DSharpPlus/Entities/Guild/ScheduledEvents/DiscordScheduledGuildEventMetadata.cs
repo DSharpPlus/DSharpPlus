@@ -1,5 +1,5 @@
-using Newtonsoft.Json;
 namespace DSharpPlus.Entities;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Metadata for a <see cref="DiscordScheduledGuildEvent"/>.

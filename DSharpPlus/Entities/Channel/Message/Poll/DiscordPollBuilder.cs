@@ -1,8 +1,7 @@
+namespace DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
 using DSharpPlus.Net.Abstractions;
-
-namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a builder for <see cref="DiscordPoll"/>s.
@@ -96,12 +95,9 @@ public class DiscordPollBuilder
     /// </summary>
     /// <returns>A <see cref="PollCreatePayload"/> to build the create request.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the poll has less than two options.</exception>
-    internal PollCreatePayload BuildInternal()
-    {
-        return _options.Count < 2
+    internal PollCreatePayload BuildInternal() => _options.Count < 2
             ? throw new InvalidOperationException("A poll must have at least two options.")
             : new PollCreatePayload(this);
-    }
 
     public DiscordPollBuilder() { }
 

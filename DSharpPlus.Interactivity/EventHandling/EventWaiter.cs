@@ -1,3 +1,4 @@
+namespace DSharpPlus.Interactivity.EventHandling;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,8 +8,6 @@ using System.Threading.Tasks;
 using ConcurrentCollections;
 using DSharpPlus.AsyncEvents;
 using Microsoft.Extensions.Logging;
-
-namespace DSharpPlus.Interactivity.EventHandling;
 
 /// <summary>
 /// Eventwaiter is a class that serves as a layer between the InteractivityExtension

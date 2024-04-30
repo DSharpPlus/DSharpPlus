@@ -1,6 +1,5 @@
-using Newtonsoft.Json;
-
 namespace DSharpPlus.Entities;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Represents information about a Discord voice server region.
@@ -78,7 +77,7 @@ public class DiscordVoiceRegion
         object? o1 = left as object;
         object? o2 = right as object;
 
-        return (o1 != null || o2 == null) && (o1 == null || o2 != null) && (o1 == null && o2 == null || left.Id == right.Id);
+        return (o1 != null || o2 == null) && (o1 == null || o2 != null) && ((o1 == null && o2 == null) || left.Id == right.Id);
     }
 
     /// <summary>

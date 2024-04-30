@@ -1,11 +1,10 @@
+namespace DSharpPlus.Interactivity.EventHandling;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using ConcurrentCollections;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Logging;
-
-namespace DSharpPlus.Interactivity.EventHandling;
 
 /// <summary>
 /// Modal version of <see cref="EventWaiter{T}"/>

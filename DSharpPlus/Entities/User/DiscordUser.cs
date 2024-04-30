@@ -1,3 +1,4 @@
+namespace DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -5,8 +6,6 @@ using System.Threading.Tasks;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
-
-namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a Discord user.
@@ -282,7 +281,7 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
         object? o1 = e1 as object;
         object? o2 = e2 as object;
 
-        return (o1 != null || o2 == null) && (o1 == null || o2 != null) && (o1 == null && o2 == null || e1.Id == e2.Id);
+        return (o1 != null || o2 == null) && (o1 == null || o2 != null) && ((o1 == null && o2 == null) || e1.Id == e2.Id);
     }
 
     /// <summary>

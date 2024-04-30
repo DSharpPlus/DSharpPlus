@@ -1,3 +1,4 @@
+namespace DSharpPlus.Entities.AuditLogs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,8 +14,6 @@ using DSharpPlus.Net.Serialization;
 using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json.Linq;
-
-namespace DSharpPlus.Entities.AuditLogs;
 
 internal static class AuditLogParser
 {

@@ -1,6 +1,5 @@
-using System;
-
 namespace DSharpPlus.Commands;
+using System;
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class ParameterAttribute : Attribute

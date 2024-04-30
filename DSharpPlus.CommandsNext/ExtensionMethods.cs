@@ -1,3 +1,4 @@
+namespace DSharpPlus.CommandsNext;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,8 +8,6 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Builders;
 using DSharpPlus.CommandsNext.Converters;
 using Microsoft.Extensions.Logging;
-
-namespace DSharpPlus.CommandsNext;
 
 /// <summary>
 /// Defines various extensions specific to CommandsNext.

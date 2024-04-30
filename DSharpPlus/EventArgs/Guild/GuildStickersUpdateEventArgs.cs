@@ -1,6 +1,6 @@
+namespace DSharpPlus.EventArgs;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
-namespace DSharpPlus.EventArgs;
 
 /// <summary>
 /// Represents event args for the <see cref="DiscordClient.GuildStickersUpdated"/> event.

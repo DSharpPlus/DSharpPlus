@@ -1,6 +1,5 @@
-using DSharpPlus.AsyncEvents;
-
 namespace DSharpPlus.EventArgs;
+using DSharpPlus.AsyncEvents;
 
 // Note: this might seem useless, but should we ever need to add a common property or method to all event arg
 // classes, it would be useful to already have a base for all of it.

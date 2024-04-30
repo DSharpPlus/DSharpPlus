@@ -1,8 +1,7 @@
+namespace DSharpPlus.Entities;
 using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-
-namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a permission overwrite for a channel.

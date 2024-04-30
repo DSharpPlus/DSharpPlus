@@ -1,3 +1,4 @@
+namespace DSharpPlus.CommandsNext;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -10,8 +11,6 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
-
-namespace DSharpPlus.CommandsNext;
 
 /// <summary>
 /// Various CommandsNext-related utilities.

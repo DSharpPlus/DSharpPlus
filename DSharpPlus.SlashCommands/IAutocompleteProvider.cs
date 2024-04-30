@@ -21,11 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+namespace DSharpPlus.SlashCommands;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
-
-namespace DSharpPlus.SlashCommands;
 
 /// <summary>
 /// All autocomplete providers must inherit from this interface.

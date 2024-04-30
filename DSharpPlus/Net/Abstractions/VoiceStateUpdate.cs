@@ -1,6 +1,5 @@
-using Newtonsoft.Json;
-
 namespace DSharpPlus.Net.Abstractions;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Represents data for websocket voice state update payload.

@@ -1,9 +1,9 @@
+namespace DSharpPlus.Interactivity.EventHandling;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-namespace DSharpPlus.Interactivity.EventHandling;
 
 /// <summary>
 /// Represents a match that is being waited for.

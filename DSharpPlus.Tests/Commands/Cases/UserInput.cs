@@ -1,7 +1,6 @@
+namespace DSharpPlus.Tests.Commands.Cases;
 using System.Collections.Generic;
 using NUnit.Framework;
-
-namespace DSharpPlus.Tests.Commands.Cases;
 
 public static class UserInput
 {

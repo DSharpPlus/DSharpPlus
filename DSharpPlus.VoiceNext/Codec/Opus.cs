@@ -1,7 +1,6 @@
+namespace DSharpPlus.VoiceNext.Codec;
 using System;
 using System.Collections.Generic;
-
-namespace DSharpPlus.VoiceNext.Codec;
 
 internal sealed class Opus : IDisposable
 {

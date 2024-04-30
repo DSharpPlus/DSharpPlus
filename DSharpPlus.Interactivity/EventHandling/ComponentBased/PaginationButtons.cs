@@ -1,5 +1,5 @@
-using DSharpPlus.Entities;
 namespace DSharpPlus.Interactivity.EventHandling;
+using DSharpPlus.Entities;
 
 public class PaginationButtons
 {

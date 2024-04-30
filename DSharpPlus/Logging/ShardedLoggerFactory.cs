@@ -1,7 +1,6 @@
+namespace DSharpPlus;
 using System;
 using Microsoft.Extensions.Logging;
-
-namespace DSharpPlus;
 
 using System.Collections.Concurrent;
 

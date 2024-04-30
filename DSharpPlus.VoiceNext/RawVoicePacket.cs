@@ -1,6 +1,5 @@
-using System;
-
 namespace DSharpPlus.VoiceNext;
+using System;
 
 internal readonly struct RawVoicePacket
 {

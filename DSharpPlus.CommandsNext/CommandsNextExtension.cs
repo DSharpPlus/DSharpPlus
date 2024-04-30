@@ -1,3 +1,4 @@
+namespace DSharpPlus.CommandsNext;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,8 +17,6 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
-namespace DSharpPlus.CommandsNext;
 
 /// <summary>
 /// This is the class which handles command registration, management, and execution.

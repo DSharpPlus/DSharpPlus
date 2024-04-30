@@ -1,8 +1,7 @@
+namespace DSharpPlus.Entities;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-
-namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a membership screening field type

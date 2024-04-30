@@ -1,5 +1,5 @@
-using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
+using DSharpPlus.Entities;
 
 /// <summary>
 /// Fired when a new scheduled guild event is created.

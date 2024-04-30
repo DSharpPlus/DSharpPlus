@@ -1,11 +1,10 @@
+namespace DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Net;
-
-namespace DSharpPlus.Entities;
 
 /// <summary>
 /// An abstraction for the different message builders in DSharpPlus.

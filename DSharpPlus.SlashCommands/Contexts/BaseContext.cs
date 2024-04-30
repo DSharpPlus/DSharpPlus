@@ -1,10 +1,9 @@
+namespace DSharpPlus.SlashCommands;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
-
-namespace DSharpPlus.SlashCommands;
 
 /// <summary>
 /// Represents a base context for application command contexts.

@@ -1,9 +1,8 @@
+namespace DSharpPlus.Interactivity.EventHandling;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
-
-namespace DSharpPlus.Interactivity.EventHandling;
 
 /// <summary>
 /// Represents a match request for a modal of the given Id and predicate.
