@@ -3,7 +3,7 @@ namespace DSharpPlus.CommandsNext.Converters;
 using System;
 using System.Collections.Generic;
 
-public struct ArgumentBindingResult
+public readonly struct ArgumentBindingResult
 {
     public bool IsSuccessful { get; }
     public object?[] Converted { get; }

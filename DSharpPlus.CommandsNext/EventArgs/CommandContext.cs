@@ -136,7 +136,7 @@ public sealed class CommandContext
     public Task TriggerTypingAsync()
         => Channel.TriggerTypingAsync();
 
-    internal struct ServiceContext : IDisposable
+    internal readonly struct ServiceContext : IDisposable
     {
         public IServiceProvider Provider { get; }
         public IServiceScope Scope { get; }

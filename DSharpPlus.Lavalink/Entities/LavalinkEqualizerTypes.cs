@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 /// <summary>
 /// Represents Lavalink equalizer band adjustment. This is used to alter the sound output by using Lavalink's equalizer.
 /// </summary>
-public struct LavalinkBandAdjustment
+public readonly struct LavalinkBandAdjustment
 {
     /// <summary>
     /// Gets the ID of the band to adjust.
