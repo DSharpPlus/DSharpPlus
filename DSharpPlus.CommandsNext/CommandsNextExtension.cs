@@ -648,7 +648,7 @@ public class CommandsNextExtension : BaseExtension
 
             commandBuilder.WithOverload(new CommandOverloadBuilder(m));
 
-            if (!isModule && moduleChecks.Any())
+            if (!isModule && moduleChecks.Count != 0)
             {
                 foreach (CheckBaseAttribute chk in moduleChecks)
                 {
@@ -832,7 +832,7 @@ public class CommandsNextExtension : BaseExtension
             IEnumerable<Command> topLevel = ctx.CommandsNext.TopLevelCommands.Values.Distinct();
             BaseHelpFormatter helpBuilder = ctx.CommandsNext.HelpFormatter.Create(ctx);
 
-            if (command != null && command.Any())
+            if (command != null && command.Length != 0)
             {
                 Command? cmd = null;
                 IEnumerable<Command>? searchIn = topLevel;
@@ -891,7 +891,7 @@ public class CommandsNextExtension : BaseExtension
                         }
                     }
 
-                    if (eligibleCommands.Any())
+                    if (eligibleCommands.Count != 0)
                     {
                         helpBuilder.WithSubcommands(eligibleCommands.OrderBy(xc => xc.Name));
                     }
@@ -916,7 +916,7 @@ public class CommandsNextExtension : BaseExtension
                     }
                 }
 
-                if (eligibleCommands.Any())
+                if (eligibleCommands.Count != 0)
                 {
                     helpBuilder.WithSubcommands(eligibleCommands.OrderBy(xc => xc.Name));
                 }

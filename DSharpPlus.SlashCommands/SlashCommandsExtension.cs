@@ -291,7 +291,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                             }
                         }
 
-                        if (command.SubCommands.Any())
+                        if (command.SubCommands.Count != 0)
                         {
                             subGroupCommands.Add(command);
                         }
@@ -625,7 +625,7 @@ public sealed class SlashCommandsExtension : BaseExtension
             {
                 StringBuilder qualifiedName = new(e.Interaction.Data.Name);
                 DiscordInteractionDataOption[] options = e.Interaction.Data.Options?.ToArray() ?? [];
-                while (options.Any())
+                while (options.Length != 0)
                 {
                     DiscordInteractionDataOption firstOption = options[0];
                     if (firstOption.Type is not DiscordApplicationCommandOptionType.SubCommandGroup and not DiscordApplicationCommandOptionType.SubCommand)

@@ -132,7 +132,7 @@ public class CommandBuilder
     /// <returns>This builder.</returns>
     public CommandBuilder WithAliases(params string[] aliases)
     {
-        if (aliases == null || !aliases.Any())
+        if (aliases == null || aliases.Length == 0)
         {
             throw new ArgumentException("You need to pass at least one alias.", nameof(aliases));
         }

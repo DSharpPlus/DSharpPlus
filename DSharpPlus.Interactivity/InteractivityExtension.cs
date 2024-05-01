@@ -192,7 +192,7 @@ public class InteractivityExtension : BaseExtension
             throw new ArgumentException("You must specify at least one button to listen for.");
         }
 
-        if (!message.Components.Any())
+        if (message.Components.Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any components.");
         }
@@ -237,7 +237,7 @@ public class InteractivityExtension : BaseExtension
             throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
         }
 
-        if (!message.Components.Any())
+        if (message.Components.Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any components.");
         }
@@ -286,7 +286,7 @@ public class InteractivityExtension : BaseExtension
             throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
         }
 
-        if (!message.Components.Any())
+        if (message.Components.Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any components.");
         }
@@ -333,7 +333,7 @@ public class InteractivityExtension : BaseExtension
             throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
         }
 
-        if (!message.Components.Any())
+        if (message.Components.Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any components.");
         }
@@ -378,7 +378,7 @@ public class InteractivityExtension : BaseExtension
             throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
         }
 
-        if (!message.Components.Any())
+        if (message.Components.Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any components.");
         }
@@ -420,7 +420,7 @@ public class InteractivityExtension : BaseExtension
             throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
         }
 
-        if (!message.Components.Any())
+        if (message.Components.Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any components.");
         }
@@ -463,7 +463,7 @@ public class InteractivityExtension : BaseExtension
             throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
         }
 
-        if (!message.Components.Any())
+        if (message.Components.Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any components.");
         }
@@ -523,7 +523,7 @@ public class InteractivityExtension : BaseExtension
             throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
         }
 
-        if (!message.Components.Any())
+        if (message.Components.Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any components.");
         }

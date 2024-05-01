@@ -357,7 +357,7 @@ public static class CommandsNextUtilities
 
         // check if appropriate return and arguments
         parameters = method.GetParameters();
-        if (!parameters.Any() || parameters.First().ParameterType != typeof(CommandContext) || method.ReturnType != typeof(Task))
+        if (parameters.Length != 0 || parameters[0].ParameterType != typeof(CommandContext) || method.ReturnType != typeof(Task))
         {
             return false;
         }

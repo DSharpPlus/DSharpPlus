@@ -27,9 +27,9 @@ public sealed class RequirePrefixesAttribute : CheckBaseAttribute
     /// <param name="prefixes">Prefixes with which the execution of this command is allowed.</param>
     public RequirePrefixesAttribute(params string[] prefixes)
     {
-        if (prefixes?.Any() != true)
+        if (prefixes.Length == 0)
         {
-            throw new ArgumentNullException(nameof(prefixes), "The allowed prefix collection cannot be null or empty.");
+            throw new ArgumentOutOfRangeException(nameof(prefixes), "At least one prefix must be provided.");
         }
 
         Prefixes = prefixes;

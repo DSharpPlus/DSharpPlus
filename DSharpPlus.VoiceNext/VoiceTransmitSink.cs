@@ -212,7 +212,7 @@ public sealed class VoiceTransmitSink : IDisposable
         // pass through any filters, if applicable
         lock (Filters)
         {
-            if (Filters.Any())
+            if (Filters.Count != 0)
             {
                 foreach (IVoiceFilter filter in Filters)
                 {

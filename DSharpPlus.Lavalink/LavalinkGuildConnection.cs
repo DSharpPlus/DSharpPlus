@@ -322,7 +322,7 @@ public sealed class LavalinkGuildConnection
             throw new InvalidOperationException("This connection is not valid.");
         }
 
-        if (bands?.Any() != true)
+        if (bands.Length == 0)
         {
             return;
         }
