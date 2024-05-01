@@ -1,7 +1,6 @@
 namespace DSharpPlus.EventArgs;
 
 using System.Collections.Generic;
-using System.Linq;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
@@ -24,7 +23,7 @@ public class ModalSubmitEventArgs : InteractionCreateEventArgs
 
         foreach (DiscordActionRowComponent component in interaction.Data._components)
         {
-            if (component.Components.First() is DiscordTextInputComponent input)
+            if (component.Components[0] is DiscordTextInputComponent input)
             {
                 dict.Add(input.CustomId, input.Value);
             }

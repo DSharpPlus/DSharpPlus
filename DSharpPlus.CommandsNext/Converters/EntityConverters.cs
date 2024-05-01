@@ -77,7 +77,7 @@ public class DiscordMemberConverter : IArgumentConverter<DiscordMember>
         System.Collections.Generic.IReadOnlyList<DiscordMember> searchResult = await ctx.Guild.SearchMembersAsync(value);
         if (searchResult.Any())
         {
-            return Optional.FromValue(searchResult.First());
+            return Optional.FromValue(searchResult[0]);
         }
 
         bool cs = ctx.Config.CaseSensitive;
