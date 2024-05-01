@@ -684,11 +684,7 @@ public sealed class VoiceNextConnection : IDisposable
             throw new ArgumentOutOfRangeException(nameof(sampleDuration), "Invalid PCM sample duration specified.");
         }
 
-        if (TransmitStream == null)
-        {
-            TransmitStream = new VoiceTransmitSink(this, sampleDuration);
-        }
-
+        TransmitStream ??= new VoiceTransmitSink(this, sampleDuration);
         return TransmitStream;
     }
 

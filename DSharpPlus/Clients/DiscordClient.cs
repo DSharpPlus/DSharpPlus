@@ -1204,13 +1204,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     private void PopulateMessageReactionsAndCache(DiscordMessage message, TransportUser author, TransportMember member)
     {
         DiscordGuild guild = message.Channel?.Guild ?? InternalGetCachedGuild(message._guildId);
-
         UpdateMessage(message, author, guild, member);
-
-        if (message._reactions == null)
-        {
-            message._reactions = [];
-        }
+        message._reactions ??= [];
 
         foreach (DiscordReaction xr in message._reactions)
         {

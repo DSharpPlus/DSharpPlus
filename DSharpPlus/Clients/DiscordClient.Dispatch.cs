@@ -1156,37 +1156,12 @@ public sealed partial class DiscordClient
         guild.IsUnavailable = false;
         DiscordGuild eventGuild = guild;
         guild = _guilds[eventGuild.Id];
-
-        if (guild._channels == null)
-        {
-            guild._channels = new ConcurrentDictionary<ulong, DiscordChannel>();
-        }
-
-        if (guild._threads == null)
-        {
-            guild._threads = new ConcurrentDictionary<ulong, DiscordThreadChannel>();
-        }
-
-        if (guild._roles == null)
-        {
-            guild._roles = new ConcurrentDictionary<ulong, DiscordRole>();
-        }
-
-        if (guild._emojis == null)
-        {
-            guild._emojis = new ConcurrentDictionary<ulong, DiscordEmoji>();
-        }
-
-        if (guild._voiceStates == null)
-        {
-            guild._voiceStates = new ConcurrentDictionary<ulong, DiscordVoiceState>();
-        }
-
-        if (guild._members == null)
-        {
-            guild._members = new ConcurrentDictionary<ulong, DiscordMember>();
-        }
-
+        guild._channels ??= new ConcurrentDictionary<ulong, DiscordChannel>();
+        guild._threads ??= new ConcurrentDictionary<ulong, DiscordThreadChannel>();
+        guild._roles ??= new ConcurrentDictionary<ulong, DiscordRole>();
+        guild._emojis ??= new ConcurrentDictionary<ulong, DiscordEmoji>();
+        guild._voiceStates ??= new ConcurrentDictionary<ulong, DiscordVoiceState>();
+        guild._members ??= new ConcurrentDictionary<ulong, DiscordMember>();
         UpdateCachedGuild(eventGuild, rawMembers);
 
         foreach (DiscordChannel xc in guild._channels.Values)
