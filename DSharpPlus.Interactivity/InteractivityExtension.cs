@@ -120,7 +120,7 @@ public class InteractivityExtension : BaseExtension
             throw new ArgumentException("Custom ID must be between 1 and 100 characters.");
         }
 
-        ModalMatchRequest matchRequest = new ModalMatchRequest(modal_id,
+        ModalMatchRequest matchRequest = new(modal_id,
                 c => c.Interaction.Data.CustomId == modal_id, cancellation: token);
         ModalSubmitEventArgs? result = await ModalEventWaiter.WaitForMatchAsync(matchRequest);
 
@@ -151,7 +151,7 @@ public class InteractivityExtension : BaseExtension
             throw new ArgumentException("Custom ID must be between 1 and 100 characters.");
         }
 
-        ModalMatchRequest matchRequest = new ModalMatchRequest(modal_id,
+        ModalMatchRequest matchRequest = new(modal_id,
                 c => c.Interaction.Data.CustomId == modal_id &&
                 c.Interaction.User.Id == user.Id, cancellation: token);
         ModalSubmitEventArgs? result = await ModalEventWaiter.WaitForMatchAsync(matchRequest);
@@ -717,7 +717,7 @@ public class InteractivityExtension : BaseExtension
     {
         TimeSpan timeout = timeoutoverride ?? Config.Timeout;
 
-        EventWaiter<T> waiter = new EventWaiter<T>(Client);
+        EventWaiter<T> waiter = new(Client);
         T? res = await waiter.WaitForMatchAsync(new MatchRequest<T>(predicate, timeout));
         return new InteractivityResult<T>(res == null, res);
     }
@@ -726,7 +726,7 @@ public class InteractivityExtension : BaseExtension
     {
         TimeSpan timeout = timeoutoverride ?? Config.Timeout;
 
-        using EventWaiter<T> waiter = new EventWaiter<T>(Client);
+        using EventWaiter<T> waiter = new(Client);
         ReadOnlyCollection<T> res = await waiter.CollectMatchesAsync(new CollectRequest<T>(predicate, timeout));
         return res;
     }
@@ -777,7 +777,7 @@ public class InteractivityExtension : BaseExtension
 
         DiscordMessage message = await builder.SendAsync(channel);
 
-        ButtonPaginationRequest req = new ButtonPaginationRequest(message, user, bhv, del, bts, pages.ToArray(), token == default ? GetCancellationToken() : token);
+        ButtonPaginationRequest req = new(message, user, bhv, del, bts, pages.ToArray(), token == default ? GetCancellationToken() : token);
 
         await _compPaginator.DoPaginationAsync(req);
     }
@@ -832,7 +832,7 @@ public class InteractivityExtension : BaseExtension
         PaginationDeletion del = deletion ?? Config.PaginationDeletion;
         PaginationEmojis ems = emojis ?? Config.PaginationEmojis;
 
-        PaginationRequest prequest = new PaginationRequest(m, user, bhv, del, ems, timeout, pages.ToArray());
+        PaginationRequest prequest = new(m, user, bhv, del, ems, timeout, pages.ToArray());
 
         await Paginator.DoPaginationAsync(prequest);
     }
@@ -955,7 +955,7 @@ public class InteractivityExtension : BaseExtension
             message = await interaction.GetOriginalResponseAsync();
         }
 
-        InteractionPaginationRequest req = new InteractionPaginationRequest(interaction, message, user, bhv, del, bts, pages, token);
+        InteractionPaginationRequest req = new(interaction, message, user, bhv, del, bts, pages, token);
 
         await _compPaginator.DoPaginationAsync(req);
     }

@@ -44,7 +44,7 @@ public sealed class CommandGroupBuilder : CommandBuilder
 
     internal override Command Build(CommandGroup? parent)
     {
-        CommandGroup cmd = new CommandGroup
+        CommandGroup cmd = new()
         {
             Name = Name,
             Description = Description,

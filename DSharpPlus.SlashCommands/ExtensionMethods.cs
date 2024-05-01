@@ -24,7 +24,7 @@ public static class ExtensionMethods
             throw new InvalidOperationException("Slash commands are already enabled for that client.");
         }
 
-        SlashCommandsExtension scomm = new SlashCommandsExtension(config);
+        SlashCommandsExtension scomm = new(config);
         client.AddExtension(scomm);
         return scomm;
     }

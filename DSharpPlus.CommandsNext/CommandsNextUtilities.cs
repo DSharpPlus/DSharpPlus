@@ -76,7 +76,7 @@ public static class CommandsNextUtilities
         bool inTripleBacktick = false;
         bool inQuote = false;
         bool inEscape = false;
-        List<int> removeIndices = new List<int>(str.Length - startPos);
+        List<int> removeIndices = new(str.Length - startPos);
 
         int i = startPos;
         for (; i < str.Length; i++)
@@ -197,7 +197,7 @@ public static class CommandsNextUtilities
 
         object?[] args = new object?[overload.Arguments.Count + 2];
         args[1] = ctx;
-        List<string?> rawArgumentList = new List<string?>(overload.Arguments.Count);
+        List<string?> rawArgumentList = new(overload.Arguments.Count);
         string? argString = ctx.RawArgumentString;
         int foundAt = 0;
 

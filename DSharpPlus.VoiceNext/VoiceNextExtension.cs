@@ -81,12 +81,12 @@ public sealed class VoiceNextExtension : BaseExtension
             throw new InvalidOperationException("This guild already has a voice connection");
         }
 
-        TaskCompletionSource<VoiceStateUpdateEventArgs> vstut = new TaskCompletionSource<VoiceStateUpdateEventArgs>();
-        TaskCompletionSource<VoiceServerUpdateEventArgs> vsrut = new TaskCompletionSource<VoiceServerUpdateEventArgs>();
+        TaskCompletionSource<VoiceStateUpdateEventArgs> vstut = new();
+        TaskCompletionSource<VoiceServerUpdateEventArgs> vsrut = new();
         VoiceStateUpdates[gld.Id] = vstut;
         VoiceServerUpdates[gld.Id] = vsrut;
 
-        VoiceDispatch vsd = new VoiceDispatch
+        VoiceDispatch vsd = new()
         {
             OpCode = 4,
             Payload = new VoiceStateUpdatePayload
@@ -101,20 +101,20 @@ public sealed class VoiceNextExtension : BaseExtension
         await (channel.Discord as DiscordClient).SendRawPayloadAsync(vsj);
 
         VoiceStateUpdateEventArgs vstu = await vstut.Task;
-        VoiceStateUpdatePayload vstup = new VoiceStateUpdatePayload
+        VoiceStateUpdatePayload vstup = new()
         {
             SessionId = vstu.SessionId,
             UserId = vstu.User.Id
         };
         VoiceServerUpdateEventArgs vsru = await vsrut.Task;
-        VoiceServerUpdatePayload vsrup = new VoiceServerUpdatePayload
+        VoiceServerUpdatePayload vsrup = new()
         {
             Endpoint = vsru.Endpoint,
             GuildId = vsru.Guild.Id,
             Token = vsru.VoiceToken
         };
 
-        VoiceNextConnection vnc = new VoiceNextConnection(Client, gld, channel, Configuration, vsrup, vstup);
+        VoiceNextConnection vnc = new(Client, gld, channel, Configuration, vsrup, vstup);
         vnc.VoiceDisconnected += Vnc_VoiceDisconnectedAsync;
         await vnc.ConnectAsync();
         await vnc.WaitForReadyAsync();
@@ -138,7 +138,7 @@ public sealed class VoiceNextExtension : BaseExtension
             ActiveConnections.TryRemove(guild.Id, out vnc);
         }
 
-        VoiceDispatch vsd = new VoiceDispatch
+        VoiceDispatch vsd = new()
         {
             OpCode = 4,
             Payload = new VoiceStateUpdatePayload

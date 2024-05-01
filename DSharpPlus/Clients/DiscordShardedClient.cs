@@ -224,23 +224,23 @@ public sealed partial class DiscordShardedClient
             return _shards.Count;
         }
 
-        ShardedLoggerFactory loggerFactory = new ShardedLoggerFactory(Configuration.LoggerFactory);
-        RestClient restClient = new RestClient(Configuration, loggerFactory.CreateLogger<RestClient>());
-        DiscordApiClient apiClient = new DiscordApiClient(restClient);
+        ShardedLoggerFactory loggerFactory = new(Configuration.LoggerFactory);
+        RestClient restClient = new(Configuration, loggerFactory.CreateLogger<RestClient>());
+        DiscordApiClient apiClient = new(restClient);
 
         GatewayInfo = await apiClient.GetGatewayInfoAsync();
         int shardCount = Configuration.ShardCount == 1 ? GatewayInfo.ShardCount : Configuration.ShardCount;
 
         for (int i = 0; i < shardCount; i++)
         {
-            DiscordConfiguration cfg = new DiscordConfiguration(Configuration)
+            DiscordConfiguration cfg = new(Configuration)
             {
                 ShardId = i,
                 ShardCount = shardCount,
                 LoggerFactory = loggerFactory
             };
 
-            DiscordClient client = new DiscordClient(cfg, restClient);
+            DiscordClient client = new(cfg, restClient);
             if (!_shards.TryAdd(i, client))
             {
                 throw new InvalidOperationException("Could not initialize shards.");

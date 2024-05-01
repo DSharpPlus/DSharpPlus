@@ -71,12 +71,12 @@ public sealed class CommandOverloadBuilder
         }
 
         int i = 2;
-        List<CommandArgument> args = new List<CommandArgument>(prms.Length - 1);
-        StringBuilder setb = new StringBuilder();
+        List<CommandArgument> args = new(prms.Length - 1);
+        StringBuilder setb = new();
         foreach (ParameterInfo? arg in prms.Skip(1))
         {
             setb.Append(arg.ParameterType).Append(";");
-            CommandArgument ca = new CommandArgument
+            CommandArgument ca = new()
             {
                 Name = arg.Name,
                 Type = arg.ParameterType,
@@ -149,7 +149,7 @@ public sealed class CommandOverloadBuilder
 
     internal CommandOverload Build()
     {
-        CommandOverload ovl = new CommandOverload()
+        CommandOverload ovl = new()
         {
             Arguments = Arguments,
             Priority = Priority,

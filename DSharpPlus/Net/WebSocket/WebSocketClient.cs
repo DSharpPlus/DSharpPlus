@@ -236,11 +236,11 @@ public class WebSocketClient : IWebSocketClient
         await Task.Yield();
 
         CancellationToken token = _receiverToken;
-        ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[IncomingChunkSize]);
+        ArraySegment<byte> buffer = new(new byte[IncomingChunkSize]);
 
         try
         {
-            using MemoryStream bs = new MemoryStream();
+            using MemoryStream bs = new();
             while (!token.IsCancellationRequested)
             {
                 // See https://github.com/RogueException/Discord.Net/commit/ac389f5f6823e3a720aedd81b7805adbdd78b66d

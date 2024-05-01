@@ -30,7 +30,7 @@ public static class DiscordClientExtensions
             throw new InvalidOperationException("VoiceNext is already enabled for that client.");
         }
 
-        VoiceNextExtension vnext = new VoiceNextExtension(config);
+        VoiceNextExtension vnext = new(config);
         client.AddExtension(vnext);
         return vnext;
     }

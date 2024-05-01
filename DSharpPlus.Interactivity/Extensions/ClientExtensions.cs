@@ -26,7 +26,7 @@ public static class ClientExtensions
         }
 
         configuration ??= new InteractivityConfiguration();
-        InteractivityExtension extension = new InteractivityExtension(configuration);
+        InteractivityExtension extension = new(configuration);
         client.AddExtension(extension);
 
         return extension;

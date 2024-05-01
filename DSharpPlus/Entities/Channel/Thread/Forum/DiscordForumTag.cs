@@ -45,7 +45,7 @@ public class DiscordForumTagBuilder
 
     public static DiscordForumTagBuilder FromTag(DiscordForumTag tag)
     {
-        DiscordForumTagBuilder builder = new DiscordForumTagBuilder
+        DiscordForumTagBuilder builder = new()
         {
             _name = tag.Name,
             _moderated = tag.Moderated,

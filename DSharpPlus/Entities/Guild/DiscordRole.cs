@@ -145,7 +145,7 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task ModifyAsync(Action<RoleEditModel> action)
     {
-        RoleEditModel mdl = new RoleEditModel();
+        RoleEditModel mdl = new();
         action(mdl);
 
         return ModifyAsync(mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason, mdl.Icon, mdl.Emoji);

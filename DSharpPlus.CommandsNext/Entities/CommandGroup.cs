@@ -44,7 +44,7 @@ public class CommandGroup : Command
             if (cmd is not null)
             {
                 // pass the execution on
-                CommandContext xctx = new CommandContext
+                CommandContext xctx = new()
                 {
                     Client = ctx.Client,
                     Message = ctx.Message,

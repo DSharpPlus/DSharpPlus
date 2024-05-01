@@ -313,12 +313,12 @@ public sealed class LavalinkNodeConnection
             throw new ArgumentException("Invalid channel specified.", nameof(channel));
         }
 
-        TaskCompletionSource<VoiceStateUpdateEventArgs> vstut = new TaskCompletionSource<VoiceStateUpdateEventArgs>();
-        TaskCompletionSource<VoiceServerUpdateEventArgs> vsrut = new TaskCompletionSource<VoiceServerUpdateEventArgs>();
+        TaskCompletionSource<VoiceStateUpdateEventArgs> vstut = new();
+        TaskCompletionSource<VoiceServerUpdateEventArgs> vsrut = new();
         VoiceStateUpdates[channel.Guild.Id] = vstut;
         VoiceServerUpdates[channel.Guild.Id] = vsrut;
 
-        VoiceDispatch vsd = new VoiceDispatch
+        VoiceDispatch vsd = new()
         {
             OpCode = 4,
             Payload = new VoiceStateUpdatePayload
@@ -335,7 +335,7 @@ public sealed class LavalinkNodeConnection
         VoiceServerUpdateEventArgs vsru = await vsrut.Task;
         await SendPayloadAsync(new LavalinkVoiceUpdate(vstu, vsru));
 
-        LavalinkGuildConnection con = new LavalinkGuildConnection(this, channel, vstu);
+        LavalinkGuildConnection con = new(this, channel, vstu);
         con.ChannelDisconnected += Con_ChannelDisconnectedAsync;
         con.PlayerUpdated += (s, e) => _playerUpdated.InvokeAsync(s, e);
         con.PlaybackStarted += (s, e) => _playbackStarted.InvokeAsync(s, e);
@@ -568,7 +568,7 @@ public sealed class LavalinkNodeConnection
 
         if (_connectedGuilds.TryGetValue(e.Guild.Id, out LavalinkGuildConnection? lvlgc))
         {
-            LavalinkVoiceUpdate lvlp = new LavalinkVoiceUpdate(lvlgc.VoiceStateUpdate, e);
+            LavalinkVoiceUpdate lvlp = new(lvlgc.VoiceStateUpdate, e);
             _ = Task.Run(() => WsSendAsync(JsonConvert.SerializeObject(lvlp)));
         }
 

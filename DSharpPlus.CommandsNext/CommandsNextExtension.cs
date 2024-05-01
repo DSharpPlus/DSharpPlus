@@ -342,7 +342,7 @@ public class CommandsNextExtension : BaseExtension
     /// <returns>Created command execution context.</returns>
     public CommandContext CreateContext(DiscordMessage msg, string prefix, Command? cmd, string? rawArguments = null)
     {
-        CommandContext ctx = new CommandContext
+        CommandContext ctx = new()
         {
             Client = Client,
             Command = cmd,
@@ -504,7 +504,7 @@ public class CommandsNextExtension : BaseExtension
         }
 
         // check if we are anything
-        CommandGroupBuilder? groupBuilder = new CommandGroupBuilder(module);
+        CommandGroupBuilder? groupBuilder = new(module);
         bool isModule = false;
         IEnumerable<Attribute> moduleAttributes = ti.GetCustomAttributes();
         bool moduleHidden = false;
@@ -951,12 +951,12 @@ public class CommandsNextExtension : BaseExtension
     /// <returns>Created fake context.</returns>
     public CommandContext CreateFakeContext(DiscordUser actor, DiscordChannel channel, string messageContents, string prefix, Command cmd, string? rawArguments = null)
     {
-        DateTimeOffset epoch = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        DateTimeOffset epoch = new(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
         DateTimeOffset now = DateTimeOffset.UtcNow;
         ulong timeSpan = (ulong)(now - epoch).TotalMilliseconds;
 
         // create fake message
-        DiscordMessage msg = new DiscordMessage
+        DiscordMessage msg = new()
         {
             Discord = Client,
             Author = actor,
@@ -995,7 +995,7 @@ public class CommandsNextExtension : BaseExtension
         msg._mentionedRoles = mentionedRoles;
         msg._mentionedChannels = mentionedChannels;
 
-        CommandContext ctx = new CommandContext
+        CommandContext ctx = new()
         {
             Client = Client,
             Command = cmd,

@@ -38,7 +38,7 @@ public static class ExtensionMethods
             client.Logger.LogCritical(CommandsNextEvents.Intents, "The CommandsNext extension is registered but the guilds intent is not enabled. It is highly recommended to enable it.");
         }
 
-        CommandsNextExtension cnext = new CommandsNextExtension(cfg);
+        CommandsNextExtension cnext = new(cfg);
         client.AddExtension(cnext);
         return cnext;
     }

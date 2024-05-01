@@ -200,7 +200,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                         AddContextMenus(contextMethods);
 
                         //Initializes the command
-                        DiscordApplicationCommand payload = new DiscordApplicationCommand(groupAttribute.Name, groupAttribute.Description, defaultPermission: groupAttribute.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions, nsfw: groupAttribute.NSFW);
+                        DiscordApplicationCommand payload = new(groupAttribute.Name, groupAttribute.Description, defaultPermission: groupAttribute.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions, nsfw: groupAttribute.NSFW);
 
                         List<KeyValuePair<string, MethodInfo>> commandmethods = [];
                         //Handles commands in the group
@@ -231,7 +231,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                             IReadOnlyList<DiscordInteractionContextType>? contexts = GetInteractionCommandAllowedContexts(submethod);
 
                             //Creates the subcommand and adds it to the main command
-                            DiscordApplicationCommandOption subpayload = new DiscordApplicationCommandOption(commandAttribute.Name, commandAttribute.Description, DiscordApplicationCommandOptionType.SubCommand, null, null, options, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
+                            DiscordApplicationCommandOption subpayload = new(commandAttribute.Name, commandAttribute.Description, DiscordApplicationCommandOptionType.SubCommand, null, null, options, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
                             payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subpayload) ?? new[] { subpayload }, payload.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions, nsfw: payload.NSFW, integrationTypes: integrationTypes, contexts: contexts);
 
                             //Adds it to the method lists
@@ -239,7 +239,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                             groupCommands.Add(new() { Name = groupAttribute.Name, Methods = commandmethods });
                         }
 
-                        SubGroupCommand command = new SubGroupCommand { Name = groupAttribute.Name };
+                        SubGroupCommand command = new() { Name = groupAttribute.Name };
                         //Handles subgroups
                         foreach (TypeInfo? subclass in subclasses)
                         {
@@ -268,7 +268,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                                 IReadOnlyDictionary<string, string> nameLocalizations = GetNameLocalizations(subsubmethod);
                                 IReadOnlyDictionary<string, string> descriptionLocalizations = GetDescriptionLocalizations(subsubmethod);
 
-                                DiscordApplicationCommandOption subsubpayload = new DiscordApplicationCommandOption(commatt.Name, commatt.Description, DiscordApplicationCommandOptionType.SubCommand, null, null, suboptions, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
+                                DiscordApplicationCommandOption subsubpayload = new(commatt.Name, commatt.Description, DiscordApplicationCommandOptionType.SubCommand, null, null, suboptions, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
                                 options.Add(subsubpayload);
 
                                 commandmethods.Add(new(commatt.Name, subsubmethod));
@@ -280,7 +280,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                             AddContextMenus(subContextMethods);
 
                             //Adds the group to the command and method lists
-                            DiscordApplicationCommandOption subpayload = new DiscordApplicationCommandOption(subGroupAttribute.Name, subGroupAttribute.Description, DiscordApplicationCommandOptionType.SubCommandGroup, null, null, options);
+                            DiscordApplicationCommandOption subpayload = new(subGroupAttribute.Name, subGroupAttribute.Description, DiscordApplicationCommandOptionType.SubCommandGroup, null, null, options);
                             command.SubCommands.Add(new() { Name = subGroupAttribute.Name, Methods = currentMethods });
                             payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subpayload) ?? new[] { subpayload }, payload.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions, nsfw: payload.NSFW);
 
@@ -334,7 +334,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                             bool allowDMs = (method.GetCustomAttribute<GuildOnlyAttribute>() ?? method.DeclaringType.GetCustomAttribute<GuildOnlyAttribute>()) is null;
                             DiscordPermissions? v2Permissions = (method.GetCustomAttribute<SlashCommandPermissionsAttribute>() ?? method.DeclaringType.GetCustomAttribute<SlashCommandPermissionsAttribute>())?.Permissions;
 
-                            DiscordApplicationCommand payload = new DiscordApplicationCommand(commandattribute.Name, commandattribute.Description, options, commandattribute.DefaultPermission, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions, nsfw: commandattribute.NSFW, integrationTypes: integrationTypes, contexts: contexts);
+                            DiscordApplicationCommand payload = new(commandattribute.Name, commandattribute.Description, options, commandattribute.DefaultPermission, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions, nsfw: commandattribute.NSFW, integrationTypes: integrationTypes, contexts: contexts);
                             updateList.Add(payload);
                         }
 
@@ -358,7 +358,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                             DiscordPermissions? permissions = (contextMethod.GetCustomAttribute<SlashCommandPermissionsAttribute>() ?? contextMethod.DeclaringType.GetCustomAttribute<SlashCommandPermissionsAttribute>())?.Permissions;
                             IReadOnlyList<DiscordApplicationIntegrationType>? integrationTypes = GetInteractionCommandInstallTypes(contextMethod);
                             IReadOnlyList<DiscordInteractionContextType>? contexts = GetInteractionCommandAllowedContexts(contextMethod);
-                            DiscordApplicationCommand command = new DiscordApplicationCommand(contextAttribute.Name, null, type: contextAttribute.Type, defaultPermission: contextAttribute.DefaultPermission, allowDMUsage: allowDMUsage, defaultMemberPermissions: permissions, nsfw: contextAttribute.NSFW, integrationTypes: integrationTypes, contexts: contexts);
+                            DiscordApplicationCommand command = new(contextAttribute.Name, null, type: contextAttribute.Type, defaultPermission: contextAttribute.DefaultPermission, allowDMUsage: allowDMUsage, defaultMemberPermissions: permissions, nsfw: contextAttribute.NSFW, integrationTypes: integrationTypes, contexts: contexts);
 
                             ParameterInfo[] parameters = contextMethod.GetParameters();
                             if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(ContextMenuContext)))
@@ -623,7 +623,7 @@ public sealed class SlashCommandsExtension : BaseExtension
         {
             if (e.Interaction is { Type: DiscordInteractionType.ApplicationCommand, Data.Type: DiscordApplicationCommandType.SlashCommand })
             {
-                StringBuilder qualifiedName = new StringBuilder(e.Interaction.Data.Name);
+                StringBuilder qualifiedName = new(e.Interaction.Data.Name);
                 DiscordInteractionDataOption[] options = e.Interaction.Data.Options?.ToArray() ?? [];
                 while (options.Any())
                 {
@@ -638,7 +638,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                 }
 
                 //Creates the context
-                InteractionContext context = new InteractionContext
+                InteractionContext context = new()
                 {
                     Interaction = e.Interaction,
                     Channel = e.Interaction.Channel,
@@ -770,7 +770,7 @@ public sealed class SlashCommandsExtension : BaseExtension
         _ = Task.Run(async () =>
         {
             //Creates the context
-            ContextMenuContext context = new ContextMenuContext
+            ContextMenuContext context = new()
             {
                 Interaction = e.Interaction,
                 Channel = e.Interaction.Channel,
@@ -995,7 +995,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                 }
                 else if (parameter.ParameterType == typeof(TimeSpan?))
                 {
-                    Regex timeSpanRegex = new Regex(@"^(?<days>\d+d\s*)?(?<hours>\d{1,2}h\s*)?(?<minutes>\d{1,2}m\s*)?(?<seconds>\d{1,2}s\s*)?$", RegexOptions.ECMAScript);
+                    Regex timeSpanRegex = new(@"^(?<days>\d+d\s*)?(?<hours>\d{1,2}h\s*)?(?<minutes>\d{1,2}m\s*)?(?<seconds>\d{1,2}s\s*)?$", RegexOptions.ECMAScript);
                     string? value = option.Value.ToString();
                     if (value == "0")
                     {
@@ -1229,7 +1229,7 @@ public sealed class SlashCommandsExtension : BaseExtension
     //Actually handles autocomplete interactions
     private async Task RunAutocompleteAsync(DiscordInteraction interaction, ParameterInfo parameter, IEnumerable<DiscordInteractionDataOption> options, DiscordInteractionDataOption focusedOption)
     {
-        AutocompleteContext context = new AutocompleteContext
+        AutocompleteContext context = new()
         {
             Interaction = interaction,
             Client = Client,

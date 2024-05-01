@@ -46,7 +46,7 @@ public class DefaultHelpFormatter : BaseHelpFormatter
 
         if (command.Overloads.Count > 0)
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             foreach (CommandOverload? ovl in command.Overloads.OrderByDescending(x => x.Priority))
             {

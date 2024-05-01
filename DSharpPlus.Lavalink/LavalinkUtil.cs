@@ -30,13 +30,13 @@ public static class LavalinkUtilities
 
         byte[] raw = Convert.FromBase64String(track);
 
-        LavalinkTrack decoded = new LavalinkTrack
+        LavalinkTrack decoded = new()
         {
             TrackString = track
         };
 
-        using (MemoryStream ms = new MemoryStream(raw))
-        using (JavaBinaryReader br = new JavaBinaryReader(ms))
+        using (MemoryStream ms = new(raw))
+        using (JavaBinaryReader br = new(ms))
         {
             // https://github.com/sedmelluq/lavaplayer/blob/b0c536098c4f92e6d03b00f19221021f8f50b19b/main/src/main/java/com/sedmelluq/discord/lavaplayer/tools/io/MessageInput.java#L37-L39
             int messageHeader = br.ReadInt32();

@@ -42,8 +42,8 @@ public static class DiscordJson
 
     private static string SerializeObjectInternal(object value, Type type, JsonSerializer jsonSerializer)
     {
-        StringWriter stringWriter = new StringWriter(new StringBuilder(256), CultureInfo.InvariantCulture);
-        using (JsonTextWriter jsonTextWriter = new JsonTextWriter(stringWriter))
+        StringWriter stringWriter = new(new StringBuilder(256), CultureInfo.InvariantCulture);
+        using (JsonTextWriter jsonTextWriter = new(stringWriter))
         {
             jsonTextWriter.Formatting = jsonSerializer.Formatting;
             jsonSerializer.Serialize(jsonTextWriter, value, type);

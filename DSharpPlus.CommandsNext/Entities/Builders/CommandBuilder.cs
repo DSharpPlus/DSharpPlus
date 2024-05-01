@@ -275,7 +275,7 @@ public class CommandBuilder
 
     internal virtual Command Build(CommandGroup? parent)
     {
-        Command cmd = new Command
+        Command cmd = new()
         {
             Name = string.IsNullOrWhiteSpace(Name)
                 ? throw new InvalidOperationException($"Cannot build a command with an invalid name. Use the method {nameof(this.WithName)} to set a valid name.")

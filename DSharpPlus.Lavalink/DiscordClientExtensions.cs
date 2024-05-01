@@ -28,7 +28,7 @@ public static class DiscordClientExtensions
             client.Logger.LogCritical(LavalinkEvents.Intents, "The Lavalink extension is registered but the guild voice states intent is not enabled. It is highly recommended to enable it.");
         }
 
-        LavalinkExtension lava = new LavalinkExtension();
+        LavalinkExtension lava = new();
         client.AddExtension(lava);
         return lava;
     }
