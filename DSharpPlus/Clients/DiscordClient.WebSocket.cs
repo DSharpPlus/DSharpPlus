@@ -363,7 +363,7 @@ public sealed partial class DiscordClient
             throw new Exception("Game name can't be longer than 128 characters!");
         }
 
-        long? since_unix = idleSince != null ? (long?)Utilities.GetUnixTime(idleSince.Value) : null;
+        long? since_unix = idleSince != null ? Utilities.GetUnixTime(idleSince.Value) : null;
         DiscordActivity act = activity ?? new DiscordActivity();
 
         StatusUpdate status = new StatusUpdate

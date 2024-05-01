@@ -279,8 +279,8 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// <returns>Whether the two users are equal.</returns>
     public static bool operator ==(DiscordUser e1, DiscordUser e2)
     {
-        object? o1 = e1 as object;
-        object? o2 = e2 as object;
+        object? o1 = e1;
+        object? o2 = e2;
 
         return (o1 != null || o2 == null) && (o1 == null || o2 != null) && ((o1 == null && o2 == null) || e1.Id == e2.Id);
     }

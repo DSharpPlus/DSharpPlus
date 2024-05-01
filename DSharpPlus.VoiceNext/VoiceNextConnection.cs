@@ -354,7 +354,7 @@ public sealed class VoiceNextConnection : IDisposable
         byte[] data = null;
         int length = 0;
 
-        double synchronizerTicks = (double)Stopwatch.GetTimestamp();
+        double synchronizerTicks = Stopwatch.GetTimestamp();
         double synchronizerResolution = Stopwatch.Frequency * 0.005;
         double tickResolution = 10_000_000.0 / Stopwatch.Frequency;
         Discord.Logger.LogDebug(VoiceNextEvents.Misc, "Timer accuracy: {Frequency}/{Resolution} (high resolution? {IsHighRes})", Stopwatch.Frequency, synchronizerResolution, Stopwatch.IsHighResolution);

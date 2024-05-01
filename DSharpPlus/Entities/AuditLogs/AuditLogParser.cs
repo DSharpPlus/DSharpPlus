@@ -1366,8 +1366,8 @@ internal static class AuditLogParser
 
                     entry.UsesChange = new PropertyChange<int?>
                     {
-                        Before = boolBefore ? (int?)intBefore : null,
-                        After = boolAfter ? (int?)intAfter : null
+                        Before = boolBefore ? intBefore : null,
+                        After = boolAfter ? intAfter : null
                     };
                     break;
 
@@ -1381,8 +1381,8 @@ internal static class AuditLogParser
 
                     entry.MaxUsesChange = new PropertyChange<int?>
                     {
-                        Before = boolBefore ? (int?)intBefore : null,
-                        After = boolAfter ? (int?)intAfter : null
+                        Before = boolBefore ? intBefore : null,
+                        After = boolAfter ? intAfter : null
                     };
                     break;
 

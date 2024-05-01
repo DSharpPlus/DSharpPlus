@@ -610,7 +610,7 @@ public sealed class SlashCommandsExtension : BaseExtension
 
     //Gets choices from choice attributes
     private List<DiscordApplicationCommandOptionChoice> GetChoiceAttributesFromParameter(IEnumerable<ChoiceAttribute> choiceattributes) => !choiceattributes.Any()
-            ? (List<DiscordApplicationCommandOptionChoice>?)null
+            ? null
             : choiceattributes.Select(att => new DiscordApplicationCommandOptionChoice(att.Name, att.Value)).ToList();
 
     #endregion

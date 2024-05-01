@@ -297,7 +297,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
         else
         {
-            long? since_unix = idlesince != null ? (long?)Utilities.GetUnixTime(idlesince.Value) : null;
+            long? since_unix = idlesince != null ? Utilities.GetUnixTime(idlesince.Value) : null;
             _status = new StatusUpdate()
             {
                 Activity = new TransportActivity(activity),

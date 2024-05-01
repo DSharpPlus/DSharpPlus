@@ -1623,7 +1623,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             }
 
             AuditLog guildAuditLog = await Discord.ApiClient.GetAuditLogsAsync(Id, remainingEntries, null,
-                last == 0 ? null : (ulong?)last, byMember?.Id, actionType);
+                last == 0 ? null : last, byMember?.Id, actionType);
             entriesAcquiredLastCall = guildAuditLog.Entries.Count();
             totalEntriesCollected += entriesAcquiredLastCall;
             if (entriesAcquiredLastCall > 0)

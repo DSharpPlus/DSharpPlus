@@ -62,7 +62,7 @@ internal class ReactionCollector : IDisposable
     public async Task<ReadOnlyCollection<Reaction>> CollectAsync(ReactionCollectRequest request)
     {
         _requests.Add(request);
-        ReadOnlyCollection<Reaction>? result = (ReadOnlyCollection<Reaction>)null;
+        ReadOnlyCollection<Reaction>? result = null;
 
         try
         {

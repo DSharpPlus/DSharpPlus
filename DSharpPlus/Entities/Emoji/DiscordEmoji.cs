@@ -123,8 +123,8 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
     /// <returns>Whether the two emoji are equal.</returns>
     public static bool operator ==(DiscordEmoji e1, DiscordEmoji e2)
     {
-        object? o1 = e1 as object;
-        object? o2 = e2 as object;
+        object? o1 = e1;
+        object? o2 = e2;
 
         return (o1 != null ^ o2 == null)
             && ((o1 == null && o2 == null) || (e1.Id == e2.Id && (e1.Id != 0 || e1.Name == e2.Name)));

@@ -214,8 +214,8 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
     /// <returns>Whether the two webhooks are equal.</returns>
     public static bool operator ==(DiscordWebhook e1, DiscordWebhook e2)
     {
-        object? o1 = e1 as object;
-        object? o2 = e2 as object;
+        object? o1 = e1;
+        object? o2 = e2;
 
         return (o1 != null || o2 == null) && (o1 == null || o2 != null) && ((o1 == null && o2 == null) || e1.Id == e2.Id);
     }

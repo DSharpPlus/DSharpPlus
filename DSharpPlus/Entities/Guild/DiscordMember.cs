@@ -687,8 +687,8 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <returns>Whether the two members are equal.</returns>
     public static bool operator ==(DiscordMember e1, DiscordMember e2)
     {
-        object? o1 = e1 as object;
-        object? o2 = e2 as object;
+        object? o1 = e1;
+        object? o2 = e2;
 
         return (o1 != null || o2 == null) && (o1 == null || o2 != null)
 && ((o1 == null && o2 == null) || (e1.Id == e2.Id && e1._guild_id == e2._guild_id));
