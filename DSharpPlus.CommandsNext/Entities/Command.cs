@@ -144,7 +144,7 @@ public class Command
     /// <returns>Pre-execution checks that fail for given context.</returns>
     public async Task<IEnumerable<CheckBaseAttribute>> RunChecksAsync(CommandContext ctx, bool help)
     {
-        List<CheckBaseAttribute> fchecks = new List<CheckBaseAttribute>();
+        List<CheckBaseAttribute> fchecks = [];
         if (ExecutionChecks.Any())
         {
             foreach (CheckBaseAttribute ec in ExecutionChecks)

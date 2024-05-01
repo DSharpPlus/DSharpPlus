@@ -33,7 +33,7 @@ public sealed class RequireRolesAttribute : CheckBaseAttribute
     /// <param name="checkMode">Role checking mode.</param>
     /// <param name="roleNames">Names of the role to be verified by this check.</param>
     public RequireRolesAttribute(RoleCheckMode checkMode, params string[] roleNames)
-        : this(checkMode, roleNames, Array.Empty<ulong>())
+        : this(checkMode, roleNames, [])
     { }
 
     /// <summary>
@@ -43,7 +43,7 @@ public sealed class RequireRolesAttribute : CheckBaseAttribute
     /// <param name="checkMode">Role checking mode.</param>
     /// <param name="roleIds">IDs of the roles to be verified by this check.</param>
     public RequireRolesAttribute(RoleCheckMode checkMode, params ulong[] roleIds)
-        : this(checkMode, Array.Empty<string>(), roleIds)
+        : this(checkMode, [], roleIds)
     { }
 
     /// <summary>

@@ -45,7 +45,7 @@ public static class ExtensionMethods
     /// <returns>A dictionary of created <see cref="SlashCommandsExtension"/> with the key being the shard id.</returns>
     public static async Task<IReadOnlyDictionary<int, SlashCommandsExtension>> UseSlashCommandsAsync(this DiscordShardedClient client, SlashCommandsConfiguration config = null)
     {
-        Dictionary<int, SlashCommandsExtension> modules = new Dictionary<int, SlashCommandsExtension>();
+        Dictionary<int, SlashCommandsExtension> modules = [];
         await client.InitializeShardsAsync();
         foreach (DiscordClient shard in client.ShardClients.Values)
         {

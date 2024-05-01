@@ -10,14 +10,15 @@ public class PaginationButtons
     public DiscordButtonComponent Right { internal get; set; }
     public DiscordButtonComponent SkipRight { internal get; set; }
 
-    internal DiscordButtonComponent[] ButtonArray => new[] // This isn't great but I can't figure out how to pass these elements by ref :(
-    {                                                      // And yes, it should be by ref to begin with, but in testing it refuses to update.
+    internal DiscordButtonComponent[] ButtonArray =>
+    // This isn't great but I can't figure out how to pass these elements by ref :(
+    [                                                      // And yes, it should be by ref to begin with, but in testing it refuses to update.
         SkipLeft,                                     // So I have no idea what that's about, and this array is "cheap-enough" and infrequent
         Left,                                         // enough to the point that it *should* be fine.
         Stop,
         Right,
         SkipRight
-    };
+    ];
 
     public PaginationButtons()
     {

@@ -16,8 +16,8 @@ using Microsoft.Extensions.Logging;
 internal class ComponentEventWaiter : IDisposable
 {
     private readonly DiscordClient _client;
-    private readonly ConcurrentHashSet<ComponentMatchRequest> _matchRequests = new();
-    private readonly ConcurrentHashSet<ComponentCollectRequest> _collectRequests = new();
+    private readonly ConcurrentHashSet<ComponentMatchRequest> _matchRequests = [];
+    private readonly ConcurrentHashSet<ComponentCollectRequest> _collectRequests = [];
 
     private readonly DiscordFollowupMessageBuilder _message;
     private readonly InteractivityConfiguration _config;

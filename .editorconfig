@@ -22,6 +22,10 @@ indent_size = 2
 ###############################
 [*.{cs,vb}]
 
+# Collection Expressions - int[] numbers = []
+dotnet_style_collection_initializer = true:error
+dotnet_style_prefer_collection_expression = true:error
+
 # Nullable reference types
 dotnet_diagnostic.CS8632.severity = none
 

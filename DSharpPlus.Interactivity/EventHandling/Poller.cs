@@ -23,7 +23,7 @@ internal class Poller
     public Poller(DiscordClient client)
     {
         _client = client;
-        _requests = new ConcurrentHashSet<PollRequest>();
+        _requests = [];
 
         _client.MessageReactionAdded += HandleReactionAdd;
         _client.MessageReactionRemoved += HandleReactionRemove;

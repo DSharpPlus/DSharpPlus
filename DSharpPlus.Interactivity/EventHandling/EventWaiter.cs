@@ -33,8 +33,8 @@ internal class EventWaiter<T> : IDisposable where T : AsyncEventArgs
         _client = client;
         TypeInfo tinfo = _client.GetType().GetTypeInfo();
         FieldInfo handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, T>));
-        _matchrequests = new ConcurrentHashSet<MatchRequest<T>>();
-        _collectrequests = new ConcurrentHashSet<CollectRequest<T>>();
+        _matchrequests = [];
+        _collectrequests = [];
         _event = (AsyncEvent<DiscordClient, T>)handler.GetValue(_client);
         _handler = new AsyncEventHandler<DiscordClient, T>(HandleEvent);
         _event.Register(_handler);

@@ -13,7 +13,7 @@ internal class ComponentPaginator : IPaginator
     private readonly DiscordClient _client;
     private readonly InteractivityConfiguration _config;
     private readonly DiscordMessageBuilder _builder = new();
-    private readonly Dictionary<ulong, IPaginationRequest> _requests = new();
+    private readonly Dictionary<ulong, IPaginationRequest> _requests = [];
 
     public ComponentPaginator(DiscordClient client, InteractivityConfiguration config)
     {

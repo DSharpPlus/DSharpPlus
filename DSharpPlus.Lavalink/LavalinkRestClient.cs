@@ -155,7 +155,7 @@ public sealed class LavalinkRestClient
     public Task<IEnumerable<LavalinkTrack>> DecodeTracksAsync(List<string> trackStrings)
     {
         Uri decodeTracksUri = new Uri($"{RestEndpoint.ToHttpString()}{Endpoints.DECODE_TRACKS}");
-        return InternalDecodeTracksAsync(decodeTracksUri, trackStrings.ToArray());
+        return InternalDecodeTracksAsync(decodeTracksUri, [.. trackStrings]);
     }
 
     #endregion

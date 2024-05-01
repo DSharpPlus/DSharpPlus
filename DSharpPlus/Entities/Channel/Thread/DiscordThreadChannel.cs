@@ -56,7 +56,7 @@ public class DiscordThreadChannel : DiscordChannel
     public IReadOnlyList<DiscordForumTag> AppliedTags =>
         Parent is DiscordForumChannel parent
             ? parent.AvailableTags.Where(pt => _appliedTagIds.Contains(pt.Id)).ToArray()
-            : Array.Empty<DiscordForumTag>();
+            : [];
 
     [JsonProperty("applied_tags")]
     private readonly List<ulong> _appliedTagIds;

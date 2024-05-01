@@ -30,7 +30,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     internal bool _isShard = false;
     internal IMessageCacheProvider? MessageCache { get; }
 
-    private List<BaseExtension> _extensions = new();
+    private List<BaseExtension> _extensions = [];
     private StatusUpdate _status = null;
 
     private ManualResetEventSlim ConnectionLock { get; } = new ManualResetEventSlim(true);
@@ -107,7 +107,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public IReadOnlyDictionary<ulong, DiscordPresence> Presences
         => _presencesLazy.Value;
 
-    internal Dictionary<ulong, DiscordPresence> _presences = new();
+    internal Dictionary<ulong, DiscordPresence> _presences = [];
     private Lazy<IReadOnlyDictionary<ulong, DiscordPresence>> _presencesLazy;
     #endregion
 
@@ -917,7 +917,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             remaining -= lastCount;
 
             //We sort the returned guilds by ID so that they are in order in case Discord switches the order AGAIN.
-            DiscordGuild[] sortedGuildsArray = fetchedGuilds.ToArray();
+            DiscordGuild[] sortedGuildsArray = [.. fetchedGuilds];
             Array.Sort(sortedGuildsArray, (x, y) => x.Id.CompareTo(y.Id));
 
             if (!isbefore)
@@ -1209,7 +1209,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
         if (message._reactions == null)
         {
-            message._reactions = new List<DiscordReaction>();
+            message._reactions = [];
         }
 
         foreach (DiscordReaction xr in message._reactions)

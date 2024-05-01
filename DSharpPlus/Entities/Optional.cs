@@ -241,7 +241,7 @@ internal sealed class OptionalJsonConverter : JsonConverter
         ConstructorInfo? constructor = objectType.GetTypeInfo().DeclaredConstructors
             .FirstOrDefault(e => e.GetParameters()[0].ParameterType == genericType);
 
-        return constructor.Invoke(new[] { serializer.Deserialize(reader, genericType) });
+        return constructor.Invoke([serializer.Deserialize(reader, genericType)]);
     }
 
     public override bool CanConvert(Type objectType) => objectType.GetTypeInfo().ImplementedInterfaces.Contains(typeof(IOptional));

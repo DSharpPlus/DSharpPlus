@@ -106,7 +106,7 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task ModifyPositionAsync(int position, string reason = null)
     {
-        DiscordRole[] roles = Discord.Guilds[_guild_id].Roles.Values.OrderByDescending(xr => xr.Position).ToArray();
+        DiscordRole[] roles = [.. Discord.Guilds[_guild_id].Roles.Values.OrderByDescending(xr => xr.Position)];
         RestGuildRoleReorderPayload[] pmds = new RestGuildRoleReorderPayload[roles.Length];
         for (int i = 0; i < roles.Length; i++)
         {

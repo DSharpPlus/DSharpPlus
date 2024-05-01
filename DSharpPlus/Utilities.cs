@@ -30,7 +30,7 @@ public static partial class Utilities
 
     static Utilities()
     {
-        PermissionStrings = new Dictionary<DiscordPermissions, string>();
+        PermissionStrings = [];
         Type t = typeof(DiscordPermissions);
         TypeInfo ti = t.GetTypeInfo();
         IEnumerable<DiscordPermissions> vals = Enum.GetValues(t).Cast<DiscordPermissions>();

@@ -859,7 +859,7 @@ public class InteractivityExtension : BaseExtension
         PaginationBehaviour bhv = behaviour ?? Config.PaginationBehaviour;
         ButtonPaginationBehavior del = deletion ?? Config.ButtonBehavior;
         PaginationButtons bts = buttons ?? Config.PaginationButtons;
-        disabledButtons ??= new List<PaginationButtonType>();
+        disabledButtons ??= [];
 
         bts = new(bts); // Copy //
 
@@ -910,7 +910,7 @@ public class InteractivityExtension : BaseExtension
         DiscordButtonComponent[] buttonArray = bts.ButtonArray;
         if (disabledButtons.Count != 0)
         {
-            List<DiscordButtonComponent> buttonList = buttonArray.ToList();
+            List<DiscordButtonComponent> buttonList = [.. buttonArray];
             if (disabledButtons.Contains(PaginationButtonType.Left))
             {
                 buttonList.Remove(bts.Left);
@@ -932,7 +932,7 @@ public class InteractivityExtension : BaseExtension
                 buttonList.Remove(bts.Stop);
             }
 
-            buttonArray = buttonList.ToArray();
+            buttonArray = [.. buttonList];
         }
         if (asEditResponse)
         {
@@ -989,19 +989,19 @@ public class InteractivityExtension : BaseExtension
             throw new ArgumentException("You must provide a string that is not null or empty!");
         }
 
-        List<Page> result = new List<Page>();
+        List<Page> result = [];
         List<string> split;
 
         switch (splittype)
         {
             default:
             case SplitType.Character:
-                split = SplitString(input, 500).ToList();
+                split = [.. SplitString(input, 500)];
                 break;
             case SplitType.Line:
                 string[] subsplit = input.Split('\n');
 
-                split = new List<string>();
+                split = [];
                 string s = "";
 
                 for (int i = 0; i < subsplit.Length; i++)
@@ -1047,19 +1047,19 @@ public class InteractivityExtension : BaseExtension
 
         DiscordEmbedBuilder embed = embedbase ?? new DiscordEmbedBuilder();
 
-        List<Page> result = new List<Page>();
+        List<Page> result = [];
         List<string> split;
 
         switch (splittype)
         {
             default:
             case SplitType.Character:
-                split = SplitString(input, 500).ToList();
+                split = [.. SplitString(input, 500)];
                 break;
             case SplitType.Line:
                 string[] subsplit = input.Split('\n');
 
-                split = new List<string>();
+                split = [];
                 string s = "";
 
                 for (int i = 0; i < subsplit.Length; i++)
@@ -1091,7 +1091,7 @@ public class InteractivityExtension : BaseExtension
 
     private List<string> SplitString(string str, int chunkSize)
     {
-        List<string> res = new List<string>();
+        List<string> res = [];
         int len = str.Length;
         int i = 0;
 

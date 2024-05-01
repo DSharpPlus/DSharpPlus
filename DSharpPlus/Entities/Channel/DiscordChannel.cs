@@ -93,7 +93,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         => _permissionOverwritesLazy.Value;
 
     [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
-    internal List<DiscordOverwrite> _permissionOverwrites = new();
+    internal List<DiscordOverwrite> _permissionOverwrites = [];
 
     [JsonIgnore]
     private readonly Lazy<IReadOnlyList<DiscordOverwrite>> _permissionOverwritesLazy;
@@ -321,7 +321,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             throw new InvalidOperationException("Non-guild channels cannot be cloned.");
         }
 
-        List<DiscordOverwriteBuilder> ovrs = new();
+        List<DiscordOverwriteBuilder> ovrs = [];
         foreach (DiscordOverwrite ovr in _permissionOverwrites)
         {
             ovrs.Add(await new DiscordOverwriteBuilder(member: null).FromAsync(ovr));
@@ -422,7 +422,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             throw new InvalidOperationException("Cannot modify order of non-guild channels.");
         }
 
-        DiscordChannel[] chns = Guild._channels.Values.Where(xc => xc.Type == Type).OrderBy(xc => xc.Position).ToArray();
+        DiscordChannel[] chns = [.. Guild._channels.Values.Where(xc => xc.Type == Type).OrderBy(xc => xc.Position)];
         RestGuildChannelReorderPayload[] pmds = new RestGuildChannelReorderPayload[chns.Length];
         for (int i = 0; i < chns.Length; i++)
         {
@@ -540,7 +540,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             remaining -= lastCount;
 
             //We sort the returned messages by ID so that they are in order in case Discord switches the order AGAIN.
-            DiscordMessage[] sortedMessageArray = fetchedMessages.ToArray();
+            DiscordMessage[] sortedMessageArray = [.. fetchedMessages];
             Array.Sort(sortedMessageArray, (x, y) => x.Id.CompareTo(y.Id));
 
             if (!isbefore)

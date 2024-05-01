@@ -40,7 +40,7 @@ public static class ClientExtensions
     /// <returns>A dictionary containing new <see cref="InteractivityExtension"/> instances for each shard.</returns>
     public static async Task<IReadOnlyDictionary<int, InteractivityExtension>> UseInteractivityAsync(this DiscordShardedClient client, InteractivityConfiguration configuration = null)
     {
-        Dictionary<int, InteractivityExtension> extensions = new Dictionary<int, InteractivityExtension>();
+        Dictionary<int, InteractivityExtension> extensions = [];
         await client.InitializeShardsAsync();
 
         foreach (DiscordClient? shard in client.ShardClients.Select(xkvp => xkvp.Value))
@@ -68,7 +68,7 @@ public static class ClientExtensions
     public static async Task<ReadOnlyDictionary<int, InteractivityExtension>> GetInteractivityAsync(this DiscordShardedClient client)
     {
         await client.InitializeShardsAsync();
-        Dictionary<int, InteractivityExtension> extensions = new Dictionary<int, InteractivityExtension>();
+        Dictionary<int, InteractivityExtension> extensions = [];
 
         foreach (DiscordClient? shard in client.ShardClients.Select(xkvp => xkvp.Value))
         {

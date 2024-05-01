@@ -341,7 +341,7 @@ public static class CommandsNextUtilities
 
     internal static bool IsCommandCandidate(this MethodInfo method, out ParameterInfo[] parameters)
     {
-        parameters = Array.Empty<ParameterInfo>();
+        parameters = [];
 
         // check if exists
         if (method == null)

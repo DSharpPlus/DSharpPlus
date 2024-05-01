@@ -27,7 +27,7 @@ public sealed class CommandGroupBuilder : CommandBuilder
     /// <param name="module">Module on which this group is to be defined.</param>
     public CommandGroupBuilder(ICommandModule? module) : base(module)
     {
-        _childrenList = new List<CommandBuilder>();
+        _childrenList = [];
         Children = new ReadOnlyCollection<CommandBuilder>(_childrenList);
     }
 
@@ -58,7 +58,7 @@ public sealed class CommandGroupBuilder : CommandBuilder
             Category = Category
         };
 
-        List<Command> cs = new List<Command>();
+        List<Command> cs = [];
         foreach (CommandBuilder xc in Children)
         {
             cs.Add(xc.Build(cmd));

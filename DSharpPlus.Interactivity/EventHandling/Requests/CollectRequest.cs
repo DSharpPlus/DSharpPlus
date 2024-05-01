@@ -31,7 +31,7 @@ internal class CollectRequest<T> : IDisposable where T : AsyncEventArgs
         _predicate = predicate;
         _ct.Token.Register(() => _tcs.TrySetResult(true));
         _timeout = timeout;
-        _collected = new ConcurrentHashSet<T>();
+        _collected = [];
     }
 
     /// <summary>

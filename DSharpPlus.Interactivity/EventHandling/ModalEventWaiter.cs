@@ -17,7 +17,7 @@ internal class ModalEventWaiter : IDisposable
     /// <summary>
     /// Collection of <see cref = "ModalMatchRequest"/> representing requests to wait for modals.
     /// </summary>
-    private ConcurrentHashSet<ModalMatchRequest> MatchRequests { get; } = new();
+    private ConcurrentHashSet<ModalMatchRequest> MatchRequests { get; } = [];
 
     public ModalEventWaiter(DiscordClient client)
     {

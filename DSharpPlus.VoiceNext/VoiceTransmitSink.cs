@@ -61,7 +61,7 @@ public sealed class VoiceTransmitSink : IDisposable
         PcmMemory = PcmBuffer.AsMemory();
         PcmBufferLength = 0;
         WriteSemaphore = new SemaphoreSlim(1, 1);
-        Filters = new List<IVoiceFilter>();
+        Filters = [];
     }
 
     /// <summary>

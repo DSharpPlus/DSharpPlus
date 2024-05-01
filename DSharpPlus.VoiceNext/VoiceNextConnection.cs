@@ -567,7 +567,7 @@ public sealed class VoiceNextConnection : IDisposable
             Memory<byte> pcmMem = pcm.AsMemory();
             byte[] opus = new byte[pcm.Length];
             Memory<byte> opusMem = opus.AsMemory();
-            List<ReadOnlyMemory<byte>> pcmFillers = new List<ReadOnlyMemory<byte>>();
+            List<ReadOnlyMemory<byte>> pcmFillers = [];
             if (!ProcessPacket(data, ref opusMem, ref pcmMem, pcmFillers, out AudioSender? vtx, out AudioFormat audioFormat))
             {
                 return;

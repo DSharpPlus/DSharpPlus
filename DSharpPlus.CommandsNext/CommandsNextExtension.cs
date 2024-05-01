@@ -42,7 +42,7 @@ public class CommandsNextExtension : BaseExtension
     internal CommandsNextExtension(CommandsNextConfiguration cfg)
     {
         Config = new CommandsNextConfiguration(cfg);
-        TopLevelCommands = new Dictionary<string, Command>();
+        TopLevelCommands = [];
         _registeredCommandsLazy = new Lazy<IReadOnlyDictionary<string, Command>>(() => new ReadOnlyDictionary<string, Command>(TopLevelCommands));
         HelpFormatter = new HelpFormatterFactory();
         HelpFormatter.SetFormatterType<DefaultHelpFormatter>();
@@ -108,7 +108,7 @@ public class CommandsNextExtension : BaseExtension
 
         Type ncvt = typeof(NullableConverter<>);
         Type nt = typeof(Nullable<>);
-        Type[] cvts = ArgumentConverters.Keys.ToArray();
+        Type[] cvts = [.. ArgumentConverters.Keys];
         foreach (Type? xt in cvts)
         {
             TypeInfo xti = xt.GetTypeInfo();
@@ -181,7 +181,7 @@ public class CommandsNextExtension : BaseExtension
 
         if (Config.EnableDefaultHelp)
         {
-            RegisterCommands(typeof(DefaultHelpModule), null, Enumerable.Empty<CheckBaseAttribute>(), out List<CommandBuilder>? tcmds);
+            RegisterCommands(typeof(DefaultHelpModule), null, [], out List<CommandBuilder>? tcmds);
 
             if (Config.DefaultHelpChecks.Any())
             {
@@ -474,7 +474,7 @@ public class CommandsNextExtension : BaseExtension
             throw new ArgumentNullException(nameof(t), "Type must be a class, which cannot be abstract or static.");
         }
 
-        RegisterCommands(t, null, Enumerable.Empty<CheckBaseAttribute>(), out List<CommandBuilder>? tempCommands);
+        RegisterCommands(t, null, [], out List<CommandBuilder>? tempCommands);
 
         if (tempCommands != null)
         {
@@ -508,7 +508,7 @@ public class CommandsNextExtension : BaseExtension
         bool isModule = false;
         IEnumerable<Attribute> moduleAttributes = ti.GetCustomAttributes();
         bool moduleHidden = false;
-        List<CheckBaseAttribute> moduleChecks = new List<CheckBaseAttribute>();
+        List<CheckBaseAttribute> moduleChecks = [];
 
         groupBuilder.WithCategory(ExtractCategoryAttribute(t));
 
@@ -595,8 +595,8 @@ public class CommandsNextExtension : BaseExtension
 
         // candidate methods
         IEnumerable<MethodInfo> methods = ti.DeclaredMethods;
-        List<CommandBuilder> commands = new List<CommandBuilder>();
-        Dictionary<string, CommandBuilder> commandBuilders = new Dictionary<string, CommandBuilder>();
+        List<CommandBuilder> commands = [];
+        Dictionary<string, CommandBuilder> commandBuilders = [];
         foreach (MethodInfo m in methods)
         {
             if (!m.IsCommandCandidate(out _))
@@ -875,7 +875,7 @@ public class CommandsNextExtension : BaseExtension
                 if (cmd is CommandGroup group)
                 {
                     IEnumerable<Command> commandsToSearch = group.Children.Where(xc => !xc.IsHidden);
-                    List<Command> eligibleCommands = new List<Command>();
+                    List<Command> eligibleCommands = [];
                     foreach (Command? candidateCommand in commandsToSearch)
                     {
                         if (candidateCommand.ExecutionChecks == null || !candidateCommand.ExecutionChecks.Any())
@@ -900,7 +900,7 @@ public class CommandsNextExtension : BaseExtension
             else
             {
                 IEnumerable<Command> commandsToSearch = topLevel.Where(xc => !xc.IsHidden);
-                List<Command> eligibleCommands = new List<Command>();
+                List<Command> eligibleCommands = [];
                 foreach (Command? sc in commandsToSearch)
                 {
                     if (sc.ExecutionChecks == null || !sc.ExecutionChecks.Any())
@@ -967,15 +967,15 @@ public class CommandsNextExtension : BaseExtension
             Pinned = false,
             MentionEveryone = messageContents.Contains("@everyone"),
             IsTTS = false,
-            _attachments = new List<DiscordAttachment>(),
-            _embeds = new List<DiscordEmbed>(),
+            _attachments = [],
+            _embeds = [],
             Timestamp = now,
-            _reactions = new List<DiscordReaction>()
+            _reactions = []
         };
 
-        List<DiscordUser> mentionedUsers = new List<DiscordUser>();
-        List<DiscordRole>? mentionedRoles = msg.Channel.Guild != null ? new List<DiscordRole>() : null;
-        List<DiscordChannel>? mentionedChannels = msg.Channel.Guild != null ? new List<DiscordChannel>() : null;
+        List<DiscordUser> mentionedUsers = [];
+        List<DiscordRole>? mentionedRoles = msg.Channel.Guild != null ? [] : null;
+        List<DiscordChannel>? mentionedChannels = msg.Channel.Guild != null ? [] : null;
 
         if (!string.IsNullOrWhiteSpace(msg.Content))
         {
@@ -1055,7 +1055,7 @@ public class CommandsNextExtension : BaseExtension
         MethodInfo m = ConvertGeneric.MakeGenericMethod(type);
         try
         {
-            return await (Task<object>)m.Invoke(this, new object?[] { value, ctx });
+            return await (Task<object>)m.Invoke(this, [value, ctx]);
         }
         catch (Exception ex) when (ex is TargetInvocationException or InvalidCastException)
         {

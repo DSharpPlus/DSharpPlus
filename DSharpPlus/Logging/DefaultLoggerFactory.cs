@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 internal class DefaultLoggerFactory : ILoggerFactory
 {
-    private List<ILoggerProvider> Providers { get; } = new List<ILoggerProvider>();
+    private List<ILoggerProvider> Providers { get; } = [];
     private bool _isDisposed = false;
 
     public void AddProvider(ILoggerProvider provider) => Providers.Add(provider);

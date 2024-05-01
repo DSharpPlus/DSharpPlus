@@ -32,7 +32,7 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
     /// The choices to send on this interaction response. Mutually exclusive with content, embed, and components.
     /// </summary>
     public IReadOnlyList<DiscordAutoCompleteChoice> Choices => _choices;
-    private readonly List<DiscordAutoCompleteChoice> _choices = new();
+    private readonly List<DiscordAutoCompleteChoice> _choices = [];
 
     /// <summary>
     /// Constructs a new empty interaction response builder.

@@ -22,7 +22,7 @@ public sealed class AsyncEvent<TSender, TArgs> : AsyncEvent
     public AsyncEvent(string name, AsyncEventExceptionHandler<TSender, TArgs> exceptionHandler)
         : base(name)
     {
-        _handlers = new();
+        _handlers = [];
         _exceptionHandler = exceptionHandler;
     }
 
@@ -74,7 +74,7 @@ public sealed class AsyncEvent<TSender, TArgs> : AsyncEvent
     /// Unregisters all handlers from this event.
     /// </summary>
     public void UnregisterAll()
-        => _handlers = new();
+        => _handlers = [];
 
     /// <summary>
     /// Raises this event, invoking all registered handlers in parallel.

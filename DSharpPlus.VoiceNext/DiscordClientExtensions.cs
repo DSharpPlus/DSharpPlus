@@ -43,7 +43,7 @@ public static class DiscordClientExtensions
     /// <returns>A dictionary of created VoiceNext clients.</returns>
     public static async Task<IReadOnlyDictionary<int, VoiceNextExtension>> UseVoiceNextAsync(this DiscordShardedClient client, VoiceNextConfiguration config)
     {
-        Dictionary<int, VoiceNextExtension> modules = new Dictionary<int, VoiceNextExtension>();
+        Dictionary<int, VoiceNextExtension> modules = [];
         await client.InitializeShardsAsync();
 
         foreach (DiscordClient? shard in client.ShardClients.Select(xkvp => xkvp.Value))
@@ -71,7 +71,7 @@ public static class DiscordClientExtensions
     public static async Task<IReadOnlyDictionary<int, VoiceNextExtension>> GetVoiceNextAsync(this DiscordShardedClient client)
     {
         await client.InitializeShardsAsync();
-        Dictionary<int, VoiceNextExtension> extensions = new Dictionary<int, VoiceNextExtension>();
+        Dictionary<int, VoiceNextExtension> extensions = [];
 
         foreach (DiscordClient shard in client.ShardClients.Values)
         {

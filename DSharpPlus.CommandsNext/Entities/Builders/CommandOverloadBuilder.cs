@@ -84,7 +84,7 @@ public sealed class CommandOverloadBuilder
                 DefaultValue = arg.IsOptional ? arg.DefaultValue : null
             };
 
-            List<Attribute> attrsCustom = new List<Attribute>();
+            List<Attribute> attrsCustom = [];
             IEnumerable<Attribute> attrs = arg.GetCustomAttributes();
             bool isParams = false;
             foreach (Attribute xa in attrs)

@@ -100,7 +100,7 @@ public sealed class LavalinkExtension : BaseExtension
             return _connectedNodes.Values.FirstOrDefault();
         }
 
-        LavalinkNodeConnection[] nodes = _connectedNodes.Values.ToArray();
+        LavalinkNodeConnection[] nodes = [.. _connectedNodes.Values];
 
         if (region != null)
         {

@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectComponent
 {
     [JsonProperty("default_values", NullValueHandling = NullValueHandling.Ignore)]
-    private readonly List<DiscordSelectDefaultValue> _defaultValues = new();
+    private readonly List<DiscordSelectDefaultValue> _defaultValues = [];
 
     /// <summary>
     /// The default values for this component.

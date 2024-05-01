@@ -31,7 +31,7 @@ public sealed class CommandsNextConfiguration
     /// <para>Sets the string prefixes used for commands.</para>
     /// <para>Defaults to no value (disabled).</para>
     /// </summary>
-    public IEnumerable<string> StringPrefixes { internal get; set; } = Enumerable.Empty<string>();
+    public IEnumerable<string> StringPrefixes { internal get; set; } = [];
 
     /// <summary>
     /// <para>Sets the custom prefix resolver used for commands.</para>
@@ -75,7 +75,7 @@ public sealed class CommandsNextConfiguration
     /// <para>Only applicable if default help is enabled.</para>
     /// <para>Defaults to null.</para>
     /// </summary>
-    public IEnumerable<CheckBaseAttribute> DefaultHelpChecks { internal get; set; } = Enumerable.Empty<CheckBaseAttribute>();
+    public IEnumerable<CheckBaseAttribute> DefaultHelpChecks { internal get; set; } = [];
 
     /// <summary>
     /// <para>Sets whether commands sent via direct messages should be processed.</para>

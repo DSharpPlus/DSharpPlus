@@ -20,7 +20,7 @@ public class ModalSubmitEventArgs : InteractionCreateEventArgs
     {
         Interaction = interaction;
 
-        Dictionary<string, string> dict = new Dictionary<string, string>();
+        Dictionary<string, string> dict = [];
 
         foreach (DiscordActionRowComponent component in interaction.Data._components)
         {

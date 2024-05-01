@@ -23,7 +23,7 @@ public class DiscordPollBuilder
     /// Gets the options for this poll.
     /// </summary>
     public IReadOnlyList<DiscordPollMedia> Options => _options;
-    private readonly List<DiscordPollMedia> _options = new();
+    private readonly List<DiscordPollMedia> _options = [];
 
     /// <summary>
     /// Gets or sets the duration for this poll in hours.

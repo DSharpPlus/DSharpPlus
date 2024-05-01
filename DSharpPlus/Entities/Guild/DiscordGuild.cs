@@ -757,7 +757,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         ulong? last = null;
         bool isAfter = after != null;
 
-        List<DiscordUser> users = new();
+        List<DiscordUser> users = [];
 
         int lastCount;
         do
@@ -1223,7 +1223,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             includedRoles = includedRoles.Where(r => r != null);
             int roleCount = includedRoles.Count();
             DiscordRole[] roleArr = includedRoles.ToArray();
-            List<ulong> rawRoleIds = new();
+            List<ulong> rawRoleIds = [];
 
             for (int i = 0; i < roleCount; i++)
             {
@@ -1258,7 +1258,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             includedRoles = includedRoles.Where(r => r != null);
             int roleCount = includedRoles.Count();
             DiscordRole[] roleArr = includedRoles.ToArray();
-            List<ulong> rawRoleIds = new();
+            List<ulong> rawRoleIds = [];
 
             for (int i = 0; i < roleCount; i++)
             {

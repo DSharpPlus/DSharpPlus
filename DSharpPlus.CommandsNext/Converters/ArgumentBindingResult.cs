@@ -22,7 +22,7 @@ public struct ArgumentBindingResult
     {
         IsSuccessful = false;
         Reason = ex;
-        Converted = Array.Empty<object>();
+        Converted = [];
         Raw = Array.Empty<string>();
     }
 }

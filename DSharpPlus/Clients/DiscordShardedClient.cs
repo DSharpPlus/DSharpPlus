@@ -121,7 +121,7 @@ public sealed partial class DiscordShardedClient
             Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus, version {Version}", _versionString.Value);
 
             int shardc = await InitializeShardsAsync();
-            List<Task> connectTasks = new List<Task>();
+            List<Task> connectTasks = [];
             Logger.LogInformation(LoggerEvents.ShardStartup, "Booting {ShardCount} shards.", shardc);
 
             for (int i = 0; i < shardc; i++)
@@ -204,7 +204,7 @@ public sealed partial class DiscordShardedClient
     /// <returns>Asynchronous operation.</returns>
     public async Task UpdateStatusAsync(DiscordActivity activity = null, DiscordUserStatus? userStatus = null, DateTimeOffset? idleSince = null)
     {
-        List<Task> tasks = new List<Task>();
+        List<Task> tasks = [];
         foreach (DiscordClient client in _shards.Values)
         {
             tasks.Add(client.UpdateStatusAsync(activity, userStatus, idleSince));

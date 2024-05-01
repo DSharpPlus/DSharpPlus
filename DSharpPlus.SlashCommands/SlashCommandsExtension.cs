@@ -24,19 +24,19 @@ using Microsoft.Extensions.Logging;
 public sealed class SlashCommandsExtension : BaseExtension
 {
     //A list of methods for top level commands
-    private static List<CommandMethod> _commandMethods { get; set; } = new();
+    private static List<CommandMethod> _commandMethods { get; set; } = [];
     //List of groups
-    private static List<GroupCommand> _groupCommands { get; set; } = new();
+    private static List<GroupCommand> _groupCommands { get; set; } = [];
     //List of groups with subgroups
-    private static List<SubGroupCommand> _subGroupCommands { get; set; } = new();
+    private static List<SubGroupCommand> _subGroupCommands { get; set; } = [];
     //List of context menus
-    private static List<ContextMenuCommand> _contextMenuCommands { get; set; } = new();
+    private static List<ContextMenuCommand> _contextMenuCommands { get; set; } = [];
 
     //Singleton modules
-    private static List<object> _singletonModules { get; set; } = new();
+    private static List<object> _singletonModules { get; set; } = [];
 
     //List of modules to register
-    private List<KeyValuePair<ulong?, Type>> _updateList { get; set; } = new();
+    private List<KeyValuePair<ulong?, Type>> _updateList { get; set; } = [];
     //Configuration for DI
     private readonly SlashCommandsConfiguration _configuration;
     //Set to true if anything fails when registering
@@ -46,7 +46,7 @@ public sealed class SlashCommandsExtension : BaseExtension
     /// Gets a list of registered commands. The key is the guild id (null if global).
     /// </summary>
     public IReadOnlyList<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> RegisteredCommands => _registeredCommands;
-    private static readonly List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> _registeredCommands = new();
+    private static readonly List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> _registeredCommands = [];
 
     internal SlashCommandsExtension(SlashCommandsConfiguration configuration)
     {
@@ -152,11 +152,11 @@ public sealed class SlashCommandsExtension : BaseExtension
     private void RegisterCommands(IEnumerable<Type> types, ulong? guildId)
     {
         //Initialize empty lists to be added to the global ones at the end
-        List<CommandMethod> commandMethods = new List<CommandMethod>();
-        List<GroupCommand> groupCommands = new List<GroupCommand>();
-        List<SubGroupCommand> subGroupCommands = new List<SubGroupCommand>();
-        List<ContextMenuCommand> contextMenuCommands = new List<ContextMenuCommand>();
-        List<DiscordApplicationCommand> updateList = new List<DiscordApplicationCommand>();
+        List<CommandMethod> commandMethods = [];
+        List<GroupCommand> groupCommands = [];
+        List<SubGroupCommand> subGroupCommands = [];
+        List<ContextMenuCommand> contextMenuCommands = [];
+        List<DiscordApplicationCommand> updateList = [];
 
         _ = Task.Run(async () =>
         {
@@ -166,7 +166,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                 try
                 {
                     TypeInfo module = type.GetTypeInfo();
-                    List<TypeInfo> classes = new List<TypeInfo>();
+                    List<TypeInfo> classes = [];
 
                     //Add module to classes list if it's a group
                     if (module.GetCustomAttribute<SlashCommandGroupAttribute>() != null)
@@ -202,7 +202,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                         //Initializes the command
                         DiscordApplicationCommand payload = new DiscordApplicationCommand(groupAttribute.Name, groupAttribute.Description, defaultPermission: groupAttribute.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions, nsfw: groupAttribute.NSFW);
 
-                        List<KeyValuePair<string, MethodInfo>> commandmethods = new List<KeyValuePair<string, MethodInfo>>();
+                        List<KeyValuePair<string, MethodInfo>> commandmethods = [];
                         //Handles commands in the group
                         foreach (MethodInfo? submethod in submethods)
                         {
@@ -247,14 +247,14 @@ public sealed class SlashCommandsExtension : BaseExtension
                             //I couldn't think of more creative naming
                             IEnumerable<MethodInfo> subsubmethods = subclass.DeclaredMethods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
 
-                            List<DiscordApplicationCommandOption> options = new List<DiscordApplicationCommandOption>();
+                            List<DiscordApplicationCommandOption> options = [];
 
-                            List<KeyValuePair<string, MethodInfo>> currentMethods = new List<KeyValuePair<string, MethodInfo>>();
+                            List<KeyValuePair<string, MethodInfo>> currentMethods = [];
 
                             //Similar to the one for regular groups
                             foreach (MethodInfo? subsubmethod in subsubmethods)
                             {
-                                List<DiscordApplicationCommandOption> suboptions = new List<DiscordApplicationCommandOption>();
+                                List<DiscordApplicationCommandOption> suboptions = [];
                                 SlashCommandAttribute? commatt = subsubmethod.GetCustomAttribute<SlashCommandAttribute>();
                                 ParameterInfo[] parameters = subsubmethod.GetParameters();
                                 if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.First().ParameterType, typeof(InteractionContext)))
@@ -263,7 +263,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                                 }
 
                                 parameters = parameters.Skip(1).ToArray();
-                                suboptions = suboptions.Concat(await ParseParameters(parameters, guildId)).ToList();
+                                suboptions = [.. suboptions, .. await ParseParameters(parameters, guildId)];
 
                                 IReadOnlyDictionary<string, string> nameLocalizations = GetNameLocalizations(subsubmethod);
                                 IReadOnlyDictionary<string, string> descriptionLocalizations = GetDescriptionLocalizations(subsubmethod);
@@ -451,7 +451,7 @@ public sealed class SlashCommandsExtension : BaseExtension
     //Handles the parameters for a slash command
     private async Task<List<DiscordApplicationCommandOption>> ParseParameters(ParameterInfo[] parameters, ulong? guildId)
     {
-        List<DiscordApplicationCommandOption> options = new List<DiscordApplicationCommandOption>();
+        List<DiscordApplicationCommandOption> options = [];
         foreach (ParameterInfo parameter in parameters)
         {
             //Gets the attribute
@@ -530,7 +530,7 @@ public sealed class SlashCommandsExtension : BaseExtension
         ulong? guildId
     )
     {
-        List<DiscordApplicationCommandOptionChoice> choices = new List<DiscordApplicationCommandOptionChoice>();
+        List<DiscordApplicationCommandOptionChoice> choices = [];
         foreach (ChoiceProviderAttribute choiceProviderAttribute in customAttributes)
         {
             MethodInfo? method = choiceProviderAttribute.ProviderType.GetMethod(nameof(IChoiceProvider.Provider));
@@ -569,7 +569,7 @@ public sealed class SlashCommandsExtension : BaseExtension
     //Gets choices from an enum
     private static List<DiscordApplicationCommandOptionChoice> GetChoiceAttributesFromEnumParameter(Type enumParam)
     {
-        List<DiscordApplicationCommandOptionChoice> choices = new List<DiscordApplicationCommandOptionChoice>();
+        List<DiscordApplicationCommandOptionChoice> choices = [];
         if (enumParam.IsGenericType && enumParam.GetGenericTypeDefinition() == typeof(Nullable<>))
         {
             enumParam = Nullable.GetUnderlyingType(enumParam);
@@ -582,19 +582,11 @@ public sealed class SlashCommandsExtension : BaseExtension
     }
 
     //Small method to get the parameter's type from its type
-    private DiscordApplicationCommandOptionType GetParameterType(string commandName, Type type)
-    {
-        if (type == typeof(string))
-        {
-            return DiscordApplicationCommandOptionType.String;
-        }
-
-        if (type == typeof(long) || type == typeof(long?))
-        {
-            return DiscordApplicationCommandOptionType.Integer;
-        }
-
-        return type == typeof(bool) || type == typeof(bool?)
+    private DiscordApplicationCommandOptionType GetParameterType(string commandName, Type type) => type == typeof(string)
+            ? DiscordApplicationCommandOptionType.String
+            : type == typeof(long) || type == typeof(long?)
+            ? DiscordApplicationCommandOptionType.Integer
+            : type == typeof(bool) || type == typeof(bool?)
             ? DiscordApplicationCommandOptionType.Boolean
             : type == typeof(double) || type == typeof(double?)
             ? DiscordApplicationCommandOptionType.Number
@@ -615,7 +607,6 @@ public sealed class SlashCommandsExtension : BaseExtension
             : type == typeof(DiscordAttachment)
             ? DiscordApplicationCommandOptionType.Attachment
             : throw new ArgumentException($"Cannot convert type! (Command: {commandName}) Argument types must be string, long, bool, double, TimeSpan?, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, DiscordAttachment, SnowflakeObject, or an Enum.");
-    }
 
     //Gets choices from choice attributes
     private List<DiscordApplicationCommandOptionChoice> GetChoiceAttributesFromParameter(IEnumerable<ChoiceAttribute> choiceattributes) => !choiceattributes.Any()
@@ -633,7 +624,7 @@ public sealed class SlashCommandsExtension : BaseExtension
             if (e.Interaction is { Type: DiscordInteractionType.ApplicationCommand, Data.Type: DiscordApplicationCommandType.SlashCommand })
             {
                 StringBuilder qualifiedName = new StringBuilder(e.Interaction.Data.Name);
-                DiscordInteractionDataOption[] options = e.Interaction.Data.Options?.ToArray() ?? Array.Empty<DiscordInteractionDataOption>();
+                DiscordInteractionDataOption[] options = e.Interaction.Data.Options?.ToArray() ?? [];
                 while (options.Any())
                 {
                     DiscordInteractionDataOption firstOption = options[0];
@@ -643,7 +634,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                     }
 
                     _ = qualifiedName.AppendFormat(" {0}", firstOption.Name);
-                    options = firstOption.Options?.ToArray() ?? Array.Empty<DiscordInteractionDataOption>();
+                    options = firstOption.Options?.ToArray() ?? [];
                 }
 
                 //Creates the context
@@ -958,7 +949,7 @@ public sealed class SlashCommandsExtension : BaseExtension
     //Parses slash command parameters
     private async Task<List<object>> ResolveInteractionCommandParameters(InteractionCreateEventArgs e, InteractionContext context, MethodInfo method, IEnumerable<DiscordInteractionDataOption> options)
     {
-        List<object> args = new List<object> { context };
+        List<object> args = [context];
         IEnumerable<ParameterInfo> parameters = method.GetParameters().Skip(1);
 
         for (int i = 0; i < parameters.Count(); i++)
@@ -1023,7 +1014,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                         args.Add(result);
                         continue;
                     }
-                    string[] gps = new string[] { "days", "hours", "minutes", "seconds" };
+                    string[] gps = ["days", "hours", "minutes", "seconds"];
                     Match mtc = timeSpanRegex.Match(value);
                     if (!mtc.Success)
                     {
@@ -1175,9 +1166,11 @@ public sealed class SlashCommandsExtension : BaseExtension
         if (context is InteractionContext ctx)
         {
             //Gets all attributes from parent classes as well and stuff
-            List<SlashCheckBaseAttribute> attributes = new List<SlashCheckBaseAttribute>();
-            attributes.AddRange(method.GetCustomAttributes<SlashCheckBaseAttribute>(true));
-            attributes.AddRange(method.DeclaringType.GetCustomAttributes<SlashCheckBaseAttribute>());
+            List<SlashCheckBaseAttribute> attributes =
+            [
+                .. method.GetCustomAttributes<SlashCheckBaseAttribute>(true),
+                .. method.DeclaringType.GetCustomAttributes<SlashCheckBaseAttribute>(),
+            ];
             if (method.DeclaringType.DeclaringType != null)
             {
                 attributes.AddRange(method.DeclaringType.DeclaringType.GetCustomAttributes<SlashCheckBaseAttribute>());
@@ -1187,7 +1180,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                 }
             }
 
-            Dictionary<SlashCheckBaseAttribute, bool> dict = new Dictionary<SlashCheckBaseAttribute, bool>();
+            Dictionary<SlashCheckBaseAttribute, bool> dict = [];
             foreach (SlashCheckBaseAttribute att in attributes)
             {
                 //Runs the check and adds the result to a list
@@ -1203,9 +1196,11 @@ public sealed class SlashCommandsExtension : BaseExtension
         }
         if (context is ContextMenuContext CMctx)
         {
-            List<ContextMenuCheckBaseAttribute> attributes = new List<ContextMenuCheckBaseAttribute>();
-            attributes.AddRange(method.GetCustomAttributes<ContextMenuCheckBaseAttribute>(true));
-            attributes.AddRange(method.DeclaringType.GetCustomAttributes<ContextMenuCheckBaseAttribute>());
+            List<ContextMenuCheckBaseAttribute> attributes =
+            [
+                .. method.GetCustomAttributes<ContextMenuCheckBaseAttribute>(true),
+                .. method.DeclaringType.GetCustomAttributes<ContextMenuCheckBaseAttribute>(),
+            ];
             if (method.DeclaringType.DeclaringType != null)
             {
                 attributes.AddRange(method.DeclaringType.DeclaringType.GetCustomAttributes<ContextMenuCheckBaseAttribute>());
@@ -1215,7 +1210,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                 }
             }
 
-            Dictionary<ContextMenuCheckBaseAttribute, bool> dict = new Dictionary<ContextMenuCheckBaseAttribute, bool>();
+            Dictionary<ContextMenuCheckBaseAttribute, bool> dict = [];
             foreach (ContextMenuCheckBaseAttribute att in attributes)
             {
                 //Runs the check and adds the result to a list
@@ -1422,7 +1417,7 @@ internal class SubGroupCommand
 {
     public ulong CommandId { get; set; }
     public string Name { get; set; }
-    public List<GroupCommand> SubCommands { get; set; } = new List<GroupCommand>();
+    public List<GroupCommand> SubCommands { get; set; } = [];
 }
 
 internal class ContextMenuCommand
