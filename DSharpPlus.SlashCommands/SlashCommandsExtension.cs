@@ -21,6 +21,7 @@ using Microsoft.Extensions.Logging;
 /// <summary>
 /// A class that handles slash commands for a client.
 /// </summary>
+[Obsolete("DSharpPlus.SlashCommands is obsolete. Please consider using the new DSharpPlus.Commands extension instead.")]
 public sealed class SlashCommandsExtension : BaseExtension
 {
     //A list of methods for top level commands

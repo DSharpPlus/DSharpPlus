@@ -21,6 +21,7 @@ public static class ExtensionMethods
     /// <param name="client">Client to enable CommandsNext for.</param>
     /// <param name="cfg">CommandsNext configuration to use.</param>
     /// <returns>Created <see cref="CommandsNextExtension"/>.</returns>
+    [Obsolete("DSharpPlus.CommandsNext is obsolete. Please consider using the new DSharpPlus.Commands extension instead.")]
     public static CommandsNextExtension UseCommandsNext(this DiscordClient client, CommandsNextConfiguration cfg)
     {
         if (client.GetExtension<CommandsNextExtension>() != null)
@@ -49,6 +50,7 @@ public static class ExtensionMethods
     /// <param name="client">Client to enable CommandsNext for.</param>
     /// <param name="cfg">CommandsNext configuration to use.</param>
     /// <returns>A dictionary of created <see cref="CommandsNextExtension"/>, indexed by shard id.</returns>
+    [Obsolete("DSharpPlus.CommandsNext is obsolete. Please consider using the new DSharpPlus.Commands extension instead.")]
     public static async Task<IReadOnlyDictionary<int, CommandsNextExtension>> UseCommandsNextAsync(this DiscordShardedClient client, CommandsNextConfiguration cfg)
     {
         Dictionary<int, CommandsNextExtension> modules = new Dictionary<int, CommandsNextExtension>();
