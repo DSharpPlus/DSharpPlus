@@ -70,7 +70,6 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
         return this;
     }
 
-
     /// <summary>
     /// Enables this component.
     /// </summary>

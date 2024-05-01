@@ -95,7 +95,6 @@ public enum DiscordMessageType : int
     /// </summary>
     ThreadCreated = 18,
 
-
     /// <summary>
     /// Message indicating a user replied to another user.
     /// </summary>

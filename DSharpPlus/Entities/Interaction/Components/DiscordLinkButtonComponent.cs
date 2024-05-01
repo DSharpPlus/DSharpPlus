@@ -34,7 +34,6 @@ public class DiscordLinkButtonComponent : DiscordComponent
     [JsonProperty("style", NullValueHandling = NullValueHandling.Ignore)]
     internal int Style { get; } = 5; // Link = 5; Discord throws 400 otherwise //
 
-
     internal DiscordLinkButtonComponent() => Type = DiscordComponentType.Button;
 
     /// <summary>

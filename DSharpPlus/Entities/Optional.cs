@@ -74,7 +74,6 @@ public readonly struct Optional<T> : IEquatable<Optional<T>>, IEquatable<T>, IOp
         HasValue = true;
     }
 
-
     /// <summary>
     /// Determines whether the optional has a value, and the value is non-null.
     /// </summary>

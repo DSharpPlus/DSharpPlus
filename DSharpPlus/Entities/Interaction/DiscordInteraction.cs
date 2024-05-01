@@ -79,7 +79,6 @@ public sealed class DiscordInteraction : SnowflakeObject
     [JsonProperty("application_id")]
     public ulong ApplicationId { get; internal set; }
 
-
     /// <summary>
     /// The message this interaction was created with, if any.
     /// </summary>

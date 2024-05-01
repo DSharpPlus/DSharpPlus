@@ -2,7 +2,6 @@ namespace DSharpPlus.EventArgs;
 
 using DSharpPlus.Entities;
 
-
 /// <summary>
 /// Represents arguments for <see cref="DiscordClient.ComponentInteractionCreated"/>.
 /// </summary>

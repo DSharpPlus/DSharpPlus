@@ -168,13 +168,11 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     public int Hierarchy
         => IsOwner ? int.MaxValue : RoleIds.Count == 0 ? 0 : Roles.Max(x => x.Position);
 
-
     /// <summary>
     /// Gets the permissions for the current member.
     /// </summary>
     [JsonIgnore]
     public DiscordPermissions Permissions => GetPermissions();
-
 
 
     #region Overridden user properties
@@ -533,7 +531,6 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
             new Optional<IEnumerable<ulong>>(newRoles.Select(xr => xr.Id)), default, default, default, default, reason);
     }
 
-
     /// <summary>
     /// Bans a this member from their guild.
     /// </summary>
@@ -647,7 +644,6 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
 
         return $"https://cdn.discordapp.com/{Endpoints.GUILDS}/{_guild_id}/{Endpoints.USERS}/{Id}/{Endpoints.AVATARS}/{GuildAvatarHash}.{stringImageFormat}?size={stringImageSize}";
     }
-
 
     /// <summary>
     /// Returns a string representation of this member.

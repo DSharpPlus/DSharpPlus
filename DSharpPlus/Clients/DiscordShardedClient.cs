@@ -275,7 +275,6 @@ public sealed partial class DiscordShardedClient
         return vs;
     });
 
-
     #endregion
 
     #region Private Connection Methods

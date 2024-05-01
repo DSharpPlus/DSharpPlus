@@ -22,13 +22,11 @@ public class DiscordGuildPreview : SnowflakeObject
     [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
     public string Icon { get; internal set; }
 
-
     /// <summary>
     /// Gets the guild's splash.
     /// </summary>
     [JsonProperty("splash", NullValueHandling = NullValueHandling.Ignore)]
     public string Splash { get; internal set; }
-
 
     /// <summary>
     /// Gets the guild's discovery splash.
@@ -63,7 +61,6 @@ public class DiscordGuildPreview : SnowflakeObject
     /// </summary>
     [JsonProperty("approximate_presence_count")]
     public int ApproximatePresenceCount { get; internal set; }
-
 
     /// <summary>
     /// Gets the description for the guild, if the guild is discoverable.

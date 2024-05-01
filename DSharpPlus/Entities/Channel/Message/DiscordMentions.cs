@@ -56,7 +56,6 @@ internal class DiscordMentions
             return;
         }
 
-
         //Prepare a list of allowed IDs. We will be adding to these IDs.
         HashSet<ulong> roles = [];
         HashSet<ulong> users = [];

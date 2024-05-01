@@ -54,7 +54,6 @@ internal class DspUdpClient : BaseUdpClient
     /// <returns>The received bytes.</returns>
     public override Task<byte[]> ReceiveAsync() => Task.FromResult(PacketQueue.Take(Token));
 
-
     /// <summary>
     /// Closes and disposes the client.
     /// </summary>

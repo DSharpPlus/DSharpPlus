@@ -51,7 +51,6 @@ public class DiscordOverwrite : SnowflakeObject
     public async Task UpdateAsync(DiscordPermissions? allow = null, DiscordPermissions? deny = null, string? reason = null)
         => await Discord.ApiClient.EditChannelPermissionsAsync(channelId, Id, allow ?? Allowed, deny ?? Denied, Type.ToString().ToLowerInvariant(), reason);
 
-
     /// <summary>
     /// Gets the DiscordMember that is affected by this overwrite.
     /// </summary>

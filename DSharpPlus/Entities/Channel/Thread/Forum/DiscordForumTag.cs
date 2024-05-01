@@ -43,7 +43,6 @@ public class DiscordForumTagBuilder
     [JsonProperty("emoji_name")]
     private string _emojiName;
 
-
     public static DiscordForumTagBuilder FromTag(DiscordForumTag tag)
     {
         DiscordForumTagBuilder builder = new DiscordForumTagBuilder

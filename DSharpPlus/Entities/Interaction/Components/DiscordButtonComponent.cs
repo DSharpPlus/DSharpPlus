@@ -3,7 +3,6 @@ namespace DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Newtonsoft.Json;
 
-
 /// <summary>
 /// Represents a button that can be pressed. Fires <see cref="ComponentInteractionCreateEventArgs"/> when pressed.
 /// </summary>
@@ -57,7 +56,6 @@ public sealed class DiscordButtonComponent : DiscordComponent
     /// Constructs a new <see cref="DiscordButtonComponent"/>.
     /// </summary>
     internal DiscordButtonComponent() => Type = DiscordComponentType.Button;
-
 
     /// <summary>
     /// Constucts a new button based on another button.

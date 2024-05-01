@@ -33,7 +33,6 @@ internal sealed class AuditLogActionChange
     public long OldValueLong
         => (long)OldValue;
 
-
     // this can be a string or an array
     [JsonProperty("new_value")]
     public object NewValue { get; set; }
