@@ -32,11 +32,7 @@ public sealed class AsyncEvent<TSender, TArgs> : AsyncEvent
     /// <exception cref="ArgumentNullException">Thrown if the specified handler was null.</exception>
     public void Register(AsyncEventHandler<TSender, TArgs> handler)
     {
-        if (handler is null)
-        {
-            throw new ArgumentNullException(nameof(handler));
-        }
-
+        ArgumentNullException.ThrowIfNull(handler);
         _lock.Wait();
         try
         {
@@ -54,11 +50,7 @@ public sealed class AsyncEvent<TSender, TArgs> : AsyncEvent
     /// <exception cref="ArgumentNullException">Thrown if the specified handler was null.</exception>
     public void Unregister(AsyncEventHandler<TSender, TArgs> handler)
     {
-        if (handler is null)
-        {
-            throw new ArgumentNullException(nameof(handler));
-        }
-
+        ArgumentNullException.ThrowIfNull(handler);
         _lock.Wait();
         try
         {

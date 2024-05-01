@@ -300,11 +300,7 @@ public static partial class Utilities
 
     internal static void LogTaskFault(this Task task, ILogger logger, LogLevel level, EventId eventId, string message)
     {
-        if (task == null)
-        {
-            throw new ArgumentNullException(nameof(task));
-        }
-
+        ArgumentNullException.ThrowIfNull(task);
         if (logger == null)
         {
             return;

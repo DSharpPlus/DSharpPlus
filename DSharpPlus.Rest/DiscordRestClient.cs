@@ -2262,13 +2262,8 @@ public class DiscordRestClient : BaseDiscordClient
             throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.");
         }
 
-        if (image == null)
-        {
-            throw new ArgumentNullException(nameof(image));
-        }
-
+        ArgumentNullException.ThrowIfNull(image);
         string image64;
-
         using ImageTool imgtool = new(image);
         image64 = imgtool.GetBase64();
 

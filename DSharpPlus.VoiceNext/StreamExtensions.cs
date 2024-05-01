@@ -21,15 +21,8 @@ public static class StreamExtensions
         // adapted from CoreFX
         // https://source.dot.net/#System.Private.CoreLib/Stream.cs,8048a9680abdd13b
 
-        if (source is null)
-        {
-            throw new ArgumentNullException(nameof(source));
-        }
-
-        if (destination is null)
-        {
-            throw new ArgumentNullException(nameof(destination));
-        }
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(destination);
 
         if (bufferSize != null && bufferSize <= 0)
         {
