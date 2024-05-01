@@ -1107,15 +1107,8 @@ public class CommandsNextExtension : BaseExtension
     {
         Type t = typeof(T);
         TypeInfo ti = t.GetTypeInfo();
-        if (ArgumentConverters.ContainsKey(t))
-        {
-            ArgumentConverters.Remove(t);
-        }
-
-        if (UserFriendlyTypeNames.ContainsKey(t))
-        {
-            UserFriendlyTypeNames.Remove(t);
-        }
+        ArgumentConverters.Remove(t);
+        UserFriendlyTypeNames.Remove(t);
 
         if (!ti.IsValueType)
         {
