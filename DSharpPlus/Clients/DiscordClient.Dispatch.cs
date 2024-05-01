@@ -1600,8 +1600,6 @@ public sealed partial class DiscordClient
 
     internal async Task OnMessageUpdateEventAsync(DiscordMessage message, TransportUser author, TransportMember member, TransportUser referenceAuthor, TransportMember referenceMember)
     {
-        DiscordGuild guild;
-
         message.Discord = this;
         DiscordMessage event_message = message;
 
