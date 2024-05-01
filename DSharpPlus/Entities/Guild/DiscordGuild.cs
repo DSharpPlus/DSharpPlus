@@ -561,7 +561,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(start, DateTimeOffset.Now);
         if (end != null && end <= start)
         {
-            throw new ArgumentOutOfRangeException("The end time for an event must be after the start time.");
+            throw new ArgumentOutOfRangeException(nameof(end), "The end time for an event must be after the start time.");
         }
 
         DiscordScheduledGuildEventMetadata? metadata = null;

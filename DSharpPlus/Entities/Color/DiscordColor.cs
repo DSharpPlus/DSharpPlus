@@ -56,9 +56,17 @@ public partial struct DiscordColor
     /// <param name="b">Value of the blue component.</param>
     public DiscordColor(float r, float g, float b)
     {
-        if (r < 0 || r > 1 || g < 0 || g > 1 || b < 0 || b > 1)
+        if (r is < 0 or > 1)
         {
-            throw new ArgumentOutOfRangeException("Each component must be between 0.0 and 1.0 inclusive.");
+            throw new ArgumentOutOfRangeException(nameof(r), "Value must be between 0 and 1.");
+        }
+        else if (g is < 0 or > 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(g), "Value must be between 0 and 1.");
+        }
+        else if (b is < 0 or > 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(b), "Value must be between 0 and 1.");
         }
 
         byte rb = (byte)(r * 255);
@@ -81,13 +89,13 @@ public partial struct DiscordColor
 
         if (color.Length != 6 && color.Length != 7)
         {
-            throw new ArgumentException(nameof(color), "Color must be 6 or 7 characters in length.");
+            throw new ArgumentException("Color must be 6 or 7 characters in length.", nameof(color));
         }
 
         color = color.ToUpper();
         if (color.Length == 7 && color[0] != '#')
         {
-            throw new ArgumentException(nameof(color), "7-character colors must begin with #.");
+            throw new ArgumentException("7-character colors must begin with #.", nameof(color));
         }
         else if (color.Length == 7)
         {
@@ -96,7 +104,7 @@ public partial struct DiscordColor
 
         if (color.Any(xc => !_hexAlphabet.Contains(xc)))
         {
-            throw new ArgumentException(nameof(color), "Colors must consist of hexadecimal characters only.");
+            throw new ArgumentException("Colors must consist of hexadecimal characters only.", nameof(color));
         }
 
         Value = int.Parse(color, NumberStyles.HexNumber, CultureInfo.InvariantCulture);

@@ -460,7 +460,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
 
         if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value != null && mdl.VoiceChannel.Value.Type != DiscordChannelType.Voice && mdl.VoiceChannel.Value.Type != DiscordChannelType.Stage)
         {
-            throw new ArgumentException("Given channel is not a voice or stage channel.", nameof(mdl.VoiceChannel));
+            throw new ArgumentException($"{nameof(MemberEditModel)}.{nameof(mdl.VoiceChannel)} must be a voice or stage channel.", nameof(action));
         }
 
         if (mdl.Nickname.HasValue && Discord.CurrentUser.Id == Id)
@@ -621,13 +621,13 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         // Makes sure the image size is in between Discord's allowed range.
         if (imageSize < 16 || imageSize > 4096)
         {
-            throw new ArgumentOutOfRangeException("Image Size is not in between 16 and 4096: " + nameof(imageSize));
+            throw new ArgumentOutOfRangeException(nameof(imageSize), "Image Size is not in between 16 and 4096: ");
         }
 
         // Checks to see if the image size is not a power of two.
         if (!(imageSize is not 0 && (imageSize & (imageSize - 1)) is 0))
         {
-            throw new ArgumentOutOfRangeException("Image size is not a power of two: " + nameof(imageSize));
+            throw new ArgumentOutOfRangeException(nameof(imageSize), "Image size is not a power of two: ");
         }
 
         // Get the string variants of the method parameters to use in the urls.

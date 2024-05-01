@@ -77,7 +77,7 @@ public class RingBuffer<T> : ICollection<T>
     {
         if (elements == null || !elements.Any())
         {
-            throw new ArgumentException(nameof(elements), "The collection cannot be null or empty.");
+            throw new ArgumentException("The collection cannot be null or empty.", nameof(elements));
         }
 
         CurrentIndex = index;

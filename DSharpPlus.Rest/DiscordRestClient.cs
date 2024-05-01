@@ -1241,7 +1241,7 @@ public class DiscordRestClient : BaseDiscordClient
 
         if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value is not null && mdl.VoiceChannel.Value.Type != DiscordChannelType.Voice && mdl.VoiceChannel.Value.Type != DiscordChannelType.Stage)
         {
-            throw new ArgumentException("Given channel is not a voice or stage channel.", nameof(mdl.VoiceChannel));
+            throw new ArgumentException($"{nameof(MemberEditModel)}.{mdl.VoiceChannel} must be a voice or stage channel.", nameof(action));
         }
 
         if (mdl.Nickname.HasValue && CurrentUser.Id == memberId)

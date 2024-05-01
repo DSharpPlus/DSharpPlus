@@ -79,7 +79,7 @@ public static partial class Utilities
     {
         TokenType.Bearer => $"Bearer {config.Token}",
         TokenType.Bot => $"Bot {config.Token}",
-        _ => throw new ArgumentException("Invalid token type specified.", nameof(config.Token)),
+        _ => throw new ArgumentException("Invalid token type specified.", nameof(config)),
     };
 
     internal static string GetUserAgent()
