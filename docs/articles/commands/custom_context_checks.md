@@ -93,9 +93,10 @@ For example, we can make a check that ensures a string is no longer than X chara
 ```cs
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
 
-public sealed class MaximumStringLengthAttribute(int length) : ParameterCheckAttribute
+public sealed class MaximumStringLengthAttribute : ParameterCheckAttribute
 {
-    public int MaximumLength { get; private set; } = length;
+    public int MaximumLength { get; private set; }
+    public MaximumStringLengthAttribute(int length) => MaximumLength = length;
 }
 ```
 
