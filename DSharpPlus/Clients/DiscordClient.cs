@@ -686,10 +686,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
         Optional<string> av64 = Optional.FromNoValue<string>();
         if (avatar.HasValue && avatar.Value != null)
         {
-            using (ImageTool imgtool = new ImageTool(avatar.Value))
-            {
-                av64 = imgtool.GetBase64();
-            }
+            using ImageTool imgtool = new ImageTool(avatar.Value);
+            av64 = imgtool.GetBase64();
         }
         else if (avatar.HasValue)
         {
