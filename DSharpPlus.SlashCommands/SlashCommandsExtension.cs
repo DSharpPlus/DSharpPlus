@@ -1037,7 +1037,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                         gpc = gpc.Trim();
 
                         char gpt = gpc[gpc.Length - 1];
-                        int.TryParse(gpc.Substring(0, gpc.Length - 1), NumberStyles.Integer, CultureInfo.InvariantCulture, out int val);
+                        int.TryParse(gpc[..^1], NumberStyles.Integer, CultureInfo.InvariantCulture, out int val);
                         switch (gpt)
                         {
                             case 'd':

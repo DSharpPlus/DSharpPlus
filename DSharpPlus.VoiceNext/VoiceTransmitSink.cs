@@ -92,13 +92,13 @@ public sealed class VoiceTransmitSink : IDisposable
             {
                 int len = Math.Min(pcmSpan.Length - PcmBufferLength, remaining);
 
-                Memory<byte> tgt = pcmSpan.Slice(PcmBufferLength);
-                ReadOnlyMemory<byte> src = buffSpan.Slice(0, len);
+                Memory<byte> tgt = pcmSpan[PcmBufferLength..];
+                ReadOnlyMemory<byte> src = buffSpan[..len];
 
                 src.CopyTo(tgt);
                 PcmBufferLength += len;
                 remaining -= len;
-                buffSpan = buffSpan.Slice(len);
+                buffSpan = buffSpan[len..];
 
                 if (PcmBufferLength == PcmBuffer.Length)
                 {
@@ -107,7 +107,7 @@ public sealed class VoiceTransmitSink : IDisposable
                     PcmBufferLength = 0;
 
                     byte[] packet = ArrayPool<byte>.Shared.Rent(PcmMemory.Length);
-                    Memory<byte> packetMemory = packet.AsMemory().Slice(0, PcmMemory.Length);
+                    Memory<byte> packetMemory = packet.AsMemory(0, PcmMemory.Length);
                     PcmMemory.CopyTo(packetMemory);
 
                     await Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet), cancellationToken);
@@ -127,12 +127,12 @@ public sealed class VoiceTransmitSink : IDisposable
     public async Task FlushAsync(CancellationToken cancellationToken = default)
     {
         Memory<byte> pcm = PcmMemory;
-        Helpers.ZeroFill(pcm.Slice(PcmBufferLength).Span);
+        Helpers.ZeroFill(pcm[PcmBufferLength..].Span);
 
         ApplyFiltersSync(pcm);
 
         byte[] packet = ArrayPool<byte>.Shared.Rent(pcm.Length);
-        Memory<byte> packetMemory = packet.AsMemory().Slice(0, pcm.Length);
+        Memory<byte> packetMemory = packet.AsMemory(0, pcm.Length);
         pcm.CopyTo(packetMemory);
 
         await Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet), cancellationToken);

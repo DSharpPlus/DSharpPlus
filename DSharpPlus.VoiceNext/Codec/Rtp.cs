@@ -25,9 +25,9 @@ internal sealed class Rtp : IDisposable
         target[1] = RtpVersion;
 
         // Write data big endian
-        BinaryPrimitives.WriteUInt16BigEndian(target.Slice(2), sequence);  // header + magic
-        BinaryPrimitives.WriteUInt32BigEndian(target.Slice(4), timestamp); // header + magic + sizeof(sequence)
-        BinaryPrimitives.WriteUInt32BigEndian(target.Slice(8), ssrc);      // header + magic + sizeof(sequence) + sizeof(timestamp)
+        BinaryPrimitives.WriteUInt16BigEndian(target[2..], sequence);  // header + magic
+        BinaryPrimitives.WriteUInt32BigEndian(target[4..], timestamp); // header + magic + sizeof(sequence)
+        BinaryPrimitives.WriteUInt32BigEndian(target[8..], ssrc);      // header + magic + sizeof(sequence) + sizeof(timestamp)
     }
 
     public bool IsRtpHeader(ReadOnlySpan<byte> source) => source.Length >= HeaderSize && (source[0] == RtpNoExtension || source[0] == RtpExtension) && source[1] == RtpVersion;
@@ -47,9 +47,9 @@ internal sealed class Rtp : IDisposable
         hasExtension = source[0] == RtpExtension;
 
         // Read data big endian
-        sequence = BinaryPrimitives.ReadUInt16BigEndian(source.Slice(2));
-        timestamp = BinaryPrimitives.ReadUInt32BigEndian(source.Slice(4));
-        ssrc = BinaryPrimitives.ReadUInt32BigEndian(source.Slice(8));
+        sequence = BinaryPrimitives.ReadUInt16BigEndian(source[2..]);
+        timestamp = BinaryPrimitives.ReadUInt32BigEndian(source[4..]);
+        ssrc = BinaryPrimitives.ReadUInt32BigEndian(source[8..]);
     }
 
     public int CalculatePacketSize(int encryptedLength, EncryptionMode encryptionMode) => encryptionMode switch
@@ -65,7 +65,7 @@ internal sealed class Rtp : IDisposable
         switch (encryptionMode)
         {
             case EncryptionMode.XSalsa20_Poly1305:
-                data = packet.Slice(HeaderSize);
+                data = packet[HeaderSize..];
                 return;
 
             case EncryptionMode.XSalsa20_Poly1305_Suffix:

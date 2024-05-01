@@ -208,8 +208,8 @@ public sealed class VoiceNextExtension : BaseExtension
             int epp = 443;
             if (epi != -1)
             {
-                eph = eps.Substring(0, epi);
-                epp = int.Parse(eps.Substring(epi + 1));
+                eph = eps[..epi];
+                epp = int.Parse(eps[(epi + 1)..]);
             }
             else
             {

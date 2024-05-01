@@ -53,7 +53,7 @@ public static class CommandsNextUtilities
             return -1;
         }
 
-        string cnp = content.Substring(0, cni + 2);
+        string cnp = content[..(cni + 2)];
         Match m = UserRegex.Match(cnp);
         if (!m.Success)
         {
@@ -157,12 +157,12 @@ public static class CommandsNextUtilities
             if (endPosition != -1)
             {
                 startPos = endPosition;
-                return startPosition != endPosition ? str.Substring(startPosition, endPosition - startPosition).CleanupString(removeIndices) : null;
+                return startPosition != endPosition ? str[startPosition..endPosition].CleanupString(removeIndices) : null;
             }
         }
 
         startPos = str.Length;
-        return startPos != startPosition ? str.Substring(startPosition).CleanupString(removeIndices) : null;
+        return startPos != startPosition ? str[startPosition..].CleanupString(removeIndices) : null;
     }
 
     internal static string CleanupString(this string s, IList<int> indices)
@@ -229,7 +229,7 @@ public static class CommandsNextUtilities
                         break;
                     }
 
-                    argValue = argString.Substring(foundAt).Trim();
+                    argValue = argString[foundAt..].Trim();
                     argValue = argValue == "" ? null : argValue;
                     foundAt = argString.Length;
 

@@ -207,8 +207,8 @@ public sealed class VoiceNextConnection : IDisposable
         int epp = 443;
         if (epi != -1)
         {
-            eph = eps.Substring(0, epi);
-            epp = int.Parse(eps.Substring(epi + 1));
+            eph = eps[..epi];
+            epp = int.Parse(eps[(epi + 1)..]);
         }
         else
         {
@@ -318,7 +318,7 @@ public sealed class VoiceNextConnection : IDisposable
         switch (SelectedEncryptionMode)
         {
             case EncryptionMode.XSalsa20_Poly1305:
-                Sodium.GenerateNonce(packet.Slice(0, Rtp.HeaderSize), nonce);
+                Sodium.GenerateNonce(packet[..Rtp.HeaderSize], nonce);
                 break;
 
             case EncryptionMode.XSalsa20_Poly1305_Suffix:
@@ -336,8 +336,8 @@ public sealed class VoiceNextConnection : IDisposable
 
         Span<byte> encrypted = stackalloc byte[Sodium.CalculateTargetSize(opus)];
         Sodium.Encrypt(opus, encrypted, nonce);
-        encrypted.CopyTo(packet.Slice(Rtp.HeaderSize));
-        packet = packet.Slice(0, Rtp.CalculatePacketSize(encrypted.Length, SelectedEncryptionMode));
+        encrypted.CopyTo(packet[Rtp.HeaderSize..]);
+        packet = packet[..Rtp.CalculatePacketSize(encrypted.Length, SelectedEncryptionMode)];
         Sodium.AppendNonce(nonce, packet, SelectedEncryptionMode);
 
         target = packetArray;
@@ -477,7 +477,7 @@ public sealed class VoiceNextConnection : IDisposable
         Rtp.GetDataFromPacket(data, out ReadOnlySpan<byte> encryptedOpus, SelectedEncryptionMode);
 
         int opusSize = Sodium.CalculateSourceSize(encryptedOpus);
-        opus = opus.Slice(0, opusSize);
+        opus = opus[..opusSize];
         Span<byte> opusSpan = opus.Span;
         try
         {
@@ -509,7 +509,7 @@ public sealed class VoiceNextConnection : IDisposable
                         i++;
                     }
 
-                    opusSpan = opusSpan.Slice(i);
+                    opusSpan = opusSpan[i..];
                 }
 
                 // TODO: consider implementing RFC 5285, 4.3. Two-Byte Header
@@ -519,7 +519,7 @@ public sealed class VoiceNextConnection : IDisposable
             {
                 // I'm not 100% sure what this header is/does, however removing the data causes no
                 // real issues, and has the added benefit of removing a lot of noise.
-                opusSpan = opusSpan.Slice(2);
+                opusSpan = opusSpan[2..];
             }
 
             if (gap == 1)
@@ -544,7 +544,7 @@ public sealed class VoiceNextConnection : IDisposable
 
             Span<byte> pcmSpan = pcm.Span;
             Opus.Decode(vtx.Decoder, opusSpan, ref pcmSpan, false, out outputFormat);
-            pcm = pcm.Slice(0, pcmSpan.Length);
+            pcm = pcm[..pcmSpan.Length];
         }
         finally
         {
@@ -869,7 +869,7 @@ public sealed class VoiceNextConnection : IDisposable
 
             string ipString = Utilities.UTF8.GetString(packet, 8, 64 /* 74 - 6 */).TrimEnd('\0');
             decodedIp = System.Net.IPAddress.Parse(ipString);
-            decodedPort = BinaryPrimitives.ReadUInt16LittleEndian(packetSpan.Slice(72 /* 74 - 2 */));
+            decodedPort = BinaryPrimitives.ReadUInt16LittleEndian(packetSpan[72 /* 74 - 2 */..]);
         }
 
         // Select voice encryption mode

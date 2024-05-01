@@ -33,8 +33,8 @@ public class DiscordUserConverter : IArgumentConverter<DiscordUser>
         bool cs = ctx.Config.CaseSensitive;
 
         int di = value.IndexOf('#');
-        string un = di != -1 ? value.Substring(0, di) : value;
-        string? dv = di != -1 ? value.Substring(di + 1) : null;
+        string un = di != -1 ? value[..di] : value;
+        string? dv = di != -1 ? value[(di + 1)..] : null;
 
         System.Collections.Generic.IEnumerable<DiscordMember> us = ctx.Client.Guilds.Values
             .SelectMany(xkvp => xkvp.Members.Values).Where(xm =>
@@ -83,8 +83,8 @@ public class DiscordMemberConverter : IArgumentConverter<DiscordMember>
         bool cs = ctx.Config.CaseSensitive;
 
         int di = value.IndexOf('#');
-        string un = di != -1 ? value.Substring(0, di) : value;
-        string? dv = di != -1 ? value.Substring(di + 1) : null;
+        string un = di != -1 ? value[..di] : value;
+        string? dv = di != -1 ? value[(di + 1)..] : null;
 
         StringComparison comparison = cs ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase;
         System.Collections.Generic.IEnumerable<DiscordMember> us = ctx.Guild.Members.Values.Where(xm =>
@@ -225,7 +225,7 @@ public class DiscordMessageConverter : IArgumentConverter<DiscordMessage>
             return Optional.FromNoValue<DiscordMessage>();
         }
 
-        string msguri = value.StartsWith("<") && value.EndsWith(">") ? value.Substring(1, value.Length - 2) : value;
+        string msguri = value.StartsWith("<") && value.EndsWith(">") ? value[1..^1] : value;
         ulong mid;
         if (Uri.TryCreate(msguri, UriKind.Absolute, out Uri? uri))
         {

@@ -91,7 +91,7 @@ public partial struct DiscordColor
         }
         else if (color.Length == 7)
         {
-            color = color.Substring(1);
+            color = color[1..];
         }
 
         if (color.Any(xc => !_hexAlphabet.Contains(xc)))

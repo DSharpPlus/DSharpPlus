@@ -249,8 +249,8 @@ public class CommandsNextExtension : BaseExtension
             return;
         }
 
-        string pfx = e.Message.Content.Substring(0, mpos);
-        string cnt = e.Message.Content.Substring(mpos);
+        string pfx = e.Message.Content[..mpos];
+        string cnt = e.Message.Content[mpos..];
 
         int __ = 0;
         string? fname = cnt.ExtractNextArgument(ref __, Config.QuotationMarks);
@@ -303,7 +303,7 @@ public class CommandsNextExtension : BaseExtension
 
         if (cmd is not CommandGroup)
         {
-            rawArguments = commandString.Substring(pos).Trim();
+            rawArguments = commandString[pos..].Trim();
             return cmd;
         }
 
@@ -328,7 +328,7 @@ public class CommandsNextExtension : BaseExtension
             }
         }
 
-        rawArguments = commandString.Substring(pos).Trim();
+        rawArguments = commandString[pos..].Trim();
         return cmd;
     }
 
@@ -525,15 +525,15 @@ public class CommandsNextExtension : BaseExtension
 
                         if (moduleName.EndsWith("Group") && moduleName != "Group")
                         {
-                            moduleName = moduleName.Substring(0, moduleName.Length - 5);
+                            moduleName = moduleName[..^5];
                         }
                         else if (moduleName.EndsWith("Module") && moduleName != "Module")
                         {
-                            moduleName = moduleName.Substring(0, moduleName.Length - 6);
+                            moduleName = moduleName[..^6];
                         }
                         else if (moduleName.EndsWith("Commands") && moduleName != "Commands")
                         {
-                            moduleName = moduleName.Substring(0, moduleName.Length - 8);
+                            moduleName = moduleName[..^8];
                         }
                     }
 
@@ -616,7 +616,7 @@ public class CommandsNextExtension : BaseExtension
                 commandName = m.Name;
                 if (commandName.EndsWith("Async") && commandName != "Async")
                 {
-                    commandName = commandName.Substring(0, commandName.Length - 5);
+                    commandName = commandName[..^5];
                 }
             }
 

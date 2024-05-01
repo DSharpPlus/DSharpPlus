@@ -288,7 +288,7 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
         }
         else if (includeGuilds)
         {
-            name = name.Substring(1, name.Length - 2); // remove colons
+            name = name[1..^1]; // remove colons
             foreach (DiscordGuild guild in client.Guilds.Values)
             {
                 DiscordEmoji? found = guild.Emojis.Values.FirstOrDefault(emoji => emoji.Name == name);
@@ -344,7 +344,7 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
         }
         else if (includeGuilds)
         {
-            name = name.Substring(1, name.Length - 2); // remove colons
+            name = name[1..^1]; // remove colons
             foreach (DiscordGuild guild in client.Guilds.Values)
             {
                 emoji = guild.Emojis.Values.FirstOrDefault(emoji => emoji.Name == name);
