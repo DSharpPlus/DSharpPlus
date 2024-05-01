@@ -223,7 +223,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                                 throw new InvalidOperationException("The method has to return a Task or Task<> value");
                             }
 
-                            List<DiscordApplicationCommandOption> options = await ParseParameters(parameters, guildId);
+                            List<DiscordApplicationCommandOption> options = await ParseParametersAsync(parameters, guildId);
 
                             IReadOnlyDictionary<string, string> nameLocalizations = GetNameLocalizations(submethod);
                             IReadOnlyDictionary<string, string> descriptionLocalizations = GetDescriptionLocalizations(submethod);
@@ -263,7 +263,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                                 }
 
                                 parameters = parameters.Skip(1).ToArray();
-                                suboptions = [.. suboptions, .. await ParseParameters(parameters, guildId)];
+                                suboptions = [.. suboptions, .. await ParseParametersAsync(parameters, guildId)];
 
                                 IReadOnlyDictionary<string, string> nameLocalizations = GetNameLocalizations(subsubmethod);
                                 IReadOnlyDictionary<string, string> descriptionLocalizations = GetDescriptionLocalizations(subsubmethod);
@@ -322,7 +322,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                             }
 
                             parameters = parameters.Skip(1).ToArray();
-                            List<DiscordApplicationCommandOption> options = await ParseParameters(parameters, guildId);
+                            List<DiscordApplicationCommandOption> options = await ParseParametersAsync(parameters, guildId);
 
                             commandMethods.Add(new() { Method = method, Name = commandattribute.Name });
 
@@ -449,7 +449,7 @@ public sealed class SlashCommandsExtension : BaseExtension
     }
 
     //Handles the parameters for a slash command
-    private async Task<List<DiscordApplicationCommandOption>> ParseParameters(ParameterInfo[] parameters, ulong? guildId)
+    private async Task<List<DiscordApplicationCommandOption>> ParseParametersAsync(ParameterInfo[] parameters, ulong? guildId)
     {
         List<DiscordApplicationCommandOption> options = [];
         foreach (ParameterInfo parameter in parameters)
@@ -474,7 +474,7 @@ public sealed class SlashCommandsExtension : BaseExtension
             IEnumerable<ChoiceProviderAttribute> choiceProviders = parameter.GetCustomAttributes<ChoiceProviderAttribute>();
             if (choiceProviders.Any())
             {
-                choices = await GetChoiceAttributesFromProvider(choiceProviders, guildId);
+                choices = await GetChoiceAttributesFromProviderAsync(choiceProviders, guildId);
             }
 
             IEnumerable<DiscordChannelType>? channelTypes = parameter.GetCustomAttribute<ChannelTypesAttribute>()?.ChannelTypes ?? null;
@@ -525,7 +525,7 @@ public sealed class SlashCommandsExtension : BaseExtension
     }
 
     //Gets the choices from a choice provider
-    private async Task<List<DiscordApplicationCommandOptionChoice>> GetChoiceAttributesFromProvider(
+    private async Task<List<DiscordApplicationCommandOptionChoice>> GetChoiceAttributesFromProviderAsync(
         IEnumerable<ChoiceProviderAttribute> customAttributes,
         ulong? guildId
     )
@@ -678,7 +678,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                     {
                         MethodInfo method = methods.First().Method;
 
-                        List<object> args = await ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options);
+                        List<object> args = await ResolveInteractionCommandParametersAsync(e, context, method, e.Interaction.Data.Options);
 
                         await RunCommandAsync(context, method, args);
                     }
@@ -687,7 +687,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                         DiscordInteractionDataOption command = e.Interaction.Data.Options.First();
                         MethodInfo method = groups.First().Methods.First(x => x.Key == command.Name).Value;
 
-                        List<object> args = await ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options);
+                        List<object> args = await ResolveInteractionCommandParametersAsync(e, context, method, e.Interaction.Data.Options.First().Options);
 
                         await RunCommandAsync(context, method, args);
                     }
@@ -697,7 +697,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                         GroupCommand group = subgroups.First().SubCommands.First(x => x.Name == command.Name);
                         MethodInfo method = group.Methods.First(x => x.Key == command.Options.First().Name).Value;
 
-                        List<object> args = await ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options.First().Options);
+                        List<object> args = await ResolveInteractionCommandParametersAsync(e, context, method, e.Interaction.Data.Options.First().Options.First().Options);
 
                         await RunCommandAsync(context, method, args);
                     }
@@ -735,7 +735,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                     //Gets the focused option
                     DiscordInteractionDataOption focusedOption = options.First(o => o.Focused);
                     ParameterInfo parameter = method.GetParameters().Skip(1).First(p => p.GetCustomAttribute<OptionAttribute>().Name == focusedOption.Name);
-                    await RunAutocomplete(e.Interaction, parameter, options, focusedOption);
+                    await RunAutocompleteAsync(e.Interaction, parameter, options, focusedOption);
                 }
 
                 if (groups.Any())
@@ -746,7 +746,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                     IEnumerable<DiscordInteractionDataOption> options = command.Options;
                     DiscordInteractionDataOption focusedOption = options.First(o => o.Focused);
                     ParameterInfo parameter = method.GetParameters().Skip(1).First(p => p.GetCustomAttribute<OptionAttribute>().Name == focusedOption.Name);
-                    await RunAutocomplete(e.Interaction, parameter, options, focusedOption);
+                    await RunAutocompleteAsync(e.Interaction, parameter, options, focusedOption);
                 }
 
                 if (subgroups.Any())
@@ -758,7 +758,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                     IEnumerable<DiscordInteractionDataOption> options = command.Options.First().Options;
                     DiscordInteractionDataOption focusedOption = options.First(o => o.Focused);
                     ParameterInfo parameter = method.GetParameters().Skip(1).First(p => p.GetCustomAttribute<OptionAttribute>().Name == focusedOption.Name);
-                    await RunAutocomplete(e.Interaction, parameter, options, focusedOption);
+                    await RunAutocompleteAsync(e.Interaction, parameter, options, focusedOption);
                 }
             }
         });
@@ -947,7 +947,7 @@ public sealed class SlashCommandsExtension : BaseExtension
     }
 
     //Parses slash command parameters
-    private async Task<List<object>> ResolveInteractionCommandParameters(InteractionCreateEventArgs e, InteractionContext context, MethodInfo method, IEnumerable<DiscordInteractionDataOption> options)
+    private async Task<List<object>> ResolveInteractionCommandParametersAsync(InteractionCreateEventArgs e, InteractionContext context, MethodInfo method, IEnumerable<DiscordInteractionDataOption> options)
     {
         List<object> args = [context];
         IEnumerable<ParameterInfo> parameters = method.GetParameters().Skip(1);
@@ -1227,7 +1227,7 @@ public sealed class SlashCommandsExtension : BaseExtension
     }
 
     //Actually handles autocomplete interactions
-    private async Task RunAutocomplete(DiscordInteraction interaction, ParameterInfo parameter, IEnumerable<DiscordInteractionDataOption> options, DiscordInteractionDataOption focusedOption)
+    private async Task RunAutocompleteAsync(DiscordInteraction interaction, ParameterInfo parameter, IEnumerable<DiscordInteractionDataOption> options, DiscordInteractionDataOption focusedOption)
     {
         AutocompleteContext context = new AutocompleteContext
         {
@@ -1290,7 +1290,7 @@ public sealed class SlashCommandsExtension : BaseExtension
     /// Should only be run on the slash command extension linked to shard 0 if sharding.</para>
     /// <para>Not recommended and should be avoided since it can make slash commands be unresponsive for a while.</para>
     /// </summary>
-    public async Task RefreshCommands()
+    public async Task RefreshCommandsAsync()
     {
         _commandMethods.Clear();
         _groupCommands.Clear();

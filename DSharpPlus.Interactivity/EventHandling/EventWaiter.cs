@@ -45,7 +45,7 @@ internal class EventWaiter<T> : IDisposable where T : AsyncEventArgs
     /// </summary>
     /// <param name="request">Request to match</param>
     /// <returns></returns>
-    public async Task<T> WaitForMatch(MatchRequest<T> request)
+    public async Task<T> WaitForMatchAsync(MatchRequest<T> request)
     {
         T result = null;
         _matchrequests.Add(request);
@@ -65,7 +65,7 @@ internal class EventWaiter<T> : IDisposable where T : AsyncEventArgs
         return result;
     }
 
-    public async Task<ReadOnlyCollection<T>> CollectMatches(CollectRequest<T> request)
+    public async Task<ReadOnlyCollection<T>> CollectMatchesAsync(CollectRequest<T> request)
     {
         ReadOnlyCollection<T> result = null;
         _collectrequests.Add(request);

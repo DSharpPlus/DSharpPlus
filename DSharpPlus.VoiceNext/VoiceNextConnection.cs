@@ -227,7 +227,7 @@ public sealed class VoiceNextConnection : IDisposable
 
         UdpClient = Discord.Configuration.UdpClientFactory();
         VoiceWs = Discord.Configuration.WebSocketClientFactory(Discord.Configuration.Proxy);
-        VoiceWs.Disconnected += VoiceWS_SocketClosed;
+        VoiceWs.Disconnected += VoiceWS_SocketClosedAsync;
         VoiceWs.MessageReceived += VoiceWS_SocketMessage;
         VoiceWs.Connected += VoiceWS_SocketOpened;
         VoiceWs.ExceptionThrown += VoiceWs_SocketException;
@@ -345,7 +345,7 @@ public sealed class VoiceNextConnection : IDisposable
         return true;
     }
 
-    private async Task VoiceSenderTask()
+    private async Task VoiceSenderTaskAsync()
     {
         CancellationToken token = SenderToken;
         BaseUdpClient client = UdpClient;
@@ -554,7 +554,7 @@ public sealed class VoiceNextConnection : IDisposable
         return true;
     }
 
-    private async Task ProcessVoicePacket(byte[] data)
+    private async Task ProcessVoicePacketAsync(byte[] data)
     {
         if (data.Length < 13) // minimum packet length
         {
@@ -623,7 +623,7 @@ public sealed class VoiceNextConnection : IDisposable
         }
     }
 
-    private async Task UdpReceiverTask()
+    private async Task UdpReceiverTaskAsync()
     {
         CancellationToken token = ReceiverToken;
         BaseUdpClient client = UdpClient;
@@ -637,7 +637,7 @@ public sealed class VoiceNextConnection : IDisposable
             }
             else if (Configuration.EnableIncoming)
             {
-                await ProcessVoicePacket(data);
+                await ProcessVoicePacketAsync(data);
             }
         }
     }
@@ -813,7 +813,7 @@ public sealed class VoiceNextConnection : IDisposable
         }
     }
 
-    private async Task Stage1(VoiceReadyPayload voiceReady)
+    private async Task Stage1Async(VoiceReadyPayload voiceReady)
     {
         // IP Discovery
         UdpClient.Setup(UdpEndpoint);
@@ -896,13 +896,13 @@ public sealed class VoiceNextConnection : IDisposable
         await WsSendAsync(vsj);
 
         SenderTokenSource = new CancellationTokenSource();
-        SenderTask = Task.Run(VoiceSenderTask, SenderToken);
+        SenderTask = Task.Run(VoiceSenderTaskAsync, SenderToken);
 
         ReceiverTokenSource = new CancellationTokenSource();
-        ReceiverTask = Task.Run(UdpReceiverTask, ReceiverToken);
+        ReceiverTask = Task.Run(UdpReceiverTaskAsync, ReceiverToken);
     }
 
-    private async Task Stage2(VoiceSessionDescriptionPayload voiceSessionDescription)
+    private async Task Stage2Async(VoiceSessionDescriptionPayload voiceSessionDescription)
     {
         SelectedEncryptionMode = Sodium.SupportedModes[voiceSessionDescription.Mode.ToLowerInvariant()];
         Discord.Logger.LogTrace(VoiceNextEvents.VoiceHandshake, "Discord updated encryption mode - new mode is {EncryptionMode}", SelectedEncryptionMode);
@@ -924,7 +924,7 @@ public sealed class VoiceNextConnection : IDisposable
         ReadyWait.SetResult(true);
     }
 
-    private async Task HandleDispatch(JObject jo)
+    private async Task HandleDispatchAsync(JObject jo)
     {
         int opc = (int)jo["op"];
         JObject? opp = jo["d"] as JObject;
@@ -940,7 +940,7 @@ public sealed class VoiceNextConnection : IDisposable
                 // oh, discord
                 //this.HeartbeatInterval = vrp.HeartbeatInterval;
                 HeartbeatTask = Task.Run(HeartbeatAsync);
-                await Stage1(vrp);
+                await Stage1Async(vrp);
                 break;
 
             case 4: // SESSION_DESCRIPTION
@@ -948,7 +948,7 @@ public sealed class VoiceNextConnection : IDisposable
                 VoiceSessionDescriptionPayload vsd = opp.ToDiscordObject<VoiceSessionDescriptionPayload>();
                 Key = vsd.SecretKey;
                 Sodium = new Sodium(Key.AsMemory());
-                await Stage2(vsd);
+                await Stage2Async(vsd);
                 break;
 
             case 5: // SPEAKING
@@ -1048,7 +1048,7 @@ public sealed class VoiceNextConnection : IDisposable
         }
     }
 
-    private async Task VoiceWS_SocketClosed(IWebSocketClient client, SocketCloseEventArgs e)
+    private async Task VoiceWS_SocketClosedAsync(IWebSocketClient client, SocketCloseEventArgs e)
     {
         Discord.Logger.LogDebug(VoiceNextEvents.VoiceConnectionClose, "Voice WebSocket closed ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
 
@@ -1067,7 +1067,7 @@ public sealed class VoiceNextConnection : IDisposable
             TokenSource.Cancel();
             TokenSource = new CancellationTokenSource();
             VoiceWs = Discord.Configuration.WebSocketClientFactory(Discord.Configuration.Proxy);
-            VoiceWs.Disconnected += VoiceWS_SocketClosed;
+            VoiceWs.Disconnected += VoiceWS_SocketClosedAsync;
             VoiceWs.MessageReceived += VoiceWS_SocketMessage;
             VoiceWs.Connected += VoiceWS_SocketOpened;
 
@@ -1087,7 +1087,7 @@ public sealed class VoiceNextConnection : IDisposable
         }
 
         Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsRx, et.Message);
-        return HandleDispatch(JObject.Parse(et.Message));
+        return HandleDispatchAsync(JObject.Parse(et.Message));
     }
 
     private Task VoiceWS_SocketOpened(IWebSocketClient client, SocketEventArgs e)

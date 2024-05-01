@@ -224,10 +224,10 @@ public sealed class LavalinkNodeConnection
         }
 
         WebSocket = Discord.Configuration.WebSocketClientFactory(Discord.Configuration.Proxy);
-        WebSocket.Connected += WebSocket_OnConnect;
-        WebSocket.Disconnected += WebSocket_OnDisconnect;
+        WebSocket.Connected += WebSocket_OnConnectAsync;
+        WebSocket.Disconnected += WebSocket_OnDisconnectAsync;
         WebSocket.ExceptionThrown += WebSocket_OnException;
-        WebSocket.MessageReceived += WebSocket_OnMessage;
+        WebSocket.MessageReceived += WebSocket_OnMessageAsync;
 
         WebSocket.AddDefaultHeader("Authorization", Configuration.Password);
         WebSocket.AddDefaultHeader("Num-Shards", Discord.ShardCount.ToString(CultureInfo.InvariantCulture));
@@ -336,7 +336,7 @@ public sealed class LavalinkNodeConnection
         await SendPayloadAsync(new LavalinkVoiceUpdate(vstu, vsru));
 
         LavalinkGuildConnection con = new LavalinkGuildConnection(this, channel, vstu);
-        con.ChannelDisconnected += Con_ChannelDisconnected;
+        con.ChannelDisconnected += Con_ChannelDisconnectedAsync;
         con.PlayerUpdated += (s, e) => _playerUpdated.InvokeAsync(s, e);
         con.PlaybackStarted += (s, e) => _playbackStarted.InvokeAsync(s, e);
         con.PlaybackFinished += (s, e) => _playbackFinished.InvokeAsync(s, e);
@@ -359,7 +359,7 @@ public sealed class LavalinkNodeConnection
     internal async Task SendPayloadAsync(LavalinkPayload payload)
         => await WsSendAsync(JsonConvert.SerializeObject(payload, Formatting.None));
 
-    private async Task WebSocket_OnMessage(IWebSocketClient client, SocketMessageEventArgs e)
+    private async Task WebSocket_OnMessageAsync(IWebSocketClient client, SocketMessageEventArgs e)
     {
         if (e is not SocketTextMessageEventArgs et)
         {
@@ -460,7 +460,7 @@ public sealed class LavalinkNodeConnection
     private Task WebSocket_OnException(IWebSocketClient client, SocketErrorEventArgs e)
         => _lavalinkSocketError.InvokeAsync(this, new SocketErrorEventArgs { Exception = e.Exception });
 
-    private async Task WebSocket_OnDisconnect(IWebSocketClient client, SocketCloseEventArgs e)
+    private async Task WebSocket_OnDisconnectAsync(IWebSocketClient client, SocketCloseEventArgs e)
     {
         if (IsConnected && e.CloseCode != 1001 && e.CloseCode != -1)
         {
@@ -498,7 +498,7 @@ public sealed class LavalinkNodeConnection
         }
     }
 
-    private async Task WebSocket_OnConnect(IWebSocketClient client, SocketEventArgs ea)
+    private async Task WebSocket_OnConnectAsync(IWebSocketClient client, SocketEventArgs ea)
     {
         Discord.Logger.LogDebug(LavalinkEvents.LavalinkConnected, "Connection to Lavalink node established");
         _backoff = 0;
@@ -509,7 +509,7 @@ public sealed class LavalinkNodeConnection
         }
     }
 
-    private async void Con_ChannelDisconnected(LavalinkGuildConnection con)
+    private async void Con_ChannelDisconnectedAsync(LavalinkGuildConnection con)
     {
         _connectedGuilds.TryRemove(con.GuildId, out con);
         await _guildConnectionRemoved.InvokeAsync(con, new GuildConnectionRemovedEventArgs());

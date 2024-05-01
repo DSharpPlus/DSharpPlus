@@ -131,7 +131,7 @@ public class CommandsNextExtension : BaseExtension
 
         Type t = typeof(CommandsNextExtension);
         IEnumerable<MethodInfo> ms = t.GetTypeInfo().DeclaredMethods;
-        MethodInfo? m = ms.FirstOrDefault(xm => xm.Name == nameof(ConvertArgument) && xm.ContainsGenericParameters && !xm.IsStatic && xm.IsPublic);
+        MethodInfo? m = ms.FirstOrDefault(xm => xm.Name == nameof(ConvertArgumentAsync) && xm.ContainsGenericParameters && !xm.IsStatic && xm.IsPublic);
         ConvertGeneric = m;
     }
 
@@ -1026,7 +1026,7 @@ public class CommandsNextExtension : BaseExtension
     /// <param name="value">Value to convert.</param>
     /// <param name="ctx">Context in which to convert to.</param>
     /// <returns>Converted object.</returns>
-    public async Task<object> ConvertArgument<T>(string value, CommandContext ctx)
+    public async Task<object> ConvertArgumentAsync<T>(string value, CommandContext ctx)
     {
         Type t = typeof(T);
         if (!ArgumentConverters.TryGetValue(t, out IArgumentConverter argumentConverter))
@@ -1050,7 +1050,7 @@ public class CommandsNextExtension : BaseExtension
     /// <param name="ctx">Context in which to convert to.</param>
     /// <param name="type">Type to convert to.</param>
     /// <returns>Converted object.</returns>
-    public async Task<object> ConvertArgument(string? value, CommandContext ctx, Type type)
+    public async Task<object> ConvertArgumentAsync(string? value, CommandContext ctx, Type type)
     {
         MethodInfo m = ConvertGeneric.MakeGenericMethod(type);
         try

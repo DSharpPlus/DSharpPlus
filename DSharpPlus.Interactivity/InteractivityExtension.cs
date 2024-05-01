@@ -560,7 +560,7 @@ public class InteractivityExtension : BaseExtension
         }
 
         TimeSpan timeout = timeoutoverride ?? Config.Timeout;
-        MessageCreateEventArgs? returns = await MessageCreatedWaiter.WaitForMatch(new MatchRequest<MessageCreateEventArgs>(x => predicate(x.Message), timeout));
+        MessageCreateEventArgs? returns = await MessageCreatedWaiter.WaitForMatchAsync(new MatchRequest<MessageCreateEventArgs>(x => predicate(x.Message), timeout));
 
         return new InteractivityResult<DiscordMessage>(returns == null, returns?.Message);
     }
@@ -580,7 +580,7 @@ public class InteractivityExtension : BaseExtension
         }
 
         TimeSpan timeout = timeoutoverride ?? Config.Timeout;
-        MessageReactionAddEventArgs? returns = await MessageReactionAddWaiter.WaitForMatch(new MatchRequest<MessageReactionAddEventArgs>(predicate, timeout));
+        MessageReactionAddEventArgs? returns = await MessageReactionAddWaiter.WaitForMatchAsync(new MatchRequest<MessageReactionAddEventArgs>(predicate, timeout));
 
         return new InteractivityResult<MessageReactionAddEventArgs>(returns == null, returns);
     }
@@ -638,7 +638,7 @@ public class InteractivityExtension : BaseExtension
         }
 
         TimeSpan timeout = timeoutoverride ?? Config.Timeout;
-        TypingStartEventArgs? returns = await TypingStartWaiter.WaitForMatch(
+        TypingStartEventArgs? returns = await TypingStartWaiter.WaitForMatchAsync(
             new MatchRequest<TypingStartEventArgs>(x => x.User.Id == user.Id && x.Channel.Id == channel.Id, timeout))
             ;
 
@@ -659,7 +659,7 @@ public class InteractivityExtension : BaseExtension
         }
 
         TimeSpan timeout = timeoutoverride ?? Config.Timeout;
-        TypingStartEventArgs? returns = await TypingStartWaiter.WaitForMatch(
+        TypingStartEventArgs? returns = await TypingStartWaiter.WaitForMatchAsync(
             new MatchRequest<TypingStartEventArgs>(x => x.User.Id == user.Id, timeout))
             ;
 
@@ -680,7 +680,7 @@ public class InteractivityExtension : BaseExtension
         }
 
         TimeSpan timeout = timeoutoverride ?? Config.Timeout;
-        TypingStartEventArgs? returns = await TypingStartWaiter.WaitForMatch(
+        TypingStartEventArgs? returns = await TypingStartWaiter.WaitForMatchAsync(
             new MatchRequest<TypingStartEventArgs>(x => x.Channel.Id == channel.Id, timeout))
             ;
 
@@ -718,7 +718,7 @@ public class InteractivityExtension : BaseExtension
         TimeSpan timeout = timeoutoverride ?? Config.Timeout;
 
         EventWaiter<T> waiter = new EventWaiter<T>(Client);
-        T? res = await waiter.WaitForMatch(new MatchRequest<T>(predicate, timeout));
+        T? res = await waiter.WaitForMatchAsync(new MatchRequest<T>(predicate, timeout));
         return new InteractivityResult<T>(res == null, res);
     }
 
@@ -727,7 +727,7 @@ public class InteractivityExtension : BaseExtension
         TimeSpan timeout = timeoutoverride ?? Config.Timeout;
 
         using EventWaiter<T> waiter = new EventWaiter<T>(Client);
-        ReadOnlyCollection<T> res = await waiter.CollectMatches(new CollectRequest<T>(predicate, timeout));
+        ReadOnlyCollection<T> res = await waiter.CollectMatchesAsync(new CollectRequest<T>(predicate, timeout));
         return res;
     }
 
@@ -1107,7 +1107,7 @@ public class InteractivityExtension : BaseExtension
 
     private CancellationToken GetCancellationToken(TimeSpan? timeout = null) => new CancellationTokenSource(timeout ?? Config.Timeout).Token;
 
-    private async Task HandleInvalidInteraction(DiscordInteraction interaction)
+    private async Task HandleInvalidInteractionAsync(DiscordInteraction interaction)
     {
         Task at = Config.ResponseBehavior switch
         {

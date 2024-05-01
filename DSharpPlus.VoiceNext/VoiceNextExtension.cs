@@ -50,7 +50,7 @@ public sealed class VoiceNextExtension : BaseExtension
         Client = client;
 
         Client.VoiceStateUpdated += Client_VoiceStateUpdate;
-        Client.VoiceServerUpdated += Client_VoiceServerUpdate;
+        Client.VoiceServerUpdated += Client_VoiceServerUpdateAsync;
     }
 
     /// <summary>
@@ -115,7 +115,7 @@ public sealed class VoiceNextExtension : BaseExtension
         };
 
         VoiceNextConnection vnc = new VoiceNextConnection(Client, gld, channel, Configuration, vsrup, vstup);
-        vnc.VoiceDisconnected += Vnc_VoiceDisconnected;
+        vnc.VoiceDisconnected += Vnc_VoiceDisconnectedAsync;
         await vnc.ConnectAsync();
         await vnc.WaitForReadyAsync();
         ActiveConnections[gld.Id] = vnc;
@@ -130,7 +130,7 @@ public sealed class VoiceNextExtension : BaseExtension
     public VoiceNextConnection? GetConnection(DiscordGuild guild)
         => ActiveConnections.TryGetValue(guild.Id, out VoiceNextConnection value) ? value : null;
 
-    private async Task Vnc_VoiceDisconnected(DiscordGuild guild)
+    private async Task Vnc_VoiceDisconnectedAsync(DiscordGuild guild)
     {
         VoiceNextConnection vnc = null;
         if (ActiveConnections.ContainsKey(guild.Id))
@@ -185,7 +185,7 @@ public sealed class VoiceNextExtension : BaseExtension
         return Task.CompletedTask;
     }
 
-    private async Task Client_VoiceServerUpdate(DiscordClient client, VoiceServerUpdateEventArgs e)
+    private async Task Client_VoiceServerUpdateAsync(DiscordClient client, VoiceServerUpdateEventArgs e)
     {
         DiscordGuild gld = e.Guild;
         if (gld == null)
@@ -238,7 +238,7 @@ public sealed class VoiceNextExtension : BaseExtension
         if (Client != null)
         {
             Client.VoiceStateUpdated -= Client_VoiceStateUpdate;
-            Client.VoiceServerUpdated -= Client_VoiceServerUpdate;
+            Client.VoiceServerUpdated -= Client_VoiceServerUpdateAsync;
         }
         // Lo and behold, the audacious man who dared lay his hand upon VoiceNext hath once more trespassed upon its profane ground!
 
