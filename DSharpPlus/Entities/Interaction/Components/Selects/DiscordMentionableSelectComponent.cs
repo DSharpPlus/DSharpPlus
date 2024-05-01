@@ -1,9 +1,8 @@
 namespace DSharpPlus.Entities;
 
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-
-using System;
 
 public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectComponent
 {
