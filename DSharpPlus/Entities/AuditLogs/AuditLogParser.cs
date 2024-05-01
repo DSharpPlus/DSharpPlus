@@ -601,27 +601,27 @@ internal static class AuditLogParser
                     break;
 
                 case "$add_keyword_filter":
-                    ruleEntry.AddedKeywords = ((JArray)change.NewValue).Cast<string>();
+                    ruleEntry.AddedKeywords = ((JArray)change.NewValue).Select(x => x.ToObject<string>());
                     break;
 
                 case "$remove_keyword_filter":
-                    ruleEntry.RemovedKeywords = ((JArray)change.NewValue).Cast<string>();
+                    ruleEntry.RemovedKeywords = ((JArray)change.NewValue).Select(x => x.ToObject<string>());
                     break;
 
                 case "$add_regex_patterns":
-                    ruleEntry.AddedRegexPatterns = ((JArray)change.NewValue).Cast<string>();
+                    ruleEntry.AddedRegexPatterns = ((JArray)change.NewValue).Select(x => x.ToObject<string>());
                     break;
 
                 case "$remove_regex_patterns":
-                    ruleEntry.RemovedRegexPatterns = ((JArray)change.NewValue).Cast<string>();
+                    ruleEntry.RemovedRegexPatterns = ((JArray)change.NewValue).Select(x => x.ToObject<string>());
                     break;
 
                 case "$add_allow_list":
-                    ruleEntry.AddedAllowList = ((JArray)change.NewValue).Cast<string>();
+                    ruleEntry.AddedAllowList = ((JArray)change.NewValue).Select(x => x.ToObject<string>());
                     break;
 
                 case "$remove_allow_list":
-                    ruleEntry.RemovedKeywords = ((JArray)change.NewValue).Cast<string>();
+                    ruleEntry.RemovedKeywords = ((JArray)change.NewValue).Select(x => x.ToObject<string>());
                     break;
 
                 default:
