@@ -594,12 +594,9 @@ public sealed class SlashCommandsExtension : BaseExtension
             return DiscordApplicationCommandOptionType.Integer;
         }
 
-        if (type == typeof(bool) || type == typeof(bool?))
-        {
-            return DiscordApplicationCommandOptionType.Boolean;
-        }
-
-        return type == typeof(double) || type == typeof(double?)
+        return type == typeof(bool) || type == typeof(bool?)
+            ? DiscordApplicationCommandOptionType.Boolean
+            : type == typeof(double) || type == typeof(double?)
             ? DiscordApplicationCommandOptionType.Number
             : type == typeof(DiscordChannel)
             ? DiscordApplicationCommandOptionType.Channel
