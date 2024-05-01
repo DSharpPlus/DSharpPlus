@@ -277,7 +277,7 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
         {
             throw new ArgumentNullException(nameof(name), "Name cannot be empty or null.");
         }
-        else if (name.Length < 2 || name[0] != ':' || name[name.Length - 1] != ':')
+        else if (name.Length < 2 || name[0] != ':' || name[^1] != ':')
         {
             throw new ArgumentException("Invalid emoji name specified. Ensure the emoji name starts and ends with ':'", nameof(name));
         }
@@ -331,7 +331,7 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
             throw new ArgumentNullException(nameof(client), "Client cannot be null.");
         }
         // Checks if the emoji name is null
-        else if (string.IsNullOrWhiteSpace(name) || name.Length < 2 || name[0] != ':' || name[name.Length - 1] != ':')
+        else if (string.IsNullOrWhiteSpace(name) || name.Length < 2 || name[0] != ':' || name[^1] != ':')
         {
             emoji = null;
             return false; // invalid name
