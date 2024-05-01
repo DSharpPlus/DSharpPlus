@@ -386,7 +386,7 @@ public sealed partial class DiscordClient
 
         await SendRawPayloadAsync(statusstr);
 
-        if (!_presences.ContainsKey(CurrentUser.Id))
+        if (!_presences.TryGetValue(CurrentUser.Id, out DiscordPresence pr))
         {
             _presences[CurrentUser.Id] = new DiscordPresence
             {
@@ -398,7 +398,6 @@ public sealed partial class DiscordClient
         }
         else
         {
-            DiscordPresence pr = _presences[CurrentUser.Id];
             pr.Activity = act;
             pr.Status = userStatus ?? pr.Status;
         }

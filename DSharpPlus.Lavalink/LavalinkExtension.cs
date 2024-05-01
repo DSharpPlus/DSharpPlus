@@ -58,9 +58,9 @@ public sealed class LavalinkExtension : BaseExtension
     /// <returns>The established Lavalink connection.</returns>
     public async Task<LavalinkNodeConnection> ConnectAsync(LavalinkConfiguration config)
     {
-        if (_connectedNodes.ContainsKey(config.SocketEndpoint))
+        if (_connectedNodes.TryGetValue(config.SocketEndpoint, out LavalinkNodeConnection value))
         {
-            return _connectedNodes[config.SocketEndpoint];
+            return value;
         }
 
         LavalinkNodeConnection con = new LavalinkNodeConnection(Client, this, config);
@@ -86,7 +86,7 @@ public sealed class LavalinkExtension : BaseExtension
     /// <param name="endpoint">Endpoint at which the node resides.</param>
     /// <returns>Lavalink node connection.</returns>
     public LavalinkNodeConnection GetNodeConnection(ConnectionEndpoint endpoint)
-        => _connectedNodes.ContainsKey(endpoint) ? _connectedNodes[endpoint] : null;
+        => _connectedNodes.TryGetValue(endpoint, out LavalinkNodeConnection value) ? value : null;
 
     /// <summary>
     /// Gets a Lavalink node connection based on load balancing and an optional voice region.

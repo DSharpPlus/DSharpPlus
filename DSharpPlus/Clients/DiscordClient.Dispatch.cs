@@ -161,12 +161,12 @@ public sealed partial class DiscordClient
                 gid = (ulong)dat["guild_id"];
 
                 // discord fires this event inconsistently if the current user leaves a guild.
-                if (!_guilds.ContainsKey(gid))
+                if (!_guilds.TryGetValue(gid, out DiscordGuild value))
                 {
                     return;
                 }
 
-                await OnGuildIntegrationsUpdateEventAsync(_guilds[gid]);
+                await OnGuildIntegrationsUpdateEventAsync(value);
                 break;
 
             case "guild_audit_log_entry_create":
@@ -206,7 +206,7 @@ public sealed partial class DiscordClient
                 gid = (ulong)dat["guild_id"];
                 usr = dat["user"].ToDiscordObject<TransportUser>();
 
-                if (!_guilds.ContainsKey(gid))
+                if (!_guilds.TryGetValue(gid, out value))
                 {
                     // discord fires this event inconsistently if the current user leaves a guild.
                     if (usr.Id != CurrentUser.Id)
@@ -217,7 +217,7 @@ public sealed partial class DiscordClient
                     return;
                 }
 
-                await OnGuildMemberRemoveEventAsync(usr, _guilds[gid]);
+                await OnGuildMemberRemoveEventAsync(usr, value);
                 break;
 
             case "guild_member_update":
@@ -1068,15 +1068,13 @@ public sealed partial class DiscordClient
     {
         DiscordGuild oldGuild;
 
-        if (!_guilds.ContainsKey(guild.Id))
+        if (!_guilds.TryGetValue(guild.Id, out DiscordGuild gld))
         {
             _guilds[guild.Id] = guild;
             oldGuild = null;
         }
         else
         {
-            DiscordGuild gld = _guilds[guild.Id];
-
             oldGuild = new DiscordGuild
             {
                 Discord = gld.Discord,

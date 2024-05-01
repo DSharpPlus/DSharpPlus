@@ -303,9 +303,9 @@ public sealed class LavalinkNodeConnection
     /// <returns>Channel connection, which allows for playback control.</returns>
     public async Task<LavalinkGuildConnection> ConnectAsync(DiscordChannel channel)
     {
-        if (_connectedGuilds.ContainsKey(channel.Guild.Id))
+        if (_connectedGuilds.TryGetValue(channel.Guild.Id, out LavalinkGuildConnection value))
         {
-            return _connectedGuilds[channel.Guild.Id];
+            return value;
         }
 
         if (channel.Guild == null || (channel.Type != DiscordChannelType.Voice && channel.Type != DiscordChannelType.Stage))

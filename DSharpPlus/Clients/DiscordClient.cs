@@ -1075,12 +1075,11 @@ public sealed partial class DiscordClient : BaseDiscordClient
             return;
         }
 
-        if (!_guilds.ContainsKey(newGuild.Id))
+        if (!_guilds.TryGetValue(newGuild.Id, out DiscordGuild guild))
         {
-            _guilds[newGuild.Id] = newGuild;
+            guild = newGuild;
+            _guilds[newGuild.Id] = guild;
         }
-
-        DiscordGuild guild = _guilds[newGuild.Id];
 
         if (newGuild._channels != null && !newGuild._channels.IsEmpty)
         {

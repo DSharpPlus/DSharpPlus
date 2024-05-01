@@ -1029,12 +1029,12 @@ public class CommandsNextExtension : BaseExtension
     public async Task<object> ConvertArgument<T>(string value, CommandContext ctx)
     {
         Type t = typeof(T);
-        if (!ArgumentConverters.ContainsKey(t))
+        if (!ArgumentConverters.TryGetValue(t, out IArgumentConverter argumentConverter))
         {
             throw new ArgumentException("There is no converter specified for given type.", nameof(T));
         }
 
-        if (ArgumentConverters[t] is not IArgumentConverter<T> cv)
+        if (argumentConverter is not IArgumentConverter<T> cv)
         {
             throw new ArgumentException("Invalid converter registered for this type.", nameof(T));
         }
@@ -1169,16 +1169,16 @@ public class CommandsNextExtension : BaseExtension
     /// <returns>User-friendly type name.</returns>
     public string GetUserFriendlyTypeName(Type t)
     {
-        if (UserFriendlyTypeNames.ContainsKey(t))
+        if (UserFriendlyTypeNames.TryGetValue(t, out string value))
         {
-            return UserFriendlyTypeNames[t];
+            return value;
         }
 
         TypeInfo ti = t.GetTypeInfo();
         if (ti.IsGenericTypeDefinition && t.GetGenericTypeDefinition() == typeof(Nullable<>))
         {
             Type tn = ti.GenericTypeArguments[0];
-            return UserFriendlyTypeNames.ContainsKey(tn) ? UserFriendlyTypeNames[tn] : tn.Name;
+            return UserFriendlyTypeNames.TryGetValue(tn, out value) ? value : tn.Name;
         }
 
         return t.Name;
