@@ -16,7 +16,7 @@ public class UriConverter : IArgumentConverter<Uri>
     {
         try
         {
-            if (value.StartsWith("<") && value.EndsWith(">"))
+            if (value.StartsWith('<') && value.EndsWith('>'))
             {
                 value = value[1..^1];
             }

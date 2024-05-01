@@ -225,7 +225,7 @@ public class DiscordMessageConverter : IArgumentConverter<DiscordMessage>
             return Optional.FromNoValue<DiscordMessage>();
         }
 
-        string msguri = value.StartsWith("<") && value.EndsWith(">") ? value[1..^1] : value;
+        string msguri = value.StartsWith('<') && value.EndsWith('>') ? value[1..^1] : value;
         ulong mid;
         if (Uri.TryCreate(msguri, UriKind.Absolute, out Uri? uri))
         {

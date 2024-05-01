@@ -76,7 +76,7 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// </summary>
     [JsonIgnore]
     public string BannerUrl
-        => string.IsNullOrEmpty(BannerHash) ? null : $"https://cdn.discordapp.com/banners/{Id}/{BannerHash}.{(BannerHash.StartsWith("a") ? "gif" : "png")}?size=4096";
+        => string.IsNullOrEmpty(BannerHash) ? null : $"https://cdn.discordapp.com/banners/{Id}/{BannerHash}.{(BannerHash.StartsWith('a') ? "gif" : "png")}?size=4096";
 
     /// <summary>
     /// Gets the user's profile banner hash. Mutually exclusive with <see cref="BannerColor"/>.
