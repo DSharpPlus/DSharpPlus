@@ -57,7 +57,11 @@ internal class InteractionPaginationRequest : IPaginationRequest
 
         if (PageCount is 1)
         {
-            _buttons.ButtonArray.Select(b => b.Disable());
+            foreach (DiscordButtonComponent button in _buttons.ButtonArray)
+            {
+                button.Disable();
+            }
+
             _buttons.Stop.Enable();
             return page;
         }

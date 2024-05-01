@@ -1,6 +1,7 @@
 namespace DSharpPlus.VoiceNext.Codec;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 /// <summary>
@@ -214,6 +215,8 @@ internal static class Interop
         frameSize = frames * samplesPerFrame;
     }
 
+    [SuppressMessage("Quality Assurance", "CA1806:OpusGetLastPacketDuration calls _OpusDecoderControl but does not use the HRESULT or error code that the method returns. This could lead to unexpected behavior in error conditions or low-resource situations. Use the result in a conditional statement, assign the result to a variable, or pass it as an argument to another method.",
+        Justification = "It's VoiceNext and I don't care - Lunar")]
     public static void OpusGetLastPacketDuration(IntPtr decoder, out int sampleCount) => _OpusDecoderControl(decoder, OpusControl.GetLastPacketDuration, out sampleCount);
     #endregion
 }
