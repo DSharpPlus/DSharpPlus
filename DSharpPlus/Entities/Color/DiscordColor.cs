@@ -19,19 +19,19 @@ public partial struct DiscordColor
     /// <summary>
     /// Gets the red component of this color as an 8-bit integer.
     /// </summary>
-    public byte R
+    public readonly byte R
         => (byte)((Value >> 16) & 0xFF);
 
     /// <summary>
     /// Gets the green component of this color as an 8-bit integer.
     /// </summary>
-    public byte G
+    public readonly byte G
         => (byte)((Value >> 8) & 0xFF);
 
     /// <summary>
     /// Gets the blue component of this color as an 8-bit integer.
     /// </summary>
-    public byte B
+    public readonly byte B
         => (byte)(Value & 0xFF);
 
     /// <summary>
@@ -106,7 +106,7 @@ public partial struct DiscordColor
     /// Gets a string representation of this color.
     /// </summary>
     /// <returns>String representation of this color.</returns>
-    public override string ToString() => $"#{Value:X6}";
+    public override readonly string ToString() => $"#{Value:X6}";
 
     public static implicit operator DiscordColor(int value)
         => new(value);

@@ -149,6 +149,6 @@ public sealed class CommandContext
             IsInitialized = true;
         }
 
-        public void Dispose() => Scope?.Dispose();
+        public readonly void Dispose() => Scope?.Dispose();
     }
 }

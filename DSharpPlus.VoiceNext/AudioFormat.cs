@@ -80,7 +80,7 @@ public struct AudioFormat
     /// <param name="sampleDuration">Millisecond duration of a sample.</param>
     /// <returns>Calculated sample size in bytes.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int CalculateSampleSize(int sampleDuration)
+    public readonly int CalculateSampleSize(int sampleDuration)
     {
         if (!AllowedSampleDurations.Contains(sampleDuration))
         {
@@ -105,22 +105,22 @@ public struct AudioFormat
         => CalculateMaximumFrameSize();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal int CalculateSampleDuration(int sampleSize)
+    internal readonly int CalculateSampleDuration(int sampleSize)
         => sampleSize / (SampleRate / 1000) / ChannelCount / 2 /* sizeof(int16_t) */;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal int CalculateFrameSize(int sampleDuration)
+    internal readonly int CalculateFrameSize(int sampleDuration)
         => sampleDuration * (SampleRate / 1000);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal int CalculateMaximumFrameSize()
+    internal readonly int CalculateMaximumFrameSize()
         => 120 * (SampleRate / 1000);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal int SampleCountToSampleSize(int sampleCount)
+    internal readonly int SampleCountToSampleSize(int sampleCount)
         => sampleCount * ChannelCount * 2 /* sizeof(int16_t) */;
 
-    internal bool IsValid()
+    internal readonly bool IsValid()
         => AllowedSampleRates.Contains(SampleRate) && AllowedChannelCounts.Contains(ChannelCount) &&
             (VoiceApplication == VoiceApplication.Music || VoiceApplication == VoiceApplication.Voice || VoiceApplication == VoiceApplication.LowLatency);
 }
