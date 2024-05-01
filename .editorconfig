@@ -22,6 +22,9 @@ indent_size = 2
 ###############################
 [*.{cs,vb}]
 
+# Nullable reference types
+dotnet_diagnostic.CS8632.severity = none
+
 # Suppress CS1591: Missing XML comment for publicly visible type or member
 dotnet_diagnostic.CS1591.severity = none
 
