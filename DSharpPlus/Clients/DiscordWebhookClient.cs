@@ -17,15 +17,12 @@ using Microsoft.Extensions.Logging;
 /// <summary>
 /// Represents a webhook-only client. This client can be used to execute Discord webhooks.
 /// </summary>
-public class DiscordWebhookClient
+public partial class DiscordWebhookClient
 {
     /// <summary>
     /// Gets the logger for this client.
     /// </summary>
     public ILogger<DiscordWebhookClient> Logger { get; }
-
-    // this regex has 2 named capture groups: "id" and "token".
-    private static Regex WebhookRegex { get; } = new Regex(@"(?:https?:\/\/)?discord(?:app)?.com\/api\/(?:v\d\/)?webhooks\/(?<id>\d+)\/(?<token>[A-Za-z0-9_\-]+)", RegexOptions.ECMAScript);
 
     /// <summary>
     /// Gets the collection of registered webhooks.
@@ -122,7 +119,7 @@ public class DiscordWebhookClient
     public Task<DiscordWebhook> AddWebhookAsync(Uri url)
     {
         ArgumentNullException.ThrowIfNull(url);
-        Match m = WebhookRegex.Match(url.ToString());
+        Match m = GetWebhookRegex().Match(url.ToString());
         if (!m.Success)
         {
             throw new ArgumentException("Invalid webhook URL supplied.", nameof(url));
@@ -269,6 +266,9 @@ public class DiscordWebhookClient
         _hooks = null!;
         _apiclient._rest.Dispose();
     }
+
+    [GeneratedRegex(@"(?:https?:\/\/)?discord(?:app)?.com\/api\/(?:v\d\/)?webhooks\/(?<id>\d+)\/(?<token>[A-Za-z0-9_\-]+)", RegexOptions.ECMAScript)]
+    private static partial Regex GetWebhookRegex();
 }
 
 // 9/11 would improve again

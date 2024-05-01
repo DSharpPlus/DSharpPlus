@@ -16,10 +16,8 @@ using Microsoft.Extensions.DependencyInjection;
 /// <summary>
 /// Various CommandsNext-related utilities.
 /// </summary>
-public static class CommandsNextUtilities
+public static partial class CommandsNextUtilities
 {
-    private static Regex UserRegex { get; } = new Regex(@"<@\!?(\d+?)> ", RegexOptions.ECMAScript);
-
     /// <summary>
     /// Checks whether the message has a specified string prefix.
     /// </summary>
@@ -54,7 +52,7 @@ public static class CommandsNextUtilities
         }
 
         string cnp = content[..(cni + 2)];
-        Match m = UserRegex.Match(cnp);
+        Match m = GetUserRegex().Match(cnp);
         if (!m.Success)
         {
             return -1;
@@ -436,4 +434,7 @@ public static class CommandsNextUtilities
 
         return moduleInstance;
     }
+
+    [GeneratedRegex(@"<@\!?(\d+?)> ", RegexOptions.ECMAScript)]
+    private static partial Regex GetUserRegex();
 }

@@ -21,7 +21,7 @@ using Microsoft.Extensions.Logging;
 /// <summary>
 /// A class that handles slash commands for a client.
 /// </summary>
-public sealed class SlashCommandsExtension : BaseExtension
+public sealed partial class SlashCommandsExtension : BaseExtension
 {
     //A list of methods for top level commands
     private static List<CommandMethod> _commandMethods { get; set; } = [];
@@ -995,7 +995,6 @@ public sealed class SlashCommandsExtension : BaseExtension
                 }
                 else if (parameter.ParameterType == typeof(TimeSpan?))
                 {
-                    Regex timeSpanRegex = new(@"^(?<days>\d+d\s*)?(?<hours>\d{1,2}h\s*)?(?<minutes>\d{1,2}m\s*)?(?<seconds>\d{1,2}s\s*)?$", RegexOptions.ECMAScript);
                     string? value = option.Value.ToString();
                     if (value == "0")
                     {
@@ -1015,7 +1014,7 @@ public sealed class SlashCommandsExtension : BaseExtension
                         continue;
                     }
                     string[] gps = ["days", "hours", "minutes", "seconds"];
-                    Match mtc = timeSpanRegex.Match(value);
+                    Match mtc = GetTimeSpanRegex().Match(value);
                     if (!mtc.Success)
                     {
                         args.Add(null);
@@ -1395,6 +1394,9 @@ public sealed class SlashCommandsExtension : BaseExtension
         // Satisfy rule CA1816. Can be removed if this class is sealed.
         GC.SuppressFinalize(this);
     }
+
+    [GeneratedRegex(@"^(?<days>\d+d\s*)?(?<hours>\d{1,2}h\s*)?(?<minutes>\d{1,2}m\s*)?(?<seconds>\d{1,2}s\s*)?$", RegexOptions.ECMAScript)]
+    private static partial Regex GetTimeSpanRegex();
 }
 
 //I'm not sure if creating separate classes is the cleanest thing here but I can't think of anything else so these stay

@@ -9,11 +9,8 @@ using DSharpPlus.Entities;
 /// <summary>
 /// Contains markdown formatting helpers.
 /// </summary>
-public static class Formatter
+public static partial class Formatter
 {
-    private static Regex MdSanitizeRegex { get; } = new Regex(@"([`\*_~<>\[\]\(\)""@\!\&#:\|])", RegexOptions.ECMAScript);
-    private static Regex MdStripRegex { get; } = new Regex(@"([`\*_~\[\]\(\)""\|]|<@\!?\d+>|<#\d+>|<@\&\d+>|<:[a-zA-Z0-9_\-]:\d+>)", RegexOptions.ECMAScript);
-
     private const string AnsiEscapeStarter = "\u001b[";
 
     /// <summary>
@@ -137,7 +134,7 @@ public static class Formatter
     /// <param name="text">Text to sanitize.</param>
     /// <returns>Sanitized text.</returns>
     public static string Sanitize(string text)
-        => MdSanitizeRegex.Replace(text, m => $"\\{m.Groups[1].Value}");
+        => GetMarkdownSanitizationRegex().Replace(text, m => $"\\{m.Groups[1].Value}");
 
     /// <summary>
     /// Removes all markdown formatting from specified text.
@@ -145,7 +142,7 @@ public static class Formatter
     /// <param name="text">Text to strip of formatting.</param>
     /// <returns>Formatting-stripped text.</returns>
     public static string Strip(string text)
-        => MdStripRegex.Replace(text, m => string.Empty);
+        => GetMarkdownStripRegex().Replace(text, m => string.Empty);
 
     /// <summary>
     /// Creates a mention for specified user or member. Can optionally specify to resolve nicknames.
@@ -221,4 +218,8 @@ public static class Formatter
     /// <returns>Formatted header.</returns>
     public static string ToSmallHeader(string value)
         => $"### {value}";
+    [GeneratedRegex(@"([`\*_~<>\[\]\(\)""@\!\&#:\|])", RegexOptions.ECMAScript)]
+    private static partial Regex GetMarkdownSanitizationRegex();
+    [GeneratedRegex(@"([`\*_~\[\]\(\)""\|]|<@\!?\d+>|<#\d+>|<@\&\d+>|<:[a-zA-Z0-9_\-]:\d+>)", RegexOptions.ECMAScript)]
+    private static partial Regex GetMarkdownStripRegex();
 }

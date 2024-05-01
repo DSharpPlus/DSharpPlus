@@ -20,12 +20,8 @@ public class DateTimeOffsetConverter : IArgumentConverter<DateTimeOffset>
             : Task.FromResult(Optional.FromNoValue<DateTimeOffset>());
 }
 
-public class TimeSpanConverter : IArgumentConverter<TimeSpan>
+public partial class TimeSpanConverter : IArgumentConverter<TimeSpan>
 {
-    private static Regex TimeSpanRegex { get; set; }
-
-    static TimeSpanConverter() => TimeSpanRegex = new Regex(@"^((?<days>\d+)d\s*)?((?<hours>\d+)h\s*)?((?<minutes>\d+)m\s*)?((?<seconds>\d+)s\s*)?$", RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant | RegexOptions.RightToLeft | RegexOptions.Compiled);
-
     Task<Optional<TimeSpan>> IArgumentConverter<TimeSpan>.ConvertAsync(string value, CommandContext ctx)
     {
         if (value == "0")
@@ -48,7 +44,7 @@ public class TimeSpanConverter : IArgumentConverter<TimeSpan>
             return Task.FromResult(Optional.FromValue(result));
         }
 
-        Match m = TimeSpanRegex.Match(value);
+        Match m = GetTimeSpanRegex().Match(value);
 
         int ds = m.Groups["days"].Success ? int.Parse(m.Groups["days"].Value) : 0;
         int hs = m.Groups["hours"].Success ? int.Parse(m.Groups["hours"].Value) : 0;
@@ -58,4 +54,7 @@ public class TimeSpanConverter : IArgumentConverter<TimeSpan>
         result = TimeSpan.FromSeconds((ds * 24 * 60 * 60) + (hs * 60 * 60) + (ms * 60) + ss);
         return result.TotalSeconds < 1 ? Task.FromResult(Optional.FromNoValue<TimeSpan>()) : Task.FromResult(Optional.FromValue(result));
     }
+
+    [GeneratedRegex(@"^((?<days>\d+)d\s*)?((?<hours>\d+)h\s*)?((?<minutes>\d+)m\s*)?((?<seconds>\d+)s\s*)?$", RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.RightToLeft | RegexOptions.CultureInvariant)]
+    private static partial Regex GetTimeSpanRegex();
 }
