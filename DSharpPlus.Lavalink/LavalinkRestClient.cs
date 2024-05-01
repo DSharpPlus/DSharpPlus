@@ -273,7 +273,7 @@ public sealed class LavalinkRestClient
         if (!req.IsSuccessStatusCode)
         {
             JObject jsonError = JObject.Parse(json);
-            _logger?.LogError(LavalinkEvents.LavalinkDecodeError, "Unable to decode track strings: {0}", jsonError["message"]);
+            _logger?.LogError(LavalinkEvents.LavalinkDecodeError, "Unable to decode track strings: {ErrorMessage}", jsonError["message"]);
 
             return null;
         }
@@ -330,7 +330,7 @@ public sealed class LavalinkRestClient
         using HttpResponseMessage req = await _http.PostAsync(uri, payload);
         if (req.StatusCode == HttpStatusCode.InternalServerError)
         {
-            _logger?.LogWarning(LavalinkEvents.LavalinkRestError, "Request to {0} returned an internal server error - your server route planner configuration is likely incorrect", uri);
+            _logger?.LogWarning(LavalinkEvents.LavalinkRestError, "Request to {Route} returned an internal server error - your server route planner configuration is likely incorrect", uri);
         }
     }
 
@@ -340,7 +340,7 @@ public sealed class LavalinkRestClient
         using HttpResponseMessage req = await _http.SendAsync(httpReq);
         if (req.StatusCode == HttpStatusCode.InternalServerError)
         {
-            _logger?.LogWarning(LavalinkEvents.LavalinkRestError, "Request to {0} returned an internal server error - your server route planner configuration is likely incorrect", uri);
+            _logger?.LogWarning(LavalinkEvents.LavalinkRestError, "Request to {Route} returned an internal server error - your server route planner configuration is likely incorrect", uri);
         }
     }
 

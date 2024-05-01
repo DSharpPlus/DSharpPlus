@@ -204,7 +204,7 @@ public class CommandsNextExtension : BaseExtension
 
         if (Config.CommandExecutor is ParallelQueuedCommandExecutor pqce)
         {
-            Client.Logger.LogDebug(CommandsNextEvents.Misc, "Using parallel executor with degree {0}", pqce.Parallelism);
+            Client.Logger.LogDebug(CommandsNextEvents.Misc, "Using parallel executor with degree {Parallelism}", pqce.Parallelism);
         }
     }
     #endregion
