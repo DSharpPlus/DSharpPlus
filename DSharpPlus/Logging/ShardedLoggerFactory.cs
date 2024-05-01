@@ -1,9 +1,8 @@
 namespace DSharpPlus;
 
 using System;
-using Microsoft.Extensions.Logging;
-
 using System.Collections.Concurrent;
+using Microsoft.Extensions.Logging;
 
 internal class ShardedLoggerFactory : ILoggerFactory
 {
