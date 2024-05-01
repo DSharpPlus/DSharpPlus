@@ -13,7 +13,7 @@ internal static class Helpers
         int i = 0;
         for (; i < buff.Length / 4; i++)
         {
-            MemoryMarshal.Write(buff, ref zero);
+            MemoryMarshal.Write(buff, zero);
         }
 
         int remainder = buff.Length % 4;
