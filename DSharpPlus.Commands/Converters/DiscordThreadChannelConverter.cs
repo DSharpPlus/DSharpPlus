@@ -16,6 +16,7 @@ public partial class DiscordThreadChannelConverter : ISlashArgumentConverter<Dis
     private static partial Regex _getChannelRegex();
 
     public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Channel;
+    public string ReadableName { get; init; } = "Discord Thread";
     public bool RequiresText { get; init; } = true;
 
     public Task<Optional<DiscordThreadChannel>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)

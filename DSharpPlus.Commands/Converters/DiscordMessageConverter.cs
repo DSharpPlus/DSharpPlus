@@ -15,6 +15,7 @@ public partial class DiscordMessageConverter : ISlashArgumentConverter<DiscordMe
     private static partial Regex GetMessageRegex();
 
     public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.String;
+    public string ReadableName { get; init; } = "Discord Message Link";
     public bool RequiresText { get; init; } = true;
 
     public Task<Optional<DiscordMessage>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context, context.Argument);

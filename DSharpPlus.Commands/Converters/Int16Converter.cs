@@ -10,6 +10,7 @@ using DSharpPlus.EventArgs;
 public class Int16Converter : ISlashArgumentConverter<short>, ITextArgumentConverter<short>
 {
     public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Integer;
+    public string ReadableName { get; init; } = "Short Integer (-32,768 through 32,767)";
     public bool RequiresText { get; init; } = true;
 
     public Task<Optional<short>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => short.TryParse(context.Argument, CultureInfo.InvariantCulture, out short result)

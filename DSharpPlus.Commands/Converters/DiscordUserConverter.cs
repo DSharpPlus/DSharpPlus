@@ -19,7 +19,9 @@ public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>
     private static partial Regex _getMemberRegex();
 
     public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.User;
+    public string ReadableName { get; init; } = "Discord User";
     public bool RequiresText { get; init; } = true;
+
     private readonly ILogger<DiscordUserConverter> _logger;
 
     public DiscordUserConverter(ILogger<DiscordUserConverter>? logger = null) => _logger = logger ?? NullLogger<DiscordUserConverter>.Instance;

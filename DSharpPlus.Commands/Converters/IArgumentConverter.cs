@@ -4,7 +4,10 @@ using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
 
-public interface IArgumentConverter { }
+public interface IArgumentConverter
+{
+    public string ReadableName { get; init; }
+}
 
 public interface IArgumentConverter<TConverterContext, TEventArgs, TOutput> : IArgumentConverter
     where TConverterContext : ConverterContext

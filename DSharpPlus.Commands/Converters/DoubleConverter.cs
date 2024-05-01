@@ -10,6 +10,7 @@ using DSharpPlus.EventArgs;
 public class DoubleConverter : ISlashArgumentConverter<double>, ITextArgumentConverter<double>
 {
     public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Number;
+    public string ReadableName { get; init; } = "Decimal Number";
     public bool RequiresText { get; init; } = true;
 
     public Task<Optional<double>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => double.TryParse(context.Argument, CultureInfo.InvariantCulture, out double result)

@@ -13,6 +13,7 @@ using DSharpPlus.EventArgs;
 public class StringConverter : ISlashArgumentConverter<string>, ITextArgumentConverter<string>
 {
     public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.String;
+    public string ReadableName { get; init; } = "Text";
     public bool RequiresText { get; init; } = true;
 
     public Task<Optional<string>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
