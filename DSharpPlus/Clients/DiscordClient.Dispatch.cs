@@ -40,14 +40,14 @@ public sealed partial class DiscordClient
         DiscordThreadChannel thread;
         ulong gid;
         ulong cid;
-        TransportUser usr = default;
+        TransportUser usr;
         TransportMember mbr = default;
         TransportUser refUsr = default;
         TransportMember refMbr = default;
-        JToken rawMbr = default;
+        JToken rawMbr;
         JToken? rawRefMsg = dat["referenced_message"];
-        JArray rawMembers = default;
-        JArray rawPresences = default;
+        JArray rawMembers;
+        JArray rawPresences;
 
         switch (payload.EventName.ToLowerInvariant())
         {
@@ -1306,7 +1306,7 @@ public sealed partial class DiscordClient
     internal async Task OnGuildMemberAddEventAsync(TransportMember member, DiscordGuild guild)
     {
         DiscordUser usr = new(member.User) { Discord = this };
-        usr = UpdateUserCache(usr);
+        UpdateUserCache(usr);
 
         DiscordMember mbr = new(member)
         {
@@ -1612,8 +1612,6 @@ public sealed partial class DiscordClient
         {
             message = event_message;
             PopulateMessageReactionsAndCache(message, author, member);
-            guild = message.Channel?.Guild;
-
             if (message.ReferencedMessage != null)
             {
                 message.ReferencedMessage.Discord = this;
@@ -1626,7 +1624,6 @@ public sealed partial class DiscordClient
             oldmsg = new DiscordMessage(message);
 
             // cached message is updated with information from the event message
-            guild = message.Channel?.Guild;
             message.EditedTimestamp = event_message.EditedTimestamp;
             if (event_message.Content != null)
             {
@@ -1921,9 +1918,6 @@ public sealed partial class DiscordClient
         }
 
         msg._reactions?.Clear();
-
-        DiscordGuild guild = InternalGetCachedGuild(guildId);
-
         MessageReactionsClearEventArgs ea = new()
         {
             Message = msg,

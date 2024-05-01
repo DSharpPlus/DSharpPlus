@@ -32,7 +32,7 @@ internal class Poller
 
     public async Task<ReadOnlyCollection<PollEmoji>> DoPollAsync(PollRequest request)
     {
-        ReadOnlyCollection<PollEmoji> result = null;
+        ReadOnlyCollection<PollEmoji> result;
         _requests.Add(request);
         try
         {

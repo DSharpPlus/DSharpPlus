@@ -106,7 +106,7 @@ internal class ComponentPaginator : IPaginator
         Page page = await request.GetPageAsync();
         IEnumerable<DiscordButtonComponent> bts = await request.GetButtonsAsync();
 
-        if (request is InteractionPaginationRequest ipr)
+        if (request is InteractionPaginationRequest)
         {
             DiscordWebhookBuilder builder = new DiscordWebhookBuilder()
                 .WithContent(page.Content)

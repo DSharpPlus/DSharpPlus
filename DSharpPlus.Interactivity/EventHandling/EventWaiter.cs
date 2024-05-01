@@ -67,7 +67,7 @@ internal class EventWaiter<T> : IDisposable where T : AsyncEventArgs
 
     public async Task<ReadOnlyCollection<T>> CollectMatchesAsync(CollectRequest<T> request)
     {
-        ReadOnlyCollection<T> result = null;
+        ReadOnlyCollection<T> result;
         _collectrequests.Add(request);
         try
         {

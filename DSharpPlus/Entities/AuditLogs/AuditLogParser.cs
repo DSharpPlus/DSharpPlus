@@ -735,12 +735,7 @@ internal static class AuditLogParser
                     entry.Name = PropertyChange<string?>.From(change);
                     break;
                 case "channel_id":
-
-                    ulong.TryParse(change.NewValue as string, NumberStyles.Integer,
-                        CultureInfo.InvariantCulture, out ulong newChannelId);
-                    ulong.TryParse(change.OldValue as string, NumberStyles.Integer,
-                        CultureInfo.InvariantCulture, out ulong oldChannelId);
-
+                    ulong.TryParse(change.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulong newChannelId);
                     entry.Channel = new PropertyChange<DiscordChannel?>
                     {
                         Before =

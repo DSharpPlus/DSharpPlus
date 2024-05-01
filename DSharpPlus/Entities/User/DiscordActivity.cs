@@ -378,15 +378,14 @@ public sealed class DiscordRichPresence
             {
                 LargeImage = new DiscordSpotifyAsset(lid);
             }
-            else if (ulong.TryParse(lid, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong ulid))
+            else if (ulong.TryParse(lid, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
             {
-                LargeImage =
-                    new DiscordApplicationAsset
-                    {
-                        Id = lid,
-                        Application = Application,
-                        Type = DiscordApplicationAssetType.LargeImage
-                    };
+                LargeImage = new DiscordApplicationAsset
+                {
+                    Id = lid,
+                    Application = Application,
+                    Type = DiscordApplicationAssetType.LargeImage
+                };
             }
         }
 
@@ -397,7 +396,7 @@ public sealed class DiscordRichPresence
             {
                 SmallImage = new DiscordSpotifyAsset(sid);
             }
-            else if (ulong.TryParse(sid, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong usid))
+            else if (ulong.TryParse(sid, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
             {
                 SmallImage =
                     new DiscordApplicationAsset

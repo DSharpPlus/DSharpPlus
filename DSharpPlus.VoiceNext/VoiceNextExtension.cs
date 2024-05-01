@@ -132,10 +132,9 @@ public sealed class VoiceNextExtension : BaseExtension
 
     private async Task Vnc_VoiceDisconnectedAsync(DiscordGuild guild)
     {
-        VoiceNextConnection vnc = null;
         if (ActiveConnections.ContainsKey(guild.Id))
         {
-            ActiveConnections.TryRemove(guild.Id, out vnc);
+            ActiveConnections.TryRemove(guild.Id, out _);
         }
 
         VoiceDispatch vsd = new()
@@ -204,7 +203,7 @@ public sealed class VoiceNextExtension : BaseExtension
 
             string eps = e.Endpoint;
             int epi = eps.LastIndexOf(':');
-            string eph = string.Empty;
+            string eph;
             int epp = 443;
             if (epi != -1)
             {

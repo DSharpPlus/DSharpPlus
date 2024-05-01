@@ -133,7 +133,7 @@ internal static class Interop
 
     public static void OpusSetEncoderOption(IntPtr encoder, OpusControl option, int value)
     {
-        OpusError error = OpusError.Ok;
+        OpusError error;
         if ((error = _OpusEncoderControl(encoder, option, value)) != OpusError.Ok)
         {
             throw new Exception($"Could not set Opus encoder option: {error} ({(int)error}).");

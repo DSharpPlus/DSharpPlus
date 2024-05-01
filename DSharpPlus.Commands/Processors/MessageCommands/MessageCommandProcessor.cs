@@ -82,7 +82,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
         }
 
         AsyncServiceScope scope = _extension.ServiceProvider.CreateAsyncScope();
-        if (!_slashCommandProcessor.TryFindCommand(eventArgs.Interaction, out Command? command, out IEnumerable<DiscordInteractionDataOption>? options))
+        if (!_slashCommandProcessor.TryFindCommand(eventArgs.Interaction, out Command? command, out _))
         {
             await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
             {

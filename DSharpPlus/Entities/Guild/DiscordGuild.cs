@@ -752,9 +752,6 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         int remaining = limit;
         ulong? last = null;
         bool isAfter = after != null;
-
-        List<DiscordUser> users = [];
-
         int lastCount;
         do
         {
@@ -1601,7 +1598,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     )
     {
         //Get all entries from api
-        int entriesAcquiredLastCall = 1, totalEntriesCollected = 0, remainingEntries = 100;
+        int entriesAcquiredLastCall = 1, totalEntriesCollected = 0, remainingEntries;
         ulong last = 0;
         while (entriesAcquiredLastCall > 0)
         {
@@ -1882,8 +1879,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
     public async Task<DiscordMessageSticker> CreateStickerAsync(string name, string description, string tags, Stream imageContents, DiscordStickerFormat format, string reason = null)
     {
-        string contentType = null, extension = null;
-
+        string contentType, extension;
         if (format == DiscordStickerFormat.PNG || format == DiscordStickerFormat.APNG)
         {
             contentType = "image/png";

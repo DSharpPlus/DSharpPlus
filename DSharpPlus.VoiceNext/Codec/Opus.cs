@@ -65,7 +65,7 @@ internal sealed class Opus : IDisposable
         //if (target.Length != this.AudioFormat.CalculateMaximumFrameSize())
         //    throw new ArgumentException("PCM target buffer size needs to be equal to maximum buffer size for specified audio format.", nameof(target));
 
-        Interop.OpusGetPacketMetrics(opus, AudioFormat.SampleRate, out int channels, out int frames, out int samplesPerFrame, out int frameSize);
+        Interop.OpusGetPacketMetrics(opus, AudioFormat.SampleRate, out int channels, out _, out _, out int frameSize);
         outputFormat = AudioFormat.ChannelCount != channels ? new AudioFormat(AudioFormat.SampleRate, channels, AudioFormat.VoiceApplication) : AudioFormat;
 
         if (decoder.AudioFormat.ChannelCount != channels)
