@@ -219,7 +219,7 @@ public sealed partial class DiscordShardedClient
 
     public async Task<int> InitializeShardsAsync()
     {
-        if (_shards.Count != 0)
+        if (!_shards.IsEmpty)
         {
             return _shards.Count;
         }

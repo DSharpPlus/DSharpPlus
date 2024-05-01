@@ -1084,7 +1084,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
         DiscordGuild guild = _guilds[newGuild.Id];
 
-        if (newGuild._channels != null && newGuild._channels.Count > 0)
+        if (newGuild._channels != null && !newGuild._channels.IsEmpty)
         {
             foreach (DiscordChannel channel in newGuild._channels.Values)
             {
@@ -1102,7 +1102,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 guild._channels[channel.Id] = channel;
             }
         }
-        if (newGuild._threads != null && newGuild._threads.Count > 0)
+        if (newGuild._threads != null && !newGuild._threads.IsEmpty)
         {
             foreach (DiscordThreadChannel thread in newGuild._threads.Values)
             {

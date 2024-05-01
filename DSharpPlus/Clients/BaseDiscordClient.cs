@@ -187,7 +187,7 @@ public abstract class BaseDiscordClient : IDisposable
             CurrentApplication = await GetCurrentApplicationAsync();
         }
 
-        if (Configuration.TokenType != TokenType.Bearer && InternalVoiceRegions.Count == 0)
+        if (Configuration.TokenType != TokenType.Bearer && InternalVoiceRegions.IsEmpty)
         {
             IReadOnlyList<DiscordVoiceRegion> vrs = await ListVoiceRegionsAsync();
             foreach (DiscordVoiceRegion xvr in vrs)
