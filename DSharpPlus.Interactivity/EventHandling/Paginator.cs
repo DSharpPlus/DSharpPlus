@@ -175,7 +175,7 @@ internal class Paginator : IPaginator
         return Task.CompletedTask;
     }
 
-    private async Task ResetReactionsAsync(IPaginationRequest p)
+    private static async Task ResetReactionsAsync(IPaginationRequest p)
     {
         DiscordMessage msg = await p.GetMessageAsync();
         PaginationEmojis emojis = await p.GetEmojisAsync();
@@ -231,7 +231,7 @@ internal class Paginator : IPaginator
         }
     }
 
-    private async Task PaginateAsync(IPaginationRequest p, DiscordEmoji emoji)
+    private static async Task PaginateAsync(IPaginationRequest p, DiscordEmoji emoji)
     {
         PaginationEmojis emojis = await p.GetEmojisAsync();
         DiscordMessage msg = await p.GetMessageAsync();

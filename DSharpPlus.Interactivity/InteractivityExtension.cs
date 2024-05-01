@@ -489,7 +489,7 @@ public class InteractivityExtension : BaseExtension
     private bool IsSelect(DiscordComponent component)
         => IsSelect(component.Type);
 
-    private bool IsSelect(DiscordComponentType type)
+    private static bool IsSelect(DiscordComponentType type)
         => type is
             DiscordComponentType.StringSelect or
             DiscordComponentType.UserSelect or
@@ -982,7 +982,7 @@ public class InteractivityExtension : BaseExtension
     /// <param name="input">Input string.</param>
     /// <param name="splittype">How to split input string.</param>
     /// <returns></returns>
-    public IEnumerable<Page> GeneratePagesInContent(string input, SplitType splittype = SplitType.Character)
+    public static IEnumerable<Page> GeneratePagesInContent(string input, SplitType splittype = SplitType.Character)
     {
         if (string.IsNullOrEmpty(input))
         {
@@ -1038,7 +1038,7 @@ public class InteractivityExtension : BaseExtension
     /// <param name="splittype">How to split input string.</param>
     /// <param name="embedbase">Base embed for output embeds.</param>
     /// <returns></returns>
-    public IEnumerable<Page> GeneratePagesInEmbed(string input, SplitType splittype = SplitType.Character, DiscordEmbedBuilder embedbase = null)
+    public static IEnumerable<Page> GeneratePagesInEmbed(string input, SplitType splittype = SplitType.Character, DiscordEmbedBuilder embedbase = null)
     {
         if (string.IsNullOrEmpty(input))
         {
@@ -1089,7 +1089,7 @@ public class InteractivityExtension : BaseExtension
         return result;
     }
 
-    private List<string> SplitString(string str, int chunkSize)
+    private static List<string> SplitString(string str, int chunkSize)
     {
         List<string> res = [];
         int len = str.Length;

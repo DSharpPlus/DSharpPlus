@@ -267,7 +267,7 @@ internal sealed class GamePartySizeConverter : JsonConverter
         };
     }
 
-    private JArray ReadArrayObject(JsonReader reader, JsonSerializer serializer) => serializer.Deserialize<JToken>(reader) is not JArray arr || arr.Count != 2
+    private static JArray ReadArrayObject(JsonReader reader, JsonSerializer serializer) => serializer.Deserialize<JToken>(reader) is not JArray arr || arr.Count != 2
             ? throw new JsonSerializationException("Expected array of length 2")
             : arr;
 

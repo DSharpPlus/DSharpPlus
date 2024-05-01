@@ -45,7 +45,7 @@ public sealed class SlashCommandsExtension : BaseExtension
     /// <summary>
     /// Gets a list of registered commands. The key is the guild id (null if global).
     /// </summary>
-    public IReadOnlyList<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> RegisteredCommands => _registeredCommands;
+    public static IReadOnlyList<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> RegisteredCommands => _registeredCommands;
     private static readonly List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> _registeredCommands = [];
 
     internal SlashCommandsExtension(SlashCommandsConfiguration configuration)
@@ -500,25 +500,25 @@ public sealed class SlashCommandsExtension : BaseExtension
         return options;
     }
 
-    private IReadOnlyList<DiscordApplicationIntegrationType>? GetInteractionCommandInstallTypes(ICustomAttributeProvider method)
+    private static IReadOnlyList<DiscordApplicationIntegrationType>? GetInteractionCommandInstallTypes(ICustomAttributeProvider method)
     {
         InteractionCommandInstallTypeAttribute[] attributes = (InteractionCommandInstallTypeAttribute[])method.GetCustomAttributes(typeof(InteractionCommandInstallTypeAttribute), false);
         return attributes.FirstOrDefault()?.InstallTypes;
     }
 
-    private IReadOnlyList<DiscordInteractionContextType>? GetInteractionCommandAllowedContexts(ICustomAttributeProvider method)
+    private static IReadOnlyList<DiscordInteractionContextType>? GetInteractionCommandAllowedContexts(ICustomAttributeProvider method)
     {
         InteractionCommandAllowedContextsAttribute[] attributes = (InteractionCommandAllowedContextsAttribute[])method.GetCustomAttributes(typeof(InteractionCommandAllowedContextsAttribute), false);
         return attributes.FirstOrDefault()?.AllowedContexts;
     }
 
-    private IReadOnlyDictionary<string, string> GetNameLocalizations(ICustomAttributeProvider method)
+    private static IReadOnlyDictionary<string, string> GetNameLocalizations(ICustomAttributeProvider method)
     {
         NameLocalizationAttribute[] nameAttributes = (NameLocalizationAttribute[])method.GetCustomAttributes(typeof(NameLocalizationAttribute), false);
         return nameAttributes.ToDictionary(nameAttribute => nameAttribute.Locale, nameAttribute => nameAttribute.Name);
     }
 
-    private IReadOnlyDictionary<string, string> GetDescriptionLocalizations(ICustomAttributeProvider method)
+    private static IReadOnlyDictionary<string, string> GetDescriptionLocalizations(ICustomAttributeProvider method)
     {
         DescriptionLocalizationAttribute[] descriptionAttributes = (DescriptionLocalizationAttribute[])method.GetCustomAttributes(typeof(DescriptionLocalizationAttribute), false);
         return descriptionAttributes.ToDictionary(descriptionAttribute => descriptionAttribute.Locale, descriptionAttribute => descriptionAttribute.Description);
@@ -582,7 +582,7 @@ public sealed class SlashCommandsExtension : BaseExtension
     }
 
     //Small method to get the parameter's type from its type
-    private DiscordApplicationCommandOptionType GetParameterType(string commandName, Type type) => type == typeof(string)
+    private static DiscordApplicationCommandOptionType GetParameterType(string commandName, Type type) => type == typeof(string)
             ? DiscordApplicationCommandOptionType.String
             : type == typeof(long) || type == typeof(long?)
             ? DiscordApplicationCommandOptionType.Integer
@@ -609,7 +609,7 @@ public sealed class SlashCommandsExtension : BaseExtension
             : throw new ArgumentException($"Cannot convert type! (Command: {commandName}) Argument types must be string, long, bool, double, TimeSpan?, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, DiscordAttachment, SnowflakeObject, or an Enum.");
 
     //Gets choices from choice attributes
-    private List<DiscordApplicationCommandOptionChoice> GetChoiceAttributesFromParameter(IEnumerable<ChoiceAttribute> choiceattributes) => !choiceattributes.Any()
+    private static List<DiscordApplicationCommandOptionChoice> GetChoiceAttributesFromParameter(IEnumerable<ChoiceAttribute> choiceattributes) => !choiceattributes.Any()
             ? null
             : choiceattributes.Select(att => new DiscordApplicationCommandOptionChoice(att.Name, att.Value)).ToList();
 
@@ -875,7 +875,7 @@ public sealed class SlashCommandsExtension : BaseExtension
     }
 
     //Property injection copied over from CommandsNext
-    internal object CreateInstance(Type t, IServiceProvider services)
+    internal static object CreateInstance(Type t, IServiceProvider services)
     {
         TypeInfo ti = t.GetTypeInfo();
         ConstructorInfo[] constructors = ti.DeclaredConstructors
@@ -1161,7 +1161,7 @@ public sealed class SlashCommandsExtension : BaseExtension
     }
 
     //Runs pre-execution checks
-    private async Task RunPreexecutionChecksAsync(MethodInfo method, BaseContext context)
+    private static async Task RunPreexecutionChecksAsync(MethodInfo method, BaseContext context)
     {
         if (context is InteractionContext ctx)
         {

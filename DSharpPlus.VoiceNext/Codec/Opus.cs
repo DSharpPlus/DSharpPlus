@@ -79,9 +79,9 @@ internal sealed class Opus : IDisposable
         target = target[..sampleSize];
     }
 
-    public void ProcessPacketLoss(OpusDecoder decoder, int frameSize, ref Span<byte> target) => Interop.OpusDecode(decoder.Decoder, frameSize, target);
+    public static void ProcessPacketLoss(OpusDecoder decoder, int frameSize, ref Span<byte> target) => Interop.OpusDecode(decoder.Decoder, frameSize, target);
 
-    public int GetLastPacketSampleCount(OpusDecoder decoder)
+    public static int GetLastPacketSampleCount(OpusDecoder decoder)
     {
         Interop.OpusGetLastPacketDuration(decoder.Decoder, out int sampleCount);
         return sampleCount;

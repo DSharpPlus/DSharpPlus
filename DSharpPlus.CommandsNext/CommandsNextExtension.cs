@@ -3,6 +3,7 @@ namespace DSharpPlus.CommandsNext;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -406,7 +407,7 @@ public class CommandsNextExtension : BaseExtension
         }
     }
 
-    private async Task RunAllChecksAsync(Command cmd, CommandContext ctx)
+    private static async Task RunAllChecksAsync(Command cmd, CommandContext ctx)
     {
         if (cmd.Parent is not null)
         {
@@ -767,7 +768,7 @@ public class CommandsNextExtension : BaseExtension
         }
     }
 
-    private string? ExtractCategoryAttribute(MethodInfo method)
+    private static string? ExtractCategoryAttribute(MethodInfo method)
     {
         CategoryAttribute attribute = method.GetCustomAttribute<CategoryAttribute>();
 
@@ -781,7 +782,7 @@ public class CommandsNextExtension : BaseExtension
         return ExtractCategoryAttribute(method.DeclaringType);
     }
 
-    private string? ExtractCategoryAttribute(Type type)
+    private static string? ExtractCategoryAttribute(Type type)
     {
         CategoryAttribute attribute;
 
@@ -826,7 +827,7 @@ public class CommandsNextExtension : BaseExtension
     [ModuleLifespan(ModuleLifespan.Transient)]
     public class DefaultHelpModule : BaseCommandModule
     {
-        [Command("help"), Description("Displays command help.")]
+        [Command("help"), Description("Displays command help."), SuppressMessage("Quality Assurance", "CA1822:Mark members as static", Justification = "CommandsNext does not support static commands.")]
         public async Task DefaultHelpAsync(CommandContext ctx, [Description("Command to provide help for.")] params string[] command)
         {
             IEnumerable<Command> topLevel = ctx.CommandsNext.TopLevelCommands.Values.Distinct();

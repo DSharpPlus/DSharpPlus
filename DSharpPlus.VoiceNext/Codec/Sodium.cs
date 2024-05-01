@@ -38,7 +38,7 @@ internal sealed class Sodium : IDisposable
         Buffer = new byte[Interop.SodiumNonceSize];
     }
 
-    public void GenerateNonce(ReadOnlySpan<byte> rtpHeader, Span<byte> target)
+    public static void GenerateNonce(ReadOnlySpan<byte> rtpHeader, Span<byte> target)
     {
         if (rtpHeader.Length != Rtp.HeaderSize)
         {
@@ -68,7 +68,7 @@ internal sealed class Sodium : IDisposable
         Buffer.AsSpan().CopyTo(target);
     }
 
-    public void GenerateNonce(uint nonce, Span<byte> target)
+    public static void GenerateNonce(uint nonce, Span<byte> target)
     {
         if (target.Length != Interop.SodiumNonceSize)
         {
@@ -82,7 +82,7 @@ internal sealed class Sodium : IDisposable
         Helpers.ZeroFill(target[4..]);
     }
 
-    public void AppendNonce(ReadOnlySpan<byte> nonce, Span<byte> target, EncryptionMode encryptionMode)
+    public static void AppendNonce(ReadOnlySpan<byte> nonce, Span<byte> target, EncryptionMode encryptionMode)
     {
         switch (encryptionMode)
         {
@@ -102,7 +102,7 @@ internal sealed class Sodium : IDisposable
         }
     }
 
-    public void GetNonce(ReadOnlySpan<byte> source, Span<byte> target, EncryptionMode encryptionMode)
+    public static void GetNonce(ReadOnlySpan<byte> source, Span<byte> target, EncryptionMode encryptionMode)
     {
         if (target.Length != Interop.SodiumNonceSize)
         {

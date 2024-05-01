@@ -14,7 +14,7 @@ internal sealed class Rtp : IDisposable
     public Rtp()
     { }
 
-    public void EncodeHeader(ushort sequence, uint timestamp, uint ssrc, Span<byte> target)
+    public static void EncodeHeader(ushort sequence, uint timestamp, uint ssrc, Span<byte> target)
     {
         if (target.Length < HeaderSize)
         {
@@ -30,9 +30,9 @@ internal sealed class Rtp : IDisposable
         BinaryPrimitives.WriteUInt32BigEndian(target[8..], ssrc);      // header + magic + sizeof(sequence) + sizeof(timestamp)
     }
 
-    public bool IsRtpHeader(ReadOnlySpan<byte> source) => source.Length >= HeaderSize && (source[0] == RtpNoExtension || source[0] == RtpExtension) && source[1] == RtpVersion;
+    public static bool IsRtpHeader(ReadOnlySpan<byte> source) => source.Length >= HeaderSize && (source[0] == RtpNoExtension || source[0] == RtpExtension) && source[1] == RtpVersion;
 
-    public void DecodeHeader(ReadOnlySpan<byte> source, out ushort sequence, out uint timestamp, out uint ssrc, out bool hasExtension)
+    public static void DecodeHeader(ReadOnlySpan<byte> source, out ushort sequence, out uint timestamp, out uint ssrc, out bool hasExtension)
     {
         if (source.Length < HeaderSize)
         {
@@ -52,7 +52,7 @@ internal sealed class Rtp : IDisposable
         ssrc = BinaryPrimitives.ReadUInt32BigEndian(source[8..]);
     }
 
-    public int CalculatePacketSize(int encryptedLength, EncryptionMode encryptionMode) => encryptionMode switch
+    public static int CalculatePacketSize(int encryptedLength, EncryptionMode encryptionMode) => encryptionMode switch
     {
         EncryptionMode.XSalsa20_Poly1305 => HeaderSize + encryptedLength,
         EncryptionMode.XSalsa20_Poly1305_Suffix => HeaderSize + encryptedLength + Interop.SodiumNonceSize,
@@ -60,7 +60,7 @@ internal sealed class Rtp : IDisposable
         _ => throw new ArgumentException("Unsupported encryption mode.", nameof(encryptionMode)),
     };
 
-    public void GetDataFromPacket(ReadOnlySpan<byte> packet, out ReadOnlySpan<byte> data, EncryptionMode encryptionMode)
+    public static void GetDataFromPacket(ReadOnlySpan<byte> packet, out ReadOnlySpan<byte> data, EncryptionMode encryptionMode)
     {
         switch (encryptionMode)
         {
