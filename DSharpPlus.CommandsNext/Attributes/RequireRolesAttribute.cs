@@ -98,7 +98,7 @@ public sealed class RequireRolesAttribute : CheckBaseAttribute
             RoleCheckMode.All => present.Count == intersect.Count(),
             RoleCheckMode.SpecifiedOnly => passed.Count() == intersect.Count(),
             RoleCheckMode.None => !intersect.Any(),
-            _ => intersect.Count() > 0
+            _ => intersect.Any()
         };
     }
 }
