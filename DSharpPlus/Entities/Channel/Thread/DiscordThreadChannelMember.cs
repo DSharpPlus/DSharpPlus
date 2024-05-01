@@ -76,15 +76,7 @@ public class DiscordThreadChannelMember
     /// Gets the hash code for this <see cref="DiscordThreadChannelMember"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="DiscordThreadChannelMember"/>.</returns>
-    public override int GetHashCode()
-    {
-        int hash = 13;
-
-        hash = (hash * 7) + Id.GetHashCode();
-        hash = (hash * 7) + ThreadId.GetHashCode();
-
-        return hash;
-    }
+    public override int GetHashCode() => HashCode.Combine(Id, ThreadId);
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordThreadChannelMember"/> objects are equal.

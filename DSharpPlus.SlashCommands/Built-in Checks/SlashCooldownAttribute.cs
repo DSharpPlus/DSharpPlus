@@ -287,16 +287,7 @@ public sealed class SlashCommandCooldownBucket : IEquatable<SlashCommandCooldown
     /// Gets the hash code for this <see cref="SlashCommandCooldownBucket"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="SlashCommandCooldownBucket"/>.</returns>
-    public override int GetHashCode()
-    {
-        int hash = 13;
-
-        hash = (hash * 7) + UserId.GetHashCode();
-        hash = (hash * 7) + ChannelId.GetHashCode();
-        hash = (hash * 7) + GuildId.GetHashCode();
-
-        return hash;
-    }
+    public override int GetHashCode() => HashCode.Combine(UserId, ChannelId, GuildId);
 
     /// <summary>
     /// Gets whether the two <see cref="SlashCommandCooldownBucket"/> objects are equal.
