@@ -292,7 +292,7 @@ public sealed class LavalinkRestClient
         if (!req.IsSuccessStatusCode)
         {
             JObject jsonError = JObject.Parse(jsonIn);
-            _logger?.LogError(LavalinkEvents.LavalinkDecodeError, "Unable to decode track strings", jsonError["message"]);
+            _logger?.LogError(LavalinkEvents.LavalinkDecodeError, "Unable to decode track strings: {ErrorMessage}", jsonError["message"]);
             return null;
         }
 
