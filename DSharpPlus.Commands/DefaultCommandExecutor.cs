@@ -359,7 +359,6 @@ public class DefaultCommandExecutor : ICommandExecutor
     protected virtual async ValueTask InvokeCommandErroredEventAsync(CommandsExtension extension, CommandErroredEventArgs eventArgs)
         => await extension._commandErrored.InvokeAsync(extension, eventArgs);
 
-
     /// <summary>
     /// Invokes the <see cref="CommandsExtension.CommandExecuted"/> event, which isn't normally exposed to the public API.
     /// </summary>

@@ -12,6 +12,5 @@ public class ScheduledGuildEventCompletedEventArgs : DiscordEventArgs
     /// </summary>
     public DiscordScheduledGuildEvent Event { get; internal set; }
 
-
     internal ScheduledGuildEventCompletedEventArgs() : base() { }
 }

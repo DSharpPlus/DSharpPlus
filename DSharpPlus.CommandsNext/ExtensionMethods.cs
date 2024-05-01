@@ -71,7 +71,6 @@ public static class ExtensionMethods
     public static CommandsNextExtension GetCommandsNext(this DiscordClient client)
         => client.GetExtension<CommandsNextExtension>();
 
-
     /// <summary>
     /// Gets the active CommandsNext modules for all shards in this client.
     /// </summary>

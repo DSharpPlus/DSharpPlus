@@ -271,7 +271,6 @@ public sealed class SlashCommandsExtension : BaseExtension
                                 DiscordApplicationCommandOption subsubpayload = new DiscordApplicationCommandOption(commatt.Name, commatt.Description, DiscordApplicationCommandOptionType.SubCommand, null, null, suboptions, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
                                 options.Add(subsubpayload);
 
-
                                 commandmethods.Add(new(commatt.Name, subsubmethod));
                                 currentMethods.Add(new(commatt.Name, subsubmethod));
                             }
@@ -524,7 +523,6 @@ public sealed class SlashCommandsExtension : BaseExtension
         DescriptionLocalizationAttribute[] descriptionAttributes = (DescriptionLocalizationAttribute[])method.GetCustomAttributes(typeof(DescriptionLocalizationAttribute), false);
         return descriptionAttributes.ToDictionary(descriptionAttribute => descriptionAttribute.Locale, descriptionAttribute => descriptionAttribute.Description);
     }
-
 
     //Gets the choices from a choice provider
     private async Task<List<DiscordApplicationCommandOptionChoice>> GetChoiceAttributesFromProvider(
@@ -1386,7 +1384,6 @@ public sealed class SlashCommandsExtension : BaseExtension
         remove => _autocompleteExecuted.Register(value);
     }
     private AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs> _autocompleteExecuted;
-
 
     public override void Dispose()
     {

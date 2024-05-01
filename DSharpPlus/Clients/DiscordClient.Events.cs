@@ -91,7 +91,6 @@ public sealed partial class DiscordClient
 
     #endregion
 
-
     #region Application
     public event AsyncEventHandler<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs> ApplicationCommandPermissionsUpdated
     {
@@ -239,7 +238,6 @@ public sealed partial class DiscordClient
         remove => _guildEmojisUpdated.Unregister(value);
     }
     private AsyncEvent<DiscordClient, GuildEmojisUpdateEventArgs> _guildEmojisUpdated;
-
 
     public event AsyncEventHandler<DiscordClient, GuildStickersUpdateEventArgs> GuildStickersUpdated
     {
@@ -570,7 +568,6 @@ public sealed partial class DiscordClient
     }
     private AsyncEvent<DiscordClient, PresenceUpdateEventArgs> _presenceUpdated;
 
-
     /// <summary>
     /// Fired when the current user updates their settings.
     /// For this Event you need the <see cref="DiscordIntents.GuildPresences"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
@@ -697,7 +694,6 @@ public sealed partial class DiscordClient
     private AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs> _threadMembersUpdated;
 
     #endregion
-
 
     #region Integration
 

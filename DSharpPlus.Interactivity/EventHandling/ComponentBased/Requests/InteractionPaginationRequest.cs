@@ -15,7 +15,6 @@ internal class InteractionPaginationRequest : IPaginationRequest
 
     private readonly TaskCompletionSource<bool> _tcs = new();
 
-
     private DiscordInteraction _lastInteraction;
     private CancellationTokenSource _interactionCts;
 
@@ -25,7 +24,6 @@ internal class InteractionPaginationRequest : IPaginationRequest
     private readonly PaginationButtons _buttons;
     private readonly PaginationBehaviour _wrapBehavior;
     private readonly ButtonPaginationBehavior _behaviorBehavior;
-
 
     public InteractionPaginationRequest(DiscordInteraction interaction, DiscordMessage message, DiscordUser user,
         PaginationBehaviour behavior, ButtonPaginationBehavior behaviorBehavior,

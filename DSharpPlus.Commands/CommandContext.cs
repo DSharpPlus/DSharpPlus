@@ -39,7 +39,6 @@ public abstract record CommandContext : AbstractContext
     /// <param name="builder">The message builder.</param>
     public abstract ValueTask RespondAsync(IDiscordMessageBuilder builder);
 
-
     /// <inheritdoc cref="EditResponseAsync(string, DiscordEmbed)"/>
     public virtual ValueTask<DiscordMessage> EditResponseAsync(string content) => EditResponseAsync(new DiscordMessageBuilder().WithContent(content));
 

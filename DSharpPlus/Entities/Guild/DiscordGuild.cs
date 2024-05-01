@@ -237,7 +237,6 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
     internal ConcurrentDictionary<ulong, DiscordScheduledGuildEvent> _scheduledEvents = new();
 
-
     /// <summary>
     /// Gets a collection of this guild's roles.
     /// </summary>
@@ -248,7 +247,6 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
     internal ConcurrentDictionary<ulong, DiscordRole> _roles;
 
-
     /// <summary>
     /// Gets a collection of this guild's stickers.
     /// </summary>
@@ -258,7 +256,6 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
     internal ConcurrentDictionary<ulong, DiscordMessageSticker> _stickers = new();
-
 
     /// <summary>
     /// Gets a collection of this guild's emojis.
@@ -988,7 +985,6 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public async Task<DiscordBulkBan> BulkBanMembersAsync(IEnumerable<ulong> userIds, int deleteMessageSeconds = 0, string reason = null)
     => await Discord.ApiClient.CreateGuildBulkBanAsync(Id, userIds, deleteMessageSeconds, reason);
 
-
     /// <summary>
     /// Unbans a user from this guild.
     /// </summary>
@@ -1409,7 +1405,6 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordInvite> GetVanityInviteAsync()
         => await Discord.ApiClient.GetGuildVanityUrlAsync(Id);
-
 
     /// <summary>
     /// Gets all the webhooks created for all the channels in this guild.

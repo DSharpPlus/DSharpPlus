@@ -609,7 +609,6 @@ public sealed class DiscordApiClient
 
         DiscordBulkBan bulkBan = JsonConvert.DeserializeObject<DiscordBulkBan>(response.Response!)!;
 
-
         List<DiscordUser> bannedUsers = new(bulkBan.BannedUserIds.Count());
         foreach (ulong userId in bulkBan.BannedUserIds)
         {
@@ -5167,7 +5166,6 @@ public sealed class DiscordApiClient
     {
         string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.POLLS}/:message_id/{Endpoints.ANSWERS}/:answer_id";
         QueryUriBuilder url = new($"{Endpoints.CHANNELS}/{channelId}/{Endpoints.POLLS}/{messageId}/{Endpoints.ANSWERS}/{answerId}");
-
 
         if (limit > 0)
         {

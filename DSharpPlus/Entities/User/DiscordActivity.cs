@@ -149,7 +149,6 @@ public sealed class DiscordActivity
             ActivityType = type;
         }
 
-
         ActivityType = type;
     }
 

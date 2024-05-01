@@ -842,7 +842,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public async Task DeleteGuildApplicationCommandAsync(ulong guildId, ulong commandId) =>
         await ApiClient.DeleteGuildApplicationCommandAsync(CurrentApplication.Id, guildId, commandId);
 
-
     /// <summary>
     /// Returns a list of guilds before a certain guild. This will execute one API request per 200 guilds.
     /// <param name="limit">The amount of guilds to fetch.</param>
@@ -920,7 +919,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
             //We sort the returned guilds by ID so that they are in order in case Discord switches the order AGAIN.
             DiscordGuild[] sortedGuildsArray = fetchedGuilds.ToArray();
             Array.Sort(sortedGuildsArray, (x, y) => x.Id.CompareTo(y.Id));
-
 
             if (!isbefore)
             {
@@ -1224,7 +1222,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
             MessageCache?.Add(message);
         }
     }
-
 
     #endregion
 

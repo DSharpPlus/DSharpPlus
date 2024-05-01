@@ -543,7 +543,6 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             DiscordMessage[] sortedMessageArray = fetchedMessages.ToArray();
             Array.Sort(sortedMessageArray, (x, y) => x.Id.CompareTo(y.Id));
 
-
             if (!isbefore)
             {
                 foreach (DiscordMessage msg in sortedMessageArray)

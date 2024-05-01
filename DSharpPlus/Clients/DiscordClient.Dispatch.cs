@@ -452,7 +452,6 @@ public sealed partial class DiscordClient
                 await OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, dat.ToDiscordObject<DiscordInteraction>());
                 break;
 
-
             case "integration_create":
                 await OnIntegrationCreateAsync(dat.ToDiscordObject<DiscordIntegration>(), (ulong)dat["guild_id"]);
                 break;
@@ -591,7 +590,6 @@ public sealed partial class DiscordClient
                 recipients.Add(xu);
             }
             channel.Recipients = recipients;
-
 
             _privateChannels[channel.Id] = channel;
         }
@@ -990,7 +988,6 @@ public sealed partial class DiscordClient
         guild.VanityUrlCode = eventGuild.VanityUrlCode;
         guild.Description = eventGuild.Description;
         guild.IsNSFW = eventGuild.IsNSFW;
-
 
         foreach (KeyValuePair<ulong, DiscordVoiceState> kvp in eventGuild._voiceStates ??= new())
         {
@@ -1819,7 +1816,6 @@ public sealed partial class DiscordClient
             _privateChannels[channelId] = (DiscordDmChannel)channel;
         }
 
-
         if (channel == null
             || Configuration.MessageCacheSize == 0
             || MessageCache == null
@@ -2380,7 +2376,6 @@ public sealed partial class DiscordClient
     }
 
     #endregion
-
 
 
     #region Integration

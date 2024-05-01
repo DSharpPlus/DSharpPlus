@@ -92,7 +92,6 @@ internal class ComponentEventWaiter : IDisposable
             }
         }
 
-
         foreach (ComponentCollectRequest? creq in _collectRequests.ToArray())
         {
             if (creq.Message == args.Message && creq.IsMatch(args))

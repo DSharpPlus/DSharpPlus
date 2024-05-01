@@ -438,7 +438,6 @@ public class InteractivityExtension : BaseExtension
         return new(result is null, result);
     }
 
-
     /// <summary>
     /// Waits for a dropdown to be interacted with.
     /// </summary>
@@ -891,7 +890,6 @@ public class InteractivityExtension : BaseExtension
             {
                 disabledButtons.AddRange(new[] { PaginationButtonType.SkipLeft, PaginationButtonType.Left });
             }
-
 
             if (pages.Count() == 2)
             {

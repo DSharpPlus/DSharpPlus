@@ -52,7 +52,6 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         // get trace id for logging
         Ulid traceId = context.Properties.TryGetValue(new("trace-id"), out Ulid tid) ? tid : Ulid.Empty;
 
-
         // get global limit
         bool exemptFromGlobalLimit = false;
 

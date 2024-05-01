@@ -114,7 +114,6 @@ public enum RoleCheckMode
     /// </summary>
     None = 0,
 
-
     /// <summary>
     /// Member is required to have all of the specified roles.
     /// </summary>
