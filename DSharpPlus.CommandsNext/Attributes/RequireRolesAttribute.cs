@@ -95,7 +95,7 @@ public sealed class RequireRolesAttribute : CheckBaseAttribute
 
         return CheckMode switch
         {
-            RoleCheckMode.All => present.Count() == intersect.Count(),
+            RoleCheckMode.All => present.Count == intersect.Count(),
             RoleCheckMode.SpecifiedOnly => passed.Count() == intersect.Count(),
             RoleCheckMode.None => !intersect.Any(),
             _ => intersect.Count() > 0

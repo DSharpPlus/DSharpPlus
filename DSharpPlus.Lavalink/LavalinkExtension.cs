@@ -111,7 +111,7 @@ public sealed class LavalinkExtension : BaseExtension
                 nodes = nodes.Where(regionPredicate).ToArray();
             }
 
-            if (nodes.Count() <= 1)
+            if (nodes.Length <= 1)
             {
                 return nodes.FirstOrDefault();
             }

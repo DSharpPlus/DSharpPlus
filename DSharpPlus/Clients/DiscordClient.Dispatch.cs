@@ -1384,7 +1384,7 @@ public sealed partial class DiscordClient
 
         TransportMember[] members = dat["members"].ToDiscordObject<TransportMember[]>();
 
-        int memCount = members.Count();
+        int memCount = members.Length;
         for (int i = 0; i < memCount; i++)
         {
             DiscordMember mbr = new DiscordMember(members[i]) { Discord = this, _guild_id = guild.Id };
@@ -1414,7 +1414,7 @@ public sealed partial class DiscordClient
         {
             DiscordPresence[] presences = dat["presences"].ToDiscordObject<DiscordPresence[]>();
 
-            int presCount = presences.Count();
+            int presCount = presences.Length;
             for (int i = 0; i < presCount; i++)
             {
                 DiscordPresence xp = presences[i];

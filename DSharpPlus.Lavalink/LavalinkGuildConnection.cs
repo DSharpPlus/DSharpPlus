@@ -327,7 +327,7 @@ public sealed class LavalinkGuildConnection
             return;
         }
 
-        if (bands.Distinct(new LavalinkBandAdjustmentComparer()).Count() != bands.Count())
+        if (bands.Distinct(new LavalinkBandAdjustmentComparer()).Count() != bands.Length)
         {
             throw new InvalidOperationException("You cannot specify multiple modifiers for the same band.");
         }
