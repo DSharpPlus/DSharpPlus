@@ -558,11 +558,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>The created event.</returns>
     public async Task<DiscordScheduledGuildEvent> CreateEventAsync(string name, string description, ulong? channelId, DiscordScheduledGuildEventType type, DiscordScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, string? location = null, Stream? image = null, string? reason = null)
     {
-        if (start <= DateTimeOffset.Now)
-        {
-            throw new ArgumentOutOfRangeException("The start time for an event must be in the future.");
-        }
-
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(start, DateTimeOffset.Now);
         if (end != null && end <= start)
         {
             throw new ArgumentOutOfRangeException("The end time for an event must be after the start time.");
