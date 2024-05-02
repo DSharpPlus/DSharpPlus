@@ -1,7 +1,10 @@
 ---
-uid: articles.commands.dependency_injection
+uid: articles.commands_next.dependency_injection
 title: Dependency Injection
 ---
+
+>[!WARNING]
+> CommandsNext has been replaced by [Commands](xref:articles.commands.introduction). Both this article and CommandsNext itself is no longer maintained and may contain outdated information. CommandsNext will be deprecated in version 5.1.0 of DSharpPlus.
 
 ## Dependency Injection
 
@@ -111,5 +114,5 @@ Scoped    | Once for each command module.
 Transient | Each time its requested.
 
 <!-- LINKS -->
-[0]:  xref:articles.commands.intro#argument-converters
-[1]:  ../../images/commands_dependency_injection_01.png
+[0]:  xref:articles.commands_next.intro#argument-converters
+[1]:  ../../images/commands_next_dependency_injection_01.png

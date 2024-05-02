@@ -1,7 +1,10 @@
 ---
-uid: articles.commands.help_formatter
+uid: articles.commands_next.help_formatter
 title: Help Formatter
 ---
+
+>[!WARNING]
+> CommandsNext has been replaced by [Commands](xref:articles.commands.introduction). Both this article and CommandsNext itself is no longer maintained and may contain outdated information. CommandsNext will be deprecated in version 5.1.0 of DSharpPlus.
 
 ## Custom Help Formatter
 
@@ -22,16 +25,16 @@ public class CustomHelpFormatter : BaseHelpFormatter
     {
         // _embed = new DiscordEmbedBuilder();
         // _strBuilder = new StringBuilder();
-  
+
   // Help formatters do support dependency injection.
-  // Any required services can be specified by declaring constructor parameters. 
+  // Any required services can be specified by declaring constructor parameters.
 
         // Other required initialization here ...
     }
 
     public override BaseHelpFormatter WithCommand(Command command)
     {
-        // _embed.AddField(command.Name, command.Description);            
+        // _embed.AddField(command.Name, command.Description);
         // _strBuilder.AppendLine($"{command.Name} - {command.Description}");
 
         return this;
@@ -41,7 +44,7 @@ public class CustomHelpFormatter : BaseHelpFormatter
     {
         foreach (var cmd in cmds)
         {
-            // _embed.AddField(cmd.Name, cmd.Description);            
+            // _embed.AddField(cmd.Name, cmd.Description);
             // _strBuilder.AppendLine($"{cmd.Name} - {cmd.Description}");
         }
 
@@ -87,4 +90,4 @@ That's all there is to it.
 ![Fresh New Look][0]
 
 <!-- LINKS -->
-[0]:  ../../images/commands_help_formatter_01.png
+[0]:  ../../images/commands_next_help_formatter_01.png

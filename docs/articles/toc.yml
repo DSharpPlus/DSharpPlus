@@ -26,19 +26,37 @@
 - name: Commands
   items:
   - name: Introduction
-    topicUid: articles.commands.intro
+    topicUid: articles.commands.introduction
+  - name: Custom Argument Converters
+    topicUid: articles.commands.custom_argument_converters
+  - name: Custom Context Checks
+    topicUid: articles.commands.custom_context_checks
+  - name: Custom Error Handler
+    topicUid: articles.commands.custom_error_handler
+  - name: Command Processors
+    items:
+    - name: Introduction
+      topicUid: articles.commands.command_processors.introduction
+    - name: Slash Commands
+      items:
+      - name: Choice Providers vs AutoComplete
+        topicUid: articles.commands.command_processors.slash_commands.choice_provider_vs_autocomplete
+- name: CommandsNext
+  items:
+  - name: Introduction
+    topicUid: articles.commands_next.intro
   - name: Command Attributes
-    topicUid: articles.commands.command_attributes
+    topicUid: articles.commands_next.command_attributes
   - name: Dependency Injection
-    topicUid: articles.commands.dependency_injection
+    topicUid: articles.commands_next.dependency_injection
   - name: Customization
     items:
     - name: Help Formatter
-      topicUid: articles.commands.help_formatter
+      topicUid: articles.commands_next.help_formatter
     - name: Argument Converters
-      topicUid: articles.commands.argument_converters
+      topicUid: articles.commands_next.argument_converters
     - name: Command Handler
-      topicUid: articles.commands.command_handler
+      topicUid: articles.commands_next.command_handler
 - name: Audio
   items:
   - name: Lavalink

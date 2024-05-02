@@ -1,7 +1,10 @@
 ---
-uid: articles.commands.command_attributes
+uid: articles.commands_next.command_attributes
 title: Command Attributes
 ---
+
+>[!WARNING]
+> CommandsNext has been replaced by [Commands](xref:articles.commands.introduction). Both this article and CommandsNext itself is no longer maintained and may contain outdated information. CommandsNext will be deprecated in version 5.1.0 of DSharpPlus.
 
 ## Built-In Attributes
 
@@ -101,4 +104,4 @@ public async Task GenericCommand(CommandContext ctx, string generic)
 ![Generic Image][0]
 
 <!-- LINKS -->
-[0]:  ../../images/commands_command_attributes_01.png
+[0]:  ../../images/commands_next_command_attributes_01.png

@@ -17,6 +17,7 @@ public static class ExtensionMethods
     /// <param name="client">Client to enable slash commands for.</param>
     /// <param name="config">Configuration to use.</param>
     /// <returns>Created <see cref="SlashCommandsExtension"/>.</returns>
+    [Obsolete("DSharpPlus.SlashCommands is obsolete. Please consider using the new DSharpPlus.Commands extension instead.")]
     public static SlashCommandsExtension UseSlashCommands(this DiscordClient client, SlashCommandsConfiguration config = null)
     {
         if (client.GetExtension<SlashCommandsExtension>() != null)
@@ -43,6 +44,7 @@ public static class ExtensionMethods
     /// <param name="client">Client to enable slash commands on.</param>
     /// <param name="config">Configuration to use.</param>
     /// <returns>A dictionary of created <see cref="SlashCommandsExtension"/> with the key being the shard id.</returns>
+    [Obsolete("DSharpPlus.SlashCommands is obsolete. Please consider using the new DSharpPlus.Commands extension instead.")]
     public static async Task<IReadOnlyDictionary<int, SlashCommandsExtension>> UseSlashCommandsAsync(this DiscordShardedClient client, SlashCommandsConfiguration config = null)
     {
         Dictionary<int, SlashCommandsExtension> modules = [];
