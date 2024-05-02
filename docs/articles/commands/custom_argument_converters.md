@@ -42,18 +42,29 @@ Now, we need to implement the actual conversion logic. The `Ulid` type has a `Tr
 ```cs
 public class UlidArgumentConverter : ITextArgumentConverter<Ulid>, ISlashArgumentConverter<Ulid>
 {
+    private readonly ILogger<UlidArgumentConverter> _logger;
+    public UlidArgumentConverter(ILogger<UlidArgumentConverter> logger) => _logger = logger;
+
     public Task<Optional<Ulid>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context.Argument);
 
     public Task<Optional<Ulid>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context.Argument.RawValue);
 
-    public Task<Optional<Ulid>> ConvertAsync(string value) => Task.FromResult(Ulid.TryParse(value, out Ulid ulid)
-        ? Optional.FromValue(ulid)
-        : Optional.FromNoValue<Ulid>()
-    );
+    public Task<Optional<Ulid>> ConvertAsync(string value)
+    {
+        _logger.LogDebug("Attempting to convert {Value} to Ulid.", value);
+        if (Ulid.TryParse(value, out var ulid))
+        {
+            _logger.LogDebug("Successfully converted {Value} to Ulid.", value);
+            return Task.FromResult(Optional.FromValue(ulid));
+        }
+
+        _logger.LogDebug("Failed to convert {Value} to Ulid.", value);
+        return Task.FromResult(Optional.FromNoValue<Ulid>());
+    }
 }
 ```
 
-Since there is no asynchronous operations occuring within the conversion methods, we use `Task.FromResult`. However you'll also notice the use of `Optional<T>` here. When executing an argument converter, there are three possible outcomes:
+Since there is no asynchronous operations occuring within the conversion methods, we use `Task.FromResult`. Another thing to note is that argument converters support constructor dependency injection. Lastly, you'll also notice the use of `Optional<T>` here. When executing an argument converter, there are three possible outcomes:
 
 1. The conversion was successful and the value is returned.
 2. The conversion was unsuccessful and the value is not returned.

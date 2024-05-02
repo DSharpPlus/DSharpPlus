@@ -41,6 +41,8 @@ Some valid use-cases for autocomplete include:
 - A Google search
 - Very large enums (e.g. all the countries in the world)
 
+Both choice providers and auto-complete support dependency injection through the constructor.
+
 ## Implementing a Choice Provider
 
 Our class will implement from the `IChoiceProvider` interface. This interface has a single method: `ValueTask<IReadOnlyDictionary<string, object>> ProvideAsync(CommandParameter parameter)`. This method is only called once per command parameter on startup.
