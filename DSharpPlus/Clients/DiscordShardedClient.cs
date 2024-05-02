@@ -153,9 +153,8 @@ public sealed partial class DiscordShardedClient
         {
             await InternalStopAsync(false);
 
-            string message = $"Shard initialization failed, check inner exceptions for details: ";
-
-            Logger.LogCritical(LoggerEvents.ShardClientError, $"{message}\n{ex}");
+            string message = "Shard initialization failed, check inner exceptions for details: ";
+            Logger.LogCritical(LoggerEvents.ShardClientError, ex, "{Message}", message);
             throw new AggregateException(message, ex);
         }
     }

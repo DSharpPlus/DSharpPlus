@@ -306,7 +306,7 @@ public static partial class Utilities
             return;
         }
 
-        task.ContinueWith(t => logger.Log(level, eventId, t.Exception, message), TaskContinuationOptions.OnlyOnFaulted);
+        task.ContinueWith(t => logger.Log(level, eventId, t.Exception, "{Message}", message), TaskContinuationOptions.OnlyOnFaulted);
     }
 
     internal static void Deconstruct<TKey, TValue>(this KeyValuePair<TKey, TValue> kvp, out TKey key, out TValue value)

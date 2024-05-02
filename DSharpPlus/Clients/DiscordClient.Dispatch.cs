@@ -1505,7 +1505,7 @@ public sealed partial class DiscordClient
     {
         if (!guild._roles.TryRemove(roleId, out DiscordRole? role))
         {
-            Logger.LogWarning($"Attempted to delete a nonexistent role ({roleId}) from guild ({guild}).");
+            Logger.LogWarning("Attempted to delete a nonexistent role ({RoleId}) from guild ({Guild}).", roleId, guild);
         }
 
         GuildRoleDeleteEventArgs ea = new()

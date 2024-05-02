@@ -155,7 +155,7 @@ public sealed partial class DiscordClient
 
             try
             {
-                Logger.LogTrace(LoggerEvents.GatewayWsRx, msg);
+                Logger.LogTrace(LoggerEvents.GatewayWsRx, "{WebsocketPayload}", msg);
                 await HandleSocketMessageAsync(msg);
             }
             catch (Exception ex)
@@ -503,7 +503,7 @@ public sealed partial class DiscordClient
 
     internal async Task SendRawPayloadAsync(string jsonPayload)
     {
-        Logger.LogTrace(LoggerEvents.GatewayWsTx, jsonPayload);
+        Logger.LogTrace(LoggerEvents.GatewayWsTx, "{WebsocketPayload}", jsonPayload);
         await _webSocketClient.SendMessageAsync(jsonPayload);
     }
 

@@ -268,7 +268,7 @@ public sealed class LavalinkNodeConnection
                 }
                 else
                 {
-                    Discord.Logger.LogCritical(LavalinkEvents.LavalinkConnectionError, ex, $"Failed to connect to Lavalink, retrying in {_backoff} ms.");
+                    Discord.Logger.LogCritical(LavalinkEvents.LavalinkConnectionError, ex, "Failed to connect to Lavalink, retrying in {BackOff} ms.", _backoff);
                 }
             }
         }
@@ -367,7 +367,7 @@ public sealed class LavalinkNodeConnection
             return;
         }
 
-        Discord.Logger.LogTrace(LavalinkEvents.LavalinkWsRx, et.Message);
+        Discord.Logger.LogTrace(LavalinkEvents.LavalinkWsRx, "{WebsocketMessage}", et.Message);
 
         string json = et.Message;
         JObject jsonData = JObject.Parse(json);
@@ -582,7 +582,7 @@ public sealed class LavalinkNodeConnection
 
     private async Task WsSendAsync(string payload)
     {
-        Discord.Logger.LogTrace(LavalinkEvents.LavalinkWsTx, payload);
+        Discord.Logger.LogTrace(LavalinkEvents.LavalinkWsTx, "{WebsocketPayload}", payload);
         await WebSocket.SendMessageAsync(payload);
     }
 

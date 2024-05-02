@@ -382,7 +382,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                     //This isn't really much more descriptive but I added a separate case for it anyway
                     if (ex is BadRequestException brex)
                     {
-                        Client.Logger.LogCritical(brex, $"There was an error registering application commands: {brex.JsonMessage}");
+                        Client.Logger.LogCritical(brex, "There was an error registering application commands: {JsonError}", brex.JsonMessage);
                     }
                     else
                     {
@@ -435,7 +435,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                 {
                     if (ex is BadRequestException brex)
                     {
-                        Client.Logger.LogCritical(brex, $"There was an error registering application commands: {brex.JsonMessage}");
+                        Client.Logger.LogCritical(brex, "There was an error registering application commands: {JsonMessage}", brex.JsonMessage);
                     }
                     else
                     {

@@ -1086,7 +1086,7 @@ public sealed class VoiceNextConnection : IDisposable
             return Task.CompletedTask;
         }
 
-        Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsRx, et.Message);
+        Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsRx, "{WebsocketMessage}", et.Message);
         return HandleDispatchAsync(JObject.Parse(et.Message));
     }
 
@@ -1098,7 +1098,7 @@ public sealed class VoiceNextConnection : IDisposable
 
     private async Task WsSendAsync(string payload)
     {
-        Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsTx, payload);
+        Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsTx, "{WebsocketPayload}", payload);
         await VoiceWs.SendMessageAsync(payload);
     }
 
