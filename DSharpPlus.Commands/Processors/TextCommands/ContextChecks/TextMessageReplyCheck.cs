@@ -1,6 +1,5 @@
 
 using System.Threading.Tasks;
-using DSharpPlus.Commands;
 using DSharpPlus.Commands.ContextChecks;
 
 namespace DSharpPlus.Commands.Processors.TextCommands.ContextChecks;

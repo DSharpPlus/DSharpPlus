@@ -33,7 +33,7 @@ using CheckFunc = System.Func
 <
     object,
     DSharpPlus.Commands.ContextChecks.ContextCheckAttribute,
-    CommandContext,
+    DSharpPlus.Commands.CommandContext,
     System.Threading.Tasks.ValueTask<string?>
 >;
 
@@ -42,7 +42,7 @@ using ParameterCheckFunc = System.Func
     object,
     DSharpPlus.Commands.ContextChecks.ParameterChecks.ParameterCheckAttribute,
     DSharpPlus.Commands.ContextChecks.ParameterChecks.ParameterCheckInfo,
-    CommandContext,
+    DSharpPlus.Commands.CommandContext,
     System.Threading.Tasks.ValueTask<string?>
 >;
 

@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DSharpPlus.Commands;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Commands.Processors.SlashCommands;
