@@ -432,6 +432,31 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         {
             description = "No description provided.";
         }
+        
+        object maxValue = minMaxValue?.MaxValue!;
+        object minValue = minMaxValue?.MinValue!;
+
+        maxValue = maxValue switch
+        {
+            byte value   => Math.Min(value, byte.MaxValue),
+            sbyte value  => Math.Min(value, sbyte.MaxValue),
+            short value  => Math.Min(value, short.MaxValue),
+            ushort value => Math.Min(value, ushort.MaxValue),
+            int value    => Math.Min(value, int.MaxValue),
+            uint value   => Math.Min(value, uint.MaxValue),
+            _            => maxValue,
+        };
+
+        minValue = minValue switch
+        {
+            byte value   => Math.Min(value, byte.MinValue),
+            sbyte value  => Math.Max(value, sbyte.MinValue),
+            short value  => Math.Max(value, short.MinValue),
+            ushort value => Math.Min(value, ushort.MinValue),
+            int value    => Math.Max(value, int.MinValue),
+            uint value   => Math.Min(value, uint.MinValue),
+            _            => minValue,
+        };
 
         return new(
             name: ToSnakeCase(name),
@@ -442,9 +467,9 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             channelTypes: parameter.Attributes.OfType<SlashChannelTypesAttribute>().FirstOrDefault()?.ChannelTypes ?? [],
             choices: choices,
             maxLength: minMaxLength?.MaxLength,
-            maxValue: minMaxValue?.MaxValue!, // Incorrect nullable annotations within the lib
+            maxValue: maxValue, // Incorrect nullable annotations within the lib
             minLength: minMaxLength?.MinLength,
-            minValue: minMaxValue?.MinValue!, // Incorrect nullable annotations within the lib
+            minValue: minValue,
             required: !parameter.DefaultValue.HasValue,
             type: type
         );
