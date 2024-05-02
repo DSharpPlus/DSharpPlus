@@ -77,6 +77,65 @@ Then we use the check like such:
 public async ValueTask RequireDMs(CommandContext commandContext) => await commandContext.RespondAsync("This command was executed in a DM!");
 ```
 
+## Parameter Checks
+
+DSharpPlus.Commands also supports checks that target specifically one parameter. They are supplied with the present value and the metadata the extension has about the parameter, such as its default value or attributes. To implement a parameter check for your own parameter:
+- Create an attribute that inherits from `ParameterCheckAttribute`.
+- Have it implement `IParameterCheck<T>`.
+- Register your parameter check using `CommandsExtension.AddParameterCheck<T>()`.
+- Apply the attribute to your parameter.
+
+> ![NOTE]
+> You will be supplied an `object` for the parameter value. It is your responsibility to ensure the type matches what your check expects, and to either ignore or error on incorrect types.
+
+For example, we can make a check that ensures a string is no longer than X characters. First, we create our attribute, as above:
+
+```cs
+using DSharpPlus.Commands.ContextChecks.ParameterChecks;
+
+public sealed class MaximumStringLengthAttribute : ParameterCheckAttribute
+{
+    public int MaximumLength { get; private set; }
+    public MaximumStringLengthAttribute(int length) => MaximumLength = length;
+}
+```
+
+Then, we will be creating our check:
+
+```cs
+using DSharpPlus.Commands.ContextChecks.ParameterChecks;
+
+public sealed class MaximumStringLengthCheck : IParameterCheck<MaximumStringLengthAttribute>
+{
+    public ValueTask<string?> ExecuteCheckAsync(MaximumStringLengthAttribute attribute, ParameterInfo info, CommandContext context)
+    {
+        if (info.Value is not string str)
+        {
+            return ValueTask.FromResult<string?>("The provided parameter was not a string.");
+        }
+        else if (str.Length >= attribute.MaximumLength)
+        {
+            return ValueTask.FromResult<string?>("The string exceeded the length limit.");
+        }
+
+        return ValueTask.FromResult<string?>(null);
+    }
+}
+```
+
+We then register it like so:
+
+```cs
+commandsExtension.AddParameterCheck<MaximumStringLengthCheck>();
+```
+
+And then apply it to our parameter:
+
+```cs
+[Command("say")]
+public static async ValueTask SayAsync(CommandContext commandContext, [MaximumStringLength(2000)] string text) => await commandContext.RespondAsync(text);
+```
+
 ## Advanced Features
 
 The classes you use to implement checks participate in dependency injection, and you can request any type you previously supplied to the service provider in a public constructor. Useful applications include, but are not limited to, logging or tracking how often a command executes.
@@ -87,6 +146,12 @@ A single check class can also implement multiple checks, like so:
 public class Check : IContextCheck<FirstAttribute>, IContextCheck<SecondAttribute>;
 ```
 
+or even multiple different kinds of checks, like so:
+
+```cs
+public class Check : IContextCheck<FirstAttribute>, IParameterCheck<SecondAttribute>;
+```
+
 This means that all other code in that class can be shared between the two check methods, but this should be used with caution - since checks are registered per type, you lose granularity over which checks should be executed; and it means the same construction ceremony will run for both checks.
 
-There is no limit on how many different checks can reference the same attribute, they will all be supplied with that attribute. Checks targeting `UnconditionalCheckAttribute` will always be executed, regardless of whether the attribute is applied or not.
+There is no limit on how many different checks can reference the same attribute, they will all be supplied with that attribute. Checks targeting `UnconditionalCheckAttribute` will always be executed, regardless of whether the attribute is applied or not. Unconditional context checks are not available for parameter checks.
