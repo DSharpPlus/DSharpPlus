@@ -10,7 +10,7 @@ using DSharpPlus.EventArgs;
 public class Int32Converter : ISlashArgumentConverter<int>, ITextArgumentConverter<int>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Integer;
-    public string ReadableName => "Integer (0 through 2,147,483,647)";
+    public string ReadableName => "Integer";
     public bool RequiresText => true;
 
     public Task<Optional<int>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => int.TryParse(context.Argument, CultureInfo.InvariantCulture, out int result)

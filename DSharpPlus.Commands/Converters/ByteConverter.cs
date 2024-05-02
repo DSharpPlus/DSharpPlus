@@ -10,7 +10,7 @@ using DSharpPlus.EventArgs;
 public class ByteConverter : ISlashArgumentConverter<byte>, ITextArgumentConverter<byte>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Integer;
-    public string ReadableName => "Byte (0 through 255)";
+    public string ReadableName => "Positive Tiny Integer";
     public bool RequiresText => true;
 
     public Task<Optional<byte>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => byte.TryParse(context.Argument, CultureInfo.InvariantCulture, out byte result)

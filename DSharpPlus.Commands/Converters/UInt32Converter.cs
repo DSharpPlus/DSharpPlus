@@ -10,7 +10,7 @@ using DSharpPlus.EventArgs;
 public class UInt32Converter : ISlashArgumentConverter<uint>, ITextArgumentConverter<uint>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Integer;
-    public string ReadableName => "Unsigned Integer (0 through 4,294,967,295)";
+    public string ReadableName => "Positive Integer";
     public bool RequiresText => true;
 
     public Task<Optional<uint>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => uint.TryParse(context.Argument, CultureInfo.InvariantCulture, out uint result)
