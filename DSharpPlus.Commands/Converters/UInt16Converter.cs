@@ -9,8 +9,9 @@ namespace DSharpPlus.Commands.Converters;
 
 public class UInt16Converter : ISlashArgumentConverter<ushort>, ITextArgumentConverter<ushort>
 {
-    public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Integer;
-    public bool RequiresText { get; init; } = true;
+    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Integer;
+    public string ReadableName => "Positive Small Integer";
+    public bool RequiresText => true;
 
     public Task<Optional<ushort>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => ushort.TryParse(context.Argument, CultureInfo.InvariantCulture, out ushort result)
         ? Task.FromResult(Optional.FromValue(result))

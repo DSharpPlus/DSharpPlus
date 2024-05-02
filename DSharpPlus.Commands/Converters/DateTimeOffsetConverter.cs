@@ -10,8 +10,9 @@ namespace DSharpPlus.Commands.Converters;
 
 public class DateTimeOffsetConverter : ISlashArgumentConverter<DateTimeOffset>, ITextArgumentConverter<DateTimeOffset>
 {
-    public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.String;
-    public bool RequiresText { get; init; } = true;
+    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.String;
+    public string ReadableName => "Date and Time";
+    public bool RequiresText => true;
 
     public Task<Optional<DateTimeOffset>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => DateTimeOffset.TryParse(context.Argument, CultureInfo.InvariantCulture, out DateTimeOffset result)
         ? Task.FromResult(Optional.FromValue(result))

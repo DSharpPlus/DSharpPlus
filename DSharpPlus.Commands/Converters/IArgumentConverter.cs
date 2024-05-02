@@ -4,7 +4,10 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.Commands.Converters;
 
-public interface IArgumentConverter { }
+public interface IArgumentConverter
+{
+    public string ReadableName { get; }
+}
 
 public interface IArgumentConverter<TConverterContext, TEventArgs, TOutput> : IArgumentConverter
     where TConverterContext : ConverterContext

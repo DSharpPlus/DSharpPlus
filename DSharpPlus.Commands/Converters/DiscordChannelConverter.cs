@@ -15,8 +15,9 @@ public partial class DiscordChannelConverter : ISlashArgumentConverter<DiscordCh
     [GeneratedRegex(@"^<#(\d+)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
     private static partial Regex _getChannelRegex();
 
-    public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Channel;
-    public bool RequiresText { get; init; } = true;
+    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Channel;
+    public string ReadableName => "Discord Channel";
+    public bool RequiresText => true;
 
     public Task<Optional<DiscordChannel>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
     {

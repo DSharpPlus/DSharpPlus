@@ -9,8 +9,9 @@ namespace DSharpPlus.Commands.Converters;
 
 public class UInt32Converter : ISlashArgumentConverter<uint>, ITextArgumentConverter<uint>
 {
-    public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Integer;
-    public bool RequiresText { get; init; } = true;
+    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Integer;
+    public string ReadableName => "Positive Integer";
+    public bool RequiresText => true;
 
     public Task<Optional<uint>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => uint.TryParse(context.Argument, CultureInfo.InvariantCulture, out uint result)
         ? Task.FromResult(Optional.FromValue(result))

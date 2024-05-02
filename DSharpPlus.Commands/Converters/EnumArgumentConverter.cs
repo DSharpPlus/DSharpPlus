@@ -10,8 +10,9 @@ namespace DSharpPlus.Commands.Converters;
 
 public class EnumConverter : ISlashArgumentConverter<Enum>, ITextArgumentConverter<Enum>
 {
-    public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Integer;
-    public bool RequiresText { get; init; } = true;
+    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Integer;
+    public string ReadableName => "Multiple Choice";
+    public bool RequiresText => true;
 
     public Task<Optional<Enum>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => Task.FromResult(Enum.TryParse(context.Parameter.Type, context.Argument, true, out object? result)
         ? Optional.FromValue((Enum)result)
