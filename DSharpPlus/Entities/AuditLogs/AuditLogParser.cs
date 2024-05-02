@@ -20,6 +20,7 @@ internal static class AuditLogParser
     /// </summary>
     /// <param name="guild"> <see cref="DiscordGuild"/> which is the parent of the AuditLog</param>
     /// <param name="auditLog"> <see cref="AuditLog"/> whose entries should be parsed</param>
+    /// <param name="cancellationToken">A token to cancel the request</param>
     /// <returns>A list of <see cref="DiscordAuditLogEntry"/>. All entries which cant be parsed are dropped</returns>
     internal static async IAsyncEnumerable<DiscordAuditLogEntry> ParseAuditLogToEntriesAsync
     (

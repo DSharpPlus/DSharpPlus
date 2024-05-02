@@ -952,6 +952,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="users">Collection of users to ban</param>
     /// <param name="deleteMessageSeconds">Timespan in seconds to delete messages from the banned users</param>
+    /// <param name="reason">Reason for audit logs.</param>
     /// <returns>Response contains a which users were banned and which were not.</returns>
     public async Task<DiscordBulkBan> BulkBanMembersAsync(IEnumerable<DiscordUser> users, int deleteMessageSeconds = 0, string reason = null)
     {
@@ -964,6 +965,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="userIds">Collection of user ids to ban</param>
     /// <param name="deleteMessageSeconds">Timespan in seconds to delete messages from the banned users</param>
+    /// <param name="reason">Reason for audit logs.</param>
     /// <returns>Response contains a which users were banned and which were not.</returns>
     public async Task<DiscordBulkBan> BulkBanMembersAsync(IEnumerable<ulong> userIds, int deleteMessageSeconds = 0, string reason = null)
     => await Discord.ApiClient.CreateGuildBulkBanAsync(Id, userIds, deleteMessageSeconds, reason);
