@@ -516,18 +516,18 @@ public sealed class DiscordApiClient
     (
         ulong guildId,
         ulong userId,
-        int deleteMessageDays,
+        int deleteMessageSeconds,
         string? reason = null
     )
     {
-        if (deleteMessageDays is < 0 or > 7)
+        if (deleteMessageSeconds is < 0 or > 604800)
         {
-            throw new ArgumentException("Delete message days must be a number between 0 and 7.", nameof(deleteMessageDays));
+            throw new ArgumentException("Delete message seconds must be a number between 0 and 604800 (7 Days).", nameof(deleteMessageSeconds));
         }
 
         QueryUriBuilder builder = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.BANS}/{userId}");
 
-        builder.AddParameter("delete_message_days", deleteMessageDays.ToString(CultureInfo.InvariantCulture));
+        builder.AddParameter("delete_message_seconds", deleteMessageSeconds.ToString(CultureInfo.InvariantCulture));
 
         RestRequest request = new()
         {
