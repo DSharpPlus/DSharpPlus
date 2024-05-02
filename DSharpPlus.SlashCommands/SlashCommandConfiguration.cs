@@ -1,8 +1,8 @@
-namespace DSharpPlus.SlashCommands;
 
 using System;
 using Microsoft.Extensions.DependencyInjection;
 
+namespace DSharpPlus.SlashCommands;
 /// <summary>
 /// A configuration for a <see cref="SlashCommandsExtension"/>.
 /// </summary>

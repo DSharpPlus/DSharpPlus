@@ -1,10 +1,10 @@
-namespace DSharpPlus.Net.Abstractions;
 
 using System;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Net.Abstractions;
 internal sealed class RestChannelCreatePayload
 {
     [JsonProperty("name")]

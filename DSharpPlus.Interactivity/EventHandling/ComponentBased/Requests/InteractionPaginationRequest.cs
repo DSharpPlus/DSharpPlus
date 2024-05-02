@@ -1,4 +1,3 @@
-namespace DSharpPlus.Interactivity.EventHandling;
 
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Enums;
 
+namespace DSharpPlus.Interactivity.EventHandling;
 internal class InteractionPaginationRequest : IPaginationRequest
 {
     private int _index;

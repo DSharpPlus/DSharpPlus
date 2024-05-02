@@ -1,8 +1,8 @@
-namespace DSharpPlus.Entities;
 
 using DSharpPlus.Net;
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents a footer in an embed.
 /// </summary>

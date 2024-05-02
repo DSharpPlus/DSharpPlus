@@ -1,4 +1,3 @@
-namespace DSharpPlus.VoiceNext;
 
 using System;
 using System.Collections.Generic;
@@ -6,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
+namespace DSharpPlus.VoiceNext;
 /// <summary>
 /// Defines the format of PCM data consumed or produced by Opus.
 /// </summary>

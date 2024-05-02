@@ -1,9 +1,9 @@
-namespace DSharpPlus.Entities;
 
 using System;
 using System.Globalization;
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 public class DiscordThreadChannelMetadata
 {
     /// <summary>

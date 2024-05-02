@@ -1,7 +1,7 @@
-namespace DSharpPlus.Entities;
 
 using System;
 
+namespace DSharpPlus.Entities;
 [Flags]
 public enum DiscordChannelFlags
 {

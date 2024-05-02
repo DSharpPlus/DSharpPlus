@@ -1,4 +1,3 @@
-namespace DSharpPlus.VoiceNext;
 
 using System;
 using System.Buffers;
@@ -8,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.VoiceNext.Codec;
 
+namespace DSharpPlus.VoiceNext;
 /// <summary>
 /// Sink used to transmit audio data via <see cref="VoiceNextConnection"/>.
 /// </summary>

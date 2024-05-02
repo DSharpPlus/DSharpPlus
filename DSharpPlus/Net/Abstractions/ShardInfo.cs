@@ -1,9 +1,9 @@
-namespace DSharpPlus.Net.Abstractions;
 
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+namespace DSharpPlus.Net.Abstractions;
 /// <summary>
 /// Represents data for identify payload's shard info.
 /// </summary>

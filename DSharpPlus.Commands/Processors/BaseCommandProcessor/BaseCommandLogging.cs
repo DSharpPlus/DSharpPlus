@@ -1,8 +1,8 @@
-namespace DSharpPlus.Commands.Processors;
 
 using System;
 using Microsoft.Extensions.Logging;
 
+namespace DSharpPlus.Commands.Processors;
 internal static class BaseCommandLogging
 {
     // Startup logs

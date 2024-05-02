@@ -1,7 +1,7 @@
-namespace DSharpPlus.CommandsNext.Attributes;
 
 using System.Threading.Tasks;
 
+namespace DSharpPlus.CommandsNext.Attributes;
 /// <summary>
 /// Defines that a command is only usable when sent in reply. Command will appear in help regardless of this attribute.
 /// </summary>

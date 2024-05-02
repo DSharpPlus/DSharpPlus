@@ -1,4 +1,3 @@
-namespace DSharpPlus.Commands.Processors.SlashCommands;
 
 using System;
 using System.Collections.Frozen;
@@ -22,6 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
+namespace DSharpPlus.Commands.Processors.SlashCommands;
 public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCreateEventArgs, ISlashArgumentConverter, InteractionConverterContext, SlashCommandContext>
 {
     // Required for GuildDownloadCompleted event

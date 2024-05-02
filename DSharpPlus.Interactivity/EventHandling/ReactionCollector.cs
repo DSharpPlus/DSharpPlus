@@ -1,4 +1,3 @@
-namespace DSharpPlus.Interactivity.EventHandling;
 
 using System;
 using System.Collections.Generic;
@@ -13,6 +12,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Logging;
 
+namespace DSharpPlus.Interactivity.EventHandling;
 /// <summary>
 /// Eventwaiter is a class that serves as a layer between the InteractivityExtension
 /// and the DiscordClient to listen to an event and check for matches to a predicate.

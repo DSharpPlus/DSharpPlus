@@ -1,9 +1,9 @@
-namespace DSharpPlus.Entities;
 
 using System.Collections.Generic;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 internal class DiscordInteractionApplicationCommandCallbackData
 {
     [JsonProperty("tts", NullValueHandling = NullValueHandling.Ignore)]

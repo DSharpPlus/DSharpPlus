@@ -1,9 +1,9 @@
-namespace DSharpPlus.Entities;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
+namespace DSharpPlus.Entities;
 /// <summary>
 /// Constructs an interaction response.
 /// </summary>

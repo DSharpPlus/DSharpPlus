@@ -1,7 +1,7 @@
-namespace DSharpPlus.Net;
 
 using System;
 
+namespace DSharpPlus.Net;
 /// <summary>
 /// A value-type variant of <seealso cref="RateLimitBucket"/> for extraction, in case we don't need the object.
 /// </summary>

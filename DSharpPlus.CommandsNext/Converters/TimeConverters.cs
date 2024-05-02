@@ -1,4 +1,3 @@
-namespace DSharpPlus.CommandsNext.Converters;
 
 using System;
 using System.Globalization;
@@ -6,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.CommandsNext.Converters;
 public class DateTimeConverter : IArgumentConverter<DateTime>
 {
     Task<Optional<DateTime>> IArgumentConverter<DateTime>.ConvertAsync(string value, CommandContext ctx) => DateTime.TryParse(value, ctx.CommandsNext.DefaultParserCulture, DateTimeStyles.None, out DateTime result)

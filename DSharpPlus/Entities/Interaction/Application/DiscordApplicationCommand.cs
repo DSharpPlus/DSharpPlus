@@ -1,4 +1,3 @@
-namespace DSharpPlus.Entities;
 
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.Linq;
 
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents a command that is registered to an application.
 /// </summary>

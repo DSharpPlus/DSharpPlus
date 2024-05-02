@@ -1,10 +1,10 @@
-namespace DSharpPlus.Entities;
 
 using System;
 using System.Globalization;
 
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents an asset for an OAuth2 application.
 /// </summary>

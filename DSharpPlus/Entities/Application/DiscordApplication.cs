@@ -1,4 +1,3 @@
-namespace DSharpPlus.Entities;
 
 using System;
 using System.Collections.Generic;
@@ -7,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents an OAuth2 application.
 /// </summary>

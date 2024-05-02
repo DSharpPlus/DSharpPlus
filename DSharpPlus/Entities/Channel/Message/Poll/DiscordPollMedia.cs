@@ -1,7 +1,7 @@
-namespace DSharpPlus.Entities;
 
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents media for a poll. It is the backplane for poll options.
 /// </summary>

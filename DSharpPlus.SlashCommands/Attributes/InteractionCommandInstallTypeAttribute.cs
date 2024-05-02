@@ -1,9 +1,9 @@
-namespace DSharpPlus.SlashCommands;
 
 using System;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.SlashCommands;
 /// <summary>
 /// Specifies the installation context for a command or module.
 /// </summary>

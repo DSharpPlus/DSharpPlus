@@ -1,9 +1,9 @@
-namespace DSharpPlus.CommandsNext.Attributes;
 
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
+namespace DSharpPlus.CommandsNext.Attributes;
 /// <summary>
 /// Defines that usage of this command is restricted to the owner of the bot.
 /// </summary>

@@ -1,4 +1,3 @@
-namespace DSharpPlus.Commands.Converters;
 
 using System.Globalization;
 using System.Threading.Tasks;
@@ -7,6 +6,7 @@ using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
+namespace DSharpPlus.Commands.Converters;
 public class UInt16Converter : ISlashArgumentConverter<ushort>, ITextArgumentConverter<ushort>
 {
     public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Integer;

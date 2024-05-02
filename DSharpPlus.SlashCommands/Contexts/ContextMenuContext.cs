@@ -1,7 +1,7 @@
-namespace DSharpPlus.SlashCommands;
 
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.SlashCommands;
 /// <summary>
 /// Represents a context for a context menu.
 /// </summary>

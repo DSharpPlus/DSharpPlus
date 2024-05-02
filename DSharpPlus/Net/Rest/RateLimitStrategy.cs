@@ -1,4 +1,3 @@
-namespace DSharpPlus.Net;
 
 using System;
 using System.Collections.Concurrent;
@@ -12,6 +11,7 @@ using Microsoft.Extensions.Logging;
 
 using Polly;
 
+namespace DSharpPlus.Net;
 internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDisposable
 {
     private readonly RateLimitBucket globalBucket;

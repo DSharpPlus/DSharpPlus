@@ -1,8 +1,8 @@
-namespace DSharpPlus.Entities;
 
 using System;
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents an option for a user to select for auto-completion.
 /// </summary>

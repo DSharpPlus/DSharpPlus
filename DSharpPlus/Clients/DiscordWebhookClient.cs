@@ -1,4 +1,3 @@
-namespace DSharpPlus;
 
 using System;
 using System.Collections.Generic;
@@ -14,6 +13,7 @@ using DSharpPlus.Metrics;
 using DSharpPlus.Net;
 using Microsoft.Extensions.Logging;
 
+namespace DSharpPlus;
 /// <summary>
 /// Represents a webhook-only client. This client can be used to execute Discord webhooks.
 /// </summary>

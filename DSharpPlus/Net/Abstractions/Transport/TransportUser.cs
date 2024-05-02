@@ -1,9 +1,9 @@
-namespace DSharpPlus.Net.Abstractions;
 
 using DSharpPlus.Entities;
 
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Net.Abstractions;
 internal class TransportUser
 {
     [JsonProperty("id")]

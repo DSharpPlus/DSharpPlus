@@ -1,8 +1,8 @@
-namespace DSharpPlus;
 
 using System;
 using Microsoft.Extensions.Logging;
 
+namespace DSharpPlus;
 public class DefaultLogger : ILogger<BaseDiscordClient>
 {
     private static readonly object _lock = new();

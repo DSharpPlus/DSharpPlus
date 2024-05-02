@@ -1,9 +1,9 @@
-namespace DSharpPlus.SlashCommands.Attributes;
 
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
+namespace DSharpPlus.SlashCommands.Attributes;
 /// <summary>
 /// Defines that this slash command is restricted to the owner of the bot.
 /// </summary>

@@ -1,4 +1,3 @@
-namespace DSharpPlus.Interactivity;
 
 using System;
 using System.Collections.Generic;
@@ -12,6 +11,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
 
+namespace DSharpPlus.Interactivity;
 /// <summary>
 /// Extension class for DSharpPlus.Interactivity
 /// </summary>

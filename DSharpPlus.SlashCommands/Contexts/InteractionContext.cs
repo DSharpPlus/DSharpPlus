@@ -1,8 +1,8 @@
-namespace DSharpPlus.SlashCommands;
 
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.SlashCommands;
 /// <summary>
 /// Represents a context for an interaction.
 /// </summary>

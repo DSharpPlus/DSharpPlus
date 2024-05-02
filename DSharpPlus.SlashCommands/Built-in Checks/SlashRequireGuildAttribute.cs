@@ -1,8 +1,8 @@
-namespace DSharpPlus.SlashCommands.Attributes;
 
 using System;
 using System.Threading.Tasks;
 
+namespace DSharpPlus.SlashCommands.Attributes;
 /// <summary>
 /// Defines that this slash command is only usable within a guild.
 /// </summary>

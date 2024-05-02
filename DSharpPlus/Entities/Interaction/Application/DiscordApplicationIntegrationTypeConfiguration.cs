@@ -1,7 +1,7 @@
-namespace DSharpPlus.Entities;
 
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents the configuration for an integration type.
 /// </summary>

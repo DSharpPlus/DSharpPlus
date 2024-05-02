@@ -1,8 +1,8 @@
-namespace DSharpPlus.CommandsNext.Converters;
 
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.CommandsNext.Converters;
 /// <summary>
 /// Argument converter abstract.
 /// </summary>

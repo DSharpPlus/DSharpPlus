@@ -1,9 +1,9 @@
-namespace DSharpPlus.VoiceNext.Codec;
 
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
+namespace DSharpPlus.VoiceNext.Codec;
 internal static class Helpers
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

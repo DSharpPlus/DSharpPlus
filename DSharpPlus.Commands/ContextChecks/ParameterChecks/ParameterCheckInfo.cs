@@ -1,7 +1,7 @@
-namespace DSharpPlus.Commands.ContextChecks.ParameterChecks;
 
 using DSharpPlus.Commands.Trees;
 
+namespace DSharpPlus.Commands.ContextChecks.ParameterChecks;
 /// <summary>
 /// Presents information about a parameter check.
 /// </summary>

@@ -1,9 +1,9 @@
-namespace DSharpPlus.CommandsNext.Converters;
 
 using System;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.CommandsNext.Converters;
 public class StringConverter : IArgumentConverter<string>
 {
     Task<Optional<string>> IArgumentConverter<string>.ConvertAsync(string value, CommandContext ctx)

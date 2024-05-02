@@ -1,7 +1,7 @@
-namespace DSharpPlus.CommandsNext.Exceptions;
 
 using System;
 
+namespace DSharpPlus.CommandsNext.Exceptions;
 /// <summary>
 /// Indicates that given command name or alias is taken.
 /// </summary>

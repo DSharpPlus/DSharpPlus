@@ -1,9 +1,9 @@
-namespace DSharpPlus;
 
 using System.Diagnostics.CodeAnalysis;
 
 using DSharpPlus.Entities;
 
+namespace DSharpPlus;
 public interface IMessageCacheProvider
 {
     /// <summary>

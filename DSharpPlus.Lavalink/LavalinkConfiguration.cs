@@ -1,8 +1,8 @@
-namespace DSharpPlus.Lavalink;
 
 using DSharpPlus.Entities;
 using DSharpPlus.Net;
 
+namespace DSharpPlus.Lavalink;
 /// <summary>
 /// Lavalink connection configuration.
 /// </summary>

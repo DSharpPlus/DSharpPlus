@@ -1,4 +1,3 @@
-namespace DSharpPlus.Tools.ShardedEventHandlingGen;
 
 using System;
 using System.Collections.Generic;
@@ -9,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
+namespace DSharpPlus.Tools.ShardedEventHandlingGen;
 public static class Program
 {
     private static readonly ReadOnlyDictionary<string, string> TemplateFiles;

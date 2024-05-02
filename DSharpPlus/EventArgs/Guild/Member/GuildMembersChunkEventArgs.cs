@@ -1,8 +1,8 @@
-namespace DSharpPlus.EventArgs;
 
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.EventArgs;
 /// <summary>
 /// Represents arguments for <see cref="DiscordClient.GuildMembersChunked"/> event.
 /// </summary>

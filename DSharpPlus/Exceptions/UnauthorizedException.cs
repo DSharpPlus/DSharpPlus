@@ -1,8 +1,8 @@
-namespace DSharpPlus.Exceptions;
 
 using System.Net.Http;
 using System.Text.Json;
 
+namespace DSharpPlus.Exceptions;
 /// <summary>
 /// Represents an exception thrown when requester doesn't have necessary permissions to complete the request.
 /// </summary>

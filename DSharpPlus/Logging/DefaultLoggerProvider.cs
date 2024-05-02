@@ -1,8 +1,8 @@
-namespace DSharpPlus;
 
 using System;
 using Microsoft.Extensions.Logging;
 
+namespace DSharpPlus;
 internal class DefaultLoggerProvider : ILoggerProvider
 {
     private LogLevel MinimumLevel { get; }

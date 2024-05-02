@@ -1,10 +1,10 @@
-namespace DSharpPlus.CommandsNext.Exceptions;
 
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using DSharpPlus.CommandsNext.Attributes;
 
+namespace DSharpPlus.CommandsNext.Exceptions;
 /// <summary>
 /// Indicates that one or more checks for given command have failed.
 /// </summary>

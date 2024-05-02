@@ -1,4 +1,3 @@
-namespace DSharpPlus.Interactivity.EventHandling;
 
 using System;
 using System.Collections.Generic;
@@ -11,6 +10,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Logging;
 
+namespace DSharpPlus.Interactivity.EventHandling;
 internal class Poller
 {
     private DiscordClient _client;

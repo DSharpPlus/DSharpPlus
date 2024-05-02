@@ -1,9 +1,9 @@
-namespace DSharpPlus.SlashCommands.Attributes;
 
 using System;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.SlashCommands.Attributes;
 /// <summary>
 /// Defines that this slash command is only usable within a direct message channel.
 /// </summary>

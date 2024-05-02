@@ -1,7 +1,7 @@
-namespace DSharpPlus.Commands.ContextChecks;
 
 using System;
 
+namespace DSharpPlus.Commands.ContextChecks;
 /// <summary>
 /// Represents data for when a context check fails execution.
 /// </summary>

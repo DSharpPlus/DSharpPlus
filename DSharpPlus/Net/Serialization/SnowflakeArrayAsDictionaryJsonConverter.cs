@@ -1,4 +1,3 @@
-namespace DSharpPlus.Net.Serialization;
 
 using System;
 using System.Collections;
@@ -10,6 +9,7 @@ using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+namespace DSharpPlus.Net.Serialization;
 /// <summary>
 /// Used for a <see cref="Dictionary{TKey,TValue}"/> or <see cref="ConcurrentDictionary{TKey,TValue}"/> mapping
 /// <see cref="ulong"/> to any class extending <see cref="SnowflakeObject"/> (or, as a special case,

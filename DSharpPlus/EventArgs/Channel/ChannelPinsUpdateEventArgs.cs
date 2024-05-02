@@ -1,8 +1,8 @@
-namespace DSharpPlus.EventArgs;
 
 using System;
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.EventArgs;
 /// <summary>
 /// Represents arguments for <see cref="DiscordClient.ChannelPinsUpdated"/> event.
 /// </summary>

@@ -1,4 +1,3 @@
-namespace DSharpPlus.Net;
 
 using System;
 using System.Net;
@@ -13,6 +12,7 @@ using Microsoft.Extensions.Logging;
 
 using Polly;
 
+namespace DSharpPlus.Net;
 /// <summary>
 /// Represents a client used to make REST requests.
 /// </summary>

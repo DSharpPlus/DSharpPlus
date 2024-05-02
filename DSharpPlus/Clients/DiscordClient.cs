@@ -1,4 +1,3 @@
-namespace DSharpPlus;
 
 using System;
 using System.Collections.Concurrent;
@@ -20,6 +19,7 @@ using DSharpPlus.Net.Serialization;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
+namespace DSharpPlus;
 /// <summary>
 /// A Discord API wrapper.
 /// </summary>

@@ -1,4 +1,3 @@
-namespace DSharpPlus;
 
 using System;
 using System.Globalization;
@@ -6,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using DSharpPlus.Entities;
 
+namespace DSharpPlus;
 /// <summary>
 /// Contains markdown formatting helpers.
 /// </summary>

@@ -1,4 +1,3 @@
-namespace DSharpPlus.Entities;
 
 using System;
 using System.Collections.Generic;
@@ -7,6 +6,7 @@ using DSharpPlus.Net.Models;
 
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents a Discord auto-moderation rule.
 /// </summary>

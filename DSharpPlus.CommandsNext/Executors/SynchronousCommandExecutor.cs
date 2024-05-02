@@ -1,8 +1,8 @@
-namespace DSharpPlus.CommandsNext.Executors;
 
 using System;
 using System.Threading.Tasks;
 
+namespace DSharpPlus.CommandsNext.Executors;
 /// <summary>
 /// Executes commands by awaiting them.
 /// </summary>

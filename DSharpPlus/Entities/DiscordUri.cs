@@ -1,8 +1,8 @@
-namespace DSharpPlus.Net;
 
 using System;
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Net;
 /// <summary>
 /// An URI in a Discord embed doesn't necessarily conform to the RFC 3986. If it uses the <c>attachment://</c>
 /// protocol, it mustn't contain a trailing slash to be interpreted correctly as an embed attachment reference by

@@ -1,10 +1,10 @@
-namespace DSharpPlus.Net.Models;
 
 using System;
 using System.IO;
 
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.Net.Models;
 public class ScheduledGuildEventEditModel : BaseEditModel
 {
     /// <summary>

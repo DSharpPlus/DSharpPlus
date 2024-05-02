@@ -154,7 +154,7 @@ csharp_style_inlined_variable_declaration = true:error
 
 # https://stackoverflow.com/q/63369382/10942966
 csharp_qualified_using_at_nested_scope = true:error
-csharp_using_directive_placement = inside_namespace:error
+csharp_using_directive_placement = outside_namespace:error
 
 # New line preferences
 csharp_new_line_before_open_brace = all

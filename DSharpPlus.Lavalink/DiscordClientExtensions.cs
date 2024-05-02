@@ -1,4 +1,3 @@
-namespace DSharpPlus.Lavalink;
 
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 
+namespace DSharpPlus.Lavalink;
 public static class DiscordClientExtensions
 {
     /// <summary>

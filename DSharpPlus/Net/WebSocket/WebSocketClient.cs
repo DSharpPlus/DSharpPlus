@@ -1,4 +1,3 @@
-namespace DSharpPlus.Net.WebSocket;
 
 using System;
 using System.Collections.Generic;
@@ -11,6 +10,7 @@ using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.EventArgs;
 
+namespace DSharpPlus.Net.WebSocket;
 // weebsocket
 // not even sure whether emzi or I posted this. much love, naam.
 /// <summary>

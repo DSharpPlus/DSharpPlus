@@ -1,8 +1,8 @@
-namespace DSharpPlus.Entities;
 
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 /// <summary>
 /// A select component that allows users to be selected.
 /// </summary>

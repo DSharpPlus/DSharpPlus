@@ -1,4 +1,3 @@
-namespace DSharpPlus.Interactivity.EventHandling;
 
 using System;
 using System.Threading;
@@ -6,6 +5,7 @@ using System.Threading.Tasks;
 using ConcurrentCollections;
 using DSharpPlus.AsyncEvents;
 
+namespace DSharpPlus.Interactivity.EventHandling;
 /// <summary>
 /// CollectRequest is a class that serves as a representation of
 /// EventArgs that are being collected within a specific time frame.

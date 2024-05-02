@@ -1,8 +1,8 @@
-namespace DSharpPlus.EventArgs;
 
 using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
 
+namespace DSharpPlus.EventArgs;
 public class GuildAuditLogCreatedEventArgs : DiscordEventArgs
 {
     /// <summary>

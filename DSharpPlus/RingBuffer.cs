@@ -1,10 +1,10 @@
-namespace DSharpPlus;
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+namespace DSharpPlus;
 /// <summary>
 /// A circular buffer collection.
 /// </summary>

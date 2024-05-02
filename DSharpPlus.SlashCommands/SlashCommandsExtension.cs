@@ -1,4 +1,3 @@
-namespace DSharpPlus.SlashCommands;
 
 using System;
 using System.Collections.Generic;
@@ -18,6 +17,7 @@ using DSharpPlus.SlashCommands.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+namespace DSharpPlus.SlashCommands;
 /// <summary>
 /// A class that handles slash commands for a client.
 /// </summary>

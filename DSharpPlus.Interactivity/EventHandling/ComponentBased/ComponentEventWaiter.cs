@@ -1,4 +1,3 @@
-namespace DSharpPlus.Interactivity.EventHandling;
 
 using System;
 using System.Collections.Generic;
@@ -10,6 +9,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Enums;
 using Microsoft.Extensions.Logging;
 
+namespace DSharpPlus.Interactivity.EventHandling;
 /// <summary>
 /// A component-based version of <see cref="EventWaiter{T}"/>
 /// </summary>

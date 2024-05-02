@@ -1,8 +1,8 @@
-namespace DSharpPlus.Net.Abstractions;
 
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Net.Abstractions;
 /// <summary>
 /// Represents data for websocket status update payload.
 /// </summary>

@@ -1,8 +1,8 @@
-namespace DSharpPlus.Commands;
 
 using System.Threading;
 using System.Threading.Tasks;
 
+namespace DSharpPlus.Commands;
 public interface ICommandExecutor
 {
 

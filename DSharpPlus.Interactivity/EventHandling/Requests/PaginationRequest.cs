@@ -1,4 +1,3 @@
-namespace DSharpPlus.Interactivity.EventHandling;
 
 using System;
 using System.Collections.Generic;
@@ -7,6 +6,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Enums;
 
+namespace DSharpPlus.Interactivity.EventHandling;
 internal class PaginationRequest : IPaginationRequest
 {
     private TaskCompletionSource<bool> _tcs;

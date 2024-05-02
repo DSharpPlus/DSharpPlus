@@ -1,7 +1,7 @@
-namespace DSharpPlus.Entities;
 
 using System;
 
+namespace DSharpPlus.Entities;
 public sealed class DiscordSpotifyAsset : DiscordAsset
 {
     /// <summary>

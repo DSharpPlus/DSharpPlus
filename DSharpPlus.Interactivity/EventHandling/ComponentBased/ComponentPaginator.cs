@@ -1,4 +1,3 @@
-namespace DSharpPlus.Interactivity.EventHandling;
 
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Enums;
 using Microsoft.Extensions.Logging;
 
+namespace DSharpPlus.Interactivity.EventHandling;
 internal class ComponentPaginator : IPaginator
 {
     private readonly DiscordClient _client;

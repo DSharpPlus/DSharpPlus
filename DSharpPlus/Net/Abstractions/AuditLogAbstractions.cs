@@ -1,4 +1,3 @@
-namespace DSharpPlus.Net.Abstractions;
 
 using System.Collections.Generic;
 using DSharpPlus.Entities;
@@ -7,6 +6,7 @@ using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+namespace DSharpPlus.Net.Abstractions;
 internal sealed class AuditLogActionChange
 {
     // this can be a string or an array

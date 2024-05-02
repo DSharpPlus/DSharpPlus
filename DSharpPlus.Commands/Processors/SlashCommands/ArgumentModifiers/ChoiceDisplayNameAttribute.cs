@@ -1,7 +1,7 @@
-namespace DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 
 using System;
 
+namespace DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 /// <summary>
 /// Used to annotate enum members with a display name for the built-in choice provider.
 /// </summary>

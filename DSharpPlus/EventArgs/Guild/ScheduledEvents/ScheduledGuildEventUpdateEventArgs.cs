@@ -1,7 +1,7 @@
-namespace DSharpPlus.EventArgs;
 
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.EventArgs;
 /// <summary>
 /// Fired when an event is updated.
 /// </summary>

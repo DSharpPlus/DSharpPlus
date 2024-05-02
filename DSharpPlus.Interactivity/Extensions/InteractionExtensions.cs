@@ -1,4 +1,3 @@
-namespace DSharpPlus.Interactivity.Extensions;
 
 using System.Collections.Generic;
 using System.Threading;
@@ -7,6 +6,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
 
+namespace DSharpPlus.Interactivity.Extensions;
 public static class InteractionExtensions
 {
     /// <summary>

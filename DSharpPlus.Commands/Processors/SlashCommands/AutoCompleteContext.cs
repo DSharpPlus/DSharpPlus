@@ -1,9 +1,9 @@
-namespace DSharpPlus.Commands.Processors.SlashCommands;
 
 using System.Collections.Generic;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.Commands.Processors.SlashCommands;
 public sealed record AutoCompleteContext : AbstractContext
 {
     public required DiscordInteraction Interaction { get; init; }

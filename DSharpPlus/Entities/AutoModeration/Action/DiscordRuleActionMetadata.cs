@@ -1,9 +1,9 @@
-namespace DSharpPlus.Entities;
 
 using System;
 
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents a Discord rule action metadata.
 /// </summary>

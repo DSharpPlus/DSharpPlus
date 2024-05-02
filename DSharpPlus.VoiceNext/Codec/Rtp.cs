@@ -1,8 +1,8 @@
-namespace DSharpPlus.VoiceNext.Codec;
 
 using System;
 using System.Buffers.Binary;
 
+namespace DSharpPlus.VoiceNext.Codec;
 internal sealed class Rtp : IDisposable
 {
     public const int HeaderSize = 12;

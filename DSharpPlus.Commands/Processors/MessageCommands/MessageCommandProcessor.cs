@@ -1,4 +1,3 @@
-namespace DSharpPlus.Commands.Processors.MessageCommands;
 
 using System;
 using System.Collections.Generic;
@@ -20,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
+namespace DSharpPlus.Commands.Processors.MessageCommands;
 public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreateEventArgs>
 {
     public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreateEventArgs>> Converters => _slashCommandProcessor?.ConverterDelegates ?? new Dictionary<Type, ConverterDelegate<InteractionCreateEventArgs>>();

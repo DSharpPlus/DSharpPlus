@@ -1,8 +1,8 @@
-namespace DSharpPlus.SlashCommands.EventArgs;
 
 using System;
 using DSharpPlus.AsyncEvents;
 
+namespace DSharpPlus.SlashCommands.EventArgs;
 /// <summary>
 /// Represents arguments for a <see cref="SlashCommandsExtension.SlashCommandErrored"/> event.
 /// </summary>

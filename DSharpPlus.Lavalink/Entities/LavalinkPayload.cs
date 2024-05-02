@@ -1,7 +1,7 @@
-namespace DSharpPlus.Lavalink.Entities;
 
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Lavalink.Entities;
 internal abstract class LavalinkPayload
 {
     [JsonProperty("op")]

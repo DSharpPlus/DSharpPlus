@@ -1,10 +1,10 @@
-namespace DSharpPlus.Commands;
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.Commands;
 /// <summary>
 /// Represents a base context for application command contexts.
 /// </summary>

@@ -1,4 +1,3 @@
-namespace DSharpPlus.Commands.Trees;
 
 using System;
 using System.Collections.Generic;
@@ -11,6 +10,7 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.Commands.Trees;
 public class CommandParameterBuilder
 {
     public string? Name { get; set; }

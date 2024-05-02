@@ -1,8 +1,8 @@
-namespace DSharpPlus.Net;
 
 using System;
 using System.IO;
 
+namespace DSharpPlus.Net;
 // this class is a clusterfuck to prevent the RestClient from disposing streams we dont want to dispose
 // only god, aaron and i know what a psychosis it was to fix this issue (#1677)
 public class RequestStreamWrapper : Stream, IDisposable

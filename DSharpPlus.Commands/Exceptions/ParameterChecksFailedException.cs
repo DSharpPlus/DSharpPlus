@@ -1,10 +1,10 @@
-namespace DSharpPlus.Commands.Exceptions;
 
 using System.Collections.Generic;
 
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
 using DSharpPlus.Commands.Trees;
 
+namespace DSharpPlus.Commands.Exceptions;
 public class ParameterChecksFailedException : CommandsException
 {
     public Command Command { get; init; }

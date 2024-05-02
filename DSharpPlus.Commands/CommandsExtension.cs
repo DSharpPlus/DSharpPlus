@@ -1,4 +1,3 @@
-namespace DSharpPlus.Commands;
 
 using System;
 using System.Collections.Frozen;
@@ -47,6 +46,7 @@ using ParameterCheckFunc = System.Func
     System.Threading.Tasks.ValueTask<string?>
 >;
 
+namespace DSharpPlus.Commands;
 /// <summary>
 /// An all in one extension for managing commands.
 /// </summary>

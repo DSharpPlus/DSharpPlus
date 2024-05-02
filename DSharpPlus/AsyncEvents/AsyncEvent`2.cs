@@ -1,4 +1,3 @@
-namespace DSharpPlus.AsyncEvents;
 
 using System;
 using System.Collections.Generic;
@@ -6,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+namespace DSharpPlus.AsyncEvents;
 /// <summary>
 /// Provides an implementation of an asynchronous event. Registered handlers are executed asynchronously,
 /// in parallel, and potential exceptions are caught and sent to the specified exception handler.

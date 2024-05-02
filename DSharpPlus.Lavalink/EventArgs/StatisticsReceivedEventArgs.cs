@@ -1,8 +1,8 @@
-namespace DSharpPlus.Lavalink.EventArgs;
 
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Lavalink.Entities;
 
+namespace DSharpPlus.Lavalink.EventArgs;
 /// <summary>
 /// Represents arguments for Lavalink statistics received.
 /// </summary>

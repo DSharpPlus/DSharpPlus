@@ -1,4 +1,3 @@
-namespace DSharpPlus.VoiceNext.Codec;
 
 using System;
 using System.Buffers.Binary;
@@ -8,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 
+namespace DSharpPlus.VoiceNext.Codec;
 internal sealed class Sodium : IDisposable
 {
     public static IReadOnlyDictionary<string, EncryptionMode> SupportedModes { get; }

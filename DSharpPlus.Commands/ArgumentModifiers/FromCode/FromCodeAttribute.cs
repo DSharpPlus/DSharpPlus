@@ -1,7 +1,7 @@
-namespace DSharpPlus.Commands.ArgumentModifiers;
 
 using System;
 
+namespace DSharpPlus.Commands.ArgumentModifiers;
 /// <summary>
 /// Removes the need to manually parse code blocks from a string.
 /// </summary>

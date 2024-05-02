@@ -1,4 +1,3 @@
-namespace DSharpPlus.CommandsNext.Attributes;
 
 using System;
 using System.Collections.Generic;
@@ -6,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
+namespace DSharpPlus.CommandsNext.Attributes;
 /// <summary>
 /// Defines that usage of this command is restricted to members with specified role. Note that it's much preferred to restrict access using <see cref="RequirePermissionsAttribute"/>.
 /// </summary>

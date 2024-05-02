@@ -1,7 +1,7 @@
-namespace DSharpPlus.Exceptions;
 
 using System;
 
+namespace DSharpPlus.Exceptions;
 public class BulkDeleteFailedException : Exception
 {
     public BulkDeleteFailedException(int messagesDeleted, Exception innerException)

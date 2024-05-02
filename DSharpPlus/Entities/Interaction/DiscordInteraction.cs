@@ -1,10 +1,10 @@
-namespace DSharpPlus.Entities;
 
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents an interaction that was invoked.
 /// </summary>

@@ -1,9 +1,9 @@
-namespace DSharpPlus.Entities;
 
 using System.Collections.Generic;
 
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents metadata about the triggering of a Discord rule.
 /// </summary>

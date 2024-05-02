@@ -1,4 +1,3 @@
-namespace DSharpPlus.CommandsNext.Builders;
 
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.CommandsNext.Exceptions;
 
+namespace DSharpPlus.CommandsNext.Builders;
 /// <summary>
 /// Represents an interface to build a command.
 /// </summary>

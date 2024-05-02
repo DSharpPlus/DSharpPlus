@@ -1,7 +1,7 @@
-namespace DSharpPlus.Interactivity.EventHandling;
 
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.Interactivity.EventHandling;
 public class PaginationButtons
 {
     public DiscordButtonComponent SkipLeft { internal get; set; }

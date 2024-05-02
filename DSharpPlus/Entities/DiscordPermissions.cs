@@ -1,7 +1,7 @@
-namespace DSharpPlus.Entities;
 
 using System;
 
+namespace DSharpPlus.Entities;
 public static class PermissionMethods
 {
     internal static DiscordPermissions FULL_PERMS { get; } = (DiscordPermissions)703687441776639L;

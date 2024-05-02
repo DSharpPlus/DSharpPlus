@@ -1,4 +1,3 @@
-namespace DSharpPlus.CommandsNext;
 
 using System;
 using System.Collections.Generic;
@@ -6,6 +5,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
+namespace DSharpPlus.CommandsNext;
 /// <summary>
 /// Represents a context in which a command is executed.
 /// </summary>

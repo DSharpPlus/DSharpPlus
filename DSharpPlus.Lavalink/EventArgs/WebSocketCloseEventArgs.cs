@@ -1,7 +1,7 @@
-namespace DSharpPlus.Lavalink.EventArgs;
 
 using DSharpPlus.AsyncEvents;
 
+namespace DSharpPlus.Lavalink.EventArgs;
 /// <summary>
 /// Represents arguments for <see cref="LavalinkGuildConnection.DiscordWebSocketClosed"/> event.
 /// </summary>

@@ -1,4 +1,3 @@
-namespace DSharpPlus.Interactivity.EventHandling;
 
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.Threading.Tasks;
 using ConcurrentCollections;
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.Interactivity.EventHandling;
 public class PollRequest
 {
     internal TaskCompletionSource<bool> _tcs;

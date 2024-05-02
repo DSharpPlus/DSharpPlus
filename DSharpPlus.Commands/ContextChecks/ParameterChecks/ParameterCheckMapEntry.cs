@@ -1,8 +1,8 @@
-namespace DSharpPlus.Commands.ContextChecks.ParameterChecks;
 
 using System;
 using System.Threading.Tasks;
 
+namespace DSharpPlus.Commands.ContextChecks.ParameterChecks;
 /// <summary>
 /// Represents an entry in a map of attributes to check types. we can't just do this as a dictionary because one attribute may
 /// key multiple different checks.

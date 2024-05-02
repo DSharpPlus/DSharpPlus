@@ -1,9 +1,9 @@
-namespace DSharpPlus.Entities;
 
 using System.Collections.Generic;
 using System.Globalization;
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents parameters for interaction commands.
 /// </summary>

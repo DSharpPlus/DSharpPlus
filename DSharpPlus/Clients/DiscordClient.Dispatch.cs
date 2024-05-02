@@ -1,4 +1,3 @@
-namespace DSharpPlus;
 
 using System;
 using System.Collections.Concurrent;
@@ -17,6 +16,7 @@ using DSharpPlus.Net.Serialization;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
+namespace DSharpPlus;
 public sealed partial class DiscordClient
 {
     #region Private Fields

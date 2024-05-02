@@ -1,9 +1,9 @@
-namespace DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 
 using System;
 
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]
 public sealed class SlashChannelTypesAttribute(params DiscordChannelType[] channelTypes) : Attribute
 {

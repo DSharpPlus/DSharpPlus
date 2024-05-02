@@ -1,9 +1,9 @@
-namespace DSharpPlus.Lavalink;
 
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Lavalink;
 /// <summary>
 /// Represents Lavalink equalizer band adjustment. This is used to alter the sound output by using Lavalink's equalizer.
 /// </summary>

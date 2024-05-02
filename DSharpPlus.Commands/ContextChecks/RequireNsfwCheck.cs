@@ -1,7 +1,7 @@
-namespace DSharpPlus.Commands.ContextChecks;
 
 using System.Threading.Tasks;
 
+namespace DSharpPlus.Commands.ContextChecks;
 internal sealed class RequireNsfwCheck : IContextCheck<RequireNsfwAttribute>
 {
     public ValueTask<string?> ExecuteCheckAsync(RequireNsfwAttribute attribute, CommandContext context) => ValueTask.FromResult

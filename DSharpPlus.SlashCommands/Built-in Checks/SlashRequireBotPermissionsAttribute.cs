@@ -1,10 +1,10 @@
-namespace DSharpPlus.SlashCommands.Attributes;
 
 using System;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.SlashCommands.Attributes;
 /// <summary>
 /// Defines that usage of this slash command is only possible when the bot is granted a specific permission.
 /// </summary>

@@ -1,4 +1,3 @@
-namespace DSharpPlus.Entities;
 
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents a Discord user.
 /// </summary>

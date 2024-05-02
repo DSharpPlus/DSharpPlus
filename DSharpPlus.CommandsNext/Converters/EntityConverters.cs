@@ -1,4 +1,3 @@
-namespace DSharpPlus.CommandsNext.Converters;
 
 using System;
 using System.Globalization;
@@ -7,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
+namespace DSharpPlus.CommandsNext.Converters;
 public partial class DiscordUserConverter : IArgumentConverter<DiscordUser>
 {
     async Task<Optional<DiscordUser>> IArgumentConverter<DiscordUser>.ConvertAsync(string value, CommandContext ctx)

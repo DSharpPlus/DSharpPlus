@@ -1,8 +1,8 @@
-namespace DSharpPlus.CommandsNext.Attributes;
 
 using System;
 using System.Linq;
 
+namespace DSharpPlus.CommandsNext.Attributes;
 /// <summary>
 /// Marks this class as a command group.
 /// </summary>

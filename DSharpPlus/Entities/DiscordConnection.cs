@@ -1,8 +1,8 @@
-namespace DSharpPlus.Entities;
 
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 /// <summary>
 /// Gets a Discord connection to a 3rd party service.
 /// </summary>

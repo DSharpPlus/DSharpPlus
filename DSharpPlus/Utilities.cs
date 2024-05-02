@@ -1,4 +1,3 @@
-namespace DSharpPlus;
 
 using System;
 using System.Collections.Generic;
@@ -15,6 +14,7 @@ using DSharpPlus.Net;
 
 using Microsoft.Extensions.Logging;
 
+namespace DSharpPlus;
 /// <summary>
 /// Various Discord-related utilities.
 /// </summary>

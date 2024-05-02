@@ -1,7 +1,7 @@
-namespace DSharpPlus.SlashCommands;
 
 using System;
 
+namespace DSharpPlus.SlashCommands;
 /// <summary>
 /// Specifies a locale for a slash command name. The longest name is the name that counts toward character limits.
 /// </summary>

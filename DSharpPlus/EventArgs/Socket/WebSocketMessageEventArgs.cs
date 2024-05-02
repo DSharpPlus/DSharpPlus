@@ -1,7 +1,7 @@
-namespace DSharpPlus.EventArgs;
 
 using DSharpPlus.AsyncEvents;
 
+namespace DSharpPlus.EventArgs;
 /// <summary>
 /// Represents base class for raw socket message event arguments.
 /// </summary>

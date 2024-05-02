@@ -1,4 +1,3 @@
-namespace DSharpPlus.Net.WebSocket;
 
 using System;
 using System.Collections.Generic;
@@ -7,6 +6,7 @@ using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.EventArgs;
 
+namespace DSharpPlus.Net.WebSocket;
 /// <summary>
 /// Creates an instance of a WebSocket client implementation.
 /// </summary>

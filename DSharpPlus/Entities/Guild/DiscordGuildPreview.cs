@@ -1,10 +1,10 @@
-namespace DSharpPlus.Entities;
 
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents a guild preview.
 /// </summary>

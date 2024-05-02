@@ -21,13 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace DSharpPlus.SlashCommands;
 
 using System;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
+namespace DSharpPlus.SlashCommands;
 /// <summary>
 /// Represents a context for an autocomplete interaction.
 /// </summary>

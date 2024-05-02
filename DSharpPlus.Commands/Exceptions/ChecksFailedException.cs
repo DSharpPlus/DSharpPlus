@@ -1,10 +1,10 @@
-namespace DSharpPlus.Commands.Exceptions;
 
 using System.Collections.Generic;
 
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.Trees;
 
+namespace DSharpPlus.Commands.Exceptions;
 public sealed class ChecksFailedException : CommandsException
 {
     public Command Command { get; init; }

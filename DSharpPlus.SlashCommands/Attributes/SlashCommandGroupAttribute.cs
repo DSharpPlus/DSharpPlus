@@ -1,7 +1,7 @@
-namespace DSharpPlus.SlashCommands;
 
 using System;
 
+namespace DSharpPlus.SlashCommands;
 /// <summary>
 /// Marks this class a slash command group.
 /// </summary>

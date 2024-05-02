@@ -1,4 +1,3 @@
-namespace DSharpPlus.Entities;
 
 using System;
 using System.Collections.Generic;
@@ -6,6 +5,7 @@ using System.Globalization;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents user status.
 /// </summary>

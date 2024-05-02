@@ -1,7 +1,7 @@
-namespace DSharpPlus.VoiceNext.Entities;
 
 using System;
 
+namespace DSharpPlus.VoiceNext.Entities;
 internal struct VoicePacket
 {
     public ReadOnlyMemory<byte> Bytes { get; }

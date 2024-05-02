@@ -1,4 +1,3 @@
-namespace DSharpPlus.Commands.Converters;
 
 using System;
 using System.Globalization;
@@ -13,6 +12,7 @@ using DSharpPlus.Exceptions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
+namespace DSharpPlus.Commands.Converters;
 public partial class DiscordMemberConverter : ISlashArgumentConverter<DiscordMember>, ITextArgumentConverter<DiscordMember>
 {
     [GeneratedRegex("""^<@!?(\d+?)>$""", RegexOptions.Compiled | RegexOptions.ECMAScript)]

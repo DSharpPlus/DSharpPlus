@@ -1,8 +1,8 @@
-namespace DSharpPlus.Commands;
 
 using System;
 using System.Collections.Generic;
 
+namespace DSharpPlus.Commands;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Delegate)]
 public class RegisterToGuildsAttribute : Attribute
 {
