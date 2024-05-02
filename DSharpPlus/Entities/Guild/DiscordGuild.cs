@@ -94,7 +94,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public DiscordMember Owner
         => Members.TryGetValue(OwnerId, out DiscordMember? owner)
             ? owner
-            : Discord.ApiClient.GetGuildMemberAsync(Id, OwnerId).GetAwaiter().GetResult();
+            : Discord.ApiClient.GetGuildMemberAsync(Id, OwnerId).AsTask().GetAwaiter().GetResult();
 
     /// <summary>
     /// Gets the guild's voice region ID.

@@ -25,9 +25,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
     {
         this.logger = logger;
         this.waitingForHashMilliseconds = waitingForHashMilliseconds;
-
         globalBucket = new(maximumRestRequestsPerSecond, maximumRestRequestsPerSecond, DateTime.UtcNow.AddSeconds(1));
-
         _ = CleanAsync();
     }
 
@@ -252,10 +250,9 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         }
     }
 
-    private async ValueTask CleanAsync()
+    private async Task CleanAsync()
     {
         PeriodicTimer timer = new(TimeSpan.FromSeconds(10));
-
         while (await timer.WaitForNextTickAsync())
         {
             foreach (KeyValuePair<string, string> pair in routeHashes)
