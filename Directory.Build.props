@@ -3,7 +3,7 @@
   <PropertyGroup>
     <!-- Add '_DisableAnalyzers' to the list of compilation dependencies -->
     <CoreCompileDependsOn>$(CoreCompileDependsOn);_DisableAnalyzers</CoreCompileDependsOn>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>false</IsPackable>
     <LangVersion>Latest</LangVersion>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
