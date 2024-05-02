@@ -98,8 +98,33 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     internal ulong BannerAssetId { get; set; }
 
     public bool Equals(DiscordMessageSticker? other) => Id == other?.Id;
-
+    public override bool Equals(object obj) => Equals(obj as DiscordMessageSticker);
     public override string ToString() => $"Sticker {Id}; {Name}; {FormatType}";
+    public override int GetHashCode()
+    {
+        HashCode hash = new();
+        hash.Add(Id);
+        hash.Add(CreationTimestamp);
+        hash.Add(Discord);
+        hash.Add(PackId);
+        hash.Add(Name);
+        hash.Add(Description);
+        hash.Add(Type);
+        hash.Add(User);
+        hash.Add(Guild);
+        hash.Add(StickerUrl);
+        hash.Add(GuildId);
+        hash.Add(Available);
+        hash.Add(SortValue);
+        hash.Add(Tags);
+        hash.Add(Asset);
+        hash.Add(PreviewAsset);
+        hash.Add(FormatType);
+        hash.Add(InternalTags);
+        hash.Add(BannerUrl);
+        hash.Add(BannerAssetId);
+        return hash.ToHashCode();
+    }
 }
 
 public enum DiscordStickerType
