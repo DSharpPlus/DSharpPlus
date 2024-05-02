@@ -117,7 +117,7 @@ public static partial class Utilities
     {
         Regex regex = UserMentionRegex();
         MatchCollection matches = regex.Matches(message.Content);
-        foreach (Match match in matches)
+        foreach (Match match in matches.Cast<Match>())
         {
             yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         }
@@ -127,7 +127,7 @@ public static partial class Utilities
     {
         Regex regex = RoleMentionRegex();
         MatchCollection matches = regex.Matches(message.Content);
-        foreach (Match match in matches)
+        foreach (Match match in matches.Cast<Match>())
         {
             yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         }
@@ -137,7 +137,7 @@ public static partial class Utilities
     {
         Regex regex = ChannelMentionRegex();
         MatchCollection matches = regex.Matches(message.Content);
-        foreach (Match match in matches)
+        foreach (Match match in matches.Cast<Match>())
         {
             yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         }
@@ -147,7 +147,7 @@ public static partial class Utilities
     {
         Regex regex = EmojiMentionRegex();
         MatchCollection matches = regex.Matches(message.Content);
-        foreach (Match match in matches)
+        foreach (Match match in matches.Cast<Match>())
         {
             yield return ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
         }
