@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.Net.Serialization;
@@ -123,13 +124,13 @@ internal sealed class AuditLogAction
 
 internal sealed class AuditLog
 {
-    [JsonProperty("application_commands")]
+    [JsonProperty("application_commands"), SuppressMessage("CodeQuality", "IDE0051:Remove unread private members", Justification = "This is used by JSON.NET")]
     private IEnumerable<DiscordApplicationCommand> SlashCommands { get; set; }
 
     [JsonProperty("audit_log_entries")]
     public IEnumerable<AuditLogAction> Entries { get; set; }
 
-    [JsonProperty("auto_moderation_rules")]
+    [JsonProperty("auto_moderation_rules"), SuppressMessage("CodeQuality", "IDE0051:Remove unread private members", Justification = "This is used by JSON.NET")]
     private IEnumerable<DiscordAutoModerationRule> AutoModerationRules { get; set; }
 
     [JsonProperty("guild_scheduled_events")]
