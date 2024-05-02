@@ -6,7 +6,6 @@ using System.Collections.Generic;
 
 namespace DSharpPlus.Commands.ArgumentModifiers;
 
-
 partial class FromCodeAttribute : Attribute
 {
     /// <summary>

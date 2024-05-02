@@ -6,7 +6,6 @@ using DSharpPlus.EventArgs;
 
 namespace DSharpPlus;
 
-
 public sealed partial class DiscordShardedClient
 {
     /// <inheritdoc cref="DiscordClient.ClientErrored"/>
