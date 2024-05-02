@@ -9,9 +9,9 @@ using DSharpPlus.EventArgs;
 
 public class FloatConverter : ISlashArgumentConverter<float>, ITextArgumentConverter<float>
 {
-    public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Number;
-    public string ReadableName { get; init; } = "Decimal Number";
-    public bool RequiresText { get; init; } = true;
+    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Number;
+    public string ReadableName => "Decimal Number";
+    public bool RequiresText => true;
 
     public Task<Optional<float>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => float.TryParse(context.Argument, CultureInfo.InvariantCulture, out float result)
         ? Task.FromResult(Optional.FromValue(result))

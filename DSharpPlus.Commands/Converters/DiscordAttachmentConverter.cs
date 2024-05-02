@@ -11,9 +11,9 @@ using DSharpPlus.EventArgs;
 
 public class AttachmentConverter : ISlashArgumentConverter<DiscordAttachment>, ITextArgumentConverter<DiscordAttachment>
 {
-    public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Attachment;
-    public string ReadableName { get; init; } = "Discord File";
-    public bool RequiresText { get; init; }
+    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Attachment;
+    public string ReadableName => "Discord File";
+    public bool RequiresText => false;
 
     public Task<Optional<DiscordAttachment>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
     {

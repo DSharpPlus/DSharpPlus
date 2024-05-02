@@ -6,7 +6,7 @@ using DSharpPlus.Entities;
 
 public interface IArgumentConverter
 {
-    public string ReadableName { get; init; }
+    public string ReadableName { get; }
 }
 
 public interface IArgumentConverter<TConverterContext, TEventArgs, TOutput> : IArgumentConverter

@@ -12,9 +12,9 @@ public class UInt64Converter : ISlashArgumentConverter<ulong>, ITextArgumentConv
     // Discord:              9,007,199,254,740,992
     // UInt64.MaxValue: 18,446,744,073,709,551,615
     // The input is defined as a string to allow for the use of the "ulong" type.
-    public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.String;
-    public string ReadableName { get; init; } = "Long Integer (0 through 18,446,744,073,709,551,615)";
-    public bool RequiresText { get; init; } = true;
+    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.String;
+    public string ReadableName => "Long Integer (0 through 18,446,744,073,709,551,615)";
+    public bool RequiresText => true;
 
     public Task<Optional<ulong>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => ulong.TryParse(context.Argument, CultureInfo.InvariantCulture, out ulong result)
         ? Task.FromResult(Optional.FromValue(result))

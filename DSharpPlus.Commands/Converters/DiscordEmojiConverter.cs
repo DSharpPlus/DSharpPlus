@@ -8,9 +8,9 @@ using DSharpPlus.EventArgs;
 
 public class DiscordEmojiConverter : ISlashArgumentConverter<DiscordEmoji>, ITextArgumentConverter<DiscordEmoji>
 {
-    public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.String;
-    public string ReadableName { get; init; } = "Discord Emoji";
-    public bool RequiresText { get; init; } = true;
+    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.String;
+    public string ReadableName => "Discord Emoji";
+    public bool RequiresText => true;
 
     public Task<Optional<DiscordEmoji>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context, context.Argument);
     public Task<Optional<DiscordEmoji>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context, context.Argument.RawValue);

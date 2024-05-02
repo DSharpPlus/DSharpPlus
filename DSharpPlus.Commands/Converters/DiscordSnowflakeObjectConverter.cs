@@ -10,9 +10,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 public partial class DiscordSnowflakeObjectConverter : ISlashArgumentConverter<SnowflakeObject>, ITextArgumentConverter<SnowflakeObject>
 {
-    public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Mentionable;
-    public string ReadableName { get; init; } = "Discord User, Discord Member, or Discord Role";
-    public bool RequiresText { get; init; } = true;
+    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Mentionable;
+    public string ReadableName => "Discord User, Discord Member, or Discord Role";
+    public bool RequiresText => true;
 
     private readonly DiscordMemberConverter discordMemberSlashArgumentConverter;
     private readonly DiscordUserConverter discordUserSlashArgumentConverter;

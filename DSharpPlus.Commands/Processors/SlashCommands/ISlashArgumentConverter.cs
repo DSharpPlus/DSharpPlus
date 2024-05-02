@@ -6,7 +6,7 @@ using DSharpPlus.EventArgs;
 
 public interface ISlashArgumentConverter : IArgumentConverter
 {
-    public DiscordApplicationCommandOptionType ParameterType { get; init; }
+    public DiscordApplicationCommandOptionType ParameterType { get; }
 }
 
 public interface ISlashArgumentConverter<T> : ISlashArgumentConverter, IArgumentConverter<InteractionConverterContext, InteractionCreateEventArgs, T>;
