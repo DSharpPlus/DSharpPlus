@@ -44,7 +44,7 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     /// </summary>
     public DiscordGuild Guild => (Discord as DiscordClient)!.InternalGetCachedGuild(GuildId);
 
-    public string StickerUrl => $"https://cdn.discordapp.com/stickers/{Id}{GetFileTypeExtension()}";
+    public string StickerUrl => $"https://cdn.discordapp.com/stickers/{Id}{(FormatType is DiscordStickerFormat.LOTTIE ? ".json" : ".png")}";
 
     /// <summary>
     /// Gets the Id of the sticker this guild belongs to, if any.
@@ -100,13 +100,6 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     public bool Equals(DiscordMessageSticker? other) => Id == other?.Id;
 
     public override string ToString() => $"Sticker {Id}; {Name}; {FormatType}";
-
-    private string GetFileTypeExtension() => FormatType switch
-    {
-        DiscordStickerFormat.PNG or DiscordStickerFormat.APNG => ".png",
-        DiscordStickerFormat.LOTTIE => ".json",
-        _ => ".png"
-    };
 }
 
 public enum DiscordStickerType
