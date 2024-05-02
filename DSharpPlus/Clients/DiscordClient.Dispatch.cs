@@ -772,7 +772,7 @@ public sealed partial class DiscordClient
         channel.Discord = this;
 
         //if (channel.IsPrivate)
-        if (channel.Type == DiscordChannelType.Group || channel.Type == DiscordChannelType.Private)
+        if (channel.Type is DiscordChannelType.Group or DiscordChannelType.Private)
         {
             DiscordDmChannel? dmChannel = channel as DiscordDmChannel;
 

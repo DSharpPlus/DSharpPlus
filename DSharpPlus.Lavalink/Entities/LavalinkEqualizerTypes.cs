@@ -28,12 +28,12 @@ public readonly struct LavalinkBandAdjustment
     /// <param name="gain">By how much to adjust the band. Must be greater than or equal to -0.25 (muted), and less than or equal to +1.0. +0.25 means the band is doubled.</param>
     public LavalinkBandAdjustment(int bandId, float gain)
     {
-        if (bandId < 0 || bandId > 14)
+        if (bandId is < 0 or > 14)
         {
             throw new ArgumentOutOfRangeException(nameof(bandId), "Band ID cannot be lower than 0 or greater than 14.");
         }
 
-        if (gain < -0.25 || gain > 1.0)
+        if (gain is < (float)-0.25 or > (float)1.0)
         {
             throw new ArgumentOutOfRangeException(nameof(gain), "Gain cannot be lower than -0.25 or greater than 1.0.");
         }

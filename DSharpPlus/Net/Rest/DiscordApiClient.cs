@@ -159,7 +159,7 @@ public sealed class DiscordApiClient
 
         if (limit is not null)
         {
-            if (limit < 1 || limit > 200)
+            if (limit is < 1 or > 200)
             {
                 throw new ArgumentOutOfRangeException(nameof(limit), "Limit must be a number between 1 and 200.");
             }
@@ -520,7 +520,7 @@ public sealed class DiscordApiClient
         string? reason = null
     )
     {
-        if (deleteMessageDays < 0 || deleteMessageDays > 7)
+        if (deleteMessageDays is < 0 or > 7)
         {
             throw new ArgumentException("Delete message days must be a number between 0 and 7.", nameof(deleteMessageDays));
         }
@@ -579,7 +579,7 @@ public sealed class DiscordApiClient
             throw new ArgumentException("You can only ban up to 200 users at once.");
         }
 
-        if (deleteMessagesSeconds is not null && (deleteMessagesSeconds < 0 || deleteMessagesSeconds > 604800))
+        if (deleteMessagesSeconds is not null and (< 0 or > 604800))
         {
             throw new ArgumentException("Delete message seconds must be a number between 0 and 604800 (7 days).", nameof(deleteMessagesSeconds));
         }
@@ -704,7 +704,7 @@ public sealed class DiscordApiClient
     {
         QueryUriBuilder builder = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}");
 
-        if (limit is not null && limit > 0)
+        if (limit is not null and > 0)
         {
             builder.AddParameter("limit", limit.Value.ToString(CultureInfo.InvariantCulture));
         }
@@ -4012,7 +4012,7 @@ public sealed class DiscordApiClient
         IEnumerable<ulong>? includeRoles = null
     )
     {
-        if (days < 0 || days > 30)
+        if (days is < 0 or > 30)
         {
             throw new ArgumentException("Prune inactivity days must be a number between 0 and 30.", nameof(days));
         }
@@ -4058,7 +4058,7 @@ public sealed class DiscordApiClient
         string? reason = null
     )
     {
-        if (days < 0 || days > 30)
+        if (days is < 0 or > 30)
         {
             throw new ArgumentException("Prune inactivity days must be a number between 0 and 30.", nameof(days));
         }

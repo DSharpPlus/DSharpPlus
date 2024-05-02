@@ -619,7 +619,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         }
 
         // Makes sure the image size is in between Discord's allowed range.
-        if (imageSize < 16 || imageSize > 4096)
+        if (imageSize is < 16 or > 4096)
         {
             throw new ArgumentOutOfRangeException(nameof(imageSize), "Image Size is not in between 16 and 4096: ");
         }

@@ -24,7 +24,7 @@ public static class StreamExtensions
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(destination);
 
-        if (bufferSize != null && bufferSize <= 0)
+        if (bufferSize is not null and <= 0)
         {
             throw new ArgumentOutOfRangeException(nameof(bufferSize), bufferSize, "bufferSize cannot be less than or equal to zero");
         }

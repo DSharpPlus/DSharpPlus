@@ -69,7 +69,7 @@ public sealed class ImageTool : IDisposable
             }
 
             bgn64 &= GIF_MASK;
-            if (bgn64 == GIF_MAGIC_1 || bgn64 == GIF_MAGIC_2)
+            if (bgn64 is GIF_MAGIC_1 or GIF_MAGIC_2)
             {
                 return format = ImageFormat.Gif;
             }

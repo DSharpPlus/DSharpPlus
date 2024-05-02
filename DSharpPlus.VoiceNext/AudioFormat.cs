@@ -64,7 +64,7 @@ public readonly struct AudioFormat
             throw new ArgumentOutOfRangeException(nameof(channelCount), "Invalid channel count specified.");
         }
 
-        if (voiceApplication != VoiceApplication.Music && voiceApplication != VoiceApplication.Voice && voiceApplication != VoiceApplication.LowLatency)
+        if (voiceApplication is not VoiceApplication.Music and not VoiceApplication.Voice and not VoiceApplication.LowLatency)
         {
             throw new ArgumentOutOfRangeException(nameof(voiceApplication), "Invalid voice application specified.");
         }

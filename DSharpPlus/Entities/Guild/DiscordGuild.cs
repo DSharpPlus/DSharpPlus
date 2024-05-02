@@ -513,7 +513,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         }
 
         // Makes sure the image size is in between Discord's allowed range.
-        if (imageSize < 16 || imageSize > 4096)
+        if (imageSize is < 16 or > 4096)
         {
             throw new ArgumentOutOfRangeException(nameof(imageSize), imageSize, "Image Size is not in between 16 and 4096.");
         }
@@ -1671,7 +1671,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         }
 
         name = name.Trim();
-        if (name.Length < 2 || name.Length > 50)
+        if (name.Length is < 2 or > 50)
         {
             throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.");
         }
@@ -1710,7 +1710,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         }
 
         name = name.Trim();
-        return name.Length < 2 || name.Length > 50
+        return name.Length is < 2 or > 50
             ? throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.")
             : await Discord.ApiClient.ModifyGuildEmojiAsync(Id, emoji.Id, name, roles?.Select(xr => xr.Id), reason);
     }
@@ -1878,7 +1878,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public async Task<DiscordMessageSticker> CreateStickerAsync(string name, string description, string tags, Stream imageContents, DiscordStickerFormat format, string reason = null)
     {
         string contentType, extension;
-        if (format == DiscordStickerFormat.PNG || format == DiscordStickerFormat.APNG)
+        if (format is DiscordStickerFormat.PNG or DiscordStickerFormat.APNG)
         {
             contentType = "image/png";
             extension = "png";

@@ -62,7 +62,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// </summary>
     [JsonIgnore]
     public bool IsPrivate
-        => Type == DiscordChannelType.Private || Type == DiscordChannelType.Group;
+        => Type is DiscordChannelType.Private or DiscordChannelType.Group;
 
     /// <summary>
     /// Gets whether this channel is a channel category.
@@ -171,7 +171,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     [JsonIgnore]
     public virtual IReadOnlyList<DiscordMember> Users => Guild is null
                 ? throw new InvalidOperationException("Cannot query users outside of guild channels.")
-                : (IReadOnlyList<DiscordMember>)(Type == DiscordChannelType.Voice || Type == DiscordChannelType.Stage
+                : (IReadOnlyList<DiscordMember>)(Type is DiscordChannelType.Voice or DiscordChannelType.Stage
                 ? Guild.Members.Values.Where(x => x.VoiceState?.ChannelId == Id).ToList()
                 : Guild.Members.Values.Where(x => (PermissionsFor(x) & DiscordPermissions.AccessChannels) == DiscordPermissions.AccessChannels).ToList());
 
@@ -571,7 +571,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<ThreadQueryResult> ListPublicArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0) => Type != DiscordChannelType.Text && Type != DiscordChannelType.News
+    public async Task<ThreadQueryResult> ListPublicArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0) => Type is not DiscordChannelType.Text and not DiscordChannelType.News
             ? throw new InvalidOperationException()
             : await Discord.ApiClient.ListPublicArchivedThreadsAsync(GuildId.Value, Id, before?.ToString("o"), limit);
 
@@ -583,7 +583,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<ThreadQueryResult> ListPrivateArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0) => Type != DiscordChannelType.Text && Type != DiscordChannelType.News
+    public async Task<ThreadQueryResult> ListPrivateArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0) => Type is not DiscordChannelType.Text and not DiscordChannelType.News
             ? throw new InvalidOperationException()
             : await Discord.ApiClient.ListPrivateArchivedThreadsAsync(GuildId.Value, Id, limit, before?.ToString("o"));
 
@@ -595,7 +595,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<ThreadQueryResult> ListJoinedPrivateArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0) => Type != DiscordChannelType.Text && Type != DiscordChannelType.News
+    public async Task<ThreadQueryResult> ListJoinedPrivateArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0) => Type is not DiscordChannelType.Text and not DiscordChannelType.News
             ? throw new InvalidOperationException()
             : await Discord.ApiClient.ListJoinedPrivateArchivedThreadsAsync(GuildId.Value, Id, limit, (ulong?)before?.ToUnixTimeSeconds());
 
@@ -1163,7 +1163,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordThreadChannel> CreateThreadAsync(DiscordMessage message, string name, DiscordAutoArchiveDuration archiveAfter, string reason = null)
     {
-        if (Type != DiscordChannelType.Text && Type != DiscordChannelType.News)
+        if (Type is not DiscordChannelType.Text and not DiscordChannelType.News)
         {
             throw new ArgumentException("Threads can only be created within text or news channels.");
         }

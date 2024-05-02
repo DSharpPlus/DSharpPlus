@@ -34,7 +34,7 @@ public sealed class VoiceTransmitSink : IDisposable
         get => _volume;
         set
         {
-            if (value < 0 || value > 2.5)
+            if (value is < 0 or > 2.5)
             {
                 throw new ArgumentOutOfRangeException(nameof(value), "Volume needs to be between 0% and 250%.");
             }

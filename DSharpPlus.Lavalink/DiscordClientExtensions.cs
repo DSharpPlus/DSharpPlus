@@ -101,7 +101,7 @@ public static class DiscordClientExtensions
             throw new InvalidOperationException("Lavalink can only be used with guild channels.");
         }
 
-        if (channel.Type != DiscordChannelType.Voice && channel.Type != DiscordChannelType.Stage)
+        if (channel.Type is not DiscordChannelType.Voice and not DiscordChannelType.Stage)
         {
             throw new InvalidOperationException("You can only connect to voice and stage channels.");
         }

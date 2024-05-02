@@ -102,7 +102,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
             throw new ArgumentException("You must specify valid image format.", nameof(fmt));
         }
 
-        if (size < 16 || size > 2048)
+        if (size is < 16 or > 2048)
         {
             throw new ArgumentOutOfRangeException(nameof(size));
         }

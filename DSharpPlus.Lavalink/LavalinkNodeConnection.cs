@@ -472,7 +472,7 @@ public sealed class LavalinkNodeConnection
                 await StartAsync();
             }
         }
-        else if (e.CloseCode != 1001 && e.CloseCode != -1)
+        else if (e.CloseCode is not 1001 and not (-1))
         {
             Discord.Logger.LogInformation(LavalinkEvents.LavalinkConnectionClosed, "Connection closed ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
             NodeDisconnected?.Invoke(this);

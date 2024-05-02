@@ -2083,7 +2083,7 @@ public class DiscordRestClient : BaseDiscordClient
     {
         string contentType, extension;
 
-        if (format == DiscordStickerFormat.PNG || format == DiscordStickerFormat.APNG)
+        if (format is DiscordStickerFormat.PNG or DiscordStickerFormat.APNG)
         {
             contentType = "image/png";
             extension = "png";
@@ -2257,7 +2257,7 @@ public class DiscordRestClient : BaseDiscordClient
         }
 
         name = name.Trim();
-        if (name.Length < 2 || name.Length > 50)
+        if (name.Length is < 2 or > 50)
         {
             throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.");
         }

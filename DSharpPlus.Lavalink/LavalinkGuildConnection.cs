@@ -303,7 +303,7 @@ public sealed class LavalinkGuildConnection
             throw new InvalidOperationException("This connection is not valid.");
         }
 
-        if (volume < 0 || volume > 1000)
+        if (volume is < 0 or > 1000)
         {
             throw new ArgumentOutOfRangeException(nameof(volume), "Volume needs to range from 0 to 1000.");
         }

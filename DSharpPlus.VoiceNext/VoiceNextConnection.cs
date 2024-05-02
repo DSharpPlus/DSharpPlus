@@ -1057,7 +1057,7 @@ public sealed class VoiceNextConnection : IDisposable
         // otherwise problems happen
         //this.Dispose();
 
-        if (e.CloseCode == 4006 || e.CloseCode == 4009)
+        if (e.CloseCode is 4006 or 4009)
         {
             Resume = false;
         }

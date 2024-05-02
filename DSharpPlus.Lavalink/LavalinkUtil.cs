@@ -15,7 +15,7 @@ public static class LavalinkUtilities
     /// already triggered because another track started (REPLACED) or because the player is stopped (STOPPED, CLEANUP).
     /// </summary>
     public static bool MayStartNext(this TrackEndReason reason)
-        => reason == TrackEndReason.Finished || reason == TrackEndReason.LoadFailed;
+        => reason is TrackEndReason.Finished or TrackEndReason.LoadFailed;
 
     /// <summary>
     /// Decodes a Lavalink track string.

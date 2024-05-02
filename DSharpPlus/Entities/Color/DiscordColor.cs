@@ -87,7 +87,7 @@ public partial struct DiscordColor
             throw new ArgumentNullException(nameof(color), "Null or empty values are not allowed!");
         }
 
-        if (color.Length != 6 && color.Length != 7)
+        if (color.Length is not 6 and not 7)
         {
             throw new ArgumentException("Color must be 6 or 7 characters in length.", nameof(color));
         }

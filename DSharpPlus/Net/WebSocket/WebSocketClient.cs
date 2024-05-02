@@ -172,7 +172,7 @@ public class WebSocketClient : IWebSocketClient
             return;
         }
 
-        if (_ws.State != WebSocketState.Open && _ws.State != WebSocketState.CloseReceived)
+        if (_ws.State is not WebSocketState.Open and not WebSocketState.CloseReceived)
         {
             return;
         }
@@ -276,7 +276,7 @@ public class WebSocketClient : IWebSocketClient
                     if (!_isClientClose)
                     {
                         WebSocketCloseStatus code = result.CloseStatus.Value;
-                        code = code == WebSocketCloseStatus.NormalClosure || code == WebSocketCloseStatus.EndpointUnavailable
+                        code = code is WebSocketCloseStatus.NormalClosure or WebSocketCloseStatus.EndpointUnavailable
                             ? (WebSocketCloseStatus)4000
                             : code;
 
