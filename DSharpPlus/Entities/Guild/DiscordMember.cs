@@ -534,15 +534,15 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <summary>
     /// Bans a this member from their guild.
     /// </summary>
-    /// <param name="delete_message_days">How many days to remove messages from.</param>
+    /// <param name="deleteMessageDuration">The duration in which discord should delete messages from the banned user.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
     /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.BanMembers"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task BanAsync(int delete_message_days = 0, string reason = null)
-        => Guild.BanMemberAsync(this, delete_message_days, reason);
+    public Task BanAsync(TimeSpan deleteMessageDuration = default, string reason = null)
+        => Guild.BanMemberAsync(this, deleteMessageDuration, reason);
 
     /// <exception cref = "Exceptions.UnauthorizedException" > Thrown when the client does not have the<see cref="DiscordPermissions.BanMembers"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
