@@ -950,8 +950,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <summary>
     /// Bans multiple users from this guild.
     /// </summary>
-    /// <param name="guildId">Guild ID</param>
-    /// <param name="userIds">Collection of users to ban</param>
+    /// <param name="users">Collection of users to ban</param>
     /// <param name="deleteMessageSeconds">Timespan in seconds to delete messages from the banned users</param>
     /// <returns>Response contains a which users were banned and which were not.</returns>
     public async Task<DiscordBulkBan> BulkBanMembersAsync(IEnumerable<DiscordUser> users, int deleteMessageSeconds = 0, string reason = null)
@@ -963,7 +962,6 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <summary>
     /// Bans multiple users from this guild by their id
     /// </summary>
-    /// <param name="guildId">Guild ID</param>
     /// <param name="userIds">Collection of user ids to ban</param>
     /// <param name="deleteMessageSeconds">Timespan in seconds to delete messages from the banned users</param>
     /// <returns>Response contains a which users were banned and which were not.</returns>
