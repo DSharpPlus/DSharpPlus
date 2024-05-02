@@ -1,7 +1,7 @@
-
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Represents an attachment for a message.
 /// </summary>

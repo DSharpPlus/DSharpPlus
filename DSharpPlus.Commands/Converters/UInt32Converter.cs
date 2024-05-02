@@ -1,4 +1,3 @@
-
 using System.Globalization;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.Processors.SlashCommands;
@@ -7,6 +6,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.Commands.Converters;
+
 public class UInt32Converter : ISlashArgumentConverter<uint>, ITextArgumentConverter<uint>
 {
     public DiscordApplicationCommandOptionType ParameterType { get; init; } = DiscordApplicationCommandOptionType.Integer;

@@ -1,10 +1,10 @@
-
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.SlashCommands;
+
 /// <summary>
 /// Implementation of <see cref="IChoiceProvider"/> with access to service collection.
 /// </summary>

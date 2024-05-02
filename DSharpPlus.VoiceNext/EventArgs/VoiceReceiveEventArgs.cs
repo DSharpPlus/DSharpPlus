@@ -1,9 +1,9 @@
-
 using System;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.VoiceNext.EventArgs;
+
 /// <summary>
 /// Represents arguments for VoiceReceived events.
 /// </summary>

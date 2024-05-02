@@ -1,4 +1,3 @@
-
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using DSharpPlus.Entities;
@@ -8,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Net.Abstractions;
+
 internal sealed class AuditLogActionChange
 {
     // this can be a string or an array

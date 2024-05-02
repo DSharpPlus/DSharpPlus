@@ -1,7 +1,7 @@
-
 using System;
 
 namespace DSharpPlus.Commands.ContextChecks.ParameterChecks;
+
 /// <summary>
 /// Represents a base attribute for parameter check metadata attributes.
 /// </summary>

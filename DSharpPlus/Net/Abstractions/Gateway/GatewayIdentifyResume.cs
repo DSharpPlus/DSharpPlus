@@ -1,7 +1,7 @@
-
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions;
+
 /// <summary>
 /// Represents data for websocket identify payload.
 /// </summary>

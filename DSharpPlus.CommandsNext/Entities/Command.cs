@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +9,7 @@ using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
 
 namespace DSharpPlus.CommandsNext;
+
 /// <summary>
 /// Represents a command.
 /// </summary>

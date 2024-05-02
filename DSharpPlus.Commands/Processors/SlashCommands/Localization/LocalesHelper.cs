@@ -1,9 +1,9 @@
-
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace DSharpPlus.Commands.Processors.SlashCommands.Localization;
+
 public static class LocalesHelper
 {
     public static readonly FrozenDictionary<string, DiscordLocale> EnglishToLocale;

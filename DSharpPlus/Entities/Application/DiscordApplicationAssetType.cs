@@ -1,5 +1,6 @@
 namespace DSharpPlus.Entities;
 
+
 /// <summary>
 /// Determines the type of the asset attached to the application.
 /// </summary>

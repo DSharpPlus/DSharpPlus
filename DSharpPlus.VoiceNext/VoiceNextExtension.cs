@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
@@ -9,6 +8,7 @@ using DSharpPlus.VoiceNext.Entities;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.VoiceNext;
+
 /// <summary>
 /// Represents VoiceNext extension, which acts as Discord voice client.
 /// </summary>

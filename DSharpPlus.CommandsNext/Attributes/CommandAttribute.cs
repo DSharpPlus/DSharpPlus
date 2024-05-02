@@ -1,8 +1,8 @@
-
 using System;
 using System.Linq;
 
 namespace DSharpPlus.CommandsNext.Attributes;
+
 /// <summary>
 /// Marks this method as a command.
 /// </summary>

@@ -1,7 +1,7 @@
-
 using System;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Represents additional details of a users account.
 /// </summary>

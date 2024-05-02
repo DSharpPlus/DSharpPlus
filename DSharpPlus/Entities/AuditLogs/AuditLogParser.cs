@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,15 +6,13 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
-
 using Microsoft.Extensions.Logging;
-
 using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Entities.AuditLogs;
+
 internal static class AuditLogParser
 {
     /// <summary>

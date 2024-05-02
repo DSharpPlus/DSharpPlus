@@ -1,8 +1,8 @@
-
 using System;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net;
+
 /// <summary>
 /// Represents the bucket limits for identifying to Discord.
 /// <para>This is only relevant for clients that are manually sharding.</para>

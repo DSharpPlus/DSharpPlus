@@ -1,8 +1,8 @@
-
 using System;
 using System.Reflection;
 
 namespace DSharpPlus.CommandsNext.Exceptions;
+
 /// <summary>
 /// Thrown when the command service fails to build a command due to a problem with its overload.
 /// </summary>

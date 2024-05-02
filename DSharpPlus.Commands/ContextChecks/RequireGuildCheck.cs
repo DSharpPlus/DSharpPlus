@@ -1,7 +1,7 @@
-
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Commands.ContextChecks;
+
 internal sealed class RequireGuildCheck : IContextCheck<RequireGuildAttribute>
 {
     internal const string ErrorMessage = "This command must be executed in a guild.";

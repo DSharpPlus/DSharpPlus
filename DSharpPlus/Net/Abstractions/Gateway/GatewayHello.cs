@@ -1,8 +1,8 @@
-
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions;
+
 /// <summary>
 /// Represents data for a websocket hello payload.
 /// </summary>

@@ -1,7 +1,7 @@
-
 using System;
 
 namespace DSharpPlus.CommandsNext;
+
 /// <summary>
 /// Represents a command's execution result.
 /// </summary>

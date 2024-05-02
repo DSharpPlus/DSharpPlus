@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
@@ -17,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.Commands.Processors;
+
 public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext> : ICommandProcessor<TEventArgs>
     where TEventArgs : DiscordEventArgs
     where TConverter : IArgumentConverter

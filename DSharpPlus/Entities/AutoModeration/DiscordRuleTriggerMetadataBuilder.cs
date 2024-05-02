@@ -1,8 +1,8 @@
-
 using System;
 using System.Collections.Generic;
 
 namespace DSharpPlus.Entities.AutoModeration;
+
 public sealed class DiscordRuleTriggerMetadataBuilder
 {
     /// <summary>

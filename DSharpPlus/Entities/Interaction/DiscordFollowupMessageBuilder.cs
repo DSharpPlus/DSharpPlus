@@ -1,8 +1,8 @@
-
 using System;
 using System.Linq;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Constructs a followup message to an interaction.
 /// </summary>

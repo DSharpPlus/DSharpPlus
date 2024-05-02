@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -8,13 +7,12 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
 using DSharpPlus.Entities;
 using DSharpPlus.Net;
-
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus;
+
 /// <summary>
 /// Various Discord-related utilities.
 /// </summary>

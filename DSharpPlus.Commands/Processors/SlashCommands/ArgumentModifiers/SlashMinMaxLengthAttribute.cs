@@ -1,7 +1,7 @@
-
 using System;
 
 namespace DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
+
 /// <summary>
 /// Determines the minimum and maximum length that a parameter can accept.
 /// </summary>

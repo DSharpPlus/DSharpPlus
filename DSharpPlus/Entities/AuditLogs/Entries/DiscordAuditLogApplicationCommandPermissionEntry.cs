@@ -21,10 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 using System.Collections.Generic;
 
 namespace DSharpPlus.Entities.AuditLogs;
+
 public sealed class DiscordAuditLogApplicationCommandPermissionEntry : DiscordAuditLogEntry
 {
     /// <summary>

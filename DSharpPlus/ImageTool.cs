@@ -1,4 +1,3 @@
-
 using System;
 using System.Buffers;
 using System.Buffers.Text;
@@ -6,6 +5,7 @@ using System.IO;
 using System.Text;
 
 namespace DSharpPlus;
+
 /// <summary>
 /// Tool to detect image formats and convert from binary data to base64 strings.
 /// </summary>

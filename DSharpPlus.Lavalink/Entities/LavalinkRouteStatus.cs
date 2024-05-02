@@ -1,8 +1,8 @@
-
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Lavalink.Entities;
+
 public class LavalinkRouteStatus
 {
     /// <summary>

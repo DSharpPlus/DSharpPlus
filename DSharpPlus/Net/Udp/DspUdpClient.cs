@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
@@ -6,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Net.Udp;
+
 /// <summary>
 /// The default, native-based UDP client implementation.
 /// </summary>

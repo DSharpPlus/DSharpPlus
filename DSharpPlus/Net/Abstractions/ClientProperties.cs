@@ -1,10 +1,10 @@
-
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions;
+
 /// <summary>
 /// Represents data for identify payload's client properties.
 /// </summary>

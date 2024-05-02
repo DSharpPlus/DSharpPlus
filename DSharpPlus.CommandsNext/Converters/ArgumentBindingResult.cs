@@ -1,8 +1,8 @@
-
 using System;
 using System.Collections.Generic;
 
 namespace DSharpPlus.CommandsNext.Converters;
+
 public readonly struct ArgumentBindingResult
 {
     public bool IsSuccessful { get; }

@@ -1,4 +1,3 @@
-
 using System;
 using System.Threading.Tasks;
 using ConcurrentCollections;
@@ -8,6 +7,7 @@ using DSharpPlus.Interactivity.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Interactivity.EventHandling;
+
 internal class Paginator : IPaginator
 {
     private DiscordClient _client;

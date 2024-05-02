@@ -1,4 +1,3 @@
-
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -6,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Commands.Invocation;
+
 /// <summary>
 /// Contains utilities to conveniently await all (supported) commands as ValueTasks.
 /// </summary>

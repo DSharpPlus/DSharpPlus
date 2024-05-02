@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +5,7 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Exceptions;
 
 namespace DSharpPlus.CommandsNext;
+
 /// <summary>
 /// Represents a command group.
 /// </summary>

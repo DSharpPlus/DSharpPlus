@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
@@ -9,7 +8,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
@@ -24,11 +22,9 @@ using DSharpPlus.Commands.Processors.UserCommands;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-
 using CheckFunc = System.Func
 <
     object,
@@ -36,7 +32,6 @@ using CheckFunc = System.Func
     DSharpPlus.Commands.CommandContext,
     System.Threading.Tasks.ValueTask<string?>
 >;
-
 using ParameterCheckFunc = System.Func
 <
     object,
@@ -47,6 +42,7 @@ using ParameterCheckFunc = System.Func
 >;
 
 namespace DSharpPlus.Commands;
+
 /// <summary>
 /// An all in one extension for managing commands.
 /// </summary>

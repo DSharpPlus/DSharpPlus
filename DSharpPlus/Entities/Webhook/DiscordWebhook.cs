@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,6 +6,7 @@ using DSharpPlus.Net;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Represents information about a Discord webhook.
 /// </summary>

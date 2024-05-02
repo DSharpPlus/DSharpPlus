@@ -1,7 +1,7 @@
-
 using System;
 
 namespace DSharpPlus.Commands.Exceptions;
+
 public sealed class CommandNotFoundException : CommandsException
 {
     public string CommandName { get; init; }

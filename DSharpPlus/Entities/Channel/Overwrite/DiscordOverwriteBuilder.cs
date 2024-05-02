@@ -1,9 +1,8 @@
-
 using System.Threading.Tasks;
-
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Represents a Discord permission overwrite builder.
 /// </summary>

@@ -1,9 +1,8 @@
-
 using System;
-
 using DSharpPlus.AsyncEvents;
 
 namespace DSharpPlus.Lavalink.EventArgs;
+
 /// <summary>
 /// Represents event arguments for Lavalink node disconnection.
 /// </summary>

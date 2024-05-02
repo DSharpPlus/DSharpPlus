@@ -1,7 +1,7 @@
-
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs;
+
 /// <summary>
 /// Represents arguments to <see cref="DiscordClient.WebhooksUpdated"/> event.
 /// </summary>

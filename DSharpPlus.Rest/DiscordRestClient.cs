@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,6 +10,7 @@ using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 
 namespace DSharpPlus;
+
 public class DiscordRestClient : BaseDiscordClient
 {
     /// <summary>

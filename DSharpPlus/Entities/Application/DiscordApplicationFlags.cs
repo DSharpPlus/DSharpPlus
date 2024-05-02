@@ -1,6 +1,7 @@
 
 namespace DSharpPlus.Entities;
 
+
 /// <summary>
 /// Represents flags for a discord application.
 /// </summary>

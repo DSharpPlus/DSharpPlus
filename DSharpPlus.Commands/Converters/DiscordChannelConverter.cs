@@ -1,4 +1,3 @@
-
 using System;
 using System.Globalization;
 using System.Linq;
@@ -10,6 +9,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.Commands.Converters;
+
 public partial class DiscordChannelConverter : ISlashArgumentConverter<DiscordChannel>, ITextArgumentConverter<DiscordChannel>
 {
     [GeneratedRegex(@"^<#(\d+)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]

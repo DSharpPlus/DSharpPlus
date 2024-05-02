@@ -1,9 +1,9 @@
-
 using System;
 using System.Globalization;
 using System.Text;
 
 namespace DSharpPlus.Metrics;
+
 /// <summary>
 /// Represents an immutable snapshot of request metrics.
 /// </summary>

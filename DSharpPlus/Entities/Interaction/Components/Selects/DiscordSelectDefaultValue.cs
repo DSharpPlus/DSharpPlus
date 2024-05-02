@@ -1,8 +1,8 @@
-
 using System;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 public class DiscordSelectDefaultValue
 {
     [JsonProperty("id")]

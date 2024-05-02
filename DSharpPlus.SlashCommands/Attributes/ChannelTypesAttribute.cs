@@ -1,10 +1,9 @@
-
 using System;
 using System.Collections.Generic;
-
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.SlashCommands;
+
 /// <summary>
 /// Defines allowed channel types for a channel parameter.
 /// </summary>

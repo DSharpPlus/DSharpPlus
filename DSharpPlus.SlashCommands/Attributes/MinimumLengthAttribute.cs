@@ -21,10 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 using System;
 
 namespace DSharpPlus.SlashCommands;
+
 /// <summary>
 /// Sets a minimum allowed length for this slash command option. Only valid for <see cref="string"/> parameters.
 /// </summary>

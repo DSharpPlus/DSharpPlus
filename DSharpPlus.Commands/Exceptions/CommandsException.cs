@@ -1,7 +1,7 @@
-
 using System;
 
 namespace DSharpPlus.Commands.Exceptions;
+
 public abstract class CommandsException : Exception
 {
     protected CommandsException() { }

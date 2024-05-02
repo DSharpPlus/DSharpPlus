@@ -1,8 +1,8 @@
-
 using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Commands.ContextChecks;
+
 internal sealed class DirectMessageUsageCheck : IContextCheck<DirectMessageUsageAttribute>
 {
     public ValueTask<string?> ExecuteCheckAsync(DirectMessageUsageAttribute attribute, CommandContext context)

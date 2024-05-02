@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -6,6 +5,7 @@ using System.Linq;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Represents a parameter for a <see cref="DiscordApplicationCommand"/>.
 /// </summary>

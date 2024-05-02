@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,6 +6,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.VoiceNext;
+
 public static class DiscordClientExtensions
 {
     /// <summary>

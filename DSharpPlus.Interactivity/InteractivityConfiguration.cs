@@ -1,9 +1,9 @@
-
 using System;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
 
 namespace DSharpPlus.Interactivity;
+
 /// <summary>
 /// Configuration class for your Interactivity extension
 /// </summary>

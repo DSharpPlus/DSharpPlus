@@ -1,4 +1,3 @@
-
 using System;
 using System.Globalization;
 using System.Linq;
@@ -9,6 +8,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 
 namespace DSharpPlus.Tools.AutoUpdateChannelDescription;
+
 public sealed class Program
 {
     public static async Task Main()

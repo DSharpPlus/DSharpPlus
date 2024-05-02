@@ -1,5 +1,6 @@
 namespace DSharpPlus.Entities;
 
+
 public readonly partial struct DiscordColor
 {
     #region Black and White

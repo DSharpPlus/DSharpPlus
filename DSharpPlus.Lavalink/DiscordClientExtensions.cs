@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,6 +7,7 @@ using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Lavalink;
+
 public static class DiscordClientExtensions
 {
     /// <summary>

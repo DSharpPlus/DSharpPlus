@@ -1,7 +1,7 @@
-
 using System;
 
 namespace DSharpPlus.CommandsNext;
+
 /// <summary>
 /// Represents arguments for <see cref="CommandsNextExtension.CommandErrored"/> event.
 /// </summary>

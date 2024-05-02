@@ -1,7 +1,7 @@
-
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Represents information about a Discord voice server region.
 /// </summary>

@@ -1,9 +1,8 @@
-
 using System.Collections.Generic;
-
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Net.Models;
+
 public class ThreadChannelEditModel : ChannelEditModel
 {
     /// <summary>

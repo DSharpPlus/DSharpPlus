@@ -1,8 +1,8 @@
-
 using System;
 using DSharpPlus.Commands.Trees;
 
 namespace DSharpPlus.Commands.Exceptions;
+
 public sealed class ArgumentParseException : CommandsException
 {
     public CommandParameter Parameter { get; init; }

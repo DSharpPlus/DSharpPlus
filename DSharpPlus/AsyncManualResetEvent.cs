@@ -1,8 +1,8 @@
-
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace DSharpPlus;
+
 // source: https://blogs.msdn.microsoft.com/pfxteam/2012/02/11/building-async-coordination-primitives-part-1-asyncmanualresetevent/
 /// <summary>
 /// Implements an async version of a <see cref="ManualResetEvent"/>

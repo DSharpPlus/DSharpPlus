@@ -1,7 +1,7 @@
-
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Represents a permission for a application command.
 /// </summary>

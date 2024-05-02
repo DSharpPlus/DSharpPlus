@@ -1,8 +1,8 @@
-
 using System;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Represents a Discord integration. These appear on the profile as linked 3rd party accounts.
 /// </summary>

@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,6 +9,7 @@ using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
 
 namespace DSharpPlus.Interactivity.Extensions;
+
 /// <summary>
 /// Interactivity extension methods for <see cref="DiscordMessage"/>.
 /// </summary>

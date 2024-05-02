@@ -1,7 +1,7 @@
-
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Represents a channel in a welcome screen
 /// </summary>

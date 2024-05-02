@@ -1,4 +1,3 @@
-
 using System;
 using System.IO;
 using System.Linq;
@@ -8,6 +7,7 @@ using DSharpPlus.Net.Models;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Represents a discord role, to which users can be assigned.
 /// </summary>

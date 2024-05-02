@@ -1,9 +1,9 @@
-
 using System.Globalization;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandsNext.Converters;
+
 public class BoolConverter : IArgumentConverter<bool>
 {
     Task<Optional<bool>> IArgumentConverter<bool>.ConvertAsync(string value, CommandContext ctx) => bool.TryParse(value, out bool result)

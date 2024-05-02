@@ -1,9 +1,9 @@
-
 using System;
 using System.Globalization;
 using System.Linq;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Represents a color used in Discord API.
 /// </summary>

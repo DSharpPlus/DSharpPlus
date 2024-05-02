@@ -1,8 +1,8 @@
-
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 public abstract class DiscordInteractionMetadata : SnowflakeObject
 {
     /// <summary>

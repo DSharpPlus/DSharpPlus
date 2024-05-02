@@ -1,7 +1,7 @@
-
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Interactivity;
+
 public class PaginationEmojis
 {
     public DiscordEmoji SkipLeft;

@@ -1,10 +1,9 @@
-
 using System;
 using System.Threading.Tasks;
-
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.SlashCommands.Attributes;
+
 /// <summary>
 /// Defines that usage of this command is restricted to members with specified permissions.
 /// </summary>

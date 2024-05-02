@@ -1,5 +1,6 @@
 namespace DSharpPlus.Entities;
 
+
 /// <summary>
 /// Declares the type of a <see cref="DiscordScheduledGuildEvent"/>.
 /// </summary>

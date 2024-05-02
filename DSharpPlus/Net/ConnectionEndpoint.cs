@@ -1,5 +1,6 @@
 namespace DSharpPlus.Net;
 
+
 /// <summary>
 /// Represents a network connection endpoint.
 /// </summary>

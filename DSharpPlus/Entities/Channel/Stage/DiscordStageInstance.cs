@@ -1,10 +1,10 @@
-
 using System;
 using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Represents a discord stage instance.
 /// </summary>

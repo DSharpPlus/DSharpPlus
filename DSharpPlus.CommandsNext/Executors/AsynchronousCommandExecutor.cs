@@ -1,8 +1,8 @@
-
 using System;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.CommandsNext.Executors;
+
 /// <summary>
 /// Executes commands using <see cref="Task.Run(Func{Task})"/>.
 /// </summary>

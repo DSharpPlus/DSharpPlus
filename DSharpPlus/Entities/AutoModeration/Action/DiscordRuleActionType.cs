@@ -1,5 +1,6 @@
 namespace DSharpPlus.Entities;
 
+
 /// <summary>
 /// Contains all actions that can be taken after a rule activation.
 /// </summary>

@@ -1,10 +1,10 @@
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus;
+
 internal class CompositeDefaultLogger : ILogger<BaseDiscordClient>
 {
     private IEnumerable<ILogger<BaseDiscordClient>> Loggers { get; }

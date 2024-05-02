@@ -1,9 +1,9 @@
-
 using System;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandsNext.Converters;
+
 public class NullableConverter<T> : IArgumentConverter<Nullable<T>> where T : struct
 {
     async Task<Optional<Nullable<T>>> IArgumentConverter<Nullable<T>>.ConvertAsync(string value, CommandContext ctx)

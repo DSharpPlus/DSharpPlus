@@ -1,5 +1,6 @@
 namespace DSharpPlus.Entities;
 
+
 /// <summary>
 /// Represents the duration in minutes to automatically archive a thread after recent activity.
 /// </summary>

@@ -1,8 +1,8 @@
-
 using System;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.CommandsNext.Executors;
+
 /// <summary>
 /// Defines an API surface for all command executors.
 /// </summary>

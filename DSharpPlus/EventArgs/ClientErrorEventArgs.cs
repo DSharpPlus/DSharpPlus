@@ -1,7 +1,7 @@
-
 using System;
 
 namespace DSharpPlus.EventArgs;
+
 /// <summary>
 /// Represents arguments for <see cref="DiscordClient.ClientErrored"/> event.
 /// </summary>

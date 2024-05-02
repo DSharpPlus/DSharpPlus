@@ -1,7 +1,7 @@
-
 using System.Threading.Tasks;
 
 namespace DSharpPlus.CommandsNext;
+
 /// <summary>
 /// Represents a base class for all command modules.
 /// </summary>

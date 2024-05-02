@@ -1,9 +1,9 @@
-
 using System;
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus;
+
 internal class ShardedLoggerFactory : ILoggerFactory
 {
     private ConcurrentDictionary<string, ILogger> Loggers { get; } = new();

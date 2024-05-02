@@ -12,6 +12,7 @@ using DSharpPlus.Net;
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus;
+
 /// <summary>
 /// A Discord client that shards automatically.
 /// </summary>

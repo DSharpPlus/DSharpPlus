@@ -1,8 +1,8 @@
-
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Result of a bulk ban. Contains the ids of users that were successfully banned and the ids of users that failed to be banned.
 /// </summary>

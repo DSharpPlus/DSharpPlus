@@ -1,8 +1,8 @@
-
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions;
+
 internal class RestStickerCreatePayload
 {
     [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]

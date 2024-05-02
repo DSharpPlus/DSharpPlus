@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Tools.CodeBlockLanguageListGen;
+
 public static class Program
 {
     private static readonly string TemplateFile = new StreamReader(typeof(Program)

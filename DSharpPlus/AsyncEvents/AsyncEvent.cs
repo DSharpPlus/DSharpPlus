@@ -1,5 +1,6 @@
 namespace DSharpPlus.AsyncEvents;
 
+
 /// <summary>
 /// Represents a non-generic base for async events.
 /// </summary>

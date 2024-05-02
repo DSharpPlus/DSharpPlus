@@ -1,4 +1,3 @@
-
 using System;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
@@ -6,6 +5,7 @@ using DSharpPlus.Tests.Commands.Cases.Commands;
 using NUnit.Framework;
 
 namespace DSharpPlus.Tests.Commands.Trees;
+
 public class CommandBuilderTests
 {
     [Test]

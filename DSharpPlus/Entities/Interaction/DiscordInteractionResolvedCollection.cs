@@ -1,8 +1,8 @@
-
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Represents a collection of Discord snowflake objects resolved from interaction arguments.
 /// </summary>

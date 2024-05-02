@@ -1,8 +1,8 @@
-
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 public sealed class DiscordRoleSelectComponent : BaseDiscordSelectComponent
 {
     [JsonProperty("default_values", NullValueHandling = NullValueHandling.Ignore)]

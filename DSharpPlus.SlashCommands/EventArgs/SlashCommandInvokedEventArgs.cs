@@ -1,7 +1,7 @@
-
 using DSharpPlus.AsyncEvents;
 
 namespace DSharpPlus.SlashCommands.EventArgs;
+
 /// <summary>
 /// Represents the arguments for a <see cref="SlashCommandsExtension.SlashCommandInvoked"/> event.
 /// </summary>

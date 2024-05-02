@@ -1,10 +1,9 @@
 #pragma warning disable IDE0046 // no quintuple nested ternaries today
-
 using System.Threading.Tasks;
-
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Commands.ContextChecks.ParameterChecks;
+
 /// <summary>
 /// Executes the checks for requiring a hierarchical order between the bot/executor and a parameter.
 /// </summary>

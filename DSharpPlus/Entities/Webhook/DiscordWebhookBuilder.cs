@@ -1,9 +1,9 @@
-
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Constructs ready-to-send webhook requests.
 /// </summary>

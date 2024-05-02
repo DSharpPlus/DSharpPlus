@@ -1,9 +1,9 @@
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace DSharpPlus.CommandsNext.Exceptions;
+
 /// <summary>
 /// Indicates that given argument set already exists as an overload for specified command.
 /// </summary>

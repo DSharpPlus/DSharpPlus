@@ -1,8 +1,8 @@
-
 using System;
 using System.Collections.Generic;
 
 namespace DSharpPlus.CommandsNext;
+
 public sealed class CommandArgument
 {
     /// <summary>

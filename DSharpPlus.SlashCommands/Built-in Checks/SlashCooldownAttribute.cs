@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Concurrent;
 using System.Globalization;
@@ -6,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.SlashCommands.Attributes;
+
 /// <summary>
 /// Defines a cooldown for this command. This allows you to define how many times can users execute a specific command
 /// </summary>

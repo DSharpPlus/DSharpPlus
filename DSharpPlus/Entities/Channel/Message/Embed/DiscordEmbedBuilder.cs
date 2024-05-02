@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -6,6 +5,7 @@ using System.Linq;
 using DSharpPlus.Net;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Constructs embeds.
 /// </summary>

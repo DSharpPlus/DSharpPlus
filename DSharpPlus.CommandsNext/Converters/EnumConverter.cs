@@ -1,10 +1,10 @@
-
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandsNext.Converters;
+
 /// <summary>
 /// Converts a string to an enum type.
 /// </summary>

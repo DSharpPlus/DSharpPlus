@@ -1,7 +1,7 @@
-
 using System;
 
 namespace DSharpPlus.Commands;
+
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Delegate)]
 public sealed class CommandAttribute : Attribute
 {

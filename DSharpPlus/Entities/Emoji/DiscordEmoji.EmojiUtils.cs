@@ -1,7 +1,7 @@
-
 using System.Collections.Generic;
 
 namespace DSharpPlus.Entities;
+
 public partial class DiscordEmoji
 {
     /// <summary>

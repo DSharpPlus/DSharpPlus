@@ -1,5 +1,4 @@
 #pragma warning disable 0649
-
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -7,6 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace DSharpPlus.Lavalink;
+
 public class LavalinkTrack
 {
     /// <summary>

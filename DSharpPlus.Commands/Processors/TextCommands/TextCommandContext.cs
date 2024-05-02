@@ -1,9 +1,9 @@
-
 using System;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Commands.Processors.TextCommands;
+
 public sealed record TextCommandContext : CommandContext
 {
     public required DiscordMessage Message { get; init; }

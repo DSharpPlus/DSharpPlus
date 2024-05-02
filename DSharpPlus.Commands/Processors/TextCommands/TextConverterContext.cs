@@ -1,8 +1,8 @@
-
 using DSharpPlus.Commands.Converters;
 using DSharpPlus.Commands.Processors.TextCommands.Parsing;
 
 namespace DSharpPlus.Commands.Processors.TextCommands;
+
 public record TextConverterContext : ConverterContext
 {
     public required TextArgumentSplicer Splicer { get; init; }

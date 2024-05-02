@@ -1,8 +1,8 @@
-
 using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 public sealed class DiscordForumTag : SnowflakeObject
 {
     /// <summary>

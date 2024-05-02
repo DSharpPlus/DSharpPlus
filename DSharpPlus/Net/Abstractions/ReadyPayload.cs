@@ -1,9 +1,9 @@
-
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions;
+
 /// <summary>
 /// Represents data for websocket ready event payload.
 /// </summary>

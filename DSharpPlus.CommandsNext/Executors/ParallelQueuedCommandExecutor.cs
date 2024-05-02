@@ -1,10 +1,10 @@
-
 using System;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.CommandsNext.Executors;
+
 /// <summary>
 /// A command executor which uses a bounded pool of executors to execute commands. This can limit the impact of
 /// commands on system resources, such as CPU usage.

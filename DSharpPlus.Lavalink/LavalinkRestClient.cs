@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,6 +14,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Lavalink;
+
 /// <summary>
 /// Represents a class for Lavalink REST calls.
 /// </summary>

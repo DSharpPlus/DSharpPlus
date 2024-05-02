@@ -1,7 +1,7 @@
-
 using System;
 
 namespace DSharpPlus.CommandsNext.Attributes;
+
 /// <summary>
 /// Indicates that the command argument takes the rest of the input without parsing.
 /// </summary>

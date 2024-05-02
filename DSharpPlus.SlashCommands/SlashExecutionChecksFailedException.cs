@@ -1,8 +1,8 @@
-
 using System;
 using System.Collections.Generic;
 
 namespace DSharpPlus.SlashCommands;
+
 /// <summary>
 /// Thrown when a pre-execution check for a slash command fails.
 /// </summary>

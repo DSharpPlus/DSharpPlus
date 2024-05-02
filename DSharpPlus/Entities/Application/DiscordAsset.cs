@@ -1,7 +1,7 @@
-
 using System;
 
 namespace DSharpPlus.Entities;
+
 public abstract class DiscordAsset
 {
     /// <summary>

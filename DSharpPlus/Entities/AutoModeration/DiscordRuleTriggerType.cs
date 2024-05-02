@@ -1,5 +1,6 @@
 namespace DSharpPlus.Entities;
 
+
 /// <summary>
 /// Characterizes the type of content which can trigger a rule.
 /// </summary>

@@ -1,8 +1,8 @@
-
 using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace DSharpPlus.Net;
+
 internal class PreemptiveRatelimitException : Exception
 {
     public required string Scope { get; set; }

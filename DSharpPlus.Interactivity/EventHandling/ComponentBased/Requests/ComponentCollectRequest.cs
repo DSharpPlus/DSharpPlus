@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -6,6 +5,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.Interactivity.EventHandling;
+
 /// <summary>
 /// Represents a component event that is being waited for.
 /// </summary>

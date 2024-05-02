@@ -1,9 +1,9 @@
-
 using System;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.SlashCommands;
+
 /// <summary>
 /// Specifies the allowed interaction contexts for a command.
 /// </summary>

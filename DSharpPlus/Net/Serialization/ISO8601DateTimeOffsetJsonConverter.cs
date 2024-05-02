@@ -1,10 +1,10 @@
-
 using System;
 using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Net.Serialization;
+
 /// <summary>
 /// Json converter for handling DateTimeOffset values.
 /// </summary>

@@ -1,8 +1,8 @@
-
 using System.Collections.Generic;
 using DSharpPlus.CommandsNext.Entities;
 
 namespace DSharpPlus.CommandsNext.Converters;
+
 /// <summary>
 /// Represents a base class for all default help formatters.
 /// </summary>

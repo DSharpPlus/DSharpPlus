@@ -1,9 +1,9 @@
-
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Represents the guild permissions for a application command.
 /// </summary>

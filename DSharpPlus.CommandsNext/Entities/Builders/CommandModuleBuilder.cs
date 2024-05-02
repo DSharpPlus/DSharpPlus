@@ -1,9 +1,9 @@
-
 using System;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Entities;
 
 namespace DSharpPlus.CommandsNext.Builders;
+
 /// <summary>
 /// Represents an interface to build a command module.
 /// </summary>

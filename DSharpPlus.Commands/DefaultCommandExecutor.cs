@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -8,17 +7,16 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
-
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Invocation;
 using DSharpPlus.Commands.Trees;
-
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Commands;
+
 public class DefaultCommandExecutor : ICommandExecutor
 {
     /// <summary>

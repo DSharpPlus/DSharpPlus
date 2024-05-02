@@ -1,4 +1,3 @@
-
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Commands;
@@ -8,6 +7,7 @@ using DSharpPlus.Tests.Commands.Cases;
 using NUnit.Framework;
 
 namespace DSharpPlus.Tests.Commands.Processors.TextCommands.Parsing;
+
 public sealed class DefaultTextArgumentSplicerTests
 {
     private static CommandsExtension _extension = null!;

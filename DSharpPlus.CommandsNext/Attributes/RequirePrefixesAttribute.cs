@@ -1,9 +1,9 @@
-
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.CommandsNext.Attributes;
+
 /// <summary>
 /// Defines that usage of this command is only allowed with specific prefixes.
 /// </summary>

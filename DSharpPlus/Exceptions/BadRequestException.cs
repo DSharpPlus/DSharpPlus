@@ -1,8 +1,8 @@
-
 using System.Net.Http;
 using System.Text.Json;
 
 namespace DSharpPlus.Exceptions;
+
 /// <summary>
 /// Represents an exception thrown when a malformed request is sent.
 /// </summary>

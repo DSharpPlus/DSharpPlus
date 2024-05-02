@@ -1,8 +1,8 @@
-
 using System;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Represents an object in Discord API.
 /// </summary>

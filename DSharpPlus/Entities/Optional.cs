@@ -1,4 +1,3 @@
-
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -9,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Helper methods for instantiating an <see cref="Optional{T}"/>.
 /// </summary>

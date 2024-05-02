@@ -1,8 +1,8 @@
-
 using System;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// A scheduled event on a guild, which notifies all people that are interested in it.
 /// </summary>

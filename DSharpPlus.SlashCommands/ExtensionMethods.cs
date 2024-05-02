@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -6,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.SlashCommands;
+
 /// <summary>
 /// Defines various extension methods for slash commands.
 /// </summary>

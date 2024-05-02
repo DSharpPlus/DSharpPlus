@@ -1,5 +1,6 @@
 namespace DSharpPlus.Entities;
 
+
 /// <summary>
 /// Represents the possible OAuth scopes for application authorization.
 /// </summary>

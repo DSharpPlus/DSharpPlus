@@ -1,9 +1,9 @@
-
 using System;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Commands.Trees;
+
 public record CommandParameter
 {
     public required string Name { get; init; }

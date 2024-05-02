@@ -1,7 +1,7 @@
-
 using System;
 
 namespace DSharpPlus.CommandsNext.Attributes;
+
 /// <summary>
 /// Marks this command or group as hidden.
 /// </summary>

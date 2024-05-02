@@ -1,9 +1,9 @@
-
 using System.Globalization;
 using DSharpPlus.EventArgs;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Lavalink.Entities;
+
 internal sealed class LavalinkVoiceServerUpdate
 {
     [JsonProperty("token")]

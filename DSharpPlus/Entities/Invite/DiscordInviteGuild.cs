@@ -1,9 +1,9 @@
-
 using System.Collections.Generic;
 using System.Globalization;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Represents a guild to which the user is invited.
 /// </summary>

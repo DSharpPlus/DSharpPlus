@@ -1,9 +1,9 @@
-
 using System;
 using System.Collections.Generic;
 using DSharpPlus.Net.Abstractions;
 
 namespace DSharpPlus.Entities;
+
 /// <summary>
 /// Represents a builder for <see cref="DiscordPoll"/>s.
 /// </summary>

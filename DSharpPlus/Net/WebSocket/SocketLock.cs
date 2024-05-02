@@ -1,9 +1,9 @@
-
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Net.WebSocket;
+
 // Licensed from Clyde.NET (etc; I don't know how licenses work)
 
 internal sealed class SocketLock : IDisposable

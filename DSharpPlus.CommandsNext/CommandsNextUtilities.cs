@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -13,6 +12,7 @@ using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.CommandsNext;
+
 /// <summary>
 /// Various CommandsNext-related utilities.
 /// </summary>

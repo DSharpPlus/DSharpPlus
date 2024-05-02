@@ -1,9 +1,9 @@
-
 using System;
 using DSharpPlus.Entities;
 using DSharpPlus.VoiceNext.Codec;
 
 namespace DSharpPlus.VoiceNext.Entities;
+
 internal class AudioSender : IDisposable
 {
     // starting the counter a full wrap ahead handles an edge case where the VERY first packets

@@ -1,9 +1,9 @@
 #pragma warning disable 0649
-
 using System;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Lavalink.Entities;
+
 internal sealed class LavalinkState
 {
     [JsonIgnore]

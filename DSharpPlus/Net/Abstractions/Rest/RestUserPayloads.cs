@@ -1,10 +1,9 @@
-
 using System.Collections.Generic;
 using DSharpPlus.Entities;
-
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions;
+
 internal sealed class RestUserDmCreatePayload
 {
     [JsonProperty("recipient_id")]

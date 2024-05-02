@@ -1,7 +1,7 @@
-
 using System;
 
 namespace DSharpPlus;
+
 public static class DiscordIntentExtensions
 {
     /// <summary>

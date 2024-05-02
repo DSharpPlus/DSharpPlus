@@ -1,10 +1,10 @@
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
 namespace DSharpPlus.Commands.Trees;
+
 public record Command
 {
     public required string Name { get; init; }

@@ -1,7 +1,7 @@
-
 using DSharpPlus.Commands.Trees;
 
 namespace DSharpPlus.Commands.Converters;
+
 public abstract record ConverterContext : AbstractContext
 {
     public virtual object? Argument { get; protected set; }

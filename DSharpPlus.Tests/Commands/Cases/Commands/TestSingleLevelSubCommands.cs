@@ -1,10 +1,10 @@
-
 using System.Threading.Tasks;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.Processors.TextCommands;
 
 namespace DSharpPlus.Tests.Commands.Cases.Commands;
+
 public class TestSingleLevelSubCommands
 {
     [Command("tag")]

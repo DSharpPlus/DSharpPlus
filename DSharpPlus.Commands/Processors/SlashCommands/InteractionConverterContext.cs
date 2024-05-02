@@ -1,9 +1,9 @@
-
 using System.Collections.Generic;
 using DSharpPlus.Commands.Converters;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Commands.Processors.SlashCommands;
+
 public record InteractionConverterContext : ConverterContext
 {
     public required DiscordInteraction Interaction { get; init; }

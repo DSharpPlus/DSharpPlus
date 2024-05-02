@@ -1,4 +1,3 @@
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +5,7 @@ using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandsNext.Converters;
+
 /// <summary>
 /// Default CommandsNext help formatter.
 /// </summary>

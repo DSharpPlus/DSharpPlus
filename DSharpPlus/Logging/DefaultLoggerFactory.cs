@@ -1,9 +1,9 @@
-
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus;
+
 internal class DefaultLoggerFactory : ILoggerFactory
 {
     private List<ILoggerProvider> Providers { get; } = [];

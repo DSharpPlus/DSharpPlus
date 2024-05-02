@@ -1,4 +1,3 @@
-
 using System;
 using System.Globalization;
 using System.IO;
@@ -13,6 +12,7 @@ using DSharpPlus.Lavalink.EventArgs;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Lavalink;
+
 [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 internal delegate void ChannelDisconnectedEventHandler(LavalinkGuildConnection node);
 

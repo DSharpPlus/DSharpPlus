@@ -1,7 +1,7 @@
-
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs;
+
 /// <summary>
 /// Fired when someone unsubcribes from an event.
 /// </summary>
