@@ -114,7 +114,7 @@ public sealed class LavalinkGuildConnection
     internal VoiceStateUpdateEventArgs VoiceStateUpdate { get; set; }
     internal TaskCompletionSource<bool> VoiceWsDisconnectTcs { get; set; }
 
-    internal LavalinkGuildConnection(LavalinkNodeConnection node, DiscordChannel channel, VoiceStateUpdateEventArgs vstu)
+    internal LavalinkGuildConnection(LavalinkNodeConnection node, VoiceStateUpdateEventArgs vstu)
     {
         Node = node;
         VoiceStateUpdate = vstu;

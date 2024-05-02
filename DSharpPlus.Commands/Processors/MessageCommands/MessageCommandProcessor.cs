@@ -64,7 +64,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
                 continue;
             }
 
-            applicationCommands.Add(await ToApplicationCommandAsync(_extension, command));
+            applicationCommands.Add(await ToApplicationCommandAsync(command));
         }
 
         _slashCommandProcessor.AddApplicationCommands(applicationCommands);
@@ -131,7 +131,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
         await _extension.CommandExecutor.ExecuteAsync(commandContext);
     }
 
-    public async Task<DiscordApplicationCommand> ToApplicationCommandAsync(CommandsExtension extension, Command command)
+    public async Task<DiscordApplicationCommand> ToApplicationCommandAsync(Command command)
     {
         IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
         if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)

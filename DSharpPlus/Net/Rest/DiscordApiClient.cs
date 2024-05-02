@@ -1809,14 +1809,19 @@ public sealed class DiscordApiClient
     internal async ValueTask DeleteScheduledGuildEventAsync
     (
         ulong guildId,
-        ulong guildScheduledEventId
+        ulong guildScheduledEventId,
+        string? reason = null
     )
     {
         RestRequest request = new()
         {
             Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EVENTS}/:guild_scheduled_event_id",
             Url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.EVENTS}/{guildScheduledEventId}",
-            Method = HttpMethod.Delete
+            Method = HttpMethod.Delete,
+            Headers = new Dictionary<string, string>
+            {
+                [REASON_HEADER_NAME] = reason
+            }
         };
 
         await _rest.ExecuteRequestAsync(request);
@@ -2166,7 +2171,7 @@ public sealed class DiscordApiClient
 
         if (replyMessageId != null)
         {
-            pld.Mentions = new DiscordMentions(Mentions.All, true, mentionReply);
+            pld.Mentions = new DiscordMentions(Mentions.All, mentionReply);
         }
 
         string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}";
@@ -2224,7 +2229,7 @@ public sealed class DiscordApiClient
             pld.MessageReference = new InternalDiscordMessageReference { MessageId = builder.ReplyId, FailIfNotExists = builder.FailOnInvalidReply };
         }
 
-        pld.Mentions = new DiscordMentions(builder.Mentions ?? Mentions.None, builder.Mentions?.Any() ?? false, builder.MentionOnReply);
+        pld.Mentions = new DiscordMentions(builder.Mentions ?? Mentions.None, builder.MentionOnReply);
 
         if (builder.Files.Count == 0)
         {
@@ -2425,7 +2430,6 @@ public sealed class DiscordApiClient
                 ? new DiscordMentions
                 (
                     mentions.Value ?? Mentions.None,
-                    false,
                     mentions.Value?.OfType<RepliedUserMention>().Any() ?? false
                 )
                 : null

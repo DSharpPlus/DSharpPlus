@@ -462,7 +462,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="position">Role position</param>
     /// <param name="reason">Reason this position was modified</param>
     /// <returns></returns>
-    public async Task UpdateRolePositionAsync(ulong guildId, ulong roleId, int position, string reason = null)
+    public async Task UpdateRolePositionAsync(ulong guildId, ulong roleId, string reason = null)
     {
         List<RestGuildRoleReorderPayload> rgrrps =
         [

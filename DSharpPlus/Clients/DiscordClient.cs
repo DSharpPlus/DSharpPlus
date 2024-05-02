@@ -1256,7 +1256,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
         catch { }
 
         _guilds = null!;
-        _heartbeatTask = null!;
         _privateChannels = null!;
     }
 

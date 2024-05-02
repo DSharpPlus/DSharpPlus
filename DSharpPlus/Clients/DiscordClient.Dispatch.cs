@@ -144,11 +144,9 @@ public sealed partial class DiscordClient
                 break;
 
             case "guild_delete":
-
-                rawMembers = (JArray)dat["members"];
                 dat.Remove("members");
 
-                await OnGuildDeleteEventAsync(dat.ToDiscordObject<DiscordGuild>(), rawMembers);
+                await OnGuildDeleteEventAsync(dat.ToDiscordObject<DiscordGuild>());
                 break;
 
             case "guild_emojis_update":
@@ -357,7 +355,7 @@ public sealed partial class DiscordClient
                 break;
 
             case "message_reaction_remove_all":
-                await OnMessageReactionRemoveAllAsync((ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"]);
+                await OnMessageReactionRemoveAllAsync((ulong)dat["message_id"], (ulong)dat["channel_id"]);
                 break;
 
             case "message_reaction_remove_emoji":
@@ -400,7 +398,7 @@ public sealed partial class DiscordClient
 
             case "thread_create":
                 thread = dat.ToDiscordObject<DiscordThreadChannel>();
-                await OnThreadCreateEventAsync(thread, thread.IsNew);
+                await OnThreadCreateEventAsync(thread);
                 break;
 
             case "thread_update":
@@ -1196,7 +1194,7 @@ public sealed partial class DiscordClient
         await _guildUpdated.InvokeAsync(this, new GuildUpdateEventArgs { GuildBefore = oldGuild, GuildAfter = guild });
     }
 
-    internal async Task OnGuildDeleteEventAsync(DiscordGuild guild, JArray rawMembers)
+    internal async Task OnGuildDeleteEventAsync(DiscordGuild guild)
     {
         if (guild.IsUnavailable)
         {
@@ -1898,7 +1896,7 @@ public sealed partial class DiscordClient
         await _messageReactionRemoved.InvokeAsync(this, ea);
     }
 
-    internal async Task OnMessageReactionRemoveAllAsync(ulong messageId, ulong channelId, ulong? guildId)
+    internal async Task OnMessageReactionRemoveAllAsync(ulong messageId, ulong channelId)
     {
         DiscordChannel channel = InternalGetCachedChannel(channelId) ?? InternalGetCachedThread(channelId);
 
@@ -2155,7 +2153,7 @@ public sealed partial class DiscordClient
 
     #region Thread
 
-    internal async Task OnThreadCreateEventAsync(DiscordThreadChannel thread, bool isNew)
+    internal async Task OnThreadCreateEventAsync(DiscordThreadChannel thread)
     {
         thread.Discord = this;
         InternalGetCachedGuild(thread.GuildId)._threads[thread.Id] = thread;

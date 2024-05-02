@@ -335,7 +335,7 @@ public sealed class LavalinkNodeConnection
         VoiceServerUpdateEventArgs vsru = await vsrut.Task;
         await SendPayloadAsync(new LavalinkVoiceUpdate(vstu, vsru));
 
-        LavalinkGuildConnection con = new(this, channel, vstu);
+        LavalinkGuildConnection con = new(this, vstu);
         con.ChannelDisconnected += Con_ChannelDisconnectedAsync;
         con.PlayerUpdated += (s, e) => _playerUpdated.InvokeAsync(s, e);
         con.PlaybackStarted += (s, e) => _playbackStarted.InvokeAsync(s, e);

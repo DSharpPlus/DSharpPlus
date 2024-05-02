@@ -58,10 +58,9 @@ public class DiscordDmChannel : DiscordChannel
     /// Only use for Group DMs!
     /// </summary>
     /// <param name="user_id">The ID of the User to remove.</param>
-    /// <param name="accesstoken">The OAuth2 access token.</param>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task RemoveDmRecipientAsync(ulong user_id, string accesstoken)
+    public async Task RemoveDmRecipientAsync(ulong user_id)
         => await Discord.ApiClient.RemoveGroupDmRecipientAsync(Id, user_id);
 }

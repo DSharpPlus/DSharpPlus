@@ -713,7 +713,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public async Task DeleteEventAsync(DiscordScheduledGuildEvent guildEvent, string reason = null)
     {
         _scheduledEvents.TryRemove(guildEvent.Id, out _);
-        await Discord.ApiClient.DeleteScheduledGuildEventAsync(Id, guildEvent.Id);
+        await Discord.ApiClient.DeleteScheduledGuildEventAsync(Id, guildEvent.Id, reason);
     }
 
     /// <summary>
