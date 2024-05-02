@@ -1107,19 +1107,6 @@ public class InteractivityExtension : BaseExtension
 
     private CancellationToken GetCancellationToken(TimeSpan? timeout = null) => new CancellationTokenSource(timeout ?? Config.Timeout).Token;
 
-    private async Task HandleInvalidInteractionAsync(DiscordInteraction interaction)
-    {
-        Task at = Config.ResponseBehavior switch
-        {
-            InteractionResponseBehavior.Ack => interaction.CreateResponseAsync(DiscordInteractionResponseType.DeferredMessageUpdate),
-            InteractionResponseBehavior.Respond => interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder() { Content = Config.ResponseMessage, IsEphemeral = true }),
-            InteractionResponseBehavior.Ignore => Task.CompletedTask,
-            _ => throw new ArgumentException("Unknown enum value.")
-        };
-
-        await at;
-    }
-
     public override void Dispose()
     {
         ComponentEventWaiter?.Dispose();
