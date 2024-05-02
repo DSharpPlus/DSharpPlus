@@ -829,8 +829,14 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the <paramref name="user"/> or <paramref name="accessToken"/> is not found.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordMember?> AddMemberAsync(DiscordUser user, string accessToken, string? nickname = null, IEnumerable<DiscordRole>? roles = null,
-        bool muted = false, bool deaf = false)
+    public async Task<DiscordMember?> AddMemberAsync
+    (
+        DiscordUser user,
+        string accessToken,
+        string? nickname = null,
+        IEnumerable<DiscordRole>? roles = null,
+        bool muted = false, bool deaf = false
+    )
         => await Discord.ApiClient.AddGuildMemberAsync(Id, user.Id, accessToken, muted, deaf, nickname, roles);
 
     /// <summary>
@@ -847,8 +853,15 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the <paramref name="userId"/> or <paramref name="accessToken"/> is not found.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordMember?> AddMemberAsync(ulong userId, string accessToken, string? nickname = null, IEnumerable<DiscordRole>? roles = null,
-    bool muted = false, bool deaf = false)
+    public async Task<DiscordMember?> AddMemberAsync
+    (
+        ulong userId,
+        string accessToken,
+        string? nickname = null,
+        IEnumerable<DiscordRole>? roles = null,
+        bool muted = false,
+        bool deaf = false
+    )
         => await Discord.ApiClient.AddGuildMemberAsync(Id, userId, accessToken, muted, deaf, nickname, roles);
 
     /// <summary>
@@ -968,29 +981,29 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Bans a specified member from this guild.
     /// </summary>
     /// <param name="member">Member to ban.</param>
-    /// <param name="deleteMessageDays">How many days to remove messages from.</param>
+    /// <param name="messageDeleteDuration">The duration in which discord should delete messages from the banned user.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.BanMembers"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task BanMemberAsync(DiscordUser member, int deleteMessageDays = 0, string? reason = null)
-        => await Discord.ApiClient.CreateGuildBanAsync(Id, member.Id, deleteMessageDays, reason);
+    public async Task BanMemberAsync(DiscordUser member, TimeSpan messageDeleteDuration = default, string? reason = null)
+        => await Discord.ApiClient.CreateGuildBanAsync(Id, member.Id, (int) messageDeleteDuration.TotalSeconds, reason);
 
     /// <summary>
     /// Bans a specified user by ID. This doesn't require the user to be in this guild.
     /// </summary>
     /// <param name="userId">ID of the user to ban.</param>
-    /// <param name="deleteMessageDays">How many days to remove messages from.</param>
+    /// <param name="messageDeleteDuration">The duration in which discord should delete messages from the banned user.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.BanMembers"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task BanMemberAsync(ulong userId, int deleteMessageDays = 0, string? reason = null)
-        => await Discord.ApiClient.CreateGuildBanAsync(Id, userId, deleteMessageDays, reason);
+    public async Task BanMemberAsync(ulong userId, TimeSpan messageDeleteDuration = default, string? reason = null)
+        => await Discord.ApiClient.CreateGuildBanAsync(Id, userId, (int) messageDeleteDuration.TotalSeconds, reason);
 
     /// <summary>
     /// Bans multiple users from this guild.
@@ -1013,7 +1026,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns>Response contains a which users were banned and which were not.</returns>
     public async Task<DiscordBulkBan> BulkBanMembersAsync(IEnumerable<ulong> userIds, int deleteMessageSeconds = 0, string? reason = null)
-    => await Discord.ApiClient.CreateGuildBulkBanAsync(Id, userIds, deleteMessageSeconds, reason);
+        => await Discord.ApiClient.CreateGuildBulkBanAsync(Id, userIds, deleteMessageSeconds, reason);
 
     /// <summary>
     /// Unbans a user from this guild.
@@ -1331,8 +1344,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<int?> PruneAsync(int days = 7, bool computePruneCount = true, IEnumerable<ulong>? includedRoleIds = null, string? reason = null)
         => await Discord.ApiClient.BeginGuildPruneAsync(Id, days, computePruneCount, includedRoleIds?.Where(x => _roles.ContainsKey(x)), reason);
-
-
+    
     /// <summary>
     /// Gets integrations attached to this guild.
     /// </summary>
@@ -1864,8 +1876,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the emoji does not exist on this guild</exception>
     public async Task DeleteEmojiAsync(ulong emojiId, string? reason = null)
         => await Discord.ApiClient.DeleteGuildEmojiAsync(Id, emojiId, reason);
-
-
+    
     /// <summary>
     /// <para>Gets the default channel for this guild.</para>
     /// <para>Default channel is the first channel current member can see.</para>
