@@ -1,8 +1,7 @@
-namespace DSharpPlus.Lavalink.EventArgs;
-
 using System;
-
 using DSharpPlus.AsyncEvents;
+
+namespace DSharpPlus.Lavalink.EventArgs;
 
 internal enum EventType
 {

@@ -1,5 +1,6 @@
 namespace DSharpPlus.Entities;
 
+
 /// <summary>
 /// Represents the status of a <see cref="DiscordScheduledGuildEvent"/>.
 /// </summary>

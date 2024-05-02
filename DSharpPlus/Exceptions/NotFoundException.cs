@@ -1,7 +1,7 @@
-namespace DSharpPlus.Exceptions;
-
 using System.Net.Http;
 using System.Text.Json;
+
+namespace DSharpPlus.Exceptions;
 
 /// <summary>
 /// Represents an exception thrown when a requested resource is not found.

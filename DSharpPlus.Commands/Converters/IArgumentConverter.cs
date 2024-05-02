@@ -1,8 +1,8 @@
-namespace DSharpPlus.Commands.Converters;
-
 using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
+
+namespace DSharpPlus.Commands.Converters;
 
 public interface IArgumentConverter { }
 

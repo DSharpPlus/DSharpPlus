@@ -1,9 +1,9 @@
-namespace DSharpPlus.Entities;
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using DSharpPlus.Net.Abstractions;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a team consisting of users. A team can own an application.
@@ -131,13 +131,7 @@ public sealed class DiscordTeamMember : IEquatable<DiscordTeamMember>
     /// Gets a hash code of this team member.
     /// </summary>
     /// <returns>Hash code of this team member.</returns>
-    public override int GetHashCode()
-    {
-        int hash = 13;
-        hash = (hash * 7) + User.GetHashCode();
-        hash = (hash * 7) + Team.GetHashCode();
-        return hash;
-    }
+    public override int GetHashCode() => HashCode.Combine(User, Team);
 
     /// <summary>
     /// Converts this team member to their string representation.

@@ -1,6 +1,6 @@
-namespace DSharpPlus.VoiceNext;
-
 using Microsoft.Extensions.Logging;
+
+namespace DSharpPlus.VoiceNext;
 
 /// <summary>
 /// Contains well-defined event IDs used by the VoiceNext extension.

@@ -1,9 +1,9 @@
-namespace DSharpPlus.Commands;
-
 using System;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
+
+namespace DSharpPlus.Commands;
 
 public abstract record AbstractContext
 {

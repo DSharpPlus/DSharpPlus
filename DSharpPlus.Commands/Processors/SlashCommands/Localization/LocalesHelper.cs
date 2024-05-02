@@ -1,8 +1,8 @@
-namespace DSharpPlus.Commands.Processors.SlashCommands.Localization;
-
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
+
+namespace DSharpPlus.Commands.Processors.SlashCommands.Localization;
 
 public static class LocalesHelper
 {

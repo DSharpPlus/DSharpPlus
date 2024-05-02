@@ -1,6 +1,6 @@
-namespace DSharpPlus.CommandsNext;
-
 using DSharpPlus.AsyncEvents;
+
+namespace DSharpPlus.CommandsNext;
 
 /// <summary>
 /// Base class for all CNext-related events.

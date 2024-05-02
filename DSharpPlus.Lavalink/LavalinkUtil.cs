@@ -1,9 +1,9 @@
-namespace DSharpPlus.Lavalink;
-
 using System;
 using System.IO;
 using System.Text;
 using DSharpPlus.Lavalink.EventArgs;
+
+namespace DSharpPlus.Lavalink;
 
 /// <summary>
 /// Various utilities for Lavalink.
@@ -15,7 +15,7 @@ public static class LavalinkUtilities
     /// already triggered because another track started (REPLACED) or because the player is stopped (STOPPED, CLEANUP).
     /// </summary>
     public static bool MayStartNext(this TrackEndReason reason)
-        => reason == TrackEndReason.Finished || reason == TrackEndReason.LoadFailed;
+        => reason is TrackEndReason.Finished or TrackEndReason.LoadFailed;
 
     /// <summary>
     /// Decodes a Lavalink track string.
@@ -30,13 +30,13 @@ public static class LavalinkUtilities
 
         byte[] raw = Convert.FromBase64String(track);
 
-        LavalinkTrack decoded = new LavalinkTrack
+        LavalinkTrack decoded = new()
         {
             TrackString = track
         };
 
-        using (MemoryStream ms = new MemoryStream(raw))
-        using (JavaBinaryReader br = new JavaBinaryReader(ms))
+        using (MemoryStream ms = new(raw))
+        using (JavaBinaryReader br = new(ms))
         {
             // https://github.com/sedmelluq/lavaplayer/blob/b0c536098c4f92e6d03b00f19221021f8f50b19b/main/src/main/java/com/sedmelluq/discord/lavaplayer/tools/io/MessageInput.java#L37-L39
             int messageHeader = br.ReadInt32();

@@ -1,6 +1,6 @@
-namespace DSharpPlus.CommandsNext.Entities;
-
 using System;
+
+namespace DSharpPlus.CommandsNext.Entities;
 
 /// <summary>
 /// Represents a base interface for all types of command modules.

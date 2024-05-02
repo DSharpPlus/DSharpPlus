@@ -1,5 +1,3 @@
-namespace DSharpPlus.Commands.Processors.MessageCommands;
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,6 +17,8 @@ using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+
+namespace DSharpPlus.Commands.Processors.MessageCommands;
 
 public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreateEventArgs>
 {
@@ -64,7 +64,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
                 continue;
             }
 
-            applicationCommands.Add(await ToApplicationCommandAsync(_extension, command));
+            applicationCommands.Add(await ToApplicationCommandAsync(command));
         }
 
         _slashCommandProcessor.AddApplicationCommands(applicationCommands);
@@ -82,7 +82,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
         }
 
         AsyncServiceScope scope = _extension.ServiceProvider.CreateAsyncScope();
-        if (!_slashCommandProcessor.TryFindCommand(eventArgs.Interaction, out Command? command, out IEnumerable<DiscordInteractionDataOption>? options))
+        if (!_slashCommandProcessor.TryFindCommand(eventArgs.Interaction, out Command? command, out _))
         {
             await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
             {
@@ -131,7 +131,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
         await _extension.CommandExecutor.ExecuteAsync(commandContext);
     }
 
-    public async Task<DiscordApplicationCommand> ToApplicationCommandAsync(CommandsExtension extension, Command command)
+    public async Task<DiscordApplicationCommand> ToApplicationCommandAsync(Command command)
     {
         IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
         if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)

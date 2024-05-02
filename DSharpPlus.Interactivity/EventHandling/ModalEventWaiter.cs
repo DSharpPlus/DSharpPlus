@@ -1,11 +1,11 @@
-namespace DSharpPlus.Interactivity.EventHandling;
-
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using ConcurrentCollections;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Logging;
+
+namespace DSharpPlus.Interactivity.EventHandling;
 
 /// <summary>
 /// Modal version of <see cref="EventWaiter{T}"/>
@@ -17,7 +17,7 @@ internal class ModalEventWaiter : IDisposable
     /// <summary>
     /// Collection of <see cref = "ModalMatchRequest"/> representing requests to wait for modals.
     /// </summary>
-    private ConcurrentHashSet<ModalMatchRequest> MatchRequests { get; } = new();
+    private ConcurrentHashSet<ModalMatchRequest> MatchRequests { get; } = [];
 
     public ModalEventWaiter(DiscordClient client)
     {

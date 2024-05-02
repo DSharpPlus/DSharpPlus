@@ -1,7 +1,7 @@
-namespace DSharpPlus.Net;
-
 using System;
 using System.Diagnostics.CodeAnalysis;
+
+namespace DSharpPlus.Net;
 
 internal class PreemptiveRatelimitException : Exception
 {

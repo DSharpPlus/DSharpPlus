@@ -1,5 +1,3 @@
-namespace DSharpPlus.Commands.Trees;
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,9 +5,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Entities;
+
+namespace DSharpPlus.Commands.Trees;
 
 public class CommandParameterBuilder
 {

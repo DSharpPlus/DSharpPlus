@@ -1,8 +1,8 @@
-namespace DSharpPlus.Entities;
-
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a Discord Sticker.
@@ -44,7 +44,7 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     /// </summary>
     public DiscordGuild Guild => (Discord as DiscordClient)!.InternalGetCachedGuild(GuildId);
 
-    public string StickerUrl => $"https://cdn.discordapp.com/stickers/{Id}{GetFileTypeExtension()}";
+    public string StickerUrl => $"https://cdn.discordapp.com/stickers/{Id}{(FormatType is DiscordStickerFormat.LOTTIE ? ".json" : ".png")}";
 
     /// <summary>
     /// Gets the Id of the sticker this guild belongs to, if any.
@@ -98,15 +98,33 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     internal ulong BannerAssetId { get; set; }
 
     public bool Equals(DiscordMessageSticker? other) => Id == other?.Id;
-
+    public override bool Equals(object obj) => Equals(obj as DiscordMessageSticker);
     public override string ToString() => $"Sticker {Id}; {Name}; {FormatType}";
-
-    private string GetFileTypeExtension() => FormatType switch
+    public override int GetHashCode()
     {
-        DiscordStickerFormat.PNG or DiscordStickerFormat.APNG => ".png",
-        DiscordStickerFormat.LOTTIE => ".json",
-        _ => ".png"
-    };
+        HashCode hash = new();
+        hash.Add(Id);
+        hash.Add(CreationTimestamp);
+        hash.Add(Discord);
+        hash.Add(PackId);
+        hash.Add(Name);
+        hash.Add(Description);
+        hash.Add(Type);
+        hash.Add(User);
+        hash.Add(Guild);
+        hash.Add(StickerUrl);
+        hash.Add(GuildId);
+        hash.Add(Available);
+        hash.Add(SortValue);
+        hash.Add(Tags);
+        hash.Add(Asset);
+        hash.Add(PreviewAsset);
+        hash.Add(FormatType);
+        hash.Add(InternalTags);
+        hash.Add(BannerUrl);
+        hash.Add(BannerAssetId);
+        return hash.ToHashCode();
+    }
 }
 
 public enum DiscordStickerType

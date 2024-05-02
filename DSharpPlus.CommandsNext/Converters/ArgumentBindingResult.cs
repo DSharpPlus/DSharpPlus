@@ -1,9 +1,9 @@
-namespace DSharpPlus.CommandsNext.Converters;
-
 using System;
 using System.Collections.Generic;
 
-public struct ArgumentBindingResult
+namespace DSharpPlus.CommandsNext.Converters;
+
+public readonly struct ArgumentBindingResult
 {
     public bool IsSuccessful { get; }
     public object?[] Converted { get; }
@@ -22,7 +22,7 @@ public struct ArgumentBindingResult
     {
         IsSuccessful = false;
         Reason = ex;
-        Converted = Array.Empty<object>();
+        Converted = [];
         Raw = Array.Empty<string>();
     }
 }

@@ -1,6 +1,6 @@
-namespace DSharpPlus.SlashCommands;
-
 using System;
+
+namespace DSharpPlus.SlashCommands;
 
 /// <summary>
 /// Adds a choice for this slash command option.

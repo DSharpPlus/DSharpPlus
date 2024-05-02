@@ -1,5 +1,6 @@
 namespace DSharpPlus.Net.Abstractions;
 
+
 /// <summary>
 /// Specifies an OP code in a gateway payload.
 /// </summary>

@@ -1,9 +1,9 @@
-namespace DSharpPlus.Entities;
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents either a forum channel or a post in the forum.
@@ -30,8 +30,11 @@ public sealed class DiscordForumChannel : DiscordChannel
     /// </summary>
     public IReadOnlyList<DiscordForumTag> AvailableTags => _availableTags;
 
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value null
+    // Justification: Used by JSON.NET
     [JsonProperty("available_tags")]
     private readonly List<DiscordForumTag> _availableTags;
+#pragma warning restore CS0649
 
     /// <summary>
     /// The default reaction shown on posts when they are created.

@@ -1,10 +1,10 @@
-namespace DSharpPlus.SlashCommands;
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+
+namespace DSharpPlus.SlashCommands;
 
 /// <summary>
 /// Defines various extension methods for slash commands.
@@ -25,7 +25,7 @@ public static class ExtensionMethods
             throw new InvalidOperationException("Slash commands are already enabled for that client.");
         }
 
-        SlashCommandsExtension scomm = new SlashCommandsExtension(config);
+        SlashCommandsExtension scomm = new(config);
         client.AddExtension(scomm);
         return scomm;
     }
@@ -47,7 +47,7 @@ public static class ExtensionMethods
     [Obsolete("DSharpPlus.SlashCommands is obsolete. Please consider using the new DSharpPlus.Commands extension instead.")]
     public static async Task<IReadOnlyDictionary<int, SlashCommandsExtension>> UseSlashCommandsAsync(this DiscordShardedClient client, SlashCommandsConfiguration config = null)
     {
-        Dictionary<int, SlashCommandsExtension> modules = new Dictionary<int, SlashCommandsExtension>();
+        Dictionary<int, SlashCommandsExtension> modules = [];
         await client.InitializeShardsAsync();
         foreach (DiscordClient shard in client.ShardClients.Values)
         {

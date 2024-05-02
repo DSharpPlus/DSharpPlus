@@ -1,9 +1,9 @@
-namespace DSharpPlus.Net.WebSocket;
-
 using System;
 using System.Buffers.Binary;
 using System.IO;
 using System.IO.Compression;
+
+namespace DSharpPlus.Net.WebSocket;
 
 internal sealed class PayloadDecompressor : IDisposable
 {
@@ -49,7 +49,7 @@ internal sealed class PayloadDecompressor : IDisposable
         CompressedStream.Position = 0;
 
         Span<byte> cspan = compressed.AsSpan();
-        uint suffix = BinaryPrimitives.ReadUInt32BigEndian(cspan.Slice(cspan.Length - 4));
+        uint suffix = BinaryPrimitives.ReadUInt32BigEndian(cspan[^4..]);
         if (CompressionLevel == GatewayCompressionLevel.Stream && suffix != ZlibFlush)
         {
             if (CompressionLevel == GatewayCompressionLevel.Payload)

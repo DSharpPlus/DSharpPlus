@@ -1,6 +1,6 @@
-namespace DSharpPlus.EventArgs;
-
 using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs;
 
 /// <summary>
 /// Represents an update for a poll vote.

@@ -1,5 +1,3 @@
-namespace DSharpPlus.Lavalink;
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -9,6 +7,8 @@ using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
 using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net;
+
+namespace DSharpPlus.Lavalink;
 
 [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 public sealed class LavalinkExtension : BaseExtension
@@ -58,12 +58,12 @@ public sealed class LavalinkExtension : BaseExtension
     /// <returns>The established Lavalink connection.</returns>
     public async Task<LavalinkNodeConnection> ConnectAsync(LavalinkConfiguration config)
     {
-        if (_connectedNodes.ContainsKey(config.SocketEndpoint))
+        if (_connectedNodes.TryGetValue(config.SocketEndpoint, out LavalinkNodeConnection value))
         {
-            return _connectedNodes[config.SocketEndpoint];
+            return value;
         }
 
-        LavalinkNodeConnection con = new LavalinkNodeConnection(Client, this, config);
+        LavalinkNodeConnection con = new(Client, this, config);
         con.NodeDisconnected += Con_NodeDisconnected;
         con.Disconnected += Con_Disconnected;
         _connectedNodes[con.NodeEndpoint] = con;
@@ -86,7 +86,7 @@ public sealed class LavalinkExtension : BaseExtension
     /// <param name="endpoint">Endpoint at which the node resides.</param>
     /// <returns>Lavalink node connection.</returns>
     public LavalinkNodeConnection GetNodeConnection(ConnectionEndpoint endpoint)
-        => _connectedNodes.ContainsKey(endpoint) ? _connectedNodes[endpoint] : null;
+        => _connectedNodes.TryGetValue(endpoint, out LavalinkNodeConnection value) ? value : null;
 
     /// <summary>
     /// Gets a Lavalink node connection based on load balancing and an optional voice region.
@@ -100,18 +100,18 @@ public sealed class LavalinkExtension : BaseExtension
             return _connectedNodes.Values.FirstOrDefault();
         }
 
-        LavalinkNodeConnection[] nodes = _connectedNodes.Values.ToArray();
+        LavalinkNodeConnection[] nodes = [.. _connectedNodes.Values];
 
         if (region != null)
         {
-            Func<LavalinkNodeConnection, bool> regionPredicate = new Func<LavalinkNodeConnection, bool>(x => x.Region == region);
+            Func<LavalinkNodeConnection, bool> regionPredicate = new(x => x.Region == region);
 
             if (nodes.Any(regionPredicate))
             {
                 nodes = nodes.Where(regionPredicate).ToArray();
             }
 
-            if (nodes.Count() <= 1)
+            if (nodes.Length <= 1)
             {
                 return nodes.FirstOrDefault();
             }

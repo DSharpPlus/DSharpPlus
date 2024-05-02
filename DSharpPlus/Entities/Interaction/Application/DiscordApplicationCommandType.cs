@@ -1,5 +1,6 @@
 namespace DSharpPlus.Entities;
 
+
 /// <summary>
 /// Represents the type of a <see cref="DiscordApplicationCommand"/>.
 /// </summary>

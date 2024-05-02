@@ -1,8 +1,7 @@
-namespace DSharpPlus.Entities;
-
 using System.Threading.Tasks;
-
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a Discord permission overwrite builder.
@@ -111,7 +110,7 @@ public sealed class DiscordOverwriteBuilder
     /// Builds this DiscordOverwrite.
     /// </summary>
     /// <returns>Use this object for creation of new overwrites.</returns>
-    internal DiscordRestOverwrite Build() => new DiscordRestOverwrite()
+    internal DiscordRestOverwrite Build() => new()
     {
         Allow = Allowed,
         Deny = Denied,

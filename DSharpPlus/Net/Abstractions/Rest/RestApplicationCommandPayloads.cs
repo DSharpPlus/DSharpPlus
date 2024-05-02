@@ -1,10 +1,9 @@
-namespace DSharpPlus.Net.Abstractions;
-
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 using DSharpPlus.Net.Serialization;
-
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Net.Abstractions;
 
 internal class RestApplicationCommandCreatePayload
 {

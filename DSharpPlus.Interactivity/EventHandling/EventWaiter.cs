@@ -1,5 +1,3 @@
-namespace DSharpPlus.Interactivity.EventHandling;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,6 +7,8 @@ using System.Threading.Tasks;
 using ConcurrentCollections;
 using DSharpPlus.AsyncEvents;
 using Microsoft.Extensions.Logging;
+
+namespace DSharpPlus.Interactivity.EventHandling;
 
 /// <summary>
 /// Eventwaiter is a class that serves as a layer between the InteractivityExtension
@@ -33,8 +33,8 @@ internal class EventWaiter<T> : IDisposable where T : AsyncEventArgs
         _client = client;
         TypeInfo tinfo = _client.GetType().GetTypeInfo();
         FieldInfo handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, T>));
-        _matchrequests = new ConcurrentHashSet<MatchRequest<T>>();
-        _collectrequests = new ConcurrentHashSet<CollectRequest<T>>();
+        _matchrequests = [];
+        _collectrequests = [];
         _event = (AsyncEvent<DiscordClient, T>)handler.GetValue(_client);
         _handler = new AsyncEventHandler<DiscordClient, T>(HandleEvent);
         _event.Register(_handler);
@@ -45,7 +45,7 @@ internal class EventWaiter<T> : IDisposable where T : AsyncEventArgs
     /// </summary>
     /// <param name="request">Request to match</param>
     /// <returns></returns>
-    public async Task<T> WaitForMatch(MatchRequest<T> request)
+    public async Task<T> WaitForMatchAsync(MatchRequest<T> request)
     {
         T result = null;
         _matchrequests.Add(request);
@@ -65,9 +65,9 @@ internal class EventWaiter<T> : IDisposable where T : AsyncEventArgs
         return result;
     }
 
-    public async Task<ReadOnlyCollection<T>> CollectMatches(CollectRequest<T> request)
+    public async Task<ReadOnlyCollection<T>> CollectMatchesAsync(CollectRequest<T> request)
     {
-        ReadOnlyCollection<T> result = null;
+        ReadOnlyCollection<T> result;
         _collectrequests.Add(request);
         try
         {

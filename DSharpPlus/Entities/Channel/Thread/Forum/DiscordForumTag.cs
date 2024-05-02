@@ -1,6 +1,7 @@
-namespace DSharpPlus.Entities;
-
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 public sealed class DiscordForumTag : SnowflakeObject
 {
@@ -11,7 +12,7 @@ public sealed class DiscordForumTag : SnowflakeObject
     public string Name { get; internal set; }
 
     /// <summary>
-    /// Gets whether this tag is moderated. Moderated tags can only be applied by users with the <see cref="Permissions.ManageThreads"/> permission.
+    /// Gets whether this tag is moderated. Moderated tags can only be applied by users with the <see cref="DiscordPermissions.ManageThreads"/> permission.
     /// </summary>
     [JsonProperty("moderated")]
     public bool Moderated { get; internal set; }
@@ -31,21 +32,21 @@ public sealed class DiscordForumTag : SnowflakeObject
 
 public class DiscordForumTagBuilder
 {
-    [JsonProperty("name")]
+    [JsonProperty("name"), SuppressMessage("Code Quality", "IDE0052:Remove unread private members", Justification = "This is used by JSON.NET.")]
     private string _name;
 
-    [JsonProperty("moderated")]
+    [JsonProperty("moderated"), SuppressMessage("Code Quality", "IDE0052:Remove unread private members", Justification = "This is used by JSON.NET.")]
     private bool _moderated;
 
-    [JsonProperty("emoji_id")]
+    [JsonProperty("emoji_id"), SuppressMessage("Code Quality", "IDE0052:Remove unread private members", Justification = "This is used by JSON.NET.")]
     private ulong? _emojiId;
 
-    [JsonProperty("emoji_name")]
+    [JsonProperty("emoji_name"), SuppressMessage("Code Quality", "IDE0052:Remove unread private members", Justification = "This is used by JSON.NET.")]
     private string _emojiName;
 
     public static DiscordForumTagBuilder FromTag(DiscordForumTag tag)
     {
-        DiscordForumTagBuilder builder = new DiscordForumTagBuilder
+        DiscordForumTagBuilder builder = new()
         {
             _name = tag.Name,
             _moderated = tag.Moderated,
@@ -67,7 +68,7 @@ public class DiscordForumTagBuilder
     }
 
     /// <summary>
-    /// Sets this tag to be moderated (as in, it can only be set by users with the <see cref="Permissions.ManageThreads"/> permission).
+    /// Sets this tag to be moderated (as in, it can only be set by users with the <see cref="DiscordPermissions.ManageThreads"/> permission).
     /// </summary>
     /// <param name="moderated">Whether the tag is moderated.</param>
     /// <returns>The builder to chain calls with.</returns>

@@ -1,11 +1,11 @@
-namespace DSharpPlus.Entities;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a Discord emoji.
@@ -123,8 +123,8 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
     /// <returns>Whether the two emoji are equal.</returns>
     public static bool operator ==(DiscordEmoji e1, DiscordEmoji e2)
     {
-        object? o1 = e1 as object;
-        object? o2 = e2 as object;
+        object? o1 = e1;
+        object? o2 = e2;
 
         return (o1 != null ^ o2 == null)
             && ((o1 == null && o2 == null) || (e1.Id == e2.Id && (e1.Id != 0 || e1.Name == e2.Name)));
@@ -277,7 +277,7 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
         {
             throw new ArgumentNullException(nameof(name), "Name cannot be empty or null.");
         }
-        else if (name.Length < 2 || name[0] != ':' || name[name.Length - 1] != ':')
+        else if (name.Length < 2 || name[0] != ':' || name[^1] != ':')
         {
             throw new ArgumentException("Invalid emoji name specified. Ensure the emoji name starts and ends with ':'", nameof(name));
         }
@@ -288,7 +288,7 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
         }
         else if (includeGuilds)
         {
-            name = name.Substring(1, name.Length - 2); // remove colons
+            name = name[1..^1]; // remove colons
             foreach (DiscordGuild guild in client.Guilds.Values)
             {
                 DiscordEmoji? found = guild.Emojis.Values.FirstOrDefault(emoji => emoji.Name == name);
@@ -331,7 +331,7 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
             throw new ArgumentNullException(nameof(client), "Client cannot be null.");
         }
         // Checks if the emoji name is null
-        else if (string.IsNullOrWhiteSpace(name) || name.Length < 2 || name[0] != ':' || name[name.Length - 1] != ':')
+        else if (string.IsNullOrWhiteSpace(name) || name.Length < 2 || name[0] != ':' || name[^1] != ':')
         {
             emoji = null;
             return false; // invalid name
@@ -344,7 +344,7 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
         }
         else if (includeGuilds)
         {
-            name = name.Substring(1, name.Length - 2); // remove colons
+            name = name[1..^1]; // remove colons
             foreach (DiscordGuild guild in client.Guilds.Values)
             {
                 emoji = guild.Emojis.Values.FirstOrDefault(emoji => emoji.Name == name);

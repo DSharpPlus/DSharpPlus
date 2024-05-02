@@ -1,10 +1,10 @@
-namespace DSharpPlus.CommandsNext;
-
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
+
+namespace DSharpPlus.CommandsNext;
 
 /// <summary>
 /// Represents a context in which a command is executed.
@@ -136,7 +136,7 @@ public sealed class CommandContext
     public Task TriggerTypingAsync()
         => Channel.TriggerTypingAsync();
 
-    internal struct ServiceContext : IDisposable
+    internal readonly struct ServiceContext : IDisposable
     {
         public IServiceProvider Provider { get; }
         public IServiceScope Scope { get; }
@@ -149,6 +149,6 @@ public sealed class CommandContext
             IsInitialized = true;
         }
 
-        public void Dispose() => Scope?.Dispose();
+        public readonly void Dispose() => Scope?.Dispose();
     }
 }

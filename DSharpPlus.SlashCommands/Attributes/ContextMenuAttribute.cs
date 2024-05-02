@@ -1,8 +1,7 @@
-namespace DSharpPlus.SlashCommands;
-
 using System;
-
 using DSharpPlus.Entities;
+
+namespace DSharpPlus.SlashCommands;
 
 /// <summary>
 /// Marks this method as a context menu.

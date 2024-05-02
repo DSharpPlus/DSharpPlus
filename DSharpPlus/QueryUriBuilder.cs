@@ -1,15 +1,15 @@
-namespace DSharpPlus;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+namespace DSharpPlus;
 
 internal class QueryUriBuilder
 {
     public string SourceUri { get; }
 
     public IReadOnlyList<KeyValuePair<string, string>> QueryParameters => _queryParams;
-    private readonly List<KeyValuePair<string, string>> _queryParams = new();
+    private readonly List<KeyValuePair<string, string>> _queryParams = [];
 
     public QueryUriBuilder(string uri)
     {

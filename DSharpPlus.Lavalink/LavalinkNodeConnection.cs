@@ -1,5 +1,3 @@
-namespace DSharpPlus.Lavalink;
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -18,6 +16,8 @@ using DSharpPlus.Net.WebSocket;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
+namespace DSharpPlus.Lavalink;
 
 [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 internal delegate void NodeDisconnectedEventHandler(LavalinkNodeConnection node);
@@ -224,10 +224,10 @@ public sealed class LavalinkNodeConnection
         }
 
         WebSocket = Discord.Configuration.WebSocketClientFactory(Discord.Configuration.Proxy);
-        WebSocket.Connected += WebSocket_OnConnect;
-        WebSocket.Disconnected += WebSocket_OnDisconnect;
+        WebSocket.Connected += WebSocket_OnConnectAsync;
+        WebSocket.Disconnected += WebSocket_OnDisconnectAsync;
         WebSocket.ExceptionThrown += WebSocket_OnException;
-        WebSocket.MessageReceived += WebSocket_OnMessage;
+        WebSocket.MessageReceived += WebSocket_OnMessageAsync;
 
         WebSocket.AddDefaultHeader("Authorization", Configuration.Password);
         WebSocket.AddDefaultHeader("Num-Shards", Discord.ShardCount.ToString(CultureInfo.InvariantCulture));
@@ -268,7 +268,7 @@ public sealed class LavalinkNodeConnection
                 }
                 else
                 {
-                    Discord.Logger.LogCritical(LavalinkEvents.LavalinkConnectionError, ex, $"Failed to connect to Lavalink, retrying in {_backoff} ms.");
+                    Discord.Logger.LogCritical(LavalinkEvents.LavalinkConnectionError, ex, "Failed to connect to Lavalink, retrying in {BackOff} ms.", _backoff);
                 }
             }
         }
@@ -303,9 +303,9 @@ public sealed class LavalinkNodeConnection
     /// <returns>Channel connection, which allows for playback control.</returns>
     public async Task<LavalinkGuildConnection> ConnectAsync(DiscordChannel channel)
     {
-        if (_connectedGuilds.ContainsKey(channel.Guild.Id))
+        if (_connectedGuilds.TryGetValue(channel.Guild.Id, out LavalinkGuildConnection value))
         {
-            return _connectedGuilds[channel.Guild.Id];
+            return value;
         }
 
         if (channel.Guild == null || (channel.Type != DiscordChannelType.Voice && channel.Type != DiscordChannelType.Stage))
@@ -313,12 +313,12 @@ public sealed class LavalinkNodeConnection
             throw new ArgumentException("Invalid channel specified.", nameof(channel));
         }
 
-        TaskCompletionSource<VoiceStateUpdateEventArgs> vstut = new TaskCompletionSource<VoiceStateUpdateEventArgs>();
-        TaskCompletionSource<VoiceServerUpdateEventArgs> vsrut = new TaskCompletionSource<VoiceServerUpdateEventArgs>();
+        TaskCompletionSource<VoiceStateUpdateEventArgs> vstut = new();
+        TaskCompletionSource<VoiceServerUpdateEventArgs> vsrut = new();
         VoiceStateUpdates[channel.Guild.Id] = vstut;
         VoiceServerUpdates[channel.Guild.Id] = vsrut;
 
-        VoiceDispatch vsd = new VoiceDispatch
+        VoiceDispatch vsd = new()
         {
             OpCode = 4,
             Payload = new VoiceStateUpdatePayload
@@ -335,8 +335,8 @@ public sealed class LavalinkNodeConnection
         VoiceServerUpdateEventArgs vsru = await vsrut.Task;
         await SendPayloadAsync(new LavalinkVoiceUpdate(vstu, vsru));
 
-        LavalinkGuildConnection con = new LavalinkGuildConnection(this, channel, vstu);
-        con.ChannelDisconnected += Con_ChannelDisconnected;
+        LavalinkGuildConnection con = new(this, vstu);
+        con.ChannelDisconnected += Con_ChannelDisconnectedAsync;
         con.PlayerUpdated += (s, e) => _playerUpdated.InvokeAsync(s, e);
         con.PlaybackStarted += (s, e) => _playbackStarted.InvokeAsync(s, e);
         con.PlaybackFinished += (s, e) => _playbackFinished.InvokeAsync(s, e);
@@ -359,7 +359,7 @@ public sealed class LavalinkNodeConnection
     internal async Task SendPayloadAsync(LavalinkPayload payload)
         => await WsSendAsync(JsonConvert.SerializeObject(payload, Formatting.None));
 
-    private async Task WebSocket_OnMessage(IWebSocketClient client, SocketMessageEventArgs e)
+    private async Task WebSocket_OnMessageAsync(IWebSocketClient client, SocketMessageEventArgs e)
     {
         if (e is not SocketTextMessageEventArgs et)
         {
@@ -367,7 +367,7 @@ public sealed class LavalinkNodeConnection
             return;
         }
 
-        Discord.Logger.LogTrace(LavalinkEvents.LavalinkWsRx, et.Message);
+        Discord.Logger.LogTrace(LavalinkEvents.LavalinkWsRx, "{WebsocketMessage}", et.Message);
 
         string json = et.Message;
         JObject jsonData = JObject.Parse(json);
@@ -460,7 +460,7 @@ public sealed class LavalinkNodeConnection
     private Task WebSocket_OnException(IWebSocketClient client, SocketErrorEventArgs e)
         => _lavalinkSocketError.InvokeAsync(this, new SocketErrorEventArgs { Exception = e.Exception });
 
-    private async Task WebSocket_OnDisconnect(IWebSocketClient client, SocketCloseEventArgs e)
+    private async Task WebSocket_OnDisconnectAsync(IWebSocketClient client, SocketCloseEventArgs e)
     {
         if (IsConnected && e.CloseCode != 1001 && e.CloseCode != -1)
         {
@@ -472,7 +472,7 @@ public sealed class LavalinkNodeConnection
                 await StartAsync();
             }
         }
-        else if (e.CloseCode != 1001 && e.CloseCode != -1)
+        else if (e.CloseCode is not 1001 and not (-1))
         {
             Discord.Logger.LogInformation(LavalinkEvents.LavalinkConnectionClosed, "Connection closed ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
             NodeDisconnected?.Invoke(this);
@@ -498,7 +498,7 @@ public sealed class LavalinkNodeConnection
         }
     }
 
-    private async Task WebSocket_OnConnect(IWebSocketClient client, SocketEventArgs ea)
+    private async Task WebSocket_OnConnectAsync(IWebSocketClient client, SocketEventArgs ea)
     {
         Discord.Logger.LogDebug(LavalinkEvents.LavalinkConnected, "Connection to Lavalink node established");
         _backoff = 0;
@@ -509,7 +509,7 @@ public sealed class LavalinkNodeConnection
         }
     }
 
-    private async void Con_ChannelDisconnected(LavalinkGuildConnection con)
+    private async void Con_ChannelDisconnectedAsync(LavalinkGuildConnection con)
     {
         _connectedGuilds.TryRemove(con.GuildId, out con);
         await _guildConnectionRemoved.InvokeAsync(con, new GuildConnectionRemovedEventArgs());
@@ -568,7 +568,7 @@ public sealed class LavalinkNodeConnection
 
         if (_connectedGuilds.TryGetValue(e.Guild.Id, out LavalinkGuildConnection? lvlgc))
         {
-            LavalinkVoiceUpdate lvlp = new LavalinkVoiceUpdate(lvlgc.VoiceStateUpdate, e);
+            LavalinkVoiceUpdate lvlp = new(lvlgc.VoiceStateUpdate, e);
             _ = Task.Run(() => WsSendAsync(JsonConvert.SerializeObject(lvlp)));
         }
 
@@ -582,7 +582,7 @@ public sealed class LavalinkNodeConnection
 
     private async Task WsSendAsync(string payload)
     {
-        Discord.Logger.LogTrace(LavalinkEvents.LavalinkWsTx, payload);
+        Discord.Logger.LogTrace(LavalinkEvents.LavalinkWsTx, "{WebsocketPayload}", payload);
         await WebSocket.SendMessageAsync(payload);
     }
 

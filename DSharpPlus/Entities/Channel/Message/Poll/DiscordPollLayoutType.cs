@@ -1,5 +1,6 @@
 namespace DSharpPlus.Entities;
 
+
 /// <summary>
 /// Represents the layout type of <see cref="DiscordPoll"/>.
 /// </summary>

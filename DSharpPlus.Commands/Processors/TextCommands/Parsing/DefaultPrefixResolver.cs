@@ -1,8 +1,8 @@
-namespace DSharpPlus.Commands.Processors.TextCommands.Parsing;
-
 using System;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+
+namespace DSharpPlus.Commands.Processors.TextCommands.Parsing;
 
 public delegate ValueTask<int> ResolvePrefixDelegateAsync(CommandsExtension extension, DiscordMessage message);
 

@@ -1,6 +1,6 @@
-namespace DSharpPlus.Commands.ContextChecks;
-
 using System.Threading.Tasks;
+
+namespace DSharpPlus.Commands.ContextChecks;
 
 internal sealed class RequireGuildCheck : IContextCheck<RequireGuildAttribute>
 {

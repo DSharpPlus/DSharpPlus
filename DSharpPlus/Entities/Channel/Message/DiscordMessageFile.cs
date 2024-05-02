@@ -1,6 +1,6 @@
-namespace DSharpPlus.Entities;
-
 using System.IO;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents files that should be sent to Discord as part of a <seealso cref="DiscordMessageBuilder"/>.

@@ -1,6 +1,6 @@
-namespace DSharpPlus.Entities;
-
 using System;
+
+namespace DSharpPlus.Entities;
 
 public abstract class DiscordAsset
 {

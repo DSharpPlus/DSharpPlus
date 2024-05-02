@@ -1,5 +1,3 @@
-namespace DSharpPlus.CommandsNext;
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -10,6 +8,8 @@ using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Executors;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
+
+namespace DSharpPlus.CommandsNext;
 
 /// <summary>
 /// <para>Represents a delegate for a function that takes a message, and returns the position of the start of command invocation in the message. It has to return -1 if prefix is not present.</para>
@@ -31,7 +31,7 @@ public sealed class CommandsNextConfiguration
     /// <para>Sets the string prefixes used for commands.</para>
     /// <para>Defaults to no value (disabled).</para>
     /// </summary>
-    public IEnumerable<string> StringPrefixes { internal get; set; } = Enumerable.Empty<string>();
+    public IEnumerable<string> StringPrefixes { internal get; set; } = [];
 
     /// <summary>
     /// <para>Sets the custom prefix resolver used for commands.</para>
@@ -75,7 +75,7 @@ public sealed class CommandsNextConfiguration
     /// <para>Only applicable if default help is enabled.</para>
     /// <para>Defaults to null.</para>
     /// </summary>
-    public IEnumerable<CheckBaseAttribute> DefaultHelpChecks { internal get; set; } = Enumerable.Empty<CheckBaseAttribute>();
+    public IEnumerable<CheckBaseAttribute> DefaultHelpChecks { internal get; set; } = [];
 
     /// <summary>
     /// <para>Sets whether commands sent via direct messages should be processed.</para>

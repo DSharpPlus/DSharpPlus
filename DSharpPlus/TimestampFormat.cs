@@ -1,5 +1,6 @@
 namespace DSharpPlus;
 
+
 /// <summary>
 /// Denotes the type of formatting to use for timestamps.
 /// </summary>

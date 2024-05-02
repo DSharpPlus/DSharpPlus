@@ -1,8 +1,8 @@
-namespace DSharpPlus.Net.Abstractions;
-
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Net.Abstractions;
 
 internal class TransportMember
 {

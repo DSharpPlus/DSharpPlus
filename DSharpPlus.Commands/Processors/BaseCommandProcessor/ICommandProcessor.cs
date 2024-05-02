@@ -1,10 +1,10 @@
-namespace DSharpPlus.Commands.Processors;
-
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Commands.Converters;
+
+namespace DSharpPlus.Commands.Processors;
 
 public interface ICommandProcessor
 {

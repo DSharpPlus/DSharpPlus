@@ -1,7 +1,7 @@
-namespace DSharpPlus.Net.Models;
-
 using System.Collections.Generic;
 using DSharpPlus.Entities;
+
+namespace DSharpPlus.Net.Models;
 
 public class ChannelEditModel : BaseEditModel
 {
@@ -27,7 +27,7 @@ public class ChannelEditModel : BaseEditModel
 
     /// <summary>
     /// <para>Sets the parent of this channel.</para>
-    /// <para>This should be channel with <see cref="DiscordChannel.Type"/> set to <see cref="ChannelType.Category"/>.</para>
+    /// <para>This should be channel with <see cref="DiscordChannel.Type"/> set to <see cref="DiscordChannelType.Category"/>.</para>
     /// </summary>
     public Optional<DiscordChannel> Parent { internal get; set; }
 

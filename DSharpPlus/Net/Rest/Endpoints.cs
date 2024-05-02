@@ -1,5 +1,6 @@
 namespace DSharpPlus.Net;
 
+
 internal static class Endpoints
 {
     public const string API_VERSION = "10";

@@ -1,5 +1,3 @@
-namespace DSharpPlus.Interactivity;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,6 +9,8 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
+
+namespace DSharpPlus.Interactivity;
 
 /// <summary>
 /// Extension class for DSharpPlus.Interactivity
@@ -120,7 +120,7 @@ public class InteractivityExtension : BaseExtension
             throw new ArgumentException("Custom ID must be between 1 and 100 characters.");
         }
 
-        ModalMatchRequest matchRequest = new ModalMatchRequest(modal_id,
+        ModalMatchRequest matchRequest = new(modal_id,
                 c => c.Interaction.Data.CustomId == modal_id, cancellation: token);
         ModalSubmitEventArgs? result = await ModalEventWaiter.WaitForMatchAsync(matchRequest);
 
@@ -151,7 +151,7 @@ public class InteractivityExtension : BaseExtension
             throw new ArgumentException("Custom ID must be between 1 and 100 characters.");
         }
 
-        ModalMatchRequest matchRequest = new ModalMatchRequest(modal_id,
+        ModalMatchRequest matchRequest = new(modal_id,
                 c => c.Interaction.Data.CustomId == modal_id &&
                 c.Interaction.User.Id == user.Id, cancellation: token);
         ModalSubmitEventArgs? result = await ModalEventWaiter.WaitForMatchAsync(matchRequest);
@@ -192,7 +192,7 @@ public class InteractivityExtension : BaseExtension
             throw new ArgumentException("You must specify at least one button to listen for.");
         }
 
-        if (!message.Components.Any())
+        if (message.Components.Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any components.");
         }
@@ -237,7 +237,7 @@ public class InteractivityExtension : BaseExtension
             throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
         }
 
-        if (!message.Components.Any())
+        if (message.Components.Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any components.");
         }
@@ -286,7 +286,7 @@ public class InteractivityExtension : BaseExtension
             throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
         }
 
-        if (!message.Components.Any())
+        if (message.Components.Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any components.");
         }
@@ -333,7 +333,7 @@ public class InteractivityExtension : BaseExtension
             throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
         }
 
-        if (!message.Components.Any())
+        if (message.Components.Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any components.");
         }
@@ -378,7 +378,7 @@ public class InteractivityExtension : BaseExtension
             throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
         }
 
-        if (!message.Components.Any())
+        if (message.Components.Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any components.");
         }
@@ -420,7 +420,7 @@ public class InteractivityExtension : BaseExtension
             throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
         }
 
-        if (!message.Components.Any())
+        if (message.Components.Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any components.");
         }
@@ -463,7 +463,7 @@ public class InteractivityExtension : BaseExtension
             throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
         }
 
-        if (!message.Components.Any())
+        if (message.Components.Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any components.");
         }
@@ -489,7 +489,7 @@ public class InteractivityExtension : BaseExtension
     private bool IsSelect(DiscordComponent component)
         => IsSelect(component.Type);
 
-    private bool IsSelect(DiscordComponentType type)
+    private static bool IsSelect(DiscordComponentType type)
         => type is
             DiscordComponentType.StringSelect or
             DiscordComponentType.UserSelect or
@@ -523,7 +523,7 @@ public class InteractivityExtension : BaseExtension
             throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
         }
 
-        if (!message.Components.Any())
+        if (message.Components.Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any components.");
         }
@@ -560,7 +560,7 @@ public class InteractivityExtension : BaseExtension
         }
 
         TimeSpan timeout = timeoutoverride ?? Config.Timeout;
-        MessageCreateEventArgs? returns = await MessageCreatedWaiter.WaitForMatch(new MatchRequest<MessageCreateEventArgs>(x => predicate(x.Message), timeout));
+        MessageCreateEventArgs? returns = await MessageCreatedWaiter.WaitForMatchAsync(new MatchRequest<MessageCreateEventArgs>(x => predicate(x.Message), timeout));
 
         return new InteractivityResult<DiscordMessage>(returns == null, returns?.Message);
     }
@@ -580,7 +580,7 @@ public class InteractivityExtension : BaseExtension
         }
 
         TimeSpan timeout = timeoutoverride ?? Config.Timeout;
-        MessageReactionAddEventArgs? returns = await MessageReactionAddWaiter.WaitForMatch(new MatchRequest<MessageReactionAddEventArgs>(predicate, timeout));
+        MessageReactionAddEventArgs? returns = await MessageReactionAddWaiter.WaitForMatchAsync(new MatchRequest<MessageReactionAddEventArgs>(predicate, timeout));
 
         return new InteractivityResult<MessageReactionAddEventArgs>(returns == null, returns);
     }
@@ -638,7 +638,7 @@ public class InteractivityExtension : BaseExtension
         }
 
         TimeSpan timeout = timeoutoverride ?? Config.Timeout;
-        TypingStartEventArgs? returns = await TypingStartWaiter.WaitForMatch(
+        TypingStartEventArgs? returns = await TypingStartWaiter.WaitForMatchAsync(
             new MatchRequest<TypingStartEventArgs>(x => x.User.Id == user.Id && x.Channel.Id == channel.Id, timeout))
             ;
 
@@ -659,7 +659,7 @@ public class InteractivityExtension : BaseExtension
         }
 
         TimeSpan timeout = timeoutoverride ?? Config.Timeout;
-        TypingStartEventArgs? returns = await TypingStartWaiter.WaitForMatch(
+        TypingStartEventArgs? returns = await TypingStartWaiter.WaitForMatchAsync(
             new MatchRequest<TypingStartEventArgs>(x => x.User.Id == user.Id, timeout))
             ;
 
@@ -680,7 +680,7 @@ public class InteractivityExtension : BaseExtension
         }
 
         TimeSpan timeout = timeoutoverride ?? Config.Timeout;
-        TypingStartEventArgs? returns = await TypingStartWaiter.WaitForMatch(
+        TypingStartEventArgs? returns = await TypingStartWaiter.WaitForMatchAsync(
             new MatchRequest<TypingStartEventArgs>(x => x.Channel.Id == channel.Id, timeout))
             ;
 
@@ -717,8 +717,8 @@ public class InteractivityExtension : BaseExtension
     {
         TimeSpan timeout = timeoutoverride ?? Config.Timeout;
 
-        EventWaiter<T> waiter = new EventWaiter<T>(Client);
-        T? res = await waiter.WaitForMatch(new MatchRequest<T>(predicate, timeout));
+        EventWaiter<T> waiter = new(Client);
+        T? res = await waiter.WaitForMatchAsync(new MatchRequest<T>(predicate, timeout));
         return new InteractivityResult<T>(res == null, res);
     }
 
@@ -726,8 +726,8 @@ public class InteractivityExtension : BaseExtension
     {
         TimeSpan timeout = timeoutoverride ?? Config.Timeout;
 
-        using EventWaiter<T> waiter = new EventWaiter<T>(Client);
-        ReadOnlyCollection<T> res = await waiter.CollectMatches(new CollectRequest<T>(predicate, timeout));
+        using EventWaiter<T> waiter = new(Client);
+        ReadOnlyCollection<T> res = await waiter.CollectMatchesAsync(new CollectRequest<T>(predicate, timeout));
         return res;
     }
 
@@ -777,7 +777,7 @@ public class InteractivityExtension : BaseExtension
 
         DiscordMessage message = await builder.SendAsync(channel);
 
-        ButtonPaginationRequest req = new ButtonPaginationRequest(message, user, bhv, del, bts, pages.ToArray(), token == default ? GetCancellationToken() : token);
+        ButtonPaginationRequest req = new(message, user, bhv, del, bts, pages.ToArray(), token == default ? GetCancellationToken() : token);
 
         await _compPaginator.DoPaginationAsync(req);
     }
@@ -832,7 +832,7 @@ public class InteractivityExtension : BaseExtension
         PaginationDeletion del = deletion ?? Config.PaginationDeletion;
         PaginationEmojis ems = emojis ?? Config.PaginationEmojis;
 
-        PaginationRequest prequest = new PaginationRequest(m, user, bhv, del, ems, timeout, pages.ToArray());
+        PaginationRequest prequest = new(m, user, bhv, del, ems, timeout, pages.ToArray());
 
         await Paginator.DoPaginationAsync(prequest);
     }
@@ -850,16 +850,16 @@ public class InteractivityExtension : BaseExtension
     /// <param name="buttons">Optional: custom buttons</param>
     /// <param name="behaviour">Pagination behaviour.</param>
     /// <param name="deletion">Deletion behaviour</param>
-    /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
     /// <param name="asEditResponse">If the response as edit of previous response.</param>
     /// <param name="disableBehavior">Whether to disable or remove the buttons if there is only one page</param>
     /// <param name="disabledButtons">Disabled buttons</param>
-    public async Task SendPaginatedResponseAsync(DiscordInteraction interaction, bool ephemeral, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default, bool asEditResponse = false, ButtonDisableBehavior disableBehavior = ButtonDisableBehavior.Disable, List<PaginationButtonType> disabledButtons = null)
+    /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
+    public async Task SendPaginatedResponseAsync(DiscordInteraction interaction, bool ephemeral, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, bool asEditResponse = false, ButtonDisableBehavior disableBehavior = ButtonDisableBehavior.Disable, List<PaginationButtonType> disabledButtons = null, CancellationToken token = default)
     {
         PaginationBehaviour bhv = behaviour ?? Config.PaginationBehaviour;
         ButtonPaginationBehavior del = deletion ?? Config.ButtonBehavior;
         PaginationButtons bts = buttons ?? Config.PaginationButtons;
-        disabledButtons ??= new List<PaginationButtonType>();
+        disabledButtons ??= [];
 
         bts = new(bts); // Copy //
 
@@ -910,7 +910,7 @@ public class InteractivityExtension : BaseExtension
         DiscordButtonComponent[] buttonArray = bts.ButtonArray;
         if (disabledButtons.Count != 0)
         {
-            List<DiscordButtonComponent> buttonList = buttonArray.ToList();
+            List<DiscordButtonComponent> buttonList = [.. buttonArray];
             if (disabledButtons.Contains(PaginationButtonType.Left))
             {
                 buttonList.Remove(bts.Left);
@@ -932,7 +932,7 @@ public class InteractivityExtension : BaseExtension
                 buttonList.Remove(bts.Stop);
             }
 
-            buttonArray = buttonList.ToArray();
+            buttonArray = [.. buttonList];
         }
         if (asEditResponse)
         {
@@ -955,7 +955,7 @@ public class InteractivityExtension : BaseExtension
             message = await interaction.GetOriginalResponseAsync();
         }
 
-        InteractionPaginationRequest req = new InteractionPaginationRequest(interaction, message, user, bhv, del, bts, pages, token);
+        InteractionPaginationRequest req = new(interaction, message, user, bhv, del, bts, pages, token);
 
         await _compPaginator.DoPaginationAsync(req);
     }
@@ -982,26 +982,26 @@ public class InteractivityExtension : BaseExtension
     /// <param name="input">Input string.</param>
     /// <param name="splittype">How to split input string.</param>
     /// <returns></returns>
-    public IEnumerable<Page> GeneratePagesInContent(string input, SplitType splittype = SplitType.Character)
+    public static IEnumerable<Page> GeneratePagesInContent(string input, SplitType splittype = SplitType.Character)
     {
         if (string.IsNullOrEmpty(input))
         {
             throw new ArgumentException("You must provide a string that is not null or empty!");
         }
 
-        List<Page> result = new List<Page>();
+        List<Page> result = [];
         List<string> split;
 
         switch (splittype)
         {
             default:
             case SplitType.Character:
-                split = SplitString(input, 500).ToList();
+                split = [.. SplitString(input, 500)];
                 break;
             case SplitType.Line:
                 string[] subsplit = input.Split('\n');
 
-                split = new List<string>();
+                split = [];
                 string s = "";
 
                 for (int i = 0; i < subsplit.Length; i++)
@@ -1038,7 +1038,7 @@ public class InteractivityExtension : BaseExtension
     /// <param name="splittype">How to split input string.</param>
     /// <param name="embedbase">Base embed for output embeds.</param>
     /// <returns></returns>
-    public IEnumerable<Page> GeneratePagesInEmbed(string input, SplitType splittype = SplitType.Character, DiscordEmbedBuilder embedbase = null)
+    public static IEnumerable<Page> GeneratePagesInEmbed(string input, SplitType splittype = SplitType.Character, DiscordEmbedBuilder embedbase = null)
     {
         if (string.IsNullOrEmpty(input))
         {
@@ -1047,19 +1047,19 @@ public class InteractivityExtension : BaseExtension
 
         DiscordEmbedBuilder embed = embedbase ?? new DiscordEmbedBuilder();
 
-        List<Page> result = new List<Page>();
+        List<Page> result = [];
         List<string> split;
 
         switch (splittype)
         {
             default:
             case SplitType.Character:
-                split = SplitString(input, 500).ToList();
+                split = [.. SplitString(input, 500)];
                 break;
             case SplitType.Line:
                 string[] subsplit = input.Split('\n');
 
-                split = new List<string>();
+                split = [];
                 string s = "";
 
                 for (int i = 0; i < subsplit.Length; i++)
@@ -1089,9 +1089,9 @@ public class InteractivityExtension : BaseExtension
         return result;
     }
 
-    private List<string> SplitString(string str, int chunkSize)
+    private static List<string> SplitString(string str, int chunkSize)
     {
-        List<string> res = new List<string>();
+        List<string> res = [];
         int len = str.Length;
         int i = 0;
 
@@ -1106,19 +1106,6 @@ public class InteractivityExtension : BaseExtension
     }
 
     private CancellationToken GetCancellationToken(TimeSpan? timeout = null) => new CancellationTokenSource(timeout ?? Config.Timeout).Token;
-
-    private async Task HandleInvalidInteraction(DiscordInteraction interaction)
-    {
-        Task at = Config.ResponseBehavior switch
-        {
-            InteractionResponseBehavior.Ack => interaction.CreateResponseAsync(DiscordInteractionResponseType.DeferredMessageUpdate),
-            InteractionResponseBehavior.Respond => interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder() { Content = Config.ResponseMessage, IsEphemeral = true }),
-            InteractionResponseBehavior.Ignore => Task.CompletedTask,
-            _ => throw new ArgumentException("Unknown enum value.")
-        };
-
-        await at;
-    }
 
     public override void Dispose()
     {

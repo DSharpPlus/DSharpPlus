@@ -1,10 +1,10 @@
-namespace DSharpPlus.Entities;
-
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a Discord voice state.

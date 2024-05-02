@@ -1,11 +1,11 @@
-namespace DSharpPlus.CommandsNext.Entities;
-
 using DSharpPlus.Entities;
+
+namespace DSharpPlus.CommandsNext.Entities;
 
 /// <summary>
 /// Represents a formatted help message.
 /// </summary>
-public struct CommandHelpMessage
+public readonly struct CommandHelpMessage
 {
     /// <summary>
     /// Gets the contents of the help message.

@@ -1,7 +1,7 @@
-namespace DSharpPlus.Entities;
-
 using System;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 public class DiscordThreadChannelMember
 {
@@ -76,15 +76,7 @@ public class DiscordThreadChannelMember
     /// Gets the hash code for this <see cref="DiscordThreadChannelMember"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="DiscordThreadChannelMember"/>.</returns>
-    public override int GetHashCode()
-    {
-        int hash = 13;
-
-        hash = (hash * 7) + Id.GetHashCode();
-        hash = (hash * 7) + ThreadId.GetHashCode();
-
-        return hash;
-    }
+    public override int GetHashCode() => HashCode.Combine(Id, ThreadId);
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordThreadChannelMember"/> objects are equal.
@@ -94,8 +86,8 @@ public class DiscordThreadChannelMember
     /// <returns>Whether the two messages are equal.</returns>
     public static bool operator ==(DiscordThreadChannelMember e1, DiscordThreadChannelMember e2)
     {
-        object? o1 = e1 as object;
-        object? o2 = e2 as object;
+        object? o1 = e1;
+        object? o2 = e2;
 
         return (o1 != null || o2 == null) && (o1 == null || o2 != null)
 && ((o1 == null && o2 == null) || (e1.Id == e2.Id && e1.ThreadId == e2.ThreadId));

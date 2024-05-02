@@ -1,10 +1,10 @@
-namespace DSharpPlus.Net.Udp;
-
 using System;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+
+namespace DSharpPlus.Net.Udp;
 
 /// <summary>
 /// The default, native-based UDP client implementation.
@@ -15,7 +15,6 @@ internal class DspUdpClient : BaseUdpClient
     private ConnectionEndpoint EndPoint { get; set; }
     private BlockingCollection<byte[]> PacketQueue { get; }
 
-    private Task ReceiverTask { get; set; }
     private CancellationTokenSource TokenSource { get; }
     private CancellationToken Token => TokenSource.Token;
 
@@ -24,7 +23,7 @@ internal class DspUdpClient : BaseUdpClient
     /// </summary>
     public DspUdpClient()
     {
-        PacketQueue = new BlockingCollection<byte[]>();
+        PacketQueue = [];
         TokenSource = new CancellationTokenSource();
     }
 
@@ -36,7 +35,7 @@ internal class DspUdpClient : BaseUdpClient
     {
         EndPoint = endpoint;
         Client = new UdpClient();
-        ReceiverTask = Task.Run(ReceiverLoopAsync, Token);
+        _ = Task.Run(ReceiverLoopAsync, Token);
     }
 
     /// <summary>

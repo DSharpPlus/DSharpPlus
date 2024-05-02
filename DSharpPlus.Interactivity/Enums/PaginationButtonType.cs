@@ -23,6 +23,7 @@
 
 namespace DSharpPlus.Interactivity.Enums;
 
+
 public enum PaginationButtonType
 {
     SkipLeft = 0,

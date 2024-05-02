@@ -1,6 +1,6 @@
-namespace DSharpPlus.Commands.Processors.TextCommands;
-
 using DSharpPlus.Commands.Processors.TextCommands.Parsing;
+
+namespace DSharpPlus.Commands.Processors.TextCommands;
 
 public record TextCommandConfiguration
 {

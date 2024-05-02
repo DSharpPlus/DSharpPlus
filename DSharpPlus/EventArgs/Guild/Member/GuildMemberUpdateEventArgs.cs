@@ -1,9 +1,9 @@
-namespace DSharpPlus.EventArgs;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs;
 
 /// <summary>
 /// Represents arguments for <see cref="DiscordClient.GuildMemberUpdated"/> event.

@@ -1,7 +1,7 @@
-namespace DSharpPlus.Exceptions;
-
 using System.Net.Http;
 using System.Text.Json;
+
+namespace DSharpPlus.Exceptions;
 
 /// <summary>
 /// Represents an exception thrown when too many requests are sent.

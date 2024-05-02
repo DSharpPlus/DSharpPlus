@@ -1,8 +1,8 @@
-namespace DSharpPlus.Commands.Invocation;
-
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
+
+namespace DSharpPlus.Commands.Invocation;
 
 /// <summary>
 /// Contains stubs to invoke anonymous delegates

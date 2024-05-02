@@ -1,10 +1,10 @@
-namespace DSharpPlus.CommandsNext.Attributes;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+
+namespace DSharpPlus.CommandsNext.Attributes;
 
 /// <summary>
 /// Defines that usage of this command is restricted to members with specified role. Note that it's much preferred to restrict access using <see cref="RequirePermissionsAttribute"/>.
@@ -33,7 +33,7 @@ public sealed class RequireRolesAttribute : CheckBaseAttribute
     /// <param name="checkMode">Role checking mode.</param>
     /// <param name="roleNames">Names of the role to be verified by this check.</param>
     public RequireRolesAttribute(RoleCheckMode checkMode, params string[] roleNames)
-        : this(checkMode, roleNames, Array.Empty<ulong>())
+        : this(checkMode, roleNames, [])
     { }
 
     /// <summary>
@@ -43,7 +43,7 @@ public sealed class RequireRolesAttribute : CheckBaseAttribute
     /// <param name="checkMode">Role checking mode.</param>
     /// <param name="roleIds">IDs of the roles to be verified by this check.</param>
     public RequireRolesAttribute(RoleCheckMode checkMode, params ulong[] roleIds)
-        : this(checkMode, Array.Empty<string>(), roleIds)
+        : this(checkMode, [], roleIds)
     { }
 
     /// <summary>
@@ -95,10 +95,10 @@ public sealed class RequireRolesAttribute : CheckBaseAttribute
 
         return CheckMode switch
         {
-            RoleCheckMode.All => present.Count() == intersect.Count(),
+            RoleCheckMode.All => present.Count == intersect.Count(),
             RoleCheckMode.SpecifiedOnly => passed.Count() == intersect.Count(),
             RoleCheckMode.None => !intersect.Any(),
-            _ => intersect.Count() > 0
+            _ => intersect.Any()
         };
     }
 }
