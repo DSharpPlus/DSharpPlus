@@ -1,10 +1,10 @@
-namespace DSharpPlus.Entities;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using DSharpPlus.Net;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Constructs embeds.
@@ -230,7 +230,7 @@ public sealed class DiscordEmbedBuilder
     /// <returns>This embed builder.</returns>
     public DiscordEmbedBuilder WithTimestamp(DateTime? timestamp)
     {
-        Timestamp = timestamp == null ? null : (DateTimeOffset?)new DateTimeOffset(timestamp.Value);
+        Timestamp = timestamp == null ? null : new DateTimeOffset(timestamp.Value);
         return this;
     }
 

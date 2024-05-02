@@ -1,7 +1,7 @@
-namespace DSharpPlus.Entities;
-
 using DSharpPlus.EventArgs;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a button that can be pressed. Fires <see cref="ComponentInteractionCreateEventArgs"/> when pressed.

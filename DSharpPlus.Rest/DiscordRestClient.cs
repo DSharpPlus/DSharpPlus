@@ -1,5 +1,3 @@
-namespace DSharpPlus;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,6 +9,8 @@ using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 
+namespace DSharpPlus;
+
 public class DiscordRestClient : BaseDiscordClient
 {
     /// <summary>
@@ -19,9 +19,10 @@ public class DiscordRestClient : BaseDiscordClient
     public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds
         => _guilds;
 
-    internal Dictionary<ulong, DiscordGuild> _guilds = new();
+    internal Dictionary<ulong, DiscordGuild> _guilds = [];
+    private bool disposedValue;
 
-    public DiscordRestClient(DiscordConfiguration config) : base(config) => _disposed = false;
+    public DiscordRestClient(DiscordConfiguration config) : base(config) { }
 
     /// <summary>
     /// Initializes cache
@@ -146,7 +147,7 @@ public class DiscordRestClient : BaseDiscordClient
         ulong? last = null;
         bool isAfter = after is not null;
 
-        List<DiscordUser> users = new();
+        List<DiscordUser> users = [];
 
         int lastCount;
         do
@@ -398,7 +399,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns></returns>
     public async Task<IReadOnlyList<DiscordMember>> ListGuildMembersAsync(ulong guildId, int? limit, ulong? after)
     {
-        List<DiscordMember> recmbr = new();
+        List<DiscordMember> recmbr = [];
 
         int recd = limit ?? 1000;
         int lim = limit ?? 1000;
@@ -458,18 +459,17 @@ public class DiscordRestClient : BaseDiscordClient
     /// </summary>
     /// <param name="guildId">Guild ID</param>
     /// <param name="roleId">Role ID</param>
-    /// <param name="position">Role position</param>
     /// <param name="reason">Reason this position was modified</param>
     /// <returns></returns>
-    public async Task UpdateRolePositionAsync(ulong guildId, ulong roleId, int position, string reason = null)
+    public async Task UpdateRolePositionAsync(ulong guildId, ulong roleId, string reason = null)
     {
-        List<RestGuildRoleReorderPayload> rgrrps = new()
-        {
+        List<RestGuildRoleReorderPayload> rgrrps =
+        [
             new()
             {
                 RoleId = roleId
             }
-        };
+        ];
         await ApiClient.ModifyGuildRolePositionsAsync(guildId, rgrrps, reason);
     }
 
@@ -485,8 +485,8 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns></returns>
     public async Task UpdateChannelPositionAsync(ulong guildId, ulong channelId, int position, string reason, bool? lockPermissions = null, ulong? parentId = null)
     {
-        List<RestGuildChannelReorderPayload> rgcrps = new()
-        {
+        List<RestGuildChannelReorderPayload> rgcrps =
+        [
             new()
             {
                 ChannelId = channelId,
@@ -494,7 +494,7 @@ public class DiscordRestClient : BaseDiscordClient
                 LockPermissions = lockPermissions,
                 ParentId = parentId
             }
-        };
+        ];
         await ApiClient.ModifyGuildChannelPositionAsync(guildId, rgcrps, reason);
     }
 
@@ -873,7 +873,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="embed">New message embed</param>
     /// <returns></returns>
     public async Task<DiscordMessage> EditMessageAsync(ulong channelId, ulong messageId, Optional<DiscordEmbed> embed)
-        => await ApiClient.EditMessageAsync(channelId, messageId, default, embed.HasValue ? new[] { embed.Value } : Array.Empty<DiscordEmbed>(), default, default, Array.Empty<DiscordMessageFile>());
+        => await ApiClient.EditMessageAsync(channelId, messageId, default, embed.HasValue ? [embed.Value] : Array.Empty<DiscordEmbed>(), default, default, Array.Empty<DiscordMessageFile>());
 
     /// <summary>
     /// Edits a message
@@ -1064,7 +1064,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// </summary>
     /// <param name="channelId">ID of the channel to follow</param>
     /// <param name="webhookChannelId">ID of the channel to crosspost messages to</param>
-    /// <exception cref="UnauthorizedException">Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> on the target channel</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the current user doesn't have <see cref="DiscordPermissions.ManageWebhooks"/> on the target channel</exception>
     public async Task<DiscordFollowedChannel> FollowChannelAsync(ulong channelId, ulong webhookChannelId)
         => await ApiClient.FollowChannelAsync(channelId, webhookChannelId);
 
@@ -1241,7 +1241,7 @@ public class DiscordRestClient : BaseDiscordClient
 
         if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value is not null && mdl.VoiceChannel.Value.Type != DiscordChannelType.Voice && mdl.VoiceChannel.Value.Type != DiscordChannelType.Stage)
         {
-            throw new ArgumentException("Given channel is not a voice or stage channel.", nameof(mdl.VoiceChannel));
+            throw new ArgumentException($"{nameof(MemberEditModel)}.{mdl.VoiceChannel} must be a voice or stage channel.", nameof(action));
         }
 
         if (mdl.Nickname.HasValue && CurrentUser.Id == memberId)
@@ -2083,7 +2083,7 @@ public class DiscordRestClient : BaseDiscordClient
     {
         string contentType, extension;
 
-        if (format == DiscordStickerFormat.PNG || format == DiscordStickerFormat.APNG)
+        if (format is DiscordStickerFormat.PNG or DiscordStickerFormat.APNG)
         {
             contentType = "image/png";
             extension = "png";
@@ -2257,18 +2257,13 @@ public class DiscordRestClient : BaseDiscordClient
         }
 
         name = name.Trim();
-        if (name.Length < 2 || name.Length > 50)
+        if (name.Length is < 2 or > 50)
         {
             throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.");
         }
 
-        if (image == null)
-        {
-            throw new ArgumentNullException(nameof(image));
-        }
-
+        ArgumentNullException.ThrowIfNull(image);
         string image64;
-
         using ImageTool imgtool = new(image);
         image64 = imgtool.GetBase64();
 
@@ -2313,21 +2308,26 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns>The guild template for the code.</returns>\
     public async Task<DiscordGuildTemplate> GetTemplateAsync(string code)
         => await ApiClient.GetTemplateAsync(code);
-    #endregion
 
-    private bool _disposed;
-    /// <summary>
-    /// Disposes of this DiscordRestClient
-    /// </summary>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+                _guilds = null;
+                ApiClient?._rest?.Dispose();
+            }
+
+            disposedValue = true;
+        }
+    }
+
     public override void Dispose()
     {
-        if (_disposed)
-        {
-            return;
-        }
-
-        _disposed = true;
-        _guilds = null;
-        ApiClient?._rest?.Dispose();
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
+    #endregion
 }

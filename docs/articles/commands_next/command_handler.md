@@ -1,7 +1,10 @@
 ---
-uid: articles.commands.command_handler
+uid: articles.commands_next.command_handler
 title: Custom Command Handler
 ---
+
+>[!WARNING]
+> CommandsNext has been replaced by [Commands](xref:articles.commands.introduction). Both this article and CommandsNext itself is no longer maintained and may contain outdated information. CommandsNext will be deprecated in version 5.1.0 of DSharpPlus.
 
 ## Custom Command Handler
 >
@@ -99,7 +102,7 @@ private Task CommandHandler(DiscordClient client, MessageCreateEventArgs e)
 
     var ctx = cnext.CreateContext(msg, prefix, command, args);
     Task.Run(async () => await cnext.ExecuteCommandAsync(ctx));
- 
+
     return Task.CompletedTask;
 }
 ```

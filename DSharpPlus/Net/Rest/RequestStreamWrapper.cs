@@ -1,7 +1,7 @@
-namespace DSharpPlus.Net;
-
 using System;
 using System.IO;
+
+namespace DSharpPlus.Net;
 
 // this class is a clusterfuck to prevent the RestClient from disposing streams we dont want to dispose
 // only god, aaron and i know what a psychosis it was to fix this issue (#1677)
@@ -14,6 +14,11 @@ public class RequestStreamWrapper : Stream, IDisposable
     //basically these two methods are the whole purpose of this class
     protected override void Dispose(bool disposing) { /* NOT TODAY MY FRIEND */ }
     protected new void Dispose() => Dispose(true);
+    void IDisposable.Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
     public RequestStreamWrapper(Stream stream)
     {
@@ -69,6 +74,4 @@ public class RequestStreamWrapper : Stream, IDisposable
 
     /// <inheritdoc cref="Stream.Write(byte[], int, int)"/>
     public override void Write(byte[] buffer, int offset, int count) => UnderlyingStream.Write(buffer, offset, count);
-
-    void IDisposable.Dispose() => Dispose(false);
 }

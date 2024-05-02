@@ -1,6 +1,6 @@
-namespace DSharpPlus;
-
 using Microsoft.Extensions.Logging;
+
+namespace DSharpPlus;
 
 /// <summary>
 /// Contains well-defined event IDs used by core of DSharpPlus.

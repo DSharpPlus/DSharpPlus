@@ -1,5 +1,6 @@
 namespace DSharpPlus.Entities;
 
+
 /// <summary>
 /// Indicates in what event context a rule should be checked.
 /// </summary>

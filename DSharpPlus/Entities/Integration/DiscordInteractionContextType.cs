@@ -1,5 +1,6 @@
 namespace DSharpPlus.Entities;
 
+
 /// <summary>
 /// Represents the type of context in which an interaction was created.
 /// </summary>

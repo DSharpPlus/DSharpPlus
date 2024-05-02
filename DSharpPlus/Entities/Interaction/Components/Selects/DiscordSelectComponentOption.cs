@@ -1,6 +1,6 @@
-namespace DSharpPlus.Entities;
-
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents options for <see cref="DiscordSelectComponent"/>.

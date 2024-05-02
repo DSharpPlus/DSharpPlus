@@ -1,5 +1,3 @@
-namespace DSharpPlus.Tools.CodeBlockLanguageListGen;
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+namespace DSharpPlus.Tools.CodeBlockLanguageListGen;
 
 public static class Program
 {

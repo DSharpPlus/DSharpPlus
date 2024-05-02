@@ -1,5 +1,6 @@
 namespace DSharpPlus.Interactivity.Enums;
 
+
 /// <summary>
 /// Represents options of how to handle pagination timing out.
 /// </summary>

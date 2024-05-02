@@ -1,7 +1,7 @@
-namespace DSharpPlus.Entities;
-
 using System.Collections.Generic;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents the default installation configuration for an integration.

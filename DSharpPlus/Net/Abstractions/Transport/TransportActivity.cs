@@ -1,11 +1,11 @@
-namespace DSharpPlus.Net.Abstractions;
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
+namespace DSharpPlus.Net.Abstractions;
 
 /// <summary>
 /// Represents a game a user is playing.
@@ -60,7 +60,7 @@ internal sealed class TransportActivity
     [JsonIgnore]
     public ulong? ApplicationId
     {
-        get => ApplicationIdStr != null ? (ulong?)ulong.Parse(ApplicationIdStr, CultureInfo.InvariantCulture) : null;
+        get => ApplicationIdStr != null ? ulong.Parse(ApplicationIdStr, CultureInfo.InvariantCulture) : null;
         internal set => ApplicationIdStr = value?.ToString(CultureInfo.InvariantCulture);
     }
 
@@ -206,7 +206,7 @@ internal sealed class TransportActivity
         /// </summary>
         [JsonIgnore]
         public DateTimeOffset? Start
-            => _start != null ? (DateTimeOffset?)Utilities.GetDateTimeOffsetFromMilliseconds(_start.Value, false) : null;
+            => _start != null ? Utilities.GetDateTimeOffsetFromMilliseconds(_start.Value, false) : null;
 
         [JsonProperty("start", NullValueHandling = NullValueHandling.Ignore)]
         internal long? _start;
@@ -216,7 +216,7 @@ internal sealed class TransportActivity
         /// </summary>
         [JsonIgnore]
         public DateTimeOffset? End
-            => _end != null ? (DateTimeOffset?)Utilities.GetDateTimeOffsetFromMilliseconds(_end.Value, false) : null;
+            => _end != null ? Utilities.GetDateTimeOffsetFromMilliseconds(_end.Value, false) : null;
 
         [JsonProperty("end", NullValueHandling = NullValueHandling.Ignore)]
         internal long? _end;
@@ -267,7 +267,7 @@ internal sealed class GamePartySizeConverter : JsonConverter
         };
     }
 
-    private JArray ReadArrayObject(JsonReader reader, JsonSerializer serializer) => serializer.Deserialize<JToken>(reader) is not JArray arr || arr.Count != 2
+    private static JArray ReadArrayObject(JsonReader reader, JsonSerializer serializer) => serializer.Deserialize<JToken>(reader) is not JArray arr || arr.Count != 2
             ? throw new JsonSerializationException("Expected array of length 2")
             : arr;
 

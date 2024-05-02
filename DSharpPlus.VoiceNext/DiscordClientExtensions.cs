@@ -1,11 +1,11 @@
-namespace DSharpPlus.VoiceNext;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+
+namespace DSharpPlus.VoiceNext;
 
 public static class DiscordClientExtensions
 {
@@ -30,7 +30,7 @@ public static class DiscordClientExtensions
             throw new InvalidOperationException("VoiceNext is already enabled for that client.");
         }
 
-        VoiceNextExtension vnext = new VoiceNextExtension(config);
+        VoiceNextExtension vnext = new(config);
         client.AddExtension(vnext);
         return vnext;
     }
@@ -43,7 +43,7 @@ public static class DiscordClientExtensions
     /// <returns>A dictionary of created VoiceNext clients.</returns>
     public static async Task<IReadOnlyDictionary<int, VoiceNextExtension>> UseVoiceNextAsync(this DiscordShardedClient client, VoiceNextConfiguration config)
     {
-        Dictionary<int, VoiceNextExtension> modules = new Dictionary<int, VoiceNextExtension>();
+        Dictionary<int, VoiceNextExtension> modules = [];
         await client.InitializeShardsAsync();
 
         foreach (DiscordClient? shard in client.ShardClients.Select(xkvp => xkvp.Value))
@@ -71,7 +71,7 @@ public static class DiscordClientExtensions
     public static async Task<IReadOnlyDictionary<int, VoiceNextExtension>> GetVoiceNextAsync(this DiscordShardedClient client)
     {
         await client.InitializeShardsAsync();
-        Dictionary<int, VoiceNextExtension> extensions = new Dictionary<int, VoiceNextExtension>();
+        Dictionary<int, VoiceNextExtension> extensions = [];
 
         foreach (DiscordClient shard in client.ShardClients.Values)
         {
@@ -98,7 +98,7 @@ public static class DiscordClientExtensions
             throw new InvalidOperationException("VoiceNext can only be used with guild channels.");
         }
 
-        if (channel.Type != DiscordChannelType.Voice && channel.Type != DiscordChannelType.Stage)
+        if (channel.Type is not DiscordChannelType.Voice and not DiscordChannelType.Stage)
         {
             throw new InvalidOperationException("You can only connect to voice or stage channels.");
         }

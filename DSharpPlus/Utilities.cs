@@ -1,5 +1,3 @@
-namespace DSharpPlus;
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,11 +7,11 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
 using DSharpPlus.Entities;
 using DSharpPlus.Net;
-
 using Microsoft.Extensions.Logging;
+
+namespace DSharpPlus;
 
 /// <summary>
 /// Various Discord-related utilities.
@@ -30,7 +28,7 @@ public static partial class Utilities
 
     static Utilities()
     {
-        PermissionStrings = new Dictionary<DiscordPermissions, string>();
+        PermissionStrings = [];
         Type t = typeof(DiscordPermissions);
         TypeInfo ti = t.GetTypeInfo();
         IEnumerable<DiscordPermissions> vals = Enum.GetValues(t).Cast<DiscordPermissions>();
@@ -79,7 +77,7 @@ public static partial class Utilities
     {
         TokenType.Bearer => $"Bearer {config.Token}",
         TokenType.Bot => $"Bot {config.Token}",
-        _ => throw new ArgumentException("Invalid token type specified.", nameof(config.Token)),
+        _ => throw new ArgumentException("Invalid token type specified.", nameof(config)),
     };
 
     internal static string GetUserAgent()
@@ -119,7 +117,7 @@ public static partial class Utilities
     {
         Regex regex = UserMentionRegex();
         MatchCollection matches = regex.Matches(message.Content);
-        foreach (Match match in matches)
+        foreach (Match match in matches.Cast<Match>())
         {
             yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         }
@@ -129,7 +127,7 @@ public static partial class Utilities
     {
         Regex regex = RoleMentionRegex();
         MatchCollection matches = regex.Matches(message.Content);
-        foreach (Match match in matches)
+        foreach (Match match in matches.Cast<Match>())
         {
             yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         }
@@ -139,7 +137,7 @@ public static partial class Utilities
     {
         Regex regex = ChannelMentionRegex();
         MatchCollection matches = regex.Matches(message.Content);
-        foreach (Match match in matches)
+        foreach (Match match in matches.Cast<Match>())
         {
             yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         }
@@ -149,7 +147,7 @@ public static partial class Utilities
     {
         Regex regex = EmojiMentionRegex();
         MatchCollection matches = regex.Matches(message.Content);
-        foreach (Match match in matches)
+        foreach (Match match in matches.Cast<Match>())
         {
             yield return ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
         }
@@ -259,7 +257,7 @@ public static partial class Utilities
         => DiscordClient._discordEpoch.AddMilliseconds(snowflake >> 22);
 
     /// <summary>
-    /// Converts this <see cref="Permissions"/> into human-readable format.
+    /// Converts this <see cref="DiscordPermissions"/> into human-readable format.
     /// </summary>
     /// <param name="perm">Permissions enumeration to convert.</param>
     /// <returns>Human-readable permissions.</returns>
@@ -300,17 +298,13 @@ public static partial class Utilities
 
     internal static void LogTaskFault(this Task task, ILogger logger, LogLevel level, EventId eventId, string message)
     {
-        if (task == null)
-        {
-            throw new ArgumentNullException(nameof(task));
-        }
-
+        ArgumentNullException.ThrowIfNull(task);
         if (logger == null)
         {
             return;
         }
 
-        task.ContinueWith(t => logger.Log(level, eventId, t.Exception, message), TaskContinuationOptions.OnlyOnFaulted);
+        task.ContinueWith(t => logger.Log(level, eventId, t.Exception, "{Message}", message), TaskContinuationOptions.OnlyOnFaulted);
     }
 
     internal static void Deconstruct<TKey, TValue>(this KeyValuePair<TKey, TValue> kvp, out TKey key, out TValue value)

@@ -1,8 +1,7 @@
-namespace DSharpPlus.Entities;
-
-using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents the inner data payload of a <see cref="DiscordInteraction"/>.
@@ -60,7 +59,7 @@ public sealed class DiscordInteractionData : SnowflakeObject
     public DiscordComponentType ComponentType { get; internal set; }
 
     [JsonProperty("values", NullValueHandling = NullValueHandling.Ignore)]
-    public string[] Values { get; internal set; } = Array.Empty<string>();
+    public string[] Values { get; internal set; } = [];
 
     [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordApplicationCommandType Type { get; internal set; }

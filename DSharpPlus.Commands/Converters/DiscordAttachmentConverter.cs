@@ -1,5 +1,3 @@
-namespace DSharpPlus.Commands.Converters;
-
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +6,8 @@ using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Processors.TextCommands.ContextChecks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+
+namespace DSharpPlus.Commands.Converters;
 
 public class AttachmentConverter : ISlashArgumentConverter<DiscordAttachment>, ITextArgumentConverter<DiscordAttachment>
 {

@@ -1,6 +1,6 @@
-namespace DSharpPlus.Entities;
-
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents information about a Discord voice server region.
@@ -75,8 +75,8 @@ public class DiscordVoiceRegion
     /// <returns>Whether the two voice regions are equal.</returns>
     public static bool operator ==(DiscordVoiceRegion left, DiscordVoiceRegion right)
     {
-        object? o1 = left as object;
-        object? o2 = right as object;
+        object? o1 = left;
+        object? o2 = right;
 
         return (o1 != null || o2 == null) && (o1 == null || o2 != null) && ((o1 == null && o2 == null) || left.Id == right.Id);
     }

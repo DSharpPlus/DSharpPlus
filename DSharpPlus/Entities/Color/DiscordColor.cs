@@ -1,15 +1,15 @@
-namespace DSharpPlus.Entities;
-
 using System;
 using System.Globalization;
 using System.Linq;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a color used in Discord API.
 /// </summary>
 public partial struct DiscordColor
 {
-    private static readonly char[] _hexAlphabet = new[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+    private static readonly char[] _hexAlphabet = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
 
     /// <summary>
     /// Gets the integer representation of this color.
@@ -19,19 +19,19 @@ public partial struct DiscordColor
     /// <summary>
     /// Gets the red component of this color as an 8-bit integer.
     /// </summary>
-    public byte R
+    public readonly byte R
         => (byte)((Value >> 16) & 0xFF);
 
     /// <summary>
     /// Gets the green component of this color as an 8-bit integer.
     /// </summary>
-    public byte G
+    public readonly byte G
         => (byte)((Value >> 8) & 0xFF);
 
     /// <summary>
     /// Gets the blue component of this color as an 8-bit integer.
     /// </summary>
-    public byte B
+    public readonly byte B
         => (byte)(Value & 0xFF);
 
     /// <summary>
@@ -56,9 +56,17 @@ public partial struct DiscordColor
     /// <param name="b">Value of the blue component.</param>
     public DiscordColor(float r, float g, float b)
     {
-        if (r < 0 || r > 1 || g < 0 || g > 1 || b < 0 || b > 1)
+        if (r is < 0 or > 1)
         {
-            throw new ArgumentOutOfRangeException("Each component must be between 0.0 and 1.0 inclusive.");
+            throw new ArgumentOutOfRangeException(nameof(r), "Value must be between 0 and 1.");
+        }
+        else if (g is < 0 or > 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(g), "Value must be between 0 and 1.");
+        }
+        else if (b is < 0 or > 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(b), "Value must be between 0 and 1.");
         }
 
         byte rb = (byte)(r * 255);
@@ -79,24 +87,24 @@ public partial struct DiscordColor
             throw new ArgumentNullException(nameof(color), "Null or empty values are not allowed!");
         }
 
-        if (color.Length != 6 && color.Length != 7)
+        if (color.Length is not 6 and not 7)
         {
-            throw new ArgumentException(nameof(color), "Color must be 6 or 7 characters in length.");
+            throw new ArgumentException("Color must be 6 or 7 characters in length.", nameof(color));
         }
 
         color = color.ToUpper();
         if (color.Length == 7 && color[0] != '#')
         {
-            throw new ArgumentException(nameof(color), "7-character colors must begin with #.");
+            throw new ArgumentException("7-character colors must begin with #.", nameof(color));
         }
         else if (color.Length == 7)
         {
-            color = color.Substring(1);
+            color = color[1..];
         }
 
         if (color.Any(xc => !_hexAlphabet.Contains(xc)))
         {
-            throw new ArgumentException(nameof(color), "Colors must consist of hexadecimal characters only.");
+            throw new ArgumentException("Colors must consist of hexadecimal characters only.", nameof(color));
         }
 
         Value = int.Parse(color, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
@@ -106,7 +114,7 @@ public partial struct DiscordColor
     /// Gets a string representation of this color.
     /// </summary>
     /// <returns>String representation of this color.</returns>
-    public override string ToString() => $"#{Value:X6}";
+    public override readonly string ToString() => $"#{Value:X6}";
 
     public static implicit operator DiscordColor(int value)
         => new(value);

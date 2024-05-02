@@ -1,13 +1,13 @@
-namespace DSharpPlus.Entities;
-
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
+namespace DSharpPlus.Entities;
+
 public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectComponent
 {
     [JsonProperty("default_values", NullValueHandling = NullValueHandling.Ignore)]
-    private readonly List<DiscordSelectDefaultValue> _defaultValues = new();
+    private readonly List<DiscordSelectDefaultValue> _defaultValues = [];
 
     /// <summary>
     /// The default values for this component.

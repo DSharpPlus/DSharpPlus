@@ -1,5 +1,6 @@
 namespace DSharpPlus;
 
+
 /// <summary>
 /// A list of ansi colors supported by Discord.
 /// </summary>

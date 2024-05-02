@@ -1,7 +1,10 @@
 ---
-uid: articles.commands.argument_converters
+uid: articles.commands_next.argument_converters
 title: Argument Converter
 ---
+
+>[!WARNING]
+> CommandsNext has been replaced by [Commands](xref:articles.commands.introduction). Both this article and CommandsNext itself is no longer maintained and may contain outdated information. CommandsNext will be deprecated in version 5.1.0 of DSharpPlus.
 
 ## Custom Argument Converter
 
@@ -21,7 +24,7 @@ public class CustomArgumentConverter : IArgumentConverter<bool>
         if (bool.TryParse(value, out var boolean))
         {
             return Task.FromResult(Optional.FromValue(boolean));
-        }           
+        }
 
         switch (value.ToLower())
         {
@@ -37,8 +40,8 @@ public class CustomArgumentConverter : IArgumentConverter<bool>
 
             default:
                 return Task.FromResult(Optional.FromNoValue<bool>());
-        } 
-    } 
+        }
+    }
 }
 ```
 
@@ -64,4 +67,4 @@ public async Task BooleanCommand(CommandContext ctx, bool boolean)
 ![true][0]
 
 <!-- LINKS -->
-[0]:  ../../images/commands_argument_converters_01.png
+[0]:  ../../images/commands_next_argument_converters_01.png

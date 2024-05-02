@@ -1,5 +1,3 @@
-namespace DSharpPlus.Net.Serialization;
-
 using System;
 using System.Globalization;
 using System.IO;
@@ -7,6 +5,8 @@ using System.Text;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
+namespace DSharpPlus.Net.Serialization;
 
 public static class DiscordJson
 {
@@ -42,8 +42,8 @@ public static class DiscordJson
 
     private static string SerializeObjectInternal(object value, Type type, JsonSerializer jsonSerializer)
     {
-        StringWriter stringWriter = new StringWriter(new StringBuilder(256), CultureInfo.InvariantCulture);
-        using (JsonTextWriter jsonTextWriter = new JsonTextWriter(stringWriter))
+        StringWriter stringWriter = new(new StringBuilder(256), CultureInfo.InvariantCulture);
+        using (JsonTextWriter jsonTextWriter = new(stringWriter))
         {
             jsonTextWriter.Formatting = jsonSerializer.Formatting;
             jsonSerializer.Serialize(jsonTextWriter, value, type);

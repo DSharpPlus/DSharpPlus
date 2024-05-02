@@ -1,5 +1,3 @@
-namespace DSharpPlus.Commands.Converters;
-
 using System;
 using System.Globalization;
 using System.Linq;
@@ -9,6 +7,8 @@ using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+
+namespace DSharpPlus.Commands.Converters;
 
 public partial class DiscordChannelConverter : ISlashArgumentConverter<DiscordChannel>, ITextArgumentConverter<DiscordChannel>
 {

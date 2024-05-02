@@ -1,6 +1,6 @@
-namespace DSharpPlus.Lavalink;
-
 using Microsoft.Extensions.Logging;
+
+namespace DSharpPlus.Lavalink;
 
 /// <summary>
 /// Contains well-defined event IDs used by the Lavalink extension.

@@ -1,6 +1,6 @@
-namespace DSharpPlus.Net.Udp;
-
 using System.Threading.Tasks;
+
+namespace DSharpPlus.Net.Udp;
 
 /// <summary>
 /// Creates an instance of a UDP client implementation.

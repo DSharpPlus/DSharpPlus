@@ -1,6 +1,6 @@
-namespace DSharpPlus.SlashCommands;
-
 using System;
+
+namespace DSharpPlus.SlashCommands;
 
 /// <summary>
 /// Defines this slash command module's lifespan. Module lifespans are transient by default.

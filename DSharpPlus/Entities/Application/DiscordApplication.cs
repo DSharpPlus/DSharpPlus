@@ -1,11 +1,11 @@
-namespace DSharpPlus.Entities;
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents an OAuth2 application.
@@ -102,7 +102,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
             throw new ArgumentException("You must specify valid image format.", nameof(fmt));
         }
 
-        if (size < 16 || size > 2048)
+        if (size is < 16 or > 2048)
         {
             throw new ArgumentOutOfRangeException(nameof(size));
         }

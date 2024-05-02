@@ -1,6 +1,6 @@
-namespace DSharpPlus.Net;
-
 using System.Net.Http;
+
+namespace DSharpPlus.Net;
 
 /// <summary>
 /// Serves as a generic constraint for the rest client.

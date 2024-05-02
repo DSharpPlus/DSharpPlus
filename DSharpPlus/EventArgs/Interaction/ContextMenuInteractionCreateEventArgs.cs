@@ -1,6 +1,6 @@
-namespace DSharpPlus.EventArgs;
-
 using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs;
 
 public sealed class ContextMenuInteractionCreateEventArgs : InteractionCreateEventArgs
 {

@@ -1,8 +1,7 @@
-namespace DSharpPlus.SlashCommands;
-
 using System;
-
 using DSharpPlus.Entities;
+
+namespace DSharpPlus.SlashCommands;
 
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
 public class SlashCommandPermissionsAttribute : Attribute

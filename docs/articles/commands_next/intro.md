@@ -1,7 +1,10 @@
 ---
-uid: articles.commands.intro
+uid: articles.commands_next.intro
 title: CommandsNext Introduction
 ---
+
+>[!WARNING]
+> CommandsNext has been replaced by [Commands](xref:articles.commands.introduction). Both this article and CommandsNext itself is no longer maintained and may contain outdated information. CommandsNext will be deprecated in version 5.1.0 of DSharpPlus.
 
 >[!NOTE]
 > This article assumes you've recently read the article on *[writing your first bot][0]*.
@@ -355,19 +358,19 @@ Now that you've gotten an understanding of CommandsNext, it'd be a good idea che
 
 <!-- LINKS -->
 [0]:  xref:articles.basics.first_bot
-[1]:  ../../images/commands_intro_01.png
-[2]:  ../../images/commands_intro_02.png
+[1]:  ../../images/commands_next_intro_01.png
+[2]:  ../../images/commands_next_intro_02.png
 [3]:  xref:articles.basics.first_bot#spicing-up-your-bot
-[4]:  ../../images/commands_intro_03.png
+[4]:  ../../images/commands_next_intro_03.png
 [5]:  https://www.youtube.com/watch?v=GsQXadrmhws
 [6]:  https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/interpolated
-[7]:  ../../images/commands_intro_04.png
+[7]:  ../../images/commands_next_intro_04.png
 [8]:  #command-overloads
-[9]:  xref:articles.commands.argument_converters
-[10]: ../../images/commands_intro_05.png
-[11]: ../../images/commands_intro_06.png
-[12]: ../../images/commands_intro_07.png
-[13]: ../../images/commands_intro_08.png
-[14]: xref:articles.commands.command_attributes
-[15]: xref:articles.commands.help_formatter
-[16]: xref:articles.commands.dependency_injection
+[9]:  xref:articles.commands_next.argument_converters
+[10]: ../../images/commands_next_intro_05.png
+[11]: ../../images/commands_next_intro_06.png
+[12]: ../../images/commands_next_intro_07.png
+[13]: ../../images/commands_next_intro_08.png
+[14]: xref:articles.commands_next.command_attributes
+[15]: xref:articles.commands_next.help_formatter
+[16]: xref:articles.commands_next.dependency_injection

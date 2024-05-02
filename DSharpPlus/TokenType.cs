@@ -1,5 +1,6 @@
 namespace DSharpPlus;
 
+
 /// <summary>
 /// Token type
 /// </summary>

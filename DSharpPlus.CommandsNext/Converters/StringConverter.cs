@@ -1,8 +1,8 @@
-namespace DSharpPlus.CommandsNext.Converters;
-
 using System;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+
+namespace DSharpPlus.CommandsNext.Converters;
 
 public class StringConverter : IArgumentConverter<string>
 {
@@ -16,9 +16,9 @@ public class UriConverter : IArgumentConverter<Uri>
     {
         try
         {
-            if (value.StartsWith("<") && value.EndsWith(">"))
+            if (value.StartsWith('<') && value.EndsWith('>'))
             {
-                value = value.Substring(1, value.Length - 2);
+                value = value[1..^1];
             }
 
             return Task.FromResult(Optional.FromValue(new Uri(value)));

@@ -1,6 +1,6 @@
-namespace DSharpPlus.Entities.AutoModeration.Action;
-
 using System;
+
+namespace DSharpPlus.Entities.AutoModeration.Action;
 
 /// <summary>
 /// Constructs auto-moderation rule action metadata.

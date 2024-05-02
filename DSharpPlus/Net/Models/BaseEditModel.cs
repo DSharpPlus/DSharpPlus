@@ -1,5 +1,6 @@
 namespace DSharpPlus.Net.Models;
 
+
 public class BaseEditModel
 {
     /// <summary>

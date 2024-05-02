@@ -1,8 +1,8 @@
-namespace DSharpPlus.Entities;
-
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
 {
@@ -10,7 +10,7 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
     public IReadOnlyList<DiscordChannelType> ChannelTypes { get; internal set; }
 
     [JsonProperty("default_values", NullValueHandling = NullValueHandling.Ignore)]
-    private readonly List<DiscordSelectDefaultValue> _defaultValues = new();
+    private readonly List<DiscordSelectDefaultValue> _defaultValues = [];
 
     /// <summary>
     /// The default values for this component.

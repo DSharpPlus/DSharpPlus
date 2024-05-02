@@ -1,6 +1,6 @@
-namespace DSharpPlus.Interactivity.EventHandling;
-
 using System.Threading.Tasks;
+
+namespace DSharpPlus.Interactivity.EventHandling;
 
 internal interface IPaginator
 {

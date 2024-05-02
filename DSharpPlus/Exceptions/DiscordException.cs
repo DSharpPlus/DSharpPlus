@@ -1,7 +1,7 @@
-namespace DSharpPlus.Exceptions;
-
 using System;
 using System.Net.Http;
+
+namespace DSharpPlus.Exceptions;
 
 public abstract class DiscordException : Exception
 {

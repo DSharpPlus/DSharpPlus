@@ -1,5 +1,3 @@
-namespace DSharpPlus.Interactivity.EventHandling;
-
 using System;
 using System.Threading.Tasks;
 using ConcurrentCollections;
@@ -7,6 +5,8 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Enums;
 using Microsoft.Extensions.Logging;
+
+namespace DSharpPlus.Interactivity.EventHandling;
 
 internal class Paginator : IPaginator
 {
@@ -20,7 +20,7 @@ internal class Paginator : IPaginator
     public Paginator(DiscordClient client)
     {
         _client = client;
-        _requests = new ConcurrentHashSet<IPaginationRequest>();
+        _requests = [];
 
         _client.MessageReactionAdded += HandleReactionAdd;
         _client.MessageReactionRemoved += HandleReactionRemove;
@@ -175,7 +175,7 @@ internal class Paginator : IPaginator
         return Task.CompletedTask;
     }
 
-    private async Task ResetReactionsAsync(IPaginationRequest p)
+    private static async Task ResetReactionsAsync(IPaginationRequest p)
     {
         DiscordMessage msg = await p.GetMessageAsync();
         PaginationEmojis emojis = await p.GetEmojisAsync();
@@ -231,7 +231,7 @@ internal class Paginator : IPaginator
         }
     }
 
-    private async Task PaginateAsync(IPaginationRequest p, DiscordEmoji emoji)
+    private static async Task PaginateAsync(IPaginationRequest p, DiscordEmoji emoji)
     {
         PaginationEmojis emojis = await p.GetEmojisAsync();
         DiscordMessage msg = await p.GetMessageAsync();

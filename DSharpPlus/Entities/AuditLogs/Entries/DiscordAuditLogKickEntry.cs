@@ -23,6 +23,7 @@
 
 namespace DSharpPlus.Entities.AuditLogs;
 
+
 public sealed class DiscordAuditLogKickEntry : DiscordAuditLogEntry
 {
     /// <summary>

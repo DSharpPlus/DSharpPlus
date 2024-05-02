@@ -1,5 +1,3 @@
-namespace DSharpPlus.CommandsNext;
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -13,13 +11,13 @@ using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
+namespace DSharpPlus.CommandsNext;
+
 /// <summary>
 /// Various CommandsNext-related utilities.
 /// </summary>
-public static class CommandsNextUtilities
+public static partial class CommandsNextUtilities
 {
-    private static Regex UserRegex { get; } = new Regex(@"<@\!?(\d+?)> ", RegexOptions.ECMAScript);
-
     /// <summary>
     /// Checks whether the message has a specified string prefix.
     /// </summary>
@@ -53,8 +51,8 @@ public static class CommandsNextUtilities
             return -1;
         }
 
-        string cnp = content.Substring(0, cni + 2);
-        Match m = UserRegex.Match(cnp);
+        string cnp = content[..(cni + 2)];
+        Match m = GetUserRegex().Match(cnp);
         if (!m.Success)
         {
             return -1;
@@ -76,7 +74,7 @@ public static class CommandsNextUtilities
         bool inTripleBacktick = false;
         bool inQuote = false;
         bool inEscape = false;
-        List<int> removeIndices = new List<int>(str.Length - startPos);
+        List<int> removeIndices = new(str.Length - startPos);
 
         int i = startPos;
         for (; i < str.Length; i++)
@@ -157,12 +155,12 @@ public static class CommandsNextUtilities
             if (endPosition != -1)
             {
                 startPos = endPosition;
-                return startPosition != endPosition ? str.Substring(startPosition, endPosition - startPosition).CleanupString(removeIndices) : null;
+                return startPosition != endPosition ? str[startPosition..endPosition].CleanupString(removeIndices) : null;
             }
         }
 
         startPos = str.Length;
-        return startPos != startPosition ? str.Substring(startPosition).CleanupString(removeIndices) : null;
+        return startPos != startPosition ? str[startPosition..].CleanupString(removeIndices) : null;
     }
 
     internal static string CleanupString(this string s, IList<int> indices)
@@ -197,7 +195,7 @@ public static class CommandsNextUtilities
 
         object?[] args = new object?[overload.Arguments.Count + 2];
         args[1] = ctx;
-        List<string?> rawArgumentList = new List<string?>(overload.Arguments.Count);
+        List<string?> rawArgumentList = new(overload.Arguments.Count);
         string? argString = ctx.RawArgumentString;
         int foundAt = 0;
 
@@ -229,7 +227,7 @@ public static class CommandsNextUtilities
                         break;
                     }
 
-                    argValue = argString.Substring(foundAt).Trim();
+                    argValue = argString[foundAt..].Trim();
                     argValue = argValue == "" ? null : argValue;
                     foundAt = argString.Length;
 
@@ -269,7 +267,7 @@ public static class CommandsNextUtilities
                 {
                     try
                     {
-                        array.SetValue(await ctx.CommandsNext.ConvertArgument(rawArgumentList[i], ctx, arg.Type), i - start);
+                        array.SetValue(await ctx.CommandsNext.ConvertArgumentAsync(rawArgumentList[i], ctx, arg.Type), i - start);
                     }
                     catch (Exception ex)
                     {
@@ -285,7 +283,7 @@ public static class CommandsNextUtilities
             {
                 try
                 {
-                    args[i + 2] = rawArgumentList[i] != null ? await ctx.CommandsNext.ConvertArgument(rawArgumentList[i], ctx, arg.Type) : arg.DefaultValue;
+                    args[i + 2] = rawArgumentList[i] != null ? await ctx.CommandsNext.ConvertArgumentAsync(rawArgumentList[i], ctx, arg.Type) : arg.DefaultValue;
                 }
                 catch (Exception ex)
                 {
@@ -341,7 +339,7 @@ public static class CommandsNextUtilities
 
     internal static bool IsCommandCandidate(this MethodInfo method, out ParameterInfo[] parameters)
     {
-        parameters = Array.Empty<ParameterInfo>();
+        parameters = [];
 
         // check if exists
         if (method == null)
@@ -357,7 +355,7 @@ public static class CommandsNextUtilities
 
         // check if appropriate return and arguments
         parameters = method.GetParameters();
-        if (!parameters.Any() || parameters.First().ParameterType != typeof(CommandContext) || method.ReturnType != typeof(Task))
+        if (parameters.Length != 0 || parameters[0].ParameterType != typeof(CommandContext) || method.ReturnType != typeof(Task))
         {
             return false;
         }
@@ -436,4 +434,7 @@ public static class CommandsNextUtilities
 
         return moduleInstance;
     }
+
+    [GeneratedRegex(@"<@\!?(\d+?)> ", RegexOptions.ECMAScript)]
+    private static partial Regex GetUserRegex();
 }

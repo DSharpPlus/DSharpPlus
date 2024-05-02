@@ -1,5 +1,3 @@
-namespace DSharpPlus.Entities;
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -7,6 +5,8 @@ using System.Threading.Tasks;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a Discord user.
@@ -76,7 +76,7 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// </summary>
     [JsonIgnore]
     public string BannerUrl
-        => string.IsNullOrEmpty(BannerHash) ? null : $"https://cdn.discordapp.com/banners/{Id}/{BannerHash}.{(BannerHash.StartsWith("a") ? "gif" : "png")}?size=4096";
+        => string.IsNullOrEmpty(BannerHash) ? null : $"https://cdn.discordapp.com/banners/{Id}/{BannerHash}.{(BannerHash.StartsWith('a') ? "gif" : "png")}?size=4096";
 
     /// <summary>
     /// Gets the user's profile banner hash. Mutually exclusive with <see cref="BannerColor"/>.
@@ -180,7 +180,7 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// <param name="guild">Guild to unban this user from.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.BanMembers"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.BanMembers"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the user does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -208,15 +208,15 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
         }
 
         // Makes sure the image size is in between Discord's allowed range.
-        if (imageSize < 16 || imageSize > 4096)
+        if (imageSize is < 16 or > 4096)
         {
-            throw new ArgumentOutOfRangeException("Image Size is not in between 16 and 4096: " + nameof(imageSize));
+            throw new ArgumentOutOfRangeException(nameof(imageSize), "Image Size is not in between 16 and 4096: ");
         }
 
         // Checks to see if the image size is not a power of two.
         if (!(imageSize is not 0 && (imageSize & (imageSize - 1)) is 0))
         {
-            throw new ArgumentOutOfRangeException("Image size is not a power of two: " + nameof(imageSize));
+            throw new ArgumentOutOfRangeException(nameof(imageSize), "Image size is not a power of two: ");
         }
 
         // Get the string variants of the method parameters to use in the urls.
@@ -279,8 +279,8 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// <returns>Whether the two users are equal.</returns>
     public static bool operator ==(DiscordUser e1, DiscordUser e2)
     {
-        object? o1 = e1 as object;
-        object? o2 = e2 as object;
+        object? o1 = e1;
+        object? o2 = e2;
 
         return (o1 != null || o2 == null) && (o1 == null || o2 != null) && ((o1 == null && o2 == null) || e1.Id == e2.Id);
     }

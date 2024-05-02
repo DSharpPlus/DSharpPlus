@@ -1,7 +1,7 @@
-namespace DSharpPlus;
-
 using System;
 using Microsoft.Extensions.Logging;
+
+namespace DSharpPlus;
 
 public class DefaultLogger : ILogger<BaseDiscordClient>
 {
@@ -30,7 +30,7 @@ public class DefaultLogger : ILogger<BaseDiscordClient>
         lock (_lock)
         {
             string? ename = eventId.Name;
-            ename = ename?.Length > 12 ? ename?.Substring(0, 12) : ename;
+            ename = ename?.Length > 12 ? ename?[..12] : ename;
             Console.Write($"[{DateTimeOffset.Now.ToString(TimestampFormat)}] [{eventId.Id,-4}/{ename,-12}] ");
 
             switch (logLevel)

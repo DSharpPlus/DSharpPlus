@@ -1,6 +1,6 @@
-namespace DSharpPlus.VoiceNext.Entities;
-
 using System;
+
+namespace DSharpPlus.VoiceNext.Entities;
 
 internal struct VoicePacket
 {

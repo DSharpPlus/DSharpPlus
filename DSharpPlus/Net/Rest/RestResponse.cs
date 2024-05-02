@@ -1,6 +1,6 @@
-namespace DSharpPlus.Net;
-
 using System.Net;
+
+namespace DSharpPlus.Net;
 
 /// <summary>
 /// Represents a response sent by the remote HTTP party.

@@ -1,7 +1,7 @@
-namespace DSharpPlus.Entities;
-
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a Discord ban

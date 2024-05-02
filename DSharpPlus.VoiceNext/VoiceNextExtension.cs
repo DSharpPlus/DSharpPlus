@@ -1,5 +1,3 @@
-namespace DSharpPlus.VoiceNext;
-
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
@@ -8,6 +6,8 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Net;
 using DSharpPlus.VoiceNext.Entities;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.VoiceNext;
 
 /// <summary>
 /// Represents VoiceNext extension, which acts as Discord voice client.
@@ -50,7 +50,7 @@ public sealed class VoiceNextExtension : BaseExtension
         Client = client;
 
         Client.VoiceStateUpdated += Client_VoiceStateUpdate;
-        Client.VoiceServerUpdated += Client_VoiceServerUpdate;
+        Client.VoiceServerUpdated += Client_VoiceServerUpdateAsync;
     }
 
     /// <summary>
@@ -81,12 +81,12 @@ public sealed class VoiceNextExtension : BaseExtension
             throw new InvalidOperationException("This guild already has a voice connection");
         }
 
-        TaskCompletionSource<VoiceStateUpdateEventArgs> vstut = new TaskCompletionSource<VoiceStateUpdateEventArgs>();
-        TaskCompletionSource<VoiceServerUpdateEventArgs> vsrut = new TaskCompletionSource<VoiceServerUpdateEventArgs>();
+        TaskCompletionSource<VoiceStateUpdateEventArgs> vstut = new();
+        TaskCompletionSource<VoiceServerUpdateEventArgs> vsrut = new();
         VoiceStateUpdates[gld.Id] = vstut;
         VoiceServerUpdates[gld.Id] = vsrut;
 
-        VoiceDispatch vsd = new VoiceDispatch
+        VoiceDispatch vsd = new()
         {
             OpCode = 4,
             Payload = new VoiceStateUpdatePayload
@@ -101,21 +101,21 @@ public sealed class VoiceNextExtension : BaseExtension
         await (channel.Discord as DiscordClient).SendRawPayloadAsync(vsj);
 
         VoiceStateUpdateEventArgs vstu = await vstut.Task;
-        VoiceStateUpdatePayload vstup = new VoiceStateUpdatePayload
+        VoiceStateUpdatePayload vstup = new()
         {
             SessionId = vstu.SessionId,
             UserId = vstu.User.Id
         };
         VoiceServerUpdateEventArgs vsru = await vsrut.Task;
-        VoiceServerUpdatePayload vsrup = new VoiceServerUpdatePayload
+        VoiceServerUpdatePayload vsrup = new()
         {
             Endpoint = vsru.Endpoint,
             GuildId = vsru.Guild.Id,
             Token = vsru.VoiceToken
         };
 
-        VoiceNextConnection vnc = new VoiceNextConnection(Client, gld, channel, Configuration, vsrup, vstup);
-        vnc.VoiceDisconnected += Vnc_VoiceDisconnected;
+        VoiceNextConnection vnc = new(Client, gld, channel, Configuration, vsrup, vstup);
+        vnc.VoiceDisconnected += Vnc_VoiceDisconnectedAsync;
         await vnc.ConnectAsync();
         await vnc.WaitForReadyAsync();
         ActiveConnections[gld.Id] = vnc;
@@ -128,17 +128,16 @@ public sealed class VoiceNextExtension : BaseExtension
     /// <param name="guild">Guild to get VoiceNext connection for.</param>
     /// <returns>VoiceNext connection for the specified guild.</returns>
     public VoiceNextConnection? GetConnection(DiscordGuild guild)
-        => ActiveConnections.ContainsKey(guild.Id) ? ActiveConnections[guild.Id] : null;
+        => ActiveConnections.TryGetValue(guild.Id, out VoiceNextConnection value) ? value : null;
 
-    private async Task Vnc_VoiceDisconnected(DiscordGuild guild)
+    private async Task Vnc_VoiceDisconnectedAsync(DiscordGuild guild)
     {
-        VoiceNextConnection vnc = null;
         if (ActiveConnections.ContainsKey(guild.Id))
         {
-            ActiveConnections.TryRemove(guild.Id, out vnc);
+            ActiveConnections.TryRemove(guild.Id, out _);
         }
 
-        VoiceDispatch vsd = new VoiceDispatch
+        VoiceDispatch vsd = new()
         {
             OpCode = 4,
             Payload = new VoiceStateUpdatePayload
@@ -185,7 +184,7 @@ public sealed class VoiceNextExtension : BaseExtension
         return Task.CompletedTask;
     }
 
-    private async Task Client_VoiceServerUpdate(DiscordClient client, VoiceServerUpdateEventArgs e)
+    private async Task Client_VoiceServerUpdateAsync(DiscordClient client, VoiceServerUpdateEventArgs e)
     {
         DiscordGuild gld = e.Guild;
         if (gld == null)
@@ -204,12 +203,12 @@ public sealed class VoiceNextExtension : BaseExtension
 
             string eps = e.Endpoint;
             int epi = eps.LastIndexOf(':');
-            string eph = string.Empty;
+            string eph;
             int epp = 443;
             if (epi != -1)
             {
-                eph = eps.Substring(0, epi);
-                epp = int.Parse(eps.Substring(epi + 1));
+                eph = eps[..epi];
+                epp = int.Parse(eps[(epi + 1)..]);
             }
             else
             {
@@ -238,7 +237,7 @@ public sealed class VoiceNextExtension : BaseExtension
         if (Client != null)
         {
             Client.VoiceStateUpdated -= Client_VoiceStateUpdate;
-            Client.VoiceServerUpdated -= Client_VoiceServerUpdate;
+            Client.VoiceServerUpdated -= Client_VoiceServerUpdateAsync;
         }
         // Lo and behold, the audacious man who dared lay his hand upon VoiceNext hath once more trespassed upon its profane ground!
 

@@ -1,6 +1,6 @@
-namespace DSharpPlus.Commands.ContextChecks;
-
 using System.Threading.Tasks;
+
+namespace DSharpPlus.Commands.ContextChecks;
 
 /// <summary>
 /// Marker interface for context checks, use <seealso cref="IContextCheck{TAttribute}"/> instead.

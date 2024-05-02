@@ -1,7 +1,7 @@
-namespace DSharpPlus.Lavalink.Entities;
-
 using System.Collections.Generic;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Lavalink.Entities;
 
 public class LavalinkRouteStatus
 {
@@ -21,7 +21,7 @@ public class LavalinkRouteStatus
     [JsonProperty("class", NullValueHandling = NullValueHandling.Ignore)]
     internal string ClassInternal { get; set; }
 
-    private LavalinkRoutePlannerType? GetLavalinkRoutePlannerType(string type) => type switch
+    private static LavalinkRoutePlannerType? GetLavalinkRoutePlannerType(string type) => type switch
     {
         "RotatingIpRoutePlanner" => LavalinkRoutePlannerType.RotatingIpRoutePlanner,
         "BalancingIpRoutePlanner" => LavalinkRoutePlannerType.BalancingIpRoutePlanner,

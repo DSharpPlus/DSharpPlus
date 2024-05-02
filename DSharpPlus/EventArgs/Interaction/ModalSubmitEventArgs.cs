@@ -1,9 +1,8 @@
-namespace DSharpPlus.EventArgs;
-
 using System.Collections.Generic;
-using System.Linq;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.EventArgs;
 
 /// <summary>
 /// Fired when a modal is submitted. Note that this event is fired only if the modal is submitted by the user, and not if the modal is closed.
@@ -20,11 +19,11 @@ public class ModalSubmitEventArgs : InteractionCreateEventArgs
     {
         Interaction = interaction;
 
-        Dictionary<string, string> dict = new Dictionary<string, string>();
+        Dictionary<string, string> dict = [];
 
         foreach (DiscordActionRowComponent component in interaction.Data._components)
         {
-            if (component.Components.First() is DiscordTextInputComponent input)
+            if (component.Components[0] is DiscordTextInputComponent input)
             {
                 dict.Add(input.CustomId, input.Value);
             }

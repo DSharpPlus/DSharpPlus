@@ -80,7 +80,7 @@ You can use either of the following methods (prefer the first one if possible, s
 - The overload for @DSharpPlus.DiscordClient.UpdateStatusAsync(DSharpPlus.Entities.DiscordActivity,System.Nullable{DSharpPlus.Entities.UserStatus},System.Nullable{System.DateTimeOffset}) OR @DSharpPlus.DiscordShardedClient.UpdateStatusAsync(DSharpPlus.Entities.DiscordActivity,System.Nullable{DSharpPlus.Entities.UserStatus},System.Nullable{System.DateTimeOffset}) (for the sharded client) at any point after the connection has been established.
 
 #### Am I able to retrieve an entity by name?
-Yes, if you have the parent object. For example, if you are searching for a role in a guild, use LINQ on the `Roles` property and filter by 
+Yes, if you have the parent object. For example, if you are searching for a role in a guild, use LINQ on the `Roles` property and filter by
 `DiscordRole.Name`. If you do not have the parent object or the property is not populated, you will either have to request it or find an
 alternative way of solving your problem.
 

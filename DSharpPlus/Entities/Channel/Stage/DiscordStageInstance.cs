@@ -1,9 +1,9 @@
-namespace DSharpPlus.Entities;
-
 using System;
 using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a discord stage instance.
@@ -58,7 +58,7 @@ public sealed class DiscordStageInstance : SnowflakeObject
     /// Become speaker of current stage.
     /// </summary>
     /// <returns></returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.MoveMembers"/> permission</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.MoveMembers"/> permission</exception>
     public async Task BecomeSpeakerAsync()
         => await Discord.ApiClient.BecomeStageInstanceSpeakerAsync(GuildId, Id, null);
 
@@ -66,7 +66,7 @@ public sealed class DiscordStageInstance : SnowflakeObject
     /// Request to become a speaker in the stage instance.
     /// </summary>
     /// <returns></returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.RequestToSpeak"/> permission</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.RequestToSpeak"/> permission</exception>
     public async Task SendSpeakerRequestAsync() => await Discord.ApiClient.BecomeStageInstanceSpeakerAsync(GuildId, Id, null, DateTime.Now);
 
     /// <summary>
@@ -74,6 +74,6 @@ public sealed class DiscordStageInstance : SnowflakeObject
     /// </summary>
     /// <param name="member">The member to invite to speak on stage.</param>
     /// <returns></returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.MoveMembers"/> permission</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.MoveMembers"/> permission</exception>
     public async Task InviteToSpeakAsync(DiscordMember member) => await Discord.ApiClient.BecomeStageInstanceSpeakerAsync(GuildId, Id, member.Id, null, suppress: false);
 }

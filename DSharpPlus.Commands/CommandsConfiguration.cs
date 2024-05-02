@@ -1,6 +1,6 @@
-namespace DSharpPlus.Commands;
-
 using System;
+
+namespace DSharpPlus.Commands;
 
 /// <summary>
 /// The configuration copied to an instance of <see cref="CommandsExtension"/>.

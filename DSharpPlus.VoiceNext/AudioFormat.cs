@@ -1,15 +1,15 @@
-namespace DSharpPlus.VoiceNext;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
+namespace DSharpPlus.VoiceNext;
+
 /// <summary>
 /// Defines the format of PCM data consumed or produced by Opus.
 /// </summary>
-public struct AudioFormat
+public readonly struct AudioFormat
 {
     /// <summary>
     /// Gets the collection of sampling rates (in Hz) the Opus encoder can use.
@@ -64,7 +64,7 @@ public struct AudioFormat
             throw new ArgumentOutOfRangeException(nameof(channelCount), "Invalid channel count specified.");
         }
 
-        if (voiceApplication != VoiceApplication.Music && voiceApplication != VoiceApplication.Voice && voiceApplication != VoiceApplication.LowLatency)
+        if (voiceApplication is not VoiceApplication.Music and not VoiceApplication.Voice and not VoiceApplication.LowLatency)
         {
             throw new ArgumentOutOfRangeException(nameof(voiceApplication), "Invalid voice application specified.");
         }
@@ -80,7 +80,7 @@ public struct AudioFormat
     /// <param name="sampleDuration">Millisecond duration of a sample.</param>
     /// <returns>Calculated sample size in bytes.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int CalculateSampleSize(int sampleDuration)
+    public readonly int CalculateSampleSize(int sampleDuration)
     {
         if (!AllowedSampleDurations.Contains(sampleDuration))
         {
@@ -105,22 +105,22 @@ public struct AudioFormat
         => CalculateMaximumFrameSize();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal int CalculateSampleDuration(int sampleSize)
+    internal readonly int CalculateSampleDuration(int sampleSize)
         => sampleSize / (SampleRate / 1000) / ChannelCount / 2 /* sizeof(int16_t) */;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal int CalculateFrameSize(int sampleDuration)
+    internal readonly int CalculateFrameSize(int sampleDuration)
         => sampleDuration * (SampleRate / 1000);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal int CalculateMaximumFrameSize()
+    internal readonly int CalculateMaximumFrameSize()
         => 120 * (SampleRate / 1000);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal int SampleCountToSampleSize(int sampleCount)
+    internal readonly int SampleCountToSampleSize(int sampleCount)
         => sampleCount * ChannelCount * 2 /* sizeof(int16_t) */;
 
-    internal bool IsValid()
+    internal readonly bool IsValid()
         => AllowedSampleRates.Contains(SampleRate) && AllowedChannelCounts.Contains(ChannelCount) &&
             (VoiceApplication == VoiceApplication.Music || VoiceApplication == VoiceApplication.Voice || VoiceApplication == VoiceApplication.LowLatency);
 }

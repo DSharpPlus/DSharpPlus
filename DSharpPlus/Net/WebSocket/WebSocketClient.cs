@@ -1,5 +1,3 @@
-namespace DSharpPlus.Net.WebSocket;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,6 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.EventArgs;
+
+namespace DSharpPlus.Net.WebSocket;
 
 // weebsocket
 // not even sure whether emzi or I posted this. much love, naam.
@@ -58,7 +58,7 @@ public class WebSocketClient : IWebSocketClient
         _exceptionThrown = new AsyncEvent<WebSocketClient, SocketErrorEventArgs>("WS_ERROR", null);
 
         Proxy = proxy;
-        _defaultHeaders = new Dictionary<string, string>();
+        _defaultHeaders = [];
         DefaultHeaders = new ReadOnlyDictionary<string, string>(_defaultHeaders);
 
         _receiverTokenSource = null;
@@ -172,7 +172,7 @@ public class WebSocketClient : IWebSocketClient
             return;
         }
 
-        if (_ws.State != WebSocketState.Open && _ws.State != WebSocketState.CloseReceived)
+        if (_ws.State is not WebSocketState.Open and not WebSocketState.CloseReceived)
         {
             return;
         }
@@ -216,31 +216,21 @@ public class WebSocketClient : IWebSocketClient
     /// <summary>
     /// Disposes of resources used by this WebSocket client instance.
     /// </summary>
-    public void Dispose()
-    {
-        if (_isDisposed)
-        {
-            return;
-        }
-
-        _isDisposed = true;
-
-        DisconnectAsync().GetAwaiter().GetResult();
-
-        _receiverTokenSource?.Dispose();
-        _socketTokenSource?.Dispose();
-    }
+    //public void Dispose()
+    //{
+    //
+    //}
 
     internal async Task ReceiverLoopAsync()
     {
         await Task.Yield();
 
         CancellationToken token = _receiverToken;
-        ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[IncomingChunkSize]);
+        ArraySegment<byte> buffer = new(new byte[IncomingChunkSize]);
 
         try
         {
-            using MemoryStream bs = new MemoryStream();
+            using MemoryStream bs = new();
             while (!token.IsCancellationRequested)
             {
                 // See https://github.com/RogueException/Discord.Net/commit/ac389f5f6823e3a720aedd81b7805adbdd78b66d
@@ -286,7 +276,7 @@ public class WebSocketClient : IWebSocketClient
                     if (!_isClientClose)
                     {
                         WebSocketCloseStatus code = result.CloseStatus.Value;
-                        code = code == WebSocketCloseStatus.NormalClosure || code == WebSocketCloseStatus.EndpointUnavailable
+                        code = code is WebSocketCloseStatus.NormalClosure or WebSocketCloseStatus.EndpointUnavailable
                             ? (WebSocketCloseStatus)4000
                             : code;
 
@@ -361,5 +351,27 @@ public class WebSocketClient : IWebSocketClient
     private void EventErrorHandler<TArgs>(AsyncEvent<WebSocketClient, TArgs> asyncEvent, Exception ex, AsyncEventHandler<WebSocketClient, TArgs> handler, WebSocketClient sender, TArgs eventArgs)
         where TArgs : AsyncEventArgs
         => _exceptionThrown.InvokeAsync(this, new SocketErrorEventArgs() { Exception = ex }).GetAwaiter().GetResult();
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_isDisposed)
+        {
+            if (disposing)
+            {
+                DisconnectAsync().GetAwaiter().GetResult();
+                _receiverTokenSource?.Dispose();
+                _socketTokenSource?.Dispose();
+            }
+
+            _isDisposed = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
     #endregion
 }

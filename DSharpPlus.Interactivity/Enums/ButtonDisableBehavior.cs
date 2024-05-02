@@ -23,6 +23,7 @@
 
 namespace DSharpPlus.Interactivity.Enums;
 
+
 public enum ButtonDisableBehavior
 {
     Disable = 0,

@@ -1,15 +1,14 @@
-namespace DSharpPlus.Interactivity.EventHandling;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using ConcurrentCollections;
-
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Logging;
+
+namespace DSharpPlus.Interactivity.EventHandling;
 
 internal class Poller
 {
@@ -23,7 +22,7 @@ internal class Poller
     public Poller(DiscordClient client)
     {
         _client = client;
-        _requests = new ConcurrentHashSet<PollRequest>();
+        _requests = [];
 
         _client.MessageReactionAdded += HandleReactionAdd;
         _client.MessageReactionRemoved += HandleReactionRemove;
@@ -32,7 +31,7 @@ internal class Poller
 
     public async Task<ReadOnlyCollection<PollEmoji>> DoPollAsync(PollRequest request)
     {
-        ReadOnlyCollection<PollEmoji> result = null;
+        ReadOnlyCollection<PollEmoji> result;
         _requests.Add(request);
         try
         {

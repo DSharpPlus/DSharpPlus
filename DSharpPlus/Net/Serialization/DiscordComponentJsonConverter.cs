@@ -1,9 +1,9 @@
-namespace DSharpPlus.Net.Serialization;
-
 using System;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
+namespace DSharpPlus.Net.Serialization;
 
 internal sealed class DiscordComponentJsonConverter : JsonConverter
 {

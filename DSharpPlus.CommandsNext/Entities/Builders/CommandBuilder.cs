@@ -1,5 +1,3 @@
-namespace DSharpPlus.CommandsNext.Builders;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,6 +5,8 @@ using System.Linq;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.CommandsNext.Exceptions;
+
+namespace DSharpPlus.CommandsNext.Builders;
 
 /// <summary>
 /// Represents an interface to build a command.
@@ -74,19 +74,19 @@ public class CommandBuilder
     /// <param name="module">Module on which this command is to be defined.</param>
     public CommandBuilder(ICommandModule? module)
     {
-        _aliasList = new List<string>();
+        _aliasList = [];
         Aliases = new ReadOnlyCollection<string>(_aliasList);
 
-        _executionCheckList = new List<CheckBaseAttribute>();
+        _executionCheckList = [];
         ExecutionChecks = new ReadOnlyCollection<CheckBaseAttribute>(_executionCheckList);
 
-        _overloadArgumentSets = new HashSet<string>();
-        _overloadList = new List<CommandOverloadBuilder>();
+        _overloadArgumentSets = [];
+        _overloadList = [];
         Overloads = new ReadOnlyCollection<CommandOverloadBuilder>(_overloadList);
 
         Module = module;
 
-        _customAttributeList = new List<Attribute>();
+        _customAttributeList = [];
         CustomAttributes = new ReadOnlyCollection<Attribute>(_customAttributeList);
     }
 
@@ -132,7 +132,7 @@ public class CommandBuilder
     /// <returns>This builder.</returns>
     public CommandBuilder WithAliases(params string[] aliases)
     {
-        if (aliases == null || !aliases.Any())
+        if (aliases == null || aliases.Length == 0)
         {
             throw new ArgumentException("You need to pass at least one alias.", nameof(aliases));
         }
@@ -275,7 +275,7 @@ public class CommandBuilder
 
     internal virtual Command Build(CommandGroup? parent)
     {
-        Command cmd = new Command
+        Command cmd = new()
         {
             Name = string.IsNullOrWhiteSpace(Name)
                 ? throw new InvalidOperationException($"Cannot build a command with an invalid name. Use the method {nameof(this.WithName)} to set a valid name.")

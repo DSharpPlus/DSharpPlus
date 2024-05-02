@@ -1,5 +1,3 @@
-namespace DSharpPlus.CommandsNext.Converters;
-
 using System;
 using System.Globalization;
 using System.Linq;
@@ -7,12 +5,10 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
-public class DiscordUserConverter : IArgumentConverter<DiscordUser>
+namespace DSharpPlus.CommandsNext.Converters;
+
+public partial class DiscordUserConverter : IArgumentConverter<DiscordUser>
 {
-    private static Regex UserRegex { get; }
-
-    static DiscordUserConverter() => UserRegex = new Regex(@"^<@\!?(\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-
     async Task<Optional<DiscordUser>> IArgumentConverter<DiscordUser>.ConvertAsync(string value, CommandContext ctx)
     {
         if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulong uid))
@@ -22,7 +18,7 @@ public class DiscordUserConverter : IArgumentConverter<DiscordUser>
             return ret;
         }
 
-        Match m = UserRegex.Match(value);
+        Match m = GetUserRegex().Match(value);
         if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out uid))
         {
             DiscordUser result = await ctx.Client.GetUserAsync(uid);
@@ -33,8 +29,8 @@ public class DiscordUserConverter : IArgumentConverter<DiscordUser>
         bool cs = ctx.Config.CaseSensitive;
 
         int di = value.IndexOf('#');
-        string un = di != -1 ? value.Substring(0, di) : value;
-        string? dv = di != -1 ? value.Substring(di + 1) : null;
+        string un = di != -1 ? value[..di] : value;
+        string? dv = di != -1 ? value[(di + 1)..] : null;
 
         System.Collections.Generic.IEnumerable<DiscordMember> us = ctx.Client.Guilds.Values
             .SelectMany(xkvp => xkvp.Members.Values).Where(xm =>
@@ -44,14 +40,13 @@ public class DiscordUserConverter : IArgumentConverter<DiscordUser>
         DiscordMember? usr = us.FirstOrDefault();
         return usr != null ? Optional.FromValue<DiscordUser>(usr) : Optional.FromNoValue<DiscordUser>();
     }
+
+    [GeneratedRegex(@"^<@\!?(\d+?)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+    private static partial Regex GetUserRegex();
 }
 
-public class DiscordMemberConverter : IArgumentConverter<DiscordMember>
+public partial class DiscordMemberConverter : IArgumentConverter<DiscordMember>
 {
-    private static Regex UserRegex { get; }
-
-    static DiscordMemberConverter() => UserRegex = new Regex(@"^<@\!?(\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-
     async Task<Optional<DiscordMember>> IArgumentConverter<DiscordMember>.ConvertAsync(string value, CommandContext ctx)
     {
         if (ctx.Guild == null)
@@ -66,7 +61,7 @@ public class DiscordMemberConverter : IArgumentConverter<DiscordMember>
             return ret;
         }
 
-        Match m = UserRegex.Match(value);
+        Match m = GetUserRegex().Match(value);
         if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out uid))
         {
             DiscordMember result = await ctx.Guild.GetMemberAsync(uid);
@@ -77,14 +72,14 @@ public class DiscordMemberConverter : IArgumentConverter<DiscordMember>
         System.Collections.Generic.IReadOnlyList<DiscordMember> searchResult = await ctx.Guild.SearchMembersAsync(value);
         if (searchResult.Any())
         {
-            return Optional.FromValue(searchResult.First());
+            return Optional.FromValue(searchResult[0]);
         }
 
         bool cs = ctx.Config.CaseSensitive;
 
         int di = value.IndexOf('#');
-        string un = di != -1 ? value.Substring(0, di) : value;
-        string? dv = di != -1 ? value.Substring(di + 1) : null;
+        string un = di != -1 ? value[..di] : value;
+        string? dv = di != -1 ? value[(di + 1)..] : null;
 
         StringComparison comparison = cs ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase;
         System.Collections.Generic.IEnumerable<DiscordMember> us = ctx.Guild.Members.Values.Where(xm =>
@@ -94,14 +89,13 @@ public class DiscordMemberConverter : IArgumentConverter<DiscordMember>
         DiscordMember? mbr = us.FirstOrDefault();
         return mbr != null ? Optional.FromValue(mbr) : Optional.FromNoValue<DiscordMember>();
     }
+
+    [GeneratedRegex(@"^<@\!?(\d+?)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+    private static partial Regex GetUserRegex();
 }
 
-public class DiscordChannelConverter : IArgumentConverter<DiscordChannel>
+public partial class DiscordChannelConverter : IArgumentConverter<DiscordChannel>
 {
-    private static Regex ChannelRegex { get; }
-
-    static DiscordChannelConverter() => ChannelRegex = new Regex(@"^<#(\d+)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-
     async Task<Optional<DiscordChannel>> IArgumentConverter<DiscordChannel>.ConvertAsync(string value, CommandContext ctx)
     {
         if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulong cid))
@@ -110,7 +104,7 @@ public class DiscordChannelConverter : IArgumentConverter<DiscordChannel>
             return result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordChannel>();
         }
 
-        Match m = ChannelRegex.Match(value);
+        Match m = GetChannelRegex().Match(value);
         if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out cid))
         {
             DiscordChannel result = await ctx.Client.GetChannelAsync(cid);
@@ -125,14 +119,13 @@ public class DiscordChannelConverter : IArgumentConverter<DiscordChannel>
 
         return chn != null ? Optional.FromValue(chn) : Optional.FromNoValue<DiscordChannel>();
     }
+
+    [GeneratedRegex(@"^<#(\d+)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+    private static partial Regex GetChannelRegex();
 }
 
-public class DiscordThreadChannelConverter : IArgumentConverter<DiscordThreadChannel>
+public partial class DiscordThreadChannelConverter : IArgumentConverter<DiscordThreadChannel>
 {
-    private static Regex ThreadRegex { get; }
-
-    static DiscordThreadChannelConverter() => ThreadRegex = new Regex(@"^<#(\d+)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-
     Task<Optional<DiscordThreadChannel>> IArgumentConverter<DiscordThreadChannel>.ConvertAsync(string value, CommandContext ctx)
     {
         if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulong threadId))
@@ -141,7 +134,7 @@ public class DiscordThreadChannelConverter : IArgumentConverter<DiscordThreadCha
             return Task.FromResult(result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordThreadChannel>());
         }
 
-        Match m = ThreadRegex.Match(value);
+        Match m = GetThreadRegex().Match(value);
         if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out threadId))
         {
             DiscordThreadChannel result = ctx.Client.InternalGetCachedThread(threadId);
@@ -155,14 +148,13 @@ public class DiscordThreadChannelConverter : IArgumentConverter<DiscordThreadCha
 
         return Task.FromResult(thread != null ? Optional.FromValue(thread) : Optional.FromNoValue<DiscordThreadChannel>());
     }
+
+    [GeneratedRegex(@"^<#(\d+)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+    private static partial Regex GetThreadRegex();
 }
 
-public class DiscordRoleConverter : IArgumentConverter<DiscordRole>
+public partial class DiscordRoleConverter : IArgumentConverter<DiscordRole>
 {
-    private static Regex RoleRegex { get; }
-
-    static DiscordRoleConverter() => RoleRegex = new Regex(@"^<@&(\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-
     Task<Optional<DiscordRole>> IArgumentConverter<DiscordRole>.ConvertAsync(string value, CommandContext ctx)
     {
         if (ctx.Guild == null)
@@ -177,7 +169,7 @@ public class DiscordRoleConverter : IArgumentConverter<DiscordRole>
             return Task.FromResult(ret);
         }
 
-        Match m = RoleRegex.Match(value);
+        Match m = GetRoleRegex().Match(value);
         if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out rid))
         {
             DiscordRole result = ctx.Guild.GetRole(rid);
@@ -191,6 +183,9 @@ public class DiscordRoleConverter : IArgumentConverter<DiscordRole>
             xr.Name.Equals(value, cs ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase));
         return Task.FromResult(rol != null ? Optional.FromValue(rol) : Optional.FromNoValue<DiscordRole>());
     }
+
+    [GeneratedRegex(@"^<@&(\d+?)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+    private static partial Regex GetRoleRegex();
 }
 
 public class DiscordGuildConverter : IArgumentConverter<DiscordGuild>
@@ -212,12 +207,8 @@ public class DiscordGuildConverter : IArgumentConverter<DiscordGuild>
     }
 }
 
-public class DiscordMessageConverter : IArgumentConverter<DiscordMessage>
+public partial class DiscordMessageConverter : IArgumentConverter<DiscordMessage>
 {
-    private static Regex MessagePathRegex { get; }
-
-    static DiscordMessageConverter() => MessagePathRegex = new Regex(@"^\/channels\/(?<guild>(?:\d+|@me))\/(?<channel>\d+)\/(?<message>\d+)\/?$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-
     async Task<Optional<DiscordMessage>> IArgumentConverter<DiscordMessage>.ConvertAsync(string value, CommandContext ctx)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -225,7 +216,7 @@ public class DiscordMessageConverter : IArgumentConverter<DiscordMessage>
             return Optional.FromNoValue<DiscordMessage>();
         }
 
-        string msguri = value.StartsWith("<") && value.EndsWith(">") ? value.Substring(1, value.Length - 2) : value;
+        string msguri = value.StartsWith('<') && value.EndsWith('>') ? value[1..^1] : value;
         ulong mid;
         if (Uri.TryCreate(msguri, UriKind.Absolute, out Uri? uri))
         {
@@ -234,7 +225,7 @@ public class DiscordMessageConverter : IArgumentConverter<DiscordMessage>
                 return Optional.FromNoValue<DiscordMessage>();
             }
 
-            Match uripath = MessagePathRegex.Match(uri.AbsolutePath);
+            Match uripath = GetMessagePathRegex().Match(uri.AbsolutePath);
             if (!uripath.Success
                 || !ulong.TryParse(uripath.Groups["channel"].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulong cid)
                 || !ulong.TryParse(uripath.Groups["message"].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out mid))
@@ -260,14 +251,13 @@ public class DiscordMessageConverter : IArgumentConverter<DiscordMessage>
 
         return Optional.FromNoValue<DiscordMessage>();
     }
+
+    [GeneratedRegex(@"^\/channels\/(?<guild>(?:\d+|@me))\/(?<channel>\d+)\/(?<message>\d+)\/?$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+    private static partial Regex GetMessagePathRegex();
 }
 
-public class DiscordEmojiConverter : IArgumentConverter<DiscordEmoji>
+public partial class DiscordEmojiConverter : IArgumentConverter<DiscordEmoji>
 {
-    private static Regex EmoteRegex { get; }
-
-    static DiscordEmojiConverter() => EmoteRegex = new Regex(@"^<(?<animated>a)?:(?<name>[a-zA-Z0-9_]+?):(?<id>\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-
     Task<Optional<DiscordEmoji>> IArgumentConverter<DiscordEmoji>.ConvertAsync(string value, CommandContext ctx)
     {
         if (DiscordEmoji.TryFromUnicode(ctx.Client, value, out DiscordEmoji? emoji))
@@ -277,7 +267,7 @@ public class DiscordEmojiConverter : IArgumentConverter<DiscordEmoji>
             return Task.FromResult(ret);
         }
 
-        Match m = EmoteRegex.Match(value);
+        Match m = GetEmoteRegex().Match(value);
         if (m.Success)
         {
             string sid = m.Groups["id"].Value;
@@ -301,28 +291,22 @@ public class DiscordEmojiConverter : IArgumentConverter<DiscordEmoji>
 
         return Task.FromResult(Optional.FromNoValue<DiscordEmoji>());
     }
+
+    [GeneratedRegex(@"^<(?<animated>a)?:(?<name>[a-zA-Z0-9_]+?):(?<id>\d+?)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+    private static partial Regex GetEmoteRegex();
 }
 
-public class DiscordColorConverter : IArgumentConverter<DiscordColor>
+public partial class DiscordColorConverter : IArgumentConverter<DiscordColor>
 {
-    private static Regex ColorRegexHex { get; }
-    private static Regex ColorRegexRgb { get; }
-
-    static DiscordColorConverter()
-    {
-        ColorRegexHex = new Regex(@"^#?([a-fA-F0-9]{6})$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-        ColorRegexRgb = new Regex(@"^(\d{1,3})\s*?,\s*?(\d{1,3}),\s*?(\d{1,3})$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-    }
-
     Task<Optional<DiscordColor>> IArgumentConverter<DiscordColor>.ConvertAsync(string value, CommandContext ctx)
     {
-        Match m = ColorRegexHex.Match(value);
+        Match m = GetHexRegex().Match(value);
         if (m.Success && int.TryParse(m.Groups[1].Value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out int clr))
         {
             return Task.FromResult(Optional.FromValue<DiscordColor>(clr));
         }
 
-        m = ColorRegexRgb.Match(value);
+        m = GetRgbRegex().Match(value);
         if (m.Success)
         {
             bool p1 = byte.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out byte r);
@@ -336,4 +320,9 @@ public class DiscordColorConverter : IArgumentConverter<DiscordColor>
 
         return Task.FromResult(Optional.FromNoValue<DiscordColor>());
     }
+
+    [GeneratedRegex(@"^#?([a-fA-F0-9]{6})$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+    private static partial Regex GetHexRegex();
+    [GeneratedRegex(@"^(\d{1,3})\s*?,\s*?(\d{1,3}),\s*?(\d{1,3})$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+    private static partial Regex GetRgbRegex();
 }

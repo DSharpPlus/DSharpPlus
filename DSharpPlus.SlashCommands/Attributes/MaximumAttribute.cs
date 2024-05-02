@@ -21,9 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace DSharpPlus.SlashCommands;
-
 using System;
+
+namespace DSharpPlus.SlashCommands;
 
 /// <summary>
 /// Sets a maximum value for this slash command option. Only valid for <see cref="long"/> or <see cref="double"/> parameters.
