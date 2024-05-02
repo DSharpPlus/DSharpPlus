@@ -459,7 +459,6 @@ public class DiscordRestClient : BaseDiscordClient
     /// </summary>
     /// <param name="guildId">Guild ID</param>
     /// <param name="roleId">Role ID</param>
-    /// <param name="position">Role position</param>
     /// <param name="reason">Reason this position was modified</param>
     /// <returns></returns>
     public async Task UpdateRolePositionAsync(ulong guildId, ulong roleId, string reason = null)
@@ -1065,7 +1064,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// </summary>
     /// <param name="channelId">ID of the channel to follow</param>
     /// <param name="webhookChannelId">ID of the channel to crosspost messages to</param>
-    /// <exception cref="UnauthorizedException">Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> on the target channel</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the current user doesn't have <see cref="DiscordPermissions.ManageWebhooks"/> on the target channel</exception>
     public async Task<DiscordFollowedChannel> FollowChannelAsync(ulong channelId, ulong webhookChannelId)
         => await ApiClient.FollowChannelAsync(channelId, webhookChannelId);
 

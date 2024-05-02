@@ -257,7 +257,7 @@ public static partial class Utilities
         => DiscordClient._discordEpoch.AddMilliseconds(snowflake >> 22);
 
     /// <summary>
-    /// Converts this <see cref="Permissions"/> into human-readable format.
+    /// Converts this <see cref="DiscordPermissions"/> into human-readable format.
     /// </summary>
     /// <param name="perm">Permissions enumeration to convert.</param>
     /// <returns>Human-readable permissions.</returns>

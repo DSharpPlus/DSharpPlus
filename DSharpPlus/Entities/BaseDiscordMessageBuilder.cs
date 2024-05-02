@@ -669,11 +669,11 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     IDiscordMessageBuilder AddMentions(IEnumerable<IMention> mentions);
 
     /// <summary>
-    /// Applies <see cref="MessageFlags.SuppressNotifications"/> to the message.
+    /// Applies <see cref="DiscordMessageFlags.SuppressNotifications"/> to the message.
     /// </summary>
     /// <returns></returns>
     /// <remarks>
-    /// As per <see cref="MessageFlags.SuppressNotifications"/>, this does not change the message's allowed mentions
+    /// As per <see cref="DiscordMessageFlags.SuppressNotifications"/>, this does not change the message's allowed mentions
     /// (controlled by <see cref="AddMentions"/>), but instead prevents a mention from triggering a push notification.
     /// </remarks>
     IDiscordMessageBuilder SuppressNotifications();

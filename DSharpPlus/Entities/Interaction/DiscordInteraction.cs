@@ -102,7 +102,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     /// <remarks>
     /// For guilds, this will be the bot's permissions. For group DMs, this is `ATTACH_FILES`, `EMBED_LINKS`, and `MENTION_EVERYONE`.
-    /// In the context of the bot's DM, it also includes `USE_EXTERNAL_EMOJI`.  
+    /// In the context of the bot's DM, it also includes `USE_EXTERNAL_EMOJI`.
     /// </remarks>
     [JsonProperty("app_permissions", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordPermissions AppPermissions { get; internal set; }
@@ -113,13 +113,13 @@ public sealed class DiscordInteraction : SnowflakeObject
     ///         This dictionary contains the following:
     ///         <list type="bullet">
     ///             <item>
-    ///                 If the interaction is installed to a user, a key of <see cref="DiscordApplicationIntegrationType.User"/> and a value of the user's ID.
+    ///                 If the interaction is installed to a user, a key of <see cref="DiscordApplicationIntegrationType.UserInstall"/> and a value of the user's ID.
     ///             </item>
     ///             <item>
-    ///                 If the interaction is installed to a guild, a key of <see cref="DiscordApplicationIntegrationType.Guild"/> and a value of the guild's ID.
+    ///                 If the interaction is installed to a guild, a key of <see cref="DiscordApplicationIntegrationType.GuildInstall"/> and a value of the guild's ID.
     ///                 <list type="bullet">
     ///                     <item>
-    ///                         IF the interaction was sent from a guild context, the above holds true, otherwise the ID is 0. 
+    ///                         IF the interaction was sent from a guild context, the above holds true, otherwise the ID is 0.
     ///                     </item>
     ///                 </list>
     ///             </item>
