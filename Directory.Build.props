@@ -7,13 +7,12 @@
     <IsPackable>false</IsPackable>
     <LangVersion>Latest</LangVersion>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <NoWarn>CS1591</NoWarn>
     <Nullable>disable</Nullable>
     <OutputType>Library</OutputType>
     <ProjectRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), "DSharpPlus.sln"))</ProjectRoot>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <TargetFramework>net8.0</TargetFramework>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Version>5.0.0</Version>
     <Version Condition="'$(Nightly)' != ''">$(Version)-nightly-$(Nightly)</Version>
     <Version Condition="'$(PR)' != ''">$(Version)-pr-$(PR)</Version>

@@ -58,8 +58,11 @@ public class DiscordThreadChannel : DiscordChannel
             ? parent.AvailableTags.Where(pt => _appliedTagIds.Contains(pt.Id)).ToArray()
             : [];
 
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value null
+    // Justification: Used by JSON.NET
     [JsonProperty("applied_tags")]
     private readonly List<ulong> _appliedTagIds;
+#pragma warning restore CS0649
 
     #region Methods
 

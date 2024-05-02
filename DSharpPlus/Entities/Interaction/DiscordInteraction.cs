@@ -129,8 +129,11 @@ public sealed class DiscordInteraction : SnowflakeObject
     [JsonIgnore]
     public IReadOnlyDictionary<DiscordApplicationIntegrationType, ulong> AuthorizingIntegrationOwners => _authorizingIntegrationOwners;
 
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value null
+    // Justification: Used by JSON.NET
     [JsonProperty("authorizing_integration_owners", NullValueHandling = NullValueHandling.Ignore)]
     private readonly Dictionary<DiscordApplicationIntegrationType, ulong> _authorizingIntegrationOwners;
+#pragma warning restore CS0649
 
     /// <summary>
     /// Represents the context in which the interaction was executed in
