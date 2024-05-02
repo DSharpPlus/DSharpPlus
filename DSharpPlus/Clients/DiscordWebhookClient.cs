@@ -1,5 +1,3 @@
-namespace DSharpPlus;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,18 +12,17 @@ using DSharpPlus.Metrics;
 using DSharpPlus.Net;
 using Microsoft.Extensions.Logging;
 
+namespace DSharpPlus;
+
 /// <summary>
 /// Represents a webhook-only client. This client can be used to execute Discord webhooks.
 /// </summary>
-public class DiscordWebhookClient
+public partial class DiscordWebhookClient
 {
     /// <summary>
     /// Gets the logger for this client.
     /// </summary>
     public ILogger<DiscordWebhookClient> Logger { get; }
-
-    // this regex has 2 named capture groups: "id" and "token".
-    private static Regex WebhookRegex { get; } = new Regex(@"(?:https?:\/\/)?discord(?:app)?.com\/api\/(?:v\d\/)?webhooks\/(?<id>\d+)\/(?<token>[A-Za-z0-9_\-]+)", RegexOptions.ECMAScript);
 
     /// <summary>
     /// Gets the collection of registered webhooks.
@@ -80,7 +77,7 @@ public class DiscordWebhookClient
         TimeSpan parsedTimeout = timeout ?? TimeSpan.FromSeconds(10);
 
         _apiclient = new DiscordApiClient(proxy, parsedTimeout, Logger);
-        _hooks = new List<DiscordWebhook>();
+        _hooks = [];
         Webhooks = new ReadOnlyCollection<DiscordWebhook>(_hooks);
     }
 
@@ -121,12 +118,8 @@ public class DiscordWebhookClient
     /// <returns>The registered webhook.</returns>
     public Task<DiscordWebhook> AddWebhookAsync(Uri url)
     {
-        if (url == null)
-        {
-            throw new ArgumentNullException(nameof(url));
-        }
-
-        Match m = WebhookRegex.Match(url.ToString());
+        ArgumentNullException.ThrowIfNull(url);
+        Match m = GetWebhookRegex().Match(url.ToString());
         if (!m.Success)
         {
             throw new ArgumentException("Invalid webhook URL supplied.", nameof(url));
@@ -151,11 +144,7 @@ public class DiscordWebhookClient
     /// <returns>The registered webhook.</returns>
     public async Task<DiscordWebhook> AddWebhookAsync(ulong id, BaseDiscordClient client)
     {
-        if (client == null)
-        {
-            throw new ArgumentNullException(nameof(client));
-        }
-
+        ArgumentNullException.ThrowIfNull(client);
         if (_hooks.Any(x => x.Id == id))
         {
             throw new ArgumentException("This webhook is already registered with this client.");
@@ -190,11 +179,7 @@ public class DiscordWebhookClient
     /// <returns>The registered webhook.</returns>
     public DiscordWebhook AddWebhook(DiscordWebhook webhook)
     {
-        if (webhook == null)
-        {
-            throw new ArgumentNullException(nameof(webhook));
-        }
-
+        ArgumentNullException.ThrowIfNull(webhook);
         if (_hooks.Any(x => x.Id == webhook.Id))
         {
             throw new ArgumentException("This webhook is already registered with this client.");
@@ -251,8 +236,8 @@ public class DiscordWebhookClient
     /// <returns></returns>
     public async Task<Dictionary<DiscordWebhook, DiscordMessage>> BroadcastMessageAsync(DiscordWebhookBuilder builder)
     {
-        List<DiscordWebhook> deadhooks = new List<DiscordWebhook>();
-        Dictionary<DiscordWebhook, DiscordMessage> messages = new Dictionary<DiscordWebhook, DiscordMessage>();
+        List<DiscordWebhook> deadhooks = [];
+        Dictionary<DiscordWebhook, DiscordMessage> messages = [];
 
         foreach (DiscordWebhook hook in _hooks)
         {
@@ -281,6 +266,9 @@ public class DiscordWebhookClient
         _hooks = null!;
         _apiclient._rest.Dispose();
     }
+
+    [GeneratedRegex(@"(?:https?:\/\/)?discord(?:app)?.com\/api\/(?:v\d\/)?webhooks\/(?<id>\d+)\/(?<token>[A-Za-z0-9_\-]+)", RegexOptions.ECMAScript)]
+    private static partial Regex GetWebhookRegex();
 }
 
 // 9/11 would improve again

@@ -1,4 +1,3 @@
-namespace DSharpPlus;
 #pragma warning disable CS0618
 using System;
 using System.Collections.Concurrent;
@@ -11,6 +10,8 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net;
 using Microsoft.Extensions.Logging;
+
+namespace DSharpPlus;
 
 /// <summary>
 /// A Discord client that shards automatically.
@@ -121,7 +122,7 @@ public sealed partial class DiscordShardedClient
             Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus, version {Version}", _versionString.Value);
 
             int shardc = await InitializeShardsAsync();
-            List<Task> connectTasks = new List<Task>();
+            List<Task> connectTasks = [];
             Logger.LogInformation(LoggerEvents.ShardStartup, "Booting {ShardCount} shards.", shardc);
 
             for (int i = 0; i < shardc; i++)
@@ -153,9 +154,8 @@ public sealed partial class DiscordShardedClient
         {
             await InternalStopAsync(false);
 
-            string message = $"Shard initialization failed, check inner exceptions for details: ";
-
-            Logger.LogCritical(LoggerEvents.ShardClientError, $"{message}\n{ex}");
+            string message = "Shard initialization failed, check inner exceptions for details: ";
+            Logger.LogCritical(LoggerEvents.ShardClientError, ex, "{Message}", message);
             throw new AggregateException(message, ex);
         }
     }
@@ -204,7 +204,7 @@ public sealed partial class DiscordShardedClient
     /// <returns>Asynchronous operation.</returns>
     public async Task UpdateStatusAsync(DiscordActivity activity = null, DiscordUserStatus? userStatus = null, DateTimeOffset? idleSince = null)
     {
-        List<Task> tasks = new List<Task>();
+        List<Task> tasks = [];
         foreach (DiscordClient client in _shards.Values)
         {
             tasks.Add(client.UpdateStatusAsync(activity, userStatus, idleSince));
@@ -219,28 +219,28 @@ public sealed partial class DiscordShardedClient
 
     public async Task<int> InitializeShardsAsync()
     {
-        if (_shards.Count != 0)
+        if (!_shards.IsEmpty)
         {
             return _shards.Count;
         }
 
-        ShardedLoggerFactory loggerFactory = new ShardedLoggerFactory(Configuration.LoggerFactory);
-        RestClient restClient = new RestClient(Configuration, loggerFactory.CreateLogger<RestClient>());
-        DiscordApiClient apiClient = new DiscordApiClient(restClient);
+        ShardedLoggerFactory loggerFactory = new(Configuration.LoggerFactory);
+        RestClient restClient = new(Configuration, loggerFactory.CreateLogger<RestClient>());
+        DiscordApiClient apiClient = new(restClient);
 
         GatewayInfo = await apiClient.GetGatewayInfoAsync();
         int shardCount = Configuration.ShardCount == 1 ? GatewayInfo.ShardCount : Configuration.ShardCount;
 
         for (int i = 0; i < shardCount; i++)
         {
-            DiscordConfiguration cfg = new DiscordConfiguration(Configuration)
+            DiscordConfiguration cfg = new(Configuration)
             {
                 ShardId = i,
                 ShardCount = shardCount,
                 LoggerFactory = loggerFactory
             };
 
-            DiscordClient client = new DiscordClient(cfg, restClient);
+            DiscordClient client = new(cfg, restClient);
             if (!_shards.TryAdd(i, client))
             {
                 throw new InvalidOperationException("Could not initialize shards.");

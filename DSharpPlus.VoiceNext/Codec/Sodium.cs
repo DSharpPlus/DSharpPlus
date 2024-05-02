@@ -1,5 +1,3 @@
-namespace DSharpPlus.VoiceNext.Codec;
-
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -7,6 +5,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
+
+namespace DSharpPlus.VoiceNext.Codec;
 
 internal sealed class Sodium : IDisposable
 {
@@ -38,7 +38,7 @@ internal sealed class Sodium : IDisposable
         Buffer = new byte[Interop.SodiumNonceSize];
     }
 
-    public void GenerateNonce(ReadOnlySpan<byte> rtpHeader, Span<byte> target)
+    public static void GenerateNonce(ReadOnlySpan<byte> rtpHeader, Span<byte> target)
     {
         if (rtpHeader.Length != Rtp.HeaderSize)
         {
@@ -54,7 +54,7 @@ internal sealed class Sodium : IDisposable
         rtpHeader.CopyTo(target);
 
         // Zero rest of the span.
-        Helpers.ZeroFill(target.Slice(rtpHeader.Length));
+        Helpers.ZeroFill(target[rtpHeader.Length..]);
     }
 
     public void GenerateNonce(Span<byte> target)
@@ -68,7 +68,7 @@ internal sealed class Sodium : IDisposable
         Buffer.AsSpan().CopyTo(target);
     }
 
-    public void GenerateNonce(uint nonce, Span<byte> target)
+    public static void GenerateNonce(uint nonce, Span<byte> target)
     {
         if (target.Length != Interop.SodiumNonceSize)
         {
@@ -79,10 +79,10 @@ internal sealed class Sodium : IDisposable
         BinaryPrimitives.WriteUInt32BigEndian(target, nonce);
 
         // Zero rest of the buffer.
-        Helpers.ZeroFill(target.Slice(4));
+        Helpers.ZeroFill(target[4..]);
     }
 
-    public void AppendNonce(ReadOnlySpan<byte> nonce, Span<byte> target, EncryptionMode encryptionMode)
+    public static void AppendNonce(ReadOnlySpan<byte> nonce, Span<byte> target, EncryptionMode encryptionMode)
     {
         switch (encryptionMode)
         {
@@ -90,11 +90,11 @@ internal sealed class Sodium : IDisposable
                 return;
 
             case EncryptionMode.XSalsa20_Poly1305_Suffix:
-                nonce.CopyTo(target.Slice(target.Length - 12));
+                nonce.CopyTo(target[^12..]);
                 return;
 
             case EncryptionMode.XSalsa20_Poly1305_Lite:
-                nonce.Slice(0, 4).CopyTo(target.Slice(target.Length - 4));
+                nonce[..4].CopyTo(target[^4..]);
                 return;
 
             default:
@@ -102,7 +102,7 @@ internal sealed class Sodium : IDisposable
         }
     }
 
-    public void GetNonce(ReadOnlySpan<byte> source, Span<byte> target, EncryptionMode encryptionMode)
+    public static void GetNonce(ReadOnlySpan<byte> source, Span<byte> target, EncryptionMode encryptionMode)
     {
         if (target.Length != Interop.SodiumNonceSize)
         {
@@ -112,15 +112,15 @@ internal sealed class Sodium : IDisposable
         switch (encryptionMode)
         {
             case EncryptionMode.XSalsa20_Poly1305:
-                source.Slice(0, 12).CopyTo(target);
+                source[..12].CopyTo(target);
                 return;
 
             case EncryptionMode.XSalsa20_Poly1305_Suffix:
-                source.Slice(source.Length - Interop.SodiumNonceSize).CopyTo(target);
+                source[^Interop.SodiumNonceSize..].CopyTo(target);
                 return;
 
             case EncryptionMode.XSalsa20_Poly1305_Lite:
-                source.Slice(source.Length - 4).CopyTo(target);
+                source[^4..].CopyTo(target);
                 return;
 
             default:

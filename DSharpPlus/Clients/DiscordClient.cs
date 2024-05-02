@@ -1,5 +1,3 @@
-namespace DSharpPlus;
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -20,6 +18,8 @@ using DSharpPlus.Net.Serialization;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
+namespace DSharpPlus;
+
 /// <summary>
 /// A Discord API wrapper.
 /// </summary>
@@ -30,7 +30,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     internal bool _isShard = false;
     internal IMessageCacheProvider? MessageCache { get; }
 
-    private List<BaseExtension> _extensions = new();
+    private List<BaseExtension> _extensions = [];
     private StatusUpdate _status = null;
 
     private ManualResetEventSlim ConnectionLock { get; } = new ManualResetEventSlim(true);
@@ -107,7 +107,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public IReadOnlyDictionary<ulong, DiscordPresence> Presences
         => _presencesLazy.Value;
 
-    internal Dictionary<ulong, DiscordPresence> _presences = new();
+    internal Dictionary<ulong, DiscordPresence> _presences = [];
     private Lazy<IReadOnlyDictionary<ulong, DiscordPresence>> _presencesLazy;
     #endregion
 
@@ -297,7 +297,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
         else
         {
-            long? since_unix = idlesince != null ? (long?)Utilities.GetUnixTime(idlesince.Value) : null;
+            long? since_unix = idlesince != null ? Utilities.GetUnixTime(idlesince.Value) : null;
             _status = new StatusUpdate()
             {
                 Activity = new TransportActivity(activity),
@@ -450,7 +450,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="channel">Channel to send to.</param>
     /// <param name="content">Message content to send.</param>
     /// <returns>The Discord Message that was sent.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.SendMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -463,7 +463,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="channel">Channel to send to.</param>
     /// <param name="embed">Embed to attach to the message.</param>
     /// <returns>The Discord Message that was sent.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.SendMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -477,7 +477,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="content">Message content to send.</param>
     /// <param name="embed">Embed to attach to the message.</param>
     /// <returns>The Discord Message that was sent.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.SendMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -490,7 +490,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="channel">Channel to send to.</param>
     /// <param name="builder">The Discord Message builder.</param>
     /// <returns>The Discord Message that was sent.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if TTS is false and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.SendMessages"/> permission if TTS is false and <see cref="DiscordPermissions.SendTtsMessages"/> if TTS is true.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -503,13 +503,13 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="channel">Channel to send to.</param>
     /// <param name="action">The Discord Message builder.</param>
     /// <returns>The Discord Message that was sent.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if TTS is false and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.SendMessages"/> permission if TTS is false and <see cref="DiscordPermissions.SendTtsMessages"/> if TTS is true.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, Action<DiscordMessageBuilder> action)
     {
-        DiscordMessageBuilder builder = new DiscordMessageBuilder();
+        DiscordMessageBuilder builder = new();
         action(builder);
 
         return await ApiClient.CreateMessageAsync(channel.Id, builder);
@@ -686,10 +686,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
         Optional<string> av64 = Optional.FromNoValue<string>();
         if (avatar.HasValue && avatar.Value != null)
         {
-            using (ImageTool imgtool = new ImageTool(avatar.Value))
-            {
-                av64 = imgtool.GetBase64();
-            }
+            using ImageTool imgtool = new(avatar.Value);
+            av64 = imgtool.GetBase64();
         }
         else if (avatar.HasValue)
         {
@@ -771,7 +769,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <returns>The edited command.</returns>
     public async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong commandId, Action<ApplicationCommandEditModel> action)
     {
-        ApplicationCommandEditModel mdl = new ApplicationCommandEditModel();
+        ApplicationCommandEditModel mdl = new();
         action(mdl);
         ulong applicationId = CurrentApplication?.Id ?? (await GetCurrentApplicationAsync()).Id;
         return await ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
@@ -828,7 +826,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <returns>The edited command.</returns>
     public async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong guildId, ulong commandId, Action<ApplicationCommandEditModel> action)
     {
-        ApplicationCommandEditModel mdl = new ApplicationCommandEditModel();
+        ApplicationCommandEditModel mdl = new();
         action(mdl);
         ulong applicationId = CurrentApplication?.Id ?? (await GetCurrentApplicationAsync()).Id;
         return await ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
@@ -917,7 +915,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             remaining -= lastCount;
 
             //We sort the returned guilds by ID so that they are in order in case Discord switches the order AGAIN.
-            DiscordGuild[] sortedGuildsArray = fetchedGuilds.ToArray();
+            DiscordGuild[] sortedGuildsArray = [.. fetchedGuilds];
             Array.Sort(sortedGuildsArray, (x, y) => x.Id.CompareTo(y.Id));
 
             if (!isbefore)
@@ -992,7 +990,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     {
         if (author != null)
         {
-            DiscordUser usr = new DiscordUser(author) { Discord = this };
+            DiscordUser usr = new(author) { Discord = this };
 
             if (member != null)
             {
@@ -1077,14 +1075,13 @@ public sealed partial class DiscordClient : BaseDiscordClient
             return;
         }
 
-        if (!_guilds.ContainsKey(newGuild.Id))
+        if (!_guilds.TryGetValue(newGuild.Id, out DiscordGuild guild))
         {
-            _guilds[newGuild.Id] = newGuild;
+            guild = newGuild;
+            _guilds[newGuild.Id] = guild;
         }
 
-        DiscordGuild guild = _guilds[newGuild.Id];
-
-        if (newGuild._channels != null && newGuild._channels.Count > 0)
+        if (newGuild._channels != null && !newGuild._channels.IsEmpty)
         {
             foreach (DiscordChannel channel in newGuild._channels.Values)
             {
@@ -1102,7 +1099,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 guild._channels[channel.Id] = channel;
             }
         }
-        if (newGuild._threads != null && newGuild._threads.Count > 0)
+        if (newGuild._threads != null && !newGuild._threads.IsEmpty)
         {
             foreach (DiscordThreadChannel thread in newGuild._threads.Values)
             {
@@ -1133,7 +1130,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             {
                 TransportMember xtm = xj.ToDiscordObject<TransportMember>();
 
-                DiscordUser xu = new DiscordUser(xtm.User) { Discord = this };
+                DiscordUser xu = new(xtm.User) { Discord = this };
                 UpdateUserCache(xu);
 
                 guild._members[xtm.User.Id] = new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id };
@@ -1204,13 +1201,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     private void PopulateMessageReactionsAndCache(DiscordMessage message, TransportUser author, TransportMember member)
     {
         DiscordGuild guild = message.Channel?.Guild ?? InternalGetCachedGuild(message._guildId);
-
         UpdateMessage(message, author, guild, member);
-
-        if (message._reactions == null)
-        {
-            message._reactions = new List<DiscordReaction>();
-        }
+        message._reactions ??= [];
 
         foreach (DiscordReaction xr in message._reactions)
         {
@@ -1264,7 +1256,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
         catch { }
 
         _guilds = null!;
-        _heartbeatTask = null!;
         _privateChannels = null!;
     }
 

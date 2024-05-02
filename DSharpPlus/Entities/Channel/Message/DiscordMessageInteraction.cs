@@ -1,6 +1,6 @@
-namespace DSharpPlus.Entities;
-
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents the message interaction data sent when a message is an interaction response.

@@ -1,7 +1,7 @@
-namespace DSharpPlus.VoiceNext.Codec;
-
 using System;
 using System.Collections.Generic;
+
+namespace DSharpPlus.VoiceNext.Codec;
 
 internal sealed class Opus : IDisposable
 {
@@ -38,7 +38,7 @@ internal sealed class Opus : IDisposable
         Interop.OpusSetEncoderOption(Encoder, OpusControl.SetInBandFec, 1);
         Interop.OpusSetEncoderOption(Encoder, OpusControl.SetBitrate, 131072);
 
-        ManagedDecoders = new List<OpusDecoder>();
+        ManagedDecoders = [];
     }
 
     public void Encode(ReadOnlySpan<byte> pcm, ref Span<byte> target)
@@ -65,7 +65,7 @@ internal sealed class Opus : IDisposable
         //if (target.Length != this.AudioFormat.CalculateMaximumFrameSize())
         //    throw new ArgumentException("PCM target buffer size needs to be equal to maximum buffer size for specified audio format.", nameof(target));
 
-        Interop.OpusGetPacketMetrics(opus, AudioFormat.SampleRate, out int channels, out int frames, out int samplesPerFrame, out int frameSize);
+        Interop.OpusGetPacketMetrics(opus, AudioFormat.SampleRate, out int channels, out _, out _, out int frameSize);
         outputFormat = AudioFormat.ChannelCount != channels ? new AudioFormat(AudioFormat.SampleRate, channels, AudioFormat.VoiceApplication) : AudioFormat;
 
         if (decoder.AudioFormat.ChannelCount != channels)
@@ -76,12 +76,12 @@ internal sealed class Opus : IDisposable
         int sampleCount = Interop.OpusDecode(decoder.Decoder, opus, frameSize, target, useFec);
 
         int sampleSize = outputFormat.SampleCountToSampleSize(sampleCount);
-        target = target.Slice(0, sampleSize);
+        target = target[..sampleSize];
     }
 
-    public void ProcessPacketLoss(OpusDecoder decoder, int frameSize, ref Span<byte> target) => Interop.OpusDecode(decoder.Decoder, frameSize, target);
+    public static void ProcessPacketLoss(OpusDecoder decoder, int frameSize, ref Span<byte> target) => Interop.OpusDecode(decoder.Decoder, frameSize, target);
 
-    public int GetLastPacketSampleCount(OpusDecoder decoder)
+    public static int GetLastPacketSampleCount(OpusDecoder decoder)
     {
         Interop.OpusGetLastPacketDuration(decoder.Decoder, out int sampleCount);
         return sampleCount;
@@ -91,7 +91,7 @@ internal sealed class Opus : IDisposable
     {
         lock (ManagedDecoders)
         {
-            OpusDecoder managedDecoder = new OpusDecoder(this);
+            OpusDecoder managedDecoder = new(this);
             ManagedDecoders.Add(managedDecoder);
             return managedDecoder;
         }
@@ -137,8 +137,7 @@ public class OpusDecoder : IDisposable
 
     internal Opus Opus { get; }
     internal IntPtr Decoder { get; private set; }
-
-    private volatile bool _isDisposed = false;
+    private bool disposedValue;
 
     internal OpusDecoder(Opus managedOpus) => Opus = managedOpus;
 
@@ -160,21 +159,27 @@ public class OpusDecoder : IDisposable
         Decoder = Interop.OpusCreateDecoder(outputFormat);
     }
 
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (Decoder != IntPtr.Zero)
+            {
+                Interop.OpusDestroyDecoder(Decoder);
+            }
+
+            disposedValue = true;
+        }
+    }
+
     /// <summary>
     /// Disposes of this Opus decoder.
     /// </summary>
     public void Dispose()
     {
-        if (_isDisposed)
-        {
-            return;
-        }
-
-        _isDisposed = true;
-        if (Decoder != IntPtr.Zero)
-        {
-            Interop.OpusDestroyDecoder(Decoder);
-        }
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }
 

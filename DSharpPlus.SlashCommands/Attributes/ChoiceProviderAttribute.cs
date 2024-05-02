@@ -1,6 +1,6 @@
-namespace DSharpPlus.SlashCommands;
-
 using System;
+
+namespace DSharpPlus.SlashCommands;
 
 /// <summary>
 /// Sets a IChoiceProvider for a command options. ChoiceProviders can be used to provide

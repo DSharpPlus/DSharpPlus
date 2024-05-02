@@ -1,9 +1,9 @@
-namespace DSharpPlus.Entities;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Handles mentionables
@@ -38,7 +38,7 @@ internal class DiscordMentions
     [JsonProperty("replied_user", NullValueHandling = NullValueHandling.Ignore)]
     public bool? RepliedUser { get; }
 
-    internal DiscordMentions(IEnumerable<IMention> mentions, bool mention = false, bool repliedUser = false)
+    internal DiscordMentions(IEnumerable<IMention> mentions, bool repliedUser = false)
     {
         //Null check just to be safe
         if (mentions is null)

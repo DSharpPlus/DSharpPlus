@@ -1,5 +1,6 @@
 namespace DSharpPlus.Entities;
 
+
 /// <summary>
 /// Represents the type of parameter when invoking an interaction.
 /// </summary>

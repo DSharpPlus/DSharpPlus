@@ -1,5 +1,3 @@
-namespace DSharpPlus.Lavalink;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
+
+namespace DSharpPlus.Lavalink;
 
 public static class DiscordClientExtensions
 {
@@ -28,7 +28,7 @@ public static class DiscordClientExtensions
             client.Logger.LogCritical(LavalinkEvents.Intents, "The Lavalink extension is registered but the guild voice states intent is not enabled. It is highly recommended to enable it.");
         }
 
-        LavalinkExtension lava = new LavalinkExtension();
+        LavalinkExtension lava = new();
         client.AddExtension(lava);
         return lava;
     }
@@ -42,7 +42,7 @@ public static class DiscordClientExtensions
     [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
     public static async Task<IReadOnlyDictionary<int, LavalinkExtension>> UseLavalinkAsync(this DiscordShardedClient client)
     {
-        Dictionary<int, LavalinkExtension> modules = new Dictionary<int, LavalinkExtension>();
+        Dictionary<int, LavalinkExtension> modules = [];
         await client.InitializeShardsAsync();
 
         foreach (DiscordClient? shard in client.ShardClients.Select(xkvp => xkvp.Value))
@@ -72,7 +72,7 @@ public static class DiscordClientExtensions
     public static async Task<IReadOnlyDictionary<int, LavalinkExtension>> GetLavalinkAsync(this DiscordShardedClient client)
     {
         await client.InitializeShardsAsync();
-        Dictionary<int, LavalinkExtension> extensions = new Dictionary<int, LavalinkExtension>();
+        Dictionary<int, LavalinkExtension> extensions = [];
 
         foreach (DiscordClient shard in client.ShardClients.Values)
         {
@@ -101,7 +101,7 @@ public static class DiscordClientExtensions
             throw new InvalidOperationException("Lavalink can only be used with guild channels.");
         }
 
-        if (channel.Type != DiscordChannelType.Voice && channel.Type != DiscordChannelType.Stage)
+        if (channel.Type is not DiscordChannelType.Voice and not DiscordChannelType.Stage)
         {
             throw new InvalidOperationException("You can only connect to voice and stage channels.");
         }

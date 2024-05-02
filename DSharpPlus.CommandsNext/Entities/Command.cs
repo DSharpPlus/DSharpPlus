@@ -1,5 +1,3 @@
-namespace DSharpPlus.CommandsNext;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +7,8 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
+
+namespace DSharpPlus.CommandsNext;
 
 /// <summary>
 /// Represents a command.
@@ -144,7 +144,7 @@ public class Command
     /// <returns>Pre-execution checks that fail for given context.</returns>
     public async Task<IEnumerable<CheckBaseAttribute>> RunChecksAsync(CommandContext ctx, bool help)
     {
-        List<CheckBaseAttribute> fchecks = new List<CheckBaseAttribute>();
+        List<CheckBaseAttribute> fchecks = [];
         if (ExecutionChecks.Any())
         {
             foreach (CheckBaseAttribute ec in ExecutionChecks)
@@ -167,8 +167,8 @@ public class Command
     /// <returns>Whether the two commands are equal.</returns>
     public static bool operator ==(Command? cmd1, Command? cmd2)
     {
-        object? o1 = cmd1 as object;
-        object? o2 = cmd2 as object;
+        object? o1 = cmd1;
+        object? o2 = cmd2;
         return (o1 != null || o2 == null) && (o1 == null || o2 != null) && ((o1 == null && o2 == null) || cmd1!.QualifiedName == cmd2!.QualifiedName);
     }
 
@@ -187,7 +187,7 @@ public class Command
     /// <returns>Whether this command is equal to another object.</returns>
     public override bool Equals(object? obj)
     {
-        object? o2 = this as object;
+        object? o2 = this;
         return (obj != null || o2 == null) && (obj == null || o2 != null) && ((obj == null && o2 == null) || (obj is Command cmd && cmd.QualifiedName == QualifiedName));
     }
 

@@ -1,5 +1,6 @@
 namespace DSharpPlus.Entities;
 
+
 /// <summary>
 /// The type of Nitro subscription on a user's account.
 /// </summary>

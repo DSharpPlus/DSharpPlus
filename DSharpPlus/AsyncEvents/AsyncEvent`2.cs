@@ -1,10 +1,10 @@
-namespace DSharpPlus.AsyncEvents;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
+namespace DSharpPlus.AsyncEvents;
 
 /// <summary>
 /// Provides an implementation of an asynchronous event. Registered handlers are executed asynchronously,
@@ -22,7 +22,7 @@ public sealed class AsyncEvent<TSender, TArgs> : AsyncEvent
     public AsyncEvent(string name, AsyncEventExceptionHandler<TSender, TArgs> exceptionHandler)
         : base(name)
     {
-        _handlers = new();
+        _handlers = [];
         _exceptionHandler = exceptionHandler;
     }
 
@@ -32,11 +32,7 @@ public sealed class AsyncEvent<TSender, TArgs> : AsyncEvent
     /// <exception cref="ArgumentNullException">Thrown if the specified handler was null.</exception>
     public void Register(AsyncEventHandler<TSender, TArgs> handler)
     {
-        if (handler is null)
-        {
-            throw new ArgumentNullException(nameof(handler));
-        }
-
+        ArgumentNullException.ThrowIfNull(handler);
         _lock.Wait();
         try
         {
@@ -54,11 +50,7 @@ public sealed class AsyncEvent<TSender, TArgs> : AsyncEvent
     /// <exception cref="ArgumentNullException">Thrown if the specified handler was null.</exception>
     public void Unregister(AsyncEventHandler<TSender, TArgs> handler)
     {
-        if (handler is null)
-        {
-            throw new ArgumentNullException(nameof(handler));
-        }
-
+        ArgumentNullException.ThrowIfNull(handler);
         _lock.Wait();
         try
         {
@@ -74,7 +66,7 @@ public sealed class AsyncEvent<TSender, TArgs> : AsyncEvent
     /// Unregisters all handlers from this event.
     /// </summary>
     public void UnregisterAll()
-        => _handlers = new();
+        => _handlers = [];
 
     /// <summary>
     /// Raises this event, invoking all registered handlers in parallel.

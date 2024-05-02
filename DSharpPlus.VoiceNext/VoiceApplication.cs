@@ -1,5 +1,6 @@
 namespace DSharpPlus.VoiceNext;
 
+
 /// <summary>
 /// Represents encoder settings preset for Opus.
 /// </summary>

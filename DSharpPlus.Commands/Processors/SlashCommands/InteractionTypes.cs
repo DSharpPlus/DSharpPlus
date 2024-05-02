@@ -1,8 +1,7 @@
-namespace DSharpPlus.Commands.Processors.SlashCommands;
-
 using System;
-
 using DSharpPlus.Entities;
+
+namespace DSharpPlus.Commands.Processors.SlashCommands;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 public sealed class SlashCommandTypesAttribute(params DiscordApplicationCommandType[] applicationCommandTypes) : Attribute

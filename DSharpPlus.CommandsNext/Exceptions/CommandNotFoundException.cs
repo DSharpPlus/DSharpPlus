@@ -1,6 +1,6 @@
-namespace DSharpPlus.CommandsNext.Exceptions;
-
 using System;
+
+namespace DSharpPlus.CommandsNext.Exceptions;
 
 /// <summary>
 /// Thrown when the command service fails to find a command.

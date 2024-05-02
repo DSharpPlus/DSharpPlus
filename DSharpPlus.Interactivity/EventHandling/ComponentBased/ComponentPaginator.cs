@@ -1,5 +1,3 @@
-namespace DSharpPlus.Interactivity.EventHandling;
-
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -8,17 +6,19 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Enums;
 using Microsoft.Extensions.Logging;
 
+namespace DSharpPlus.Interactivity.EventHandling;
+
 internal class ComponentPaginator : IPaginator
 {
     private readonly DiscordClient _client;
     private readonly InteractivityConfiguration _config;
     private readonly DiscordMessageBuilder _builder = new();
-    private readonly Dictionary<ulong, IPaginationRequest> _requests = new();
+    private readonly Dictionary<ulong, IPaginationRequest> _requests = [];
 
     public ComponentPaginator(DiscordClient client, InteractivityConfiguration config)
     {
         _client = client;
-        _client.ComponentInteractionCreated += Handle;
+        _client.ComponentInteractionCreated += HandleAsync;
         _config = config;
     }
 
@@ -50,9 +50,9 @@ internal class ComponentPaginator : IPaginator
         }
     }
 
-    public void Dispose() => _client.ComponentInteractionCreated -= Handle;
+    public void Dispose() => _client.ComponentInteractionCreated -= HandleAsync;
 
-    private async Task Handle(DiscordClient _, ComponentInteractionCreateEventArgs e)
+    private async Task HandleAsync(DiscordClient _, ComponentInteractionCreateEventArgs e)
     {
         if (!_requests.TryGetValue(e.Message.Id, out IPaginationRequest? req))
         {
@@ -106,7 +106,7 @@ internal class ComponentPaginator : IPaginator
         Page page = await request.GetPageAsync();
         IEnumerable<DiscordButtonComponent> bts = await request.GetButtonsAsync();
 
-        if (request is InteractionPaginationRequest ipr)
+        if (request is InteractionPaginationRequest)
         {
             DiscordWebhookBuilder builder = new DiscordWebhookBuilder()
                 .WithContent(page.Content)

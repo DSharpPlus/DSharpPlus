@@ -1,10 +1,10 @@
-namespace DSharpPlus.Interactivity.EventHandling;
-
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using ConcurrentCollections;
 using DSharpPlus.AsyncEvents;
+
+namespace DSharpPlus.Interactivity.EventHandling;
 
 /// <summary>
 /// CollectRequest is a class that serves as a representation of
@@ -31,7 +31,7 @@ internal class CollectRequest<T> : IDisposable where T : AsyncEventArgs
         _predicate = predicate;
         _ct.Token.Register(() => _tcs.TrySetResult(true));
         _timeout = timeout;
-        _collected = new ConcurrentHashSet<T>();
+        _collected = [];
     }
 
     /// <summary>

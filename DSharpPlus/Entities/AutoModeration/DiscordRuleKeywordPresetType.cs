@@ -1,5 +1,6 @@
 namespace DSharpPlus.Entities;
 
+
 /// <summary>
 /// Characterizes which type of category a blocked word belongs to.
 /// </summary>

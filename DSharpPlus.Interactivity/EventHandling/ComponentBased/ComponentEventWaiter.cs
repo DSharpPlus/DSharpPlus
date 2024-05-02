@@ -1,5 +1,3 @@
-namespace DSharpPlus.Interactivity.EventHandling;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,14 +8,16 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Enums;
 using Microsoft.Extensions.Logging;
 
+namespace DSharpPlus.Interactivity.EventHandling;
+
 /// <summary>
 /// A component-based version of <see cref="EventWaiter{T}"/>
 /// </summary>
 internal class ComponentEventWaiter : IDisposable
 {
     private readonly DiscordClient _client;
-    private readonly ConcurrentHashSet<ComponentMatchRequest> _matchRequests = new();
-    private readonly ConcurrentHashSet<ComponentCollectRequest> _collectRequests = new();
+    private readonly ConcurrentHashSet<ComponentMatchRequest> _matchRequests = [];
+    private readonly ConcurrentHashSet<ComponentCollectRequest> _collectRequests = [];
 
     private readonly DiscordFollowupMessageBuilder _message;
     private readonly InteractivityConfiguration _config;
@@ -25,7 +25,7 @@ internal class ComponentEventWaiter : IDisposable
     public ComponentEventWaiter(DiscordClient client, InteractivityConfiguration config)
     {
         _client = client;
-        _client.ComponentInteractionCreated += Handle;
+        _client.ComponentInteractionCreated += HandleAsync;
         _config = config;
 
         _message = new() { Content = config.ResponseMessage ?? "This message was not meant for you.", IsEphemeral = true };
@@ -78,7 +78,7 @@ internal class ComponentEventWaiter : IDisposable
         return request.Collected.ToArray();
     }
 
-    private async Task Handle(DiscordClient _, ComponentInteractionCreateEventArgs args)
+    private async Task HandleAsync(DiscordClient _, ComponentInteractionCreateEventArgs args)
     {
         foreach (ComponentMatchRequest? mreq in _matchRequests.ToArray())
         {
@@ -113,6 +113,6 @@ internal class ComponentEventWaiter : IDisposable
     {
         _matchRequests.Clear();
         _collectRequests.Clear();
-        _client.ComponentInteractionCreated -= Handle;
+        _client.ComponentInteractionCreated -= HandleAsync;
     }
 }

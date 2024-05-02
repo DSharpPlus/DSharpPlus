@@ -1,10 +1,10 @@
-namespace DSharpPlus.CommandsNext;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Exceptions;
+
+namespace DSharpPlus.CommandsNext;
 
 /// <summary>
 /// Represents a command group.
@@ -44,13 +44,13 @@ public class CommandGroup : Command
             if (cmd is not null)
             {
                 // pass the execution on
-                CommandContext xctx = new CommandContext
+                CommandContext xctx = new()
                 {
                     Client = ctx.Client,
                     Message = ctx.Message,
                     Command = cmd,
                     Config = ctx.Config,
-                    RawArgumentString = ctx.RawArgumentString.Substring(findpos),
+                    RawArgumentString = ctx.RawArgumentString[findpos..],
                     Prefix = ctx.Prefix,
                     CommandsNext = ctx.CommandsNext,
                     Services = ctx.Services

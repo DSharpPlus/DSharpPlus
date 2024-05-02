@@ -1,8 +1,8 @@
-namespace DSharpPlus.CommandsNext.Converters;
-
 using System;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+
+namespace DSharpPlus.CommandsNext.Converters;
 
 public class NullableConverter<T> : IArgumentConverter<Nullable<T>> where T : struct
 {

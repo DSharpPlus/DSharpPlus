@@ -1,7 +1,7 @@
-namespace DSharpPlus.Entities;
-
 using System.Collections.Generic;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 public abstract class DiscordInteractionMetadata : SnowflakeObject
 {
@@ -38,8 +38,11 @@ public abstract class DiscordInteractionMetadata : SnowflakeObject
     /// <summary>
     /// Mapping of installation contexts that the interaction was authorized for to related user or guild IDs.
     /// </summary>
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value null
+    // Justification: Used by JSON.NET
     [JsonProperty("authorizing_integration_owners", NullValueHandling = NullValueHandling.Ignore)]
     private readonly Dictionary<DiscordApplicationIntegrationType, ulong> _authorizingIntegrationOwners;
+#pragma warning restore CS0649
 
     /// <summary>
     /// ID of the original response message, present only on follow-up messages.

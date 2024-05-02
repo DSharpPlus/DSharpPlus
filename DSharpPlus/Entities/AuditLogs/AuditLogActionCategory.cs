@@ -23,6 +23,7 @@
 
 namespace DSharpPlus.Entities.AuditLogs;
 
+
 /// <summary>
 /// Indicates audit log action category.
 /// </summary>

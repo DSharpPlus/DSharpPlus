@@ -1,7 +1,7 @@
-namespace DSharpPlus.Entities;
-
 using System.Collections.Generic;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// A select component that allows users to be selected.
@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 public sealed class DiscordUserSelectComponent : BaseDiscordSelectComponent
 {
     [JsonProperty("default_values", NullValueHandling = NullValueHandling.Ignore)]
-    private readonly List<DiscordSelectDefaultValue> _defaultValues = new();
+    private readonly List<DiscordSelectDefaultValue> _defaultValues = [];
 
     /// <summary>
     /// The default values for this component.

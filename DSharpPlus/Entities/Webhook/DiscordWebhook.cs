@@ -1,11 +1,11 @@
-namespace DSharpPlus.Entities;
-
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using DSharpPlus.Net;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents information about a Discord webhook.
@@ -84,7 +84,7 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
     /// <param name="channelId">The new channel id to move the webhook to.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns>The modified webhook.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageWebhooks"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageWebhooks"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -110,7 +110,7 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
     /// Permanently deletes this webhook.
     /// </summary>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageWebhooks"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageWebhooks"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -214,8 +214,8 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
     /// <returns>Whether the two webhooks are equal.</returns>
     public static bool operator ==(DiscordWebhook e1, DiscordWebhook e2)
     {
-        object? o1 = e1 as object;
-        object? o2 = e2 as object;
+        object? o1 = e1;
+        object? o2 = e2;
 
         return (o1 != null || o2 == null) && (o1 == null || o2 != null) && ((o1 == null && o2 == null) || e1.Id == e2.Id);
     }

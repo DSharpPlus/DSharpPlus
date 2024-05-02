@@ -22,6 +22,16 @@ indent_size = 2
 ###############################
 [*.{cs,vb}]
 
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1826#exclude-firstordefault-and-lastordefault-methods
+dotnet_code_quality.CA1826.exclude_ordefault_methods = true
+
+# Collection Expressions - int[] numbers = []
+dotnet_style_collection_initializer = true:error
+dotnet_style_prefer_collection_expression = true:error
+
+# Nullable reference types
+dotnet_diagnostic.CS8632.severity = none
+
 # Suppress CS1591: Missing XML comment for publicly visible type or member
 dotnet_diagnostic.CS1591.severity = none
 
@@ -147,7 +157,7 @@ csharp_style_inlined_variable_declaration = true:error
 
 # https://stackoverflow.com/q/63369382/10942966
 csharp_qualified_using_at_nested_scope = true:error
-csharp_using_directive_placement = inside_namespace:error
+csharp_using_directive_placement = outside_namespace:error
 
 # New line preferences
 csharp_new_line_before_open_brace = all

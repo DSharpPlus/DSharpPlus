@@ -1,8 +1,7 @@
-namespace DSharpPlus.Net.Models;
-
 using System.Collections.Generic;
-
 using DSharpPlus.Entities;
+
+namespace DSharpPlus.Net.Models;
 
 public class ThreadChannelEditModel : ChannelEditModel
 {
@@ -29,7 +28,7 @@ public class ThreadChannelEditModel : ChannelEditModel
     /// <summary>
     /// Sets the flags for the channel (Either PINNED or REQUIRE_TAG)
     /// </summary>
-    public DiscordChannelFlags? Flags { internal get; set; }
+    public new DiscordChannelFlags? Flags { internal get; set; }
 
     /// <summary>
     /// Sets whether non-moderators can add other non-moderators to a thread. Only available on private threads

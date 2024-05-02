@@ -1,6 +1,6 @@
-namespace DSharpPlus.CommandsNext.Attributes;
-
 using System;
+
+namespace DSharpPlus.CommandsNext.Attributes;
 
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
 public sealed class CategoryAttribute : Attribute

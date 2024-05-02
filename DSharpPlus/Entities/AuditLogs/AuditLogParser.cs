@@ -1,5 +1,3 @@
-namespace DSharpPlus.Entities.AuditLogs;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,13 +6,12 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
-
 using Microsoft.Extensions.Logging;
-
 using Newtonsoft.Json.Linq;
+
+namespace DSharpPlus.Entities.AuditLogs;
 
 internal static class AuditLogParser
 {
@@ -23,6 +20,7 @@ internal static class AuditLogParser
     /// </summary>
     /// <param name="guild"> <see cref="DiscordGuild"/> which is the parent of the AuditLog</param>
     /// <param name="auditLog"> <see cref="AuditLog"/> whose entries should be parsed</param>
+    /// <param name="cancellationToken">A token to cancel the request</param>
     /// <returns>A list of <see cref="DiscordAuditLogEntry"/>. All entries which cant be parsed are dropped</returns>
     internal static async IAsyncEnumerable<DiscordAuditLogEntry> ParseAuditLogToEntriesAsync
     (
@@ -601,27 +599,27 @@ internal static class AuditLogParser
                     break;
 
                 case "$add_keyword_filter":
-                    ruleEntry.AddedKeywords = ((JArray)change.NewValue).Cast<string>();
+                    ruleEntry.AddedKeywords = ((JArray)change.NewValue).Select(x => x.ToObject<string>());
                     break;
 
                 case "$remove_keyword_filter":
-                    ruleEntry.RemovedKeywords = ((JArray)change.NewValue).Cast<string>();
+                    ruleEntry.RemovedKeywords = ((JArray)change.NewValue).Select(x => x.ToObject<string>());
                     break;
 
                 case "$add_regex_patterns":
-                    ruleEntry.AddedRegexPatterns = ((JArray)change.NewValue).Cast<string>();
+                    ruleEntry.AddedRegexPatterns = ((JArray)change.NewValue).Select(x => x.ToObject<string>());
                     break;
 
                 case "$remove_regex_patterns":
-                    ruleEntry.RemovedRegexPatterns = ((JArray)change.NewValue).Cast<string>();
+                    ruleEntry.RemovedRegexPatterns = ((JArray)change.NewValue).Select(x => x.ToObject<string>());
                     break;
 
                 case "$add_allow_list":
-                    ruleEntry.AddedAllowList = ((JArray)change.NewValue).Cast<string>();
+                    ruleEntry.AddedAllowList = ((JArray)change.NewValue).Select(x => x.ToObject<string>());
                     break;
 
                 case "$remove_allow_list":
-                    ruleEntry.RemovedKeywords = ((JArray)change.NewValue).Cast<string>();
+                    ruleEntry.RemovedKeywords = ((JArray)change.NewValue).Select(x => x.ToObject<string>());
                     break;
 
                 default:
@@ -735,12 +733,7 @@ internal static class AuditLogParser
                     entry.Name = PropertyChange<string?>.From(change);
                     break;
                 case "channel_id":
-
-                    ulong.TryParse(change.NewValue as string, NumberStyles.Integer,
-                        CultureInfo.InvariantCulture, out ulong newChannelId);
-                    ulong.TryParse(change.OldValue as string, NumberStyles.Integer,
-                        CultureInfo.InvariantCulture, out ulong oldChannelId);
-
+                    ulong.TryParse(change.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulong newChannelId);
                     entry.Channel = new PropertyChange<DiscordChannel?>
                     {
                         Before =
@@ -1366,8 +1359,8 @@ internal static class AuditLogParser
 
                     entry.UsesChange = new PropertyChange<int?>
                     {
-                        Before = boolBefore ? (int?)intBefore : null,
-                        After = boolAfter ? (int?)intAfter : null
+                        Before = boolBefore ? intBefore : null,
+                        After = boolAfter ? intAfter : null
                     };
                     break;
 
@@ -1381,8 +1374,8 @@ internal static class AuditLogParser
 
                     entry.MaxUsesChange = new PropertyChange<int?>
                     {
-                        Before = boolBefore ? (int?)intBefore : null,
-                        After = boolAfter ? (int?)intAfter : null
+                        Before = boolBefore ? intBefore : null,
+                        After = boolAfter ? intAfter : null
                     };
                     break;
 

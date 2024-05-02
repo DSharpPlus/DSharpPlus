@@ -1,7 +1,7 @@
-namespace DSharpPlus.Net;
-
 using System;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Net;
 
 /// <summary>
 /// Represents the bucket limits for identifying to Discord.

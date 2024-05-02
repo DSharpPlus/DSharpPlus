@@ -1,5 +1,3 @@
-namespace DSharpPlus.Interactivity.EventHandling;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,6 +10,8 @@ using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Logging;
+
+namespace DSharpPlus.Interactivity.EventHandling;
 
 /// <summary>
 /// Eventwaiter is a class that serves as a layer between the InteractivityExtension
@@ -37,7 +37,7 @@ internal class ReactionCollector : IDisposable
         _client = client;
         TypeInfo tinfo = _client.GetType().GetTypeInfo();
 
-        _requests = new ConcurrentHashSet<ReactionCollectRequest>();
+        _requests = [];
 
         // Grabbing all three events from client
         FieldInfo handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, MessageReactionAddEventArgs>));
@@ -62,7 +62,7 @@ internal class ReactionCollector : IDisposable
     public async Task<ReadOnlyCollection<Reaction>> CollectAsync(ReactionCollectRequest request)
     {
         _requests.Add(request);
-        ReadOnlyCollection<Reaction>? result = (ReadOnlyCollection<Reaction>)null;
+        ReadOnlyCollection<Reaction>? result;
 
         try
         {
@@ -100,7 +100,7 @@ internal class ReactionCollector : IDisposable
                     req._collected.Add(new Reaction()
                     {
                         Emoji = eventargs.Emoji,
-                        Users = new ConcurrentHashSet<DiscordUser>() { eventargs.User }
+                        Users = [eventargs.User]
                     });
                 }
             }
@@ -191,7 +191,7 @@ public class ReactionCollectRequest : IDisposable
     public ReactionCollectRequest(DiscordMessage msg, TimeSpan timeout)
     {
         _message = msg;
-        _collected = new ConcurrentHashSet<Reaction>();
+        _collected = [];
         _timeout = timeout;
         _tcs = new TaskCompletionSource<Reaction>();
         _ct = new CancellationTokenSource(_timeout);

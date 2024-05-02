@@ -1,9 +1,8 @@
-namespace DSharpPlus.Commands.Processors.TextCommands;
-
 using System;
 using System.Threading.Tasks;
-using DSharpPlus.Commands;
 using DSharpPlus.Entities;
+
+namespace DSharpPlus.Commands.Processors.TextCommands;
 
 public sealed record TextCommandContext : CommandContext
 {

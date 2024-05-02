@@ -1,5 +1,3 @@
-namespace DSharpPlus.Lavalink;
-
 using System;
 using System.Globalization;
 using System.IO;
@@ -12,6 +10,8 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Lavalink.Entities;
 using DSharpPlus.Lavalink.EventArgs;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Lavalink;
 
 [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
 internal delegate void ChannelDisconnectedEventHandler(LavalinkGuildConnection node);
@@ -114,7 +114,7 @@ public sealed class LavalinkGuildConnection
     internal VoiceStateUpdateEventArgs VoiceStateUpdate { get; set; }
     internal TaskCompletionSource<bool> VoiceWsDisconnectTcs { get; set; }
 
-    internal LavalinkGuildConnection(LavalinkNodeConnection node, DiscordChannel channel, VoiceStateUpdateEventArgs vstu)
+    internal LavalinkGuildConnection(LavalinkNodeConnection node, VoiceStateUpdateEventArgs vstu)
     {
         Node = node;
         VoiceStateUpdate = vstu;
@@ -162,7 +162,7 @@ public sealed class LavalinkGuildConnection
 
     internal async Task SendVoiceUpdateAsync()
     {
-        VoiceDispatch vsd = new VoiceDispatch
+        VoiceDispatch vsd = new()
         {
             OpCode = 4,
             Payload = new VoiceStateUpdatePayload
@@ -303,7 +303,7 @@ public sealed class LavalinkGuildConnection
             throw new InvalidOperationException("This connection is not valid.");
         }
 
-        if (volume < 0 || volume > 1000)
+        if (volume is < 0 or > 1000)
         {
             throw new ArgumentOutOfRangeException(nameof(volume), "Volume needs to range from 0 to 1000.");
         }
@@ -322,12 +322,12 @@ public sealed class LavalinkGuildConnection
             throw new InvalidOperationException("This connection is not valid.");
         }
 
-        if (bands?.Any() != true)
+        if (bands.Length == 0)
         {
             return;
         }
 
-        if (bands.Distinct(new LavalinkBandAdjustmentComparer()).Count() != bands.Count())
+        if (bands.Distinct(new LavalinkBandAdjustmentComparer()).Count() != bands.Length)
         {
             throw new InvalidOperationException("You cannot specify multiple modifiers for the same band.");
         }
@@ -358,7 +358,7 @@ public sealed class LavalinkGuildConnection
 
     internal Task InternalPlaybackStartedAsync(string track)
     {
-        TrackStartEventArgs ea = new TrackStartEventArgs(this, LavalinkUtilities.DecodeTrack(track));
+        TrackStartEventArgs ea = new(this, LavalinkUtilities.DecodeTrack(track));
         return _playbackStarted.InvokeAsync(this, ea);
     }
 
@@ -369,19 +369,19 @@ public sealed class LavalinkGuildConnection
             CurrentState.CurrentTrack = default;
         }
 
-        TrackFinishEventArgs ea = new TrackFinishEventArgs(this, LavalinkUtilities.DecodeTrack(e.Track), e.Reason);
+        TrackFinishEventArgs ea = new(this, LavalinkUtilities.DecodeTrack(e.Track), e.Reason);
         return _playbackFinished.InvokeAsync(this, ea);
     }
 
     internal Task InternalTrackStuckAsync(TrackStuckData e)
     {
-        TrackStuckEventArgs ea = new TrackStuckEventArgs(this, e.Threshold, LavalinkUtilities.DecodeTrack(e.Track));
+        TrackStuckEventArgs ea = new(this, e.Threshold, LavalinkUtilities.DecodeTrack(e.Track));
         return _trackStuck.InvokeAsync(this, ea);
     }
 
     internal Task InternalTrackExceptionAsync(TrackExceptionData e)
     {
-        TrackExceptionEventArgs ea = new TrackExceptionEventArgs(this, e.Error, LavalinkUtilities.DecodeTrack(e.Track));
+        TrackExceptionEventArgs ea = new(this, e.Error, LavalinkUtilities.DecodeTrack(e.Track));
         return _trackException.InvokeAsync(this, ea);
     }
 

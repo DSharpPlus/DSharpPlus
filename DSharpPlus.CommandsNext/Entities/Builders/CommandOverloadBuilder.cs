@@ -1,5 +1,3 @@
-namespace DSharpPlus.CommandsNext.Builders;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,6 +7,8 @@ using System.Reflection;
 using System.Text;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Exceptions;
+
+namespace DSharpPlus.CommandsNext.Builders;
 
 /// <summary>
 /// Represents an interface to build a command overload.
@@ -71,12 +71,12 @@ public sealed class CommandOverloadBuilder
         }
 
         int i = 2;
-        List<CommandArgument> args = new List<CommandArgument>(prms.Length - 1);
-        StringBuilder setb = new StringBuilder();
+        List<CommandArgument> args = new(prms.Length - 1);
+        StringBuilder setb = new();
         foreach (ParameterInfo? arg in prms.Skip(1))
         {
-            setb.Append(arg.ParameterType).Append(";");
-            CommandArgument ca = new CommandArgument
+            setb.Append(arg.ParameterType).Append(';');
+            CommandArgument ca = new()
             {
                 Name = arg.Name,
                 Type = arg.ParameterType,
@@ -84,7 +84,7 @@ public sealed class CommandOverloadBuilder
                 DefaultValue = arg.IsOptional ? arg.DefaultValue : null
             };
 
-            List<Attribute> attrsCustom = new List<Attribute>();
+            List<Attribute> attrsCustom = [];
             IEnumerable<Attribute> attrs = arg.GetCustomAttributes();
             bool isParams = false;
             foreach (Attribute xa in attrs)
@@ -149,7 +149,7 @@ public sealed class CommandOverloadBuilder
 
     internal CommandOverload Build()
     {
-        CommandOverload ovl = new CommandOverload()
+        CommandOverload ovl = new()
         {
             Arguments = Arguments,
             Priority = Priority,

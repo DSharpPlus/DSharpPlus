@@ -23,6 +23,7 @@
 
 namespace DSharpPlus.Entities.AuditLogs;
 
+
 public sealed class DiscordAuditLogPruneEntry : DiscordAuditLogEntry
 {
     /// <summary>

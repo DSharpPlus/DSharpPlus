@@ -1,7 +1,7 @@
-namespace DSharpPlus.Entities;
-
 using DSharpPlus.Net;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a thumbnail in an embed.

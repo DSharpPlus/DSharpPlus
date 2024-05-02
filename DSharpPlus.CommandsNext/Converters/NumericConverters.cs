@@ -1,8 +1,8 @@
-namespace DSharpPlus.CommandsNext.Converters;
-
 using System.Globalization;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+
+namespace DSharpPlus.CommandsNext.Converters;
 
 public class BoolConverter : IArgumentConverter<bool>
 {

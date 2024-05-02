@@ -1,9 +1,9 @@
-namespace DSharpPlus.Net.Serialization;
-
 using System;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
+namespace DSharpPlus.Net.Serialization;
 
 public class DiscordForumChannelJsonConverter : JsonConverter
 {
@@ -27,7 +27,7 @@ public class DiscordForumChannelJsonConverter : JsonConverter
         if (channelType is DiscordChannelType.GuildForum)
         {
             // Type erasure is almost unheard of in C#, but you never know...
-            DiscordForumChannel chn = new DiscordForumChannel();
+            DiscordForumChannel chn = new();
             serializer.Populate(job.CreateReader(), chn);
 
             channel = chn;
@@ -35,7 +35,7 @@ public class DiscordForumChannelJsonConverter : JsonConverter
         // May or not be necessary. Better safe than sorry.
         else if (channelType is DiscordChannelType.NewsThread or DiscordChannelType.PrivateThread or DiscordChannelType.PublicThread)
         {
-            DiscordThreadChannel chn = new DiscordThreadChannel();
+            DiscordThreadChannel chn = new();
             serializer.Populate(job.CreateReader(), chn);
 
             channel = chn;

@@ -1,5 +1,3 @@
-namespace DSharpPlus.Commands.Processors.TextCommands;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +8,8 @@ using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
+
+namespace DSharpPlus.Commands.Processors.TextCommands;
 
 public sealed class TextCommandProcessor(TextCommandConfiguration? configuration = null) : BaseCommandProcessor<MessageCreateEventArgs, ITextArgumentConverter, TextConverterContext, TextCommandContext>
 {

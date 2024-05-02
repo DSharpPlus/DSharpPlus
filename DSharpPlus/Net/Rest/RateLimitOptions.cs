@@ -1,5 +1,5 @@
-namespace DSharpPlus.Net;
-
 using Polly;
+
+namespace DSharpPlus.Net;
 
 internal class RateLimitOptions : ResilienceStrategyOptions;

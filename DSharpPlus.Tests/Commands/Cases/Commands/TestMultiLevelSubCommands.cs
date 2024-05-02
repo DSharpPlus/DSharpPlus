@@ -1,8 +1,8 @@
-namespace DSharpPlus.Tests.Commands.Cases.Commands;
-
 using System.Threading.Tasks;
 using DSharpPlus.Commands;
 using DSharpPlus.Entities;
+
+namespace DSharpPlus.Tests.Commands.Cases.Commands;
 
 public class TestMultiLevelSubCommands
 {

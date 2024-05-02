@@ -1,10 +1,10 @@
-namespace DSharpPlus.VoiceNext;
-
 using System;
 using System.Buffers;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+
+namespace DSharpPlus.VoiceNext;
 
 public static class StreamExtensions
 {
@@ -21,17 +21,10 @@ public static class StreamExtensions
         // adapted from CoreFX
         // https://source.dot.net/#System.Private.CoreLib/Stream.cs,8048a9680abdd13b
 
-        if (source is null)
-        {
-            throw new ArgumentNullException(nameof(source));
-        }
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(destination);
 
-        if (destination is null)
-        {
-            throw new ArgumentNullException(nameof(destination));
-        }
-
-        if (bufferSize != null && bufferSize <= 0)
+        if (bufferSize is not null and <= 0)
         {
             throw new ArgumentOutOfRangeException(nameof(bufferSize), bufferSize, "bufferSize cannot be less than or equal to zero");
         }
@@ -41,7 +34,7 @@ public static class StreamExtensions
         try
         {
             int bytesRead;
-            while ((bytesRead = await source.ReadAsync(buffer, 0, bufferLength, cancellationToken)) != 0)
+            while ((bytesRead = await source.ReadAsync(buffer.AsMemory(0, bufferLength), cancellationToken)) != 0)
             {
                 await destination.WriteAsync(new ReadOnlyMemory<byte>(buffer, 0, bytesRead), cancellationToken);
             }

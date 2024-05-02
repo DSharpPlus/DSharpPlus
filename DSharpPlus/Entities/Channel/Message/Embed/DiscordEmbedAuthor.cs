@@ -1,8 +1,8 @@
-namespace DSharpPlus.Entities;
-
 using System;
 using DSharpPlus.Net;
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Gets the author of a discord embed.

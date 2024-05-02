@@ -1,10 +1,10 @@
-namespace DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
-
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
+
+namespace DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 
 [AttributeUsage(AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
 public class SlashAutoCompleteProviderAttribute(Type autoCompleteType) : Attribute

@@ -1,6 +1,6 @@
-namespace DSharpPlus.SlashCommands;
-
 using System.Threading.Tasks;
+
+namespace DSharpPlus.SlashCommands;
 
 /// <summary>
 /// Represents a base class for slash command modules.

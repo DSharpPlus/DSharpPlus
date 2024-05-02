@@ -1,5 +1,3 @@
-namespace DSharpPlus.Entities;
-
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -8,6 +6,8 @@ using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Helper methods for instantiating an <see cref="Optional{T}"/>.
@@ -241,7 +241,7 @@ internal sealed class OptionalJsonConverter : JsonConverter
         ConstructorInfo? constructor = objectType.GetTypeInfo().DeclaredConstructors
             .FirstOrDefault(e => e.GetParameters()[0].ParameterType == genericType);
 
-        return constructor.Invoke(new[] { serializer.Deserialize(reader, genericType) });
+        return constructor.Invoke([serializer.Deserialize(reader, genericType)]);
     }
 
     public override bool CanConvert(Type objectType) => objectType.GetTypeInfo().ImplementedInterfaces.Contains(typeof(IOptional));

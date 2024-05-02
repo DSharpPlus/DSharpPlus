@@ -1,7 +1,7 @@
-namespace DSharpPlus.Lavalink.EventArgs;
-
 using System;
 using DSharpPlus.AsyncEvents;
+
+namespace DSharpPlus.Lavalink.EventArgs;
 
 /// <summary>
 /// Represents arguments for player update event.

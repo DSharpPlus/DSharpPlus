@@ -1,11 +1,11 @@
-namespace DSharpPlus.Commands;
-
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+
+namespace DSharpPlus.Commands;
 
 /// <summary>
 /// Extension methods used by the <see cref="CommandsExtension"/> for the <see cref="DiscordClient"/>.

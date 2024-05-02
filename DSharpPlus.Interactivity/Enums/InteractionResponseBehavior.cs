@@ -1,5 +1,6 @@
 namespace DSharpPlus.Interactivity.Enums;
 
+
 public enum InteractionResponseBehavior
 {
     /// <summary>

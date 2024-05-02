@@ -1,5 +1,3 @@
-namespace DSharpPlus.Commands.Processors;
-
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
@@ -7,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using DSharpPlus.Commands;
 using DSharpPlus.Commands.Converters;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
@@ -17,6 +14,8 @@ using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+
+namespace DSharpPlus.Commands.Processors;
 
 public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext> : ICommandProcessor<TEventArgs>
     where TEventArgs : DiscordEventArgs

@@ -1,6 +1,6 @@
-namespace DSharpPlus.SlashCommands;
-
 using System;
+
+namespace DSharpPlus.SlashCommands;
 
 /// <summary>
 /// Sets the name for this enum choice.

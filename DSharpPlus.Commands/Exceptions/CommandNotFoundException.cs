@@ -1,6 +1,6 @@
-namespace DSharpPlus.Commands.Exceptions;
-
 using System;
+
+namespace DSharpPlus.Commands.Exceptions;
 
 public sealed class CommandNotFoundException : CommandsException
 {

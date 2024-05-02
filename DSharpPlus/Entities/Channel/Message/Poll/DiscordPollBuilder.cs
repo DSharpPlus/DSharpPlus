@@ -1,8 +1,8 @@
-namespace DSharpPlus.Entities;
-
 using System;
 using System.Collections.Generic;
 using DSharpPlus.Net.Abstractions;
+
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a builder for <see cref="DiscordPoll"/>s.
@@ -23,7 +23,7 @@ public class DiscordPollBuilder
     /// Gets the options for this poll.
     /// </summary>
     public IReadOnlyList<DiscordPollMedia> Options => _options;
-    private readonly List<DiscordPollMedia> _options = new();
+    private readonly List<DiscordPollMedia> _options = [];
 
     /// <summary>
     /// Gets or sets the duration for this poll in hours.

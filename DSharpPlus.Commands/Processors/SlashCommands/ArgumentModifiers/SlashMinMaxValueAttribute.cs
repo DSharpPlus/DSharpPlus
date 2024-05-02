@@ -1,6 +1,6 @@
-namespace DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
-
 using System;
+
+namespace DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 
 /// <summary>
 /// Determines the minimum and maximum values that a parameter can accept.

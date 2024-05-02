@@ -1,8 +1,7 @@
-namespace DSharpPlus.CommandsNext;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -18,6 +17,8 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+
+namespace DSharpPlus.CommandsNext;
 
 /// <summary>
 /// This is the class which handles command registration, management, and execution.
@@ -42,7 +43,7 @@ public class CommandsNextExtension : BaseExtension
     internal CommandsNextExtension(CommandsNextConfiguration cfg)
     {
         Config = new CommandsNextConfiguration(cfg);
-        TopLevelCommands = new Dictionary<string, Command>();
+        TopLevelCommands = [];
         _registeredCommandsLazy = new Lazy<IReadOnlyDictionary<string, Command>>(() => new ReadOnlyDictionary<string, Command>(TopLevelCommands));
         HelpFormatter = new HelpFormatterFactory();
         HelpFormatter.SetFormatterType<DefaultHelpFormatter>();
@@ -108,7 +109,7 @@ public class CommandsNextExtension : BaseExtension
 
         Type ncvt = typeof(NullableConverter<>);
         Type nt = typeof(Nullable<>);
-        Type[] cvts = ArgumentConverters.Keys.ToArray();
+        Type[] cvts = [.. ArgumentConverters.Keys];
         foreach (Type? xt in cvts)
         {
             TypeInfo xti = xt.GetTypeInfo();
@@ -131,7 +132,7 @@ public class CommandsNextExtension : BaseExtension
 
         Type t = typeof(CommandsNextExtension);
         IEnumerable<MethodInfo> ms = t.GetTypeInfo().DeclaredMethods;
-        MethodInfo? m = ms.FirstOrDefault(xm => xm.Name == nameof(ConvertArgument) && xm.ContainsGenericParameters && !xm.IsStatic && xm.IsPublic);
+        MethodInfo? m = ms.FirstOrDefault(xm => xm.Name == nameof(ConvertArgumentAsync) && xm.ContainsGenericParameters && !xm.IsStatic && xm.IsPublic);
         ConvertGeneric = m;
     }
 
@@ -181,7 +182,7 @@ public class CommandsNextExtension : BaseExtension
 
         if (Config.EnableDefaultHelp)
         {
-            RegisterCommands(typeof(DefaultHelpModule), null, Enumerable.Empty<CheckBaseAttribute>(), out List<CommandBuilder>? tcmds);
+            RegisterCommands(typeof(DefaultHelpModule), null, [], out List<CommandBuilder>? tcmds);
 
             if (Config.DefaultHelpChecks.Any())
             {
@@ -204,7 +205,7 @@ public class CommandsNextExtension : BaseExtension
 
         if (Config.CommandExecutor is ParallelQueuedCommandExecutor pqce)
         {
-            Client.Logger.LogDebug(CommandsNextEvents.Misc, "Using parallel executor with degree {0}", pqce.Parallelism);
+            Client.Logger.LogDebug(CommandsNextEvents.Misc, "Using parallel executor with degree {Parallelism}", pqce.Parallelism);
         }
     }
     #endregion
@@ -249,8 +250,8 @@ public class CommandsNextExtension : BaseExtension
             return;
         }
 
-        string pfx = e.Message.Content.Substring(0, mpos);
-        string cnt = e.Message.Content.Substring(mpos);
+        string pfx = e.Message.Content[..mpos];
+        string cnt = e.Message.Content[mpos..];
 
         int __ = 0;
         string? fname = cnt.ExtractNextArgument(ref __, Config.QuotationMarks);
@@ -303,7 +304,7 @@ public class CommandsNextExtension : BaseExtension
 
         if (cmd is not CommandGroup)
         {
-            rawArguments = commandString.Substring(pos).Trim();
+            rawArguments = commandString[pos..].Trim();
             return cmd;
         }
 
@@ -328,7 +329,7 @@ public class CommandsNextExtension : BaseExtension
             }
         }
 
-        rawArguments = commandString.Substring(pos).Trim();
+        rawArguments = commandString[pos..].Trim();
         return cmd;
     }
 
@@ -342,7 +343,7 @@ public class CommandsNextExtension : BaseExtension
     /// <returns>Created command execution context.</returns>
     public CommandContext CreateContext(DiscordMessage msg, string prefix, Command? cmd, string? rawArguments = null)
     {
-        CommandContext ctx = new CommandContext
+        CommandContext ctx = new()
         {
             Client = Client,
             Command = cmd,
@@ -406,7 +407,7 @@ public class CommandsNextExtension : BaseExtension
         }
     }
 
-    private async Task RunAllChecksAsync(Command cmd, CommandContext ctx)
+    private static async Task RunAllChecksAsync(Command cmd, CommandContext ctx)
     {
         if (cmd.Parent is not null)
         {
@@ -474,7 +475,7 @@ public class CommandsNextExtension : BaseExtension
             throw new ArgumentNullException(nameof(t), "Type must be a class, which cannot be abstract or static.");
         }
 
-        RegisterCommands(t, null, Enumerable.Empty<CheckBaseAttribute>(), out List<CommandBuilder>? tempCommands);
+        RegisterCommands(t, null, [], out List<CommandBuilder>? tempCommands);
 
         if (tempCommands != null)
         {
@@ -504,11 +505,11 @@ public class CommandsNextExtension : BaseExtension
         }
 
         // check if we are anything
-        CommandGroupBuilder? groupBuilder = new CommandGroupBuilder(module);
+        CommandGroupBuilder? groupBuilder = new(module);
         bool isModule = false;
         IEnumerable<Attribute> moduleAttributes = ti.GetCustomAttributes();
         bool moduleHidden = false;
-        List<CheckBaseAttribute> moduleChecks = new List<CheckBaseAttribute>();
+        List<CheckBaseAttribute> moduleChecks = [];
 
         groupBuilder.WithCategory(ExtractCategoryAttribute(t));
 
@@ -525,15 +526,15 @@ public class CommandsNextExtension : BaseExtension
 
                         if (moduleName.EndsWith("Group") && moduleName != "Group")
                         {
-                            moduleName = moduleName.Substring(0, moduleName.Length - 5);
+                            moduleName = moduleName[..^5];
                         }
                         else if (moduleName.EndsWith("Module") && moduleName != "Module")
                         {
-                            moduleName = moduleName.Substring(0, moduleName.Length - 6);
+                            moduleName = moduleName[..^6];
                         }
                         else if (moduleName.EndsWith("Commands") && moduleName != "Commands")
                         {
-                            moduleName = moduleName.Substring(0, moduleName.Length - 8);
+                            moduleName = moduleName[..^8];
                         }
                     }
 
@@ -595,8 +596,8 @@ public class CommandsNextExtension : BaseExtension
 
         // candidate methods
         IEnumerable<MethodInfo> methods = ti.DeclaredMethods;
-        List<CommandBuilder> commands = new List<CommandBuilder>();
-        Dictionary<string, CommandBuilder> commandBuilders = new Dictionary<string, CommandBuilder>();
+        List<CommandBuilder> commands = [];
+        Dictionary<string, CommandBuilder> commandBuilders = [];
         foreach (MethodInfo m in methods)
         {
             if (!m.IsCommandCandidate(out _))
@@ -616,7 +617,7 @@ public class CommandsNextExtension : BaseExtension
                 commandName = m.Name;
                 if (commandName.EndsWith("Async") && commandName != "Async")
                 {
-                    commandName = commandName.Substring(0, commandName.Length - 5);
+                    commandName = commandName[..^5];
                 }
             }
 
@@ -648,7 +649,7 @@ public class CommandsNextExtension : BaseExtension
 
             commandBuilder.WithOverload(new CommandOverloadBuilder(m));
 
-            if (!isModule && moduleChecks.Any())
+            if (!isModule && moduleChecks.Count != 0)
             {
                 foreach (CheckBaseAttribute chk in moduleChecks)
                 {
@@ -767,7 +768,7 @@ public class CommandsNextExtension : BaseExtension
         }
     }
 
-    private string? ExtractCategoryAttribute(MethodInfo method)
+    private static string? ExtractCategoryAttribute(MethodInfo method)
     {
         CategoryAttribute attribute = method.GetCustomAttribute<CategoryAttribute>();
 
@@ -781,7 +782,7 @@ public class CommandsNextExtension : BaseExtension
         return ExtractCategoryAttribute(method.DeclaringType);
     }
 
-    private string? ExtractCategoryAttribute(Type type)
+    private static string? ExtractCategoryAttribute(Type type)
     {
         CategoryAttribute attribute;
 
@@ -826,13 +827,13 @@ public class CommandsNextExtension : BaseExtension
     [ModuleLifespan(ModuleLifespan.Transient)]
     public class DefaultHelpModule : BaseCommandModule
     {
-        [Command("help"), Description("Displays command help.")]
+        [Command("help"), Description("Displays command help."), SuppressMessage("Quality Assurance", "CA1822:Mark members as static", Justification = "CommandsNext does not support static commands.")]
         public async Task DefaultHelpAsync(CommandContext ctx, [Description("Command to provide help for.")] params string[] command)
         {
             IEnumerable<Command> topLevel = ctx.CommandsNext.TopLevelCommands.Values.Distinct();
             BaseHelpFormatter helpBuilder = ctx.CommandsNext.HelpFormatter.Create(ctx);
 
-            if (command != null && command.Any())
+            if (command != null && command.Length != 0)
             {
                 Command? cmd = null;
                 IEnumerable<Command>? searchIn = topLevel;
@@ -875,7 +876,7 @@ public class CommandsNextExtension : BaseExtension
                 if (cmd is CommandGroup group)
                 {
                     IEnumerable<Command> commandsToSearch = group.Children.Where(xc => !xc.IsHidden);
-                    List<Command> eligibleCommands = new List<Command>();
+                    List<Command> eligibleCommands = [];
                     foreach (Command? candidateCommand in commandsToSearch)
                     {
                         if (candidateCommand.ExecutionChecks == null || !candidateCommand.ExecutionChecks.Any())
@@ -891,7 +892,7 @@ public class CommandsNextExtension : BaseExtension
                         }
                     }
 
-                    if (eligibleCommands.Any())
+                    if (eligibleCommands.Count != 0)
                     {
                         helpBuilder.WithSubcommands(eligibleCommands.OrderBy(xc => xc.Name));
                     }
@@ -900,7 +901,7 @@ public class CommandsNextExtension : BaseExtension
             else
             {
                 IEnumerable<Command> commandsToSearch = topLevel.Where(xc => !xc.IsHidden);
-                List<Command> eligibleCommands = new List<Command>();
+                List<Command> eligibleCommands = [];
                 foreach (Command? sc in commandsToSearch)
                 {
                     if (sc.ExecutionChecks == null || !sc.ExecutionChecks.Any())
@@ -916,7 +917,7 @@ public class CommandsNextExtension : BaseExtension
                     }
                 }
 
-                if (eligibleCommands.Any())
+                if (eligibleCommands.Count != 0)
                 {
                     helpBuilder.WithSubcommands(eligibleCommands.OrderBy(xc => xc.Name));
                 }
@@ -951,12 +952,12 @@ public class CommandsNextExtension : BaseExtension
     /// <returns>Created fake context.</returns>
     public CommandContext CreateFakeContext(DiscordUser actor, DiscordChannel channel, string messageContents, string prefix, Command cmd, string? rawArguments = null)
     {
-        DateTimeOffset epoch = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        DateTimeOffset epoch = new(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
         DateTimeOffset now = DateTimeOffset.UtcNow;
         ulong timeSpan = (ulong)(now - epoch).TotalMilliseconds;
 
         // create fake message
-        DiscordMessage msg = new DiscordMessage
+        DiscordMessage msg = new()
         {
             Discord = Client,
             Author = actor,
@@ -967,15 +968,15 @@ public class CommandsNextExtension : BaseExtension
             Pinned = false,
             MentionEveryone = messageContents.Contains("@everyone"),
             IsTTS = false,
-            _attachments = new List<DiscordAttachment>(),
-            _embeds = new List<DiscordEmbed>(),
+            _attachments = [],
+            _embeds = [],
             Timestamp = now,
-            _reactions = new List<DiscordReaction>()
+            _reactions = []
         };
 
-        List<DiscordUser> mentionedUsers = new List<DiscordUser>();
-        List<DiscordRole>? mentionedRoles = msg.Channel.Guild != null ? new List<DiscordRole>() : null;
-        List<DiscordChannel>? mentionedChannels = msg.Channel.Guild != null ? new List<DiscordChannel>() : null;
+        List<DiscordUser> mentionedUsers = [];
+        List<DiscordRole>? mentionedRoles = msg.Channel.Guild != null ? [] : null;
+        List<DiscordChannel>? mentionedChannels = msg.Channel.Guild != null ? [] : null;
 
         if (!string.IsNullOrWhiteSpace(msg.Content))
         {
@@ -995,7 +996,7 @@ public class CommandsNextExtension : BaseExtension
         msg._mentionedRoles = mentionedRoles;
         msg._mentionedChannels = mentionedChannels;
 
-        CommandContext ctx = new CommandContext
+        CommandContext ctx = new()
         {
             Client = Client,
             Command = cmd,
@@ -1026,15 +1027,15 @@ public class CommandsNextExtension : BaseExtension
     /// <param name="value">Value to convert.</param>
     /// <param name="ctx">Context in which to convert to.</param>
     /// <returns>Converted object.</returns>
-    public async Task<object> ConvertArgument<T>(string value, CommandContext ctx)
+    public async Task<object> ConvertArgumentAsync<T>(string value, CommandContext ctx)
     {
         Type t = typeof(T);
-        if (!ArgumentConverters.ContainsKey(t))
+        if (!ArgumentConverters.TryGetValue(t, out IArgumentConverter argumentConverter))
         {
             throw new ArgumentException("There is no converter specified for given type.", nameof(T));
         }
 
-        if (ArgumentConverters[t] is not IArgumentConverter<T> cv)
+        if (argumentConverter is not IArgumentConverter<T> cv)
         {
             throw new ArgumentException("Invalid converter registered for this type.", nameof(T));
         }
@@ -1050,12 +1051,12 @@ public class CommandsNextExtension : BaseExtension
     /// <param name="ctx">Context in which to convert to.</param>
     /// <param name="type">Type to convert to.</param>
     /// <returns>Converted object.</returns>
-    public async Task<object> ConvertArgument(string? value, CommandContext ctx, Type type)
+    public async Task<object> ConvertArgumentAsync(string? value, CommandContext ctx, Type type)
     {
         MethodInfo m = ConvertGeneric.MakeGenericMethod(type);
         try
         {
-            return await (Task<object>)m.Invoke(this, new object?[] { value, ctx });
+            return await (Task<object>)m.Invoke(this, [value, ctx]);
         }
         catch (Exception ex) when (ex is TargetInvocationException or InvalidCastException)
         {
@@ -1107,15 +1108,8 @@ public class CommandsNextExtension : BaseExtension
     {
         Type t = typeof(T);
         TypeInfo ti = t.GetTypeInfo();
-        if (ArgumentConverters.ContainsKey(t))
-        {
-            ArgumentConverters.Remove(t);
-        }
-
-        if (UserFriendlyTypeNames.ContainsKey(t))
-        {
-            UserFriendlyTypeNames.Remove(t);
-        }
+        ArgumentConverters.Remove(t);
+        UserFriendlyTypeNames.Remove(t);
 
         if (!ti.IsValueType)
         {
@@ -1169,16 +1163,16 @@ public class CommandsNextExtension : BaseExtension
     /// <returns>User-friendly type name.</returns>
     public string GetUserFriendlyTypeName(Type t)
     {
-        if (UserFriendlyTypeNames.ContainsKey(t))
+        if (UserFriendlyTypeNames.TryGetValue(t, out string value))
         {
-            return UserFriendlyTypeNames[t];
+            return value;
         }
 
         TypeInfo ti = t.GetTypeInfo();
         if (ti.IsGenericTypeDefinition && t.GetGenericTypeDefinition() == typeof(Nullable<>))
         {
             Type tn = ti.GenericTypeArguments[0];
-            return UserFriendlyTypeNames.ContainsKey(tn) ? UserFriendlyTypeNames[tn] : tn.Name;
+            return UserFriendlyTypeNames.TryGetValue(tn, out value) ? value : tn.Name;
         }
 
         return t.Name;

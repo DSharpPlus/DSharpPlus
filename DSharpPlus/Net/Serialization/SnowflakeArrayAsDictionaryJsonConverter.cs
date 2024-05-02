@@ -1,5 +1,3 @@
-namespace DSharpPlus.Net.Serialization;
-
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -9,6 +7,8 @@ using System.Reflection;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
+namespace DSharpPlus.Net.Serialization;
 
 /// <summary>
 /// Used for a <see cref="Dictionary{TKey,TValue}"/> or <see cref="ConcurrentDictionary{TKey,TValue}"/> mapping
@@ -37,7 +37,7 @@ internal class SnowflakeArrayAsDictionaryJsonConverter : JsonConverter
         ConstructorInfo? constructor = objectType.GetTypeInfo().DeclaredConstructors
             .FirstOrDefault(e => !e.IsStatic && e.GetParameters().Length == 0);
 
-        object dict = constructor.Invoke(new object[] { });
+        object dict = constructor.Invoke([]);
 
         // the default name of an indexer is "Item"
         PropertyInfo? properties = objectType.GetTypeInfo().GetDeclaredProperty("Item");
@@ -45,12 +45,12 @@ internal class SnowflakeArrayAsDictionaryJsonConverter : JsonConverter
         IEnumerable? entries = (IEnumerable)serializer.Deserialize(reader, objectType.GenericTypeArguments[1].MakeArrayType());
         foreach (object? entry in entries)
         {
-            properties.SetValue(dict, entry, new object[]
-            {
+            properties.SetValue(dict, entry,
+            [
                 (entry as SnowflakeObject)?.Id
                 ?? (entry as DiscordVoiceState)?.UserId
                 ?? throw new InvalidOperationException($"Type {entry?.GetType()} is not deserializable")
-            });
+            ]);
         }
 
         return dict;

@@ -1,5 +1,6 @@
 namespace DSharpPlus.Lavalink;
 
+
 public enum LavalinkSearchType
 {
     /// <summary>

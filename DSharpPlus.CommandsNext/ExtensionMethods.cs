@@ -1,5 +1,3 @@
-namespace DSharpPlus.CommandsNext;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,6 +7,8 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Builders;
 using DSharpPlus.CommandsNext.Converters;
 using Microsoft.Extensions.Logging;
+
+namespace DSharpPlus.CommandsNext;
 
 /// <summary>
 /// Defines various extensions specific to CommandsNext.
@@ -38,7 +38,7 @@ public static class ExtensionMethods
             client.Logger.LogCritical(CommandsNextEvents.Intents, "The CommandsNext extension is registered but the guilds intent is not enabled. It is highly recommended to enable it.");
         }
 
-        CommandsNextExtension cnext = new CommandsNextExtension(cfg);
+        CommandsNextExtension cnext = new(cfg);
         client.AddExtension(cnext);
         return cnext;
     }
@@ -51,7 +51,7 @@ public static class ExtensionMethods
     /// <returns>A dictionary of created <see cref="CommandsNextExtension"/>, indexed by shard id.</returns>
     public static async Task<IReadOnlyDictionary<int, CommandsNextExtension>> UseCommandsNextAsync(this DiscordShardedClient client, CommandsNextConfiguration cfg)
     {
-        Dictionary<int, CommandsNextExtension> modules = new Dictionary<int, CommandsNextExtension>();
+        Dictionary<int, CommandsNextExtension> modules = [];
         await client.InitializeShardsAsync();
 
         foreach (DiscordClient? shard in client.ShardClients.Select(xkvp => xkvp.Value))
@@ -79,7 +79,7 @@ public static class ExtensionMethods
     public static async Task<IReadOnlyDictionary<int, CommandsNextExtension>> GetCommandsNextAsync(this DiscordShardedClient client)
     {
         await client.InitializeShardsAsync();
-        Dictionary<int, CommandsNextExtension> extensions = new Dictionary<int, CommandsNextExtension>();
+        Dictionary<int, CommandsNextExtension> extensions = [];
 
         foreach (DiscordClient? shard in client.ShardClients.Select(xkvp => xkvp.Value))
         {

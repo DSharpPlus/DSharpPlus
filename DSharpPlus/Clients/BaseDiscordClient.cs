@@ -1,4 +1,3 @@
-namespace DSharpPlus;
 #pragma warning disable CS0618
 using System;
 using System.Collections.Concurrent;
@@ -11,6 +10,8 @@ using DSharpPlus.Entities;
 using DSharpPlus.Metrics;
 using DSharpPlus.Net;
 using Microsoft.Extensions.Logging;
+
+namespace DSharpPlus;
 
 /// <summary>
 /// Represents a common base for various Discord client implementations.
@@ -113,7 +114,7 @@ public abstract class BaseDiscordClient : IDisposable
     public async Task<DiscordApplication> GetCurrentApplicationAsync()
     {
         Net.Abstractions.TransportApplication tapp = await ApiClient.GetCurrentApplicationInfoAsync();
-        DiscordApplication app = new DiscordApplication
+        DiscordApplication app = new()
         {
             Discord = this,
             Id = tapp.Id,
@@ -187,7 +188,7 @@ public abstract class BaseDiscordClient : IDisposable
             CurrentApplication = await GetCurrentApplicationAsync();
         }
 
-        if (Configuration.TokenType != TokenType.Bearer && InternalVoiceRegions.Count == 0)
+        if (Configuration.TokenType != TokenType.Bearer && InternalVoiceRegions.IsEmpty)
         {
             IReadOnlyList<DiscordVoiceRegion> vrs = await ListVoiceRegionsAsync();
             foreach (DiscordVoiceRegion xvr in vrs)

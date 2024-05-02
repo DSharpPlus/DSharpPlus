@@ -1,5 +1,3 @@
-namespace DSharpPlus.VoiceNext;
-
 using System;
 using System.Buffers;
 using System.Buffers.Binary;
@@ -23,6 +21,8 @@ using DSharpPlus.VoiceNext.EventArgs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
+namespace DSharpPlus.VoiceNext;
 
 internal delegate Task VoiceDisconnectedEventHandler(DiscordGuild guild);
 
@@ -207,8 +207,8 @@ public sealed class VoiceNextConnection : IDisposable
         int epp = 443;
         if (epi != -1)
         {
-            eph = eps.Substring(0, epi);
-            epp = int.Parse(eps.Substring(epi + 1));
+            eph = eps[..epi];
+            epp = int.Parse(eps[(epi + 1)..]);
         }
         else
         {
@@ -227,7 +227,7 @@ public sealed class VoiceNextConnection : IDisposable
 
         UdpClient = Discord.Configuration.UdpClientFactory();
         VoiceWs = Discord.Configuration.WebSocketClientFactory(Discord.Configuration.Proxy);
-        VoiceWs.Disconnected += VoiceWS_SocketClosed;
+        VoiceWs.Disconnected += VoiceWS_SocketClosedAsync;
         VoiceWs.MessageReceived += VoiceWS_SocketMessage;
         VoiceWs.Connected += VoiceWS_SocketOpened;
         VoiceWs.ExceptionThrown += VoiceWs_SocketException;
@@ -239,7 +239,7 @@ public sealed class VoiceNextConnection : IDisposable
     /// <returns>A task representing the connection operation.</returns>
     internal Task ConnectAsync()
     {
-        UriBuilder gwuri = new UriBuilder
+        UriBuilder gwuri = new()
         {
             Scheme = "wss",
             Host = WebSocketEndpoint.Hostname,
@@ -255,7 +255,7 @@ public sealed class VoiceNextConnection : IDisposable
     internal async Task StartAsync()
     {
         // Let's announce our intentions to the server
-        VoiceDispatch vdp = new VoiceDispatch();
+        VoiceDispatch vdp = new();
 
         if (!Resume)
         {
@@ -318,7 +318,7 @@ public sealed class VoiceNextConnection : IDisposable
         switch (SelectedEncryptionMode)
         {
             case EncryptionMode.XSalsa20_Poly1305:
-                Sodium.GenerateNonce(packet.Slice(0, Rtp.HeaderSize), nonce);
+                Sodium.GenerateNonce(packet[..Rtp.HeaderSize], nonce);
                 break;
 
             case EncryptionMode.XSalsa20_Poly1305_Suffix:
@@ -336,8 +336,8 @@ public sealed class VoiceNextConnection : IDisposable
 
         Span<byte> encrypted = stackalloc byte[Sodium.CalculateTargetSize(opus)];
         Sodium.Encrypt(opus, encrypted, nonce);
-        encrypted.CopyTo(packet.Slice(Rtp.HeaderSize));
-        packet = packet.Slice(0, Rtp.CalculatePacketSize(encrypted.Length, SelectedEncryptionMode));
+        encrypted.CopyTo(packet[Rtp.HeaderSize..]);
+        packet = packet[..Rtp.CalculatePacketSize(encrypted.Length, SelectedEncryptionMode)];
         Sodium.AppendNonce(nonce, packet, SelectedEncryptionMode);
 
         target = packetArray;
@@ -345,7 +345,7 @@ public sealed class VoiceNextConnection : IDisposable
         return true;
     }
 
-    private async Task VoiceSenderTask()
+    private async Task VoiceSenderTaskAsync()
     {
         CancellationToken token = SenderToken;
         BaseUdpClient client = UdpClient;
@@ -354,7 +354,7 @@ public sealed class VoiceNextConnection : IDisposable
         byte[] data = null;
         int length = 0;
 
-        double synchronizerTicks = (double)Stopwatch.GetTimestamp();
+        double synchronizerTicks = Stopwatch.GetTimestamp();
         double synchronizerResolution = Stopwatch.Frequency * 0.005;
         double tickResolution = 10_000_000.0 / Stopwatch.Frequency;
         Discord.Logger.LogDebug(VoiceNextEvents.Misc, "Timer accuracy: {Frequency}/{Resolution} (high resolution? {IsHighRes})", Stopwatch.Frequency, synchronizerResolution, Stopwatch.IsHighResolution);
@@ -432,7 +432,7 @@ public sealed class VoiceNextConnection : IDisposable
         }
     }
 
-    private bool ProcessPacket(ReadOnlySpan<byte> data, ref Memory<byte> opus, ref Memory<byte> pcm, IList<ReadOnlyMemory<byte>> pcmPackets, out AudioSender voiceSender, out AudioFormat outputFormat)
+    private bool ProcessPacket(ReadOnlySpan<byte> data, ref Memory<byte> opus, ref Memory<byte> pcm, List<ReadOnlyMemory<byte>> pcmPackets, out AudioSender voiceSender, out AudioFormat outputFormat)
     {
         voiceSender = null;
         outputFormat = default;
@@ -477,7 +477,7 @@ public sealed class VoiceNextConnection : IDisposable
         Rtp.GetDataFromPacket(data, out ReadOnlySpan<byte> encryptedOpus, SelectedEncryptionMode);
 
         int opusSize = Sodium.CalculateSourceSize(encryptedOpus);
-        opus = opus.Slice(0, opusSize);
+        opus = opus[..opusSize];
         Span<byte> opusSpan = opus.Span;
         try
         {
@@ -509,7 +509,7 @@ public sealed class VoiceNextConnection : IDisposable
                         i++;
                     }
 
-                    opusSpan = opusSpan.Slice(i);
+                    opusSpan = opusSpan[i..];
                 }
 
                 // TODO: consider implementing RFC 5285, 4.3. Two-Byte Header
@@ -519,7 +519,7 @@ public sealed class VoiceNextConnection : IDisposable
             {
                 // I'm not 100% sure what this header is/does, however removing the data causes no
                 // real issues, and has the added benefit of removing a lot of noise.
-                opusSpan = opusSpan.Slice(2);
+                opusSpan = opusSpan[2..];
             }
 
             if (gap == 1)
@@ -544,7 +544,7 @@ public sealed class VoiceNextConnection : IDisposable
 
             Span<byte> pcmSpan = pcm.Span;
             Opus.Decode(vtx.Decoder, opusSpan, ref pcmSpan, false, out outputFormat);
-            pcm = pcm.Slice(0, pcmSpan.Length);
+            pcm = pcm[..pcmSpan.Length];
         }
         finally
         {
@@ -554,7 +554,7 @@ public sealed class VoiceNextConnection : IDisposable
         return true;
     }
 
-    private async Task ProcessVoicePacket(byte[] data)
+    private async Task ProcessVoicePacketAsync(byte[] data)
     {
         if (data.Length < 13) // minimum packet length
         {
@@ -567,7 +567,7 @@ public sealed class VoiceNextConnection : IDisposable
             Memory<byte> pcmMem = pcm.AsMemory();
             byte[] opus = new byte[pcm.Length];
             Memory<byte> opusMem = opus.AsMemory();
-            List<ReadOnlyMemory<byte>> pcmFillers = new List<ReadOnlyMemory<byte>>();
+            List<ReadOnlyMemory<byte>> pcmFillers = [];
             if (!ProcessPacket(data, ref opusMem, ref pcmMem, pcmFillers, out AudioSender? vtx, out AudioFormat audioFormat))
             {
                 return;
@@ -580,7 +580,7 @@ public sealed class VoiceNextConnection : IDisposable
                     SSRC = vtx.SSRC,
                     User = vtx.User,
                     PcmData = pcmFiller,
-                    OpusData = new byte[0].AsMemory(),
+                    OpusData = Array.Empty<byte>(),
                     AudioFormat = audioFormat,
                     AudioDuration = audioFormat.CalculateSampleDuration(pcmFiller.Length)
                 });
@@ -623,7 +623,7 @@ public sealed class VoiceNextConnection : IDisposable
         }
     }
 
-    private async Task UdpReceiverTask()
+    private async Task UdpReceiverTaskAsync()
     {
         CancellationToken token = ReceiverToken;
         BaseUdpClient client = UdpClient;
@@ -637,7 +637,7 @@ public sealed class VoiceNextConnection : IDisposable
             }
             else if (Configuration.EnableIncoming)
             {
-                await ProcessVoicePacket(data);
+                await ProcessVoicePacketAsync(data);
             }
         }
     }
@@ -657,7 +657,7 @@ public sealed class VoiceNextConnection : IDisposable
         if (_isSpeaking != speaking)
         {
             _isSpeaking = speaking;
-            VoiceDispatch pld = new VoiceDispatch
+            VoiceDispatch pld = new()
             {
                 OpCode = 5,
                 Payload = new VoiceSpeakingPayload
@@ -684,11 +684,7 @@ public sealed class VoiceNextConnection : IDisposable
             throw new ArgumentOutOfRangeException(nameof(sampleDuration), "Invalid PCM sample duration specified.");
         }
 
-        if (TransmitStream == null)
-        {
-            TransmitStream = new VoiceTransmitSink(this, sampleDuration);
-        }
-
+        TransmitStream ??= new VoiceTransmitSink(this, sampleDuration);
         return TransmitStream;
     }
 
@@ -776,7 +772,7 @@ public sealed class VoiceNextConnection : IDisposable
                 DateTime dt = DateTime.Now;
                 Discord.Logger.LogTrace(VoiceNextEvents.VoiceHeartbeat, "Sent heartbeat");
 
-                VoiceDispatch hbd = new VoiceDispatch
+                VoiceDispatch hbd = new()
                 {
                     OpCode = 3,
                     Payload = UnixTimestamp(dt)
@@ -817,7 +813,7 @@ public sealed class VoiceNextConnection : IDisposable
         }
     }
 
-    private async Task Stage1(VoiceReadyPayload voiceReady)
+    private async Task Stage1Async(VoiceReadyPayload voiceReady)
     {
         // IP Discovery
         UdpClient.Setup(UdpEndpoint);
@@ -873,7 +869,7 @@ public sealed class VoiceNextConnection : IDisposable
 
             string ipString = Utilities.UTF8.GetString(packet, 8, 64 /* 74 - 6 */).TrimEnd('\0');
             decodedIp = System.Net.IPAddress.Parse(ipString);
-            decodedPort = BinaryPrimitives.ReadUInt16LittleEndian(packetSpan.Slice(72 /* 74 - 2 */));
+            decodedPort = BinaryPrimitives.ReadUInt16LittleEndian(packetSpan[72 /* 74 - 2 */..]);
         }
 
         // Select voice encryption mode
@@ -882,7 +878,7 @@ public sealed class VoiceNextConnection : IDisposable
 
         // Ready
         Discord.Logger.LogTrace(VoiceNextEvents.VoiceHandshake, "Selected encryption mode is {EncryptionMode}", selectedEncryptionMode.Key);
-        VoiceDispatch vsp = new VoiceDispatch
+        VoiceDispatch vsp = new()
         {
             OpCode = 1,
             Payload = new VoiceSelectProtocolPayload
@@ -900,13 +896,13 @@ public sealed class VoiceNextConnection : IDisposable
         await WsSendAsync(vsj);
 
         SenderTokenSource = new CancellationTokenSource();
-        SenderTask = Task.Run(VoiceSenderTask, SenderToken);
+        SenderTask = Task.Run(VoiceSenderTaskAsync, SenderToken);
 
         ReceiverTokenSource = new CancellationTokenSource();
-        ReceiverTask = Task.Run(UdpReceiverTask, ReceiverToken);
+        ReceiverTask = Task.Run(UdpReceiverTaskAsync, ReceiverToken);
     }
 
-    private async Task Stage2(VoiceSessionDescriptionPayload voiceSessionDescription)
+    private async Task Stage2Async(VoiceSessionDescriptionPayload voiceSessionDescription)
     {
         SelectedEncryptionMode = Sodium.SupportedModes[voiceSessionDescription.Mode.ToLowerInvariant()];
         Discord.Logger.LogTrace(VoiceNextEvents.VoiceHandshake, "Discord updated encryption mode - new mode is {EncryptionMode}", SelectedEncryptionMode);
@@ -928,7 +924,7 @@ public sealed class VoiceNextConnection : IDisposable
         ReadyWait.SetResult(true);
     }
 
-    private async Task HandleDispatch(JObject jo)
+    private async Task HandleDispatchAsync(JObject jo)
     {
         int opc = (int)jo["op"];
         JObject? opp = jo["d"] as JObject;
@@ -944,7 +940,7 @@ public sealed class VoiceNextConnection : IDisposable
                 // oh, discord
                 //this.HeartbeatInterval = vrp.HeartbeatInterval;
                 HeartbeatTask = Task.Run(HeartbeatAsync);
-                await Stage1(vrp);
+                await Stage1Async(vrp);
                 break;
 
             case 4: // SESSION_DESCRIPTION
@@ -952,7 +948,7 @@ public sealed class VoiceNextConnection : IDisposable
                 VoiceSessionDescriptionPayload vsd = opp.ToDiscordObject<VoiceSessionDescriptionPayload>();
                 Key = vsd.SecretKey;
                 Sodium = new Sodium(Key.AsMemory());
-                await Stage2(vsd);
+                await Stage2Async(vsd);
                 break;
 
             case 5: // SPEAKING
@@ -961,7 +957,7 @@ public sealed class VoiceNextConnection : IDisposable
                 Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received SPEAKING (OP5)");
                 VoiceSpeakingPayload spd = opp.ToDiscordObject<VoiceSpeakingPayload>();
                 bool foundUserInCache = Discord.TryGetCachedUserInternal(spd.UserId.Value, out DiscordUser? resolvedUser);
-                UserSpeakingEventArgs spk = new UserSpeakingEventArgs
+                UserSpeakingEventArgs spk = new()
                 {
                     Speaking = spd.Speaking,
                     SSRC = spd.SSRC.Value,
@@ -975,7 +971,7 @@ public sealed class VoiceNextConnection : IDisposable
                 else
                 {
                     OpusDecoder opus = Opus.CreateDecoder();
-                    AudioSender vtx = new AudioSender(spk.SSRC, opus)
+                    AudioSender vtx = new(spk.SSRC, opus)
                     {
                         User = await Discord.GetUserAsync(spd.UserId.Value)
                     };
@@ -1014,7 +1010,7 @@ public sealed class VoiceNextConnection : IDisposable
                 DiscordUser usrj = await Discord.GetUserAsync(ujpd.UserId);
                 {
                     OpusDecoder opus = Opus.CreateDecoder();
-                    AudioSender vtx = new AudioSender(ujpd.SSRC, opus)
+                    AudioSender vtx = new(ujpd.SSRC, opus)
                     {
                         User = usrj
                     };
@@ -1052,7 +1048,7 @@ public sealed class VoiceNextConnection : IDisposable
         }
     }
 
-    private async Task VoiceWS_SocketClosed(IWebSocketClient client, SocketCloseEventArgs e)
+    private async Task VoiceWS_SocketClosedAsync(IWebSocketClient client, SocketCloseEventArgs e)
     {
         Discord.Logger.LogDebug(VoiceNextEvents.VoiceConnectionClose, "Voice WebSocket closed ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
 
@@ -1061,7 +1057,7 @@ public sealed class VoiceNextConnection : IDisposable
         // otherwise problems happen
         //this.Dispose();
 
-        if (e.CloseCode == 4006 || e.CloseCode == 4009)
+        if (e.CloseCode is 4006 or 4009)
         {
             Resume = false;
         }
@@ -1071,7 +1067,7 @@ public sealed class VoiceNextConnection : IDisposable
             TokenSource.Cancel();
             TokenSource = new CancellationTokenSource();
             VoiceWs = Discord.Configuration.WebSocketClientFactory(Discord.Configuration.Proxy);
-            VoiceWs.Disconnected += VoiceWS_SocketClosed;
+            VoiceWs.Disconnected += VoiceWS_SocketClosedAsync;
             VoiceWs.MessageReceived += VoiceWS_SocketMessage;
             VoiceWs.Connected += VoiceWS_SocketOpened;
 
@@ -1090,8 +1086,8 @@ public sealed class VoiceNextConnection : IDisposable
             return Task.CompletedTask;
         }
 
-        Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsRx, et.Message);
-        return HandleDispatch(JObject.Parse(et.Message));
+        Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsRx, "{WebsocketMessage}", et.Message);
+        return HandleDispatchAsync(JObject.Parse(et.Message));
     }
 
     private Task VoiceWS_SocketOpened(IWebSocketClient client, SocketEventArgs e)
@@ -1102,7 +1098,7 @@ public sealed class VoiceNextConnection : IDisposable
 
     private async Task WsSendAsync(string payload)
     {
-        Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsTx, payload);
+        Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsTx, "{WebsocketPayload}", payload);
         await VoiceWs.SendMessageAsync(payload);
     }
 

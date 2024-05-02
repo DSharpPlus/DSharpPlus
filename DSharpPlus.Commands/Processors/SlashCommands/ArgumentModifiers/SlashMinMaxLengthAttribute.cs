@@ -1,6 +1,6 @@
-namespace DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
-
 using System;
+
+namespace DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 
 /// <summary>
 /// Determines the minimum and maximum length that a parameter can accept.
@@ -28,12 +28,12 @@ public sealed class SlashMinMaxLengthAttribute : Attribute
     /// </summary>
     public SlashMinMaxLengthAttribute()
     {
-        if (MinLength < MinLengthMinimum || MinLength > MinLengthMaximum)
+        if (MinLength is < MinLengthMinimum or > MinLengthMaximum)
         {
             throw new ArgumentException($"The minimum length cannot be less than {MinLengthMinimum} and greater than {MinLengthMaximum}.");
         }
 
-        if (MaxLength < MaxLengthMinimum || MaxLength > MaxLengthMaximum)
+        if (MaxLength is < MaxLengthMinimum or > MaxLengthMaximum)
         {
             throw new ArgumentException($"The maximum length cannot be less than {MaxLengthMinimum} and greater than {MaxLengthMaximum}.");
         }

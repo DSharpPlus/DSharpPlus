@@ -1,11 +1,9 @@
-namespace DSharpPlus.Net.Serialization;
-
 using System;
 using System.Globalization;
-
 using DSharpPlus.Entities;
-
 using Newtonsoft.Json;
+
+namespace DSharpPlus.Net.Serialization;
 
 /// <summary>
 /// Facilitates serializing permissions as string.

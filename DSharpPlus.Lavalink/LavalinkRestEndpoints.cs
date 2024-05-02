@@ -1,5 +1,6 @@
 namespace DSharpPlus.Lavalink;
 
+
 internal static class Endpoints
 {
     internal const string VERSION = "/version";

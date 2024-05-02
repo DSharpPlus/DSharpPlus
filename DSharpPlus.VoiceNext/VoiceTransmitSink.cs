@@ -1,13 +1,12 @@
-namespace DSharpPlus.VoiceNext;
-
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.VoiceNext.Codec;
+
+namespace DSharpPlus.VoiceNext;
 
 /// <summary>
 /// Sink used to transmit audio data via <see cref="VoiceNextConnection"/>.
@@ -35,7 +34,7 @@ public sealed class VoiceTransmitSink : IDisposable
         get => _volume;
         set
         {
-            if (value < 0 || value > 2.5)
+            if (value is < 0 or > 2.5)
             {
                 throw new ArgumentOutOfRangeException(nameof(value), "Volume needs to be between 0% and 250%.");
             }
@@ -61,7 +60,7 @@ public sealed class VoiceTransmitSink : IDisposable
         PcmMemory = PcmBuffer.AsMemory();
         PcmBufferLength = 0;
         WriteSemaphore = new SemaphoreSlim(1, 1);
-        Filters = new List<IVoiceFilter>();
+        Filters = [];
     }
 
     /// <summary>
@@ -92,13 +91,13 @@ public sealed class VoiceTransmitSink : IDisposable
             {
                 int len = Math.Min(pcmSpan.Length - PcmBufferLength, remaining);
 
-                Memory<byte> tgt = pcmSpan.Slice(PcmBufferLength);
-                ReadOnlyMemory<byte> src = buffSpan.Slice(0, len);
+                Memory<byte> tgt = pcmSpan[PcmBufferLength..];
+                ReadOnlyMemory<byte> src = buffSpan[..len];
 
                 src.CopyTo(tgt);
                 PcmBufferLength += len;
                 remaining -= len;
-                buffSpan = buffSpan.Slice(len);
+                buffSpan = buffSpan[len..];
 
                 if (PcmBufferLength == PcmBuffer.Length)
                 {
@@ -107,7 +106,7 @@ public sealed class VoiceTransmitSink : IDisposable
                     PcmBufferLength = 0;
 
                     byte[] packet = ArrayPool<byte>.Shared.Rent(PcmMemory.Length);
-                    Memory<byte> packetMemory = packet.AsMemory().Slice(0, PcmMemory.Length);
+                    Memory<byte> packetMemory = packet.AsMemory(0, PcmMemory.Length);
                     PcmMemory.CopyTo(packetMemory);
 
                     await Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet), cancellationToken);
@@ -127,12 +126,12 @@ public sealed class VoiceTransmitSink : IDisposable
     public async Task FlushAsync(CancellationToken cancellationToken = default)
     {
         Memory<byte> pcm = PcmMemory;
-        Helpers.ZeroFill(pcm.Slice(PcmBufferLength).Span);
+        Helpers.ZeroFill(pcm[PcmBufferLength..].Span);
 
         ApplyFiltersSync(pcm);
 
         byte[] packet = ArrayPool<byte>.Shared.Rent(pcm.Length);
-        Memory<byte> packetMemory = packet.AsMemory().Slice(0, pcm.Length);
+        Memory<byte> packetMemory = packet.AsMemory(0, pcm.Length);
         pcm.CopyTo(packetMemory);
 
         await Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet), cancellationToken);
@@ -170,11 +169,7 @@ public sealed class VoiceTransmitSink : IDisposable
     /// <param name="order">Order of the new filter. This determines where the filter will be inserted in the filter pipeline.</param>
     public void InstallFilter(IVoiceFilter filter, int order = int.MaxValue)
     {
-        if (filter == null)
-        {
-            throw new ArgumentNullException(nameof(filter));
-        }
-
+        ArgumentNullException.ThrowIfNull(filter);
         if (order < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(order), "Filter order must be greater than or equal to 0.");
@@ -201,11 +196,7 @@ public sealed class VoiceTransmitSink : IDisposable
     /// <returns>Whether the filter was uninstalled.</returns>
     public bool UninstallFilter(IVoiceFilter filter)
     {
-        if (filter == null)
-        {
-            throw new ArgumentNullException(nameof(filter));
-        }
-
+        ArgumentNullException.ThrowIfNull(filter);
         lock (Filters)
         {
             List<IVoiceFilter> filters = Filters;
@@ -220,7 +211,7 @@ public sealed class VoiceTransmitSink : IDisposable
         // pass through any filters, if applicable
         lock (Filters)
         {
-            if (Filters.Any())
+            if (Filters.Count != 0)
             {
                 foreach (IVoiceFilter filter in Filters)
                 {

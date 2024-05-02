@@ -1,7 +1,7 @@
-namespace DSharpPlus.CommandsNext.Attributes;
-
 using System;
 using System.Threading.Tasks;
+
+namespace DSharpPlus.CommandsNext.Attributes;
 
 /// <summary>
 /// Defines that usage of this command is restricted to NSFW channels.

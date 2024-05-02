@@ -1,12 +1,12 @@
-namespace DSharpPlus;
-
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 
+namespace DSharpPlus;
+
 internal class DefaultLoggerFactory : ILoggerFactory
 {
-    private List<ILoggerProvider> Providers { get; } = new List<ILoggerProvider>();
+    private List<ILoggerProvider> Providers { get; } = [];
     private bool _isDisposed = false;
 
     public void AddProvider(ILoggerProvider provider) => Providers.Add(provider);

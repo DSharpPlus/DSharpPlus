@@ -1,6 +1,6 @@
-namespace DSharpPlus.SlashCommands;
-
 using System.Collections.Generic;
+
+namespace DSharpPlus.SlashCommands;
 
 /// <summary>
 /// Supported locals for slash command localizations.
