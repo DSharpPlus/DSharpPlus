@@ -216,20 +216,10 @@ public class WebSocketClient : IWebSocketClient
     /// <summary>
     /// Disposes of resources used by this WebSocket client instance.
     /// </summary>
-    public void Dispose()
-    {
-        if (_isDisposed)
-        {
-            return;
-        }
-
-        _isDisposed = true;
-
-        DisconnectAsync().GetAwaiter().GetResult();
-
-        _receiverTokenSource?.Dispose();
-        _socketTokenSource?.Dispose();
-    }
+    //public void Dispose()
+    //{
+    //
+    //}
 
     internal async Task ReceiverLoopAsync()
     {
@@ -361,5 +351,27 @@ public class WebSocketClient : IWebSocketClient
     private void EventErrorHandler<TArgs>(AsyncEvent<WebSocketClient, TArgs> asyncEvent, Exception ex, AsyncEventHandler<WebSocketClient, TArgs> handler, WebSocketClient sender, TArgs eventArgs)
         where TArgs : AsyncEventArgs
         => _exceptionThrown.InvokeAsync(this, new SocketErrorEventArgs() { Exception = ex }).GetAwaiter().GetResult();
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_isDisposed)
+        {
+            if (disposing)
+            {
+                DisconnectAsync().GetAwaiter().GetResult();
+                _receiverTokenSource?.Dispose();
+                _socketTokenSource?.Dispose();
+            }
+
+            _isDisposed = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
     #endregion
 }

@@ -137,8 +137,7 @@ public class OpusDecoder : IDisposable
 
     internal Opus Opus { get; }
     internal IntPtr Decoder { get; private set; }
-
-    private volatile bool _isDisposed = false;
+    private bool disposedValue;
 
     internal OpusDecoder(Opus managedOpus) => Opus = managedOpus;
 
@@ -160,21 +159,27 @@ public class OpusDecoder : IDisposable
         Decoder = Interop.OpusCreateDecoder(outputFormat);
     }
 
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (Decoder != IntPtr.Zero)
+            {
+                Interop.OpusDestroyDecoder(Decoder);
+            }
+
+            disposedValue = true;
+        }
+    }
+
     /// <summary>
     /// Disposes of this Opus decoder.
     /// </summary>
     public void Dispose()
     {
-        if (_isDisposed)
-        {
-            return;
-        }
-
-        _isDisposed = true;
-        if (Decoder != IntPtr.Zero)
-        {
-            Interop.OpusDestroyDecoder(Decoder);
-        }
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }
 

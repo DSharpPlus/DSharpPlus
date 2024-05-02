@@ -20,8 +20,9 @@ public class DiscordRestClient : BaseDiscordClient
         => _guilds;
 
     internal Dictionary<ulong, DiscordGuild> _guilds = [];
+    private bool disposedValue;
 
-    public DiscordRestClient(DiscordConfiguration config) : base(config) => _disposed = false;
+    public DiscordRestClient(DiscordConfiguration config) : base(config) { }
 
     /// <summary>
     /// Initializes cache
@@ -2308,21 +2309,26 @@ public class DiscordRestClient : BaseDiscordClient
     /// <returns>The guild template for the code.</returns>\
     public async Task<DiscordGuildTemplate> GetTemplateAsync(string code)
         => await ApiClient.GetTemplateAsync(code);
-    #endregion
 
-    private bool _disposed;
-    /// <summary>
-    /// Disposes of this DiscordRestClient
-    /// </summary>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+                _guilds = null;
+                ApiClient?._rest?.Dispose();
+            }
+
+            disposedValue = true;
+        }
+    }
+
     public override void Dispose()
     {
-        if (_disposed)
-        {
-            return;
-        }
-
-        _disposed = true;
-        _guilds = null;
-        ApiClient?._rest?.Dispose();
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
+    #endregion
 }

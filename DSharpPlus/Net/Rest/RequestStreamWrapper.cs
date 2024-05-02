@@ -14,6 +14,11 @@ public class RequestStreamWrapper : Stream, IDisposable
     //basically these two methods are the whole purpose of this class
     protected override void Dispose(bool disposing) { /* NOT TODAY MY FRIEND */ }
     protected new void Dispose() => Dispose(true);
+    void IDisposable.Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
     public RequestStreamWrapper(Stream stream)
     {
@@ -69,6 +74,4 @@ public class RequestStreamWrapper : Stream, IDisposable
 
     /// <inheritdoc cref="Stream.Write(byte[], int, int)"/>
     public override void Write(byte[] buffer, int offset, int count) => UnderlyingStream.Write(buffer, offset, count);
-
-    void IDisposable.Dispose() => Dispose(false);
 }
