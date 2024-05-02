@@ -22,8 +22,8 @@ public static class InteractionExtensions
     /// <param name="buttons">Optional: custom buttons</param>
     /// <param name="behaviour">Pagination behaviour.</param>
     /// <param name="deletion">Deletion behaviour</param>
-    /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
     /// <param name="asEditResponse">If the response as edit of previous response.</param>
-    public static Task SendPaginatedResponseAsync(this DiscordInteraction interaction, bool ephemeral, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default, bool asEditResponse = false)
-        => ChannelExtensions.GetInteractivity(interaction.Channel).SendPaginatedResponseAsync(interaction, ephemeral, user, pages, buttons, behaviour, deletion, token, asEditResponse);
+    /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
+    public static Task SendPaginatedResponseAsync(this DiscordInteraction interaction, bool ephemeral, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, bool asEditResponse = false, CancellationToken token = default)
+        => ChannelExtensions.GetInteractivity(interaction.Channel).SendPaginatedResponseAsync(interaction, ephemeral, user, pages, buttons, behaviour, deletion, asEditResponse, default, default, token);
 }

@@ -850,11 +850,11 @@ public class InteractivityExtension : BaseExtension
     /// <param name="buttons">Optional: custom buttons</param>
     /// <param name="behaviour">Pagination behaviour.</param>
     /// <param name="deletion">Deletion behaviour</param>
-    /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
     /// <param name="asEditResponse">If the response as edit of previous response.</param>
     /// <param name="disableBehavior">Whether to disable or remove the buttons if there is only one page</param>
     /// <param name="disabledButtons">Disabled buttons</param>
-    public async Task SendPaginatedResponseAsync(DiscordInteraction interaction, bool ephemeral, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default, bool asEditResponse = false, ButtonDisableBehavior disableBehavior = ButtonDisableBehavior.Disable, List<PaginationButtonType> disabledButtons = null)
+    /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
+    public async Task SendPaginatedResponseAsync(DiscordInteraction interaction, bool ephemeral, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, bool asEditResponse = false, ButtonDisableBehavior disableBehavior = ButtonDisableBehavior.Disable, List<PaginationButtonType> disabledButtons = null, CancellationToken token = default)
     {
         PaginationBehaviour bhv = behaviour ?? Config.PaginationBehaviour;
         ButtonPaginationBehavior del = deletion ?? Config.ButtonBehavior;
