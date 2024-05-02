@@ -580,7 +580,7 @@ public sealed class VoiceNextConnection : IDisposable
                     SSRC = vtx.SSRC,
                     User = vtx.User,
                     PcmData = pcmFiller,
-                    OpusData = new byte[0].AsMemory(),
+                    OpusData = Array.Empty<byte>(),
                     AudioFormat = audioFormat,
                     AudioDuration = audioFormat.CalculateSampleDuration(pcmFiller.Length)
                 });
