@@ -7,12 +7,12 @@ public partial class DiscordEmoji
     /// <summary>
     /// Gets a mapping of :name: => unicode.
     /// </summary>
-    private static IReadOnlyDictionary<string, string> UnicodeEmojis { get; }
+    private static Dictionary<string, string> UnicodeEmojis { get; }
 
     /// <summary>
     /// Gets a mapping of unicode => :name:.
     /// </summary>
-    private static IReadOnlyDictionary<string, string> DiscordNameLookup { get; }
+    private static Dictionary<string, string> DiscordNameLookup { get; }
 
     static DiscordEmoji()
     {
