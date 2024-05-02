@@ -130,10 +130,5 @@ methods and custom helper methods.
 [1]: xref:articles.preamble
 [2]: https://dotnet.microsoft.com/download
 [3]: xref:articles.audio.voicenext.prerequisites
-[4]: xref:articles.beyond_basics.events
-[5]: xref:articles.commands_next.dependency_injection
-[6]: ./images/faq_01.png
-[7]: ./images/faq_02.png
-[8]: xref:articles.beyond_basics.intents
-[9]: ./images/faq_03.png
-[10]: https://github.com/JamesNK/Newtonsoft.Json
+[4]: xref:articles.beyond_basics.intents
+[5]: ./images/faq_spiderman.png
