@@ -11,7 +11,6 @@ internal class PaginationRequest : IPaginationRequest
 {
     private TaskCompletionSource<bool> _tcs;
     private readonly CancellationTokenSource _ct;
-    private readonly TimeSpan _timeout;
     private readonly List<Page> _pages;
     private readonly PaginationBehaviour _behaviour;
     private readonly DiscordMessage _message;
@@ -35,7 +34,6 @@ internal class PaginationRequest : IPaginationRequest
         _tcs = new();
         _ct = new(timeout);
         _ct.Token.Register(() => _tcs.TrySetResult(true));
-        _timeout = timeout;
 
         _message = message;
         _user = user;

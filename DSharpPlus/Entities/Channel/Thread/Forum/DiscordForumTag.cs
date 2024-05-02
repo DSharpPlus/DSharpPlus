@@ -1,4 +1,5 @@
 
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -31,16 +32,16 @@ public sealed class DiscordForumTag : SnowflakeObject
 
 public class DiscordForumTagBuilder
 {
-    [JsonProperty("name")]
+    [JsonProperty("name"), SuppressMessage("Code Quality", "IDE0052:Remove unread private members", Justification = "This is used by JSON.NET.")]
     private string _name;
 
-    [JsonProperty("moderated")]
+    [JsonProperty("moderated"), SuppressMessage("Code Quality", "IDE0052:Remove unread private members", Justification = "This is used by JSON.NET.")]
     private bool _moderated;
 
-    [JsonProperty("emoji_id")]
+    [JsonProperty("emoji_id"), SuppressMessage("Code Quality", "IDE0052:Remove unread private members", Justification = "This is used by JSON.NET.")]
     private ulong? _emojiId;
 
-    [JsonProperty("emoji_name")]
+    [JsonProperty("emoji_name"), SuppressMessage("Code Quality", "IDE0052:Remove unread private members", Justification = "This is used by JSON.NET.")]
     private string _emojiName;
 
     public static DiscordForumTagBuilder FromTag(DiscordForumTag tag)

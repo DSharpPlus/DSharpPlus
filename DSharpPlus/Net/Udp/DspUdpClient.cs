@@ -15,7 +15,6 @@ internal class DspUdpClient : BaseUdpClient
     private ConnectionEndpoint EndPoint { get; set; }
     private BlockingCollection<byte[]> PacketQueue { get; }
 
-    private Task ReceiverTask { get; set; }
     private CancellationTokenSource TokenSource { get; }
     private CancellationToken Token => TokenSource.Token;
 
@@ -36,7 +35,7 @@ internal class DspUdpClient : BaseUdpClient
     {
         EndPoint = endpoint;
         Client = new UdpClient();
-        ReceiverTask = Task.Run(ReceiverLoopAsync, Token);
+        _ = Task.Run(ReceiverLoopAsync, Token);
     }
 
     /// <summary>

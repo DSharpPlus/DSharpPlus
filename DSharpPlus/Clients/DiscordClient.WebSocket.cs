@@ -20,7 +20,6 @@ public sealed partial class DiscordClient
 
     private int _heartbeatInterval;
     private DateTimeOffset _lastHeartbeat;
-    private Task _heartbeatTask;
 
     internal static readonly DateTimeOffset _discordEpoch = new(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
@@ -305,7 +304,7 @@ public sealed partial class DiscordClient
 
         Interlocked.CompareExchange(ref _skippedHeartbeats, 0, 0);
         _heartbeatInterval = hello.HeartbeatInterval;
-        _heartbeatTask = Task.Run(HeartbeatLoopAsync, _cancelToken);
+        _ = Task.Run(HeartbeatLoopAsync, _cancelToken);
 
         if (string.IsNullOrEmpty(_sessionId))
         {
