@@ -22,7 +22,6 @@ using Microsoft.Extensions.Logging;
 /// <summary>
 /// This is the class which handles command registration, management, and execution.
 /// </summary>
-[Obsolete("DSharpPlus.CommandsNext is obsolete. Please consider using the new DSharpPlus.Commands extension instead.")]
 public class CommandsNextExtension : BaseExtension
 {
     private CommandsNextConfiguration Config { get; }
