@@ -85,7 +85,7 @@ DSharpPlus.Commands also supports checks that target specifically one parameter.
 - Register your parameter check using `CommandsExtension.AddParameterCheck<T>()`.
 - Apply the attribute to your parameter.
 
-> ![NOTE]
+> [!NOTE]
 > You will be supplied an `object` for the parameter value. It is your responsibility to ensure the type matches what your check expects, and to either ignore or error on incorrect types.
 
 For example, we can make a check that ensures a string is no longer than X characters. First, we create our attribute, as above:
