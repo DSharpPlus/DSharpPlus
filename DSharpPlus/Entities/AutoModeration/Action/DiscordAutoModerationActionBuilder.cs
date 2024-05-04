@@ -44,9 +44,12 @@ public class DiscordAutoModerationActionBuilder
     /// Constructs a new trigger rule action.
     /// </summary>
     /// <returns>The built rule.</returns>
-    public DiscordAutoModerationAction Build() => new()
+    public DiscordAutoModerationAction Build()
     {
-        Type = this.Type,
-        Metadata = this.Metadata
-    };
+        return new()
+        {
+            Type = this.Type,
+            Metadata = this.Metadata
+        };
+    }
 }

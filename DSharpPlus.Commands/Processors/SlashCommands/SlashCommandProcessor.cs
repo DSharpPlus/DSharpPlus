@@ -580,17 +580,25 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         };
     }
 
-    public override SlashCommandContext CreateCommandContext(InteractionConverterContext converterContext, InteractionCreateEventArgs eventArgs, Dictionary<CommandParameter, object?> parsedArguments) => new()
+    public override SlashCommandContext CreateCommandContext
+    (
+        InteractionConverterContext converterContext,
+        InteractionCreateEventArgs eventArgs,
+        Dictionary<CommandParameter, object?> parsedArguments
+    )
     {
-        Arguments = parsedArguments,
-        Channel = eventArgs.Interaction.Channel,
-        Command = converterContext.Command,
-        Extension = this.extension ?? throw new InvalidOperationException("SlashCommandProcessor has not been configured."),
-        Interaction = eventArgs.Interaction,
-        Options = converterContext.Options,
-        ServiceScope = converterContext.ServiceScope,
-        User = eventArgs.Interaction.User
-    };
+        return new()
+        {
+            Arguments = parsedArguments,
+            Channel = eventArgs.Interaction.Channel,
+            Command = converterContext.Command,
+            Extension = this.extension ?? throw new InvalidOperationException("SlashCommandProcessor has not been configured."),
+            Interaction = eventArgs.Interaction,
+            Options = converterContext.Options,
+            ServiceScope = converterContext.ServiceScope,
+            User = eventArgs.Interaction.User
+        };
+    }
 
     private static string ToSnakeCase(ReadOnlySpan<char> str)
     {

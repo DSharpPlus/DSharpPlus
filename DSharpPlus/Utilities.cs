@@ -73,12 +73,15 @@ public static partial class Utilities
 
     internal static string GetFormattedToken(BaseDiscordClient client) => GetFormattedToken(client.Configuration);
 
-    internal static string GetFormattedToken(DiscordConfiguration config) => config.TokenType switch
+    internal static string GetFormattedToken(DiscordConfiguration config)
     {
-        TokenType.Bearer => $"Bearer {config.Token}",
-        TokenType.Bot => $"Bot {config.Token}",
-        _ => throw new ArgumentException("Invalid token type specified.", nameof(config)),
-    };
+        return config.TokenType switch
+        {
+            TokenType.Bearer => $"Bearer {config.Token}",
+            TokenType.Bot => $"Bot {config.Token}",
+            _ => throw new ArgumentException("Invalid token type specified.", nameof(config)),
+        };
+    }
 
     internal static string GetUserAgent()
         => VersionHeader;

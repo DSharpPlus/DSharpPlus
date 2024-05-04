@@ -68,10 +68,13 @@ public class DiscordRuleActionMetadataBuilder
     /// Build the rule action.
     /// </summary>
     /// <returns>The built rule action.</returns>
-    public DiscordRuleActionMetadata Build() => new()
+    public DiscordRuleActionMetadata Build()
     {
-        ChannelId = this.ChannelId,
-        DurationSeconds = this.DurationSeconds,
-        CustomMessage = this.CustomMessage,
-    };
+        return new()
+        {
+            ChannelId = this.ChannelId,
+            DurationSeconds = this.DurationSeconds,
+            CustomMessage = this.CustomMessage,
+        };
+    }
 }

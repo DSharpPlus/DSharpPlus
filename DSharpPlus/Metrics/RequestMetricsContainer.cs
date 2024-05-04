@@ -13,21 +13,24 @@ internal sealed class RequestMetricsContainer
     private DateTimeOffset lastReset = DateTimeOffset.UtcNow;
     private readonly DateTimeOffset creation = DateTimeOffset.UtcNow;
 
-    public RequestMetricsCollection GetLifetimeMetrics() => new()
+    public RequestMetricsCollection GetLifetimeMetrics()
     {
-        Duration = DateTimeOffset.UtcNow - this.creation,
+        return new()
+        {
+            Duration = DateTimeOffset.UtcNow - this.creation,
 
-        BadRequests = this.lifetime.badRequests,
-        BucketRatelimitsHit = this.lifetime.bucketRatelimits,
-        Forbidden = this.lifetime.forbidden,
-        GlobalRatelimitsHit = this.lifetime.globalRatelimits,
-        NotFound = this.lifetime.notFound,
-        RatelimitsHit = this.lifetime.ratelimits,
-        ServerErrors = this.lifetime.serverError,
-        SuccessfulRequests = this.lifetime.successful,
-        TooLarge = this.lifetime.tooLarge,
-        TotalRequests = this.lifetime.requests
-    };
+            BadRequests = this.lifetime.badRequests,
+            BucketRatelimitsHit = this.lifetime.bucketRatelimits,
+            Forbidden = this.lifetime.forbidden,
+            GlobalRatelimitsHit = this.lifetime.globalRatelimits,
+            NotFound = this.lifetime.notFound,
+            RatelimitsHit = this.lifetime.ratelimits,
+            ServerErrors = this.lifetime.serverError,
+            SuccessfulRequests = this.lifetime.successful,
+            TooLarge = this.lifetime.tooLarge,
+            TotalRequests = this.lifetime.requests
+        };
+    }
 
     public RequestMetricsCollection GetTemporalMetrics()
     {

@@ -227,10 +227,13 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// <param name="right">First application to compare.</param>
     /// <param name="left">Second application to compare.</param>
     /// <returns>Whether the two applications are equal.</returns>
-    public static bool operator ==(DiscordApplication right, DiscordApplication left) => (right is not null || left is null)
+    public static bool operator ==(DiscordApplication right, DiscordApplication left)
+    {
+        return (right is not null || left is null)
             && (right is null || left is not null)
             && ((right is null && left is null)
                 || right!.Id == left!.Id);
+    }
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordApplication"/> objects are not equal.

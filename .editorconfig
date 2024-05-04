@@ -45,6 +45,14 @@ dotnet_diagnostic.CS8764.severity = suggestion
 dotnet_diagnostic.CS8765.severity = suggestion
 dotnet_diagnostic.CS8767.severity = suggestion
 
+dotnet_diagnostic.IDE0021.severity = error
+dotnet_diagnostic.IDE0022.severity = error
+dotnet_diagnostic.IDE0023.severity = error
+dotnet_diagnostic.IDE0024.severity = error
+dotnet_diagnostic.IDE0025.severity = error
+dotnet_diagnostic.IDE0026.severity = error
+dotnet_diagnostic.IDE0027.severity = error
+
 # Suppress CS1591: Missing XML comment for publicly visible type or member
 dotnet_diagnostic.CS1591.severity = suggestion
 

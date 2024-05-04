@@ -1883,10 +1883,12 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <returns>This member's default guild.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public DiscordChannel? GetDefaultChannel() =>
-        this.channels?.Values.Where(xc => xc.Type == DiscordChannelType.Text)
+    public DiscordChannel? GetDefaultChannel()
+    {
+        return this.channels?.Values.Where(xc => xc.Type == DiscordChannelType.Text)
             .OrderBy(xc => xc.Position)
             .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & DiscordPermissions.AccessChannels) == DiscordPermissions.AccessChannels);
+    }
 
     /// <summary>
     /// Gets the guild's widget
@@ -2220,8 +2222,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         Optional<IReadOnlyList<DiscordRole>> exemptRoles = default,
         Optional<IReadOnlyList<DiscordChannel>> exemptChannels = default,
         string? reason = null
-    ) =>
-        await this.Discord.ApiClient.CreateGuildAutoModerationRuleAsync
+    )
+    {
+        return await this.Discord.ApiClient.CreateGuildAutoModerationRuleAsync
         (
             this.Id,
             name,
@@ -2234,6 +2237,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             exemptChannels,
             reason
         );
+    }
 
     /// <summary>
     /// Gets an auto-moderation rule by an id.

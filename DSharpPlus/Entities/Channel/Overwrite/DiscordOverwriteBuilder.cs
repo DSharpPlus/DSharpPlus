@@ -110,13 +110,16 @@ public sealed class DiscordOverwriteBuilder
     /// Builds this DiscordOverwrite.
     /// </summary>
     /// <returns>Use this object for creation of new overwrites.</returns>
-    internal DiscordRestOverwrite Build() => new()
+    internal DiscordRestOverwrite Build()
     {
-        Allow = this.Allowed,
-        Deny = this.Denied,
-        Id = this.Target.Id,
-        Type = this.Type,
-    };
+        return new()
+        {
+            Allow = this.Allowed,
+            Deny = this.Denied,
+            Id = this.Target.Id,
+            Type = this.Type,
+        };
+    }
 }
 
 internal struct DiscordRestOverwrite

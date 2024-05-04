@@ -197,14 +197,22 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         await this.extension.CommandExecutor.ExecuteAsync(commandContext);
     }
 
-    public override TextCommandContext CreateCommandContext(TextConverterContext converterContext, MessageCreateEventArgs eventArgs, Dictionary<CommandParameter, object?> parsedArguments) => new()
+    public override TextCommandContext CreateCommandContext
+    (
+        TextConverterContext converterContext,
+        MessageCreateEventArgs eventArgs,
+        Dictionary<CommandParameter, object?> parsedArguments
+    )
     {
-        Arguments = parsedArguments,
-        Channel = eventArgs.Channel,
-        Command = converterContext.Command,
-        Extension = this.extension ?? throw new InvalidOperationException("TextCommandProcessor has not been configured."),
-        Message = eventArgs.Message,
-        ServiceScope = converterContext.ServiceScope,
-        User = eventArgs.Author
-    };
+        return new()
+        {
+            Arguments = parsedArguments,
+            Channel = eventArgs.Channel,
+            Command = converterContext.Command,
+            Extension = this.extension ?? throw new InvalidOperationException("TextCommandProcessor has not been configured."),
+            Message = eventArgs.Message,
+            ServiceScope = converterContext.ServiceScope,
+            User = eventArgs.Author
+        };
+    }
 }
