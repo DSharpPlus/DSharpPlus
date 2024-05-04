@@ -21,7 +21,7 @@ public abstract class DiscordInteractionMetadata : SnowflakeObject
     /// Discord user object for the invoking user, if invoked in a DM.
     /// </summary>
     [JsonIgnore]
-    public DiscordUser User => Discord.GetCachedOrEmptyUserInternal(UserId);
+    public DiscordUser User => this.Discord.GetCachedOrEmptyUserInternal(this.UserId);
 
     /// <summary>
     /// User object for the invoking user, if invoked in a DM.
@@ -33,7 +33,7 @@ public abstract class DiscordInteractionMetadata : SnowflakeObject
     /// Mapping of installation contexts that the interaction was authorized for to related user or guild IDs.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<DiscordApplicationIntegrationType, ulong> AuthorizingIntegrationOwners => _authorizingIntegrationOwners;
+    public IReadOnlyDictionary<DiscordApplicationIntegrationType, ulong> AuthorizingIntegrationOwners => this.authorizingIntegrationOwners;
 
     /// <summary>
     /// Mapping of installation contexts that the interaction was authorized for to related user or guild IDs.
@@ -41,7 +41,7 @@ public abstract class DiscordInteractionMetadata : SnowflakeObject
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value null
     // Justification: Used by JSON.NET
     [JsonProperty("authorizing_integration_owners", NullValueHandling = NullValueHandling.Ignore)]
-    private readonly Dictionary<DiscordApplicationIntegrationType, ulong> _authorizingIntegrationOwners;
+    private readonly Dictionary<DiscordApplicationIntegrationType, ulong> authorizingIntegrationOwners;
 #pragma warning restore CS0649
 
     /// <summary>

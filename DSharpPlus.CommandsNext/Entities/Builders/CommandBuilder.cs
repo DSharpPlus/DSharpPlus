@@ -27,7 +27,7 @@ public class CommandBuilder
     /// Gets the aliases set for this command.
     /// </summary>
     public IReadOnlyList<string> Aliases { get; }
-    private List<string> _aliasList { get; }
+    private List<string> aliasList { get; }
 
     /// <summary>
     /// Gets the description set for this command.
@@ -43,14 +43,14 @@ public class CommandBuilder
     /// Gets the execution checks defined for this command.
     /// </summary>
     public IReadOnlyList<CheckBaseAttribute> ExecutionChecks { get; }
-    private List<CheckBaseAttribute> _executionCheckList { get; }
+    private List<CheckBaseAttribute> executionCheckList { get; }
 
     /// <summary>
     /// Gets the collection of this command's overloads.
     /// </summary>
     public IReadOnlyList<CommandOverloadBuilder> Overloads { get; }
-    private List<CommandOverloadBuilder> _overloadList { get; }
-    private HashSet<string> _overloadArgumentSets { get; }
+    private List<CommandOverloadBuilder> overloadList { get; }
+    private HashSet<string> overloadArgumentSets { get; }
 
     /// <summary>
     /// Gets the module on which this command is to be defined.
@@ -61,7 +61,7 @@ public class CommandBuilder
     /// Gets custom attributes defined on this command.
     /// </summary>
     public IReadOnlyList<Attribute> CustomAttributes { get; }
-    private List<Attribute> _customAttributeList { get; }
+    private List<Attribute> customAttributeList { get; }
 
     /// <summary>
     /// Creates a new module-less command builder.
@@ -74,20 +74,20 @@ public class CommandBuilder
     /// <param name="module">Module on which this command is to be defined.</param>
     public CommandBuilder(ICommandModule? module)
     {
-        _aliasList = [];
-        Aliases = new ReadOnlyCollection<string>(_aliasList);
+        this.aliasList = [];
+        this.Aliases = new ReadOnlyCollection<string>(this.aliasList);
 
-        _executionCheckList = [];
-        ExecutionChecks = new ReadOnlyCollection<CheckBaseAttribute>(_executionCheckList);
+        this.executionCheckList = [];
+        this.ExecutionChecks = new ReadOnlyCollection<CheckBaseAttribute>(this.executionCheckList);
 
-        _overloadArgumentSets = [];
-        _overloadList = [];
-        Overloads = new ReadOnlyCollection<CommandOverloadBuilder>(_overloadList);
+        this.overloadArgumentSets = [];
+        this.overloadList = [];
+        this.Overloads = new ReadOnlyCollection<CommandOverloadBuilder>(this.overloadList);
 
-        Module = module;
+        this.Module = module;
 
-        _customAttributeList = [];
-        CustomAttributes = new ReadOnlyCollection<Attribute>(_customAttributeList);
+        this.customAttributeList = [];
+        this.CustomAttributes = new ReadOnlyCollection<Attribute>(this.customAttributeList);
     }
 
     /// <summary>
@@ -101,16 +101,16 @@ public class CommandBuilder
         {
             throw new ArgumentException("Command name cannot be null or contain any whitespace characters.", nameof(name));
         }
-        else if (Name != null)
+        else if (this.Name != null)
         {
             throw new InvalidOperationException("This command already has a name.");
         }
-        else if (_aliasList.Contains(name))
+        else if (this.aliasList.Contains(name))
         {
             throw new ArgumentException("Command name cannot be one of its aliases.", nameof(name));
         }
 
-        Name = name;
+        this.Name = name;
         return this;
     }
 
@@ -121,7 +121,7 @@ public class CommandBuilder
     /// <returns>This builder.</returns>
     public CommandBuilder WithCategory(string? category)
     {
-        Category = category;
+        this.Category = category;
         return this;
     }
 
@@ -139,7 +139,7 @@ public class CommandBuilder
 
         foreach (string alias in aliases)
         {
-            WithAlias(alias);
+            this.WithAlias(alias);
         }
 
         return this;
@@ -157,12 +157,12 @@ public class CommandBuilder
             throw new ArgumentException("Aliases cannot contain whitespace characters or null strings.", nameof(alias));
         }
 
-        if (Name == alias || _aliasList.Contains(alias))
+        if (this.Name == alias || this.aliasList.Contains(alias))
         {
             throw new ArgumentException("Aliases cannot contain the command name, and cannot be duplicate.", nameof(alias));
         }
 
-        _aliasList.Add(alias);
+        this.aliasList.Add(alias);
         return this;
     }
 
@@ -173,7 +173,7 @@ public class CommandBuilder
     /// <returns>This builder.</returns>
     public CommandBuilder WithDescription(string description)
     {
-        Description = description;
+        this.Description = description;
         return this;
     }
 
@@ -184,7 +184,7 @@ public class CommandBuilder
     /// <returns>This builder.</returns>
     public CommandBuilder WithHiddenStatus(bool hidden)
     {
-        IsHidden = hidden;
+        this.IsHidden = hidden;
         return this;
     }
 
@@ -195,7 +195,7 @@ public class CommandBuilder
     /// <returns>This builder.</returns>
     public CommandBuilder WithExecutionChecks(params CheckBaseAttribute[] checks)
     {
-        _executionCheckList.AddRange(checks.Except(_executionCheckList));
+        this.executionCheckList.AddRange(checks.Except(this.executionCheckList));
         return this;
     }
 
@@ -206,9 +206,9 @@ public class CommandBuilder
     /// <returns>This builder.</returns>
     public CommandBuilder WithExecutionCheck(CheckBaseAttribute check)
     {
-        if (!_executionCheckList.Contains(check))
+        if (!this.executionCheckList.Contains(check))
         {
-            _executionCheckList.Add(check);
+            this.executionCheckList.Add(check);
         }
 
         return this;
@@ -223,7 +223,7 @@ public class CommandBuilder
     {
         foreach (CommandOverloadBuilder overload in overloads)
         {
-            WithOverload(overload);
+            this.WithOverload(overload);
         }
 
         return this;
@@ -236,13 +236,13 @@ public class CommandBuilder
     /// <returns>This builder.</returns>
     public CommandBuilder WithOverload(CommandOverloadBuilder overload)
     {
-        if (_overloadArgumentSets.Contains(overload._argumentSet))
+        if (this.overloadArgumentSets.Contains(overload.argumentSet))
         {
-            throw new DuplicateOverloadException(Name, overload.Arguments.Select(x => x.Type).ToList(), overload._argumentSet);
+            throw new DuplicateOverloadException(this.Name, overload.Arguments.Select(x => x.Type).ToList(), overload.argumentSet);
         }
 
-        _overloadArgumentSets.Add(overload._argumentSet);
-        _overloadList.Add(overload);
+        this.overloadArgumentSets.Add(overload.argumentSet);
+        this.overloadList.Add(overload);
 
         return this;
     }
@@ -254,7 +254,7 @@ public class CommandBuilder
     /// <returns>This builder.</returns>
     public CommandBuilder WithCustomAttribute(Attribute attribute)
     {
-        _customAttributeList.Add(attribute);
+        this.customAttributeList.Add(attribute);
         return this;
     }
 
@@ -267,7 +267,7 @@ public class CommandBuilder
     {
         foreach (Attribute attr in attributes)
         {
-            WithCustomAttribute(attr);
+            this.WithCustomAttribute(attr);
         }
 
         return this;
@@ -277,19 +277,19 @@ public class CommandBuilder
     {
         Command cmd = new()
         {
-            Name = string.IsNullOrWhiteSpace(Name)
+            Name = string.IsNullOrWhiteSpace(this.Name)
                 ? throw new InvalidOperationException($"Cannot build a command with an invalid name. Use the method {nameof(this.WithName)} to set a valid name.")
-                : Name,
+                : this.Name,
 
-            Category = Category,
-            Description = Description,
-            Aliases = Aliases,
-            ExecutionChecks = ExecutionChecks,
-            IsHidden = IsHidden,
+            Category = this.Category,
+            Description = this.Description,
+            Aliases = this.Aliases,
+            ExecutionChecks = this.ExecutionChecks,
+            IsHidden = this.IsHidden,
             Parent = parent,
-            Overloads = new ReadOnlyCollection<CommandOverload>(Overloads.Select(xo => xo.Build()).ToList()),
-            Module = Module,
-            CustomAttributes = CustomAttributes
+            Overloads = new ReadOnlyCollection<CommandOverload>(this.Overloads.Select(xo => xo.Build()).ToList()),
+            Module = this.Module,
+            CustomAttributes = this.CustomAttributes
         };
 
         return cmd;

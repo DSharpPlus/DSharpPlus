@@ -16,12 +16,12 @@ public sealed class ParallelQueuedCommandExecutor : ICommandExecutor
     /// </summary>
     public int Parallelism { get; }
 
-    private readonly CancellationTokenSource _cts;
-    private readonly CancellationToken _ct;
-    private readonly Channel<CommandContext> _queue;
-    private readonly ChannelWriter<CommandContext> _queueWriter;
-    private readonly ChannelReader<CommandContext> _queueReader;
-    private readonly Task[] _tasks;
+    private readonly CancellationTokenSource cts;
+    private readonly CancellationToken ct;
+    private readonly Channel<CommandContext> queue;
+    private readonly ChannelWriter<CommandContext> queueWriter;
+    private readonly ChannelReader<CommandContext> queueReader;
+    private readonly Task[] tasks;
 
     /// <summary>
     /// Creates a new executor, which uses up to 75% of system CPU resources.
@@ -36,18 +36,18 @@ public sealed class ParallelQueuedCommandExecutor : ICommandExecutor
     /// <param name="parallelism">The number of workers to use. It is recommended this number does not exceed 150% of the physical CPU count.</param>
     public ParallelQueuedCommandExecutor(int parallelism)
     {
-        Parallelism = parallelism;
+        this.Parallelism = parallelism;
 
-        _cts = new();
-        _ct = _cts.Token;
-        _queue = Channel.CreateUnbounded<CommandContext>();
-        _queueReader = _queue.Reader;
-        _queueWriter = _queue.Writer;
+        this.cts = new();
+        this.ct = this.cts.Token;
+        this.queue = Channel.CreateUnbounded<CommandContext>();
+        this.queueReader = this.queue.Reader;
+        this.queueWriter = this.queue.Writer;
 
-        _tasks = new Task[parallelism];
+        this.tasks = new Task[parallelism];
         for (int i = 0; i < parallelism; i++)
         {
-            _tasks[i] = Task.Run(ExecuteAsync);
+            this.tasks[i] = Task.Run(this.ExecuteAsync);
         }
     }
 
@@ -56,19 +56,19 @@ public sealed class ParallelQueuedCommandExecutor : ICommandExecutor
     /// </summary>
     public void Dispose()
     {
-        _queueWriter.Complete();
-        _cts.Cancel();
-        _cts.Dispose();
+        this.queueWriter.Complete();
+        this.cts.Cancel();
+        this.cts.Dispose();
     }
 
     async Task ICommandExecutor.ExecuteAsync(CommandContext ctx)
-        => await _queueWriter.WriteAsync(ctx, _ct);
+        => await this.queueWriter.WriteAsync(ctx, this.ct);
 
     private async Task ExecuteAsync()
     {
-        while (!_ct.IsCancellationRequested)
+        while (!this.ct.IsCancellationRequested)
         {
-            CommandContext? ctx = await _queueReader.ReadAsync(_ct);
+            CommandContext? ctx = await this.queueReader.ReadAsync(this.ct);
             if (ctx is null)
             {
                 continue;

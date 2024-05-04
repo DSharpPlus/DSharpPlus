@@ -40,7 +40,7 @@ public class BaseContext
     /// Gets the member which executed this interaction, or null if the command is in a DM.
     /// </summary>
     public DiscordMember Member
-        => User is DiscordMember member ? member : null;
+        => this.User is DiscordMember member ? member : null;
 
     /// <summary>
     /// Gets the slash command module this interaction was created in.
@@ -86,11 +86,11 @@ public class BaseContext
     /// <param name="type">The type of the response.</param>
     /// <param name="builder">The data to be sent, if any.</param>
     public Task CreateResponseAsync(DiscordInteractionResponseType type, DiscordInteractionResponseBuilder builder = null)
-        => Interaction.CreateResponseAsync(type, builder);
+        => this.Interaction.CreateResponseAsync(type, builder);
 
     /// <inheritdoc cref="CreateResponseAsync(DiscordInteractionResponseType,DiscordInteractionResponseBuilder)"/>
     public Task CreateResponseAsync(DiscordInteractionResponseBuilder builder)
-        => CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, builder);
+        => this.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, builder);
 
     /// <summary>
     /// Creates a response to this interaction.
@@ -100,22 +100,22 @@ public class BaseContext
     /// <param name="embed">Embed to send in the response.</param>
     /// <param name="ephemeral">Whether the response should be ephemeral.</param>
     public Task CreateResponseAsync(string content, DiscordEmbed embed, bool ephemeral = false)
-        => CreateResponseAsync(new DiscordInteractionResponseBuilder().WithContent(content).AddEmbed(embed).AsEphemeral(ephemeral));
+        => this.CreateResponseAsync(new DiscordInteractionResponseBuilder().WithContent(content).AddEmbed(embed).AsEphemeral(ephemeral));
 
     /// <inheritdoc cref="CreateResponseAsync(string, DiscordEmbed, bool)"/>
     public Task CreateResponseAsync(string content, bool ephemeral = false)
-        => CreateResponseAsync(new DiscordInteractionResponseBuilder().WithContent(content).AsEphemeral(ephemeral));
+        => this.CreateResponseAsync(new DiscordInteractionResponseBuilder().WithContent(content).AsEphemeral(ephemeral));
 
     /// <inheritdoc cref="CreateResponseAsync(string, DiscordEmbed, bool)"/>
     public Task CreateResponseAsync(DiscordEmbed embed, bool ephemeral = false)
-        => CreateResponseAsync(new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral(ephemeral));
+        => this.CreateResponseAsync(new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral(ephemeral));
 
     /// <summary>
     /// Creates a deferred response to this interaction.
     /// </summary>
     /// <param name="ephemeral">Whether the response should be ephemeral.</param>
     public Task DeferAsync(bool ephemeral = false)
-        => CreateResponseAsync(DiscordInteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(ephemeral));
+        => this.CreateResponseAsync(DiscordInteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(ephemeral));
 
     /// <summary>
     /// Edits the interaction response.
@@ -124,14 +124,14 @@ public class BaseContext
     /// <param name="attachments">Attached files to keep.</param>
     /// <returns></returns>
     public Task<DiscordMessage> EditResponseAsync(DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments = default)
-        => Interaction.EditOriginalResponseAsync(builder, attachments);
+        => this.Interaction.EditOriginalResponseAsync(builder, attachments);
 
     /// <summary>
     /// Deletes the interaction response.
     /// </summary>
     /// <returns></returns>
     public Task DeleteResponseAsync()
-        => Interaction.DeleteOriginalResponseAsync();
+        => this.Interaction.DeleteOriginalResponseAsync();
 
     /// <summary>
     /// Creates a follow up message to the interaction.
@@ -139,7 +139,7 @@ public class BaseContext
     /// <param name="builder">The message to be sent, in the form of a webhook.</param>
     /// <returns>The created message.</returns>
     public Task<DiscordMessage> FollowUpAsync(DiscordFollowupMessageBuilder builder)
-        => Interaction.CreateFollowupMessageAsync(builder);
+        => this.Interaction.CreateFollowupMessageAsync(builder);
 
     /// <summary>
     /// Edits a followup message.
@@ -149,7 +149,7 @@ public class BaseContext
     /// <param name="attachments">Attached files to keep.</param>
     /// <returns></returns>
     public Task<DiscordMessage> EditFollowupAsync(ulong followupMessageId, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments = default)
-        => Interaction.EditFollowupMessageAsync(followupMessageId, builder, attachments);
+        => this.Interaction.EditFollowupMessageAsync(followupMessageId, builder, attachments);
 
     /// <summary>
     /// Deletes a followup message.
@@ -157,12 +157,12 @@ public class BaseContext
     /// <param name="followupMessageId">The id of the followup message to delete.</param>
     /// <returns></returns>
     public Task DeleteFollowupAsync(ulong followupMessageId)
-        => Interaction.DeleteFollowupMessageAsync(followupMessageId);
+        => this.Interaction.DeleteFollowupMessageAsync(followupMessageId);
 
     /// <summary>
     /// Gets the original interaction response.
     /// </summary>
     /// <returns>The original interaction response.</returns>
     public Task<DiscordMessage> GetOriginalResponseAsync()
-         => Interaction.GetOriginalResponseAsync();
+         => this.Interaction.GetOriginalResponseAsync();
 }

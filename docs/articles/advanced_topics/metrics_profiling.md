@@ -15,7 +15,7 @@ their outcomes, and we intend to add more insights - feel free to let us know vi
 ## Rest Metrics
 
 Metrics on REST requests can be obtained through `GetRequestMetrics` methods on the respective client.
-This is supported on the webhook client, @DSharpPlus.DiscordRestClient and @DSharpPlus.DiscordClient . To
+This is supported on the webhook client, @DSharpPlus.DiscordRestClient and @DSharpPlus.DiscordClient. To
 obtain metrics from a @DSharpPlus.DiscordShardedClient , fetch metrics from the first shard.
 
 You may optionally specify to reset the tracking metrics, for example when polling regularly to calculate

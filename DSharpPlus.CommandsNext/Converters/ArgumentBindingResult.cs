@@ -12,17 +12,17 @@ public readonly struct ArgumentBindingResult
 
     public ArgumentBindingResult(object?[] converted, IReadOnlyList<string> raw)
     {
-        IsSuccessful = true;
-        Reason = null;
-        Converted = converted;
-        Raw = raw;
+        this.IsSuccessful = true;
+        this.Reason = null;
+        this.Converted = converted;
+        this.Raw = raw;
     }
 
     public ArgumentBindingResult(Exception ex)
     {
-        IsSuccessful = false;
-        Reason = ex;
-        Converted = [];
-        Raw = Array.Empty<string>();
+        this.IsSuccessful = false;
+        this.Reason = ex;
+        this.Converted = [];
+        this.Raw = Array.Empty<string>();
     }
 }

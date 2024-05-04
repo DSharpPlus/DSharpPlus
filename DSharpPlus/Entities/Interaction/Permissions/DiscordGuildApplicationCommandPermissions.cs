@@ -26,7 +26,7 @@ public class DiscordGuildApplicationCommandPermissions : SnowflakeObject
     /// </summary>
     [JsonIgnore]
     public DiscordGuild Guild
-        => (Discord as DiscordClient).InternalGetCachedGuild(GuildId);
+        => (this.Discord as DiscordClient).InternalGetCachedGuild(this.GuildId);
 
     /// <summary>
     /// Gets the permissions for the application command in the guild.
@@ -43,7 +43,7 @@ public class DiscordGuildApplicationCommandPermissions : SnowflakeObject
     /// <param name="permissions">The permissions for the application command.</param>
     public DiscordGuildApplicationCommandPermissions(ulong commandId, IEnumerable<DiscordApplicationCommandPermission> permissions)
     {
-        Id = commandId;
-        Permissions = permissions.ToList();
+        this.Id = commandId;
+        this.Permissions = permissions.ToList();
     }
 }

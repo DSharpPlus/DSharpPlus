@@ -28,12 +28,12 @@ public sealed class DiscordForumChannel : DiscordChannel
     /// <summary>
     /// Gets the available tags for the forum.
     /// </summary>
-    public IReadOnlyList<DiscordForumTag> AvailableTags => _availableTags;
+    public IReadOnlyList<DiscordForumTag> AvailableTags => this.availableTags;
 
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value null
     // Justification: Used by JSON.NET
     [JsonProperty("available_tags")]
-    private readonly List<DiscordForumTag> _availableTags;
+    private readonly List<DiscordForumTag> availableTags;
 #pragma warning restore CS0649
 
     /// <summary>
@@ -60,7 +60,7 @@ public sealed class DiscordForumChannel : DiscordChannel
     /// <param name="builder">The builder to create the forum post with.</param>
     /// <returns>The starter (the created thread, and the initial message) from creating the post.</returns>
     public async Task<DiscordForumPostStarter> CreateForumPostAsync(ForumPostBuilder builder)
-        => await Discord.ApiClient.CreateForumPostAsync(Id, builder.Name, builder.Message, builder.AutoArchiveDuration, builder.SlowMode, builder.AppliedTags.Select(t => t.Id));
+        => await this.Discord.ApiClient.CreateForumPostAsync(this.Id, builder.Name, builder.Message, builder.AutoArchiveDuration, builder.SlowMode, builder.AppliedTags.Select(t => t.Id));
 
     internal DiscordForumChannel() { }
 }

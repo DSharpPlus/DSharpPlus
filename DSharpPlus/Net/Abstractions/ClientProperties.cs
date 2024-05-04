@@ -67,7 +67,7 @@ internal sealed class ClientProperties
     /// </summary>
     [JsonProperty("$device")]
     public string Device
-        => Browser;
+        => this.Browser;
 
     /// <summary>
     /// Gets the client's referrer.

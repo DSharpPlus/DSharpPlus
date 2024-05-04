@@ -7,13 +7,13 @@ namespace DSharpPlus.Entities;
 public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectComponent
 {
     [JsonProperty("default_values", NullValueHandling = NullValueHandling.Ignore)]
-    private readonly List<DiscordSelectDefaultValue> _defaultValues = [];
+    private readonly List<DiscordSelectDefaultValue> defaultValues = [];
 
     /// <summary>
     /// The default values for this component.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyList<DiscordSelectDefaultValue> DefaultValues => _defaultValues;
+    public IReadOnlyList<DiscordSelectDefaultValue> DefaultValues => this.defaultValues;
 
     /// <summary>
     /// Adds a default role or user to this component.
@@ -28,7 +28,7 @@ public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectCompone
         }
 
         DiscordSelectDefaultValue defaultValue = new(id, type);
-        _defaultValues.Add(defaultValue);
+        this.defaultValues.Add(defaultValue);
         return this;
     }
 
@@ -47,7 +47,7 @@ public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectCompone
         foreach (ulong id in ids)
         {
             DiscordSelectDefaultValue defaultValue = new(id, type);
-            _defaultValues.Add(defaultValue);
+            this.defaultValues.Add(defaultValue);
         }
 
         return this;
@@ -59,7 +59,7 @@ public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectCompone
     /// <returns>The current component.</returns>
     public DiscordMentionableSelectComponent Enable()
     {
-        Disabled = false;
+        this.Disabled = false;
         return this;
     }
     /// <summary>
@@ -68,11 +68,11 @@ public sealed class DiscordMentionableSelectComponent : BaseDiscordSelectCompone
     /// <returns>The current component.</returns>
     public DiscordMentionableSelectComponent Disable()
     {
-        Disabled = true;
+        this.Disabled = true;
         return this;
     }
 
-    internal DiscordMentionableSelectComponent() => Type = DiscordComponentType.MentionableSelect;
+    internal DiscordMentionableSelectComponent() => this.Type = DiscordComponentType.MentionableSelect;
 
     /// <summary>
     /// Creates a new mentionable select component.

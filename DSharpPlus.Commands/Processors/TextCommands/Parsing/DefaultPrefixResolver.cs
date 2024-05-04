@@ -17,7 +17,7 @@ public sealed class DefaultPrefixResolver
             throw new ArgumentException("Prefix cannot be null or whitespace.", nameof(prefix));
         }
 
-        Prefix = prefix;
+        this.Prefix = prefix;
     }
 
     public ValueTask<int> ResolvePrefixAsync(CommandsExtension extension, DiscordMessage message)
@@ -26,9 +26,9 @@ public sealed class DefaultPrefixResolver
         {
             return ValueTask.FromResult(-1);
         }
-        else if (message.Content.StartsWith(Prefix, StringComparison.OrdinalIgnoreCase))
+        else if (message.Content.StartsWith(this.Prefix, StringComparison.OrdinalIgnoreCase))
         {
-            return ValueTask.FromResult(Prefix.Length);
+            return ValueTask.FromResult(this.Prefix.Length);
         }
         // Mention check
         else if (message.Content.StartsWith(extension.Client.CurrentUser.Mention, StringComparison.OrdinalIgnoreCase))

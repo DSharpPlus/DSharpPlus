@@ -10,8 +10,8 @@ internal struct VoicePacket
 
     public VoicePacket(ReadOnlyMemory<byte> bytes, int msDuration, bool isSilence = false)
     {
-        Bytes = bytes;
-        MillisecondDuration = msDuration;
-        IsSilence = isSilence;
+        this.Bytes = bytes;
+        this.MillisecondDuration = msDuration;
+        this.IsSilence = isSilence;
     }
 }

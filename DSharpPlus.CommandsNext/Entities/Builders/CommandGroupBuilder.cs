@@ -14,7 +14,7 @@ public sealed class CommandGroupBuilder : CommandBuilder
     /// Gets the list of child commands registered for this group.
     /// </summary>
     public IReadOnlyList<CommandBuilder> Children { get; }
-    private List<CommandBuilder> _childrenList { get; }
+    private List<CommandBuilder> childrenList { get; }
 
     /// <summary>
     /// Creates a new module-less command group builder.
@@ -27,8 +27,8 @@ public sealed class CommandGroupBuilder : CommandBuilder
     /// <param name="module">Module on which this group is to be defined.</param>
     public CommandGroupBuilder(ICommandModule? module) : base(module)
     {
-        _childrenList = [];
-        Children = new ReadOnlyCollection<CommandBuilder>(_childrenList);
+        this.childrenList = [];
+        this.Children = new ReadOnlyCollection<CommandBuilder>(this.childrenList);
     }
 
     /// <summary>
@@ -38,7 +38,7 @@ public sealed class CommandGroupBuilder : CommandBuilder
     /// <returns>This builder.</returns>
     public CommandGroupBuilder WithChild(CommandBuilder child)
     {
-        _childrenList.Add(child);
+        this.childrenList.Add(child);
         return this;
     }
 
@@ -46,20 +46,20 @@ public sealed class CommandGroupBuilder : CommandBuilder
     {
         CommandGroup cmd = new()
         {
-            Name = Name,
-            Description = Description,
-            Aliases = Aliases,
-            ExecutionChecks = ExecutionChecks,
-            IsHidden = IsHidden,
+            Name = this.Name,
+            Description = this.Description,
+            Aliases = this.Aliases,
+            ExecutionChecks = this.ExecutionChecks,
+            IsHidden = this.IsHidden,
             Parent = parent,
-            Overloads = new ReadOnlyCollection<CommandOverload>(Overloads.Select(xo => xo.Build()).ToList()),
-            Module = Module,
-            CustomAttributes = CustomAttributes,
-            Category = Category
+            Overloads = new ReadOnlyCollection<CommandOverload>(this.Overloads.Select(xo => xo.Build()).ToList()),
+            Module = this.Module,
+            CustomAttributes = this.CustomAttributes,
+            Category = this.Category
         };
 
         List<Command> cs = [];
-        foreach (CommandBuilder xc in Children)
+        foreach (CommandBuilder xc in this.Children)
         {
             cs.Add(xc.Build(cmd));
         }

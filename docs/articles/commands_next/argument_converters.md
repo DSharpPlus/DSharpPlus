@@ -67,4 +67,4 @@ public async Task BooleanCommand(CommandContext ctx, bool boolean)
 ![true][0]
 
 <!-- LINKS -->
-[0]:  ../../images/commands_next_argument_converters_01.png
+[0]: ../../images/commands_next_argument_converters_01.png

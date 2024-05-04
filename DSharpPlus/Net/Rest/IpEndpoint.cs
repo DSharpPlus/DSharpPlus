@@ -24,7 +24,7 @@ public struct IpEndpoint
     /// <param name="port">Port to use for connection.</param>
     public IpEndpoint(IPAddress address, int port)
     {
-        Address = address;
-        Port = port;
+        this.Address = address;
+        this.Port = port;
     }
 }

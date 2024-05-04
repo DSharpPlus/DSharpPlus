@@ -369,5 +369,5 @@ public sealed class PermissionStringAttribute : Attribute
     /// Defines a readable name for this permission.
     /// </summary>
     /// <param name="str">Readable name for this permission.</param>
-    public PermissionStringAttribute(string str) => String = str;
+    public PermissionStringAttribute(string str) => this.String = str;
 }

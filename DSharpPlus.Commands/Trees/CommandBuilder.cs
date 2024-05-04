@@ -26,17 +26,17 @@ public class CommandBuilder
             throw new ArgumentNullException(nameof(name), "The name of the command cannot be null or whitespace.");
         }
 
-        Name = name;
+        this.Name = name;
         return this;
     }
 
     public CommandBuilder WithDescription(string? description)
     {
-        Description = description;
+        this.Description = description;
         return this;
     }
 
-    public CommandBuilder WithDelegate(Delegate? method) => WithDelegate(method?.Method, method?.Target);
+    public CommandBuilder WithDelegate(Delegate? method) => this.WithDelegate(method?.Method, method?.Target);
     public CommandBuilder WithDelegate(MethodInfo? method, object? target = null)
     {
         if (method is not null)
@@ -48,41 +48,41 @@ public class CommandBuilder
             }
         }
 
-        Method = method;
-        Target = target;
+        this.Method = method;
+        this.Target = target;
         return this;
     }
 
     public CommandBuilder WithParent(Command? parent)
     {
-        Parent = parent;
+        this.Parent = parent;
         return this;
     }
 
     public CommandBuilder WithSubcommands(IEnumerable<CommandBuilder> subcommands)
     {
-        Subcommands = new(subcommands);
+        this.Subcommands = new(subcommands);
         return this;
     }
 
     public CommandBuilder WithParameters(IEnumerable<CommandParameterBuilder> parameters)
     {
-        Parameters = new(parameters);
+        this.Parameters = new(parameters);
         return this;
     }
 
     public CommandBuilder WithAttributes(IEnumerable<Attribute> attributes)
     {
-        Attributes = new(attributes);
+        this.Attributes = new(attributes);
         foreach (Attribute attribute in attributes)
         {
             if (attribute is CommandAttribute commandAttribute)
             {
-                WithName(commandAttribute.Name);
+                this.WithName(commandAttribute.Name);
             }
             else if (attribute is DescriptionAttribute descriptionAttribute)
             {
-                WithDescription(descriptionAttribute.Description);
+                this.WithDescription(descriptionAttribute.Description);
             }
         }
 
@@ -91,39 +91,39 @@ public class CommandBuilder
 
     public CommandBuilder WithGuildIds(IEnumerable<ulong> guildIds)
     {
-        GuildIds = new(guildIds);
+        this.GuildIds = new(guildIds);
         return this;
     }
 
     [MemberNotNull(nameof(Name), nameof(Subcommands), nameof(Parameters), nameof(Attributes))]
     public Command Build()
     {
-        ArgumentNullException.ThrowIfNull(Name, nameof(Name));
-        ArgumentNullException.ThrowIfNull(Subcommands, nameof(Subcommands));
-        ArgumentNullException.ThrowIfNull(Parameters, nameof(Parameters));
-        ArgumentNullException.ThrowIfNull(Attributes, nameof(Attributes));
+        ArgumentNullException.ThrowIfNull(this.Name, nameof(this.Name));
+        ArgumentNullException.ThrowIfNull(this.Subcommands, nameof(this.Subcommands));
+        ArgumentNullException.ThrowIfNull(this.Parameters, nameof(this.Parameters));
+        ArgumentNullException.ThrowIfNull(this.Attributes, nameof(this.Attributes));
 
         // Push it through the With* methods again, which contain validation.
-        WithName(Name);
-        WithDescription(Description);
-        WithDelegate(Method, Target);
-        WithParent(Parent);
-        WithSubcommands(Subcommands);
-        WithParameters(Parameters);
-        WithAttributes(Attributes);
-        WithGuildIds(GuildIds);
+        this.WithName(this.Name);
+        this.WithDescription(this.Description);
+        this.WithDelegate(this.Method, this.Target);
+        this.WithParent(this.Parent);
+        this.WithSubcommands(this.Subcommands);
+        this.WithParameters(this.Parameters);
+        this.WithAttributes(this.Attributes);
+        this.WithGuildIds(this.GuildIds);
 
-        return new(Subcommands)
+        return new(this.Subcommands)
         {
-            Name = Name,
-            Description = Description,
-            Method = Method,
+            Name = this.Name,
+            Description = this.Description,
+            Method = this.Method,
             Id = Ulid.NewUlid(),
-            Target = Target,
-            Parent = Parent,
-            Parameters = Parameters.Select(x => x.Build()).ToArray(),
-            Attributes = Attributes,
-            GuildIds = GuildIds
+            Target = this.Target,
+            Parent = this.Parent,
+            Parameters = this.Parameters.Select(x => x.Build()).ToArray(),
+            Attributes = this.Attributes,
+            GuildIds = this.GuildIds
         };
     }
 

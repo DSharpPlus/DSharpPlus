@@ -18,7 +18,7 @@ public sealed class CommandOverloadBuilder
     /// <summary>
     /// Gets a value that uniquely identifies an overload.
     /// </summary>
-    internal string _argumentSet { get; }
+    internal string argumentSet { get; }
 
     /// <summary>
     /// Gets the collection of arguments this overload takes.
@@ -35,7 +35,7 @@ public sealed class CommandOverloadBuilder
     /// </summary>
     public Delegate Callable { get; set; }
 
-    private object? _invocationTarget { get; }
+    private object? invocationTarget { get; }
 
     /// <summary>
     /// Creates a new command overload builder from specified method.
@@ -56,7 +56,7 @@ public sealed class CommandOverloadBuilder
             throw new ArgumentException("Specified method is not suitable for a command.", nameof(method));
         }
 
-        _invocationTarget = target;
+        this.invocationTarget = target;
 
         // create the argument array
         ParameterExpression[] ea = new ParameterExpression[prms.Length + 1];
@@ -67,7 +67,7 @@ public sealed class CommandOverloadBuilder
         PriorityAttribute? pri = method.GetCustomAttribute<PriorityAttribute>();
         if (pri != null)
         {
-            Priority = pri.Priority;
+            this.Priority = pri.Priority;
         }
 
         int i = 2;
@@ -102,7 +102,7 @@ public sealed class CommandOverloadBuilder
                     case ParamArrayAttribute p:
                         ca.IsCatchAll = true;
                         ca.Type = arg.ParameterType.GetElementType();
-                        ca._isArray = true;
+                        ca.isArray = true;
                         isParams = true;
                         break;
 
@@ -131,9 +131,9 @@ public sealed class CommandOverloadBuilder
         MethodCallExpression ec = Expression.Call(iep, method, ea.Skip(1));
         LambdaExpression el = Expression.Lambda(ec, ea);
 
-        _argumentSet = setb.ToString();
-        Arguments = new ReadOnlyCollection<CommandArgument>(args);
-        Callable = el.Compile();
+        this.argumentSet = setb.ToString();
+        this.Arguments = new ReadOnlyCollection<CommandArgument>(args);
+        this.Callable = el.Compile();
     }
 
     /// <summary>
@@ -143,7 +143,7 @@ public sealed class CommandOverloadBuilder
     /// <returns>This builder.</returns>
     public CommandOverloadBuilder WithPriority(int priority)
     {
-        Priority = priority;
+        this.Priority = priority;
         return this;
     }
 
@@ -151,10 +151,10 @@ public sealed class CommandOverloadBuilder
     {
         CommandOverload ovl = new()
         {
-            Arguments = Arguments,
-            Priority = Priority,
-            _callable = Callable,
-            _invocationTarget = _invocationTarget
+            Arguments = this.Arguments,
+            Priority = this.Priority,
+            callable = this.Callable,
+            invocationTarget = this.invocationTarget
         };
 
         return ovl;

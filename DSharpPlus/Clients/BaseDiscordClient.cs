@@ -55,13 +55,13 @@ public abstract class BaseDiscordClient : IDisposable
     /// Gets the list of available voice regions. Note that this property will not contain VIP voice regions.
     /// </summary>
     public IReadOnlyDictionary<string, DiscordVoiceRegion> VoiceRegions
-        => _voice_regions_lazy.Value;
+        => this.voice_regions_lazy.Value;
 
     /// <summary>
     /// Gets the list of available voice regions. This property is meant as a way to modify <see cref="VoiceRegions"/>.
     /// </summary>
     protected internal ConcurrentDictionary<string, DiscordVoiceRegion> InternalVoiceRegions { get; set; }
-    internal Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>> _voice_regions_lazy;
+    internal Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>> voice_regions_lazy;
 
     /// <summary>
     /// Initializes this Discord API client.
@@ -70,26 +70,26 @@ public abstract class BaseDiscordClient : IDisposable
     /// <param name="rest_client">Restclient which will be used for the underlying ApiClients</param>
     internal BaseDiscordClient(DiscordConfiguration config, RestClient? rest_client = null)
     {
-        Configuration = new DiscordConfiguration(config);
+        this.Configuration = new DiscordConfiguration(config);
 
-        if (Configuration.LoggerFactory == null)
+        if (this.Configuration.LoggerFactory == null)
         {
-            Configuration.LoggerFactory = new DefaultLoggerFactory();
-            Configuration.LoggerFactory.AddProvider(new DefaultLoggerProvider(this));
+            this.Configuration.LoggerFactory = new DefaultLoggerFactory();
+            this.Configuration.LoggerFactory.AddProvider(new DefaultLoggerProvider(this));
         }
-        Logger = Configuration.LoggerFactory.CreateLogger<BaseDiscordClient>();
+        this.Logger = this.Configuration.LoggerFactory.CreateLogger<BaseDiscordClient>();
 
-        ApiClient = new DiscordApiClient(this, rest_client);
-        UserCache = new ConcurrentDictionary<ulong, DiscordUser>();
-        InternalVoiceRegions = new ConcurrentDictionary<string, DiscordVoiceRegion>();
-        _voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(InternalVoiceRegions));
+        this.ApiClient = new DiscordApiClient(this, rest_client);
+        this.UserCache = new ConcurrentDictionary<ulong, DiscordUser>();
+        this.InternalVoiceRegions = new ConcurrentDictionary<string, DiscordVoiceRegion>();
+        this.voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this.InternalVoiceRegions));
 
         Assembly a = typeof(DiscordClient).GetTypeInfo().Assembly;
 
         AssemblyInformationalVersionAttribute? iv = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
         if (iv != null)
         {
-            VersionString = iv.InformationalVersion;
+            this.VersionString = iv.InformationalVersion;
         }
         else
         {
@@ -98,14 +98,14 @@ public abstract class BaseDiscordClient : IDisposable
 
             if (v.Revision > 0)
             {
-                VersionString = $"{vs}, CI build {v.Revision}";
+                this.VersionString = $"{vs}, CI build {v.Revision}";
             }
         }
     }
 
     /// <inheritdoc cref="RestClient.GetRequestMetrics(bool)"/>
     public RequestMetricsCollection GetRequestMetrics(bool sinceLastCall = false)
-        => ApiClient.GetRequestMetrics(sinceLastCall);
+        => this.ApiClient.GetRequestMetrics(sinceLastCall);
 
     /// <summary>
     /// Gets the current API application.
@@ -113,7 +113,7 @@ public abstract class BaseDiscordClient : IDisposable
     /// <returns>Current API application.</returns>
     public async Task<DiscordApplication> GetCurrentApplicationAsync()
     {
-        Net.Abstractions.TransportApplication tapp = await ApiClient.GetCurrentApplicationInfoAsync();
+        Net.Abstractions.TransportApplication tapp = await this.ApiClient.GetCurrentApplicationInfoAsync();
         DiscordApplication app = new()
         {
             Discord = this,
@@ -169,7 +169,7 @@ public abstract class BaseDiscordClient : IDisposable
     /// <returns></returns>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<IReadOnlyList<DiscordVoiceRegion>> ListVoiceRegionsAsync()
-        => await ApiClient.ListVoiceRegionsAsync();
+        => await this.ApiClient.ListVoiceRegionsAsync();
 
     /// <summary>
     /// Initializes this client. This method fetches information about current user, application, and voice regions.
@@ -177,23 +177,23 @@ public abstract class BaseDiscordClient : IDisposable
     /// <returns></returns>
     public virtual async Task InitializeAsync()
     {
-        if (CurrentUser == null)
+        if (this.CurrentUser == null)
         {
-            CurrentUser = await ApiClient.GetCurrentUserAsync();
-            UpdateUserCache(CurrentUser);
+            this.CurrentUser = await this.ApiClient.GetCurrentUserAsync();
+            this.UpdateUserCache(this.CurrentUser);
         }
 
-        if (Configuration.TokenType == TokenType.Bot && CurrentApplication == null)
+        if (this.Configuration.TokenType == TokenType.Bot && this.CurrentApplication == null)
         {
-            CurrentApplication = await GetCurrentApplicationAsync();
+            this.CurrentApplication = await this.GetCurrentApplicationAsync();
         }
 
-        if (Configuration.TokenType != TokenType.Bearer && InternalVoiceRegions.IsEmpty)
+        if (this.Configuration.TokenType != TokenType.Bearer && this.InternalVoiceRegions.IsEmpty)
         {
-            IReadOnlyList<DiscordVoiceRegion> vrs = await ListVoiceRegionsAsync();
+            IReadOnlyList<DiscordVoiceRegion> vrs = await this.ListVoiceRegionsAsync();
             foreach (DiscordVoiceRegion xvr in vrs)
             {
-                InternalVoiceRegions.TryAdd(xvr.Id, xvr);
+                this.InternalVoiceRegions.TryAdd(xvr.Id, xvr);
             }
         }
     }
@@ -205,37 +205,37 @@ public abstract class BaseDiscordClient : IDisposable
     /// <returns>A gateway info object.</returns>
     public async Task<GatewayInfo> GetGatewayInfoAsync(string token = null)
     {
-        if (Configuration.TokenType != TokenType.Bot)
+        if (this.Configuration.TokenType != TokenType.Bot)
         {
             throw new InvalidOperationException("Only bot tokens can access this info.");
         }
 
-        if (string.IsNullOrEmpty(Configuration.Token))
+        if (string.IsNullOrEmpty(this.Configuration.Token))
         {
             if (string.IsNullOrEmpty(token))
             {
                 throw new InvalidOperationException("Could not locate a valid token.");
             }
 
-            Configuration.Token = token;
+            this.Configuration.Token = token;
 
-            GatewayInfo res = await ApiClient.GetGatewayInfoAsync();
-            Configuration.Token = null;
+            GatewayInfo res = await this.ApiClient.GetGatewayInfoAsync();
+            this.Configuration.Token = null;
             return res;
         }
 
-        return await ApiClient.GetGatewayInfoAsync();
+        return await this.ApiClient.GetGatewayInfoAsync();
     }
 
     internal DiscordUser GetCachedOrEmptyUserInternal(ulong user_id)
     {
-        TryGetCachedUserInternal(user_id, out DiscordUser? user);
+        this.TryGetCachedUserInternal(user_id, out DiscordUser? user);
         return user;
     }
 
     internal bool TryGetCachedUserInternal(ulong user_id, out DiscordUser user)
     {
-        if (UserCache.TryGetValue(user_id, out user))
+        if (this.UserCache.TryGetValue(user_id, out user))
         {
             return true;
         }
@@ -250,7 +250,7 @@ public abstract class BaseDiscordClient : IDisposable
     // anyways.
     // Furthermore, setting properties requires keeping track of where we update cache and updating repeat code.
     internal DiscordUser UpdateUserCache(DiscordUser newUser)
-        => UserCache.AddOrUpdate(newUser.Id, newUser, (_, _) => newUser);
+        => this.UserCache.AddOrUpdate(newUser.Id, newUser, (_, _) => newUser);
 
     /// <summary>
     /// Disposes this client.

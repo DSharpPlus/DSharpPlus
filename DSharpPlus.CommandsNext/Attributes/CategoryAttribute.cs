@@ -14,6 +14,6 @@ public sealed class CategoryAttribute : Attribute
             throw new ArgumentNullException(nameof(name), "Command category names cannot be null, empty, or all-whitespace.");
         }
 
-        Name = name;
+        this.Name = name;
     }
 }

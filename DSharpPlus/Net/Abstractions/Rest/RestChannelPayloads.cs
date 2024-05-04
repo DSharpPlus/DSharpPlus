@@ -194,10 +194,10 @@ internal class RestChannelMessageEditPayload
     public bool HasEmbed { get; set; }
 
     public bool ShouldSerializeContent()
-        => HasContent;
+        => this.HasContent;
 
     public bool ShouldSerializeEmbed()
-        => HasEmbed;
+        => this.HasEmbed;
 }
 
 internal sealed class RestChannelMessageCreatePayload : RestChannelMessageEditPayload

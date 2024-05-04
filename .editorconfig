@@ -18,7 +18,7 @@ indent_size = 2
 indent_size = 2
 
 ###############################
-# .NET Coding Conventions     #
+#.NET Coding Conventions     #
 ###############################
 [*.{cs,vb}]
 
@@ -30,10 +30,10 @@ dotnet_style_collection_initializer = true:error
 dotnet_style_prefer_collection_expression = true:error
 
 # Nullable reference types
-dotnet_diagnostic.CS8632.severity = none
+dotnet_diagnostic.CS8632.severity = suggestion
 
 # Suppress CS1591: Missing XML comment for publicly visible type or member
-dotnet_diagnostic.CS1591.severity = none
+dotnet_diagnostic.CS1591.severity = suggestion
 
 # Suppress IDE0058: Expression value is never used
 dotnet_diagnostic.IDE0058.severity = none
@@ -49,10 +49,10 @@ dotnet_diagnostic.IDE0064.severity = none
 dotnet_diagnostic.IDE0005.severity = error
 
 # this. preferences
-dotnet_style_qualification_for_field = false:error
-dotnet_style_qualification_for_property = false:error
-dotnet_style_qualification_for_method = false:error
-dotnet_style_qualification_for_event = false:error
+dotnet_style_qualification_for_field = true:error
+dotnet_style_qualification_for_property = true:error
+dotnet_style_qualification_for_method = true:error
+dotnet_style_qualification_for_event = true:error
 
 # Language keywords vs BCL types preferences
 dotnet_style_predefined_type_for_locals_parameters_members = true:error
@@ -190,17 +190,17 @@ csharp_space_between_method_call_name_and_opening_parenthesis = false
 csharp_space_between_method_call_empty_parameter_list_parentheses = false
 
 # Wrapping preferences
-csharp_preserve_single_line_statements = true
+csharp_preserve_single_line_statements = false
 csharp_preserve_single_line_blocks = true
 
 # Use regular constructors over primary constructors
 csharp_style_prefer_primary_constructors = false:error
 
 # Expression-bodied members
-csharp_style_expression_bodied_methods = true:error
-csharp_style_expression_bodied_constructors = true:error
-csharp_style_expression_bodied_operators = true:error
-csharp_style_expression_bodied_properties = true:error
-csharp_style_expression_bodied_indexers = true:error
-csharp_style_expression_bodied_accessors = true:error
-csharp_style_expression_bodied_lambdas = true:error
+csharp_style_expression_bodied_methods = when_on_single_line:error
+csharp_style_expression_bodied_constructors = when_on_single_line:error
+csharp_style_expression_bodied_operators = when_on_single_line:error
+csharp_style_expression_bodied_properties = when_on_single_line:error
+csharp_style_expression_bodied_indexers = when_on_single_line:error
+csharp_style_expression_bodied_accessors = when_on_single_line:error
+csharp_style_expression_bodied_lambdas = when_on_single_line:error

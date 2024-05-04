@@ -40,7 +40,7 @@ public class DiscordDmChannel : DiscordChannel
     /// </summary>
     [JsonIgnore]
     public string IconUrl
-        => !string.IsNullOrWhiteSpace(IconHash) ? $"https://cdn.discordapp.com/channel-icons/{Id.ToString(CultureInfo.InvariantCulture)}/{IconHash}.png" : null;
+        => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/channel-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png" : null;
 
     /// <summary>
     /// Only use for Group DMs! Whitelisted bots only. Requires user's oauth2 access token
@@ -52,7 +52,7 @@ public class DiscordDmChannel : DiscordChannel
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task AddDmRecipientAsync(ulong user_id, string accesstoken, string nickname)
-        => await Discord.ApiClient.AddGroupDmRecipientAsync(Id, user_id, accesstoken, nickname);
+        => await this.Discord.ApiClient.AddGroupDmRecipientAsync(this.Id, user_id, accesstoken, nickname);
 
     /// <summary>
     /// Only use for Group DMs!
@@ -62,5 +62,5 @@ public class DiscordDmChannel : DiscordChannel
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task RemoveDmRecipientAsync(ulong user_id)
-        => await Discord.ApiClient.RemoveGroupDmRecipientAsync(Id, user_id);
+        => await this.Discord.ApiClient.RemoveGroupDmRecipientAsync(this.Id, user_id);
 }

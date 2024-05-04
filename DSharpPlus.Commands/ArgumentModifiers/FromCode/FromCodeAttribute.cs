@@ -17,5 +17,5 @@ public sealed partial class FromCodeAttribute : Attribute
     /// Creates a new <see cref="FromCodeAttribute"/> with the specified <paramref name="codeType"/>.
     /// </summary>
     /// <param name="codeType">The type of code block to accept.</param>
-    public FromCodeAttribute(CodeType codeType = CodeType.All) => CodeType = codeType;
+    public FromCodeAttribute(CodeType codeType = CodeType.All) => this.CodeType = codeType;
 }

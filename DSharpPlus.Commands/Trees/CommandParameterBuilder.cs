@@ -25,22 +25,22 @@ public class CommandParameterBuilder
             throw new ArgumentNullException(nameof(name), "The name of the command cannot be null or whitespace.");
         }
 
-        Name = name;
+        this.Name = name;
         return this;
     }
 
     public CommandParameterBuilder WithDescription(string? description)
     {
-        Description = description;
+        this.Description = description;
         return this;
     }
 
     public CommandParameterBuilder WithType(Type type)
     {
-        Type = type;
-        if (type.IsEnum && Attributes.All(attribute => attribute is not SlashChoiceProviderAttribute and not SlashAutoCompleteProviderAttribute))
+        this.Type = type;
+        if (type.IsEnum && this.Attributes.All(attribute => attribute is not SlashChoiceProviderAttribute and not SlashAutoCompleteProviderAttribute))
         {
-            Attributes.Add(new SlashChoiceProviderAttribute<EnumOptionProvider>());
+            this.Attributes.Add(new SlashChoiceProviderAttribute<EnumOptionProvider>());
         }
 
         return this;
@@ -53,49 +53,49 @@ public class CommandParameterBuilder
         {
             if (attribute is CommandAttribute commandAttribute)
             {
-                WithName(commandAttribute.Name);
+                this.WithName(commandAttribute.Name);
             }
             else if (attribute is DescriptionAttribute descriptionAttribute)
             {
-                WithDescription(descriptionAttribute.Description);
+                this.WithDescription(descriptionAttribute.Description);
             }
 
             listedAttributes.Add(attribute);
         }
 
-        Attributes = listedAttributes;
+        this.Attributes = listedAttributes;
         return this;
     }
 
     public CommandParameterBuilder WithDefaultValue(Optional<object?> defaultValue)
     {
-        DefaultValue = defaultValue;
+        this.DefaultValue = defaultValue;
         return this;
     }
 
     [MemberNotNull(nameof(Name), nameof(Description), nameof(Type), nameof(Attributes))]
     public CommandParameter Build()
     {
-        ArgumentNullException.ThrowIfNull(Name, nameof(Name));
-        ArgumentNullException.ThrowIfNull(Description, nameof(Description));
-        ArgumentNullException.ThrowIfNull(Type, nameof(Type));
-        ArgumentNullException.ThrowIfNull(Attributes, nameof(Attributes));
-        ArgumentNullException.ThrowIfNull(DefaultValue, nameof(DefaultValue));
+        ArgumentNullException.ThrowIfNull(this.Name, nameof(this.Name));
+        ArgumentNullException.ThrowIfNull(this.Description, nameof(this.Description));
+        ArgumentNullException.ThrowIfNull(this.Type, nameof(this.Type));
+        ArgumentNullException.ThrowIfNull(this.Attributes, nameof(this.Attributes));
+        ArgumentNullException.ThrowIfNull(this.DefaultValue, nameof(this.DefaultValue));
 
         // Push it through the With* methods again, which contain validation.
-        WithName(Name);
-        WithDescription(Description);
-        WithAttributes(Attributes);
-        WithType(Type);
-        WithDefaultValue(DefaultValue);
+        this.WithName(this.Name);
+        this.WithDescription(this.Description);
+        this.WithAttributes(this.Attributes);
+        this.WithType(this.Type);
+        this.WithDefaultValue(this.DefaultValue);
 
         return new CommandParameter()
         {
-            Name = Name,
-            Description = Description,
-            Type = Type,
-            Attributes = Attributes,
-            DefaultValue = DefaultValue
+            Name = this.Name,
+            Description = this.Description,
+            Type = this.Type,
+            Attributes = this.Attributes,
+            DefaultValue = this.DefaultValue
         };
     }
 

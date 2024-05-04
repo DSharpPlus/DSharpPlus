@@ -21,7 +21,7 @@ public sealed class NodeDisconnectedEventArgs : AsyncEventArgs
 
     internal NodeDisconnectedEventArgs(LavalinkNodeConnection node, bool isClean)
     {
-        LavalinkNode = node;
-        IsCleanClose = isClean;
+        this.LavalinkNode = node;
+        this.IsCleanClose = isClean;
     }
 }

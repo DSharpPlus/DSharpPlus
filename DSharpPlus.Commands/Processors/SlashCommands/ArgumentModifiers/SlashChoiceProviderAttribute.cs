@@ -17,7 +17,7 @@ public class SlashChoiceProviderAttribute(Type providerType) : Attribute
         IChoiceProvider choiceProvider;
         try
         {
-            choiceProvider = (IChoiceProvider)ActivatorUtilities.CreateInstance(serviceProvider, ProviderType);
+            choiceProvider = (IChoiceProvider)ActivatorUtilities.CreateInstance(serviceProvider, this.ProviderType);
         }
         catch (Exception)
         {

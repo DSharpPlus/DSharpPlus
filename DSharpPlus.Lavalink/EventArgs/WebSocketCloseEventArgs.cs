@@ -24,8 +24,8 @@ public sealed class WebSocketCloseEventArgs : AsyncEventArgs
 
     internal WebSocketCloseEventArgs(int code, string reason, bool remote)
     {
-        Code = code;
-        Reason = reason;
-        Remote = remote;
+        this.Code = code;
+        this.Reason = reason;
+        this.Remote = remote;
     }
 }

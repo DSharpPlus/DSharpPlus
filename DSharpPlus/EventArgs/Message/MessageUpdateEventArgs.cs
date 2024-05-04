@@ -22,19 +22,19 @@ public class MessageUpdateEventArgs : DiscordEventArgs
     /// Gets the channel this message belongs to.
     /// </summary>
     public DiscordChannel Channel
-        => Message.Channel;
+        => this.Message.Channel;
 
     /// <summary>
     /// Gets the guild this message belongs to.
     /// </summary>
     public DiscordGuild Guild
-        => Channel.Guild;
+        => this.Channel.Guild;
 
     /// <summary>
     /// Gets the author of the message.
     /// </summary>
     public DiscordUser Author
-        => Message.Author;
+        => this.Message.Author;
 
     /// <summary>
     /// Gets the collection of mentioned users.

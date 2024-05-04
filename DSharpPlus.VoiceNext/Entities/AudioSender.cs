@@ -19,18 +19,18 @@ internal class AudioSender : IDisposable
     }
 
     public uint SSRC { get; }
-    public ulong Id => User?.Id ?? 0;
+    public ulong Id => this.User?.Id ?? 0;
     public OpusDecoder Decoder { get; }
     public DiscordUser User { get; set; } = null;
     public ulong? LastTrueSequence { get; set; } = null;
 
     public AudioSender(uint ssrc, OpusDecoder decoder)
     {
-        SSRC = ssrc;
-        Decoder = decoder;
+        this.SSRC = ssrc;
+        this.Decoder = decoder;
     }
 
-    public void Dispose() => Decoder?.Dispose();
+    public void Dispose() => this.Decoder?.Dispose();
 
     /// <summary>
     /// Accepts the 16-bit sequence number from the next RTP header in the associated stream and
@@ -67,13 +67,13 @@ internal class AudioSender : IDisposable
         const ushort HighThreshold = ushort.MaxValue - OverflowBufferZone;
 
         ulong wrappingAdjustment = 0;
-        switch (currentSequenceWrapState)
+        switch (this.currentSequenceWrapState)
         {
             case SequenceWrapState.Normal when originalSequence > HighThreshold:
                 // we were going about our business up to this point.  the sequence numbers have
                 // gotten a bit high, so let's start looking out for any sequence numbers that
                 // are suddenly WAY lower than where they are right now.
-                currentSequenceWrapState = SequenceWrapState.AssumeNextLowSequenceIsOverflow;
+                this.currentSequenceWrapState = SequenceWrapState.AssumeNextLowSequenceIsOverflow;
                 break;
 
             case SequenceWrapState.AssumeNextLowSequenceIsOverflow when originalSequence < LowThreshold:
@@ -83,8 +83,8 @@ internal class AudioSender : IDisposable
                 // increasing "true" sequence number, add another 65,536 and keep counting.  if
                 // we see another high sequence number in the near future, assume that it's a
                 // packet coming in out of order.
-                sequenceBase += 1 << 16;
-                currentSequenceWrapState = SequenceWrapState.AssumeNextHighSequenceIsOutOfOrder;
+                this.sequenceBase += 1 << 16;
+                this.currentSequenceWrapState = SequenceWrapState.AssumeNextHighSequenceIsOutOfOrder;
                 break;
 
             case SequenceWrapState.AssumeNextHighSequenceIsOutOfOrder when originalSequence > HighThreshold:
@@ -103,10 +103,10 @@ internal class AudioSender : IDisposable
                 // when we saw some very low sequence numbers.  either way, we're out of the
                 // zones where we should consider very low sequence numbers to come AFTER very
                 // high ones, so we can go back to normal now.
-                currentSequenceWrapState = SequenceWrapState.Normal;
+                this.currentSequenceWrapState = SequenceWrapState.Normal;
                 break;
         }
 
-        return sequenceBase + originalSequence - wrappingAdjustment;
+        return this.sequenceBase + originalSequence - wrappingAdjustment;
     }
 }

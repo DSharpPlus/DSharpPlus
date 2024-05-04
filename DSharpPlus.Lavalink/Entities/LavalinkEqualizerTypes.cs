@@ -38,8 +38,8 @@ public readonly struct LavalinkBandAdjustment
             throw new ArgumentOutOfRangeException(nameof(gain), "Gain cannot be lower than -0.25 or greater than 1.0.");
         }
 
-        BandId = bandId;
-        Gain = gain;
+        this.BandId = bandId;
+        this.Gain = gain;
     }
 }
 

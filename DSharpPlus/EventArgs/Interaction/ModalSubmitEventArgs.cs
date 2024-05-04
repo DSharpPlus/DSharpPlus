@@ -17,11 +17,11 @@ public class ModalSubmitEventArgs : InteractionCreateEventArgs
 
     internal ModalSubmitEventArgs(DiscordInteraction interaction)
     {
-        Interaction = interaction;
+        this.Interaction = interaction;
 
         Dictionary<string, string> dict = [];
 
-        foreach (DiscordActionRowComponent component in interaction.Data._components)
+        foreach (DiscordActionRowComponent component in interaction.Data.components)
         {
             if (component.Components[0] is DiscordTextInputComponent input)
             {
@@ -29,6 +29,6 @@ public class ModalSubmitEventArgs : InteractionCreateEventArgs
             }
         }
 
-        Values = dict;
+        this.Values = dict;
     }
 }

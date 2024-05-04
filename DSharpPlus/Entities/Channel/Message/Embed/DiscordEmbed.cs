@@ -43,12 +43,12 @@ public sealed class DiscordEmbed
     /// Gets the embed's color.
     /// </summary>
     [JsonIgnore]
-    public DiscordColor? Color => _color.HasValue
-        ? (DiscordColor)_color.Value
+    public DiscordColor? Color => this.color.HasValue
+        ? (DiscordColor)this.color.Value
         : null;
 
     [JsonProperty("color", NullValueHandling = NullValueHandling.Include)]
-    internal Optional<int> _color;
+    internal Optional<int> color;
 
     /// <summary>
     /// Gets the embed's footer.

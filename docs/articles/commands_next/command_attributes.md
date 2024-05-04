@@ -104,4 +104,4 @@ public async Task GenericCommand(CommandContext ctx, string generic)
 ![Generic Image][0]
 
 <!-- LINKS -->
-[0]:  ../../images/commands_next_command_attributes_01.png
+[0]: ../../images/commands_next_command_attributes_01.png

@@ -8,5 +8,5 @@ namespace DSharpPlus.Net;
 internal readonly record struct RateLimitCandidateBucket(int Maximum, int Remaining, DateTime Reset)
 {
     public RateLimitBucket ToFullBucket()
-        => new(Maximum, Remaining, Reset);
+        => new(this.Maximum, this.Remaining, this.Reset);
 }

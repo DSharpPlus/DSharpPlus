@@ -12,11 +12,11 @@ public class PaginationEmojis
 
     public PaginationEmojis()
     {
-        Left = DiscordEmoji.FromUnicode("◀");
-        Right = DiscordEmoji.FromUnicode("▶");
-        SkipLeft = DiscordEmoji.FromUnicode("⏮");
-        SkipRight = DiscordEmoji.FromUnicode("⏭");
-        Stop = DiscordEmoji.FromUnicode("⏹");
+        this.Left = DiscordEmoji.FromUnicode("◀");
+        this.Right = DiscordEmoji.FromUnicode("▶");
+        this.SkipLeft = DiscordEmoji.FromUnicode("⏮");
+        this.SkipRight = DiscordEmoji.FromUnicode("⏭");
+        this.Stop = DiscordEmoji.FromUnicode("⏹");
     }
 }
 
@@ -27,7 +27,7 @@ public class Page
 
     public Page(string content = "", DiscordEmbedBuilder embed = null)
     {
-        Content = content;
-        Embed = embed?.Build();
+        this.Content = content;
+        this.Embed = embed?.Build();
     }
 }

@@ -47,24 +47,24 @@ public abstract class BaseDiscordSelectComponent : DiscordComponent
         int maxOptions = 1
     )
     {
-        Type = type;
-        CustomId = customId;
-        Placeholder = placeholder;
-        Disabled = disabled;
-        MinimumSelectedValues = minOptions;
-        MaximumSelectedValues = maxOptions;
+        this.Type = type;
+        this.CustomId = customId;
+        this.Placeholder = placeholder;
+        this.Disabled = disabled;
+        this.MinimumSelectedValues = minOptions;
+        this.MaximumSelectedValues = maxOptions;
 
-        if (MinimumSelectedValues < 0)
+        if (this.MinimumSelectedValues < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(minOptions), "Minimum selected values must be greater than or equal to zero.");
         }
 
-        if (MaximumSelectedValues < 1)
+        if (this.MaximumSelectedValues < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(maxOptions), "Maximum selected values must be greater than or equal to one.");
         }
 
-        if (MinimumSelectedValues > MaximumSelectedValues)
+        if (this.MinimumSelectedValues > this.MaximumSelectedValues)
         {
             throw new ArgumentOutOfRangeException(nameof(minOptions), "Minimum selected values must be less than or equal to maximum selected values.");
         }

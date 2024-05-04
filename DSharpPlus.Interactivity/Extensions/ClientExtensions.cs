@@ -22,7 +22,7 @@ public static class ClientExtensions
     {
         if (client.GetExtension<InteractivityExtension>() != null)
         {
-            throw new InvalidOperationException($"Interactivity is already enabled for this {(client._isShard ? "shard" : "client")}.");
+            throw new InvalidOperationException($"Interactivity is already enabled for this {(client.isShard ? "shard" : "client")}.");
         }
 
         configuration ??= new InteractivityConfiguration();

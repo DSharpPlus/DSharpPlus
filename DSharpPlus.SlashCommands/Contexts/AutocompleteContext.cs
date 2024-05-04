@@ -62,7 +62,7 @@ public class AutocompleteContext
     /// Gets the member which executed this interaction, or null if the command is in a DM.
     /// </summary>
     public DiscordMember Member
-        => User is DiscordMember member ? member : null;
+        => this.User is DiscordMember member ? member : null;
 
     /// <summary>
     /// Gets the slash command module this interaction was created in.
@@ -90,5 +90,5 @@ public class AutocompleteContext
     /// The given value of the focused option.
     /// </summary>
     public object OptionValue
-        => FocusedOption.Value;
+        => this.FocusedOption.Value;
 }

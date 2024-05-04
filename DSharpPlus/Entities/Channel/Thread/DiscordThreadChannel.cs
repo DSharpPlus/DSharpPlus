@@ -54,14 +54,14 @@ public class DiscordThreadChannel : DiscordChannel
     /// </summary>
     // Performant? No. Ideally, you're not using this property often.
     public IReadOnlyList<DiscordForumTag> AppliedTags =>
-        Parent is DiscordForumChannel parent
-            ? parent.AvailableTags.Where(pt => _appliedTagIds.Contains(pt.Id)).ToArray()
+        this.Parent is DiscordForumChannel parent
+            ? parent.AvailableTags.Where(pt => this.appliedTagIds.Contains(pt.Id)).ToArray()
             : [];
 
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value null
     // Justification: Used by JSON.NET
     [JsonProperty("applied_tags")]
-    private readonly List<ulong> _appliedTagIds;
+    private readonly List<ulong> appliedTagIds;
 #pragma warning restore CS0649
 
     #region Methods
@@ -71,14 +71,14 @@ public class DiscordThreadChannel : DiscordChannel
     /// </summary>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task JoinThreadAsync()
-        => await Discord.ApiClient.JoinThreadAsync(Id);
+        => await this.Discord.ApiClient.JoinThreadAsync(this.Id);
 
     /// <summary>
     /// Makes the current user leave the thread.
     /// </summary>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task LeaveThreadAsync()
-        => await Discord.ApiClient.LeaveThreadAsync(Id);
+        => await this.Discord.ApiClient.LeaveThreadAsync(this.Id);
 
     /// <summary>
     /// Returns a full list of the thread members in this thread.
@@ -87,7 +87,7 @@ public class DiscordThreadChannel : DiscordChannel
     /// <returns>A collection of all threads members in this thread.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<IReadOnlyList<DiscordThreadChannelMember>> ListJoinedMembersAsync()
-        => await Discord.ApiClient.ListThreadMembersAsync(Id);
+        => await this.Discord.ApiClient.ListThreadMembersAsync(this.Id);
 
     /// <summary>
     /// Adds the given DiscordMember to this thread. Requires an not archived thread and send message permissions.
@@ -97,12 +97,12 @@ public class DiscordThreadChannel : DiscordChannel
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task AddThreadMemberAsync(DiscordMember member)
     {
-        if (ThreadMetadata.IsArchived)
+        if (this.ThreadMetadata.IsArchived)
         {
             throw new InvalidOperationException("You cannot add members to an archived thread.");
         }
 
-        await Discord.ApiClient.AddThreadMemberAsync(Id, member.Id);
+        await this.Discord.ApiClient.AddThreadMemberAsync(this.Id, member.Id);
     }
 
     /// <summary>
@@ -113,12 +113,12 @@ public class DiscordThreadChannel : DiscordChannel
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task RemoveThreadMemberAsync(DiscordMember member)
     {
-        if (ThreadMetadata.IsArchived)
+        if (this.ThreadMetadata.IsArchived)
         {
             throw new InvalidOperationException("You cannot remove members from an archived thread.");
         }
 
-        await Discord.ApiClient.RemoveThreadMemberAsync(Id, member.Id);
+        await this.Discord.ApiClient.RemoveThreadMemberAsync(this.Id, member.Id);
     }
 
     /// <summary>
@@ -133,34 +133,34 @@ public class DiscordThreadChannel : DiscordChannel
     {
         ThreadChannelEditModel mdl = new();
         action(mdl);
-        await Discord.ApiClient.ModifyThreadChannelAsync(Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
+        await this.Discord.ApiClient.ModifyThreadChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
             mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(r => r?.Id),
             mdl.QualityMode, mdl.Type, mdl.PermissionOverwrites, mdl.IsArchived, mdl.AutoArchiveDuration, mdl.Locked, mdl.AppliedTags, mdl.IsInvitable, mdl.AuditLogReason);
 
         // We set these *after* the rest request so that Discord can validate the properties. This is useful if the requirements ever change.
         if (!string.IsNullOrWhiteSpace(mdl.Name))
         {
-            Name = mdl.Name;
+            this.Name = mdl.Name;
         }
 
         if (mdl.PerUserRateLimit.HasValue)
         {
-            PerUserRateLimit = mdl.PerUserRateLimit.Value;
+            this.PerUserRateLimit = mdl.PerUserRateLimit.Value;
         }
 
         if (mdl.IsArchived.HasValue)
         {
-            ThreadMetadata.IsArchived = mdl.IsArchived.Value;
+            this.ThreadMetadata.IsArchived = mdl.IsArchived.Value;
         }
 
         if (mdl.AutoArchiveDuration.HasValue)
         {
-            ThreadMetadata.AutoArchiveDuration = mdl.AutoArchiveDuration.Value;
+            this.ThreadMetadata.AutoArchiveDuration = mdl.AutoArchiveDuration.Value;
         }
 
         if (mdl.Locked.HasValue)
         {
-            ThreadMetadata.IsLocked = mdl.Locked.Value;
+            this.ThreadMetadata.IsLocked = mdl.Locked.Value;
         }
     }
 
@@ -170,7 +170,7 @@ public class DiscordThreadChannel : DiscordChannel
     /// <param name="member">The guild member to retrieve.</param>
     /// <exception cref="NotFoundException">Thrown when a GuildMember has not joined the channel thread.</exception>
     public async Task<DiscordThreadChannelMember> GetThreadMemberAsync(DiscordMember member)
-        => await Discord.ApiClient.GetThreadMemberAsync(Id, member.Id);
+        => await this.Discord.ApiClient.GetThreadMemberAsync(this.Id, member.Id);
 
     #endregion
 

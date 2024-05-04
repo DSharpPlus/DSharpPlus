@@ -10,13 +10,13 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
     public IReadOnlyList<DiscordChannelType> ChannelTypes { get; internal set; }
 
     [JsonProperty("default_values", NullValueHandling = NullValueHandling.Ignore)]
-    private readonly List<DiscordSelectDefaultValue> _defaultValues = [];
+    private readonly List<DiscordSelectDefaultValue> defaultValues = [];
 
     /// <summary>
     /// The default values for this component.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyList<DiscordSelectDefaultValue> DefaultValues => _defaultValues;
+    public IReadOnlyList<DiscordSelectDefaultValue> DefaultValues => this.defaultValues;
 
     /// <summary>
     /// Adds a default channel to this component.
@@ -25,7 +25,7 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
     public DiscordChannelSelectComponent AddDefaultChannel(DiscordChannel channel)
     {
         DiscordSelectDefaultValue defaultValue = new(channel.Id, DiscordSelectDefaultValueType.Channel);
-        _defaultValues.Add(defaultValue);
+        this.defaultValues.Add(defaultValue);
         return this;
     }
 
@@ -38,7 +38,7 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
         foreach (DiscordChannel value in channels)
         {
             DiscordSelectDefaultValue defaultValue = new(value.Id, DiscordSelectDefaultValueType.Channel);
-            _defaultValues.Add(defaultValue);
+            this.defaultValues.Add(defaultValue);
         }
 
         return this;
@@ -51,7 +51,7 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
     public DiscordChannelSelectComponent AddDefaultChannel(ulong id)
     {
         DiscordSelectDefaultValue defaultValue = new(id, DiscordSelectDefaultValueType.Channel);
-        _defaultValues.Add(defaultValue);
+        this.defaultValues.Add(defaultValue);
         return this;
     }
 
@@ -64,7 +64,7 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
         foreach (ulong value in ids)
         {
             DiscordSelectDefaultValue defaultValue = new(value, DiscordSelectDefaultValueType.Channel);
-            _defaultValues.Add(defaultValue);
+            this.defaultValues.Add(defaultValue);
         }
 
         return this;
@@ -76,7 +76,7 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
     /// <returns>The current component.</returns>
     public DiscordChannelSelectComponent Enable()
     {
-        Disabled = false;
+        this.Disabled = false;
         return this;
     }
 
@@ -86,11 +86,11 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
     /// <returns>The current component.</returns>
     public DiscordChannelSelectComponent Disable()
     {
-        Disabled = true;
+        this.Disabled = true;
         return this;
     }
 
-    internal DiscordChannelSelectComponent() => Type = DiscordComponentType.ChannelSelect;
+    internal DiscordChannelSelectComponent() => this.Type = DiscordComponentType.ChannelSelect;
 
     /// <summary>
     /// Creates a new channel select component.
@@ -110,5 +110,5 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
         int minOptions = 1,
         int maxOptions = 1
     ) : base(DiscordComponentType.ChannelSelect, customId, placeholder, disabled, minOptions, maxOptions) =>
-        ChannelTypes = channelTypes?.ToList();
+        this.ChannelTypes = channelTypes?.ToList();
 }

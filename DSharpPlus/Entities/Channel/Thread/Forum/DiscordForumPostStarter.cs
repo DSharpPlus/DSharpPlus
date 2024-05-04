@@ -19,7 +19,7 @@ public sealed class DiscordForumPostStarter
 
     internal DiscordForumPostStarter(DiscordThreadChannel chn, DiscordMessage msg)
     {
-        Channel = chn;
-        Message = msg;
+        this.Channel = chn;
+        this.Message = msg;
     }
 }

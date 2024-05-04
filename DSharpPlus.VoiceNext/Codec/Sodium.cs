@@ -32,10 +32,10 @@ internal sealed class Sodium : IDisposable
             throw new ArgumentException($"Invalid Sodium key size. Key needs to have a length of {Interop.SodiumKeySize} bytes.", nameof(key));
         }
 
-        Key = key;
+        this.Key = key;
 
-        CSPRNG = RandomNumberGenerator.Create();
-        Buffer = new byte[Interop.SodiumNonceSize];
+        this.CSPRNG = RandomNumberGenerator.Create();
+        this.Buffer = new byte[Interop.SodiumNonceSize];
     }
 
     public static void GenerateNonce(ReadOnlySpan<byte> rtpHeader, Span<byte> target)
@@ -64,8 +64,8 @@ internal sealed class Sodium : IDisposable
             throw new ArgumentException($"Invalid nonce buffer size. Target buffer for the nonce needs to have a capacity of {Interop.SodiumNonceSize} bytes.", nameof(target));
         }
 
-        CSPRNG.GetBytes(Buffer);
-        Buffer.AsSpan().CopyTo(target);
+        this.CSPRNG.GetBytes(this.Buffer);
+        this.Buffer.AsSpan().CopyTo(target);
     }
 
     public static void GenerateNonce(uint nonce, Span<byte> target)
@@ -141,7 +141,7 @@ internal sealed class Sodium : IDisposable
         }
 
         int result;
-        if ((result = Interop.Encrypt(source, target, Key.Span, nonce)) != 0)
+        if ((result = Interop.Encrypt(source, target, this.Key.Span, nonce)) != 0)
         {
             throw new CryptographicException($"Could not encrypt the buffer. Sodium returned code {result}.");
         }
@@ -160,13 +160,13 @@ internal sealed class Sodium : IDisposable
         }
 
         int result;
-        if ((result = Interop.Decrypt(source, target, Key.Span, nonce)) != 0)
+        if ((result = Interop.Decrypt(source, target, this.Key.Span, nonce)) != 0)
         {
             throw new CryptographicException($"Could not decrypt the buffer. Sodium returned code {result}.");
         }
     }
 
-    public void Dispose() => CSPRNG.Dispose();
+    public void Dispose() => this.CSPRNG.Dispose();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static KeyValuePair<string, EncryptionMode> SelectMode(IEnumerable<string> availableModes)

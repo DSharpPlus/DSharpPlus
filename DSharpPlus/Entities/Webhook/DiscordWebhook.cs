@@ -48,7 +48,7 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
     /// Gets the default avatar url for this webhook.
     /// </summary>
     public string AvatarUrl
-        => !string.IsNullOrWhiteSpace(AvatarHash) ? $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.png?size=1024" : null;
+        => !string.IsNullOrWhiteSpace(this.AvatarHash) ? $"https://cdn.discordapp.com/avatars/{this.Id}/{this.AvatarHash}.png?size=1024" : null;
 
     /// <summary>
     /// Gets the secure token of this webhook.
@@ -101,9 +101,9 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
             avatarb64 = null;
         }
 
-        ulong newChannelId = channelId ?? ChannelId;
+        ulong newChannelId = channelId ?? this.ChannelId;
 
-        return await Discord.ApiClient.ModifyWebhookAsync(Id, newChannelId, name, avatarb64, reason);
+        return await this.Discord.ApiClient.ModifyWebhookAsync(this.Id, newChannelId, name, avatarb64, reason);
     }
 
     /// <summary>
@@ -115,7 +115,7 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task DeleteAsync()
-        => await Discord.ApiClient.DeleteWebhookAsync(Id, Token);
+        => await this.Discord.ApiClient.DeleteWebhookAsync(this.Id, this.Token);
 
     /// <summary>
     /// Executes this webhook with the given <see cref="DiscordWebhookBuilder"/>.
@@ -125,7 +125,7 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordMessage> ExecuteAsync(DiscordWebhookBuilder builder)
-        => await (Discord?.ApiClient ?? ApiClient).ExecuteWebhookAsync(Id, Token, builder);
+        => await (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(this.Id, this.Token, builder);
 
     /// <summary>
     /// Executes this webhook in Slack compatibility mode.
@@ -136,7 +136,7 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task ExecuteSlackAsync(string json)
-        => await (Discord?.ApiClient ?? ApiClient).ExecuteWebhookSlackAsync(Id, Token, json);
+        => await (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookSlackAsync(this.Id, this.Token, json);
 
     /// <summary>
     /// Executes this webhook in GitHub compatibility mode.
@@ -147,7 +147,7 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task ExecuteGithubAsync(string json)
-        => await (Discord?.ApiClient ?? ApiClient).ExecuteWebhookGithubAsync(Id, Token, json);
+        => await (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookGithubAsync(this.Id, this.Token, json);
 
     /// <summary>
     /// Gets a previously-sent webhook message.
@@ -156,7 +156,7 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordMessage> GetMessageAsync(ulong messageId)
-        => await (Discord?.ApiClient ?? ApiClient).GetWebhookMessageAsync(Id, Token, messageId);
+        => await (this.Discord?.ApiClient ?? this.ApiClient).GetWebhookMessageAsync(this.Id, this.Token, messageId);
 
     /// <summary>
     /// Edits a previously-sent webhook message.
@@ -172,7 +172,7 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
     {
         builder.Validate(true);
 
-        return await (Discord?.ApiClient ?? ApiClient).EditWebhookMessageAsync(Id, Token, messageId, builder, attachments);
+        return await (this.Discord?.ApiClient ?? this.ApiClient).EditWebhookMessageAsync(this.Id, this.Token, messageId, builder, attachments);
     }
 
     /// <summary>
@@ -184,27 +184,27 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task DeleteMessageAsync(ulong messageId)
-        => await (Discord?.ApiClient ?? ApiClient).DeleteWebhookMessageAsync(Id, Token, messageId);
+        => await (this.Discord?.ApiClient ?? this.ApiClient).DeleteWebhookMessageAsync(this.Id, this.Token, messageId);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordWebhook"/> is equal to another object.
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordWebhook"/>.</returns>
-    public override bool Equals(object obj) => Equals(obj as DiscordWebhook);
+    public override bool Equals(object obj) => this.Equals(obj as DiscordWebhook);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordWebhook"/> is equal to another <see cref="DiscordWebhook"/>.
     /// </summary>
     /// <param name="e"><see cref="DiscordWebhook"/> to compare to.</param>
     /// <returns>Whether the <see cref="DiscordWebhook"/> is equal to this <see cref="DiscordWebhook"/>.</returns>
-    public bool Equals(DiscordWebhook e) => e is not null && (ReferenceEquals(this, e) || Id == e.Id);
+    public bool Equals(DiscordWebhook e) => e is not null && (ReferenceEquals(this, e) || this.Id == e.Id);
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordWebhook"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="DiscordWebhook"/>.</returns>
-    public override int GetHashCode() => Id.GetHashCode();
+    public override int GetHashCode() => this.Id.GetHashCode();
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordWebhook"/> objects are equal.

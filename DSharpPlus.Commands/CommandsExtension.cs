@@ -66,36 +66,36 @@ public sealed class CommandsExtension : BaseExtension
     /// The registered commands that the users can execute.
     /// </summary>
     public IReadOnlyDictionary<string, Command> Commands { get; private set; } = new Dictionary<string, Command>();
-    private readonly List<CommandBuilder> _commandBuilders = [];
+    private readonly List<CommandBuilder> commandBuilders = [];
 
     /// <summary>
     /// All registered command processors.
     /// </summary>
-    public IReadOnlyDictionary<Type, ICommandProcessor> Processors => _processors;
-    private readonly Dictionary<Type, ICommandProcessor> _processors = [];
+    public IReadOnlyDictionary<Type, ICommandProcessor> Processors => this.processors;
+    private readonly Dictionary<Type, ICommandProcessor> processors = [];
 
-    public IReadOnlyList<ContextCheckMapEntry> Checks => checks;
+    public IReadOnlyList<ContextCheckMapEntry> Checks => this.checks;
     private readonly List<ContextCheckMapEntry> checks = [];
 
-    public IReadOnlyList<ParameterCheckMapEntry> ParameterChecks => parameterChecks;
+    public IReadOnlyList<ParameterCheckMapEntry> ParameterChecks => this.parameterChecks;
     private readonly List<ParameterCheckMapEntry> parameterChecks = [];
 
     /// <summary>
     /// Executed everytime a command is finished executing.
     /// </summary>
-    public event AsyncEventHandler<CommandsExtension, CommandExecutedEventArgs> CommandExecuted { add => _commandExecuted.Register(value); remove => _commandExecuted.Unregister(value); }
-    internal readonly AsyncEvent<CommandsExtension, CommandExecutedEventArgs> _commandExecuted = new("COMMANDS_COMMAND_EXECUTED", EverythingWentWrongErrorHandler);
+    public event AsyncEventHandler<CommandsExtension, CommandExecutedEventArgs> CommandExecuted { add => this.commandExecuted.Register(value); remove => this.commandExecuted.Unregister(value); }
+    internal readonly AsyncEvent<CommandsExtension, CommandExecutedEventArgs> commandExecuted = new("COMMANDS_COMMAND_EXECUTED", EverythingWentWrongErrorHandler);
 
     /// <summary>
     /// Executed everytime a command has errored.
     /// </summary>
-    public event AsyncEventHandler<CommandsExtension, CommandErroredEventArgs> CommandErrored { add => _commandErrored.Register(value); remove => _commandErrored.Unregister(value); }
-    internal readonly AsyncEvent<CommandsExtension, CommandErroredEventArgs> _commandErrored = new("COMMANDS_COMMAND_ERRORED", EverythingWentWrongErrorHandler);
+    public event AsyncEventHandler<CommandsExtension, CommandErroredEventArgs> CommandErrored { add => this.commandErrored.Register(value); remove => this.commandErrored.Unregister(value); }
+    internal readonly AsyncEvent<CommandsExtension, CommandErroredEventArgs> commandErrored = new("COMMANDS_COMMAND_ERRORED", EverythingWentWrongErrorHandler);
 
     /// <summary>
     /// Used to log messages from this extension.
     /// </summary>
-    private readonly ILogger<CommandsExtension> _logger;
+    private readonly ILogger<CommandsExtension> logger;
 
     /// <summary>
     /// Creates a new instance of the <see cref="CommandsExtension"/> class.
@@ -105,18 +105,18 @@ public sealed class CommandsExtension : BaseExtension
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        ServiceProvider = configuration.ServiceProvider;
-        DebugGuildId = configuration.DebugGuildId;
-        UseDefaultCommandErrorHandler = configuration.UseDefaultCommandErrorHandler;
-        RegisterDefaultCommandProcessors = configuration.RegisterDefaultCommandProcessors;
-        CommandExecutor = configuration.CommandExecutor;
-        if (UseDefaultCommandErrorHandler)
+        this.ServiceProvider = configuration.ServiceProvider;
+        this.DebugGuildId = configuration.DebugGuildId;
+        this.UseDefaultCommandErrorHandler = configuration.UseDefaultCommandErrorHandler;
+        this.RegisterDefaultCommandProcessors = configuration.RegisterDefaultCommandProcessors;
+        this.CommandExecutor = configuration.CommandExecutor;
+        if (this.UseDefaultCommandErrorHandler)
         {
             CommandErrored += DefaultCommandErrorHandlerAsync;
         }
 
         // Attempt to get the user defined logging, otherwise setup a null logger since the D#+ Default Logger is internal.
-        _logger = ServiceProvider.GetService<ILogger<CommandsExtension>>() ?? NullLogger<CommandsExtension>.Instance;
+        this.logger = this.ServiceProvider.GetService<ILogger<CommandsExtension>>() ?? NullLogger<CommandsExtension>.Instance;
     }
 
     /// <summary>
@@ -129,51 +129,51 @@ public sealed class CommandsExtension : BaseExtension
         {
             throw new ArgumentNullException(nameof(client));
         }
-        else if (Client is not null)
+        else if (this.Client is not null)
         {
             throw new InvalidOperationException("Commands Extension is already initialized.");
         }
 
-        Client = client;
-        Client.SessionCreated += async (_, _) => await RefreshAsync();
+        this.Client = client;
+        this.Client.SessionCreated += async (_, _) => await this.RefreshAsync();
 
-        AddCheck<DirectMessageUsageCheck>();
-        AddCheck<RequireApplicationOwnerCheck>();
-        AddCheck<RequireGuildCheck>();
-        AddCheck<RequireNsfwCheck>();
-        AddCheck<RequirePermissionsCheck>();
-        AddCheck<TextMessageReplyCheck>();
+        this.AddCheck<DirectMessageUsageCheck>();
+        this.AddCheck<RequireApplicationOwnerCheck>();
+        this.AddCheck<RequireGuildCheck>();
+        this.AddCheck<RequireNsfwCheck>();
+        this.AddCheck<RequirePermissionsCheck>();
+        this.AddCheck<TextMessageReplyCheck>();
 
-        AddParameterCheck<RequireHierarchyCheck>();
+        this.AddParameterCheck<RequireHierarchyCheck>();
     }
 
-    public void AddCommand(Delegate commandDelegate) => _commandBuilders.Add(CommandBuilder.From(commandDelegate));
-    public void AddCommand(Delegate commandDelegate, params ulong[] guildIds) => _commandBuilders.Add(CommandBuilder.From(commandDelegate, guildIds));
+    public void AddCommand(Delegate commandDelegate) => this.commandBuilders.Add(CommandBuilder.From(commandDelegate));
+    public void AddCommand(Delegate commandDelegate, params ulong[] guildIds) => this.commandBuilders.Add(CommandBuilder.From(commandDelegate, guildIds));
 
-    public void AddCommand(Type type) => _commandBuilders.Add(CommandBuilder.From(type));
-    public void AddCommand(Type type, params ulong[] guildIds) => _commandBuilders.Add(CommandBuilder.From(type, guildIds));
+    public void AddCommand(Type type) => this.commandBuilders.Add(CommandBuilder.From(type));
+    public void AddCommand(Type type, params ulong[] guildIds) => this.commandBuilders.Add(CommandBuilder.From(type, guildIds));
 
-    public void AddCommand(CommandBuilder command) => _commandBuilders.Add(command);
-    public void AddCommands(IEnumerable<CommandBuilder> commands) => _commandBuilders.AddRange(commands);
-    public void AddCommands(params CommandBuilder[] commands) => _commandBuilders.AddRange(commands);
+    public void AddCommand(CommandBuilder command) => this.commandBuilders.Add(command);
+    public void AddCommands(IEnumerable<CommandBuilder> commands) => this.commandBuilders.AddRange(commands);
+    public void AddCommands(params CommandBuilder[] commands) => this.commandBuilders.AddRange(commands);
 
-    public void AddCommands(Assembly assembly) => AddCommands(assembly.GetTypes());
-    public void AddCommands(Assembly assembly, params ulong[] guildIds) => AddCommands(assembly.GetTypes(), guildIds);
+    public void AddCommands(Assembly assembly) => this.AddCommands(assembly.GetTypes());
+    public void AddCommands(Assembly assembly, params ulong[] guildIds) => this.AddCommands(assembly.GetTypes(), guildIds);
 
-    public void AddCommands(Type type) => AddCommands([type]);
-    public void AddCommands(Type type, params ulong[] guildIds) => AddCommands([type], guildIds);
+    public void AddCommands(Type type) => this.AddCommands([type]);
+    public void AddCommands(Type type, params ulong[] guildIds) => this.AddCommands([type], guildIds);
 
-    public void AddCommands<T>() => _commandBuilders.Add(CommandBuilder.From<T>());
-    public void AddCommands<T>(params ulong[] guildIds) => _commandBuilders.Add(CommandBuilder.From<T>(guildIds));
+    public void AddCommands<T>() => this.commandBuilders.Add(CommandBuilder.From<T>());
+    public void AddCommands<T>(params ulong[] guildIds) => this.commandBuilders.Add(CommandBuilder.From<T>(guildIds));
 
-    public void AddCommands(IEnumerable<Type> types) => AddCommands(types, []);
+    public void AddCommands(IEnumerable<Type> types) => this.AddCommands(types, []);
     public void AddCommands(IEnumerable<Type> types, params ulong[] guildIds)
     {
         foreach (Type type in types)
         {
             if (type.GetCustomAttribute<CommandAttribute>() is not null)
             {
-                _commandBuilders.Add(CommandBuilder.From(type, guildIds));
+                this.commandBuilders.Add(CommandBuilder.From(type, guildIds));
                 continue;
             }
 
@@ -181,7 +181,7 @@ public sealed class CommandsExtension : BaseExtension
             {
                 if (method.GetCustomAttribute<CommandAttribute>() is not null)
                 {
-                    _commandBuilders.Add(CommandBuilder.From(method, guildIds: guildIds));
+                    this.commandBuilders.Add(CommandBuilder.From(method, guildIds: guildIds));
                 }
             }
         }
@@ -189,21 +189,21 @@ public sealed class CommandsExtension : BaseExtension
 
     public async ValueTask AddProcessorAsync(ICommandProcessor processor)
     {
-        _processors.Add(processor.GetType(), processor);
+        this.processors.Add(processor.GetType(), processor);
         await processor.ConfigureAsync(this);
     }
 
-    public ValueTask AddProcessorsAsync(params ICommandProcessor[] processors) => AddProcessorsAsync((IEnumerable<ICommandProcessor>)processors);
+    public ValueTask AddProcessorsAsync(params ICommandProcessor[] processors) => this.AddProcessorsAsync((IEnumerable<ICommandProcessor>)processors);
     public async ValueTask AddProcessorsAsync(IEnumerable<ICommandProcessor> processors)
     {
         foreach (ICommandProcessor processor in processors)
         {
-            _processors.Add(processor.GetType(), processor);
+            this.processors.Add(processor.GetType(), processor);
             await processor.ConfigureAsync(this);
         }
     }
 
-    public TProcessor GetProcessor<TProcessor>() where TProcessor : ICommandProcessor => (TProcessor)_processors[typeof(TProcessor)];
+    public TProcessor GetProcessor<TProcessor>() where TProcessor : ICommandProcessor => (TProcessor)this.processors[typeof(TProcessor)];
 
     /// <summary>
     /// Adds all public checks from the provided assembly to the extension.
@@ -214,7 +214,7 @@ public sealed class CommandsExtension : BaseExtension
         {
             if (t.GetInterface("DSharpPlus.Commands.ContextChecks.IContextCheck`1") is not null)
             {
-                AddCheck(t);
+                this.AddCheck(t);
             }
         }
     }
@@ -224,7 +224,7 @@ public sealed class CommandsExtension : BaseExtension
     /// </summary>
     public void AddCheck<T>()
         where T : IContextCheck
-        => AddCheck(typeof(T));
+        => this.AddCheck(typeof(T));
 
     /// <summary>
     /// Adds a new check to the extension.
@@ -261,7 +261,7 @@ public sealed class CommandsExtension : BaseExtension
 
             CheckFunc func = Unsafe.As<CheckFunc>(Expression.Lambda(delegateType, call, check, attribute, context).Compile());
 
-            checks.Add
+            this.checks.Add
             (
                 new()
                 {
@@ -282,7 +282,7 @@ public sealed class CommandsExtension : BaseExtension
         {
             if (t.GetInterface("DSharpPlus.Commands.ContextChecks.ParameterChecks.IParameterCheck`1") is not null)
             {
-                AddParameterCheck(t);
+                this.AddParameterCheck(t);
             }
         }
     }
@@ -292,7 +292,7 @@ public sealed class CommandsExtension : BaseExtension
     /// </summary>
     public void AddParameterCheck<T>()
         where T : IParameterCheck
-        => AddParameterCheck(typeof(T));
+        => this.AddParameterCheck(typeof(T));
 
     /// <summary>
     /// Adds a new check to the extension.
@@ -339,7 +339,7 @@ public sealed class CommandsExtension : BaseExtension
             ParameterCheckFunc func = Unsafe.As<ParameterCheckFunc>(Expression.Lambda(delegateType, call, check, attribute, info, context)
                 .Compile());
 
-            parameterChecks.Add
+            this.parameterChecks.Add
             (
                 new()
                 {
@@ -354,7 +354,7 @@ public sealed class CommandsExtension : BaseExtension
     public async Task RefreshAsync()
     {
         Dictionary<string, Command> commands = [];
-        foreach (CommandBuilder commandBuilder in _commandBuilders)
+        foreach (CommandBuilder commandBuilder in this.commandBuilders)
         {
             try
             {
@@ -363,20 +363,20 @@ public sealed class CommandsExtension : BaseExtension
             }
             catch (Exception error)
             {
-                _logger.LogError(error, "Failed to build command '{CommandBuilder}'", commandBuilder.Name);
+                this.logger.LogError(error, "Failed to build command '{CommandBuilder}'", commandBuilder.Name);
             }
         }
 
-        Commands = commands.ToFrozenDictionary();
-        if (RegisterDefaultCommandProcessors)
+        this.Commands = commands.ToFrozenDictionary();
+        if (this.RegisterDefaultCommandProcessors)
         {
-            _processors.TryAdd(typeof(TextCommandProcessor), new TextCommandProcessor());
-            _processors.TryAdd(typeof(SlashCommandProcessor), new SlashCommandProcessor());
-            _processors.TryAdd(typeof(MessageCommandProcessor), new MessageCommandProcessor());
-            _processors.TryAdd(typeof(UserCommandProcessor), new UserCommandProcessor());
+            this.processors.TryAdd(typeof(TextCommandProcessor), new TextCommandProcessor());
+            this.processors.TryAdd(typeof(SlashCommandProcessor), new SlashCommandProcessor());
+            this.processors.TryAdd(typeof(MessageCommandProcessor), new MessageCommandProcessor());
+            this.processors.TryAdd(typeof(UserCommandProcessor), new UserCommandProcessor());
         }
 
-        foreach (ICommandProcessor processor in _processors.Values)
+        foreach (ICommandProcessor processor in this.processors.Values)
         {
             await processor.ConfigureAsync(this);
         }
@@ -389,14 +389,14 @@ public sealed class CommandsExtension : BaseExtension
     }
 
     /// <summary>
-    /// The event handler used to log all unhandled exceptions, usually from when <see cref="_commandErrored"/> itself errors.
+    /// The event handler used to log all unhandled exceptions, usually from when <see cref="commandErrored"/> itself errors.
     /// </summary>
     /// <param name="asyncEvent">The event that errored.</param>
     /// <param name="error">The error that occurred.</param>
     /// <param name="handler">The handler/method that errored.</param>
     /// <param name="sender">The extension.</param>
     /// <param name="eventArgs">The event arguments passed to <paramref name="handler"/>.</param>
-    private static void EverythingWentWrongErrorHandler<TArgs>(AsyncEvent<CommandsExtension, TArgs> asyncEvent, Exception error, AsyncEventHandler<CommandsExtension, TArgs> handler, CommandsExtension sender, TArgs eventArgs) where TArgs : AsyncEventArgs => sender._logger.LogError(error, "Event handler '{Method}' for event {AsyncEvent} threw an unhandled exception.", handler.Method, asyncEvent.Name);
+    private static void EverythingWentWrongErrorHandler<TArgs>(AsyncEvent<CommandsExtension, TArgs> asyncEvent, Exception error, AsyncEventHandler<CommandsExtension, TArgs> handler, CommandsExtension sender, TArgs eventArgs) where TArgs : AsyncEventArgs => sender.logger.LogError(error, "Event handler '{Method}' for event {AsyncEvent} threw an unhandled exception.", handler.Method, asyncEvent.Name);
 
     /// <summary>
     /// The default command error handler. Only used if <see cref="UseDefaultCommandErrorHandler"/> is set to true.

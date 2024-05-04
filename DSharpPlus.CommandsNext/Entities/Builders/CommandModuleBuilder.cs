@@ -36,7 +36,7 @@ public sealed class CommandModuleBuilder
             throw new ArgumentException("Specified type is not a valid module type.", nameof(t));
         }
 
-        Type = t;
+        this.Type = t;
         return this;
     }
 
@@ -47,16 +47,16 @@ public sealed class CommandModuleBuilder
     /// <returns>This builder.</returns>
     public CommandModuleBuilder WithLifespan(ModuleLifespan lifespan)
     {
-        Lifespan = lifespan;
+        this.Lifespan = lifespan;
         return this;
     }
 
-    internal ICommandModule Build(IServiceProvider services) => Type is null
+    internal ICommandModule Build(IServiceProvider services) => this.Type is null
             ? throw new InvalidOperationException($"A command module cannot be built without a module type, please use the {nameof(this.WithType)} method to set a type.")
-            : Lifespan switch
+            : this.Lifespan switch
             {
-                ModuleLifespan.Singleton => new SingletonCommandModule(Type, services),
-                ModuleLifespan.Transient => new TransientCommandModule(Type),
+                ModuleLifespan.Singleton => new SingletonCommandModule(this.Type, services),
+                ModuleLifespan.Transient => new TransientCommandModule(this.Type),
                 _ => throw new NotSupportedException("Module lifespans other than transient and singleton are not supported."),
             };
 }

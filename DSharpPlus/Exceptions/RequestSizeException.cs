@@ -11,8 +11,8 @@ public class RequestSizeException : DiscordException
     internal RequestSizeException(HttpRequestMessage request, HttpResponseMessage response, string content)
         : base($"Request entity too large: {response.StatusCode}. Make sure the data sent is within Discord's upload limit.")
     {
-        Request = request;
-        Response = response;
+        this.Request = request;
+        this.Response = response;
 
         try
         {
@@ -25,7 +25,7 @@ public class RequestSizeException : DiscordException
                 && message.ValueKind == JsonValueKind.String
             )
             {
-                JsonMessage = message.GetString();
+                this.JsonMessage = message.GetString();
             }
         }
         catch { }

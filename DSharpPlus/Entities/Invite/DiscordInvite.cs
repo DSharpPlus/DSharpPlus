@@ -106,7 +106,7 @@ public class DiscordInvite
     /// </summary>
     [JsonIgnore]
     public DateTimeOffset? ExpiresAt
-        => !string.IsNullOrWhiteSpace(ExpiresAtRaw) && DateTimeOffset.TryParse(ExpiresAtRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset dto) ? dto : null;
+        => !string.IsNullOrWhiteSpace(this.ExpiresAtRaw) && DateTimeOffset.TryParse(this.ExpiresAtRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset dto) ? dto : null;
 
     [JsonProperty("expires_at", NullValueHandling = NullValueHandling.Ignore)]
     internal string ExpiresAtRaw { get; set; }
@@ -129,7 +129,7 @@ public class DiscordInvite
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordInvite> DeleteAsync(string reason = null)
-        => await Discord.ApiClient.DeleteInviteAsync(Code, reason);
+        => await this.Discord.ApiClient.DeleteInviteAsync(this.Code, reason);
 
     /*
      * Disabled due to API restrictions.
@@ -140,12 +140,12 @@ public class DiscordInvite
      * /// <returns></returns>
      * [Obsolete("Using this method will get your account unverified.")]
      * public Task<DiscordInvite> AcceptAsync()
-     *     => this.Discord._rest_client.InternalAcceptInvite(Code);
+     *     => this.Discord.rest_client.InternalAcceptInvite(Code);
      */
 
     /// <summary>
     /// Converts this invite into an invite link.
     /// </summary>
     /// <returns>A discord.gg invite link.</returns>
-    public override string ToString() => $"https://discord.gg/{Code}";
+    public override string ToString() => $"https://discord.gg/{this.Code}";
 }

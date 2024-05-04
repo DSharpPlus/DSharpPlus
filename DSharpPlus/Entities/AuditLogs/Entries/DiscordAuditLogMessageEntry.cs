@@ -34,7 +34,7 @@ public sealed class DiscordAuditLogMessageEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the affected Member. This is null if the action was performed on a user that is not in the member cache.
     /// </summary>
-    public DiscordMember? Member => Channel.Guild.Members.TryGetValue(Target.Id, out DiscordMember? member) ? member : null;
+    public DiscordMember? Member => this.Channel.Guild.Members.TryGetValue(this.Target.Id, out DiscordMember? member) ? member : null;
 
     /// <summary>
     /// Gets the channel in which the action occurred.

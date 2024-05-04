@@ -57,7 +57,7 @@ public static class LavalinkUtilities
 
             decoded.Author = br.ReadJavaUtf8();
 
-            decoded._length = br.ReadInt64();
+            decoded.length = br.ReadInt64();
 
             decoded.Identifier = br.ReadJavaUtf8();
 
@@ -79,18 +79,18 @@ public static class LavalinkUtilities
 /// </summary>
 internal class JavaBinaryReader : BinaryReader
 {
-    private static readonly Encoding _utf8NoBom = new UTF8Encoding();
+    private static readonly Encoding utf8NoBom = new UTF8Encoding();
 
-    public JavaBinaryReader(Stream ms) : base(ms, _utf8NoBom)
+    public JavaBinaryReader(Stream ms) : base(ms, utf8NoBom)
     {
     }
 
     // https://docs.oracle.com/javase/7/docs/api/java/io/DataInput.html#readUTF()
     public string ReadJavaUtf8()
     {
-        ushort length = ReadUInt16(); // string size in bytes
+        ushort length = this.ReadUInt16(); // string size in bytes
         byte[] bytes = new byte[length];
-        int amountRead = Read(bytes, 0, length);
+        int amountRead = this.Read(bytes, 0, length);
         if (amountRead < length)
         {
             throw new InvalidDataException("EOS unexpected");
@@ -143,34 +143,34 @@ internal class JavaBinaryReader : BinaryReader
     }
 
     // https://github.com/sedmelluq/lavaplayer/blob/b0c536098c4f92e6d03b00f19221021f8f50b19b/main/src/main/java/com/sedmelluq/discord/lavaplayer/tools/DataFormatTools.java#L114-L125
-    public string ReadNullableString() => ReadBoolean() ? ReadJavaUtf8() : null;
+    public string ReadNullableString() => this.ReadBoolean() ? this.ReadJavaUtf8() : null;
 
     // swap endianness
     public override decimal ReadDecimal() => throw new MissingMethodException("This method does not have a Java equivalent");
 
     // from https://github.com/Zoltu/Zoltu.EndianAwareBinaryReaderWriter under CC0
-    public override float ReadSingle() => Read(4, BitConverter.ToSingle);
+    public override float ReadSingle() => this.Read(4, BitConverter.ToSingle);
 
-    public override double ReadDouble() => Read(8, BitConverter.ToDouble);
+    public override double ReadDouble() => this.Read(8, BitConverter.ToDouble);
 
-    public override short ReadInt16() => Read(2, BitConverter.ToInt16);
+    public override short ReadInt16() => this.Read(2, BitConverter.ToInt16);
 
-    public override int ReadInt32() => Read(4, BitConverter.ToInt32);
+    public override int ReadInt32() => this.Read(4, BitConverter.ToInt32);
 
-    public override long ReadInt64() => Read(8, BitConverter.ToInt64);
+    public override long ReadInt64() => this.Read(8, BitConverter.ToInt64);
 
-    public override ushort ReadUInt16() => Read(2, BitConverter.ToUInt16);
+    public override ushort ReadUInt16() => this.Read(2, BitConverter.ToUInt16);
 
-    public override uint ReadUInt32() => Read(4, BitConverter.ToUInt32);
+    public override uint ReadUInt32() => this.Read(4, BitConverter.ToUInt32);
 
-    public override ulong ReadUInt64() => Read(8, BitConverter.ToUInt64);
+    public override ulong ReadUInt64() => this.Read(8, BitConverter.ToUInt64);
 
     private T Read<T>(int size, Func<byte[], int, T> converter) where T : struct
     {
         //Contract.Requires(size >= 0);
         //Contract.Requires(converter != null);
 
-        byte[] bytes = GetNextBytesNativeEndian(size);
+        byte[] bytes = this.GetNextBytesNativeEndian(size);
         return converter(bytes, 0);
     }
 
@@ -180,7 +180,7 @@ internal class JavaBinaryReader : BinaryReader
         //Contract.Ensures(Contract.Result<Byte[]>() != null);
         //Contract.Ensures(Contract.Result<Byte[]>().Length == count);
 
-        byte[] bytes = GetNextBytes(count);
+        byte[] bytes = this.GetNextBytes(count);
         if (BitConverter.IsLittleEndian)
         {
             Array.Reverse(bytes);
@@ -196,7 +196,7 @@ internal class JavaBinaryReader : BinaryReader
         //Contract.Ensures(Contract.Result<Byte[]>().Length == count);
 
         byte[] buffer = new byte[count];
-        int bytesRead = BaseStream.Read(buffer, 0, count);
+        int bytesRead = this.BaseStream.Read(buffer, 0, count);
 
         return bytesRead != count ? throw new EndOfStreamException() : buffer;
     }

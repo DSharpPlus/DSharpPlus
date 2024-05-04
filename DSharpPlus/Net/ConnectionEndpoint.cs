@@ -29,32 +29,32 @@ public struct ConnectionEndpoint
     /// <param name="secured">Whether the connection should be secured (https/wss).</param>
     public ConnectionEndpoint(string hostname, int port, bool secured = false)
     {
-        Hostname = hostname;
-        Port = port;
-        Secured = secured;
+        this.Hostname = hostname;
+        this.Port = port;
+        this.Secured = secured;
     }
 
     /// <summary>
     /// Gets the hash code of this endpoint.
     /// </summary>
     /// <returns>Hash code of this endpoint.</returns>
-    public override readonly int GetHashCode() => 13 + (7 * Hostname.GetHashCode()) + (7 * Port);
+    public override readonly int GetHashCode() => 13 + (7 * this.Hostname.GetHashCode()) + (7 * this.Port);
 
     /// <summary>
     /// Gets the string representation of this connection endpoint.
     /// </summary>
     /// <returns>String representation of this endpoint.</returns>
-    public override readonly string ToString() => $"{Hostname}:{Port}";
+    public override readonly string ToString() => $"{this.Hostname}:{this.Port}";
 
     internal readonly string ToHttpString()
     {
-        string secure = Secured ? "s" : "";
+        string secure = this.Secured ? "s" : "";
         return $"http{secure}://{this}";
     }
 
     internal readonly string ToWebSocketString()
     {
-        string secure = Secured ? "s" : "";
+        string secure = this.Secured ? "s" : "";
         return $"ws{secure}://{this}/";
     }
 }

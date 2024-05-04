@@ -12,10 +12,10 @@ namespace DSharpPlus.Interactivity.EventHandling;
 /// <typeparam name="T"></typeparam>
 internal class MatchRequest<T> : IDisposable where T : AsyncEventArgs
 {
-    internal TaskCompletionSource<T> _tcs;
-    internal CancellationTokenSource _ct;
-    internal Func<T, bool> _predicate;
-    internal TimeSpan _timeout;
+    internal TaskCompletionSource<T> tcs;
+    internal CancellationTokenSource ct;
+    internal Func<T, bool> predicate;
+    internal TimeSpan timeout;
 
     /// <summary>
     /// Creates a new MatchRequest object.
@@ -24,11 +24,11 @@ internal class MatchRequest<T> : IDisposable where T : AsyncEventArgs
     /// <param name="timeout">Timeout time</param>
     public MatchRequest(Func<T, bool> predicate, TimeSpan timeout)
     {
-        _tcs = new TaskCompletionSource<T>();
-        _ct = new CancellationTokenSource(timeout);
-        _predicate = predicate;
-        _ct.Token.Register(() => _tcs.TrySetResult(null));
-        _timeout = timeout;
+        this.tcs = new TaskCompletionSource<T>();
+        this.ct = new CancellationTokenSource(timeout);
+        this.predicate = predicate;
+        this.ct.Token.Register(() => this.tcs.TrySetResult(null));
+        this.timeout = timeout;
     }
 
     /// <summary>
@@ -36,9 +36,9 @@ internal class MatchRequest<T> : IDisposable where T : AsyncEventArgs
     /// </summary>
     public void Dispose()
     {
-        _ct?.Dispose();
-        _tcs = null!;
-        _predicate = null!;
+        this.ct?.Dispose();
+        this.tcs = null!;
+        this.predicate = null!;
 
         // Satisfy rule CA1816. Can be removed if this class is sealed.
         GC.SuppressFinalize(this);

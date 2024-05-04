@@ -31,24 +31,24 @@ public class DiscordThreadChannelMember
     /// </summary>
     [JsonIgnore]
     public DiscordMember Member
-        => Guild != null ? (Guild._members.TryGetValue(Id, out DiscordMember? member) ? member : new DiscordMember { Id = Id, _guild_id = _guild_id, Discord = Discord }) : null;
+        => this.Guild != null ? (this.Guild.members.TryGetValue(this.Id, out DiscordMember? member) ? member : new DiscordMember { Id = this.Id, guild_id = this.guild_id, Discord = this.Discord }) : null;
 
     /// <summary>
     /// Gets the category that contains this channel. For threads, gets the channel this thread was created in.
     /// </summary>
     [JsonIgnore]
     public DiscordChannel Thread
-        => Guild != null ? (Guild._threads.TryGetValue(ThreadId, out DiscordThreadChannel? thread) ? thread : null) : null;
+        => this.Guild != null ? (this.Guild.threads.TryGetValue(this.ThreadId, out DiscordThreadChannel? thread) ? thread : null) : null;
 
     /// <summary>
     /// Gets the guild to which this channel belongs.
     /// </summary>
     [JsonIgnore]
     public DiscordGuild Guild
-        => Discord.Guilds.TryGetValue(_guild_id, out DiscordGuild? guild) ? guild : null;
+        => this.Discord.Guilds.TryGetValue(this.guild_id, out DiscordGuild? guild) ? guild : null;
 
     [JsonIgnore]
-    internal ulong _guild_id;
+    internal ulong guild_id;
 
     /// <summary>
     /// Gets the client instance this object is tied to.
@@ -63,20 +63,20 @@ public class DiscordThreadChannelMember
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordThreadChannelMember"/>.</returns>
-    public override bool Equals(object obj) => Equals(obj as DiscordThreadChannelMember);
+    public override bool Equals(object obj) => this.Equals(obj as DiscordThreadChannelMember);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordThreadChannelMember"/> is equal to another <see cref="DiscordThreadChannelMember"/>.
     /// </summary>
     /// <param name="e"><see cref="DiscordThreadChannelMember"/> to compare to.</param>
     /// <returns>Whether the <see cref="DiscordThreadChannelMember"/> is equal to this <see cref="DiscordThreadChannelMember"/>.</returns>
-    public bool Equals(DiscordThreadChannelMember e) => e is not null && (ReferenceEquals(this, e) || (Id == e.Id && ThreadId == e.ThreadId));
+    public bool Equals(DiscordThreadChannelMember e) => e is not null && (ReferenceEquals(this, e) || (this.Id == e.Id && this.ThreadId == e.ThreadId));
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordThreadChannelMember"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="DiscordThreadChannelMember"/>.</returns>
-    public override int GetHashCode() => HashCode.Combine(Id, ThreadId);
+    public override int GetHashCode() => HashCode.Combine(this.Id, this.ThreadId);
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordThreadChannelMember"/> objects are equal.

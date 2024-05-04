@@ -29,10 +29,10 @@ internal class ModalMatchRequest
 
     public ModalMatchRequest(string modal_id, Func<ModalSubmitEventArgs, bool> predicate, CancellationToken cancellation)
     {
-        ModalId = modal_id;
-        Predicate = predicate;
-        Cancellation = cancellation;
-        Cancellation.Register(() => Tcs.TrySetResult(null)); // "TrySetCancelled would probably be better but I digress" - Velvet // "TrySetCancelled throws an exception when you await the task, actually" - Velvet, 2022
+        this.ModalId = modal_id;
+        this.Predicate = predicate;
+        this.Cancellation = cancellation;
+        this.Cancellation.Register(() => this.Tcs.TrySetResult(null)); // "TrySetCancelled would probably be better but I digress" - Velvet // "TrySetCancelled throws an exception when you await the task, actually" - Velvet, 2022
     }
 
     /// <summary>
@@ -41,5 +41,5 @@ internal class ModalMatchRequest
     /// <param name="args">The <see cref="ModalSubmitEventArgs"/> to check.</param>
     /// <returns>Whether the <see cref="ModalSubmitEventArgs"/> matches the predicate.</returns>
     public bool IsMatch(ModalSubmitEventArgs args)
-        => Predicate(args);
+        => this.Predicate(args);
 }

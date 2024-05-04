@@ -18,7 +18,7 @@ public class DiscordAutoModerationRule : SnowflakeObject
     /// Gets the guild which the rule is in.
     /// </summary>
     [JsonIgnore]
-    public DiscordGuild? Guild => Discord.Guilds.TryGetValue(GuildId, out DiscordGuild? guild) ? guild : null;
+    public DiscordGuild? Guild => this.Discord.Guilds.TryGetValue(this.GuildId, out DiscordGuild? guild) ? guild : null;
 
     /// <summary>
     /// Gets the rule name.
@@ -33,7 +33,7 @@ public class DiscordAutoModerationRule : SnowflakeObject
     /// Gets the user that created the rule.
     /// </summary>
     [JsonIgnore]
-    public DiscordUser? Creator => Discord.TryGetCachedUserInternal(CreatorId, out DiscordUser creator) ? creator : null;
+    public DiscordUser? Creator => this.Discord.TryGetCachedUserInternal(this.CreatorId, out DiscordUser creator) ? creator : null;
 
     /// <summary>
     /// Gets the rule event type.
@@ -88,7 +88,7 @@ public class DiscordAutoModerationRule : SnowflakeObject
     /// </summary>
     /// <param name="reason">Reason for audits logs.</param>
     public async Task DeleteAsync(string? reason = null)
-        => await Discord.ApiClient.DeleteGuildAutoModerationRuleAsync(GuildId, Id, reason);
+        => await this.Discord.ApiClient.DeleteGuildAutoModerationRuleAsync(this.GuildId, this.Id, reason);
 
     /// <summary>
     /// Modify the rule in the guild.
@@ -101,10 +101,10 @@ public class DiscordAutoModerationRule : SnowflakeObject
 
         action(model);
 
-        return await Discord.ApiClient.ModifyGuildAutoModerationRuleAsync
+        return await this.Discord.ApiClient.ModifyGuildAutoModerationRuleAsync
         (
-            GuildId,
-            Id,
+            this.GuildId,
+            this.Id,
             model.Name,
             model.EventType,
             model.TriggerMetadata,

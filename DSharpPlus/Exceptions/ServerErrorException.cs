@@ -11,8 +11,8 @@ public class ServerErrorException : DiscordException
     internal ServerErrorException(HttpRequestMessage request, HttpResponseMessage response, string content)
         : base("Internal Server Error: " + response.StatusCode)
     {
-        Request = request;
-        Response = response;
+        this.Request = request;
+        this.Response = response;
 
         try
         {
@@ -25,7 +25,7 @@ public class ServerErrorException : DiscordException
                 && message.ValueKind == JsonValueKind.String
             )
             {
-                JsonMessage = message.GetString();
+                this.JsonMessage = message.GetString();
             }
         }
         catch { }

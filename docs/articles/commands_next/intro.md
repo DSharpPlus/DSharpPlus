@@ -357,16 +357,16 @@ Now that you've gotten an understanding of CommandsNext, it'd be a good idea che
 * [Dependency Injection][16]
 
 <!-- LINKS -->
-[0]:  xref:articles.basics.first_bot
-[1]:  ../../images/commands_next_intro_01.png
-[2]:  ../../images/commands_next_intro_02.png
-[3]:  xref:articles.basics.first_bot#spicing-up-your-bot
-[4]:  ../../images/commands_next_intro_03.png
-[5]:  https://www.youtube.com/watch?v=GsQXadrmhws
-[6]:  https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/interpolated
-[7]:  ../../images/commands_next_intro_04.png
-[8]:  #command-overloads
-[9]:  xref:articles.commands_next.argument_converters
+[0]: xref:articles.basics.first_bot
+[1]: ../../images/commands_next_intro_01.png
+[2]: ../../images/commands_next_intro_02.png
+[3]: xref:articles.basics.first_bot#spicing-up-your-bot
+[4]: ../../images/commands_next_intro_03.png
+[5]: https://www.youtube.com/watch?v=GsQXadrmhws
+[6]: https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/interpolated
+[7]: ../../images/commands_next_intro_04.png
+[8]: #command-overloads
+[9]: xref:articles.commands_next.argument_converters
 [10]: ../../images/commands_next_intro_05.png
 [11]: ../../images/commands_next_intro_06.png
 [12]: ../../images/commands_next_intro_07.png

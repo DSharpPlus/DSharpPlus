@@ -160,18 +160,18 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
 
         ReadOnlyCollection<DiscordApplicationCommandOption>? optionsList = options != null ? new ReadOnlyCollection<DiscordApplicationCommandOption>(options.ToList()) : null;
 
-        Type = type;
-        Name = name;
-        Description = description;
-        Options = optionsList;
-        DefaultPermission = defaultPermission;
-        NameLocalizations = name_localizations;
-        DescriptionLocalizations = description_localizations;
-        AllowDMUsage = allowDMUsage;
-        DefaultMemberPermissions = defaultMemberPermissions;
-        NSFW = nsfw;
-        Contexts = contexts;
-        IntegrationTypes = integrationTypes;
+        this.Type = type;
+        this.Name = name;
+        this.Description = description;
+        this.Options = optionsList;
+        this.DefaultPermission = defaultPermission;
+        this.NameLocalizations = name_localizations;
+        this.DescriptionLocalizations = description_localizations;
+        this.AllowDMUsage = allowDMUsage;
+        this.DefaultMemberPermissions = defaultMemberPermissions;
+        this.NSFW = nsfw;
+        this.Contexts = contexts;
+        this.IntegrationTypes = integrationTypes;
     }
 
     /// <summary>
@@ -179,9 +179,9 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
     /// </summary>
     /// <param name="name">The name of the subgroup and/or subcommand.</param>
     /// <returns>Formatted mention.</returns>
-    public string GetSubcommandMention(params string[] name) => !Options.Any(x => x.Name == name[0])
+    public string GetSubcommandMention(params string[] name) => !this.Options.Any(x => x.Name == name[0])
             ? throw new ArgumentException("Specified subgroup/subcommand doesn't exist.")
-            : $"</{Name} {string.Join(" ", name)}:{Id.ToString(CultureInfo.InvariantCulture)}>";
+            : $"</{this.Name} {string.Join(" ", name)}:{this.Id.ToString(CultureInfo.InvariantCulture)}>";
 
     /// <summary>
     /// Checks whether this <see cref="DiscordApplicationCommand"/> object is equal to another object.
@@ -189,7 +189,7 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
     /// <param name="other">The command to compare to.</param>
     /// <returns>Whether the command is equal to this <see cref="DiscordApplicationCommand"/>.</returns>
     public bool Equals(DiscordApplicationCommand other)
-        => Id == other.Id;
+        => this.Id == other.Id;
 
     /// <summary>
     /// Determines if two <see cref="DiscordApplicationCommand"/> objects are equal.
@@ -215,12 +215,12 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
     /// <param name="other">The object to compare to.</param>
     /// <returns>Whether the two <see cref="DiscordApplicationCommand"/> objects are not equal.</returns>
     public override bool Equals(object other)
-        => other is DiscordApplicationCommand dac && Equals(dac);
+        => other is DiscordApplicationCommand dac && this.Equals(dac);
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordApplicationCommand"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="DiscordApplicationCommand"/>.</returns>
     public override int GetHashCode()
-        => Id.GetHashCode();
+        => this.Id.GetHashCode();
 }

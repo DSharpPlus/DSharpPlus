@@ -16,11 +16,11 @@ public class StageInstanceCreateEventArgs : DiscordEventArgs
     /// Gets the guild the stage instance was created in.
     /// </summary>
     public DiscordGuild Guild
-        => StageInstance.Guild;
+        => this.StageInstance.Guild;
 
     /// <summary>
     /// Gets the channel the stage instance was created in.
     /// </summary>
     public DiscordChannel Channel
-        => StageInstance.Channel;
+        => this.StageInstance.Channel;
 }

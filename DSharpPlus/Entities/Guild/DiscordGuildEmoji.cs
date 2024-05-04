@@ -32,7 +32,7 @@ public sealed class DiscordGuildEmoji : DiscordEmoji
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordGuildEmoji> ModifyAsync(string name, IEnumerable<DiscordRole> roles = null, string reason = null)
-        => Guild.ModifyEmojiAsync(this, name, roles, reason);
+        => this.Guild.ModifyEmojiAsync(this, name, roles, reason);
 
     /// <summary>
     /// Deletes this emoji.
@@ -44,5 +44,5 @@ public sealed class DiscordGuildEmoji : DiscordEmoji
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task DeleteAsync(string reason = null)
-        => Guild.DeleteEmojiAsync(this, reason);
+        => this.Guild.DeleteEmojiAsync(this, reason);
 }

@@ -69,9 +69,9 @@ public readonly struct AudioFormat
             throw new ArgumentOutOfRangeException(nameof(voiceApplication), "Invalid voice application specified.");
         }
 
-        SampleRate = sampleRate;
-        ChannelCount = channelCount;
-        VoiceApplication = voiceApplication;
+        this.SampleRate = sampleRate;
+        this.ChannelCount = channelCount;
+        this.VoiceApplication = voiceApplication;
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ public readonly struct AudioFormat
         // - sample rate in kHz
         // - size of data (in this case, sizeof(int16_t))
         // which comes down to below:
-        return sampleDuration * ChannelCount * (SampleRate / 1000) * 2;
+        return sampleDuration * this.ChannelCount * (this.SampleRate / 1000) * 2;
     }
 
     /// <summary>
@@ -102,25 +102,25 @@ public readonly struct AudioFormat
     /// <returns>Buffer size required to decode data.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetMaximumBufferSize()
-        => CalculateMaximumFrameSize();
+        => this.CalculateMaximumFrameSize();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal readonly int CalculateSampleDuration(int sampleSize)
-        => sampleSize / (SampleRate / 1000) / ChannelCount / 2 /* sizeof(int16_t) */;
+        => sampleSize / (this.SampleRate / 1000) / this.ChannelCount / 2 /* sizeof(int16_t) */;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal readonly int CalculateFrameSize(int sampleDuration)
-        => sampleDuration * (SampleRate / 1000);
+        => sampleDuration * (this.SampleRate / 1000);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal readonly int CalculateMaximumFrameSize()
-        => 120 * (SampleRate / 1000);
+        => 120 * (this.SampleRate / 1000);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal readonly int SampleCountToSampleSize(int sampleCount)
-        => sampleCount * ChannelCount * 2 /* sizeof(int16_t) */;
+        => sampleCount * this.ChannelCount * 2 /* sizeof(int16_t) */;
 
     internal readonly bool IsValid()
-        => AllowedSampleRates.Contains(SampleRate) && AllowedChannelCounts.Contains(ChannelCount) &&
-            (VoiceApplication == VoiceApplication.Music || VoiceApplication == VoiceApplication.Voice || VoiceApplication == VoiceApplication.LowLatency);
+        => AllowedSampleRates.Contains(this.SampleRate) && AllowedChannelCounts.Contains(this.ChannelCount) &&
+            (this.VoiceApplication == VoiceApplication.Music || this.VoiceApplication == VoiceApplication.Voice || this.VoiceApplication == VoiceApplication.LowLatency);
 }

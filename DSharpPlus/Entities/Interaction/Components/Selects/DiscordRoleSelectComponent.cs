@@ -6,13 +6,13 @@ namespace DSharpPlus.Entities;
 public sealed class DiscordRoleSelectComponent : BaseDiscordSelectComponent
 {
     [JsonProperty("default_values", NullValueHandling = NullValueHandling.Ignore)]
-    private readonly List<DiscordSelectDefaultValue> _defaultValues = [];
+    private readonly List<DiscordSelectDefaultValue> defaultValues = [];
 
     /// <summary>
     /// The default values for this component.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyList<DiscordSelectDefaultValue> DefaultValues => _defaultValues;
+    public IReadOnlyList<DiscordSelectDefaultValue> DefaultValues => this.defaultValues;
 
     /// <summary>
     /// Adds a default role to this component.
@@ -21,7 +21,7 @@ public sealed class DiscordRoleSelectComponent : BaseDiscordSelectComponent
     public DiscordRoleSelectComponent AddDefaultRole(DiscordRole role)
     {
         DiscordSelectDefaultValue defaultValue = new(role.Id, DiscordSelectDefaultValueType.Role);
-        _defaultValues.Add(defaultValue);
+        this.defaultValues.Add(defaultValue);
         return this;
     }
 
@@ -34,7 +34,7 @@ public sealed class DiscordRoleSelectComponent : BaseDiscordSelectComponent
         foreach (DiscordRole value in roles)
         {
             DiscordSelectDefaultValue defaultValue = new(value.Id, DiscordSelectDefaultValueType.Role);
-            _defaultValues.Add(defaultValue);
+            this.defaultValues.Add(defaultValue);
         }
 
         return this;
@@ -47,7 +47,7 @@ public sealed class DiscordRoleSelectComponent : BaseDiscordSelectComponent
     public DiscordRoleSelectComponent AddDefaultRole(ulong id)
     {
         DiscordSelectDefaultValue defaultValue = new(id, DiscordSelectDefaultValueType.Role);
-        _defaultValues.Add(defaultValue);
+        this.defaultValues.Add(defaultValue);
         return this;
     }
 
@@ -60,7 +60,7 @@ public sealed class DiscordRoleSelectComponent : BaseDiscordSelectComponent
         foreach (ulong value in ids)
         {
             DiscordSelectDefaultValue defaultValue = new(value, DiscordSelectDefaultValueType.Role);
-            _defaultValues.Add(defaultValue);
+            this.defaultValues.Add(defaultValue);
         }
 
         return this;
@@ -72,7 +72,7 @@ public sealed class DiscordRoleSelectComponent : BaseDiscordSelectComponent
     /// <returns>The current component.</returns>
     public DiscordRoleSelectComponent Enable()
     {
-        Disabled = false;
+        this.Disabled = false;
         return this;
     }
     /// <summary>
@@ -81,11 +81,11 @@ public sealed class DiscordRoleSelectComponent : BaseDiscordSelectComponent
     /// <returns>The current component.</returns>
     public DiscordRoleSelectComponent Disable()
     {
-        Disabled = true;
+        this.Disabled = true;
         return this;
     }
 
-    internal DiscordRoleSelectComponent() => Type = DiscordComponentType.RoleSelect;
+    internal DiscordRoleSelectComponent() => this.Type = DiscordComponentType.RoleSelect;
 
     /// <summary>
     /// Creates a new role select component.

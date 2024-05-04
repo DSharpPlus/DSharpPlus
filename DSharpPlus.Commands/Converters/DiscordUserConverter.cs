@@ -16,15 +16,15 @@ namespace DSharpPlus.Commands.Converters;
 public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>, ITextArgumentConverter<DiscordUser>
 {
     [GeneratedRegex("""^<@!?(\d+?)>$""", RegexOptions.Compiled | RegexOptions.ECMAScript)]
-    private static partial Regex _getMemberRegex();
+    private static partial Regex getMemberRegex();
 
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.User;
     public string ReadableName => "Discord User";
     public bool RequiresText => true;
 
-    private readonly ILogger<DiscordUserConverter> _logger;
+    private readonly ILogger<DiscordUserConverter> logger;
 
-    public DiscordUserConverter(ILogger<DiscordUserConverter>? logger = null) => _logger = logger ?? NullLogger<DiscordUserConverter>.Instance;
+    public DiscordUserConverter(ILogger<DiscordUserConverter>? logger = null) => this.logger = logger ?? NullLogger<DiscordUserConverter>.Instance;
 
     public async Task<Optional<DiscordUser>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
     {
@@ -35,7 +35,7 @@ public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>
 
         if (!ulong.TryParse(context.Argument, CultureInfo.InvariantCulture, out ulong memberId))
         {
-            Match match = _getMemberRegex().Match(context.Argument);
+            Match match = getMemberRegex().Match(context.Argument);
             if (!match.Success || !ulong.TryParse(match.Groups[1].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out memberId))
             {
                 // Attempt to find a member by name, case sensitive.
@@ -61,7 +61,7 @@ public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>
         }
         catch (DiscordException error)
         {
-            _logger.LogError(error, "Failed to get user from client.");
+            this.logger.LogError(error, "Failed to get user from client.");
         }
 
         return Optional.FromNoValue<DiscordUser>();

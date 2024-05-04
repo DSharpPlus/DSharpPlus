@@ -11,8 +11,8 @@ public class RateLimitException : DiscordException
     internal RateLimitException(HttpRequestMessage request, HttpResponseMessage response, string content)
         : base("Rate limited: " + response.StatusCode)
     {
-        Request = request;
-        Response = response;
+        this.Request = request;
+        this.Response = response;
 
         try
         {
@@ -25,7 +25,7 @@ public class RateLimitException : DiscordException
                 && message.ValueKind == JsonValueKind.String
             )
             {
-                JsonMessage = message.GetString();
+                this.JsonMessage = message.GetString();
             }
         }
         catch { }

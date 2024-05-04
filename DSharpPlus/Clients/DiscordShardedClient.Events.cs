@@ -11,775 +11,775 @@ public sealed partial class DiscordShardedClient
     /// <inheritdoc cref="DiscordClient.ClientErrored"/>
     public event AsyncEventHandler<DiscordClient, ClientErrorEventArgs> ClientErrored
     {
-        add => this._clientErrored.Register(value);
-        remove => this._clientErrored.Unregister(value);
+        add => this.clientErrored.Register(value);
+        remove => this.clientErrored.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ClientErrorEventArgs> _clientErrored;
-    private Task ClientErroredDelegator(DiscordClient client, ClientErrorEventArgs eventArgs) => _clientErrored.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ClientErrorEventArgs> clientErrored;
+    private Task ClientErroredDelegator(DiscordClient client, ClientErrorEventArgs eventArgs) => clientErrored.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ApplicationCommandPermissionsUpdated"/>
     public event AsyncEventHandler<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs> ApplicationCommandPermissionsUpdated
     {
-        add => this._applicationCommandPermissionsUpdated.Register(value);
-        remove => this._applicationCommandPermissionsUpdated.Unregister(value);
+        add => this.applicationCommandPermissionsUpdated.Register(value);
+        remove => this.applicationCommandPermissionsUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs> _applicationCommandPermissionsUpdated;
-    private Task ApplicationCommandPermissionsUpdatedDelegator(DiscordClient client, ApplicationCommandPermissionsUpdatedEventArgs eventArgs) => _applicationCommandPermissionsUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs> applicationCommandPermissionsUpdated;
+    private Task ApplicationCommandPermissionsUpdatedDelegator(DiscordClient client, ApplicationCommandPermissionsUpdatedEventArgs eventArgs) => applicationCommandPermissionsUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.AutoModerationRuleCreated"/>
     public event AsyncEventHandler<DiscordClient, AutoModerationRuleCreateEventArgs> AutoModerationRuleCreated
     {
-        add => this._autoModerationRuleCreated.Register(value);
-        remove => this._autoModerationRuleCreated.Unregister(value);
+        add => this.autoModerationRuleCreated.Register(value);
+        remove => this.autoModerationRuleCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, AutoModerationRuleCreateEventArgs> _autoModerationRuleCreated;
-    private Task AutoModerationRuleCreatedDelegator(DiscordClient client, AutoModerationRuleCreateEventArgs eventArgs) => _autoModerationRuleCreated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, AutoModerationRuleCreateEventArgs> autoModerationRuleCreated;
+    private Task AutoModerationRuleCreatedDelegator(DiscordClient client, AutoModerationRuleCreateEventArgs eventArgs) => autoModerationRuleCreated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.AutoModerationRuleDeleted"/>
     public event AsyncEventHandler<DiscordClient, AutoModerationRuleDeleteEventArgs> AutoModerationRuleDeleted
     {
-        add => this._autoModerationRuleDeleted.Register(value);
-        remove => this._autoModerationRuleDeleted.Unregister(value);
+        add => this.autoModerationRuleDeleted.Register(value);
+        remove => this.autoModerationRuleDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, AutoModerationRuleDeleteEventArgs> _autoModerationRuleDeleted;
-    private Task AutoModerationRuleDeletedDelegator(DiscordClient client, AutoModerationRuleDeleteEventArgs eventArgs) => _autoModerationRuleDeleted.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, AutoModerationRuleDeleteEventArgs> autoModerationRuleDeleted;
+    private Task AutoModerationRuleDeletedDelegator(DiscordClient client, AutoModerationRuleDeleteEventArgs eventArgs) => autoModerationRuleDeleted.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.AutoModerationRuleExecuted"/>
     public event AsyncEventHandler<DiscordClient, AutoModerationRuleExecuteEventArgs> AutoModerationRuleExecuted
     {
-        add => this._autoModerationRuleExecuted.Register(value);
-        remove => this._autoModerationRuleExecuted.Unregister(value);
+        add => this.autoModerationRuleExecuted.Register(value);
+        remove => this.autoModerationRuleExecuted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, AutoModerationRuleExecuteEventArgs> _autoModerationRuleExecuted;
-    private Task AutoModerationRuleExecutedDelegator(DiscordClient client, AutoModerationRuleExecuteEventArgs eventArgs) => _autoModerationRuleExecuted.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, AutoModerationRuleExecuteEventArgs> autoModerationRuleExecuted;
+    private Task AutoModerationRuleExecutedDelegator(DiscordClient client, AutoModerationRuleExecuteEventArgs eventArgs) => autoModerationRuleExecuted.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.AutoModerationRuleUpdated"/>
     public event AsyncEventHandler<DiscordClient, AutoModerationRuleUpdateEventArgs> AutoModerationRuleUpdated
     {
-        add => this._autoModerationRuleUpdated.Register(value);
-        remove => this._autoModerationRuleUpdated.Unregister(value);
+        add => this.autoModerationRuleUpdated.Register(value);
+        remove => this.autoModerationRuleUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, AutoModerationRuleUpdateEventArgs> _autoModerationRuleUpdated;
-    private Task AutoModerationRuleUpdatedDelegator(DiscordClient client, AutoModerationRuleUpdateEventArgs eventArgs) => _autoModerationRuleUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, AutoModerationRuleUpdateEventArgs> autoModerationRuleUpdated;
+    private Task AutoModerationRuleUpdatedDelegator(DiscordClient client, AutoModerationRuleUpdateEventArgs eventArgs) => autoModerationRuleUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ChannelCreated"/>
     public event AsyncEventHandler<DiscordClient, ChannelCreateEventArgs> ChannelCreated
     {
-        add => this._channelCreated.Register(value);
-        remove => this._channelCreated.Unregister(value);
+        add => this.channelCreated.Register(value);
+        remove => this.channelCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ChannelCreateEventArgs> _channelCreated;
-    private Task ChannelCreatedDelegator(DiscordClient client, ChannelCreateEventArgs eventArgs) => _channelCreated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ChannelCreateEventArgs> channelCreated;
+    private Task ChannelCreatedDelegator(DiscordClient client, ChannelCreateEventArgs eventArgs) => channelCreated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ChannelDeleted"/>
     public event AsyncEventHandler<DiscordClient, ChannelDeleteEventArgs> ChannelDeleted
     {
-        add => this._channelDeleted.Register(value);
-        remove => this._channelDeleted.Unregister(value);
+        add => this.channelDeleted.Register(value);
+        remove => this.channelDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ChannelDeleteEventArgs> _channelDeleted;
-    private Task ChannelDeletedDelegator(DiscordClient client, ChannelDeleteEventArgs eventArgs) => _channelDeleted.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ChannelDeleteEventArgs> channelDeleted;
+    private Task ChannelDeletedDelegator(DiscordClient client, ChannelDeleteEventArgs eventArgs) => channelDeleted.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ChannelPinsUpdated"/>
     public event AsyncEventHandler<DiscordClient, ChannelPinsUpdateEventArgs> ChannelPinsUpdated
     {
-        add => this._channelPinsUpdated.Register(value);
-        remove => this._channelPinsUpdated.Unregister(value);
+        add => this.channelPinsUpdated.Register(value);
+        remove => this.channelPinsUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ChannelPinsUpdateEventArgs> _channelPinsUpdated;
-    private Task ChannelPinsUpdatedDelegator(DiscordClient client, ChannelPinsUpdateEventArgs eventArgs) => _channelPinsUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ChannelPinsUpdateEventArgs> channelPinsUpdated;
+    private Task ChannelPinsUpdatedDelegator(DiscordClient client, ChannelPinsUpdateEventArgs eventArgs) => channelPinsUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ChannelUpdated"/>
     public event AsyncEventHandler<DiscordClient, ChannelUpdateEventArgs> ChannelUpdated
     {
-        add => this._channelUpdated.Register(value);
-        remove => this._channelUpdated.Unregister(value);
+        add => this.channelUpdated.Register(value);
+        remove => this.channelUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ChannelUpdateEventArgs> _channelUpdated;
-    private Task ChannelUpdatedDelegator(DiscordClient client, ChannelUpdateEventArgs eventArgs) => _channelUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ChannelUpdateEventArgs> channelUpdated;
+    private Task ChannelUpdatedDelegator(DiscordClient client, ChannelUpdateEventArgs eventArgs) => channelUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ComponentInteractionCreated"/>
     public event AsyncEventHandler<DiscordClient, ComponentInteractionCreateEventArgs> ComponentInteractionCreated
     {
-        add => this._componentInteractionCreated.Register(value);
-        remove => this._componentInteractionCreated.Unregister(value);
+        add => this.componentInteractionCreated.Register(value);
+        remove => this.componentInteractionCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs> _componentInteractionCreated;
-    private Task ComponentInteractionCreatedDelegator(DiscordClient client, ComponentInteractionCreateEventArgs eventArgs) => _componentInteractionCreated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs> componentInteractionCreated;
+    private Task ComponentInteractionCreatedDelegator(DiscordClient client, ComponentInteractionCreateEventArgs eventArgs) => componentInteractionCreated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ContextMenuInteractionCreated"/>
     public event AsyncEventHandler<DiscordClient, ContextMenuInteractionCreateEventArgs> ContextMenuInteractionCreated
     {
-        add => this._contextMenuInteractionCreated.Register(value);
-        remove => this._contextMenuInteractionCreated.Unregister(value);
+        add => this.contextMenuInteractionCreated.Register(value);
+        remove => this.contextMenuInteractionCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ContextMenuInteractionCreateEventArgs> _contextMenuInteractionCreated;
-    private Task ContextMenuInteractionCreatedDelegator(DiscordClient client, ContextMenuInteractionCreateEventArgs eventArgs) => _contextMenuInteractionCreated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ContextMenuInteractionCreateEventArgs> contextMenuInteractionCreated;
+    private Task ContextMenuInteractionCreatedDelegator(DiscordClient client, ContextMenuInteractionCreateEventArgs eventArgs) => contextMenuInteractionCreated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.DmChannelDeleted"/>
     public event AsyncEventHandler<DiscordClient, DmChannelDeleteEventArgs> DmChannelDeleted
     {
-        add => this._dmChannelDeleted.Register(value);
-        remove => this._dmChannelDeleted.Unregister(value);
+        add => this.dmChannelDeleted.Register(value);
+        remove => this.dmChannelDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, DmChannelDeleteEventArgs> _dmChannelDeleted;
-    private Task DmChannelDeletedDelegator(DiscordClient client, DmChannelDeleteEventArgs eventArgs) => _dmChannelDeleted.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, DmChannelDeleteEventArgs> dmChannelDeleted;
+    private Task DmChannelDeletedDelegator(DiscordClient client, DmChannelDeleteEventArgs eventArgs) => dmChannelDeleted.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildAuditLogCreated"/>
     public event AsyncEventHandler<DiscordClient, GuildAuditLogCreatedEventArgs> GuildAuditLogCreated
     {
-        add => this._guildAuditLogCreated.Register(value);
-        remove => this._guildAuditLogCreated.Unregister(value);
+        add => this.guildAuditLogCreated.Register(value);
+        remove => this.guildAuditLogCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildAuditLogCreatedEventArgs> _guildAuditLogCreated;
-    private Task GuildAuditLogCreatedDelegator(DiscordClient client, GuildAuditLogCreatedEventArgs eventArgs) => _guildAuditLogCreated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildAuditLogCreatedEventArgs> guildAuditLogCreated;
+    private Task GuildAuditLogCreatedDelegator(DiscordClient client, GuildAuditLogCreatedEventArgs eventArgs) => guildAuditLogCreated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildAvailable"/>
     public event AsyncEventHandler<DiscordClient, GuildCreateEventArgs> GuildAvailable
     {
-        add => this._guildAvailable.Register(value);
-        remove => this._guildAvailable.Unregister(value);
+        add => this.guildAvailable.Register(value);
+        remove => this.guildAvailable.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildCreateEventArgs> _guildAvailable;
-    private Task GuildAvailableDelegator(DiscordClient client, GuildCreateEventArgs eventArgs) => _guildAvailable.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildCreateEventArgs> guildAvailable;
+    private Task GuildAvailableDelegator(DiscordClient client, GuildCreateEventArgs eventArgs) => guildAvailable.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildBanAdded"/>
     public event AsyncEventHandler<DiscordClient, GuildBanAddEventArgs> GuildBanAdded
     {
-        add => this._guildBanAdded.Register(value);
-        remove => this._guildBanAdded.Unregister(value);
+        add => this.guildBanAdded.Register(value);
+        remove => this.guildBanAdded.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildBanAddEventArgs> _guildBanAdded;
-    private Task GuildBanAddedDelegator(DiscordClient client, GuildBanAddEventArgs eventArgs) => _guildBanAdded.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildBanAddEventArgs> guildBanAdded;
+    private Task GuildBanAddedDelegator(DiscordClient client, GuildBanAddEventArgs eventArgs) => guildBanAdded.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildBanRemoved"/>
     public event AsyncEventHandler<DiscordClient, GuildBanRemoveEventArgs> GuildBanRemoved
     {
-        add => this._guildBanRemoved.Register(value);
-        remove => this._guildBanRemoved.Unregister(value);
+        add => this.guildBanRemoved.Register(value);
+        remove => this.guildBanRemoved.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildBanRemoveEventArgs> _guildBanRemoved;
-    private Task GuildBanRemovedDelegator(DiscordClient client, GuildBanRemoveEventArgs eventArgs) => _guildBanRemoved.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildBanRemoveEventArgs> guildBanRemoved;
+    private Task GuildBanRemovedDelegator(DiscordClient client, GuildBanRemoveEventArgs eventArgs) => guildBanRemoved.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildCreated"/>
     public event AsyncEventHandler<DiscordClient, GuildCreateEventArgs> GuildCreated
     {
-        add => this._guildCreated.Register(value);
-        remove => this._guildCreated.Unregister(value);
+        add => this.guildCreated.Register(value);
+        remove => this.guildCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildCreateEventArgs> _guildCreated;
-    private Task GuildCreatedDelegator(DiscordClient client, GuildCreateEventArgs eventArgs) => _guildCreated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildCreateEventArgs> guildCreated;
+    private Task GuildCreatedDelegator(DiscordClient client, GuildCreateEventArgs eventArgs) => guildCreated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildDeleted"/>
     public event AsyncEventHandler<DiscordClient, GuildDeleteEventArgs> GuildDeleted
     {
-        add => this._guildDeleted.Register(value);
-        remove => this._guildDeleted.Unregister(value);
+        add => this.guildDeleted.Register(value);
+        remove => this.guildDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildDeleteEventArgs> _guildDeleted;
-    private Task GuildDeletedDelegator(DiscordClient client, GuildDeleteEventArgs eventArgs) => _guildDeleted.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildDeleteEventArgs> guildDeleted;
+    private Task GuildDeletedDelegator(DiscordClient client, GuildDeleteEventArgs eventArgs) => guildDeleted.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildDownloadCompleted"/>
     public event AsyncEventHandler<DiscordClient, GuildDownloadCompletedEventArgs> GuildDownloadCompleted
     {
-        add => this._guildDownloadCompleted.Register(value);
-        remove => this._guildDownloadCompleted.Unregister(value);
+        add => this.guildDownloadCompleted.Register(value);
+        remove => this.guildDownloadCompleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildDownloadCompletedEventArgs> _guildDownloadCompleted;
-    private Task GuildDownloadCompletedDelegator(DiscordClient client, GuildDownloadCompletedEventArgs eventArgs) => _guildDownloadCompleted.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildDownloadCompletedEventArgs> guildDownloadCompleted;
+    private Task GuildDownloadCompletedDelegator(DiscordClient client, GuildDownloadCompletedEventArgs eventArgs) => guildDownloadCompleted.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildEmojisUpdated"/>
     public event AsyncEventHandler<DiscordClient, GuildEmojisUpdateEventArgs> GuildEmojisUpdated
     {
-        add => this._guildEmojisUpdated.Register(value);
-        remove => this._guildEmojisUpdated.Unregister(value);
+        add => this.guildEmojisUpdated.Register(value);
+        remove => this.guildEmojisUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildEmojisUpdateEventArgs> _guildEmojisUpdated;
-    private Task GuildEmojisUpdatedDelegator(DiscordClient client, GuildEmojisUpdateEventArgs eventArgs) => _guildEmojisUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildEmojisUpdateEventArgs> guildEmojisUpdated;
+    private Task GuildEmojisUpdatedDelegator(DiscordClient client, GuildEmojisUpdateEventArgs eventArgs) => guildEmojisUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildIntegrationsUpdated"/>
     public event AsyncEventHandler<DiscordClient, GuildIntegrationsUpdateEventArgs> GuildIntegrationsUpdated
     {
-        add => this._guildIntegrationsUpdated.Register(value);
-        remove => this._guildIntegrationsUpdated.Unregister(value);
+        add => this.guildIntegrationsUpdated.Register(value);
+        remove => this.guildIntegrationsUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildIntegrationsUpdateEventArgs> _guildIntegrationsUpdated;
-    private Task GuildIntegrationsUpdatedDelegator(DiscordClient client, GuildIntegrationsUpdateEventArgs eventArgs) => _guildIntegrationsUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildIntegrationsUpdateEventArgs> guildIntegrationsUpdated;
+    private Task GuildIntegrationsUpdatedDelegator(DiscordClient client, GuildIntegrationsUpdateEventArgs eventArgs) => guildIntegrationsUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildMemberAdded"/>
     public event AsyncEventHandler<DiscordClient, GuildMemberAddEventArgs> GuildMemberAdded
     {
-        add => this._guildMemberAdded.Register(value);
-        remove => this._guildMemberAdded.Unregister(value);
+        add => this.guildMemberAdded.Register(value);
+        remove => this.guildMemberAdded.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildMemberAddEventArgs> _guildMemberAdded;
-    private Task GuildMemberAddedDelegator(DiscordClient client, GuildMemberAddEventArgs eventArgs) => _guildMemberAdded.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildMemberAddEventArgs> guildMemberAdded;
+    private Task GuildMemberAddedDelegator(DiscordClient client, GuildMemberAddEventArgs eventArgs) => guildMemberAdded.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildMemberRemoved"/>
     public event AsyncEventHandler<DiscordClient, GuildMemberRemoveEventArgs> GuildMemberRemoved
     {
-        add => this._guildMemberRemoved.Register(value);
-        remove => this._guildMemberRemoved.Unregister(value);
+        add => this.guildMemberRemoved.Register(value);
+        remove => this.guildMemberRemoved.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildMemberRemoveEventArgs> _guildMemberRemoved;
-    private Task GuildMemberRemovedDelegator(DiscordClient client, GuildMemberRemoveEventArgs eventArgs) => _guildMemberRemoved.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildMemberRemoveEventArgs> guildMemberRemoved;
+    private Task GuildMemberRemovedDelegator(DiscordClient client, GuildMemberRemoveEventArgs eventArgs) => guildMemberRemoved.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildMembersChunked"/>
     public event AsyncEventHandler<DiscordClient, GuildMembersChunkEventArgs> GuildMembersChunked
     {
-        add => this._guildMembersChunked.Register(value);
-        remove => this._guildMembersChunked.Unregister(value);
+        add => this.guildMembersChunked.Register(value);
+        remove => this.guildMembersChunked.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildMembersChunkEventArgs> _guildMembersChunked;
-    private Task GuildMembersChunkedDelegator(DiscordClient client, GuildMembersChunkEventArgs eventArgs) => _guildMembersChunked.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildMembersChunkEventArgs> guildMembersChunked;
+    private Task GuildMembersChunkedDelegator(DiscordClient client, GuildMembersChunkEventArgs eventArgs) => guildMembersChunked.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildMemberUpdated"/>
     public event AsyncEventHandler<DiscordClient, GuildMemberUpdateEventArgs> GuildMemberUpdated
     {
-        add => this._guildMemberUpdated.Register(value);
-        remove => this._guildMemberUpdated.Unregister(value);
+        add => this.guildMemberUpdated.Register(value);
+        remove => this.guildMemberUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildMemberUpdateEventArgs> _guildMemberUpdated;
-    private Task GuildMemberUpdatedDelegator(DiscordClient client, GuildMemberUpdateEventArgs eventArgs) => _guildMemberUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildMemberUpdateEventArgs> guildMemberUpdated;
+    private Task GuildMemberUpdatedDelegator(DiscordClient client, GuildMemberUpdateEventArgs eventArgs) => guildMemberUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildRoleCreated"/>
     public event AsyncEventHandler<DiscordClient, GuildRoleCreateEventArgs> GuildRoleCreated
     {
-        add => this._guildRoleCreated.Register(value);
-        remove => this._guildRoleCreated.Unregister(value);
+        add => this.guildRoleCreated.Register(value);
+        remove => this.guildRoleCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildRoleCreateEventArgs> _guildRoleCreated;
-    private Task GuildRoleCreatedDelegator(DiscordClient client, GuildRoleCreateEventArgs eventArgs) => _guildRoleCreated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildRoleCreateEventArgs> guildRoleCreated;
+    private Task GuildRoleCreatedDelegator(DiscordClient client, GuildRoleCreateEventArgs eventArgs) => guildRoleCreated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildRoleDeleted"/>
     public event AsyncEventHandler<DiscordClient, GuildRoleDeleteEventArgs> GuildRoleDeleted
     {
-        add => this._guildRoleDeleted.Register(value);
-        remove => this._guildRoleDeleted.Unregister(value);
+        add => this.guildRoleDeleted.Register(value);
+        remove => this.guildRoleDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildRoleDeleteEventArgs> _guildRoleDeleted;
-    private Task GuildRoleDeletedDelegator(DiscordClient client, GuildRoleDeleteEventArgs eventArgs) => _guildRoleDeleted.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildRoleDeleteEventArgs> guildRoleDeleted;
+    private Task GuildRoleDeletedDelegator(DiscordClient client, GuildRoleDeleteEventArgs eventArgs) => guildRoleDeleted.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildRoleUpdated"/>
     public event AsyncEventHandler<DiscordClient, GuildRoleUpdateEventArgs> GuildRoleUpdated
     {
-        add => this._guildRoleUpdated.Register(value);
-        remove => this._guildRoleUpdated.Unregister(value);
+        add => this.guildRoleUpdated.Register(value);
+        remove => this.guildRoleUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildRoleUpdateEventArgs> _guildRoleUpdated;
-    private Task GuildRoleUpdatedDelegator(DiscordClient client, GuildRoleUpdateEventArgs eventArgs) => _guildRoleUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildRoleUpdateEventArgs> guildRoleUpdated;
+    private Task GuildRoleUpdatedDelegator(DiscordClient client, GuildRoleUpdateEventArgs eventArgs) => guildRoleUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildStickersUpdated"/>
     public event AsyncEventHandler<DiscordClient, GuildStickersUpdateEventArgs> GuildStickersUpdated
     {
-        add => this._guildStickersUpdated.Register(value);
-        remove => this._guildStickersUpdated.Unregister(value);
+        add => this.guildStickersUpdated.Register(value);
+        remove => this.guildStickersUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildStickersUpdateEventArgs> _guildStickersUpdated;
-    private Task GuildStickersUpdatedDelegator(DiscordClient client, GuildStickersUpdateEventArgs eventArgs) => _guildStickersUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildStickersUpdateEventArgs> guildStickersUpdated;
+    private Task GuildStickersUpdatedDelegator(DiscordClient client, GuildStickersUpdateEventArgs eventArgs) => guildStickersUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildUnavailable"/>
     public event AsyncEventHandler<DiscordClient, GuildDeleteEventArgs> GuildUnavailable
     {
-        add => this._guildUnavailable.Register(value);
-        remove => this._guildUnavailable.Unregister(value);
+        add => this.guildUnavailable.Register(value);
+        remove => this.guildUnavailable.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildDeleteEventArgs> _guildUnavailable;
-    private Task GuildUnavailableDelegator(DiscordClient client, GuildDeleteEventArgs eventArgs) => _guildUnavailable.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildDeleteEventArgs> guildUnavailable;
+    private Task GuildUnavailableDelegator(DiscordClient client, GuildDeleteEventArgs eventArgs) => guildUnavailable.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.GuildUpdated"/>
     public event AsyncEventHandler<DiscordClient, GuildUpdateEventArgs> GuildUpdated
     {
-        add => this._guildUpdated.Register(value);
-        remove => this._guildUpdated.Unregister(value);
+        add => this.guildUpdated.Register(value);
+        remove => this.guildUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildUpdateEventArgs> _guildUpdated;
-    private Task GuildUpdatedDelegator(DiscordClient client, GuildUpdateEventArgs eventArgs) => _guildUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, GuildUpdateEventArgs> guildUpdated;
+    private Task GuildUpdatedDelegator(DiscordClient client, GuildUpdateEventArgs eventArgs) => guildUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.Heartbeated"/>
     public event AsyncEventHandler<DiscordClient, HeartbeatEventArgs> Heartbeated
     {
-        add => this._heartbeated.Register(value);
-        remove => this._heartbeated.Unregister(value);
+        add => this.heartbeated.Register(value);
+        remove => this.heartbeated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, HeartbeatEventArgs> _heartbeated;
-    private Task HeartbeatedDelegator(DiscordClient client, HeartbeatEventArgs eventArgs) => _heartbeated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, HeartbeatEventArgs> heartbeated;
+    private Task HeartbeatedDelegator(DiscordClient client, HeartbeatEventArgs eventArgs) => heartbeated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.IntegrationCreated"/>
     public event AsyncEventHandler<DiscordClient, IntegrationCreateEventArgs> IntegrationCreated
     {
-        add => this._integrationCreated.Register(value);
-        remove => this._integrationCreated.Unregister(value);
+        add => this.integrationCreated.Register(value);
+        remove => this.integrationCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, IntegrationCreateEventArgs> _integrationCreated;
-    private Task IntegrationCreatedDelegator(DiscordClient client, IntegrationCreateEventArgs eventArgs) => _integrationCreated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, IntegrationCreateEventArgs> integrationCreated;
+    private Task IntegrationCreatedDelegator(DiscordClient client, IntegrationCreateEventArgs eventArgs) => integrationCreated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.IntegrationDeleted"/>
     public event AsyncEventHandler<DiscordClient, IntegrationDeleteEventArgs> IntegrationDeleted
     {
-        add => this._integrationDeleted.Register(value);
-        remove => this._integrationDeleted.Unregister(value);
+        add => this.integrationDeleted.Register(value);
+        remove => this.integrationDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, IntegrationDeleteEventArgs> _integrationDeleted;
-    private Task IntegrationDeletedDelegator(DiscordClient client, IntegrationDeleteEventArgs eventArgs) => _integrationDeleted.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, IntegrationDeleteEventArgs> integrationDeleted;
+    private Task IntegrationDeletedDelegator(DiscordClient client, IntegrationDeleteEventArgs eventArgs) => integrationDeleted.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.IntegrationUpdated"/>
     public event AsyncEventHandler<DiscordClient, IntegrationUpdateEventArgs> IntegrationUpdated
     {
-        add => this._integrationUpdated.Register(value);
-        remove => this._integrationUpdated.Unregister(value);
+        add => this.integrationUpdated.Register(value);
+        remove => this.integrationUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, IntegrationUpdateEventArgs> _integrationUpdated;
-    private Task IntegrationUpdatedDelegator(DiscordClient client, IntegrationUpdateEventArgs eventArgs) => _integrationUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, IntegrationUpdateEventArgs> integrationUpdated;
+    private Task IntegrationUpdatedDelegator(DiscordClient client, IntegrationUpdateEventArgs eventArgs) => integrationUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.InteractionCreated"/>
     public event AsyncEventHandler<DiscordClient, InteractionCreateEventArgs> InteractionCreated
     {
-        add => this._interactionCreated.Register(value);
-        remove => this._interactionCreated.Unregister(value);
+        add => this.interactionCreated.Register(value);
+        remove => this.interactionCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, InteractionCreateEventArgs> _interactionCreated;
-    private Task InteractionCreatedDelegator(DiscordClient client, InteractionCreateEventArgs eventArgs) => _interactionCreated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, InteractionCreateEventArgs> interactionCreated;
+    private Task InteractionCreatedDelegator(DiscordClient client, InteractionCreateEventArgs eventArgs) => interactionCreated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.InviteCreated"/>
     public event AsyncEventHandler<DiscordClient, InviteCreateEventArgs> InviteCreated
     {
-        add => this._inviteCreated.Register(value);
-        remove => this._inviteCreated.Unregister(value);
+        add => this.inviteCreated.Register(value);
+        remove => this.inviteCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, InviteCreateEventArgs> _inviteCreated;
-    private Task InviteCreatedDelegator(DiscordClient client, InviteCreateEventArgs eventArgs) => _inviteCreated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, InviteCreateEventArgs> inviteCreated;
+    private Task InviteCreatedDelegator(DiscordClient client, InviteCreateEventArgs eventArgs) => inviteCreated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.InviteDeleted"/>
     public event AsyncEventHandler<DiscordClient, InviteDeleteEventArgs> InviteDeleted
     {
-        add => this._inviteDeleted.Register(value);
-        remove => this._inviteDeleted.Unregister(value);
+        add => this.inviteDeleted.Register(value);
+        remove => this.inviteDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, InviteDeleteEventArgs> _inviteDeleted;
-    private Task InviteDeletedDelegator(DiscordClient client, InviteDeleteEventArgs eventArgs) => _inviteDeleted.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, InviteDeleteEventArgs> inviteDeleted;
+    private Task InviteDeletedDelegator(DiscordClient client, InviteDeleteEventArgs eventArgs) => inviteDeleted.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.MessageCreated"/>
     public event AsyncEventHandler<DiscordClient, MessageCreateEventArgs> MessageCreated
     {
-        add => this._messageCreated.Register(value);
-        remove => this._messageCreated.Unregister(value);
+        add => this.messageCreated.Register(value);
+        remove => this.messageCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageCreateEventArgs> _messageCreated;
-    private Task MessageCreatedDelegator(DiscordClient client, MessageCreateEventArgs eventArgs) => _messageCreated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, MessageCreateEventArgs> messageCreated;
+    private Task MessageCreatedDelegator(DiscordClient client, MessageCreateEventArgs eventArgs) => messageCreated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.MessageDeleted"/>
     public event AsyncEventHandler<DiscordClient, MessageDeleteEventArgs> MessageDeleted
     {
-        add => this._messageDeleted.Register(value);
-        remove => this._messageDeleted.Unregister(value);
+        add => this.messageDeleted.Register(value);
+        remove => this.messageDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageDeleteEventArgs> _messageDeleted;
-    private Task MessageDeletedDelegator(DiscordClient client, MessageDeleteEventArgs eventArgs) => _messageDeleted.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, MessageDeleteEventArgs> messageDeleted;
+    private Task MessageDeletedDelegator(DiscordClient client, MessageDeleteEventArgs eventArgs) => messageDeleted.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.MessageReactionAdded"/>
     public event AsyncEventHandler<DiscordClient, MessageReactionAddEventArgs> MessageReactionAdded
     {
-        add => this._messageReactionAdded.Register(value);
-        remove => this._messageReactionAdded.Unregister(value);
+        add => this.messageReactionAdded.Register(value);
+        remove => this.messageReactionAdded.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageReactionAddEventArgs> _messageReactionAdded;
-    private Task MessageReactionAddedDelegator(DiscordClient client, MessageReactionAddEventArgs eventArgs) => _messageReactionAdded.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, MessageReactionAddEventArgs> messageReactionAdded;
+    private Task MessageReactionAddedDelegator(DiscordClient client, MessageReactionAddEventArgs eventArgs) => messageReactionAdded.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.MessageReactionRemoved"/>
     public event AsyncEventHandler<DiscordClient, MessageReactionRemoveEventArgs> MessageReactionRemoved
     {
-        add => this._messageReactionRemoved.Register(value);
-        remove => this._messageReactionRemoved.Unregister(value);
+        add => this.messageReactionRemoved.Register(value);
+        remove => this.messageReactionRemoved.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageReactionRemoveEventArgs> _messageReactionRemoved;
-    private Task MessageReactionRemovedDelegator(DiscordClient client, MessageReactionRemoveEventArgs eventArgs) => _messageReactionRemoved.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, MessageReactionRemoveEventArgs> messageReactionRemoved;
+    private Task MessageReactionRemovedDelegator(DiscordClient client, MessageReactionRemoveEventArgs eventArgs) => messageReactionRemoved.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.MessageReactionRemovedEmoji"/>
     public event AsyncEventHandler<DiscordClient, MessageReactionRemoveEmojiEventArgs> MessageReactionRemovedEmoji
     {
-        add => this._messageReactionRemovedEmoji.Register(value);
-        remove => this._messageReactionRemovedEmoji.Unregister(value);
+        add => this.messageReactionRemovedEmoji.Register(value);
+        remove => this.messageReactionRemovedEmoji.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageReactionRemoveEmojiEventArgs> _messageReactionRemovedEmoji;
-    private Task MessageReactionRemovedEmojiDelegator(DiscordClient client, MessageReactionRemoveEmojiEventArgs eventArgs) => _messageReactionRemovedEmoji.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, MessageReactionRemoveEmojiEventArgs> messageReactionRemovedEmoji;
+    private Task MessageReactionRemovedEmojiDelegator(DiscordClient client, MessageReactionRemoveEmojiEventArgs eventArgs) => messageReactionRemovedEmoji.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.MessageReactionsCleared"/>
     public event AsyncEventHandler<DiscordClient, MessageReactionsClearEventArgs> MessageReactionsCleared
     {
-        add => this._messageReactionsCleared.Register(value);
-        remove => this._messageReactionsCleared.Unregister(value);
+        add => this.messageReactionsCleared.Register(value);
+        remove => this.messageReactionsCleared.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageReactionsClearEventArgs> _messageReactionsCleared;
-    private Task MessageReactionsClearedDelegator(DiscordClient client, MessageReactionsClearEventArgs eventArgs) => _messageReactionsCleared.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, MessageReactionsClearEventArgs> messageReactionsCleared;
+    private Task MessageReactionsClearedDelegator(DiscordClient client, MessageReactionsClearEventArgs eventArgs) => messageReactionsCleared.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.MessagesBulkDeleted"/>
     public event AsyncEventHandler<DiscordClient, MessageBulkDeleteEventArgs> MessagesBulkDeleted
     {
-        add => this._messagesBulkDeleted.Register(value);
-        remove => this._messagesBulkDeleted.Unregister(value);
+        add => this.messagesBulkDeleted.Register(value);
+        remove => this.messagesBulkDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageBulkDeleteEventArgs> _messagesBulkDeleted;
-    private Task MessagesBulkDeletedDelegator(DiscordClient client, MessageBulkDeleteEventArgs eventArgs) => _messagesBulkDeleted.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, MessageBulkDeleteEventArgs> messagesBulkDeleted;
+    private Task MessagesBulkDeletedDelegator(DiscordClient client, MessageBulkDeleteEventArgs eventArgs) => messagesBulkDeleted.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.MessageUpdated"/>
     public event AsyncEventHandler<DiscordClient, MessageUpdateEventArgs> MessageUpdated
     {
-        add => this._messageUpdated.Register(value);
-        remove => this._messageUpdated.Unregister(value);
+        add => this.messageUpdated.Register(value);
+        remove => this.messageUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageUpdateEventArgs> _messageUpdated;
-    private Task MessageUpdatedDelegator(DiscordClient client, MessageUpdateEventArgs eventArgs) => _messageUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, MessageUpdateEventArgs> messageUpdated;
+    private Task MessageUpdatedDelegator(DiscordClient client, MessageUpdateEventArgs eventArgs) => messageUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ModalSubmitted"/>
     public event AsyncEventHandler<DiscordClient, ModalSubmitEventArgs> ModalSubmitted
     {
-        add => this._modalSubmitted.Register(value);
-        remove => this._modalSubmitted.Unregister(value);
+        add => this.modalSubmitted.Register(value);
+        remove => this.modalSubmitted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ModalSubmitEventArgs> _modalSubmitted;
-    private Task ModalSubmittedDelegator(DiscordClient client, ModalSubmitEventArgs eventArgs) => _modalSubmitted.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ModalSubmitEventArgs> modalSubmitted;
+    private Task ModalSubmittedDelegator(DiscordClient client, ModalSubmitEventArgs eventArgs) => modalSubmitted.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.PresenceUpdated"/>
     public event AsyncEventHandler<DiscordClient, PresenceUpdateEventArgs> PresenceUpdated
     {
-        add => this._presenceUpdated.Register(value);
-        remove => this._presenceUpdated.Unregister(value);
+        add => this.presenceUpdated.Register(value);
+        remove => this.presenceUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, PresenceUpdateEventArgs> _presenceUpdated;
-    private Task PresenceUpdatedDelegator(DiscordClient client, PresenceUpdateEventArgs eventArgs) => _presenceUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, PresenceUpdateEventArgs> presenceUpdated;
+    private Task PresenceUpdatedDelegator(DiscordClient client, PresenceUpdateEventArgs eventArgs) => presenceUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ScheduledGuildEventCompleted"/>
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventCompletedEventArgs> ScheduledGuildEventCompleted
     {
-        add => this._scheduledGuildEventCompleted.Register(value);
-        remove => this._scheduledGuildEventCompleted.Unregister(value);
+        add => this.scheduledGuildEventCompleted.Register(value);
+        remove => this.scheduledGuildEventCompleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventCompletedEventArgs> _scheduledGuildEventCompleted;
-    private Task ScheduledGuildEventCompletedDelegator(DiscordClient client, ScheduledGuildEventCompletedEventArgs eventArgs) => _scheduledGuildEventCompleted.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ScheduledGuildEventCompletedEventArgs> scheduledGuildEventCompleted;
+    private Task ScheduledGuildEventCompletedDelegator(DiscordClient client, ScheduledGuildEventCompletedEventArgs eventArgs) => scheduledGuildEventCompleted.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ScheduledGuildEventCreated"/>
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventCreateEventArgs> ScheduledGuildEventCreated
     {
-        add => this._scheduledGuildEventCreated.Register(value);
-        remove => this._scheduledGuildEventCreated.Unregister(value);
+        add => this.scheduledGuildEventCreated.Register(value);
+        remove => this.scheduledGuildEventCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventCreateEventArgs> _scheduledGuildEventCreated;
-    private Task ScheduledGuildEventCreatedDelegator(DiscordClient client, ScheduledGuildEventCreateEventArgs eventArgs) => _scheduledGuildEventCreated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ScheduledGuildEventCreateEventArgs> scheduledGuildEventCreated;
+    private Task ScheduledGuildEventCreatedDelegator(DiscordClient client, ScheduledGuildEventCreateEventArgs eventArgs) => scheduledGuildEventCreated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ScheduledGuildEventDeleted"/>
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventDeleteEventArgs> ScheduledGuildEventDeleted
     {
-        add => this._scheduledGuildEventDeleted.Register(value);
-        remove => this._scheduledGuildEventDeleted.Unregister(value);
+        add => this.scheduledGuildEventDeleted.Register(value);
+        remove => this.scheduledGuildEventDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventDeleteEventArgs> _scheduledGuildEventDeleted;
-    private Task ScheduledGuildEventDeletedDelegator(DiscordClient client, ScheduledGuildEventDeleteEventArgs eventArgs) => _scheduledGuildEventDeleted.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ScheduledGuildEventDeleteEventArgs> scheduledGuildEventDeleted;
+    private Task ScheduledGuildEventDeletedDelegator(DiscordClient client, ScheduledGuildEventDeleteEventArgs eventArgs) => scheduledGuildEventDeleted.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ScheduledGuildEventUpdated"/>
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUpdateEventArgs> ScheduledGuildEventUpdated
     {
-        add => this._scheduledGuildEventUpdated.Register(value);
-        remove => this._scheduledGuildEventUpdated.Unregister(value);
+        add => this.scheduledGuildEventUpdated.Register(value);
+        remove => this.scheduledGuildEventUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventUpdateEventArgs> _scheduledGuildEventUpdated;
-    private Task ScheduledGuildEventUpdatedDelegator(DiscordClient client, ScheduledGuildEventUpdateEventArgs eventArgs) => _scheduledGuildEventUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ScheduledGuildEventUpdateEventArgs> scheduledGuildEventUpdated;
+    private Task ScheduledGuildEventUpdatedDelegator(DiscordClient client, ScheduledGuildEventUpdateEventArgs eventArgs) => scheduledGuildEventUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ScheduledGuildEventUserAdded"/>
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUserAddEventArgs> ScheduledGuildEventUserAdded
     {
-        add => this._scheduledGuildEventUserAdded.Register(value);
-        remove => this._scheduledGuildEventUserAdded.Unregister(value);
+        add => this.scheduledGuildEventUserAdded.Register(value);
+        remove => this.scheduledGuildEventUserAdded.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventUserAddEventArgs> _scheduledGuildEventUserAdded;
-    private Task ScheduledGuildEventUserAddedDelegator(DiscordClient client, ScheduledGuildEventUserAddEventArgs eventArgs) => _scheduledGuildEventUserAdded.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ScheduledGuildEventUserAddEventArgs> scheduledGuildEventUserAdded;
+    private Task ScheduledGuildEventUserAddedDelegator(DiscordClient client, ScheduledGuildEventUserAddEventArgs eventArgs) => scheduledGuildEventUserAdded.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ScheduledGuildEventUserRemoved"/>
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUserRemoveEventArgs> ScheduledGuildEventUserRemoved
     {
-        add => this._scheduledGuildEventUserRemoved.Register(value);
-        remove => this._scheduledGuildEventUserRemoved.Unregister(value);
+        add => this.scheduledGuildEventUserRemoved.Register(value);
+        remove => this.scheduledGuildEventUserRemoved.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventUserRemoveEventArgs> _scheduledGuildEventUserRemoved;
-    private Task ScheduledGuildEventUserRemovedDelegator(DiscordClient client, ScheduledGuildEventUserRemoveEventArgs eventArgs) => _scheduledGuildEventUserRemoved.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ScheduledGuildEventUserRemoveEventArgs> scheduledGuildEventUserRemoved;
+    private Task ScheduledGuildEventUserRemovedDelegator(DiscordClient client, ScheduledGuildEventUserRemoveEventArgs eventArgs) => scheduledGuildEventUserRemoved.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.SessionCreated"/>
     public event AsyncEventHandler<DiscordClient, SessionReadyEventArgs> SessionCreated
     {
-        add => this._sessionCreated.Register(value);
-        remove => this._sessionCreated.Unregister(value);
+        add => this.sessionCreated.Register(value);
+        remove => this.sessionCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, SessionReadyEventArgs> _sessionCreated;
-    private Task SessionCreatedDelegator(DiscordClient client, SessionReadyEventArgs eventArgs) => _sessionCreated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, SessionReadyEventArgs> sessionCreated;
+    private Task SessionCreatedDelegator(DiscordClient client, SessionReadyEventArgs eventArgs) => sessionCreated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.SessionResumed"/>
     public event AsyncEventHandler<DiscordClient, SessionReadyEventArgs> SessionResumed
     {
-        add => this._sessionResumed.Register(value);
-        remove => this._sessionResumed.Unregister(value);
+        add => this.sessionResumed.Register(value);
+        remove => this.sessionResumed.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, SessionReadyEventArgs> _sessionResumed;
-    private Task SessionResumedDelegator(DiscordClient client, SessionReadyEventArgs eventArgs) => _sessionResumed.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, SessionReadyEventArgs> sessionResumed;
+    private Task SessionResumedDelegator(DiscordClient client, SessionReadyEventArgs eventArgs) => sessionResumed.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.SocketClosed"/>
     public event AsyncEventHandler<DiscordClient, SocketCloseEventArgs> SocketClosed
     {
-        add => this._socketClosed.Register(value);
-        remove => this._socketClosed.Unregister(value);
+        add => this.socketClosed.Register(value);
+        remove => this.socketClosed.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, SocketCloseEventArgs> _socketClosed;
-    private Task SocketClosedDelegator(DiscordClient client, SocketCloseEventArgs eventArgs) => _socketClosed.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, SocketCloseEventArgs> socketClosed;
+    private Task SocketClosedDelegator(DiscordClient client, SocketCloseEventArgs eventArgs) => socketClosed.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.SocketErrored"/>
     public event AsyncEventHandler<DiscordClient, SocketErrorEventArgs> SocketErrored
     {
-        add => this._socketErrored.Register(value);
-        remove => this._socketErrored.Unregister(value);
+        add => this.socketErrored.Register(value);
+        remove => this.socketErrored.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, SocketErrorEventArgs> _socketErrored;
-    private Task SocketErroredDelegator(DiscordClient client, SocketErrorEventArgs eventArgs) => _socketErrored.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, SocketErrorEventArgs> socketErrored;
+    private Task SocketErroredDelegator(DiscordClient client, SocketErrorEventArgs eventArgs) => socketErrored.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.SocketOpened"/>
     public event AsyncEventHandler<DiscordClient, SocketEventArgs> SocketOpened
     {
-        add => this._socketOpened.Register(value);
-        remove => this._socketOpened.Unregister(value);
+        add => this.socketOpened.Register(value);
+        remove => this.socketOpened.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, SocketEventArgs> _socketOpened;
-    private Task SocketOpenedDelegator(DiscordClient client, SocketEventArgs eventArgs) => _socketOpened.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, SocketEventArgs> socketOpened;
+    private Task SocketOpenedDelegator(DiscordClient client, SocketEventArgs eventArgs) => socketOpened.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.StageInstanceCreated"/>
     public event AsyncEventHandler<DiscordClient, StageInstanceCreateEventArgs> StageInstanceCreated
     {
-        add => this._stageInstanceCreated.Register(value);
-        remove => this._stageInstanceCreated.Unregister(value);
+        add => this.stageInstanceCreated.Register(value);
+        remove => this.stageInstanceCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, StageInstanceCreateEventArgs> _stageInstanceCreated;
-    private Task StageInstanceCreatedDelegator(DiscordClient client, StageInstanceCreateEventArgs eventArgs) => _stageInstanceCreated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, StageInstanceCreateEventArgs> stageInstanceCreated;
+    private Task StageInstanceCreatedDelegator(DiscordClient client, StageInstanceCreateEventArgs eventArgs) => stageInstanceCreated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.StageInstanceDeleted"/>
     public event AsyncEventHandler<DiscordClient, StageInstanceDeleteEventArgs> StageInstanceDeleted
     {
-        add => this._stageInstanceDeleted.Register(value);
-        remove => this._stageInstanceDeleted.Unregister(value);
+        add => this.stageInstanceDeleted.Register(value);
+        remove => this.stageInstanceDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs> _stageInstanceDeleted;
-    private Task StageInstanceDeletedDelegator(DiscordClient client, StageInstanceDeleteEventArgs eventArgs) => _stageInstanceDeleted.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs> stageInstanceDeleted;
+    private Task StageInstanceDeletedDelegator(DiscordClient client, StageInstanceDeleteEventArgs eventArgs) => stageInstanceDeleted.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.StageInstanceUpdated"/>
     public event AsyncEventHandler<DiscordClient, StageInstanceUpdateEventArgs> StageInstanceUpdated
     {
-        add => this._stageInstanceUpdated.Register(value);
-        remove => this._stageInstanceUpdated.Unregister(value);
+        add => this.stageInstanceUpdated.Register(value);
+        remove => this.stageInstanceUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs> _stageInstanceUpdated;
-    private Task StageInstanceUpdatedDelegator(DiscordClient client, StageInstanceUpdateEventArgs eventArgs) => _stageInstanceUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs> stageInstanceUpdated;
+    private Task StageInstanceUpdatedDelegator(DiscordClient client, StageInstanceUpdateEventArgs eventArgs) => stageInstanceUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ThreadCreated"/>
     public event AsyncEventHandler<DiscordClient, ThreadCreateEventArgs> ThreadCreated
     {
-        add => this._threadCreated.Register(value);
-        remove => this._threadCreated.Unregister(value);
+        add => this.threadCreated.Register(value);
+        remove => this.threadCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ThreadCreateEventArgs> _threadCreated;
-    private Task ThreadCreatedDelegator(DiscordClient client, ThreadCreateEventArgs eventArgs) => _threadCreated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ThreadCreateEventArgs> threadCreated;
+    private Task ThreadCreatedDelegator(DiscordClient client, ThreadCreateEventArgs eventArgs) => threadCreated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ThreadDeleted"/>
     public event AsyncEventHandler<DiscordClient, ThreadDeleteEventArgs> ThreadDeleted
     {
-        add => this._threadDeleted.Register(value);
-        remove => this._threadDeleted.Unregister(value);
+        add => this.threadDeleted.Register(value);
+        remove => this.threadDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ThreadDeleteEventArgs> _threadDeleted;
-    private Task ThreadDeletedDelegator(DiscordClient client, ThreadDeleteEventArgs eventArgs) => _threadDeleted.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ThreadDeleteEventArgs> threadDeleted;
+    private Task ThreadDeletedDelegator(DiscordClient client, ThreadDeleteEventArgs eventArgs) => threadDeleted.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ThreadListSynced"/>
     public event AsyncEventHandler<DiscordClient, ThreadListSyncEventArgs> ThreadListSynced
     {
-        add => this._threadListSynced.Register(value);
-        remove => this._threadListSynced.Unregister(value);
+        add => this.threadListSynced.Register(value);
+        remove => this.threadListSynced.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ThreadListSyncEventArgs> _threadListSynced;
-    private Task ThreadListSyncedDelegator(DiscordClient client, ThreadListSyncEventArgs eventArgs) => _threadListSynced.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ThreadListSyncEventArgs> threadListSynced;
+    private Task ThreadListSyncedDelegator(DiscordClient client, ThreadListSyncEventArgs eventArgs) => threadListSynced.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ThreadMembersUpdated"/>
     public event AsyncEventHandler<DiscordClient, ThreadMembersUpdateEventArgs> ThreadMembersUpdated
     {
-        add => this._threadMembersUpdated.Register(value);
-        remove => this._threadMembersUpdated.Unregister(value);
+        add => this.threadMembersUpdated.Register(value);
+        remove => this.threadMembersUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs> _threadMembersUpdated;
-    private Task ThreadMembersUpdatedDelegator(DiscordClient client, ThreadMembersUpdateEventArgs eventArgs) => _threadMembersUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs> threadMembersUpdated;
+    private Task ThreadMembersUpdatedDelegator(DiscordClient client, ThreadMembersUpdateEventArgs eventArgs) => threadMembersUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ThreadMemberUpdated"/>
     public event AsyncEventHandler<DiscordClient, ThreadMemberUpdateEventArgs> ThreadMemberUpdated
     {
-        add => this._threadMemberUpdated.Register(value);
-        remove => this._threadMemberUpdated.Unregister(value);
+        add => this.threadMemberUpdated.Register(value);
+        remove => this.threadMemberUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ThreadMemberUpdateEventArgs> _threadMemberUpdated;
-    private Task ThreadMemberUpdatedDelegator(DiscordClient client, ThreadMemberUpdateEventArgs eventArgs) => _threadMemberUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ThreadMemberUpdateEventArgs> threadMemberUpdated;
+    private Task ThreadMemberUpdatedDelegator(DiscordClient client, ThreadMemberUpdateEventArgs eventArgs) => threadMemberUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.ThreadUpdated"/>
     public event AsyncEventHandler<DiscordClient, ThreadUpdateEventArgs> ThreadUpdated
     {
-        add => this._threadUpdated.Register(value);
-        remove => this._threadUpdated.Unregister(value);
+        add => this.threadUpdated.Register(value);
+        remove => this.threadUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ThreadUpdateEventArgs> _threadUpdated;
-    private Task ThreadUpdatedDelegator(DiscordClient client, ThreadUpdateEventArgs eventArgs) => _threadUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ThreadUpdateEventArgs> threadUpdated;
+    private Task ThreadUpdatedDelegator(DiscordClient client, ThreadUpdateEventArgs eventArgs) => threadUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.TypingStarted"/>
     public event AsyncEventHandler<DiscordClient, TypingStartEventArgs> TypingStarted
     {
-        add => this._typingStarted.Register(value);
-        remove => this._typingStarted.Unregister(value);
+        add => this.typingStarted.Register(value);
+        remove => this.typingStarted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, TypingStartEventArgs> _typingStarted;
-    private Task TypingStartedDelegator(DiscordClient client, TypingStartEventArgs eventArgs) => _typingStarted.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, TypingStartEventArgs> typingStarted;
+    private Task TypingStartedDelegator(DiscordClient client, TypingStartEventArgs eventArgs) => typingStarted.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.UnknownEvent"/>
     public event AsyncEventHandler<DiscordClient, UnknownEventArgs> UnknownEvent
     {
-        add => this._unknownEvent.Register(value);
-        remove => this._unknownEvent.Unregister(value);
+        add => this.unknownEvent.Register(value);
+        remove => this.unknownEvent.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, UnknownEventArgs> _unknownEvent;
-    private Task UnknownEventDelegator(DiscordClient client, UnknownEventArgs eventArgs) => _unknownEvent.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, UnknownEventArgs> unknownEvent;
+    private Task UnknownEventDelegator(DiscordClient client, UnknownEventArgs eventArgs) => unknownEvent.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.UserSettingsUpdated"/>
     public event AsyncEventHandler<DiscordClient, UserSettingsUpdateEventArgs> UserSettingsUpdated
     {
-        add => this._userSettingsUpdated.Register(value);
-        remove => this._userSettingsUpdated.Unregister(value);
+        add => this.userSettingsUpdated.Register(value);
+        remove => this.userSettingsUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, UserSettingsUpdateEventArgs> _userSettingsUpdated;
-    private Task UserSettingsUpdatedDelegator(DiscordClient client, UserSettingsUpdateEventArgs eventArgs) => _userSettingsUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, UserSettingsUpdateEventArgs> userSettingsUpdated;
+    private Task UserSettingsUpdatedDelegator(DiscordClient client, UserSettingsUpdateEventArgs eventArgs) => userSettingsUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.UserUpdated"/>
     public event AsyncEventHandler<DiscordClient, UserUpdateEventArgs> UserUpdated
     {
-        add => this._userUpdated.Register(value);
-        remove => this._userUpdated.Unregister(value);
+        add => this.userUpdated.Register(value);
+        remove => this.userUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, UserUpdateEventArgs> _userUpdated;
-    private Task UserUpdatedDelegator(DiscordClient client, UserUpdateEventArgs eventArgs) => _userUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, UserUpdateEventArgs> userUpdated;
+    private Task UserUpdatedDelegator(DiscordClient client, UserUpdateEventArgs eventArgs) => userUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.VoiceServerUpdated"/>
     public event AsyncEventHandler<DiscordClient, VoiceServerUpdateEventArgs> VoiceServerUpdated
     {
-        add => this._voiceServerUpdated.Register(value);
-        remove => this._voiceServerUpdated.Unregister(value);
+        add => this.voiceServerUpdated.Register(value);
+        remove => this.voiceServerUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, VoiceServerUpdateEventArgs> _voiceServerUpdated;
-    private Task VoiceServerUpdatedDelegator(DiscordClient client, VoiceServerUpdateEventArgs eventArgs) => _voiceServerUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, VoiceServerUpdateEventArgs> voiceServerUpdated;
+    private Task VoiceServerUpdatedDelegator(DiscordClient client, VoiceServerUpdateEventArgs eventArgs) => voiceServerUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.VoiceStateUpdated"/>
     public event AsyncEventHandler<DiscordClient, VoiceStateUpdateEventArgs> VoiceStateUpdated
     {
-        add => this._voiceStateUpdated.Register(value);
-        remove => this._voiceStateUpdated.Unregister(value);
+        add => this.voiceStateUpdated.Register(value);
+        remove => this.voiceStateUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, VoiceStateUpdateEventArgs> _voiceStateUpdated;
-    private Task VoiceStateUpdatedDelegator(DiscordClient client, VoiceStateUpdateEventArgs eventArgs) => _voiceStateUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, VoiceStateUpdateEventArgs> voiceStateUpdated;
+    private Task VoiceStateUpdatedDelegator(DiscordClient client, VoiceStateUpdateEventArgs eventArgs) => voiceStateUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.WebhooksUpdated"/>
     public event AsyncEventHandler<DiscordClient, WebhooksUpdateEventArgs> WebhooksUpdated
     {
-        add => this._webhooksUpdated.Register(value);
-        remove => this._webhooksUpdated.Unregister(value);
+        add => this.webhooksUpdated.Register(value);
+        remove => this.webhooksUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, WebhooksUpdateEventArgs> _webhooksUpdated;
-    private Task WebhooksUpdatedDelegator(DiscordClient client, WebhooksUpdateEventArgs eventArgs) => _webhooksUpdated.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, WebhooksUpdateEventArgs> webhooksUpdated;
+    private Task WebhooksUpdatedDelegator(DiscordClient client, WebhooksUpdateEventArgs eventArgs) => webhooksUpdated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.Zombied"/>
     public event AsyncEventHandler<DiscordClient, ZombiedEventArgs> Zombied
     {
-        add => this._zombied.Register(value);
-        remove => this._zombied.Unregister(value);
+        add => this.zombied.Register(value);
+        remove => this.zombied.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ZombiedEventArgs> _zombied;
-    private Task ZombiedDelegator(DiscordClient client, ZombiedEventArgs eventArgs) => _zombied.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, ZombiedEventArgs> zombied;
+    private Task ZombiedDelegator(DiscordClient client, ZombiedEventArgs eventArgs) => zombied.InvokeAsync(client, eventArgs);
 
     private DiscordShardedClient()
     {
-        _clientErrored = new("CLIENT_ERRORED", Goof);
-        _applicationCommandPermissionsUpdated = new("APPLICATION_COMMAND_PERMISSIONS_UPDATED", EventErrorHandler);
-        _autoModerationRuleCreated = new("AUTO_MODERATION_RULE_CREATED", EventErrorHandler);
-        _autoModerationRuleDeleted = new("AUTO_MODERATION_RULE_DELETED", EventErrorHandler);
-        _autoModerationRuleExecuted = new("AUTO_MODERATION_RULE_EXECUTED", EventErrorHandler);
-        _autoModerationRuleUpdated = new("AUTO_MODERATION_RULE_UPDATED", EventErrorHandler);
-        _channelCreated = new("CHANNEL_CREATED", EventErrorHandler);
-        _channelDeleted = new("CHANNEL_DELETED", EventErrorHandler);
-        _channelPinsUpdated = new("CHANNEL_PINS_UPDATED", EventErrorHandler);
-        _channelUpdated = new("CHANNEL_UPDATED", EventErrorHandler);
-        _componentInteractionCreated = new("COMPONENT_INTERACTION_CREATED", EventErrorHandler);
-        _contextMenuInteractionCreated = new("CONTEXT_MENU_INTERACTION_CREATED", EventErrorHandler);
-        _dmChannelDeleted = new("DM_CHANNEL_DELETED", EventErrorHandler);
-        _guildAuditLogCreated = new("GUILD_AUDIT_LOG_CREATED", EventErrorHandler);
-        _guildAvailable = new("GUILD_AVAILABLE", EventErrorHandler);
-        _guildBanAdded = new("GUILD_BAN_ADDED", EventErrorHandler);
-        _guildBanRemoved = new("GUILD_BAN_REMOVED", EventErrorHandler);
-        _guildCreated = new("GUILD_CREATED", EventErrorHandler);
-        _guildDeleted = new("GUILD_DELETED", EventErrorHandler);
-        _guildDownloadCompleted = new("GUILD_DOWNLOAD_COMPLETED", EventErrorHandler);
-        _guildEmojisUpdated = new("GUILD_EMOJIS_UPDATED", EventErrorHandler);
-        _guildIntegrationsUpdated = new("GUILD_INTEGRATIONS_UPDATED", EventErrorHandler);
-        _guildMemberAdded = new("GUILD_MEMBER_ADDED", EventErrorHandler);
-        _guildMemberRemoved = new("GUILD_MEMBER_REMOVED", EventErrorHandler);
-        _guildMembersChunked = new("GUILD_MEMBERS_CHUNKED", EventErrorHandler);
-        _guildMemberUpdated = new("GUILD_MEMBER_UPDATED", EventErrorHandler);
-        _guildRoleCreated = new("GUILD_ROLE_CREATED", EventErrorHandler);
-        _guildRoleDeleted = new("GUILD_ROLE_DELETED", EventErrorHandler);
-        _guildRoleUpdated = new("GUILD_ROLE_UPDATED", EventErrorHandler);
-        _guildStickersUpdated = new("GUILD_STICKERS_UPDATED", EventErrorHandler);
-        _guildUnavailable = new("GUILD_UNAVAILABLE", EventErrorHandler);
-        _guildUpdated = new("GUILD_UPDATED", EventErrorHandler);
-        _heartbeated = new("HEARTBEATED", EventErrorHandler);
-        _integrationCreated = new("INTEGRATION_CREATED", EventErrorHandler);
-        _integrationDeleted = new("INTEGRATION_DELETED", EventErrorHandler);
-        _integrationUpdated = new("INTEGRATION_UPDATED", EventErrorHandler);
-        _interactionCreated = new("INTERACTION_CREATED", EventErrorHandler);
-        _inviteCreated = new("INVITE_CREATED", EventErrorHandler);
-        _inviteDeleted = new("INVITE_DELETED", EventErrorHandler);
-        _messageCreated = new("MESSAGE_CREATED", EventErrorHandler);
-        _messageDeleted = new("MESSAGE_DELETED", EventErrorHandler);
-        _messageReactionAdded = new("MESSAGE_REACTION_ADDED", EventErrorHandler);
-        _messageReactionRemoved = new("MESSAGE_REACTION_REMOVED", EventErrorHandler);
-        _messageReactionRemovedEmoji = new("MESSAGE_REACTION_REMOVED_EMOJI", EventErrorHandler);
-        _messageReactionsCleared = new("MESSAGE_REACTIONS_CLEARED", EventErrorHandler);
-        _messagesBulkDeleted = new("MESSAGES_BULK_DELETED", EventErrorHandler);
-        _messageUpdated = new("MESSAGE_UPDATED", EventErrorHandler);
-        _modalSubmitted = new("MODAL_SUBMITTED", EventErrorHandler);
-        _presenceUpdated = new("PRESENCE_UPDATED", EventErrorHandler);
-        _scheduledGuildEventCompleted = new("SCHEDULED_GUILD_EVENT_COMPLETED", EventErrorHandler);
-        _scheduledGuildEventCreated = new("SCHEDULED_GUILD_EVENT_CREATED", EventErrorHandler);
-        _scheduledGuildEventDeleted = new("SCHEDULED_GUILD_EVENT_DELETED", EventErrorHandler);
-        _scheduledGuildEventUpdated = new("SCHEDULED_GUILD_EVENT_UPDATED", EventErrorHandler);
-        _scheduledGuildEventUserAdded = new("SCHEDULED_GUILD_EVENT_USER_ADDED", EventErrorHandler);
-        _scheduledGuildEventUserRemoved = new("SCHEDULED_GUILD_EVENT_USER_REMOVED", EventErrorHandler);
-        _sessionCreated = new("SESSION_CREATED", EventErrorHandler);
-        _sessionResumed = new("SESSION_RESUMED", EventErrorHandler);
-        _socketClosed = new("SOCKET_CLOSED", EventErrorHandler);
-        _socketErrored = new("SOCKET_ERRORED", EventErrorHandler);
-        _socketOpened = new("SOCKET_OPENED", EventErrorHandler);
-        _stageInstanceCreated = new("STAGE_INSTANCE_CREATED", EventErrorHandler);
-        _stageInstanceDeleted = new("STAGE_INSTANCE_DELETED", EventErrorHandler);
-        _stageInstanceUpdated = new("STAGE_INSTANCE_UPDATED", EventErrorHandler);
-        _threadCreated = new("THREAD_CREATED", EventErrorHandler);
-        _threadDeleted = new("THREAD_DELETED", EventErrorHandler);
-        _threadListSynced = new("THREAD_LIST_SYNCED", EventErrorHandler);
-        _threadMembersUpdated = new("THREAD_MEMBERS_UPDATED", EventErrorHandler);
-        _threadMemberUpdated = new("THREAD_MEMBER_UPDATED", EventErrorHandler);
-        _threadUpdated = new("THREAD_UPDATED", EventErrorHandler);
-        _typingStarted = new("TYPING_STARTED", EventErrorHandler);
-        _unknownEvent = new("UNKNOWN_EVENT", EventErrorHandler);
-        _userSettingsUpdated = new("USER_SETTINGS_UPDATED", EventErrorHandler);
-        _userUpdated = new("USER_UPDATED", EventErrorHandler);
-        _voiceServerUpdated = new("VOICE_SERVER_UPDATED", EventErrorHandler);
-        _voiceStateUpdated = new("VOICE_STATE_UPDATED", EventErrorHandler);
-        _webhooksUpdated = new("WEBHOOKS_UPDATED", EventErrorHandler);
-        _zombied = new("ZOMBIED", EventErrorHandler);
+        clientErrored = new("CLIENT_ERRORED", Goof);
+        applicationCommandPermissionsUpdated = new("APPLICATION_COMMAND_PERMISSIONS_UPDATED", EventErrorHandler);
+        autoModerationRuleCreated = new("AUTO_MODERATION_RULE_CREATED", EventErrorHandler);
+        autoModerationRuleDeleted = new("AUTO_MODERATION_RULE_DELETED", EventErrorHandler);
+        autoModerationRuleExecuted = new("AUTO_MODERATION_RULE_EXECUTED", EventErrorHandler);
+        autoModerationRuleUpdated = new("AUTO_MODERATION_RULE_UPDATED", EventErrorHandler);
+        channelCreated = new("CHANNEL_CREATED", EventErrorHandler);
+        channelDeleted = new("CHANNEL_DELETED", EventErrorHandler);
+        channelPinsUpdated = new("CHANNEL_PINS_UPDATED", EventErrorHandler);
+        channelUpdated = new("CHANNEL_UPDATED", EventErrorHandler);
+        componentInteractionCreated = new("COMPONENT_INTERACTION_CREATED", EventErrorHandler);
+        contextMenuInteractionCreated = new("CONTEXT_MENU_INTERACTION_CREATED", EventErrorHandler);
+        dmChannelDeleted = new("DM_CHANNEL_DELETED", EventErrorHandler);
+        guildAuditLogCreated = new("GUILD_AUDIT_LOG_CREATED", EventErrorHandler);
+        guildAvailable = new("GUILD_AVAILABLE", EventErrorHandler);
+        guildBanAdded = new("GUILD_BAN_ADDED", EventErrorHandler);
+        guildBanRemoved = new("GUILD_BAN_REMOVED", EventErrorHandler);
+        guildCreated = new("GUILD_CREATED", EventErrorHandler);
+        guildDeleted = new("GUILD_DELETED", EventErrorHandler);
+        guildDownloadCompleted = new("GUILD_DOWNLOAD_COMPLETED", EventErrorHandler);
+        guildEmojisUpdated = new("GUILD_EMOJIS_UPDATED", EventErrorHandler);
+        guildIntegrationsUpdated = new("GUILD_INTEGRATIONS_UPDATED", EventErrorHandler);
+        guildMemberAdded = new("GUILD_MEMBER_ADDED", EventErrorHandler);
+        guildMemberRemoved = new("GUILD_MEMBER_REMOVED", EventErrorHandler);
+        guildMembersChunked = new("GUILD_MEMBERS_CHUNKED", EventErrorHandler);
+        guildMemberUpdated = new("GUILD_MEMBER_UPDATED", EventErrorHandler);
+        guildRoleCreated = new("GUILD_ROLE_CREATED", EventErrorHandler);
+        guildRoleDeleted = new("GUILD_ROLE_DELETED", EventErrorHandler);
+        guildRoleUpdated = new("GUILD_ROLE_UPDATED", EventErrorHandler);
+        guildStickersUpdated = new("GUILD_STICKERS_UPDATED", EventErrorHandler);
+        guildUnavailable = new("GUILD_UNAVAILABLE", EventErrorHandler);
+        guildUpdated = new("GUILD_UPDATED", EventErrorHandler);
+        heartbeated = new("HEARTBEATED", EventErrorHandler);
+        integrationCreated = new("INTEGRATION_CREATED", EventErrorHandler);
+        integrationDeleted = new("INTEGRATION_DELETED", EventErrorHandler);
+        integrationUpdated = new("INTEGRATION_UPDATED", EventErrorHandler);
+        interactionCreated = new("INTERACTION_CREATED", EventErrorHandler);
+        inviteCreated = new("INVITE_CREATED", EventErrorHandler);
+        inviteDeleted = new("INVITE_DELETED", EventErrorHandler);
+        messageCreated = new("MESSAGE_CREATED", EventErrorHandler);
+        messageDeleted = new("MESSAGE_DELETED", EventErrorHandler);
+        messageReactionAdded = new("MESSAGE_REACTION_ADDED", EventErrorHandler);
+        messageReactionRemoved = new("MESSAGE_REACTION_REMOVED", EventErrorHandler);
+        messageReactionRemovedEmoji = new("MESSAGE_REACTION_REMOVED_EMOJI", EventErrorHandler);
+        messageReactionsCleared = new("MESSAGE_REACTIONS_CLEARED", EventErrorHandler);
+        messagesBulkDeleted = new("MESSAGES_BULK_DELETED", EventErrorHandler);
+        messageUpdated = new("MESSAGE_UPDATED", EventErrorHandler);
+        modalSubmitted = new("MODAL_SUBMITTED", EventErrorHandler);
+        presenceUpdated = new("PRESENCE_UPDATED", EventErrorHandler);
+        scheduledGuildEventCompleted = new("SCHEDULED_GUILD_EVENT_COMPLETED", EventErrorHandler);
+        scheduledGuildEventCreated = new("SCHEDULED_GUILD_EVENT_CREATED", EventErrorHandler);
+        scheduledGuildEventDeleted = new("SCHEDULED_GUILD_EVENT_DELETED", EventErrorHandler);
+        scheduledGuildEventUpdated = new("SCHEDULED_GUILD_EVENT_UPDATED", EventErrorHandler);
+        scheduledGuildEventUserAdded = new("SCHEDULED_GUILD_EVENT_USER_ADDED", EventErrorHandler);
+        scheduledGuildEventUserRemoved = new("SCHEDULED_GUILD_EVENT_USER_REMOVED", EventErrorHandler);
+        sessionCreated = new("SESSION_CREATED", EventErrorHandler);
+        sessionResumed = new("SESSION_RESUMED", EventErrorHandler);
+        socketClosed = new("SOCKET_CLOSED", EventErrorHandler);
+        socketErrored = new("SOCKET_ERRORED", EventErrorHandler);
+        socketOpened = new("SOCKET_OPENED", EventErrorHandler);
+        stageInstanceCreated = new("STAGE_INSTANCE_CREATED", EventErrorHandler);
+        stageInstanceDeleted = new("STAGE_INSTANCE_DELETED", EventErrorHandler);
+        stageInstanceUpdated = new("STAGE_INSTANCE_UPDATED", EventErrorHandler);
+        threadCreated = new("THREAD_CREATED", EventErrorHandler);
+        threadDeleted = new("THREAD_DELETED", EventErrorHandler);
+        threadListSynced = new("THREAD_LIST_SYNCED", EventErrorHandler);
+        threadMembersUpdated = new("THREAD_MEMBERS_UPDATED", EventErrorHandler);
+        threadMemberUpdated = new("THREAD_MEMBER_UPDATED", EventErrorHandler);
+        threadUpdated = new("THREAD_UPDATED", EventErrorHandler);
+        typingStarted = new("TYPING_STARTED", EventErrorHandler);
+        unknownEvent = new("UNKNOWN_EVENT", EventErrorHandler);
+        userSettingsUpdated = new("USER_SETTINGS_UPDATED", EventErrorHandler);
+        userUpdated = new("USER_UPDATED", EventErrorHandler);
+        voiceServerUpdated = new("VOICE_SERVER_UPDATED", EventErrorHandler);
+        voiceStateUpdated = new("VOICE_STATE_UPDATED", EventErrorHandler);
+        webhooksUpdated = new("WEBHOOKS_UPDATED", EventErrorHandler);
+        zombied = new("ZOMBIED", EventErrorHandler);
     }
 
     private void HookEventHandlers(DiscordClient client)

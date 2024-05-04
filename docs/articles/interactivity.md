@@ -57,7 +57,7 @@ pages.
 ```cs
 public async Task PaginationCommand(CommandContext ctx)
 {
-    var reallyLongString = "Lorem ipsum dolor sit amet, consectetur adipiscing ..."
+    var reallyLongString = "Lorem ipsum dolor sit amet, consectetur adipiscing..."
 
     var interactivity = ctx.Client.GetInteractivity();
     var pages = interactivity.GeneratePagesInEmbed(reallyLongString);
@@ -132,9 +132,9 @@ public async Task ActionCommand(CommandContext ctx)
 ![Confirmed][5]
 
 <!-- LINKS -->
-[0]:  ../images/interactivity_01.png
-[1]:  xref:DSharpPlus.Interactivity.InteractivityExtension#methods
-[2]:  ../images/interactivity_02.png
-[3]:  ../images/interactivity_03.png
-[4]:  ../images/interactivity_04.png
-[5]:  ../images/interactivity_05.png
+[0]: ../images/interactivity_01.png
+[1]: xref:DSharpPlus.Interactivity.InteractivityExtension#methods
+[2]: ../images/interactivity_02.png
+[3]: ../images/interactivity_03.png
+[4]: ../images/interactivity_04.png
+[5]: ../images/interactivity_05.png

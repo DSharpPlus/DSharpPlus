@@ -24,10 +24,10 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     /// </summary>
     [JsonIgnore]
     public DiscordColor Color
-        => new(_color);
+        => new(this.color);
 
     [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
-    internal int _color;
+    internal int color;
 
     /// <summary>
     /// Gets whether this role is hoisted.
@@ -38,7 +38,7 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     /// <summary>
     /// The url for this role's icon, if set.
     /// </summary>
-    public string IconUrl => IconHash != null ? $"https://cdn.discordapp.com/role-icons/{Id}/{IconHash}.png" : null;
+    public string IconUrl => this.IconHash != null ? $"https://cdn.discordapp.com/role-icons/{this.Id}/{this.IconHash}.png" : null;
 
     /// <summary>
     /// The hash of this role's icon, if any.
@@ -49,10 +49,10 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     /// <summary>
     /// The emoji associated with this role's icon, if set.
     /// </summary>
-    public DiscordEmoji Emoji => _emoji != null ? DiscordEmoji.FromUnicode(_emoji) : null;
+    public DiscordEmoji Emoji => this.emoji != null ? DiscordEmoji.FromUnicode(this.emoji) : null;
 
     [JsonProperty("unicode_emoji")]
-    internal string _emoji;
+    internal string emoji;
 
     /// <summary>
     /// Gets the position of this role in the role hierarchy.
@@ -85,7 +85,7 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     public DiscordRoleTags Tags { get; internal set; }
 
     [JsonIgnore]
-    internal ulong _guild_id = 0;
+    internal ulong guild_id = 0;
 
     /// <summary>
     /// Gets a mention string for this role. If the role is mentionable, this string will mention all the users that belong to this role.
@@ -106,18 +106,18 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task ModifyPositionAsync(int position, string reason = null)
     {
-        DiscordRole[] roles = [.. Discord.Guilds[_guild_id].Roles.Values.OrderByDescending(xr => xr.Position)];
+        DiscordRole[] roles = [.. this.Discord.Guilds[this.guild_id].Roles.Values.OrderByDescending(xr => xr.Position)];
         RestGuildRoleReorderPayload[] pmds = new RestGuildRoleReorderPayload[roles.Length];
         for (int i = 0; i < roles.Length; i++)
         {
             pmds[i] = new RestGuildRoleReorderPayload
             {
                 RoleId = roles[i].Id,
-                Position = roles[i].Id == Id ? position : roles[i].Position <= position ? roles[i].Position - 1 : roles[i].Position
+                Position = roles[i].Id == this.Id ? position : roles[i].Position <= position ? roles[i].Position - 1 : roles[i].Position
             };
         }
 
-        await Discord.ApiClient.ModifyGuildRolePositionsAsync(_guild_id, pmds, reason);
+        await this.Discord.ApiClient.ModifyGuildRolePositionsAsync(this.guild_id, pmds, reason);
     }
 
     /// <summary>
@@ -137,7 +137,7 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task ModifyAsync(string name = null, DiscordPermissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null, Stream icon = null, DiscordEmoji emoji = null)
-        => await Discord.ApiClient.ModifyGuildRoleAsync(_guild_id, Id, name, permissions, color?.Value, hoist, mentionable, icon, emoji?.ToString(), reason);
+        => await this.Discord.ApiClient.ModifyGuildRoleAsync(this.guild_id, this.Id, name, permissions, color?.Value, hoist, mentionable, icon, emoji?.ToString(), reason);
 
     /// <exception cref = "Exceptions.UnauthorizedException" > Thrown when the client does not have the<see cref="DiscordPermissions.ManageRoles"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the role does not exist.</exception>
@@ -148,7 +148,7 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
         RoleEditModel mdl = new();
         action(mdl);
 
-        return ModifyAsync(mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason, mdl.Icon, mdl.Emoji);
+        return this.ModifyAsync(mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason, mdl.Icon, mdl.Emoji);
     }
 
     /// <summary>
@@ -161,7 +161,7 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task DeleteAsync(string? reason = null)
-        => await Discord.ApiClient.DeleteRoleAsync(_guild_id, Id, reason);
+        => await this.Discord.ApiClient.DeleteRoleAsync(this.guild_id, this.Id, reason);
     #endregion
 
     internal DiscordRole() { }
@@ -172,20 +172,20 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     /// <param name="permission">Permissions to check for.</param>
     /// <returns>Whether the permissions are allowed or not.</returns>
     public DiscordPermissionLevel CheckPermission(DiscordPermissions permission)
-        => (Permissions & permission) != 0 ? DiscordPermissionLevel.Allowed : DiscordPermissionLevel.Unset;
+        => (this.Permissions & permission) != 0 ? DiscordPermissionLevel.Allowed : DiscordPermissionLevel.Unset;
 
     /// <summary>
     /// Returns a string representation of this role.
     /// </summary>
     /// <returns>String representation of this role.</returns>
-    public override string ToString() => $"Role {Id}; {Name}";
+    public override string ToString() => $"Role {this.Id}; {this.Name}";
 
     /// <summary>
     /// Checks whether this <see cref="DiscordRole"/> is equal to another object.
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordRole"/>.</returns>
-    public override bool Equals(object obj) => Equals(obj as DiscordRole);
+    public override bool Equals(object obj) => this.Equals(obj as DiscordRole);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordRole"/> is equal to another <see cref="DiscordRole"/>.
@@ -196,14 +196,14 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
         => e switch
         {
             null => false,
-            _ => ReferenceEquals(this, e) || Id == e.Id
+            _ => ReferenceEquals(this, e) || this.Id == e.Id
         };
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordRole"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="DiscordRole"/>.</returns>
-    public override int GetHashCode() => Id.GetHashCode();
+    public override int GetHashCode() => this.Id.GetHashCode();
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordRole"/> objects are equal.

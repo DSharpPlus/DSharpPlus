@@ -46,13 +46,13 @@ internal class DiscordMentions
             return;
         }
 
-        RepliedUser = repliedUser;
+        this.RepliedUser = repliedUser;
         //If we have no item in our mentions, its likely to be a empty array.
         // This is a special case were we want parse to be a empty array
         // Doing this allows for "no parsing"
         if (!mentions.Any())
         {
-            Parse = [];
+            this.Parse = [];
             return;
         }
 
@@ -96,25 +96,26 @@ internal class DiscordMentions
                 case RepliedUserMention:
                     break;
 
-                default: throw new NotSupportedException($"The type {m.GetType()} is not supported in allowed mentions.");
+                default:
+                    throw new NotSupportedException($"The type {m.GetType()} is not supported in allowed mentions.");
             }
         }
 
         //Check the validity of each item. If it isn't in the explicit allow list and they have items, then add them.
         if (!parse.Contains(ParseUsers) && users.Count > 0)
         {
-            Users = users;
+            this.Users = users;
         }
 
         if (!parse.Contains(ParseRoles) && roles.Count > 0)
         {
-            Roles = roles;
+            this.Roles = roles;
         }
 
         //If we have a empty parse array, we don't want to add it.
         if (parse.Count > 0)
         {
-            Parse = parse;
+            this.Parse = parse;
         }
     }
 }

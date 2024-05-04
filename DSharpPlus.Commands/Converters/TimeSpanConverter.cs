@@ -12,7 +12,7 @@ namespace DSharpPlus.Commands.Converters;
 public partial class TimeSpanConverter : ISlashArgumentConverter<TimeSpan>, ITextArgumentConverter<TimeSpan>
 {
     [GeneratedRegex("^((?<days>\\d+)d\\s*)?((?<hours>\\d+)h\\s*)?((?<minutes>\\d+)m\\s*)?((?<seconds>\\d+)s\\s*)?$", RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.RightToLeft | RegexOptions.CultureInvariant)]
-    private static partial Regex _getTimeSpanRegex();
+    private static partial Regex getTimeSpanRegex();
 
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.String;
     public string ReadableName => "Duration";
@@ -42,7 +42,7 @@ public partial class TimeSpanConverter : ISlashArgumentConverter<TimeSpan>, ITex
         }
         else
         {
-            Match m = _getTimeSpanRegex().Match(value);
+            Match m = getTimeSpanRegex().Match(value);
             int ds = m.Groups["days"].Success ? int.Parse(m.Groups["days"].Value, CultureInfo.InvariantCulture) : 0;
             int hs = m.Groups["hours"].Success ? int.Parse(m.Groups["hours"].Value, CultureInfo.InvariantCulture) : 0;
             int ms = m.Groups["minutes"].Success ? int.Parse(m.Groups["minutes"].Value, CultureInfo.InvariantCulture) : 0;

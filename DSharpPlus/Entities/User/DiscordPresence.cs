@@ -21,7 +21,7 @@ public sealed class DiscordPresence
     /// </summary>
     [JsonIgnore]
     public DiscordUser User
-        => Discord.GetCachedOrEmptyUserInternal(InternalUser.Id);
+        => this.Discord.GetCachedOrEmptyUserInternal(this.InternalUser.Id);
 
     /// <summary>
     /// Gets the user's current activity.
@@ -35,10 +35,10 @@ public sealed class DiscordPresence
     /// Gets the user's current activities.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyList<DiscordActivity> Activities => _internalActivities;
+    public IReadOnlyList<DiscordActivity> Activities => this.internalActivities;
 
     [JsonIgnore]
-    internal DiscordActivity[] _internalActivities;
+    internal DiscordActivity[] internalActivities;
 
     [JsonProperty("activities", NullValueHandling = NullValueHandling.Ignore)]
     internal TransportActivity[] RawActivities { get; set; }
@@ -57,7 +57,7 @@ public sealed class DiscordPresence
     /// </summary>
     [JsonIgnore]
     public DiscordGuild Guild
-        => GuildId != 0 ? Discord._guilds[GuildId] : null;
+        => this.GuildId != 0 ? this.Discord.guilds[this.GuildId] : null;
 
     /// <summary>
     /// Gets this user's platform-dependent status.
@@ -69,21 +69,21 @@ public sealed class DiscordPresence
 
     internal DiscordPresence(DiscordPresence other)
     {
-        Discord = other.Discord;
+        this.Discord = other.Discord;
         if (other.Activity != null)
         {
-            Activity = new DiscordActivity(other.Activity);
+            this.Activity = new DiscordActivity(other.Activity);
         }
 
         if (other.Activity != null)
         {
-            RawActivity = new TransportActivity(Activity);
+            this.RawActivity = new TransportActivity(this.Activity);
         }
 
-        _internalActivities = (DiscordActivity[])other._internalActivities?.Clone();
-        RawActivities = (TransportActivity[])other.RawActivities?.Clone();
-        Status = other.Status;
-        InternalUser = new TransportUser(other.InternalUser);
+        this.internalActivities = (DiscordActivity[])other.internalActivities?.Clone();
+        this.RawActivities = (TransportActivity[])other.RawActivities?.Clone();
+        this.Status = other.Status;
+        this.InternalUser = new TransportUser(other.InternalUser);
     }
 }
 

@@ -8,17 +8,17 @@ public record InteractionConverterContext : ConverterContext
 {
     public required DiscordInteraction Interaction { get; init; }
     public required IReadOnlyList<DiscordInteractionDataOption> Options { get; init; }
-    public override DiscordInteractionDataOption Argument => Options[ParameterIndex];
+    public override DiscordInteractionDataOption Argument => this.Options[this.ParameterIndex];
     public int ArgumentIndex { get; private set; } = -1;
 
     public override bool NextArgument()
     {
-        if (ArgumentIndex + 1 >= Options.Count)
+        if (this.ArgumentIndex + 1 >= this.Options.Count)
         {
             return false;
         }
 
-        ArgumentIndex++;
+        this.ArgumentIndex++;
         return true;
     }
 }

@@ -17,42 +17,42 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
                                                 | DiscordIntents.GuildMessages; // Required for commands that are executed via bot ping
 
     public TextCommandConfiguration Configuration { get; init; } = configuration ?? new();
-    private bool _configured;
+    private bool configured;
 
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {
         await base.ConfigureAsync(extension);
-        if (_configured)
+        if (this.configured)
         {
             return;
         }
 
-        _configured = true;
-        extension.Client.MessageCreated += ExecuteTextCommandAsync;
+        this.configured = true;
+        extension.Client.MessageCreated += this.ExecuteTextCommandAsync;
         if (!extension.Client.Intents.HasIntent(DiscordIntents.GuildMessages) && !extension.Client.Intents.HasIntent(DiscordIntents.DirectMessages))
         {
-            TextLogging.MissingRequiredIntents(_logger, RequiredIntents, null);
+            TextLogging.MissingRequiredIntents(this.logger, RequiredIntents, null);
         }
-        else if (!extension.Client.Intents.HasIntent(DiscordIntents.MessageContents) && !Configuration.SuppressMissingMessageContentIntentWarning)
+        else if (!extension.Client.Intents.HasIntent(DiscordIntents.MessageContents) && !this.Configuration.SuppressMissingMessageContentIntentWarning)
         {
-            TextLogging.MissingMessageContentIntent(_logger, null);
+            TextLogging.MissingMessageContentIntent(this.logger, null);
         }
     }
 
     public async Task ExecuteTextCommandAsync(DiscordClient client, MessageCreateEventArgs eventArgs)
     {
-        if (_extension is null)
+        if (this.extension is null)
         {
             throw new InvalidOperationException("TextCommandProcessor has not been configured.");
         }
         else if (string.IsNullOrWhiteSpace(eventArgs.Message.Content)
-            || (eventArgs.Author.IsBot && Configuration.IgnoreBots)
-            || (_extension.DebugGuildId != 0 && _extension.DebugGuildId != eventArgs.Guild?.Id))
+            || (eventArgs.Author.IsBot && this.Configuration.IgnoreBots)
+            || (this.extension.DebugGuildId != 0 && this.extension.DebugGuildId != eventArgs.Guild?.Id))
         {
             return;
         }
 
-        int prefixLength = await Configuration.PrefixResolver(_extension, eventArgs.Message);
+        int prefixLength = await this.Configuration.PrefixResolver(this.extension, eventArgs.Message);
         if (prefixLength < 0)
         {
             return;
@@ -71,11 +71,11 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             }
         }
 
-        AsyncServiceScope scope = _extension.ServiceProvider.CreateAsyncScope();
-        if (!_extension.Commands.TryGetValue(commandText[..index], out Command? command))
+        AsyncServiceScope scope = this.extension.ServiceProvider.CreateAsyncScope();
+        if (!this.extension.Commands.TryGetValue(commandText[..index], out Command? command))
         {
             // Search for any aliases
-            foreach (Command officialCommand in _extension.Commands.Values)
+            foreach (Command officialCommand in this.extension.Commands.Values)
             {
                 TextAliasAttribute? aliasAttribute = officialCommand.Attributes.OfType<TextAliasAttribute>().FirstOrDefault();
                 if (aliasAttribute is not null && aliasAttribute.Aliases.Any(alias => alias.Equals(commandText[..index], StringComparison.OrdinalIgnoreCase)))
@@ -90,14 +90,14 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         if (command is null ||
             (command.GuildIds.Count > 0 && !command.GuildIds.Contains(eventArgs.Guild?.Id ?? 0)))
         {
-            await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
+            await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
             {
                 Context = new TextCommandContext()
                 {
                     Arguments = new Dictionary<CommandParameter, object?>(),
                     Channel = eventArgs.Channel,
                     Command = null!,
-                    Extension = _extension,
+                    Extension = this.extension,
                     Message = eventArgs.Message,
                     ServiceScope = scope,
                     User = eventArgs.Author
@@ -154,16 +154,16 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             Command? defaultGroupCommand = command.Subcommands.FirstOrDefault(subcommand => subcommand.Attributes.OfType<DefaultGroupCommandAttribute>().Any());
             if (defaultGroupCommand is null)
             {
-                await _extension._commandErrored.InvokeAsync(_extension, new CommandErroredEventArgs()
+                await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
                 {
-                    Context = CreateCommandContext(new()
+                    Context = this.CreateCommandContext(new()
                     {
                         Channel = eventArgs.Channel,
                         Command = command,
-                        Extension = _extension,
+                        Extension = this.extension,
                         RawArguments = commandText[index..],
                         ServiceScope = scope,
-                        Splicer = Configuration.TextArgumentSplicer,
+                        Splicer = this.Configuration.TextArgumentSplicer,
                         User = eventArgs.Author
                     }, eventArgs, []),
                     Exception = new CommandNotExecutableException(command, "Unable to execute a command that has no method. Is this command a group command?"),
@@ -180,21 +180,21 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         {
             Channel = eventArgs.Channel,
             Command = command,
-            Extension = _extension,
+            Extension = this.extension,
             RawArguments = commandText[index..],
             ServiceScope = scope,
-            Splicer = Configuration.TextArgumentSplicer,
+            Splicer = this.Configuration.TextArgumentSplicer,
             User = eventArgs.Author
         };
 
-        TextCommandContext? commandContext = await ParseArgumentsAsync(converterContext, eventArgs);
+        TextCommandContext? commandContext = await this.ParseArgumentsAsync(converterContext, eventArgs);
         if (commandContext is null)
         {
             await scope.DisposeAsync();
             return;
         }
 
-        await _extension.CommandExecutor.ExecuteAsync(commandContext);
+        await this.extension.CommandExecutor.ExecuteAsync(commandContext);
     }
 
     public override TextCommandContext CreateCommandContext(TextConverterContext converterContext, MessageCreateEventArgs eventArgs, Dictionary<CommandParameter, object?> parsedArguments) => new()
@@ -202,7 +202,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         Arguments = parsedArguments,
         Channel = eventArgs.Channel,
         Command = converterContext.Command,
-        Extension = _extension ?? throw new InvalidOperationException("TextCommandProcessor has not been configured."),
+        Extension = this.extension ?? throw new InvalidOperationException("TextCommandProcessor has not been configured."),
         Message = eventArgs.Message,
         ServiceScope = converterContext.ServiceScope,
         User = eventArgs.Author

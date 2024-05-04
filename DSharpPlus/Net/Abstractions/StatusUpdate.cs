@@ -27,7 +27,7 @@ internal sealed class StatusUpdate
     public DiscordUserStatus Status { get; set; } = DiscordUserStatus.Online;
 
     [JsonProperty("status")]
-    internal string StatusString => Status switch
+    internal string StatusString => this.Status switch
     {
         DiscordUserStatus.Online => "online",
         DiscordUserStatus.Idle => "idle",
@@ -42,5 +42,5 @@ internal sealed class StatusUpdate
     [JsonProperty("game", NullValueHandling = NullValueHandling.Ignore)]
     public TransportActivity Activity { get; set; }
 
-    internal DiscordActivity _activity;
+    internal DiscordActivity activity;
 }

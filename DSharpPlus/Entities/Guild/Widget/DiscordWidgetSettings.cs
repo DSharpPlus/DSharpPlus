@@ -19,7 +19,7 @@ public class DiscordWidgetSettings
     /// Gets the guild's widget channel.
     /// </summary>
     public DiscordChannel Channel
-        => Guild?.GetChannel(ChannelId);
+        => this.Guild?.GetChannel(this.ChannelId);
 
     /// <summary>
     /// Gets if the guild's widget is enabled.

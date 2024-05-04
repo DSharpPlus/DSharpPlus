@@ -9,13 +9,13 @@ namespace DSharpPlus.Entities;
 public sealed class DiscordUserSelectComponent : BaseDiscordSelectComponent
 {
     [JsonProperty("default_values", NullValueHandling = NullValueHandling.Ignore)]
-    private readonly List<DiscordSelectDefaultValue> _defaultValues = [];
+    private readonly List<DiscordSelectDefaultValue> defaultValues = [];
 
     /// <summary>
     /// The default values for this component.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyList<DiscordSelectDefaultValue> DefaultValues => _defaultValues;
+    public IReadOnlyList<DiscordSelectDefaultValue> DefaultValues => this.defaultValues;
 
     /// <summary>
     /// Adds a default user to this component.
@@ -24,7 +24,7 @@ public sealed class DiscordUserSelectComponent : BaseDiscordSelectComponent
     public DiscordUserSelectComponent AddDefaultUser(DiscordUser value)
     {
         DiscordSelectDefaultValue defaultValue = new(value.Id, DiscordSelectDefaultValueType.User);
-        _defaultValues.Add(defaultValue);
+        this.defaultValues.Add(defaultValue);
         return this;
     }
 
@@ -37,7 +37,7 @@ public sealed class DiscordUserSelectComponent : BaseDiscordSelectComponent
         foreach (DiscordUser value in values)
         {
             DiscordSelectDefaultValue defaultValue = new(value.Id, DiscordSelectDefaultValueType.User);
-            _defaultValues.Add(defaultValue);
+            this.defaultValues.Add(defaultValue);
         }
 
         return this;
@@ -50,7 +50,7 @@ public sealed class DiscordUserSelectComponent : BaseDiscordSelectComponent
     public DiscordUserSelectComponent AddDefaultUser(ulong value)
     {
         DiscordSelectDefaultValue defaultValue = new(value, DiscordSelectDefaultValueType.User);
-        _defaultValues.Add(defaultValue);
+        this.defaultValues.Add(defaultValue);
         return this;
     }
 
@@ -63,7 +63,7 @@ public sealed class DiscordUserSelectComponent : BaseDiscordSelectComponent
         foreach (ulong value in values)
         {
             DiscordSelectDefaultValue defaultValue = new(value, DiscordSelectDefaultValueType.User);
-            _defaultValues.Add(defaultValue);
+            this.defaultValues.Add(defaultValue);
         }
 
         return this;
@@ -75,7 +75,7 @@ public sealed class DiscordUserSelectComponent : BaseDiscordSelectComponent
     /// <returns>The current component.</returns>
     public DiscordUserSelectComponent Enable()
     {
-        Disabled = false;
+        this.Disabled = false;
         return this;
     }
 
@@ -85,11 +85,11 @@ public sealed class DiscordUserSelectComponent : BaseDiscordSelectComponent
     /// <returns>The current component.</returns>
     public DiscordUserSelectComponent Disable()
     {
-        Disabled = true;
+        this.Disabled = true;
         return this;
     }
 
-    internal DiscordUserSelectComponent() => Type = DiscordComponentType.UserSelect;
+    internal DiscordUserSelectComponent() => this.Type = DiscordComponentType.UserSelect;
 
     /// <summary>
     /// Creates a new user select component.

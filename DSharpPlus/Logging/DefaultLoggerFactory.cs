@@ -7,29 +7,29 @@ namespace DSharpPlus;
 internal class DefaultLoggerFactory : ILoggerFactory
 {
     private List<ILoggerProvider> Providers { get; } = [];
-    private bool _isDisposed = false;
+    private bool isDisposed = false;
 
-    public void AddProvider(ILoggerProvider provider) => Providers.Add(provider);
+    public void AddProvider(ILoggerProvider provider) => this.Providers.Add(provider);
 
     public ILogger CreateLogger(string categoryName) =>
-        _isDisposed
+        this.isDisposed
             ? throw new InvalidOperationException("This logger factory is already disposed.")
-            : new CompositeDefaultLogger(Providers);
+            : new CompositeDefaultLogger(this.Providers);
 
     public void Dispose()
     {
-        if (_isDisposed)
+        if (this.isDisposed)
         {
             return;
         }
 
-        _isDisposed = true;
+        this.isDisposed = true;
 
-        foreach (ILoggerProvider provider in Providers)
+        foreach (ILoggerProvider provider in this.Providers)
         {
             provider.Dispose();
         }
 
-        Providers.Clear();
+        this.Providers.Clear();
     }
 }

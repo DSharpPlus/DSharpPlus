@@ -16,8 +16,8 @@ internal sealed class LavalinkConfigureResume : LavalinkPayload
     public LavalinkConfigureResume(string key, int timeout)
         : base("configureResuming")
     {
-        Key = key;
-        Timeout = timeout;
+        this.Key = key;
+        this.Timeout = timeout;
     }
 }
 
@@ -36,7 +36,7 @@ internal sealed class LavalinkPlay : LavalinkPayload
     public string Track { get; }
 
     public LavalinkPlay(LavalinkGuildConnection lvl, LavalinkTrack track)
-        : base("play", lvl.GuildIdString) => Track = track.TrackString;
+        : base("play", lvl.GuildIdString) => this.Track = track.TrackString;
 }
 
 [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
@@ -54,9 +54,9 @@ internal sealed class LavalinkPlayPartial : LavalinkPayload
     public LavalinkPlayPartial(LavalinkGuildConnection lvl, LavalinkTrack track, TimeSpan start, TimeSpan stop)
         : base("play", lvl.GuildIdString)
     {
-        Track = track.TrackString;
-        StartTime = (long)start.TotalMilliseconds;
-        StopTime = (long)stop.TotalMilliseconds;
+        this.Track = track.TrackString;
+        this.StartTime = (long)start.TotalMilliseconds;
+        this.StopTime = (long)stop.TotalMilliseconds;
     }
 }
 
@@ -67,7 +67,7 @@ internal sealed class LavalinkPause : LavalinkPayload
     public bool Pause { get; }
 
     public LavalinkPause(LavalinkGuildConnection lvl, bool pause)
-        : base("pause", lvl.GuildIdString) => Pause = pause;
+        : base("pause", lvl.GuildIdString) => this.Pause = pause;
 }
 
 [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
@@ -85,7 +85,7 @@ internal sealed class LavalinkSeek : LavalinkPayload
     public long Position { get; }
 
     public LavalinkSeek(LavalinkGuildConnection lvl, TimeSpan position)
-        : base("seek", lvl.GuildIdString) => Position = (long)position.TotalMilliseconds;
+        : base("seek", lvl.GuildIdString) => this.Position = (long)position.TotalMilliseconds;
 }
 
 [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
@@ -95,7 +95,7 @@ internal sealed class LavalinkVolume : LavalinkPayload
     public int Volume { get; }
 
     public LavalinkVolume(LavalinkGuildConnection lvl, int volume)
-        : base("volume", lvl.GuildIdString) => Volume = volume;
+        : base("volume", lvl.GuildIdString) => this.Volume = volume;
 }
 
 [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
@@ -105,5 +105,5 @@ internal sealed class LavalinkEqualizer : LavalinkPayload
     public IEnumerable<LavalinkBandAdjustment> Bands { get; }
 
     public LavalinkEqualizer(LavalinkGuildConnection lvl, IEnumerable<LavalinkBandAdjustment> bands)
-        : base("equalizer", lvl.GuildIdString) => Bands = bands;
+        : base("equalizer", lvl.GuildIdString) => this.Bands = bands;
 }

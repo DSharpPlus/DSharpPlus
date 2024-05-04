@@ -10,7 +10,7 @@ public class DiscordPollVoteUpdate
     /// <summary>
     /// Gets or sets a client for this vote update.
     /// </summary>
-    internal DiscordClient _client;
+    internal DiscordClient client;
 
     /// <summary>
     /// Gets whether this vote was added or removed. <c>true</c> if it was added, <c>false</c> if it was removed.
@@ -21,10 +21,10 @@ public class DiscordPollVoteUpdate
     /// <summary>
     /// Gets the user that added or removed a vote.
     /// </summary>
-    public DiscordUser User => _client.GetCachedOrEmptyUserInternal(UserId);
+    public DiscordUser User => this.client.GetCachedOrEmptyUserInternal(this.UserId);
 
     [JsonIgnore]
-    public DiscordChannel Channel => _client.InternalGetCachedChannel(ChannelId);
+    public DiscordChannel Channel => this.client.InternalGetCachedChannel(this.ChannelId);
 
     /// <summary>
     /// Gets the message that the poll is attached to.
@@ -37,13 +37,13 @@ public class DiscordPollVoteUpdate
     // instead. 
     [JsonIgnore]
     public DiscordMessage? Message
-        => _client.MessageCache?.TryGet(MessageId, out DiscordMessage? msg) ?? false ? msg : null;
+        => this.client.MessageCache?.TryGet(this.MessageId, out DiscordMessage? msg) ?? false ? msg : null;
 
     /// <summary>
     /// Gets the guild this poll was sent in, if applicable.
     /// </summary>
     public DiscordGuild? Guild
-        => GuildId.HasValue ? _client.InternalGetCachedGuild(GuildId.Value) : null;
+        => this.GuildId.HasValue ? this.client.InternalGetCachedGuild(this.GuildId.Value) : null;
 
     [JsonProperty("user_id")]
     internal ulong UserId { get; set; }

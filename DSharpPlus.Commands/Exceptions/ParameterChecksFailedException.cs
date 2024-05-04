@@ -11,7 +11,7 @@ public class ParameterChecksFailedException : CommandsException
 
     public ParameterChecksFailedException(IReadOnlyList<ParameterCheckFailedData> errors, Command command, string? message = null) : base(message ?? $"Checks for {command.FullName} failed.")
     {
-        Command = command;
-        Errors = errors;
+        this.Command = command;
+        this.Errors = errors;
     }
 }

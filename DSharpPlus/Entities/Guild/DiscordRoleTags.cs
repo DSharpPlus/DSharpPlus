@@ -24,9 +24,9 @@ public class DiscordRoleTags
     /// </summary>
     [JsonIgnore]
     public bool IsPremiumSubscriber
-        => _premiumSubscriber.HasValue && _premiumSubscriber.Value is null;
+        => this.premiumSubscriber.HasValue && this.premiumSubscriber.Value is null;
 
     [JsonProperty("premium_subscriber", NullValueHandling = NullValueHandling.Include)]
-    internal Optional<bool?> _premiumSubscriber = false;
+    internal Optional<bool?> premiumSubscriber = false;
 
 }

@@ -10,22 +10,22 @@ namespace DSharpPlus.Interactivity.EventHandling;
 
 internal class ComponentPaginator : IPaginator
 {
-    private readonly DiscordClient _client;
-    private readonly InteractivityConfiguration _config;
-    private readonly DiscordMessageBuilder _builder = new();
-    private readonly Dictionary<ulong, IPaginationRequest> _requests = [];
+    private readonly DiscordClient client;
+    private readonly InteractivityConfiguration config;
+    private readonly DiscordMessageBuilder builder = new();
+    private readonly Dictionary<ulong, IPaginationRequest> requests = [];
 
     public ComponentPaginator(DiscordClient client, InteractivityConfiguration config)
     {
-        _client = client;
-        _client.ComponentInteractionCreated += HandleAsync;
-        _config = config;
+        this.client = client;
+        this.client.ComponentInteractionCreated += this.HandleAsync;
+        this.config = config;
     }
 
     public async Task DoPaginationAsync(IPaginationRequest request)
     {
         ulong id = (await request.GetMessageAsync()).Id;
-        _requests.Add(id, request);
+        this.requests.Add(id, request);
 
         try
         {
@@ -34,27 +34,27 @@ internal class ComponentPaginator : IPaginator
         }
         catch (Exception ex)
         {
-            _client.Logger.LogError(InteractivityEvents.InteractivityPaginationError, ex, "There was an exception while paginating.");
+            this.client.Logger.LogError(InteractivityEvents.InteractivityPaginationError, ex, "There was an exception while paginating.");
         }
         finally
         {
-            _requests.Remove(id);
+            this.requests.Remove(id);
             try
             {
                 await request.DoCleanupAsync();
             }
             catch (Exception ex)
             {
-                _client.Logger.LogError(InteractivityEvents.InteractivityPaginationError, ex, "There was an exception while cleaning up pagination.");
+                this.client.Logger.LogError(InteractivityEvents.InteractivityPaginationError, ex, "There was an exception while cleaning up pagination.");
             }
         }
     }
 
-    public void Dispose() => _client.ComponentInteractionCreated -= HandleAsync;
+    public void Dispose() => this.client.ComponentInteractionCreated -= this.HandleAsync;
 
     private async Task HandleAsync(DiscordClient _, ComponentInteractionCreateEventArgs e)
     {
-        if (!_requests.TryGetValue(e.Message.Id, out IPaginationRequest? req))
+        if (!this.requests.TryGetValue(e.Message.Id, out IPaginationRequest? req))
         {
             return;
         }
@@ -63,9 +63,9 @@ internal class ComponentPaginator : IPaginator
 
         if (await req.GetUserAsync() != e.User)
         {
-            if (_config.ResponseBehavior is InteractionResponseBehavior.Respond)
+            if (this.config.ResponseBehavior is InteractionResponseBehavior.Respond)
             {
-                await e.Interaction.CreateFollowupMessageAsync(new() { Content = _config.ResponseMessage, IsEphemeral = true });
+                await e.Interaction.CreateFollowupMessageAsync(new() { Content = this.config.ResponseMessage, IsEphemeral = true });
             }
 
             return;
@@ -76,12 +76,12 @@ internal class ComponentPaginator : IPaginator
             ipr.RegenerateCTS(e.Interaction); // Necessary to ensure we don't prematurely yeet the CTS //
         }
 
-        await HandlePaginationAsync(req, e);
+        await this.HandlePaginationAsync(req, e);
     }
 
     private async Task HandlePaginationAsync(IPaginationRequest request, ComponentInteractionCreateEventArgs args)
     {
-        PaginationButtons buttons = _config.PaginationButtons;
+        PaginationButtons buttons = this.config.PaginationButtons;
         DiscordMessage msg = await request.GetMessageAsync();
         string id = args.Id;
         TaskCompletionSource<bool> tcs = await request.GetTaskCompletionSourceAsync();
@@ -117,14 +117,14 @@ internal class ComponentPaginator : IPaginator
             return;
         }
 
-        _builder.Clear();
+        this.builder.Clear();
 
-        _builder
+        this.builder
             .WithContent(page.Content)
             .AddEmbed(page.Embed)
             .AddComponents(bts);
 
-        await _builder.ModifyAsync(msg);
+        await this.builder.ModifyAsync(msg);
 
     }
 }

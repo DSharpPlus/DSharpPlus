@@ -41,7 +41,7 @@ public static class Program
         // Generate the events
         foreach (EventInfo eventInfo in typeof(DiscordClient).GetEvents().OrderBy(x => !x.Name.Equals("ClientErrored", StringComparison.Ordinal)).ThenBy(x => x.Name))
         {
-            // EventName to _eventName
+            // EventName to eventName
             string eventNameCamelCased = $"_{char.ToLowerInvariant(eventInfo.Name[0])}{eventInfo.Name[1..]}";
             eventStringBuilder.AppendLine(TemplateFiles["DiscordShardedClient.Event"]
                 .Replace("{{EventArgumentType}}", eventInfo.EventHandlerType!.GenericTypeArguments[1].Name)

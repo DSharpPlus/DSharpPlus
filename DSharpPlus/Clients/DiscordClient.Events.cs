@@ -20,30 +20,30 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, SocketErrorEventArgs> SocketErrored
     {
-        add => _socketErrored.Register(value);
-        remove => _socketErrored.Unregister(value);
+        add => this.socketErrored.Register(value);
+        remove => this.socketErrored.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, SocketErrorEventArgs> _socketErrored;
+    private AsyncEvent<DiscordClient, SocketErrorEventArgs> socketErrored;
 
     /// <summary>
     /// Fired whenever WebSocket connection is established.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, SocketEventArgs> SocketOpened
     {
-        add => _socketOpened.Register(value);
-        remove => _socketOpened.Unregister(value);
+        add => this.socketOpened.Register(value);
+        remove => this.socketOpened.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, SocketEventArgs> _socketOpened;
+    private AsyncEvent<DiscordClient, SocketEventArgs> socketOpened;
 
     /// <summary>
     /// Fired whenever WebSocket connection is terminated.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, SocketCloseEventArgs> SocketClosed
     {
-        add => _socketClosed.Register(value);
-        remove => _socketClosed.Unregister(value);
+        add => this.socketClosed.Register(value);
+        remove => this.socketClosed.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, SocketCloseEventArgs> _socketClosed;
+    private AsyncEvent<DiscordClient, SocketCloseEventArgs> socketClosed;
 
     /// <summary>
     /// Fired when this client has successfully completed its handshake with the websocket gateway.
@@ -54,51 +54,51 @@ public sealed partial class DiscordClient
     /// </remarks>
     public event AsyncEventHandler<DiscordClient, SessionReadyEventArgs> SessionCreated
     {
-        add => _ready.Register(value);
-        remove => _ready.Unregister(value);
+        add => this.ready.Register(value);
+        remove => this.ready.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, SessionReadyEventArgs> _ready;
+    private AsyncEvent<DiscordClient, SessionReadyEventArgs> ready;
 
     /// <summary>
     /// Fired whenever a session is resumed.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, SessionReadyEventArgs> SessionResumed
     {
-        add => _resumed.Register(value);
-        remove => _resumed.Unregister(value);
+        add => this.resumed.Register(value);
+        remove => this.resumed.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, SessionReadyEventArgs> _resumed;
+    private AsyncEvent<DiscordClient, SessionReadyEventArgs> resumed;
 
     /// <summary>
     /// Fired on received heartbeat ACK.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, HeartbeatEventArgs> Heartbeated
     {
-        add => _heartbeated.Register(value);
-        remove => _heartbeated.Unregister(value);
+        add => this.heartbeated.Register(value);
+        remove => this.heartbeated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, HeartbeatEventArgs> _heartbeated;
+    private AsyncEvent<DiscordClient, HeartbeatEventArgs> heartbeated;
 
     /// <summary>
     /// Fired on heartbeat attempt cancellation due to too many failed heartbeats.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, ZombiedEventArgs> Zombied
     {
-        add => _zombied.Register(value);
-        remove => _zombied.Unregister(value);
+        add => this.zombied.Register(value);
+        remove => this.zombied.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ZombiedEventArgs> _zombied;
+    private AsyncEvent<DiscordClient, ZombiedEventArgs> zombied;
 
     #endregion
 
     #region Application
     public event AsyncEventHandler<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs> ApplicationCommandPermissionsUpdated
     {
-        add => _applicationCommandPermissionsUpdated.Register(value);
-        remove => _applicationCommandPermissionsUpdated.Unregister(value);
+        add => this.applicationCommandPermissionsUpdated.Register(value);
+        remove => this.applicationCommandPermissionsUpdated.Unregister(value);
     }
 
-    private AsyncEvent<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs> _applicationCommandPermissionsUpdated;
+    private AsyncEvent<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs> applicationCommandPermissionsUpdated;
 
     #endregion
 
@@ -110,10 +110,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, ChannelCreateEventArgs> ChannelCreated
     {
-        add => _channelCreated.Register(value);
-        remove => _channelCreated.Unregister(value);
+        add => this.channelCreated.Register(value);
+        remove => this.channelCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ChannelCreateEventArgs> _channelCreated;
+    private AsyncEvent<DiscordClient, ChannelCreateEventArgs> channelCreated;
 
     /// <summary>
     /// Fired when a channel is updated.
@@ -121,10 +121,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, ChannelUpdateEventArgs> ChannelUpdated
     {
-        add => _channelUpdated.Register(value);
-        remove => _channelUpdated.Unregister(value);
+        add => this.channelUpdated.Register(value);
+        remove => this.channelUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ChannelUpdateEventArgs> _channelUpdated;
+    private AsyncEvent<DiscordClient, ChannelUpdateEventArgs> channelUpdated;
 
     /// <summary>
     /// Fired when a channel is deleted
@@ -132,10 +132,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, ChannelDeleteEventArgs> ChannelDeleted
     {
-        add => _channelDeleted.Register(value);
-        remove => _channelDeleted.Unregister(value);
+        add => this.channelDeleted.Register(value);
+        remove => this.channelDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ChannelDeleteEventArgs> _channelDeleted;
+    private AsyncEvent<DiscordClient, ChannelDeleteEventArgs> channelDeleted;
 
     /// <summary>
     /// Fired when a dm channel is deleted
@@ -143,10 +143,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, DmChannelDeleteEventArgs> DmChannelDeleted
     {
-        add => _dmChannelDeleted.Register(value);
-        remove => _dmChannelDeleted.Unregister(value);
+        add => this.dmChannelDeleted.Register(value);
+        remove => this.dmChannelDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, DmChannelDeleteEventArgs> _dmChannelDeleted;
+    private AsyncEvent<DiscordClient, DmChannelDeleteEventArgs> dmChannelDeleted;
 
     /// <summary>
     /// Fired whenever a channel's pinned message list is updated.
@@ -154,10 +154,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, ChannelPinsUpdateEventArgs> ChannelPinsUpdated
     {
-        add => _channelPinsUpdated.Register(value);
-        remove => _channelPinsUpdated.Unregister(value);
+        add => this.channelPinsUpdated.Register(value);
+        remove => this.channelPinsUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ChannelPinsUpdateEventArgs> _channelPinsUpdated;
+    private AsyncEvent<DiscordClient, ChannelPinsUpdateEventArgs> channelPinsUpdated;
 
     #endregion
 
@@ -170,10 +170,10 @@ public sealed partial class DiscordClient
     /// <remarks>[alias="GuildJoined"][alias="JoinedGuild"]</remarks>
     public event AsyncEventHandler<DiscordClient, GuildCreateEventArgs> GuildCreated
     {
-        add => _guildCreated.Register(value);
-        remove => _guildCreated.Unregister(value);
+        add => this.guildCreated.Register(value);
+        remove => this.guildCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildCreateEventArgs> _guildCreated;
+    private AsyncEvent<DiscordClient, GuildCreateEventArgs> guildCreated;
 
     /// <summary>
     /// Fired when a guild is becoming available.
@@ -181,10 +181,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, GuildCreateEventArgs> GuildAvailable
     {
-        add => _guildAvailable.Register(value);
-        remove => _guildAvailable.Unregister(value);
+        add => this.guildAvailable.Register(value);
+        remove => this.guildAvailable.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildCreateEventArgs> _guildAvailable;
+    private AsyncEvent<DiscordClient, GuildCreateEventArgs> guildAvailable;
 
     /// <summary>
     /// Fired when a guild is updated.
@@ -192,10 +192,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, GuildUpdateEventArgs> GuildUpdated
     {
-        add => _guildUpdated.Register(value);
-        remove => _guildUpdated.Unregister(value);
+        add => this.guildUpdated.Register(value);
+        remove => this.guildUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildUpdateEventArgs> _guildUpdated;
+    private AsyncEvent<DiscordClient, GuildUpdateEventArgs> guildUpdated;
 
     /// <summary>
     /// Fired when the user leaves or is removed from a guild.
@@ -203,30 +203,30 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, GuildDeleteEventArgs> GuildDeleted
     {
-        add => _guildDeleted.Register(value);
-        remove => _guildDeleted.Unregister(value);
+        add => this.guildDeleted.Register(value);
+        remove => this.guildDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildDeleteEventArgs> _guildDeleted;
+    private AsyncEvent<DiscordClient, GuildDeleteEventArgs> guildDeleted;
 
     /// <summary>
     /// Fired when a guild becomes unavailable.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, GuildDeleteEventArgs> GuildUnavailable
     {
-        add => _guildUnavailable.Register(value);
-        remove => _guildUnavailable.Unregister(value);
+        add => this.guildUnavailable.Register(value);
+        remove => this.guildUnavailable.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildDeleteEventArgs> _guildUnavailable;
+    private AsyncEvent<DiscordClient, GuildDeleteEventArgs> guildUnavailable;
 
     /// <summary>
     /// Fired when all guilds finish streaming from Discord.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, GuildDownloadCompletedEventArgs> GuildDownloadCompleted
     {
-        add => _guildDownloadCompletedEv.Register(value);
-        remove => _guildDownloadCompletedEv.Unregister(value);
+        add => this.guildDownloadCompletedEv.Register(value);
+        remove => this.guildDownloadCompletedEv.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildDownloadCompletedEventArgs> _guildDownloadCompletedEv;
+    private AsyncEvent<DiscordClient, GuildDownloadCompletedEventArgs> guildDownloadCompletedEv;
 
     /// <summary>
     /// Fired when a guilds emojis get updated
@@ -234,38 +234,38 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, GuildEmojisUpdateEventArgs> GuildEmojisUpdated
     {
-        add => _guildEmojisUpdated.Register(value);
-        remove => _guildEmojisUpdated.Unregister(value);
+        add => this.guildEmojisUpdated.Register(value);
+        remove => this.guildEmojisUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildEmojisUpdateEventArgs> _guildEmojisUpdated;
+    private AsyncEvent<DiscordClient, GuildEmojisUpdateEventArgs> guildEmojisUpdated;
 
     public event AsyncEventHandler<DiscordClient, GuildStickersUpdateEventArgs> GuildStickersUpdated
     {
-        add => _guildStickersUpdated.Register(value);
-        remove => _guildStickersUpdated.Unregister(value);
+        add => this.guildStickersUpdated.Register(value);
+        remove => this.guildStickersUpdated.Unregister(value);
     }
 
-    private AsyncEvent<DiscordClient, GuildStickersUpdateEventArgs> _guildStickersUpdated;
+    private AsyncEvent<DiscordClient, GuildStickersUpdateEventArgs> guildStickersUpdated;
 
     /// <summary>
     /// Fired when a guild integration is updated.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, GuildIntegrationsUpdateEventArgs> GuildIntegrationsUpdated
     {
-        add => _guildIntegrationsUpdated.Register(value);
-        remove => _guildIntegrationsUpdated.Unregister(value);
+        add => this.guildIntegrationsUpdated.Register(value);
+        remove => this.guildIntegrationsUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildIntegrationsUpdateEventArgs> _guildIntegrationsUpdated;
+    private AsyncEvent<DiscordClient, GuildIntegrationsUpdateEventArgs> guildIntegrationsUpdated;
 
     /// <summary>
     /// Fired when a audit log entry is created.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, GuildAuditLogCreatedEventArgs> GuildAuditLogCreated
     {
-        add => _guildAuditLogCreated.Register(value);
-        remove => _guildAuditLogCreated.Unregister(value);
+        add => this.guildAuditLogCreated.Register(value);
+        remove => this.guildAuditLogCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildAuditLogCreatedEventArgs> _guildAuditLogCreated;
+    private AsyncEvent<DiscordClient, GuildAuditLogCreatedEventArgs> guildAuditLogCreated;
 
     #endregion
 
@@ -273,45 +273,45 @@ public sealed partial class DiscordClient
 
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventCreateEventArgs> ScheduledGuildEventCreated
     {
-        add => _scheduledGuildEventCreated.Register(value);
-        remove => _scheduledGuildEventCreated.Unregister(value);
+        add => this.scheduledGuildEventCreated.Register(value);
+        remove => this.scheduledGuildEventCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventCreateEventArgs> _scheduledGuildEventCreated;
+    private AsyncEvent<DiscordClient, ScheduledGuildEventCreateEventArgs> scheduledGuildEventCreated;
 
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUpdateEventArgs> ScheduledGuildEventUpdated
     {
-        add => _scheduledGuildEventUpdated.Register(value);
-        remove => _scheduledGuildEventUpdated.Unregister(value);
+        add => this.scheduledGuildEventUpdated.Register(value);
+        remove => this.scheduledGuildEventUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventUpdateEventArgs> _scheduledGuildEventUpdated;
+    private AsyncEvent<DiscordClient, ScheduledGuildEventUpdateEventArgs> scheduledGuildEventUpdated;
 
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventDeleteEventArgs> ScheduledGuildEventDeleted
     {
-        add => _scheduledGuildEventDeleted.Register(value);
-        remove => _scheduledGuildEventDeleted.Unregister(value);
+        add => this.scheduledGuildEventDeleted.Register(value);
+        remove => this.scheduledGuildEventDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventDeleteEventArgs> _scheduledGuildEventDeleted;
+    private AsyncEvent<DiscordClient, ScheduledGuildEventDeleteEventArgs> scheduledGuildEventDeleted;
 
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventCompletedEventArgs> ScheduledGuildEventCompleted
     {
-        add => _scheduledGuildEventCompleted.Register(value);
-        remove => _scheduledGuildEventCompleted.Unregister(value);
+        add => this.scheduledGuildEventCompleted.Register(value);
+        remove => this.scheduledGuildEventCompleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventCompletedEventArgs> _scheduledGuildEventCompleted;
+    private AsyncEvent<DiscordClient, ScheduledGuildEventCompletedEventArgs> scheduledGuildEventCompleted;
 
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUserAddEventArgs> ScheduledGuildEventUserAdded
     {
-        add => _scheduledGuildEventUserAdded.Register(value);
-        remove => _scheduledGuildEventUserAdded.Unregister(value);
+        add => this.scheduledGuildEventUserAdded.Register(value);
+        remove => this.scheduledGuildEventUserAdded.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventUserAddEventArgs> _scheduledGuildEventUserAdded;
+    private AsyncEvent<DiscordClient, ScheduledGuildEventUserAddEventArgs> scheduledGuildEventUserAdded;
 
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUserRemoveEventArgs> ScheduledGuildEventUserRemoved
     {
-        add => _scheduledGuildEventUserRemoved.Register(value);
-        remove => _scheduledGuildEventUserRemoved.Unregister(value);
+        add => this.scheduledGuildEventUserRemoved.Register(value);
+        remove => this.scheduledGuildEventUserRemoved.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventUserRemoveEventArgs> _scheduledGuildEventUserRemoved;
+    private AsyncEvent<DiscordClient, ScheduledGuildEventUserRemoveEventArgs> scheduledGuildEventUserRemoved;
 
     #endregion
 
@@ -323,10 +323,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, GuildBanAddEventArgs> GuildBanAdded
     {
-        add => _guildBanAdded.Register(value);
-        remove => _guildBanAdded.Unregister(value);
+        add => this.guildBanAdded.Register(value);
+        remove => this.guildBanAdded.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildBanAddEventArgs> _guildBanAdded;
+    private AsyncEvent<DiscordClient, GuildBanAddEventArgs> guildBanAdded;
 
     /// <summary>
     /// Fired when a guild ban gets removed
@@ -334,10 +334,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, GuildBanRemoveEventArgs> GuildBanRemoved
     {
-        add => _guildBanRemoved.Register(value);
-        remove => _guildBanRemoved.Unregister(value);
+        add => this.guildBanRemoved.Register(value);
+        remove => this.guildBanRemoved.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildBanRemoveEventArgs> _guildBanRemoved;
+    private AsyncEvent<DiscordClient, GuildBanRemoveEventArgs> guildBanRemoved;
 
     #endregion
 
@@ -349,10 +349,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, GuildMemberAddEventArgs> GuildMemberAdded
     {
-        add => _guildMemberAdded.Register(value);
-        remove => _guildMemberAdded.Unregister(value);
+        add => this.guildMemberAdded.Register(value);
+        remove => this.guildMemberAdded.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildMemberAddEventArgs> _guildMemberAdded;
+    private AsyncEvent<DiscordClient, GuildMemberAddEventArgs> guildMemberAdded;
 
     /// <summary>
     /// Fired when a user is removed from a guild (leave/kick/ban).
@@ -360,10 +360,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, GuildMemberRemoveEventArgs> GuildMemberRemoved
     {
-        add => _guildMemberRemoved.Register(value);
-        remove => _guildMemberRemoved.Unregister(value);
+        add => this.guildMemberRemoved.Register(value);
+        remove => this.guildMemberRemoved.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildMemberRemoveEventArgs> _guildMemberRemoved;
+    private AsyncEvent<DiscordClient, GuildMemberRemoveEventArgs> guildMemberRemoved;
 
     /// <summary>
     /// Fired when a guild member is updated.
@@ -371,20 +371,20 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, GuildMemberUpdateEventArgs> GuildMemberUpdated
     {
-        add => _guildMemberUpdated.Register(value);
-        remove => _guildMemberUpdated.Unregister(value);
+        add => this.guildMemberUpdated.Register(value);
+        remove => this.guildMemberUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildMemberUpdateEventArgs> _guildMemberUpdated;
+    private AsyncEvent<DiscordClient, GuildMemberUpdateEventArgs> guildMemberUpdated;
 
     /// <summary>
     /// Fired in response to Gateway Request Guild Members.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, GuildMembersChunkEventArgs> GuildMembersChunked
     {
-        add => _guildMembersChunked.Register(value);
-        remove => _guildMembersChunked.Unregister(value);
+        add => this.guildMembersChunked.Register(value);
+        remove => this.guildMembersChunked.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildMembersChunkEventArgs> _guildMembersChunked;
+    private AsyncEvent<DiscordClient, GuildMembersChunkEventArgs> guildMembersChunked;
 
     #endregion
 
@@ -396,10 +396,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, GuildRoleCreateEventArgs> GuildRoleCreated
     {
-        add => _guildRoleCreated.Register(value);
-        remove => _guildRoleCreated.Unregister(value);
+        add => this.guildRoleCreated.Register(value);
+        remove => this.guildRoleCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildRoleCreateEventArgs> _guildRoleCreated;
+    private AsyncEvent<DiscordClient, GuildRoleCreateEventArgs> guildRoleCreated;
 
     /// <summary>
     /// Fired when a guild role is updated.
@@ -407,10 +407,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, GuildRoleUpdateEventArgs> GuildRoleUpdated
     {
-        add => _guildRoleUpdated.Register(value);
-        remove => _guildRoleUpdated.Unregister(value);
+        add => this.guildRoleUpdated.Register(value);
+        remove => this.guildRoleUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildRoleUpdateEventArgs> _guildRoleUpdated;
+    private AsyncEvent<DiscordClient, GuildRoleUpdateEventArgs> guildRoleUpdated;
 
     /// <summary>
     /// Fired when a guild role is updated.
@@ -418,10 +418,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, GuildRoleDeleteEventArgs> GuildRoleDeleted
     {
-        add => _guildRoleDeleted.Register(value);
-        remove => _guildRoleDeleted.Unregister(value);
+        add => this.guildRoleDeleted.Register(value);
+        remove => this.guildRoleDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildRoleDeleteEventArgs> _guildRoleDeleted;
+    private AsyncEvent<DiscordClient, GuildRoleDeleteEventArgs> guildRoleDeleted;
 
     #endregion
 
@@ -433,10 +433,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, InviteCreateEventArgs> InviteCreated
     {
-        add => _inviteCreated.Register(value);
-        remove => _inviteCreated.Unregister(value);
+        add => this.inviteCreated.Register(value);
+        remove => this.inviteCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, InviteCreateEventArgs> _inviteCreated;
+    private AsyncEvent<DiscordClient, InviteCreateEventArgs> inviteCreated;
 
     /// <summary>
     /// Fired when an invite is deleted.
@@ -444,10 +444,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, InviteDeleteEventArgs> InviteDeleted
     {
-        add => _inviteDeleted.Register(value);
-        remove => _inviteDeleted.Unregister(value);
+        add => this.inviteDeleted.Register(value);
+        remove => this.inviteDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, InviteDeleteEventArgs> _inviteDeleted;
+    private AsyncEvent<DiscordClient, InviteDeleteEventArgs> inviteDeleted;
 
     #endregion
 
@@ -459,10 +459,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, MessageCreateEventArgs> MessageCreated
     {
-        add => _messageCreated.Register(value);
-        remove => _messageCreated.Unregister(value);
+        add => this.messageCreated.Register(value);
+        remove => this.messageCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageCreateEventArgs> _messageCreated;
+    private AsyncEvent<DiscordClient, MessageCreateEventArgs> messageCreated;
 
     /// <summary>
     /// Fired when a message is updated.
@@ -470,10 +470,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, MessageUpdateEventArgs> MessageUpdated
     {
-        add => _messageUpdated.Register(value);
-        remove => _messageUpdated.Unregister(value);
+        add => this.messageUpdated.Register(value);
+        remove => this.messageUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageUpdateEventArgs> _messageUpdated;
+    private AsyncEvent<DiscordClient, MessageUpdateEventArgs> messageUpdated;
 
     /// <summary>
     /// Fired when a message is deleted.
@@ -481,10 +481,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, MessageDeleteEventArgs> MessageDeleted
     {
-        add => _messageDeleted.Register(value);
-        remove => _messageDeleted.Unregister(value);
+        add => this.messageDeleted.Register(value);
+        remove => this.messageDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageDeleteEventArgs> _messageDeleted;
+    private AsyncEvent<DiscordClient, MessageDeleteEventArgs> messageDeleted;
 
     /// <summary>
     /// Fired when multiple messages are deleted at once.
@@ -492,18 +492,18 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, MessageBulkDeleteEventArgs> MessagesBulkDeleted
     {
-        add => _messagesBulkDeleted.Register(value);
-        remove => _messagesBulkDeleted.Unregister(value);
+        add => this.messagesBulkDeleted.Register(value);
+        remove => this.messagesBulkDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageBulkDeleteEventArgs> _messagesBulkDeleted;
+    private AsyncEvent<DiscordClient, MessageBulkDeleteEventArgs> messagesBulkDeleted;
 
     public event AsyncEventHandler<DiscordClient, MessagePollVoteEventArgs> MessagePollVoted
     {
-        add => _messagePollVoted.Register(value);
-        remove => _messagePollVoted.Unregister(value);
+        add => this.messagePollVoted.Register(value);
+        remove => this.messagePollVoted.Unregister(value);
     }
 
-    private AsyncEvent<DiscordClient, MessagePollVoteEventArgs> _messagePollVoted;
+    private AsyncEvent<DiscordClient, MessagePollVoteEventArgs> messagePollVoted;
 
     #endregion
 
@@ -515,10 +515,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, MessageReactionAddEventArgs> MessageReactionAdded
     {
-        add => _messageReactionAdded.Register(value);
-        remove => _messageReactionAdded.Unregister(value);
+        add => this.messageReactionAdded.Register(value);
+        remove => this.messageReactionAdded.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageReactionAddEventArgs> _messageReactionAdded;
+    private AsyncEvent<DiscordClient, MessageReactionAddEventArgs> messageReactionAdded;
 
     /// <summary>
     /// Fired when a reaction gets removed from a message.
@@ -526,10 +526,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, MessageReactionRemoveEventArgs> MessageReactionRemoved
     {
-        add => _messageReactionRemoved.Register(value);
-        remove => _messageReactionRemoved.Unregister(value);
+        add => this.messageReactionRemoved.Register(value);
+        remove => this.messageReactionRemoved.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageReactionRemoveEventArgs> _messageReactionRemoved;
+    private AsyncEvent<DiscordClient, MessageReactionRemoveEventArgs> messageReactionRemoved;
 
     /// <summary>
     /// Fired when all reactions get removed from a message.
@@ -537,10 +537,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, MessageReactionsClearEventArgs> MessageReactionsCleared
     {
-        add => _messageReactionsCleared.Register(value);
-        remove => _messageReactionsCleared.Unregister(value);
+        add => this.messageReactionsCleared.Register(value);
+        remove => this.messageReactionsCleared.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageReactionsClearEventArgs> _messageReactionsCleared;
+    private AsyncEvent<DiscordClient, MessageReactionsClearEventArgs> messageReactionsCleared;
 
     /// <summary>
     /// Fired when all reactions of a specific reaction are removed from a message.
@@ -548,10 +548,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, MessageReactionRemoveEmojiEventArgs> MessageReactionRemovedEmoji
     {
-        add => _messageReactionRemovedEmoji.Register(value);
-        remove => _messageReactionRemovedEmoji.Unregister(value);
+        add => this.messageReactionRemovedEmoji.Register(value);
+        remove => this.messageReactionRemovedEmoji.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageReactionRemoveEmojiEventArgs> _messageReactionRemovedEmoji;
+    private AsyncEvent<DiscordClient, MessageReactionRemoveEmojiEventArgs> messageReactionRemovedEmoji;
 
     #endregion
 
@@ -563,10 +563,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, PresenceUpdateEventArgs> PresenceUpdated
     {
-        add => _presenceUpdated.Register(value);
-        remove => _presenceUpdated.Unregister(value);
+        add => this.presenceUpdated.Register(value);
+        remove => this.presenceUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, PresenceUpdateEventArgs> _presenceUpdated;
+    private AsyncEvent<DiscordClient, PresenceUpdateEventArgs> presenceUpdated;
 
     /// <summary>
     /// Fired when the current user updates their settings.
@@ -574,10 +574,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, UserSettingsUpdateEventArgs> UserSettingsUpdated
     {
-        add => _userSettingsUpdated.Register(value);
-        remove => _userSettingsUpdated.Unregister(value);
+        add => this.userSettingsUpdated.Register(value);
+        remove => this.userSettingsUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, UserSettingsUpdateEventArgs> _userSettingsUpdated;
+    private AsyncEvent<DiscordClient, UserSettingsUpdateEventArgs> userSettingsUpdated;
 
     /// <summary>
     /// Fired when properties about the current user change.
@@ -588,10 +588,10 @@ public sealed partial class DiscordClient
     /// </remarks>
     public event AsyncEventHandler<DiscordClient, UserUpdateEventArgs> UserUpdated
     {
-        add => _userUpdated.Register(value);
-        remove => _userUpdated.Unregister(value);
+        add => this.userUpdated.Register(value);
+        remove => this.userUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, UserUpdateEventArgs> _userUpdated;
+    private AsyncEvent<DiscordClient, UserUpdateEventArgs> userUpdated;
 
     #endregion
 
@@ -603,10 +603,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, VoiceStateUpdateEventArgs> VoiceStateUpdated
     {
-        add => _voiceStateUpdated.Register(value);
-        remove => _voiceStateUpdated.Unregister(value);
+        add => this.voiceStateUpdated.Register(value);
+        remove => this.voiceStateUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, VoiceStateUpdateEventArgs> _voiceStateUpdated;
+    private AsyncEvent<DiscordClient, VoiceStateUpdateEventArgs> voiceStateUpdated;
 
     /// <summary>
     /// Fired when a guild's voice server is updated.
@@ -614,10 +614,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, VoiceServerUpdateEventArgs> VoiceServerUpdated
     {
-        add => _voiceServerUpdated.Register(value);
-        remove => _voiceServerUpdated.Unregister(value);
+        add => this.voiceServerUpdated.Register(value);
+        remove => this.voiceServerUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, VoiceServerUpdateEventArgs> _voiceServerUpdated;
+    private AsyncEvent<DiscordClient, VoiceServerUpdateEventArgs> voiceServerUpdated;
 
     #endregion
 
@@ -629,10 +629,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, ThreadCreateEventArgs> ThreadCreated
     {
-        add => _threadCreated.Register(value);
-        remove => _threadCreated.Unregister(value);
+        add => this.threadCreated.Register(value);
+        remove => this.threadCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ThreadCreateEventArgs> _threadCreated;
+    private AsyncEvent<DiscordClient, ThreadCreateEventArgs> threadCreated;
 
     /// <summary>
     /// Fired when a thread is updated.
@@ -640,10 +640,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, ThreadUpdateEventArgs> ThreadUpdated
     {
-        add => _threadUpdated.Register(value);
-        remove => _threadUpdated.Unregister(value);
+        add => this.threadUpdated.Register(value);
+        remove => this.threadUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ThreadUpdateEventArgs> _threadUpdated;
+    private AsyncEvent<DiscordClient, ThreadUpdateEventArgs> threadUpdated;
 
     /// <summary>
     /// Fired when a thread is deleted.
@@ -651,10 +651,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, ThreadDeleteEventArgs> ThreadDeleted
     {
-        add => _threadDeleted.Register(value);
-        remove => _threadDeleted.Unregister(value);
+        add => this.threadDeleted.Register(value);
+        remove => this.threadDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ThreadDeleteEventArgs> _threadDeleted;
+    private AsyncEvent<DiscordClient, ThreadDeleteEventArgs> threadDeleted;
 
     /// <summary>
     /// Fired when the current member gains access to a channel(s) that has threads.
@@ -662,10 +662,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, ThreadListSyncEventArgs> ThreadListSynced
     {
-        add => _threadListSynced.Register(value);
-        remove => _threadListSynced.Unregister(value);
+        add => this.threadListSynced.Register(value);
+        remove => this.threadListSynced.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ThreadListSyncEventArgs> _threadListSynced;
+    private AsyncEvent<DiscordClient, ThreadListSyncEventArgs> threadListSynced;
 
     /// <summary>
     /// Fired when the thread member for the current user is updated.
@@ -677,10 +677,10 @@ public sealed partial class DiscordClient
     /// </remarks>
     public event AsyncEventHandler<DiscordClient, ThreadMemberUpdateEventArgs> ThreadMemberUpdated
     {
-        add => _threadMemberUpdated.Register(value);
-        remove => _threadMemberUpdated.Unregister(value);
+        add => this.threadMemberUpdated.Register(value);
+        remove => this.threadMemberUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ThreadMemberUpdateEventArgs> _threadMemberUpdated;
+    private AsyncEvent<DiscordClient, ThreadMemberUpdateEventArgs> threadMemberUpdated;
 
     /// <summary>
     /// Fired when the thread members are updated.
@@ -688,10 +688,10 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, ThreadMembersUpdateEventArgs> ThreadMembersUpdated
     {
-        add => _threadMembersUpdated.Register(value);
-        remove => _threadMembersUpdated.Unregister(value);
+        add => this.threadMembersUpdated.Register(value);
+        remove => this.threadMembersUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs> _threadMembersUpdated;
+    private AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs> threadMembersUpdated;
 
     #endregion
 
@@ -702,30 +702,30 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, IntegrationCreateEventArgs> IntegrationCreated
     {
-        add => _integrationCreated.Register(value);
-        remove => _integrationCreated.Unregister(value);
+        add => this.integrationCreated.Register(value);
+        remove => this.integrationCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, IntegrationCreateEventArgs> _integrationCreated;
+    private AsyncEvent<DiscordClient, IntegrationCreateEventArgs> integrationCreated;
 
     /// <summary>
     /// Fired when an integration is updated.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, IntegrationUpdateEventArgs> IntegrationUpdated
     {
-        add => _integrationUpdated.Register(value);
-        remove => _integrationUpdated.Unregister(value);
+        add => this.integrationUpdated.Register(value);
+        remove => this.integrationUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, IntegrationUpdateEventArgs> _integrationUpdated;
+    private AsyncEvent<DiscordClient, IntegrationUpdateEventArgs> integrationUpdated;
 
     /// <summary>
     /// Fired when an integration is deleted.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, IntegrationDeleteEventArgs> IntegrationDeleted
     {
-        add => _integrationDeleted.Register(value);
-        remove => _integrationDeleted.Unregister(value);
+        add => this.integrationDeleted.Register(value);
+        remove => this.integrationDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, IntegrationDeleteEventArgs> _integrationDeleted;
+    private AsyncEvent<DiscordClient, IntegrationDeleteEventArgs> integrationDeleted;
 
     #endregion
 
@@ -736,30 +736,30 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, StageInstanceCreateEventArgs> StageInstanceCreated
     {
-        add => _stageInstanceCreated.Register(value);
-        remove => _stageInstanceCreated.Unregister(value);
+        add => this.stageInstanceCreated.Register(value);
+        remove => this.stageInstanceCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, StageInstanceCreateEventArgs> _stageInstanceCreated;
+    private AsyncEvent<DiscordClient, StageInstanceCreateEventArgs> stageInstanceCreated;
 
     /// <summary>
     /// Fired when a stage instance is updated.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, StageInstanceUpdateEventArgs> StageInstanceUpdated
     {
-        add => _stageInstanceUpdated.Register(value);
-        remove => _stageInstanceUpdated.Unregister(value);
+        add => this.stageInstanceUpdated.Register(value);
+        remove => this.stageInstanceUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs> _stageInstanceUpdated;
+    private AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs> stageInstanceUpdated;
 
     /// <summary>
     /// Fired when a stage instance is deleted.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, StageInstanceDeleteEventArgs> StageInstanceDeleted
     {
-        add => _stageInstanceDeleted.Register(value);
-        remove => _stageInstanceDeleted.Unregister(value);
+        add => this.stageInstanceDeleted.Register(value);
+        remove => this.stageInstanceDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs> _stageInstanceDeleted;
+    private AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs> stageInstanceDeleted;
 
     #endregion
 
@@ -770,83 +770,83 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, InteractionCreateEventArgs> InteractionCreated
     {
-        add => _interactionCreated.Register(value);
-        remove => _interactionCreated.Unregister(value);
+        add => this.interactionCreated.Register(value);
+        remove => this.interactionCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, InteractionCreateEventArgs> _interactionCreated;
+    private AsyncEvent<DiscordClient, InteractionCreateEventArgs> interactionCreated;
 
     /// <summary>
     /// Fired when a component is invoked.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, ComponentInteractionCreateEventArgs> ComponentInteractionCreated
     {
-        add => _componentInteractionCreated.Register(value);
-        remove => _componentInteractionCreated.Unregister(value);
+        add => this.componentInteractionCreated.Register(value);
+        remove => this.componentInteractionCreated.Unregister(value);
     }
 
-    private AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs> _componentInteractionCreated;
+    private AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs> componentInteractionCreated;
 
     /// <summary>
     /// Fired when a modal is submitted. If a modal is closed, this event is not fired.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, ModalSubmitEventArgs> ModalSubmitted
     {
-        add => _modalSubmitted.Register(value);
-        remove => _modalSubmitted.Unregister(value);
+        add => this.modalSubmitted.Register(value);
+        remove => this.modalSubmitted.Unregister(value);
     }
 
-    private AsyncEvent<DiscordClient, ModalSubmitEventArgs> _modalSubmitted;
+    private AsyncEvent<DiscordClient, ModalSubmitEventArgs> modalSubmitted;
 
     /// <summary>
     /// Fired when a user uses a context menu.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, ContextMenuInteractionCreateEventArgs> ContextMenuInteractionCreated
     {
-        add => _contextMenuInteractionCreated.Register(value);
-        remove => _contextMenuInteractionCreated.Unregister(value);
+        add => this.contextMenuInteractionCreated.Register(value);
+        remove => this.contextMenuInteractionCreated.Unregister(value);
     }
 
-    private AsyncEvent<DiscordClient, ContextMenuInteractionCreateEventArgs> _contextMenuInteractionCreated;
+    private AsyncEvent<DiscordClient, ContextMenuInteractionCreateEventArgs> contextMenuInteractionCreated;
 
     /// <summary>
     /// Fired when a user starts typing in a channel.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, TypingStartEventArgs> TypingStarted
     {
-        add => _typingStarted.Register(value);
-        remove => _typingStarted.Unregister(value);
+        add => this.typingStarted.Register(value);
+        remove => this.typingStarted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, TypingStartEventArgs> _typingStarted;
+    private AsyncEvent<DiscordClient, TypingStartEventArgs> typingStarted;
 
     /// <summary>
     /// Fired when an unknown event gets received.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, UnknownEventArgs> UnknownEvent
     {
-        add => _unknownEvent.Register(value);
-        remove => _unknownEvent.Unregister(value);
+        add => this.unknownEvent.Register(value);
+        remove => this.unknownEvent.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, UnknownEventArgs> _unknownEvent;
+    private AsyncEvent<DiscordClient, UnknownEventArgs> unknownEvent;
 
     /// <summary>
     /// Fired whenever webhooks update.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, WebhooksUpdateEventArgs> WebhooksUpdated
     {
-        add => _webhooksUpdated.Register(value);
-        remove => _webhooksUpdated.Unregister(value);
+        add => this.webhooksUpdated.Register(value);
+        remove => this.webhooksUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, WebhooksUpdateEventArgs> _webhooksUpdated;
+    private AsyncEvent<DiscordClient, WebhooksUpdateEventArgs> webhooksUpdated;
 
     /// <summary>
     /// Fired whenever an error occurs within an event handler.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, ClientErrorEventArgs> ClientErrored
     {
-        add => _clientErrored.Register(value);
-        remove => _clientErrored.Unregister(value);
+        add => this.clientErrored.Register(value);
+        remove => this.clientErrored.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ClientErrorEventArgs> _clientErrored;
+    private AsyncEvent<DiscordClient, ClientErrorEventArgs> clientErrored;
 
     #endregion
 
@@ -855,12 +855,12 @@ public sealed partial class DiscordClient
     internal void EventErrorHandler<TSender, TArgs>(AsyncEvent<TSender, TArgs> asyncEvent, Exception ex, AsyncEventHandler<TSender, TArgs> handler, TSender sender, TArgs eventArgs)
         where TArgs : AsyncEventArgs
     {
-        Logger.LogError(LoggerEvents.EventHandlerException, ex, "Event handler exception for event {Event} thrown from {Method} (defined in {DeclaryingType})", asyncEvent.Name, handler.Method, handler.Method.DeclaringType);
-        _clientErrored.InvokeAsync(this, new ClientErrorEventArgs { EventName = asyncEvent.Name, Exception = ex }).GetAwaiter().GetResult();
+        this.Logger.LogError(LoggerEvents.EventHandlerException, ex, "Event handler exception for event {Event} thrown from {Method} (defined in {DeclaryingType})", asyncEvent.Name, handler.Method, handler.Method.DeclaringType);
+        this.clientErrored.InvokeAsync(this, new ClientErrorEventArgs { EventName = asyncEvent.Name, Exception = ex }).GetAwaiter().GetResult();
     }
 
     private void Goof<TSender, TArgs>(AsyncEvent<TSender, TArgs> asyncEvent, Exception ex, AsyncEventHandler<TSender, TArgs> handler, TSender sender, TArgs eventArgs)
-        where TArgs : AsyncEventArgs => Logger.LogCritical(LoggerEvents.EventHandlerException, ex, "Exception event handler {Method} (defined in {DeclaringType}) threw an exception", handler.Method, handler.Method.DeclaringType);
+        where TArgs : AsyncEventArgs => this.Logger.LogCritical(LoggerEvents.EventHandlerException, ex, "Exception event handler {Method} (defined in {DeclaringType}) threw an exception", handler.Method, handler.Method.DeclaringType);
 
     #endregion
 
@@ -871,39 +871,39 @@ public sealed partial class DiscordClient
     /// </summary>
     public event AsyncEventHandler<DiscordClient, AutoModerationRuleCreateEventArgs> AutoModerationRuleCreated
     {
-        add => _autoModerationRuleCreated.Register(value);
-        remove => _autoModerationRuleCreated.Unregister(value);
+        add => this.autoModerationRuleCreated.Register(value);
+        remove => this.autoModerationRuleCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, AutoModerationRuleCreateEventArgs> _autoModerationRuleCreated;
+    private AsyncEvent<DiscordClient, AutoModerationRuleCreateEventArgs> autoModerationRuleCreated;
 
     /// <summary>
     /// Fired when an auto-moderation rule is updated.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, AutoModerationRuleUpdateEventArgs> AutoModerationRuleUpdated
     {
-        add => _autoModerationRuleUpdated.Register(value);
-        remove => _autoModerationRuleUpdated.Unregister(value);
+        add => this.autoModerationRuleUpdated.Register(value);
+        remove => this.autoModerationRuleUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, AutoModerationRuleUpdateEventArgs> _autoModerationRuleUpdated;
+    private AsyncEvent<DiscordClient, AutoModerationRuleUpdateEventArgs> autoModerationRuleUpdated;
 
     /// <summary>
     /// Fired when an auto-moderation rule is deleted.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, AutoModerationRuleDeleteEventArgs> AutoModerationRuleDeleted
     {
-        add => _autoModerationRuleDeleted.Register(value);
-        remove => _autoModerationRuleDeleted.Unregister(value);
+        add => this.autoModerationRuleDeleted.Register(value);
+        remove => this.autoModerationRuleDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, AutoModerationRuleDeleteEventArgs> _autoModerationRuleDeleted;
+    private AsyncEvent<DiscordClient, AutoModerationRuleDeleteEventArgs> autoModerationRuleDeleted;
 
     /// <summary>
     /// Fired when an auto-moderation is executed.
     /// </summary>
     public event AsyncEventHandler<DiscordClient, AutoModerationRuleExecuteEventArgs> AutoModerationRuleExecuted
     {
-        add => _autoModerationRuleExecuted.Register(value);
-        remove => _autoModerationRuleExecuted.Unregister(value);
+        add => this.autoModerationRuleExecuted.Register(value);
+        remove => this.autoModerationRuleExecuted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, AutoModerationRuleExecuteEventArgs> _autoModerationRuleExecuted;
+    private AsyncEvent<DiscordClient, AutoModerationRuleExecuteEventArgs> autoModerationRuleExecuted;
     #endregion
 }
