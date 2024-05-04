@@ -30,7 +30,20 @@ dotnet_style_collection_initializer = true:error
 dotnet_style_prefer_collection_expression = true:error
 
 # Nullable reference types
+dotnet_diagnostic.CS8600.severity = suggestion
+dotnet_diagnostic.CS8601.severity = suggestion
+dotnet_diagnostic.CS8602.severity = suggestion
+dotnet_diagnostic.CS8603.severity = suggestion
+dotnet_diagnostic.CS8604.severity = suggestion
+dotnet_diagnostic.CS8618.severity = suggestion
+dotnet_diagnostic.CS8619.severity = suggestion
+dotnet_diagnostic.CS8620.severity = suggestion
+dotnet_diagnostic.CS8625.severity = suggestion
+dotnet_diagnostic.CS8629.severity = suggestion
 dotnet_diagnostic.CS8632.severity = suggestion
+dotnet_diagnostic.CS8764.severity = suggestion
+dotnet_diagnostic.CS8765.severity = suggestion
+dotnet_diagnostic.CS8767.severity = suggestion
 
 # Suppress CS1591: Missing XML comment for publicly visible type or member
 dotnet_diagnostic.CS1591.severity = suggestion
@@ -119,6 +132,16 @@ dotnet_naming_style.async_suffix.required_suffix = Async
 dotnet_naming_style.async_suffix.capitalization = pascal_case
 dotnet_naming_symbols.async_methods.applicable_kinds = method
 dotnet_naming_symbols.async_methods.required_modifiers = async
+
+# Fields should not begin with underscores, should be camelCase and should not use word separators
+dotnet_naming_rule.all_fields_notunderscored.symbols = all_fields
+dotnet_naming_rule.all_fields_notunderscored.style = notunderscored
+dotnet_naming_rule.all_fields_notunderscored.severity = error
+dotnet_naming_style.notunderscored.capitalization = camel_case
+dotnet_naming_style.notunderscored.required_prefix =
+dotnet_naming_style.notunderscored.word_separator = 
+dotnet_naming_symbols.all_fields.applicable_kinds = field
+dotnet_naming_symbols.all_fields.applicable_accessibilities = *
 
 ###############################
 # C# Coding Conventions       #
