@@ -18,7 +18,7 @@ indent_size = 2
 indent_size = 2
 
 ###############################
-#.NET Coding Conventions     #
+# .NET Coding Conventions     #
 ###############################
 [*.{cs,vb}]
 
