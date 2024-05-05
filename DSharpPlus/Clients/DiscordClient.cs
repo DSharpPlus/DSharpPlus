@@ -1225,24 +1225,18 @@ public sealed partial class DiscordClient : BaseDiscordClient
         {
             return;
         }
-        
-        if (channel.GuildId is null)
+
+        switch (channel)
         {
-            if (channel is DiscordDmChannel dmChannel)
-            {
+            case DiscordDmChannel dmChannel:
                 _privateChannels.TryAdd(channel.Id, dmChannel);
-            }
-        }
-        else
-        {
-            if (channel is not DiscordThreadChannel threadChannel)
-            {
-                _guilds[channel.GuildId.Value]._channels.TryAdd(channel.Id, channel);
-            }
-            else
-            {
-                _guilds[channel.GuildId.Value]._threads.TryAdd(channel.Id, threadChannel);
-            }
+                break;
+            case DiscordThreadChannel threadChannel:
+                _guilds[channel.GuildId!.Value]._threads.TryAdd(channel.Id, threadChannel);
+                break;
+            default:
+                _guilds[channel.GuildId!.Value]._channels.TryAdd(channel.Id, channel);
+                break;
         }
     }
 
