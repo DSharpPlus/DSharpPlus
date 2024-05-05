@@ -449,7 +449,7 @@ public sealed partial class DiscordClient
                 {
                     channel = rawChannel.ToDiscordObject<DiscordChannel>();
                 }
-                
+
                 // Re: Removing re-serialized data: This one is probably fine?
                 // The user on the object is marked with [JsonIgnore].
 
@@ -2522,7 +2522,7 @@ public sealed partial class DiscordClient
             {
                 foreach (KeyValuePair<ulong, DiscordChannel> c in resolved.Channels)
                 {
-                    UpdateChannelCache(c.Value);
+                    this.UpdateChannelCache(c.Value);
                     c.Value.Discord = this;
 
                     if (guildId.HasValue)
@@ -2559,7 +2559,7 @@ public sealed partial class DiscordClient
             }
         }
 
-        UpdateChannelCache(channel);
+        this.UpdateChannelCache(channel);
 
         if (interaction.Type is DiscordInteractionType.Component)
         {

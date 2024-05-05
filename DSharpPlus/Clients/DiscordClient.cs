@@ -1229,18 +1229,18 @@ public sealed partial class DiscordClient : BaseDiscordClient
         switch (channel)
         {
             case DiscordDmChannel dmChannel:
-                _privateChannels.TryAdd(channel.Id, dmChannel);
+                this.privateChannels.TryAdd(channel.Id, dmChannel);
                 break;
             case DiscordThreadChannel threadChannel:
-                if (_guilds.TryGetValue(channel.GuildId!.Value, out DiscordGuild? guild))
+                if (this.guilds.TryGetValue(channel.GuildId!.Value, out DiscordGuild? guild))
                 {
-                    guild._threads.TryAdd(channel.Id, threadChannel);
+                    guild.threads.TryAdd(channel.Id, threadChannel);
                 }
                 break;
             default:
-                if (_guilds.TryGetValue(channel.GuildId!.Value, out guild))
+                if (this.guilds.TryGetValue(channel.GuildId!.Value, out guild))
                 {
-                    guild._channels.TryAdd(channel.Id, channel);
+                    guild.channels.TryAdd(channel.Id, channel);
                 }
                 break;
         }
