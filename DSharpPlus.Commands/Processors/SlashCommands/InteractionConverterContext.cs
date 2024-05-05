@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+
 using DSharpPlus.Commands.Converters;
 using DSharpPlus.Entities;
 
@@ -10,6 +11,10 @@ public record InteractionConverterContext : ConverterContext
     public required IReadOnlyList<DiscordInteractionDataOption> Options { get; init; }
     public override DiscordInteractionDataOption Argument => this.Options[this.ParameterIndex];
     public int ArgumentIndex { get; private set; } = -1;
+
+    /// <inheritdoc/>
+    public override bool NextParameter() 
+        => this.Interaction.Data.Options is not null && base.NextParameter();
 
     public override bool NextArgument()
     {

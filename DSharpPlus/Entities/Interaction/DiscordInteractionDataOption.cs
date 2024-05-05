@@ -27,27 +27,43 @@ public sealed class DiscordInteractionDataOption
     [JsonProperty("focused")]
     public bool Focused { get; internal set; }
 
+    /// <summary>
+    /// Gets the raw value of this interaction parameter.
+    /// </summary>
     [JsonProperty("value")]
-    public string RawValue { get; internal set; }
+    public string? RawValue { get; internal set; }
 
+#pragma warning disable IDE0046
     /// <summary>
     /// Gets the value of this interaction parameter.
     /// <para>This can be cast to a <see langword="long"/>, <see langword="bool"></see>, <see langword="string"></see>, <see langword="double"></see> or <see langword="ulong"/> depending on the <see cref="Type"/></para>
     /// </summary>
     [JsonIgnore]
-    public object Value => this.Type switch
+    public object? Value
     {
-        DiscordApplicationCommandOptionType.Boolean => bool.Parse(this.RawValue),
-        DiscordApplicationCommandOptionType.Integer => long.Parse(this.RawValue),
-        DiscordApplicationCommandOptionType.String => this.RawValue,
-        DiscordApplicationCommandOptionType.Channel => ulong.Parse(this.RawValue),
-        DiscordApplicationCommandOptionType.User => ulong.Parse(this.RawValue),
-        DiscordApplicationCommandOptionType.Role => ulong.Parse(this.RawValue),
-        DiscordApplicationCommandOptionType.Mentionable => ulong.Parse(this.RawValue),
-        DiscordApplicationCommandOptionType.Number => double.Parse(this.RawValue, CultureInfo.InvariantCulture),
-        DiscordApplicationCommandOptionType.Attachment => ulong.Parse(this.RawValue, CultureInfo.InvariantCulture),
-        _ => this.RawValue,
-    };
+        get
+        {
+            if (this.RawValue is null)
+            {
+                return this.RawValue;
+            }
+
+            return this.Type switch
+            {
+                DiscordApplicationCommandOptionType.Boolean => bool.Parse(this.RawValue),
+                DiscordApplicationCommandOptionType.Integer => long.Parse(this.RawValue),
+                DiscordApplicationCommandOptionType.String => this.RawValue,
+                DiscordApplicationCommandOptionType.Channel => ulong.Parse(this.RawValue),
+                DiscordApplicationCommandOptionType.User => ulong.Parse(this.RawValue),
+                DiscordApplicationCommandOptionType.Role => ulong.Parse(this.RawValue),
+                DiscordApplicationCommandOptionType.Mentionable => ulong.Parse(this.RawValue),
+                DiscordApplicationCommandOptionType.Number => double.Parse(this.RawValue, CultureInfo.InvariantCulture),
+                DiscordApplicationCommandOptionType.Attachment => ulong.Parse(this.RawValue, CultureInfo.InvariantCulture),
+                _ => this.RawValue,
+            };
+        }
+    }
+#pragma warning restore IDE0046
 
     /// <summary>
     /// Gets the additional parameters if this parameter is a subcommand.
