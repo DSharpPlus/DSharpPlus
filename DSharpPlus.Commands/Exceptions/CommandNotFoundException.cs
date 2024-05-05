@@ -9,6 +9,6 @@ public sealed class CommandNotFoundException : CommandsException
     public CommandNotFoundException(string commandName, string? message = null) : base(message ?? $"Command {commandName} not found.")
     {
         ArgumentNullException.ThrowIfNull(commandName, nameof(commandName));
-        CommandName = commandName;
+        this.CommandName = commandName;
     }
 }

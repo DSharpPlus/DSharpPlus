@@ -20,7 +20,7 @@ public class MessageReactionRemoveEventArgs : DiscordEventArgs
     /// DM channels in which no prior messages were received or sent.
     /// </remarks>
     public DiscordChannel Channel
-        => Message.Channel;
+        => this.Message.Channel;
 
     /// <summary>
     /// Gets the users whose reaction was removed.

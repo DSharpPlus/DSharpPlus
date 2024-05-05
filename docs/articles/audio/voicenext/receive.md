@@ -112,5 +112,5 @@ private async Task VoiceReceiveHandler(VoiceNextConnection connection, VoiceRece
 ```
 
 <!-- LINKS -->
-[0]:  https://ffmpeg.org/about.html
-[1]:  ../../../images/voicenext_receive_01.png
+[0]: https://ffmpeg.org/about.html
+[1]: ../../../images/voicenext_receive_01.png

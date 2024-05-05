@@ -9,14 +9,14 @@ namespace DSharpPlus.Interactivity.EventHandling;
 
 internal class PaginationRequest : IPaginationRequest
 {
-    private TaskCompletionSource<bool> _tcs;
-    private readonly CancellationTokenSource _ct;
-    private readonly List<Page> _pages;
-    private readonly PaginationBehaviour _behaviour;
-    private readonly DiscordMessage _message;
-    private readonly PaginationEmojis _emojis;
-    private readonly DiscordUser _user;
-    private int _index = 0;
+    private TaskCompletionSource<bool> tcs;
+    private readonly CancellationTokenSource ct;
+    private readonly List<Page> pages;
+    private readonly PaginationBehaviour behaviour;
+    private readonly DiscordMessage message;
+    private readonly PaginationEmojis emojis;
+    private readonly DiscordUser user;
+    private int index = 0;
 
     /// <summary>
     /// Creates a new Pagination request
@@ -31,21 +31,21 @@ internal class PaginationRequest : IPaginationRequest
     internal PaginationRequest(DiscordMessage message, DiscordUser user, PaginationBehaviour behaviour, PaginationDeletion deletion,
         PaginationEmojis emojis, TimeSpan timeout, params Page[] pages)
     {
-        _tcs = new();
-        _ct = new(timeout);
-        _ct.Token.Register(() => _tcs.TrySetResult(true));
+        this.tcs = new();
+        this.ct = new(timeout);
+        this.ct.Token.Register(() => this.tcs.TrySetResult(true));
 
-        _message = message;
-        _user = user;
+        this.message = message;
+        this.user = user;
 
-        PaginationDeletion = deletion;
-        _behaviour = behaviour;
-        _emojis = emojis;
+        this.PaginationDeletion = deletion;
+        this.behaviour = behaviour;
+        this.emojis = emojis;
 
-        _pages = [.. pages];
+        this.pages = [.. pages];
     }
 
-    public int PageCount => _pages.Count;
+    public int PageCount => this.pages.Count;
 
     public PaginationDeletion PaginationDeletion { get; }
 
@@ -53,49 +53,49 @@ internal class PaginationRequest : IPaginationRequest
     {
         await Task.Yield();
 
-        return _pages[_index];
+        return this.pages[this.index];
     }
 
     public async Task SkipLeftAsync()
     {
         await Task.Yield();
 
-        _index = 0;
+        this.index = 0;
     }
 
     public async Task SkipRightAsync()
     {
         await Task.Yield();
 
-        _index = _pages.Count - 1;
+        this.index = this.pages.Count - 1;
     }
 
     public async Task NextPageAsync()
     {
         await Task.Yield();
 
-        switch (_behaviour)
+        switch (this.behaviour)
         {
             case PaginationBehaviour.Ignore:
-                if (_index == _pages.Count - 1)
+                if (this.index == this.pages.Count - 1)
                 {
                     break;
                 }
                 else
                 {
-                    _index++;
+                    this.index++;
                 }
 
                 break;
 
             case PaginationBehaviour.WrapAround:
-                if (_index == _pages.Count - 1)
+                if (this.index == this.pages.Count - 1)
                 {
-                    _index = 0;
+                    this.index = 0;
                 }
                 else
                 {
-                    _index++;
+                    this.index++;
                 }
 
                 break;
@@ -106,28 +106,28 @@ internal class PaginationRequest : IPaginationRequest
     {
         await Task.Yield();
 
-        switch (_behaviour)
+        switch (this.behaviour)
         {
             case PaginationBehaviour.Ignore:
-                if (_index == 0)
+                if (this.index == 0)
                 {
                     break;
                 }
                 else
                 {
-                    _index--;
+                    this.index--;
                 }
 
                 break;
 
             case PaginationBehaviour.WrapAround:
-                if (_index == 0)
+                if (this.index == 0)
                 {
-                    _index = _pages.Count - 1;
+                    this.index = this.pages.Count - 1;
                 }
                 else
                 {
-                    _index--;
+                    this.index--;
                 }
 
                 break;
@@ -138,7 +138,7 @@ internal class PaginationRequest : IPaginationRequest
     {
         await Task.Yield();
 
-        return _emojis;
+        return this.emojis;
     }
 
     public Task<IEnumerable<DiscordButtonComponent>> GetButtonsAsync()
@@ -148,26 +148,26 @@ internal class PaginationRequest : IPaginationRequest
     {
         await Task.Yield();
 
-        return _message;
+        return this.message;
     }
 
     public async Task<DiscordUser> GetUserAsync()
     {
         await Task.Yield();
 
-        return _user;
+        return this.user;
     }
 
     public async Task DoCleanupAsync()
     {
-        switch (PaginationDeletion)
+        switch (this.PaginationDeletion)
         {
             case PaginationDeletion.DeleteEmojis:
-                await _message.DeleteAllReactionsAsync();
+                await this.message.DeleteAllReactionsAsync();
                 break;
 
             case PaginationDeletion.DeleteMessage:
-                await _message.DeleteAsync();
+                await this.message.DeleteAsync();
                 break;
 
             case PaginationDeletion.KeepEmojis:
@@ -179,7 +179,7 @@ internal class PaginationRequest : IPaginationRequest
     {
         await Task.Yield();
 
-        return _tcs;
+        return this.tcs;
     }
 
     /// <summary>
@@ -189,7 +189,7 @@ internal class PaginationRequest : IPaginationRequest
     {
         // Why doesn't this class implement IDisposable?
 
-        _ct?.Dispose();
-        _tcs = null!;
+        this.ct?.Dispose();
+        this.tcs = null!;
     }
 }

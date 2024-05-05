@@ -10,5 +10,5 @@ public class CommandExecutionEventArgs : CommandEventArgs
     /// Gets the command that was executed.
     /// </summary>
     public new Command Command
-        => Context.Command!;
+        => this.Context.Command!;
 }

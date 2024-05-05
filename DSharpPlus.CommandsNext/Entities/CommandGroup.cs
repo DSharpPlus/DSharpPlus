@@ -19,7 +19,7 @@ public class CommandGroup : Command
     /// <summary>
     /// Gets whether this command is executable without subcommands.
     /// </summary>
-    public bool IsExecutableWithoutSubcommands => Overloads.Count > 0;
+    public bool IsExecutableWithoutSubcommands => this.Overloads.Count > 0;
 
     internal CommandGroup() : base() { }
 
@@ -39,7 +39,7 @@ public class CommandGroup : Command
                 ? (StringComparison.InvariantCulture, StringComparer.InvariantCulture)
                 : (StringComparison.InvariantCultureIgnoreCase, StringComparer.InvariantCultureIgnoreCase);
 
-            Command? cmd = Children.FirstOrDefault(xc => xc.Name.Equals(cn, comparison) || xc.Aliases.Contains(cn, comparer));
+            Command? cmd = this.Children.FirstOrDefault(xc => xc.Name.Equals(cn, comparison) || xc.Aliases.Contains(cn, comparer));
 
             if (cmd is not null)
             {
@@ -68,7 +68,7 @@ public class CommandGroup : Command
             }
         }
 
-        return IsExecutableWithoutSubcommands
+        return this.IsExecutableWithoutSubcommands
             ? await base.ExecuteAsync(ctx)
             : new CommandResult
             {

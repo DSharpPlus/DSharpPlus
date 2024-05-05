@@ -32,9 +32,9 @@ public sealed class RequirePrefixesAttribute : CheckBaseAttribute
             throw new ArgumentOutOfRangeException(nameof(prefixes), "At least one prefix must be provided.");
         }
 
-        Prefixes = prefixes;
+        this.Prefixes = prefixes;
     }
 
     public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
-        => Task.FromResult((help && ShowInHelp) || Prefixes.Contains(ctx.Prefix, ctx.CommandsNext.GetStringComparer()));
+        => Task.FromResult((help && this.ShowInHelp) || this.Prefixes.Contains(ctx.Prefix, ctx.CommandsNext.GetStringComparer()));
 }

@@ -30,10 +30,31 @@ dotnet_style_collection_initializer = true:error
 dotnet_style_prefer_collection_expression = true:error
 
 # Nullable reference types
-dotnet_diagnostic.CS8632.severity = none
+dotnet_diagnostic.CS8600.severity = suggestion
+dotnet_diagnostic.CS8601.severity = suggestion
+dotnet_diagnostic.CS8602.severity = suggestion
+dotnet_diagnostic.CS8603.severity = suggestion
+dotnet_diagnostic.CS8604.severity = suggestion
+dotnet_diagnostic.CS8618.severity = suggestion
+dotnet_diagnostic.CS8619.severity = suggestion
+dotnet_diagnostic.CS8620.severity = suggestion
+dotnet_diagnostic.CS8625.severity = suggestion
+dotnet_diagnostic.CS8629.severity = suggestion
+dotnet_diagnostic.CS8632.severity = suggestion
+dotnet_diagnostic.CS8764.severity = suggestion
+dotnet_diagnostic.CS8765.severity = suggestion
+dotnet_diagnostic.CS8767.severity = suggestion
+
+dotnet_diagnostic.IDE0021.severity = error
+dotnet_diagnostic.IDE0022.severity = error
+dotnet_diagnostic.IDE0023.severity = error
+dotnet_diagnostic.IDE0024.severity = error
+dotnet_diagnostic.IDE0025.severity = error
+dotnet_diagnostic.IDE0026.severity = error
+dotnet_diagnostic.IDE0027.severity = error
 
 # Suppress CS1591: Missing XML comment for publicly visible type or member
-dotnet_diagnostic.CS1591.severity = none
+dotnet_diagnostic.CS1591.severity = suggestion
 
 # Suppress IDE0058: Expression value is never used
 dotnet_diagnostic.IDE0058.severity = none
@@ -49,10 +70,10 @@ dotnet_diagnostic.IDE0064.severity = none
 dotnet_diagnostic.IDE0005.severity = error
 
 # this. preferences
-dotnet_style_qualification_for_field = false:error
-dotnet_style_qualification_for_property = false:error
+dotnet_style_qualification_for_field = true:error
+dotnet_style_qualification_for_property = true:error
 dotnet_style_qualification_for_method = false:error
-dotnet_style_qualification_for_event = false:error
+dotnet_style_qualification_for_event = true:error
 
 # Language keywords vs BCL types preferences
 dotnet_style_predefined_type_for_locals_parameters_members = true:error
@@ -119,6 +140,16 @@ dotnet_naming_style.async_suffix.required_suffix = Async
 dotnet_naming_style.async_suffix.capitalization = pascal_case
 dotnet_naming_symbols.async_methods.applicable_kinds = method
 dotnet_naming_symbols.async_methods.required_modifiers = async
+
+# Fields should not begin with underscores, should be camelCase and should not use word separators
+dotnet_naming_rule.all_fields_notunderscored.symbols = all_fields
+dotnet_naming_rule.all_fields_notunderscored.style = notunderscored
+dotnet_naming_rule.all_fields_notunderscored.severity = error
+dotnet_naming_style.notunderscored.capitalization = camel_case
+dotnet_naming_style.notunderscored.required_prefix =
+dotnet_naming_style.notunderscored.word_separator = 
+dotnet_naming_symbols.all_fields.applicable_kinds = field
+dotnet_naming_symbols.all_fields.applicable_accessibilities = *
 
 ###############################
 # C# Coding Conventions       #
@@ -190,17 +221,17 @@ csharp_space_between_method_call_name_and_opening_parenthesis = false
 csharp_space_between_method_call_empty_parameter_list_parentheses = false
 
 # Wrapping preferences
-csharp_preserve_single_line_statements = true
+csharp_preserve_single_line_statements = false
 csharp_preserve_single_line_blocks = true
 
 # Use regular constructors over primary constructors
 csharp_style_prefer_primary_constructors = false:error
 
 # Expression-bodied members
-csharp_style_expression_bodied_methods = true:error
-csharp_style_expression_bodied_constructors = true:error
-csharp_style_expression_bodied_operators = true:error
-csharp_style_expression_bodied_properties = true:error
-csharp_style_expression_bodied_indexers = true:error
-csharp_style_expression_bodied_accessors = true:error
-csharp_style_expression_bodied_lambdas = true:error
+csharp_style_expression_bodied_methods = when_on_single_line:error
+csharp_style_expression_bodied_constructors = when_on_single_line:error
+csharp_style_expression_bodied_operators = when_on_single_line:error
+csharp_style_expression_bodied_properties = when_on_single_line:error
+csharp_style_expression_bodied_indexers = when_on_single_line:error
+csharp_style_expression_bodied_accessors = when_on_single_line:error
+csharp_style_expression_bodied_lambdas = when_on_single_line:error

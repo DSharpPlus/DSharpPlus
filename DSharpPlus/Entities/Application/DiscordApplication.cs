@@ -21,7 +21,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// Gets the application's icon.
     /// </summary>
     public override string? Icon
-        => !string.IsNullOrWhiteSpace(IconHash) ? $"https://cdn.discordapp.com/app-icons/{Id.ToString(CultureInfo.InvariantCulture)}/{IconHash}.png?size=1024" : null;
+        => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png?size=1024" : null;
 
     /// <summary>
     /// Gets the application's icon hash.
@@ -72,7 +72,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// Gets this application's cover image URL.
     /// </summary>
     public override string? CoverImageUrl
-        => $"https://cdn.discordapp.com/app-icons/{Id.ToString(CultureInfo.InvariantCulture)}/{CoverImageHash}.png?size=1024";
+        => $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.CoverImageHash}.png?size=1024";
 
     /// <summary>
     /// Gets the team which owns this application.
@@ -124,10 +124,10 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
 
         string ssize = size.ToString(CultureInfo.InvariantCulture);
 
-        if (!string.IsNullOrWhiteSpace(CoverImageHash))
+        if (!string.IsNullOrWhiteSpace(this.CoverImageHash))
         {
-            string id = Id.ToString(CultureInfo.InvariantCulture);
-            return $"https://cdn.discordapp.com/avatars/{id}/{CoverImageHash}.{formatString}?size={ssize}";
+            string id = this.Id.ToString(CultureInfo.InvariantCulture);
+            return $"https://cdn.discordapp.com/avatars/{id}/{this.CoverImageHash}.{formatString}?size={ssize}";
         }
         else
         {
@@ -142,12 +142,12 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// <returns>This application's assets.</returns>
     public async Task<IReadOnlyList<DiscordApplicationAsset>> GetAssetsAsync(bool updateCache = false)
     {
-        if (updateCache || Assets == null)
+        if (updateCache || this.Assets == null)
         {
-            Assets = await Discord.ApiClient.GetApplicationAssetsAsync(this);
+            this.Assets = await this.Discord.ApiClient.GetApplicationAssetsAsync(this);
         }
 
-        return Assets;
+        return this.Assets;
     }
 
     public string GenerateBotOAuth(DiscordPermissions permissions = DiscordPermissions.None)
@@ -155,7 +155,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         permissions &= PermissionMethods.FULL_PERMS;
         // hey look, it's not all annoying and blue :P
         return new QueryUriBuilder("https://discord.com/oauth2/authorize")
-            .AddParameter("client_id", Id.ToString(CultureInfo.InvariantCulture))
+            .AddParameter("client_id", this.Id.ToString(CultureInfo.InvariantCulture))
             .AddParameter("scope", "bot")
             .AddParameter("permissions", ((long)permissions).ToString(CultureInfo.InvariantCulture))
             .ToString();
@@ -183,7 +183,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         }
 
         QueryUriBuilder queryBuilder = new QueryUriBuilder("https://discord.com/oauth2/authorize")
-            .AddParameter("client_id", Id.ToString(CultureInfo.InvariantCulture))
+            .AddParameter("client_id", this.Id.ToString(CultureInfo.InvariantCulture))
             .AddParameter("scope", scopeBuilder.ToString().Trim());
 
         if (permissions != null)
@@ -213,13 +213,13 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// </summary>
     /// <param name="e"><see cref="DiscordApplication"/> to compare to.</param>
     /// <returns>Whether the <see cref="DiscordApplication"/> is equal to this <see cref="DiscordApplication"/>.</returns>
-    public bool Equals(DiscordApplication? e) => e is not null && (ReferenceEquals(this, e) || Id == e.Id);
+    public bool Equals(DiscordApplication? e) => e is not null && (ReferenceEquals(this, e) || this.Id == e.Id);
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordApplication"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="DiscordApplication"/>.</returns>
-    public override int GetHashCode() => Id.GetHashCode();
+    public override int GetHashCode() => this.Id.GetHashCode();
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordApplication"/> objects are equal.
@@ -227,10 +227,13 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// <param name="right">First application to compare.</param>
     /// <param name="left">Second application to compare.</param>
     /// <returns>Whether the two applications are equal.</returns>
-    public static bool operator ==(DiscordApplication right, DiscordApplication left) => (right is not null || left is null)
+    public static bool operator ==(DiscordApplication right, DiscordApplication left)
+    {
+        return (right is not null || left is null)
             && (right is null || left is not null)
             && ((right is null && left is null)
                 || right!.Id == left!.Id);
+    }
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordApplication"/> objects are not equal.

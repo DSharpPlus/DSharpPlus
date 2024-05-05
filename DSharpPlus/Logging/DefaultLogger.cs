@@ -5,7 +5,7 @@ namespace DSharpPlus;
 
 public class DefaultLogger : ILogger<BaseDiscordClient>
 {
-    private static readonly object _lock = new();
+    private static readonly object @lock = new();
 
     private LogLevel MinimumLevel { get; }
     private string TimestampFormat { get; }
@@ -16,8 +16,8 @@ public class DefaultLogger : ILogger<BaseDiscordClient>
 
     internal DefaultLogger(LogLevel minLevel = LogLevel.Information, string timestampFormat = "yyyy-MM-dd HH:mm:ss zzz")
     {
-        MinimumLevel = minLevel;
-        TimestampFormat = timestampFormat;
+        this.MinimumLevel = minLevel;
+        this.TimestampFormat = timestampFormat;
     }
 
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
@@ -27,11 +27,11 @@ public class DefaultLogger : ILogger<BaseDiscordClient>
             return;
         }
 
-        lock (_lock)
+        lock (@lock)
         {
             string? ename = eventId.Name;
             ename = ename?.Length > 12 ? ename?[..12] : ename;
-            Console.Write($"[{DateTimeOffset.Now.ToString(TimestampFormat)}] [{eventId.Id,-4}/{ename,-12}] ");
+            Console.Write($"[{DateTimeOffset.Now.ToString(this.TimestampFormat)}] [{eventId.Id,-4}/{ename,-12}] ");
 
             switch (logLevel)
             {
@@ -89,7 +89,7 @@ public class DefaultLogger : ILogger<BaseDiscordClient>
     }
 
     public bool IsEnabled(LogLevel logLevel)
-        => logLevel >= MinimumLevel;
+        => logLevel >= this.MinimumLevel;
 
     public IDisposable BeginScope<TState>(TState state) => throw new NotImplementedException();
 }

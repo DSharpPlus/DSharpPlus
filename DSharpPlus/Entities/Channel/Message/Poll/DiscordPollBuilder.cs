@@ -22,8 +22,8 @@ public class DiscordPollBuilder
     /// <summary>
     /// Gets the options for this poll.
     /// </summary>
-    public IReadOnlyList<DiscordPollMedia> Options => _options;
-    private readonly List<DiscordPollMedia> _options = [];
+    public IReadOnlyList<DiscordPollMedia> Options => this.options;
+    private readonly List<DiscordPollMedia> options = [];
 
     /// <summary>
     /// Gets or sets the duration for this poll in hours.
@@ -37,7 +37,7 @@ public class DiscordPollBuilder
     /// <returns>The modified builder to chain calls with.</returns>
     public DiscordPollBuilder WithQuestion(string question)
     {
-        Question = question;
+        this.Question = question;
         return this;
     }
 
@@ -54,7 +54,7 @@ public class DiscordPollBuilder
             ArgumentNullException.ThrowIfNullOrWhiteSpace(text);
         }
 
-        _options.Add(new DiscordPollMedia { Text = text, Emoji = emoji });
+        this.options.Add(new DiscordPollMedia { Text = text, Emoji = emoji });
         return this;
     }
 
@@ -65,7 +65,7 @@ public class DiscordPollBuilder
     /// <returns>The modified builder to chain calls with.</returns>
     public DiscordPollBuilder AsMultipleChoice(bool isMultiChoice = true)
     {
-        IsMultipleChoice = isMultiChoice;
+        this.IsMultipleChoice = isMultiChoice;
         return this;
     }
 
@@ -87,7 +87,7 @@ public class DiscordPollBuilder
             throw new InvalidOperationException("Duration must be less then 7 days/168 hours.");
         }
 
-        Duration = hours;
+        this.Duration = hours;
         return this;
     }
 
@@ -96,7 +96,7 @@ public class DiscordPollBuilder
     /// </summary>
     /// <returns>A <see cref="PollCreatePayload"/> to build the create request.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the poll has less than two options.</exception>
-    internal PollCreatePayload BuildInternal() => _options.Count < 2
+    internal PollCreatePayload BuildInternal() => this.options.Count < 2
             ? throw new InvalidOperationException("A poll must have at least two options.")
             : new PollCreatePayload(this);
 

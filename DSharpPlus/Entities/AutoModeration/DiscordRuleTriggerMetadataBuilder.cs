@@ -43,7 +43,7 @@ public sealed class DiscordRuleTriggerMetadataBuilder
             throw new ArgumentException("Keyword filter can't contains more than 1000 substrings.");
         }
 
-        KeywordFilter = keywordFilter;
+        this.KeywordFilter = keywordFilter;
 
         return this;
     }
@@ -61,7 +61,7 @@ public sealed class DiscordRuleTriggerMetadataBuilder
             throw new ArgumentException("Regex patterns count can't be higher than 10.");
         }
 
-        RegexPatterns = regexPatterns;
+        this.RegexPatterns = regexPatterns;
 
         return this;
     }
@@ -74,7 +74,7 @@ public sealed class DiscordRuleTriggerMetadataBuilder
     /// <exception cref="ArgumentNullException"></exception>
     public DiscordRuleTriggerMetadataBuilder AddKeywordPresetTypes(IReadOnlyList<DiscordRuleKeywordPresetType> keywordPresetTypes)
     {
-        KeywordPresetTypes = keywordPresetTypes ?? throw new ArgumentNullException(nameof(keywordPresetTypes));
+        this.KeywordPresetTypes = keywordPresetTypes ?? throw new ArgumentNullException(nameof(keywordPresetTypes));
 
         return this;
     }
@@ -92,7 +92,7 @@ public sealed class DiscordRuleTriggerMetadataBuilder
             throw new ArgumentException("Allowed keyword count can't be higher than 100.");
         }
 
-        AllowedKeywords = allowList;
+        this.AllowedKeywords = allowList;
 
         return this;
     }
@@ -110,7 +110,7 @@ public sealed class DiscordRuleTriggerMetadataBuilder
             throw new ArgumentException("Mention total limit can't be higher than 50.");
         }
 
-        MentionTotalLimit = mentionTotalLimit;
+        this.MentionTotalLimit = mentionTotalLimit;
 
         return this;
     }
@@ -123,11 +123,11 @@ public sealed class DiscordRuleTriggerMetadataBuilder
     {
         DiscordRuleTriggerMetadata metadata = new()
         {
-            AllowedKeywords = AllowedKeywords ?? Array.Empty<string>(),
-            KeywordFilter = KeywordFilter,
-            KeywordPresetTypes = KeywordPresetTypes,
-            MentionTotalLimit = MentionTotalLimit,
-            RegexPatterns = RegexPatterns ?? Array.Empty<string>()
+            AllowedKeywords = this.AllowedKeywords ?? Array.Empty<string>(),
+            KeywordFilter = this.KeywordFilter,
+            KeywordPresetTypes = this.KeywordPresetTypes,
+            MentionTotalLimit = this.MentionTotalLimit,
+            RegexPatterns = this.RegexPatterns ?? Array.Empty<string>()
         };
 
         return metadata;

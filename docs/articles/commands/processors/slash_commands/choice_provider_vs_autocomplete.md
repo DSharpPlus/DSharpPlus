@@ -50,7 +50,7 @@ Our class will implement from the `IChoiceProvider` interface. This interface ha
 ```cs
 public class DaysOfTheWeekProvider : IChoiceProvider
 {
-    private static readonly IReadOnlyDictionary<string, object> _daysOfTheWeek = new Dictionary<string, object>
+    private static readonly IReadOnlyDictionary<string, object> daysOfTheWeek = new Dictionary<string, object>
     {
         ["Monday"] = 1,
         ["Tuesday"] = 2,
@@ -84,12 +84,12 @@ Autocomplete is very similar in design to choice providers. Our class will imple
 ```cs
 public class TagNameAutoCompleteProvider : IAutoCompleteProvider
 {
-    private readonly ITagService _tagService;
-    public TagNameAutoCompleteProvider(ITagService tagService) => _tagService = tagService;
+    private readonly ITagService tagService;
+    public TagNameAutoCompleteProvider(ITagService tagService) => tagService = tagService;
 
     public ValueTask<IReadOnlyDictionary<string, object>> AutoCompleteAsync(AutoCompleteContext context)
     {
-        var tags = _tagService.GetTags()
+        var tags = tagService.GetTags()
             .Where(x => x.Name.StartsWith(context.UserInput, StringComparison.OrdinalIgnoreCase))
             .ToDictionary(x => x.Name, x => x.Id);
 

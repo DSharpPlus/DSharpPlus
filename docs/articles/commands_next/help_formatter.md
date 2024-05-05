@@ -18,24 +18,24 @@ required methods.
 ```cs
 public class CustomHelpFormatter : BaseHelpFormatter
 {
-    // protected DiscordEmbedBuilder _embed;
-    // protected StringBuilder _strBuilder;
+    // protected DiscordEmbedBuilder embed;
+    // protected StringBuilder strBuilder;
 
     public CustomHelpFormatter(CommandContext ctx) : base(ctx)
     {
-        // _embed = new DiscordEmbedBuilder();
-        // _strBuilder = new StringBuilder();
+        // embed = new DiscordEmbedBuilder();
+        // strBuilder = new StringBuilder();
 
-  // Help formatters do support dependency injection.
-  // Any required services can be specified by declaring constructor parameters.
+        // Help formatters do support dependency injection.
+        // Any required services can be specified by declaring constructor parameters.
 
-        // Other required initialization here ...
+        // Other required initialization here...
     }
 
     public override BaseHelpFormatter WithCommand(Command command)
     {
-        // _embed.AddField(command.Name, command.Description);
-        // _strBuilder.AppendLine($"{command.Name} - {command.Description}");
+        // embed.AddField(command.Name, command.Description);
+        // strBuilder.AppendLine($"{command.Name} - {command.Description}");
 
         return this;
     }
@@ -44,8 +44,8 @@ public class CustomHelpFormatter : BaseHelpFormatter
     {
         foreach (var cmd in cmds)
         {
-            // _embed.AddField(cmd.Name, cmd.Description);
-            // _strBuilder.AppendLine($"{cmd.Name} - {cmd.Description}");
+            // embed.AddField(cmd.Name, cmd.Description);
+            // strBuilder.AppendLine($"{cmd.Name} - {cmd.Description}");
         }
 
         return this;
@@ -53,8 +53,8 @@ public class CustomHelpFormatter : BaseHelpFormatter
 
     public override CommandHelpMessage Build()
     {
-        // return new CommandHelpMessage(embed: _embed);
-        // return new CommandHelpMessage(content: _strBuilder.ToString());
+        // return new CommandHelpMessage(embed: embed);
+        // return new CommandHelpMessage(content: strBuilder.ToString());
     }
 }
 ```
@@ -90,4 +90,4 @@ That's all there is to it.
 ![Fresh New Look][0]
 
 <!-- LINKS -->
-[0]:  ../../images/commands_next_help_formatter_01.png
+[0]: ../../images/commands_next_help_formatter_01.png

@@ -6,7 +6,7 @@ title: Generic Host
 # Introduction
 
 The .NET Generic Host is a reusable, lightweight, and extensible hosting framework that provides a consistent way to
-host different types of .NET applications. It is designed to simplify the startup process and provide a common
+host different types of.NET applications. It is designed to simplify the startup process and provide a common
 infrastructure for configuring, logging, dependency injection, and other common tasks required by modern applications.
 
 It allows developers to build console applications, background services, and other types of .NET applications that can
@@ -43,7 +43,7 @@ Next, it configures the services that the host will use by calling the `Configur
 adds a new `BotService` service, which is a class that you'll need to define next.
 
 Finally, it calls the `RunConsoleAsync()` method to start the host and begin running your service. That's it! With just
-a few lines of code, you can use the .NET Generic Host to run your application as a service.
+a few lines of code, you can use the.NET Generic Host to run your application as a service.
 
 ## Setting up your Service
 
@@ -54,15 +54,15 @@ respectively.
 ```cs
 public sealed class BotService : IHostedService
 {
-    private readonly ILogger<BotService> _logger;
-    private readonly IHostApplicationLifetime _applicationLifetime;
-    private readonly DiscordClient _discordClient;
+    private readonly ILogger<BotService> logger;
+    private readonly IHostApplicationLifetime applicationLifetime;
+    private readonly DiscordClient discordClient;
 
     public BotService(ILogger<BotService> logger, IHostApplicationLifetime applicationLifetime)
     {
-        this._logger = logger;
-        this._applicationLifetime = applicationLifetime;
-        this._discordClient = new(new()
+        this.logger = logger;
+        this.applicationLifetime = applicationLifetime;
+        this.discordClient = new(new()
         {
             Token = "YourBotTokenHere",
             TokenType = TokenType.Bot,
@@ -72,13 +72,13 @@ public sealed class BotService : IHostedService
 
     public async Task StartAsync(CancellationToken token)
     {
-        await _discordClient.ConnectAsync();
+        await discordClient.ConnectAsync();
         // Other startup things here
     }
 
     public async Task StopAsync(CancellationToken token)
     {
-        await _discordClient.DisconnectAsync();
+        await discordClient.DisconnectAsync();
         // More cleanup possibly here
     }
 }
@@ -126,7 +126,7 @@ provider to it. You can also specify a minimum log level and silence certain DSh
 event" log.
 
 ```cs
-this._discordClient = new(new()
+this.discordClient = new(new()
 {
     [...]
     LoggerFactory = new LoggerFactory().AddSerilog(),

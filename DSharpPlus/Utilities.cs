@@ -73,12 +73,15 @@ public static partial class Utilities
 
     internal static string GetFormattedToken(BaseDiscordClient client) => GetFormattedToken(client.Configuration);
 
-    internal static string GetFormattedToken(DiscordConfiguration config) => config.TokenType switch
+    internal static string GetFormattedToken(DiscordConfiguration config)
     {
-        TokenType.Bearer => $"Bearer {config.Token}",
-        TokenType.Bot => $"Bot {config.Token}",
-        _ => throw new ArgumentException("Invalid token type specified.", nameof(config)),
-    };
+        return config.TokenType switch
+        {
+            TokenType.Bearer => $"Bearer {config.Token}",
+            TokenType.Bot => $"Bot {config.Token}",
+            _ => throw new ArgumentException("Invalid token type specified.", nameof(config)),
+        };
+    }
 
     internal static string GetUserAgent()
         => VersionHeader;
@@ -254,7 +257,7 @@ public static partial class Utilities
     /// <returns>Computed timestamp.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateTimeOffset GetSnowflakeTime(this ulong snowflake)
-        => DiscordClient._discordEpoch.AddMilliseconds(snowflake >> 22);
+        => DiscordClient.discordEpoch.AddMilliseconds(snowflake >> 22);
 
     /// <summary>
     /// Converts this <see cref="DiscordPermissions"/> into human-readable format.
@@ -321,7 +324,7 @@ public static partial class Utilities
     /// <returns>Returns a snowflake representing the given date and time.</returns>
     public static ulong CreateSnowflake(DateTimeOffset dateTimeOffset)
     {
-        long diff = dateTimeOffset.ToUnixTimeMilliseconds() - DiscordClient._discordEpoch.ToUnixTimeMilliseconds();
+        long diff = dateTimeOffset.ToUnixTimeMilliseconds() - DiscordClient.discordEpoch.ToUnixTimeMilliseconds();
         return (ulong)diff << 22;
     }
 

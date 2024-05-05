@@ -10,12 +10,12 @@ namespace DSharpPlus.Interactivity.EventHandling;
 
 public class PollRequest
 {
-    internal TaskCompletionSource<bool> _tcs;
-    internal CancellationTokenSource _ct;
-    internal TimeSpan _timeout;
-    internal ConcurrentHashSet<PollEmoji> _collected;
-    internal DiscordMessage _message;
-    internal IEnumerable<DiscordEmoji> _emojis;
+    internal TaskCompletionSource<bool> tcs;
+    internal CancellationTokenSource ct;
+    internal TimeSpan timeout;
+    internal ConcurrentHashSet<PollEmoji> collected;
+    internal DiscordMessage message;
+    internal IEnumerable<DiscordEmoji> emojis;
 
     /// <summary>
     ///
@@ -25,53 +25,53 @@ public class PollRequest
     /// <param name="emojis"></param>
     public PollRequest(DiscordMessage message, TimeSpan timeout, IEnumerable<DiscordEmoji> emojis)
     {
-        _tcs = new TaskCompletionSource<bool>();
-        _ct = new CancellationTokenSource(timeout);
-        _ct.Token.Register(() => _tcs.TrySetResult(true));
-        _timeout = timeout;
-        _emojis = emojis;
-        _collected = [];
-        _message = message;
+        this.tcs = new TaskCompletionSource<bool>();
+        this.ct = new CancellationTokenSource(timeout);
+        this.ct.Token.Register(() => this.tcs.TrySetResult(true));
+        this.timeout = timeout;
+        this.emojis = emojis;
+        this.collected = [];
+        this.message = message;
 
         foreach (DiscordEmoji e in emojis)
         {
-            _collected.Add(new PollEmoji(e));
+            this.collected.Add(new PollEmoji(e));
         }
     }
 
     internal void ClearCollected()
     {
-        _collected.Clear();
-        foreach (DiscordEmoji e in _emojis)
+        this.collected.Clear();
+        foreach (DiscordEmoji e in this.emojis)
         {
-            _collected.Add(new PollEmoji(e));
+            this.collected.Add(new PollEmoji(e));
         }
     }
 
     internal void RemoveReaction(DiscordEmoji emoji, DiscordUser member)
     {
-        if (_collected.Any(x => x.Emoji == emoji))
+        if (this.collected.Any(x => x.Emoji == emoji))
         {
-            if (_collected.Any(x => x.Voted.Contains(member)))
+            if (this.collected.Any(x => x.Voted.Contains(member)))
             {
-                PollEmoji e = _collected.First(x => x.Emoji == emoji);
-                _collected.TryRemove(e);
+                PollEmoji e = this.collected.First(x => x.Emoji == emoji);
+                this.collected.TryRemove(e);
                 e.Voted.TryRemove(member);
-                _collected.Add(e);
+                this.collected.Add(e);
             }
         }
     }
 
     internal void AddReaction(DiscordEmoji emoji, DiscordUser member)
     {
-        if (_collected.Any(x => x.Emoji == emoji))
+        if (this.collected.Any(x => x.Emoji == emoji))
         {
-            if (!_collected.Any(x => x.Voted.Contains(member)))
+            if (!this.collected.Any(x => x.Voted.Contains(member)))
             {
-                PollEmoji e = _collected.First(x => x.Emoji == emoji);
-                _collected.TryRemove(e);
+                PollEmoji e = this.collected.First(x => x.Emoji == emoji);
+                this.collected.TryRemove(e);
                 e.Voted.Add(member);
-                _collected.Add(e);
+                this.collected.Add(e);
             }
         }
     }
@@ -83,8 +83,8 @@ public class PollRequest
     {
         // Why doesn't this class implement IDisposable?
 
-        _ct?.Dispose();
-        _tcs = null!;
+        this.ct?.Dispose();
+        this.tcs = null!;
     }
 }
 
@@ -92,11 +92,11 @@ public class PollEmoji
 {
     internal PollEmoji(DiscordEmoji emoji)
     {
-        Emoji = emoji;
-        Voted = [];
+        this.Emoji = emoji;
+        this.Voted = [];
     }
 
     public DiscordEmoji Emoji;
     public ConcurrentHashSet<DiscordUser> Voted;
-    public int Total => Voted.Count;
+    public int Total => this.Voted.Count;
 }

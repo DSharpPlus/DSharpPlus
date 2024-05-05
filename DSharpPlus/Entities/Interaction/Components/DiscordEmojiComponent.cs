@@ -29,7 +29,7 @@ public sealed class DiscordComponentEmoji
     /// Constructs a new component emoji from an emoji Id.
     /// </summary>
     /// <param name="id">The Id of the emoji to use. Any valid emoji Id can be passed.</param>
-    public DiscordComponentEmoji(ulong id) => Id = id;
+    public DiscordComponentEmoji(ulong id) => this.Id = id;
 
     /// <summary>
     /// Constructs a new component emoji from unicode.
@@ -42,7 +42,7 @@ public sealed class DiscordComponentEmoji
             throw new ArgumentException("Only unicode emojis can be passed.");
         }
 
-        Name = name;
+        this.Name = name;
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ public sealed class DiscordComponentEmoji
     /// <param name="emoji">The emoji to use.</param>
     public DiscordComponentEmoji(DiscordEmoji emoji)
     {
-        Id = emoji.Id;
-        Name = emoji.Name; // Name is ignored if the Id is present. //
+        this.Id = emoji.Id;
+        this.Name = emoji.Name; // Name is ignored if the Id is present. //
     }
 }

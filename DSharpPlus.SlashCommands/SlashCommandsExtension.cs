@@ -23,33 +23,34 @@ namespace DSharpPlus.SlashCommands;
 public sealed partial class SlashCommandsExtension : BaseExtension
 {
     //A list of methods for top level commands
-    private static List<CommandMethod> _commandMethods { get; set; } = [];
+    private static List<CommandMethod> commandMethods { get; set; } = [];
     //List of groups
-    private static List<GroupCommand> _groupCommands { get; set; } = [];
+    private static List<GroupCommand> groupCommands { get; set; } = [];
     //List of groups with subgroups
-    private static List<SubGroupCommand> _subGroupCommands { get; set; } = [];
+    private static List<SubGroupCommand> subGroupCommands { get; set; } = [];
     //List of context menus
-    private static List<ContextMenuCommand> _contextMenuCommands { get; set; } = [];
+    private static List<ContextMenuCommand> contextMenuCommands { get; set; } = [];
 
     //Singleton modules
-    private static List<object> _singletonModules { get; set; } = [];
+    private static List<object> singletonModules { get; set; } = [];
 
     //List of modules to register
-    private List<KeyValuePair<ulong?, Type>> _updateList { get; set; } = [];
+    private List<KeyValuePair<ulong?, Type>> updateList { get; set; } = [];
     //Configuration for DI
-    private readonly SlashCommandsConfiguration _configuration;
+    private readonly SlashCommandsConfiguration configuration;
     //Set to true if anything fails when registering
-    private static bool _errored { get; set; } = false;
+    private static bool errored { get; set; } = false;
 
     /// <summary>
     /// Gets a list of registered commands. The key is the guild id (null if global).
     /// </summary>
-    public static IReadOnlyList<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> RegisteredCommands => _registeredCommands;
-    private static readonly List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> _registeredCommands = [];
+    public static IReadOnlyList<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> RegisteredCommands => registeredCommands;
+    private static readonly List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> registeredCommands = [];
 
     internal SlashCommandsExtension(SlashCommandsConfiguration configuration)
     {
-        _configuration = configuration ?? new SlashCommandsConfiguration(); ;
+        this.configuration = configuration ?? new SlashCommandsConfiguration();
+        ;
     }
 
     /// <summary>
@@ -58,25 +59,25 @@ public sealed partial class SlashCommandsExtension : BaseExtension
     /// <param name="client">The client to setup on.</param>
     protected internal override void Setup(DiscordClient client)
     {
-        if (Client != null)
+        if (this.Client != null)
         {
             throw new InvalidOperationException("What did I tell you?");
         }
 
-        Client = client;
+        this.Client = client;
 
-        _slashError = new AsyncEvent<SlashCommandsExtension, SlashCommandErrorEventArgs>("SLASHCOMMAND_ERRORED", Client.EventErrorHandler);
-        _slashInvoked = new AsyncEvent<SlashCommandsExtension, SlashCommandInvokedEventArgs>("SLASHCOMMAND_RECEIVED", Client.EventErrorHandler);
-        _slashExecuted = new AsyncEvent<SlashCommandsExtension, SlashCommandExecutedEventArgs>("SLASHCOMMAND_EXECUTED", Client.EventErrorHandler);
-        _contextMenuErrored = new AsyncEvent<SlashCommandsExtension, ContextMenuErrorEventArgs>("CONTEXTMENU_ERRORED", Client.EventErrorHandler);
-        _contextMenuExecuted = new AsyncEvent<SlashCommandsExtension, ContextMenuExecutedEventArgs>("CONTEXTMENU_EXECUTED", Client.EventErrorHandler);
-        _contextMenuInvoked = new AsyncEvent<SlashCommandsExtension, ContextMenuInvokedEventArgs>("CONTEXTMENU_RECEIVED", Client.EventErrorHandler);
-        _autocompleteErrored = new AsyncEvent<SlashCommandsExtension, AutocompleteErrorEventArgs>("AUTOCOMPLETE_ERRORED", Client.EventErrorHandler);
-        _autocompleteExecuted = new AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs>("AUTOCOMPLETE_EXECUTED", Client.EventErrorHandler);
+        this.slashError = new AsyncEvent<SlashCommandsExtension, SlashCommandErrorEventArgs>("SLASHCOMMAND_ERRORED", this.Client.EventErrorHandler);
+        this.slashInvoked = new AsyncEvent<SlashCommandsExtension, SlashCommandInvokedEventArgs>("SLASHCOMMAND_RECEIVED", this.Client.EventErrorHandler);
+        this.slashExecuted = new AsyncEvent<SlashCommandsExtension, SlashCommandExecutedEventArgs>("SLASHCOMMAND_EXECUTED", this.Client.EventErrorHandler);
+        this.contextMenuErrored = new AsyncEvent<SlashCommandsExtension, ContextMenuErrorEventArgs>("CONTEXTMENU_ERRORED", this.Client.EventErrorHandler);
+        this.contextMenuExecuted = new AsyncEvent<SlashCommandsExtension, ContextMenuExecutedEventArgs>("CONTEXTMENU_EXECUTED", this.Client.EventErrorHandler);
+        this.contextMenuInvoked = new AsyncEvent<SlashCommandsExtension, ContextMenuInvokedEventArgs>("CONTEXTMENU_RECEIVED", this.Client.EventErrorHandler);
+        this.autocompleteErrored = new AsyncEvent<SlashCommandsExtension, AutocompleteErrorEventArgs>("AUTOCOMPLETE_ERRORED", this.Client.EventErrorHandler);
+        this.autocompleteExecuted = new AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs>("AUTOCOMPLETE_EXECUTED", this.Client.EventErrorHandler);
 
-        Client.SessionCreated += Update;
-        Client.InteractionCreated += InteractionHandler;
-        Client.ContextMenuInteractionCreated += ContextMenuHandler;
+        this.Client.SessionCreated += Update;
+        this.Client.InteractionCreated += InteractionHandler;
+        this.Client.ContextMenuInteractionCreated += ContextMenuHandler;
     }
 
     /// <summary>
@@ -86,9 +87,9 @@ public sealed partial class SlashCommandsExtension : BaseExtension
     /// <param name="guildId">The guild id to register it on. If you want global commands, leave it null.</param>
     public void RegisterCommands<T>(ulong? guildId = null) where T : ApplicationCommandModule
     {
-        if (Client.ShardId is 0)
+        if (this.Client.ShardId is 0)
         {
-            _updateList.Add(new(guildId, typeof(T)));
+            this.updateList.Add(new(guildId, typeof(T)));
         }
     }
 
@@ -104,9 +105,9 @@ public sealed partial class SlashCommandsExtension : BaseExtension
             throw new ArgumentException("Command classes have to inherit from ApplicationCommandModule", nameof(type));
         }
         //If sharding, only register for shard 0
-        if (Client.ShardId is 0)
+        if (this.Client.ShardId is 0)
         {
-            _updateList.Add(new(guildId, type));
+            this.updateList.Add(new(guildId, type));
         }
     }
 
@@ -134,12 +135,12 @@ public sealed partial class SlashCommandsExtension : BaseExtension
     internal Task Update()
     {
         //Only update for shard 0
-        if (Client.ShardId is 0)
+        if (this.Client.ShardId is 0)
         {
             //Groups commands by guild id or global
-            foreach (ulong? key in _updateList.Select(x => x.Key).Distinct())
+            foreach (ulong? key in this.updateList.Select(x => x.Key).Distinct())
             {
-                RegisterCommands(_updateList.Where(x => x.Key == key).Select(x => x.Value), key);
+                RegisterCommands(this.updateList.Where(x => x.Key == key).Select(x => x.Value), key);
             }
         }
         return Task.CompletedTask;
@@ -286,7 +287,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                             //Accounts for lifespans for the sub group
                             if (subclass.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
                             {
-                                _singletonModules.Add(CreateInstance(subclass, _configuration?.Services));
+                                singletonModules.Add(CreateInstance(subclass, this.configuration?.Services));
                             }
                         }
 
@@ -300,7 +301,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                         //Accounts for lifespans
                         if (subclassinfo.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
                         {
-                            _singletonModules.Add(CreateInstance(subclassinfo, _configuration?.Services));
+                            singletonModules.Add(CreateInstance(subclassinfo, this.configuration?.Services));
                         }
                     }
 
@@ -344,7 +345,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                         //Accounts for lifespans
                         if (module.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
                         {
-                            _singletonModules.Add(CreateInstance(module, _configuration?.Services));
+                            singletonModules.Add(CreateInstance(module, this.configuration?.Services));
                         }
                     }
 
@@ -381,26 +382,26 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                     //This isn't really much more descriptive but I added a separate case for it anyway
                     if (ex is BadRequestException brex)
                     {
-                        Client.Logger.LogCritical(brex, "There was an error registering application commands: {JsonError}", brex.JsonMessage);
+                        this.Client.Logger.LogCritical(brex, "There was an error registering application commands: {JsonError}", brex.JsonMessage);
                     }
                     else
                     {
-                        Client.Logger.LogCritical(ex, $"There was an error registering application commands");
+                        this.Client.Logger.LogCritical(ex, $"There was an error registering application commands");
                     }
 
-                    _errored = true;
+                    errored = true;
                 }
             }
 
-            if (!_errored)
+            if (!errored)
             {
                 try
                 {
                     IEnumerable<DiscordApplicationCommand> commands;
                     //Creates a guild command if a guild id is specified, otherwise global
                     commands = guildId is null
-                        ? await Client.BulkOverwriteGlobalApplicationCommandsAsync(updateList)
-                        : await Client.BulkOverwriteGuildApplicationCommandsAsync(guildId.Value, updateList);
+                        ? await this.Client.BulkOverwriteGlobalApplicationCommandsAsync(updateList)
+                        : await this.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId.Value, updateList);
 
                     //Checks against the ids and adds them to the command method lists
                     foreach (DiscordApplicationCommand command in commands)
@@ -423,25 +424,25 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                         }
                     }
                     //Adds to the global lists finally
-                    _commandMethods.AddRange(commandMethods);
-                    _groupCommands.AddRange(groupCommands);
-                    _subGroupCommands.AddRange(subGroupCommands);
-                    _contextMenuCommands.AddRange(contextMenuCommands);
+                    commandMethods.AddRange(commandMethods);
+                    groupCommands.AddRange(groupCommands);
+                    subGroupCommands.AddRange(subGroupCommands);
+                    contextMenuCommands.AddRange(contextMenuCommands);
 
-                    _registeredCommands.Add(new(guildId, commands.ToList()));
+                    registeredCommands.Add(new(guildId, commands.ToList()));
                 }
                 catch (Exception ex)
                 {
                     if (ex is BadRequestException brex)
                     {
-                        Client.Logger.LogCritical(brex, "There was an error registering application commands: {JsonMessage}", brex.JsonMessage);
+                        this.Client.Logger.LogCritical(brex, "There was an error registering application commands: {JsonMessage}", brex.JsonMessage);
                     }
                     else
                     {
-                        Client.Logger.LogCritical(ex, $"There was an error registering application commands");
+                        this.Client.Logger.LogCritical(ex, $"There was an error registering application commands");
                     }
 
-                    _errored = true;
+                    errored = true;
                 }
             }
         });
@@ -549,7 +550,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                         ?.SetValue(instance, guildId);
 
                     choiceProviderAttribute.ProviderType.GetProperty(nameof(ChoiceProvider.Services))
-                        ?.SetValue(instance, _configuration.Services);
+                        ?.SetValue(instance, this.configuration.Services);
                 }
 
                 //Gets the choices from the method
@@ -649,7 +650,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                     QualifiedName = qualifiedName.ToString(),
                     InteractionId = e.Interaction.Id,
                     Token = e.Interaction.Token,
-                    Services = _configuration?.Services,
+                    Services = this.configuration?.Services,
                     ResolvedUserMentions = e.Interaction.Data.Resolved?.Users?.Values.ToList(),
                     ResolvedRoleMentions = e.Interaction.Data.Resolved?.Roles?.Values.ToList(),
                     ResolvedChannelMentions = e.Interaction.Data.Resolved?.Channels?.Values.ToList(),
@@ -658,15 +659,15 @@ public sealed partial class SlashCommandsExtension : BaseExtension
 
                 try
                 {
-                    if (_errored)
+                    if (errored)
                     {
                         throw new InvalidOperationException("Slash commands failed to register properly on startup.");
                     }
 
                     //Gets the method for the command
-                    IEnumerable<CommandMethod> methods = _commandMethods.Where(x => x.CommandId == e.Interaction.Data.Id);
-                    IEnumerable<GroupCommand> groups = _groupCommands.Where(x => x.CommandId == e.Interaction.Data.Id);
-                    IEnumerable<SubGroupCommand> subgroups = _subGroupCommands.Where(x => x.CommandId == e.Interaction.Data.Id);
+                    IEnumerable<CommandMethod> methods = commandMethods.Where(x => x.CommandId == e.Interaction.Data.Id);
+                    IEnumerable<GroupCommand> groups = groupCommands.Where(x => x.CommandId == e.Interaction.Data.Id);
+                    IEnumerable<SubGroupCommand> subgroups = subGroupCommands.Where(x => x.CommandId == e.Interaction.Data.Id);
                     if (!methods.Any() && !groups.Any() && !subgroups.Any())
                     {
                         throw new InvalidOperationException("A slash command was executed, but no command was registered for it.");
@@ -701,26 +702,26 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                         await RunCommandAsync(context, method, args);
                     }
 
-                    await _slashExecuted.InvokeAsync(this, new SlashCommandExecutedEventArgs { Context = context });
+                    await this.slashExecuted.InvokeAsync(this, new SlashCommandExecutedEventArgs { Context = context });
                 }
                 catch (Exception ex)
                 {
-                    await _slashError.InvokeAsync(this, new SlashCommandErrorEventArgs { Context = context, Exception = ex });
+                    await this.slashError.InvokeAsync(this, new SlashCommandErrorEventArgs { Context = context, Exception = ex });
                 }
             }
 
             //Handles autcomplete interactions
             if (e.Interaction.Type == DiscordInteractionType.AutoComplete)
             {
-                if (_errored)
+                if (errored)
                 {
                     throw new InvalidOperationException("Slash commands failed to register properly on startup.");
                 }
 
                 //Gets the method for the command
-                IEnumerable<CommandMethod> methods = _commandMethods.Where(x => x.CommandId == e.Interaction.Data.Id);
-                IEnumerable<GroupCommand> groups = _groupCommands.Where(x => x.CommandId == e.Interaction.Data.Id);
-                IEnumerable<SubGroupCommand> subgroups = _subGroupCommands.Where(x => x.CommandId == e.Interaction.Data.Id);
+                IEnumerable<CommandMethod> methods = commandMethods.Where(x => x.CommandId == e.Interaction.Data.Id);
+                IEnumerable<GroupCommand> groups = groupCommands.Where(x => x.CommandId == e.Interaction.Data.Id);
+                IEnumerable<SubGroupCommand> subgroups = subGroupCommands.Where(x => x.CommandId == e.Interaction.Data.Id);
                 if (!methods.Any() && !groups.Any() && !subgroups.Any())
                 {
                     throw new InvalidOperationException("An autocomplete interaction was created, but no command was registered for it.");
@@ -774,7 +775,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                 Interaction = e.Interaction,
                 Channel = e.Interaction.Channel,
                 Client = client,
-                Services = _configuration?.Services,
+                Services = this.configuration?.Services,
                 CommandName = e.Interaction.Data.Name,
                 SlashCommandsExtension = this,
                 Guild = e.Interaction.Guild,
@@ -793,20 +794,20 @@ public sealed partial class SlashCommandsExtension : BaseExtension
 
             try
             {
-                if (_errored)
+                if (errored)
                 {
                     throw new InvalidOperationException("Context menus failed to register properly on startup.");
                 }
 
                 //Gets the method for the command
-                ContextMenuCommand? method = _contextMenuCommands.FirstOrDefault(x => x.CommandId == e.Interaction.Data.Id) ?? throw new InvalidOperationException("A context menu was executed, but no command was registered for it.");
+                ContextMenuCommand? method = contextMenuCommands.FirstOrDefault(x => x.CommandId == e.Interaction.Data.Id) ?? throw new InvalidOperationException("A context menu was executed, but no command was registered for it.");
                 await RunCommandAsync(context, method.Method, new[] { context });
 
-                await _contextMenuExecuted.InvokeAsync(this, new ContextMenuExecutedEventArgs { Context = context });
+                await this.contextMenuExecuted.InvokeAsync(this, new ContextMenuExecutedEventArgs { Context = context });
             }
             catch (Exception ex)
             {
-                await _contextMenuErrored.InvokeAsync(this, new ContextMenuErrorEventArgs { Context = context, Exception = ex });
+                await this.contextMenuErrored.InvokeAsync(this, new ContextMenuErrorEventArgs { Context = context, Exception = ex });
             }
         });
 
@@ -821,11 +822,11 @@ public sealed partial class SlashCommandsExtension : BaseExtension
         object classInstance = moduleLifespan switch //Accounts for static methods and adds DI
         {
             // Accounts for static methods and adds DI
-            SlashModuleLifespan.Scoped => method.IsStatic ? ActivatorUtilities.CreateInstance(_configuration?.Services.CreateScope().ServiceProvider, method.DeclaringType) : CreateInstance(method.DeclaringType, _configuration?.Services.CreateScope().ServiceProvider),
+            SlashModuleLifespan.Scoped => method.IsStatic ? ActivatorUtilities.CreateInstance(this.configuration?.Services.CreateScope().ServiceProvider, method.DeclaringType) : CreateInstance(method.DeclaringType, this.configuration?.Services.CreateScope().ServiceProvider),
             // Accounts for static methods and adds DI
-            SlashModuleLifespan.Transient => method.IsStatic ? ActivatorUtilities.CreateInstance(_configuration?.Services, method.DeclaringType) : CreateInstance(method.DeclaringType, _configuration?.Services),
+            SlashModuleLifespan.Transient => method.IsStatic ? ActivatorUtilities.CreateInstance(this.configuration?.Services, method.DeclaringType) : CreateInstance(method.DeclaringType, this.configuration?.Services),
             // If singleton, gets it from the singleton list
-            SlashModuleLifespan.Singleton => _singletonModules.First(x => ReferenceEquals(x.GetType(), method.DeclaringType)),
+            SlashModuleLifespan.Singleton => singletonModules.First(x => ReferenceEquals(x.GetType(), method.DeclaringType)),
             // TODO: Use a more specific exception type
             _ => throw new Exception($"An unknown {nameof(SlashModuleLifespanAttribute)} scope was specified on command {context.CommandName}"),
         };
@@ -839,7 +840,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
         //Slash commands
         if (context is InteractionContext slashContext)
         {
-            await _slashInvoked.InvokeAsync(this, new SlashCommandInvokedEventArgs { Context = slashContext });
+            await this.slashInvoked.InvokeAsync(this, new SlashCommandInvokedEventArgs { Context = slashContext });
 
             await RunPreexecutionChecksAsync(method, slashContext);
 
@@ -857,7 +858,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
         //Context menus
         if (context is ContextMenuContext CMContext)
         {
-            await _contextMenuInvoked.InvokeAsync(this, new ContextMenuInvokedEventArgs() { Context = CMContext });
+            await this.contextMenuInvoked.InvokeAsync(this, new ContextMenuInvokedEventArgs() { Context = CMContext });
 
             await RunPreexecutionChecksAsync(method, CMContext);
 
@@ -1073,7 +1074,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                     }
                     else
                     {
-                        args.Add(await Client.GetUserAsync((ulong)option.Value));
+                        args.Add(await this.Client.GetUserAsync((ulong)option.Value));
                     }
                 }
                 else if (parameter.ParameterType == typeof(DiscordChannel))
@@ -1126,7 +1127,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                 {
                     string? value = option.Value.ToString();
 
-                    if (DiscordEmoji.TryFromUnicode(Client, value, out DiscordEmoji? emoji) || DiscordEmoji.TryFromName(Client, value, out emoji))
+                    if (DiscordEmoji.TryFromUnicode(this.Client, value, out DiscordEmoji? emoji) || DiscordEmoji.TryFromName(this.Client, value, out emoji))
                     {
                         args.Add(emoji);
                     }
@@ -1144,7 +1145,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                     }
                     else
                     {
-                        Client.Logger.LogError("Missing attachment in resolved data. This is an issue with Discord.");
+                        this.Client.Logger.LogError("Missing attachment in resolved data. This is an issue with Discord.");
                     }
                 }
 
@@ -1230,8 +1231,8 @@ public sealed partial class SlashCommandsExtension : BaseExtension
         AutocompleteContext context = new()
         {
             Interaction = interaction,
-            Client = Client,
-            Services = _configuration?.Services,
+            Client = this.Client,
+            Services = this.configuration?.Services,
             SlashCommandsExtension = this,
             Guild = interaction.Guild,
             Channel = interaction.Channel,
@@ -1250,19 +1251,19 @@ public sealed partial class SlashCommandsExtension : BaseExtension
             }
 
             MethodInfo? providerMethod = provider.GetMethod(nameof(IAutocompleteProvider.Provider));
-            object providerInstance = ActivatorUtilities.CreateInstance(_configuration.Services, provider);
+            object providerInstance = ActivatorUtilities.CreateInstance(this.configuration.Services, provider);
 
             IEnumerable<DiscordAutoCompleteChoice> choices = await (Task<IEnumerable<DiscordAutoCompleteChoice>>)providerMethod.Invoke(providerInstance, new[] { context });
 
             if (choices.Count() > 25)
             {
                 choices = choices.Take(25);
-                Client.Logger.LogWarning("""Autocomplete provider "{provider}" returned more than 25 choices. Only the first 25 are passed to Discord.""", nameof(provider));
+                this.Client.Logger.LogWarning("""Autocomplete provider "{provider}" returned more than 25 choices. Only the first 25 are passed to Discord.""", nameof(provider));
             }
 
             await interaction.CreateResponseAsync(DiscordInteractionResponseType.AutoCompleteResult, new DiscordInteractionResponseBuilder().AddAutoCompleteChoices(choices));
 
-            await _autocompleteExecuted.InvokeAsync(this,
+            await this.autocompleteExecuted.InvokeAsync(this,
                 new()
                 {
                     Context = context,
@@ -1271,7 +1272,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
         }
         catch (Exception ex)
         {
-            await _autocompleteErrored.InvokeAsync(this,
+            await this.autocompleteErrored.InvokeAsync(this,
                 new AutocompleteErrorEventArgs()
                 {
                     Exception = ex,
@@ -1290,10 +1291,10 @@ public sealed partial class SlashCommandsExtension : BaseExtension
     /// </summary>
     public async Task RefreshCommandsAsync()
     {
-        _commandMethods.Clear();
-        _groupCommands.Clear();
-        _subGroupCommands.Clear();
-        _registeredCommands.Clear();
+        commandMethods.Clear();
+        groupCommands.Clear();
+        subGroupCommands.Clear();
+        registeredCommands.Clear();
 
         await Update();
     }
@@ -1303,91 +1304,91 @@ public sealed partial class SlashCommandsExtension : BaseExtension
     /// </summary>
     public event AsyncEventHandler<SlashCommandsExtension, SlashCommandErrorEventArgs> SlashCommandErrored
     {
-        add => _slashError.Register(value);
-        remove => _slashError.Unregister(value);
+        add => this.slashError.Register(value);
+        remove => this.slashError.Unregister(value);
     }
-    private AsyncEvent<SlashCommandsExtension, SlashCommandErrorEventArgs> _slashError;
+    private AsyncEvent<SlashCommandsExtension, SlashCommandErrorEventArgs> slashError;
 
     /// <summary>
     /// Fired when a slash command has been received and is to be executed
     /// </summary>
     public event AsyncEventHandler<SlashCommandsExtension, SlashCommandInvokedEventArgs> SlashCommandInvoked
     {
-        add => _slashInvoked.Register(value);
-        remove => _slashInvoked.Unregister(value);
+        add => this.slashInvoked.Register(value);
+        remove => this.slashInvoked.Unregister(value);
     }
-    private AsyncEvent<SlashCommandsExtension, SlashCommandInvokedEventArgs> _slashInvoked;
+    private AsyncEvent<SlashCommandsExtension, SlashCommandInvokedEventArgs> slashInvoked;
 
     /// <summary>
     /// Fires when the execution of a slash command is successful.
     /// </summary>
     public event AsyncEventHandler<SlashCommandsExtension, SlashCommandExecutedEventArgs> SlashCommandExecuted
     {
-        add => _slashExecuted.Register(value);
-        remove => _slashExecuted.Unregister(value);
+        add => this.slashExecuted.Register(value);
+        remove => this.slashExecuted.Unregister(value);
     }
-    private AsyncEvent<SlashCommandsExtension, SlashCommandExecutedEventArgs> _slashExecuted;
+    private AsyncEvent<SlashCommandsExtension, SlashCommandExecutedEventArgs> slashExecuted;
 
     /// <summary>
     /// Fires when the execution of a context menu fails.
     /// </summary>
     public event AsyncEventHandler<SlashCommandsExtension, ContextMenuErrorEventArgs> ContextMenuErrored
     {
-        add => _contextMenuErrored.Register(value);
-        remove => _contextMenuErrored.Unregister(value);
+        add => this.contextMenuErrored.Register(value);
+        remove => this.contextMenuErrored.Unregister(value);
     }
-    private AsyncEvent<SlashCommandsExtension, ContextMenuErrorEventArgs> _contextMenuErrored;
+    private AsyncEvent<SlashCommandsExtension, ContextMenuErrorEventArgs> contextMenuErrored;
 
     /// <summary>
     /// Fired when a context menu has been received and is to be executed
     /// </summary>
     public event AsyncEventHandler<SlashCommandsExtension, ContextMenuInvokedEventArgs> ContextMenuInvoked
     {
-        add => _contextMenuInvoked.Register(value);
-        remove => _contextMenuInvoked.Unregister(value);
+        add => this.contextMenuInvoked.Register(value);
+        remove => this.contextMenuInvoked.Unregister(value);
     }
-    private AsyncEvent<SlashCommandsExtension, ContextMenuInvokedEventArgs> _contextMenuInvoked;
+    private AsyncEvent<SlashCommandsExtension, ContextMenuInvokedEventArgs> contextMenuInvoked;
 
     /// <summary>
     /// Fire when the execution of a context menu is successful.
     /// </summary>
     public event AsyncEventHandler<SlashCommandsExtension, ContextMenuExecutedEventArgs> ContextMenuExecuted
     {
-        add => _contextMenuExecuted.Register(value);
-        remove => _contextMenuExecuted.Unregister(value);
+        add => this.contextMenuExecuted.Register(value);
+        remove => this.contextMenuExecuted.Unregister(value);
     }
-    private AsyncEvent<SlashCommandsExtension, ContextMenuExecutedEventArgs> _contextMenuExecuted;
+    private AsyncEvent<SlashCommandsExtension, ContextMenuExecutedEventArgs> contextMenuExecuted;
 
     public event AsyncEventHandler<SlashCommandsExtension, AutocompleteErrorEventArgs> AutocompleteErrored
     {
-        add => _autocompleteErrored.Register(value);
-        remove => _autocompleteErrored.Register(value);
+        add => this.autocompleteErrored.Register(value);
+        remove => this.autocompleteErrored.Register(value);
     }
-    private AsyncEvent<SlashCommandsExtension, AutocompleteErrorEventArgs> _autocompleteErrored;
+    private AsyncEvent<SlashCommandsExtension, AutocompleteErrorEventArgs> autocompleteErrored;
 
     public event AsyncEventHandler<SlashCommandsExtension, AutocompleteExecutedEventArgs> AutocompleteExecuted
     {
-        add => _autocompleteExecuted.Register(value);
-        remove => _autocompleteExecuted.Register(value);
+        add => this.autocompleteExecuted.Register(value);
+        remove => this.autocompleteExecuted.Register(value);
     }
-    private AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs> _autocompleteExecuted;
+    private AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs> autocompleteExecuted;
 
     public override void Dispose()
     {
-        _slashError?.UnregisterAll();
-        _slashInvoked?.UnregisterAll();
-        _slashExecuted?.UnregisterAll();
-        _contextMenuErrored?.UnregisterAll();
-        _contextMenuExecuted?.UnregisterAll();
-        _contextMenuInvoked?.UnregisterAll();
-        _autocompleteErrored?.UnregisterAll();
-        _autocompleteExecuted?.UnregisterAll();
+        this.slashError?.UnregisterAll();
+        this.slashInvoked?.UnregisterAll();
+        this.slashExecuted?.UnregisterAll();
+        this.contextMenuErrored?.UnregisterAll();
+        this.contextMenuExecuted?.UnregisterAll();
+        this.contextMenuInvoked?.UnregisterAll();
+        this.autocompleteErrored?.UnregisterAll();
+        this.autocompleteExecuted?.UnregisterAll();
 
-        if (Client != null)
+        if (this.Client != null)
         {
-            Client.SessionCreated -= Update;
-            Client.InteractionCreated -= InteractionHandler;
-            Client.ContextMenuInteractionCreated -= ContextMenuHandler;
+            this.Client.SessionCreated -= Update;
+            this.Client.InteractionCreated -= InteractionHandler;
+            this.Client.ContextMenuInteractionCreated -= ContextMenuHandler;
         }
 
         // Satisfy rule CA1816. Can be removed if this class is sealed.

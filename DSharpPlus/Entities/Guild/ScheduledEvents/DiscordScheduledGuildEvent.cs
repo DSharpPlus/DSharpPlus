@@ -36,13 +36,13 @@ public sealed class DiscordScheduledGuildEvent : SnowflakeObject
     /// The guild this event is scheduled for.
     /// </summary>
     [JsonIgnore]
-    public DiscordGuild Guild => (Discord as DiscordClient)!.InternalGetCachedGuild(GuildId);
+    public DiscordGuild Guild => (this.Discord as DiscordClient)!.InternalGetCachedGuild(this.GuildId);
 
     /// <summary>
     /// The channel this event is scheduled for, if applicable.
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel? Channel => ChannelId.HasValue ? Guild.GetChannel(ChannelId.Value) : null;
+    public DiscordChannel? Channel => this.ChannelId.HasValue ? this.Guild.GetChannel(this.ChannelId.Value) : null;
 
     /// <summary>
     /// The id of the channel this event is scheduled in, if any.
@@ -102,7 +102,7 @@ public sealed class DiscordScheduledGuildEvent : SnowflakeObject
     /// The shareable link to this event.
     /// </summary>
     [JsonIgnore]
-    public string ShareLink => $"https://discord.com/events/{GuildId}/{Id}";
+    public string ShareLink => $"https://discord.com/events/{this.GuildId}/{this.Id}";
 
     internal DiscordScheduledGuildEvent() { }
 }

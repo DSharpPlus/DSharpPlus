@@ -41,8 +41,8 @@ public sealed class OptionAttribute : Attribute
             throw new ArgumentException("Slash command option descriptions cannot go over 100 characters.");
         }
 
-        Name = name.ToLower();
-        Description = description;
-        Autocomplete = autocomplete;
+        this.Name = name.ToLower();
+        this.Description = description;
+        this.Autocomplete = autocomplete;
     }
 }

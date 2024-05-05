@@ -59,10 +59,10 @@ public readonly struct Optional<T> : IEquatable<Optional<T>>, IEquatable<T>, IOp
     /// Gets the value of this <see cref="Optional{T}"/>.
     /// </summary>
     /// <exception cref="InvalidOperationException">If this <see cref="Optional{T}"/> has no value.</exception>
-    public T Value => HasValue ? _val : throw new InvalidOperationException("Value is not set.");
-    object IOptional.RawValue => _val;
+    public T Value => this.HasValue ? this.val : throw new InvalidOperationException("Value is not set.");
+    object IOptional.RawValue => this.val;
 
-    private readonly T _val;
+    private readonly T val;
 
     /// <summary>
     /// Creates a new <see cref="Optional{T}"/> with specified value.
@@ -70,8 +70,8 @@ public readonly struct Optional<T> : IEquatable<Optional<T>>, IEquatable<T>, IOp
     /// <param name="value">Value of this option.</param>
     public Optional(T value)
     {
-        _val = value;
-        HasValue = true;
+        this.val = value;
+        this.HasValue = true;
     }
 
     /// <summary>
@@ -80,25 +80,28 @@ public readonly struct Optional<T> : IEquatable<Optional<T>>, IEquatable<T>, IOp
     /// <param name="value">The value contained within the optional.</param>
     /// <returns>True if the value is set, and is not null, otherwise false.</returns>
     public bool IsDefined([NotNullWhen(true)] out T? value)
-        => (value = _val) != null;
+        => (value = this.val) != null;
 
     /// <summary>
     /// Returns a string representation of this optional value.
     /// </summary>
     /// <returns>String representation of this optional value.</returns>
-    public override string ToString() => $"Optional<{typeof(T)}> ({(HasValue ? Value.ToString() : "<no value>")})";
+    public override string ToString() => $"Optional<{typeof(T)}> ({(this.HasValue ? this.Value.ToString() : "<no value>")})";
 
     /// <summary>
     /// Checks whether this <see cref="Optional{T}"/> (or its value) are equal to another object.
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="Optional{T}"/> or its value.</returns>
-    public override bool Equals(object obj) => obj switch
+    public override bool Equals(object obj)
     {
-        T t => Equals(t),
-        Optional<T> opt => Equals(opt),
-        _ => false,
-    };
+        return obj switch
+        {
+            T t => Equals(t),
+            Optional<T> opt => Equals(opt),
+            _ => false,
+        };
+    }
 
     /// <summary>
     /// Checks whether this <see cref="Optional{T}"/> is equal to another <see cref="Optional{T}"/>.
@@ -106,7 +109,7 @@ public readonly struct Optional<T> : IEquatable<Optional<T>>, IEquatable<T>, IOp
     /// <param name="e"><see cref="Optional{T}"/> to compare to.</param>
     /// <returns>Whether the <see cref="Optional{T}"/> is equal to this <see cref="Optional{T}"/>.</returns>
     public bool Equals(Optional<T> e)
-        => (!HasValue && !e.HasValue) || (HasValue == e.HasValue && Value.Equals(e.Value));
+        => (!this.HasValue && !e.HasValue) || (this.HasValue == e.HasValue && this.Value.Equals(e.Value));
 
     /// <summary>
     /// Checks whether the value of this <see cref="Optional{T}"/> is equal to specified object.
@@ -114,7 +117,7 @@ public readonly struct Optional<T> : IEquatable<Optional<T>>, IEquatable<T>, IOp
     /// <param name="e">Object to compare to.</param>
     /// <returns>Whether the object is equal to the value of this <see cref="Optional{T}"/>.</returns>
     public bool Equals(T e)
-        => HasValue && ReferenceEquals(Value, e);
+        => this.HasValue && ReferenceEquals(this.Value, e);
 
     /// <summary>
     /// Gets the hash code for this <see cref="Optional{T}"/>.
@@ -123,11 +126,11 @@ public readonly struct Optional<T> : IEquatable<Optional<T>>, IEquatable<T>, IOp
     [SuppressMessage("Formatting", "IDE0046", Justification = "Do not fall into the ternary trap")]
     public override int GetHashCode()
     {
-        if (HasValue)
+        if (this.HasValue)
         {
-            if (_val is not null)
+            if (this.val is not null)
             {
-                return _val.GetHashCode();
+                return this.val.GetHashCode();
             }
 
             return 0;
@@ -166,10 +169,10 @@ public readonly struct Optional<T> : IEquatable<Optional<T>>, IEquatable<T>, IOp
     /// <see cref="Optional{T}"/> contains a value; otherwise, an empty <see cref="Optional{T}"/> of the target
     /// type.
     /// </returns>
-    public Optional<TTarget> IfPresent<TTarget>(Func<T, TTarget> mapper) => HasValue ? new Optional<TTarget>(mapper(Value)) : default;
+    public Optional<TTarget> IfPresent<TTarget>(Func<T, TTarget> mapper) => this.HasValue ? new Optional<TTarget>(mapper(this.Value)) : default;
 }
 
-/// <seealso cref="DiscordJson._serializer"/>
+/// <seealso cref="DiscordJson.serializer"/>
 internal sealed class OptionalJsonContractResolver : DefaultContractResolver
 {
     protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)

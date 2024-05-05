@@ -13,11 +13,11 @@ namespace DSharpPlus.Interactivity.EventHandling;
 /// <typeparam name="T"></typeparam>
 internal class CollectRequest<T> : IDisposable where T : AsyncEventArgs
 {
-    internal TaskCompletionSource<bool> _tcs;
-    internal CancellationTokenSource _ct;
-    internal Func<T, bool> _predicate;
-    internal TimeSpan _timeout;
-    internal ConcurrentHashSet<T> _collected;
+    internal TaskCompletionSource<bool> tcs;
+    internal CancellationTokenSource ct;
+    internal Func<T, bool> predicate;
+    internal TimeSpan timeout;
+    internal ConcurrentHashSet<T> collected;
 
     /// <summary>
     /// Creates a new CollectRequest object.
@@ -26,12 +26,12 @@ internal class CollectRequest<T> : IDisposable where T : AsyncEventArgs
     /// <param name="timeout">Timeout time</param>
     public CollectRequest(Func<T, bool> predicate, TimeSpan timeout)
     {
-        _tcs = new TaskCompletionSource<bool>();
-        _ct = new CancellationTokenSource(timeout);
-        _predicate = predicate;
-        _ct.Token.Register(() => _tcs.TrySetResult(true));
-        _timeout = timeout;
-        _collected = [];
+        this.tcs = new TaskCompletionSource<bool>();
+        this.ct = new CancellationTokenSource(timeout);
+        this.predicate = predicate;
+        this.ct.Token.Register(() => this.tcs.TrySetResult(true));
+        this.timeout = timeout;
+        this.collected = [];
     }
 
     /// <summary>
@@ -39,14 +39,14 @@ internal class CollectRequest<T> : IDisposable where T : AsyncEventArgs
     /// </summary>
     public void Dispose()
     {
-        _ct.Dispose();
-        _tcs = null!;
-        _predicate = null!;
+        this.ct.Dispose();
+        this.tcs = null!;
+        this.predicate = null!;
 
-        if (_collected != null)
+        if (this.collected != null)
         {
-            _collected.Clear();
-            _collected = null!;
+            this.collected.Clear();
+            this.collected = null!;
         }
     }
 }

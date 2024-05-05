@@ -16,23 +16,23 @@ internal sealed class AuditLogActionChange
 
     [JsonIgnore]
     public IEnumerable<JObject> OldValues
-        => (OldValue as JArray)?.ToDiscordObject<IEnumerable<JObject>>();
+        => (this.OldValue as JArray)?.ToDiscordObject<IEnumerable<JObject>>();
 
     [JsonIgnore]
     public ulong OldValueUlong
-        => (ulong)OldValue;
+        => (ulong)this.OldValue;
 
     [JsonIgnore]
     public string OldValueString
-        => (string)OldValue;
+        => (string)this.OldValue;
 
     [JsonIgnore]
     public bool OldValueBool
-        => (bool)OldValue;
+        => (bool)this.OldValue;
 
     [JsonIgnore]
     public long OldValueLong
-        => (long)OldValue;
+        => (long)this.OldValue;
 
     // this can be a string or an array
     [JsonProperty("new_value")]
@@ -40,23 +40,23 @@ internal sealed class AuditLogActionChange
 
     [JsonIgnore]
     public IEnumerable<JObject> NewValues
-        => (NewValue as JArray)?.ToDiscordObject<IEnumerable<JObject>>();
+        => (this.NewValue as JArray)?.ToDiscordObject<IEnumerable<JObject>>();
 
     [JsonIgnore]
     public ulong NewValueUlong
-        => (ulong)NewValue;
+        => (ulong)this.NewValue;
 
     [JsonIgnore]
     public string NewValueString
-        => (string)NewValue;
+        => (string)this.NewValue;
 
     [JsonIgnore]
     public bool NewValueBool
-        => (bool)NewValue;
+        => (bool)this.NewValue;
 
     [JsonIgnore]
     public long NewValueLong
-        => (long)NewValue;
+        => (long)this.NewValue;
 
     [JsonProperty("key")]
     public string Key { get; set; }

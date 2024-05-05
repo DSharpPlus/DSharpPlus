@@ -14,5 +14,5 @@ public class AutoModerationRuleCreateEventArgs : DiscordEventArgs
 
     internal AutoModerationRuleCreateEventArgs() : base() { }
 
-    internal AutoModerationRuleCreateEventArgs(DiscordAutoModerationRule rule) : base() => Rule = rule;
+    internal AutoModerationRuleCreateEventArgs(DiscordAutoModerationRule rule) : base() => this.Rule = rule;
 }

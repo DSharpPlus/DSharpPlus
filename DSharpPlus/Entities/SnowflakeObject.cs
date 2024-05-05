@@ -19,7 +19,7 @@ public abstract class SnowflakeObject
     /// </summary>
     [JsonIgnore]
     public DateTimeOffset CreationTimestamp
-        => Id.GetSnowflakeTime();
+        => this.Id.GetSnowflakeTime();
 
     /// <summary>
     /// Gets the client instance this object is tied to.

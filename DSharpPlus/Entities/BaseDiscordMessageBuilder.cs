@@ -18,7 +18,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// </summary>
     public string? Content
     {
-        get => _content;
+        get => this.content;
         set
         {
             if (value != null && value.Length > 2000)
@@ -26,16 +26,16 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
                 throw new ArgumentException("Content length cannot exceed 2000 characters.", nameof(value));
             }
 
-            _content = value;
+            this.content = value;
         }
     }
-    internal string? _content;
+    internal string? content;
 
     public DiscordMessageFlags Flags { get; internal set; }
 
     public T SuppressNotifications()
     {
-        Flags |= DiscordMessageFlags.SuppressNotifications;
+        this.Flags |= DiscordMessageFlags.SuppressNotifications;
         return (T)this;
     }
 
@@ -49,26 +49,26 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <summary>
     /// Embeds to send on this webhook request.
     /// </summary>
-    public IReadOnlyList<DiscordEmbed> Embeds => _embeds;
-    internal List<DiscordEmbed> _embeds = [];
+    public IReadOnlyList<DiscordEmbed> Embeds => this.embeds;
+    internal List<DiscordEmbed> embeds = [];
 
     /// <summary>
     /// Files to send on this webhook request.
     /// </summary>
-    public IReadOnlyList<DiscordMessageFile> Files => _files;
-    internal List<DiscordMessageFile> _files = [];
+    public IReadOnlyList<DiscordMessageFile> Files => this.files;
+    internal List<DiscordMessageFile> files = [];
 
     /// <summary>
     /// Mentions to send on this webhook request.
     /// </summary>
-    public IReadOnlyList<IMention> Mentions => _mentions;
-    internal List<IMention> _mentions = [];
+    public IReadOnlyList<IMention> Mentions => this.mentions;
+    internal List<IMention> mentions = [];
 
     /// <summary>
     /// Components to send on this followup message.
     /// </summary>
-    public IReadOnlyList<DiscordActionRowComponent> Components => _components;
-    internal List<DiscordActionRowComponent> _components = [];
+    public IReadOnlyList<DiscordActionRowComponent> Components => this.components;
+    internal List<DiscordActionRowComponent> components = [];
 
     /// <summary>
     /// Thou shalt NOT PASS! ⚡
@@ -83,13 +83,13 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <param name="builder">The builder to copy.</param>
     protected BaseDiscordMessageBuilder(IDiscordMessageBuilder builder)
     {
-        _content = builder.Content;
-        _mentions.AddRange([.. builder.Mentions]);
-        _embeds.AddRange(builder.Embeds);
-        _components.AddRange(builder.Components);
-        _files.AddRange(builder.Files);
-        IsTTS = builder.IsTTS;
-        Poll = builder.Poll;
+        this.content = builder.Content;
+        this.mentions.AddRange([.. builder.Mentions]);
+        this.embeds.AddRange(builder.Embeds);
+        this.components.AddRange(builder.Components);
+        this.files.AddRange(builder.Files);
+        this.IsTTS = builder.IsTTS;
+        this.Poll = builder.Poll;
     }
 
     /// <summary>
@@ -99,7 +99,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <returns>The current builder to be chained.</returns>
     public T WithContent(string content)
     {
-        Content = content;
+        this.Content = content;
         return (T)this;
     }
 
@@ -121,14 +121,14 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     {
         int count = components.TryGetNonEnumeratedCount(out int nonEnumerated) ? nonEnumerated : components.Count();
 
-        if (count + _components.Count > 5)
+        if (count + this.components.Count > 5)
         {
             throw new ArgumentOutOfRangeException(nameof(components), "The amount of action rows provided exceeds the maximum of five.");
         }
 
         foreach (DiscordActionRowComponent? ar in components)
         {
-            _components.Add(ar);
+            this.components.Add(ar);
         }
 
         return (T)this;
@@ -155,7 +155,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         }
 
         DiscordActionRowComponent comp = new(components);
-        _components.Add(comp);
+        this.components.Add(comp);
 
         return (T)this;
     }
@@ -167,13 +167,13 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <returns>The current builder to be chained.</returns>
     public T WithTTS(bool isTTS)
     {
-        IsTTS = isTTS;
+        this.IsTTS = isTTS;
         return (T)this;
     }
 
     public T WithPoll(DiscordPollBuilder poll)
     {
-        Poll = poll;
+        this.Poll = poll;
         return (T)this;
     }
 
@@ -189,7 +189,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
             return (T)this; //Providing null embeds will produce a 400 response from Discord.//
         }
 
-        _embeds.Add(embed);
+        this.embeds.Add(embed);
         return (T)this;
     }
 
@@ -200,7 +200,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <returns>The current builder to be chained.</returns>
     public T AddEmbeds(IEnumerable<DiscordEmbed> embeds)
     {
-        _embeds.AddRange(embeds);
+        this.embeds.AddRange(embeds);
         return (T)this;
     }
 
@@ -210,7 +210,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <returns>The current builder for chaining.</returns>
     public T ClearEmbeds()
     {
-        _embeds.Clear();
+        this.embeds.Clear();
         return (T)this;
     }
 
@@ -220,7 +220,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <returns>The current builder for chaining.</returns>
     public T RemoveEmbedAt(int index)
     {
-        _embeds.RemoveAt(index);
+        this.embeds.RemoveAt(index);
         return (T)this;
     }
 
@@ -232,7 +232,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <returns>The current builder for chaining.</returns>
     public T RemoveEmbeds(int index, int count)
     {
-        _embeds.RemoveRange(index, count);
+        this.embeds.RemoveRange(index, count);
         return (T)this;
     }
 
@@ -270,19 +270,19 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <returns>The current builder to be chained.</returns>
     public T AddFile(string fileName, Stream stream, AddFileOptions fileOptions)
     {
-        if (Files.Count >= 10)
+        if (this.Files.Count >= 10)
         {
             throw new ArgumentException("Cannot send more than 10 files with a single message.");
         }
 
-        if (_files.Any(x => x.FileName == fileName))
+        if (this.files.Any(x => x.FileName == fileName))
         {
             throw new ArgumentException("A file with that filename already exists");
         }
 
         stream = ResolveStream(stream, fileOptions);
         long? resetPosition = fileOptions.HasFlag(AddFileOptions.ResetStream) ? stream.Position : null;
-        _files.Add(new DiscordMessageFile(fileName, stream, resetPosition, fileOptions: fileOptions));
+        this.files.Add(new DiscordMessageFile(fileName, stream, resetPosition, fileOptions: fileOptions));
 
         return (T)this;
     }
@@ -303,21 +303,21 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <returns>The current builder to be chained.</returns>
     public T AddFiles(IDictionary<string, Stream> files, AddFileOptions fileOptions)
     {
-        if (Files.Count + files.Count > 10)
+        if (this.Files.Count + files.Count > 10)
         {
             throw new ArgumentException("Cannot send more than 10 files with a single message.");
         }
 
         foreach (KeyValuePair<string, Stream> file in files)
         {
-            if (_files.Any(x => x.FileName == file.Key))
+            if (this.files.Any(x => x.FileName == file.Key))
             {
                 throw new ArgumentException("A File with that filename already exists");
             }
 
             Stream stream = ResolveStream(file.Value, fileOptions);
             long? resetPosition = fileOptions.HasFlag(AddFileOptions.ResetStream) ? stream.Position : null;
-            _files.Add(new DiscordMessageFile(file.Key, stream, resetPosition, fileOptions: fileOptions));
+            this.files.Add(new DiscordMessageFile(file.Key, stream, resetPosition, fileOptions: fileOptions));
         }
 
         return (T)this;
@@ -325,7 +325,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 
     public T AddFiles(IEnumerable<DiscordMessageFile> files)
     {
-        _files.AddRange(files);
+        this.files.AddRange(files);
         return (T)this;
     }
 
@@ -335,7 +335,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <param name="mention">Mention to add.</param>
     public T AddMention(IMention mention)
     {
-        _mentions.Add(mention);
+        this.mentions.Add(mention);
         return (T)this;
     }
 
@@ -345,7 +345,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <param name="mentions">Mentions to add.</param>
     public T AddMentions(IEnumerable<IMention> mentions)
     {
-        _mentions.AddRange(mentions);
+        this.mentions.AddRange(mentions);
         return (T)this;
     }
 
@@ -353,19 +353,19 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// Clears all message components on this builder.
     /// </summary>
     public virtual void ClearComponents()
-        => _components.Clear();
+        => this.components.Clear();
 
     /// <summary>
     /// Allows for clearing the Message Builder so that it can be used again to send a new message.
     /// </summary>
     public virtual void Clear()
     {
-        Content = "";
-        _embeds.Clear();
-        IsTTS = false;
-        _mentions.Clear();
-        _files.Clear();
-        _components.Clear();
+        this.Content = "";
+        this.embeds.Clear();
+        this.IsTTS = false;
+        this.mentions.Clear();
+        this.files.Clear();
+        this.components.Clear();
     }
 
     /// <inheritdoc/>
@@ -374,7 +374,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         // We don't bother to fully implement the dispose pattern
         // since deriving from this type outside this assembly is unusual.
 
-        foreach (DiscordMessageFile file in _files)
+        foreach (DiscordMessageFile file in this.files)
         {
             if (file.FileOptions.HasFlag(AddFileOptions.CloseStream))
             {
@@ -395,7 +395,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <inheritdoc/>
     public async ValueTask DisposeAsync()
     {
-        foreach (DiscordMessageFile file in _files)
+        foreach (DiscordMessageFile file in this.files)
         {
             if (file.FileOptions.HasFlag(AddFileOptions.CloseStream))
             {
@@ -418,7 +418,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// </summary>
     internal void ResetFileStreamPositions()
     {
-        foreach (DiscordMessageFile file in _files)
+        foreach (DiscordMessageFile file in this.files)
         {
             if (file.ResetPositionTo is long pos)
             {

@@ -38,7 +38,7 @@ public sealed class DiscordButtonComponent : DiscordComponent
     /// <returns>The current component.</returns>
     public DiscordButtonComponent Enable()
     {
-        Disabled = false;
+        this.Disabled = false;
         return this;
     }
 
@@ -48,14 +48,14 @@ public sealed class DiscordButtonComponent : DiscordComponent
     /// <returns>The current component.</returns>
     public DiscordButtonComponent Disable()
     {
-        Disabled = true;
+        this.Disabled = true;
         return this;
     }
 
     /// <summary>
     /// Constructs a new <see cref="DiscordButtonComponent"/>.
     /// </summary>
-    internal DiscordButtonComponent() => Type = DiscordComponentType.Button;
+    internal DiscordButtonComponent() => this.Type = DiscordComponentType.Button;
 
     /// <summary>
     /// Constucts a new button based on another button.
@@ -63,11 +63,11 @@ public sealed class DiscordButtonComponent : DiscordComponent
     /// <param name="other">The button to copy.</param>
     public DiscordButtonComponent(DiscordButtonComponent other) : this()
     {
-        CustomId = other.CustomId;
-        Style = other.Style;
-        Label = other.Label;
-        Disabled = other.Disabled;
-        Emoji = other.Emoji;
+        this.CustomId = other.CustomId;
+        this.Style = other.Style;
+        this.Label = other.Label;
+        this.Disabled = other.Disabled;
+        this.Emoji = other.Emoji;
     }
 
     /// <summary>
@@ -80,11 +80,11 @@ public sealed class DiscordButtonComponent : DiscordComponent
     /// <param name="emoji">The emoji to add to the button. This is required if <paramref name="label"/> is empty or null.</param>
     public DiscordButtonComponent(DiscordButtonStyle style, string customId, string label, bool disabled = false, DiscordComponentEmoji emoji = null)
     {
-        Style = style;
-        Label = label;
-        CustomId = customId;
-        Disabled = disabled;
-        Emoji = emoji;
-        Type = DiscordComponentType.Button;
+        this.Style = style;
+        this.Label = label;
+        this.CustomId = customId;
+        this.Disabled = disabled;
+        this.Emoji = emoji;
+        this.Type = DiscordComponentType.Button;
     }
 }

@@ -30,14 +30,14 @@ public class DuplicateOverloadException : Exception
     internal DuplicateOverloadException(string name, IList<Type> argumentTypes, string argumentSetKey)
         : base("An overload with specified argument types exists.")
     {
-        CommandName = name;
-        ArgumentTypes = new ReadOnlyCollection<Type>(argumentTypes);
-        ArgumentSetKey = argumentSetKey;
+        this.CommandName = name;
+        this.ArgumentTypes = new ReadOnlyCollection<Type>(argumentTypes);
+        this.ArgumentSetKey = argumentSetKey;
     }
 
     /// <summary>
     /// Returns a string representation of this <see cref="DuplicateOverloadException"/>.
     /// </summary>
     /// <returns>A string representation.</returns>
-    public override string ToString() => $"{GetType()}: {Message}\nCommand name: {CommandName}\nArgument types: {ArgumentSetKey}"; // much like System.ArgumentException works
+    public override string ToString() => $"{GetType()}: {this.Message}\nCommand name: {this.CommandName}\nArgument types: {this.ArgumentSetKey}"; // much like System.ArgumentException works
 }

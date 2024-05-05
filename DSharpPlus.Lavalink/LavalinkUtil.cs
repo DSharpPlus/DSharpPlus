@@ -57,7 +57,7 @@ public static class LavalinkUtilities
 
             decoded.Author = br.ReadJavaUtf8();
 
-            decoded._length = br.ReadInt64();
+            decoded.length = br.ReadInt64();
 
             decoded.Identifier = br.ReadJavaUtf8();
 
@@ -79,9 +79,9 @@ public static class LavalinkUtilities
 /// </summary>
 internal class JavaBinaryReader : BinaryReader
 {
-    private static readonly Encoding _utf8NoBom = new UTF8Encoding();
+    private static readonly Encoding utf8NoBom = new UTF8Encoding();
 
-    public JavaBinaryReader(Stream ms) : base(ms, _utf8NoBom)
+    public JavaBinaryReader(Stream ms) : base(ms, utf8NoBom)
     {
     }
 
@@ -196,7 +196,7 @@ internal class JavaBinaryReader : BinaryReader
         //Contract.Ensures(Contract.Result<Byte[]>().Length == count);
 
         byte[] buffer = new byte[count];
-        int bytesRead = BaseStream.Read(buffer, 0, count);
+        int bytesRead = this.BaseStream.Read(buffer, 0, count);
 
         return bytesRead != count ? throw new EndOfStreamException() : buffer;
     }

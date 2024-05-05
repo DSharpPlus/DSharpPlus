@@ -38,10 +38,10 @@ public class RoleEditModel : BaseEditModel
 
     internal RoleEditModel()
     {
-        Name = null;
-        Permissions = null;
-        Color = null;
-        Hoist = null;
-        Mentionable = null;
+        this.Name = null;
+        this.Permissions = null;
+        this.Color = null;
+        this.Hoist = null;
+        this.Mentionable = null;
     }
 }

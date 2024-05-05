@@ -18,5 +18,5 @@ public sealed class ChoiceProviderAttribute : Attribute
     /// Adds a choice provider to this command.
     /// </summary>
     /// <param name="providerType">The type of the provider.</param>
-    public ChoiceProviderAttribute(Type providerType) => ProviderType = providerType;
+    public ChoiceProviderAttribute(Type providerType) => this.ProviderType = providerType;
 }

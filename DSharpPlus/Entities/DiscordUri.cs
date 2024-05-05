@@ -20,16 +20,16 @@ public readonly record struct DiscordUri
 
     internal DiscordUri(Uri value)
     {
-        uri = value.AbsoluteUri;
-        Type = DiscordUriType.Standard;
+        this.uri = value.AbsoluteUri;
+        this.Type = DiscordUriType.Standard;
     }
 
     internal DiscordUri(string value)
     {
         ArgumentNullException.ThrowIfNull(value);
 
-        uri = value;
-        Type = IsStandard(uri) ? DiscordUriType.Standard : DiscordUriType.NonStandard;
+        this.uri = value;
+        this.Type = IsStandard(this.uri) ? DiscordUriType.Standard : DiscordUriType.NonStandard;
     }
 
     private static bool IsStandard(string value) => !value.StartsWith("attachment://");
@@ -38,7 +38,7 @@ public readonly record struct DiscordUri
     /// Returns a string representation of this DiscordUri.
     /// </summary>
     /// <returns>This DiscordUri, as a string.</returns>
-    public override string? ToString() => uri;
+    public override string? ToString() => this.uri;
 
     /// <summary>
     /// Converts this DiscordUri into a canonical representation of a <see cref="Uri"/> if it can be represented as
@@ -48,10 +48,10 @@ public readonly record struct DiscordUri
     /// <exception cref="UriFormatException">If <see cref="Type"/> is not <see cref="DiscordUriType.Standard"/>, as
     /// that would mean creating an invalid Uri, which would result in loss of data.</exception>
     public Uri? ToUri()
-        => Type == DiscordUriType.Standard
-            ? new Uri(uri)
+        => this.Type == DiscordUriType.Standard
+            ? new Uri(this.uri)
             : throw new UriFormatException(
-                $@"DiscordUri ""{uri}"" would be invalid as a regular URI, please check the {nameof(Type)} property first.");
+                $@"DiscordUri ""{this.uri}"" would be invalid as a regular URI, please check the {nameof(this.Type)} property first.");
 
     internal sealed class DiscordUriJsonConverter : JsonConverter
     {

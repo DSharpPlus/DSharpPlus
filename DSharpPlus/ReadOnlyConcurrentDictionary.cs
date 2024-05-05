@@ -12,31 +12,31 @@ namespace DSharpPlus;
 /// <typeparam name="TValue">The type of values in the dictionary.</typeparam>
 internal readonly struct ReadOnlyConcurrentDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>
 {
-    private readonly ConcurrentDictionary<TKey, TValue> _underlyingDict;
+    private readonly ConcurrentDictionary<TKey, TValue> underlyingDict;
 
     /// <summary>
     /// Creates a new read-only view of the given dictionary.
     /// </summary>
     /// <param name="underlyingDict">Dictionary to create a view over.</param>
-    public ReadOnlyConcurrentDictionary(ConcurrentDictionary<TKey, TValue> underlyingDict) => _underlyingDict = underlyingDict;
+    public ReadOnlyConcurrentDictionary(ConcurrentDictionary<TKey, TValue> underlyingDict) => this.underlyingDict = underlyingDict;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _underlyingDict.GetEnumerator();
+    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => this.underlyingDict.GetEnumerator();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_underlyingDict).GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)this.underlyingDict).GetEnumerator();
 
-    public int Count => _underlyingDict.Count;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool ContainsKey(TKey key) => _underlyingDict.ContainsKey(key);
+    public int Count => this.underlyingDict.Count;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool TryGetValue(TKey key, out TValue value) => _underlyingDict.TryGetValue(key, out value);
+    public bool ContainsKey(TKey key) => this.underlyingDict.ContainsKey(key);
 
-    public TValue this[TKey key] => _underlyingDict[key];
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool TryGetValue(TKey key, out TValue value) => this.underlyingDict.TryGetValue(key, out value);
 
-    public IEnumerable<TKey> Keys => _underlyingDict.Keys;
+    public TValue this[TKey key] => this.underlyingDict[key];
 
-    public IEnumerable<TValue> Values => _underlyingDict.Values;
+    public IEnumerable<TKey> Keys => this.underlyingDict.Keys;
+
+    public IEnumerable<TValue> Values => this.underlyingDict.Values;
 }

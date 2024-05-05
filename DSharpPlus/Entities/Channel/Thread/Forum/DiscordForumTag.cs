@@ -33,25 +33,25 @@ public sealed class DiscordForumTag : SnowflakeObject
 public class DiscordForumTagBuilder
 {
     [JsonProperty("name"), SuppressMessage("Code Quality", "IDE0052:Remove unread private members", Justification = "This is used by JSON.NET.")]
-    private string _name;
+    private string name;
 
     [JsonProperty("moderated"), SuppressMessage("Code Quality", "IDE0052:Remove unread private members", Justification = "This is used by JSON.NET.")]
-    private bool _moderated;
+    private bool moderated;
 
     [JsonProperty("emoji_id"), SuppressMessage("Code Quality", "IDE0052:Remove unread private members", Justification = "This is used by JSON.NET.")]
-    private ulong? _emojiId;
+    private ulong? emojiId;
 
     [JsonProperty("emoji_name"), SuppressMessage("Code Quality", "IDE0052:Remove unread private members", Justification = "This is used by JSON.NET.")]
-    private string _emojiName;
+    private string emojiName;
 
     public static DiscordForumTagBuilder FromTag(DiscordForumTag tag)
     {
         DiscordForumTagBuilder builder = new()
         {
-            _name = tag.Name,
-            _moderated = tag.Moderated,
-            _emojiId = tag.EmojiId,
-            _emojiName = tag.EmojiName
+            name = tag.Name,
+            moderated = tag.Moderated,
+            emojiId = tag.EmojiId,
+            emojiName = tag.EmojiName
         };
         return builder;
     }
@@ -63,7 +63,7 @@ public class DiscordForumTagBuilder
     /// <returns>The builder to chain calls with.</returns>
     public DiscordForumTagBuilder WithName(string name)
     {
-        _name = name;
+        this.name = name;
         return this;
     }
 
@@ -74,7 +74,7 @@ public class DiscordForumTagBuilder
     /// <returns>The builder to chain calls with.</returns>
     public DiscordForumTagBuilder IsModerated(bool moderated = true)
     {
-        _moderated = moderated;
+        this.moderated = moderated;
         return this;
     }
 
@@ -85,8 +85,8 @@ public class DiscordForumTagBuilder
     /// <returns>The builder to chain calls with.</returns>
     public DiscordForumTagBuilder WithEmojiId(ulong? emojiId)
     {
-        _emojiId = emojiId;
-        _emojiName = null;
+        this.emojiId = emojiId;
+        this.emojiName = null;
         return this;
     }
 
@@ -97,16 +97,16 @@ public class DiscordForumTagBuilder
     /// <returns>The builder to chain calls with.</returns>
     public DiscordForumTagBuilder WithEmoji(DiscordEmoji emoji)
     {
-        _emojiId = emoji.Id;
-        _emojiName = emoji.Name;
+        this.emojiId = emoji.Id;
+        this.emojiName = emoji.Name;
         return this;
     }
 
     /// <returns>The builder to chain calls with.</returns>
     public DiscordForumTagBuilder WithEmojiName(string emojiName)
     {
-        _emojiId = null;
-        _emojiName = emojiName;
+        this.emojiId = null;
+        this.emojiName = emojiName;
         return this;
     }
 }

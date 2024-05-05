@@ -39,10 +39,10 @@ public class MinimumAttribute : Attribute
     /// <summary>
     /// Sets a minimum value for this slash command option. Only valid for <see cref="long"/> or <see cref="double"/> parameters.
     /// </summary>
-    public MinimumAttribute(long value) => Value = value;
+    public MinimumAttribute(long value) => this.Value = value;
 
     /// <summary>
     /// Sets a minimum value for this slash command option. Only valid for <see cref="long"/> or <see cref="double"/> parameters.
     /// </summary>
-    public MinimumAttribute(double value) => Value = value;
+    public MinimumAttribute(double value) => this.Value = value;
 }

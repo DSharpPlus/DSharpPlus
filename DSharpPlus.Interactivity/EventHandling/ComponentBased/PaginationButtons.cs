@@ -13,28 +13,28 @@ public class PaginationButtons
     internal DiscordButtonComponent[] ButtonArray =>
     // This isn't great but I can't figure out how to pass these elements by ref :(
     [                                                      // And yes, it should be by ref to begin with, but in testing it refuses to update.
-        SkipLeft,                                     // So I have no idea what that's about, and this array is "cheap-enough" and infrequent
-        Left,                                         // enough to the point that it *should* be fine.
-        Stop,
-        Right,
-        SkipRight
+        this.SkipLeft,                                     // So I have no idea what that's about, and this array is "cheap-enough" and infrequent
+        this.Left,                                         // enough to the point that it *should* be fine.
+        this.Stop,
+        this.Right,
+        this.SkipRight
     ];
 
     public PaginationButtons()
     {
-        SkipLeft = new(DiscordButtonStyle.Secondary, "leftskip", null, false, new(DiscordEmoji.FromUnicode("⏮")));
-        Left = new(DiscordButtonStyle.Secondary, "left", null, false, new(DiscordEmoji.FromUnicode("◀")));
-        Stop = new(DiscordButtonStyle.Secondary, "stop", null, false, new(DiscordEmoji.FromUnicode("⏹")));
-        Right = new(DiscordButtonStyle.Secondary, "right", null, false, new(DiscordEmoji.FromUnicode("▶")));
-        SkipRight = new(DiscordButtonStyle.Secondary, "rightskip", null, false, new(DiscordEmoji.FromUnicode("⏭")));
+        this.SkipLeft = new(DiscordButtonStyle.Secondary, "leftskip", null, false, new(DiscordEmoji.FromUnicode("⏮")));
+        this.Left = new(DiscordButtonStyle.Secondary, "left", null, false, new(DiscordEmoji.FromUnicode("◀")));
+        this.Stop = new(DiscordButtonStyle.Secondary, "stop", null, false, new(DiscordEmoji.FromUnicode("⏹")));
+        this.Right = new(DiscordButtonStyle.Secondary, "right", null, false, new(DiscordEmoji.FromUnicode("▶")));
+        this.SkipRight = new(DiscordButtonStyle.Secondary, "rightskip", null, false, new(DiscordEmoji.FromUnicode("⏭")));
     }
 
     public PaginationButtons(PaginationButtons other)
     {
-        Stop = new(other.Stop);
-        Left = new(other.Left);
-        Right = new(other.Right);
-        SkipLeft = new(other.SkipLeft);
-        SkipRight = new(other.SkipRight);
+        this.Stop = new(other.Stop);
+        this.Left = new(other.Left);
+        this.Right = new(other.Right);
+        this.SkipLeft = new(other.SkipLeft);
+        this.SkipRight = new(other.SkipRight);
     }
 }

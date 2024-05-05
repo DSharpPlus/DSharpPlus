@@ -10,7 +10,7 @@ public class LavalinkRouteStatus
     /// </summary>
     [JsonIgnore]
     public LavalinkRoutePlannerType? Class
-        => GetLavalinkRoutePlannerType(ClassInternal);
+        => GetLavalinkRoutePlannerType(this.ClassInternal);
 
     /// <summary>
     /// Gets the details of the route planner.

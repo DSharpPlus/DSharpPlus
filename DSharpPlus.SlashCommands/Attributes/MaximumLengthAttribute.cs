@@ -39,5 +39,5 @@ public class MaximumLengthAttribute : Attribute
     /// <summary>
     /// Sets a maximum allowed length for this slash command option. Only valid for <see cref="string"/> parameters.
     /// </summary>
-    public MaximumLengthAttribute(int value) => Value = value;
+    public MaximumLengthAttribute(int value) => this.Value = value;
 }

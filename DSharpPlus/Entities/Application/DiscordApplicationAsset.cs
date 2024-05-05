@@ -35,11 +35,11 @@ public sealed class DiscordApplicationAsset : DiscordAsset, IEquatable<DiscordAp
     /// Gets the Url of this asset.
     /// </summary>
     public override Uri Url
-        => new($"https://cdn.discordapp.com/app-assets/{Application.Id.ToString(CultureInfo.InvariantCulture)}/{Id}.png");
+        => new($"https://cdn.discordapp.com/app-assets/{this.Application.Id.ToString(CultureInfo.InvariantCulture)}/{this.Id}.png");
 
     internal DiscordApplicationAsset() { }
 
-    internal DiscordApplicationAsset(DiscordApplication app) => Discord = app.Discord;
+    internal DiscordApplicationAsset(DiscordApplication app) => this.Discord = app.Discord;
 
     /// <summary>
     /// Checks whether this <see cref="DiscordApplicationAsset"/> is equal to another object.
@@ -53,13 +53,13 @@ public sealed class DiscordApplicationAsset : DiscordAsset, IEquatable<DiscordAp
     /// </summary>
     /// <param name="e"><see cref="DiscordApplicationAsset"/> to compare to.</param>
     /// <returns>Whether the <see cref="DiscordApplicationAsset"/> is equal to this <see cref="DiscordApplicationAsset"/>.</returns>
-    public bool Equals(DiscordApplicationAsset? e) => e is not null && (ReferenceEquals(this, e) || Id == e.Id);
+    public bool Equals(DiscordApplicationAsset? e) => e is not null && (ReferenceEquals(this, e) || this.Id == e.Id);
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordApplication"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="DiscordApplication"/>.</returns>
-    public override int GetHashCode() => Id.GetHashCode();
+    public override int GetHashCode() => this.Id.GetHashCode();
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordApplicationAsset"/> objects are equal.

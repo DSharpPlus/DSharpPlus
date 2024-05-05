@@ -25,27 +25,27 @@ public sealed class CommandContext
     /// Gets the channel in which the execution was triggered,
     /// </summary>
     public DiscordChannel Channel
-        => Message.Channel;
+        => this.Message.Channel;
 
     /// <summary>
     /// Gets the guild in which the execution was triggered. This property is null for commands sent over direct messages.
     /// </summary>
     public DiscordGuild Guild
-        => Channel.Guild;
+        => this.Channel.Guild;
 
     /// <summary>
     /// Gets the user who triggered the execution.
     /// </summary>
     public DiscordUser User
-        => Message.Author;
+        => this.Message.Author;
 
     /// <summary>
     /// Gets the member who triggered the execution. This property is null for commands sent over direct messages.
     /// </summary>
     public DiscordMember? Member
-        => _lazyMember.Value;
+        => this.lazyMember.Value;
 
-    private readonly Lazy<DiscordMember?> _lazyMember;
+    private readonly Lazy<DiscordMember?> lazyMember;
 
     /// <summary>
     /// Gets the CommandsNext service instance that handled this command.
@@ -86,7 +86,7 @@ public sealed class CommandContext
 
     internal ServiceContext ServiceScopeContext { get; set; }
 
-    internal CommandContext() => _lazyMember = new Lazy<DiscordMember?>(() => Guild is not null && Guild.Members.TryGetValue(User.Id, out DiscordMember? member) ? member : Guild?.GetMemberAsync(User.Id).GetAwaiter().GetResult());
+    internal CommandContext() => this.lazyMember = new Lazy<DiscordMember?>(() => this.Guild is not null && this.Guild.Members.TryGetValue(this.User.Id, out DiscordMember? member) ? member : this.Guild?.GetMemberAsync(this.User.Id).GetAwaiter().GetResult());
 
     /// <summary>
     /// Quickly respond to the message that triggered the command.
@@ -94,7 +94,7 @@ public sealed class CommandContext
     /// <param name="content">Message to respond with.</param>
     /// <returns></returns>
     public Task<DiscordMessage> RespondAsync(string content)
-        => Message.RespondAsync(content);
+        => this.Message.RespondAsync(content);
 
     /// <summary>
     /// Quickly respond to the message that triggered the command.
@@ -102,7 +102,7 @@ public sealed class CommandContext
     /// <param name="embed">Embed to attach.</param>
     /// <returns></returns>
     public Task<DiscordMessage> RespondAsync(DiscordEmbed embed)
-        => Message.RespondAsync(embed);
+        => this.Message.RespondAsync(embed);
 
     /// <summary>
     /// Quickly respond to the message that triggered the command.
@@ -111,7 +111,7 @@ public sealed class CommandContext
     /// <param name="embed">Embed to attach.</param>
     /// <returns></returns>
     public Task<DiscordMessage> RespondAsync(string content, DiscordEmbed embed)
-        => Message.RespondAsync(content, embed);
+        => this.Message.RespondAsync(content, embed);
 
     /// <summary>
     /// Quickly respond to the message that triggered the command.
@@ -119,7 +119,7 @@ public sealed class CommandContext
     /// <param name="builder">The Discord Message builder.</param>
     /// <returns></returns>
     public Task<DiscordMessage> RespondAsync(DiscordMessageBuilder builder)
-        => Message.RespondAsync(builder);
+        => this.Message.RespondAsync(builder);
 
     /// <summary>
     /// Quickly respond to the message that triggered the command.
@@ -127,14 +127,14 @@ public sealed class CommandContext
     /// <param name="action">The Discord Message builder.</param>
     /// <returns></returns>
     public Task<DiscordMessage> RespondAsync(Action<DiscordMessageBuilder> action)
-        => Message.RespondAsync(action);
+        => this.Message.RespondAsync(action);
 
     /// <summary>
     /// Triggers typing in the channel containing the message that triggered the command.
     /// </summary>
     /// <returns></returns>
     public Task TriggerTypingAsync()
-        => Channel.TriggerTypingAsync();
+        => this.Channel.TriggerTypingAsync();
 
     internal readonly struct ServiceContext : IDisposable
     {
@@ -144,11 +144,11 @@ public sealed class CommandContext
 
         public ServiceContext(IServiceProvider services, IServiceScope scope)
         {
-            Provider = services;
-            Scope = scope;
-            IsInitialized = true;
+            this.Provider = services;
+            this.Scope = scope;
+            this.IsInitialized = true;
         }
 
-        public readonly void Dispose() => Scope?.Dispose();
+        public readonly void Dispose() => this.Scope?.Dispose();
     }
 }

@@ -18,8 +18,8 @@ public abstract record CommandContext : AbstractContext
     /// <summary>
     /// The followup messages sent from this interaction.
     /// </summary>
-    public IReadOnlyDictionary<ulong, DiscordMessage> FollowupMessages => _followupMessages;
-    protected Dictionary<ulong, DiscordMessage> _followupMessages = [];
+    public IReadOnlyDictionary<ulong, DiscordMessage> FollowupMessages => this.followupMessages;
+    protected Dictionary<ulong, DiscordMessage> followupMessages = [];
 
     /// <inheritdoc cref="RespondAsync(string, DiscordEmbed)"/>
     public virtual ValueTask RespondAsync(string content) => RespondAsync(new DiscordMessageBuilder().WithContent(content));

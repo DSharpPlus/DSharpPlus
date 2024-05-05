@@ -35,9 +35,9 @@ public sealed class DiscordWebhookBuilder : BaseDiscordMessageBuilder<DiscordWeb
     /// <param name="builder">The builder to copy.</param>
     public DiscordWebhookBuilder(DiscordWebhookBuilder builder) : base(builder)
     {
-        Username = builder.Username;
-        AvatarUrl = builder.AvatarUrl;
-        ThreadId = builder.ThreadId;
+        this.Username = builder.Username;
+        this.AvatarUrl = builder.AvatarUrl;
+        this.ThreadId = builder.ThreadId;
     }
 
     /// <summary>
@@ -52,7 +52,7 @@ public sealed class DiscordWebhookBuilder : BaseDiscordMessageBuilder<DiscordWeb
     /// <param name="username">Username of the webhook</param>
     public DiscordWebhookBuilder WithUsername(string username)
     {
-        Username = username;
+        this.Username = username;
         return this;
     }
 
@@ -62,7 +62,7 @@ public sealed class DiscordWebhookBuilder : BaseDiscordMessageBuilder<DiscordWeb
     /// <param name="avatarUrl">Avatar url of the webhook</param>
     public DiscordWebhookBuilder WithAvatarUrl(string avatarUrl)
     {
-        AvatarUrl = avatarUrl;
+        this.AvatarUrl = avatarUrl;
         return this;
     }
 
@@ -72,15 +72,15 @@ public sealed class DiscordWebhookBuilder : BaseDiscordMessageBuilder<DiscordWeb
     /// <param name="threadId">The id of the thread</param>
     public DiscordWebhookBuilder WithThreadId(ulong? threadId)
     {
-        ThreadId = threadId;
+        this.ThreadId = threadId;
         return this;
     }
 
     public override void Clear()
     {
-        Username = default;
-        AvatarUrl = default;
-        ThreadId = default;
+        this.Username = default;
+        this.AvatarUrl = default;
+        this.ThreadId = default;
         base.Clear();
     }
 
@@ -116,43 +116,43 @@ public sealed class DiscordWebhookBuilder : BaseDiscordMessageBuilder<DiscordWeb
     {
         if (isModify)
         {
-            if (Username.HasValue)
+            if (this.Username.HasValue)
             {
                 throw new ArgumentException("You cannot change the username of a message.");
             }
 
-            if (AvatarUrl.HasValue)
+            if (this.AvatarUrl.HasValue)
             {
                 throw new ArgumentException("You cannot change the avatar of a message.");
             }
         }
         else if (isFollowup)
         {
-            if (Username.HasValue)
+            if (this.Username.HasValue)
             {
                 throw new ArgumentException("You cannot change the username of a follow up message.");
             }
 
-            if (AvatarUrl.HasValue)
+            if (this.AvatarUrl.HasValue)
             {
                 throw new ArgumentException("You cannot change the avatar of a follow up message.");
             }
         }
         else if (isInteractionResponse)
         {
-            if (Username.HasValue)
+            if (this.Username.HasValue)
             {
                 throw new ArgumentException("You cannot change the username of an interaction response.");
             }
 
-            if (AvatarUrl.HasValue)
+            if (this.AvatarUrl.HasValue)
             {
                 throw new ArgumentException("You cannot change the avatar of an interaction response.");
             }
         }
         else
         {
-            if (Files?.Count == 0 && string.IsNullOrEmpty(Content) && !Embeds.Any())
+            if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && !this.Embeds.Any())
             {
                 throw new ArgumentException("You must specify content, an embed, or at least one file.");
             }

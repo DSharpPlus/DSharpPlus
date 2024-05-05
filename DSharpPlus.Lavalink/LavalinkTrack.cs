@@ -37,9 +37,9 @@ public class LavalinkTrack
     /// Gets the track's duration.
     /// </summary>
     [JsonIgnore]
-    public TimeSpan Length => !IsStream ? TimeSpan.FromMilliseconds(_length) : TimeSpan.Zero;
+    public TimeSpan Length => !this.IsStream ? TimeSpan.FromMilliseconds(this.length) : TimeSpan.Zero;
     [JsonProperty("length")]
-    internal long _length;
+    internal long length;
 
     /// <summary>
     /// Gets whether the track is a stream.
@@ -51,9 +51,9 @@ public class LavalinkTrack
     /// Gets the starting position of the track.
     /// </summary>
     [JsonIgnore]
-    public TimeSpan Position => TimeSpan.FromMilliseconds(_position);
+    public TimeSpan Position => TimeSpan.FromMilliseconds(this.position);
     [JsonProperty("position")]
-    internal long _position;
+    internal long position;
 
     /// <summary>
     /// Gets the title of the track.

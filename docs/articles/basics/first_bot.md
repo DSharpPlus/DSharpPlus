@@ -232,16 +232,16 @@ Now that you have a basic bot up and running, you should take a look at the foll
 * [CommandsNext][19]
 
 <!-- LINKS -->
-[0]:  xref:articles.basics.bot_account "Creating a Bot Account"
-[1]:  https://visualstudio.microsoft.com/vs/
-[2]:  ../../images/basics_first_bot_01.png
-[3]:  ../../images/basics_first_bot_02.png
-[4]:  ../../images/basics_first_bot_03.png
-[5]:  ../../images/basics_first_bot_04.png
-[6]:  ../../images/basics_first_bot_05.png
-[7]:  ../../images/basics_first_bot_06.png
-[8]:  ../../images/basics_first_bot_07.png
-[9]:  xref:articles.audio.lavalink.setup
+[0]: xref:articles.basics.bot_account "Creating a Bot Account"
+[1]: https://visualstudio.microsoft.com/vs/
+[2]: ../../images/basics_first_bot_01.png
+[3]: ../../images/basics_first_bot_02.png
+[4]: ../../images/basics_first_bot_03.png
+[5]: ../../images/basics_first_bot_04.png
+[6]: ../../images/basics_first_bot_05.png
+[7]: ../../images/basics_first_bot_06.png
+[8]: ../../images/basics_first_bot_07.png
+[9]: xref:articles.audio.lavalink.setup
 [10]: ../../images/basics_first_bot_08.png
 [11]: https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/consuming-the-task-based-asynchronous-pattern
 [12]: ../../images/basics_first_bot_10.png

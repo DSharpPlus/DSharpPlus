@@ -127,7 +127,7 @@ public readonly partial struct DiscordColor
     /// </summary>
     public static DiscordColor Gold { get; } = new DiscordColor(0xFFD700);
 
-    // To be fair, you have to have a very high IQ to understand Goldenrod .
+    // To be fair, you have to have a very high IQ to understand Goldenrod.
     // The tones are extremely subtle, and without a solid grasp of artistic
     // theory most of the beauty will go over a typical painter's head.
     // There's also the flower's nihilistic style, which is deftly woven

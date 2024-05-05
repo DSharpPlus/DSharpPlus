@@ -22,7 +22,7 @@ public class DefaultCommandExecutor : ICommandExecutor
     /// <summary>
     /// This dictionary contains all of the command wrappers intended to be used for bypassing the overhead of reflection and Task/ValueTask handling.
     /// </summary>
-    protected readonly ConcurrentDictionary<Ulid, Func<object?, object?[], ValueTask>> _commandWrappers = new();
+    protected readonly ConcurrentDictionary<Ulid, Func<object?, object?[], ValueTask>> commandWrappers = new();
 
     /// <summary>
     /// This method will ensure that the command is executable, execute all context checks, and then execute the command, and invoke the appropriate events.
@@ -327,10 +327,10 @@ public class DefaultCommandExecutor : ICommandExecutor
             }
 
             // Grab the method that wraps Task/ValueTask execution.
-            if (!_commandWrappers.TryGetValue(context.Command.Id, out Func<object?, object?[], ValueTask>? wrapper))
+            if (!this.commandWrappers.TryGetValue(context.Command.Id, out Func<object?, object?[], ValueTask>? wrapper))
             {
                 wrapper = CommandEmitUtil.GetCommandInvocationFunc(context.Command.Method, context.Command.Target);
-                _commandWrappers[context.Command.Id] = wrapper;
+                this.commandWrappers[context.Command.Id] = wrapper;
             }
 
             // Execute the command and return the result.
@@ -355,7 +355,7 @@ public class DefaultCommandExecutor : ICommandExecutor
     /// <param name="extension">The extension/shard that the event is being invoked on.</param>
     /// <param name="eventArgs">The event arguments to pass to the event.</param>
     protected virtual async ValueTask InvokeCommandErroredEventAsync(CommandsExtension extension, CommandErroredEventArgs eventArgs)
-        => await extension._commandErrored.InvokeAsync(extension, eventArgs);
+        => await extension.commandErrored.InvokeAsync(extension, eventArgs);
 
     /// <summary>
     /// Invokes the <see cref="CommandsExtension.CommandExecuted"/> event, which isn't normally exposed to the public API.
@@ -363,5 +363,5 @@ public class DefaultCommandExecutor : ICommandExecutor
     /// <param name="extension">The extension/shard that the event is being invoked on.</param>
     /// <param name="eventArgs">The event arguments to pass to the event.</param>
     protected virtual async ValueTask InvokeCommandExecutedEventAsync(CommandsExtension extension, CommandExecutedEventArgs eventArgs)
-        => await extension._commandExecuted.InvokeAsync(extension, eventArgs);
+        => await extension.commandExecuted.InvokeAsync(extension, eventArgs);
 }

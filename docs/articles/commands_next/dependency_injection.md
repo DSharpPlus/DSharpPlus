@@ -114,5 +114,5 @@ Scoped    | Once for each command module.
 Transient | Each time its requested.
 
 <!-- LINKS -->
-[0]:  xref:articles.commands_next.intro#argument-converters
-[1]:  ../../images/commands_next_dependency_injection_01.png
+[0]: xref:articles.commands_next.intro#argument-converters
+[1]: ../../images/commands_next_dependency_injection_01.png

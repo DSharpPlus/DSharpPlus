@@ -67,8 +67,8 @@ public sealed class DiscordApplicationCommandOptionChoice
             );
         }
 
-        Name = name;
-        Value = value;
-        NameLocalizations = localizations;
+        this.Name = name;
+        this.Value = value;
+        this.NameLocalizations = localizations;
     }
 }

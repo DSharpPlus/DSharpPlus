@@ -21,9 +21,9 @@ public sealed class CommandOverload
     /// <summary>
     /// Gets this command overload's delegate.
     /// </summary>
-    internal Delegate _callable { get; set; } = null!;
+    internal Delegate callable { get; set; } = null!;
 
-    internal object? _invocationTarget { get; set; }
+    internal object? invocationTarget { get; set; }
 
     internal CommandOverload() { }
 }

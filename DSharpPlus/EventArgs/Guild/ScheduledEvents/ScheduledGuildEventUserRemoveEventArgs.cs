@@ -10,7 +10,7 @@ public class ScheduledGuildEventUserRemoveEventArgs : ScheduledGuildEventUserAdd
     /// <summary>
     /// The guild the event is scheduled for.
     /// </summary>
-    public new DiscordGuild Guild => Event.Guild;
+    public new DiscordGuild Guild => this.Event.Guild;
 
     /// <summary>
     /// The event that was unsubscribed from.

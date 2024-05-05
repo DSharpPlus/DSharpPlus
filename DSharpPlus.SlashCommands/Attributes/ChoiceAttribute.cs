@@ -25,8 +25,8 @@ public sealed class ChoiceAttribute : Attribute
     /// <param name="value">The value of the choice.</param>
     public ChoiceAttribute(string name, string value)
     {
-        Name = name;
-        Value = value;
+        this.Name = name;
+        this.Value = value;
     }
 
     /// <summary>
@@ -36,8 +36,8 @@ public sealed class ChoiceAttribute : Attribute
     /// <param name="value">The value of the choice.</param>
     public ChoiceAttribute(string name, long value)
     {
-        Name = name;
-        Value = value;
+        this.Name = name;
+        this.Value = value;
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ public sealed class ChoiceAttribute : Attribute
     /// <param name="value">The value of the choice.</param>
     public ChoiceAttribute(string name, double value)
     {
-        Name = name;
-        Value = value;
+        this.Name = name;
+        this.Value = value;
     }
 }

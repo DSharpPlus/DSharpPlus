@@ -30,8 +30,8 @@ public sealed class TrackStartEventArgs : AsyncEventArgs
 
     internal TrackStartEventArgs(LavalinkGuildConnection lvl, LavalinkTrack track)
     {
-        Track = track;
-        Player = lvl;
+        this.Track = track;
+        this.Player = lvl;
     }
 }
 
@@ -64,9 +64,9 @@ public sealed class TrackFinishEventArgs : AsyncEventArgs
 
     internal TrackFinishEventArgs(LavalinkGuildConnection lvl, LavalinkTrack track, TrackEndReason reason)
     {
-        Track = track;
-        Reason = reason;
-        Player = lvl;
+        this.Track = track;
+        this.Reason = reason;
+        this.Player = lvl;
     }
 }
 
@@ -130,9 +130,9 @@ public sealed class TrackStuckEventArgs : AsyncEventArgs
 
     internal TrackStuckEventArgs(LavalinkGuildConnection lvl, long thresholdMs, LavalinkTrack track)
     {
-        ThresholdMilliseconds = thresholdMs;
-        Track = track;
-        Player = lvl;
+        this.ThresholdMilliseconds = thresholdMs;
+        this.Track = track;
+        this.Player = lvl;
     }
 }
 
@@ -165,8 +165,8 @@ public sealed class TrackExceptionEventArgs : AsyncEventArgs
 
     internal TrackExceptionEventArgs(LavalinkGuildConnection lvl, string error, LavalinkTrack track)
     {
-        Error = error;
-        Track = track;
-        Player = lvl;
+        this.Error = error;
+        this.Track = track;
+        this.Player = lvl;
     }
 }

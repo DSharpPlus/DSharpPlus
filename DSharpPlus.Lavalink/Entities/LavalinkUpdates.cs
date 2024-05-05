@@ -7,14 +7,14 @@ namespace DSharpPlus.Lavalink.Entities;
 internal sealed class LavalinkState
 {
     [JsonIgnore]
-    public DateTimeOffset Time => Utilities.GetDateTimeOffsetFromMilliseconds(_time);
+    public DateTimeOffset Time => Utilities.GetDateTimeOffsetFromMilliseconds(this.time);
     [JsonProperty("time")]
-    private readonly long _time;
+    private readonly long time;
 
     [JsonIgnore]
-    public TimeSpan Position => TimeSpan.FromMilliseconds(_position);
+    public TimeSpan Position => TimeSpan.FromMilliseconds(this.position);
     [JsonProperty("position")]
-    private readonly long _position;
+    private readonly long position;
 }
 
 /// <summary>
@@ -47,9 +47,9 @@ internal sealed class LavalinkStats
     public int TotalPlayers { get; set; }
 
     [JsonIgnore]
-    public TimeSpan Uptime => TimeSpan.FromMilliseconds(_uptime);
+    public TimeSpan Uptime => TimeSpan.FromMilliseconds(this.uptime);
     [JsonProperty("uptime")]
-    private readonly long _uptime;
+    private readonly long uptime;
 
     [JsonProperty("cpu")]
     public CpuStats Cpu { get; set; }
@@ -170,33 +170,33 @@ public sealed class LavalinkStatistics
     /// </summary>
     public int AverageDeficitFramesPerMinute { get; private set; }
 
-    internal bool _updated;
+    internal bool updated;
 
-    internal LavalinkStatistics() => _updated = false;
+    internal LavalinkStatistics() => this.updated = false;
 
     internal void Update(LavalinkStats newStats)
     {
-        if (!_updated)
+        if (!this.updated)
         {
-            _updated = true;
+            this.updated = true;
         }
 
-        ActivePlayers = newStats.ActivePlayers;
-        TotalPlayers = newStats.TotalPlayers;
-        Uptime = newStats.Uptime;
+        this.ActivePlayers = newStats.ActivePlayers;
+        this.TotalPlayers = newStats.TotalPlayers;
+        this.Uptime = newStats.Uptime;
 
-        CpuCoreCount = newStats.Cpu.Cores;
-        CpuSystemLoad = newStats.Cpu.SystemLoad;
-        CpuLavalinkLoad = newStats.Cpu.LavalinkLoad;
+        this.CpuCoreCount = newStats.Cpu.Cores;
+        this.CpuSystemLoad = newStats.Cpu.SystemLoad;
+        this.CpuLavalinkLoad = newStats.Cpu.LavalinkLoad;
 
-        RamReservable = newStats.Memory.Reservable;
-        RamUsed = newStats.Memory.Used;
-        RamFree = newStats.Memory.Free;
-        RamAllocated = newStats.Memory.Allocated;
-        RamReservable = newStats.Memory.Reservable;
+        this.RamReservable = newStats.Memory.Reservable;
+        this.RamUsed = newStats.Memory.Used;
+        this.RamFree = newStats.Memory.Free;
+        this.RamAllocated = newStats.Memory.Allocated;
+        this.RamReservable = newStats.Memory.Reservable;
 
-        AverageSentFramesPerMinute = newStats.Frames?.Sent ?? 0;
-        AverageNulledFramesPerMinute = newStats.Frames?.Nulled ?? 0;
-        AverageDeficitFramesPerMinute = newStats.Frames?.Deficit ?? 0;
+        this.AverageSentFramesPerMinute = newStats.Frames?.Sent ?? 0;
+        this.AverageNulledFramesPerMinute = newStats.Frames?.Nulled ?? 0;
+        this.AverageDeficitFramesPerMinute = newStats.Frames?.Deficit ?? 0;
     }
 }

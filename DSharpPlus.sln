@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.VoiceNext", "DSh
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4255B64D-92EC-46B3-BC3B-ED2C3A8073EE}"
 	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
+		.editorconfig =.editorconfig
 		CONTRIBUTING.md = CONTRIBUTING.md
 		LICENSE = LICENSE
 		README.md = README.md
@@ -25,15 +25,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build Items", "Build Items"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
 		Directory.Packages.props = Directory.Packages.props
-		.github\workflows\publish_nightly_v5.yml = .github\workflows\publish_nightly_v5.yml
-		.github\workflows\publish_release_v5.yml = .github\workflows\publish_release_v5.yml
+		.github\workflows\publish_nightly_v5.yml =.github\workflows\publish_nightly_v5.yml
+		.github\workflows\publish_release_v5.yml =.github\workflows\publish_release_v5.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{430C28D8-5F85-4D6E-AA68-211549435245}"
 	ProjectSection(SolutionItems) = preProject
-		.github\FUNDING.yml = .github\FUNDING.yml
-		.github\ISSUE_TEMPLATE.md = .github\ISSUE_TEMPLATE.md
-		.github\PULL_REQUEST_TEMPLATE.md = .github\PULL_REQUEST_TEMPLATE.md
+		.github\FUNDING.yml =.github\FUNDING.yml
+		.github\ISSUE_TEMPLATE.md =.github\ISSUE_TEMPLATE.md
+		.github\PULL_REQUEST_TEMPLATE.md =.github\PULL_REQUEST_TEMPLATE.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Lavalink", "DSharpPlus.Lavalink\DSharpPlus.Lavalink.csproj", "{A8B8FB09-C6AF-4F28-89B8-B53EE0DCE6E5}"

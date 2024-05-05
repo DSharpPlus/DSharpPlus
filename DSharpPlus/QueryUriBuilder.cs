@@ -8,14 +8,14 @@ internal class QueryUriBuilder
 {
     public string SourceUri { get; }
 
-    public IReadOnlyList<KeyValuePair<string, string>> QueryParameters => _queryParams;
-    private readonly List<KeyValuePair<string, string>> _queryParams = [];
+    public IReadOnlyList<KeyValuePair<string, string>> QueryParameters => this.queryParams;
+    private readonly List<KeyValuePair<string, string>> queryParams = [];
 
     public QueryUriBuilder(string uri)
     {
         ArgumentNullException.ThrowIfNull(uri, nameof(uri));
 
-        SourceUri = uri;
+        this.SourceUri = uri;
     }
 
     public QueryUriBuilder AddParameter(string key, string? value)
@@ -25,7 +25,7 @@ internal class QueryUriBuilder
             return this;
         }
 
-        _queryParams.Add(new KeyValuePair<string, string>(key, value));
+        this.queryParams.Add(new KeyValuePair<string, string>(key, value));
         return this;
     }
 
@@ -34,13 +34,13 @@ internal class QueryUriBuilder
         string query = string.Join
         (
             "&",
-            _queryParams.Select
+            this.queryParams.Select
             (
                 e => Uri.EscapeDataString(e.Key) + '=' + Uri.EscapeDataString(e.Value)
             )
         );
 
-        return $"{SourceUri}?{query}";
+        return $"{this.SourceUri}?{query}";
     }
 
     public override string ToString() => Build().ToString();

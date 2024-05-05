@@ -18,7 +18,7 @@ public class DiscordRuleActionMetadata
     /// Gets the timeout duration in seconds.
     /// </summary>
     [JsonIgnore]
-    public TimeSpan TimeoutSeconds => TimeSpan.FromSeconds(DurationSeconds);
+    public TimeSpan TimeoutSeconds => TimeSpan.FromSeconds(this.DurationSeconds);
 
     /// Gets the timeout duration in seconds.
     /// <summary>

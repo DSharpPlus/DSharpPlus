@@ -17,7 +17,7 @@ public sealed class SlashModuleLifespanAttribute : Attribute
     /// Defines this slash command module's lifespan.
     /// </summary>
     /// <param name="lifespan">The lifespan of the module. Module lifespans are transient by default.</param>
-    public SlashModuleLifespanAttribute(SlashModuleLifespan lifespan) => Lifespan = lifespan;
+    public SlashModuleLifespanAttribute(SlashModuleLifespan lifespan) => this.Lifespan = lifespan;
 }
 
 /// <summary>

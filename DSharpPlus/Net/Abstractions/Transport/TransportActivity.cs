@@ -60,8 +60,8 @@ internal sealed class TransportActivity
     [JsonIgnore]
     public ulong? ApplicationId
     {
-        get => ApplicationIdStr != null ? ulong.Parse(ApplicationIdStr, CultureInfo.InvariantCulture) : null;
-        internal set => ApplicationIdStr = value?.ToString(CultureInfo.InvariantCulture);
+        get => this.ApplicationIdStr != null ? ulong.Parse(this.ApplicationIdStr, CultureInfo.InvariantCulture) : null;
+        internal set => this.ApplicationIdStr = value?.ToString(CultureInfo.InvariantCulture);
     }
 
     [JsonProperty("application_id", NullValueHandling = NullValueHandling.Ignore)]
@@ -119,17 +119,17 @@ internal sealed class TransportActivity
             return;
         }
 
-        Name = game.Name;
-        State = game.CustomStatus?.Name!;
-        ActivityType = game.ActivityType;
-        StreamUrl = game.StreamUrl;
+        this.Name = game.Name;
+        this.State = game.CustomStatus?.Name!;
+        this.ActivityType = game.ActivityType;
+        this.StreamUrl = game.StreamUrl;
     }
 
     public bool IsRichPresence()
-        => Details != null || State != null || ApplicationId != null || Instance != null || Party != null || Assets != null || Secrets != null || Timestamps != null;
+        => this.Details != null || this.State != null || this.ApplicationId != null || this.Instance != null || this.Party != null || this.Assets != null || this.Secrets != null || this.Timestamps != null;
 
     public bool IsCustomStatus()
-        => Name == "Custom Status";
+        => this.Name == "Custom Status";
 
     /// <summary>
     /// Represents information about assets attached to a rich presence.
@@ -206,20 +206,20 @@ internal sealed class TransportActivity
         /// </summary>
         [JsonIgnore]
         public DateTimeOffset? Start
-            => _start != null ? Utilities.GetDateTimeOffsetFromMilliseconds(_start.Value, false) : null;
+            => this.start != null ? Utilities.GetDateTimeOffsetFromMilliseconds(this.start.Value, false) : null;
 
         [JsonProperty("start", NullValueHandling = NullValueHandling.Ignore)]
-        internal long? _start;
+        internal long? start;
 
         /// <summary>
         /// Gets the time the game is going to end.
         /// </summary>
         [JsonIgnore]
         public DateTimeOffset? End
-            => _end != null ? Utilities.GetDateTimeOffsetFromMilliseconds(_end.Value, false) : null;
+            => this.end != null ? Utilities.GetDateTimeOffsetFromMilliseconds(this.end.Value, false) : null;
 
         [JsonProperty("end", NullValueHandling = NullValueHandling.Ignore)]
-        internal long? _end;
+        internal long? end;
     }
 
     /// <summary>

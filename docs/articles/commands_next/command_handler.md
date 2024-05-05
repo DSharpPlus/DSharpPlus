@@ -37,7 +37,7 @@ discord.MessageCreated += CommandHandler;
 
 private Task CommandHandler(DiscordClient client, MessageCreateEventArgs e)
 {
-    // See below ...
+    // See below...
 }
 ```
 

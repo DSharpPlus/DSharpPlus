@@ -13,7 +13,7 @@ namespace DSharpPlus.Commands.Converters;
 public partial class DiscordChannelConverter : ISlashArgumentConverter<DiscordChannel>, ITextArgumentConverter<DiscordChannel>
 {
     [GeneratedRegex(@"^<#(\d+)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
-    private static partial Regex _getChannelRegex();
+    private static partial Regex getChannelRegex();
 
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Channel;
     public string ReadableName => "Discord Channel";
@@ -25,7 +25,7 @@ public partial class DiscordChannelConverter : ISlashArgumentConverter<DiscordCh
         if (!ulong.TryParse(context.Argument, CultureInfo.InvariantCulture, out ulong channelId))
         {
             // Value could be a channel mention.
-            Match match = _getChannelRegex().Match(context.Argument);
+            Match match = getChannelRegex().Match(context.Argument);
             if (!match.Success || !ulong.TryParse(match.Groups[1].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out channelId))
             {
                 // Attempt to find a channel by name, case insensitive.

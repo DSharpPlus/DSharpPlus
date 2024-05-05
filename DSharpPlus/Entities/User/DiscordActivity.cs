@@ -118,7 +118,7 @@ public sealed class DiscordActivity
     /// <summary>
     /// Creates a new, empty instance of a <see cref="DiscordActivity"/>.
     /// </summary>
-    public DiscordActivity() => ActivityType = DiscordActivityType.Playing;
+    public DiscordActivity() => this.ActivityType = DiscordActivityType.Playing;
 
     /// <summary>
     /// Creates a new instance of a <see cref="DiscordActivity"/> with specified name.
@@ -126,8 +126,8 @@ public sealed class DiscordActivity
     /// <param name="name">Name of the activity.</param>
     public DiscordActivity(string name)
     {
-        Name = name;
-        ActivityType = DiscordActivityType.Playing;
+        this.Name = name;
+        this.ActivityType = DiscordActivityType.Playing;
     }
 
     /// <summary>
@@ -139,59 +139,59 @@ public sealed class DiscordActivity
     {
         if (type == DiscordActivityType.Custom)
         {
-            Name = "Custom Status";
-            CustomStatus = new DiscordCustomStatus() { Name = name };
-            ActivityType = DiscordActivityType.Custom;
+            this.Name = "Custom Status";
+            this.CustomStatus = new DiscordCustomStatus() { Name = name };
+            this.ActivityType = DiscordActivityType.Custom;
         }
         else
         {
-            Name = name;
-            ActivityType = type;
+            this.Name = name;
+            this.ActivityType = type;
         }
 
-        ActivityType = type;
+        this.ActivityType = type;
     }
 
     internal DiscordActivity(TransportActivity rawActivity) => UpdateWith(rawActivity);
 
     internal DiscordActivity(DiscordActivity other)
     {
-        Name = other.Name;
-        ActivityType = other.ActivityType;
-        StreamUrl = other.StreamUrl;
+        this.Name = other.Name;
+        this.ActivityType = other.ActivityType;
+        this.StreamUrl = other.StreamUrl;
         if (other.RichPresence != null)
         {
-            RichPresence = new DiscordRichPresence(other.RichPresence);
+            this.RichPresence = new DiscordRichPresence(other.RichPresence);
         }
 
         if (other.CustomStatus != null)
         {
-            CustomStatus = new DiscordCustomStatus(other.CustomStatus);
+            this.CustomStatus = new DiscordCustomStatus(other.CustomStatus);
         }
     }
 
     internal void UpdateWith(TransportActivity rawActivity)
     {
-        Name = rawActivity?.Name;
-        ActivityType = rawActivity != null ? rawActivity.ActivityType : DiscordActivityType.Playing;
-        StreamUrl = rawActivity?.StreamUrl;
+        this.Name = rawActivity?.Name;
+        this.ActivityType = rawActivity != null ? rawActivity.ActivityType : DiscordActivityType.Playing;
+        this.StreamUrl = rawActivity?.StreamUrl;
 
-        if (rawActivity?.IsRichPresence() == true && RichPresence != null)
+        if (rawActivity?.IsRichPresence() == true && this.RichPresence != null)
         {
-            RichPresence.UpdateWith(rawActivity);
+            this.RichPresence.UpdateWith(rawActivity);
         }
         else
         {
-            RichPresence = rawActivity?.IsRichPresence() == true ? new DiscordRichPresence(rawActivity) : null;
+            this.RichPresence = rawActivity?.IsRichPresence() == true ? new DiscordRichPresence(rawActivity) : null;
         }
 
-        if (rawActivity?.IsCustomStatus() == true && CustomStatus != null)
+        if (rawActivity?.IsCustomStatus() == true && this.CustomStatus != null)
         {
-            CustomStatus.UpdateWith(rawActivity.State, rawActivity.Emoji);
+            this.CustomStatus.UpdateWith(rawActivity.State, rawActivity.Emoji);
         }
         else
         {
-            CustomStatus = rawActivity?.IsCustomStatus() == true
+            this.CustomStatus = rawActivity?.IsCustomStatus() == true
             ? new DiscordCustomStatus
             {
                 Name = rawActivity.State,
@@ -221,14 +221,14 @@ public sealed class DiscordCustomStatus
 
     internal DiscordCustomStatus(DiscordCustomStatus other)
     {
-        Name = other.Name;
-        Emoji = other.Emoji;
+        this.Name = other.Name;
+        this.Emoji = other.Emoji;
     }
 
     internal void UpdateWith(string state, DiscordEmoji emoji)
     {
-        Name = state;
-        Emoji = emoji;
+        this.Name = state;
+        this.Emoji = emoji;
     }
 }
 
@@ -328,62 +328,62 @@ public sealed class DiscordRichPresence
 
     internal DiscordRichPresence(DiscordRichPresence other)
     {
-        Details = other.Details;
-        State = other.State;
-        Application = other.Application;
-        Instance = other.Instance;
-        LargeImageText = other.LargeImageText;
-        SmallImageText = other.SmallImageText;
-        LargeImage = other.LargeImage;
-        SmallImage = other.SmallImage;
-        CurrentPartySize = other.CurrentPartySize;
-        MaximumPartySize = other.MaximumPartySize;
-        PartyId = other.PartyId;
-        StartTimestamp = other.StartTimestamp;
-        EndTimestamp = other.EndTimestamp;
-        JoinSecret = other.JoinSecret;
-        MatchSecret = other.MatchSecret;
-        SpectateSecret = other.SpectateSecret;
-        Buttons = other.Buttons;
+        this.Details = other.Details;
+        this.State = other.State;
+        this.Application = other.Application;
+        this.Instance = other.Instance;
+        this.LargeImageText = other.LargeImageText;
+        this.SmallImageText = other.SmallImageText;
+        this.LargeImage = other.LargeImage;
+        this.SmallImage = other.SmallImage;
+        this.CurrentPartySize = other.CurrentPartySize;
+        this.MaximumPartySize = other.MaximumPartySize;
+        this.PartyId = other.PartyId;
+        this.StartTimestamp = other.StartTimestamp;
+        this.EndTimestamp = other.EndTimestamp;
+        this.JoinSecret = other.JoinSecret;
+        this.MatchSecret = other.MatchSecret;
+        this.SpectateSecret = other.SpectateSecret;
+        this.Buttons = other.Buttons;
     }
 
     internal void UpdateWith(TransportActivity rawGame)
     {
-        Details = rawGame?.Details;
-        State = rawGame?.State;
-        Application = rawGame?.ApplicationId != null ? new DiscordApplication { Id = rawGame.ApplicationId.Value } : null;
-        Instance = rawGame?.Instance;
-        LargeImageText = rawGame?.Assets?.LargeImageText;
-        SmallImageText = rawGame?.Assets?.SmallImageText;
+        this.Details = rawGame?.Details;
+        this.State = rawGame?.State;
+        this.Application = rawGame?.ApplicationId != null ? new DiscordApplication { Id = rawGame.ApplicationId.Value } : null;
+        this.Instance = rawGame?.Instance;
+        this.LargeImageText = rawGame?.Assets?.LargeImageText;
+        this.SmallImageText = rawGame?.Assets?.SmallImageText;
         //this.LargeImage = rawGame?.Assets?.LargeImage != null ? new DiscordApplicationAsset { Application = this.Application, Id = rawGame.Assets.LargeImage.Value, Type = ApplicationAssetType.LargeImage } : null;
         //this.SmallImage = rawGame?.Assets?.SmallImage != null ? new DiscordApplicationAsset { Application = this.Application, Id = rawGame.Assets.SmallImage.Value, Type = ApplicationAssetType.SmallImage } : null;
-        CurrentPartySize = rawGame?.Party?.Size?.Current;
-        MaximumPartySize = rawGame?.Party?.Size?.Maximum;
+        this.CurrentPartySize = rawGame?.Party?.Size?.Current;
+        this.MaximumPartySize = rawGame?.Party?.Size?.Maximum;
         if (rawGame?.Party != null && ulong.TryParse(rawGame.Party.Id, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong partyId))
         {
-            PartyId = partyId;
+            this.PartyId = partyId;
         }
 
-        StartTimestamp = rawGame?.Timestamps?.Start;
-        EndTimestamp = rawGame?.Timestamps?.End;
-        JoinSecret = rawGame?.Secrets?.Join;
-        MatchSecret = rawGame?.Secrets?.Match;
-        SpectateSecret = rawGame?.Secrets?.Spectate;
-        Buttons = rawGame?.Buttons;
+        this.StartTimestamp = rawGame?.Timestamps?.Start;
+        this.EndTimestamp = rawGame?.Timestamps?.End;
+        this.JoinSecret = rawGame?.Secrets?.Join;
+        this.MatchSecret = rawGame?.Secrets?.Match;
+        this.SpectateSecret = rawGame?.Secrets?.Spectate;
+        this.Buttons = rawGame?.Buttons;
 
         string? lid = rawGame?.Assets?.LargeImage;
         if (lid != null)
         {
             if (lid.StartsWith("spotify:"))
             {
-                LargeImage = new DiscordSpotifyAsset(lid);
+                this.LargeImage = new DiscordSpotifyAsset(lid);
             }
             else if (ulong.TryParse(lid, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
             {
-                LargeImage = new DiscordApplicationAsset
+                this.LargeImage = new DiscordApplicationAsset
                 {
                     Id = lid,
-                    Application = Application,
+                    Application = this.Application,
                     Type = DiscordApplicationAssetType.LargeImage
                 };
             }
@@ -394,15 +394,15 @@ public sealed class DiscordRichPresence
         {
             if (sid.StartsWith("spotify:"))
             {
-                SmallImage = new DiscordSpotifyAsset(sid);
+                this.SmallImage = new DiscordSpotifyAsset(sid);
             }
             else if (ulong.TryParse(sid, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
             {
-                SmallImage =
+                this.SmallImage =
                     new DiscordApplicationAsset
                     {
                         Id = sid,
-                        Application = Application,
+                        Application = this.Application,
                         Type = DiscordApplicationAssetType.SmallImage
                     };
             }

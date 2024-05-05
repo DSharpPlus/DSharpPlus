@@ -17,7 +17,7 @@ public sealed class GroupAttribute : Attribute
     /// <summary>
     /// Marks this class as a command group, using the class' name as group name.
     /// </summary>
-    public GroupAttribute() => Name = null;
+    public GroupAttribute() => this.Name = null;
 
     /// <summary>
     /// Marks this class as a command group with specified name.
@@ -35,6 +35,6 @@ public sealed class GroupAttribute : Attribute
             throw new ArgumentException("Group names cannot contain whitespace characters.", nameof(name));
         }
 
-        Name = name;
+        this.Name = name;
     }
 }

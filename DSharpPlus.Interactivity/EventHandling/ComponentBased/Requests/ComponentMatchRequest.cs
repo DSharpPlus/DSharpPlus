@@ -21,16 +21,16 @@ internal class ComponentMatchRequest
     /// </summary>
     public TaskCompletionSource<ComponentInteractionCreateEventArgs> Tcs { get; private set; } = new();
 
-    protected readonly CancellationToken _cancellation;
-    protected readonly Func<ComponentInteractionCreateEventArgs, bool> _predicate;
+    protected readonly CancellationToken cancellation;
+    protected readonly Func<ComponentInteractionCreateEventArgs, bool> predicate;
 
     public ComponentMatchRequest(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation)
     {
-        Message = message;
-        _predicate = predicate;
-        _cancellation = cancellation;
-        _cancellation.Register(() => Tcs.TrySetResult(null)); // TrySetCancelled would probably be better but I digress ~Velvet //
+        this.Message = message;
+        this.predicate = predicate;
+        this.cancellation = cancellation;
+        this.cancellation.Register(() => this.Tcs.TrySetResult(null)); // TrySetCancelled would probably be better but I digress ~Velvet //
     }
 
-    public bool IsMatch(ComponentInteractionCreateEventArgs args) => _predicate(args);
+    public bool IsMatch(ComponentInteractionCreateEventArgs args) => this.predicate(args);
 }

@@ -10,8 +10,8 @@ namespace DSharpPlus.Interactivity.EventHandling;
 
 internal class Paginator : IPaginator
 {
-    private DiscordClient _client;
-    private ConcurrentHashSet<IPaginationRequest> _requests;
+    private DiscordClient client;
+    private ConcurrentHashSet<IPaginationRequest> requests;
 
     /// <summary>
     /// Creates a new Eventwaiter object.
@@ -19,18 +19,18 @@ internal class Paginator : IPaginator
     /// <param name="client">Your DiscordClient</param>
     public Paginator(DiscordClient client)
     {
-        _client = client;
-        _requests = [];
+        this.client = client;
+        this.requests = [];
 
-        _client.MessageReactionAdded += HandleReactionAdd;
-        _client.MessageReactionRemoved += HandleReactionRemove;
-        _client.MessageReactionsCleared += HandleReactionClear;
+        this.client.MessageReactionAdded += HandleReactionAdd;
+        this.client.MessageReactionRemoved += HandleReactionRemove;
+        this.client.MessageReactionsCleared += HandleReactionClear;
     }
 
     public async Task DoPaginationAsync(IPaginationRequest request)
     {
         await ResetReactionsAsync(request);
-        _requests.Add(request);
+        this.requests.Add(request);
         try
         {
             TaskCompletionSource<bool> tcs = await request.GetTaskCompletionSourceAsync();
@@ -38,32 +38,32 @@ internal class Paginator : IPaginator
         }
         catch (Exception ex)
         {
-            _client.Logger.LogError(InteractivityEvents.InteractivityPaginationError, ex, "Exception occurred while paginating");
+            this.client.Logger.LogError(InteractivityEvents.InteractivityPaginationError, ex, "Exception occurred while paginating");
         }
         finally
         {
-            _requests.TryRemove(request);
+            this.requests.TryRemove(request);
             try
             {
                 await request.DoCleanupAsync();
             }
             catch (Exception ex)
             {
-                _client.Logger.LogError(InteractivityEvents.InteractivityPaginationError, ex, "Exception occurred while paginating");
+                this.client.Logger.LogError(InteractivityEvents.InteractivityPaginationError, ex, "Exception occurred while paginating");
             }
         }
     }
 
     private Task HandleReactionAdd(DiscordClient client, MessageReactionAddEventArgs eventargs)
     {
-        if (_requests.Count == 0)
+        if (this.requests.Count == 0)
         {
             return Task.CompletedTask;
         }
 
         _ = Task.Run(async () =>
         {
-            foreach (IPaginationRequest req in _requests)
+            foreach (IPaginationRequest req in this.requests)
             {
                 PaginationEmojis emojis = await req.GetEmojisAsync();
                 DiscordMessage msg = await req.GetMessageAsync();
@@ -93,7 +93,7 @@ internal class Paginator : IPaginator
                             await msg.DeleteReactionAsync(eventargs.Emoji, eventargs.User);
                         }
                     }
-                    else if (eventargs.User.Id != _client.CurrentUser.Id)
+                    else if (eventargs.User.Id != this.client.CurrentUser.Id)
                     {
                         if (eventargs.Emoji != emojis.Left &&
                            eventargs.Emoji != emojis.SkipLeft &&
@@ -112,14 +112,14 @@ internal class Paginator : IPaginator
 
     private Task HandleReactionRemove(DiscordClient client, MessageReactionRemoveEventArgs eventargs)
     {
-        if (_requests.Count == 0)
+        if (this.requests.Count == 0)
         {
             return Task.CompletedTask;
         }
 
         _ = Task.Run(async () =>
         {
-            foreach (IPaginationRequest req in _requests)
+            foreach (IPaginationRequest req in this.requests)
             {
                 PaginationEmojis emojis = await req.GetEmojisAsync();
                 DiscordMessage msg = await req.GetMessageAsync();
@@ -154,14 +154,14 @@ internal class Paginator : IPaginator
 
     private Task HandleReactionClear(DiscordClient client, MessageReactionsClearEventArgs eventargs)
     {
-        if (_requests.Count == 0)
+        if (this.requests.Count == 0)
         {
             return Task.CompletedTask;
         }
 
         _ = Task.Run(async () =>
         {
-            foreach (IPaginationRequest req in _requests)
+            foreach (IPaginationRequest req in this.requests)
             {
                 DiscordMessage msg = await req.GetMessageAsync();
 
@@ -274,15 +274,15 @@ internal class Paginator : IPaginator
     {
         // Why doesn't this class implement IDisposable?
 
-        if (_client != null)
+        if (this.client != null)
         {
-            _client.MessageReactionAdded -= HandleReactionAdd;
-            _client.MessageReactionRemoved -= HandleReactionRemove;
-            _client.MessageReactionsCleared -= HandleReactionClear;
-            _client = null!;
+            this.client.MessageReactionAdded -= HandleReactionAdd;
+            this.client.MessageReactionRemoved -= HandleReactionRemove;
+            this.client.MessageReactionsCleared -= HandleReactionClear;
+            this.client = null!;
         }
 
-        _requests?.Clear();
-        _requests = null!;
+        this.requests?.Clear();
+        this.requests = null!;
     }
 }

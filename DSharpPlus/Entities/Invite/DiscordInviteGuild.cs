@@ -26,7 +26,7 @@ public class DiscordInviteGuild : SnowflakeObject
     /// </summary>
     [JsonIgnore]
     public string IconUrl
-        => !string.IsNullOrWhiteSpace(IconHash) ? $"https://cdn.discordapp.com/icons/{Id.ToString(CultureInfo.InvariantCulture)}/{IconHash}.jpg" : null;
+        => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.jpg" : null;
 
     /// <summary>
     /// Gets the hash of guild's invite splash.
@@ -39,7 +39,7 @@ public class DiscordInviteGuild : SnowflakeObject
     /// </summary>
     [JsonIgnore]
     public string SplashUrl
-        => !string.IsNullOrWhiteSpace(SplashHash) ? $"https://cdn.discordapp.com/splashes/{Id.ToString(CultureInfo.InvariantCulture)}/{SplashHash}.jpg" : null;
+        => !string.IsNullOrWhiteSpace(this.SplashHash) ? $"https://cdn.discordapp.com/splashes/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.SplashHash}.jpg" : null;
 
     /// <summary>
     /// Gets the guild's banner hash, when applicable.
@@ -52,7 +52,7 @@ public class DiscordInviteGuild : SnowflakeObject
     /// </summary>
     [JsonIgnore]
     public string BannerUrl
-        => !string.IsNullOrWhiteSpace(Banner) ? $"https://cdn.discordapp.com/banners/{Id}/{Banner}" : null;
+        => !string.IsNullOrWhiteSpace(this.Banner) ? $"https://cdn.discordapp.com/banners/{this.Id}/{this.Banner}" : null;
 
     /// <summary>
     /// Gets the guild description, when applicable.

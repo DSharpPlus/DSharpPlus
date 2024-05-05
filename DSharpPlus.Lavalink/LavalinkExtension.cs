@@ -18,21 +18,21 @@ public sealed class LavalinkExtension : BaseExtension
     /// </summary>
     public event AsyncEventHandler<LavalinkNodeConnection, NodeDisconnectedEventArgs> NodeDisconnected
     {
-        add => _nodeDisconnected.Register(value);
-        remove => _nodeDisconnected.Unregister(value);
+        add => this.nodeDisconnected.Register(value);
+        remove => this.nodeDisconnected.Unregister(value);
     }
-    private AsyncEvent<LavalinkNodeConnection, NodeDisconnectedEventArgs> _nodeDisconnected;
+    private AsyncEvent<LavalinkNodeConnection, NodeDisconnectedEventArgs> nodeDisconnected;
 
     /// <summary>
     /// Gets a dictionary of connected Lavalink nodes for the extension.
     /// </summary>
     public IReadOnlyDictionary<ConnectionEndpoint, LavalinkNodeConnection> ConnectedNodes { get; }
-    private readonly ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection> _connectedNodes = new();
+    private readonly ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection> connectedNodes = new();
 
     /// <summary>
     /// Creates a new instance of this Lavalink extension.
     /// </summary>
-    internal LavalinkExtension() => ConnectedNodes = new ReadOnlyConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection>(_connectedNodes);
+    internal LavalinkExtension() => this.ConnectedNodes = new ReadOnlyConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection>(this.connectedNodes);
 
     /// <summary>
     /// DO NOT USE THIS MANUALLY.
@@ -41,14 +41,14 @@ public sealed class LavalinkExtension : BaseExtension
     /// <exception cref="InvalidOperationException"/>
     protected internal override void Setup(DiscordClient client)
     {
-        if (Client != null)
+        if (this.Client != null)
         {
             throw new InvalidOperationException("What did I tell you?");
         }
 
-        Client = client;
+        this.Client = client;
 
-        _nodeDisconnected = new AsyncEvent<LavalinkNodeConnection, NodeDisconnectedEventArgs>("LAVALINK_NODE_DISCONNECTED", Client.EventErrorHandler);
+        this.nodeDisconnected = new AsyncEvent<LavalinkNodeConnection, NodeDisconnectedEventArgs>("LAVALINK_NODE_DISCONNECTED", this.Client.EventErrorHandler);
     }
 
     /// <summary>
@@ -58,15 +58,15 @@ public sealed class LavalinkExtension : BaseExtension
     /// <returns>The established Lavalink connection.</returns>
     public async Task<LavalinkNodeConnection> ConnectAsync(LavalinkConfiguration config)
     {
-        if (_connectedNodes.TryGetValue(config.SocketEndpoint, out LavalinkNodeConnection value))
+        if (this.connectedNodes.TryGetValue(config.SocketEndpoint, out LavalinkNodeConnection value))
         {
             return value;
         }
 
-        LavalinkNodeConnection con = new(Client, this, config);
+        LavalinkNodeConnection con = new(this.Client, this, config);
         con.NodeDisconnected += Con_NodeDisconnected;
         con.Disconnected += Con_Disconnected;
-        _connectedNodes[con.NodeEndpoint] = con;
+        this.connectedNodes[con.NodeEndpoint] = con;
         try
         {
             await con.StartAsync();
@@ -86,7 +86,7 @@ public sealed class LavalinkExtension : BaseExtension
     /// <param name="endpoint">Endpoint at which the node resides.</param>
     /// <returns>Lavalink node connection.</returns>
     public LavalinkNodeConnection GetNodeConnection(ConnectionEndpoint endpoint)
-        => _connectedNodes.TryGetValue(endpoint, out LavalinkNodeConnection value) ? value : null;
+        => this.connectedNodes.TryGetValue(endpoint, out LavalinkNodeConnection value) ? value : null;
 
     /// <summary>
     /// Gets a Lavalink node connection based on load balancing and an optional voice region.
@@ -95,12 +95,12 @@ public sealed class LavalinkExtension : BaseExtension
     /// <returns>The least load affected node connection, or null if no nodes are present.</returns>
     public LavalinkNodeConnection GetIdealNodeConnection(DiscordVoiceRegion region = null)
     {
-        if (_connectedNodes.Count <= 1)
+        if (this.connectedNodes.Count <= 1)
         {
-            return _connectedNodes.Values.FirstOrDefault();
+            return this.connectedNodes.Values.FirstOrDefault();
         }
 
-        LavalinkNodeConnection[] nodes = [.. _connectedNodes.Values];
+        LavalinkNodeConnection[] nodes = [.. this.connectedNodes.Values];
 
         if (region != null)
         {
@@ -127,8 +127,8 @@ public sealed class LavalinkExtension : BaseExtension
     /// <returns>The found guild connection, or null if one could not be found.</returns>
     public LavalinkGuildConnection GetGuildConnection(DiscordGuild guild)
     {
-        ICollection<LavalinkNodeConnection> nodes = _connectedNodes.Values;
-        LavalinkNodeConnection? node = nodes.FirstOrDefault(x => x._connectedGuilds.ContainsKey(guild.Id));
+        ICollection<LavalinkNodeConnection> nodes = this.connectedNodes.Values;
+        LavalinkNodeConnection? node = nodes.FirstOrDefault(x => x.connectedGuilds.ContainsKey(guild.Id));
         return node?.GetGuildConnection(guild);
     }
 
@@ -136,7 +136,7 @@ public sealed class LavalinkExtension : BaseExtension
     {
         Array.Sort(nodes, (a, b) =>
         {
-            if (!a.Statistics._updated || !b.Statistics._updated)
+            if (!a.Statistics.updated || !b.Statistics.updated)
             {
                 return 0;
             }
@@ -179,23 +179,23 @@ public sealed class LavalinkExtension : BaseExtension
     }
 
     private void Con_NodeDisconnected(LavalinkNodeConnection node)
-        => _connectedNodes.TryRemove(node.NodeEndpoint, out _);
+        => this.connectedNodes.TryRemove(node.NodeEndpoint, out _);
 
     private Task Con_Disconnected(LavalinkNodeConnection node, NodeDisconnectedEventArgs e)
-        => _nodeDisconnected.InvokeAsync(node, e);
+        => this.nodeDisconnected.InvokeAsync(node, e);
 
     public override void Dispose()
     {
-        foreach (KeyValuePair<ConnectionEndpoint, LavalinkNodeConnection> node in _connectedNodes)
+        foreach (KeyValuePair<ConnectionEndpoint, LavalinkNodeConnection> node in this.connectedNodes)
         {
             // undoubtedly there will be some GitHub comments about this. Help.
             node.Value.StopAsync().GetAwaiter().GetResult();
         }
 
-        _connectedNodes?.Clear();
+        this.connectedNodes?.Clear();
 
         // unhook events
-        _nodeDisconnected?.UnregisterAll();
+        this.nodeDisconnected?.UnregisterAll();
 
         // Satisfy rule CA1816. Can be removed if this class is sealed.
         GC.SuppressFinalize(this);

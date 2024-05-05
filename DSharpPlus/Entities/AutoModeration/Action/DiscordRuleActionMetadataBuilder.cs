@@ -29,7 +29,7 @@ public class DiscordRuleActionMetadataBuilder
     /// <returns></returns>
     public DiscordRuleActionMetadataBuilder WithLogChannelId(ulong channelId)
     {
-        ChannelId = channelId;
+        this.ChannelId = channelId;
 
         return this;
     }
@@ -41,7 +41,7 @@ public class DiscordRuleActionMetadataBuilder
     /// <returns>This builder.</returns>
     public DiscordRuleActionMetadataBuilder WithTimeoutDuration(uint timeoutDurationInSeconds)
     {
-        DurationSeconds = timeoutDurationInSeconds;
+        this.DurationSeconds = timeoutDurationInSeconds;
 
         return this;
     }
@@ -59,7 +59,7 @@ public class DiscordRuleActionMetadataBuilder
             throw new ArgumentException("Message can't be null or empty.");
         }
 
-        CustomMessage = message;
+        this.CustomMessage = message;
 
         return this;
     }
@@ -68,10 +68,13 @@ public class DiscordRuleActionMetadataBuilder
     /// Build the rule action.
     /// </summary>
     /// <returns>The built rule action.</returns>
-    public DiscordRuleActionMetadata Build() => new()
+    public DiscordRuleActionMetadata Build()
     {
-        ChannelId = ChannelId,
-        DurationSeconds = DurationSeconds,
-        CustomMessage = CustomMessage,
-    };
+        return new()
+        {
+            ChannelId = this.ChannelId,
+            DurationSeconds = this.DurationSeconds,
+            CustomMessage = this.CustomMessage,
+        };
+    }
 }

@@ -65,7 +65,7 @@ public class DiscordVoiceRegion
 
     public override bool Equals(object obj) => Equals(obj as DiscordVoiceRegion);
 
-    public override int GetHashCode() => Id.GetHashCode();
+    public override int GetHashCode() => this.Id.GetHashCode();
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordVoiceRegion"/> objects are equal.

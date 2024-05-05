@@ -24,5 +24,5 @@ internal sealed class GatewayRequestGuildMembers
     [JsonProperty("nonce", NullValueHandling = NullValueHandling.Ignore)]
     public string Nonce { get; internal set; }
 
-    public GatewayRequestGuildMembers(DiscordGuild guild) => GuildId = guild.Id;
+    public GatewayRequestGuildMembers(DiscordGuild guild) => this.GuildId = guild.Id;
 }

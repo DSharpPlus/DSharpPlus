@@ -17,11 +17,11 @@ public class DuplicateCommandException : Exception
     /// </summary>
     /// <param name="name">Name of the command that was taken.</param>
     internal DuplicateCommandException(string name)
-        : base($"A command or alias with the name '{name}' has already been registered.") => CommandName = name;
+        : base($"A command or alias with the name '{name}' has already been registered.") => this.CommandName = name;
 
     /// <summary>
     /// Returns a string representation of this <see cref="DuplicateCommandException"/>.
     /// </summary>
     /// <returns>A string representation.</returns>
-    public override string ToString() => $"{GetType()}: {Message}\nCommand name: {CommandName}"; // much like System.ArgumentException works
+    public override string ToString() => $"{GetType()}: {this.Message}\nCommand name: {this.CommandName}"; // much like System.ArgumentException works
 }

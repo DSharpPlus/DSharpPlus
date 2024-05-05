@@ -159,6 +159,6 @@ And that's it! Go forth and create amazing things.
 <!-- LINKS -->
 [0]:  https://discord.dev/interactions/message-components
 [1]:  https://discord.dev/interactions/slash-commands#interaction
-[2]:  ../../images/advanced_topics_selects_01.png
-[3]:  ../../images/advanced_topics_selects_02.png
+[2]: ../../images/advanced_topics_selects_01.png
+[3]: ../../images/advanced_topics_selects_02.png
 [4]:  xref:articles.advanced_topics.buttons

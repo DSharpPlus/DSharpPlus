@@ -111,6 +111,6 @@ public static class ChannelExtensions
         DiscordClient client = (DiscordClient)channel.Discord;
         InteractivityExtension interactivity = client.GetInteractivity();
 
-        return interactivity ?? throw new InvalidOperationException($"Interactivity is not enabled for this {(client._isShard ? "shard" : "client")}.");
+        return interactivity ?? throw new InvalidOperationException($"Interactivity is not enabled for this {(client.isShard ? "shard" : "client")}.");
     }
 }

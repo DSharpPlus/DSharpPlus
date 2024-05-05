@@ -14,8 +14,8 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
     /// </summary>
     public bool IsEphemeral
     {
-        get => (Flags & DiscordMessageFlags.Ephemeral) == DiscordMessageFlags.Ephemeral;
-        set => _ = value ? Flags |= DiscordMessageFlags.Ephemeral : Flags &= ~DiscordMessageFlags.Ephemeral;
+        get => (this.Flags & DiscordMessageFlags.Ephemeral) == DiscordMessageFlags.Ephemeral;
+        set => _ = value ? this.Flags |= DiscordMessageFlags.Ephemeral : this.Flags &= ~DiscordMessageFlags.Ephemeral;
     }
 
     /// <summary>
@@ -31,8 +31,8 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
     /// <summary>
     /// The choices to send on this interaction response. Mutually exclusive with content, embed, and components.
     /// </summary>
-    public IReadOnlyList<DiscordAutoCompleteChoice> Choices => _choices;
-    private readonly List<DiscordAutoCompleteChoice> _choices = [];
+    public IReadOnlyList<DiscordAutoCompleteChoice> Choices => this.choices;
+    private readonly List<DiscordAutoCompleteChoice> choices = [];
 
     /// <summary>
     /// Constructs a new empty interaction response builder.
@@ -51,8 +51,8 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
     /// <param name="builder">The builder to copy.</param>
     public DiscordInteractionResponseBuilder(DiscordInteractionResponseBuilder builder) : base(builder)
     {
-        IsEphemeral = builder.IsEphemeral;
-        _choices.AddRange(builder._choices);
+        this.IsEphemeral = builder.IsEphemeral;
+        this.choices.AddRange(builder.choices);
     }
 
     /// <summary>
@@ -67,7 +67,7 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
             throw new ArgumentException("Title must be between 1 and 256 characters.");
         }
 
-        Title = title;
+        this.Title = title;
         return this;
     }
 
@@ -83,7 +83,7 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
             throw new ArgumentException("Custom ID must be between 1 and 100 characters.");
         }
 
-        CustomId = id;
+        this.CustomId = id;
         return this;
     }
 
@@ -94,12 +94,12 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
     /// <returns>The current builder to chain calls with.</returns>
     public DiscordInteractionResponseBuilder AddAutoCompleteChoice(DiscordAutoCompleteChoice choice)
     {
-        if (_choices.Count >= 25)
+        if (this.choices.Count >= 25)
         {
             throw new ArgumentException("Maximum of 25 choices per response.");
         }
 
-        _choices.Add(choice);
+        this.choices.Add(choice);
         return this;
     }
 
@@ -110,12 +110,12 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
     /// <returns>The current builder to chain calls with.</returns>
     public DiscordInteractionResponseBuilder AddAutoCompleteChoices(IEnumerable<DiscordAutoCompleteChoice> choices)
     {
-        if (_choices.Count >= 25 || _choices.Count + choices.Count() > 25)
+        if (this.choices.Count >= 25 || this.choices.Count + choices.Count() > 25)
         {
             throw new ArgumentException("Maximum of 25 choices per response.");
         }
 
-        _choices.AddRange(choices);
+        this.choices.AddRange(choices);
         return this;
     }
 
@@ -133,7 +133,7 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
     /// <param name="ephemeral">Ephemeral.</param>
     public DiscordInteractionResponseBuilder AsEphemeral(bool ephemeral = true)
     {
-        IsEphemeral = ephemeral;
+        this.IsEphemeral = ephemeral;
         return this;
     }
 
@@ -142,8 +142,8 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
     /// </summary>
     public override void Clear()
     {
-        IsEphemeral = false;
-        _choices.Clear();
+        this.IsEphemeral = false;
+        this.choices.Clear();
 
         base.Clear();
     }

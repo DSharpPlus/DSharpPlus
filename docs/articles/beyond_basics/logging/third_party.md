@@ -68,8 +68,8 @@ And that's it! If you now run your bot, you'll see DSharpPlus log messages forma
 ![Console][4]
 
 <!-- LINKS -->
-[0]:  https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.logging
-[1]:  https://serilog.net/
-[2]:  https://github.com/serilog/serilog/wiki/Configuration-Basics
-[3]:  https://github.com/serilog/serilog/wiki/Provided-Sinks
-[4]:  ../../../images/beyond_basics_logging_third_party_01.png
+[0]: https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.logging
+[1]: https://serilog.net/
+[2]: https://github.com/serilog/serilog/wiki/Configuration-Basics
+[3]: https://github.com/serilog/serilog/wiki/Provided-Sinks
+[4]: ../../../images/beyond_basics_logging_third_party_01.png

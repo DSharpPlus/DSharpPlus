@@ -10,138 +10,138 @@ namespace DSharpPlus.Interactivity.EventHandling;
 
 internal class InteractionPaginationRequest : IPaginationRequest
 {
-    private int _index;
-    private readonly List<Page> _pages = [];
+    private int index;
+    private readonly List<Page> pages = [];
 
-    private readonly TaskCompletionSource<bool> _tcs = new();
+    private readonly TaskCompletionSource<bool> tcs = new();
 
-    private DiscordInteraction _lastInteraction;
-    private CancellationTokenSource _interactionCts;
+    private DiscordInteraction lastInteraction;
+    private CancellationTokenSource interactionCts;
 
-    private readonly CancellationToken _token;
-    private readonly DiscordUser _user;
-    private readonly DiscordMessage _message;
-    private readonly PaginationButtons _buttons;
-    private readonly PaginationBehaviour _wrapBehavior;
-    private readonly ButtonPaginationBehavior _behaviorBehavior;
+    private readonly CancellationToken token;
+    private readonly DiscordUser user;
+    private readonly DiscordMessage message;
+    private readonly PaginationButtons buttons;
+    private readonly PaginationBehaviour wrapBehavior;
+    private readonly ButtonPaginationBehavior behaviorBehavior;
 
     public InteractionPaginationRequest(DiscordInteraction interaction, DiscordMessage message, DiscordUser user,
         PaginationBehaviour behavior, ButtonPaginationBehavior behaviorBehavior,
         PaginationButtons buttons, IEnumerable<Page> pages, CancellationToken token)
     {
-        _user = user;
-        _token = token;
-        _buttons = new(buttons);
-        _message = message;
-        _wrapBehavior = behavior;
-        _behaviorBehavior = behaviorBehavior;
-        _pages.AddRange(pages);
+        this.user = user;
+        this.token = token;
+        this.buttons = new(buttons);
+        this.message = message;
+        this.wrapBehavior = behavior;
+        this.behaviorBehavior = behaviorBehavior;
+        this.pages.AddRange(pages);
 
         RegenerateCTS(interaction);
-        _token.Register(() => _tcs.TrySetResult(false));
+        this.token.Register(() => this.tcs.TrySetResult(false));
     }
 
-    public int PageCount => _pages.Count;
+    public int PageCount => this.pages.Count;
 
     internal void RegenerateCTS(DiscordInteraction interaction)
     {
-        _interactionCts?.Dispose();
-        _lastInteraction = interaction;
-        _interactionCts = new(TimeSpan.FromSeconds((60 * 15) - 5));
-        _interactionCts.Token.Register(() => _tcs.TrySetResult(false));
+        this.interactionCts?.Dispose();
+        this.lastInteraction = interaction;
+        this.interactionCts = new(TimeSpan.FromSeconds((60 * 15) - 5));
+        this.interactionCts.Token.Register(() => this.tcs.TrySetResult(false));
     }
 
     public Task<Page> GetPageAsync()
     {
-        Task<Page> page = Task.FromResult(_pages[_index]);
+        Task<Page> page = Task.FromResult(this.pages[this.index]);
 
-        if (PageCount is 1)
+        if (this.PageCount is 1)
         {
-            foreach (DiscordButtonComponent button in _buttons.ButtonArray)
+            foreach (DiscordButtonComponent button in this.buttons.ButtonArray)
             {
                 button.Disable();
             }
 
-            _buttons.Stop.Enable();
+            this.buttons.Stop.Enable();
             return page;
         }
 
-        if (_wrapBehavior is PaginationBehaviour.WrapAround)
+        if (this.wrapBehavior is PaginationBehaviour.WrapAround)
         {
             return page;
         }
 
-        _buttons.SkipLeft.Disabled = _index < 2;
+        this.buttons.SkipLeft.Disabled = this.index < 2;
 
-        _buttons.Left.Disabled = _index < 1;
+        this.buttons.Left.Disabled = this.index < 1;
 
-        _buttons.Right.Disabled = _index == PageCount - 1;
+        this.buttons.Right.Disabled = this.index == this.PageCount - 1;
 
-        _buttons.SkipRight.Disabled = _index >= PageCount - 2;
+        this.buttons.SkipRight.Disabled = this.index >= this.PageCount - 2;
 
         return page;
     }
 
     public Task SkipLeftAsync()
     {
-        if (_wrapBehavior is PaginationBehaviour.WrapAround)
+        if (this.wrapBehavior is PaginationBehaviour.WrapAround)
         {
-            _index = _index is 0 ? _pages.Count - 1 : 0;
+            this.index = this.index is 0 ? this.pages.Count - 1 : 0;
             return Task.CompletedTask;
         }
 
-        _index = 0;
+        this.index = 0;
 
         return Task.CompletedTask;
     }
 
     public Task SkipRightAsync()
     {
-        if (_wrapBehavior is PaginationBehaviour.WrapAround)
+        if (this.wrapBehavior is PaginationBehaviour.WrapAround)
         {
-            _index = _index == PageCount - 1 ? 0 : PageCount - 1;
+            this.index = this.index == this.PageCount - 1 ? 0 : this.PageCount - 1;
             return Task.CompletedTask;
         }
 
-        _index = _pages.Count - 1;
+        this.index = this.pages.Count - 1;
 
         return Task.CompletedTask;
     }
 
     public Task NextPageAsync()
     {
-        _index++;
+        this.index++;
 
-        if (_wrapBehavior is PaginationBehaviour.WrapAround)
+        if (this.wrapBehavior is PaginationBehaviour.WrapAround)
         {
-            if (_index >= PageCount)
+            if (this.index >= this.PageCount)
             {
-                _index = 0;
+                this.index = 0;
             }
 
             return Task.CompletedTask;
         }
 
-        _index = Math.Min(_index, PageCount - 1);
+        this.index = Math.Min(this.index, this.PageCount - 1);
 
         return Task.CompletedTask;
     }
 
     public Task PreviousPageAsync()
     {
-        _index--;
+        this.index--;
 
-        if (_wrapBehavior is PaginationBehaviour.WrapAround)
+        if (this.wrapBehavior is PaginationBehaviour.WrapAround)
         {
-            if (_index is -1)
+            if (this.index is -1)
             {
-                _index = _pages.Count - 1;
+                this.index = this.pages.Count - 1;
             }
 
             return Task.CompletedTask;
         }
 
-        _index = Math.Max(_index, 0);
+        this.index = Math.Max(this.index, 0);
 
         return Task.CompletedTask;
     }
@@ -150,42 +150,42 @@ internal class InteractionPaginationRequest : IPaginationRequest
         => Task.FromException<PaginationEmojis>(new NotSupportedException("Emojis aren't supported for this request."));
 
     public Task<IEnumerable<DiscordButtonComponent>> GetButtonsAsync()
-        => Task.FromResult((IEnumerable<DiscordButtonComponent>)_buttons.ButtonArray);
+        => Task.FromResult((IEnumerable<DiscordButtonComponent>)this.buttons.ButtonArray);
 
-    public Task<DiscordMessage> GetMessageAsync() => Task.FromResult(_message);
+    public Task<DiscordMessage> GetMessageAsync() => Task.FromResult(this.message);
 
-    public Task<DiscordUser> GetUserAsync() => Task.FromResult(_user);
+    public Task<DiscordUser> GetUserAsync() => Task.FromResult(this.user);
 
-    public Task<TaskCompletionSource<bool>> GetTaskCompletionSourceAsync() => Task.FromResult(_tcs);
+    public Task<TaskCompletionSource<bool>> GetTaskCompletionSourceAsync() => Task.FromResult(this.tcs);
 
     // This is essentially the stop method. //
     public async Task DoCleanupAsync()
     {
-        switch (_behaviorBehavior)
+        switch (this.behaviorBehavior)
         {
             case ButtonPaginationBehavior.Disable:
-                IEnumerable<DiscordButtonComponent> buttons = _buttons.ButtonArray
+                IEnumerable<DiscordButtonComponent> buttons = this.buttons.ButtonArray
                     .Select(b => new DiscordButtonComponent(b))
                     .Select(b => b.Disable());
 
                 DiscordWebhookBuilder builder = new DiscordWebhookBuilder()
-                    .WithContent(_pages[_index].Content)
-                    .AddEmbed(_pages[_index].Embed)
+                    .WithContent(this.pages[this.index].Content)
+                    .AddEmbed(this.pages[this.index].Embed)
                     .AddComponents(buttons);
 
-                await _lastInteraction.EditOriginalResponseAsync(builder);
+                await this.lastInteraction.EditOriginalResponseAsync(builder);
                 break;
 
             case ButtonPaginationBehavior.DeleteButtons:
                 builder = new DiscordWebhookBuilder()
-                    .WithContent(_pages[_index].Content)
-                    .AddEmbed(_pages[_index].Embed);
+                    .WithContent(this.pages[this.index].Content)
+                    .AddEmbed(this.pages[this.index].Embed);
 
-                await _lastInteraction.EditOriginalResponseAsync(builder);
+                await this.lastInteraction.EditOriginalResponseAsync(builder);
                 break;
 
             case ButtonPaginationBehavior.DeleteMessage:
-                await _lastInteraction.DeleteOriginalResponseAsync();
+                await this.lastInteraction.DeleteOriginalResponseAsync();
                 break;
 
             case ButtonPaginationBehavior.Ignore:

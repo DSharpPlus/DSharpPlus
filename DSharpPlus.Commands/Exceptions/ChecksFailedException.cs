@@ -11,7 +11,7 @@ public sealed class ChecksFailedException : CommandsException
 
     public ChecksFailedException(IReadOnlyList<ContextCheckFailedData> errors, Command command, string? message = null) : base(message ?? $"Checks for {command.FullName} failed.")
     {
-        Command = command;
-        Errors = errors;
+        this.Command = command;
+        this.Errors = errors;
     }
 }

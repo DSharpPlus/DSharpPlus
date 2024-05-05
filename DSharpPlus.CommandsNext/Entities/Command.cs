@@ -28,7 +28,7 @@ public class Command
     /// <summary>
     /// Gets this command's qualified name (i.e. one that includes all module names).
     /// </summary>
-    public string QualifiedName => Parent is not null ? string.Concat(Parent.QualifiedName, " ", Name) : Name;
+    public string QualifiedName => this.Parent is not null ? string.Concat(this.Parent.QualifiedName, " ", this.Name) : this.Name;
 
     /// <summary>
     /// Gets this command's aliases.
@@ -81,7 +81,7 @@ public class Command
     {
         try
         {
-            foreach (CommandOverload? overload in Overloads.OrderByDescending(x => x.Priority))
+            foreach (CommandOverload? overload in this.Overloads.OrderByDescending(x => x.Priority))
             {
                 ctx.Overload = overload;
 
@@ -97,14 +97,14 @@ public class Command
                 // From... what I can gather, this seems to be support for executing commands that don't inherit from BaseCommandModule.
                 // But, that can never be the case since all Commands must inherit from BaseCommandModule.
                 // Regardless, I'm not removing this legacy code in case if it's actually used and I'm just not seeing it.
-                BaseCommandModule? commandModule = Module?.GetInstance(ctx.Services);
+                BaseCommandModule? commandModule = this.Module?.GetInstance(ctx.Services);
                 if (commandModule is not null)
                 {
                     await commandModule.BeforeExecutionAsync(ctx);
                 }
 
-                args.Converted[0] = overload._invocationTarget ?? commandModule;
-                await (Task)overload._callable.DynamicInvoke(args.Converted)!;
+                args.Converted[0] = overload.invocationTarget ?? commandModule;
+                await (Task)overload.callable.DynamicInvoke(args.Converted)!;
 
                 if (commandModule is not null)
                 {
@@ -145,9 +145,9 @@ public class Command
     public async Task<IEnumerable<CheckBaseAttribute>> RunChecksAsync(CommandContext ctx, bool help)
     {
         List<CheckBaseAttribute> fchecks = [];
-        if (ExecutionChecks.Any())
+        if (this.ExecutionChecks.Any())
         {
-            foreach (CheckBaseAttribute ec in ExecutionChecks)
+            foreach (CheckBaseAttribute ec in this.ExecutionChecks)
             {
                 if (!await ec.ExecuteCheckAsync(ctx, help))
                 {
@@ -188,20 +188,20 @@ public class Command
     public override bool Equals(object? obj)
     {
         object? o2 = this;
-        return (obj != null || o2 == null) && (obj == null || o2 != null) && ((obj == null && o2 == null) || (obj is Command cmd && cmd.QualifiedName == QualifiedName));
+        return (obj != null || o2 == null) && (obj == null || o2 != null) && ((obj == null && o2 == null) || (obj is Command cmd && cmd.QualifiedName == this.QualifiedName));
     }
 
     /// <summary>
     /// Gets this command's hash code.
     /// </summary>
     /// <returns>This command's hash code.</returns>
-    public override int GetHashCode() => QualifiedName.GetHashCode();
+    public override int GetHashCode() => this.QualifiedName.GetHashCode();
 
     /// <summary>
     /// Returns a string representation of this command.
     /// </summary>
     /// <returns>String representation of this command.</returns>
     public override string ToString() => this is CommandGroup g
-            ? $"Command Group: {QualifiedName}, {g.Children.Count} top-level children"
-            : $"Command: {QualifiedName}";
+            ? $"Command Group: {this.QualifiedName}, {g.Children.Count} top-level children"
+            : $"Command: {this.QualifiedName}";
 }

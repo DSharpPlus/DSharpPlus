@@ -37,9 +37,9 @@ public sealed class SlashCommandAttribute : Attribute
     /// <param name="nsfw">Sets whether the command is age restricted.</param>
     public SlashCommandAttribute(string name, string description, bool defaultPermission = true, bool nsfw = false)
     {
-        Name = name.ToLower();
-        Description = description;
-        DefaultPermission = defaultPermission;
-        NSFW = nsfw;
+        this.Name = name.ToLower();
+        this.Description = description;
+        this.DefaultPermission = defaultPermission;
+        this.NSFW = nsfw;
     }
 }

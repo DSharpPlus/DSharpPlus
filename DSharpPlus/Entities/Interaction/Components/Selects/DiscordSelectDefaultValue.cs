@@ -13,8 +13,8 @@ public class DiscordSelectDefaultValue
 
     public DiscordSelectDefaultValue(ulong id, DiscordSelectDefaultValueType type)
     {
-        Id = id;
-        Type = type switch
+        this.Id = id;
+        this.Type = type switch
         {
             DiscordSelectDefaultValueType.Channel => "channel",
             DiscordSelectDefaultValueType.User => "user",

@@ -14,7 +14,7 @@ public sealed class NameLocalizationAttribute : Attribute
 
     public NameLocalizationAttribute(Localization locale, string name)
     {
-        Name = name;
-        Locale = LocaleHelper.LocaleToStrings[locale];
+        this.Name = name;
+        this.Locale = LocaleHelper.LocaleToStrings[locale];
     }
 }

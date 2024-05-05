@@ -17,12 +17,12 @@ public record struct DiscordMessageFile
         AddFileOptions fileOptions = AddFileOptions.None
     )
     {
-        FileName = fileName ?? "file";
-        FileType = fileType;
-        ContentType = contentType;
-        FileOptions = fileOptions;
-        Stream = stream;
-        ResetPositionTo = resetPositionTo;
+        this.FileName = fileName ?? "file";
+        this.FileType = fileType;
+        this.ContentType = contentType;
+        this.FileOptions = fileOptions;
+        this.Stream = stream;
+        this.ResetPositionTo = resetPositionTo;
     }
 
     /// <summary>

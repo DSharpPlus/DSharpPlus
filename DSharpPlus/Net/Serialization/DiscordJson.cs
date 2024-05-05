@@ -10,7 +10,7 @@ namespace DSharpPlus.Net.Serialization;
 
 public static class DiscordJson
 {
-    private static readonly JsonSerializer _serializer = JsonSerializer.CreateDefault(new JsonSerializerSettings
+    private static readonly JsonSerializer serializer = JsonSerializer.CreateDefault(new JsonSerializerSettings
     {
         ContractResolver = new OptionalJsonContractResolver(),
         DateParseHandling = DateParseHandling.None,
@@ -20,7 +20,7 @@ public static class DiscordJson
     /// <summary>Serializes the specified object to a JSON string.</summary>
     /// <param name="value">The object to serialize.</param>
     /// <returns>A JSON string representation of the object.</returns>
-    public static string SerializeObject(object value) => SerializeObjectInternal(value, null, _serializer);
+    public static string SerializeObject(object value) => SerializeObjectInternal(value, null, serializer);
 
     /// <summary>Populates an object with the values from a JSON node.</summary>
     /// <param name="value">The token to populate the object with.</param>
@@ -28,7 +28,7 @@ public static class DiscordJson
     public static void PopulateObject(JToken value, object target)
     {
         using JsonReader reader = value.CreateReader();
-        _serializer.Populate(reader, target);
+        serializer.Populate(reader, target);
     }
 
     /// <summary>
@@ -38,7 +38,7 @@ public static class DiscordJson
     /// <param name="token">The token to convert</param>
     /// <typeparam name="T">Type to convert to</typeparam>
     /// <returns>The converted token</returns>
-    public static T ToDiscordObject<T>(this JToken token) => token.ToObject<T>(_serializer);
+    public static T ToDiscordObject<T>(this JToken token) => token.ToObject<T>(serializer);
 
     private static string SerializeObjectInternal(object value, Type type, JsonSerializer jsonSerializer)
     {

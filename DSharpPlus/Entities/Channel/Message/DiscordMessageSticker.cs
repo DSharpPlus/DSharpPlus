@@ -42,9 +42,9 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     /// <summary>
     /// Gets the guild associated with this sticker, if any.
     /// </summary>
-    public DiscordGuild Guild => (Discord as DiscordClient)!.InternalGetCachedGuild(GuildId);
+    public DiscordGuild Guild => (this.Discord as DiscordClient)!.InternalGetCachedGuild(this.GuildId);
 
-    public string StickerUrl => $"https://cdn.discordapp.com/stickers/{Id}{(FormatType is DiscordStickerFormat.LOTTIE ? ".json" : ".png")}";
+    public string StickerUrl => $"https://cdn.discordapp.com/stickers/{this.Id}{(this.FormatType is DiscordStickerFormat.LOTTIE ? ".json" : ".png")}";
 
     /// <summary>
     /// Gets the Id of the sticker this guild belongs to, if any.
@@ -69,7 +69,7 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     /// </summary>
     [JsonIgnore]
     public IReadOnlyList<string> Tags
-        => InternalTags != null ? InternalTags.Split(',') : [];
+        => this.InternalTags != null ? this.InternalTags.Split(',') : [];
 
     /// <summary>
     /// Gets the asset hash of the sticker.
@@ -92,37 +92,37 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
     internal string? InternalTags { get; set; }
 
-    public string BannerUrl => $"https://cdn.discordapp.com/app-assets/710982414301790216/store/{BannerAssetId}.png?size=4096";
+    public string BannerUrl => $"https://cdn.discordapp.com/app-assets/710982414301790216/store/{this.BannerAssetId}.png?size=4096";
 
     [JsonProperty("banner_asset_id")]
     internal ulong BannerAssetId { get; set; }
 
-    public bool Equals(DiscordMessageSticker? other) => Id == other?.Id;
+    public bool Equals(DiscordMessageSticker? other) => this.Id == other?.Id;
     public override bool Equals(object obj) => Equals(obj as DiscordMessageSticker);
-    public override string ToString() => $"Sticker {Id}; {Name}; {FormatType}";
+    public override string ToString() => $"Sticker {this.Id}; {this.Name}; {this.FormatType}";
     public override int GetHashCode()
     {
         HashCode hash = new();
-        hash.Add(Id);
-        hash.Add(CreationTimestamp);
-        hash.Add(Discord);
-        hash.Add(PackId);
-        hash.Add(Name);
-        hash.Add(Description);
-        hash.Add(Type);
-        hash.Add(User);
-        hash.Add(Guild);
-        hash.Add(StickerUrl);
-        hash.Add(GuildId);
-        hash.Add(Available);
-        hash.Add(SortValue);
-        hash.Add(Tags);
-        hash.Add(Asset);
-        hash.Add(PreviewAsset);
-        hash.Add(FormatType);
-        hash.Add(InternalTags);
-        hash.Add(BannerUrl);
-        hash.Add(BannerAssetId);
+        hash.Add(this.Id);
+        hash.Add(this.CreationTimestamp);
+        hash.Add(this.Discord);
+        hash.Add(this.PackId);
+        hash.Add(this.Name);
+        hash.Add(this.Description);
+        hash.Add(this.Type);
+        hash.Add(this.User);
+        hash.Add(this.Guild);
+        hash.Add(this.StickerUrl);
+        hash.Add(this.GuildId);
+        hash.Add(this.Available);
+        hash.Add(this.SortValue);
+        hash.Add(this.Tags);
+        hash.Add(this.Asset);
+        hash.Add(this.PreviewAsset);
+        hash.Add(this.FormatType);
+        hash.Add(this.InternalTags);
+        hash.Add(this.BannerUrl);
+        hash.Add(this.BannerAssetId);
         return hash.ToHashCode();
     }
 }

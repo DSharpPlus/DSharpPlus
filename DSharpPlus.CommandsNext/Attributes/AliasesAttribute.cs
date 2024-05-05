@@ -27,6 +27,6 @@ public sealed class AliasesAttribute : Attribute
             throw new ArgumentException("Aliases cannot contain whitespace characters or null strings.", nameof(aliases));
         }
 
-        Aliases = new ReadOnlyCollection<string>(aliases);
+        this.Aliases = new ReadOnlyCollection<string>(aliases);
     }
 }

@@ -42,8 +42,8 @@ Now, we need to implement the actual conversion logic. The `Ulid` type has a `Tr
 ```cs
 public class UlidArgumentConverter : ITextArgumentConverter<Ulid>, ISlashArgumentConverter<Ulid>
 {
-    private readonly ILogger<UlidArgumentConverter> _logger;
-    public UlidArgumentConverter(ILogger<UlidArgumentConverter> logger) => _logger = logger;
+    private readonly ILogger<UlidArgumentConverter> logger;
+    public UlidArgumentConverter(ILogger<UlidArgumentConverter> logger) => logger = logger;
 
     public Task<Optional<Ulid>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context.Argument);
 
@@ -51,14 +51,14 @@ public class UlidArgumentConverter : ITextArgumentConverter<Ulid>, ISlashArgumen
 
     public Task<Optional<Ulid>> ConvertAsync(string value)
     {
-        _logger.LogDebug("Attempting to convert {Value} to Ulid.", value);
+        logger.LogDebug("Attempting to convert {Value} to Ulid.", value);
         if (Ulid.TryParse(value, out var ulid))
         {
-            _logger.LogDebug("Successfully converted {Value} to Ulid.", value);
+            logger.LogDebug("Successfully converted {Value} to Ulid.", value);
             return Task.FromResult(Optional.FromValue(ulid));
         }
 
-        _logger.LogDebug("Failed to convert {Value} to Ulid.", value);
+        logger.LogDebug("Failed to convert {Value} to Ulid.", value);
         return Task.FromResult(Optional.FromNoValue<Ulid>());
     }
 }

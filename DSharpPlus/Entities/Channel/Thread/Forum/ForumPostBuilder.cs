@@ -36,7 +36,7 @@ public class ForumPostBuilder
     /// <summary>
     /// Creates a new forum post builder.
     /// </summary>
-    public ForumPostBuilder() => AppliedTags = new List<DiscordForumTag>();
+    public ForumPostBuilder() => this.AppliedTags = new List<DiscordForumTag>();
 
     /// <summary>
     /// Sets the name (or title) of the post.
@@ -45,7 +45,7 @@ public class ForumPostBuilder
     /// <returns>The builder to chain calls with</returns>
     public ForumPostBuilder WithName(string name)
     {
-        Name = name;
+        this.Name = name;
         return this;
     }
 
@@ -56,7 +56,7 @@ public class ForumPostBuilder
     /// <returns></returns>
     public ForumPostBuilder WithSlowMode(int slowMode)
     {
-        SlowMode = slowMode;
+        this.SlowMode = slowMode;
         return this;
     }
 
@@ -67,7 +67,7 @@ public class ForumPostBuilder
     /// <returns>The builder to chain calls with.</returns>
     public ForumPostBuilder WithSlowMode(TimeSpan slowMode)
     {
-        SlowMode = (int)slowMode.TotalSeconds;
+        this.SlowMode = (int)slowMode.TotalSeconds;
         return this;
     }
 
@@ -78,7 +78,7 @@ public class ForumPostBuilder
     /// <returns>The builder to chain calls with.</returns>
     public ForumPostBuilder WithMessage(DiscordMessageBuilder message)
     {
-        Message = message;
+        this.Message = message;
         return this;
     }
 
@@ -89,7 +89,7 @@ public class ForumPostBuilder
     /// <returns>The builder to chain calls with</returns>
     public ForumPostBuilder WithAutoArchiveDuration(DiscordAutoArchiveDuration autoArchiveDuration)
     {
-        AutoArchiveDuration = autoArchiveDuration;
+        this.AutoArchiveDuration = autoArchiveDuration;
         return this;
     }
 
@@ -100,7 +100,7 @@ public class ForumPostBuilder
     /// <returns>The builder to chain calls with.</returns>
     public ForumPostBuilder AddTag(DiscordForumTag tag)
     {
-        ((List<DiscordForumTag>)AppliedTags).Add(tag);
+        ((List<DiscordForumTag>)this.AppliedTags).Add(tag);
         return this;
     }
 
@@ -111,7 +111,7 @@ public class ForumPostBuilder
     /// <returns>The builder to chain calls with.</returns>
     public ForumPostBuilder AddTags(IEnumerable<DiscordForumTag> tags)
     {
-        ((List<DiscordForumTag>)AppliedTags).AddRange(tags);
+        ((List<DiscordForumTag>)this.AppliedTags).AddRange(tags);
         return this;
     }
 
@@ -122,7 +122,7 @@ public class ForumPostBuilder
     /// <returns></returns>
     public ForumPostBuilder RemoveTag(DiscordForumTag tag)
     {
-        ((List<DiscordForumTag>)AppliedTags).Remove(tag);
+        ((List<DiscordForumTag>)this.AppliedTags).Remove(tag);
         return this;
     }
 }

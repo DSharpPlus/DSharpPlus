@@ -10,6 +10,6 @@ public sealed class CommandNotExecutableException : CommandsException
     public CommandNotExecutableException(Command command, string? message = null) : base(message ?? $"Command {command.Name} is not executable.")
     {
         ArgumentNullException.ThrowIfNull(command, nameof(command));
-        Command = command;
+        this.Command = command;
     }
 }

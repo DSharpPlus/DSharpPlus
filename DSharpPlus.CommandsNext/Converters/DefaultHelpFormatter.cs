@@ -19,7 +19,7 @@ public class DefaultHelpFormatter : BaseHelpFormatter
     /// </summary>
     /// <param name="ctx">Context in which this formatter is being invoked.</param>
     public DefaultHelpFormatter(CommandContext ctx)
-        : base(ctx) => EmbedBuilder = new DiscordEmbedBuilder()
+        : base(ctx) => this.EmbedBuilder = new DiscordEmbedBuilder()
             .WithTitle("Help")
             .WithColor(0x007FFF);
 
@@ -30,18 +30,18 @@ public class DefaultHelpFormatter : BaseHelpFormatter
     /// <returns>This help formatter.</returns>
     public override BaseHelpFormatter WithCommand(Command command)
     {
-        Command = command;
+        this.Command = command;
 
-        EmbedBuilder.WithDescription($"{Formatter.InlineCode(command.Name)}: {command.Description ?? "No description provided."}");
+        this.EmbedBuilder.WithDescription($"{Formatter.InlineCode(command.Name)}: {command.Description ?? "No description provided."}");
 
         if (command is CommandGroup cgroup && cgroup.IsExecutableWithoutSubcommands)
         {
-            EmbedBuilder.WithDescription($"{EmbedBuilder.Description}\n\nThis group can be executed as a standalone command.");
+            this.EmbedBuilder.WithDescription($"{this.EmbedBuilder.Description}\n\nThis group can be executed as a standalone command.");
         }
 
         if (command.Aliases.Count > 0)
         {
-            EmbedBuilder.AddField("Aliases", string.Join(", ", command.Aliases.Select(Formatter.InlineCode)), false);
+            this.EmbedBuilder.AddField("Aliases", string.Join(", ", command.Aliases.Select(Formatter.InlineCode)), false);
         }
 
         if (command.Overloads.Count > 0)
@@ -61,13 +61,13 @@ public class DefaultHelpFormatter : BaseHelpFormatter
 
                 foreach (CommandArgument arg in ovl.Arguments)
                 {
-                    sb.Append('`').Append(arg.Name).Append(" (").Append(CommandsNext.GetUserFriendlyTypeName(arg.Type)).Append(")`: ").Append(arg.Description ?? "No description provided.").Append('\n');
+                    sb.Append('`').Append(arg.Name).Append(" (").Append(this.CommandsNext.GetUserFriendlyTypeName(arg.Type)).Append(")`: ").Append(arg.Description ?? "No description provided.").Append('\n');
                 }
 
                 sb.Append('\n');
             }
 
-            EmbedBuilder.AddField("Arguments", sb.ToString().Trim(), false);
+            this.EmbedBuilder.AddField("Arguments", sb.ToString().Trim(), false);
         }
 
         return this;
@@ -86,14 +86,14 @@ public class DefaultHelpFormatter : BaseHelpFormatter
         // no known categories, proceed without categorization
         if (categories.Count() == 1 && categories.Single().Key == null)
         {
-            EmbedBuilder.AddField(Command is not null ? "Subcommands" : "Commands", string.Join(", ", subcommands.Select(x => Formatter.InlineCode(x.Name))), false);
+            this.EmbedBuilder.AddField(this.Command is not null ? "Subcommands" : "Commands", string.Join(", ", subcommands.Select(x => Formatter.InlineCode(x.Name))), false);
 
             return this;
         }
 
         foreach (IGrouping<string?, Command>? category in categories)
         {
-            EmbedBuilder.AddField(category.Key ?? "Uncategorized commands", string.Join(", ", category.Select(xm => Formatter.InlineCode(xm.Name))), false);
+            this.EmbedBuilder.AddField(category.Key ?? "Uncategorized commands", string.Join(", ", category.Select(xm => Formatter.InlineCode(xm.Name))), false);
         }
 
         return this;
@@ -105,11 +105,11 @@ public class DefaultHelpFormatter : BaseHelpFormatter
     /// <returns>Data for the help message.</returns>
     public override CommandHelpMessage Build()
     {
-        if (Command is null)
+        if (this.Command is null)
         {
-            EmbedBuilder.WithDescription("Listing all top-level commands and groups. Specify a command to see more information.");
+            this.EmbedBuilder.WithDescription("Listing all top-level commands and groups. Specify a command to see more information.");
         }
 
-        return new CommandHelpMessage(embed: EmbedBuilder.Build());
+        return new CommandHelpMessage(embed: this.EmbedBuilder.Build());
     }
 }
