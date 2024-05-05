@@ -223,6 +223,18 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
                 parsedArguments.Add(converterContext.Parameter, optional.RawValue);
             }
 
+            if (parsedArguments.Count == 0)
+            {
+                foreach (CommandParameter parameter in converterContext.Command.Parameters)
+                {
+                    parsedArguments.Add
+                    (
+                        parameter,
+                        parameter.DefaultValue.HasValue ? parameter.DefaultValue.Value : null
+                    );
+                }
+            }
+
             if (parsedArguments.Count != converterContext.Command.Parameters.Count)
             {
                 // Try to fill with default values
