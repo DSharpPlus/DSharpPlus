@@ -53,11 +53,11 @@ public class CommandParameterBuilder
         {
             if (attribute is CommandAttribute commandAttribute)
             {
-                this.WithName(commandAttribute.Name);
+                WithName(commandAttribute.Name);
             }
             else if (attribute is DescriptionAttribute descriptionAttribute)
             {
-                this.WithDescription(descriptionAttribute.Description);
+                WithDescription(descriptionAttribute.Description);
             }
 
             listedAttributes.Add(attribute);
@@ -83,11 +83,11 @@ public class CommandParameterBuilder
         ArgumentNullException.ThrowIfNull(this.DefaultValue, nameof(this.DefaultValue));
 
         // Push it through the With* methods again, which contain validation.
-        this.WithName(this.Name);
-        this.WithDescription(this.Description);
-        this.WithAttributes(this.Attributes);
-        this.WithType(this.Type);
-        this.WithDefaultValue(this.DefaultValue);
+        WithName(this.Name);
+        WithDescription(this.Description);
+        WithAttributes(this.Attributes);
+        WithType(this.Type);
+        WithDefaultValue(this.DefaultValue);
 
         return new CommandParameter()
         {

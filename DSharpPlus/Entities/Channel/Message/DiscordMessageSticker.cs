@@ -98,7 +98,7 @@ public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageS
     internal ulong BannerAssetId { get; set; }
 
     public bool Equals(DiscordMessageSticker? other) => this.Id == other?.Id;
-    public override bool Equals(object obj) => this.Equals(obj as DiscordMessageSticker);
+    public override bool Equals(object obj) => Equals(obj as DiscordMessageSticker);
     public override string ToString() => $"Sticker {this.Id}; {this.Name}; {this.FormatType}";
     public override int GetHashCode()
     {

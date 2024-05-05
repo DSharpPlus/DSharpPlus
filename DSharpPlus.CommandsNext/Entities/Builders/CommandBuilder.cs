@@ -139,7 +139,7 @@ public class CommandBuilder
 
         foreach (string alias in aliases)
         {
-            this.WithAlias(alias);
+            WithAlias(alias);
         }
 
         return this;
@@ -223,7 +223,7 @@ public class CommandBuilder
     {
         foreach (CommandOverloadBuilder overload in overloads)
         {
-            this.WithOverload(overload);
+            WithOverload(overload);
         }
 
         return this;
@@ -267,7 +267,7 @@ public class CommandBuilder
     {
         foreach (Attribute attr in attributes)
         {
-            this.WithCustomAttribute(attr);
+            WithCustomAttribute(attr);
         }
 
         return this;

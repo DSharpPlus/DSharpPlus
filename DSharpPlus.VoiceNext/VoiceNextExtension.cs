@@ -49,8 +49,8 @@ public sealed class VoiceNextExtension : BaseExtension
 
         this.Client = client;
 
-        this.Client.VoiceStateUpdated += this.Client_VoiceStateUpdate;
-        this.Client.VoiceServerUpdated += this.Client_VoiceServerUpdateAsync;
+        this.Client.VoiceStateUpdated += Client_VoiceStateUpdate;
+        this.Client.VoiceServerUpdated += Client_VoiceServerUpdateAsync;
     }
 
     /// <summary>
@@ -115,7 +115,7 @@ public sealed class VoiceNextExtension : BaseExtension
         };
 
         VoiceNextConnection vnc = new(this.Client, gld, channel, this.Configuration, vsrup, vstup);
-        vnc.VoiceDisconnected += this.Vnc_VoiceDisconnectedAsync;
+        vnc.VoiceDisconnected += Vnc_VoiceDisconnectedAsync;
         await vnc.ConnectAsync();
         await vnc.WaitForReadyAsync();
         this.ActiveConnections[gld.Id] = vnc;
@@ -236,8 +236,8 @@ public sealed class VoiceNextExtension : BaseExtension
 
         if (this.Client != null)
         {
-            this.Client.VoiceStateUpdated -= this.Client_VoiceStateUpdate;
-            this.Client.VoiceServerUpdated -= this.Client_VoiceServerUpdateAsync;
+            this.Client.VoiceStateUpdated -= Client_VoiceStateUpdate;
+            this.Client.VoiceServerUpdated -= Client_VoiceServerUpdateAsync;
         }
         // Lo and behold, the audacious man who dared lay his hand upon VoiceNext hath once more trespassed upon its profane ground!
 

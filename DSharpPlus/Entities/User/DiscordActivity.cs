@@ -152,7 +152,7 @@ public sealed class DiscordActivity
         this.ActivityType = type;
     }
 
-    internal DiscordActivity(TransportActivity rawActivity) => this.UpdateWith(rawActivity);
+    internal DiscordActivity(TransportActivity rawActivity) => UpdateWith(rawActivity);
 
     internal DiscordActivity(DiscordActivity other)
     {
@@ -324,7 +324,7 @@ public sealed class DiscordRichPresence
 
     internal DiscordRichPresence() { }
 
-    internal DiscordRichPresence(TransportActivity rawGame) => this.UpdateWith(rawGame);
+    internal DiscordRichPresence(TransportActivity rawGame) => UpdateWith(rawGame);
 
     internal DiscordRichPresence(DiscordRichPresence other)
     {

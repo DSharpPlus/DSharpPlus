@@ -46,7 +46,7 @@ public sealed class DiscordApplicationAsset : DiscordAsset, IEquatable<DiscordAp
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordApplicationAsset"/>.</returns>
-    public override bool Equals(object? obj) => this.Equals(obj as DiscordApplicationAsset);
+    public override bool Equals(object? obj) => Equals(obj as DiscordApplicationAsset);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordApplicationAsset"/> is equal to another <see cref="DiscordApplicationAsset"/>.

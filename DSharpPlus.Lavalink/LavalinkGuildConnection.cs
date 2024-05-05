@@ -137,7 +137,7 @@ public sealed class LavalinkGuildConnection
     /// <param name="shouldDestroy">Whether the connection should be destroyed on the Lavalink server when leaving.</param>
 
     public Task DisconnectAsync(bool shouldDestroy = true)
-        => this.DisconnectInternalAsync(shouldDestroy);
+        => DisconnectInternalAsync(shouldDestroy);
 
     internal async Task DisconnectInternalAsync(bool shouldDestroy, bool isManualDisconnection = false)
     {
@@ -155,7 +155,7 @@ public sealed class LavalinkGuildConnection
 
         if (!isManualDisconnection)
         {
-            await this.SendVoiceUpdateAsync();
+            await SendVoiceUpdateAsync();
             ChannelDisconnected?.Invoke(this);
         }
     }

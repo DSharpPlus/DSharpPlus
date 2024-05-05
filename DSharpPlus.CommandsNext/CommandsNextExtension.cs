@@ -173,7 +173,7 @@ public class CommandsNextExtension : BaseExtension
 
         if (this.Config.UseDefaultCommandHandler)
         {
-            this.Client.MessageCreated += this.HandleCommandsAsync;
+            this.Client.MessageCreated += HandleCommandsAsync;
         }
         else
         {
@@ -182,7 +182,7 @@ public class CommandsNextExtension : BaseExtension
 
         if (this.Config.EnableDefaultHelp)
         {
-            this.RegisterCommands(typeof(DefaultHelpModule), null, [], out List<CommandBuilder>? tcmds);
+            RegisterCommands(typeof(DefaultHelpModule), null, [], out List<CommandBuilder>? tcmds);
 
             if (this.Config.DefaultHelpChecks.Any())
             {
@@ -198,7 +198,7 @@ public class CommandsNextExtension : BaseExtension
             {
                 foreach (CommandBuilder xc in tcmds)
                 {
-                    this.AddToCommandDictionary(xc.Build(null));
+                    AddToCommandDictionary(xc.Build(null));
                 }
             }
         }
@@ -256,8 +256,8 @@ public class CommandsNextExtension : BaseExtension
         int _ = 0;
         string? fname = cnt.ExtractNextArgument(ref _, this.Config.QuotationMarks);
 
-        Command? cmd = this.FindCommand(cnt, out string? args);
-        CommandContext ctx = this.CreateContext(e.Message, pfx, cmd, args);
+        Command? cmd = FindCommand(cnt, out string? args);
+        CommandContext ctx = CreateContext(e.Message, pfx, cmd, args);
 
         if (cmd is null)
         {
@@ -445,7 +445,7 @@ public class CommandsNextExtension : BaseExtension
         });
         foreach (Type? xt in types)
         {
-            this.RegisterCommands(xt);
+            RegisterCommands(xt);
         }
     }
 
@@ -456,7 +456,7 @@ public class CommandsNextExtension : BaseExtension
     public void RegisterCommands<T>() where T : BaseCommandModule
     {
         Type t = typeof(T);
-        this.RegisterCommands(t);
+        RegisterCommands(t);
     }
 
     /// <summary>
@@ -475,13 +475,13 @@ public class CommandsNextExtension : BaseExtension
             throw new ArgumentNullException(nameof(t), "Type must be a class, which cannot be abstract or static.");
         }
 
-        this.RegisterCommands(t, null, [], out List<CommandBuilder>? tempCommands);
+        RegisterCommands(t, null, [], out List<CommandBuilder>? tempCommands);
 
         if (tempCommands != null)
         {
             foreach (CommandBuilder command in tempCommands)
             {
-                this.AddToCommandDictionary(command.Build(null));
+                AddToCommandDictionary(command.Build(null));
             }
         }
     }
@@ -700,7 +700,7 @@ public class CommandsNextExtension : BaseExtension
             .Where(xt => xt.IsModuleCandidateType() && xt.DeclaredConstructors.Any(xc => xc.IsPublic));
         foreach (TypeInfo? type in types)
         {
-            this.RegisterCommands(type.AsType(),
+            RegisterCommands(type.AsType(),
                 groupBuilder,
                 !isModule ? moduleChecks : Enumerable.Empty<CheckBaseAttribute>(),
                 out List<CommandBuilder>? tempCommands);
@@ -746,7 +746,7 @@ public class CommandsNextExtension : BaseExtension
     {
         foreach (CommandBuilder cmd in cmds)
         {
-            this.AddToCommandDictionary(cmd.Build(null));
+            AddToCommandDictionary(cmd.Build(null));
         }
     }
 

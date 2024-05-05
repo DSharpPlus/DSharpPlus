@@ -36,7 +36,7 @@ internal class EventWaiter<T> : IDisposable where T : AsyncEventArgs
         this.matchrequests = [];
         this.collectrequests = [];
         this.@event = (AsyncEvent<DiscordClient, T>)handler.GetValue(this.client);
-        this.handler = new AsyncEventHandler<DiscordClient, T>(this.HandleEvent);
+        this.handler = new AsyncEventHandler<DiscordClient, T>(HandleEvent);
         this.@event.Register(this.handler);
     }
 

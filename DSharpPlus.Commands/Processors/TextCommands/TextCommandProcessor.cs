@@ -28,7 +28,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         }
 
         this.configured = true;
-        extension.Client.MessageCreated += this.ExecuteTextCommandAsync;
+        extension.Client.MessageCreated += ExecuteTextCommandAsync;
         if (!extension.Client.Intents.HasIntent(DiscordIntents.GuildMessages) && !extension.Client.Intents.HasIntent(DiscordIntents.DirectMessages))
         {
             TextLogging.MissingRequiredIntents(this.logger, RequiredIntents, null);
@@ -156,7 +156,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             {
                 await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
                 {
-                    Context = this.CreateCommandContext(new()
+                    Context = CreateCommandContext(new()
                     {
                         Channel = eventArgs.Channel,
                         Command = command,
@@ -187,7 +187,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             User = eventArgs.Author
         };
 
-        TextCommandContext? commandContext = await this.ParseArgumentsAsync(converterContext, eventArgs);
+        TextCommandContext? commandContext = await ParseArgumentsAsync(converterContext, eventArgs);
         if (commandContext is null)
         {
             await scope.DisposeAsync();

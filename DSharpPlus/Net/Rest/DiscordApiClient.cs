@@ -58,7 +58,7 @@ public sealed class DiscordApiClient
 
         message.Discord = this.discord!;
 
-        this.PopulateMessage(author, message);
+        PopulateMessage(author, message);
 
         JToken? referencedMsg = msgRaw["referenced_message"];
 
@@ -66,7 +66,7 @@ public sealed class DiscordApiClient
         {
             TransportUser referencedAuthor = referencedMsg["author"]!.ToDiscordObject<TransportUser>();
             message.ReferencedMessage.Discord = this.discord!;
-            this.PopulateMessage(referencedAuthor, message.ReferencedMessage);
+            PopulateMessage(referencedAuthor, message.ReferencedMessage);
         }
 
         if (message.Channel is not null)
@@ -2053,7 +2053,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
 
-        DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
+        DiscordMessage ret = PrepareMessage(JObject.Parse(res.Response!));
 
         return ret;
     }
@@ -2187,7 +2187,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
 
-        DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
+        DiscordMessage ret = PrepareMessage(JObject.Parse(res.Response!));
 
         return ret;
     }
@@ -2246,7 +2246,7 @@ public sealed class DiscordApiClient
 
             RestResponse res = await this.rest.ExecuteRequestAsync(request);
 
-            DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
+            DiscordMessage ret = PrepareMessage(JObject.Parse(res.Response!));
 
             return ret;
         }
@@ -2279,7 +2279,7 @@ public sealed class DiscordApiClient
                 builder.ResetFileStreamPositions();
             }
 
-            return this.PrepareMessage(JObject.Parse(res.Response!));
+            return PrepareMessage(JObject.Parse(res.Response!));
         }
     }
 
@@ -2364,7 +2364,7 @@ public sealed class DiscordApiClient
         List<DiscordMessage> msgs = [];
         foreach (JToken xj in msgsRaw)
         {
-            msgs.Add(this.PrepareMessage(xj));
+            msgs.Add(PrepareMessage(xj));
         }
 
         return new ReadOnlyCollection<DiscordMessage>(new List<DiscordMessage>(msgs));
@@ -2388,7 +2388,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
 
-        DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
+        DiscordMessage ret = PrepareMessage(JObject.Parse(res.Response!));
 
         return ret;
     }
@@ -2471,7 +2471,7 @@ public sealed class DiscordApiClient
             res = await this.rest.ExecuteRequestAsync(request);
         }
 
-        DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
+        DiscordMessage ret = PrepareMessage(JObject.Parse(res.Response!));
 
         if (files is not null)
         {
@@ -2727,7 +2727,7 @@ public sealed class DiscordApiClient
         List<DiscordMessage> msgs = [];
         foreach (JToken xj in msgsRaw)
         {
-            msgs.Add(this.PrepareMessage(xj));
+            msgs.Add(PrepareMessage(xj));
         }
 
         return new ReadOnlyCollection<DiscordMessage>(new List<DiscordMessage>(msgs));
@@ -3503,10 +3503,10 @@ public sealed class DiscordApiClient
 
     #region Member
     internal ValueTask<DiscordUser> GetCurrentUserAsync()
-        => this.GetUserAsync("@me");
+        => GetUserAsync("@me");
 
     internal ValueTask<DiscordUser> GetUserAsync(ulong userId)
-        => this.GetUserAsync(userId.ToString(CultureInfo.InvariantCulture));
+        => GetUserAsync(userId.ToString(CultureInfo.InvariantCulture));
 
     internal async ValueTask<DiscordUser> GetUserAsync(string userId)
     {
@@ -4967,7 +4967,7 @@ public sealed class DiscordApiClient
             builder.ResetFileStreamPositions();
         }
 
-        return this.PrepareMessage(JObject.Parse(res.Response!));
+        return PrepareMessage(JObject.Parse(res.Response!));
     }
 
     internal async ValueTask DeleteWebhookMessageAsync
@@ -5212,7 +5212,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
 
-        DiscordMessage ret = this.PrepareMessage(JObject.Parse(res.Response!));
+        DiscordMessage ret = PrepareMessage(JObject.Parse(res.Response!));
 
         return ret;
     }
@@ -6118,7 +6118,7 @@ public sealed class DiscordApiClient
         string interactionToken,
         ulong messageId
     )
-        => this.GetWebhookMessageAsync(applicationId, interactionToken, messageId);
+        => GetWebhookMessageAsync(applicationId, interactionToken, messageId);
 
     internal ValueTask<DiscordMessage> EditFollowupMessageAsync
     (
@@ -6128,10 +6128,10 @@ public sealed class DiscordApiClient
         DiscordWebhookBuilder builder,
         IEnumerable<DiscordAttachment> attachments
     ) =>
-        this.EditWebhookMessageAsync(applicationId, interactionToken, messageId, builder, attachments);
+        EditWebhookMessageAsync(applicationId, interactionToken, messageId, builder, attachments);
 
     internal ValueTask DeleteFollowupMessageAsync(ulong applicationId, string interactionToken, ulong messageId)
-        => this.DeleteWebhookMessageAsync(applicationId, interactionToken, messageId);
+        => DeleteWebhookMessageAsync(applicationId, interactionToken, messageId);
 
     internal async ValueTask<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> GetGuildApplicationCommandPermissionsAsync
     (
@@ -6250,13 +6250,13 @@ public sealed class DiscordApiClient
 
     #region Misc
     internal ValueTask<TransportApplication> GetCurrentApplicationInfoAsync()
-        => this.GetApplicationInfoAsync("@me");
+        => GetApplicationInfoAsync("@me");
 
     internal ValueTask<TransportApplication> GetApplicationInfoAsync
     (
         ulong applicationId
     )
-        => this.GetApplicationInfoAsync(applicationId.ToString(CultureInfo.InvariantCulture));
+        => GetApplicationInfoAsync(applicationId.ToString(CultureInfo.InvariantCulture));
 
     private async ValueTask<TransportApplication> GetApplicationInfoAsync
     (
@@ -6396,7 +6396,7 @@ public sealed class DiscordApiClient
         JToken? msgToken = ret["message"];
         ret.Remove("message");
 
-        DiscordMessage msg = this.PrepareMessage(msgToken!);
+        DiscordMessage msg = PrepareMessage(msgToken!);
         // We know the return type; deserialize directly.
         DiscordThreadChannel chn = ret.ToDiscordObject<DiscordThreadChannel>();
         chn.Discord = this.discord!;

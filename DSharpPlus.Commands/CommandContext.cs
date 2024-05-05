@@ -22,10 +22,10 @@ public abstract record CommandContext : AbstractContext
     protected Dictionary<ulong, DiscordMessage> followupMessages = [];
 
     /// <inheritdoc cref="RespondAsync(string, DiscordEmbed)"/>
-    public virtual ValueTask RespondAsync(string content) => this.RespondAsync(new DiscordMessageBuilder().WithContent(content));
+    public virtual ValueTask RespondAsync(string content) => RespondAsync(new DiscordMessageBuilder().WithContent(content));
 
     /// <inheritdoc cref="RespondAsync(string, DiscordEmbed)"/>
-    public virtual ValueTask RespondAsync(DiscordEmbed embed) => this.RespondAsync(new DiscordMessageBuilder().AddEmbed(embed));
+    public virtual ValueTask RespondAsync(DiscordEmbed embed) => RespondAsync(new DiscordMessageBuilder().AddEmbed(embed));
 
     /// <summary>
     /// Creates a response to this interaction.
@@ -33,17 +33,17 @@ public abstract record CommandContext : AbstractContext
     /// </summary>
     /// <param name="content">Content to send in the response.</param>
     /// <param name="embed">Embed to send in the response.</param>
-    public virtual ValueTask RespondAsync(string content, DiscordEmbed embed) => this.RespondAsync(new DiscordMessageBuilder().WithContent(content).AddEmbed(embed));
+    public virtual ValueTask RespondAsync(string content, DiscordEmbed embed) => RespondAsync(new DiscordMessageBuilder().WithContent(content).AddEmbed(embed));
 
     /// <inheritdoc cref="RespondAsync(string, DiscordEmbed)"/>
     /// <param name="builder">The message builder.</param>
     public abstract ValueTask RespondAsync(IDiscordMessageBuilder builder);
 
     /// <inheritdoc cref="EditResponseAsync(string, DiscordEmbed)"/>
-    public virtual ValueTask<DiscordMessage> EditResponseAsync(string content) => this.EditResponseAsync(new DiscordMessageBuilder().WithContent(content));
+    public virtual ValueTask<DiscordMessage> EditResponseAsync(string content) => EditResponseAsync(new DiscordMessageBuilder().WithContent(content));
 
     /// <inheritdoc cref="EditResponseAsync(string, DiscordEmbed)"/>
-    public virtual ValueTask<DiscordMessage> EditResponseAsync(DiscordEmbed embed) => this.EditResponseAsync(new DiscordMessageBuilder().AddEmbed(embed));
+    public virtual ValueTask<DiscordMessage> EditResponseAsync(DiscordEmbed embed) => EditResponseAsync(new DiscordMessageBuilder().AddEmbed(embed));
 
     /// <summary>
     /// Edits the response.
@@ -51,7 +51,7 @@ public abstract record CommandContext : AbstractContext
     /// <param name="content">Content to send in the response.</param>
     /// <param name="embed">Embed to send in the response.</param>
     public virtual ValueTask<DiscordMessage> EditResponseAsync(string content, DiscordEmbed embed)
-        => this.EditResponseAsync(new DiscordMessageBuilder().WithContent(content).AddEmbed(embed));
+        => EditResponseAsync(new DiscordMessageBuilder().WithContent(content).AddEmbed(embed));
 
     /// <inheritdoc cref="EditResponseAsync(string, DiscordEmbed)"/>
     /// <param name="builder">The message builder.</param>
@@ -74,10 +74,10 @@ public abstract record CommandContext : AbstractContext
     public abstract ValueTask DeleteResponseAsync();
 
     /// <inheritdoc cref="FollowupAsync(string, DiscordEmbed)"/>
-    public virtual ValueTask<DiscordMessage> FollowupAsync(string content) => this.FollowupAsync(new DiscordMessageBuilder().WithContent(content));
+    public virtual ValueTask<DiscordMessage> FollowupAsync(string content) => FollowupAsync(new DiscordMessageBuilder().WithContent(content));
 
     /// <inheritdoc cref="FollowupAsync(string, DiscordEmbed)"/>
-    public virtual ValueTask<DiscordMessage> FollowupAsync(DiscordEmbed embed) => this.FollowupAsync(new DiscordMessageBuilder().AddEmbed(embed));
+    public virtual ValueTask<DiscordMessage> FollowupAsync(DiscordEmbed embed) => FollowupAsync(new DiscordMessageBuilder().AddEmbed(embed));
 
     /// <summary>
     /// Creates a followup message to the interaction.
@@ -86,7 +86,7 @@ public abstract record CommandContext : AbstractContext
     /// <param name="embed">Embed to send in the followup message.</param>
     /// <returns>The created message.</returns>
     public virtual ValueTask<DiscordMessage> FollowupAsync(string content, DiscordEmbed embed)
-        => this.FollowupAsync(new DiscordMessageBuilder().WithContent(content).AddEmbed(embed));
+        => FollowupAsync(new DiscordMessageBuilder().WithContent(content).AddEmbed(embed));
 
     /// <inheritdoc cref="FollowupAsync(string, DiscordEmbed)"/>
     /// <param name="builder">The followup message to be sent.</param>
@@ -94,11 +94,11 @@ public abstract record CommandContext : AbstractContext
 
     /// <inheritdoc cref="EditFollowupAsync(ulong, string, DiscordEmbed)"/>
     public virtual ValueTask<DiscordMessage> EditFollowupAsync(ulong messageId, string content)
-        => this.EditFollowupAsync(messageId, new DiscordMessageBuilder().WithContent(content));
+        => EditFollowupAsync(messageId, new DiscordMessageBuilder().WithContent(content));
 
     /// <inheritdoc cref="EditFollowupAsync(ulong, string, DiscordEmbed)"/>
     public virtual ValueTask<DiscordMessage> EditFollowupAsync(ulong messageId, DiscordEmbed embed)
-        => this.EditFollowupAsync(messageId, new DiscordMessageBuilder().AddEmbed(embed));
+        => EditFollowupAsync(messageId, new DiscordMessageBuilder().AddEmbed(embed));
 
     /// <summary>
     /// Edits a followup message.
@@ -108,7 +108,7 @@ public abstract record CommandContext : AbstractContext
     /// <param name="embed">Embed to send in the followup message.</param>
     /// <returns>The edited message.</returns>
     public virtual ValueTask<DiscordMessage> EditFollowupAsync(ulong messageId, string content, DiscordEmbed embed)
-        => this.EditFollowupAsync(messageId, new DiscordMessageBuilder().WithContent(content).AddEmbed(embed));
+        => EditFollowupAsync(messageId, new DiscordMessageBuilder().WithContent(content).AddEmbed(embed));
 
     /// <inheritdoc cref="EditFollowupAsync(ulong, string, DiscordEmbed)"/>
     /// <param name="messageId">The id of the followup message to edit.</param>

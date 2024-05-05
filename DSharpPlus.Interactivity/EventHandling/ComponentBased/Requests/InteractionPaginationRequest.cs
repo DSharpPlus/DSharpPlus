@@ -37,7 +37,7 @@ internal class InteractionPaginationRequest : IPaginationRequest
         this.behaviorBehavior = behaviorBehavior;
         this.pages.AddRange(pages);
 
-        this.RegenerateCTS(interaction);
+        RegenerateCTS(interaction);
         this.token.Register(() => this.tcs.TrySetResult(false));
     }
 

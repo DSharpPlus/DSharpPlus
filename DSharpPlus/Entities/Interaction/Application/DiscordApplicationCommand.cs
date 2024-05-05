@@ -215,7 +215,7 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
     /// <param name="other">The object to compare to.</param>
     /// <returns>Whether the two <see cref="DiscordApplicationCommand"/> objects are not equal.</returns>
     public override bool Equals(object other)
-        => other is DiscordApplicationCommand dac && this.Equals(dac);
+        => other is DiscordApplicationCommand dac && Equals(dac);
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordApplicationCommand"/>.

@@ -70,7 +70,7 @@ public sealed class VoiceTransmitSink : IDisposable
     /// <param name="offset">Start of the data in the buffer.</param>
     /// <param name="count">Number of bytes from the buffer.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-    public async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default) => await this.WriteAsync(new ReadOnlyMemory<byte>(buffer, offset, count), cancellationToken);
+    public async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default) => await WriteAsync(new ReadOnlyMemory<byte>(buffer, offset, count), cancellationToken);
 
     /// <summary>
     /// Writes PCM data to the sink. The data is prepared for transmission, and enqueued.
@@ -101,7 +101,7 @@ public sealed class VoiceTransmitSink : IDisposable
 
                 if (this.PcmBufferLength == this.PcmBuffer.Length)
                 {
-                    this.ApplyFiltersSync(pcmSpan);
+                    ApplyFiltersSync(pcmSpan);
 
                     this.PcmBufferLength = 0;
 
@@ -128,7 +128,7 @@ public sealed class VoiceTransmitSink : IDisposable
         Memory<byte> pcm = this.PcmMemory;
         Helpers.ZeroFill(pcm[this.PcmBufferLength..].Span);
 
-        this.ApplyFiltersSync(pcm);
+        ApplyFiltersSync(pcm);
 
         byte[] packet = ArrayPool<byte>.Shared.Rent(pcm.Length);
         Memory<byte> packetMemory = packet.AsMemory(0, pcm.Length);

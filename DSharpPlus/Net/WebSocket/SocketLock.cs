@@ -30,7 +30,7 @@ internal sealed class SocketLock : IDisposable
 
         this.TimeoutCancelSource = new CancellationTokenSource();
         this.UnlockTask = Task.Delay(TimeSpan.FromSeconds(30), this.TimeoutCancel);
-        _ = this.UnlockTask.ContinueWith(this.InternalUnlock, TaskContinuationOptions.NotOnCanceled);
+        _ = this.UnlockTask.ContinueWith(InternalUnlock, TaskContinuationOptions.NotOnCanceled);
     }
 
     public void UnlockAfter(TimeSpan unlockDelay)
@@ -49,7 +49,7 @@ internal sealed class SocketLock : IDisposable
         this.TimeoutCancelSource = null;
 
         this.UnlockTask = Task.Delay(unlockDelay, CancellationToken.None);
-        _ = this.UnlockTask.ContinueWith(this.InternalUnlock);
+        _ = this.UnlockTask.ContinueWith(InternalUnlock);
     }
 
     public Task WaitAsync()

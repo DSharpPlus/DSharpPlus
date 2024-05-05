@@ -256,7 +256,7 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordUser"/>.</returns>
-    public override bool Equals(object obj) => this.Equals(obj as DiscordUser);
+    public override bool Equals(object obj) => Equals(obj as DiscordUser);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordUser"/> is equal to another <see cref="DiscordUser"/>.

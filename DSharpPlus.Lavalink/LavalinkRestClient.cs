@@ -58,14 +58,14 @@ public sealed class LavalinkRestClient
     public LavalinkRestClient(ConnectionEndpoint restEndpoint, string password)
     {
         this.RestEndpoint = restEndpoint;
-        this.ConfigureHttpHandling(password);
+        ConfigureHttpHandling(password);
     }
 
     internal LavalinkRestClient(LavalinkConfiguration config, BaseDiscordClient client)
     {
         this.RestEndpoint = config.RestEndpoint;
         this.logger = client.Logger;
-        this.ConfigureHttpHandling(config.Password, client);
+        ConfigureHttpHandling(config.Password, client);
     }
 
     /// <summary>
@@ -75,7 +75,7 @@ public sealed class LavalinkRestClient
     public Task<string> GetVersionAsync()
     {
         Uri versionUri = new($"{this.RestEndpoint.ToHttpString()}{Endpoints.VERSION}");
-        return this.InternalGetVersionAsync(versionUri);
+        return InternalGetVersionAsync(versionUri);
     }
 
     #region Track_Loading
@@ -97,7 +97,7 @@ public sealed class LavalinkRestClient
         };
         string str = WebUtility.UrlEncode(prefix + searchQuery);
         Uri tracksUri = new($"{this.RestEndpoint.ToHttpString()}{Endpoints.LOAD_TRACKS}?identifier={str}");
-        return this.InternalResolveTracksAsync(tracksUri);
+        return InternalResolveTracksAsync(tracksUri);
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ public sealed class LavalinkRestClient
     {
         string str = WebUtility.UrlEncode(uri.AbsoluteUri);
         Uri tracksUri = new($"{this.RestEndpoint.ToHttpString()}{Endpoints.LOAD_TRACKS}?identifier={str}");
-        return this.InternalResolveTracksAsync(tracksUri);
+        return InternalResolveTracksAsync(tracksUri);
     }
 
     /// <summary>
@@ -121,7 +121,7 @@ public sealed class LavalinkRestClient
     {
         string str = WebUtility.UrlEncode(file.FullName);
         Uri tracksUri = new($"{this.RestEndpoint.ToHttpString()}{Endpoints.LOAD_TRACKS}?identifier={str}");
-        return this.InternalResolveTracksAsync(tracksUri);
+        return InternalResolveTracksAsync(tracksUri);
     }
 
     /// <summary>
@@ -133,7 +133,7 @@ public sealed class LavalinkRestClient
     {
         string str = WebUtility.UrlEncode(trackString);
         Uri decodeTrackUri = new($"{this.RestEndpoint.ToHttpString()}{Endpoints.DECODE_TRACK}?track={str}");
-        return this.InternalDecodeTrackAsync(decodeTrackUri);
+        return InternalDecodeTrackAsync(decodeTrackUri);
     }
 
     /// <summary>
@@ -144,7 +144,7 @@ public sealed class LavalinkRestClient
     public Task<IEnumerable<LavalinkTrack>> DecodeTracksAsync(string[] trackStrings)
     {
         Uri decodeTracksUri = new($"{this.RestEndpoint.ToHttpString()}{Endpoints.DECODE_TRACKS}");
-        return this.InternalDecodeTracksAsync(decodeTracksUri, trackStrings);
+        return InternalDecodeTracksAsync(decodeTracksUri, trackStrings);
     }
 
     /// <summary>
@@ -155,7 +155,7 @@ public sealed class LavalinkRestClient
     public Task<IEnumerable<LavalinkTrack>> DecodeTracksAsync(List<string> trackStrings)
     {
         Uri decodeTracksUri = new($"{this.RestEndpoint.ToHttpString()}{Endpoints.DECODE_TRACKS}");
-        return this.InternalDecodeTracksAsync(decodeTracksUri, [.. trackStrings]);
+        return InternalDecodeTracksAsync(decodeTracksUri, [.. trackStrings]);
     }
 
     #endregion
@@ -169,7 +169,7 @@ public sealed class LavalinkRestClient
     public Task<LavalinkRouteStatus> GetRoutePlannerStatusAsync()
     {
         Uri routeStatusUri = new($"{this.RestEndpoint.ToHttpString()}{Endpoints.ROUTE_PLANNER}{Endpoints.STATUS}");
-        return this.InternalGetRoutePlannerStatusAsync(routeStatusUri);
+        return InternalGetRoutePlannerStatusAsync(routeStatusUri);
     }
 
     /// <summary>
@@ -180,7 +180,7 @@ public sealed class LavalinkRestClient
     public Task FreeAddressAsync(string address)
     {
         Uri routeFreeAddressUri = new($"{this.RestEndpoint.ToHttpString()}{Endpoints.ROUTE_PLANNER}{Endpoints.FREE_ADDRESS}");
-        return this.InternalFreeAddressAsync(routeFreeAddressUri, address);
+        return InternalFreeAddressAsync(routeFreeAddressUri, address);
     }
 
     /// <summary>
@@ -190,7 +190,7 @@ public sealed class LavalinkRestClient
     public Task FreeAllAddressesAsync()
     {
         Uri routeFreeAllAddressesUri = new($"{this.RestEndpoint.ToHttpString()}{Endpoints.ROUTE_PLANNER}{Endpoints.FREE_ALL}");
-        return this.InternalFreeAllAddressesAsync(routeFreeAllAddressesUri);
+        return InternalFreeAllAddressesAsync(routeFreeAllAddressesUri);
     }
 
     #endregion

@@ -103,7 +103,7 @@ public sealed class ImageTool : IDisposable
         const int readLength = 12288;
         const int writeLength = 16384;
 
-        ImageFormat fmt = this.GetFormat();
+        ImageFormat fmt = GetFormat();
 
         int contentLength = Base64.GetMaxEncodedToUtf8Length((int)this.SourceStream.Length);
 

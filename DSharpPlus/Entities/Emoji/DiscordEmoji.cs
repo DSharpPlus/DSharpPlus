@@ -90,7 +90,7 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordEmoji"/>.</returns>
-    public override bool Equals(object obj) => this.Equals(obj as DiscordEmoji);
+    public override bool Equals(object obj) => Equals(obj as DiscordEmoji);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordEmoji"/> is equal to another <see cref="DiscordEmoji"/>.

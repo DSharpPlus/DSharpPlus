@@ -30,7 +30,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
     {
         if (this.extension is null)
         {
-            extension.Client.ContextMenuInteractionCreated += this.ExecuteInteractionAsync;
+            extension.Client.ContextMenuInteractionCreated += ExecuteInteractionAsync;
         }
 
         this.extension = extension;
@@ -64,7 +64,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
                 continue;
             }
 
-            applicationCommands.Add(await this.ToApplicationCommandAsync(command));
+            applicationCommands.Add(await ToApplicationCommandAsync(command));
         }
 
         this.slashCommandProcessor.AddApplicationCommands(applicationCommands);

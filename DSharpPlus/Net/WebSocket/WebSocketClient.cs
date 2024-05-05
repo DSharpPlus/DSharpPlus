@@ -52,9 +52,9 @@ public class WebSocketClient : IWebSocketClient
     /// <param name="proxy">Proxy settings for the client.</param>
     private WebSocketClient(IWebProxy proxy)
     {
-        this.connected = new AsyncEvent<WebSocketClient, SocketEventArgs>("WS_CONNECT", this.EventErrorHandler);
-        this.disconnected = new AsyncEvent<WebSocketClient, SocketCloseEventArgs>("WS_DISCONNECT", this.EventErrorHandler);
-        this.messageReceived = new AsyncEvent<WebSocketClient, SocketMessageEventArgs>("WS_MESSAGE", this.EventErrorHandler);
+        this.connected = new AsyncEvent<WebSocketClient, SocketEventArgs>("WS_CONNECT", EventErrorHandler);
+        this.disconnected = new AsyncEvent<WebSocketClient, SocketCloseEventArgs>("WS_DISCONNECT", EventErrorHandler);
+        this.messageReceived = new AsyncEvent<WebSocketClient, SocketMessageEventArgs>("WS_MESSAGE", EventErrorHandler);
         this.exceptionThrown = new AsyncEvent<WebSocketClient, SocketErrorEventArgs>("WS_ERROR", null);
 
         this.Proxy = proxy;
@@ -74,7 +74,7 @@ public class WebSocketClient : IWebSocketClient
     {
         // Disconnect first
         try
-        { await this.DisconnectAsync(); }
+        { await DisconnectAsync(); }
         catch { }
 
         // Disallow sending messages
@@ -107,7 +107,7 @@ public class WebSocketClient : IWebSocketClient
             this.isClientClose = false;
             this.isDisposed = false;
             await this.ws.ConnectAsync(uri, this.socketToken);
-            this.receiverTask = Task.Run(this.ReceiverLoopAsync, this.receiverToken);
+            this.receiverTask = Task.Run(ReceiverLoopAsync, this.receiverToken);
         }
         finally
         {
@@ -298,7 +298,7 @@ public class WebSocketClient : IWebSocketClient
 
         // Don't await or you deadlock
         // DisconnectAsync waits for this method
-        _ = this.DisconnectAsync();
+        _ = DisconnectAsync();
     }
 
     /// <summary>
@@ -360,7 +360,7 @@ public class WebSocketClient : IWebSocketClient
         {
             if (disposing)
             {
-                this.DisconnectAsync().GetAwaiter().GetResult();
+                DisconnectAsync().GetAwaiter().GetResult();
                 this.receiverTokenSource?.Dispose();
                 this.socketTokenSource?.Dispose();
             }
@@ -372,7 +372,7 @@ public class WebSocketClient : IWebSocketClient
     public void Dispose()
     {
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        this.Dispose(disposing: true);
+        Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
     #endregion

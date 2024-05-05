@@ -423,7 +423,7 @@ public class DiscordRestClient : BaseDiscordClient
                     Discord = this
                 };
 
-                this.UpdateUserCache(usr);
+                UpdateUserCache(usr);
             }
 
             recmbr.AddRange(tms.Select(xtm => new DiscordMember(xtm) { Discord = this, guild_id = guildId }));
@@ -1319,7 +1319,7 @@ public class DiscordRestClient : BaseDiscordClient
         RoleEditModel mdl = new();
         action(mdl);
 
-        await this.ModifyGuildRoleAsync(guildId, roleId, mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason, mdl.Icon, mdl.Emoji);
+        await ModifyGuildRoleAsync(guildId, roleId, mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason, mdl.Icon, mdl.Emoji);
     }
 
     /// <summary>
@@ -1854,7 +1854,7 @@ public class DiscordRestClient : BaseDiscordClient
     {
         ApplicationCommandEditModel mdl = new();
         action(mdl);
-        ulong applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
+        ulong applicationId = this.CurrentApplication?.Id ?? (await GetCurrentApplicationAsync()).Id;
         return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
     }
 
@@ -1911,7 +1911,7 @@ public class DiscordRestClient : BaseDiscordClient
     {
         ApplicationCommandEditModel mdl = new();
         action(mdl);
-        ulong applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
+        ulong applicationId = this.CurrentApplication?.Id ?? (await GetCurrentApplicationAsync()).Id;
         return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
     }
 
@@ -2326,7 +2326,7 @@ public class DiscordRestClient : BaseDiscordClient
     public override void Dispose()
     {
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        this.Dispose(disposing: true);
+        Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
     #endregion

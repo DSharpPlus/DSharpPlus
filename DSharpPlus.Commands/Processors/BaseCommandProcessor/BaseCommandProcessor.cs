@@ -38,7 +38,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
                 return this.ConverterDelegate;
             }
 
-            this.ConverterInstance ??= this.GetConverter(serviceProvider);
+            this.ConverterInstance ??= GetConverter(serviceProvider);
 
             MethodInfo executeConvertAsyncMethod = processor.GetType().GetMethod(nameof(ExecuteConverterAsync), BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConverterAsync)} does not exist");
             MethodInfo genericExecuteConvertAsyncMethod = executeConvertAsyncMethod.MakeGenericMethod(this.ParameterType) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConverterAsync)} does not exist");
@@ -96,7 +96,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
             }
         }
 
-        public override bool Equals(object? obj) => obj is LazyConverter lazyConverter && this.Equals(lazyConverter);
+        public override bool Equals(object? obj) => obj is LazyConverter lazyConverter && Equals(lazyConverter);
         public bool Equals(LazyConverter obj)
         {
             if (this.ParameterType != obj.ParameterType)
@@ -133,9 +133,9 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
 
     private static readonly Action<ILogger, string, Exception?> FailedConverterCreation = LoggerMessage.Define<string>(LogLevel.Error, new EventId(1), "Failed to create instance of converter '{FullName}' due to a lack of empty public constructors, lack of a service provider, or lack of services within the service provider.");
 
-    public virtual void AddConverter<T>(TConverter converter) => this.AddConverter(typeof(T), converter);
-    public virtual void AddConverter(Type type, TConverter converter) => this.AddConverter(new() { ParameterType = type, ConverterInstance = converter });
-    public virtual void AddConverters(Assembly assembly) => this.AddConverters(assembly.GetTypes());
+    public virtual void AddConverter<T>(TConverter converter) => AddConverter(typeof(T), converter);
+    public virtual void AddConverter(Type type, TConverter converter) => AddConverter(new() { ParameterType = type, ConverterInstance = converter });
+    public virtual void AddConverters(Assembly assembly) => AddConverters(assembly.GetTypes());
     public virtual void AddConverters(IEnumerable<Type> types)
     {
         foreach (Type type in types)
@@ -156,7 +156,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
             }
 
             // GenericTypeArguments[2] here is the T in IArgumentConverter<TConverterContext, TEventArgs, T>
-            this.AddConverter(new() { ParameterType = genericArgumentConverter.GenericTypeArguments[2], ConverterType = type });
+            AddConverter(new() { ParameterType = genericArgumentConverter.GenericTypeArguments[2], ConverterType = type });
         }
     }
 
@@ -178,9 +178,9 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
         this.extension = extension;
         this.logger = extension.ServiceProvider.GetService<ILogger<BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext>>>() ?? NullLogger<BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext>>.Instance;
 
-        Type thisType = this.GetType();
+        Type thisType = GetType();
         MethodInfo executeConvertAsyncMethod = thisType.GetMethod(nameof(ExecuteConverterAsync), BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConverterAsync)} does not exist");
-        this.AddConverters(thisType.Assembly);
+        AddConverters(thisType.Assembly);
 
         Dictionary<Type, TConverter> converters = [];
         Dictionary<Type, ConverterDelegate<TEventArgs>> converterDelegates = [];
@@ -207,12 +207,12 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
         {
             while (converterContext.NextParameter())
             {
-                IOptional optional = await this.ConverterDelegates[this.GetConverterFriendlyBaseType(converterContext.Parameter.Type)](converterContext, eventArgs);
+                IOptional optional = await this.ConverterDelegates[GetConverterFriendlyBaseType(converterContext.Parameter.Type)](converterContext, eventArgs);
                 if (!optional.HasValue)
                 {
                     await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
                     {
-                        Context = this.CreateCommandContext(converterContext, eventArgs, parsedArguments),
+                        Context = CreateCommandContext(converterContext, eventArgs, parsedArguments),
                         Exception = new ArgumentParseException(converterContext.Parameter, null, $"Argument Converter for type {converterContext.Parameter.Type.FullName} was unable to parse the argument."),
                         CommandObject = null
                     });
@@ -232,7 +232,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
                     {
                         await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
                         {
-                            Context = this.CreateCommandContext(converterContext, eventArgs, parsedArguments),
+                            Context = CreateCommandContext(converterContext, eventArgs, parsedArguments),
                             Exception = new ArgumentParseException(converterContext.Parameter, null, "No value was provided for this parameter."),
                             CommandObject = null
                         });
@@ -248,7 +248,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
         {
             await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
             {
-                Context = this.CreateCommandContext(converterContext, eventArgs, parsedArguments),
+                Context = CreateCommandContext(converterContext, eventArgs, parsedArguments),
                 Exception = new ArgumentParseException(converterContext.Parameter, error),
                 CommandObject = null
             });
@@ -256,7 +256,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
             return null;
         }
 
-        return this.CreateCommandContext(converterContext, eventArgs, parsedArguments);
+        return CreateCommandContext(converterContext, eventArgs, parsedArguments);
     }
 
     public abstract TCommandContext CreateCommandContext(TConverterContext converterContext, TEventArgs eventArgs, Dictionary<CommandParameter, object?> parsedArguments);

@@ -97,7 +97,7 @@ public sealed class DiscordWebhookBuilder : BaseDiscordMessageBuilder<DiscordWeb
     /// <param name="webhook">The webhook that should be executed.</param>
     /// <param name="message">The message to modify.</param>
     /// <returns>The modified message</returns>
-    public async Task<DiscordMessage> ModifyAsync(DiscordWebhook webhook, DiscordMessage message) => await this.ModifyAsync(webhook, message.Id);
+    public async Task<DiscordMessage> ModifyAsync(DiscordWebhook webhook, DiscordMessage message) => await ModifyAsync(webhook, message.Id);
     /// <summary>
     /// Sends the modified webhook message.
     /// </summary>

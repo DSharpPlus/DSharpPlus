@@ -39,7 +39,7 @@ public sealed record TextCommandContext : CommandContext
         }
         else if (this.Delayed)
         {
-            await this.RespondAsync(builder);
+            await RespondAsync(builder);
         }
         else
         {

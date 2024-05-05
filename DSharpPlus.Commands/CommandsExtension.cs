@@ -135,16 +135,16 @@ public sealed class CommandsExtension : BaseExtension
         }
 
         this.Client = client;
-        this.Client.SessionCreated += async (_, _) => await this.RefreshAsync();
+        this.Client.SessionCreated += async (_, _) => await RefreshAsync();
 
-        this.AddCheck<DirectMessageUsageCheck>();
-        this.AddCheck<RequireApplicationOwnerCheck>();
-        this.AddCheck<RequireGuildCheck>();
-        this.AddCheck<RequireNsfwCheck>();
-        this.AddCheck<RequirePermissionsCheck>();
-        this.AddCheck<TextMessageReplyCheck>();
+        AddCheck<DirectMessageUsageCheck>();
+        AddCheck<RequireApplicationOwnerCheck>();
+        AddCheck<RequireGuildCheck>();
+        AddCheck<RequireNsfwCheck>();
+        AddCheck<RequirePermissionsCheck>();
+        AddCheck<TextMessageReplyCheck>();
 
-        this.AddParameterCheck<RequireHierarchyCheck>();
+        AddParameterCheck<RequireHierarchyCheck>();
     }
 
     public void AddCommand(Delegate commandDelegate) => this.commandBuilders.Add(CommandBuilder.From(commandDelegate));
@@ -157,16 +157,16 @@ public sealed class CommandsExtension : BaseExtension
     public void AddCommands(IEnumerable<CommandBuilder> commands) => this.commandBuilders.AddRange(commands);
     public void AddCommands(params CommandBuilder[] commands) => this.commandBuilders.AddRange(commands);
 
-    public void AddCommands(Assembly assembly) => this.AddCommands(assembly.GetTypes());
-    public void AddCommands(Assembly assembly, params ulong[] guildIds) => this.AddCommands(assembly.GetTypes(), guildIds);
+    public void AddCommands(Assembly assembly) => AddCommands(assembly.GetTypes());
+    public void AddCommands(Assembly assembly, params ulong[] guildIds) => AddCommands(assembly.GetTypes(), guildIds);
 
-    public void AddCommands(Type type) => this.AddCommands([type]);
-    public void AddCommands(Type type, params ulong[] guildIds) => this.AddCommands([type], guildIds);
+    public void AddCommands(Type type) => AddCommands([type]);
+    public void AddCommands(Type type, params ulong[] guildIds) => AddCommands([type], guildIds);
 
     public void AddCommands<T>() => this.commandBuilders.Add(CommandBuilder.From<T>());
     public void AddCommands<T>(params ulong[] guildIds) => this.commandBuilders.Add(CommandBuilder.From<T>(guildIds));
 
-    public void AddCommands(IEnumerable<Type> types) => this.AddCommands(types, []);
+    public void AddCommands(IEnumerable<Type> types) => AddCommands(types, []);
     public void AddCommands(IEnumerable<Type> types, params ulong[] guildIds)
     {
         foreach (Type type in types)
@@ -193,7 +193,7 @@ public sealed class CommandsExtension : BaseExtension
         await processor.ConfigureAsync(this);
     }
 
-    public ValueTask AddProcessorsAsync(params ICommandProcessor[] processors) => this.AddProcessorsAsync((IEnumerable<ICommandProcessor>)processors);
+    public ValueTask AddProcessorsAsync(params ICommandProcessor[] processors) => AddProcessorsAsync((IEnumerable<ICommandProcessor>)processors);
     public async ValueTask AddProcessorsAsync(IEnumerable<ICommandProcessor> processors)
     {
         foreach (ICommandProcessor processor in processors)
@@ -214,7 +214,7 @@ public sealed class CommandsExtension : BaseExtension
         {
             if (t.GetInterface("DSharpPlus.Commands.ContextChecks.IContextCheck`1") is not null)
             {
-                this.AddCheck(t);
+                AddCheck(t);
             }
         }
     }
@@ -224,7 +224,7 @@ public sealed class CommandsExtension : BaseExtension
     /// </summary>
     public void AddCheck<T>()
         where T : IContextCheck
-        => this.AddCheck(typeof(T));
+        => AddCheck(typeof(T));
 
     /// <summary>
     /// Adds a new check to the extension.
@@ -282,7 +282,7 @@ public sealed class CommandsExtension : BaseExtension
         {
             if (t.GetInterface("DSharpPlus.Commands.ContextChecks.ParameterChecks.IParameterCheck`1") is not null)
             {
-                this.AddParameterCheck(t);
+                AddParameterCheck(t);
             }
         }
     }
@@ -292,7 +292,7 @@ public sealed class CommandsExtension : BaseExtension
     /// </summary>
     public void AddParameterCheck<T>()
         where T : IParameterCheck
-        => this.AddParameterCheck(typeof(T));
+        => AddParameterCheck(typeof(T));
 
     /// <summary>
     /// Adds a new check to the extension.

@@ -125,7 +125,7 @@ public sealed class DiscordInteractionResponseBuilder : BaseDiscordMessageBuilde
     /// <param name="choices">The choices to add.</param>
     /// <returns>The current builder to chain calls with.</returns>
     public DiscordInteractionResponseBuilder AddAutoCompleteChoices(params DiscordAutoCompleteChoice[] choices)
-        => this.AddAutoCompleteChoices((IEnumerable<DiscordAutoCompleteChoice>)choices);
+        => AddAutoCompleteChoices((IEnumerable<DiscordAutoCompleteChoice>)choices);
 
     /// <summary>
     /// Sets the interaction response to be ephemeral.

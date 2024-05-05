@@ -75,9 +75,9 @@ public sealed partial class SlashCommandsExtension : BaseExtension
         this.autocompleteErrored = new AsyncEvent<SlashCommandsExtension, AutocompleteErrorEventArgs>("AUTOCOMPLETE_ERRORED", this.Client.EventErrorHandler);
         this.autocompleteExecuted = new AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs>("AUTOCOMPLETE_EXECUTED", this.Client.EventErrorHandler);
 
-        this.Client.SessionCreated += this.Update;
-        this.Client.InteractionCreated += this.InteractionHandler;
-        this.Client.ContextMenuInteractionCreated += this.ContextMenuHandler;
+        this.Client.SessionCreated += Update;
+        this.Client.InteractionCreated += InteractionHandler;
+        this.Client.ContextMenuInteractionCreated += ContextMenuHandler;
     }
 
     /// <summary>
@@ -124,12 +124,12 @@ public sealed partial class SlashCommandsExtension : BaseExtension
 
         foreach (Type? xt in types)
         {
-            this.RegisterCommands(xt, guildId);
+            RegisterCommands(xt, guildId);
         }
     }
 
     //To be run on ready
-    internal Task Update(DiscordClient client, SessionReadyEventArgs e) => this.Update();
+    internal Task Update(DiscordClient client, SessionReadyEventArgs e) => Update();
 
     //Actual method for registering, used for RegisterCommands and on Ready
     internal Task Update()
@@ -140,7 +140,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
             //Groups commands by guild id or global
             foreach (ulong? key in this.updateList.Select(x => x.Key).Distinct())
             {
-                this.RegisterCommands(this.updateList.Where(x => x.Key == key).Select(x => x.Value), key);
+                RegisterCommands(this.updateList.Where(x => x.Key == key).Select(x => x.Value), key);
             }
         }
         return Task.CompletedTask;
@@ -223,7 +223,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                                 throw new InvalidOperationException("The method has to return a Task or Task<> value");
                             }
 
-                            List<DiscordApplicationCommandOption> options = await this.ParseParametersAsync(parameters, guildId);
+                            List<DiscordApplicationCommandOption> options = await ParseParametersAsync(parameters, guildId);
 
                             IReadOnlyDictionary<string, string> nameLocalizations = GetNameLocalizations(submethod);
                             IReadOnlyDictionary<string, string> descriptionLocalizations = GetDescriptionLocalizations(submethod);
@@ -263,7 +263,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                                 }
 
                                 parameters = parameters.Skip(1).ToArray();
-                                suboptions = [.. suboptions, .. await this.ParseParametersAsync(parameters, guildId)];
+                                suboptions = [.. suboptions, .. await ParseParametersAsync(parameters, guildId)];
 
                                 IReadOnlyDictionary<string, string> nameLocalizations = GetNameLocalizations(subsubmethod);
                                 IReadOnlyDictionary<string, string> descriptionLocalizations = GetDescriptionLocalizations(subsubmethod);
@@ -322,7 +322,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                             }
 
                             parameters = parameters.Skip(1).ToArray();
-                            List<DiscordApplicationCommandOption> options = await this.ParseParametersAsync(parameters, guildId);
+                            List<DiscordApplicationCommandOption> options = await ParseParametersAsync(parameters, guildId);
 
                             commandMethods.Add(new() { Method = method, Name = commandattribute.Name });
 
@@ -474,7 +474,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
             IEnumerable<ChoiceProviderAttribute> choiceProviders = parameter.GetCustomAttributes<ChoiceProviderAttribute>();
             if (choiceProviders.Any())
             {
-                choices = await this.GetChoiceAttributesFromProviderAsync(choiceProviders, guildId);
+                choices = await GetChoiceAttributesFromProviderAsync(choiceProviders, guildId);
             }
 
             IEnumerable<DiscordChannelType>? channelTypes = parameter.GetCustomAttribute<ChannelTypesAttribute>()?.ChannelTypes ?? null;
@@ -678,18 +678,18 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                     {
                         MethodInfo method = methods.First().Method;
 
-                        List<object> args = await this.ResolveInteractionCommandParametersAsync(e, context, method, e.Interaction.Data.Options);
+                        List<object> args = await ResolveInteractionCommandParametersAsync(e, context, method, e.Interaction.Data.Options);
 
-                        await this.RunCommandAsync(context, method, args);
+                        await RunCommandAsync(context, method, args);
                     }
                     else if (groups.Any())
                     {
                         DiscordInteractionDataOption command = e.Interaction.Data.Options.First();
                         MethodInfo method = groups.First().Methods.First(x => x.Key == command.Name).Value;
 
-                        List<object> args = await this.ResolveInteractionCommandParametersAsync(e, context, method, e.Interaction.Data.Options.First().Options);
+                        List<object> args = await ResolveInteractionCommandParametersAsync(e, context, method, e.Interaction.Data.Options.First().Options);
 
-                        await this.RunCommandAsync(context, method, args);
+                        await RunCommandAsync(context, method, args);
                     }
                     else if (subgroups.Any())
                     {
@@ -697,9 +697,9 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                         GroupCommand group = subgroups.First().SubCommands.First(x => x.Name == command.Name);
                         MethodInfo method = group.Methods.First(x => x.Key == command.Options.First().Name).Value;
 
-                        List<object> args = await this.ResolveInteractionCommandParametersAsync(e, context, method, e.Interaction.Data.Options.First().Options.First().Options);
+                        List<object> args = await ResolveInteractionCommandParametersAsync(e, context, method, e.Interaction.Data.Options.First().Options.First().Options);
 
-                        await this.RunCommandAsync(context, method, args);
+                        await RunCommandAsync(context, method, args);
                     }
 
                     await this.slashExecuted.InvokeAsync(this, new SlashCommandExecutedEventArgs { Context = context });
@@ -735,7 +735,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                     //Gets the focused option
                     DiscordInteractionDataOption focusedOption = options.First(o => o.Focused);
                     ParameterInfo parameter = method.GetParameters().Skip(1).First(p => p.GetCustomAttribute<OptionAttribute>().Name == focusedOption.Name);
-                    await this.RunAutocompleteAsync(e.Interaction, parameter, options, focusedOption);
+                    await RunAutocompleteAsync(e.Interaction, parameter, options, focusedOption);
                 }
 
                 if (groups.Any())
@@ -746,7 +746,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                     IEnumerable<DiscordInteractionDataOption> options = command.Options;
                     DiscordInteractionDataOption focusedOption = options.First(o => o.Focused);
                     ParameterInfo parameter = method.GetParameters().Skip(1).First(p => p.GetCustomAttribute<OptionAttribute>().Name == focusedOption.Name);
-                    await this.RunAutocompleteAsync(e.Interaction, parameter, options, focusedOption);
+                    await RunAutocompleteAsync(e.Interaction, parameter, options, focusedOption);
                 }
 
                 if (subgroups.Any())
@@ -758,7 +758,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                     IEnumerable<DiscordInteractionDataOption> options = command.Options.First().Options;
                     DiscordInteractionDataOption focusedOption = options.First(o => o.Focused);
                     ParameterInfo parameter = method.GetParameters().Skip(1).First(p => p.GetCustomAttribute<OptionAttribute>().Name == focusedOption.Name);
-                    await this.RunAutocompleteAsync(e.Interaction, parameter, options, focusedOption);
+                    await RunAutocompleteAsync(e.Interaction, parameter, options, focusedOption);
                 }
             }
         });
@@ -801,7 +801,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
 
                 //Gets the method for the command
                 ContextMenuCommand? method = contextMenuCommands.FirstOrDefault(x => x.CommandId == e.Interaction.Data.Id) ?? throw new InvalidOperationException("A context menu was executed, but no command was registered for it.");
-                await this.RunCommandAsync(context, method.Method, new[] { context });
+                await RunCommandAsync(context, method.Method, new[] { context });
 
                 await this.contextMenuExecuted.InvokeAsync(this, new ContextMenuExecutedEventArgs { Context = context });
             }
@@ -1296,7 +1296,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
         subGroupCommands.Clear();
         registeredCommands.Clear();
 
-        await this.Update();
+        await Update();
     }
 
     /// <summary>
@@ -1386,9 +1386,9 @@ public sealed partial class SlashCommandsExtension : BaseExtension
 
         if (this.Client != null)
         {
-            this.Client.SessionCreated -= this.Update;
-            this.Client.InteractionCreated -= this.InteractionHandler;
-            this.Client.ContextMenuInteractionCreated -= this.ContextMenuHandler;
+            this.Client.SessionCreated -= Update;
+            this.Client.InteractionCreated -= InteractionHandler;
+            this.Client.ContextMenuInteractionCreated -= ContextMenuHandler;
         }
 
         // Satisfy rule CA1816. Can be removed if this class is sealed.

@@ -23,5 +23,5 @@ public sealed class CommandNotFoundException : Exception
     /// Returns a string representation of this <see cref="CommandNotFoundException"/>.
     /// </summary>
     /// <returns>A string representation.</returns>
-    public override string ToString() => $"{this.GetType()}: {this.Message}\nCommand name: {this.CommandName}"; // much like System.ArgumentNullException works
+    public override string ToString() => $"{GetType()}: {this.Message}\nCommand name: {this.CommandName}"; // much like System.ArgumentNullException works
 }

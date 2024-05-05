@@ -69,17 +69,17 @@ public sealed class RequireRolesAttribute : CheckBaseAttribute
 
         if ((this.CheckMode.HasFlag(RoleCheckMode.MatchNames) && !this.CheckMode.HasFlag(RoleCheckMode.MatchIds)) || this.RoleIds.Count == 0)
         {
-            return Task.FromResult(this.MatchRoles(
+            return Task.FromResult(MatchRoles(
                 this.RoleNames, ctx.Member.Roles.Select(xm => xm.Name), ctx.CommandsNext.GetStringComparer()));
         }
         else if ((!this.CheckMode.HasFlag(RoleCheckMode.MatchNames) && this.CheckMode.HasFlag(RoleCheckMode.MatchIds)) || this.RoleNames.Count == 0)
         {
-            return Task.FromResult(this.MatchRoles(this.RoleIds, ctx.Member.RoleIds));
+            return Task.FromResult(MatchRoles(this.RoleIds, ctx.Member.RoleIds));
         }
         else // match both names and IDs
         {
-            bool nameMatch = this.MatchRoles(this.RoleNames, ctx.Member.Roles.Select(xm => xm.Name), ctx.CommandsNext.GetStringComparer()),
-                idMatch = this.MatchRoles(this.RoleIds, ctx.Member.RoleIds);
+            bool nameMatch = MatchRoles(this.RoleNames, ctx.Member.Roles.Select(xm => xm.Name), ctx.CommandsNext.GetStringComparer()),
+                idMatch = MatchRoles(this.RoleIds, ctx.Member.RoleIds);
 
             return Task.FromResult(this.CheckMode switch
             {

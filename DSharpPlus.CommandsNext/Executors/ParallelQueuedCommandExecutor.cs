@@ -47,7 +47,7 @@ public sealed class ParallelQueuedCommandExecutor : ICommandExecutor
         this.tasks = new Task[parallelism];
         for (int i = 0; i < parallelism; i++)
         {
-            this.tasks[i] = Task.Run(this.ExecuteAsync);
+            this.tasks[i] = Task.Run(ExecuteAsync);
         }
     }
 

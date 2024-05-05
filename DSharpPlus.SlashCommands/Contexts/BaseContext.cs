@@ -90,7 +90,7 @@ public class BaseContext
 
     /// <inheritdoc cref="CreateResponseAsync(DiscordInteractionResponseType,DiscordInteractionResponseBuilder)"/>
     public Task CreateResponseAsync(DiscordInteractionResponseBuilder builder)
-        => this.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, builder);
+        => CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, builder);
 
     /// <summary>
     /// Creates a response to this interaction.
@@ -100,22 +100,22 @@ public class BaseContext
     /// <param name="embed">Embed to send in the response.</param>
     /// <param name="ephemeral">Whether the response should be ephemeral.</param>
     public Task CreateResponseAsync(string content, DiscordEmbed embed, bool ephemeral = false)
-        => this.CreateResponseAsync(new DiscordInteractionResponseBuilder().WithContent(content).AddEmbed(embed).AsEphemeral(ephemeral));
+        => CreateResponseAsync(new DiscordInteractionResponseBuilder().WithContent(content).AddEmbed(embed).AsEphemeral(ephemeral));
 
     /// <inheritdoc cref="CreateResponseAsync(string, DiscordEmbed, bool)"/>
     public Task CreateResponseAsync(string content, bool ephemeral = false)
-        => this.CreateResponseAsync(new DiscordInteractionResponseBuilder().WithContent(content).AsEphemeral(ephemeral));
+        => CreateResponseAsync(new DiscordInteractionResponseBuilder().WithContent(content).AsEphemeral(ephemeral));
 
     /// <inheritdoc cref="CreateResponseAsync(string, DiscordEmbed, bool)"/>
     public Task CreateResponseAsync(DiscordEmbed embed, bool ephemeral = false)
-        => this.CreateResponseAsync(new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral(ephemeral));
+        => CreateResponseAsync(new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral(ephemeral));
 
     /// <summary>
     /// Creates a deferred response to this interaction.
     /// </summary>
     /// <param name="ephemeral">Whether the response should be ephemeral.</param>
     public Task DeferAsync(bool ephemeral = false)
-        => this.CreateResponseAsync(DiscordInteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(ephemeral));
+        => CreateResponseAsync(DiscordInteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(ephemeral));
 
     /// <summary>
     /// Edits the interaction response.

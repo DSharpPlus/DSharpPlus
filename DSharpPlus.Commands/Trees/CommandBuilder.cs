@@ -36,7 +36,7 @@ public class CommandBuilder
         return this;
     }
 
-    public CommandBuilder WithDelegate(Delegate? method) => this.WithDelegate(method?.Method, method?.Target);
+    public CommandBuilder WithDelegate(Delegate? method) => WithDelegate(method?.Method, method?.Target);
     public CommandBuilder WithDelegate(MethodInfo? method, object? target = null)
     {
         if (method is not null)
@@ -78,11 +78,11 @@ public class CommandBuilder
         {
             if (attribute is CommandAttribute commandAttribute)
             {
-                this.WithName(commandAttribute.Name);
+                WithName(commandAttribute.Name);
             }
             else if (attribute is DescriptionAttribute descriptionAttribute)
             {
-                this.WithDescription(descriptionAttribute.Description);
+                WithDescription(descriptionAttribute.Description);
             }
         }
 
@@ -104,14 +104,14 @@ public class CommandBuilder
         ArgumentNullException.ThrowIfNull(this.Attributes, nameof(this.Attributes));
 
         // Push it through the With* methods again, which contain validation.
-        this.WithName(this.Name);
-        this.WithDescription(this.Description);
-        this.WithDelegate(this.Method, this.Target);
-        this.WithParent(this.Parent);
-        this.WithSubcommands(this.Subcommands);
-        this.WithParameters(this.Parameters);
-        this.WithAttributes(this.Attributes);
-        this.WithGuildIds(this.GuildIds);
+        WithName(this.Name);
+        WithDescription(this.Description);
+        WithDelegate(this.Method, this.Target);
+        WithParent(this.Parent);
+        WithSubcommands(this.Subcommands);
+        WithParameters(this.Parameters);
+        WithAttributes(this.Attributes);
+        WithGuildIds(this.GuildIds);
 
         return new(this.Subcommands)
         {

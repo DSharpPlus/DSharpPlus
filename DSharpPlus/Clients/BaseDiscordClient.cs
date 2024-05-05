@@ -180,17 +180,17 @@ public abstract class BaseDiscordClient : IDisposable
         if (this.CurrentUser == null)
         {
             this.CurrentUser = await this.ApiClient.GetCurrentUserAsync();
-            this.UpdateUserCache(this.CurrentUser);
+            UpdateUserCache(this.CurrentUser);
         }
 
         if (this.Configuration.TokenType == TokenType.Bot && this.CurrentApplication == null)
         {
-            this.CurrentApplication = await this.GetCurrentApplicationAsync();
+            this.CurrentApplication = await GetCurrentApplicationAsync();
         }
 
         if (this.Configuration.TokenType != TokenType.Bearer && this.InternalVoiceRegions.IsEmpty)
         {
-            IReadOnlyList<DiscordVoiceRegion> vrs = await this.ListVoiceRegionsAsync();
+            IReadOnlyList<DiscordVoiceRegion> vrs = await ListVoiceRegionsAsync();
             foreach (DiscordVoiceRegion xvr in vrs)
             {
                 this.InternalVoiceRegions.TryAdd(xvr.Id, xvr);
@@ -229,7 +229,7 @@ public abstract class BaseDiscordClient : IDisposable
 
     internal DiscordUser GetCachedOrEmptyUserInternal(ulong user_id)
     {
-        this.TryGetCachedUserInternal(user_id, out DiscordUser? user);
+        TryGetCachedUserInternal(user_id, out DiscordUser? user);
         return user;
     }
 

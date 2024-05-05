@@ -62,12 +62,12 @@ public sealed partial class DiscordClient
         {
             if (this.GatewayInfo == null)
             {
-                await this.InternalUpdateGatewayAsync();
+                await InternalUpdateGatewayAsync();
             }
 
-            await this.InitializeAsync();
+            await InitializeAsync();
 
-            socketLock = this.GetSocketLock();
+            socketLock = GetSocketLock();
             await socketLock.LockAsync();
         }
         catch
@@ -156,7 +156,7 @@ public sealed partial class DiscordClient
             try
             {
                 this.Logger.LogTrace(LoggerEvents.GatewayWsRx, "{WebsocketPayload}", msg);
-                await this.HandleSocketMessageAsync(msg);
+                await HandleSocketMessageAsync(msg);
             }
             catch (Exception ex)
             {
@@ -189,16 +189,16 @@ public sealed partial class DiscordClient
 
                 if (this.status == null)
                 {
-                    await this.ConnectAsync();
+                    await ConnectAsync();
                 }
                 else
                     if (this.status.IdleSince.HasValue)
                 {
-                    await this.ConnectAsync(this.status.activity, this.status.Status, Utilities.GetDateTimeOffsetFromMilliseconds(this.status.IdleSince.Value));
+                    await ConnectAsync(this.status.activity, this.status.Status, Utilities.GetDateTimeOffsetFromMilliseconds(this.status.IdleSince.Value));
                 }
                 else
                 {
-                    await this.ConnectAsync(this.status.activity, this.status.Status);
+                    await ConnectAsync(this.status.activity, this.status.Status);
                 }
             }
             else
@@ -219,27 +219,27 @@ public sealed partial class DiscordClient
         switch (payload.OpCode)
         {
             case GatewayOpCode.Dispatch:
-                await this.HandleDispatchAsync(payload);
+                await HandleDispatchAsync(payload);
                 break;
 
             case GatewayOpCode.Heartbeat:
-                await this.OnHeartbeatAsync((long)payload.Data);
+                await OnHeartbeatAsync((long)payload.Data);
                 break;
 
             case GatewayOpCode.Reconnect:
-                await this.OnReconnectAsync();
+                await OnReconnectAsync();
                 break;
 
             case GatewayOpCode.InvalidSession:
-                await this.OnInvalidateSessionAsync((bool)payload.Data);
+                await OnInvalidateSessionAsync((bool)payload.Data);
                 break;
 
             case GatewayOpCode.Hello:
-                await this.OnHelloAsync((payload.Data as JObject).ToDiscordObject<GatewayHello>());
+                await OnHelloAsync((payload.Data as JObject).ToDiscordObject<GatewayHello>());
                 break;
 
             case GatewayOpCode.HeartbeatAck:
-                await this.OnHeartbeatAckAsync();
+                await OnHeartbeatAckAsync();
                 break;
 
             default:
@@ -251,13 +251,13 @@ public sealed partial class DiscordClient
     internal async Task OnHeartbeatAsync(long seq)
     {
         this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received HEARTBEAT (OP1)");
-        await this.SendHeartbeatAsync(seq);
+        await SendHeartbeatAsync(seq);
     }
 
     internal async Task OnReconnectAsync()
     {
         this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received RECONNECT (OP7)");
-        await this.InternalReconnectAsync(code: 4000, message: "OP7 acknowledged");
+        await InternalReconnectAsync(code: 4000, message: "OP7 acknowledged");
     }
 
     internal async Task OnInvalidateSessionAsync(bool data)
@@ -269,7 +269,7 @@ public sealed partial class DiscordClient
         }
 
         // we are sending a fresh resume/identify, so lock the socket
-        SocketLock socketLock = this.GetSocketLock();
+        SocketLock socketLock = GetSocketLock();
         await socketLock.LockAsync();
         socketLock.UnlockAfter(TimeSpan.FromSeconds(5));
 
@@ -277,13 +277,13 @@ public sealed partial class DiscordClient
         {
             this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received INVALID_SESSION (OP9, true)");
             await Task.Delay(6000);
-            await this.SendResumeAsync();
+            await SendResumeAsync();
         }
         else
         {
             this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received INVALID_SESSION (OP9, false)");
             this.sessionId = null;
-            await this.SendIdentifyAsync(this.status);
+            await SendIdentifyAsync(this.status);
         }
     }
 
@@ -294,7 +294,7 @@ public sealed partial class DiscordClient
         if (this.sessionLock.Wait(0))
         {
             this.sessionLock.Reset();
-            this.GetSocketLock().UnlockAfter(TimeSpan.FromSeconds(5));
+            GetSocketLock().UnlockAfter(TimeSpan.FromSeconds(5));
         }
         else
         {
@@ -304,15 +304,15 @@ public sealed partial class DiscordClient
 
         Interlocked.CompareExchange(ref this.skippedHeartbeats, 0, 0);
         this.heartbeatInterval = hello.HeartbeatInterval;
-        _ = Task.Run(this.HeartbeatLoopAsync, this.cancelToken);
+        _ = Task.Run(HeartbeatLoopAsync, this.cancelToken);
 
         if (string.IsNullOrEmpty(this.sessionId))
         {
-            await this.SendIdentifyAsync(this.status);
+            await SendIdentifyAsync(this.status);
         }
         else
         {
-            await this.SendResumeAsync();
+            await SendResumeAsync();
         }
     }
 
@@ -343,7 +343,7 @@ public sealed partial class DiscordClient
         {
             while (true)
             {
-                await this.SendHeartbeatAsync(this.lastSequence);
+                await SendHeartbeatAsync(this.lastSequence);
                 await Task.Delay(this.heartbeatInterval, token);
                 token.ThrowIfCancellationRequested();
             }
@@ -383,7 +383,7 @@ public sealed partial class DiscordClient
 
         string statusstr = JsonConvert.SerializeObject(status_update);
 
-        await this.SendRawPayloadAsync(statusstr);
+        await SendRawPayloadAsync(statusstr);
 
         if (!this.presences.TryGetValue(this.CurrentUser.Id, out DiscordPresence pr))
         {
@@ -418,7 +418,7 @@ public sealed partial class DiscordClient
             };
             await this.zombied.InvokeAsync(this, args);
 
-            await this.InternalReconnectAsync(code: 4001, message: "Too many heartbeats missed");
+            await InternalReconnectAsync(code: 4001, message: "Too many heartbeats missed");
 
             return;
         }
@@ -443,7 +443,7 @@ public sealed partial class DiscordClient
             Data = seq
         };
         string heartbeat_str = JsonConvert.SerializeObject(heartbeat);
-        await this.SendRawPayloadAsync(heartbeat_str);
+        await SendRawPayloadAsync(heartbeat_str);
 
         this.lastHeartbeat = DateTimeOffset.Now;
 
@@ -471,7 +471,7 @@ public sealed partial class DiscordClient
             Data = identify
         };
         string payloadstr = JsonConvert.SerializeObject(payload);
-        await this.SendRawPayloadAsync(payloadstr);
+        await SendRawPayloadAsync(payloadstr);
 
         this.Logger.LogDebug(LoggerEvents.Intents, "Registered gateway intents ({Intents})", this.Configuration.Intents);
     }
@@ -491,12 +491,12 @@ public sealed partial class DiscordClient
         };
         string resumestr = JsonConvert.SerializeObject(resume_payload);
 
-        await this.SendRawPayloadAsync(resumestr);
+        await SendRawPayloadAsync(resumestr);
     }
 
     internal async Task InternalUpdateGatewayAsync()
     {
-        Net.GatewayInfo info = await this.GetGatewayInfoAsync();
+        Net.GatewayInfo info = await GetGatewayInfoAsync();
         this.GatewayInfo = info;
         this.GatewayUri = new Uri(info.Url);
     }
@@ -515,7 +515,7 @@ public sealed partial class DiscordClient
     /// <typeparam name="T">The type of data that the object belongs to.</typeparam>
     /// <returns>A task representing the payload being sent.</returns>
     [Obsolete("This method should not be used unless you know what you're doing. Instead, look towards the other explicitly implemented methods which come with client-side validation.")]
-    public Task SendPayloadAsync<T>(GatewayOpCode opCode, T data) => this.SendPayloadAsync(opCode, (object?)data);
+    public Task SendPayloadAsync<T>(GatewayOpCode opCode, T data) => SendPayloadAsync(opCode, (object?)data);
 
     /// <inheritdoc cref="SendPayloadAsync{T}(GatewayOpCode, T)"/>
     [Obsolete("This method should not be used unless you know what you're doing. Instead, look towards the other explicitly implemented methods which come with client-side validation.")]
@@ -528,7 +528,7 @@ public sealed partial class DiscordClient
         };
 
         string payloadString = DiscordJson.SerializeObject(payload);
-        return this.SendRawPayloadAsync(payloadString);
+        return SendRawPayloadAsync(payloadString);
     }
     #endregion
 

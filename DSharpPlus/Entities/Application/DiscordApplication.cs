@@ -206,7 +206,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordApplication"/>.</returns>
-    public override bool Equals(object? obj) => this.Equals(obj as DiscordApplication);
+    public override bool Equals(object? obj) => Equals(obj as DiscordApplication);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordApplication"/> is equal to another <see cref="DiscordApplication"/>.

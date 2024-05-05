@@ -52,7 +52,7 @@ public sealed class SlashCooldownAttribute : SlashCheckBaseAttribute
     /// <returns>Requested cooldown bucket, or null if one wasn't present.</returns>
     public SlashCommandCooldownBucket GetBucket(InteractionContext ctx)
     {
-        string bid = this.GetBucketId(ctx, out _, out _, out _);
+        string bid = GetBucketId(ctx, out _, out _, out _);
         buckets.TryGetValue(bid, out SlashCommandCooldownBucket? bucket);
         return bucket;
     }
@@ -64,7 +64,7 @@ public sealed class SlashCooldownAttribute : SlashCheckBaseAttribute
     /// <returns>Remaining cooldown, or zero if no cooldown is active.</returns>
     public TimeSpan GetRemainingCooldown(InteractionContext ctx)
     {
-        SlashCommandCooldownBucket? bucket = this.GetBucket(ctx);
+        SlashCommandCooldownBucket? bucket = GetBucket(ctx);
         return (bucket is null || bucket.RemainingUses > 0) ? TimeSpan.Zero : bucket.ResetsAt - DateTimeOffset.UtcNow;
     }
 
@@ -109,7 +109,7 @@ public sealed class SlashCooldownAttribute : SlashCheckBaseAttribute
 
     public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
     {
-        string bucketId = this.GetBucketId(ctx, out ulong userId, out ulong channelId, out ulong guildId);
+        string bucketId = GetBucketId(ctx, out ulong userId, out ulong channelId, out ulong guildId);
         if (!buckets.TryGetValue(bucketId, out SlashCommandCooldownBucket? bucket))
         {
             bucket = new SlashCommandCooldownBucket(ctx.QualifiedName, ctx.Client.CurrentUser.Id, this.MaxUses, this.Reset, userId, channelId, guildId);
@@ -274,7 +274,7 @@ public sealed class SlashCommandCooldownBucket : IEquatable<SlashCommandCooldown
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="SlashCommandCooldownBucket"/>.</returns>
-    public override bool Equals(object obj) => obj is SlashCommandCooldownBucket cooldownBucket && this.Equals(cooldownBucket);
+    public override bool Equals(object obj) => obj is SlashCommandCooldownBucket cooldownBucket && Equals(cooldownBucket);
 
     /// <summary>
     /// Checks whether this <see cref="SlashCommandCooldownBucket"/> is equal to another <see cref="SlashCommandCooldownBucket"/>.

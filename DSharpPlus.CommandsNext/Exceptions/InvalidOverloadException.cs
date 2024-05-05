@@ -47,6 +47,6 @@ public sealed class InvalidOverloadException : Exception
     public override string ToString() =>
         // much like System.ArgumentNullException works
         this.Parameter == null
-            ? $"{this.GetType()}: {this.Message}\nMethod: {this.Method} (declared in {this.Method.DeclaringType})"
-            : $"{this.GetType()}: {this.Message}\nMethod: {this.Method} (declared in {this.Method.DeclaringType})\nArgument: {this.Parameter.ParameterType} {this.Parameter.Name}";
+            ? $"{GetType()}: {this.Message}\nMethod: {this.Method} (declared in {this.Method.DeclaringType})"
+            : $"{GetType()}: {this.Message}\nMethod: {this.Method} (declared in {this.Method.DeclaringType})\nArgument: {this.Parameter.ParameterType} {this.Parameter.Name}";
 }

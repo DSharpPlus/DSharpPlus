@@ -169,7 +169,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     /// <param name="allowedMention">The allowed Mention that should be sent.</param>
     /// <returns>The current builder to be chained.</returns>
     public DiscordMessageBuilder WithAllowedMention(IMention allowedMention)
-        => this.AddMention(allowedMention);
+        => AddMention(allowedMention);
 
     /// <summary>
     /// Sets if the message has allowed mentions.
@@ -177,7 +177,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     /// <param name="allowedMentions">The allowed Mentions that should be sent.</param>
     /// <returns>The current builder to be chained.</returns>
     public DiscordMessageBuilder WithAllowedMentions(IEnumerable<IMention> allowedMentions)
-        => this.AddMentions(allowedMentions);
+        => AddMentions(allowedMentions);
 
     /// <summary>
     /// Sets if the message is a reply

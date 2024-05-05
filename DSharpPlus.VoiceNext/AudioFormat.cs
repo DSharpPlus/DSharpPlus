@@ -102,7 +102,7 @@ public readonly struct AudioFormat
     /// <returns>Buffer size required to decode data.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetMaximumBufferSize()
-        => this.CalculateMaximumFrameSize();
+        => CalculateMaximumFrameSize();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal readonly int CalculateSampleDuration(int sampleSize)

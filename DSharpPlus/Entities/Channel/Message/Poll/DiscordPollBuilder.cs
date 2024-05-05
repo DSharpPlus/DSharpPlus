@@ -104,12 +104,12 @@ public class DiscordPollBuilder
 
     public DiscordPollBuilder(DiscordPoll poll)
     {
-        this.WithQuestion(poll.Question.Text);
-        this.AsMultipleChoice(poll.AllowMultisect);
+        WithQuestion(poll.Question.Text);
+        AsMultipleChoice(poll.AllowMultisect);
 
         foreach (DiscordPollAnswer option in poll.Answers)
         {
-            this.AddOption(option.AnswerData.Text, option.AnswerData.Emoji);
+            AddOption(option.AnswerData.Text, option.AnswerData.Emoji);
         }
     }
 }

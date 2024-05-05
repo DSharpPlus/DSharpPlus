@@ -24,9 +24,9 @@ internal class Poller
         this.client = client;
         this.requests = [];
 
-        this.client.MessageReactionAdded += this.HandleReactionAdd;
-        this.client.MessageReactionRemoved += this.HandleReactionRemove;
-        this.client.MessageReactionsCleared += this.HandleReactionClear;
+        this.client.MessageReactionAdded += HandleReactionAdd;
+        this.client.MessageReactionRemoved += HandleReactionRemove;
+        this.client.MessageReactionsCleared += HandleReactionClear;
     }
 
     public async Task<ReadOnlyCollection<PollEmoji>> DoPollAsync(PollRequest request)
@@ -123,9 +123,9 @@ internal class Poller
 
         if (this.client != null)
         {
-            this.client.MessageReactionAdded -= this.HandleReactionAdd;
-            this.client.MessageReactionRemoved -= this.HandleReactionRemove;
-            this.client.MessageReactionsCleared -= this.HandleReactionClear;
+            this.client.MessageReactionAdded -= HandleReactionAdd;
+            this.client.MessageReactionRemoved -= HandleReactionRemove;
+            this.client.MessageReactionsCleared -= HandleReactionClear;
             this.client = null!;
         }
 

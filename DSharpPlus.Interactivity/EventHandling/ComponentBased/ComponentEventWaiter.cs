@@ -25,7 +25,7 @@ internal class ComponentEventWaiter : IDisposable
     public ComponentEventWaiter(DiscordClient client, InteractivityConfiguration config)
     {
         this.client = client;
-        this.client.ComponentInteractionCreated += this.HandleAsync;
+        this.client.ComponentInteractionCreated += HandleAsync;
         this.config = config;
 
         this.message = new() { Content = config.ResponseMessage ?? "This message was not meant for you.", IsEphemeral = true };
@@ -113,6 +113,6 @@ internal class ComponentEventWaiter : IDisposable
     {
         this.matchRequests.Clear();
         this.collectRequests.Clear();
-        this.client.ComponentInteractionCreated -= this.HandleAsync;
+        this.client.ComponentInteractionCreated -= HandleAsync;
     }
 }

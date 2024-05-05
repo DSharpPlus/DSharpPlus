@@ -52,7 +52,7 @@ public sealed class CooldownAttribute : CheckBaseAttribute
     /// <returns>Requested cooldown bucket, or null if one wasn't present.</returns>
     public CommandCooldownBucket GetBucket(CommandContext ctx)
     {
-        string bid = this.GetBucketId(ctx, out _, out _, out _);
+        string bid = GetBucketId(ctx, out _, out _, out _);
         buckets.TryGetValue(bid, out CommandCooldownBucket? bucket);
         return bucket;
     }
@@ -64,7 +64,7 @@ public sealed class CooldownAttribute : CheckBaseAttribute
     /// <returns>Remaining cooldown, or zero if no cooldown is active.</returns>
     public TimeSpan GetRemainingCooldown(CommandContext ctx)
     {
-        CommandCooldownBucket? bucket = this.GetBucket(ctx);
+        CommandCooldownBucket? bucket = GetBucket(ctx);
         return (bucket is null || bucket.RemainingUses > 0) ? TimeSpan.Zero : bucket.ResetsAt - DateTimeOffset.UtcNow;
     }
 
@@ -114,7 +114,7 @@ public sealed class CooldownAttribute : CheckBaseAttribute
             return true;
         }
 
-        string bucketId = this.GetBucketId(ctx, out ulong userId, out ulong channelId, out ulong guildId);
+        string bucketId = GetBucketId(ctx, out ulong userId, out ulong channelId, out ulong guildId);
         if (!buckets.TryGetValue(bucketId, out CommandCooldownBucket? bucket))
         {
             bucket = new CommandCooldownBucket(ctx.Command!.QualifiedName, ctx.Client.CurrentUser.Id, this.MaxUses, this.Reset, userId, channelId, guildId);
@@ -279,7 +279,7 @@ public sealed class CommandCooldownBucket : IEquatable<CommandCooldownBucket>
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="CommandCooldownBucket"/>.</returns>
-    public override bool Equals(object obj) => obj is CommandCooldownBucket cooldownBucket && this.Equals(cooldownBucket);
+    public override bool Equals(object obj) => obj is CommandCooldownBucket cooldownBucket && Equals(cooldownBucket);
 
     /// <summary>
     /// Checks whether this <see cref="CommandCooldownBucket"/> is equal to another <see cref="CommandCooldownBucket"/>.

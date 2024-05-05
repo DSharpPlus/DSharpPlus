@@ -227,10 +227,10 @@ public sealed class VoiceNextConnection : IDisposable
 
         this.UdpClient = this.Discord.Configuration.UdpClientFactory();
         this.VoiceWs = this.Discord.Configuration.WebSocketClientFactory(this.Discord.Configuration.Proxy);
-        this.VoiceWs.Disconnected += this.VoiceWS_SocketClosedAsync;
-        this.VoiceWs.MessageReceived += this.VoiceWS_SocketMessage;
-        this.VoiceWs.Connected += this.VoiceWS_SocketOpened;
-        this.VoiceWs.ExceptionThrown += this.VoiceWs_SocketException;
+        this.VoiceWs.Disconnected += VoiceWS_SocketClosedAsync;
+        this.VoiceWs.MessageReceived += VoiceWS_SocketMessage;
+        this.VoiceWs.Connected += VoiceWS_SocketOpened;
+        this.VoiceWs.ExceptionThrown += VoiceWs_SocketException;
     }
 
     /// <summary>
@@ -280,7 +280,7 @@ public sealed class VoiceNextConnection : IDisposable
             };
         }
         string vdj = JsonConvert.SerializeObject(vdp, Formatting.None);
-        await this.WsSendAsync(vdj);
+        await WsSendAsync(vdj);
     }
 
     internal Task WaitForReadyAsync()
@@ -389,7 +389,7 @@ public sealed class VoiceNextConnection : IDisposable
 
             if (hasPacket)
             {
-                hasPacket = this.PreparePacket(rawPacket.Bytes.Span, out data, out length);
+                hasPacket = PreparePacket(rawPacket.Bytes.Span, out data, out length);
                 if (rawPacket.RentedBuffer != null)
                 {
                     ArrayPool<byte>.Shared.Return(rawPacket.RentedBuffer);
@@ -410,7 +410,7 @@ public sealed class VoiceNextConnection : IDisposable
                 continue;
             }
 
-            await this.SendSpeakingAsync(true);
+            await SendSpeakingAsync(true);
             await client.SendAsync(data, length);
             ArrayPool<byte>.Shared.Return(data);
 
@@ -421,12 +421,12 @@ public sealed class VoiceNextConnection : IDisposable
                 {
                     byte[] nullpacket = new byte[nullpcm.Length];
                     Memory<byte> nullpacketmem = nullpacket.AsMemory();
-                    await this.EnqueuePacketAsync(new RawVoicePacket(nullpacketmem, 20, true));
+                    await EnqueuePacketAsync(new RawVoicePacket(nullpacketmem, 20, true));
                 }
             }
             else if (this.queueCount == 0)
             {
-                await this.SendSpeakingAsync(false);
+                await SendSpeakingAsync(false);
                 this.PlayingWait?.SetResult(true);
             }
         }
@@ -568,7 +568,7 @@ public sealed class VoiceNextConnection : IDisposable
             byte[] opus = new byte[pcm.Length];
             Memory<byte> opusMem = opus.AsMemory();
             List<ReadOnlyMemory<byte>> pcmFillers = [];
-            if (!this.ProcessPacket(data, ref opusMem, ref pcmMem, pcmFillers, out AudioSender? vtx, out AudioFormat audioFormat))
+            if (!ProcessPacket(data, ref opusMem, ref pcmMem, pcmFillers, out AudioSender? vtx, out AudioFormat audioFormat))
             {
                 return;
             }
@@ -633,11 +633,11 @@ public sealed class VoiceNextConnection : IDisposable
             byte[] data = await client.ReceiveAsync();
             if (data.Length == 8)
             {
-                this.ProcessKeepalive(data);
+                ProcessKeepalive(data);
             }
             else if (this.Configuration.EnableIncoming)
             {
-                await this.ProcessVoicePacketAsync(data);
+                await ProcessVoicePacketAsync(data);
             }
         }
     }
@@ -668,7 +668,7 @@ public sealed class VoiceNextConnection : IDisposable
             };
 
             string plj = JsonConvert.SerializeObject(pld, Formatting.None);
-            await this.WsSendAsync(plj);
+            await WsSendAsync(plj);
         }
     }
 
@@ -717,7 +717,7 @@ public sealed class VoiceNextConnection : IDisposable
     /// Disconnects and disposes this voice connection.
     /// </summary>
     public void Disconnect()
-        => this.Dispose();
+        => Dispose();
 
     /// <summary>
     /// Disconnects and disposes this voice connection.
@@ -778,7 +778,7 @@ public sealed class VoiceNextConnection : IDisposable
                     Payload = UnixTimestamp(dt)
                 };
                 string hbj = JsonConvert.SerializeObject(hbd);
-                await this.WsSendAsync(hbj);
+                await WsSendAsync(hbj);
 
                 this.LastHeartbeat = dt;
                 await Task.Delay(this.HeartbeatInterval);
@@ -893,13 +893,13 @@ public sealed class VoiceNextConnection : IDisposable
             }
         };
         string vsj = JsonConvert.SerializeObject(vsp, Formatting.None);
-        await this.WsSendAsync(vsj);
+        await WsSendAsync(vsj);
 
         this.SenderTokenSource = new CancellationTokenSource();
-        this.SenderTask = Task.Run(this.VoiceSenderTaskAsync, this.SenderToken);
+        this.SenderTask = Task.Run(VoiceSenderTaskAsync, this.SenderToken);
 
         this.ReceiverTokenSource = new CancellationTokenSource();
-        this.ReceiverTask = Task.Run(this.UdpReceiverTaskAsync, this.ReceiverToken);
+        this.ReceiverTask = Task.Run(UdpReceiverTaskAsync, this.ReceiverToken);
     }
 
     private async Task Stage2Async(VoiceSessionDescriptionPayload voiceSessionDescription)
@@ -909,7 +909,7 @@ public sealed class VoiceNextConnection : IDisposable
 
         // start keepalive
         this.KeepaliveTokenSource = new CancellationTokenSource();
-        this.KeepaliveTask = this.KeepaliveAsync();
+        this.KeepaliveTask = KeepaliveAsync();
 
         // send 3 packets of silence to get things going
         byte[] nullpcm = new byte[this.AudioFormat.CalculateSampleSize(20)];
@@ -917,7 +917,7 @@ public sealed class VoiceNextConnection : IDisposable
         {
             byte[] nullPcm = new byte[nullpcm.Length];
             Memory<byte> nullpacketmem = nullPcm.AsMemory();
-            await this.EnqueuePacketAsync(new RawVoicePacket(nullpacketmem, 20, true));
+            await EnqueuePacketAsync(new RawVoicePacket(nullpacketmem, 20, true));
         }
 
         this.IsInitialized = true;
@@ -939,8 +939,8 @@ public sealed class VoiceNextConnection : IDisposable
                 // this is not the valid interval
                 // oh, discord
                 //this.HeartbeatInterval = vrp.HeartbeatInterval;
-                this.HeartbeatTask = Task.Run(this.HeartbeatAsync);
-                await this.Stage1Async(vrp);
+                this.HeartbeatTask = Task.Run(HeartbeatAsync);
+                await Stage1Async(vrp);
                 break;
 
             case 4: // SESSION_DESCRIPTION
@@ -948,7 +948,7 @@ public sealed class VoiceNextConnection : IDisposable
                 VoiceSessionDescriptionPayload vsd = opp.ToDiscordObject<VoiceSessionDescriptionPayload>();
                 this.Key = vsd.SecretKey;
                 this.Sodium = new Sodium(this.Key.AsMemory());
-                await this.Stage2Async(vsd);
+                await Stage2Async(vsd);
                 break;
 
             case 5: // SPEAKING
@@ -1001,7 +1001,7 @@ public sealed class VoiceNextConnection : IDisposable
 
             case 9: // RESUMED
                 this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received RESUMED (OP9)");
-                this.HeartbeatTask = Task.Run(this.HeartbeatAsync);
+                this.HeartbeatTask = Task.Run(HeartbeatAsync);
                 break;
 
             case 12: // CLIENT_CONNECTED
@@ -1067,13 +1067,13 @@ public sealed class VoiceNextConnection : IDisposable
             this.TokenSource.Cancel();
             this.TokenSource = new CancellationTokenSource();
             this.VoiceWs = this.Discord.Configuration.WebSocketClientFactory(this.Discord.Configuration.Proxy);
-            this.VoiceWs.Disconnected += this.VoiceWS_SocketClosedAsync;
-            this.VoiceWs.MessageReceived += this.VoiceWS_SocketMessage;
-            this.VoiceWs.Connected += this.VoiceWS_SocketOpened;
+            this.VoiceWs.Disconnected += VoiceWS_SocketClosedAsync;
+            this.VoiceWs.MessageReceived += VoiceWS_SocketMessage;
+            this.VoiceWs.Connected += VoiceWS_SocketOpened;
 
             if (this.Resume) // emzi you dipshit
             {
-                await this.ConnectAsync();
+                await ConnectAsync();
             }
         }
     }
@@ -1087,11 +1087,11 @@ public sealed class VoiceNextConnection : IDisposable
         }
 
         this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsRx, "{WebsocketMessage}", et.Message);
-        return this.HandleDispatchAsync(JObject.Parse(et.Message));
+        return HandleDispatchAsync(JObject.Parse(et.Message));
     }
 
     private Task VoiceWS_SocketOpened(IWebSocketClient client, SocketEventArgs e)
-        => this.StartAsync();
+        => StartAsync();
 
     private Task VoiceWs_SocketException(IWebSocketClient client, SocketErrorEventArgs e)
         => this.voiceSocketError.InvokeAsync(this, new SocketErrorEventArgs { Exception = e.Exception });

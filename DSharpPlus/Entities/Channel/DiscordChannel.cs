@@ -173,7 +173,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
                 ? throw new InvalidOperationException("Cannot query users outside of guild channels.")
                 : (IReadOnlyList<DiscordMember>)(this.Type is DiscordChannelType.Voice or DiscordChannelType.Stage
                 ? this.Guild.Members.Values.Where(x => x.VoiceState?.ChannelId == this.Id).ToList()
-                : this.Guild.Members.Values.Where(x => (this.PermissionsFor(x) & DiscordPermissions.AccessChannels) == DiscordPermissions.AccessChannels).ToList());
+                : this.Guild.Members.Values.Where(x => (PermissionsFor(x) & DiscordPermissions.AccessChannels) == DiscordPermissions.AccessChannels).ToList());
 
     /// <summary>
     /// Gets whether this channel is an NSFW channel.
@@ -449,7 +449,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public IAsyncEnumerable<DiscordMessage> GetMessagesBeforeAsync(ulong before, int limit = 100, CancellationToken cancellationToken = default)
-        => this.GetMessagesInternalAsync(limit, before, cancellationToken: cancellationToken);
+        => GetMessagesInternalAsync(limit, before, cancellationToken: cancellationToken);
 
     /// <summary>
     /// Returns a list of messages after a certain message. This will execute one API request per 100 messages.
@@ -462,7 +462,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public IAsyncEnumerable<DiscordMessage> GetMessagesAfterAsync(ulong after, int limit = 100, CancellationToken cancellationToken = default)
-        => this.GetMessagesInternalAsync(limit, after: after, cancellationToken: cancellationToken);
+        => GetMessagesInternalAsync(limit, after: after, cancellationToken: cancellationToken);
 
     /// <summary>
     /// Returns a list of messages around a certain message. This will execute one API request per 100 messages.
@@ -475,7 +475,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public IAsyncEnumerable<DiscordMessage> GetMessagesAroundAsync(ulong around, int limit = 100, CancellationToken cancellationToken = default)
-        => this.GetMessagesInternalAsync(limit, around: around, cancellationToken: cancellationToken);
+        => GetMessagesInternalAsync(limit, around: around, cancellationToken: cancellationToken);
 
     /// <summary>
     /// Returns a list of messages from the last message in the channel. This will execute one API request per 100 messages.
@@ -487,7 +487,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public IAsyncEnumerable<DiscordMessage> GetMessagesAsync(int limit = 100, CancellationToken cancellationToken = default) =>
-        this.GetMessagesInternalAsync(limit, cancellationToken: cancellationToken);
+        GetMessagesInternalAsync(limit, cancellationToken: cancellationToken);
 
     private async IAsyncEnumerable<DiscordMessage> GetMessagesInternalAsync
     (
@@ -678,14 +678,14 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
                     continue;
                 }
 
-                await this.DeleteMessagesAsync(list, reason);
+                await DeleteMessagesAsync(list, reason);
                 list.Clear();
                 count += 100;
             }
 
             if (list.Count > 0)
             {
-                await this.DeleteMessagesAsync(list, reason);
+                await DeleteMessagesAsync(list, reason);
                 count += list.Count;
             }
         }
@@ -1217,7 +1217,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordChannel"/>.</returns>
-    public override bool Equals(object obj) => this.Equals(obj as DiscordChannel);
+    public override bool Equals(object obj) => Equals(obj as DiscordChannel);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordChannel"/> is equal to another <see cref="DiscordChannel"/>.

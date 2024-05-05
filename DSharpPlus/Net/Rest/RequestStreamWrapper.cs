@@ -13,10 +13,10 @@ public class RequestStreamWrapper : Stream, IDisposable
 
     //basically these two methods are the whole purpose of this class
     protected override void Dispose(bool disposing) { /* NOT TODAY MY FRIEND */ }
-    protected new void Dispose() => this.Dispose(true);
+    protected new void Dispose() => Dispose(true);
     void IDisposable.Dispose()
     {
-        this.Dispose(true);
+        Dispose(true);
         GC.SuppressFinalize(this);
     }
 
@@ -43,7 +43,7 @@ public class RequestStreamWrapper : Stream, IDisposable
     {
         get
         {
-            this.CheckDisposed();
+            CheckDisposed();
             return this.UnderlyingStream.Length;
         }
     }
@@ -58,14 +58,14 @@ public class RequestStreamWrapper : Stream, IDisposable
     /// <inheritdoc cref="Stream.Read(byte[], int, int)"/>
     public override int Read(byte[] buffer, int offset, int count)
     {
-        this.CheckDisposed();
+        CheckDisposed();
         return this.UnderlyingStream.Read(buffer, offset, count);
     }
 
     /// <inheritdoc cref="Stream.Seek(long, SeekOrigin)"/>
     public override long Seek(long offset, SeekOrigin origin)
     {
-        this.CheckDisposed();
+        CheckDisposed();
         return this.UnderlyingStream.Seek(offset, origin);
     }
 

@@ -116,7 +116,7 @@ internal sealed class RateLimitBucket
     {
         if (this.Reset < DateTime.UtcNow)
         {
-            this.ResetLimit(DateTime.UtcNow + TimeSpan.FromSeconds(1));
+            ResetLimit(DateTime.UtcNow + TimeSpan.FromSeconds(1));
             Interlocked.Increment(ref this.reserved);
             return true;
         }
@@ -155,7 +155,7 @@ internal sealed class RateLimitBucket
     {
         if (this.Reset < DateTime.UtcNow)
         {
-            this.ResetLimit(DateTime.UtcNow + TimeSpan.FromSeconds(1));
+            ResetLimit(DateTime.UtcNow + TimeSpan.FromSeconds(1));
 
             if (this.reserved > 0)
             {

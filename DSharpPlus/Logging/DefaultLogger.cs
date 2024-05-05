@@ -22,7 +22,7 @@ public class DefaultLogger : ILogger<BaseDiscordClient>
 
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
     {
-        if (!this.IsEnabled(logLevel))
+        if (!IsEnabled(logLevel))
         {
             return;
         }

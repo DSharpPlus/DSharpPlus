@@ -164,7 +164,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     ///     Creates a deferred response to this interaction.
     /// </summary>
     /// <param name="ephemeral">Whether the response should be ephemeral.</param>
-    public Task DeferAsync(bool ephemeral = false) => this.CreateResponseAsync(
+    public Task DeferAsync(bool ephemeral = false) => CreateResponseAsync(
         DiscordInteractionResponseType.DeferredChannelMessageWithSource,
         new DiscordInteractionResponseBuilder().AsEphemeral(ephemeral));
 

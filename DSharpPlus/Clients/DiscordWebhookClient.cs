@@ -133,7 +133,7 @@ public partial class DiscordWebhookClient
         }
 
         string token = tokenraw.Value;
-        return this.AddWebhookAsync(id, token);
+        return AddWebhookAsync(id, token);
     }
 
     /// <summary>
@@ -216,7 +216,7 @@ public partial class DiscordWebhookClient
             throw new ArgumentException("This webhook is not registered with this client.");
         }
 
-        DiscordWebhook wh = this.GetRegisteredWebhook(id);
+        DiscordWebhook wh = GetRegisteredWebhook(id);
         this.hooks.Remove(wh);
         return wh;
     }

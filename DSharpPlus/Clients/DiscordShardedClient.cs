@@ -121,7 +121,7 @@ public sealed partial class DiscordShardedClient
 
             this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus, version {Version}", this.versionString.Value);
 
-            int shardc = await this.InitializeShardsAsync();
+            int shardc = await InitializeShardsAsync();
             List<Task> connectTasks = [];
             this.Logger.LogInformation(LoggerEvents.ShardStartup, "Booting {ShardCount} shards.", shardc);
 
@@ -135,12 +135,12 @@ public sealed partial class DiscordShardedClient
 
                 if (this.GatewayInfo.SessionBucket.MaxConcurrency == 1)
                 {
-                    await this.ConnectShardAsync(i);
+                    await ConnectShardAsync(i);
                 }
                 else
                 {
                     //Concurrent login.
-                    connectTasks.Add(this.ConnectShardAsync(i));
+                    connectTasks.Add(ConnectShardAsync(i));
 
                     if (connectTasks.Count == this.GatewayInfo.SessionBucket.MaxConcurrency)
                     {
@@ -152,7 +152,7 @@ public sealed partial class DiscordShardedClient
         }
         catch (Exception ex)
         {
-            await this.InternalStopAsync(false);
+            await InternalStopAsync(false);
 
             string message = "Shard initialization failed, check inner exceptions for details: ";
             this.Logger.LogCritical(LoggerEvents.ShardClientError, ex, "{Message}", message);
@@ -165,7 +165,7 @@ public sealed partial class DiscordShardedClient
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     public Task StopAsync()
-        => this.InternalStopAsync();
+        => InternalStopAsync();
 
     /// <summary>
     /// Gets a shard from a guild ID.
@@ -178,7 +178,7 @@ public sealed partial class DiscordShardedClient
     /// <returns>The found <see cref="DiscordClient"/> shard. Otherwise <see langword="null"/> if the shard was not found for the guild ID.</returns>
     public DiscordClient GetShard(ulong guildId)
     {
-        int index = this.manuallySharding ? this.GetShardIdFromGuilds(guildId) : Utilities.GetShardId(guildId, this.ShardClients.Count);
+        int index = this.manuallySharding ? GetShardIdFromGuilds(guildId) : Utilities.GetShardId(guildId, this.ShardClients.Count);
 
         return index != -1 ? this.shards[index] : null;
     }
@@ -193,7 +193,7 @@ public sealed partial class DiscordShardedClient
     /// <param name="guild">The guild for the shard.</param>
     /// <returns>The found <see cref="DiscordClient"/> shard. Otherwise <see langword="null"/> if the shard was not found for the guild.</returns>
     public DiscordClient GetShard(DiscordGuild guild)
-        => this.GetShard(guild.Id);
+        => GetShard(guild.Id);
 
     /// <summary>
     /// Updates playing statuses on all shards.
@@ -308,7 +308,7 @@ public sealed partial class DiscordShardedClient
             client.voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(client.InternalVoiceRegions));
         }
 
-        this.HookEventHandlers(client);
+        HookEventHandlers(client);
 
         client.isShard = true;
         await client.ConnectAsync();
@@ -354,7 +354,7 @@ public sealed partial class DiscordShardedClient
         {
             if (this.shards.TryGetValue(i, out DiscordClient? client))
             {
-                this.UnhookEventHandlers(client);
+                UnhookEventHandlers(client);
 
                 client.Dispose();
 
@@ -409,7 +409,7 @@ public sealed partial class DiscordShardedClient
     {
         if (this.isStarted)
         {
-            this.InternalStopAsync(false).GetAwaiter().GetResult();
+            InternalStopAsync(false).GetAwaiter().GetResult();
         }
     }
 

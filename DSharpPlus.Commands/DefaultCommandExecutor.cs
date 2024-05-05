@@ -35,9 +35,9 @@ public class DefaultCommandExecutor : ICommandExecutor
     public virtual async ValueTask ExecuteAsync(CommandContext context, CancellationToken cancellationToken = default)
     {
         // Do some safety checks
-        if (!this.IsCommandExecutable(context, out string? errorMessage))
+        if (!IsCommandExecutable(context, out string? errorMessage))
         {
-            await this.InvokeCommandErroredEventAsync(context.Extension, new CommandErroredEventArgs()
+            await InvokeCommandErroredEventAsync(context.Extension, new CommandErroredEventArgs()
             {
                 Context = context,
                 Exception = new CommandNotExecutableException(context.Command, errorMessage),
@@ -48,10 +48,10 @@ public class DefaultCommandExecutor : ICommandExecutor
         }
 
         // Execute all context checks and return any that failed.
-        IReadOnlyList<ContextCheckFailedData> failedChecks = await this.ExecuteContextChecksAsync(context);
+        IReadOnlyList<ContextCheckFailedData> failedChecks = await ExecuteContextChecksAsync(context);
         if (failedChecks.Count > 0)
         {
-            await this.InvokeCommandErroredEventAsync(context.Extension, new CommandErroredEventArgs()
+            await InvokeCommandErroredEventAsync(context.Extension, new CommandErroredEventArgs()
             {
                 Context = context,
                 Exception = new ChecksFailedException(failedChecks, context.Command),
@@ -61,11 +61,11 @@ public class DefaultCommandExecutor : ICommandExecutor
             return;
         }
 
-        IReadOnlyList<ParameterCheckFailedData> failedParameterChecks = await this.ExecuteParameterChecksAsync(context);
+        IReadOnlyList<ParameterCheckFailedData> failedParameterChecks = await ExecuteParameterChecksAsync(context);
 
         if (failedParameterChecks.Count > 0)
         {
-            await this.InvokeCommandErroredEventAsync(context.Extension, new CommandErroredEventArgs()
+            await InvokeCommandErroredEventAsync(context.Extension, new CommandErroredEventArgs()
             {
                 Context = context,
                 Exception = new ParameterChecksFailedException(failedParameterChecks, context.Command),
@@ -76,12 +76,12 @@ public class DefaultCommandExecutor : ICommandExecutor
         }
 
         // Execute the command
-        (object? commandObject, Exception? error) = await this.ExecuteCoreAsync(context);
+        (object? commandObject, Exception? error) = await ExecuteCoreAsync(context);
 
         // If the command threw an exception, invoke the CommandErrored event.
         if (error is not null)
         {
-            await this.InvokeCommandErroredEventAsync(context.Extension, new CommandErroredEventArgs()
+            await InvokeCommandErroredEventAsync(context.Extension, new CommandErroredEventArgs()
             {
                 Context = context,
                 Exception = error,
@@ -91,7 +91,7 @@ public class DefaultCommandExecutor : ICommandExecutor
         // Otherwise, invoke the CommandExecuted event.
         else
         {
-            await this.InvokeCommandExecutedEventAsync(context.Extension, new CommandExecutedEventArgs()
+            await InvokeCommandExecutedEventAsync(context.Extension, new CommandExecutedEventArgs()
             {
                 Context = context,
                 CommandObject = commandObject

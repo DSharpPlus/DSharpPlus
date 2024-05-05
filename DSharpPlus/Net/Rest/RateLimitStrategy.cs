@@ -26,7 +26,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         this.logger = logger;
         this.waitingForHashMilliseconds = waitingForHashMilliseconds;
         this.globalBucket = new(maximumRestRequestsPerSecond, maximumRestRequestsPerSecond, DateTime.UtcNow.AddSeconds(1));
-        _ = this.CleanAsync();
+        _ = CleanAsync();
     }
 
     protected override async ValueTask<Outcome<HttpResponseMessage>> ExecuteCore<TState>
@@ -61,7 +61,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
         if (!exemptFromGlobalLimit && !this.globalBucket.CheckNextRequest())
         {
-            return this.SynthesizeInternalResponse(route, this.globalBucket.Reset, "global", traceId);
+            return SynthesizeInternalResponse(route, this.globalBucket.Reset, "global", traceId);
         }
 
         if (!this.routeHashes.TryGetValue(route, out string? hash))
@@ -89,7 +89,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
                 return outcome;
             }
 
-            this.UpdateRateLimitBuckets(outcome.Result, "pending", route, traceId);
+            UpdateRateLimitBuckets(outcome.Result, "pending", route, traceId);
 
             // something went awry, just reset and try again next time. this may be because the endpoint didn't return valid headers,
             // which is the case for some endpoints, and we don't need to get hung up on this
@@ -107,7 +107,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
                 this.globalBucket.CancelReservation();
             }
 
-            return this.SynthesizeInternalResponse
+            return SynthesizeInternalResponse
             (
                 route,
                 instant + TimeSpan.FromMilliseconds(this.waitingForHashMilliseconds),
@@ -135,7 +135,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
                     this.globalBucket.CancelReservation();
                 }
 
-                return this.SynthesizeInternalResponse(route, bucket.Reset, "bucket", traceId);
+                return SynthesizeInternalResponse(route, bucket.Reset, "bucket", traceId);
             }
 
             this.logger.LogTrace
@@ -182,7 +182,7 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
             if (!exemptFromGlobalLimit)
             {
-                this.UpdateRateLimitBuckets(outcome.Result, hash, route, traceId);
+                UpdateRateLimitBuckets(outcome.Result, hash, route, traceId);
             }
 
             return outcome;

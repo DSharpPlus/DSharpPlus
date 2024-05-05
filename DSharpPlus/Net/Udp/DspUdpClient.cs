@@ -35,7 +35,7 @@ internal class DspUdpClient : BaseUdpClient
     {
         this.EndPoint = endpoint;
         this.Client = new UdpClient();
-        _ = Task.Run(this.ReceiverLoopAsync, this.Token);
+        _ = Task.Run(ReceiverLoopAsync, this.Token);
     }
 
     /// <summary>

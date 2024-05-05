@@ -172,7 +172,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// Gets the permissions for the current member.
     /// </summary>
     [JsonIgnore]
-    public DiscordPermissions Permissions => this.GetPermissions();
+    public DiscordPermissions Permissions => GetPermissions();
 
 
     #region Overridden user properties
@@ -345,7 +345,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
             throw new ArgumentException("Bots cannot DM each other.");
         }
 
-        DiscordDmChannel chn = await this.CreateDmChannelAsync();
+        DiscordDmChannel chn = await CreateDmChannelAsync();
         return await chn.SendMessageAsync(content);
     }
 
@@ -365,7 +365,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
             throw new ArgumentException("Bots cannot DM each other.");
         }
 
-        DiscordDmChannel chn = await this.CreateDmChannelAsync();
+        DiscordDmChannel chn = await CreateDmChannelAsync();
         return await chn.SendMessageAsync(embed);
     }
 
@@ -386,7 +386,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
             throw new ArgumentException("Bots cannot DM each other.");
         }
 
-        DiscordDmChannel chn = await this.CreateDmChannelAsync();
+        DiscordDmChannel chn = await CreateDmChannelAsync();
         return await chn.SendMessageAsync(content, embed);
     }
 
@@ -406,7 +406,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
             throw new ArgumentException("Bots cannot DM each other.");
         }
 
-        DiscordDmChannel chn = await this.CreateDmChannelAsync();
+        DiscordDmChannel chn = await CreateDmChannelAsync();
         return await chn.SendMessageAsync(message);
     }
 
@@ -610,7 +610,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         // Run this if statement before any others to prevent running the if statements twice.
         if (string.IsNullOrWhiteSpace(this.GuildAvatarHash))
         {
-            return this.GetAvatarUrl(imageFormat, imageSize);
+            return GetAvatarUrl(imageFormat, imageSize);
         }
 
         if (imageFormat == ImageFormat.Unknown)
@@ -656,7 +656,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordMember"/>.</returns>
-    public override bool Equals(object obj) => this.Equals(obj as DiscordMember);
+    public override bool Equals(object obj) => Equals(obj as DiscordMember);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordMember"/> is equal to another <see cref="DiscordMember"/>.

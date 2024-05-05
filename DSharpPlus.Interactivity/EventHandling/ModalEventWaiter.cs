@@ -22,7 +22,7 @@ internal class ModalEventWaiter : IDisposable
     public ModalEventWaiter(DiscordClient client)
     {
         this.Client = client;
-        this.Client.ModalSubmitted += this.Handle; //registering Handle event to be fired upon ModalSubmitted
+        this.Client.ModalSubmitted += Handle; //registering Handle event to be fired upon ModalSubmitted
     }
 
     /// <summary>
@@ -70,6 +70,6 @@ internal class ModalEventWaiter : IDisposable
     public void Dispose()
     {
         this.MatchRequests.Clear();
-        this.Client.ModalSubmitted -= this.Handle;
+        this.Client.ModalSubmitted -= Handle;
     }
 }

@@ -191,7 +191,7 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordWebhook"/>.</returns>
-    public override bool Equals(object obj) => this.Equals(obj as DiscordWebhook);
+    public override bool Equals(object obj) => Equals(obj as DiscordWebhook);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordWebhook"/> is equal to another <see cref="DiscordWebhook"/>.

@@ -110,7 +110,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <returns>The current builder to be chained.</returns>
     /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
     public T AddComponents(params DiscordComponent[] components)
-        => this.AddComponents((IEnumerable<DiscordComponent>)components);
+        => AddComponents((IEnumerable<DiscordComponent>)components);
 
     /// <summary>
     /// Appends several rows of components to the message
@@ -243,7 +243,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <param name="stream">The Stream to the file.</param>
     /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
     /// <returns>The current builder to be chained.</returns>
-    public T AddFile(string fileName, Stream stream, bool resetStreamPosition = false) => this.AddFile(fileName, stream, resetStreamPosition ? AddFileOptions.ResetStream : AddFileOptions.None);
+    public T AddFile(string fileName, Stream stream, bool resetStreamPosition = false) => AddFile(fileName, stream, resetStreamPosition ? AddFileOptions.ResetStream : AddFileOptions.None);
 
     /// <summary>
     /// Sets if the message has files to be sent.
@@ -251,7 +251,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <param name="stream">The Stream to the file.</param>
     /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
     /// <returns>The current builder to be chained.</returns>
-    public T AddFile(FileStream stream, bool resetStreamPosition = false) => this.AddFile(stream, resetStreamPosition ? AddFileOptions.ResetStream : AddFileOptions.None);
+    public T AddFile(FileStream stream, bool resetStreamPosition = false) => AddFile(stream, resetStreamPosition ? AddFileOptions.ResetStream : AddFileOptions.None);
 
     /// <summary>
     /// Sets if the message has files to be sent.
@@ -259,7 +259,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <param name="files">The Files that should be sent.</param>
     /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
     /// <returns>The current builder to be chained.</returns>
-    public T AddFiles(IDictionary<string, Stream> files, bool resetStreamPosition = false) => this.AddFiles(files, resetStreamPosition ? AddFileOptions.ResetStream : AddFileOptions.None);
+    public T AddFiles(IDictionary<string, Stream> files, bool resetStreamPosition = false) => AddFiles(files, resetStreamPosition ? AddFileOptions.ResetStream : AddFileOptions.None);
 
     /// <summary>
     /// Attaches a file to this message.
@@ -293,7 +293,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <param name="stream">FileStream pointing to the file to attach.</param>
     /// <param name="fileOptions">Additional flags for the handling of the file stream.</param>
     /// <returns>The current builder to be chained.</returns>
-    public T AddFile(FileStream stream, AddFileOptions fileOptions) => this.AddFile(stream.Name, stream, fileOptions);
+    public T AddFile(FileStream stream, AddFileOptions fileOptions) => AddFile(stream.Name, stream, fileOptions);
 
     /// <summary>
     /// Attaches multiple files to this message.
@@ -449,23 +449,23 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         return newStream;
     }
 
-    IDiscordMessageBuilder IDiscordMessageBuilder.SuppressNotifications() => this.SuppressNotifications();
-    IDiscordMessageBuilder IDiscordMessageBuilder.WithContent(string content) => this.WithContent(content);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddComponents(params DiscordComponent[] components) => this.AddComponents(components);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddComponents(IEnumerable<DiscordComponent> components) => this.AddComponents(components);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddComponents(IEnumerable<DiscordActionRowComponent> components) => this.AddComponents(components);
-    IDiscordMessageBuilder IDiscordMessageBuilder.WithTTS(bool isTTS) => this.WithTTS(isTTS);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddEmbed(DiscordEmbed embed) => this.AddEmbed(embed);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddEmbeds(IEnumerable<DiscordEmbed> embeds) => this.AddEmbeds(embeds);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddFile(string fileName, Stream stream, bool resetStream) => this.AddFile(fileName, stream, resetStream);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddFile(FileStream stream, bool resetStream) => this.AddFile(stream, resetStream);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddFiles(IDictionary<string, Stream> files, bool resetStreams) => this.AddFiles(files, resetStreams);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddFiles(IEnumerable<DiscordMessageFile> files) => this.AddFiles(files);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddFile(string fileName, Stream stream, AddFileOptions fileOptions) => this.AddFile(fileName, stream, fileOptions);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddFile(FileStream stream, AddFileOptions fileOptions) => this.AddFile(stream, fileOptions);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddFiles(IDictionary<string, Stream> files, AddFileOptions fileOptions) => this.AddFiles(files, fileOptions);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddMention(IMention mention) => this.AddMention(mention);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddMentions(IEnumerable<IMention> mentions) => this.AddMentions(mentions);
+    IDiscordMessageBuilder IDiscordMessageBuilder.SuppressNotifications() => SuppressNotifications();
+    IDiscordMessageBuilder IDiscordMessageBuilder.WithContent(string content) => WithContent(content);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddComponents(params DiscordComponent[] components) => AddComponents(components);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddComponents(IEnumerable<DiscordComponent> components) => AddComponents(components);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddComponents(IEnumerable<DiscordActionRowComponent> components) => AddComponents(components);
+    IDiscordMessageBuilder IDiscordMessageBuilder.WithTTS(bool isTTS) => WithTTS(isTTS);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddEmbed(DiscordEmbed embed) => AddEmbed(embed);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddEmbeds(IEnumerable<DiscordEmbed> embeds) => AddEmbeds(embeds);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddFile(string fileName, Stream stream, bool resetStream) => AddFile(fileName, stream, resetStream);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddFile(FileStream stream, bool resetStream) => AddFile(stream, resetStream);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddFiles(IDictionary<string, Stream> files, bool resetStreams) => AddFiles(files, resetStreams);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddFiles(IEnumerable<DiscordMessageFile> files) => AddFiles(files);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddFile(string fileName, Stream stream, AddFileOptions fileOptions) => AddFile(fileName, stream, fileOptions);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddFile(FileStream stream, AddFileOptions fileOptions) => AddFile(stream, fileOptions);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddFiles(IDictionary<string, Stream> files, AddFileOptions fileOptions) => AddFiles(files, fileOptions);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddMention(IMention mention) => AddMention(mention);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddMentions(IEnumerable<IMention> mentions) => AddMentions(mentions);
 }
 
 /// <summary>

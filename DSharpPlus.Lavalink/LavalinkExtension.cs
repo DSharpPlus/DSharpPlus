@@ -64,8 +64,8 @@ public sealed class LavalinkExtension : BaseExtension
         }
 
         LavalinkNodeConnection con = new(this.Client, this, config);
-        con.NodeDisconnected += this.Con_NodeDisconnected;
-        con.Disconnected += this.Con_Disconnected;
+        con.NodeDisconnected += Con_NodeDisconnected;
+        con.Disconnected += Con_Disconnected;
         this.connectedNodes[con.NodeEndpoint] = con;
         try
         {
@@ -73,7 +73,7 @@ public sealed class LavalinkExtension : BaseExtension
         }
         catch
         {
-            this.Con_NodeDisconnected(con);
+            Con_NodeDisconnected(con);
             throw;
         }
 
@@ -117,7 +117,7 @@ public sealed class LavalinkExtension : BaseExtension
             }
         }
 
-        return this.FilterByLoad(nodes);
+        return FilterByLoad(nodes);
     }
 
     /// <summary>

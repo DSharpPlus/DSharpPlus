@@ -97,8 +97,8 @@ public readonly struct Optional<T> : IEquatable<Optional<T>>, IEquatable<T>, IOp
     {
         return obj switch
         {
-            T t => this.Equals(t),
-            Optional<T> opt => this.Equals(opt),
+            T t => Equals(t),
+            Optional<T> opt => Equals(opt),
             _ => false,
         };
     }

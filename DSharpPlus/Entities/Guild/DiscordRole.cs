@@ -148,7 +148,7 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
         RoleEditModel mdl = new();
         action(mdl);
 
-        return this.ModifyAsync(mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason, mdl.Icon, mdl.Emoji);
+        return ModifyAsync(mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason, mdl.Icon, mdl.Emoji);
     }
 
     /// <summary>
@@ -185,7 +185,7 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordRole"/>.</returns>
-    public override bool Equals(object obj) => this.Equals(obj as DiscordRole);
+    public override bool Equals(object obj) => Equals(obj as DiscordRole);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordRole"/> is equal to another <see cref="DiscordRole"/>.

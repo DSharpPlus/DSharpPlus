@@ -226,5 +226,5 @@ public class RingBuffer<T> : ICollection<T>
     /// Returns an enumerator for this ring buffer.
     /// </summary>
     /// <returns>Enumerator for this ring buffer.</returns>
-    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

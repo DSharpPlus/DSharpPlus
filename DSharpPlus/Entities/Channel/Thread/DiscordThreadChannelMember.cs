@@ -63,7 +63,7 @@ public class DiscordThreadChannelMember
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordThreadChannelMember"/>.</returns>
-    public override bool Equals(object obj) => this.Equals(obj as DiscordThreadChannelMember);
+    public override bool Equals(object obj) => Equals(obj as DiscordThreadChannelMember);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordThreadChannelMember"/> is equal to another <see cref="DiscordThreadChannelMember"/>.

@@ -43,5 +43,5 @@ internal class QueryUriBuilder
         return $"{this.SourceUri}?{query}";
     }
 
-    public override string ToString() => this.Build().ToString();
+    public override string ToString() => Build().ToString();
 }

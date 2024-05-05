@@ -40,7 +40,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public string IconUrl
-        => this.GetIconUrl(ImageFormat.Auto, 1024);
+        => GetIconUrl(ImageFormat.Auto, 1024);
 
     /// <summary>
     /// Gets the guild splash's hash.
@@ -120,7 +120,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public DiscordChannel AfkChannel
-        => this.GetChannel(this.afkChannelId);
+        => GetChannel(this.afkChannelId);
 
     /// <summary>
     /// Gets the guild's AFK timeout.
@@ -160,7 +160,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public DiscordChannel? SystemChannel => this.systemChannelId.HasValue
-        ? this.GetChannel(this.systemChannelId.Value)
+        ? GetChannel(this.systemChannelId.Value)
         : null;
 
     /// <summary>
@@ -176,7 +176,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the guild's safety alerts channel.
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel? SafetyAlertsChannel => this.SafetyAlertsChannelId is not null ? this.GetChannel(this.SafetyAlertsChannelId.Value) : null;
+    public DiscordChannel? SafetyAlertsChannel => this.SafetyAlertsChannelId is not null ? GetChannel(this.SafetyAlertsChannelId.Value) : null;
 
     /// <summary>
     /// Gets whether this guild's widget is enabled.
@@ -192,7 +192,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public DiscordChannel? WidgetChannel => this.widgetChannelId.HasValue
-        ? this.GetChannel(this.widgetChannelId.Value)
+        ? GetChannel(this.widgetChannelId.Value)
         : null;
 
     [JsonProperty("rules_channel_id")]
@@ -204,7 +204,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public DiscordChannel? RulesChannel => this.rulesChannelId.HasValue
-        ? this.GetChannel(this.rulesChannelId.Value)
+        ? GetChannel(this.rulesChannelId.Value)
         : null;
 
     [JsonProperty("public_updates_channel_id")]
@@ -216,7 +216,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public DiscordChannel? PublicUpdatesChannel => this.publicUpdatesChannelId.HasValue
-        ? this.GetChannel(this.publicUpdatesChannelId.Value)
+        ? GetChannel(this.publicUpdatesChannelId.Value)
         : null;
 
     /// <summary>
@@ -391,7 +391,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public DiscordRole EveryoneRole
-        => this.GetRole(this.Id);
+        => GetRole(this.Id);
 
     [JsonIgnore]
     internal bool isOwner;
@@ -594,7 +594,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="InvalidOperationException"></exception>
     public Task StartEventAsync(DiscordScheduledGuildEvent guildEvent) => guildEvent.Status is not DiscordScheduledGuildEventStatus.Scheduled
             ? throw new InvalidOperationException("The event must be scheduled for it to be started.")
-            : this.ModifyEventAsync(guildEvent, m => m.Status = DiscordScheduledGuildEventStatus.Active);
+            : ModifyEventAsync(guildEvent, m => m.Status = DiscordScheduledGuildEventStatus.Active);
 
     /// <summary>
     /// Cancels an event. The event must be scheduled for it to be cancelled.
@@ -602,7 +602,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="guildEvent">The event to delete.</param>
     public Task CancelEventAsync(DiscordScheduledGuildEvent guildEvent) => guildEvent.Status is not DiscordScheduledGuildEventStatus.Scheduled
             ? throw new InvalidOperationException("The event must be scheduled for it to be cancelled.")
-            : this.ModifyEventAsync(guildEvent, m => m.Status = DiscordScheduledGuildEventStatus.Cancelled);
+            : ModifyEventAsync(guildEvent, m => m.Status = DiscordScheduledGuildEventStatus.Cancelled);
 
     /// <summary>
     /// Modifies an existing scheduled event in this guild.
@@ -758,7 +758,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         ulong? after = null,
         ulong? before = null
     )
-        => this.GetEventUsersAsync(guildEvent.Id, limit, after, before);
+        => GetEventUsersAsync(guildEvent.Id, limit, after, before);
 
     /// <summary>
     /// Gets a list of users who are interested in this event.
@@ -1109,7 +1109,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordChannel> CreateTextChannelAsync(string name, DiscordChannel? parent = null, Optional<string> topic = default, IEnumerable<DiscordOverwriteBuilder>? overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, int? position = null, string? reason = null)
-        => this.CreateChannelAsync(name, DiscordChannelType.Text, parent, topic, null, null, overwrites, nsfw, perUserRateLimit, null, position, reason);
+        => CreateChannelAsync(name, DiscordChannelType.Text, parent, topic, null, null, overwrites, nsfw, perUserRateLimit, null, position, reason);
 
     /// <summary>
     /// Creates a new channel category in this guild.
@@ -1124,7 +1124,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordChannel> CreateChannelCategoryAsync(string name, IEnumerable<DiscordOverwriteBuilder>? overwrites = null, int? position = null, string? reason = null)
-        => this.CreateChannelAsync(name, DiscordChannelType.Category, null, Optional.FromNoValue<string>(), null, null, overwrites, null, Optional.FromNoValue<int?>(), null, position, reason);
+        => CreateChannelAsync(name, DiscordChannelType.Category, null, Optional.FromNoValue<string>(), null, null, overwrites, null, Optional.FromNoValue<int?>(), null, position, reason);
 
     /// <summary>
     /// Creates a new voice channel in this guild.
@@ -1152,7 +1152,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         DiscordVideoQualityMode? qualityMode = null,
         int? position = null,
         string? reason = null
-    ) => await this.CreateChannelAsync
+    ) => await CreateChannelAsync
         (
             name,
             DiscordChannelType.Voice,
@@ -2304,7 +2304,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordGuild"/>.</returns>
-    public override bool Equals(object obj) => this.Equals(obj as DiscordGuild);
+    public override bool Equals(object obj) => Equals(obj as DiscordGuild);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordGuild"/> is equal to another <see cref="DiscordGuild"/>.

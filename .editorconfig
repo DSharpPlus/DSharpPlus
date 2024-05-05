@@ -72,7 +72,7 @@ dotnet_diagnostic.IDE0005.severity = error
 # this. preferences
 dotnet_style_qualification_for_field = true:error
 dotnet_style_qualification_for_property = true:error
-dotnet_style_qualification_for_method = true:error
+dotnet_style_qualification_for_method = false:error
 dotnet_style_qualification_for_event = true:error
 
 # Language keywords vs BCL types preferences

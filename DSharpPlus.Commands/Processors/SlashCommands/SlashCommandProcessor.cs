@@ -48,12 +48,12 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         if (!this.configured)
         {
             this.configured = true;
-            extension.Client.InteractionCreated += this.ExecuteInteractionAsync;
+            extension.Client.InteractionCreated += ExecuteInteractionAsync;
             extension.Client.GuildDownloadCompleted += async (client, eventArgs) =>
             {
                 if (client.ShardId == 0)
                 {
-                    await this.RegisterSlashCommandsAsync(extension);
+                    await RegisterSlashCommandsAsync(extension);
                 }
             };
         }
@@ -71,7 +71,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         }
 
         AsyncServiceScope serviceScope = this.extension.ServiceProvider.CreateAsyncScope();
-        if (!this.TryFindCommand(eventArgs.Interaction, out Command? command, out IEnumerable<DiscordInteractionDataOption>? options))
+        if (!TryFindCommand(eventArgs.Interaction, out Command? command, out IEnumerable<DiscordInteractionDataOption>? options))
         {
             await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
             {
@@ -107,7 +107,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
         if (eventArgs.Interaction.Type is DiscordInteractionType.AutoComplete)
         {
-            AutoCompleteContext? autoCompleteContext = await this.ParseAutoCompleteArgumentsAsync(converterContext, eventArgs);
+            AutoCompleteContext? autoCompleteContext = await ParseAutoCompleteArgumentsAsync(converterContext, eventArgs);
             if (autoCompleteContext is not null)
             {
                 IEnumerable<DiscordAutoCompleteChoice> choices = await autoCompleteContext.AutoCompleteArgument.Attributes.OfType<SlashAutoCompleteProviderAttribute>().First().AutoCompleteAsync(autoCompleteContext);
@@ -118,7 +118,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         }
         else
         {
-            CommandContext? commandContext = await this.ParseArgumentsAsync(converterContext, eventArgs);
+            CommandContext? commandContext = await ParseArgumentsAsync(converterContext, eventArgs);
             if (commandContext is null)
             {
                 converterContext.ServiceScope.Dispose();
@@ -191,7 +191,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                 continue;
             }
 
-            DiscordApplicationCommand applicationCommand = await this.ToApplicationCommandAsync(command);
+            DiscordApplicationCommand applicationCommand = await ToApplicationCommandAsync(command);
 
             if (command.GuildIds.Count == 0)
             {
@@ -271,8 +271,8 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
         {
 
-            nameLocalizations = await this.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
-            descriptionLocalizations = await this.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
+            nameLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
+            descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
         }
 
         // Convert the subcommands or parameters into application options
@@ -281,7 +281,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         {
             foreach (Command subCommand in command.Subcommands)
             {
-                options.Add(await this.ToApplicationParameterAsync(subCommand));
+                options.Add(await ToApplicationParameterAsync(subCommand));
             }
         }
         else
@@ -293,11 +293,11 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                     // Fill til 25
                     for (int i = options.Count; i < 24; i++)
                     {
-                        options.Add(await this.ToApplicationParameterAsync(command, parameter, i));
+                        options.Add(await ToApplicationParameterAsync(command, parameter, i));
                     }
                 }
 
-                options.Add(await this.ToApplicationParameterAsync(command, parameter));
+                options.Add(await ToApplicationParameterAsync(command, parameter));
             }
         }
 
@@ -340,14 +340,14 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         {
             foreach (Command subCommand in command.Subcommands)
             {
-                options.Add(await this.ToApplicationParameterAsync(subCommand));
+                options.Add(await ToApplicationParameterAsync(subCommand));
             }
         }
         else
         {
             foreach (CommandParameter parameter in command.Parameters)
             {
-                options.Add(await this.ToApplicationParameterAsync(command, parameter));
+                options.Add(await ToApplicationParameterAsync(command, parameter));
             }
         }
 
@@ -356,8 +356,8 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         Dictionary<string, string> descriptionLocalizations = [];
         if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
         {
-            nameLocalizations = await this.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
-            descriptionLocalizations = await this.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
+            nameLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
+            descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
         }
 
         if (!descriptionLocalizations.TryGetValue("en-US", out string? description))
@@ -387,7 +387,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
         }
 
-        if (!this.TypeMappings.TryGetValue(this.GetConverterFriendlyBaseType(parameter.Type), out DiscordApplicationCommandOptionType type))
+        if (!this.TypeMappings.TryGetValue(GetConverterFriendlyBaseType(parameter.Type), out DiscordApplicationCommandOptionType type))
         {
             throw new InvalidOperationException($"No type mapping found for parameter type '{parameter.Type.Name}'");
         }
@@ -407,8 +407,8 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                 localeIdBuilder.Append($".{i}");
             }
 
-            nameLocalizations = await this.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".name");
-            descriptionLocalizations = await this.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".description");
+            nameLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".name");
+            descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".description");
         }
 
         IEnumerable<DiscordApplicationCommandOptionChoice> choices = [];
@@ -530,7 +530,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                     break;
                 }
 
-                IOptional optional = await this.ConverterDelegates[this.GetConverterFriendlyBaseType(converterContext.Parameter.Type)](converterContext, eventArgs);
+                IOptional optional = await this.ConverterDelegates[GetConverterFriendlyBaseType(converterContext.Parameter.Type)](converterContext, eventArgs);
                 parsedArguments.Add(converterContext.Parameter, optional.HasValue
                     ? optional.RawValue
                     : converterContext.Parameter.DefaultValue

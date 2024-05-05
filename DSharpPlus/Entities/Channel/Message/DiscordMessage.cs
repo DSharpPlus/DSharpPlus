@@ -442,7 +442,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordMessage> ModifyAsync(Optional<string> content)
-        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, this.GetMentions(), default, [], null, default);
+        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, GetMentions(), default, [], null, default);
 
     /// <summary>
     /// Edits the message.
@@ -454,7 +454,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordMessage> ModifyAsync(Optional<DiscordEmbed> embed = default)
-        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed.HasValue ? [embed.Value] : Array.Empty<DiscordEmbed>(), this.GetMentions(), default, [], null, default);
+        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed.HasValue ? [embed.Value] : Array.Empty<DiscordEmbed>(), GetMentions(), default, [], null, default);
 
     /// <summary>
     /// Edits the message.
@@ -467,7 +467,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordMessage> ModifyAsync(Optional<string> content, Optional<DiscordEmbed> embed = default)
-        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed.HasValue ? [embed.Value] : Array.Empty<DiscordEmbed>(), this.GetMentions(), default, [], null, default);
+        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed.HasValue ? [embed.Value] : Array.Empty<DiscordEmbed>(), GetMentions(), default, [], null, default);
 
     /// <summary>
     /// Edits the message.
@@ -480,7 +480,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordMessage> ModifyAsync(Optional<string> content, Optional<IEnumerable<DiscordEmbed>> embeds = default)
-        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embeds, this.GetMentions(), default, [], null, default);
+        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embeds, GetMentions(), default, [], null, default);
 
     /// <summary>
     /// Edits the message.
@@ -691,7 +691,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null)
-        => this.GetReactionsInternalAsync(emoji, limit, after);
+        => GetReactionsInternalAsync(emoji, limit, after);
 
     /// <summary>
     /// Deletes all reactions for this message.
@@ -813,7 +813,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordMessage"/>.</returns>
-    public override bool Equals(object? obj) => this.Equals(obj as DiscordMessage);
+    public override bool Equals(object? obj) => Equals(obj as DiscordMessage);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordMessage"/> is equal to another <see cref="DiscordMessage"/>.

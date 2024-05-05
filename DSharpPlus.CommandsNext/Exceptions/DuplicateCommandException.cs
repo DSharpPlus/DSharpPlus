@@ -23,5 +23,5 @@ public class DuplicateCommandException : Exception
     /// Returns a string representation of this <see cref="DuplicateCommandException"/>.
     /// </summary>
     /// <returns>A string representation.</returns>
-    public override string ToString() => $"{this.GetType()}: {this.Message}\nCommand name: {this.CommandName}"; // much like System.ArgumentException works
+    public override string ToString() => $"{GetType()}: {this.Message}\nCommand name: {this.CommandName}"; // much like System.ArgumentException works
 }
