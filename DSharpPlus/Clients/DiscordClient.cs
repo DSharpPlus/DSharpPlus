@@ -1232,15 +1232,15 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 _privateChannels.TryAdd(channel.Id, dmChannel);
                 break;
             case DiscordThreadChannel threadChannel:
-                if (_guilds.ContainsKey(channel.GuildId!.Value))
+                if (_guilds.TryGetValue(channel.GuildId!.Value, out DiscordGuild? guild))
                 {
-                    _guilds[channel.GuildId!.Value]._threads.TryAdd(channel.Id, threadChannel);
+                    guild._threads.TryAdd(channel.Id, threadChannel);
                 }
                 break;
             default:
-                if (_guilds.ContainsKey(channel.GuildId!.Value))
+                if (_guilds.TryGetValue(channel.GuildId!.Value, out guild))
                 {
-                    _guilds[channel.GuildId!.Value]._channels.TryAdd(channel.Id, channel);
+                    guild._channels.TryAdd(channel.Id, channel);
                 }
                 break;
         }
