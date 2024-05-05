@@ -1215,6 +1215,31 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
     }
 
+    // Ensures the channel is cached:
+    // - DM -> _privateChannels dict on DiscordClient
+    // - Thread -> DiscordGuild#_threads
+    // - _ -> DiscordGuild#_channels
+    private void UpdateChannelCache(DiscordChannel? channel)
+    {
+        if (channel is null)
+        {
+            return;
+        }
+
+        switch (channel)
+        {
+            case DiscordDmChannel dmChannel:
+                _privateChannels.TryAdd(channel.Id, dmChannel);
+                break;
+            case DiscordThreadChannel threadChannel:
+                _guilds[channel.GuildId!.Value]._threads.TryAdd(channel.Id, threadChannel);
+                break;
+            default:
+                _guilds[channel.GuildId!.Value]._channels.TryAdd(channel.Id, channel);
+                break;
+        }
+    }
+
     #endregion
 
     #region Disposal
