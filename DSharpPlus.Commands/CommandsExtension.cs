@@ -424,7 +424,7 @@ public sealed class CommandsExtension : BaseExtension
         if (!string.IsNullOrWhiteSpace(eventArgs.Exception.StackTrace))
         {
             // If the stack trace can fit inside a codeblock
-            if (8 + eventArgs.Exception.StackTrace.Length + stringBuilder.Length >= 2000)
+            if (8 + eventArgs.Exception.StackTrace.Length + stringBuilder.Length <= 2000)
             {
                 stringBuilder.Append($"```\n{eventArgs.Exception.StackTrace}\n```");
                 messageBuilder.WithContent(stringBuilder.ToString());

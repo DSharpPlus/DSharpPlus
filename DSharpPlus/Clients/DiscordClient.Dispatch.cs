@@ -443,11 +443,18 @@ public sealed partial class DiscordClient
                     usr = dat["user"].ToDiscordObject<TransportUser>();
                 }
 
+                JToken? rawChannel = dat["channel"];
+                DiscordChannel? channel = null;
+                if (rawChannel is not null)
+                {
+                    channel = rawChannel.ToDiscordObject<DiscordChannel>();
+                }
+                
                 // Re: Removing re-serialized data: This one is probably fine?
                 // The user on the object is marked with [JsonIgnore].
 
                 cid = (ulong)dat["channel_id"];
-                await this.OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, dat.ToDiscordObject<DiscordInteraction>());
+                await this.OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, channel, dat.ToDiscordObject<DiscordInteraction>());
                 break;
 
             case "integration_create":
@@ -2465,7 +2472,7 @@ public sealed partial class DiscordClient
 
     #region Misc
 
-    internal async Task OnInteractionCreateAsync(ulong? guildId, ulong channelId, TransportUser user, TransportMember member, DiscordInteraction interaction)
+    internal async Task OnInteractionCreateAsync(ulong? guildId, ulong channelId, TransportUser user, TransportMember member, DiscordChannel? channel, DiscordInteraction interaction)
     {
         DiscordUser usr = new(user) { Discord = this };
 
@@ -2515,6 +2522,7 @@ public sealed partial class DiscordClient
             {
                 foreach (KeyValuePair<ulong, DiscordChannel> c in resolved.Channels)
                 {
+                    UpdateChannelCache(c.Value);
                     c.Value.Discord = this;
 
                     if (guildId.HasValue)
@@ -2550,6 +2558,8 @@ public sealed partial class DiscordClient
                 }
             }
         }
+
+        UpdateChannelCache(channel);
 
         if (interaction.Type is DiscordInteractionType.Component)
         {
