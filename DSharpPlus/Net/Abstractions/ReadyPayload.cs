@@ -40,6 +40,12 @@ internal class ReadyPayload
     public string SessionId { get; private set; }
 
     /// <summary>
+    /// Gets the url which should be used for resuming the session after disconnect/reconnect
+    /// </summary>
+    [JsonProperty("resume_gateway_url")]
+    public string ResumeGatewayUrl { get; private set; }
+
+    /// <summary>
     /// Gets debug data sent by Discord. This contains a list of servers to which the client is connected.
     /// </summary>
     [JsonProperty("_trace")]

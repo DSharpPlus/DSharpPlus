@@ -116,10 +116,20 @@ public sealed partial class DiscordClient
         this.webSocketClient.MessageReceived += SocketOnMessage;
         this.webSocketClient.ExceptionThrown += SocketOnException;
 
-        QueryUriBuilder gwuri = new QueryUriBuilder(this.GatewayUri.ToString())
-            .AddParameter("v", "10")
-            .AddParameter("encoding", "json");
+        QueryUriBuilder gwuri;
 
+        if (this.gatewayResumeUrl is not null && !string.IsNullOrWhiteSpace(this.sessionId))
+        {
+            gwuri = new QueryUriBuilder(this.gatewayResumeUrl);
+        }
+        else
+        {
+            gwuri = new QueryUriBuilder(this.GatewayUri.ToString());
+        }
+        
+        gwuri.AddParameter("v", "10")
+             .AddParameter("encoding", "json");
+        
         if (this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Stream)
         {
             gwuri.AddParameter("compress", "zlib-stream");
