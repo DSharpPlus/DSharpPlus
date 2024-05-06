@@ -227,10 +227,22 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
             {
                 foreach (CommandParameter parameter in converterContext.Command.Parameters)
                 {
+                    if (!parameter.DefaultValue.HasValue)
+                    {
+                        await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
+                        {
+                            Context = CreateCommandContext(converterContext, eventArgs, parsedArguments),
+                            Exception = new ArgumentParseException(converterContext.Parameter, null, $"Argument Converter for type {converterContext.Parameter.Type.FullName} was unable to parse the argument."),
+                            CommandObject = null
+                        });
+
+                        return null;
+                    }
+
                     parsedArguments.Add
                     (
                         parameter,
-                        parameter.DefaultValue.HasValue ? parameter.DefaultValue.Value : null
+                        parameter.DefaultValue.Value
                     );
                 }
             }

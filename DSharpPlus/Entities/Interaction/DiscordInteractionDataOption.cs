@@ -33,7 +33,6 @@ public sealed class DiscordInteractionDataOption
     [JsonProperty("value")]
     public string? RawValue { get; internal set; }
 
-#pragma warning disable IDE0046
     /// <summary>
     /// Gets the value of this interaction parameter.
     /// <para>This can be cast to a <see langword="long"/>, <see langword="bool"></see>, <see langword="string"></see>, <see langword="double"></see> or <see langword="ulong"/> depending on the <see cref="Type"/></para>
@@ -43,13 +42,9 @@ public sealed class DiscordInteractionDataOption
     {
         get
         {
-            if (this.RawValue is null)
-            {
-                return this.RawValue;
-            }
-
             return this.Type switch
             {
+                _ when this.RawValue is null => null,
                 DiscordApplicationCommandOptionType.Boolean => bool.Parse(this.RawValue),
                 DiscordApplicationCommandOptionType.Integer => long.Parse(this.RawValue),
                 DiscordApplicationCommandOptionType.String => this.RawValue,
@@ -63,7 +58,6 @@ public sealed class DiscordInteractionDataOption
             };
         }
     }
-#pragma warning restore IDE0046
 
     /// <summary>
     /// Gets the additional parameters if this parameter is a subcommand.
