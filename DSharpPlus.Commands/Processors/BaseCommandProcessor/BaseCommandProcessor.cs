@@ -232,7 +232,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
                         await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
                         {
                             Context = CreateCommandContext(converterContext, eventArgs, parsedArguments),
-                            Exception = new ArgumentParseException(converterContext.Parameter, null, $"Argument Converter for type {converterContext.Parameter.Type.FullName} was unable to parse the argument."),
+                            Exception = new ArgumentParseException(converterContext.Parameter, null, $"Not enough argument data to parse {converterContext.Parameter.Name}."),
                             CommandObject = null
                         });
 
