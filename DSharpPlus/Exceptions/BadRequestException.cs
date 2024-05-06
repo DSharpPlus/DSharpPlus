@@ -51,10 +51,9 @@ public class BadRequestException : DiscordException
             if
             (
                 responseModel.TryGetProperty("errors", out JsonElement errors)
-                && message.ValueKind == JsonValueKind.String
             )
             {
-                this.Errors = errors.GetString();
+                this.Errors = JsonSerializer.Serialize(errors);
             }
         }
         catch { }
