@@ -355,7 +355,7 @@ public static partial class CommandsNextUtilities
 
         // check if appropriate return and arguments
         parameters = method.GetParameters();
-        if (parameters.Length != 0 || parameters[0].ParameterType != typeof(CommandContext) || method.ReturnType != typeof(Task))
+        if (parameters.Length < 1 || parameters[0].ParameterType != typeof(CommandContext) || method.ReturnType != typeof(Task))
         {
             return false;
         }
