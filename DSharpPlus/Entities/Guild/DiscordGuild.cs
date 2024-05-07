@@ -1781,7 +1781,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             
             if (channel.GuildId is null || (channel.GuildId is not null && channel.GuildId.Value != this.Id))
             {
-                throw new InvalidOperationException("Channel is exsitent but does not belong to this guild.");
+                throw new InvalidOperationException("The channel exists but does not belong to this guild.");
             }
 
             return channel;
@@ -1801,7 +1801,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
         if (channel.GuildId is null || (channel.GuildId is not null && channel.GuildId.Value != this.Id))
         {
-            throw new InvalidOperationException("Channel is exsitent but does not belong to this guild.");
+            throw new InvalidOperationException("The channel exists but does not belong to this guild.");
         }
 
         return channel;
