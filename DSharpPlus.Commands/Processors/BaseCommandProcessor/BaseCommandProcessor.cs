@@ -223,6 +223,30 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
                 parsedArguments.Add(converterContext.Parameter, optional.RawValue);
             }
 
+            if (parsedArguments.Count == 0)
+            {
+                foreach (CommandParameter parameter in converterContext.Command.Parameters)
+                {
+                    if (!parameter.DefaultValue.HasValue)
+                    {
+                        await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
+                        {
+                            Context = CreateCommandContext(converterContext, eventArgs, parsedArguments),
+                            Exception = new ArgumentParseException(converterContext.Parameter, null, $"Not enough argument data to parse {converterContext.Parameter.Name}."),
+                            CommandObject = null
+                        });
+
+                        return null;
+                    }
+
+                    parsedArguments.Add
+                    (
+                        parameter,
+                        parameter.DefaultValue.Value
+                    );
+                }
+            }
+
             if (parsedArguments.Count != converterContext.Command.Parameters.Count)
             {
                 // Try to fill with default values

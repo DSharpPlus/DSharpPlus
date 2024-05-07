@@ -8,7 +8,7 @@ public abstract record ConverterContext : AbstractContext
     public int ParameterIndex { get; private set; } = -1;
     public CommandParameter Parameter => this.Command.Parameters[this.ParameterIndex];
 
-    public bool NextParameter()
+    public virtual bool NextParameter()
     {
         if (this.ParameterIndex + 1 >= this.Command.Parameters.Count)
         {
