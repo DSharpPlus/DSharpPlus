@@ -20,4 +20,19 @@ public record Command
     public string FullName => this.Parent is null ? this.Name : $"{this.Parent.FullName} {this.Name}";
 
     public Command(IEnumerable<CommandBuilder> subCommandBuilders) => this.Subcommands = subCommandBuilders.Select(x => x.WithParent(this).Build()).ToArray();
+
+    /// <summary>
+    /// Traverses this command tree, returning this command and all subcommands recursively.
+    /// </summary>
+    /// <returns>A list of all commands in this tree.</returns>
+    public IReadOnlyList<Command> Walk()
+    {
+        List<Command> commands = [this];
+        foreach (Command subcommand in this.Subcommands)
+        {
+            commands.AddRange(subcommand.Walk());
+        }
+
+        return commands;
+    }
 }
