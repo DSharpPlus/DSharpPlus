@@ -1157,7 +1157,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
 
         guild.Name = newGuild.Name;
-        guild.afkChannelId = newGuild.afkChannelId;
+        guild.AfkChannelId = newGuild.AfkChannelId;
         guild.AfkTimeout = newGuild.AfkTimeout;
         guild.DefaultMessageNotifications = newGuild.DefaultMessageNotifications;
         guild.Features = newGuild.Features;
@@ -1168,7 +1168,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         guild.SplashHash = newGuild.SplashHash;
         guild.VerificationLevel = newGuild.VerificationLevel;
         guild.WidgetEnabled = newGuild.WidgetEnabled;
-        guild.widgetChannelId = newGuild.widgetChannelId;
+        guild.WidgetChannelId = newGuild.WidgetChannelId;
         guild.ExplicitContentFilter = newGuild.ExplicitContentFilter;
         guild.PremiumTier = newGuild.PremiumTier;
         guild.PremiumSubscriptionCount = newGuild.PremiumSubscriptionCount;
@@ -1176,7 +1176,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         guild.Description = newGuild.Description;
         guild.VanityUrlCode = newGuild.VanityUrlCode;
         guild.Banner = newGuild.Banner;
-        guild.systemChannelId = newGuild.systemChannelId;
+        guild.SystemChannelId = newGuild.SystemChannelId;
         guild.SystemChannelFlags = newGuild.SystemChannelFlags;
         guild.DiscoverySplashHash = newGuild.DiscoverySplashHash;
         guild.MaxMembers = newGuild.MaxMembers;
@@ -1185,8 +1185,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
         guild.ApproximatePresenceCount = newGuild.ApproximatePresenceCount;
         guild.MaxVideoChannelUsers = newGuild.MaxVideoChannelUsers;
         guild.PreferredLocale = newGuild.PreferredLocale;
-        guild.rulesChannelId = newGuild.rulesChannelId;
-        guild.publicUpdatesChannelId = newGuild.publicUpdatesChannelId;
+        guild.RulesChannelId = newGuild.RulesChannelId;
+        guild.PublicUpdatesChannelId = newGuild.PublicUpdatesChannelId;
         guild.PremiumProgressBarEnabled = newGuild.PremiumProgressBarEnabled;
 
         // fields not sent for update:
