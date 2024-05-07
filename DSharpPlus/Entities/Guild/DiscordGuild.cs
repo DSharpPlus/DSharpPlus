@@ -113,14 +113,22 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the guild's AFK voice channel ID.
     /// </summary>
     [JsonProperty("afk_channel_id", NullValueHandling = NullValueHandling.Ignore)]
-    internal ulong afkChannelId { get; set; } = 0;
+    public ulong? AfkChannelId { get; internal set; }
 
     /// <summary>
     /// Gets the guild's AFK voice channel.
     /// </summary>
-    [JsonIgnore]
-    public DiscordChannel AfkChannel
-        => GetChannel(this.afkChannelId);
+    /// <param name="skipCache">If set to true this method will skip all caches and always perform a rest api call</param>
+    /// <returns>Returns null if the guild has no AFK channel</returns>
+    public async Task<DiscordChannel?> GetAfkChannelAsync(bool skipCache = false)
+    {
+        if (this.AfkChannelId is null)
+        {
+            return null;
+        }
+
+        return await GetChannelAsync(this.AfkChannelId.Value);
+    }
 
     /// <summary>
     /// Gets the guild's AFK timeout.
@@ -152,16 +160,26 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     [JsonProperty("nsfw_level")]
     public DiscordNsfwLevel NsfwLevel { get; internal set; }
 
+    /// <summary>
+    /// Id of the channel where system messages (such as boost and welcome messages) are sent.
+    /// </summary>
     [JsonProperty("system_channel_id", NullValueHandling = NullValueHandling.Include)]
-    internal ulong? systemChannelId { get; set; }
+    public ulong? SystemChannelId { get; internal set; }
 
     /// <summary>
     /// Gets the channel where system messages (such as boost and welcome messages) are sent.
     /// </summary>
-    [JsonIgnore]
-    public DiscordChannel? SystemChannel => this.systemChannelId.HasValue
-        ? GetChannel(this.systemChannelId.Value)
-        : null;
+    /// <param name="skipCache">If set to true this method will skip all caches and always perform a rest api call</param>
+    /// <returns>Returns null if the guild has no configured system channel.</returns>
+    public async Task<DiscordChannel?> GetSystemChannelAsync(bool skipCache = false)
+    {
+        if (this.SystemChannelId is null)
+        {
+            return null;
+        }
+
+        return await GetChannelAsync(this.SystemChannelId.Value);
+    }
 
     /// <summary>
     /// Gets the settings for this guild's system channel.
@@ -169,14 +187,26 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     [JsonProperty("system_channel_flags")]
     public DiscordSystemChannelFlags SystemChannelFlags { get; internal set; }
 
+    /// <summary>
+    /// Id of the channel where safety alerts are sent to
+    /// </summary>
     [JsonProperty("safety_alerts_channel_id")]
-    internal ulong? SafetyAlertsChannelId { get; set; }
+    public ulong? SafetyAlertsChannelId { get; internal set; }
 
     /// <summary>
     /// Gets the guild's safety alerts channel.
     /// </summary>
-    [JsonIgnore]
-    public DiscordChannel? SafetyAlertsChannel => this.SafetyAlertsChannelId is not null ? GetChannel(this.SafetyAlertsChannelId.Value) : null;
+    /// <param name="skipCache">If set to true this method will skip all caches and always perform a rest api call</param>
+    ///<returns>Returns null if the guild has no configured safety alerts channel.</returns>
+    public async Task<DiscordChannel?> GetSafetyAlertsChannelAsync(bool skipCache = false)
+    {
+        if (this.SafetyAlertsChannelId is null)
+        {
+            return null;
+        }
+
+        return await GetChannelAsync(this.SafetyAlertsChannelId.Value);
+    }
 
     /// <summary>
     /// Gets whether this guild's widget is enabled.
@@ -184,40 +214,70 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     [JsonProperty("widget_enabled", NullValueHandling = NullValueHandling.Ignore)]
     public bool? WidgetEnabled { get; internal set; }
 
+    /// <summary>
+    /// Id of the widget channel
+    /// </summary>
     [JsonProperty("widget_channel_id", NullValueHandling = NullValueHandling.Ignore)]
-    internal ulong? widgetChannelId { get; set; }
+    public ulong? WidgetChannelId { get; internal set; }
 
     /// <summary>
     /// Gets the widget channel for this guild.
     /// </summary>
-    [JsonIgnore]
-    public DiscordChannel? WidgetChannel => this.widgetChannelId.HasValue
-        ? GetChannel(this.widgetChannelId.Value)
-        : null;
+    /// <param name="skipCache">If set to true this method will skip all caches and always perform a rest api call</param>
+    /// <returns>Returns null if the guild has no widget channel configured.</returns>
+    public async Task<DiscordChannel?> GetWidgetChannelAsync(bool skipCache = false)
+    {
+        if (this.WidgetChannelId is null)
+        {
+            return null;
+        }
 
+        return await GetChannelAsync(this.WidgetChannelId.Value);
+    }
+
+    /// <summary>
+    /// Id of the rules channel of this guild. Null if the guild has no configured rules channel.
+    /// </summary>
     [JsonProperty("rules_channel_id")]
-    internal ulong? rulesChannelId { get; set; }
+    public ulong? RulesChannelId { get; internal set; }
 
     /// <summary>
     /// Gets the rules channel for this guild.
     /// <para>This is only available if the guild is considered "discoverable".</para>
     /// </summary>
-    [JsonIgnore]
-    public DiscordChannel? RulesChannel => this.rulesChannelId.HasValue
-        ? GetChannel(this.rulesChannelId.Value)
-        : null;
+    /// <param name="skipCache">If set to true this method will skip all caches and always perform a rest api call</param>
+    /// <returns>Returns null if the guild has no rules channel configured</returns>
+    public async Task<DiscordChannel?> GetRulesChannelAsync(bool skipCache = false)
+    {
+        if (this.RulesChannelId is null)
+        {
+            return null;
+        }
 
+        return await GetChannelAsync(this.RulesChannelId.Value);
+    }
+
+    /// <summary>
+    /// Id of the channel where admins and moderators receive messages from Discord
+    /// </summary>
     [JsonProperty("public_updates_channel_id")]
-    internal ulong? publicUpdatesChannelId { get; set; }
+    public ulong? PublicUpdatesChannelId { get; internal set; }
 
     /// <summary>
     /// Gets the public updates channel (where admins and moderators receive messages from Discord) for this guild.
     /// <para>This is only available if the guild is considered "discoverable".</para>
     /// </summary>
-    [JsonIgnore]
-    public DiscordChannel? PublicUpdatesChannel => this.publicUpdatesChannelId.HasValue
-        ? GetChannel(this.publicUpdatesChannelId.Value)
-        : null;
+    /// <param name="skipCache">If set to true this method will skip all caches and always perform a rest api call</param>
+    /// <returns>Returns null if the guild has no public updates channel configured</returns>
+    public async Task<DiscordChannel?> GetPublicUpdatesChannelAsync(bool skipCache = false)
+    {
+        if (this.PublicUpdatesChannelId is null)
+        {
+            return null;
+        }
+
+        return await GetChannelAsync(this.PublicUpdatesChannelId.Value);
+    }
 
     /// <summary>
     /// Gets the application ID of this guild if it is bot created.
@@ -1700,9 +1760,52 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="id">ID of the channel to get.</param>
     /// <returns>Requested channel.</returns>
-    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public DiscordChannel? GetChannel(ulong id)
+    internal DiscordChannel? GetChannel(ulong id)
         => this.channels != null && this.channels.TryGetValue(id, out DiscordChannel? channel) ? channel : null;
+    
+    /// <summary>
+    /// Gets a channel from this guild by its ID.
+    /// </summary>
+    /// <param name="id">ID of the channel to get.</param>
+    /// <param name="skipCache">If set to true this method will skip all caches and always perform a rest api call</param>
+    /// <returns>Requested channel.</returns>
+    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <exception cref="NotFoundException">Thrown when this channel does not exists</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the channel exists but does not belong to this guild instance.</exception>
+    public async Task<DiscordChannel> GetChannelAsync(ulong id, bool skipCache = false)
+    {
+        DiscordChannel? channel;
+        if (skipCache)
+        {
+            channel = await this.Discord.ApiClient.GetChannelAsync(id);
+            
+            if (channel.GuildId is null || (channel.GuildId is not null && channel.GuildId.Value != this.Id))
+            {
+                throw new InvalidOperationException("Channel is exsitent but does not belong to this guild.");
+            }
+
+            return channel;
+        }
+
+        if (this.channels is not null && this.channels.TryGetValue(id, out channel))
+        {
+            return channel;
+        }
+
+        if (this.threads.TryGetValue(id, out DiscordThreadChannel? threadChannel))
+        {
+            return threadChannel;
+        }
+        
+        channel = await this.Discord.ApiClient.GetChannelAsync(id);
+
+        if (channel.GuildId is null || (channel.GuildId is not null && channel.GuildId.Value != this.Id))
+        {
+            throw new InvalidOperationException("Channel is exsitent but does not belong to this guild.");
+        }
+
+        return channel;
+    }
 
     /// <summary>
     /// Gets audit log entries for this guild.
