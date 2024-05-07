@@ -255,7 +255,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         }
 
         this.Commands = commandsDictionary.ToFrozenDictionary();
-        SlashLogging.registeredCommands(this.logger, this.Commands.Count, null);
+        SlashLogging.registeredCommands(this.logger, this.Commands.Count, this.Commands.Values.SelectMany(command => command.Walk()).Count(), null);
     }
 
     public async Task<DiscordApplicationCommand> ToApplicationCommandAsync(Command command)
