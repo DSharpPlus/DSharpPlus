@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
@@ -464,7 +465,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
             autocomplete: parameter.Attributes.Any(x => x is SlashAutoCompleteProviderAttribute),
-            channelTypes: parameter.Attributes.OfType<SlashChannelTypesAttribute>().FirstOrDefault()?.ChannelTypes ?? [],
+            channelTypes: parameter.Attributes.OfType<ChannelTypesAttribute>().FirstOrDefault()?.ChannelTypes ?? [],
             choices: choices,
             maxLength: minMaxLength?.MaxLength,
             maxValue: maxValue, // Incorrect nullable annotations within the lib
