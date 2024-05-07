@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
@@ -393,7 +394,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         }
 
         SlashMinMaxValueAttribute? minMaxValue = parameter.Attributes.OfType<SlashMinMaxValueAttribute>().FirstOrDefault();
-        SlashMinMaxLengthAttribute? minMaxLength = parameter.Attributes.OfType<SlashMinMaxLengthAttribute>().FirstOrDefault();
+        MinMaxLengthAttribute? minMaxLength = parameter.Attributes.OfType<MinMaxLengthAttribute>().FirstOrDefault();
 
         // Translate the parameter's name and description.
         Dictionary<string, string> nameLocalizations = [];
