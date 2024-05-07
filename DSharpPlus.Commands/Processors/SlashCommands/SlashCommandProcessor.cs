@@ -249,13 +249,13 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
             if (!commandFound)
             {
-                SlashLogging.UnknownCommandName(this.logger, discordCommand.Name, null);
+                SlashLogging.unknownCommandName(this.logger, discordCommand.Name, null);
                 continue;
             }
         }
 
         this.Commands = commandsDictionary.ToFrozenDictionary();
-        SlashLogging.RegisteredCommands(this.logger, this.Commands.Count, null);
+        SlashLogging.registeredCommands(this.logger, this.Commands.Count, null);
     }
 
     public async Task<DiscordApplicationCommand> ToApplicationCommandAsync(Command command)
