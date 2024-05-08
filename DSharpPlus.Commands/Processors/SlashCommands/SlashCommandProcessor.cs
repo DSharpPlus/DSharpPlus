@@ -393,8 +393,8 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             throw new InvalidOperationException($"No type mapping found for parameter type '{parameter.Type.Name}'");
         }
 
-        SlashMinMaxValueAttribute? minMaxValue = parameter.Attributes.OfType<SlashMinMaxValueAttribute>().FirstOrDefault();
         MinMaxLengthAttribute? minMaxLength = parameter.Attributes.OfType<MinMaxLengthAttribute>().FirstOrDefault();
+        MinMaxValueAttribute? minMaxValue = parameter.Attributes.OfType<MinMaxValueAttribute>().FirstOrDefault();
 
         // Translate the parameter's name and description.
         Dictionary<string, string> nameLocalizations = [];
@@ -465,7 +465,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
             autocomplete: parameter.Attributes.Any(x => x is SlashAutoCompleteProviderAttribute),
-            channelTypes: parameter.Attributes.OfType<SlashChannelTypesAttribute>().FirstOrDefault()?.ChannelTypes ?? [],
+            channelTypes: parameter.Attributes.OfType<ChannelTypesAttribute>().FirstOrDefault()?.ChannelTypes ?? [],
             choices: choices,
             maxLength: minMaxLength?.MaxLength,
             maxValue: maxValue, // Incorrect nullable annotations within the lib
