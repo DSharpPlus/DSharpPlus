@@ -42,7 +42,7 @@ internal sealed class TextMinMaxValueCheck : IParameterCheck<MinMaxValueAttribut
 
             if (!correctlyOrdered)
             {
-                return ValueTask.FromResult<string?>("The provided value was less than the minimum value.");
+                return ValueTask.FromResult<string?>($"The provided value (`{info.Value}`) was less than the minimum value (`{attribute.MinValue}`).");
             }
         }
 
@@ -65,7 +65,7 @@ internal sealed class TextMinMaxValueCheck : IParameterCheck<MinMaxValueAttribut
 
             if (!correctlyOrdered)
             {
-                return ValueTask.FromResult<string?>("The provided value was greater than the maximum value.");
+                return ValueTask.FromResult<string?>($"The provided value (`{info.Value}`) was greater than the maximum value (`{attribute.MaxValue}`).");
             }
         }
 
