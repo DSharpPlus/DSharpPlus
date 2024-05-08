@@ -465,7 +465,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
             autocomplete: parameter.Attributes.Any(x => x is SlashAutoCompleteProviderAttribute),
-            channelTypes: parameter.Attributes.OfType<SlashChannelTypesAttribute>().FirstOrDefault()?.ChannelTypes ?? [],
+            channelTypes: parameter.Attributes.OfType<ChannelTypesAttribute>().FirstOrDefault()?.ChannelTypes ?? [],
             choices: choices,
             maxLength: minMaxLength?.MaxLength,
             maxValue: maxValue, // Incorrect nullable annotations within the lib

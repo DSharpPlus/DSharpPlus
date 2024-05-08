@@ -146,6 +146,7 @@ public sealed class CommandsExtension : BaseExtension
 
         AddParameterCheck<RequireHierarchyCheck>();
         AddParameterCheck<TextMinMaxValueCheck>();
+        AddParameterCheck<TextChannelTypesCheck>();
     }
 
     public void AddCommand(Delegate commandDelegate) => this.commandBuilders.Add(CommandBuilder.From(commandDelegate));
@@ -412,12 +413,24 @@ public sealed class CommandsExtension : BaseExtension
         // Error message
         stringBuilder.Append(eventArgs.Exception switch
         {
-            CommandNotFoundException commandNotFoundException => $"Command {Formatter.InlineCode(Formatter.Sanitize(commandNotFoundException.CommandName))} was not found.",
-            ArgumentParseException argumentParseException => $"Failed to parse argument {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.Parameter.Name))}.",
-            ChecksFailedException checksFailedException when checksFailedException.Errors.Count == 1 => $"The following error occurred: {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.Errors[0].ErrorMessage))}",
-            ChecksFailedException checksFailedException => $"The following context checks failed: {Formatter.InlineCode(Formatter.Sanitize(string.Join("\n\n", checksFailedException.Errors.Select(x => x.ErrorMessage))))}.",
-            DiscordException discordException when discordException.Response is not null && (int)discordException.Response.StatusCode >= 500 && (int)discordException.Response.StatusCode < 600 => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? "No further information was provided."}",
-            DiscordException discordException when discordException.Response is not null => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? discordException.Message}",
+            CommandNotFoundException commandNotFoundException 
+                => $"Command {Formatter.InlineCode(Formatter.Sanitize(commandNotFoundException.CommandName))} was not found.",
+            ArgumentParseException argumentParseException 
+                => $"Failed to parse argument {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.Parameter.Name))}.",
+            ChecksFailedException checksFailedException when checksFailedException.Errors.Count == 1 
+                => $"The following error occurred: {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.Errors[0].ErrorMessage))}",
+            ChecksFailedException checksFailedException 
+                => $"The following context checks failed: {Formatter.InlineCode(Formatter.Sanitize(string.Join("\n\n", checksFailedException.Errors.Select(x => x.ErrorMessage))))}.",
+            ParameterChecksFailedException checksFailedException when checksFailedException.Errors.Count == 1
+                => $"The following error occurred: {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.Errors[0].ErrorMessage))}",
+            ParameterChecksFailedException checksFailedException
+                => $"The following context checks failed: {Formatter.InlineCode(Formatter.Sanitize(string.Join("\n\n", checksFailedException.Errors.Select(x => x.ErrorMessage))))}.",
+            DiscordException discordException when discordException.Response is not null 
+                && (int)discordException.Response.StatusCode >= 500 
+                && (int)discordException.Response.StatusCode < 600 
+                => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? "No further information was provided."}",
+            DiscordException discordException when discordException.Response is not null 
+            => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? discordException.Message}",
             _ => $"An unexpected error occurred: {eventArgs.Exception.Message}"
         });
 
