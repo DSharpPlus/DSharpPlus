@@ -145,6 +145,7 @@ public sealed class CommandsExtension : BaseExtension
         AddCheck<TextMessageReplyCheck>();
 
         AddParameterCheck<RequireHierarchyCheck>();
+        AddParameterCheck<TextMinMaxValueCheck>();
         AddParameterCheck<TextChannelTypesCheck>();
     }
 
