@@ -19,12 +19,12 @@ public sealed class MinMaxLengthAttribute : ParameterCheckAttribute
     /// <summary>
     /// The minimum length that this parameter can accept.
     /// </summary>
-    public int MinLength { get; init; } = MinLengthMinimum;
+    public int MinLength { get; private init; } = MinLengthMinimum;
 
     /// <summary>
     /// The maximum length that this parameter can accept.
     /// </summary>
-    public int MaxLength { get; init; } = MaxLengthMaximum;
+    public int MaxLength { get; private init; } = MaxLengthMaximum;
 
     /// <summary>
     /// Determines the minimum and maximum length that a parameter can accept.
