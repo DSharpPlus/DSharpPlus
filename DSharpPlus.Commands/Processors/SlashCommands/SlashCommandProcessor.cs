@@ -393,8 +393,8 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             throw new InvalidOperationException($"No type mapping found for parameter type '{parameter.Type.Name}'");
         }
 
+        MinMaxLengthAttribute? minMaxLength = parameter.Attributes.OfType<MinMaxLengthAttribute>().FirstOrDefault();
         MinMaxValueAttribute? minMaxValue = parameter.Attributes.OfType<MinMaxValueAttribute>().FirstOrDefault();
-        SlashMinMaxLengthAttribute? minMaxLength = parameter.Attributes.OfType<SlashMinMaxLengthAttribute>().FirstOrDefault();
 
         // Translate the parameter's name and description.
         Dictionary<string, string> nameLocalizations = [];
