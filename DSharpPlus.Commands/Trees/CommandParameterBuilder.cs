@@ -4,13 +4,12 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Commands.Trees;
 
-public class CommandParameterBuilder
+public partial class CommandParameterBuilder
 {
     public string? Name { get; set; }
     public string? Description { get; set; }
@@ -38,9 +37,13 @@ public class CommandParameterBuilder
     public CommandParameterBuilder WithType(Type type)
     {
         this.Type = type;
-        if (type.IsEnum && this.Attributes.All(attribute => attribute is not SlashChoiceProviderAttribute and not SlashAutoCompleteProviderAttribute))
+
+        if (type.IsEnum || (type is { Namespace: "System", Name: "Nullable`1" } && type.GetGenericArguments()[0].IsEnum))
         {
-            this.Attributes.Add(new SlashChoiceProviderAttribute<EnumOptionProvider>());
+            if (this.Attributes.All(attribute => attribute is not SlashChoiceProviderAttribute and not SlashAutoCompleteProviderAttribute))
+            {
+                this.Attributes.Add(new SlashChoiceProviderAttribute<EnumOptionProvider>());
+            }
         }
 
         return this;
@@ -131,38 +134,5 @@ public class CommandParameterBuilder
         }
 
         return commandParameterBuilder;
-    }
-
-    public class EnumOptionProvider : IChoiceProvider
-    {
-        public ValueTask<IReadOnlyDictionary<string, object>> ProvideAsync(CommandParameter parameter)
-        {
-            List<string> enumNames = [];
-            foreach (FieldInfo fieldInfo in parameter.Type.GetFields())
-            {
-                if (fieldInfo.IsSpecialName || !fieldInfo.IsStatic)
-                {
-                    continue;
-                }
-                else if (fieldInfo.GetCustomAttribute<ChoiceDisplayNameAttribute>() is ChoiceDisplayNameAttribute displayNameAttribute)
-                {
-                    enumNames.Add(displayNameAttribute.DisplayName);
-                }
-                else
-                {
-                    enumNames.Add(fieldInfo.Name);
-                }
-            }
-
-            Dictionary<string, object> choices = [];
-            Array enumValues = Enum.GetValuesAsUnderlyingType(parameter.Type);
-            for (int i = 0; i < enumNames.Count; i++)
-            {
-                string? value = enumValues.GetValue(i)?.ToString() ?? throw new InvalidOperationException($"Failed to get the value of the enum {parameter.Type.Name} for element {enumNames[i]}");
-                choices.Add(enumNames[i], value.ToString());
-            }
-
-            return ValueTask.FromResult<IReadOnlyDictionary<string, object>>(choices);
-        }
     }
 }

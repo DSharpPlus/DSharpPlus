@@ -289,16 +289,18 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
     {
         ArgumentNullException.ThrowIfNull(type, nameof(type));
 
-        if (type.IsEnum)
+        Type effectiveType = Nullable.GetUnderlyingType(type) ?? type;
+
+        if (effectiveType.IsEnum)
         {
             return typeof(Enum);
         }
-        else if (type.IsArray)
+        else if (effectiveType.IsArray)
         {
-            return type.GetElementType()!;
+            return effectiveType.GetElementType()!;
         }
 
-        return Nullable.GetUnderlyingType(type) ?? type;
+        return effectiveType;
     }
 
     protected virtual async Task<IOptional> ExecuteConverterAsync<T>(TConverter converter, TConverterContext converterContext, TEventArgs eventArgs)
