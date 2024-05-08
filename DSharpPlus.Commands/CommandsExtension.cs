@@ -145,6 +145,7 @@ public sealed class CommandsExtension : BaseExtension
         AddCheck<TextMessageReplyCheck>();
 
         AddParameterCheck<RequireHierarchyCheck>();
+        AddParameterCheck<TextChannelTypesCheck>();
     }
 
     public void AddCommand(Delegate commandDelegate) => this.commandBuilders.Add(CommandBuilder.From(commandDelegate));
