@@ -1,6 +1,6 @@
-using System;
-
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
+
+using System;
 
 namespace DSharpPlus.Commands.ArgumentModifiers;
 
@@ -19,18 +19,21 @@ public sealed class MinMaxLengthAttribute : ParameterCheckAttribute
     /// <summary>
     /// The minimum length that this parameter can accept.
     /// </summary>
-    public int MinLength { get; private init; } = MinLengthMinimum;
+    public int MinLength { get; private init; }
 
     /// <summary>
     /// The maximum length that this parameter can accept.
     /// </summary>
-    public int MaxLength { get; private init; } = MaxLengthMaximum;
+    public int MaxLength { get; private init; }
 
     /// <summary>
     /// Determines the minimum and maximum length that a parameter can accept.
     /// </summary>
-    public MinMaxLengthAttribute()
+    public MinMaxLengthAttribute(int minLength = MinLengthMinimum, int maxLength = MaxLengthMaximum )
     {
+        this.MinLength = minLength;
+        this.MaxLength = maxLength;
+
         if (this.MinLength is < MinLengthMinimum or > MinLengthMaximum)
         {
             throw new ArgumentException($"The minimum length cannot be less than {MinLengthMinimum} and greater than {MinLengthMaximum}.");
