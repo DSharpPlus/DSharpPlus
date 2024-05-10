@@ -20,6 +20,7 @@ using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Processors.TextCommands.ContextChecks;
 using DSharpPlus.Commands.Processors.UserCommands;
 using DSharpPlus.Commands.Trees;
+using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
@@ -65,7 +66,7 @@ public sealed class CommandsExtension : BaseExtension
     /// <summary>
     /// The registered commands that the users can execute.
     /// </summary>
-    public IReadOnlyDictionary<string, Command> Commands { get; private set; } = new Dictionary<string, Command>();
+    private IReadOnlyDictionary<string, Command> Commands { get; set; } = new Dictionary<string, Command>();
     private readonly List<CommandBuilder> commandBuilders = [];
 
     /// <summary>
@@ -112,7 +113,7 @@ public sealed class CommandsExtension : BaseExtension
         this.CommandExecutor = configuration.CommandExecutor;
         if (this.UseDefaultCommandErrorHandler)
         {
-            CommandErrored += DefaultCommandErrorHandlerAsync;
+            this.CommandErrored += DefaultCommandErrorHandlerAsync;
         }
 
         // Attempt to get the user defined logging, otherwise setup a null logger since the D#+ Default Logger is internal.
@@ -188,6 +189,28 @@ public sealed class CommandsExtension : BaseExtension
                 }
             }
         }
+    }
+
+    public IReadOnlyList<Command> GetCommandsForProcessor<TProcessor>() where TProcessor : ICommandProcessor
+    {
+        List<Command> commands = new(this.Commands.Values.Count());
+
+        foreach (Command command in this.Commands.Values)
+        {
+            AllowedProcessorsAttribute? allowedProcessorsAttribute = command.Attributes.OfType<AllowedProcessorsAttribute>().FirstOrDefault();
+            if (allowedProcessorsAttribute is null)
+            {
+                commands.Add(command);
+                continue;
+            }
+            
+            if (allowedProcessorsAttribute.Processors.Contains(typeof(TProcessor)))
+            {
+                commands.Add(command);
+            }
+        }
+
+        return commands;
     }
 
     public async ValueTask AddProcessorAsync(ICommandProcessor processor)
