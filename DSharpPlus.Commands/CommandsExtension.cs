@@ -66,7 +66,7 @@ public sealed class CommandsExtension : BaseExtension
     /// <summary>
     /// The registered commands that the users can execute.
     /// </summary>
-    private IReadOnlyDictionary<string, Command> Commands { get; set; } = new Dictionary<string, Command>();
+    public IReadOnlyDictionary<string, Command> Commands { get; set; } = new Dictionary<string, Command>();
     private readonly List<CommandBuilder> commandBuilders = [];
 
     /// <summary>
