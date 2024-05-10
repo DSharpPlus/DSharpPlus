@@ -1,6 +1,5 @@
-using DSharpPlus.Commands.ContextChecks.ParameterChecks;
-
 using System;
+using DSharpPlus.Commands.ContextChecks.ParameterChecks;
 
 namespace DSharpPlus.Commands.ArgumentModifiers;
 
