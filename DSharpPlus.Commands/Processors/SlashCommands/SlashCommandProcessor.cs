@@ -179,10 +179,11 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
     public async Task RegisterSlashCommandsAsync(CommandsExtension extension)
     {
+        IReadOnlyList<Command> processorSpecificCommands = extension.GetCommandsForProcessor<SlashCommandProcessor>();
         List<DiscordApplicationCommand> globalApplicationCommands = [];
         Dictionary<ulong, List<DiscordApplicationCommand>> guildsApplicationCommands = [];
         globalApplicationCommands.AddRange(this.applicationCommands);
-        foreach (Command command in extension.Commands.Values)
+        foreach (Command command in processorSpecificCommands)
         {
             // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
             // If there isn't, default to SlashCommands
@@ -237,7 +238,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         foreach (DiscordApplicationCommand discordCommand in discordCommands)
         {
             bool commandFound = false;
-            foreach (Command command in extension.Commands.Values)
+            foreach (Command command in processorSpecificCommands)
             {
                 string snakeCaseCommandName = ToSnakeCase(command.Name);
                 if (snakeCaseCommandName == ToSnakeCase(discordCommand.Name) || ToSnakeCase(command.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName) == snakeCaseCommandName)

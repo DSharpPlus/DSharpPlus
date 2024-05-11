@@ -39,7 +39,7 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreateEv
 
         ILogger<UserCommandProcessor> logger = this.extension.ServiceProvider.GetService<ILogger<UserCommandProcessor>>() ?? NullLogger<UserCommandProcessor>.Instance;
         List<DiscordApplicationCommand> applicationCommands = [];
-        foreach (Command command in this.extension.Commands.Values)
+        foreach (Command command in this.extension.GetCommandsForProcessor<UserCommandProcessor>())
         {
             // User commands must be explicitly defined as such, otherwise they are ignored.
             if (!command.Attributes.Any(x => x is SlashCommandTypesAttribute slashCommandTypesAttribute && slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.UserContextMenu)))

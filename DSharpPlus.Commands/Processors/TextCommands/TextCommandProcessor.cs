@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,9 +20,21 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     public TextCommandConfiguration Configuration { get; init; } = configuration ?? new();
     private bool configured;
 
+    private FrozenDictionary<string, Command> commands;
+
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {
         await base.ConfigureAsync(extension);
+
+        Dictionary<string, Command> textCommands = new();
+
+        foreach (Command command in this.extension.GetCommandsForProcessor<TextCommandProcessor>())
+        {
+            textCommands.Add(command.Name, command);
+        }
+ 
+        this.commands = textCommands.ToFrozenDictionary();
+        
         if (this.configured)
         {
             return;
@@ -72,10 +85,10 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         }
 
         AsyncServiceScope scope = this.extension.ServiceProvider.CreateAsyncScope();
-        if (!this.extension.Commands.TryGetValue(commandText[..index], out Command? command))
+        if (!this.commands.TryGetValue(commandText[..index], out Command? command))
         {
             // Search for any aliases
-            foreach (Command officialCommand in this.extension.Commands.Values)
+            foreach (Command officialCommand in this.commands.Values)
             {
                 TextAliasAttribute? aliasAttribute = officialCommand.Attributes.OfType<TextAliasAttribute>().FirstOrDefault();
                 if (aliasAttribute is not null && aliasAttribute.Aliases.Any(alias => alias.Equals(commandText[..index], StringComparison.OrdinalIgnoreCase)))
