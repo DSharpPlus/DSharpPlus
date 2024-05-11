@@ -66,7 +66,7 @@ public sealed class CommandsExtension : BaseExtension
     /// <summary>
     /// The registered commands that the users can execute.
     /// </summary>
-    public IReadOnlyDictionary<string, Command> Commands { get; set; } = new Dictionary<string, Command>();
+    public IReadOnlyDictionary<string, Command> Commands { get; private set; } = new Dictionary<string, Command>();
     private readonly List<CommandBuilder> commandBuilders = [];
 
     /// <summary>
@@ -191,6 +191,11 @@ public sealed class CommandsExtension : BaseExtension
         }
     }
 
+    /// <summary>
+    /// Gets a list of commands filtered for a specific command processor
+    /// </summary>
+    /// <typeparam name="TProcessor">Type of the processor calling this method</typeparam>
+    /// <returns>Returns a list of valid commands. This list can be empty if no commands are valid for this processor type</returns>
     public IReadOnlyList<Command> GetCommandsForProcessor<TProcessor>() where TProcessor : ICommandProcessor
     {
         List<Command> commands = new(this.Commands.Values.Count());

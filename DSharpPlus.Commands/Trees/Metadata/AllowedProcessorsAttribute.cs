@@ -20,7 +20,7 @@ public class AllowedProcessorsAttribute : Attribute
             throw new ArgumentException("Provide atleast one processor", nameof(processors));
         }
 
-        if (processors.Any(x => x.IsAssignableTo(typeof(ICommandProcessor)) is false))
+        if (!processors.Any(x => x.IsAssignableTo(typeof(ICommandProcessor))))
         {
             throw new ArgumentException("All processors must implement ICommandProcessor.", nameof(processors));
         }
@@ -28,5 +28,8 @@ public class AllowedProcessorsAttribute : Attribute
         this.Processors = processors;
     }
 
+    /// <summary>
+    /// Types of allowed processors
+    /// </summary>
     public Type[] Processors { get; private set; }
 }
