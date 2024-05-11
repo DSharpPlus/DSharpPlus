@@ -29,17 +29,17 @@ public sealed class DiscordInteraction : SnowflakeObject
     public DiscordInteractionData Data { get; internal set; }
 
     /// <summary>
-    /// Gets the Id of the guild that invoked this interaction.
+    /// Gets the Id of the guild that invoked this interaction. Returns null if interaction was triggered in a private channel.
     /// </summary>
     [JsonIgnore]
     public ulong? GuildId { get; internal set; }
 
     /// <summary>
-    /// Gets the guild that invoked this interaction.
+    /// Gets the guild that invoked this interaction.  Returns null if interaction was triggered in a private channel.
     /// </summary>
     [JsonIgnore]
-    public DiscordGuild Guild
-        => (this.Discord as DiscordClient).InternalGetCachedGuild(this.GuildId);
+    public DiscordGuild? Guild
+        => this.GuildId.HasValue ? (this.Discord as DiscordClient).InternalGetCachedGuild(this.GuildId) : null;
 
     /// <summary>
     /// Gets the Id of the channel that invoked this interaction.
@@ -83,7 +83,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// The message this interaction was created with, if any.
     /// </summary>
     [JsonProperty("message")]
-    internal DiscordMessage Message { get; set; }
+    public DiscordMessage? Message { get; set; }
 
     /// <summary>
     /// Gets the locale of the user that invoked this interaction.
