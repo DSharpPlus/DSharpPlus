@@ -131,7 +131,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
     protected CommandsExtension? extension;
     protected ILogger<BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext>> logger = NullLogger<BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext>>.Instance;
 
-    private static readonly Action<ILogger, string, Exception?> FailedConverterCreation = LoggerMessage.Define<string>(LogLevel.Error, new EventId(1), "Failed to create instance of converter '{FullName}' due to a lack of empty public constructors, lack of a service provider, or lack of services within the service provider.");
+    private static readonly Action<ILogger, string, Exception?> failedConverterCreation = LoggerMessage.Define<string>(LogLevel.Error, new EventId(1), "Failed to create instance of converter '{FullName}' due to a lack of empty public constructors, lack of a service provider, or lack of services within the service provider.");
 
     public virtual void AddConverter<T>(TConverter converter) => AddConverter(typeof(T), converter);
     public virtual void AddConverter(Type type, TConverter converter) => AddConverter(new() { ParameterType = type, ConverterInstance = converter });
@@ -303,31 +303,14 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
         return effectiveType;
     }
 
-    protected virtual async Task<IOptional> ExecuteConverterAsync<T>(TConverter converter, TConverterContext converterContext, TEventArgs eventArgs)
-    {
-        IArgumentConverter<TConverterContext, TEventArgs, T> strongConverter = (IArgumentConverter<TConverterContext, TEventArgs, T>)converter;
-        if (!converterContext.NextArgument())
-        {
-            return converterContext.Parameter.DefaultValue.HasValue
-                ? Optional.FromValue(converterContext.Parameter.DefaultValue.Value)
-                : throw new ArgumentParseException(converterContext.Parameter, message: $"Missing argument for {converterContext.Parameter.Name}.");
-        }
-        else if (!converterContext.Parameter.Attributes.OfType<ParamArrayAttribute>().Any())
-        {
-            return await strongConverter.ConvertAsync(converterContext, eventArgs);
-        }
-
-        List<T> values = [];
-        do
-        {
-            Optional<T> optional = await strongConverter.ConvertAsync(converterContext, eventArgs);
-            if (!optional.HasValue)
-            {
-                break;
-            }
-
-            values.Add(optional.Value);
-        } while (converterContext.NextArgument());
-        return Optional.FromValue(values.ToArray());
-    }
+    /// <summary>
+    /// Executes an argument converter on the specified context.
+    /// </summary>
+    protected abstract ValueTask<IOptional> ExecuteConverterAsync<T>
+    (
+        TConverterContext context,
+        TConverter converter,
+        TEventArgs eventArgs,
+        Func<TConverter, TConverterContext, TEventArgs, ValueTask<IOptional>> execute
+    );
 }

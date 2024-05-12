@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Commands.Converters;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
@@ -620,4 +621,14 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
         return stringBuilder.ToString();
     }
+
+    /// <inheritdoc/>
+    protected override ValueTask<IOptional> ExecuteConverterAsync<T>
+    (
+        InteractionConverterContext context,
+        ISlashArgumentConverter converter,
+        InteractionCreateEventArgs eventArgs,
+        Func<ISlashArgumentConverter, InteractionConverterContext, InteractionCreateEventArgs, ValueTask<IOptional>> execute
+    )
+        => execute(converter, context, eventArgs);
 }

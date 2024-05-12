@@ -3,11 +3,15 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using DSharpPlus.Commands.Converters;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Commands.Processors.TextCommands;
@@ -227,5 +231,42 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             ServiceScope = converterContext.ServiceScope,
             User = eventArgs.Author
         };
+    }
+
+    /// <inheritdoc/>
+    protected override async ValueTask<IOptional> ExecuteConverterAsync<T>
+    (
+        TextConverterContext converterContext,
+        ITextArgumentConverter converter,
+        MessageCreateEventArgs eventArgs,
+        Func<ITextArgumentConverter, TextConverterContext, MessageCreateEventArgs, ValueTask<IOptional>> execute
+    )
+    {        
+        if (!converterContext.NextArgument())
+        {
+            return converterContext.Parameter.DefaultValue.HasValue
+                ? Optional.FromValue(converterContext.Parameter.DefaultValue.Value)
+                : throw new ArgumentParseException(converterContext.Parameter, message: $"Missing argument for {converterContext.Parameter.Name}.");
+        }
+        else if (!converterContext.Parameter.Attributes.OfType<ParamArrayAttribute>().Any())
+        {
+            return await execute(converter, converterContext, eventArgs);
+        }
+
+        List<T> values = [];
+        
+        do
+        {
+            Optional<T> optional = (Optional<T>)await execute(converter, converterContext, eventArgs);
+
+            if (!optional.HasValue)
+            {
+                break;
+            }
+
+            values.Add(optional.Value);
+        } while (converterContext.NextArgument());
+
+        return Optional.FromValue(values.ToArray());
     }
 }
