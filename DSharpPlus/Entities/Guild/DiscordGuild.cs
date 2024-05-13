@@ -881,7 +881,6 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="user">User to add</param>
     /// <param name="accessToken">User's access token (OAuth2)</param>
     /// <param name="nickname">new nickname</param>
-    /// <param name="roles">new roles</param>
     /// <param name="muted">whether this user has to be muted</param>
     /// <param name="deaf">whether this user has to be deafened</param>
     /// <returns>Only returns the member if they were not already in the guild</returns>
@@ -905,7 +904,6 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="userId">The id of the User to add</param>
     /// <param name="accessToken">User's access token (OAuth2)</param>
     /// <param name="nickname">new nickname</param>
-    /// <param name="roles">new roles</param>
     /// <param name="muted">whether this user has to be muted</param>
     /// <param name="deaf">whether this user has to be deafened</param>
     /// <returns>Only returns the member if they were not already in the guild</returns>
