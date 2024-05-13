@@ -121,7 +121,7 @@ internal sealed class RestGuildMemberAddPayload : IOAuth2Payload
     public string Nickname { get; set; }
 
     [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<DiscordRole> Roles { get; set; }
+    public IEnumerable<ulong> Roles { get; set; }
 
     [JsonProperty("mute", NullValueHandling = NullValueHandling.Ignore)]
     public bool? Mute { get; set; }

@@ -881,7 +881,6 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="user">User to add</param>
     /// <param name="accessToken">User's access token (OAuth2)</param>
     /// <param name="nickname">new nickname</param>
-    /// <param name="roles">new roles</param>
     /// <param name="muted">whether this user has to be muted</param>
     /// <param name="deaf">whether this user has to be deafened</param>
     /// <returns>Only returns the member if they were not already in the guild</returns>
@@ -894,10 +893,10 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         DiscordUser user,
         string accessToken,
         string? nickname = null,
-        IEnumerable<DiscordRole>? roles = null,
-        bool muted = false, bool deaf = false
+        bool muted = false, 
+        bool deaf = false
     )
-        => await this.Discord.ApiClient.AddGuildMemberAsync(this.Id, user.Id, accessToken, muted, deaf, nickname, roles);
+        => await this.Discord.ApiClient.AddGuildMemberAsync(this.Id, user.Id, accessToken, muted, deaf, nickname, null);
 
     /// <summary>
     /// Adds a new member to this guild
@@ -905,7 +904,6 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="userId">The id of the User to add</param>
     /// <param name="accessToken">User's access token (OAuth2)</param>
     /// <param name="nickname">new nickname</param>
-    /// <param name="roles">new roles</param>
     /// <param name="muted">whether this user has to be muted</param>
     /// <param name="deaf">whether this user has to be deafened</param>
     /// <returns>Only returns the member if they were not already in the guild</returns>
@@ -918,12 +916,111 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         ulong userId,
         string accessToken,
         string? nickname = null,
-        IEnumerable<DiscordRole>? roles = null,
+        bool muted = false,
+        bool deaf = false
+    )
+        => await this.Discord.ApiClient.AddGuildMemberAsync(this.Id, userId, accessToken, muted, deaf, nickname, null);
+    
+    /// <summary>
+    /// Adds a new member to this guild
+    /// </summary>
+    /// <param name="user">User to add</param>
+    /// <param name="accessToken">User's access token (OAuth2)</param>
+    /// <param name="nickname">new nickname</param>
+    /// <param name="roles">Ids of roles to add to the new member.</param>
+    /// <param name="muted">whether this user has to be muted</param>
+    /// <param name="deaf">whether this user has to be deafened</param>
+    /// <returns>Only returns the member if they were not already in the guild</returns>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.CreateInstantInvite" /> permission.</exception>
+    /// <exception cref="NotFoundException">Thrown when the <paramref name="user"/> or <paramref name="accessToken"/> is not found.</exception>
+    /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    public async Task<DiscordMember?> AddMemberWithRolesAsync
+    (
+        DiscordUser user,
+        string accessToken,
+        IEnumerable<ulong> roles,
+        string? nickname = null,
+        bool muted = false,
+        bool deaf = false
+    )
+        => await this.Discord.ApiClient.AddGuildMemberAsync(this.Id, user.Id, accessToken, muted, deaf, nickname, roles);
+
+    /// <summary>
+    /// Adds a new member to this guild
+    /// </summary>
+    /// <param name="userId">The id of the User to add</param>
+    /// <param name="accessToken">User's access token (OAuth2)</param>
+    /// <param name="nickname">new nickname</param>
+    /// <param name="roles">Ids of roles to add to the new member.</param>
+    /// <param name="muted">whether this user has to be muted</param>
+    /// <param name="deaf">whether this user has to be deafened</param>
+    /// <returns>Only returns the member if they were not already in the guild</returns>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.CreateInstantInvite" /> permission.</exception>
+    /// <exception cref="NotFoundException">Thrown when the <paramref name="userId"/> or <paramref name="accessToken"/> is not found.</exception>
+    /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    public async Task<DiscordMember?> AddMemberWithRolesAsync
+    (
+        ulong userId,
+        string accessToken,
+        IEnumerable<ulong> roles,
+        string? nickname = null,
         bool muted = false,
         bool deaf = false
     )
         => await this.Discord.ApiClient.AddGuildMemberAsync(this.Id, userId, accessToken, muted, deaf, nickname, roles);
 
+        /// <summary>
+    /// Adds a new member to this guild
+    /// </summary>
+    /// <param name="user">User to add</param>
+    /// <param name="accessToken">User's access token (OAuth2)</param>
+    /// <param name="nickname">new nickname</param>
+    /// <param name="roles">Collection of roles to add to the new member.</param>
+    /// <param name="muted">whether this user has to be muted</param>
+    /// <param name="deaf">whether this user has to be deafened</param>
+    /// <returns>Only returns the member if they were not already in the guild</returns>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.CreateInstantInvite" /> permission.</exception>
+    /// <exception cref="NotFoundException">Thrown when the <paramref name="user"/> or <paramref name="accessToken"/> is not found.</exception>
+    /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    public async Task<DiscordMember?> AddMemberWithRolesAsync
+    (
+        DiscordUser user,
+        string accessToken,
+        IEnumerable<DiscordRole> roles,
+        string? nickname = null,
+        bool muted = false,
+        bool deaf = false
+    )
+        => await this.Discord.ApiClient.AddGuildMemberAsync(this.Id, user.Id, accessToken, muted, deaf, nickname, roles?.Select(x => x.Id));
+
+    /// <summary>
+    /// Adds a new member to this guild
+    /// </summary>
+    /// <param name="userId">The id of the User to add</param>
+    /// <param name="accessToken">User's access token (OAuth2)</param>
+    /// <param name="nickname">new nickname</param>
+    /// <param name="roles">Collection of roles to add to the new member.</param>
+    /// <param name="muted">whether this user has to be muted</param>
+    /// <param name="deaf">whether this user has to be deafened</param>
+    /// <returns>Only returns the member if they were not already in the guild</returns>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.CreateInstantInvite" /> permission.</exception>
+    /// <exception cref="NotFoundException">Thrown when the <paramref name="userId"/> or <paramref name="accessToken"/> is not found.</exception>
+    /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    public async Task<DiscordMember?> AddMemberWithRolesAsync
+    (
+        ulong userId,
+        string accessToken,
+        IEnumerable<DiscordRole> roles,
+        string? nickname = null,
+        bool muted = false,
+        bool deaf = false
+    )
+        => await this.Discord.ApiClient.AddGuildMemberAsync(this.Id, userId, accessToken, muted, deaf, nickname, roles?.Select(x => x.Id));
+    
     /// <summary>
     /// Deletes this guild. Requires the caller to be the owner of the guild.
     /// </summary>
