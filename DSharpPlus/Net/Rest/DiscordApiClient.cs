@@ -658,14 +658,14 @@ public sealed class DiscordApiClient
         bool? muted = null,
         bool? deafened = null,
         string? nick = null,
-        IEnumerable<DiscordRole>? roles = null
+        IEnumerable<ulong>? roles = null
     )
     {
         RestGuildMemberAddPayload payload = new()
         {
             AccessToken = accessToken,
             Nickname = nick ?? "",
-            Roles = roles ?? new List<DiscordRole>(),
+            Roles = roles ?? [],
             Deaf = deafened ?? false,
             Mute = muted ?? false
         };
