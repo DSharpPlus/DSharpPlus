@@ -939,7 +939,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     (
         DiscordUser user,
         string accessToken,
-        IEnumerable<ulong>? roles,
+        IEnumerable<ulong> roles,
         string? nickname = null,
         bool muted = false,
         bool deaf = false
@@ -964,7 +964,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     (
         ulong userId,
         string accessToken,
-        IEnumerable<ulong>? roles,
+        IEnumerable<ulong> roles,
         string? nickname = null,
         bool muted = false,
         bool deaf = false
@@ -989,7 +989,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     (
         DiscordUser user,
         string accessToken,
-        IEnumerable<DiscordRole>? roles,
+        IEnumerable<DiscordRole> roles,
         string? nickname = null,
         bool muted = false,
         bool deaf = false
@@ -1014,7 +1014,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     (
         ulong userId,
         string accessToken,
-        IEnumerable<DiscordRole>? roles,
+        IEnumerable<DiscordRole> roles,
         string? nickname = null,
         bool muted = false,
         bool deaf = false
