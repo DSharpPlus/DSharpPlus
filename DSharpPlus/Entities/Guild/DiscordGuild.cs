@@ -895,7 +895,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         string accessToken,
         string? nickname = null,
         IEnumerable<DiscordRole>? roles = null,
-        bool muted = false, bool deaf = false
+        bool muted = false, 
+        bool deaf = false
     )
         => await this.Discord.ApiClient.AddGuildMemberAsync(this.Id, user.Id, accessToken, muted, deaf, nickname, roles?.Select(x => x.Id));
 
@@ -944,7 +945,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         string accessToken,
         string? nickname = null,
         IEnumerable<ulong>? roles = null,
-        bool muted = false, bool deaf = false
+        bool muted = false,
+        bool deaf = false
     )
         => await this.Discord.ApiClient.AddGuildMemberAsync(this.Id, user.Id, accessToken, muted, deaf, nickname, roles);
 
