@@ -23,6 +23,11 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
     where TConverterContext : ConverterContext
     where TCommandContext : CommandContext
 {
+    /// <summary>
+    /// Serves as a sentinel type for attempted conversions.
+    /// </summary>
+    protected class ConverterSentinel;
+
     protected class LazyConverter
     {
         public required Type ParameterType { get; init; }
@@ -202,7 +207,13 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
             return null;
         }
 
-        Dictionary<CommandParameter, object?> parsedArguments = [];
+        Dictionary<CommandParameter, object?> parsedArguments = new(converterContext.Command.Parameters.Count);
+        
+        foreach (CommandParameter parameter in converterContext.Command.Parameters)
+        {
+            parsedArguments.Add(parameter, new ConverterSentinel());
+        }
+
         try
         {
             while (converterContext.NextParameter())
@@ -226,15 +237,15 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
                     return null;
                 }
 
-                parsedArguments.Add(converterContext.Parameter, optional.RawValue);
+                parsedArguments[converterContext.Parameter] = optional.RawValue;
             }
 
-            if (parsedArguments.Count != converterContext.Command.Parameters.Count)
+            if (parsedArguments.Any(x => x.Value is ConverterSentinel))
             {
                 // Try to fill with default values
                 foreach (CommandParameter parameter in converterContext.Command.Parameters)
                 {
-                    if (parsedArguments.ContainsKey(parameter))
+                    if (parsedArguments[parameter] is not ConverterSentinel)
                     {
                         continue;
                     }
@@ -251,7 +262,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
                         return null;
                     }
 
-                    parsedArguments.Add(parameter, parameter.DefaultValue.Value);
+                    parsedArguments[parameter] = parameter.DefaultValue.Value;
                 }
             }
         }
