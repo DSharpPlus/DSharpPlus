@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using DSharpPlus.Commands.Converters;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Trees;
@@ -30,7 +29,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     {
         await base.ConfigureAsync(extension);
 
-        Dictionary<string, Command> textCommands = new();
+        Dictionary<string, Command> textCommands = [];
 
         foreach (Command command in this.extension.GetCommandsForProcessor<TextCommandProcessor>())
         {
@@ -238,10 +237,14 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     (
         TextConverterContext converterContext,
         ITextArgumentConverter converter,
-        MessageCreateEventArgs eventArgs,
-        Func<ITextArgumentConverter, TextConverterContext, MessageCreateEventArgs, ValueTask<IOptional>> execute
+        MessageCreateEventArgs eventArgs
     )
-    {        
+    {   
+        if (converter is not ITextArgumentConverter<T> typedConverter)
+        {
+            throw new InvalidOperationException("The provided converter was of the wrong type.");
+        }
+
         if (!converterContext.NextArgument())
         {
             return converterContext.Parameter.DefaultValue.HasValue
@@ -250,14 +253,14 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         }
         else if (!converterContext.Parameter.Attributes.OfType<ParamArrayAttribute>().Any())
         {
-            return await execute(converter, converterContext, eventArgs);
+            return await typedConverter.ConvertAsync(converterContext, eventArgs);
         }
 
         List<T> values = [];
         
         do
         {
-            Optional<T> optional = (Optional<T>)await execute(converter, converterContext, eventArgs);
+            Optional<T> optional = await typedConverter.ConvertAsync(converterContext, eventArgs);
 
             if (!optional.HasValue)
             {

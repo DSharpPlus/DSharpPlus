@@ -310,7 +310,6 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
     (
         TConverterContext context,
         TConverter converter,
-        TEventArgs eventArgs,
-        Func<TConverter, TConverterContext, TEventArgs, ValueTask<IOptional>> execute
+        TEventArgs eventArgs
     );
 }

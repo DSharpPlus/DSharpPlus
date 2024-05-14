@@ -6,9 +6,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.ContextChecks;
-using DSharpPlus.Commands.Converters;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
@@ -18,6 +18,7 @@ using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -623,12 +624,37 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
     }
 
     /// <inheritdoc/>
-    protected override ValueTask<IOptional> ExecuteConverterAsync<T>
+    protected override async ValueTask<IOptional> ExecuteConverterAsync<T>
     (
-        InteractionConverterContext context,
+        InteractionConverterContext converterContext,
         ISlashArgumentConverter converter,
-        InteractionCreateEventArgs eventArgs,
-        Func<ISlashArgumentConverter, InteractionConverterContext, InteractionCreateEventArgs, ValueTask<IOptional>> execute
+        InteractionCreateEventArgs eventArgs
     )
-        => execute(converter, context, eventArgs);
+    {
+        if (converter is not ISlashArgumentConverter<T> typedConverter)
+        {
+            throw new InvalidOperationException("The provided converter was of the wrong type.");
+        }
+
+        if (!converterContext.Parameter.Attributes.OfType<ParamArrayAttribute>().Any())
+        {
+            return await typedConverter.ConvertAsync(converterContext, eventArgs);
+        }
+
+        List<T> values = [];
+
+        do
+        {
+            Optional<T> optional = await typedConverter.ConvertAsync(converterContext, eventArgs);
+
+            if (!optional.HasValue)
+            {
+                break;
+            }
+
+            values.Add(optional.Value);
+        } while (converterContext.NextParameter());
+
+        return Optional.FromValue(values.ToArray());
+    }
 }
