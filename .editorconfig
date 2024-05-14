@@ -3,6 +3,9 @@
 ###############################
 root = true
 
+[obsolete/*]
+generated_code = true
+
 # All files
 [*]
 tab_width = 4
