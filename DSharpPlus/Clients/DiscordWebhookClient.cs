@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
+using DSharpPlus.Logging;
 using DSharpPlus.Metrics;
 using DSharpPlus.Net;
 using Microsoft.Extensions.Logging;
@@ -69,7 +70,7 @@ public partial class DiscordWebhookClient
         if (loggerFactory == null)
         {
             loggerFactory = new DefaultLoggerFactory();
-            loggerFactory.AddProvider(new DefaultLoggerProvider(this));
+            loggerFactory.AddProvider(new DefaultLoggerProvider(minimumLogLevel));
         }
 
         this.Logger = loggerFactory.CreateLogger<DiscordWebhookClient>();

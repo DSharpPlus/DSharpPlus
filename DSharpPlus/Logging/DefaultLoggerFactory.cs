@@ -11,10 +11,12 @@ internal class DefaultLoggerFactory : ILoggerFactory
 
     public void AddProvider(ILoggerProvider provider) => this.Providers.Add(provider);
 
-    public ILogger CreateLogger(string categoryName) =>
-        this.isDisposed
+    public ILogger CreateLogger(string categoryName)
+    {
+        return this.isDisposed
             ? throw new InvalidOperationException("This logger factory is already disposed.")
             : new CompositeDefaultLogger(this.Providers);
+    }
 
     public void Dispose()
     {

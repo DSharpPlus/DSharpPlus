@@ -12,15 +12,13 @@ internal sealed class DefaultLogger : ILogger
     private readonly string name;
     private readonly LogLevel minimumLogLevel;
     private readonly object @lock = new();
+    private readonly string timestampFormat;
 
-    public DefaultLogger
-    (
-        string name,
-        LogLevel minimumLogLevel
-    )
+    public DefaultLogger(string name,LogLevel minimumLogLevel,string timestampFormat)
     {
         this.name = name;
         this.minimumLogLevel = minimumLogLevel;
+        this.timestampFormat = timestampFormat;
     }
 
     public IDisposable? BeginScope<TState>(TState state) 
@@ -51,7 +49,7 @@ internal sealed class DefaultLogger : ILogger
                 Console.ForegroundColor = ConsoleColor.Gray;
             }
 
-            Console.Write($"[{DateTimeOffset.UtcNow:yyyy-MM-dd HH:mm:ss}] [{this.name}]");
+            Console.Write($"[{DateTimeOffset.UtcNow.ToString(this.timestampFormat)}] [{this.name}] ");
 
             Console.ForegroundColor = logLevel switch
             {
