@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>DSharpPlus.SlashCommands</PackageId>
+    <Description>An extension for DSharpPlus to make slash commands easy</Description>
+    <PackageTags>$(PackageTags), commands, slash-commands, interactions</PackageTags>
+    <Authors>IDoEverything, Epictek, SakuraIsayeki, sssvt-drabek-stepan, tygore587, VelvetThePanda, OoLunar</Authors>
+    <IsPackable>true</IsPackable>
+    <NoWarn>CS0618</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(ProjectRoot)\DSharpPlus\DSharpPlus.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
+  </ItemGroup>
+</Project>
