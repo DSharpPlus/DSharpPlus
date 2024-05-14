@@ -23,6 +23,11 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
     where TConverterContext : ConverterContext
     where TCommandContext : CommandContext
 {
+    /// <summary>
+    /// Serves as a sentinel type for attempted conversions.
+    /// </summary>
+    protected class ConverterSentinel;
+
     protected class LazyConverter
     {
         public required Type ParameterType { get; init; }
@@ -42,7 +47,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
 
             MethodInfo executeConvertAsyncMethod = processor.GetType().GetMethod(nameof(ExecuteConverterAsync), BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConverterAsync)} does not exist");
             MethodInfo genericExecuteConvertAsyncMethod = executeConvertAsyncMethod.MakeGenericMethod(this.ParameterType) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConverterAsync)} does not exist");
-            return this.ConverterDelegate = (ConverterContext converterContext, TEventArgs eventArgs) => (Task<IOptional>)genericExecuteConvertAsyncMethod.Invoke(processor, [this.ConverterInstance, converterContext, eventArgs])!;
+            return this.ConverterDelegate = (ConverterContext converterContext, TEventArgs eventArgs) => (ValueTask<IOptional>)genericExecuteConvertAsyncMethod.Invoke(processor, [this.ConverterInstance, converterContext, eventArgs])!;
         }
 
         public TConverter GetConverter(IServiceProvider serviceProvider)
@@ -131,7 +136,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
     protected CommandsExtension? extension;
     protected ILogger<BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext>> logger = NullLogger<BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext>>.Instance;
 
-    private static readonly Action<ILogger, string, Exception?> FailedConverterCreation = LoggerMessage.Define<string>(LogLevel.Error, new EventId(1), "Failed to create instance of converter '{FullName}' due to a lack of empty public constructors, lack of a service provider, or lack of services within the service provider.");
+    private static readonly Action<ILogger, string, Exception?> failedConverterCreation = LoggerMessage.Define<string>(LogLevel.Error, new EventId(1), "Failed to create instance of converter '{FullName}' due to a lack of empty public constructors, lack of a service provider, or lack of services within the service provider.");
 
     public virtual void AddConverter<T>(TConverter converter) => AddConverter(typeof(T), converter);
     public virtual void AddConverter(Type type, TConverter converter) => AddConverter(new() { ParameterType = type, ConverterInstance = converter });
@@ -202,12 +207,24 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
             return null;
         }
 
-        Dictionary<CommandParameter, object?> parsedArguments = [];
+        Dictionary<CommandParameter, object?> parsedArguments = new(converterContext.Command.Parameters.Count);
+        
+        foreach (CommandParameter parameter in converterContext.Command.Parameters)
+        {
+            parsedArguments.Add(parameter, new ConverterSentinel());
+        }
+
         try
         {
             while (converterContext.NextParameter())
             {
+                if (converterContext.Argument is null)
+                {
+                    continue;
+                }
+
                 IOptional optional = await this.ConverterDelegates[GetConverterFriendlyBaseType(converterContext.Parameter.Type)](converterContext, eventArgs);
+                
                 if (!optional.HasValue)
                 {
                     await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
@@ -220,38 +237,19 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
                     return null;
                 }
 
-                parsedArguments.Add(converterContext.Parameter, optional.RawValue);
+                parsedArguments[converterContext.Parameter] = optional.RawValue;
             }
 
-            if (parsedArguments.Count == 0)
-            {
-                foreach (CommandParameter parameter in converterContext.Command.Parameters)
-                {
-                    if (!parameter.DefaultValue.HasValue)
-                    {
-                        await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
-                        {
-                            Context = CreateCommandContext(converterContext, eventArgs, parsedArguments),
-                            Exception = new ArgumentParseException(converterContext.Parameter, null, $"Not enough argument data to parse {converterContext.Parameter.Name}."),
-                            CommandObject = null
-                        });
-
-                        return null;
-                    }
-
-                    parsedArguments.Add
-                    (
-                        parameter,
-                        parameter.DefaultValue.Value
-                    );
-                }
-            }
-
-            if (parsedArguments.Count != converterContext.Command.Parameters.Count)
+            if (parsedArguments.Any(x => x.Value is ConverterSentinel))
             {
                 // Try to fill with default values
-                foreach (CommandParameter parameter in converterContext.Command.Parameters.Skip(parsedArguments.Count))
+                foreach (CommandParameter parameter in converterContext.Command.Parameters)
                 {
+                    if (parsedArguments[parameter] is not ConverterSentinel)
+                    {
+                        continue;
+                    }
+
                     if (!parameter.DefaultValue.HasValue)
                     {
                         await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
@@ -264,7 +262,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
                         return null;
                     }
 
-                    parsedArguments.Add(parameter, parameter.DefaultValue.Value);
+                    parsedArguments[parameter] = parameter.DefaultValue.Value;
                 }
             }
         }
@@ -303,31 +301,13 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
         return effectiveType;
     }
 
-    protected virtual async Task<IOptional> ExecuteConverterAsync<T>(TConverter converter, TConverterContext converterContext, TEventArgs eventArgs)
-    {
-        IArgumentConverter<TConverterContext, TEventArgs, T> strongConverter = (IArgumentConverter<TConverterContext, TEventArgs, T>)converter;
-        if (!converterContext.NextArgument())
-        {
-            return converterContext.Parameter.DefaultValue.HasValue
-                ? Optional.FromValue(converterContext.Parameter.DefaultValue.Value)
-                : throw new ArgumentParseException(converterContext.Parameter, message: $"Missing argument for {converterContext.Parameter.Name}.");
-        }
-        else if (!converterContext.Parameter.Attributes.OfType<ParamArrayAttribute>().Any())
-        {
-            return await strongConverter.ConvertAsync(converterContext, eventArgs);
-        }
-
-        List<T> values = [];
-        do
-        {
-            Optional<T> optional = await strongConverter.ConvertAsync(converterContext, eventArgs);
-            if (!optional.HasValue)
-            {
-                break;
-            }
-
-            values.Add(optional.Value);
-        } while (converterContext.NextArgument());
-        return Optional.FromValue(values.ToArray());
-    }
+    /// <summary>
+    /// Executes an argument converter on the specified context.
+    /// </summary>
+    protected abstract ValueTask<IOptional> ExecuteConverterAsync<T>
+    (
+        TConverter converter,
+        TConverterContext context,
+        TEventArgs eventArgs
+    );
 }

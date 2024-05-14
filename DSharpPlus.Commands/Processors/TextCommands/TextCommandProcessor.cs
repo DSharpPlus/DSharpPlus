@@ -3,11 +3,14 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Commands.Processors.TextCommands;
@@ -26,7 +29,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     {
         await base.ConfigureAsync(extension);
 
-        Dictionary<string, Command> textCommands = new();
+        Dictionary<string, Command> textCommands = [];
 
         foreach (Command command in this.extension.GetCommandsForProcessor<TextCommandProcessor>())
         {
@@ -227,5 +230,46 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             ServiceScope = converterContext.ServiceScope,
             User = eventArgs.Author
         };
+    }
+
+    /// <inheritdoc/>
+    protected override async ValueTask<IOptional> ExecuteConverterAsync<T>
+    (
+        ITextArgumentConverter converter,
+        TextConverterContext converterContext,
+        MessageCreateEventArgs eventArgs
+    )
+    {   
+        if (converter is not ITextArgumentConverter<T> typedConverter)
+        {
+            throw new InvalidOperationException("The provided converter was of the wrong type.");
+        }
+
+        if (!converterContext.NextArgument())
+        {
+            return converterContext.Parameter.DefaultValue.HasValue
+                ? Optional.FromValue(converterContext.Parameter.DefaultValue.Value)
+                : throw new ArgumentParseException(converterContext.Parameter, message: $"Missing argument for {converterContext.Parameter.Name}.");
+        }
+        else if (!converterContext.Parameter.Attributes.OfType<ParamArrayAttribute>().Any())
+        {
+            return await typedConverter.ConvertAsync(converterContext, eventArgs);
+        }
+
+        List<T> values = [];
+        
+        do
+        {
+            Optional<T> optional = await typedConverter.ConvertAsync(converterContext, eventArgs);
+
+            if (!optional.HasValue)
+            {
+                break;
+            }
+
+            values.Add(optional.Value);
+        } while (converterContext.NextArgument());
+
+        return Optional.FromValue(values.ToArray());
     }
 }

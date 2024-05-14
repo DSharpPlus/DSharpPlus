@@ -11,7 +11,7 @@ public record TextConverterContext : ConverterContext
     public int CurrentArgumentIndex { get; private set; }
     public int NextArgumentIndex { get; private set; }
 
-    public override bool NextArgument()
+    public bool NextArgument()
     {
         if (this.NextArgumentIndex >= this.RawArguments.Length || this.NextArgumentIndex == -1)
         {
