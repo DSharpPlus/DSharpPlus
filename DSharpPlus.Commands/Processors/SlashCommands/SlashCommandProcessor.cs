@@ -626,8 +626,8 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
     /// <inheritdoc/>
     protected override async ValueTask<IOptional> ExecuteConverterAsync<T>
     (
-        InteractionConverterContext converterContext,
         ISlashArgumentConverter converter,
+        InteractionConverterContext converterContext,
         InteractionCreateEventArgs eventArgs
     )
     {

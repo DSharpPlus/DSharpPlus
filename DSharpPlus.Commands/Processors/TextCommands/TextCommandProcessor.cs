@@ -235,8 +235,8 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     /// <inheritdoc/>
     protected override async ValueTask<IOptional> ExecuteConverterAsync<T>
     (
-        TextConverterContext converterContext,
         ITextArgumentConverter converter,
+        TextConverterContext converterContext,
         MessageCreateEventArgs eventArgs
     )
     {   

@@ -42,7 +42,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
 
             MethodInfo executeConvertAsyncMethod = processor.GetType().GetMethod(nameof(ExecuteConverterAsync), BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConverterAsync)} does not exist");
             MethodInfo genericExecuteConvertAsyncMethod = executeConvertAsyncMethod.MakeGenericMethod(this.ParameterType) ?? throw new InvalidOperationException($"Method {nameof(ExecuteConverterAsync)} does not exist");
-            return this.ConverterDelegate = (ConverterContext converterContext, TEventArgs eventArgs) => (Task<IOptional>)genericExecuteConvertAsyncMethod.Invoke(processor, [this.ConverterInstance, converterContext, eventArgs])!;
+            return this.ConverterDelegate = (ConverterContext converterContext, TEventArgs eventArgs) => (ValueTask<IOptional>)genericExecuteConvertAsyncMethod.Invoke(processor, [this.ConverterInstance, converterContext, eventArgs])!;
         }
 
         public TConverter GetConverter(IServiceProvider serviceProvider)
@@ -207,7 +207,13 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
         {
             while (converterContext.NextParameter())
             {
+                if (converterContext.Argument is null)
+                {
+                    continue;
+                }
+
                 IOptional optional = await this.ConverterDelegates[GetConverterFriendlyBaseType(converterContext.Parameter.Type)](converterContext, eventArgs);
+                
                 if (!optional.HasValue)
                 {
                     await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
@@ -223,35 +229,16 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
                 parsedArguments.Add(converterContext.Parameter, optional.RawValue);
             }
 
-            if (parsedArguments.Count == 0)
-            {
-                foreach (CommandParameter parameter in converterContext.Command.Parameters)
-                {
-                    if (!parameter.DefaultValue.HasValue)
-                    {
-                        await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
-                        {
-                            Context = CreateCommandContext(converterContext, eventArgs, parsedArguments),
-                            Exception = new ArgumentParseException(converterContext.Parameter, null, $"Not enough argument data to parse {converterContext.Parameter.Name}."),
-                            CommandObject = null
-                        });
-
-                        return null;
-                    }
-
-                    parsedArguments.Add
-                    (
-                        parameter,
-                        parameter.DefaultValue.Value
-                    );
-                }
-            }
-
             if (parsedArguments.Count != converterContext.Command.Parameters.Count)
             {
                 // Try to fill with default values
-                foreach (CommandParameter parameter in converterContext.Command.Parameters.Skip(parsedArguments.Count))
+                foreach (CommandParameter parameter in converterContext.Command.Parameters)
                 {
+                    if (parsedArguments.ContainsKey(parameter))
+                    {
+                        continue;
+                    }
+
                     if (!parameter.DefaultValue.HasValue)
                     {
                         await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
@@ -308,8 +295,8 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
     /// </summary>
     protected abstract ValueTask<IOptional> ExecuteConverterAsync<T>
     (
-        TConverterContext context,
         TConverter converter,
+        TConverterContext context,
         TEventArgs eventArgs
     );
 }
