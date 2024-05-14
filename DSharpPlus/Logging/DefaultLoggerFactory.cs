@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 
-namespace DSharpPlus;
+namespace DSharpPlus.Logging;
 
 internal class DefaultLoggerFactory : ILoggerFactory
 {

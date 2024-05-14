@@ -1,34 +1,37 @@
 using System;
+using System.Collections.Concurrent;
+
 using Microsoft.Extensions.Logging;
 
-namespace DSharpPlus;
+namespace DSharpPlus.Logging;
 
 internal class DefaultLoggerProvider : ILoggerProvider
 {
-    private LogLevel MinimumLevel { get; }
-    private string TimestampFormat { get; }
+    private readonly ConcurrentDictionary<string, DefaultLogger> loggers = new(StringComparer.Ordinal);
+    private readonly LogLevel minimum;
 
-    private bool isDisposed = false;
+    public DefaultLoggerProvider(LogLevel minimum)
+        => this.minimum = minimum;
 
-    internal DefaultLoggerProvider(BaseDiscordClient client)
-        : this(client.Configuration.MinimumLogLevel, client.Configuration.LogTimestampFormat)
-    { }
-
-    internal DefaultLoggerProvider(DiscordWebhookClient client)
-        : this(client.minimumLogLevel, client.logTimestampFormat)
-    { }
-
-    internal DefaultLoggerProvider(LogLevel minLevel = LogLevel.Information, string timestampFormat = "yyyy-MM-dd HH:mm:ss zzz")
+    /// <inheritdoc/>
+    public ILogger CreateLogger(string categoryName)
     {
-        this.MinimumLevel = minLevel;
-        this.TimestampFormat = timestampFormat;
+        if (this.loggers.TryGetValue(categoryName, out DefaultLogger? value))
+        {
+            return value;
+        }
+        else
+        {
+            DefaultLogger logger = new(categoryName, this.minimum);
+
+            return this.loggers.AddOrUpdate
+            (
+                categoryName,
+                logger,
+                (_, _) => logger
+            );
+        }
     }
 
-    public ILogger CreateLogger(string categoryName) => this.isDisposed
-            ? throw new InvalidOperationException("This logger provider is already disposed.")
-            : (ILogger)(categoryName != typeof(BaseDiscordClient).FullName && categoryName != typeof(DiscordWebhookClient).FullName
-            ? throw new ArgumentException($"This provider can only provide instances of loggers for {typeof(BaseDiscordClient).FullName} or {typeof(DiscordWebhookClient).FullName}.", nameof(categoryName))
-            : new DefaultLogger(this.MinimumLevel, this.TimestampFormat));
-
-    public void Dispose() => this.isDisposed = true;
+    public void Dispose() { }
 }
