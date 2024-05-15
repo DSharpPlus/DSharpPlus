@@ -1577,11 +1577,6 @@ public sealed partial class DiscordClient
         PopulateMessageReactionsAndCache(message, author, member);
         message.PopulateMentions();
 
-        if (message.Channel == null && message.ChannelId == default)
-        {
-            this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Channel which the last message belongs to is not in cache - cache state might be invalid!");
-        }
-
         if (message.ReferencedMessage != null)
         {
             message.ReferencedMessage.Discord = this;
@@ -1691,7 +1686,6 @@ public sealed partial class DiscordClient
         {
             msg = new DiscordMessage
             {
-
                 Id = messageId,
                 ChannelId = channelId,
                 Discord = this,
