@@ -27,7 +27,7 @@ public partial class CommandParameterBuilder
             throw new ArgumentNullException(nameof(name), "The name of the command cannot be null or whitespace.");
         }
 
-        if (!this.Attributes.Any(x => x is SnakeCasedNameAttribute) && name != name.ToLowerInvariant())
+        if (!this.Attributes.Any(x => x is SnakeCasedNameAttribute))
         {
             this.Attributes.Add(new SnakeCasedNameAttribute(SlashCommandProcessor.ToSnakeCase(name)));
         }
