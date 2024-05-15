@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using DSharpPlus.Commands.Converters;
+using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Commands.Processors.SlashCommands;
@@ -24,8 +25,14 @@ public record InteractionConverterContext : ConverterContext
     /// <summary>
     /// The current argument to convert.
     /// </summary>
-    public override DiscordInteractionDataOption? Argument 
-        => this.Options.SingleOrDefault(x => x.Name == this.Parameter.Name);
+    public override DiscordInteractionDataOption? Argument
+    {
+        get
+        {
+            SnakeCasedNameAttribute attribute = this.Parameter.Attributes.OfType<SnakeCasedNameAttribute>().Single();
+            return this.Options.SingleOrDefault(x => x.Name == attribute.Name);
+        }
+    }
 
     /// <inheritdoc/>
     public override bool NextParameter() 

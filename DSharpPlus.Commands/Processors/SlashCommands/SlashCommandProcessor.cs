@@ -604,7 +604,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         };
     }
 
-    private static string ToSnakeCase(ReadOnlySpan<char> str)
+    internal static string ToSnakeCase(ReadOnlySpan<char> str)
     {
         StringBuilder stringBuilder = new();
         for (int i = 0; i < str.Length; i++)
