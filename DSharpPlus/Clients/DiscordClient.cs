@@ -942,7 +942,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
     #region Internal Caching Methods
 
-    internal DiscordThreadChannel InternalGetCachedThread(ulong threadId)
+    internal DiscordThreadChannel? InternalGetCachedThread(ulong threadId)
     {
         foreach (DiscordGuild guild in this.Guilds.Values)
         {
@@ -1021,6 +1021,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 GuildId = guild.Id,
                 Discord = this
             };
+        
+        UpdateChannelCache(channel);
 
         message.Channel = channel;
     }
