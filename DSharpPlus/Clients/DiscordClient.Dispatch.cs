@@ -449,6 +449,7 @@ public sealed partial class DiscordClient
                 if (rawChannel is not null)
                 {
                     channel = rawChannel.ToDiscordObject<DiscordChannel>();
+                    channel.Discord = this;
                 }
 
                 // Re: Removing re-serialized data: This one is probably fine?
@@ -2518,9 +2519,8 @@ public sealed partial class DiscordClient
             {
                 foreach (KeyValuePair<ulong, DiscordChannel> c in resolved.Channels)
                 {
-                    UpdateChannelCache(c.Value);
                     c.Value.Discord = this;
-
+                    UpdateChannelCache(c.Value);
                     if (guildId.HasValue)
                     {
                         c.Value.GuildId = guildId.Value;
