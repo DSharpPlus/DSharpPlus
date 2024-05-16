@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Logging;
 using DSharpPlus.Net;
 using Microsoft.Extensions.Logging;
 
@@ -90,6 +91,7 @@ public sealed partial class DiscordShardedClient
             this.Configuration.LoggerFactory = new DefaultLoggerFactory();
             this.Configuration.LoggerFactory.AddProvider(new DefaultLoggerProvider(this.Configuration.MinimumLogLevel, this.Configuration.LogTimestampFormat));
         }
+
         this.Logger = this.Configuration.LoggerFactory.CreateLogger<BaseDiscordClient>();
     }
 

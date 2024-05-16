@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using DSharpPlus.Logging;
 using DSharpPlus.Metrics;
 using DSharpPlus.Net;
 using Microsoft.Extensions.Logging;
@@ -75,8 +76,9 @@ public abstract class BaseDiscordClient : IDisposable
         if (this.Configuration.LoggerFactory == null)
         {
             this.Configuration.LoggerFactory = new DefaultLoggerFactory();
-            this.Configuration.LoggerFactory.AddProvider(new DefaultLoggerProvider(this));
+            this.Configuration.LoggerFactory.AddProvider(new DefaultLoggerProvider(config.MinimumLogLevel));
         }
+
         this.Logger = this.Configuration.LoggerFactory.CreateLogger<BaseDiscordClient>();
 
         this.ApiClient = new DiscordApiClient(this, rest_client);
