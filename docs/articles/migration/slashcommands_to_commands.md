@@ -7,13 +7,16 @@ title: DSharpPlus.SlashCommands to DSharpPlus.Commands
 
 This section will focus on migrating existing code - there is a rough sketch of what to expect in new code at the end.
 
+> [!NOTE]
+> This setup will register commands to both slash and text commands. If you want to use only slash commands, either disable the text command processor or mark your commands with `[AllowedProcessors(typeof(SlashCommandProcessor))]`.
+
 Before migrating to the shiny new command farmework, you should make sure to update to the latest available build of the library - migrating both at once will be considerably more challenging. Then, we'll need to do some setup.
 
 Remove the SlashCommands reference and install the package. Then, set up a [service collection](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection) containing all services your commands need, as well as a logger. Then, call `BuildServiceProvider()` to obtain a service provider.
 
 At the very least, you will need the following:
 ```cs
-IServiceProvider serviceProvider = new ServiceCollection().AddLogging().BuildServiceProvider();
+IServiceProvider serviceProvider = new ServiceCollection().AddLogging(x => x.AddConsole()).BuildServiceProvider();
 ```
 
 > [!IMPORTANT]
