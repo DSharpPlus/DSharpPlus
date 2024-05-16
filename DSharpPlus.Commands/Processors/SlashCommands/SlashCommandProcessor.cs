@@ -520,8 +520,13 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             // Parse until we find the parameter that the user is currently typing
             while (converterContext.NextParameter())
             {
-                //TODO: Change this comparison to use StringComparison.Ordinal once the automatic conversion to snake_case is no longer applied.
-                DiscordInteractionDataOption? option = converterContext.Options.FirstOrDefault(x => x.Name.Equals(converterContext.Parameter.Name, StringComparison.OrdinalIgnoreCase));
+                SnakeCasedNameAttribute attribute = converterContext.Parameter.Attributes
+                    .OfType<SnakeCasedNameAttribute>()
+                    .Single();
+
+                DiscordInteractionDataOption? option = converterContext.Options
+                    .FirstOrDefault(x => x.Name.Equals(attribute.Name, StringComparison.OrdinalIgnoreCase));
+                
                 if (option is null)
                 {
                     continue;
@@ -535,6 +540,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                 }
 
                 IOptional optional = await this.ConverterDelegates[GetConverterFriendlyBaseType(converterContext.Parameter.Type)](converterContext, eventArgs);
+                
                 parsedArguments.Add(converterContext.Parameter, optional.HasValue
                     ? optional.RawValue
                     : converterContext.Parameter.DefaultValue
