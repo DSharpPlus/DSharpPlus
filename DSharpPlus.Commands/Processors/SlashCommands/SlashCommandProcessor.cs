@@ -663,4 +663,90 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
         return Optional.FromValue(values.ToArray());
     }
+
+    /// <inheritdoc/>
+    public override async ValueTask<SlashCommandContext?> ParseArgumentsAsync
+    (
+        InteractionConverterContext converterContext,
+        InteractionCreateEventArgs eventArgs
+    )
+    {
+        if (this.extension is null)
+        {
+            return null;
+        }
+
+        Dictionary<CommandParameter, object?> parsedArguments = new(converterContext.Command.Parameters.Count);
+
+        foreach (CommandParameter parameter in converterContext.Command.Parameters)
+        {
+            parsedArguments.Add(parameter, new ConverterSentinel());
+        }
+
+        try
+        {
+            while (converterContext.NextParameter())
+            {
+                if (converterContext.Argument is null)
+                {
+                    continue;
+                }
+
+                IOptional optional = await this.ConverterDelegates[GetConverterFriendlyBaseType(converterContext.Parameter.Type)](converterContext, eventArgs);
+
+                if (!optional.HasValue)
+                {
+                    await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
+                    {
+                        Context = CreateCommandContext(converterContext, eventArgs, parsedArguments),
+                        Exception = new ArgumentParseException(converterContext.Parameter, null, $"Argument Converter for type {converterContext.Parameter.Type.FullName} was unable to parse the argument."),
+                        CommandObject = null
+                    });
+
+                    return null;
+                }
+
+                parsedArguments[converterContext.Parameter] = optional.RawValue;
+            }
+
+            if (parsedArguments.Any(x => x.Value is ConverterSentinel))
+            {
+                // Try to fill with default values
+                foreach (CommandParameter parameter in converterContext.Command.Parameters)
+                {
+                    if (parsedArguments[parameter] is not ConverterSentinel)
+                    {
+                        continue;
+                    }
+
+                    if (!parameter.DefaultValue.HasValue)
+                    {
+                        await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
+                        {
+                            Context = CreateCommandContext(converterContext, eventArgs, parsedArguments),
+                            Exception = new ArgumentParseException(converterContext.Parameter, null, "No value was provided for this parameter."),
+                            CommandObject = null
+                        });
+
+                        return null;
+                    }
+
+                    parsedArguments[parameter] = parameter.DefaultValue.Value;
+                }
+            }
+        }
+        catch (Exception error)
+        {
+            await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
+            {
+                Context = CreateCommandContext(converterContext, eventArgs, parsedArguments),
+                Exception = new ArgumentParseException(converterContext.Parameter, error),
+                CommandObject = null
+            });
+
+            return null;
+        }
+
+        return CreateCommandContext(converterContext, eventArgs, parsedArguments);
+    }
 }

@@ -200,86 +200,13 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
         return default;
     }
 
-    public virtual async ValueTask<TCommandContext?> ParseArgumentsAsync(TConverterContext converterContext, TEventArgs eventArgs)
-    {
-        if (this.extension is null)
-        {
-            return null;
-        }
-
-        Dictionary<CommandParameter, object?> parsedArguments = new(converterContext.Command.Parameters.Count);
-        
-        foreach (CommandParameter parameter in converterContext.Command.Parameters)
-        {
-            parsedArguments.Add(parameter, new ConverterSentinel());
-        }
-
-        try
-        {
-            while (converterContext.NextParameter())
-            {
-                if (converterContext.Argument is null)
-                {
-                    continue;
-                }
-
-                IOptional optional = await this.ConverterDelegates[GetConverterFriendlyBaseType(converterContext.Parameter.Type)](converterContext, eventArgs);
-                
-                if (!optional.HasValue)
-                {
-                    await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
-                    {
-                        Context = CreateCommandContext(converterContext, eventArgs, parsedArguments),
-                        Exception = new ArgumentParseException(converterContext.Parameter, null, $"Argument Converter for type {converterContext.Parameter.Type.FullName} was unable to parse the argument."),
-                        CommandObject = null
-                    });
-
-                    return null;
-                }
-
-                parsedArguments[converterContext.Parameter] = optional.RawValue;
-            }
-
-            if (parsedArguments.Any(x => x.Value is ConverterSentinel))
-            {
-                // Try to fill with default values
-                foreach (CommandParameter parameter in converterContext.Command.Parameters)
-                {
-                    if (parsedArguments[parameter] is not ConverterSentinel)
-                    {
-                        continue;
-                    }
-
-                    if (!parameter.DefaultValue.HasValue)
-                    {
-                        await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
-                        {
-                            Context = CreateCommandContext(converterContext, eventArgs, parsedArguments),
-                            Exception = new ArgumentParseException(converterContext.Parameter, null, "No value was provided for this parameter."),
-                            CommandObject = null
-                        });
-
-                        return null;
-                    }
-
-                    parsedArguments[parameter] = parameter.DefaultValue.Value;
-                }
-            }
-        }
-        catch (Exception error)
-        {
-            await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
-            {
-                Context = CreateCommandContext(converterContext, eventArgs, parsedArguments),
-                Exception = new ArgumentParseException(converterContext.Parameter, error),
-                CommandObject = null
-            });
-
-            return null;
-        }
-
-        return CreateCommandContext(converterContext, eventArgs, parsedArguments);
-    }
+    /// <summary>
+    /// Parses the arguments provided to the command and returns a prepared command context.
+    /// </summary>
+    /// <param name="converterContext">The context used for the argument converters.</param>
+    /// <param name="eventArgs">The event args that sparked this command.</param>
+    /// <returns>The prepared CommandContext.</returns>
+    public abstract ValueTask<TCommandContext?> ParseArgumentsAsync(TConverterContext converterContext, TEventArgs eventArgs);
 
     public abstract TCommandContext CreateCommandContext(TConverterContext converterContext, TEventArgs eventArgs, Dictionary<CommandParameter, object?> parsedArguments);
 
