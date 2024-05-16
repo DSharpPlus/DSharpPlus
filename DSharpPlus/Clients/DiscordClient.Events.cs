@@ -672,8 +672,7 @@ public sealed partial class DiscordClient
     /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     /// <remarks>
-    /// This event is primarily documented for completeness and is not fired every time
-    /// in DM channels where no prior messages have been received or sent.
+    /// This event is primarily implemented for completeness and unlikely to be useful to bots.
     /// </remarks>
     public event AsyncEventHandler<DiscordClient, ThreadMemberUpdateEventArgs> ThreadMemberUpdated
     {
