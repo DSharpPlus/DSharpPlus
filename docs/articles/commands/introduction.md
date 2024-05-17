@@ -74,7 +74,7 @@ serviceCollection.AddSingleton(_ =>
 });
 ```
 
-And when your program actually~~~~ starts, you'll want to register the command framework:
+And when your program actually starts, you'll want to register the command framework:
 
 ```cs
 DiscordClient discordClient = serviceProvider.GetRequiredService<DiscordClient>();
