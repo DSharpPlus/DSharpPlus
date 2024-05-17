@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Builders;
@@ -15,6 +16,7 @@ using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.CommandsNext.Executors;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -38,7 +40,7 @@ public class CommandsNextExtension : BaseExtension
     /// Gets the service provider this CommandsNext module was configured with.
     /// </summary>
     public IServiceProvider Services
-        => this.Config.Services;
+        => this.Client.ServiceProvider;
 
     internal CommandsNextExtension(CommandsNextConfiguration cfg)
     {

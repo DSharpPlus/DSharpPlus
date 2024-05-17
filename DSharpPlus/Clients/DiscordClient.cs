@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
@@ -15,7 +16,9 @@ using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
+
 using Microsoft.Extensions.Logging;
+
 using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus;
@@ -38,6 +41,11 @@ public sealed partial class DiscordClient : BaseDiscordClient
     #endregion
 
     #region Public Fields/Properties
+    /// <summary>
+    /// Gets the service provider used within this Discord application.
+    /// </summary>
+    public IServiceProvider ServiceProvider { get; internal set; }
+
     /// <summary>
     /// Gets the gateway protocol version.
     /// </summary>

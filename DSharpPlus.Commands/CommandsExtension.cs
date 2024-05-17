@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
@@ -23,9 +24,11 @@ using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+
 using CheckFunc = System.Func
 <
     object,
@@ -33,6 +36,7 @@ using CheckFunc = System.Func
     DSharpPlus.Commands.CommandContext,
     System.Threading.Tasks.ValueTask<string?>
 >;
+
 using ParameterCheckFunc = System.Func
 <
     object,
@@ -49,8 +53,8 @@ namespace DSharpPlus.Commands;
 /// </summary>
 public sealed class CommandsExtension : BaseExtension
 {
-    /// <inheritdoc cref="CommandsConfiguration.ServiceProvider"/>
-    public IServiceProvider ServiceProvider { get; init; }
+    /// <inheritdoc cref="DiscordClient.ServiceProvider"/>
+    public IServiceProvider ServiceProvider { get; private set; }
 
     /// <inheritdoc cref="CommandsConfiguration.DebugGuildId"/>
     public ulong DebugGuildId { get; init; }
@@ -106,7 +110,6 @@ public sealed class CommandsExtension : BaseExtension
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        this.ServiceProvider = configuration.ServiceProvider;
         this.DebugGuildId = configuration.DebugGuildId;
         this.UseDefaultCommandErrorHandler = configuration.UseDefaultCommandErrorHandler;
         this.RegisterDefaultCommandProcessors = configuration.RegisterDefaultCommandProcessors;
@@ -136,6 +139,7 @@ public sealed class CommandsExtension : BaseExtension
         }
 
         this.Client = client;
+        this.ServiceProvider = client.ServiceProvider;
         this.Client.SessionCreated += async (_, _) => await RefreshAsync();
 
         AddCheck<DirectMessageUsageCheck>();
