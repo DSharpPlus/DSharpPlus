@@ -40,13 +40,13 @@ public async Task Main(string[] args)
     commandsExtension.AddCommands(typeof(Program).Assembly);
     TextCommandProcessor textCommandProcessor = new(new()
     {
-            // By default, the prefix will be "!"
-            // However the bot will *always* respond to a direct mention
-            // as long as the `DefaultPrefixResolver` is used
-            PrefixResolver = new DefaultPrefixResolver("?").ResolvePrefixAsync
+        // By default, the prefix will be "!"
+        // However the bot will *always* respond to a direct mention
+        // as long as the `DefaultPrefixResolver` is used
+        PrefixResolver = new DefaultPrefixResolver("?").ResolvePrefixAsync
     });
 
-        // Add text commands with a custom prefix (?ping)
+    // Add text commands with a custom prefix (?ping)
     await commandsExtension.AddProcessorsAsync(textCommandProcessor);
 }
 ```
@@ -92,14 +92,14 @@ CommandsExtension commandsExtensions = await discordClient.UseCommandsAsync(new 
 commandsExtension.AddCommands(typeof(Program).Assembly);
 TextCommandProcessor textCommandProcessor = new(new()
 {
-      // By default, the prefix will be "!"
-     // However the bot will *always* respond to a direct mention
-     // as long as the `DefaultPrefixResolver` is used
-     PrefixResolver = new DefaultPrefixResolver("?").ResolvePrefixAsync
+    // By default, the prefix will be "!"
+    // However the bot will *always* respond to a direct mention
+    // as long as the `DefaultPrefixResolver` is used
+    PrefixResolver = new DefaultPrefixResolver("?").ResolvePrefixAsync
 });
 
-        // Add text commands with a custom prefix (?ping)
-    await commandsExtension.AddProcessorsAsync(textCommandProcessor);
+// Add text commands with a custom prefix (?ping)
+await commandsExtension.AddProcessorsAsync(textCommandProcessor);
 
 ```
 
