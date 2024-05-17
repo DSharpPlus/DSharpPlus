@@ -125,6 +125,9 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// Initializes a new instance of DiscordClient.
     /// </summary>
     /// <param name="config">Specifies configuration parameters.</param>
+    [Obsolete("Directly creating a DiscordClient is obsolete functionality and will be removed. " +
+        "Please use DiscordClientBuilder or more advanced IServiceCollection-based setup instead.",
+        DiagnosticId = "DSP0002")]
     public DiscordClient(DiscordConfiguration config)
         : base(config)
     {
