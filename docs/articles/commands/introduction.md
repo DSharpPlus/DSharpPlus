@@ -21,14 +21,14 @@ public async Task Main(string[] args)
         Environment.Exit(1);
     }
 
-    DiscordShardedClient discordClient = new(new DiscordConfiguration()
+    DiscordClient discordClient = new(new DiscordConfiguration()
     {
         Token = discordToken,
         Intents = TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents
     });
 
     // Use the commands extension
-    IReadOnlyDictionary<int, CommandsExtension> commandsExtensions = await discordClient.UseCommandsAsync(new CommandsConfiguration()
+    CommandsExtension commandsExtension = await discordClient.UseCommandsAsync(new CommandsConfiguration()
     {
         ServiceProvider = serviceProvider,
         DebugGuildId = Environment.GetEnvironmentVariable("DEBUG_GUILD_ID") ?? 0,
@@ -36,22 +36,18 @@ public async Task Main(string[] args)
         RegisterDefaultCommandProcessors = true
     });
 
-    // Iterate through each Discord shard
-    foreach (CommandsExtension commandsExtension in commandsExtensions.Values)
+    // Add all commands by scanning the current assembly
+    commandsExtension.AddCommands(typeof(Program).Assembly);
+    TextCommandProcessor textCommandProcessor = new(new()
     {
-        // Add all commands by scanning the current assembly
-        commandsExtension.AddCommands(typeof(Program).Assembly);
-        TextCommandProcessor textCommandProcessor = new(new()
-        {
             // By default, the prefix will be "!"
             // However the bot will *always* respond to a direct mention
             // as long as the `DefaultPrefixResolver` is used
             PrefixResolver = new DefaultPrefixResolver("?").ResolvePrefixAsync
-        });
+    });
 
         // Add text commands with a custom prefix (?ping)
-        await commandsExtension.AddProcessorsAsync(textCommandProcessor);
-    }
+    await commandsExtension.AddProcessorsAsync(textCommandProcessor);
 }
 ```
 
@@ -68,7 +64,7 @@ serviceCollection.AddSingleton(_ =>
         Environment.Exit(1);
     }
 
-    DiscordShardedClient discordClient = new(new DiscordConfiguration()
+    DiscordClient discordClient = new(new DiscordConfiguration()
     {
         Token = discordToken,
         Intents = TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents
@@ -78,13 +74,13 @@ serviceCollection.AddSingleton(_ =>
 });
 ```
 
-And when your program actually starts, you'll want to register the command framework:
+And when your program actually~~~~ starts, you'll want to register the command framework:
 
 ```cs
-DiscordShardedClient discordClient = serviceProvider.GetRequiredService<DiscordShardedClient>();
+DiscordClient discordClient = serviceProvider.GetRequiredService<DiscordClient>();
 
 // Register extensions outside of the service provider lambda since these involve asynchronous operations
-IReadOnlyDictionary<int, CommandsExtension> commandsExtensions = await discordClient.UseCommandsAsync(new CommandsConfiguration()
+CommandsExtension commandsExtensions = await discordClient.UseCommandsAsync(new CommandsConfiguration()
 {
     ServiceProvider = serviceProvider,
     DebugGuildId = Environment.GetEnvironmentVariable("DEBUG_GUILD_ID") ?? 0,
@@ -92,29 +88,25 @@ IReadOnlyDictionary<int, CommandsExtension> commandsExtensions = await discordCl
     RegisterDefaultCommandProcessors = true
 });
 
-// Iterate through each Discord shard
-foreach (CommandsExtension commandsExtension in commandsExtensions.Values)
+// Add all commands by scanning the current assembly
+commandsExtension.AddCommands(typeof(Program).Assembly);
+TextCommandProcessor textCommandProcessor = new(new()
 {
-    // Add all commands by scanning the current assembly
-    commandsExtension.AddCommands(typeof(Program).Assembly);
-    TextCommandProcessor textCommandProcessor = new(new()
-    {
-        // By default, the prefix will be "!"
-        // However the bot will *always* respond to a direct mention
-        // as long as the `DefaultPrefixResolver` is used
-        PrefixResolver = new DefaultPrefixResolver("?").ResolvePrefixAsync
-    });
+      // By default, the prefix will be "!"
+     // However the bot will *always* respond to a direct mention
+     // as long as the `DefaultPrefixResolver` is used
+     PrefixResolver = new DefaultPrefixResolver("?").ResolvePrefixAsync
+});
 
-    // Add text commands with a custom prefix (?ping)
+        // Add text commands with a custom prefix (?ping)
     await commandsExtension.AddProcessorsAsync(textCommandProcessor);
-}
+
 ```
 
 ---
 
 Let's break this down a bit:
 - We use each processor's required intents to ensure that the extension receives the necessary gateway events and data to function properly.
-- Because we're using a `DiscordShardedClient`, we must call `UseCommandsAsync` instead of `UseCommands`. This is because `UseCommandsAsync` will return a dictionary of `CommandsExtension` objects, one for each shard. The number of shards returned is usually set by Discord, however it can be specified manually in the `DiscordConfiguration`.
 - We register all the commands in our bot by passing the bot's assembly to `AddCommands`. This will scan the assembly for any classes (group commands) or methods that have the `Command` attribute, and register them as commands.
 - We register the `TextCommandProcessor` processor with a custom prefix resolver.
 
