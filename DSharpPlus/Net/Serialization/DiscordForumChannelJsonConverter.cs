@@ -40,7 +40,7 @@ public class DiscordForumChannelJsonConverter : JsonConverter
 
             channel = chn;
         }
-        else if (channelType is DiscordChannelType.Private)
+        else if (channelType is DiscordChannelType.Private or DiscordChannelType.Group)
         {
             channel = new DiscordDmChannel();
             serializer.Populate(job.CreateReader(), channel);
