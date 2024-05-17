@@ -6,7 +6,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Metrics;
+
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
 using Polly;
 
 namespace DSharpPlus.Net;
@@ -29,26 +32,34 @@ internal sealed partial class RestClient : IDisposable
 
     private volatile bool disposed;
 
-    internal RestClient(DiscordConfiguration config, ILogger logger)
+    internal RestClient
+    (
+        ILogger<RestClient> logger,
+        HttpClient client,
+        IOptions<RestClientOptions> options,
+        IOptions<TokenContainer> tokenContainer
+    )
         : this
         (
-            config.Proxy,
-            config.HttpTimeout,
+            client,
+            options.Value.Timeout,
             logger,
-            config.MaximumRatelimitRetries,
-            config.RatelimitRetryDelayFallback,
-            config.TimeoutForInitialApiRequest,
-            config.MaximumRestRequestsPerSecond
+            options.Value.MaximumRatelimitRetries,
+            options.Value.RatelimitRetryDelayFallback,
+            options.Value.InitialRequestTimeout,
+            options.Value.MaximumConcurrentRestRequests
         )
     {
-        this.httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(config));
+        string token = tokenContainer.Value.GetToken();
+
+        this.httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bot {token}");
         this.httpClient.BaseAddress = new(Endpoints.BASE_URI);
     }
 
     // This is for meta-clients, such as the webhook client
     internal RestClient
     (
-        IWebProxy proxy,
+        HttpClient client,
         TimeSpan timeout,
         ILogger logger,
         int maxRetries = int.MaxValue,
@@ -58,21 +69,10 @@ internal sealed partial class RestClient : IDisposable
     )
     {
         this.logger = logger;
+        this.httpClient = client;
 
-        HttpClientHandler httphandler = new()
-        {
-            UseCookies = false,
-            AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
-            UseProxy = proxy != null,
-            Proxy = proxy
-        };
-
-        this.httpClient = new HttpClient(httphandler)
-        {
-            BaseAddress = new Uri(Utilities.GetApiBaseUri()),
-            Timeout = timeout
-        };
-
+        this.httpClient.BaseAddress = new Uri(Utilities.GetApiBaseUri());
+        this.httpClient.Timeout = timeout;
         this.httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
         this.httpClient.BaseAddress = new(Endpoints.BASE_URI);
 
