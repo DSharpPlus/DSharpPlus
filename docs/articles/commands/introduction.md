@@ -47,7 +47,7 @@ public async Task Main(string[] args)
     });
 
     // Add text commands with a custom prefix (?ping)
-    await commandsExtension.AddProcessorsAsync(textCommandProcessor);
+    commandsExtension.AddProcessors(textCommandProcessor);
 }
 ```
 
@@ -99,7 +99,7 @@ TextCommandProcessor textCommandProcessor = new(new()
 });
 
 // Add text commands with a custom prefix (?ping)
-await commandsExtension.AddProcessorsAsync(textCommandProcessor);
+commandsExtension.AddProcessors(textCommandProcessor);
 
 ```
 
