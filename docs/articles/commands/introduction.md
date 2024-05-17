@@ -28,7 +28,7 @@ public async Task Main(string[] args)
     });
 
     // Use the commands extension
-    CommandsExtension commandsExtension = await discordClient.UseCommandsAsync(new CommandsConfiguration()
+    CommandsExtension commandsExtension = discordClient.UseCommands(new CommandsConfiguration()
     {
         ServiceProvider = serviceProvider,
         DebugGuildId = Environment.GetEnvironmentVariable("DEBUG_GUILD_ID") ?? 0,
@@ -47,7 +47,7 @@ public async Task Main(string[] args)
     });
 
     // Add text commands with a custom prefix (?ping)
-    commandsExtension.AddProcessors(textCommandProcessor);
+    await commandsExtension.AddProcessorsAsync(textCommandProcessor);
 }
 ```
 
@@ -80,7 +80,7 @@ And when your program actually starts, you'll want to register the command frame
 DiscordClient discordClient = serviceProvider.GetRequiredService<DiscordClient>();
 
 // Register extensions outside of the service provider lambda since these involve asynchronous operations
-CommandsExtension commandsExtensions = await discordClient.UseCommandsAsync(new CommandsConfiguration()
+CommandsExtension commandsExtensions = discordClient.UseCommands(new CommandsConfiguration()
 {
     ServiceProvider = serviceProvider,
     DebugGuildId = Environment.GetEnvironmentVariable("DEBUG_GUILD_ID") ?? 0,
@@ -99,7 +99,7 @@ TextCommandProcessor textCommandProcessor = new(new()
 });
 
 // Add text commands with a custom prefix (?ping)
-commandsExtension.AddProcessors(textCommandProcessor);
+await commandsExtension.AddProcessorsAsync(textCommandProcessor);
 
 ```
 
