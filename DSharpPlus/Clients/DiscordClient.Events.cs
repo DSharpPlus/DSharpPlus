@@ -19,7 +19,7 @@ public sealed partial class DiscordClient
     /// <summary>
     /// Fired whenever a WebSocket error occurs within the client.
     /// </summary>
-    [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
+    [Obsolete("This event is superseded by implementing/shimming IClientErrorHandler", true, DiagnosticId = "DSP0003")]
     public event AsyncEventHandler<DiscordClient, SocketErrorEventArgs> SocketErrored
     {
         add => this.socketErrored.Register(value);
