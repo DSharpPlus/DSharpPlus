@@ -159,8 +159,8 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         return true;
     }
 
-    public void AddApplicationCommands(params DiscordApplicationCommand[] applicationCommands) => this.applicationCommands.AddRange(applicationCommands);
-    public void AddApplicationCommands(IEnumerable<DiscordApplicationCommand> applicationCommands) => this.applicationCommands.AddRange(applicationCommands);
+    public void AddApplicationCommands(params DiscordApplicationCommand[] commands) => applicationCommands.AddRange(commands);
+    public void AddApplicationCommands(IEnumerable<DiscordApplicationCommand> commands) => applicationCommands.AddRange(commands);
 
     public async ValueTask ClearDiscordSlashCommandsAsync(bool clearGuildCommands = false)
     {
@@ -181,12 +181,13 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         }
     }
 
+    [MemberNotNull(nameof(applicationCommands))]
     public async Task RegisterSlashCommandsAsync(CommandsExtension extension)
     {
         IReadOnlyList<Command> processorSpecificCommands = extension.GetCommandsForProcessor<SlashCommandProcessor>();
         List<DiscordApplicationCommand> globalApplicationCommands = [];
         Dictionary<ulong, List<DiscordApplicationCommand>> guildsApplicationCommands = [];
-        globalApplicationCommands.AddRange(this.applicationCommands);
+        globalApplicationCommands.AddRange(applicationCommands);
         foreach (Command command in processorSpecificCommands)
         {
             // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
