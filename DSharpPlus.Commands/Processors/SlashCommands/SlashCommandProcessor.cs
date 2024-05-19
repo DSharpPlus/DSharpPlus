@@ -31,9 +31,11 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
     public const DiscordIntents RequiredIntents = DiscordIntents.Guilds;
 
     public IReadOnlyDictionary<Type, DiscordApplicationCommandOptionType> TypeMappings { get; private set; } = new Dictionary<Type, DiscordApplicationCommandOptionType>();
-    public IReadOnlyDictionary<ulong, Command> Commands { get; private set; } = new Dictionary<ulong, Command>();
+    public IReadOnlyDictionary<ulong, Command> Commands => applicationCommandsMapping;
 
-    private readonly List<DiscordApplicationCommand> applicationCommands = [];
+    private static readonly List<DiscordApplicationCommand> applicationCommands = [];
+    private static IReadOnlyDictionary<ulong, Command> applicationCommandsMapping;
+
     private bool configured;
 
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
@@ -157,8 +159,8 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         return true;
     }
 
-    public void AddApplicationCommands(params DiscordApplicationCommand[] applicationCommands) => this.applicationCommands.AddRange(applicationCommands);
-    public void AddApplicationCommands(IEnumerable<DiscordApplicationCommand> applicationCommands) => this.applicationCommands.AddRange(applicationCommands);
+    public void AddApplicationCommands(params DiscordApplicationCommand[] commands) => applicationCommands.AddRange(commands);
+    public void AddApplicationCommands(IEnumerable<DiscordApplicationCommand> commands) => applicationCommands.AddRange(commands);
 
     public async ValueTask ClearDiscordSlashCommandsAsync(bool clearGuildCommands = false)
     {
@@ -179,12 +181,13 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         }
     }
 
+    [MemberNotNull(nameof(applicationCommands))]
     public async Task RegisterSlashCommandsAsync(CommandsExtension extension)
     {
         IReadOnlyList<Command> processorSpecificCommands = extension.GetCommandsForProcessor<SlashCommandProcessor>();
         List<DiscordApplicationCommand> globalApplicationCommands = [];
         Dictionary<ulong, List<DiscordApplicationCommand>> guildsApplicationCommands = [];
-        globalApplicationCommands.AddRange(this.applicationCommands);
+        globalApplicationCommands.AddRange(applicationCommands);
         foreach (Command command in processorSpecificCommands)
         {
             // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
@@ -254,11 +257,10 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             if (!commandFound)
             {
                 SlashLogging.unknownCommandName(this.logger, discordCommand.Name, null);
-                continue;
             }
         }
 
-        this.Commands = commandsDictionary.ToFrozenDictionary();
+        applicationCommandsMapping = commandsDictionary.ToFrozenDictionary();
         SlashLogging.registeredCommands(this.logger, this.Commands.Count, this.Commands.Values.SelectMany(command => command.Walk()).Count(), null);
     }
 
@@ -526,7 +528,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
                 DiscordInteractionDataOption? option = converterContext.Options
                     .FirstOrDefault(x => x.Name.Equals(attribute.Name, StringComparison.OrdinalIgnoreCase));
-                
+
                 if (option is null)
                 {
                     continue;
@@ -540,7 +542,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                 }
 
                 IOptional optional = await this.ConverterDelegates[GetConverterFriendlyBaseType(converterContext.Parameter.Type)](converterContext, eventArgs);
-                
+
                 parsedArguments.Add(converterContext.Parameter, optional.HasValue
                     ? optional.RawValue
                     : converterContext.Parameter.DefaultValue
