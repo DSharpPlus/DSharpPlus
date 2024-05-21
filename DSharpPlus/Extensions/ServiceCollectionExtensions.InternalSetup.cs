@@ -21,6 +21,7 @@ public static partial class ServiceCollectionExtensions
 
         // rest setup
         serviceCollection.AddKeyedSingleton<HttpClient>("DSharpPlus.Rest.HttpClient")
+            .AddSingleton<DiscordApiClient>()
             .AddSingleton<RestClient>
             (
                 serviceProvider =>
