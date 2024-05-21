@@ -111,10 +111,10 @@ public sealed class LavalinkGuildConnection
 
     internal string GuildIdString => this.GuildId.ToString(CultureInfo.InvariantCulture);
     internal ulong GuildId => this.Channel.Guild.Id;
-    internal VoiceStateUpdateEventArgs VoiceStateUpdate { get; set; }
+    internal VoiceStateUpdatedEventArgs VoiceStateUpdate { get; set; }
     internal TaskCompletionSource<bool> VoiceWsDisconnectTcs { get; set; }
 
-    internal LavalinkGuildConnection(LavalinkNodeConnection node, VoiceStateUpdateEventArgs vstu)
+    internal LavalinkGuildConnection(LavalinkNodeConnection node, VoiceStateUpdatedEventArgs vstu)
     {
         this.Node = node;
         this.VoiceStateUpdate = vstu;

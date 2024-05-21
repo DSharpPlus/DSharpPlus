@@ -213,7 +213,7 @@ public class CommandsNextExtension : BaseExtension
     #endregion
 
     #region Command Handling
-    private async Task HandleCommandsAsync(DiscordClient sender, MessageCreateEventArgs e)
+    private async Task HandleCommandsAsync(DiscordClient sender, MessageCreatedEventArgs e)
     {
         if (e.Author.IsBot) // bad bot
         {

@@ -54,7 +54,7 @@ internal class Paginator : IPaginator
         }
     }
 
-    private Task HandleReactionAdd(DiscordClient client, MessageReactionAddEventArgs eventargs)
+    private Task HandleReactionAdd(DiscordClient client, MessageReactionAddedEventArgs eventargs)
     {
         if (this.requests.Count == 0)
         {
@@ -110,7 +110,7 @@ internal class Paginator : IPaginator
         return Task.CompletedTask;
     }
 
-    private Task HandleReactionRemove(DiscordClient client, MessageReactionRemoveEventArgs eventargs)
+    private Task HandleReactionRemove(DiscordClient client, MessageReactionRemovedEventArgs eventargs)
     {
         if (this.requests.Count == 0)
         {
@@ -152,7 +152,7 @@ internal class Paginator : IPaginator
         return Task.CompletedTask;
     }
 
-    private Task HandleReactionClear(DiscordClient client, MessageReactionsClearEventArgs eventargs)
+    private Task HandleReactionClear(DiscordClient client, MessageReactionsClearedEventArgs eventargs)
     {
         if (this.requests.Count == 0)
         {

@@ -1,6 +1,7 @@
 using System;
 
 using DSharpPlus.Extensions;
+using DSharpPlus.Logging;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -27,15 +28,16 @@ public sealed class DiscordClientBuilder
     /// Creates a new DiscordClientBuilder without sharding, using the specified token.
     /// </summary>
     /// <param name="token">The token to use for this application.</param>
+    /// <param name="intents">The intents to connect to the gateway with.</param>
     /// <param name="serviceCollection">The service collection to base this builder on.</param>
     /// <returns>A new DiscordClientBuilder.</returns>
-    public static DiscordClientBuilder Default(string token, IServiceCollection? serviceCollection = null)
+    public static DiscordClientBuilder Default(string token, DiscordIntents intents, IServiceCollection? serviceCollection = null)
     {
         serviceCollection ??= new ServiceCollection();
 
         DiscordClientBuilder builder = new(serviceCollection);
         builder.serviceCollection.Configure<TokenContainer>(x => x.GetToken = () => token);
-        builder.serviceCollection.AddDSharpPlusDefaultsSingleShard();
+        builder.serviceCollection.AddDSharpPlusDefaultsSingleShard(intents);
 
         return builder;
     }
@@ -47,6 +49,18 @@ public sealed class DiscordClientBuilder
     public DiscordClientBuilder DisableDefaultLogging()
     {
         this.addDefaultLogging = false;
+        return this;
+    }
+
+
+    /// <summary>
+    /// Configures event handlers on the present client builder.
+    /// </summary>
+    /// <param name="configure">A configuration delegate enabling specific configuration.</param>
+    /// <returns>Thecurrent instance for chaining.</returns>
+    public DiscordClientBuilder ConfigureEventHandling(Action<EventHandlingBuilder> configure)
+    {
+        this.serviceCollection.ConfigureEventHandlers(configure);
         return this;
     }
 

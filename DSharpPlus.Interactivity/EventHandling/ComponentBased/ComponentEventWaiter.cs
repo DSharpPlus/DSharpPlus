@@ -36,7 +36,7 @@ internal class ComponentEventWaiter : IDisposable
     /// </summary>
     /// <param name="request">The request to wait for.</param>
     /// <returns>The returned args, or null if it timed out.</returns>
-    public async Task<ComponentInteractionCreateEventArgs> WaitForMatchAsync(ComponentMatchRequest request)
+    public async Task<ComponentInteractionCreatedEventArgs> WaitForMatchAsync(ComponentMatchRequest request)
     {
         this.matchRequests.Add(request);
 
@@ -60,7 +60,7 @@ internal class ComponentEventWaiter : IDisposable
     /// </summary>
     /// <param name="request">The request to wait on.</param>
     /// <returns>The result from request's predicate over the period of time leading up to the token's cancellation.</returns>
-    public async Task<IReadOnlyList<ComponentInteractionCreateEventArgs>> CollectMatchesAsync(ComponentCollectRequest request)
+    public async Task<IReadOnlyList<ComponentInteractionCreatedEventArgs>> CollectMatchesAsync(ComponentCollectRequest request)
     {
         this.collectRequests.Add(request);
         try
@@ -78,7 +78,7 @@ internal class ComponentEventWaiter : IDisposable
         return request.Collected.ToArray();
     }
 
-    private async Task HandleAsync(DiscordClient _, ComponentInteractionCreateEventArgs args)
+    private async Task HandleAsync(DiscordClient _, ComponentInteractionCreatedEventArgs args)
     {
         foreach (ComponentMatchRequest? mreq in this.matchRequests.ToArray())
         {

@@ -25,7 +25,7 @@ public partial class DiscordSnowflakeObjectConverter : ISlashArgumentConverter<S
         this.discordRoleSlashArgumentConverter = new DiscordRoleConverter();
     }
 
-    public async Task<Optional<SnowflakeObject>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs)
+    public async Task<Optional<SnowflakeObject>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs)
     {
         //Checks through existing converters
         if (context.Interaction.Data.Resolved?.Roles is not null && await this.discordRoleSlashArgumentConverter.ConvertAsync(context, eventArgs) is Optional<DiscordRole> role && role.HasValue)
@@ -45,7 +45,7 @@ public partial class DiscordSnowflakeObjectConverter : ISlashArgumentConverter<S
     }
 
     // Duplicated logic for overload resolving
-    public async Task<Optional<SnowflakeObject>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
+    public async Task<Optional<SnowflakeObject>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs)
     {
         //Checks through existing converters
         if (context.Guild?.Roles is not null && await this.discordRoleSlashArgumentConverter.ConvertAsync(context, eventArgs) is Optional<DiscordRole> role && role.HasValue)

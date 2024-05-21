@@ -16,11 +16,11 @@ public class UInt64Converter : ISlashArgumentConverter<ulong>, ITextArgumentConv
     public string ReadableName => "Positive Large Integer";
     public bool RequiresText => true;
 
-    public Task<Optional<ulong>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => ulong.TryParse(context.Argument, CultureInfo.InvariantCulture, out ulong result)
+    public Task<Optional<ulong>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs) => ulong.TryParse(context.Argument, CultureInfo.InvariantCulture, out ulong result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<ulong>());
 
-    public Task<Optional<ulong>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => ulong.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out ulong result)
+    public Task<Optional<ulong>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs) => ulong.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out ulong result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<ulong>());
 }

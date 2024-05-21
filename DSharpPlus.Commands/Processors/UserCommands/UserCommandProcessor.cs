@@ -20,9 +20,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.Commands.Processors.UserCommands;
 
-public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreateEventArgs>
+public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedEventArgs>
 {
-    public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreateEventArgs>> Converters => this.slashCommandProcessor?.ConverterDelegates ?? new Dictionary<Type, ConverterDelegate<InteractionCreateEventArgs>>();
+    public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreatedEventArgs>> Converters => this.slashCommandProcessor?.ConverterDelegates ?? new Dictionary<Type, ConverterDelegate<InteractionCreatedEventArgs>>();
     private CommandsExtension? extension;
     private SlashCommandProcessor? slashCommandProcessor;
 
@@ -70,7 +70,7 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreateEv
         this.slashCommandProcessor.AddApplicationCommands(applicationCommands);
     }
 
-    public async Task ExecuteInteractionAsync(DiscordClient client, ContextMenuInteractionCreateEventArgs eventArgs)
+    public async Task ExecuteInteractionAsync(DiscordClient client, ContextMenuInteractionCreatedEventArgs eventArgs)
     {
         if (this.extension is null || this.slashCommandProcessor is null)
         {

@@ -8,9 +8,13 @@ using Microsoft.Extensions.Options;
 
 namespace DSharpPlus.Extensions;
 
-public static class ServiceCollectionExtensions
+public static partial class ServiceCollectionExtensions
 {
-    internal static IServiceCollection AddDSharpPlusDefaultsSingleShard(this IServiceCollection serviceCollection)
+    internal static IServiceCollection AddDSharpPlusDefaultsSingleShard
+    (
+        this IServiceCollection serviceCollection,
+        DiscordIntents intents
+    )
     {
         // peripheral setup
         serviceCollection.AddSingleton<IMessageCacheProvider, MessageCache>();

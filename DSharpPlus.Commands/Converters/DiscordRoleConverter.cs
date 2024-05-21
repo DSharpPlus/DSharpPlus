@@ -19,7 +19,7 @@ public partial class DiscordRoleConverter : ISlashArgumentConverter<DiscordRole>
     public string ReadableName => "Discord Role";
     public bool RequiresText => true;
 
-    public Task<Optional<DiscordRole>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
+    public Task<Optional<DiscordRole>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs)
     {
         if (context.Guild is null)
         {
@@ -43,7 +43,7 @@ public partial class DiscordRoleConverter : ISlashArgumentConverter<DiscordRole>
             : Task.FromResult(Optional.FromNoValue<DiscordRole>());
     }
 
-    public Task<Optional<DiscordRole>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => context.Interaction.Data.Resolved is null
+    public Task<Optional<DiscordRole>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs) => context.Interaction.Data.Resolved is null
         || !ulong.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out ulong roleId)
         || !context.Interaction.Data.Resolved.Roles.TryGetValue(roleId, out DiscordRole? role)
             ? Task.FromResult(Optional.FromNoValue<DiscordRole>())

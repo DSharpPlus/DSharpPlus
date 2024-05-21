@@ -19,7 +19,7 @@ public partial class DiscordChannelConverter : ISlashArgumentConverter<DiscordCh
     public string ReadableName => "Discord Channel";
     public bool RequiresText => true;
 
-    public Task<Optional<DiscordChannel>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
+    public Task<Optional<DiscordChannel>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs)
     {
         // Attempt to parse the channel id
         if (!ulong.TryParse(context.Argument, CultureInfo.InvariantCulture, out ulong channelId))
@@ -52,7 +52,7 @@ public partial class DiscordChannelConverter : ISlashArgumentConverter<DiscordCh
         return Task.FromResult(Optional.FromNoValue<DiscordChannel>());
     }
 
-    public Task<Optional<DiscordChannel>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => context.Interaction.Data.Resolved is null
+    public Task<Optional<DiscordChannel>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs) => context.Interaction.Data.Resolved is null
         || !ulong.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out ulong channelId)
         || !context.Interaction.Data.Resolved.Channels.TryGetValue(channelId, out DiscordChannel? channel)
             ? Task.FromResult(Optional.FromNoValue<DiscordChannel>())

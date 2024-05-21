@@ -20,12 +20,12 @@ namespace DSharpPlus.Interactivity.EventHandling;
 internal class ReactionCollector : IDisposable
 {
     private DiscordClient client;
-    private AsyncEvent<DiscordClient, MessageReactionAddEventArgs> reactionAddEvent;
-    private AsyncEventHandler<DiscordClient, MessageReactionAddEventArgs> reactionAddHandler;
-    private AsyncEvent<DiscordClient, MessageReactionRemoveEventArgs> reactionRemoveEvent;
-    private AsyncEventHandler<DiscordClient, MessageReactionRemoveEventArgs> reactionRemoveHandler;
-    private AsyncEvent<DiscordClient, MessageReactionsClearEventArgs> reactionClearEvent;
-    private AsyncEventHandler<DiscordClient, MessageReactionsClearEventArgs> reactionClearHandler;
+    private AsyncEvent<DiscordClient, MessageReactionAddedEventArgs> reactionAddEvent;
+    private AsyncEventHandler<DiscordClient, MessageReactionAddedEventArgs> reactionAddHandler;
+    private AsyncEvent<DiscordClient, MessageReactionRemovedEventArgs> reactionRemoveEvent;
+    private AsyncEventHandler<DiscordClient, MessageReactionRemovedEventArgs> reactionRemoveHandler;
+    private AsyncEvent<DiscordClient, MessageReactionsClearedEventArgs> reactionClearEvent;
+    private AsyncEventHandler<DiscordClient, MessageReactionsClearedEventArgs> reactionClearHandler;
     private ConcurrentHashSet<ReactionCollectRequest> requests;
 
     /// <summary>
@@ -40,22 +40,22 @@ internal class ReactionCollector : IDisposable
         this.requests = [];
 
         // Grabbing all three events from client
-        FieldInfo handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, MessageReactionAddEventArgs>));
+        FieldInfo handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, MessageReactionAddedEventArgs>));
 
-        this.reactionAddEvent = (AsyncEvent<DiscordClient, MessageReactionAddEventArgs>)handler.GetValue(this.client);
-        this.reactionAddHandler = new AsyncEventHandler<DiscordClient, MessageReactionAddEventArgs>(HandleReactionAdd);
+        this.reactionAddEvent = (AsyncEvent<DiscordClient, MessageReactionAddedEventArgs>)handler.GetValue(this.client);
+        this.reactionAddHandler = new AsyncEventHandler<DiscordClient, MessageReactionAddedEventArgs>(HandleReactionAdd);
         this.reactionAddEvent.Register(this.reactionAddHandler);
 
-        handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, MessageReactionRemoveEventArgs>));
+        handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, MessageReactionRemovedEventArgs>));
 
-        this.reactionRemoveEvent = (AsyncEvent<DiscordClient, MessageReactionRemoveEventArgs>)handler.GetValue(this.client);
-        this.reactionRemoveHandler = new AsyncEventHandler<DiscordClient, MessageReactionRemoveEventArgs>(HandleReactionRemove);
+        this.reactionRemoveEvent = (AsyncEvent<DiscordClient, MessageReactionRemovedEventArgs>)handler.GetValue(this.client);
+        this.reactionRemoveHandler = new AsyncEventHandler<DiscordClient, MessageReactionRemovedEventArgs>(HandleReactionRemove);
         this.reactionRemoveEvent.Register(this.reactionRemoveHandler);
 
-        handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, MessageReactionsClearEventArgs>));
+        handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, MessageReactionsClearedEventArgs>));
 
-        this.reactionClearEvent = (AsyncEvent<DiscordClient, MessageReactionsClearEventArgs>)handler.GetValue(this.client);
-        this.reactionClearHandler = new AsyncEventHandler<DiscordClient, MessageReactionsClearEventArgs>(HandleReactionClear);
+        this.reactionClearEvent = (AsyncEvent<DiscordClient, MessageReactionsClearedEventArgs>)handler.GetValue(this.client);
+        this.reactionClearHandler = new AsyncEventHandler<DiscordClient, MessageReactionsClearedEventArgs>(HandleReactionClear);
         this.reactionClearEvent.Register(this.reactionClearHandler);
     }
 
@@ -81,7 +81,7 @@ internal class ReactionCollector : IDisposable
         return result;
     }
 
-    private Task HandleReactionAdd(DiscordClient client, MessageReactionAddEventArgs eventargs)
+    private Task HandleReactionAdd(DiscordClient client, MessageReactionAddedEventArgs eventargs)
     {
         // foreach request add
         foreach (ReactionCollectRequest req in this.requests)
@@ -108,7 +108,7 @@ internal class ReactionCollector : IDisposable
         return Task.CompletedTask;
     }
 
-    private Task HandleReactionRemove(DiscordClient client, MessageReactionRemoveEventArgs eventargs)
+    private Task HandleReactionRemove(DiscordClient client, MessageReactionRemovedEventArgs eventargs)
     {
         // foreach request remove
         foreach (ReactionCollectRequest req in this.requests)
@@ -130,7 +130,7 @@ internal class ReactionCollector : IDisposable
         return Task.CompletedTask;
     }
 
-    private Task HandleReactionClear(DiscordClient client, MessageReactionsClearEventArgs eventargs)
+    private Task HandleReactionClear(DiscordClient client, MessageReactionsClearedEventArgs eventargs)
     {
         // foreach request add
         foreach (ReactionCollectRequest req in this.requests)

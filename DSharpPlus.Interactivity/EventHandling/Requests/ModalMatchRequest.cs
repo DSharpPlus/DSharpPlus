@@ -18,16 +18,16 @@ internal class ModalMatchRequest
     /// <summary>
     /// The completion source that represents the result of the match.
     /// </summary>
-    public TaskCompletionSource<ModalSubmitEventArgs> Tcs { get; private set; } = new();
+    public TaskCompletionSource<ModalSubmittedEventArgs> Tcs { get; private set; } = new();
 
     protected CancellationToken Cancellation { get; }
 
     /// <summary>
     /// The predicate/criteria that this match will be fulfilled under.
     /// </summary>
-    protected Func<ModalSubmitEventArgs, bool> Predicate { get; }
+    protected Func<ModalSubmittedEventArgs, bool> Predicate { get; }
 
-    public ModalMatchRequest(string modal_id, Func<ModalSubmitEventArgs, bool> predicate, CancellationToken cancellation)
+    public ModalMatchRequest(string modal_id, Func<ModalSubmittedEventArgs, bool> predicate, CancellationToken cancellation)
     {
         this.ModalId = modal_id;
         this.Predicate = predicate;
@@ -36,10 +36,10 @@ internal class ModalMatchRequest
     }
 
     /// <summary>
-    /// Checks whether the <see cref="ModalSubmitEventArgs"/> matches the predicate criteria.
+    /// Checks whether the <see cref="ModalSubmittedEventArgs"/> matches the predicate criteria.
     /// </summary>
-    /// <param name="args">The <see cref="ModalSubmitEventArgs"/> to check.</param>
-    /// <returns>Whether the <see cref="ModalSubmitEventArgs"/> matches the predicate.</returns>
-    public bool IsMatch(ModalSubmitEventArgs args)
+    /// <param name="args">The <see cref="ModalSubmittedEventArgs"/> to check.</param>
+    /// <returns>Whether the <see cref="ModalSubmittedEventArgs"/> matches the predicate.</returns>
+    public bool IsMatch(ModalSubmittedEventArgs args)
         => this.Predicate(args);
 }

@@ -671,7 +671,7 @@ public sealed partial class DiscordClient
             this.guilds[guild.Id] = guild;
         }
 
-        await this.ready.InvokeAsync(this, new SessionReadyEventArgs());
+        await this.ready.InvokeAsync(this, new SessionCreatedEventArgs());
 
         if (!guilds.Any())
         {
@@ -684,7 +684,7 @@ public sealed partial class DiscordClient
     internal Task OnResumedAsync()
     {
         this.Logger.LogInformation(LoggerEvents.SessionUpdate, "Session resumed");
-        return this.resumed.InvokeAsync(this, new SessionReadyEventArgs());
+        return this.resumed.InvokeAsync(this, new SessionCreatedEventArgs());
     }
 
     #endregion
@@ -702,7 +702,7 @@ public sealed partial class DiscordClient
 
         this.guilds[channel.GuildId.Value].channels[channel.Id] = channel;
 
-        await this.channelCreated.InvokeAsync(this, new ChannelCreateEventArgs { Channel = channel, Guild = channel.Guild });
+        await this.channelCreated.InvokeAsync(this, new ChannelCreatedEventArgs { Channel = channel, Guild = channel.Guild });
     }
 
     internal async Task OnChannelUpdateEventAsync(DiscordChannel channel)
@@ -769,7 +769,7 @@ public sealed partial class DiscordClient
             gld.channels[channel.Id] = channel;
         }
 
-        await this.channelUpdated.InvokeAsync(this, new ChannelUpdateEventArgs { ChannelAfter = channel_new, Guild = gld, ChannelBefore = channel_old });
+        await this.channelUpdated.InvokeAsync(this, new ChannelUpdatedEventArgs { ChannelAfter = channel_new, Guild = gld, ChannelBefore = channel_old });
     }
 
     internal async Task OnChannelDeleteEventAsync(DiscordChannel channel)
@@ -788,7 +788,7 @@ public sealed partial class DiscordClient
 
             _ = this.privateChannels.TryRemove(dmChannel.Id, out _);
 
-            await this.dmChannelDeleted.InvokeAsync(this, new DmChannelDeleteEventArgs { Channel = dmChannel });
+            await this.dmChannelDeleted.InvokeAsync(this, new DmChannelDeletedEventArgs { Channel = dmChannel });
         }
         else
         {
@@ -799,7 +799,7 @@ public sealed partial class DiscordClient
                 channel = cachedChannel;
             }
 
-            await this.channelDeleted.InvokeAsync(this, new ChannelDeleteEventArgs { Channel = channel, Guild = gld });
+            await this.channelDeleted.InvokeAsync(this, new ChannelDeletedEventArgs { Channel = channel, Guild = gld });
         }
     }
 
@@ -823,7 +823,7 @@ public sealed partial class DiscordClient
             this.privateChannels[channelId] = chn;
         }
 
-        ChannelPinsUpdateEventArgs ea = new()
+        ChannelPinsUpdatedEventArgs ea = new()
         {
             Guild = guild,
             Channel = channel,
@@ -848,7 +848,7 @@ public sealed partial class DiscordClient
 
         evt.Guild.scheduledEvents[evt.Id] = evt;
 
-        await this.scheduledGuildEventCreated.InvokeAsync(this, new ScheduledGuildEventCreateEventArgs { Event = evt });
+        await this.scheduledGuildEventCreated.InvokeAsync(this, new ScheduledGuildEventCreatedEventArgs { Event = evt });
     }
 
     private async Task OnScheduledGuildEventDeleteEventAsync(DiscordScheduledGuildEvent evt)
@@ -870,7 +870,7 @@ public sealed partial class DiscordClient
             UpdateUserCache(evt.Creator);
         }
 
-        await this.scheduledGuildEventDeleted.InvokeAsync(this, new ScheduledGuildEventDeleteEventArgs { Event = evt });
+        await this.scheduledGuildEventDeleted.InvokeAsync(this, new ScheduledGuildEventDeletedEventArgs { Event = evt });
     }
 
     private async Task OnScheduledGuildEventUpdateEventAsync(DiscordScheduledGuildEvent evt)
@@ -894,7 +894,7 @@ public sealed partial class DiscordClient
         }
         else
         {
-            await this.scheduledGuildEventUpdated.InvokeAsync(this, new ScheduledGuildEventUpdateEventArgs() { EventBefore = oldEvt, EventAfter = evt });
+            await this.scheduledGuildEventUpdated.InvokeAsync(this, new ScheduledGuildEventUpdatedEventArgs() { EventBefore = oldEvt, EventAfter = evt });
         }
     }
 
@@ -915,7 +915,7 @@ public sealed partial class DiscordClient
             guild.Members.TryGetValue(userId, out DiscordMember? mbr) ? mbr :
             GetCachedOrEmptyUserInternal(userId) ?? new DiscordUser() { Id = userId, Discord = this };
 
-        await this.scheduledGuildEventUserAdded.InvokeAsync(this, new ScheduledGuildEventUserAddEventArgs() { Event = evt, User = user });
+        await this.scheduledGuildEventUserAdded.InvokeAsync(this, new ScheduledGuildEventUserAddedEventArgs() { Event = evt, User = user });
     }
 
     private async Task OnScheduledGuildEventUserRemoveEventAsync(ulong guildId, ulong eventId, ulong userId)
@@ -935,7 +935,7 @@ public sealed partial class DiscordClient
             guild.Members.TryGetValue(userId, out DiscordMember? mbr) ? mbr :
             GetCachedOrEmptyUserInternal(userId) ?? new DiscordUser() { Id = userId, Discord = this };
 
-        await this.scheduledGuildEventUserRemoved.InvokeAsync(this, new ScheduledGuildEventUserRemoveEventArgs() { Event = evt, User = user });
+        await this.scheduledGuildEventUserRemoved.InvokeAsync(this, new ScheduledGuildEventUserRemovedEventArgs() { Event = evt, User = user });
     }
 
     #endregion
@@ -1059,11 +1059,11 @@ public sealed partial class DiscordClient
 
         if (exists)
         {
-            await this.guildAvailable.InvokeAsync(this, new GuildCreateEventArgs { Guild = guild });
+            await this.guildAvailable.InvokeAsync(this, new GuildCreatedEventArgs { Guild = guild });
         }
         else
         {
-            await this.guildCreated.InvokeAsync(this, new GuildCreateEventArgs { Guild = guild });
+            await this.guildCreated.InvokeAsync(this, new GuildCreatedEventArgs { Guild = guild });
         }
 
         if (dcompl && !old)
@@ -1201,7 +1201,7 @@ public sealed partial class DiscordClient
             xr.guild_id = guild.Id;
         }
 
-        await this.guildUpdated.InvokeAsync(this, new GuildUpdateEventArgs { GuildBefore = oldGuild, GuildAfter = guild });
+        await this.guildUpdated.InvokeAsync(this, new GuildUpdatedEventArgs { GuildBefore = oldGuild, GuildAfter = guild });
     }
 
     internal async Task OnGuildDeleteEventAsync(DiscordGuild guild)
@@ -1215,7 +1215,7 @@ public sealed partial class DiscordClient
 
             gld.IsUnavailable = true;
 
-            await this.guildUnavailable.InvokeAsync(this, new GuildDeleteEventArgs { Guild = guild, Unavailable = true });
+            await this.guildUnavailable.InvokeAsync(this, new GuildDeletedEventArgs { Guild = guild, Unavailable = true });
         }
         else
         {
@@ -1224,7 +1224,7 @@ public sealed partial class DiscordClient
                 return;
             }
 
-            await this.guildDeleted.InvokeAsync(this, new GuildDeleteEventArgs { Guild = gld });
+            await this.guildDeleted.InvokeAsync(this, new GuildDeletedEventArgs { Guild = gld });
         }
     }
 
@@ -1239,7 +1239,7 @@ public sealed partial class DiscordClient
             guild.emojis[emoji.Id] = emoji;
         }
 
-        GuildEmojisUpdateEventArgs ea = new()
+        GuildEmojisUpdatedEventArgs ea = new()
         {
             Guild = guild,
             EmojisAfter = guild.Emojis,
@@ -1250,7 +1250,7 @@ public sealed partial class DiscordClient
 
     internal async Task OnGuildIntegrationsUpdateEventAsync(DiscordGuild guild)
     {
-        GuildIntegrationsUpdateEventArgs ea = new()
+        GuildIntegrationsUpdatedEventArgs ea = new()
         {
             Guild = guild
         };
@@ -1281,7 +1281,7 @@ public sealed partial class DiscordClient
             mbr = new DiscordMember(usr) { Discord = this, guild_id = guild.Id };
         }
 
-        GuildBanAddEventArgs ea = new()
+        GuildBanAddedEventArgs ea = new()
         {
             Guild = guild,
             Member = mbr
@@ -1299,7 +1299,7 @@ public sealed partial class DiscordClient
             mbr = new DiscordMember(usr) { Discord = this, guild_id = guild.Id };
         }
 
-        GuildBanRemoveEventArgs ea = new()
+        GuildBanRemovedEventArgs ea = new()
         {
             Guild = guild,
             Member = mbr
@@ -1325,7 +1325,7 @@ public sealed partial class DiscordClient
         guild.members[mbr.Id] = mbr;
         guild.MemberCount++;
 
-        GuildMemberAddEventArgs ea = new()
+        GuildMemberAddedEventArgs ea = new()
         {
             Guild = guild,
             Member = mbr
@@ -1346,7 +1346,7 @@ public sealed partial class DiscordClient
 
         UpdateUserCache(usr);
 
-        GuildMemberRemoveEventArgs ea = new()
+        GuildMemberRemovedEventArgs ea = new()
         {
             Guild = guild,
             Member = mbr
@@ -1368,7 +1368,7 @@ public sealed partial class DiscordClient
 
         guild.members.AddOrUpdate(member.User.Id, memberAfter, (_, _) => memberAfter);
 
-        GuildMemberUpdateEventArgs ea = new()
+        GuildMemberUpdatedEventArgs ea = new()
         {
             Guild = guild,
             MemberAfter = memberAfter,
@@ -1407,7 +1407,7 @@ public sealed partial class DiscordClient
 
         guild.MemberCount = guild.members.Count;
 
-        GuildMembersChunkEventArgs ea = new()
+        GuildMembersChunkedEventArgs ea = new()
         {
             Guild = guild,
             Members = new ReadOnlySet<DiscordMember>(mbrs),
@@ -1462,7 +1462,7 @@ public sealed partial class DiscordClient
 
         guild.roles[role.Id] = role;
 
-        GuildRoleCreateEventArgs ea = new()
+        GuildRoleCreatedEventArgs ea = new()
         {
             Guild = guild,
             Role = role
@@ -1500,7 +1500,7 @@ public sealed partial class DiscordClient
         newRole.emoji = role.emoji;
         newRole.IconHash = role.IconHash;
 
-        GuildRoleUpdateEventArgs ea = new()
+        GuildRoleUpdatedEventArgs ea = new()
         {
             Guild = guild,
             RoleAfter = newRole,
@@ -1516,7 +1516,7 @@ public sealed partial class DiscordClient
             this.Logger.LogWarning("Attempted to delete a nonexistent role ({RoleId}) from guild ({Guild}).", roleId, guild);
         }
 
-        GuildRoleDeleteEventArgs ea = new()
+        GuildRoleDeletedEventArgs ea = new()
         {
             Guild = guild,
             Role = role
@@ -1537,7 +1537,7 @@ public sealed partial class DiscordClient
 
         guild.invites[invite.Code] = invite;
 
-        InviteCreateEventArgs ea = new()
+        InviteCreatedEventArgs ea = new()
         {
             Channel = channel,
             Guild = guild,
@@ -1559,7 +1559,7 @@ public sealed partial class DiscordClient
 
         invite.IsRevoked = true;
 
-        InviteDeleteEventArgs ea = new()
+        InviteDeletedEventArgs ea = new()
         {
             Channel = channel,
             Guild = guild,
@@ -1590,7 +1590,7 @@ public sealed partial class DiscordClient
             sticker.Discord = this;
         }
 
-        MessageCreateEventArgs ea = new()
+        MessageCreatedEventArgs ea = new()
         {
             Message = message,
 
@@ -1651,7 +1651,7 @@ public sealed partial class DiscordClient
 
         message.PopulateMentions();
 
-        MessageUpdateEventArgs ea = new()
+        MessageUpdatedEventArgs ea = new()
         {
             Message = message,
             MessageBefore = oldmsg,
@@ -1698,7 +1698,7 @@ public sealed partial class DiscordClient
             this.MessageCache?.Remove(msg.Id);
         }
 
-        MessageDeleteEventArgs ea = new()
+        MessageDeletedEventArgs ea = new()
         {
             Message = msg,
             Channel = channel,
@@ -1712,7 +1712,7 @@ public sealed partial class DiscordClient
         voteUpdate.WasAdded = wasAdded;
         voteUpdate.client = this;
 
-        MessagePollVoteEventArgs ea = new()
+        MessagePollVotedEventArgs ea = new()
         {
             PollVoteUpdate = voteUpdate
         };
@@ -1749,7 +1749,7 @@ public sealed partial class DiscordClient
 
         DiscordGuild guild = InternalGetCachedGuild(guildId);
 
-        MessageBulkDeleteEventArgs ea = new()
+        MessagesBulkDeletedEventArgs ea = new()
         {
             Channel = channel,
             Messages = new ReadOnlyCollection<DiscordMessage>(msgs),
@@ -1816,7 +1816,7 @@ public sealed partial class DiscordClient
             react.IsMe |= this.CurrentUser.Id == userId;
         }
 
-        MessageReactionAddEventArgs ea = new()
+        MessageReactionAddedEventArgs ea = new()
         {
             Message = msg,
             User = usr,
@@ -1890,7 +1890,7 @@ public sealed partial class DiscordClient
 
         DiscordGuild guild = InternalGetCachedGuild(guildId);
 
-        MessageReactionRemoveEventArgs ea = new()
+        MessageReactionRemovedEventArgs ea = new()
         {
             Message = msg,
             User = usr,
@@ -1918,7 +1918,7 @@ public sealed partial class DiscordClient
         }
 
         msg.reactions?.Clear();
-        MessageReactionsClearEventArgs ea = new()
+        MessageReactionsClearedEventArgs ea = new()
         {
             Message = msg,
         };
@@ -1966,7 +1966,7 @@ public sealed partial class DiscordClient
 
         msg.reactions?.RemoveAll(r => r.Emoji.Equals(emoji));
 
-        MessageReactionRemoveEmojiEventArgs ea = new()
+        MessageReactionRemovedEmojiEventArgs ea = new()
         {
             Message = msg,
             Channel = channel,
@@ -2042,7 +2042,7 @@ public sealed partial class DiscordClient
         _ = this.UserCache.TryGetValue(uid, out DiscordUser? usr);
 
         DiscordUser usrafter = usr ?? new DiscordUser(presence.InternalUser);
-        PresenceUpdateEventArgs ea = new()
+        PresenceUpdatedEventArgs ea = new()
         {
             Status = presence.Status,
             Activity = presence.Activity,
@@ -2059,7 +2059,7 @@ public sealed partial class DiscordClient
     {
         DiscordUser usr = new(user) { Discord = this };
 
-        UserSettingsUpdateEventArgs ea = new()
+        UserSettingsUpdatedEventArgs ea = new()
         {
             User = usr
         };
@@ -2090,7 +2090,7 @@ public sealed partial class DiscordClient
         this.CurrentUser.Username = user.Username;
         this.CurrentUser.Verified = user.Verified;
 
-        UserUpdateEventArgs ea = new()
+        UserUpdatedEventArgs ea = new()
         {
             UserAfter = this.CurrentUser,
             UserBefore = usr_old
@@ -2129,7 +2129,7 @@ public sealed partial class DiscordClient
             UpdateUser(new DiscordUser(transportMbr.User) { Discord = this }, gid, gld, transportMbr);
         }
 
-        VoiceStateUpdateEventArgs ea = new()
+        VoiceStateUpdatedEventArgs ea = new()
         {
             Guild = vstateNew.Guild,
             Channel = vstateNew.Channel,
@@ -2144,7 +2144,7 @@ public sealed partial class DiscordClient
 
     internal async Task OnVoiceServerUpdateEventAsync(string endpoint, string token, DiscordGuild guild)
     {
-        VoiceServerUpdateEventArgs ea = new()
+        VoiceServerUpdatedEventArgs ea = new()
         {
             Endpoint = endpoint,
             VoiceToken = token,
@@ -2162,7 +2162,7 @@ public sealed partial class DiscordClient
         thread.Discord = this;
         InternalGetCachedGuild(thread.GuildId).threads[thread.Id] = thread;
 
-        await this.threadCreated.InvokeAsync(this, new ThreadCreateEventArgs { Thread = thread, Guild = thread.Guild, Parent = thread.Parent });
+        await this.threadCreated.InvokeAsync(this, new ThreadCreatedEventArgs { Thread = thread, Guild = thread.Guild, Parent = thread.Parent });
     }
 
     internal async Task OnThreadUpdateEventAsync(DiscordThreadChannel thread)
@@ -2173,7 +2173,7 @@ public sealed partial class DiscordClient
         }
 
         DiscordThreadChannel threadOld;
-        ThreadUpdateEventArgs updateEvent;
+        ThreadUpdatedEventArgs updateEvent;
 
         thread.Discord = this;
 
@@ -2200,7 +2200,7 @@ public sealed partial class DiscordClient
                 CurrentMember = cthread.CurrentMember,
             };
 
-            updateEvent = new ThreadUpdateEventArgs
+            updateEvent = new ThreadUpdatedEventArgs
             {
                 ThreadAfter = thread,
                 ThreadBefore = threadOld,
@@ -2210,7 +2210,7 @@ public sealed partial class DiscordClient
         }
         else
         {
-            updateEvent = new ThreadUpdateEventArgs
+            updateEvent = new ThreadUpdatedEventArgs
             {
                 ThreadAfter = thread,
                 Guild = thread.Guild,
@@ -2237,7 +2237,7 @@ public sealed partial class DiscordClient
             thread = cachedThread;
         }
 
-        await this.threadDeleted.InvokeAsync(this, new ThreadDeleteEventArgs { Thread = thread, Guild = thread.Guild, Parent = thread.Parent });
+        await this.threadDeleted.InvokeAsync(this, new ThreadDeletedEventArgs { Thread = thread, Guild = thread.Guild, Parent = thread.Parent });
     }
 
     internal async Task OnThreadListSyncEventAsync(DiscordGuild guild, IReadOnlyList<ulong> channel_ids, IReadOnlyList<DiscordThreadChannel> threads, IReadOnlyList<DiscordThreadChannelMember> members)
@@ -2268,7 +2268,7 @@ public sealed partial class DiscordClient
             }
         }
 
-        await this.threadListSynced.InvokeAsync(this, new ThreadListSyncEventArgs { Guild = guild, Channels = channels.ToList().AsReadOnly(), Threads = threads, CurrentMembers = members.ToList().AsReadOnly() });
+        await this.threadListSynced.InvokeAsync(this, new ThreadListSyncedEventArgs { Guild = guild, Channels = channels.ToList().AsReadOnly(), Threads = threads, CurrentMembers = members.ToList().AsReadOnly() });
     }
 
     internal async Task OnThreadMemberUpdateEventAsync(DiscordThreadChannelMember member)
@@ -2280,7 +2280,7 @@ public sealed partial class DiscordClient
         thread.CurrentMember = member;
         thread.Guild.threads[thread.Id] = thread;
 
-        await this.threadMemberUpdated.InvokeAsync(this, new ThreadMemberUpdateEventArgs { ThreadMember = member, Thread = thread });
+        await this.threadMemberUpdated.InvokeAsync(this, new ThreadMemberUpdatedEventArgs { ThreadMember = member, Thread = thread });
     }
 
     internal async Task OnThreadMembersUpdateEventAsync(DiscordGuild guild, ulong thread_id, IReadOnlyList<DiscordThreadChannelMember> addedMembers, IReadOnlyList<ulong?> removed_member_ids, int member_count)
@@ -2330,7 +2330,7 @@ public sealed partial class DiscordClient
             addedMembers = Array.Empty<DiscordThreadChannelMember>();
         }
 
-        ThreadMembersUpdateEventArgs threadMembersUpdateArg = new()
+        ThreadMembersUpdatedEventArgs threadMembersUpdateArg = new()
         {
             Guild = guild,
             Thread = thread,
@@ -2354,7 +2354,7 @@ public sealed partial class DiscordClient
             Id = guild_id,
             Discord = this
         };
-        IntegrationCreateEventArgs ea = new()
+        IntegrationCreatedEventArgs ea = new()
         {
             Guild = guild,
             Integration = integration
@@ -2370,7 +2370,7 @@ public sealed partial class DiscordClient
             Id = guild_id,
             Discord = this
         };
-        IntegrationUpdateEventArgs ea = new()
+        IntegrationUpdatedEventArgs ea = new()
         {
             Guild = guild,
             Integration = integration
@@ -2386,7 +2386,7 @@ public sealed partial class DiscordClient
             Id = guild_id,
             Discord = this
         };
-        IntegrationDeleteEventArgs ea = new()
+        IntegrationDeletedEventArgs ea = new()
         {
             Guild = guild,
             Applicationid = application_id,
@@ -2419,7 +2419,7 @@ public sealed partial class DiscordClient
 
         guild.stageInstances[instance.Id] = instance;
 
-        StageInstanceCreateEventArgs eventArgs = new()
+        StageInstanceCreatedEventArgs eventArgs = new()
         {
             StageInstance = instance
         };
@@ -2440,7 +2440,7 @@ public sealed partial class DiscordClient
 
         guild.stageInstances[instance.Id] = instance;
 
-        StageInstanceUpdateEventArgs eventArgs = new()
+        StageInstanceUpdatedEventArgs eventArgs = new()
         {
             StageInstanceBefore = oldInstance,
             StageInstanceAfter = instance
@@ -2457,7 +2457,7 @@ public sealed partial class DiscordClient
 
         guild.stageInstances.TryRemove(instance.Id, out _);
 
-        StageInstanceDeleteEventArgs eventArgs = new()
+        StageInstanceDeletedEventArgs eventArgs = new()
         {
             StageInstance = instance
         };
@@ -2562,7 +2562,7 @@ public sealed partial class DiscordClient
 
             interaction.Message.Discord = this;
             interaction.Message.ChannelId = interaction.ChannelId;
-            ComponentInteractionCreateEventArgs cea = new()
+            ComponentInteractionCreatedEventArgs cea = new()
             {
                 Message = interaction.Message,
                 Interaction = interaction
@@ -2572,7 +2572,7 @@ public sealed partial class DiscordClient
         }
         else if (interaction.Type is DiscordInteractionType.ModalSubmit)
         {
-            ModalSubmitEventArgs mea = new(interaction);
+            ModalSubmittedEventArgs mea = new(interaction);
 
             await this.modalSubmitted.InvokeAsync(this, mea);
         }
@@ -2587,7 +2587,7 @@ public sealed partial class DiscordClient
             interaction.Data.Resolved.Members?.TryGetValue(targetId, out targetMember);
             interaction.Data.Resolved.Users?.TryGetValue(targetId, out targetUser);
 
-            ContextMenuInteractionCreateEventArgs ctea = new()
+            ContextMenuInteractionCreatedEventArgs ctea = new()
             {
                 Interaction = interaction,
                 TargetUser = targetMember ?? targetUser,
@@ -2597,7 +2597,7 @@ public sealed partial class DiscordClient
             await this.contextMenuInteractionCreated.InvokeAsync(this, ctea);
         }
 
-        InteractionCreateEventArgs ea = new()
+        InteractionCreatedEventArgs ea = new()
         {
             Interaction = interaction
         };
@@ -2620,7 +2620,7 @@ public sealed partial class DiscordClient
         DiscordGuild guild = InternalGetCachedGuild(guildId);
         DiscordUser usr = UpdateUser(new DiscordUser { Id = userId, Discord = this }, guildId, guild, mbr);
 
-        TypingStartEventArgs ea = new()
+        TypingStartedEventArgs ea = new()
         {
             Channel = channel,
             User = usr,
@@ -2632,7 +2632,7 @@ public sealed partial class DiscordClient
 
     internal async Task OnWebhooksUpdateAsync(DiscordChannel channel, DiscordGuild guild)
     {
-        WebhooksUpdateEventArgs ea = new()
+        WebhooksUpdatedEventArgs ea = new()
         {
             Channel = channel,
             Guild = guild
@@ -2659,7 +2659,7 @@ public sealed partial class DiscordClient
             guild.stickers[nst.Id] = nst;
         }
 
-        GuildStickersUpdateEventArgs sea = new()
+        GuildStickersUpdatedEventArgs sea = new()
         {
             Guild = guild,
             StickersBefore = oldStickers,
@@ -2681,22 +2681,22 @@ public sealed partial class DiscordClient
     internal async Task OnAutoModerationRuleCreateAsync(DiscordAutoModerationRule ruleCreated)
     {
         ruleCreated.Discord = this;
-        await this.autoModerationRuleCreated.InvokeAsync(this, new AutoModerationRuleCreateEventArgs { Rule = ruleCreated });
+        await this.autoModerationRuleCreated.InvokeAsync(this, new AutoModerationRuleCreatedEventArgs { Rule = ruleCreated });
     }
 
     internal async Task OnAutoModerationRuleUpdatedAsync(DiscordAutoModerationRule ruleUpdated)
     {
         ruleUpdated.Discord = this;
-        await this.autoModerationRuleUpdated.InvokeAsync(this, new AutoModerationRuleUpdateEventArgs { Rule = ruleUpdated });
+        await this.autoModerationRuleUpdated.InvokeAsync(this, new AutoModerationRuleUpdatedEventArgs { Rule = ruleUpdated });
     }
 
     internal async Task OnAutoModerationRuleDeletedAsync(DiscordAutoModerationRule ruleDeleted)
     {
         ruleDeleted.Discord = this;
-        await this.autoModerationRuleDeleted.InvokeAsync(this, new AutoModerationRuleDeleteEventArgs { Rule = ruleDeleted });
+        await this.autoModerationRuleDeleted.InvokeAsync(this, new AutoModerationRuleDeletedEventArgs { Rule = ruleDeleted });
     }
 
-    internal async Task OnAutoModerationRuleExecutedAsync(DiscordAutoModerationActionExecution ruleExecuted) => await this.autoModerationRuleExecuted.InvokeAsync(this, new AutoModerationRuleExecuteEventArgs { Rule = ruleExecuted });
+    internal async Task OnAutoModerationRuleExecutedAsync(DiscordAutoModerationActionExecution ruleExecuted) => await this.autoModerationRuleExecuted.InvokeAsync(this, new AutoModerationRuleExecutedEventArgs { Rule = ruleExecuted });
     #endregion
 
     #endregion

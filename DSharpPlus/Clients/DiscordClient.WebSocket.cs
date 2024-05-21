@@ -336,7 +336,7 @@ public sealed partial class DiscordClient
 
         Volatile.Write(ref this.ping, ping);
 
-        HeartbeatEventArgs args = new()
+        HeartbeatedEventArgs args = new()
         {
             Ping = this.Ping,
             Timestamp = DateTimeOffset.Now

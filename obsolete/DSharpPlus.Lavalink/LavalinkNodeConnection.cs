@@ -174,8 +174,8 @@ public sealed class LavalinkNodeConnection
 
     private IWebSocketClient WebSocket { get; set; }
 
-    private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>> VoiceStateUpdates { get; }
-    private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdateEventArgs>> VoiceServerUpdates { get; }
+    private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdatedEventArgs>> VoiceStateUpdates { get; }
+    private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdatedEventArgs>> VoiceServerUpdates { get; }
 
     internal LavalinkNodeConnection(DiscordClient client, LavalinkExtension extension, LavalinkConfiguration config)
     {
@@ -202,8 +202,8 @@ public sealed class LavalinkNodeConnection
         this.guildConnectionCreated = new AsyncEvent<LavalinkGuildConnection, GuildConnectionCreatedEventArgs>("LAVALINK_GUILD_CONNECTION_CREATED", this.Discord.EventErrorHandler);
         this.guildConnectionRemoved = new AsyncEvent<LavalinkGuildConnection, GuildConnectionRemovedEventArgs>("LAVALINK_GUILD_CONNECTION_REMOVED", this.Discord.EventErrorHandler);
 
-        this.VoiceServerUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdateEventArgs>>();
-        this.VoiceStateUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>>();
+        this.VoiceServerUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdatedEventArgs>>();
+        this.VoiceStateUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdatedEventArgs>>();
         this.Discord.VoiceStateUpdated += Discord_VoiceStateUpdated;
         this.Discord.VoiceServerUpdated += Discord_VoiceServerUpdated;
 
@@ -313,8 +313,8 @@ public sealed class LavalinkNodeConnection
             throw new ArgumentException("Invalid channel specified.", nameof(channel));
         }
 
-        TaskCompletionSource<VoiceStateUpdateEventArgs> vstut = new();
-        TaskCompletionSource<VoiceServerUpdateEventArgs> vsrut = new();
+        TaskCompletionSource<VoiceStateUpdatedEventArgs> vstut = new();
+        TaskCompletionSource<VoiceServerUpdatedEventArgs> vsrut = new();
         this.VoiceStateUpdates[channel.Guild.Id] = vstut;
         this.VoiceServerUpdates[channel.Guild.Id] = vsrut;
 
@@ -331,8 +331,8 @@ public sealed class LavalinkNodeConnection
         };
         string vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
         await (channel.Discord as DiscordClient).SendRawPayloadAsync(vsj);
-        VoiceStateUpdateEventArgs vstu = await vstut.Task;
-        VoiceServerUpdateEventArgs vsru = await vsrut.Task;
+        VoiceStateUpdatedEventArgs vstu = await vstut.Task;
+        VoiceServerUpdatedEventArgs vsru = await vsrut.Task;
         await SendPayloadAsync(new LavalinkVoiceUpdate(vstu, vsru));
 
         LavalinkGuildConnection con = new(this, vstu);
@@ -515,7 +515,7 @@ public sealed class LavalinkNodeConnection
         await this.guildConnectionRemoved.InvokeAsync(con, new GuildConnectionRemovedEventArgs());
     }
 
-    private Task Discord_VoiceStateUpdated(DiscordClient client, VoiceStateUpdateEventArgs e)
+    private Task Discord_VoiceStateUpdated(DiscordClient client, VoiceStateUpdatedEventArgs e)
     {
         DiscordGuild gld = e.Guild;
         if (gld == null)
@@ -549,7 +549,7 @@ public sealed class LavalinkNodeConnection
                 });
             }
 
-            if (!string.IsNullOrWhiteSpace(e.SessionId) && e.Channel != null && this.VoiceStateUpdates.TryRemove(gld.Id, out TaskCompletionSource<VoiceStateUpdateEventArgs>? xe))
+            if (!string.IsNullOrWhiteSpace(e.SessionId) && e.Channel != null && this.VoiceStateUpdates.TryRemove(gld.Id, out TaskCompletionSource<VoiceStateUpdatedEventArgs>? xe))
             {
                 xe.SetResult(e);
             }
@@ -558,7 +558,7 @@ public sealed class LavalinkNodeConnection
         return Task.CompletedTask;
     }
 
-    private Task Discord_VoiceServerUpdated(DiscordClient client, VoiceServerUpdateEventArgs e)
+    private Task Discord_VoiceServerUpdated(DiscordClient client, VoiceServerUpdatedEventArgs e)
     {
         DiscordGuild gld = e.Guild;
         if (gld == null)
@@ -572,7 +572,7 @@ public sealed class LavalinkNodeConnection
             _ = Task.Run(() => WsSendAsync(JsonConvert.SerializeObject(lvlp)));
         }
 
-        if (this.VoiceServerUpdates.TryRemove(gld.Id, out TaskCompletionSource<VoiceServerUpdateEventArgs>? xe))
+        if (this.VoiceServerUpdates.TryRemove(gld.Id, out TaskCompletionSource<VoiceServerUpdatedEventArgs>? xe))
         {
             xe.SetResult(e);
         }

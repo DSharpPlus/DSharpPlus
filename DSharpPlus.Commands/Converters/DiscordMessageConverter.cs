@@ -18,8 +18,8 @@ public partial class DiscordMessageConverter : ISlashArgumentConverter<DiscordMe
     public string ReadableName => "Discord Message Link";
     public bool RequiresText => true;
 
-    public Task<Optional<DiscordMessage>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context, context.Argument);
-    public Task<Optional<DiscordMessage>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context, context.Argument.RawValue);
+    public Task<Optional<DiscordMessage>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs) => ConvertAsync(context, context.Argument);
+    public Task<Optional<DiscordMessage>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs) => ConvertAsync(context, context.Argument.RawValue);
 
     public static async Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context, string? value)
     {

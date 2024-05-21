@@ -36,7 +36,7 @@ public static class MessageExtensions
     /// Waits for any button to be pressed on the specified message.
     /// </summary>
     /// <param name="message">The message to wait on.</param>
-    public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(this DiscordMessage message)
+    public static Task<InteractivityResult<ComponentInteractionCreatedEventArgs>> WaitForButtonAsync(this DiscordMessage message)
         => GetInteractivity(message).WaitForButtonAsync(message);
 
     /// <summary>
@@ -44,7 +44,7 @@ public static class MessageExtensions
     /// </summary>
     /// <param name="message">The message to wait on.</param>
     /// <param name="timeoutOverride">Overrides the timeout set in <see cref="InteractivityConfiguration.Timeout"/></param>
-    public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(this DiscordMessage message, TimeSpan? timeoutOverride = null)
+    public static Task<InteractivityResult<ComponentInteractionCreatedEventArgs>> WaitForButtonAsync(this DiscordMessage message, TimeSpan? timeoutOverride = null)
         => GetInteractivity(message).WaitForButtonAsync(message, timeoutOverride);
 
     /// <summary>
@@ -52,7 +52,7 @@ public static class MessageExtensions
     /// </summary>
     /// <param name="message">The message to wait on.</param>
     /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
-    public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(this DiscordMessage message, CancellationToken token)
+    public static Task<InteractivityResult<ComponentInteractionCreatedEventArgs>> WaitForButtonAsync(this DiscordMessage message, CancellationToken token)
         => GetInteractivity(message).WaitForButtonAsync(message, token);
 
     /// <summary>
@@ -61,7 +61,7 @@ public static class MessageExtensions
     /// <param name="message">The message to wait on.</param>
     /// <param name="id">The Id of the button to wait for.</param>
     /// <param name="timeoutOverride">Overrides the timeout set in <see cref="InteractivityConfiguration.Timeout"/></param>
-    public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(this DiscordMessage message, string id, TimeSpan? timeoutOverride = null)
+    public static Task<InteractivityResult<ComponentInteractionCreatedEventArgs>> WaitForButtonAsync(this DiscordMessage message, string id, TimeSpan? timeoutOverride = null)
         => GetInteractivity(message).WaitForButtonAsync(message, id, timeoutOverride);
 
     /// <summary>
@@ -70,7 +70,7 @@ public static class MessageExtensions
     /// <param name="message">The message to wait on.</param>
     /// <param name="id">The Id of the button to wait for.</param>
     /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
-    public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(this DiscordMessage message, string id, CancellationToken token)
+    public static Task<InteractivityResult<ComponentInteractionCreatedEventArgs>> WaitForButtonAsync(this DiscordMessage message, string id, CancellationToken token)
         => GetInteractivity(message).WaitForButtonAsync(message, id, token);
 
     /// <summary>
@@ -79,7 +79,7 @@ public static class MessageExtensions
     /// <param name="message">The message to wait on.</param>
     /// <param name="user">The user to wait for button input from.</param>
     /// <param name="timeoutOverride">Overrides the timeout set in <see cref="InteractivityConfiguration.Timeout"/></param>
-    public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(this DiscordMessage message, DiscordUser user, TimeSpan? timeoutOverride = null)
+    public static Task<InteractivityResult<ComponentInteractionCreatedEventArgs>> WaitForButtonAsync(this DiscordMessage message, DiscordUser user, TimeSpan? timeoutOverride = null)
         => GetInteractivity(message).WaitForButtonAsync(message, user, timeoutOverride);
 
     /// <summary>
@@ -88,7 +88,7 @@ public static class MessageExtensions
     /// <param name="message">The message to wait on.</param>
     /// <param name="user">The user to wait for button input from.</param>
     /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
-    public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(this DiscordMessage message, DiscordUser user, CancellationToken token)
+    public static Task<InteractivityResult<ComponentInteractionCreatedEventArgs>> WaitForButtonAsync(this DiscordMessage message, DiscordUser user, CancellationToken token)
         => GetInteractivity(message).WaitForButtonAsync(message, user, token);
 
     /// <summary>
@@ -97,7 +97,7 @@ public static class MessageExtensions
     /// <param name="message">The message to wait on.</param>
     /// <param name="predicate">The predicate to filter interactions by.</param>
     /// <param name="timeoutOverride">Override the timeout specified in <see cref="InteractivityConfiguration"/></param>
-    public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(this DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, TimeSpan? timeoutOverride = null)
+    public static Task<InteractivityResult<ComponentInteractionCreatedEventArgs>> WaitForButtonAsync(this DiscordMessage message, Func<ComponentInteractionCreatedEventArgs, bool> predicate, TimeSpan? timeoutOverride = null)
         => GetInteractivity(message).WaitForButtonAsync(message, predicate, timeoutOverride);
 
     /// <summary>
@@ -106,7 +106,7 @@ public static class MessageExtensions
     /// <param name="message">The message to wait on.</param>
     /// <param name="predicate">The predicate to filter interactions by.</param>
     /// <param name="token">A token to cancel interactivity with at any time. Pass <see cref="CancellationToken.None"/> to wait indefinitely.</param>
-    public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(this DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken token)
+    public static Task<InteractivityResult<ComponentInteractionCreatedEventArgs>> WaitForButtonAsync(this DiscordMessage message, Func<ComponentInteractionCreatedEventArgs, bool> predicate, CancellationToken token)
         => GetInteractivity(message).WaitForButtonAsync(message, predicate, token);
 
     /// <summary>
@@ -116,7 +116,7 @@ public static class MessageExtensions
     /// <param name="predicate">A filter predicate.</param>
     /// <param name="timeoutOverride">Override the timeout period specified in <see cref="InteractivityConfiguration"/>.</param>
     /// <exception cref="ArgumentException">Thrown when the message doesn't contain any dropdowns</exception>
-    public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(this DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, TimeSpan? timeoutOverride = null)
+    public static Task<InteractivityResult<ComponentInteractionCreatedEventArgs>> WaitForSelectAsync(this DiscordMessage message, Func<ComponentInteractionCreatedEventArgs, bool> predicate, TimeSpan? timeoutOverride = null)
         => GetInteractivity(message).WaitForSelectAsync(message, predicate, timeoutOverride);
 
     /// <summary>
@@ -126,7 +126,7 @@ public static class MessageExtensions
     /// <param name="predicate">A filter predicate.</param>
     /// <param name="token">A token that can be used to cancel interactivity. Pass <see cref="CancellationToken.None"/> to wait indefinitely.</param>
     /// <exception cref="ArgumentException">Thrown when the message doesn't contain any dropdowns</exception>
-    public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(this DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken token)
+    public static Task<InteractivityResult<ComponentInteractionCreatedEventArgs>> WaitForSelectAsync(this DiscordMessage message, Func<ComponentInteractionCreatedEventArgs, bool> predicate, CancellationToken token)
         => GetInteractivity(message).WaitForSelectAsync(message, predicate, token);
 
     /// <summary>
@@ -135,7 +135,7 @@ public static class MessageExtensions
     /// <param name="message">The message to wait on.</param>
     /// <param name="id">The Id of the dropdown to wait for.</param>
     /// <param name="timeoutOverride">Overrides the timeout set in <see cref="InteractivityConfiguration.Timeout"/></param>
-    public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(this DiscordMessage message, string id, TimeSpan? timeoutOverride = null)
+    public static Task<InteractivityResult<ComponentInteractionCreatedEventArgs>> WaitForSelectAsync(this DiscordMessage message, string id, TimeSpan? timeoutOverride = null)
         => GetInteractivity(message).WaitForSelectAsync(message, id, timeoutOverride);
 
     /// <summary>
@@ -144,7 +144,7 @@ public static class MessageExtensions
     /// <param name="message">The message to wait on.</param>
     /// <param name="id">The Id of the dropdown to wait for.</param>
     /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
-    public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(this DiscordMessage message, string id, CancellationToken token)
+    public static Task<InteractivityResult<ComponentInteractionCreatedEventArgs>> WaitForSelectAsync(this DiscordMessage message, string id, CancellationToken token)
         => GetInteractivity(message).WaitForSelectAsync(message, id, token);
 
     /// <summary>
@@ -154,7 +154,7 @@ public static class MessageExtensions
     /// <param name="user">The user to wait for.</param>
     /// <param name="id">The Id of the dropdown to wait for.</param>
     /// <param name="timeoutOverride"></param>
-    public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(this DiscordMessage message, DiscordUser user, string id, TimeSpan? timeoutOverride = null)
+    public static Task<InteractivityResult<ComponentInteractionCreatedEventArgs>> WaitForSelectAsync(this DiscordMessage message, DiscordUser user, string id, TimeSpan? timeoutOverride = null)
         => GetInteractivity(message).WaitForSelectAsync(message, user, id, timeoutOverride);
 
     /// <summary>
@@ -165,7 +165,7 @@ public static class MessageExtensions
     /// <param name="id">The Id of the dropdown to wait for.</param>
     /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
 
-    public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(this DiscordMessage message, DiscordUser user, string id, CancellationToken token)
+    public static Task<InteractivityResult<ComponentInteractionCreatedEventArgs>> WaitForSelectAsync(this DiscordMessage message, DiscordUser user, string id, CancellationToken token)
         => GetInteractivity(message).WaitForSelectAsync(message, user, id, token);
 
     /// <summary>
@@ -175,7 +175,7 @@ public static class MessageExtensions
     /// <param name="user">The target user.</param>
     /// <param name="timeoutOverride">Overrides the timeout set in <see cref="InteractivityConfiguration.Timeout"/></param>
     /// <exception cref="InvalidOperationException">Thrown if interactivity is not enabled for the client associated with the message.</exception>
-    public static Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(this DiscordMessage message, DiscordUser user, TimeSpan? timeoutOverride = null)
+    public static Task<InteractivityResult<MessageReactionAddedEventArgs>> WaitForReactionAsync(this DiscordMessage message, DiscordUser user, TimeSpan? timeoutOverride = null)
         => GetInteractivity(message).WaitForReactionAsync(message, user, timeoutOverride);
 
     /// <summary>
@@ -186,7 +186,7 @@ public static class MessageExtensions
     /// <param name="emoji">The target emoji.</param>
     /// <param name="timeoutOverride">Overrides the timeout set in <see cref="InteractivityConfiguration.Timeout"/></param>
     /// <exception cref="InvalidOperationException">Thrown if interactivity is not enabled for the client associated with the message.</exception>
-    public static Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(this DiscordMessage message, DiscordUser user, DiscordEmoji emoji, TimeSpan? timeoutOverride = null)
+    public static Task<InteractivityResult<MessageReactionAddedEventArgs>> WaitForReactionAsync(this DiscordMessage message, DiscordUser user, DiscordEmoji emoji, TimeSpan? timeoutOverride = null)
         => GetInteractivity(message).WaitForReactionAsync(e => e.Emoji == emoji, message, user, timeoutOverride);
 
     /// <summary>

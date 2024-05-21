@@ -31,23 +31,23 @@ public sealed partial class DiscordClient
     /// Fired whenever WebSocket connection is established.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, SocketEventArgs> SocketOpened
+    public event AsyncEventHandler<DiscordClient, SocketOpenedEventArgs> SocketOpened
     {
         add => this.socketOpened.Register(value);
         remove => this.socketOpened.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, SocketEventArgs> socketOpened;
+    private AsyncEvent<DiscordClient, SocketOpenedEventArgs> socketOpened;
 
     /// <summary>
     /// Fired whenever WebSocket connection is terminated.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, SocketCloseEventArgs> SocketClosed
+    public event AsyncEventHandler<DiscordClient, SocketClosedEventArgs> SocketClosed
     {
         add => this.socketClosed.Register(value);
         remove => this.socketClosed.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, SocketCloseEventArgs> socketClosed;
+    private AsyncEvent<DiscordClient, SocketClosedEventArgs> socketClosed;
 
     /// <summary>
     /// Fired when this client has successfully completed its handshake with the websocket gateway.
@@ -57,34 +57,34 @@ public sealed partial class DiscordClient
     /// See also: <see cref="GuildAvailable"/>, <see cref="GuildDownloadCompleted"/>
     /// </remarks>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, SessionReadyEventArgs> SessionCreated
+    public event AsyncEventHandler<DiscordClient, SessionCreatedEventArgs> SessionCreated
     {
         add => this.ready.Register(value);
         remove => this.ready.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, SessionReadyEventArgs> ready;
+    private AsyncEvent<DiscordClient, SessionCreatedEventArgs> ready;
 
     /// <summary>
     /// Fired whenever a session is resumed.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, SessionReadyEventArgs> SessionResumed
+    public event AsyncEventHandler<DiscordClient, SessionCreatedEventArgs> SessionResumed
     {
         add => this.resumed.Register(value);
         remove => this.resumed.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, SessionReadyEventArgs> resumed;
+    private AsyncEvent<DiscordClient, SessionCreatedEventArgs> resumed;
 
     /// <summary>
     /// Fired on received heartbeat ACK.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, HeartbeatEventArgs> Heartbeated
+    public event AsyncEventHandler<DiscordClient, HeartbeatedEventArgs> Heartbeated
     {
         add => this.heartbeated.Register(value);
         remove => this.heartbeated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, HeartbeatEventArgs> heartbeated;
+    private AsyncEvent<DiscordClient, HeartbeatedEventArgs> heartbeated;
 
     /// <summary>
     /// Fired on heartbeat attempt cancellation due to too many failed heartbeats.
@@ -118,60 +118,60 @@ public sealed partial class DiscordClient
     /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, ChannelCreateEventArgs> ChannelCreated
+    public event AsyncEventHandler<DiscordClient, ChannelCreatedEventArgs> ChannelCreated
     {
         add => this.channelCreated.Register(value);
         remove => this.channelCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ChannelCreateEventArgs> channelCreated;
+    private AsyncEvent<DiscordClient, ChannelCreatedEventArgs> channelCreated;
 
     /// <summary>
     /// Fired when a channel is updated.
     /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, ChannelUpdateEventArgs> ChannelUpdated
+    public event AsyncEventHandler<DiscordClient, ChannelUpdatedEventArgs> ChannelUpdated
     {
         add => this.channelUpdated.Register(value);
         remove => this.channelUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ChannelUpdateEventArgs> channelUpdated;
+    private AsyncEvent<DiscordClient, ChannelUpdatedEventArgs> channelUpdated;
 
     /// <summary>
     /// Fired when a channel is deleted
     /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, ChannelDeleteEventArgs> ChannelDeleted
+    public event AsyncEventHandler<DiscordClient, ChannelDeletedEventArgs> ChannelDeleted
     {
         add => this.channelDeleted.Register(value);
         remove => this.channelDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ChannelDeleteEventArgs> channelDeleted;
+    private AsyncEvent<DiscordClient, ChannelDeletedEventArgs> channelDeleted;
 
     /// <summary>
     /// Fired when a dm channel is deleted
     /// For this Event you need the <see cref="DiscordIntents.DirectMessages"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, DmChannelDeleteEventArgs> DmChannelDeleted
+    public event AsyncEventHandler<DiscordClient, DmChannelDeletedEventArgs> DmChannelDeleted
     {
         add => this.dmChannelDeleted.Register(value);
         remove => this.dmChannelDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, DmChannelDeleteEventArgs> dmChannelDeleted;
+    private AsyncEvent<DiscordClient, DmChannelDeletedEventArgs> dmChannelDeleted;
 
     /// <summary>
     /// Fired whenever a channel's pinned message list is updated.
     /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, ChannelPinsUpdateEventArgs> ChannelPinsUpdated
+    public event AsyncEventHandler<DiscordClient, ChannelPinsUpdatedEventArgs> ChannelPinsUpdated
     {
         add => this.channelPinsUpdated.Register(value);
         remove => this.channelPinsUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ChannelPinsUpdateEventArgs> channelPinsUpdated;
+    private AsyncEvent<DiscordClient, ChannelPinsUpdatedEventArgs> channelPinsUpdated;
 
     #endregion
 
@@ -183,59 +183,59 @@ public sealed partial class DiscordClient
     /// </summary>
     /// <remarks>[alias="GuildJoined"][alias="JoinedGuild"]</remarks>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, GuildCreateEventArgs> GuildCreated
+    public event AsyncEventHandler<DiscordClient, GuildCreatedEventArgs> GuildCreated
     {
         add => this.guildCreated.Register(value);
         remove => this.guildCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildCreateEventArgs> guildCreated;
+    private AsyncEvent<DiscordClient, GuildCreatedEventArgs> guildCreated;
 
     /// <summary>
     /// Fired when a guild is becoming available.
     /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, GuildCreateEventArgs> GuildAvailable
+    public event AsyncEventHandler<DiscordClient, GuildAvailableEventArgs> GuildAvailable
     {
         add => this.guildAvailable.Register(value);
         remove => this.guildAvailable.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildCreateEventArgs> guildAvailable;
+    private AsyncEvent<DiscordClient, GuildAvailableEventArgs> guildAvailable;
 
     /// <summary>
     /// Fired when a guild is updated.
     /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, GuildUpdateEventArgs> GuildUpdated
+    public event AsyncEventHandler<DiscordClient, GuildUpdatedEventArgs> GuildUpdated
     {
         add => this.guildUpdated.Register(value);
         remove => this.guildUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildUpdateEventArgs> guildUpdated;
+    private AsyncEvent<DiscordClient, GuildUpdatedEventArgs> guildUpdated;
 
     /// <summary>
     /// Fired when the user leaves or is removed from a guild.
     /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, GuildDeleteEventArgs> GuildDeleted
+    public event AsyncEventHandler<DiscordClient, GuildDeletedEventArgs> GuildDeleted
     {
         add => this.guildDeleted.Register(value);
         remove => this.guildDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildDeleteEventArgs> guildDeleted;
+    private AsyncEvent<DiscordClient, GuildDeletedEventArgs> guildDeleted;
 
     /// <summary>
     /// Fired when a guild becomes unavailable.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, GuildDeleteEventArgs> GuildUnavailable
+    public event AsyncEventHandler<DiscordClient, GuildUnavailableEventArgs> GuildUnavailable
     {
         add => this.guildUnavailable.Register(value);
         remove => this.guildUnavailable.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildDeleteEventArgs> guildUnavailable;
+    private AsyncEvent<DiscordClient, GuildUnavailableEventArgs> guildUnavailable;
 
     /// <summary>
     /// Fired when all guilds finish streaming from Discord.
@@ -253,32 +253,32 @@ public sealed partial class DiscordClient
     /// For this Event you need the <see cref="DiscordIntents.GuildEmojisAndStickers"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, GuildEmojisUpdateEventArgs> GuildEmojisUpdated
+    public event AsyncEventHandler<DiscordClient, GuildEmojisUpdatedEventArgs> GuildEmojisUpdated
     {
         add => this.guildEmojisUpdated.Register(value);
         remove => this.guildEmojisUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildEmojisUpdateEventArgs> guildEmojisUpdated;
+    private AsyncEvent<DiscordClient, GuildEmojisUpdatedEventArgs> guildEmojisUpdated;
 
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, GuildStickersUpdateEventArgs> GuildStickersUpdated
+    public event AsyncEventHandler<DiscordClient, GuildStickersUpdatedEventArgs> GuildStickersUpdated
     {
         add => this.guildStickersUpdated.Register(value);
         remove => this.guildStickersUpdated.Unregister(value);
     }
 
-    private AsyncEvent<DiscordClient, GuildStickersUpdateEventArgs> guildStickersUpdated;
+    private AsyncEvent<DiscordClient, GuildStickersUpdatedEventArgs> guildStickersUpdated;
 
     /// <summary>
     /// Fired when a guild integration is updated.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, GuildIntegrationsUpdateEventArgs> GuildIntegrationsUpdated
+    public event AsyncEventHandler<DiscordClient, GuildIntegrationsUpdatedEventArgs> GuildIntegrationsUpdated
     {
         add => this.guildIntegrationsUpdated.Register(value);
         remove => this.guildIntegrationsUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildIntegrationsUpdateEventArgs> guildIntegrationsUpdated;
+    private AsyncEvent<DiscordClient, GuildIntegrationsUpdatedEventArgs> guildIntegrationsUpdated;
 
     /// <summary>
     /// Fired when a audit log entry is created.
@@ -296,28 +296,28 @@ public sealed partial class DiscordClient
     #region Scheduled Guild Events
 
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, ScheduledGuildEventCreateEventArgs> ScheduledGuildEventCreated
+    public event AsyncEventHandler<DiscordClient, ScheduledGuildEventCreatedEventArgs> ScheduledGuildEventCreated
     {
         add => this.scheduledGuildEventCreated.Register(value);
         remove => this.scheduledGuildEventCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventCreateEventArgs> scheduledGuildEventCreated;
+    private AsyncEvent<DiscordClient, ScheduledGuildEventCreatedEventArgs> scheduledGuildEventCreated;
 
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUpdateEventArgs> ScheduledGuildEventUpdated
+    public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUpdatedEventArgs> ScheduledGuildEventUpdated
     {
         add => this.scheduledGuildEventUpdated.Register(value);
         remove => this.scheduledGuildEventUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventUpdateEventArgs> scheduledGuildEventUpdated;
+    private AsyncEvent<DiscordClient, ScheduledGuildEventUpdatedEventArgs> scheduledGuildEventUpdated;
 
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, ScheduledGuildEventDeleteEventArgs> ScheduledGuildEventDeleted
+    public event AsyncEventHandler<DiscordClient, ScheduledGuildEventDeletedEventArgs> ScheduledGuildEventDeleted
     {
         add => this.scheduledGuildEventDeleted.Register(value);
         remove => this.scheduledGuildEventDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventDeleteEventArgs> scheduledGuildEventDeleted;
+    private AsyncEvent<DiscordClient, ScheduledGuildEventDeletedEventArgs> scheduledGuildEventDeleted;
 
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventCompletedEventArgs> ScheduledGuildEventCompleted
@@ -328,20 +328,20 @@ public sealed partial class DiscordClient
     private AsyncEvent<DiscordClient, ScheduledGuildEventCompletedEventArgs> scheduledGuildEventCompleted;
 
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUserAddEventArgs> ScheduledGuildEventUserAdded
+    public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUserAddedEventArgs> ScheduledGuildEventUserAdded
     {
         add => this.scheduledGuildEventUserAdded.Register(value);
         remove => this.scheduledGuildEventUserAdded.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventUserAddEventArgs> scheduledGuildEventUserAdded;
+    private AsyncEvent<DiscordClient, ScheduledGuildEventUserAddedEventArgs> scheduledGuildEventUserAdded;
 
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUserRemoveEventArgs> ScheduledGuildEventUserRemoved
+    public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUserRemovedEventArgs> ScheduledGuildEventUserRemoved
     {
         add => this.scheduledGuildEventUserRemoved.Register(value);
         remove => this.scheduledGuildEventUserRemoved.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventUserRemoveEventArgs> scheduledGuildEventUserRemoved;
+    private AsyncEvent<DiscordClient, ScheduledGuildEventUserRemovedEventArgs> scheduledGuildEventUserRemoved;
 
     #endregion
 
@@ -352,24 +352,24 @@ public sealed partial class DiscordClient
     /// For this Event you need the <see cref="DiscordIntents.GuildModeration"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, GuildBanAddEventArgs> GuildBanAdded
+    public event AsyncEventHandler<DiscordClient, GuildBanAddedEventArgs> GuildBanAdded
     {
         add => this.guildBanAdded.Register(value);
         remove => this.guildBanAdded.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildBanAddEventArgs> guildBanAdded;
+    private AsyncEvent<DiscordClient, GuildBanAddedEventArgs> guildBanAdded;
 
     /// <summary>
     /// Fired when a guild ban gets removed
     /// For this Event you need the <see cref="DiscordIntents.GuildModeration"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, GuildBanRemoveEventArgs> GuildBanRemoved
+    public event AsyncEventHandler<DiscordClient, GuildBanRemovedEventArgs> GuildBanRemoved
     {
         add => this.guildBanRemoved.Register(value);
         remove => this.guildBanRemoved.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildBanRemoveEventArgs> guildBanRemoved;
+    private AsyncEvent<DiscordClient, GuildBanRemovedEventArgs> guildBanRemoved;
 
     #endregion
 
@@ -380,47 +380,47 @@ public sealed partial class DiscordClient
     /// For this Event you need the <see cref="DiscordIntents.GuildMembers"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, GuildMemberAddEventArgs> GuildMemberAdded
+    public event AsyncEventHandler<DiscordClient, GuildMemberAddedEventArgs> GuildMemberAdded
     {
         add => this.guildMemberAdded.Register(value);
         remove => this.guildMemberAdded.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildMemberAddEventArgs> guildMemberAdded;
+    private AsyncEvent<DiscordClient, GuildMemberAddedEventArgs> guildMemberAdded;
 
     /// <summary>
     /// Fired when a user is removed from a guild (leave/kick/ban).
     /// For this Event you need the <see cref="DiscordIntents.GuildMembers"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, GuildMemberRemoveEventArgs> GuildMemberRemoved
+    public event AsyncEventHandler<DiscordClient, GuildMemberRemovedEventArgs> GuildMemberRemoved
     {
         add => this.guildMemberRemoved.Register(value);
         remove => this.guildMemberRemoved.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildMemberRemoveEventArgs> guildMemberRemoved;
+    private AsyncEvent<DiscordClient, GuildMemberRemovedEventArgs> guildMemberRemoved;
 
     /// <summary>
     /// Fired when a guild member is updated.
     /// For this Event you need the <see cref="DiscordIntents.GuildMembers"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, GuildMemberUpdateEventArgs> GuildMemberUpdated
+    public event AsyncEventHandler<DiscordClient, GuildMemberUpdatedEventArgs> GuildMemberUpdated
     {
         add => this.guildMemberUpdated.Register(value);
         remove => this.guildMemberUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildMemberUpdateEventArgs> guildMemberUpdated;
+    private AsyncEvent<DiscordClient, GuildMemberUpdatedEventArgs> guildMemberUpdated;
 
     /// <summary>
     /// Fired in response to Gateway Request Guild Members.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, GuildMembersChunkEventArgs> GuildMembersChunked
+    public event AsyncEventHandler<DiscordClient, GuildMembersChunkedEventArgs> GuildMembersChunked
     {
         add => this.guildMembersChunked.Register(value);
         remove => this.guildMembersChunked.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildMembersChunkEventArgs> guildMembersChunked;
+    private AsyncEvent<DiscordClient, GuildMembersChunkedEventArgs> guildMembersChunked;
 
     #endregion
 
@@ -431,36 +431,36 @@ public sealed partial class DiscordClient
     /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, GuildRoleCreateEventArgs> GuildRoleCreated
+    public event AsyncEventHandler<DiscordClient, GuildRoleCreatedEventArgs> GuildRoleCreated
     {
         add => this.guildRoleCreated.Register(value);
         remove => this.guildRoleCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildRoleCreateEventArgs> guildRoleCreated;
+    private AsyncEvent<DiscordClient, GuildRoleCreatedEventArgs> guildRoleCreated;
 
     /// <summary>
     /// Fired when a guild role is updated.
     /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, GuildRoleUpdateEventArgs> GuildRoleUpdated
+    public event AsyncEventHandler<DiscordClient, GuildRoleUpdatedEventArgs> GuildRoleUpdated
     {
         add => this.guildRoleUpdated.Register(value);
         remove => this.guildRoleUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildRoleUpdateEventArgs> guildRoleUpdated;
+    private AsyncEvent<DiscordClient, GuildRoleUpdatedEventArgs> guildRoleUpdated;
 
     /// <summary>
     /// Fired when a guild role is updated.
     /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, GuildRoleDeleteEventArgs> GuildRoleDeleted
+    public event AsyncEventHandler<DiscordClient, GuildRoleDeletedEventArgs> GuildRoleDeleted
     {
         add => this.guildRoleDeleted.Register(value);
         remove => this.guildRoleDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, GuildRoleDeleteEventArgs> guildRoleDeleted;
+    private AsyncEvent<DiscordClient, GuildRoleDeletedEventArgs> guildRoleDeleted;
 
     #endregion
 
@@ -471,24 +471,24 @@ public sealed partial class DiscordClient
     /// For this Event you need the <see cref="DiscordIntents.GuildInvites"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, InviteCreateEventArgs> InviteCreated
+    public event AsyncEventHandler<DiscordClient, InviteCreatedEventArgs> InviteCreated
     {
         add => this.inviteCreated.Register(value);
         remove => this.inviteCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, InviteCreateEventArgs> inviteCreated;
+    private AsyncEvent<DiscordClient, InviteCreatedEventArgs> inviteCreated;
 
     /// <summary>
     /// Fired when an invite is deleted.
     /// For this Event you need the <see cref="DiscordIntents.GuildInvites"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, InviteDeleteEventArgs> InviteDeleted
+    public event AsyncEventHandler<DiscordClient, InviteDeletedEventArgs> InviteDeleted
     {
         add => this.inviteDeleted.Register(value);
         remove => this.inviteDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, InviteDeleteEventArgs> inviteDeleted;
+    private AsyncEvent<DiscordClient, InviteDeletedEventArgs> inviteDeleted;
 
     #endregion
 
@@ -499,57 +499,57 @@ public sealed partial class DiscordClient
     /// For this Event you need the <see cref="DiscordIntents.GuildMessages"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, MessageCreateEventArgs> MessageCreated
+    public event AsyncEventHandler<DiscordClient, MessageCreatedEventArgs> MessageCreated
     {
         add => this.messageCreated.Register(value);
         remove => this.messageCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageCreateEventArgs> messageCreated;
+    private AsyncEvent<DiscordClient, MessageCreatedEventArgs> messageCreated;
 
     /// <summary>
     /// Fired when a message is updated.
     /// For this Event you need the <see cref="DiscordIntents.GuildMessages"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, MessageUpdateEventArgs> MessageUpdated
+    public event AsyncEventHandler<DiscordClient, MessageUpdatedEventArgs> MessageUpdated
     {
         add => this.messageUpdated.Register(value);
         remove => this.messageUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageUpdateEventArgs> messageUpdated;
+    private AsyncEvent<DiscordClient, MessageUpdatedEventArgs> messageUpdated;
 
     /// <summary>
     /// Fired when a message is deleted.
     /// For this Event you need the <see cref="DiscordIntents.GuildMessages"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, MessageDeleteEventArgs> MessageDeleted
+    public event AsyncEventHandler<DiscordClient, MessageDeletedEventArgs> MessageDeleted
     {
         add => this.messageDeleted.Register(value);
         remove => this.messageDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageDeleteEventArgs> messageDeleted;
+    private AsyncEvent<DiscordClient, MessageDeletedEventArgs> messageDeleted;
 
     /// <summary>
     /// Fired when multiple messages are deleted at once.
     /// For this Event you need the <see cref="DiscordIntents.GuildMessages"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, MessageBulkDeleteEventArgs> MessagesBulkDeleted
+    public event AsyncEventHandler<DiscordClient, MessagesBulkDeletedEventArgs> MessagesBulkDeleted
     {
         add => this.messagesBulkDeleted.Register(value);
         remove => this.messagesBulkDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageBulkDeleteEventArgs> messagesBulkDeleted;
+    private AsyncEvent<DiscordClient, MessagesBulkDeletedEventArgs> messagesBulkDeleted;
 
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, MessagePollVoteEventArgs> MessagePollVoted
+    public event AsyncEventHandler<DiscordClient, MessagePollVotedEventArgs> MessagePollVoted
     {
         add => this.messagePollVoted.Register(value);
         remove => this.messagePollVoted.Unregister(value);
     }
 
-    private AsyncEvent<DiscordClient, MessagePollVoteEventArgs> messagePollVoted;
+    private AsyncEvent<DiscordClient, MessagePollVotedEventArgs> messagePollVoted;
 
     #endregion
 
@@ -560,48 +560,48 @@ public sealed partial class DiscordClient
     /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, MessageReactionAddEventArgs> MessageReactionAdded
+    public event AsyncEventHandler<DiscordClient, MessageReactionAddedEventArgs> MessageReactionAdded
     {
         add => this.messageReactionAdded.Register(value);
         remove => this.messageReactionAdded.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageReactionAddEventArgs> messageReactionAdded;
+    private AsyncEvent<DiscordClient, MessageReactionAddedEventArgs> messageReactionAdded;
 
     /// <summary>
     /// Fired when a reaction gets removed from a message.
     /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, MessageReactionRemoveEventArgs> MessageReactionRemoved
+    public event AsyncEventHandler<DiscordClient, MessageReactionRemovedEventArgs> MessageReactionRemoved
     {
         add => this.messageReactionRemoved.Register(value);
         remove => this.messageReactionRemoved.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageReactionRemoveEventArgs> messageReactionRemoved;
+    private AsyncEvent<DiscordClient, MessageReactionRemovedEventArgs> messageReactionRemoved;
 
     /// <summary>
     /// Fired when all reactions get removed from a message.
     /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, MessageReactionsClearEventArgs> MessageReactionsCleared
+    public event AsyncEventHandler<DiscordClient, MessageReactionsClearedEventArgs> MessageReactionsCleared
     {
         add => this.messageReactionsCleared.Register(value);
         remove => this.messageReactionsCleared.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageReactionsClearEventArgs> messageReactionsCleared;
+    private AsyncEvent<DiscordClient, MessageReactionsClearedEventArgs> messageReactionsCleared;
 
     /// <summary>
     /// Fired when all reactions of a specific reaction are removed from a message.
     /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, MessageReactionRemoveEmojiEventArgs> MessageReactionRemovedEmoji
+    public event AsyncEventHandler<DiscordClient, MessageReactionRemovedEmojiEventArgs> MessageReactionRemovedEmoji
     {
         add => this.messageReactionRemovedEmoji.Register(value);
         remove => this.messageReactionRemovedEmoji.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, MessageReactionRemoveEmojiEventArgs> messageReactionRemovedEmoji;
+    private AsyncEvent<DiscordClient, MessageReactionRemovedEmojiEventArgs> messageReactionRemovedEmoji;
 
     #endregion
 
@@ -612,24 +612,24 @@ public sealed partial class DiscordClient
     /// For this Event you need the <see cref="DiscordIntents.GuildPresences"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, PresenceUpdateEventArgs> PresenceUpdated
+    public event AsyncEventHandler<DiscordClient, PresenceUpdatedEventArgs> PresenceUpdated
     {
         add => this.presenceUpdated.Register(value);
         remove => this.presenceUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, PresenceUpdateEventArgs> presenceUpdated;
+    private AsyncEvent<DiscordClient, PresenceUpdatedEventArgs> presenceUpdated;
 
     /// <summary>
     /// Fired when the current user updates their settings.
     /// For this Event you need the <see cref="DiscordIntents.GuildPresences"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, UserSettingsUpdateEventArgs> UserSettingsUpdated
+    public event AsyncEventHandler<DiscordClient, UserSettingsUpdatedEventArgs> UserSettingsUpdated
     {
         add => this.userSettingsUpdated.Register(value);
         remove => this.userSettingsUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, UserSettingsUpdateEventArgs> userSettingsUpdated;
+    private AsyncEvent<DiscordClient, UserSettingsUpdatedEventArgs> userSettingsUpdated;
 
     /// <summary>
     /// Fired when properties about the current user change.
@@ -639,12 +639,12 @@ public sealed partial class DiscordClient
     /// For this Event you need the <see cref="DiscordIntents.GuildPresences"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </remarks>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, UserUpdateEventArgs> UserUpdated
+    public event AsyncEventHandler<DiscordClient, UserUpdatedEventArgs> UserUpdated
     {
         add => this.userUpdated.Register(value);
         remove => this.userUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, UserUpdateEventArgs> userUpdated;
+    private AsyncEvent<DiscordClient, UserUpdatedEventArgs> userUpdated;
 
     #endregion
 
@@ -655,24 +655,24 @@ public sealed partial class DiscordClient
     /// For this Event you need the <see cref="DiscordIntents.GuildVoiceStates"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, VoiceStateUpdateEventArgs> VoiceStateUpdated
+    public event AsyncEventHandler<DiscordClient, VoiceStateUpdatedEventArgs> VoiceStateUpdated
     {
         add => this.voiceStateUpdated.Register(value);
         remove => this.voiceStateUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, VoiceStateUpdateEventArgs> voiceStateUpdated;
+    private AsyncEvent<DiscordClient, VoiceStateUpdatedEventArgs> voiceStateUpdated;
 
     /// <summary>
     /// Fired when a guild's voice server is updated.
     /// For this Event you need the <see cref="DiscordIntents.GuildVoiceStates"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, VoiceServerUpdateEventArgs> VoiceServerUpdated
+    public event AsyncEventHandler<DiscordClient, VoiceServerUpdatedEventArgs> VoiceServerUpdated
     {
         add => this.voiceServerUpdated.Register(value);
         remove => this.voiceServerUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, VoiceServerUpdateEventArgs> voiceServerUpdated;
+    private AsyncEvent<DiscordClient, VoiceServerUpdatedEventArgs> voiceServerUpdated;
 
     #endregion
 
@@ -683,48 +683,48 @@ public sealed partial class DiscordClient
     /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, ThreadCreateEventArgs> ThreadCreated
+    public event AsyncEventHandler<DiscordClient, ThreadCreatedEventArgs> ThreadCreated
     {
         add => this.threadCreated.Register(value);
         remove => this.threadCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ThreadCreateEventArgs> threadCreated;
+    private AsyncEvent<DiscordClient, ThreadCreatedEventArgs> threadCreated;
 
     /// <summary>
     /// Fired when a thread is updated.
     /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, ThreadUpdateEventArgs> ThreadUpdated
+    public event AsyncEventHandler<DiscordClient, ThreadUpdatedEventArgs> ThreadUpdated
     {
         add => this.threadUpdated.Register(value);
         remove => this.threadUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ThreadUpdateEventArgs> threadUpdated;
+    private AsyncEvent<DiscordClient, ThreadUpdatedEventArgs> threadUpdated;
 
     /// <summary>
     /// Fired when a thread is deleted.
     /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, ThreadDeleteEventArgs> ThreadDeleted
+    public event AsyncEventHandler<DiscordClient, ThreadDeletedEventArgs> ThreadDeleted
     {
         add => this.threadDeleted.Register(value);
         remove => this.threadDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ThreadDeleteEventArgs> threadDeleted;
+    private AsyncEvent<DiscordClient, ThreadDeletedEventArgs> threadDeleted;
 
     /// <summary>
     /// Fired when the current member gains access to a channel(s) that has threads.
     /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, ThreadListSyncEventArgs> ThreadListSynced
+    public event AsyncEventHandler<DiscordClient, ThreadListSyncedEventArgs> ThreadListSynced
     {
         add => this.threadListSynced.Register(value);
         remove => this.threadListSynced.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ThreadListSyncEventArgs> threadListSynced;
+    private AsyncEvent<DiscordClient, ThreadListSyncedEventArgs> threadListSynced;
 
     /// <summary>
     /// Fired when the thread member for the current user is updated.
@@ -734,24 +734,24 @@ public sealed partial class DiscordClient
     /// This event is primarily implemented for completeness and unlikely to be useful to bots.
     /// </remarks>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, ThreadMemberUpdateEventArgs> ThreadMemberUpdated
+    public event AsyncEventHandler<DiscordClient, ThreadMemberUpdatedEventArgs> ThreadMemberUpdated
     {
         add => this.threadMemberUpdated.Register(value);
         remove => this.threadMemberUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ThreadMemberUpdateEventArgs> threadMemberUpdated;
+    private AsyncEvent<DiscordClient, ThreadMemberUpdatedEventArgs> threadMemberUpdated;
 
     /// <summary>
     /// Fired when the thread members are updated.
     /// For this Event you need the <see cref="DiscordIntents.GuildMembers"/> or <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, ThreadMembersUpdateEventArgs> ThreadMembersUpdated
+    public event AsyncEventHandler<DiscordClient, ThreadMembersUpdatedEventArgs> ThreadMembersUpdated
     {
         add => this.threadMembersUpdated.Register(value);
         remove => this.threadMembersUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs> threadMembersUpdated;
+    private AsyncEvent<DiscordClient, ThreadMembersUpdatedEventArgs> threadMembersUpdated;
 
     #endregion
 
@@ -761,34 +761,34 @@ public sealed partial class DiscordClient
     /// Fired when an integration is created.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, IntegrationCreateEventArgs> IntegrationCreated
+    public event AsyncEventHandler<DiscordClient, IntegrationCreatedEventArgs> IntegrationCreated
     {
         add => this.integrationCreated.Register(value);
         remove => this.integrationCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, IntegrationCreateEventArgs> integrationCreated;
+    private AsyncEvent<DiscordClient, IntegrationCreatedEventArgs> integrationCreated;
 
     /// <summary>
     /// Fired when an integration is updated.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, IntegrationUpdateEventArgs> IntegrationUpdated
+    public event AsyncEventHandler<DiscordClient, IntegrationUpdatedEventArgs> IntegrationUpdated
     {
         add => this.integrationUpdated.Register(value);
         remove => this.integrationUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, IntegrationUpdateEventArgs> integrationUpdated;
+    private AsyncEvent<DiscordClient, IntegrationUpdatedEventArgs> integrationUpdated;
 
     /// <summary>
     /// Fired when an integration is deleted.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, IntegrationDeleteEventArgs> IntegrationDeleted
+    public event AsyncEventHandler<DiscordClient, IntegrationDeletedEventArgs> IntegrationDeleted
     {
         add => this.integrationDeleted.Register(value);
         remove => this.integrationDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, IntegrationDeleteEventArgs> integrationDeleted;
+    private AsyncEvent<DiscordClient, IntegrationDeletedEventArgs> integrationDeleted;
 
     #endregion
 
@@ -798,34 +798,34 @@ public sealed partial class DiscordClient
     /// Fired when a stage instance is created.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, StageInstanceCreateEventArgs> StageInstanceCreated
+    public event AsyncEventHandler<DiscordClient, StageInstanceCreatedEventArgs> StageInstanceCreated
     {
         add => this.stageInstanceCreated.Register(value);
         remove => this.stageInstanceCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, StageInstanceCreateEventArgs> stageInstanceCreated;
+    private AsyncEvent<DiscordClient, StageInstanceCreatedEventArgs> stageInstanceCreated;
 
     /// <summary>
     /// Fired when a stage instance is updated.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, StageInstanceUpdateEventArgs> StageInstanceUpdated
+    public event AsyncEventHandler<DiscordClient, StageInstanceUpdatedEventArgs> StageInstanceUpdated
     {
         add => this.stageInstanceUpdated.Register(value);
         remove => this.stageInstanceUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs> stageInstanceUpdated;
+    private AsyncEvent<DiscordClient, StageInstanceUpdatedEventArgs> stageInstanceUpdated;
 
     /// <summary>
     /// Fired when a stage instance is deleted.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, StageInstanceDeleteEventArgs> StageInstanceDeleted
+    public event AsyncEventHandler<DiscordClient, StageInstanceDeletedEventArgs> StageInstanceDeleted
     {
         add => this.stageInstanceDeleted.Register(value);
         remove => this.stageInstanceDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs> stageInstanceDeleted;
+    private AsyncEvent<DiscordClient, StageInstanceDeletedEventArgs> stageInstanceDeleted;
 
     #endregion
 
@@ -835,59 +835,59 @@ public sealed partial class DiscordClient
     /// Fired when an interaction is invoked.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, InteractionCreateEventArgs> InteractionCreated
+    public event AsyncEventHandler<DiscordClient, InteractionCreatedEventArgs> InteractionCreated
     {
         add => this.interactionCreated.Register(value);
         remove => this.interactionCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, InteractionCreateEventArgs> interactionCreated;
+    private AsyncEvent<DiscordClient, InteractionCreatedEventArgs> interactionCreated;
 
     /// <summary>
     /// Fired when a component is invoked.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, ComponentInteractionCreateEventArgs> ComponentInteractionCreated
+    public event AsyncEventHandler<DiscordClient, ComponentInteractionCreatedEventArgs> ComponentInteractionCreated
     {
         add => this.componentInteractionCreated.Register(value);
         remove => this.componentInteractionCreated.Unregister(value);
     }
 
-    private AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs> componentInteractionCreated;
+    private AsyncEvent<DiscordClient, ComponentInteractionCreatedEventArgs> componentInteractionCreated;
 
     /// <summary>
     /// Fired when a modal is submitted. If a modal is closed, this event is not fired.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, ModalSubmitEventArgs> ModalSubmitted
+    public event AsyncEventHandler<DiscordClient, ModalSubmittedEventArgs> ModalSubmitted
     {
         add => this.modalSubmitted.Register(value);
         remove => this.modalSubmitted.Unregister(value);
     }
 
-    private AsyncEvent<DiscordClient, ModalSubmitEventArgs> modalSubmitted;
+    private AsyncEvent<DiscordClient, ModalSubmittedEventArgs> modalSubmitted;
 
     /// <summary>
     /// Fired when a user uses a context menu.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, ContextMenuInteractionCreateEventArgs> ContextMenuInteractionCreated
+    public event AsyncEventHandler<DiscordClient, ContextMenuInteractionCreatedEventArgs> ContextMenuInteractionCreated
     {
         add => this.contextMenuInteractionCreated.Register(value);
         remove => this.contextMenuInteractionCreated.Unregister(value);
     }
 
-    private AsyncEvent<DiscordClient, ContextMenuInteractionCreateEventArgs> contextMenuInteractionCreated;
+    private AsyncEvent<DiscordClient, ContextMenuInteractionCreatedEventArgs> contextMenuInteractionCreated;
 
     /// <summary>
     /// Fired when a user starts typing in a channel.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, TypingStartEventArgs> TypingStarted
+    public event AsyncEventHandler<DiscordClient, TypingStartedEventArgs> TypingStarted
     {
         add => this.typingStarted.Register(value);
         remove => this.typingStarted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, TypingStartEventArgs> typingStarted;
+    private AsyncEvent<DiscordClient, TypingStartedEventArgs> typingStarted;
 
     /// <summary>
     /// Fired when an unknown event gets received.
@@ -904,12 +904,12 @@ public sealed partial class DiscordClient
     /// Fired whenever webhooks update.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, WebhooksUpdateEventArgs> WebhooksUpdated
+    public event AsyncEventHandler<DiscordClient, WebhooksUpdatedEventArgs> WebhooksUpdated
     {
         add => this.webhooksUpdated.Register(value);
         remove => this.webhooksUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, WebhooksUpdateEventArgs> webhooksUpdated;
+    private AsyncEvent<DiscordClient, WebhooksUpdatedEventArgs> webhooksUpdated;
 
     /// <summary>
     /// Fired whenever an error occurs within an event handler.
@@ -944,44 +944,44 @@ public sealed partial class DiscordClient
     /// Fired when a new auto-moderation rule is created.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, AutoModerationRuleCreateEventArgs> AutoModerationRuleCreated
+    public event AsyncEventHandler<DiscordClient, AutoModerationRuleCreatedEventArgs> AutoModerationRuleCreated
     {
         add => this.autoModerationRuleCreated.Register(value);
         remove => this.autoModerationRuleCreated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, AutoModerationRuleCreateEventArgs> autoModerationRuleCreated;
+    private AsyncEvent<DiscordClient, AutoModerationRuleCreatedEventArgs> autoModerationRuleCreated;
 
     /// <summary>
     /// Fired when an auto-moderation rule is updated.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, AutoModerationRuleUpdateEventArgs> AutoModerationRuleUpdated
+    public event AsyncEventHandler<DiscordClient, AutoModerationRuleUpdatedEventArgs> AutoModerationRuleUpdated
     {
         add => this.autoModerationRuleUpdated.Register(value);
         remove => this.autoModerationRuleUpdated.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, AutoModerationRuleUpdateEventArgs> autoModerationRuleUpdated;
+    private AsyncEvent<DiscordClient, AutoModerationRuleUpdatedEventArgs> autoModerationRuleUpdated;
 
     /// <summary>
     /// Fired when an auto-moderation rule is deleted.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, AutoModerationRuleDeleteEventArgs> AutoModerationRuleDeleted
+    public event AsyncEventHandler<DiscordClient, AutoModerationRuleDeletedEventArgs> AutoModerationRuleDeleted
     {
         add => this.autoModerationRuleDeleted.Register(value);
         remove => this.autoModerationRuleDeleted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, AutoModerationRuleDeleteEventArgs> autoModerationRuleDeleted;
+    private AsyncEvent<DiscordClient, AutoModerationRuleDeletedEventArgs> autoModerationRuleDeleted;
 
     /// <summary>
     /// Fired when an auto-moderation is executed.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, AutoModerationRuleExecuteEventArgs> AutoModerationRuleExecuted
+    public event AsyncEventHandler<DiscordClient, AutoModerationRuleExecutedEventArgs> AutoModerationRuleExecuted
     {
         add => this.autoModerationRuleExecuted.Register(value);
         remove => this.autoModerationRuleExecuted.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, AutoModerationRuleExecuteEventArgs> autoModerationRuleExecuted;
+    private AsyncEvent<DiscordClient, AutoModerationRuleExecutedEventArgs> autoModerationRuleExecuted;
     #endregion
 }

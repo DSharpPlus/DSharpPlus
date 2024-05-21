@@ -50,7 +50,7 @@ internal class Poller
         return result;
     }
 
-    private Task HandleReactionAdd(DiscordClient client, MessageReactionAddEventArgs eventargs)
+    private Task HandleReactionAdd(DiscordClient client, MessageReactionAddedEventArgs eventargs)
     {
         if (this.requests.Count == 0)
         {
@@ -85,7 +85,7 @@ internal class Poller
         return Task.CompletedTask;
     }
 
-    private Task HandleReactionRemove(DiscordClient client, MessageReactionRemoveEventArgs eventargs)
+    private Task HandleReactionRemove(DiscordClient client, MessageReactionRemovedEventArgs eventargs)
     {
         foreach (PollRequest req in this.requests)
         {
@@ -101,7 +101,7 @@ internal class Poller
         return Task.CompletedTask;
     }
 
-    private Task HandleReactionClear(DiscordClient client, MessageReactionsClearEventArgs eventargs)
+    private Task HandleReactionClear(DiscordClient client, MessageReactionsClearedEventArgs eventargs)
     {
         foreach (PollRequest req in this.requests)
         {

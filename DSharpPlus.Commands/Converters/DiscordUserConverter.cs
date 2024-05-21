@@ -26,7 +26,7 @@ public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>
 
     public DiscordUserConverter(ILogger<DiscordUserConverter>? logger = null) => this.logger = logger ?? NullLogger<DiscordUserConverter>.Instance;
 
-    public async Task<Optional<DiscordUser>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
+    public async Task<Optional<DiscordUser>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs)
     {
         if (context.Guild is null)
         {
@@ -67,7 +67,7 @@ public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>
         return Optional.FromNoValue<DiscordUser>();
     }
 
-    public Task<Optional<DiscordUser>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => context.Interaction.Data.Resolved is null
+    public Task<Optional<DiscordUser>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs) => context.Interaction.Data.Resolved is null
         || !ulong.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out ulong memberId)
         || !context.Interaction.Data.Resolved.Users.TryGetValue(memberId, out DiscordUser? user)
             ? Task.FromResult(Optional.FromNoValue<DiscordUser>())
