@@ -38,4 +38,7 @@ public sealed record Entitlement : IEntitlement
 
     /// <inheritdoc/>
     public Optional<DateTimeOffset> EndsAt { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<bool> Consumed { get; init; }
 }

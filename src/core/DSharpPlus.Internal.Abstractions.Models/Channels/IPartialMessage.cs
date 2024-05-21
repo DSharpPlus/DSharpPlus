@@ -176,7 +176,12 @@ public interface IPartialMessage
     public Optional<IResolvedData> Resolved { get; }
 
     /// <summary>
-    /// A poll being created with this message.
+    /// A poll attached to this message.
     /// </summary>
-    public Optional<ICreatePoll> Poll { get; }
+    public Optional<IPoll> Poll { get; }
+
+    /// <summary>
+    /// A call associated with this message.
+    /// </summary>
+    public Optional<IMessageCall> Call { get; }
 }

@@ -24,9 +24,9 @@ public interface IMessageInteractionMetadata
     public DiscordInteractionType Type { get; }
 
     /// <summary>
-    /// The snowflake identifier of the user who triggered this interaction.
+    /// The user who triggered this interaction.
     /// </summary>
-    public Snowflake UserId { get; }
+    public IUser User { get; }
 
     /// <summary>
     /// The installation contexts related to this interaction.

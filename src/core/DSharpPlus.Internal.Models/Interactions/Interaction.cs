@@ -27,6 +27,9 @@ public sealed record Interaction : IInteraction
     public Optional<OneOf<IApplicationCommandInteractionData, IMessageComponentInteractionData, IModalInteractionData>> Data { get; init; }
 
     /// <inheritdoc/>
+    public Optional<IPartialGuild> Guild { get; init; }
+
+    /// <inheritdoc/>
     public Optional<Snowflake> GuildId { get; init; }
 
     /// <inheritdoc/>

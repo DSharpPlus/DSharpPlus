@@ -14,6 +14,11 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 public interface IPartialInvite
 {
     /// <summary>
+    /// Specifies the type of this invite.
+    /// </summary>
+    public Optional<DiscordInviteType> Type { get; }
+
+    /// <summary>
     /// The unique invite code.
     /// </summary>
     public Optional<string> Code { get; }

@@ -237,7 +237,7 @@ public interface IChannelRestAPI
         Snowflake channelId,
         Snowflake messageId,
         string emoji,
-        ForwardsPaginatedQuery query = default,
+        GetReactionsQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );
@@ -406,6 +406,7 @@ public interface IChannelRestAPI
     /// <param name="payload">
     /// The payload, containing the snowflake identifier of the channel you want messages to be cross-posted into.
     /// </param>
+    /// <param name="reason">An optional audit log reason.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>The created followed channel object.</returns>
@@ -413,6 +414,7 @@ public interface IChannelRestAPI
     (
         Snowflake channelId,
         IFollowAnnouncementChannelPayload payload,
+        string? reason = null,
         RequestInfo info = default,
         CancellationToken ct = default
     );

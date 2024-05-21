@@ -2,14 +2,19 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-using DSharpPlus.Entities;
+using System;
+using System.Collections.Generic;
+
 using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Models;
 
-/// <inheritdoc cref="ITimeoutActionMetadata" />
-public sealed record TimeoutActionMetadata : ITimeoutActionMetadata
+/// <inheritdoc cref="IMessageCall" />
+public sealed record MessageCall : IMessageCall
 {
     /// <inheritdoc/>
-    public required int DurationSeconds { get; init; }
+    public required IReadOnlyList<Snowflake> Participants { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<DateTimeOffset?> EndedTimestamp { get; init; }
 }

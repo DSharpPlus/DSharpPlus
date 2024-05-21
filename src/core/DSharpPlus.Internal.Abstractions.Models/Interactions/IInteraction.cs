@@ -41,6 +41,11 @@ public interface IInteraction
     public Optional<OneOf<IApplicationCommandInteractionData, IMessageComponentInteractionData, IModalInteractionData>> Data { get; }
 
     /// <summary>
+    /// The guild this interaction was sent from.
+    /// </summary>
+    public Optional<IPartialGuild> Guild { get; }
+
+    /// <summary>
     /// The snowflake identifier of the guild this interaction was sent from, if applicable.
     /// </summary>
     public Optional<Snowflake> GuildId { get; }

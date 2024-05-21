@@ -13,6 +13,9 @@ namespace DSharpPlus.Internal.Models;
 public sealed record Invite : IInvite
 {
     /// <inheritdoc/>
+    public required DiscordInviteType Type { get; init; }
+
+    /// <inheritdoc/>
     public required string Code { get; init; }
 
     /// <inheritdoc/>

@@ -107,5 +107,8 @@ public sealed record Message : IMessage
     public Optional<IResolvedData> Resolved { get; init; }
 
     /// <inheritdoc/>
-    public Optional<ICreatePoll> Poll { get; init; }
+    public Optional<IPoll> Poll { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<IMessageCall> Call { get; init; }
 }

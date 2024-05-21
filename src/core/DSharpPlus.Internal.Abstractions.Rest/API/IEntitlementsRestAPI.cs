@@ -67,4 +67,21 @@ public interface IEntitlementsRestAPI
         RequestInfo info = default,
         CancellationToken ct = default
     );
+
+    /// <summary>
+    /// Marks an entitlement as consumed. The entitlement will have <see cref="IPartialEntitlement.Consumed"/> set to true
+    /// if queried.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of your application.</param>
+    /// <param name="entitlementId">The snowflake identifier of the entitlement to consume.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns></returns>
+    public ValueTask<Result> ConsumeEntitlementAsync
+    (
+        Snowflake applicationId,
+        Snowflake entitlementId,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
 }

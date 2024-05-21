@@ -75,4 +75,9 @@ public interface IPartialGuildMember
     /// The timestamp at which this user's timeout expires.
     /// </summary>
     public Optional<DateTimeOffset?> CommunicationDisabledUntil { get; }
+
+    /// <summary>
+    /// If present, contains data for the member's avatar decoration.
+    /// </summary>
+    public Optional<IAvatarDecorationData?> AvatarDecorationData { get; }
 }

@@ -13,6 +13,9 @@ namespace DSharpPlus.Internal.Models;
 public sealed record PartialInvite : IPartialInvite
 {
     /// <inheritdoc/>
+    public Optional<DiscordInviteType> Type { get; init; }
+
+    /// <inheritdoc/>
     public Optional<string> Code { get; init; }
 
     /// <inheritdoc/>

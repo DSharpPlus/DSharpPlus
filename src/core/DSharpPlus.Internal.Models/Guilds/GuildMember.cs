@@ -48,4 +48,7 @@ public sealed record GuildMember : IGuildMember
 
     /// <inheritdoc/>
     public Optional<DateTimeOffset?> CommunicationDisabledUntil { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<IAvatarDecorationData?> AvatarDecorationData { get; init; }
 }

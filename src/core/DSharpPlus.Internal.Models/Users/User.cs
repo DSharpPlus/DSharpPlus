@@ -59,5 +59,5 @@ public sealed record User : IUser
     public Optional<DiscordUserFlags> PublicFlags { get; init; }
 
     /// <inheritdoc/>
-    public Optional<string?> AvatarDecoration { get; init; }
+    public Optional<IAvatarDecorationData?> AvatarDecorationData { get; init; }
 }

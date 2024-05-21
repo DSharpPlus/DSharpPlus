@@ -2,14 +2,16 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-using DSharpPlus.Entities;
 using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Models;
 
-/// <inheritdoc cref="ITimeoutActionMetadata" />
-public sealed record TimeoutActionMetadata : ITimeoutActionMetadata
+/// <inheritdoc cref="IAvatarDecorationData" />
+public sealed record AvatarDecorationData : IAvatarDecorationData
 {
     /// <inheritdoc/>
-    public required int DurationSeconds { get; init; }
+    public required string Asset { get; init; }
+
+    /// <inheritdoc/>
+    public required Snowflake SkuId { get; init; }
 }

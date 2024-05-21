@@ -19,7 +19,7 @@ public sealed record MessageInteractionMetadata : IMessageInteractionMetadata
     public required DiscordInteractionType Type { get; init; }
 
     /// <inheritdoc/>
-    public required Snowflake UserId { get; init; }
+    public required IUser User { get; init; }
 
     /// <inheritdoc/>
     public required IReadOnlyDictionary<DiscordApplicationIntegrationType, Snowflake> AuthorizingIntegrationOwners { get; init; }

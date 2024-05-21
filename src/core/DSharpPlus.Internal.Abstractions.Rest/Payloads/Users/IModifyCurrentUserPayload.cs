@@ -20,4 +20,9 @@ public interface IModifyCurrentUserPayload
     /// The new avatar for this user.
     /// </summary>
     public Optional<ImageData?> Avatar { get; }
+
+    /// <summary>
+    /// The new banner for this user.
+    /// </summary>
+    public Optional<ImageData?> Banner { get; }
 }

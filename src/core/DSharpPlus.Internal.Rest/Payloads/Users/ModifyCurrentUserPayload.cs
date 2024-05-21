@@ -14,4 +14,7 @@ public sealed record ModifyCurrentUserPayload : IModifyCurrentUserPayload
 
     /// <inheritdoc/>
     public Optional<ImageData?> Avatar { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<ImageData?> Banner { get; init; }
 }

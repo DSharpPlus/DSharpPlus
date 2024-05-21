@@ -57,4 +57,9 @@ public interface IPartialEntitlement
     /// The date at which this entitlement is no longer valid. Not present when using test entitlements.
     /// </summary>
     public Optional<DateTimeOffset> EndsAt { get; }
+
+    /// <summary>
+    /// Indicates whether this entitlement has been consumed.
+    /// </summary>
+    public Optional<bool> Consumed { get; }
 }

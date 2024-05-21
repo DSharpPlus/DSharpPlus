@@ -23,6 +23,24 @@ public sealed class EntitlementsRestAPI(IRestClient restClient)
     : IEntitlementsRestAPI
 {
     /// <inheritdoc/>
+    public async ValueTask<Result> ConsumeEntitlementAsync
+    (
+        Snowflake applicationId,
+        Snowflake entitlementId,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    )
+    {
+        return await restClient.ExecuteRequestAsync
+        (
+            HttpMethod.Post,
+            $"applications/{applicationId}/entitlements/{entitlementId}/consume",
+            info: info,
+            ct: ct
+        );
+    }
+
+    /// <inheritdoc/>
     public async ValueTask<Result<IPartialEntitlement>> CreateTestEntitlementAsync
     (
         Snowflake applicationId,

@@ -455,6 +455,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
     (
         Snowflake channelId,
         IFollowAnnouncementChannelPayload payload,
+        string? reason = null,
         RequestInfo info = default,
         CancellationToken ct = default
     )
@@ -464,7 +465,8 @@ public sealed class ChannelRestAPI(IRestClient restClient)
             HttpMethod.Post,
             $"channels/{channelId}/followers",
             b => b.WithSimpleRoute(TopLevelResource.Channel, channelId)
-                 .WithPayload(payload),
+                 .WithPayload(payload)
+                 .WithAuditLogReason(reason),
             info,
             ct
         );
@@ -594,7 +596,7 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         Snowflake channelId,
         Snowflake messageId,
         string emoji,
-        ForwardsPaginatedQuery query = default,
+        GetReactionsQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     )
@@ -609,6 +611,16 @@ public sealed class ChannelRestAPI(IRestClient restClient)
         if (query.After is not null)
         {
             _ = builder.AddParameter("after", query.After.Value.ToString());
+        }
+
+        if (query.Limit is not null)
+        {
+            _ = builder.AddParameter("limit", query.Limit.Value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        if (query.Type is not null)
+        {
+            _ = builder.AddParameter("type", ((int)query.Type.Value).ToString(CultureInfo.InvariantCulture));
         }
 
         return await restClient.ExecuteRequestAsync<IReadOnlyList<IUser>>

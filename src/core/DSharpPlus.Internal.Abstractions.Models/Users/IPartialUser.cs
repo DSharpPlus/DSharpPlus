@@ -92,7 +92,7 @@ public interface IPartialUser
     public Optional<DiscordUserFlags> PublicFlags { get; }
 
     /// <summary>
-    /// The user's avatar decoration hash.
+    /// The user's avatar decoration data.
     /// </summary>
-    public Optional<string?> AvatarDecoration { get; }
+    public Optional<IAvatarDecorationData?> AvatarDecorationData { get; }
 }

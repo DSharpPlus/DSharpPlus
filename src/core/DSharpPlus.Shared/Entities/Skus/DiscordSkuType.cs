@@ -10,6 +10,16 @@ namespace DSharpPlus.Entities;
 public enum DiscordSkuType
 {
     /// <summary>
+    /// Represents a permanent one-time purchase.
+    /// </summary>
+    Durable = 2,
+
+    /// <summary>
+    /// Represents a consumable one-time purchase.
+    /// </summary>
+    Consumable = 3,
+
+    /// <summary>
     /// Represents a recurring subscription.
     /// </summary>
     Subscription = 5,
