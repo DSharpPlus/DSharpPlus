@@ -5,7 +5,7 @@
 namespace DSharpPlus;
 
 /// <summary>
-/// Represents formats recognized and handled by <seealso cref="ImageData"/>.
+/// Represents formats recognized and handled by <see cref="ImageData"/>.
 /// </summary>
 public enum ImageFormat
 {

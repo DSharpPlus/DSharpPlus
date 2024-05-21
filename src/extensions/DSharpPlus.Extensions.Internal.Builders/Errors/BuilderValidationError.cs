@@ -48,10 +48,10 @@ public record BuilderValidationError : Error
 
         foreach (KeyValuePair<string, string> kvp in this.ParameterNames)
         {
-            builder.Append(CultureInfo.InvariantCulture, $"\n\t\t{kvp.Key}: {kvp.Value}");
+            _ = builder.Append(CultureInfo.InvariantCulture, $"\n\t\t{kvp.Key}: {kvp.Value}");
         }
 
-        builder.Append("\n\t]\n}");
+        _ = builder.Append("\n\t]\n}");
 
         return builder.ToString();
     }

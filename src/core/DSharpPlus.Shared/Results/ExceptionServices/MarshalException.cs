@@ -11,14 +11,12 @@ using DSharpPlus.Results.Errors;
 
 namespace DSharpPlus.Results.ExceptionServices;
 
-public sealed class MarshalException : Exception
+[method: SetsRequiredMembers]
+public sealed class MarshalException(Error underlying)
+    : Exception("Failed to find a matching exception type for this result error.")
 {
     /// <summary>
     /// Gets the result error this was originally 
     /// </summary>
-    public required Error Error { get; init; }
-
-    [SetsRequiredMembers]
-    public MarshalException(Error underlying) : base("Failed to find a matching exception type for this result error.")
-        => this.Error = underlying;
+    public required Error Error { get; init; } = underlying;
 }

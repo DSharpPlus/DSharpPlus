@@ -16,7 +16,7 @@ using DSharpPlus.Results;
 namespace DSharpPlus.Extensions.Internal.Builders.Messages;
 
 /// <summary>
-/// Represents an <seealso cref="IEmbed"/> currently under construction.
+/// Represents an <see cref="IEmbed"/> currently under construction.
 /// </summary>
 public record struct EmbedBuilder
 {

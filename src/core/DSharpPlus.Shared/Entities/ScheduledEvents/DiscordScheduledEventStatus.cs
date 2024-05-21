@@ -8,7 +8,7 @@ namespace DSharpPlus.Entities;
 /// Specifies the valid states of a scheduled event.
 /// </summary>
 /// <remarks>
-/// Once the status is set to <seealso cref="Completed"/> or <seealso cref="Canceled"/>, it can no longer
+/// Once the status is set to <see cref="Completed"/> or <see cref="Canceled"/>, it can no longer
 /// be updated.
 /// </remarks>
 public enum DiscordScheduledEventStatus

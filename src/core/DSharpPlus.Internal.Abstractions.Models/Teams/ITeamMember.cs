@@ -9,7 +9,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.Internal.Abstractions.Models;
 
 /// <summary>
-/// Represents a single member of a <seealso cref="ITeam"/>.
+/// Represents a single member of a <see cref="ITeam"/>.
 /// </summary>
 public interface ITeamMember
 {

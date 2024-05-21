@@ -13,8 +13,8 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 /// </summary>
 /// <remarks>
 /// Which fields may be meaningful depends on the trigger type of the parent rule, see
-/// <seealso href="https://discord.com/developers/docs/resources/auto-moderation#auto-moderation-rule-object-trigger-metadata">
-/// the documentation</seealso> for additional information.
+/// <see href="https://discord.com/developers/docs/resources/auto-moderation#auto-moderation-rule-object-trigger-metadata">
+/// the documentation</see> for additional information.
 /// </remarks>
 public interface IAutoModerationTriggerMetadata
 {

@@ -9,7 +9,7 @@ using OneOf;
 namespace DSharpPlus.Internal.Abstractions.Models;
 
 /// <summary>
-/// Specifies one choice for a <seealso cref="IApplicationCommandOption"/>.
+/// Specifies one choice for a <see cref="IApplicationCommandOption"/>.
 /// </summary>
 public interface IApplicationCommandOptionChoice
 {
@@ -19,7 +19,7 @@ public interface IApplicationCommandOptionChoice
     public string Name { get; }
 
     /// <summary>
-    /// A localization dictionary for <seealso cref="Name"/>, with the keys being locales.
+    /// A localization dictionary for <see cref="Name"/>, with the keys being locales.
     /// </summary>
     public Optional<IReadOnlyDictionary<string, string>?> NameLocalizations { get; }
 

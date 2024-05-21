@@ -11,13 +11,13 @@ public interface IDefaultReaction
 {
     /// <summary>
     /// The snowflake identifier of a custom emoji to react with. Mutually exclusive with
-    /// <seealso cref="EmojiName"/>.
+    /// <see cref="EmojiName"/>.
     /// </summary>
     public Snowflake? EmojiId { get; }
 
     /// <summary>
     /// The unicode representation of a default emoji to react with. Mutually exclusive with
-    /// <seealso cref="EmojiId"/>.
+    /// <see cref="EmojiId"/>.
     /// </summary>
     public string? EmojiName { get; }
 }

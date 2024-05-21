@@ -8,10 +8,10 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 /// Contains additional metadata for an audit log entry.
 /// </summary>
 /// <remarks>
-/// Presence of a field is dictated by its parent <seealso cref="IAuditLogEntry.ActionType"/>. When deciding
+/// Presence of a field is dictated by its parent <see cref="IAuditLogEntry.ActionType"/>. When deciding
 /// what to access, refer to the 
-/// <seealso href="https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-optional-audit-entry-info">
-/// Event Types section in the docs</seealso>.
+/// <see href="https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-optional-audit-entry-info">
+/// Event Types section in the docs</see>.
 /// </remarks>
 public interface IAuditLogEntryInfo
 {

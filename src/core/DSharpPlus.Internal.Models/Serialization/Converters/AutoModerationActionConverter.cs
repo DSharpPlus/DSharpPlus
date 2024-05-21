@@ -5,13 +5,14 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
 using DSharpPlus.Entities;
 using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Models.Serialization.Converters;
 
 /// <summary>
-/// Provides conversion for <seealso cref="IAutoModerationAction"/>.
+/// Provides conversion for <see cref="IAutoModerationAction"/>.
 /// </summary>
 public class AutoModerationActionConverter : JsonConverter<IAutoModerationAction>
 {
@@ -92,6 +93,9 @@ public class AutoModerationActionConverter : JsonConverter<IAutoModerationAction
 
             case ITimeoutActionMetadata timeout:
                 JsonSerializer.Serialize(writer, timeout, options);
+                break;
+
+            default:
                 break;
         }
 

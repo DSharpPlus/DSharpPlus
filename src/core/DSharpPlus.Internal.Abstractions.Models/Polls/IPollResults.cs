@@ -11,7 +11,7 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 /// </summary>
 /// <remarks>
 /// While a poll is in progress, the results may not be entirely accurate, though they shouldn't deviate by much.
-/// After a poll finishes, Discord performs a final, accurate tally. If <seealso cref="IsFinalized"/> is set to true,
+/// After a poll finishes, Discord performs a final, accurate tally. If <see cref="IsFinalized"/> is set to true,
 /// this tally has concluded and the results are accurate.
 /// </remarks>
 public interface IPollResults

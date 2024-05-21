@@ -26,7 +26,7 @@ public interface IApplicationCommandOption
     public string Name { get; }
 
     /// <summary>
-    /// A localization dictionary for <seealso cref="Name"/>, with the keys being locales.
+    /// A localization dictionary for <see cref="Name"/>, with the keys being locales.
     /// </summary>
     public Optional<IReadOnlyDictionary<string, string>?> NameLocalizations { get; }
 
@@ -36,7 +36,7 @@ public interface IApplicationCommandOption
     public string Description { get; }
 
     /// <summary>
-    /// A localization dictionary for <seealso cref="Description"/>, with the keys being locales.
+    /// A localization dictionary for <see cref="Description"/>, with the keys being locales.
     /// </summary>
     public Optional<IReadOnlyDictionary<string, string>?> DescriptionLocalizations { get; }
 
@@ -46,53 +46,53 @@ public interface IApplicationCommandOption
     public Optional<bool> Required { get; }
 
     /// <summary>
-    /// If this application command option is of <seealso cref="DiscordApplicationCommandOptionType.String"/>,
-    /// <seealso cref="DiscordApplicationCommandOptionType.Integer"/> or 
-    /// <seealso cref="DiscordApplicationCommandOptionType.Number"/>, up to 25 options to choose from.
+    /// If this application command option is of <see cref="DiscordApplicationCommandOptionType.String"/>,
+    /// <see cref="DiscordApplicationCommandOptionType.Integer"/> or 
+    /// <see cref="DiscordApplicationCommandOptionType.Number"/>, up to 25 options to choose from.
     /// These options will be the only valid options for this command.
     /// </summary>
     public Optional<IReadOnlyList<IApplicationCommandOptionChoice>> Choices { get; }
 
     /// <summary>
-    /// If this option is of <seealso cref="DiscordApplicationCommandOptionType.SubCommand"/> or
-    /// <seealso cref="DiscordApplicationCommandOptionType.SubCommandGroup"/>, these options will be the
+    /// If this option is of <see cref="DiscordApplicationCommandOptionType.SubCommand"/> or
+    /// <see cref="DiscordApplicationCommandOptionType.SubCommandGroup"/>, these options will be the
     /// parameters (or subcommands if this is a subcommand group).
     /// </summary>
     public Optional<IReadOnlyList<IApplicationCommandOption>> Options { get; }
 
     /// <summary>
-    /// If this option is of <seealso cref="DiscordApplicationCommandOptionType.Channel"/>, shown
+    /// If this option is of <see cref="DiscordApplicationCommandOptionType.Channel"/>, shown
     /// channels will be restricted to these types.
     /// </summary>
     public Optional<IReadOnlyList<DiscordChannelType>> ChannelTypes { get; }
 
     /// <summary>
-    /// If this option is of <seealso cref="DiscordApplicationCommandOptionType.Integer"/> or
-    /// <seealso cref="DiscordApplicationCommandOptionType.Number"/>, the minimum value permitted.
+    /// If this option is of <see cref="DiscordApplicationCommandOptionType.Integer"/> or
+    /// <see cref="DiscordApplicationCommandOptionType.Number"/>, the minimum value permitted.
     /// </summary>
     public Optional<OneOf<int, double>> MinValue { get; }
 
     /// <summary>
-    /// If this option is of <seealso cref="DiscordApplicationCommandOptionType.Integer"/> or
-    /// <seealso cref="DiscordApplicationCommandOptionType.Number"/>, the maximum value permitted.
+    /// If this option is of <see cref="DiscordApplicationCommandOptionType.Integer"/> or
+    /// <see cref="DiscordApplicationCommandOptionType.Number"/>, the maximum value permitted.
     /// </summary>
     public Optional<OneOf<int, double>> MaxValue { get; }
 
     /// <summary>
-    /// If this option is of <seealso cref="DiscordApplicationCommandOptionType.String"/>, the minimum
+    /// If this option is of <see cref="DiscordApplicationCommandOptionType.String"/>, the minimum
     /// length permitted, between 0 and 6000.
     /// </summary>
     public Optional<int> MinLength { get; }
 
     /// <summary>
-    /// If this option is of <seealso cref="DiscordApplicationCommandOptionType.String"/>, the maximum
+    /// If this option is of <see cref="DiscordApplicationCommandOptionType.String"/>, the maximum
     /// length permitted, between 1 and 6000.
     /// </summary>
     public Optional<int> MaxLength { get; }
 
     /// <summary>
     /// Indicates whether this option is subject to autocomplete. This is mutually exclusive with
-    /// <seealso cref="Choices"/> being defined.
+    /// <see cref="Choices"/> being defined.
     /// </summary>
     public Optional<bool> Autocomplete { get; }
 }

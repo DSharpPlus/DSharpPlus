@@ -5,8 +5,8 @@
 namespace DSharpPlus.Internal.Abstractions.Models;
 
 /// <summary>
-/// The backing text field object for polls. Questions can only contain <seealso cref="Text"/>, while answers can also contain
-/// <seealso cref="Emoji"/>.
+/// The backing text field object for polls. Questions can only contain <see cref="Text"/>, while answers can also contain
+/// <see cref="Emoji"/>.
 /// </summary>
 public interface IPollMedia
 {

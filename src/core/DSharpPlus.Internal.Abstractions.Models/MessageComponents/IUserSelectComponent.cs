@@ -30,7 +30,7 @@ public interface IUserSelectComponent : IInteractiveComponent
 
     /// <summary>
     /// A list of default values for this select; the number of default values must be within the range defined by
-    /// <seealso cref="MinValues"/> and <seealso cref="MaxValues"/>.
+    /// <see cref="MinValues"/> and <see cref="MaxValues"/>.
     /// </summary>
     public Optional<IReadOnlyList<IDefaultSelectValue>> DefaultValues { get; }
 

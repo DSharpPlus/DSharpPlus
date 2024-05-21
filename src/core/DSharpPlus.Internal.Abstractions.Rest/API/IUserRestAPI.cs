@@ -64,7 +64,7 @@ public interface IUserRestAPI
     /// Returns a list of partial guild objects representing the guilds the current user has joined.
     /// </summary>
     /// <remarks>
-    /// <seealso cref="GetCurrentUserGuildsQuery.Limit"/> defaults to 200 guilds, which is the maximum 
+    /// <see cref="GetCurrentUserGuildsQuery.Limit"/> defaults to 200 guilds, which is the maximum 
     /// number of guilds an user account can join. Pagination is therefore not needed for obtaining user 
     /// guilds, but may be needed for obtaining bot guilds.
     /// </remarks>

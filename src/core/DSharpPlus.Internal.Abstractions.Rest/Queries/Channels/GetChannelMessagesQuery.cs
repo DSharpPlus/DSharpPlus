@@ -13,19 +13,19 @@ public readonly record struct GetChannelMessagesQuery : IPaginatedQuery
     /// If specified, request entities around this ID.
     /// </summary>
     /// <remarks>
-    /// Mutually exclusive with <seealso cref="Before"/> and <seealso cref="After"/>.
+    /// Mutually exclusive with <see cref="Before"/> and <see cref="After"/>.
     /// </remarks>
     public Snowflake? Around { get; init; }
 
     /// <inheritdoc/>
     /// <remarks>
-    /// Mutually exclusive with <seealso cref="Around"/> and <seealso cref="After"/>.
+    /// Mutually exclusive with <see cref="Around"/> and <see cref="After"/>.
     /// </remarks>
     public Snowflake? Before { get; init; }
 
     /// <inheritdoc/>
     /// <remarks>
-    /// Mutually exclusive with <seealso cref="Around"/> and <seealso cref="Before"/>.
+    /// Mutually exclusive with <see cref="Around"/> and <see cref="Before"/>.
     /// </remarks>
     public Snowflake? After { get; init; }
 

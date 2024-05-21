@@ -18,7 +18,7 @@ public enum RetryMode
     None = 0,
 
     /// <summary>
-    /// Suppresses executing a configured <seealso cref="RequestInfo.RatelimitCallback"/>.
+    /// Suppresses executing a configured <see cref="RequestInfo.RatelimitCallback"/>.
     /// </summary>
     SuppressCallback = 1 << 1,
 

@@ -21,8 +21,8 @@ public interface IAuditLogChange
 
     /// <summary>
     /// The name of the changed field, with a few exceptions: see
-    /// <seealso href="https://discord.com/developers/docs/resources/audit-log#audit-log-change-object-audit-log-change-exceptions">
-    /// the documentation</seealso>.
+    /// <see href="https://discord.com/developers/docs/resources/audit-log#audit-log-change-object-audit-log-change-exceptions">
+    /// the documentation</see>.
     /// </summary>
     public string Key { get; }
 }

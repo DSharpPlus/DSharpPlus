@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 using System.Collections.Generic;
+
 using DSharpPlus.Entities;
 using DSharpPlus.Internal.Abstractions.Models;
 
@@ -19,8 +20,8 @@ public interface IModifyGuildChannelPayload
     public Optional<string> Name { get; }
 
     /// <summary>
-    /// The new channel type for this channel. Only converting between <seealso cref="DiscordChannelType.GuildText"/> and
-    /// <seealso cref="DiscordChannelType.GuildAnnouncement"/> is supported.
+    /// The new channel type for this channel. Only converting between <see cref="DiscordChannelType.GuildText"/> and
+    /// <see cref="DiscordChannelType.GuildAnnouncement"/> is supported.
     /// </summary>
     public Optional<DiscordChannelType> Type { get; }
 
@@ -80,8 +81,8 @@ public interface IModifyGuildChannelPayload
     public Optional<int?> DefaultAutoArchiveDuration { get; }
 
     /// <summary>
-    /// The new channel flags. Currently only <seealso cref="DiscordChannelFlags.RequireTag"/> and
-    /// <seealso cref="DiscordChannelFlags.HideMediaDownloadOptions"/> are supported.
+    /// The new channel flags. Currently only <see cref="DiscordChannelFlags.RequireTag"/> and
+    /// <see cref="DiscordChannelFlags.HideMediaDownloadOptions"/> are supported.
     /// </summary>
     public Optional<DiscordChannelFlags> Flags { get; }
 

@@ -16,7 +16,7 @@ public interface IRatelimitRegistry
 {
     /// <summary>
     /// Checks whether this request should be allowed to proceed. This should be considering as enqueuing a request
-    /// as far as <seealso cref="CancelRequest(HttpRequestMessage)"/> is concerned.
+    /// as far as <see cref="CancelRequest(HttpRequestMessage)"/> is concerned.
     /// </summary>
     public Result<bool> CheckRatelimit(HttpRequestMessage request);
 
@@ -26,7 +26,7 @@ public interface IRatelimitRegistry
     public Result UpdateRatelimit(HttpRequestMessage request, HttpResponseMessage response);
 
     /// <summary>
-    /// Cancels a request reservation made in <seealso cref="CheckRatelimit(HttpRequestMessage)"/>.
+    /// Cancels a request reservation made in <see cref="CheckRatelimit(HttpRequestMessage)"/>.
     /// </summary>
     public Result CancelRequest(HttpRequestMessage request);
 }

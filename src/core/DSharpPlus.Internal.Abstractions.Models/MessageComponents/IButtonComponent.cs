@@ -33,12 +33,12 @@ public interface IButtonComponent : IInteractiveComponent
 
     /// <summary>
     /// A developer-defined identifier for this button, up to 100 characters. This is mutually
-    /// exclusive with <seealso cref="Url"/>.
+    /// exclusive with <see cref="Url"/>.
     /// </summary>
     public Optional<string> CustomId { get; }
 
     /// <summary>
-    /// An URL for link-style buttons. This is mutually exclusive with <seealso cref="CustomId"/>.
+    /// An URL for link-style buttons. This is mutually exclusive with <see cref="CustomId"/>.
     /// </summary>
     public Optional<string> Url { get; }
 

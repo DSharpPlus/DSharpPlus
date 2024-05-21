@@ -22,8 +22,8 @@ public enum DiscordAutoModerationActionType
 
     /// <summary>
     /// Causes an user to be timed out for a specified duration. This can only be applied to rules of types
-    /// <seealso cref="DiscordAutoModerationTriggerType.Keyword"/> and 
-    /// <seealso cref="DiscordAutoModerationTriggerType.MentionSpam"/>.
+    /// <see cref="DiscordAutoModerationTriggerType.Keyword"/> and 
+    /// <see cref="DiscordAutoModerationTriggerType.MentionSpam"/>.
     /// </summary>
     Timeout
 }

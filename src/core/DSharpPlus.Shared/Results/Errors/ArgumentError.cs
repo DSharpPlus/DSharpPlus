@@ -17,19 +17,19 @@ public record ArgumentError : ExceptionError
     public string ArgumentName { get; private protected set; }
 
     /// <summary>
-    /// Creates a new <seealso cref="ArgumentError"/> with the specified message and an unspecified argument name.
+    /// Creates a new <see cref="ArgumentError"/> with the specified message and an unspecified argument name.
     /// </summary>
     public ArgumentError(string message) : base(message)
         => this.ArgumentName = "Unspecified.";
 
     /// <summary>
-    /// Creates a new <seealso cref="ArgumentError"/> with the specified message and argument name.
+    /// Creates a new <see cref="ArgumentError"/> with the specified message and argument name.
     /// </summary>
     public ArgumentError(string message, string argumentName) : base(message)
         => this.ArgumentName = argumentName;
 
     /// <summary>
-    /// Creates a new <seealso cref="ArgumentError"/> from the specified exception.
+    /// Creates a new <see cref="ArgumentError"/> from the specified exception.
     /// </summary>
     public ArgumentError(Exception exception) : base(exception)
     {

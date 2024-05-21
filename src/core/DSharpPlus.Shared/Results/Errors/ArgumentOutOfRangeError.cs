@@ -12,7 +12,7 @@ namespace DSharpPlus.Results.Errors;
 public record ArgumentOutOfRangeError : ArgumentError
 {
     /// <summary>
-    /// Creates a new <seealso cref="ArgumentOutOfRangeError"/> with the specified message and an unspecified argument name.
+    /// Creates a new <see cref="ArgumentOutOfRangeError"/> with the specified message and an unspecified argument name.
     /// </summary>
     public ArgumentOutOfRangeError(string message) : base(message)
     {
@@ -20,7 +20,7 @@ public record ArgumentOutOfRangeError : ArgumentError
     }
 
     /// <summary>
-    /// Creates a new <seealso cref="ArgumentOutOfRangeError"/> with the specified message and argument name.
+    /// Creates a new <see cref="ArgumentOutOfRangeError"/> with the specified message and argument name.
     /// </summary>
     public ArgumentOutOfRangeError(string message, string argumentName) : base(message, argumentName)
     {
@@ -28,7 +28,7 @@ public record ArgumentOutOfRangeError : ArgumentError
     }
 
     /// <summary>
-    /// Creates a new <seealso cref="ArgumentOutOfRangeError"/> from the specified exception.
+    /// Creates a new <see cref="ArgumentOutOfRangeError"/> from the specified exception.
     /// </summary>
     public ArgumentOutOfRangeError(Exception exception) : base(exception)
     {

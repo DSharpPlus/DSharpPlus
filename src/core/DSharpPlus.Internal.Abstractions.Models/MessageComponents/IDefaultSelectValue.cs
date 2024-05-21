@@ -15,7 +15,7 @@ public interface IDefaultSelectValue
     public Snowflake Id { get; }
 
     /// <summary>
-    /// The type of the value represented by <seealso cref="Id"/>; either "user", "role" or "channel".
+    /// The type of the value represented by <see cref="Id"/>; either "user", "role" or "channel".
     /// </summary>
     public string Type { get; }
 }

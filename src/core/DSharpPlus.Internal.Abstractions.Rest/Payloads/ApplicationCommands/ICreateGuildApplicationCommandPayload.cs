@@ -20,7 +20,7 @@ public interface ICreateGuildApplicationCommandPayload
     public string Name { get; }
 
     /// <summary>
-    /// A localization dictionary for the <seealso cref="Name"/> field. Values follow the same restrictions.
+    /// A localization dictionary for the <see cref="Name"/> field. Values follow the same restrictions.
     /// </summary>
     public Optional<IReadOnlyDictionary<string, string>?> NameLocalizations { get; }
 
@@ -35,7 +35,7 @@ public interface ICreateGuildApplicationCommandPayload
     public Optional<string> Description { get; }
 
     /// <summary>
-    /// A localization dictionary for the <seealso cref="Description"/> field. Values follow the same restrictions.
+    /// A localization dictionary for the <see cref="Description"/> field. Values follow the same restrictions.
     /// </summary>
     public Optional<IReadOnlyDictionary<string, string>?> DescriptionLocalizations { get; }
 

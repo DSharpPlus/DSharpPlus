@@ -36,7 +36,7 @@ public interface IInteraction
     public DiscordInteractionType Type { get; }
 
     /// <summary>
-    /// The data payload, depending on the <seealso cref="Type"/>.
+    /// The data payload, depending on the <see cref="Type"/>.
     /// </summary>
     public Optional<OneOf<IApplicationCommandInteractionData, IMessageComponentInteractionData, IModalInteractionData>> Data { get; }
 

@@ -181,8 +181,8 @@ public interface IWebhookRestAPI
     /// <param name="info">Additional instructions regarding this request.</param>
     /// <param name="ct">A cancellation token for this operation.</param>
     /// <returns>
-    /// If <seealso name="ExecuteWebhookQuery.Wait"/> was set to <see langword="true"/>, a 
-    /// <seealso cref="IMessage"/> object. If <seealso name="ExecuteWebhookQuery.Wait"/> was set to 
+    /// If <see name="ExecuteWebhookQuery.Wait"/> was set to <see langword="true"/>, a 
+    /// <see cref="IMessage"/> object. If <see name="ExecuteWebhookQuery.Wait"/> was set to 
     /// <see langword="false"/>, <see langword="null"/>.
     /// </returns>
     public ValueTask<Result<IMessage?>> ExecuteWebhookAsync

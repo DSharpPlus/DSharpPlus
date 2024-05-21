@@ -12,7 +12,7 @@ namespace DSharpPlus.Results.Errors;
 public record ArgumentNullError : ArgumentError
 {
     /// <summary>
-    /// Creates a new <seealso cref="ArgumentNullError"/> with the default message and specified argument name.
+    /// Creates a new <see cref="ArgumentNullError"/> with the default message and specified argument name.
     /// </summary>
     public ArgumentNullError(string argumentName) : base("The provided value must not be null", argumentName)
     {
@@ -20,7 +20,7 @@ public record ArgumentNullError : ArgumentError
     }
 
     /// <summary>
-    /// Creates a new <seealso cref="ArgumentNullError"/> with the specified message and argument name.
+    /// Creates a new <see cref="ArgumentNullError"/> with the specified message and argument name.
     /// </summary>
     public ArgumentNullError(string message, string argumentName) : base(message, argumentName)
     {
@@ -28,7 +28,7 @@ public record ArgumentNullError : ArgumentError
     }
 
     /// <summary>
-    /// Creates a new <seealso cref="ArgumentNullError"/> from the specified exception.
+    /// Creates a new <see cref="ArgumentNullError"/> from the specified exception.
     /// </summary>
     public ArgumentNullError(Exception exception) : base(exception)
     {

@@ -29,7 +29,7 @@ public interface IRoleConnectionMetadata
     public string Name { get; }
 
     /// <summary>
-    /// A localization dictionary for <seealso cref="Name"/>, with the keys being locales.
+    /// A localization dictionary for <see cref="Name"/>, with the keys being locales.
     /// </summary>
     public Optional<IReadOnlyDictionary<string, string>?> NameLocalizations { get; }
 
@@ -39,7 +39,7 @@ public interface IRoleConnectionMetadata
     public string Description { get; }
 
     /// <summary>
-    /// A localization dictionary for <seealso cref="Description"/>, with the keys being locales.
+    /// A localization dictionary for <see cref="Description"/>, with the keys being locales.
     /// </summary>
     public Optional<IReadOnlyDictionary<string, string>?> DescriptionLocalizations { get; }
 }

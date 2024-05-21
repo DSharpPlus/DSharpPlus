@@ -34,7 +34,7 @@ public interface IOnboardingPrompt
     public string Title { get; }
 
     /// <summary>
-    /// Indicates whether users are limited to selecting only one of the <seealso cref="Options"/>.
+    /// Indicates whether users are limited to selecting only one of the <see cref="Options"/>.
     /// </summary>
     public bool SingleSelect { get; }
 

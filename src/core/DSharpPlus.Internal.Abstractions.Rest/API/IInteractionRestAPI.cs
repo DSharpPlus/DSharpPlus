@@ -84,9 +84,9 @@ public interface IInteractionRestAPI
     /// <summary>
     /// Creates a followup message for an interaction. If this is the first followup to a deferred interaction
     /// response as created by 
-    /// <seealso cref="CreateInteractionResponseAsync(Snowflake, string, IInteractionResponse, RequestInfo, CancellationToken)"/>,
-    /// ephemerality of this message will be dictated by the <seealso cref="IInteractionResponse"/> supplied 
-    /// originally instead of <seealso cref="ICreateFollowupMessagePayload.Flags"/>.
+    /// <see cref="CreateInteractionResponseAsync(Snowflake, string, IInteractionResponse, RequestInfo, CancellationToken)"/>,
+    /// ephemerality of this message will be dictated by the <see cref="IInteractionResponse"/> supplied 
+    /// originally instead of <see cref="ICreateFollowupMessagePayload.Flags"/>.
     /// </summary>
     /// <param name="applicationId">The snowflake identifier of your application.</param>
     /// <param name="interactionToken">The interaction token received with the interaction.</param>

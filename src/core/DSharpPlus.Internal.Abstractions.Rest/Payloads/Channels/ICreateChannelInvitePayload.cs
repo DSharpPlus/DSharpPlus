@@ -37,8 +37,8 @@ public interface ICreateChannelInvitePayload
     public Optional<DiscordInviteTargetType> TargetType { get; init; }
 
     /// <summary>
-    /// Snowflake identifier of the invite's target user if <seealso cref="TargetType"/> is
-    /// <seealso cref="DiscordInviteTargetType.Stream"/>.
+    /// Snowflake identifier of the invite's target user if <see cref="TargetType"/> is
+    /// <see cref="DiscordInviteTargetType.Stream"/>.
     /// </summary>
     public Optional<Snowflake> TargetUserId { get; init; }
 

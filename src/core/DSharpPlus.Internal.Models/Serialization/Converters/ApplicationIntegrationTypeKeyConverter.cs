@@ -2,8 +2,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-#pragma warning disable IDE0046
-
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -15,7 +13,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.Internal.Models.Serialization.Converters;
 
 /// <summary>
-/// Enables <seealso cref="DiscordApplicationIntegrationType"/> to be used as a dictionary key.
+/// Enables <see cref="DiscordApplicationIntegrationType"/> to be used as a dictionary key.
 /// </summary>
 public class ApplicationIntegrationTypeKeyConverter : JsonConverter<DiscordApplicationIntegrationType>
 {

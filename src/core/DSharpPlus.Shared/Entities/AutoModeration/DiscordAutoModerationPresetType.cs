@@ -6,7 +6,7 @@ namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Specifies the internal keyword presets for auto-moderation rules of type
-/// <seealso cref="DiscordAutoModerationTriggerType.KeywordPreset"/>.
+/// <see cref="DiscordAutoModerationTriggerType.KeywordPreset"/>.
 /// </summary>
 public enum DiscordAutoModerationPresetType
 {

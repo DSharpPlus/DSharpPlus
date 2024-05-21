@@ -8,7 +8,7 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 
 /// <summary>
 /// Represents metadata for auto moderation actions of type 
-/// <seealso cref="DiscordAutoModerationActionType.BlockMessage"/>.
+/// <see cref="DiscordAutoModerationActionType.BlockMessage"/>.
 /// </summary>
 public interface IBlockMessageActionMetadata : IAutoModerationActionMetadata
 {

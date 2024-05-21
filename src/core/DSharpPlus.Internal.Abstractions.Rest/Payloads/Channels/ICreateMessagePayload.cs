@@ -70,7 +70,7 @@ public interface ICreateMessagePayload
     public Optional<DiscordMessageFlags> Flags { get; }
 
     /// <summary>
-    /// If this is set to true and a <seealso cref="Nonce"/> is present, it will be checked for uniqueness in the past few
+    /// If this is set to true and a <see cref="Nonce"/> is present, it will be checked for uniqueness in the past few
     /// minutes. If another message was created by this user with the same nonce, that message will be returned and no new
     /// message will be created.
     /// </summary>

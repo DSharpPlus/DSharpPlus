@@ -45,8 +45,8 @@ public interface IPartialChannel
     public Optional<string?> Name { get; }
 
     /// <summary>
-    /// The channel topic/description. For <seealso cref="DiscordChannelType.GuildForum"/> and
-    /// <seealso cref="DiscordChannelType.GuildMedia"/>, up to 4096 characters are allowed, for all other 
+    /// The channel topic/description. For <see cref="DiscordChannelType.GuildForum"/> and
+    /// <see cref="DiscordChannelType.GuildMedia"/>, up to 4096 characters are allowed, for all other 
     /// types up to 1024 characters.
     /// </summary>
     public Optional<string?> Topic { get; }

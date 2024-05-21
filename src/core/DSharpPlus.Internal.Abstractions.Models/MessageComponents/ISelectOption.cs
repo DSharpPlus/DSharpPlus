@@ -5,7 +5,7 @@
 namespace DSharpPlus.Internal.Abstractions.Models;
 
 /// <summary>
-/// Represents a single text option in a <seealso cref="IStringSelectComponent"/>.
+/// Represents a single text option in a <see cref="IStringSelectComponent"/>.
 /// </summary>
 public interface ISelectOption
 {

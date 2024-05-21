@@ -107,7 +107,7 @@ public interface IGuildScheduledEventRestAPI
     );
 
     /// <summary>
-    /// Returns <seealso cref="IScheduledEventUser"/> objects for each participant of the given scheduled event.
+    /// Returns <see cref="IScheduledEventUser"/> objects for each participant of the given scheduled event.
     /// </summary>
     /// <param name="guildId">The snowflake identifier of the guild this scheduled event belongs to.</param>
     /// <param name="eventId">The snowflake identifier of the scheduled event in question.</param>

@@ -12,14 +12,14 @@ namespace DSharpPlus.Results.Errors;
 public record InvalidOperationError : ExceptionError
 {
     /// <summary>
-    /// Creates a new <seealso cref="InvalidOperationError"/> with the specified message.
+    /// Creates a new <see cref="InvalidOperationError"/> with the specified message.
     /// </summary>
     public InvalidOperationError(string message) : base(message)
     {
     }
 
     /// <summary>
-    /// Creates a new <seealso cref="InvalidOperationError"/> from the specified exception.
+    /// Creates a new <see cref="InvalidOperationError"/> from the specified exception.
     /// </summary>
     public InvalidOperationError(Exception exception) : base(exception)
         => this.Message = exception.Message;

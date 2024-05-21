@@ -29,7 +29,7 @@ public interface IPartialGuild
     public Optional<string?> Icon { get; }
 
     /// <summary>
-    /// The icon hash for this guild. This field, unlike <seealso cref="Icon"/>, is only sent when a part of
+    /// The icon hash for this guild. This field, unlike <see cref="Icon"/>, is only sent when a part of
     /// the guild template object.
     /// </summary>
     public Optional<string?> IconHash { get; }

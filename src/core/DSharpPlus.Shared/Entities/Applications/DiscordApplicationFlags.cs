@@ -24,7 +24,7 @@ public enum DiscordApplicationFlags
 
     /// <summary>
     /// The intent required for bots in less than 100 servers to receive presence update events.
-    /// Unlike <seealso cref="GatewayPresence"/>, this does not require staff approval.
+    /// Unlike <see cref="GatewayPresence"/>, this does not require staff approval.
     /// </summary>
     GatewayPresenceLimited = 1 << 13,
 
@@ -35,7 +35,7 @@ public enum DiscordApplicationFlags
 
     /// <summary>
     /// The intent required for bots in less than 100 servers to receive guild member related events.
-    /// Unlike <seealso cref="GatewayGuildMembers"/>, this does not require staff approval.
+    /// Unlike <see cref="GatewayGuildMembers"/>, this does not require staff approval.
     /// </summary>
     GatewayGuildMembersLimited = 1 << 15,
 
@@ -56,7 +56,7 @@ public enum DiscordApplicationFlags
 
     /// <summary>
     /// The intent required for bots in less than 100 servers to receive message content.
-    /// Unlike <seealso cref="GatewayMessageContent"/>, this does not require staff approval.
+    /// Unlike <see cref="GatewayMessageContent"/>, this does not require staff approval.
     /// </summary>
     GatewayMessageContentLimited = 1 << 19,
 

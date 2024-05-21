@@ -10,7 +10,7 @@ namespace DSharpPlus.Internal.Models.Serialization.Converters;
 
 /// <summary>
 /// Provides serialization for discord's optional null booleans, see
-/// <seealso href="https://discord.com/developers/docs/topics/permissions#role-object-role-tags-structure"/>.
+/// <see href="https://discord.com/developers/docs/topics/permissions#role-object-role-tags-structure"/>.
 /// </summary>
 /// <remarks>
 /// This needs to be applied to every null boolean property individually.

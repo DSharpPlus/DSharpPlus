@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace DSharpPlus.Internal.Abstractions.Models;
 
 /// <summary>
-/// Represents data resolved by Discord from <seealso cref="IInteraction"/>s.
+/// Represents data resolved by Discord from <see cref="IInteraction"/>s.
 /// </summary>
 public interface IResolvedData
 {

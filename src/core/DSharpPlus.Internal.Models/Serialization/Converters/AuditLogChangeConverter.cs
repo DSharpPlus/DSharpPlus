@@ -11,7 +11,7 @@ using DSharpPlus.Internal.Abstractions.Models;
 namespace DSharpPlus.Internal.Models.Serialization.Converters;
 
 /// <summary>
-/// Provides conversion for <seealso cref="IAuditLogChange"/>s.
+/// Provides conversion for <see cref="IAuditLogChange"/>s.
 /// </summary>
 public class AuditLogChangeConverter : JsonConverter<IAuditLogChange>
 {

@@ -20,7 +20,7 @@ public interface IApplicationCommand
     public Snowflake Id { get; }
 
     /// <summary>
-    /// The type of this command, default: <seealso cref="DiscordApplicationCommandType.ChatInput"/>.
+    /// The type of this command, default: <see cref="DiscordApplicationCommandType.ChatInput"/>.
     /// </summary>
     public Optional<DiscordApplicationCommandType> Type { get; }
 
@@ -40,19 +40,19 @@ public interface IApplicationCommand
     public string Name { get; }
 
     /// <summary>
-    /// A localization dictionary for <seealso cref="Name"/>, with the keys being locales.
+    /// A localization dictionary for <see cref="Name"/>, with the keys being locales.
     /// </summary>
     public Optional<IReadOnlyDictionary<string, string>?> NameLocalizations { get; }
 
     /// <summary>
-    /// If this command is a <seealso cref="DiscordApplicationCommandType.ChatInput"/> command, the
+    /// If this command is a <see cref="DiscordApplicationCommandType.ChatInput"/> command, the
     /// description of this command, between 1 and 100 characters. This is an empty string for all
     /// other command types.
     /// </summary>
     public string Description { get; }
 
     /// <summary>
-    /// A localization dictionary for <seealso cref="Description"/>, with the keys being locales.
+    /// A localization dictionary for <see cref="Description"/>, with the keys being locales.
     /// </summary>
     public Optional<IReadOnlyDictionary<string, string>?> DescriptionLocalizations { get; }
 
@@ -73,7 +73,7 @@ public interface IApplicationCommand
 
     /// <summary>
     /// Specifies installation contexts where this command is available; only for globally-scoped commands. Defaults to
-    /// <seealso cref="DiscordApplicationIntegrationType.GuildInstall"/>.
+    /// <see cref="DiscordApplicationIntegrationType.GuildInstall"/>.
     /// </summary>
     public Optional<IReadOnlyList<DiscordApplicationIntegrationType>> IntegrationTypes { get; }
 

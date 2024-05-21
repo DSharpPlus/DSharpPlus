@@ -21,7 +21,7 @@ public readonly record struct AttachmentData
 
     /// <summary>
     /// The media type of this attachment. Defaults to empty, in which case it will be interpreted according to
-    /// the file extension as provided by <seealso cref="Filename"/>.
+    /// the file extension as provided by <see cref="Filename"/>.
     /// </summary>
     public string? MediaType { get; init; }
 
@@ -151,14 +151,20 @@ public readonly record struct AttachmentData
                 {
                     if (sequence.Remaining + readRollover >= readSegmentLength)
                     {
-                        sequence.TryCopyTo(readSpan[readRollover..]);
+                        if (!sequence.TryCopyTo(readSpan[readRollover..]))
+                        {
+                            Trace.Assert(false);
+                        }
 
                         sequence.Advance(readSegmentLength - readRollover);
                         readRollover = 0;
                     }
                     else
                     {
-                        sequence.TryCopyTo(readSpan.Slice(readRollover, (int)sequence.Remaining));
+                        if (!sequence.TryCopyTo(readSpan.Slice(readRollover, (int)sequence.Remaining)))
+                        {
+                            Trace.Assert(false);
+                        }
 
                         readRollover += (int)sequence.Remaining;
                         sequence.Advance((int)sequence.Remaining);
@@ -167,13 +173,19 @@ public readonly record struct AttachmentData
                 }
                 else if (sequence.Remaining >= readSegmentLength)
                 {
-                    sequence.TryCopyTo(readSpan);
+                    if (!sequence.TryCopyTo(readSpan))
+                    {
+                        Trace.Assert(false);
+                    }
 
                     sequence.Advance(readSegmentLength);
                 }
                 else
                 {
-                    sequence.TryCopyTo(readSpan[..(int)sequence.Remaining]);
+                    if (!sequence.TryCopyTo(readSpan[..(int)sequence.Remaining]))
+                    {
+                        Trace.Assert(false);
+                    }
 
                     readRollover += (int)sequence.Remaining;
                     sequence.AdvanceToEnd();

@@ -10,7 +10,7 @@ using System.Text.Json.Serialization.Metadata;
 namespace DSharpPlus.Internal.Models.Serialization.Resolvers;
 
 /// <summary>
-/// Provides a mechanism for resolving serialization of <seealso cref="Optional{T}"/>.
+/// Provides a mechanism for resolving serialization of <see cref="Optional{T}"/>.
 /// </summary>
 public static class OptionalTypeInfoResolver
 {

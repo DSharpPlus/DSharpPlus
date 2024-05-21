@@ -10,7 +10,7 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 public interface IPollAnswerCount
 {
     /// <summary>
-    /// The ID of the answer, corresponds to <seealso cref="IPollAnswer.AnswerId"/>.
+    /// The ID of the answer, corresponds to <see cref="IPollAnswer.AnswerId"/>.
     /// </summary>
     public int Id { get; }
 

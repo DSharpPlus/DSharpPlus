@@ -13,7 +13,7 @@ namespace DSharpPlus.Internal.Abstractions.Rest.Payloads;
 /// Represents a payload to <c>POST /webhooks/:application-id/:interaction-token</c>.
 /// </summary>
 /// <remarks>
-/// Either <seealso cref="Content"/>, <seealso cref="Embeds"/> or <seealso cref="Attachments"/> must be set.
+/// Either <see cref="Content"/>, <see cref="Embeds"/> or <see cref="Attachments"/> must be set.
 /// </remarks>
 public interface ICreateFollowupMessagePayload
 {

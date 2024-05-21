@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 namespace DSharpPlus.Internal.Models.Serialization.Converters;
 
 /// <summary>
-/// A converter for <seealso cref="Optional{T}"/>.
+/// A converter for <see cref="Optional{T}"/>.
 /// </summary>
 public sealed class OptionalConverter<T> : JsonConverter<Optional<T>>
 {

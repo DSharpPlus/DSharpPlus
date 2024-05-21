@@ -20,7 +20,7 @@ public interface ICreateGlobalApplicationCommandPayload
     public string Name { get; }
 
     /// <summary>
-    /// A localization dictionary for the <seealso cref="Name"/> field. Values follow the same restrictions.
+    /// A localization dictionary for the <see cref="Name"/> field. Values follow the same restrictions.
     /// </summary>
     public Optional<IReadOnlyDictionary<string, string>?> NameLocalizations { get; }
 
@@ -30,7 +30,7 @@ public interface ICreateGlobalApplicationCommandPayload
     public Optional<string> Description { get; }
 
     /// <summary>
-    /// A localization dictionary for the <seealso cref="Description"/> field. Values follow the same restrictions.
+    /// A localization dictionary for the <see cref="Description"/> field. Values follow the same restrictions.
     /// </summary>
     public Optional<IReadOnlyDictionary<string, string>?> DescriptionLocalizations { get; }
 
@@ -56,7 +56,7 @@ public interface ICreateGlobalApplicationCommandPayload
 
     /// <summary>
     /// Specifies installation contexts where this command is available; only for globally-scoped commands. Defaults to
-    /// <seealso cref="DiscordApplicationIntegrationType.GuildInstall"/>.
+    /// <see cref="DiscordApplicationIntegrationType.GuildInstall"/>.
     /// </summary>
     public IReadOnlyList<DiscordApplicationIntegrationType> IntegrationTypes { get; }
 

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using DSharpPlus.Entities;
 using DSharpPlus.Extensions.Internal.Builders.Errors;
@@ -17,7 +18,7 @@ using DSharpPlus.Results;
 namespace DSharpPlus.Extensions.Internal.Builders.Interactions;
 
 /// <summary>
-/// Represents a <seealso cref="ITextInputComponent"/> under construction. 
+/// Represents a <see cref="ITextInputComponent"/> under construction. 
 /// </summary>
 public record struct TextInputComponentBuilder
 {
@@ -227,10 +228,12 @@ public static class TextInputComponentBuilderExtensions
     /// <summary>
     /// Builds the text input component. This does not enforce validity, past enforcing all fields are present.
     /// </summary>
+    [SuppressMessage("Usage", "CA2208", Justification = "We fully intend to pass builder.Style here.")]
     public static ITextInputComponent Build(ref this TextInputComponentBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder.CustomId);
         ArgumentNullException.ThrowIfNull(builder.Label);
+
         if (!builder.Style.HasValue)
         {
             throw new ArgumentNullException(nameof(builder.Style));

@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 namespace DSharpPlus.Internal.Models.Serialization.Converters;
 
 /// <summary>
-/// A converter factory for <seealso cref="OptionalConverter{T}"/>.
+/// A converter factory for <see cref="OptionalConverter{T}"/>.
 /// </summary>
 public class OptionalConverterFactory : JsonConverterFactory
 {

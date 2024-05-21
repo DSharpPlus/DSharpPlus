@@ -8,7 +8,7 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 
 /// <summary>
 /// Represents metadata for auto moderation actions of type
-/// <seealso cref="DiscordAutoModerationActionType.Timeout"/>.
+/// <see cref="DiscordAutoModerationActionType.Timeout"/>.
 /// </summary>
 public interface ITimeoutActionMetadata : IAutoModerationActionMetadata
 {

@@ -554,7 +554,7 @@ public interface IChannelRestAPI
     /// </summary>
     /// <param name="channelId">The snowflake identifier of the parent forum channel.</param>
     /// <param name="payload">
-    /// A payload object for starting a thread from a message containing a <seealso cref="IForumAndMediaThreadMessage"/>.
+    /// A payload object for starting a thread from a message containing a <see cref="IForumAndMediaThreadMessage"/>.
     /// A new message is created, then a thread is started from it.
     /// </param>
     /// <param name="reason">An optional audit log reason.</param>

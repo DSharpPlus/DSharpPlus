@@ -9,8 +9,8 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 /// <summary>
 /// Stores information about what mentions should be allowed and which ones should be
 /// ignored when handling read states and notifications. Refer to 
-/// <seealso href="https://discord.com/developers/docs/resources/channel#allowed-mentions-object-allowed-mentions-structure">
-/// the Discord docs</seealso> for further information.
+/// <see href="https://discord.com/developers/docs/resources/channel#allowed-mentions-object-allowed-mentions-structure">
+/// the Discord docs</see> for further information.
 /// </summary>
 public interface IAllowedMentions
 {

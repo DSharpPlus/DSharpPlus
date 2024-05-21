@@ -26,10 +26,10 @@ internal sealed class RatelimitBucket
 
     public void UpdateFromResponse(float expiry, int limit, int remaining)
     {
-        Interlocked.Exchange(ref this.expiry, expiry);
-        Interlocked.Exchange(ref this.limit, limit);
-        Interlocked.Exchange(ref this.remaining, remaining);
-        Interlocked.Decrement(ref this.reserved);
+        _ = Interlocked.Exchange(ref this.expiry, expiry);
+        _ = Interlocked.Exchange(ref this.limit, limit);
+        _ = Interlocked.Exchange(ref this.remaining, remaining);
+        _ = Interlocked.Decrement(ref this.reserved);
     }
 
     public void Reserve() => Interlocked.Increment(ref this.reserved);

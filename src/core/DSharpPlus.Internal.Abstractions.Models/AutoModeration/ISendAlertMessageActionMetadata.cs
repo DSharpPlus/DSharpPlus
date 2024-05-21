@@ -8,7 +8,7 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 
 /// <summary>
 /// Represents metadata for auto moderation actions of type 
-/// <seealso cref="DiscordAutoModerationActionType.SendAlertMessage"/>.
+/// <see cref="DiscordAutoModerationActionType.SendAlertMessage"/>.
 /// </summary>
 public interface ISendAlertMessageActionMetadata : IAutoModerationActionMetadata
 {

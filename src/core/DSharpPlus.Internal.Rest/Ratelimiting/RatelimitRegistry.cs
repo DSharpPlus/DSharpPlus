@@ -92,7 +92,7 @@ public sealed class RatelimitRegistry : IRatelimitRegistry
             {
                 if (currentTime > pair.Value + this.timeReferencePoint)
                 {
-                    this.webhook429s.Remove(pair.Key, out _);
+                    _ = this.webhook429s.Remove(pair.Key, out _);
                 }
             }
 
@@ -103,7 +103,7 @@ public sealed class RatelimitRegistry : IRatelimitRegistry
             {
                 if (currentTime > pair.Value + this.timeReferencePoint)
                 {
-                    this.route429s.Remove(pair.Key, out _);
+                    _ = this.route429s.Remove(pair.Key, out _);
                 }
             }
 
@@ -121,7 +121,7 @@ public sealed class RatelimitRegistry : IRatelimitRegistry
                         if (currentTime > bucket.Expiry + this.timeReferencePoint)
                         {
                             // since we use a CWT, the bucket will automatically die once all routes holding on to it are dead
-                            this.hashes.Remove(pair.Key, out _);
+                            _ = this.hashes.Remove(pair.Key, out _);
                         }
                     }
                 }

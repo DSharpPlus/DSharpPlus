@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 using System.Collections.Generic;
+
 using DSharpPlus.Entities;
 using DSharpPlus.Internal.Abstractions.Models;
 
@@ -44,8 +45,8 @@ public interface ICreateGuildPayload
     /// <remarks>
     /// <c>ICreateGuildPayload.Roles[0]</c> is used to configure the <c>@everyone</c> role. If you are trying
     /// to bootstrap a guild with additional roles, you can set this first role to a placeholder. <br/>
-    /// The <seealso cref="IPartialRole.Id"/> field is a placeholder to allow you to reference the role
-    /// elsewhere, namely when passing in default channels to <seealso cref="Channels"/> and specifying
+    /// The <see cref="IPartialRole.Id"/> field is a placeholder to allow you to reference the role
+    /// elsewhere, namely when passing in default channels to <see cref="Channels"/> and specifying
     /// overwrites for them.
     /// </remarks>
     public Optional<IReadOnlyList<IPartialRole>> Roles { get; }
@@ -54,15 +55,15 @@ public interface ICreateGuildPayload
     /// The channels to create this guild with. If this is set, none of the default channels will be created.
     /// </summary>
     /// <remarks>
-    /// The <seealso cref="IPartialChannel.Position"/> field is ignored. <br/>
-    /// The <seealso cref="IPartialChannel.Id"/> field is a placeholder to allow creating category channels by
-    /// setting the <seealso cref="IPartialChannel.ParentId"/> field to the parents' ID. Category channels must
+    /// The <see cref="IPartialChannel.Position"/> field is ignored. <br/>
+    /// The <see cref="IPartialChannel.Id"/> field is a placeholder to allow creating category channels by
+    /// setting the <see cref="IPartialChannel.ParentId"/> field to the parents' ID. Category channels must
     /// be listed before any of their children. The ID also serves for other fields to reference channels.
     /// </remarks>
     public Optional<IReadOnlyList<IPartialChannel>> Channels { get; }
 
     /// <summary>
-    /// The identifier of the AFK voice channel, referring to a placeholder ID in <seealso cref="Channels"/>.
+    /// The identifier of the AFK voice channel, referring to a placeholder ID in <see cref="Channels"/>.
     /// </summary>
     public Optional<Snowflake> AfkChannelId { get; }
 
@@ -73,7 +74,7 @@ public interface ICreateGuildPayload
 
     /// <summary>
     /// The identifier of the system channel where guild notices such as welcome messages are posted, referring
-    /// to a placeholder ID in <seealso cref="Channels"/>.
+    /// to a placeholder ID in <see cref="Channels"/>.
     /// </summary>
     public Optional<Snowflake> SystemChannelId { get; }
 

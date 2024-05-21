@@ -10,7 +10,7 @@ namespace DSharpPlus.Entities;
 public enum DiscordInteractionCallbackType
 {
     /// <summary>
-    /// Acknowledges a <seealso cref="DiscordInteractionType.Ping"/>.
+    /// Acknowledges a <see cref="DiscordInteractionType.Ping"/>.
     /// </summary>
     Pong = 1,
 

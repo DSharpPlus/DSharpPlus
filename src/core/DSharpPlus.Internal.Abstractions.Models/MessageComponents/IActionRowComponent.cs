@@ -14,7 +14,7 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 public interface IActionRowComponent
 {
     /// <summary>
-    /// <seealso cref="DiscordMessageComponentType.ActionRow"/>
+    /// <see cref="DiscordMessageComponentType.ActionRow"/>
     /// </summary>
     public DiscordMessageComponentType Type { get; }
 

@@ -26,13 +26,13 @@ public interface IForumTag
 
     /// <summary>
     /// The snowflake identifier of a custom emoji to be applied to this tag. Mutually exclusive with
-    /// <seealso cref="EmojiName"/>.
+    /// <see cref="EmojiName"/>.
     /// </summary>
     public Snowflake? EmojiId { get; }
 
     /// <summary>
     /// The unicode representation of a default emoji to be applied to this tag. Mutually exclusive with
-    /// <seealso cref="EmojiId"/>.
+    /// <see cref="EmojiId"/>.
     /// </summary>
     public string? EmojiName { get; }
 }
