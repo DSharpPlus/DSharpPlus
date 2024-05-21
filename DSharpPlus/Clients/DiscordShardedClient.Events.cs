@@ -524,13 +524,13 @@ public sealed partial class DiscordShardedClient
     private Task SessionResumedDelegator(DiscordClient client, SessionCreatedEventArgs eventArgs) => sessionResumed.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.SocketClosed"/>
-    public event AsyncEventHandler<DiscordClient, SocketCloseEventArgs> SocketClosed
+    public event AsyncEventHandler<DiscordClient, SocketClosedEventArgs> SocketClosed
     {
         add => this.socketClosed.Register(value);
         remove => this.socketClosed.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, SocketCloseEventArgs> socketClosed;
-    private Task SocketClosedDelegator(DiscordClient client, SocketCloseEventArgs eventArgs) => socketClosed.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, SocketClosedEventArgs> socketClosed;
+    private Task SocketClosedDelegator(DiscordClient client, SocketClosedEventArgs eventArgs) => socketClosed.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.SocketErrored"/>
     public event AsyncEventHandler<DiscordClient, SocketErrorEventArgs> SocketErrored

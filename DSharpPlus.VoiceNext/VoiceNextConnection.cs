@@ -1048,7 +1048,7 @@ public sealed class VoiceNextConnection : IDisposable
         }
     }
 
-    private async Task VoiceWS_SocketClosedAsync(IWebSocketClient client, SocketCloseEventArgs e)
+    private async Task VoiceWS_SocketClosedAsync(IWebSocketClient client, SocketClosedEventArgs e)
     {
         this.Discord.Logger.LogDebug(VoiceNextEvents.VoiceConnectionClose, "Voice WebSocket closed ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
 

@@ -179,10 +179,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.dmChannelDeleted = new AsyncEvent<DiscordClient, DmChannelDeletedEventArgs>("DM_CHANNEL_DELETED", EventErrorHandler);
         this.channelPinsUpdated = new AsyncEvent<DiscordClient, ChannelPinsUpdatedEventArgs>("CHANNEL_PINS_UPDATED", EventErrorHandler);
         this.guildCreated = new AsyncEvent<DiscordClient, GuildCreatedEventArgs>("GUILD_CREATED", EventErrorHandler);
-        this.guildAvailable = new AsyncEvent<DiscordClient, GuildCreatedEventArgs>("GUILD_AVAILABLE", EventErrorHandler);
+        this.guildAvailable = new AsyncEvent<DiscordClient, GuildAvailableEventArgs>("GUILD_AVAILABLE", EventErrorHandler);
         this.guildUpdated = new AsyncEvent<DiscordClient, GuildUpdatedEventArgs>("GUILD_UPDATED", EventErrorHandler);
         this.guildDeleted = new AsyncEvent<DiscordClient, GuildDeletedEventArgs>("GUILD_DELETED", EventErrorHandler);
-        this.guildUnavailable = new AsyncEvent<DiscordClient, GuildDeletedEventArgs>("GUILD_UNAVAILABLE", EventErrorHandler);
+        this.guildUnavailable = new AsyncEvent<DiscordClient, GuildUnavailableEventArgs>("GUILD_UNAVAILABLE", EventErrorHandler);
         this.guildDownloadCompletedEv = new AsyncEvent<DiscordClient, GuildDownloadCompletedEventArgs>("GUILD_DOWNLOAD_COMPLETED", EventErrorHandler);
         this.inviteCreated = new AsyncEvent<DiscordClient, InviteCreatedEventArgs>("INVITE_CREATED", EventErrorHandler);
         this.inviteDeleted = new AsyncEvent<DiscordClient, InviteDeletedEventArgs>("INVITE_DELETED", EventErrorHandler);

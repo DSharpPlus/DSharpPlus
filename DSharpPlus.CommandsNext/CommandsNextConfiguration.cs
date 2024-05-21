@@ -134,7 +134,6 @@ public sealed class CommandsNextConfiguration
         this.IgnoreExtraArguments = other.IgnoreExtraArguments;
         this.QuotationMarks = other.QuotationMarks;
         this.UseDefaultCommandHandler = other.UseDefaultCommandHandler;
-        this.Services = other.Services;
         this.StringPrefixes = other.StringPrefixes.ToArray();
         this.DmHelp = other.DmHelp;
         this.DefaultParserCulture = other.DefaultParserCulture;

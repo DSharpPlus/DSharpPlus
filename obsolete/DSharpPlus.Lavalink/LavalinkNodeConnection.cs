@@ -460,7 +460,7 @@ public sealed class LavalinkNodeConnection
     private Task WebSocket_OnException(IWebSocketClient client, SocketErrorEventArgs e)
         => this.lavalinkSocketError.InvokeAsync(this, new SocketErrorEventArgs { Exception = e.Exception });
 
-    private async Task WebSocket_OnDisconnectAsync(IWebSocketClient client, SocketCloseEventArgs e)
+    private async Task WebSocket_OnDisconnectAsync(IWebSocketClient client, SocketClosedEventArgs e)
     {
         if (this.IsConnected && e.CloseCode != 1001 && e.CloseCode != -1)
         {

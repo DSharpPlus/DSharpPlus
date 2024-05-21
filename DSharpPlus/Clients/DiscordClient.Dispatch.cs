@@ -1059,7 +1059,7 @@ public sealed partial class DiscordClient
 
         if (exists)
         {
-            await this.guildAvailable.InvokeAsync(this, new GuildCreatedEventArgs { Guild = guild });
+            await this.guildAvailable.InvokeAsync(this, new GuildAvailableEventArgs { Guild = guild });
         }
         else
         {
@@ -1215,7 +1215,7 @@ public sealed partial class DiscordClient
 
             gld.IsUnavailable = true;
 
-            await this.guildUnavailable.InvokeAsync(this, new GuildDeletedEventArgs { Guild = guild, Unavailable = true });
+            await this.guildUnavailable.InvokeAsync(this, new GuildUnavailableEventArgs { Guild = guild, Unavailable = true });
         }
         else
         {

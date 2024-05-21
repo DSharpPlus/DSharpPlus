@@ -137,7 +137,7 @@ public sealed partial class DiscordClient
 
         await this.webSocketClient.ConnectAsync(new Uri(gwuri.Build()));
 
-        Task SocketOnConnect(IWebSocketClient sender, SocketEventArgs e)
+        Task SocketOnConnect(IWebSocketClient sender, SocketOpenedEventArgs e)
         {
             return this.socketOpened.InvokeAsync(this, e);
         }
@@ -179,7 +179,7 @@ public sealed partial class DiscordClient
             return this.socketErrored.InvokeAsync(this, e);
         }
 
-        async Task SocketOnDisconnect(IWebSocketClient sender, SocketCloseEventArgs e)
+        async Task SocketOnDisconnect(IWebSocketClient sender, SocketClosedEventArgs e)
         {
             // release session and connection
             this.ConnectionLock.Set();

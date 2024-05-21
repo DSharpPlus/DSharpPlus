@@ -52,8 +52,8 @@ public class WebSocketClient : IWebSocketClient
     /// <param name="proxy">Proxy settings for the client.</param>
     private WebSocketClient(IWebProxy proxy)
     {
-        this.connected = new AsyncEvent<WebSocketClient, SocketEventArgs>("WS_CONNECT", EventErrorHandler);
-        this.disconnected = new AsyncEvent<WebSocketClient, SocketCloseEventArgs>("WS_DISCONNECT", EventErrorHandler);
+        this.connected = new AsyncEvent<WebSocketClient, SocketOpenedEventArgs>("WS_CONNECT", EventErrorHandler);
+        this.disconnected = new AsyncEvent<WebSocketClient, SocketClosedEventArgs>("WS_DISCONNECT", EventErrorHandler);
         this.messageReceived = new AsyncEvent<WebSocketClient, SocketMessageEventArgs>("WS_MESSAGE", EventErrorHandler);
         this.exceptionThrown = new AsyncEvent<WebSocketClient, SocketErrorEventArgs>("WS_ERROR", null);
 
@@ -262,7 +262,7 @@ public class WebSocketClient : IWebSocketClient
                 if (!this.isConnected && result.MessageType != WebSocketMessageType.Close)
                 {
                     this.isConnected = true;
-                    await this.connected.InvokeAsync(this, new SocketEventArgs());
+                    await this.connected.InvokeAsync(this, new SocketOpenedEventArgs());
                 }
 
                 if (result.MessageType == WebSocketMessageType.Binary)
@@ -285,7 +285,7 @@ public class WebSocketClient : IWebSocketClient
                         await this.ws.CloseOutputAsync(code, result.CloseStatusDescription, CancellationToken.None);
                     }
 
-                    await this.disconnected.InvokeAsync(this, new SocketCloseEventArgs() { CloseCode = (int)result.CloseStatus, CloseMessage = result.CloseStatusDescription });
+                    await this.disconnected.InvokeAsync(this, new SocketClosedEventArgs() { CloseCode = (int)result.CloseStatus, CloseMessage = result.CloseStatusDescription });
                     break;
                 }
             }
@@ -293,7 +293,7 @@ public class WebSocketClient : IWebSocketClient
         catch (Exception ex)
         {
             await this.exceptionThrown.InvokeAsync(this, new SocketErrorEventArgs() { Exception = ex });
-            await this.disconnected.InvokeAsync(this, new SocketCloseEventArgs() { CloseCode = -1, CloseMessage = "" });
+            await this.disconnected.InvokeAsync(this, new SocketClosedEventArgs() { CloseCode = -1, CloseMessage = "" });
         }
 
         // Don't await or you deadlock
@@ -313,22 +313,22 @@ public class WebSocketClient : IWebSocketClient
     /// <summary>
     /// Triggered when the client connects successfully.
     /// </summary>
-    public event AsyncEventHandler<IWebSocketClient, SocketEventArgs> Connected
+    public event AsyncEventHandler<IWebSocketClient, SocketOpenedEventArgs> Connected
     {
         add => this.connected.Register(value);
         remove => this.connected.Unregister(value);
     }
-    private readonly AsyncEvent<WebSocketClient, SocketEventArgs> connected;
+    private readonly AsyncEvent<WebSocketClient, SocketOpenedEventArgs> connected;
 
     /// <summary>
     /// Triggered when the client is disconnected.
     /// </summary>
-    public event AsyncEventHandler<IWebSocketClient, SocketCloseEventArgs> Disconnected
+    public event AsyncEventHandler<IWebSocketClient, SocketClosedEventArgs> Disconnected
     {
         add => this.disconnected.Register(value);
         remove => this.disconnected.Unregister(value);
     }
-    private readonly AsyncEvent<WebSocketClient, SocketCloseEventArgs> disconnected;
+    private readonly AsyncEvent<WebSocketClient, SocketClosedEventArgs> disconnected;
 
     /// <summary>
     /// Triggered when the client receives a message from the remote party.
