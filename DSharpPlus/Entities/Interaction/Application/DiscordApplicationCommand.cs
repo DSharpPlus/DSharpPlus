@@ -132,10 +132,10 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
         {
             if (!Utilities.IsValidSlashCommandName(name))
             {
-                throw new ArgumentException("Invalid slash command name specified. It must be below 32 characters and not contain any whitespace.", nameof(name));
+                throw new ArgumentException($"Invalid slash command name specified: {name}. It must be below 32 characters and not contain any whitespace.", nameof(name));
             }
 
-            if (name.Any(ch => char.IsUpper(ch)))
+            if (name.Any(char.IsUpper))
             {
                 throw new ArgumentException("Slash command name cannot have any upper case characters.", nameof(name));
             }
