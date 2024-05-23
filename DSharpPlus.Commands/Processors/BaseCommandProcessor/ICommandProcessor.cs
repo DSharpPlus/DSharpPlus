@@ -9,6 +9,7 @@ namespace DSharpPlus.Commands.Processors;
 public interface ICommandProcessor
 {
     public ValueTask ConfigureAsync(CommandsExtension extension);
+    public Type ContextType => typeof(CommandContext);
 }
 
 public interface ICommandProcessor<T> : ICommandProcessor where T : AsyncEventArgs

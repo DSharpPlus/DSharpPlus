@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace DSharpPlus.Commands.Trees;
 
@@ -21,6 +22,8 @@ public record Command
 
     public Command(IEnumerable<CommandBuilder> subCommandBuilders) => this.Subcommands = subCommandBuilders.Select(x => x.WithParent(this).Build()).ToArray();
 
+    internal Command(IEnumerable<Command> subCommands) => this.Subcommands = subCommands.ToArray();
+    
     /// <summary>
     /// Traverses this command tree, returning this command and all subcommands recursively.
     /// </summary>

@@ -24,6 +24,8 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     private bool configured;
 
     private FrozenDictionary<string, Command> commands;
+    
+    public static new Type ContextType => typeof(TextCommandContext);
 
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {
@@ -31,7 +33,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
 
         Dictionary<string, Command> textCommands = [];
 
-        foreach (Command command in this.extension.GetCommandsForProcessor<TextCommandProcessor>())
+        foreach (Command command in this.extension.GetCommandsForProcessor(this))
         {
             textCommands.Add(command.Name, command);
         }

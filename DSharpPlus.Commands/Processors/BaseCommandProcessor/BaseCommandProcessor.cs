@@ -200,6 +200,10 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
         return default;
     }
 
+    /// <inheritdoc />
+    public static Type ContextType { get; }
+
+
     /// <summary>
     /// Parses the arguments provided to the command and returns a prepared command context.
     /// </summary>

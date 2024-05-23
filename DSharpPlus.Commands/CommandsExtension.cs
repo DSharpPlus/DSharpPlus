@@ -194,28 +194,66 @@ public sealed class CommandsExtension : BaseExtension
     /// <summary>
     /// Gets a list of commands filtered for a specific command processor
     /// </summary>
-    /// <typeparam name="TProcessor">Type of the processor calling this method</typeparam>
+    /// <param name="processor">Processor which is calling this method</param>
     /// <returns>Returns a list of valid commands. This list can be empty if no commands are valid for this processor type</returns>
-    public IReadOnlyList<Command> GetCommandsForProcessor<TProcessor>() where TProcessor : ICommandProcessor
+    public IReadOnlyList<Command> GetCommandsForProcessor(ICommandProcessor processor)
     {
+        Type contextType = processor.ContextType;
+        Type processorType = processor.GetType();
+        
         List<Command> commands = new(this.Commands.Values.Count());
 
         foreach (Command command in this.Commands.Values)
         {
-            AllowedProcessorsAttribute? allowedProcessorsAttribute = command.Attributes.OfType<AllowedProcessorsAttribute>().FirstOrDefault();
-            if (allowedProcessorsAttribute is null)
+            Command? filteredCommand = FilterCommand(command, processorType, contextType);
+            if (filteredCommand is not null)
             {
-                commands.Add(command);
-                continue;
-            }
-            
-            if (allowedProcessorsAttribute.Processors.Contains(typeof(TProcessor)))
-            {
-                commands.Add(command);
+                commands.Add(filteredCommand);
             }
         }
 
         return commands;
+    }
+
+    private Command? FilterCommand(Command command, Type processorType, Type contextType)
+    {
+        AllowedProcessorsAttribute? allowedProcessorsAttribute = command.Attributes.OfType<AllowedProcessorsAttribute>().FirstOrDefault();
+        if (allowedProcessorsAttribute is not null && !allowedProcessorsAttribute.Processors.Contains(processorType))
+        {
+            return null;
+        }
+
+        if (command.Method is not null)
+        {
+            Type methodContextType = command.Method.GetParameters().First().GetType();
+            if (!methodContextType.IsAssignableTo(contextType) && methodContextType != typeof(CommandContext))
+            {
+                return null;
+            }
+        }
+        
+        List<Command> subCommands = new(command.Subcommands.Count);
+        foreach (Command subcommand in command.Subcommands)
+        {
+            Command? filteredSubCommand = FilterCommand(subcommand, processorType, contextType);
+            if (filteredSubCommand is not null)
+            {
+                subCommands.Add(filteredSubCommand);
+            }
+        }
+
+        return new Command(subCommands)
+        {
+            Name = command.Name,
+            Method = command.Method,
+            Id = command.Id,
+            Parameters = command.Parameters,
+            Attributes = command.Attributes,
+            GuildIds = command.GuildIds,
+            Description = command.Description,
+            Parent = command.Parent,
+            Target = command.Target
+        };
     }
 
     public async ValueTask AddProcessorAsync(ICommandProcessor processor)

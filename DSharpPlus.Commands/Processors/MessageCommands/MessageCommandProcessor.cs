@@ -25,6 +25,8 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
     public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreateEventArgs>> Converters => this.slashCommandProcessor?.ConverterDelegates ?? new Dictionary<Type, ConverterDelegate<InteractionCreateEventArgs>>();
     private CommandsExtension? extension;
     private SlashCommandProcessor? slashCommandProcessor;
+    
+    public static Type ContextType => typeof(SlashCommandContext);
 
     public async ValueTask ConfigureAsync(CommandsExtension extension)
     {
@@ -39,7 +41,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
 
         ILogger<MessageCommandProcessor> logger = this.extension.ServiceProvider.GetService<ILogger<MessageCommandProcessor>>() ?? NullLogger<MessageCommandProcessor>.Instance;
         List<DiscordApplicationCommand> applicationCommands = [];
-        foreach (Command command in this.extension.GetCommandsForProcessor<MessageCommandProcessor>())
+        foreach (Command command in this.extension.GetCommandsForProcessor(this))
         {
             // Message commands must be explicitly defined as such, otherwise they are ignored.
             if (!command.Attributes.Any(x => x is SlashCommandTypesAttribute slashCommandTypesAttribute && slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.MessageContextMenu)))

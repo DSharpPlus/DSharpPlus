@@ -46,6 +46,8 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     private partial Regex DescrtiptionLocalizationRegex();
 
     private bool configured;
+    
+    public static new Type ContextType => typeof(SlashCommandContext);
 
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {
@@ -193,7 +195,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     [MemberNotNull(nameof(applicationCommands))]
     public async Task RegisterSlashCommandsAsync(CommandsExtension extension)
     {
-        IReadOnlyList<Command> processorSpecificCommands = extension.GetCommandsForProcessor<SlashCommandProcessor>();
+        IReadOnlyList<Command> processorSpecificCommands = extension.GetCommandsForProcessor(this);
         List<DiscordApplicationCommand> globalApplicationCommands = [];
         Dictionary<ulong, List<DiscordApplicationCommand>> guildsApplicationCommands = [];
         globalApplicationCommands.AddRange(applicationCommands);
