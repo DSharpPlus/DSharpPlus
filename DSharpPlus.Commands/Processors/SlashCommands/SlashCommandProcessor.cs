@@ -46,8 +46,6 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     private partial Regex DescrtiptionLocalizationRegex();
 
     private bool configured;
-    
-    public static new Type ContextType => typeof(SlashCommandContext);
 
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {

@@ -35,9 +35,9 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
         public ConverterDelegate<TEventArgs>? ConverterDelegate { get; set; }
         public TConverter? ConverterInstance { get; set; }
         public Type? ConverterType { get; set; }
-        
+
         /// <inheritdoc />
-        public static Type ContextType { get; }
+        public static Type ContextType => typeof(TCommandContext);
 
         public ConverterDelegate<TEventArgs> GetConverterDelegate(BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext> processor, IServiceProvider serviceProvider)
         {

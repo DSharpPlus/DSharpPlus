@@ -24,8 +24,6 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     private bool configured;
 
     private FrozenDictionary<string, Command> commands;
-    
-    public static new Type ContextType => typeof(TextCommandContext);
 
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {
