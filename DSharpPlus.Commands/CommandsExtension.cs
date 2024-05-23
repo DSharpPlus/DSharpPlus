@@ -242,18 +242,7 @@ public sealed class CommandsExtension : BaseExtension
             }
         }
 
-        return new Command(subCommands)
-        {
-            Name = command.Name,
-            Method = command.Method,
-            Id = command.Id,
-            Parameters = command.Parameters,
-            Attributes = command.Attributes,
-            GuildIds = command.GuildIds,
-            Description = command.Description,
-            Parent = command.Parent,
-            Target = command.Target
-        };
+        return command with { Subcommands = subCommands };
     }
 
     public async ValueTask AddProcessorAsync(ICommandProcessor processor)
