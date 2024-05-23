@@ -87,8 +87,24 @@ internal sealed partial class RestClient : IDisposable
             new()
             {
                 DelayGenerator = result =>
-                    ValueTask.FromResult<TimeSpan?>((result.Outcome.Exception as PreemptiveRatelimitException)?.ResetAfter
-                        ?? TimeSpan.FromSeconds(retryDelayFallback)),
+                {
+                    TimeSpan? delay = (result.Outcome.Exception as PreemptiveRatelimitException)?.ResetAfter;
+                    if (delay is null)
+                    {
+                        Ulid traceId = result.Context.Properties.TryGetValue(new("trace-id"), out Ulid tid) ? tid : Ulid.Empty;
+                        this.logger.LogTrace
+                        (
+                            LoggerEvents.RatelimitDiag,
+                            "Request ID:{TraceId}: Retry strategy was triggered by {ExceptionType} instead of PreemptiveRatelimitException. Using fallback delay instead",
+                            traceId,
+                            result.Outcome.Exception?.GetType()
+                        );
+                        return ValueTask.FromResult<TimeSpan?>(TimeSpan.FromSeconds(retryDelayFallback));
+                    }
+
+                    return ValueTask.FromResult(delay);
+
+                },
                 MaxRetryAttempts = maxRetries
             }
         )
