@@ -35,6 +35,9 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
         public ConverterDelegate<TEventArgs>? ConverterDelegate { get; set; }
         public TConverter? ConverterInstance { get; set; }
         public Type? ConverterType { get; set; }
+        
+        /// <inheritdoc />
+        public static Type ContextType { get; }
 
         public ConverterDelegate<TEventArgs> GetConverterDelegate(BaseCommandProcessor<TEventArgs, TConverter, TConverterContext, TCommandContext> processor, IServiceProvider serviceProvider)
         {
@@ -199,10 +202,6 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
         this.ConverterDelegates = converterDelegates.ToFrozenDictionary();
         return default;
     }
-
-    /// <inheritdoc />
-    public static Type ContextType { get; }
-
 
     /// <summary>
     /// Parses the arguments provided to the command and returns a prepared command context.
