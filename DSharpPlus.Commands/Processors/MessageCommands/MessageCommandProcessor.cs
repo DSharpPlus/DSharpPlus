@@ -53,7 +53,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
                 continue;
             }
             // Check to see if the method signature is valid.
-            else if (command.Parameters[0].Type != typeof(DiscordMessage))
+            else if (command.Parameters.Count < 1 || command.Parameters[0].Type != typeof(DiscordMessage))
             {
                 logger.LogError("Message command '{CommandName}' must it's first parameter be of type DiscordMessage.", command.Name);
                 continue;
