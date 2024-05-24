@@ -12,8 +12,8 @@
         }
       ],
       "dest": "api",
+      "outputFormat": "apiPage",
       "filter": "filter_config.yml",
-      "memberLayout": "separatePages"
     } 
 
   ],

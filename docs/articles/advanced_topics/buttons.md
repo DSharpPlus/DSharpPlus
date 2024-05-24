@@ -46,7 +46,7 @@ var myButton = new DiscordButtonComponent(
 ```
 
 This will create a blurple button with the text that reads "Very cool button!". When a user pushes it,
-`"my_very_cool_button"` will be sent back as the @DSharpPlus.EventArgs.ComponentInteractionCreateEventArgs.Id property
+`"my_very_cool_button"` will be sent back as the `ComponentInteractionCreateEventArgs.Id` property
 on the event. This is expanded on in the [how to respond to buttons][2].
 
 The label of a button is optional *if* an emoji is specified. The label can be up to 80 characters in length. The emoji
@@ -69,7 +69,7 @@ var builder = new DiscordMessageBuilder();
 builder.WithContent("This message has buttons! Pretty neat innit?");
 ```
 
-Well, there's a builder, but no buttons. What now? Simply make a new @DSharpPlus.Entities.DiscordButtonComponent object
+Well, there's a builder, but no buttons. What now? Simply make a new `DiscordButtonComponent` object
 and call AddComponents on the
 message builder.
 
@@ -100,7 +100,7 @@ var builder = new DiscordMessageBuilder()
     });
 ```
 
-As promised, not too complicated. Links however are @DSharpPlus.Entities.DiscordLinkButtonComponent, which takes a URL
+As promised, not too complicated. Links however are `DiscordLinkButtonComponent`, which takes a URL
 as its first parameter, and the label. Link buttons can also have an emoji, like regular buttons.
 
 Lets also add a second row of buttons, but disable them, so the user can't push them all willy-nilly.
@@ -117,7 +117,7 @@ builder.AddComponents(new DiscordComponent[]
 ```
 
 Practically identical, but now with `true` as an extra paremeter. This is the
-@DSharpPlus.Entities.DiscordButtonComponent.Disabled property.
+`DiscordButtonComponent.Disabled` property.
 
 Produces a message like such:
 
@@ -142,17 +142,16 @@ Pikachu enjoying a lolipop. Adorable.
 
 # Responding to button presses
 
-When any button is pressed, it will fire the @DSharpPlus.DiscordClient.ComponentInteractionCreated.
+When any button is pressed, it will fire the `ComponentInteractionCreated`
 
-In the event args, @DSharpPlus.EventArgs.ComponentInteractionCreateEventArgs.Id will be the id of the button you
-specified. There's also an @DSharpPlus.EventArgs.InteractionCreateEventArgs.Interaction property, which contains the
+In the event args, `ComponentInteractionCreateEventArgs.Id ` will be the id of the button you
+specified. There's also an `InteractionCreateEventArgs.Interaction` property, which contains the
 interaction the event created. It's important to respond to an interaction within 3 seconds, or it will time out.
-Responding after this period will throw a @DSharpPlus.Exceptions.NotFoundException.
+Responding after this period will throw a `NotFoundException`
 
-With buttons, there are two new response types: @DSharpPlus.InteractionResponseType.DeferredMessageUpdate and
-@DSharpPlus.InteractionResponseType.UpdateMessage.
+With buttons, there are two new response types: `InteractionResponseType.DeferredMessageUpdate` and `InteractionResponseType.UpdateMessage`.
 
-Using @DSharpPlus.InteractionResponseType.DeferredMessageUpdate lets you create followup messages via the
+Using `DSharpPlus.InteractionResponseType.DeferredMessageUpdate` lets you create followup messages via the
 [followup message builder][6]. The button will return to being in it's 'dormant' state, or it's 'unpushed' state, if you
 will.
 
@@ -167,8 +166,8 @@ client.ComponentInteractionCreated += async (s, e) =>
 ```
 
 If you would like to update the message when a button is pressed, however, you'd use
-@DSharpPlus.InteractionResponseType.UpdateMessage instead, and pass a
-@DSharpPlus.Entities.DiscordInteractionResponseBuilder with the new content you'd like.
+`InteractionResponseType.UpdateMessage` instead, and pass a
+`DiscordInteractionResponseBuilder` with the new content you'd like.
 
 ```cs
 client.ComponentInteractionCreated += async (s, e) =>
@@ -184,27 +183,27 @@ This will update the message, and remove all the buttons. Nice.
 
 # Interactivity
 
-Along with the typical @DSharpPlus.Interactivity.InteractivityExtension.WaitForMessageAsync* and
-@DSharpPlus.Interactivity.InteractivityExtension.WaitForReactionAsync* methods provided by interactivity, there are also
+Along with the typical `InteractivityExtension.WaitForMessageAsync` and
+`InteractivityExtension.WaitForReactionAsync` methods provided by interactivity, there are also
 button implementations as well.
 
 More information about how interactivity works can be found in [the interactivity article][7].
 
 Since buttons create interactions, there are also two additional properties in the configuration:
 
-- @DSharpPlus.Interactivity.InteractivityConfiguration.ResponseBehavior
-- @DSharpPlus.Interactivity.InteractivityConfiguration.ResponseMessage
+- `InteractivityConfiguration.ResponseBehavior`
+- `InteractivityConfiguration.ResponseMessage`
 
-@DSharpPlus.Interactivity.InteractivityConfiguration.ResponseBehavior is what interactivity will do when handling
-something that isn't a valid valid button, in the context of waiting for a specific button. It defaults to
-@DSharpPlus.Interactivity.Enums.InteractionResponseBehavior.Ignore, which will cause the interaction fail.
+`InteractivityConfiguration.ResponseBehavior` is what interactivity will do when handling
+something that isn't a valid button, in the context of waiting for a specific button. It defaults to
+`InteractionResponseBehavior.Ignore`, which will cause the interaction fail.
 
-Alternatively, setting it to @DSharpPlus.Interactivity.Enums.InteractionResponseBehavior.Ack will acknowledge the
+Alternatively, setting it to `InteractionResponseBehavior.Ack` will acknowledge the
 button, and continue waiting.
 
 Respond will reply with an ephemeral message with the aforementioned response message.
 
-@DSharpPlus.Interactivity.InteractivityConfiguration.ResponseBehavior only applies to the overload accepting a string id
+`InteractivityConfiguration.ResponseBehavior` only applies to the overload accepting a string id
 of the button to wait for.
 
 <!-- LINKS -->
