@@ -1,3 +1,5 @@
+using System;
+
 namespace DSharpPlus.AsyncEvents;
 
 
@@ -9,4 +11,6 @@ public abstract class AsyncEvent
     public string Name { get; }
 
     protected internal AsyncEvent(string name) => this.Name = name;
+
+    internal abstract void Register(Delegate @delegate);
 }

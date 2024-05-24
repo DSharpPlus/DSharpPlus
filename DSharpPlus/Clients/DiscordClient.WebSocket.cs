@@ -1,14 +1,16 @@
 using System;
-using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.WebSocket;
+
 using Microsoft.Extensions.Logging;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -16,33 +18,6 @@ namespace DSharpPlus;
 
 public sealed partial class DiscordClient
 {
-    #region Private Fields
-
-    private int heartbeatInterval;
-    private DateTimeOffset lastHeartbeat;
-
-    internal static readonly DateTimeOffset discordEpoch = new(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
-
-    private int skippedHeartbeats = 0;
-    private long lastSequence;
-
-    internal IWebSocketClient webSocketClient;
-    private PayloadDecompressor payloadDecompressor;
-
-    private CancellationTokenSource cancelTokenSource;
-    private CancellationToken cancelToken;
-
-    #endregion
-
-    #region Connection Semaphore
-
-    private static ConcurrentDictionary<ulong, SocketLock> socketLocks { get; } = new ConcurrentDictionary<ulong, SocketLock>();
-    private ManualResetEventSlim sessionLock { get; } = new ManualResetEventSlim(true);
-
-    #endregion
-
-    #region Internal Connection Methods
-
     private Task InternalReconnectAsync(bool startNewSession = false, int code = 1000, string message = "")
     {
         if (startNewSession)
@@ -116,17 +91,10 @@ public sealed partial class DiscordClient
         this.webSocketClient.MessageReceived += SocketOnMessage;
         this.webSocketClient.ExceptionThrown += SocketOnException;
 
-        QueryUriBuilder gwuri;
+        QueryUriBuilder gwuri = this.gatewayResumeUrl is not null && !string.IsNullOrWhiteSpace(this.sessionId)
+            ? new QueryUriBuilder(this.gatewayResumeUrl)
+            : new QueryUriBuilder(this.GatewayUri.ToString());
 
-        if (this.gatewayResumeUrl is not null && !string.IsNullOrWhiteSpace(this.sessionId))
-        {
-            gwuri = new QueryUriBuilder(this.gatewayResumeUrl);
-        }
-        else
-        {
-            gwuri = new QueryUriBuilder(this.GatewayUri.ToString());
-        }
-        
         gwuri.AddParameter("v", "10")
              .AddParameter("encoding", "json");
         
@@ -144,7 +112,8 @@ public sealed partial class DiscordClient
 
         async Task SocketOnMessage(IWebSocketClient sender, SocketMessageEventArgs e)
         {
-            string msg = null;
+            string? msg = null;
+
             if (e is SocketTextMessageEventArgs etext)
             {
                 msg = etext.Message;
@@ -182,7 +151,7 @@ public sealed partial class DiscordClient
         async Task SocketOnDisconnect(IWebSocketClient sender, SocketClosedEventArgs e)
         {
             // release session and connection
-            this.ConnectionLock.Set();
+            this.connectionLock.Set();
             this.sessionLock.Set();
 
             if (!this.disposed)
@@ -217,10 +186,6 @@ public sealed partial class DiscordClient
             }
         }
     }
-
-    #endregion
-
-    #region WebSocket (Events)
 
     internal async Task HandleSocketMessageAsync(string data)
     {
@@ -360,10 +325,6 @@ public sealed partial class DiscordClient
         }
         catch (OperationCanceledException) { }
     }
-
-    #endregion
-
-    #region Internal Gateway Methods
 
     internal async Task InternalUpdateStatusAsync(DiscordActivity activity, DiscordUserStatus? userStatus, DateTimeOffset? idleSince)
     {
@@ -540,12 +501,7 @@ public sealed partial class DiscordClient
         string payloadString = DiscordJson.SerializeObject(payload);
         return SendRawPayloadAsync(payloadString);
     }
-    #endregion
-
-    #region Semaphore Methods
 
     private SocketLock GetSocketLock()
         => socketLocks.GetOrAdd(this.CurrentApplication.Id, appId => new SocketLock(appId, this.GatewayInfo.SessionBucket.MaxConcurrency));
-
-    #endregion
 }

@@ -1,7 +1,7 @@
 using System;
+
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.EventArgs;
-using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus;
 
@@ -14,18 +14,15 @@ public sealed partial class DiscordClient
     private const string ObsoletionMessage = "Events on DiscordClient are deprecated and will be removed within the v5 development cycle. " +
         "Please use the ConfigureEventHandlers methods on your preferred construction method instead.";
 
-    #region WebSocket
-
     /// <summary>
     /// Fired whenever a WebSocket error occurs within the client.
     /// </summary>
     [Obsolete("This event is superseded by implementing/shimming IClientErrorHandler", true, DiagnosticId = "DSP0003")]
     public event AsyncEventHandler<DiscordClient, SocketErrorEventArgs> SocketErrored
     {
-        add => this.socketErrored.Register(value);
-        remove => this.socketErrored.Unregister(value);
+        add => throw new NotSupportedException();
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, SocketErrorEventArgs> socketErrored;
 
     /// <summary>
     /// Fired whenever WebSocket connection is established.
@@ -33,10 +30,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, SocketOpenedEventArgs> SocketOpened
     {
-        add => this.socketOpened.Register(value);
-        remove => this.socketOpened.Unregister(value);
+        add => this.events[typeof(SocketOpenedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, SocketOpenedEventArgs> socketOpened;
 
     /// <summary>
     /// Fired whenever WebSocket connection is terminated.
@@ -44,10 +40,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, SocketClosedEventArgs> SocketClosed
     {
-        add => this.socketClosed.Register(value);
-        remove => this.socketClosed.Unregister(value);
+        add => this.events[typeof(SocketClosedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, SocketClosedEventArgs> socketClosed;
 
     /// <summary>
     /// Fired when this client has successfully completed its handshake with the websocket gateway.
@@ -59,21 +54,19 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, SessionCreatedEventArgs> SessionCreated
     {
-        add => this.ready.Register(value);
-        remove => this.ready.Unregister(value);
+        add => this.events[typeof(SessionCreatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, SessionCreatedEventArgs> ready;
 
     /// <summary>
     /// Fired whenever a session is resumed.
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
-    public event AsyncEventHandler<DiscordClient, SessionCreatedEventArgs> SessionResumed
+    public event AsyncEventHandler<DiscordClient, SessionResumedEventArgs> SessionResumed
     {
-        add => this.resumed.Register(value);
-        remove => this.resumed.Unregister(value);
+        add => this.events[typeof(SessionResumedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, SessionCreatedEventArgs> resumed;
 
     /// <summary>
     /// Fired on received heartbeat ACK.
@@ -81,10 +74,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, HeartbeatedEventArgs> Heartbeated
     {
-        add => this.heartbeated.Register(value);
-        remove => this.heartbeated.Unregister(value);
+        add => this.events[typeof(HeartbeatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, HeartbeatedEventArgs> heartbeated;
 
     /// <summary>
     /// Fired on heartbeat attempt cancellation due to too many failed heartbeats.
@@ -92,26 +84,16 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ZombiedEventArgs> Zombied
     {
-        add => this.zombied.Register(value);
-        remove => this.zombied.Unregister(value);
+        add => this.events[typeof(ZombiedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, ZombiedEventArgs> zombied;
 
-    #endregion
-
-    #region Application
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs> ApplicationCommandPermissionsUpdated
     {
-        add => this.applicationCommandPermissionsUpdated.Register(value);
-        remove => this.applicationCommandPermissionsUpdated.Unregister(value);
+        add => this.events[typeof(ApplicationCommandPermissionsUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-
-    private AsyncEvent<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs> applicationCommandPermissionsUpdated;
-
-    #endregion
-
-    #region Channel
 
     /// <summary>
     /// Fired when a new channel is created.
@@ -120,10 +102,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ChannelCreatedEventArgs> ChannelCreated
     {
-        add => this.channelCreated.Register(value);
-        remove => this.channelCreated.Unregister(value);
+        add => this.events[typeof(ChannelCreatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, ChannelCreatedEventArgs> channelCreated;
 
     /// <summary>
     /// Fired when a channel is updated.
@@ -132,10 +113,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ChannelUpdatedEventArgs> ChannelUpdated
     {
-        add => this.channelUpdated.Register(value);
-        remove => this.channelUpdated.Unregister(value);
+        add => this.events[typeof(ChannelUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, ChannelUpdatedEventArgs> channelUpdated;
 
     /// <summary>
     /// Fired when a channel is deleted
@@ -144,10 +124,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ChannelDeletedEventArgs> ChannelDeleted
     {
-        add => this.channelDeleted.Register(value);
-        remove => this.channelDeleted.Unregister(value);
+        add => this.events[typeof(ChannelDeletedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, ChannelDeletedEventArgs> channelDeleted;
 
     /// <summary>
     /// Fired when a dm channel is deleted
@@ -156,10 +135,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, DmChannelDeletedEventArgs> DmChannelDeleted
     {
-        add => this.dmChannelDeleted.Register(value);
-        remove => this.dmChannelDeleted.Unregister(value);
+        add => this.events[typeof(DmChannelDeletedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, DmChannelDeletedEventArgs> dmChannelDeleted;
 
     /// <summary>
     /// Fired whenever a channel's pinned message list is updated.
@@ -168,14 +146,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ChannelPinsUpdatedEventArgs> ChannelPinsUpdated
     {
-        add => this.channelPinsUpdated.Register(value);
-        remove => this.channelPinsUpdated.Unregister(value);
+        add => this.events[typeof(ChannelPinsUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, ChannelPinsUpdatedEventArgs> channelPinsUpdated;
-
-    #endregion
-
-    #region Guild
 
     /// <summary>
     /// Fired when the user joins a new guild.
@@ -185,10 +158,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildCreatedEventArgs> GuildCreated
     {
-        add => this.guildCreated.Register(value);
-        remove => this.guildCreated.Unregister(value);
+        add => this.events[typeof(GuildCreatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, GuildCreatedEventArgs> guildCreated;
 
     /// <summary>
     /// Fired when a guild is becoming available.
@@ -197,10 +169,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildAvailableEventArgs> GuildAvailable
     {
-        add => this.guildAvailable.Register(value);
-        remove => this.guildAvailable.Unregister(value);
+        add => this.events[typeof(GuildAvailableEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, GuildAvailableEventArgs> guildAvailable;
 
     /// <summary>
     /// Fired when a guild is updated.
@@ -209,10 +180,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildUpdatedEventArgs> GuildUpdated
     {
-        add => this.guildUpdated.Register(value);
-        remove => this.guildUpdated.Unregister(value);
+        add => this.events[typeof(GuildUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, GuildUpdatedEventArgs> guildUpdated;
 
     /// <summary>
     /// Fired when the user leaves or is removed from a guild.
@@ -221,10 +191,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildDeletedEventArgs> GuildDeleted
     {
-        add => this.guildDeleted.Register(value);
-        remove => this.guildDeleted.Unregister(value);
+        add => this.events[typeof(GuildDeletedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, GuildDeletedEventArgs> guildDeleted;
 
     /// <summary>
     /// Fired when a guild becomes unavailable.
@@ -232,10 +201,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildUnavailableEventArgs> GuildUnavailable
     {
-        add => this.guildUnavailable.Register(value);
-        remove => this.guildUnavailable.Unregister(value);
+        add => this.events[typeof(GuildUnavailableEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, GuildUnavailableEventArgs> guildUnavailable;
 
     /// <summary>
     /// Fired when all guilds finish streaming from Discord.
@@ -243,10 +211,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildDownloadCompletedEventArgs> GuildDownloadCompleted
     {
-        add => this.guildDownloadCompletedEv.Register(value);
-        remove => this.guildDownloadCompletedEv.Unregister(value);
+        add => this.events[typeof(GuildDownloadCompletedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, GuildDownloadCompletedEventArgs> guildDownloadCompletedEv;
 
     /// <summary>
     /// Fired when a guilds emojis get updated
@@ -255,19 +222,16 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildEmojisUpdatedEventArgs> GuildEmojisUpdated
     {
-        add => this.guildEmojisUpdated.Register(value);
-        remove => this.guildEmojisUpdated.Unregister(value);
+        add => this.events[typeof(GuildEmojisUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, GuildEmojisUpdatedEventArgs> guildEmojisUpdated;
 
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildStickersUpdatedEventArgs> GuildStickersUpdated
     {
-        add => this.guildStickersUpdated.Register(value);
-        remove => this.guildStickersUpdated.Unregister(value);
+        add => this.events[typeof(GuildStickersUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-
-    private AsyncEvent<DiscordClient, GuildStickersUpdatedEventArgs> guildStickersUpdated;
 
     /// <summary>
     /// Fired when a guild integration is updated.
@@ -275,10 +239,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildIntegrationsUpdatedEventArgs> GuildIntegrationsUpdated
     {
-        add => this.guildIntegrationsUpdated.Register(value);
-        remove => this.guildIntegrationsUpdated.Unregister(value);
+        add => this.events[typeof(GuildIntegrationsUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, GuildIntegrationsUpdatedEventArgs> guildIntegrationsUpdated;
 
     /// <summary>
     /// Fired when a audit log entry is created.
@@ -286,66 +249,51 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildAuditLogCreatedEventArgs> GuildAuditLogCreated
     {
-        add => this.guildAuditLogCreated.Register(value);
-        remove => this.guildAuditLogCreated.Unregister(value);
+        add => this.events[typeof(GuildAuditLogCreatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, GuildAuditLogCreatedEventArgs> guildAuditLogCreated;
-
-    #endregion
-
-    #region Scheduled Guild Events
 
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventCreatedEventArgs> ScheduledGuildEventCreated
     {
-        add => this.scheduledGuildEventCreated.Register(value);
-        remove => this.scheduledGuildEventCreated.Unregister(value);
+        add => this.events[typeof(ScheduledGuildEventCreatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventCreatedEventArgs> scheduledGuildEventCreated;
 
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUpdatedEventArgs> ScheduledGuildEventUpdated
     {
-        add => this.scheduledGuildEventUpdated.Register(value);
-        remove => this.scheduledGuildEventUpdated.Unregister(value);
+        add => this.events[typeof(ScheduledGuildEventUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventUpdatedEventArgs> scheduledGuildEventUpdated;
 
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventDeletedEventArgs> ScheduledGuildEventDeleted
     {
-        add => this.scheduledGuildEventDeleted.Register(value);
-        remove => this.scheduledGuildEventDeleted.Unregister(value);
+        add => this.events[typeof(ScheduledGuildEventDeletedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventDeletedEventArgs> scheduledGuildEventDeleted;
 
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventCompletedEventArgs> ScheduledGuildEventCompleted
     {
-        add => this.scheduledGuildEventCompleted.Register(value);
-        remove => this.scheduledGuildEventCompleted.Unregister(value);
+        add => this.events[typeof(ScheduledGuildEventCompletedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventCompletedEventArgs> scheduledGuildEventCompleted;
 
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUserAddedEventArgs> ScheduledGuildEventUserAdded
     {
-        add => this.scheduledGuildEventUserAdded.Register(value);
-        remove => this.scheduledGuildEventUserAdded.Unregister(value);
+        add => this.events[typeof(ScheduledGuildEventUserAddedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventUserAddedEventArgs> scheduledGuildEventUserAdded;
 
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUserRemovedEventArgs> ScheduledGuildEventUserRemoved
     {
-        add => this.scheduledGuildEventUserRemoved.Register(value);
-        remove => this.scheduledGuildEventUserRemoved.Unregister(value);
+        add => this.events[typeof(ScheduledGuildEventUserRemovedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, ScheduledGuildEventUserRemovedEventArgs> scheduledGuildEventUserRemoved;
-
-    #endregion
-
-    #region Guild Ban
 
     /// <summary>
     /// Fired when a guild ban gets added
@@ -354,10 +302,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildBanAddedEventArgs> GuildBanAdded
     {
-        add => this.guildBanAdded.Register(value);
-        remove => this.guildBanAdded.Unregister(value);
+        add => this.events[typeof(GuildBanAddedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, GuildBanAddedEventArgs> guildBanAdded;
 
     /// <summary>
     /// Fired when a guild ban gets removed
@@ -366,14 +313,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildBanRemovedEventArgs> GuildBanRemoved
     {
-        add => this.guildBanRemoved.Register(value);
-        remove => this.guildBanRemoved.Unregister(value);
+        add => this.events[typeof(GuildBanRemovedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, GuildBanRemovedEventArgs> guildBanRemoved;
-
-    #endregion
-
-    #region Guild Member
 
     /// <summary>
     /// Fired when a new user joins a guild.
@@ -382,10 +324,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildMemberAddedEventArgs> GuildMemberAdded
     {
-        add => this.guildMemberAdded.Register(value);
-        remove => this.guildMemberAdded.Unregister(value);
+        add => this.events[typeof(GuildMemberAddedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, GuildMemberAddedEventArgs> guildMemberAdded;
 
     /// <summary>
     /// Fired when a user is removed from a guild (leave/kick/ban).
@@ -394,10 +335,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildMemberRemovedEventArgs> GuildMemberRemoved
     {
-        add => this.guildMemberRemoved.Register(value);
-        remove => this.guildMemberRemoved.Unregister(value);
+        add => this.events[typeof(GuildMemberRemovedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, GuildMemberRemovedEventArgs> guildMemberRemoved;
 
     /// <summary>
     /// Fired when a guild member is updated.
@@ -406,10 +346,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildMemberUpdatedEventArgs> GuildMemberUpdated
     {
-        add => this.guildMemberUpdated.Register(value);
-        remove => this.guildMemberUpdated.Unregister(value);
+        add => this.events[typeof(GuildMemberUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, GuildMemberUpdatedEventArgs> guildMemberUpdated;
 
     /// <summary>
     /// Fired in response to Gateway Request Guild Members.
@@ -417,14 +356,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildMembersChunkedEventArgs> GuildMembersChunked
     {
-        add => this.guildMembersChunked.Register(value);
-        remove => this.guildMembersChunked.Unregister(value);
+        add => this.events[typeof(GuildMembersChunkedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, GuildMembersChunkedEventArgs> guildMembersChunked;
-
-    #endregion
-
-    #region Guild Role
 
     /// <summary>
     /// Fired when a guild role is created.
@@ -433,10 +367,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildRoleCreatedEventArgs> GuildRoleCreated
     {
-        add => this.guildRoleCreated.Register(value);
-        remove => this.guildRoleCreated.Unregister(value);
+        add => this.events[typeof(GuildRoleCreatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, GuildRoleCreatedEventArgs> guildRoleCreated;
 
     /// <summary>
     /// Fired when a guild role is updated.
@@ -445,10 +378,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildRoleUpdatedEventArgs> GuildRoleUpdated
     {
-        add => this.guildRoleUpdated.Register(value);
-        remove => this.guildRoleUpdated.Unregister(value);
+        add => this.events[typeof(GuildRoleUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, GuildRoleUpdatedEventArgs> guildRoleUpdated;
 
     /// <summary>
     /// Fired when a guild role is updated.
@@ -457,14 +389,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildRoleDeletedEventArgs> GuildRoleDeleted
     {
-        add => this.guildRoleDeleted.Register(value);
-        remove => this.guildRoleDeleted.Unregister(value);
+        add => this.events[typeof(GuildRoleDeletedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, GuildRoleDeletedEventArgs> guildRoleDeleted;
-
-    #endregion
-
-    #region Invite
 
     /// <summary>
     /// Fired when an invite is created.
@@ -473,10 +400,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, InviteCreatedEventArgs> InviteCreated
     {
-        add => this.inviteCreated.Register(value);
-        remove => this.inviteCreated.Unregister(value);
+        add => this.events[typeof(InviteCreatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, InviteCreatedEventArgs> inviteCreated;
 
     /// <summary>
     /// Fired when an invite is deleted.
@@ -485,14 +411,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, InviteDeletedEventArgs> InviteDeleted
     {
-        add => this.inviteDeleted.Register(value);
-        remove => this.inviteDeleted.Unregister(value);
+        add => this.events[typeof(InviteDeletedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, InviteDeletedEventArgs> inviteDeleted;
-
-    #endregion
-
-    #region Message
 
     /// <summary>
     /// Fired when a message is created.
@@ -501,10 +422,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, MessageCreatedEventArgs> MessageCreated
     {
-        add => this.messageCreated.Register(value);
-        remove => this.messageCreated.Unregister(value);
+        add => this.events[typeof(MessageCreatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, MessageCreatedEventArgs> messageCreated;
 
     /// <summary>
     /// Fired when a message is updated.
@@ -513,10 +433,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, MessageUpdatedEventArgs> MessageUpdated
     {
-        add => this.messageUpdated.Register(value);
-        remove => this.messageUpdated.Unregister(value);
+        add => this.events[typeof(MessageUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, MessageUpdatedEventArgs> messageUpdated;
 
     /// <summary>
     /// Fired when a message is deleted.
@@ -525,10 +444,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, MessageDeletedEventArgs> MessageDeleted
     {
-        add => this.messageDeleted.Register(value);
-        remove => this.messageDeleted.Unregister(value);
+        add => this.events[typeof(MessageDeletedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, MessageDeletedEventArgs> messageDeleted;
 
     /// <summary>
     /// Fired when multiple messages are deleted at once.
@@ -537,23 +455,16 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, MessagesBulkDeletedEventArgs> MessagesBulkDeleted
     {
-        add => this.messagesBulkDeleted.Register(value);
-        remove => this.messagesBulkDeleted.Unregister(value);
+        add => this.events[typeof(MessagesBulkDeletedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, MessagesBulkDeletedEventArgs> messagesBulkDeleted;
 
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, MessagePollVotedEventArgs> MessagePollVoted
     {
-        add => this.messagePollVoted.Register(value);
-        remove => this.messagePollVoted.Unregister(value);
+        add => this.events[typeof(MessagePollVotedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-
-    private AsyncEvent<DiscordClient, MessagePollVotedEventArgs> messagePollVoted;
-
-    #endregion
-
-    #region Message Reaction
 
     /// <summary>
     /// Fired when a reaction gets added to a message.
@@ -562,10 +473,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, MessageReactionAddedEventArgs> MessageReactionAdded
     {
-        add => this.messageReactionAdded.Register(value);
-        remove => this.messageReactionAdded.Unregister(value);
+        add => this.events[typeof(MessageReactionAddedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, MessageReactionAddedEventArgs> messageReactionAdded;
 
     /// <summary>
     /// Fired when a reaction gets removed from a message.
@@ -574,10 +484,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, MessageReactionRemovedEventArgs> MessageReactionRemoved
     {
-        add => this.messageReactionRemoved.Register(value);
-        remove => this.messageReactionRemoved.Unregister(value);
+        add => this.events[typeof(MessageReactionRemovedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, MessageReactionRemovedEventArgs> messageReactionRemoved;
 
     /// <summary>
     /// Fired when all reactions get removed from a message.
@@ -586,10 +495,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, MessageReactionsClearedEventArgs> MessageReactionsCleared
     {
-        add => this.messageReactionsCleared.Register(value);
-        remove => this.messageReactionsCleared.Unregister(value);
+        add => this.events[typeof(MessageReactionsClearedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, MessageReactionsClearedEventArgs> messageReactionsCleared;
 
     /// <summary>
     /// Fired when all reactions of a specific reaction are removed from a message.
@@ -598,14 +506,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, MessageReactionRemovedEmojiEventArgs> MessageReactionRemovedEmoji
     {
-        add => this.messageReactionRemovedEmoji.Register(value);
-        remove => this.messageReactionRemovedEmoji.Unregister(value);
+        add => this.events[typeof(MessageReactionRemovedEmojiEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, MessageReactionRemovedEmojiEventArgs> messageReactionRemovedEmoji;
-
-    #endregion
-
-    #region Presence/User Update
 
     /// <summary>
     /// Fired when a presence has been updated.
@@ -614,10 +517,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, PresenceUpdatedEventArgs> PresenceUpdated
     {
-        add => this.presenceUpdated.Register(value);
-        remove => this.presenceUpdated.Unregister(value);
+        add => this.events[typeof(PresenceUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, PresenceUpdatedEventArgs> presenceUpdated;
 
     /// <summary>
     /// Fired when the current user updates their settings.
@@ -626,10 +528,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, UserSettingsUpdatedEventArgs> UserSettingsUpdated
     {
-        add => this.userSettingsUpdated.Register(value);
-        remove => this.userSettingsUpdated.Unregister(value);
+        add => this.events[typeof(UserSettingsUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, UserSettingsUpdatedEventArgs> userSettingsUpdated;
 
     /// <summary>
     /// Fired when properties about the current user change.
@@ -641,14 +542,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, UserUpdatedEventArgs> UserUpdated
     {
-        add => this.userUpdated.Register(value);
-        remove => this.userUpdated.Unregister(value);
+        add => this.events[typeof(UserUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, UserUpdatedEventArgs> userUpdated;
-
-    #endregion
-
-    #region Voice
 
     /// <summary>
     /// Fired when someone joins/leaves/moves voice channels.
@@ -657,10 +553,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, VoiceStateUpdatedEventArgs> VoiceStateUpdated
     {
-        add => this.voiceStateUpdated.Register(value);
-        remove => this.voiceStateUpdated.Unregister(value);
+        add => this.events[typeof(VoiceStateUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, VoiceStateUpdatedEventArgs> voiceStateUpdated;
 
     /// <summary>
     /// Fired when a guild's voice server is updated.
@@ -669,14 +564,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, VoiceServerUpdatedEventArgs> VoiceServerUpdated
     {
-        add => this.voiceServerUpdated.Register(value);
-        remove => this.voiceServerUpdated.Unregister(value);
+        add => this.events[typeof(VoiceServerUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, VoiceServerUpdatedEventArgs> voiceServerUpdated;
-
-    #endregion
-
-    #region Thread
 
     /// <summary>
     /// Fired when a thread is created.
@@ -685,10 +575,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ThreadCreatedEventArgs> ThreadCreated
     {
-        add => this.threadCreated.Register(value);
-        remove => this.threadCreated.Unregister(value);
+        add => this.events[typeof(ThreadCreatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, ThreadCreatedEventArgs> threadCreated;
 
     /// <summary>
     /// Fired when a thread is updated.
@@ -697,10 +586,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ThreadUpdatedEventArgs> ThreadUpdated
     {
-        add => this.threadUpdated.Register(value);
-        remove => this.threadUpdated.Unregister(value);
+        add => this.events[typeof(ThreadUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, ThreadUpdatedEventArgs> threadUpdated;
 
     /// <summary>
     /// Fired when a thread is deleted.
@@ -709,10 +597,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ThreadDeletedEventArgs> ThreadDeleted
     {
-        add => this.threadDeleted.Register(value);
-        remove => this.threadDeleted.Unregister(value);
+        add => this.events[typeof(ThreadDeletedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, ThreadDeletedEventArgs> threadDeleted;
 
     /// <summary>
     /// Fired when the current member gains access to a channel(s) that has threads.
@@ -721,10 +608,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ThreadListSyncedEventArgs> ThreadListSynced
     {
-        add => this.threadListSynced.Register(value);
-        remove => this.threadListSynced.Unregister(value);
+        add => this.events[typeof(ThreadListSyncedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, ThreadListSyncedEventArgs> threadListSynced;
 
     /// <summary>
     /// Fired when the thread member for the current user is updated.
@@ -736,10 +622,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ThreadMemberUpdatedEventArgs> ThreadMemberUpdated
     {
-        add => this.threadMemberUpdated.Register(value);
-        remove => this.threadMemberUpdated.Unregister(value);
+        add => this.events[typeof(ThreadMemberUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, ThreadMemberUpdatedEventArgs> threadMemberUpdated;
 
     /// <summary>
     /// Fired when the thread members are updated.
@@ -748,14 +633,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ThreadMembersUpdatedEventArgs> ThreadMembersUpdated
     {
-        add => this.threadMembersUpdated.Register(value);
-        remove => this.threadMembersUpdated.Unregister(value);
+        add => this.events[typeof(ThreadMembersUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, ThreadMembersUpdatedEventArgs> threadMembersUpdated;
-
-    #endregion
-
-    #region Integration
 
     /// <summary>
     /// Fired when an integration is created.
@@ -763,10 +643,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, IntegrationCreatedEventArgs> IntegrationCreated
     {
-        add => this.integrationCreated.Register(value);
-        remove => this.integrationCreated.Unregister(value);
+        add => this.events[typeof(IntegrationCreatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, IntegrationCreatedEventArgs> integrationCreated;
 
     /// <summary>
     /// Fired when an integration is updated.
@@ -774,10 +653,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, IntegrationUpdatedEventArgs> IntegrationUpdated
     {
-        add => this.integrationUpdated.Register(value);
-        remove => this.integrationUpdated.Unregister(value);
+        add => this.events[typeof(IntegrationUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, IntegrationUpdatedEventArgs> integrationUpdated;
 
     /// <summary>
     /// Fired when an integration is deleted.
@@ -785,14 +663,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, IntegrationDeletedEventArgs> IntegrationDeleted
     {
-        add => this.integrationDeleted.Register(value);
-        remove => this.integrationDeleted.Unregister(value);
+        add => this.events[typeof(IntegrationDeletedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, IntegrationDeletedEventArgs> integrationDeleted;
-
-    #endregion
-
-    #region Stage Instance
 
     /// <summary>
     /// Fired when a stage instance is created.
@@ -800,10 +673,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, StageInstanceCreatedEventArgs> StageInstanceCreated
     {
-        add => this.stageInstanceCreated.Register(value);
-        remove => this.stageInstanceCreated.Unregister(value);
+        add => this.events[typeof(StageInstanceCreatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, StageInstanceCreatedEventArgs> stageInstanceCreated;
 
     /// <summary>
     /// Fired when a stage instance is updated.
@@ -811,10 +683,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, StageInstanceUpdatedEventArgs> StageInstanceUpdated
     {
-        add => this.stageInstanceUpdated.Register(value);
-        remove => this.stageInstanceUpdated.Unregister(value);
+        add => this.events[typeof(StageInstanceUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, StageInstanceUpdatedEventArgs> stageInstanceUpdated;
 
     /// <summary>
     /// Fired when a stage instance is deleted.
@@ -822,14 +693,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, StageInstanceDeletedEventArgs> StageInstanceDeleted
     {
-        add => this.stageInstanceDeleted.Register(value);
-        remove => this.stageInstanceDeleted.Unregister(value);
+        add => this.events[typeof(StageInstanceDeletedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, StageInstanceDeletedEventArgs> stageInstanceDeleted;
-
-    #endregion
-
-    #region Misc
 
     /// <summary>
     /// Fired when an interaction is invoked.
@@ -837,10 +703,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, InteractionCreatedEventArgs> InteractionCreated
     {
-        add => this.interactionCreated.Register(value);
-        remove => this.interactionCreated.Unregister(value);
+        add => this.events[typeof(InteractionCreatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, InteractionCreatedEventArgs> interactionCreated;
 
     /// <summary>
     /// Fired when a component is invoked.
@@ -848,11 +713,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ComponentInteractionCreatedEventArgs> ComponentInteractionCreated
     {
-        add => this.componentInteractionCreated.Register(value);
-        remove => this.componentInteractionCreated.Unregister(value);
+        add => this.events[typeof(ComponentInteractionCreatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-
-    private AsyncEvent<DiscordClient, ComponentInteractionCreatedEventArgs> componentInteractionCreated;
 
     /// <summary>
     /// Fired when a modal is submitted. If a modal is closed, this event is not fired.
@@ -860,11 +723,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ModalSubmittedEventArgs> ModalSubmitted
     {
-        add => this.modalSubmitted.Register(value);
-        remove => this.modalSubmitted.Unregister(value);
+        add => this.events[typeof(ModalSubmittedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-
-    private AsyncEvent<DiscordClient, ModalSubmittedEventArgs> modalSubmitted;
 
     /// <summary>
     /// Fired when a user uses a context menu.
@@ -872,11 +733,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ContextMenuInteractionCreatedEventArgs> ContextMenuInteractionCreated
     {
-        add => this.contextMenuInteractionCreated.Register(value);
-        remove => this.contextMenuInteractionCreated.Unregister(value);
+        add => this.events[typeof(ContextMenuInteractionCreatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-
-    private AsyncEvent<DiscordClient, ContextMenuInteractionCreatedEventArgs> contextMenuInteractionCreated;
 
     /// <summary>
     /// Fired when a user starts typing in a channel.
@@ -884,10 +743,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, TypingStartedEventArgs> TypingStarted
     {
-        add => this.typingStarted.Register(value);
-        remove => this.typingStarted.Unregister(value);
+        add => this.events[typeof(TypingStartedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, TypingStartedEventArgs> typingStarted;
 
     /// <summary>
     /// Fired when an unknown event gets received.
@@ -895,10 +753,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, UnknownEventArgs> UnknownEvent
     {
-        add => this.unknownEvent.Register(value);
-        remove => this.unknownEvent.Unregister(value);
+        add => this.events[typeof(UnknownEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, UnknownEventArgs> unknownEvent;
 
     /// <summary>
     /// Fired whenever webhooks update.
@@ -906,39 +763,19 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, WebhooksUpdatedEventArgs> WebhooksUpdated
     {
-        add => this.webhooksUpdated.Register(value);
-        remove => this.webhooksUpdated.Unregister(value);
+        add => this.events[typeof(WebhooksUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, WebhooksUpdatedEventArgs> webhooksUpdated;
 
     /// <summary>
     /// Fired whenever an error occurs within an event handler.
     /// </summary>
-    [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
+    [Obsolete("This event is superseded by implementing/shimming IClientErrorHandler", DiagnosticId = "DSP0003")]
     public event AsyncEventHandler<DiscordClient, ClientErrorEventArgs> ClientErrored
     {
-        add => this.clientErrored.Register(value);
-        remove => this.clientErrored.Unregister(value);
+        add => throw new NotSupportedException();
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, ClientErrorEventArgs> clientErrored;
-
-    #endregion
-
-    #region Error Handling
-
-    internal void EventErrorHandler<TSender, TArgs>(AsyncEvent<TSender, TArgs> asyncEvent, Exception ex, AsyncEventHandler<TSender, TArgs> handler, TSender sender, TArgs eventArgs)
-        where TArgs : AsyncEventArgs
-    {
-        this.Logger.LogError(LoggerEvents.EventHandlerException, ex, "Event handler exception for event {Event} thrown from {Method} (defined in {DeclaryingType})", asyncEvent.Name, handler.Method, handler.Method.DeclaringType);
-        this.clientErrored.InvokeAsync(this, new ClientErrorEventArgs { EventName = asyncEvent.Name, Exception = ex }).GetAwaiter().GetResult();
-    }
-
-    private void Goof<TSender, TArgs>(AsyncEvent<TSender, TArgs> asyncEvent, Exception ex, AsyncEventHandler<TSender, TArgs> handler, TSender sender, TArgs eventArgs)
-        where TArgs : AsyncEventArgs => this.Logger.LogCritical(LoggerEvents.EventHandlerException, ex, "Exception event handler {Method} (defined in {DeclaringType}) threw an exception", handler.Method, handler.Method.DeclaringType);
-
-    #endregion
-
-    #region AutoModeration
 
     /// <summary>
     /// Fired when a new auto-moderation rule is created.
@@ -946,10 +783,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, AutoModerationRuleCreatedEventArgs> AutoModerationRuleCreated
     {
-        add => this.autoModerationRuleCreated.Register(value);
-        remove => this.autoModerationRuleCreated.Unregister(value);
+        add => this.events[typeof(AutoModerationRuleCreatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, AutoModerationRuleCreatedEventArgs> autoModerationRuleCreated;
 
     /// <summary>
     /// Fired when an auto-moderation rule is updated.
@@ -957,10 +793,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, AutoModerationRuleUpdatedEventArgs> AutoModerationRuleUpdated
     {
-        add => this.autoModerationRuleUpdated.Register(value);
-        remove => this.autoModerationRuleUpdated.Unregister(value);
+        add => this.events[typeof(AutoModerationRuleUpdatedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, AutoModerationRuleUpdatedEventArgs> autoModerationRuleUpdated;
 
     /// <summary>
     /// Fired when an auto-moderation rule is deleted.
@@ -968,10 +803,9 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, AutoModerationRuleDeletedEventArgs> AutoModerationRuleDeleted
     {
-        add => this.autoModerationRuleDeleted.Register(value);
-        remove => this.autoModerationRuleDeleted.Unregister(value);
+        add => this.events[typeof(AutoModerationRuleDeletedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, AutoModerationRuleDeletedEventArgs> autoModerationRuleDeleted;
 
     /// <summary>
     /// Fired when an auto-moderation is executed.
@@ -979,9 +813,7 @@ public sealed partial class DiscordClient
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, AutoModerationRuleExecutedEventArgs> AutoModerationRuleExecuted
     {
-        add => this.autoModerationRuleExecuted.Register(value);
-        remove => this.autoModerationRuleExecuted.Unregister(value);
+        add => this.events[typeof(AutoModerationRuleExecutedEventArgs)].Register(value);
+        remove => throw new NotSupportedException();
     }
-    private AsyncEvent<DiscordClient, AutoModerationRuleExecutedEventArgs> autoModerationRuleExecuted;
-    #endregion
 }

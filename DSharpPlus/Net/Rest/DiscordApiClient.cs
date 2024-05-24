@@ -26,7 +26,7 @@ namespace DSharpPlus.Net;
 // huge credits to dvoraks 8th symphony for being a source of sanity in the trying times of
 // fixing this absolute catastrophy up at least somewhat
 
-internal sealed class DiscordApiClient
+public sealed class DiscordApiClient
 {
     private const string REASON_HEADER_NAME = "X-Audit-Log-Reason";
 

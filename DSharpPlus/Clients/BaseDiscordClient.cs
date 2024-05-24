@@ -6,10 +6,12 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+
 using DSharpPlus.Entities;
 using DSharpPlus.Logging;
 using DSharpPlus.Metrics;
 using DSharpPlus.Net;
+
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus;
@@ -19,13 +21,13 @@ namespace DSharpPlus;
 /// </summary>
 public abstract class BaseDiscordClient : IDisposable
 {
-    protected internal DiscordApiClient ApiClient { get; }
+    protected internal DiscordApiClient ApiClient { get; internal init; }
     protected internal DiscordConfiguration Configuration { get; }
 
     /// <summary>
     /// Gets the instance of the logger for this client.
     /// </summary>
-    public ILogger<BaseDiscordClient> Logger { get; }
+    public ILogger Logger { get; internal init; }
 
     /// <summary>
     /// Gets the string representing the version of D#+.
