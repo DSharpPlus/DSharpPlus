@@ -60,7 +60,7 @@ public async Task Leave(CommandContext ctx, DiscordChannel channel)
 
 In order to connect to a voice channel, we'll need to do a few things.
 
-1. Get our node connection. You can either use linq or @DSharpPlus.Lavalink.LavalinkExtension.GetIdealNodeConnection*
+1. Get our node connection. You can either use LINQ or `LavalinkExtension.GetIdealNodeConnection`
 2. Check if the channel is a voice channel, and tell the user if not.
 3. Connect the node to the channel.
 
@@ -72,7 +72,7 @@ And for the leave command:
 4. Check if the connection exists, and tell the user if not.
 5. Disconnect from the channel.
 
-@DSharpPlus.Lavalink.LavalinkExtension.GetIdealNodeConnection* will return the least affected node through load
+`LavalinkExtension.GetIdealNodeConnection` will return the least affected node through load
 balancing, which is useful for larger bots. It can also filter nodes based on an optional voice region to use the
 closest nodes available. Since we only have one connection we can use linq's `.First()` method on the extensions
 connected nodes to get what we need.
@@ -195,14 +195,14 @@ if (conn == null)
 }
 ```
 
-Next, we will get the track details by calling @DSharpPlus.Lavalink.LavalinkGuildConnection.GetTracksAsync*. There is a
+Next, we will get the track details by calling `LavalinkGuildConnection.GetTracksAsync`. There is a
 variety of overloads for this:
 
-1. @DSharpPlus.Lavalink.LavalinkGuildConnection.GetTracksAsync(System.String,DSharpPlus.Lavalink.LavalinkSearchType)
+1. `GuildConnection.GetTracksAsync`
    will search various services for the specified query:
-   - @DSharpPlus.Lavalink.LavalinkSearchType.Youtube will search YouTube
-   - @DSharpPlus.Lavalink.LavalinkSearchType.SoundCloud will search SoundCloud
-2. @DSharpPlus.Lavalink.LavalinkGuildConnection.GetTracksAsync(System.Uri) will use the direct url to obtain the track. This is
+   - `LavalinkSearchType.Youtube` will search YouTube
+   - `LavalinkSearchType.SoundCloud` will search SoundCloud
+2. `LavalinkGuildConnection.GetTracksAsync(Uri)` will use the direct url to obtain the track. This is
    mainly used for the other media sources.
 
 For this guide we will be searching YouTube. Let's pass in our search string and store the result in a variable:
@@ -213,7 +213,7 @@ For this guide we will be searching YouTube. Let's pass in our search string and
 var loadResult = await node.Rest.GetTracksAsync(search);
 ```
 
-The load result will contain an enum called @DSharpPlus.Lavalink.LavalinkLoadResult.LoadResultType, which will inform us
+The load result will contain an enum called `LavalinkLoadResult.LoadResultType`, which will inform us
 if Lavalink was able to retrieve the track data. We can use this as a check:
 
 ```csharp
@@ -229,7 +229,7 @@ if (loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed
 ```
 
 Lavalink will return the track data from your search in a collection called
-@DSharpPlus.Lavalink.LavalinkLoadResult.Tracks, similar to using the search bar in YouTube or SoundCloud directly. The
+`LavalinkLoadResult.Tracks`, similar to using the search bar in YouTube or SoundCloud directly. The
 first track is typically the most accurate one, so that is what we will use:
 
 ```csharp
@@ -308,7 +308,7 @@ public async Task Pause(CommandContext ctx)
 ```
 
 For this command we will also want to check the player state to determine if we should send a pause command. We can do
-so by checking @DSharpPlus.Lavalink.Entities.LavalinkPlayerState.CurrentTrack:
+so by checking `LavalinkPlayerState.CurrentTrack`:
 
 ```csharp
 if (conn.CurrentState.CurrentTrack == null)
