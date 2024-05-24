@@ -426,9 +426,8 @@ public sealed class CommandsExtension : BaseExtension
             await processor.ConfigureAsync(this);
         }
     }
-
-    //TODO: Change to internal (currenly public because internals arent open in the test proj (config error?))
-    public void BuildCommands()
+    
+    internal void BuildCommands()
     {
         Dictionary<string, Command> commands = [];
         foreach (CommandBuilder commandBuilder in this.commandBuilders)

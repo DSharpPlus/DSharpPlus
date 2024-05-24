@@ -13,7 +13,7 @@ namespace DSharpPlus.Tests.Commands.CommandFiltering;
 
 public class Tests
 {
-    private static CommandsExtension _extension = null!;
+    private static CommandsExtension extension = null!;
     private static TextCommandProcessor textCommandProcessor = new();
     private static SlashCommandProcessor slashCommandProcessor = new();
     
@@ -25,22 +25,22 @@ public class Tests
             Token = "FakeToken",
         });
 
-        _extension = client.UseCommands(new()
+        extension = client.UseCommands(new()
         {
             RegisterDefaultCommandProcessors = false,
             ServiceProvider = new ServiceCollection().BuildServiceProvider()
         });
-        await _extension.AddProcessorAsync(textCommandProcessor);
-        await _extension.AddProcessorAsync(slashCommandProcessor);
+        await extension.AddProcessorAsync(textCommandProcessor);
+        await extension.AddProcessorAsync(slashCommandProcessor);
         
-        _extension.AddCommands([typeof(TestMultiLevelSubCommandsFiltered.RootCommand)]);
-        _extension.BuildCommands();
+        extension.AddCommands([typeof(TestMultiLevelSubCommandsFiltered.RootCommand)]);
+        extension.BuildCommands();
     }
 
     [Test]
     public static void TestSubGroupTextProcessor()
     {
-        IReadOnlyList<Command> commands = _extension.GetCommandsForProcessor(textCommandProcessor);
+        IReadOnlyList<Command> commands = extension.GetCommandsForProcessor(textCommandProcessor);
         
         Command? root = commands.FirstOrDefault(x => x.Name == "root");
         Assert.That(root, Is.Not.Null);
@@ -63,7 +63,7 @@ public class Tests
     [Test]
     public static void TestSubGroupSlashProcessor()
     {
-        IReadOnlyList<Command> commands = _extension.GetCommandsForProcessor(slashCommandProcessor);
+        IReadOnlyList<Command> commands = extension.GetCommandsForProcessor(slashCommandProcessor);
         
         //toplevel command "root"
         Assert.That(commands, Has.Count.EqualTo(1));
@@ -87,5 +87,5 @@ public class Tests
     }
     
     [OneTimeTearDown]
-    public static void DisposeExtension() => _extension.Dispose();
+    public static void DisposeExtension() => extension.Dispose();
 }
