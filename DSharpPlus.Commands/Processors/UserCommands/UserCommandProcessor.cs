@@ -25,9 +25,11 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreateEv
     public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreateEventArgs>> Converters => this.slashCommandProcessor?.ConverterDelegates ?? new Dictionary<Type, ConverterDelegate<InteractionCreateEventArgs>>();
     private CommandsExtension? extension;
     private SlashCommandProcessor? slashCommandProcessor;
-    
-    public static Type ContextType => typeof(SlashCommandContext);
 
+    /// <inheritdoc />
+    public Type ContextType => typeof(SlashCommandContext);
+
+    /// <inheritdoc />
     public async ValueTask ConfigureAsync(CommandsExtension extension)
     {
         if (this.extension is null)
@@ -41,7 +43,8 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreateEv
 
         ILogger<UserCommandProcessor> logger = this.extension.ServiceProvider.GetService<ILogger<UserCommandProcessor>>() ?? NullLogger<UserCommandProcessor>.Instance;
         List<DiscordApplicationCommand> applicationCommands = [];
-        foreach (Command command in this.extension.GetCommandsForProcessor(this))
+        
+        foreach (Command command in this.extension.GetCommandsForProcessor(this.slashCommandProcessor))
         {
             // User commands must be explicitly defined as such, otherwise they are ignored.
             if (!command.Attributes.Any(x => x is SlashCommandTypesAttribute slashCommandTypesAttribute && slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.UserContextMenu)))

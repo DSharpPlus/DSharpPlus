@@ -7,5 +7,5 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("DSharpPlus.Lavalink")]
 [assembly: InternalsVisibleTo("DSharpPlus.Rest")]
 
-[assembly: InternalsVisibleTo("DSharpPlus.MSTest")]
+[assembly: InternalsVisibleTo("DSharpPlus.Tests")]
 [assembly: InternalsVisibleTo("DSharpPlus.Tools.ShardedEventHandlingGen")]

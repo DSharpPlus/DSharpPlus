@@ -25,6 +25,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
 
     private FrozenDictionary<string, Command> commands;
 
+    /// <inheritdoc />
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {
         await base.ConfigureAsync(extension);

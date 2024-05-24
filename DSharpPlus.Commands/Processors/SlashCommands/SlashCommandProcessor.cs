@@ -47,10 +47,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
 
     private bool configured;
 
+    /// <inheritdoc />
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {
         await base.ConfigureAsync(extension);
-
+        
         Dictionary<Type, DiscordApplicationCommandOptionType> typeMappings = [];
         foreach (LazyConverter lazyConverter in this.lazyConverters.Values)
         {

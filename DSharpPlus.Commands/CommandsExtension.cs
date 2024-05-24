@@ -225,7 +225,7 @@ public sealed class CommandsExtension : BaseExtension
 
         if (command.Method is not null)
         {
-            Type methodContextType = command.Method.GetParameters().First().GetType();
+            Type methodContextType = command.Method.GetParameters().First().ParameterType;
             if (!methodContextType.IsAssignableTo(contextType) && methodContextType != typeof(CommandContext))
             {
                 return null;
@@ -411,6 +411,25 @@ public sealed class CommandsExtension : BaseExtension
 
     public async Task RefreshAsync()
     {
+        BuildCommands();
+        
+        if (this.RegisterDefaultCommandProcessors)
+        {
+            this.processors.TryAdd(typeof(TextCommandProcessor), new TextCommandProcessor());
+            this.processors.TryAdd(typeof(SlashCommandProcessor), new SlashCommandProcessor());
+            this.processors.TryAdd(typeof(MessageCommandProcessor), new MessageCommandProcessor());
+            this.processors.TryAdd(typeof(UserCommandProcessor), new UserCommandProcessor());
+        }
+
+        foreach (ICommandProcessor processor in this.processors.Values)
+        {
+            await processor.ConfigureAsync(this);
+        }
+    }
+
+    //TODO: Change to internal (currenly public because internals arent open in the test proj (config error?))
+    public void BuildCommands()
+    {
         Dictionary<string, Command> commands = [];
         foreach (CommandBuilder commandBuilder in this.commandBuilders)
         {
@@ -426,18 +445,6 @@ public sealed class CommandsExtension : BaseExtension
         }
 
         this.Commands = commands.ToFrozenDictionary();
-        if (this.RegisterDefaultCommandProcessors)
-        {
-            this.processors.TryAdd(typeof(TextCommandProcessor), new TextCommandProcessor());
-            this.processors.TryAdd(typeof(SlashCommandProcessor), new SlashCommandProcessor());
-            this.processors.TryAdd(typeof(MessageCommandProcessor), new MessageCommandProcessor());
-            this.processors.TryAdd(typeof(UserCommandProcessor), new UserCommandProcessor());
-        }
-
-        foreach (ICommandProcessor processor in this.processors.Values)
-        {
-            await processor.ConfigureAsync(this);
-        }
     }
 
     /// <inheritdoc />
