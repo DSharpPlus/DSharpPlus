@@ -25,8 +25,7 @@ run into issues when retrieving entities from the library's cache.
 
 ### Discord Configuration
 
-Within your `DSharpPlus.DiscordConfiguration` you will have to specify all the intents you will need. Here is a list of
-all the [Intents][3] DSharpPlus Supports. By default, the configuration will use
+Within your `DSharpPlus.DiscordConfiguration` you will have to specify all the intents you will need. By default, the configuration will use
 `DiscordIntents.AllUnprivileged` as the default value. Like above however, we recommend having all intents
 enabled at first, so you should specify `DiscordIntents.All` in your configuration which will include the
 privleged intents you enabled in your application:
@@ -75,4 +74,3 @@ for on the Discord Application page, an error will be thrown on the connection.
 [0]: https://discord.com/developers/applications
 [1]: ../../images/Intents.png
 [2]: https://support.discord.com/hc/en-us/articles/360040720412-Bot-Verification-and-Data-Whitelisting
-[3]: xref:DSharpPlus.DiscordIntents

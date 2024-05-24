@@ -152,7 +152,7 @@ Responding after this period will throw a `NotFoundException`
 With buttons, there are two new response types: `InteractionResponseType.DeferredMessageUpdate` and `InteractionResponseType.UpdateMessage`.
 
 Using `DSharpPlus.InteractionResponseType.DeferredMessageUpdate` lets you create followup messages via the
-[followup message builder][6]. The button will return to being in it's 'dormant' state, or it's 'unpushed' state, if you
+followup message builder. The button will return to being in it's 'dormant' state, or it's 'unpushed' state, if you
 will.
 
 You have 15 minutes from that point to make followup messages. Responding to that interaction looks like this:

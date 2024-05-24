@@ -9,7 +9,7 @@ title: Lavalink Music Commands
 
 # Adding Music Commands
 
-This article assumes that you know how to use CommandsNext. If you do not, you should learn [here][0]
+This article assumes that you know how to use CommandsNext. If you do not, you should check out intro articles for Commands.
 before continuing with this guide.
 
 ## Prerequisites
@@ -356,13 +356,10 @@ public async Task Pause(CommandContext ctx)
 }
 ```
 
-Of course, there are other commands Lavalink has to offer. Check out [the docs][1] to view the commands you can use
+Of course, there are other commands Lavalink has to offer. Check out the docs to view the commands you can use
 while playing tracks.
 
-There are also open source examples such as Emzi0767's [Companion Cube Bot][2] and [Turret Bot][3].
+There are also open source examples such as Emzi0767's [Turret Bot][0].
 
 <!-- LINKS -->
-[0]:  xref:articles.commands_next.intro
-[1]:  xref:DSharpPlus.Lavalink.LavalinkGuildConnection
-[2]:  https://github.com/Emzi0767/Discord-Companion-Cube-Bot
-[3]:  https://github.com/Emzi0767/Discord-Music-Turret-Bot
+[0]:  https://github.com/Emzi0767/Discord-Music-Turret-Bot
