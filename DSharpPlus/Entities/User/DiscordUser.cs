@@ -260,11 +260,11 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async ValueTask<DiscordDmChannel> CreateDmChannelAsync()
     {
-        DiscordDmChannel dm = default;
+        DiscordDmChannel? dm = default;
 
         if (this.Discord is DiscordClient dc)
         {
-            dm = dc.privateChannels.Values.FirstOrDefault(x => x.Recipients.SingleOrDefault() == this);
+            dm = dc.privateChannels.Values.FirstOrDefault(x => x.Recipients.FirstOrDefault(y => y.Id == this.Id) is not null);
         }
 
         return dm ?? await this.Discord.ApiClient.CreateDmAsync(this.Id);
