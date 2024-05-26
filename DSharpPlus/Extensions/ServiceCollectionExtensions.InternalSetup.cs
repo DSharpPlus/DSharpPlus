@@ -1,6 +1,7 @@
 using System.Net.Http;
 
 using DSharpPlus.Net;
+using DSharpPlus.Net.WebSocket;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -34,6 +35,10 @@ public static partial class ServiceCollectionExtensions
                     return new(logger, client, options, token);
                 }
             );
+
+        // gateway setup
+        serviceCollection.AddSingleton<IWebSocketClient, WebSocketClient>()
+            .AddSingleton<PayloadDecompressor>();
 
         return serviceCollection;
     }

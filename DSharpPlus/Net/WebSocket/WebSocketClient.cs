@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.EventArgs;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace DSharpPlus.Net.WebSocket;
 
 // weebsocket
@@ -47,17 +49,15 @@ public class WebSocketClient : IWebSocketClient
     private bool isDisposed = false;
 
     /// <summary>
-    /// Instantiates a new WebSocket client with specified proxy settings.
+    /// Instantiates a new WebSocket client.
     /// </summary>
-    /// <param name="proxy">Proxy settings for the client.</param>
-    private WebSocketClient(IWebProxy proxy)
+    private WebSocketClient(IClientErrorHandler handler)
     {
-        this.connected = new AsyncEvent<WebSocketClient, SocketOpenedEventArgs>("WS_CONNECT", EventErrorHandler);
-        this.disconnected = new AsyncEvent<WebSocketClient, SocketClosedEventArgs>("WS_DISCONNECT", EventErrorHandler);
-        this.messageReceived = new AsyncEvent<WebSocketClient, SocketMessageEventArgs>("WS_MESSAGE", EventErrorHandler);
-        this.exceptionThrown = new AsyncEvent<WebSocketClient, SocketErrorEventArgs>("WS_ERROR", null);
+        this.connected = new(handler);
+        this.disconnected = new(handler);
+        this.messageReceived = new(handler);
+        this.exceptionThrown = new(handler);
 
-        this.Proxy = proxy;
         this.defaultHeaders = [];
         this.DefaultHeaders = new ReadOnlyDictionary<string, string>(this.defaultHeaders);
 
@@ -74,7 +74,9 @@ public class WebSocketClient : IWebSocketClient
     {
         // Disconnect first
         try
-        { await DisconnectAsync(); }
+        {
+            await DisconnectAsync();
+        }
         catch { }
 
         // Disallow sending messages
@@ -300,14 +302,6 @@ public class WebSocketClient : IWebSocketClient
         // DisconnectAsync waits for this method
         _ = DisconnectAsync();
     }
-
-    /// <summary>
-    /// Creates a new instance of <see cref="WebSocketClient"/>.
-    /// </summary>
-    /// <param name="proxy">Proxy to use for this client instance.</param>
-    /// <returns>An instance of <see cref="WebSocketClient"/>.</returns>
-    public static IWebSocketClient CreateNew(IWebProxy proxy)
-        => new WebSocketClient(proxy);
 
     #region Events
     /// <summary>

@@ -78,11 +78,6 @@ public sealed partial class DiscordClient
 
         Volatile.Write(ref this.skippedHeartbeats, 0);
 
-        this.webSocketClient = this.Configuration.WebSocketClientFactory(this.Configuration.Proxy);
-        this.payloadDecompressor = this.Configuration.GatewayCompressionLevel != GatewayCompressionLevel.None
-            ? new PayloadDecompressor(this.Configuration.GatewayCompressionLevel)
-            : null;
-
         this.cancelTokenSource = new CancellationTokenSource();
         this.cancelToken = this.cancelTokenSource.Token;
 
@@ -107,7 +102,9 @@ public sealed partial class DiscordClient
 
         Task SocketOnConnect(IWebSocketClient sender, SocketOpenedEventArgs e)
         {
-            return this.socketOpened.InvokeAsync(this, e);
+            return this.events[typeof(SocketOpenedEventArgs)]
+                .As<SocketOpenedEventArgs>()
+                .InvokeAsync(this, e);
         }
 
         async Task SocketOnMessage(IWebSocketClient sender, SocketMessageEventArgs e)
@@ -160,7 +157,10 @@ public sealed partial class DiscordClient
             }
 
             this.Logger.LogDebug(LoggerEvents.ConnectionClose, "Connection closed ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
-            await this.socketClosed.InvokeAsync(this, e);
+            
+            await this.events[typeof(SocketClosedEventArgs)]
+                .As<SocketClosedEventArgs>()
+                .InvokeAsync(this, e);
 
             if (this.Configuration.AutoReconnect && (e.CloseCode <= 4003 || (e.CloseCode >= 4005 && e.CloseCode <= 4009) || e.CloseCode >= 5000))
             {
@@ -307,7 +307,9 @@ public sealed partial class DiscordClient
             Timestamp = DateTimeOffset.Now
         };
 
-        await this.heartbeated.InvokeAsync(this, args);
+        await this.events[typeof(HeartbeatedEventArgs)]
+            .As<HeartbeatedEventArgs>()
+            .InvokeAsync(this, args);
     }
 
     internal async Task HeartbeatLoopAsync()
@@ -387,7 +389,10 @@ public sealed partial class DiscordClient
                 Failures = Volatile.Read(ref this.skippedHeartbeats),
                 GuildDownloadCompleted = true
             };
-            await this.zombied.InvokeAsync(this, args);
+
+            await this.events[typeof(ZombiedEventArgs)]
+                .As<ZombiedEventArgs>()
+                .InvokeAsync(this, args);
 
             await InternalReconnectAsync(code: 4001, message: "Too many heartbeats missed");
 
@@ -401,7 +406,10 @@ public sealed partial class DiscordClient
                 Failures = Volatile.Read(ref this.skippedHeartbeats),
                 GuildDownloadCompleted = false
             };
-            await this.zombied.InvokeAsync(this, args);
+
+            await this.events[typeof(ZombiedEventArgs)]
+                .As<ZombiedEventArgs>()
+                .InvokeAsync(this, args);
 
             this.Logger.LogWarning(LoggerEvents.HeartbeatFailure, "Server failed to acknowledge more than 5 heartbeats, but the guild download is still running - check your connection speed");
         }

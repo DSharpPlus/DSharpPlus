@@ -141,7 +141,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
         IWebSocketClient webSocketClient,
         IServiceProvider serviceProvider,
         IOptions<EventHandlerCollection> eventHandlers,
-        IClientErrorHandler errorHandler
+        IClientErrorHandler errorHandler,
+        PayloadDecompressor decompressor
     )
     {
         this.Logger = logger;
@@ -149,6 +150,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.webSocketClient = webSocketClient;
         this.ServiceProvider = serviceProvider;
         this.ApiClient = apiClient;
+        this.payloadDecompressor = decompressor;
 
         foreach (KeyValuePair<Type, ConcurrentBag<Delegate>> kvp in eventHandlers.Value.DelegateHandlers)
         {

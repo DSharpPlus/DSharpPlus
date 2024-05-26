@@ -515,13 +515,13 @@ public sealed partial class DiscordShardedClient
     private Task SessionCreatedDelegator(DiscordClient client, SessionCreatedEventArgs eventArgs) => sessionCreated.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.SessionResumed"/>
-    public event AsyncEventHandler<DiscordClient, SessionCreatedEventArgs> SessionResumed
+    public event AsyncEventHandler<DiscordClient, SessionResumedEventArgs> SessionResumed
     {
         add => this.sessionResumed.Register(value);
         remove => this.sessionResumed.Unregister(value);
     }
-    private AsyncEvent<DiscordClient, SessionCreatedEventArgs> sessionResumed;
-    private Task SessionResumedDelegator(DiscordClient client, SessionCreatedEventArgs eventArgs) => sessionResumed.InvokeAsync(client, eventArgs);
+    private AsyncEvent<DiscordClient, SessionResumedEventArgs> sessionResumed;
+    private Task SessionResumedDelegator(DiscordClient client, SessionResumedEventArgs eventArgs) => sessionResumed.InvokeAsync(client, eventArgs);
 
     /// <inheritdoc cref="DiscordClient.SocketClosed"/>
     public event AsyncEventHandler<DiscordClient, SocketClosedEventArgs> SocketClosed
@@ -705,88 +705,89 @@ public sealed partial class DiscordShardedClient
 
     private DiscordShardedClient()
     {
-        clientErrored = new("CLIENT_ERRORED", Goof);
-        applicationCommandPermissionsUpdated = new("APPLICATION_COMMAND_PERMISSIONS_UPDATED", EventErrorHandler);
-        autoModerationRuleCreated = new("AUTO_MODERATION_RULE_CREATED", EventErrorHandler);
-        autoModerationRuleDeleted = new("AUTO_MODERATION_RULE_DELETED", EventErrorHandler);
-        autoModerationRuleExecuted = new("AUTO_MODERATION_RULE_EXECUTED", EventErrorHandler);
-        autoModerationRuleUpdated = new("AUTO_MODERATION_RULE_UPDATED", EventErrorHandler);
-        channelCreated = new("CHANNEL_CREATED", EventErrorHandler);
-        channelDeleted = new("CHANNEL_DELETED", EventErrorHandler);
-        channelPinsUpdated = new("CHANNEL_PINS_UPDATED", EventErrorHandler);
-        channelUpdated = new("CHANNEL_UPDATED", EventErrorHandler);
-        componentInteractionCreated = new("COMPONENT_INTERACTION_CREATED", EventErrorHandler);
-        contextMenuInteractionCreated = new("CONTEXT_MENU_INTERACTION_CREATED", EventErrorHandler);
-        dmChannelDeleted = new("DM_CHANNEL_DELETED", EventErrorHandler);
-        guildAuditLogCreated = new("GUILD_AUDIT_LOG_CREATED", EventErrorHandler);
-        guildAvailable = new("GUILD_AVAILABLE", EventErrorHandler);
-        guildBanAdded = new("GUILD_BAN_ADDED", EventErrorHandler);
-        guildBanRemoved = new("GUILD_BAN_REMOVED", EventErrorHandler);
-        guildCreated = new("GUILD_CREATED", EventErrorHandler);
-        guildDeleted = new("GUILD_DELETED", EventErrorHandler);
-        guildDownloadCompleted = new("GUILD_DOWNLOAD_COMPLETED", EventErrorHandler);
-        guildEmojisUpdated = new("GUILD_EMOJIS_UPDATED", EventErrorHandler);
-        guildIntegrationsUpdated = new("GUILD_INTEGRATIONS_UPDATED", EventErrorHandler);
-        guildMemberAdded = new("GUILD_MEMBER_ADDED", EventErrorHandler);
-        guildMemberRemoved = new("GUILD_MEMBER_REMOVED", EventErrorHandler);
-        guildMembersChunked = new("GUILD_MEMBERS_CHUNKED", EventErrorHandler);
-        guildMemberUpdated = new("GUILD_MEMBER_UPDATED", EventErrorHandler);
-        guildRoleCreated = new("GUILD_ROLE_CREATED", EventErrorHandler);
-        guildRoleDeleted = new("GUILD_ROLE_DELETED", EventErrorHandler);
-        guildRoleUpdated = new("GUILD_ROLE_UPDATED", EventErrorHandler);
-        guildStickersUpdated = new("GUILD_STICKERS_UPDATED", EventErrorHandler);
-        guildUnavailable = new("GUILD_UNAVAILABLE", EventErrorHandler);
-        guildUpdated = new("GUILD_UPDATED", EventErrorHandler);
-        heartbeated = new("HEARTBEATED", EventErrorHandler);
-        integrationCreated = new("INTEGRATION_CREATED", EventErrorHandler);
-        integrationDeleted = new("INTEGRATION_DELETED", EventErrorHandler);
-        integrationUpdated = new("INTEGRATION_UPDATED", EventErrorHandler);
-        interactionCreated = new("INTERACTION_CREATED", EventErrorHandler);
-        inviteCreated = new("INVITE_CREATED", EventErrorHandler);
-        inviteDeleted = new("INVITE_DELETED", EventErrorHandler);
-        messageCreated = new("MESSAGE_CREATED", EventErrorHandler);
-        messageDeleted = new("MESSAGE_DELETED", EventErrorHandler);
-        messageReactionAdded = new("MESSAGE_REACTION_ADDED", EventErrorHandler);
-        messageReactionRemoved = new("MESSAGE_REACTION_REMOVED", EventErrorHandler);
-        messageReactionRemovedEmoji = new("MESSAGE_REACTION_REMOVED_EMOJI", EventErrorHandler);
-        messageReactionsCleared = new("MESSAGE_REACTIONS_CLEARED", EventErrorHandler);
-        messagesBulkDeleted = new("MESSAGES_BULK_DELETED", EventErrorHandler);
-        messageUpdated = new("MESSAGE_UPDATED", EventErrorHandler);
-        modalSubmitted = new("MODAL_SUBMITTED", EventErrorHandler);
-        presenceUpdated = new("PRESENCE_UPDATED", EventErrorHandler);
-        scheduledGuildEventCompleted = new("SCHEDULED_GUILD_EVENT_COMPLETED", EventErrorHandler);
-        scheduledGuildEventCreated = new("SCHEDULED_GUILD_EVENT_CREATED", EventErrorHandler);
-        scheduledGuildEventDeleted = new("SCHEDULED_GUILD_EVENT_DELETED", EventErrorHandler);
-        scheduledGuildEventUpdated = new("SCHEDULED_GUILD_EVENT_UPDATED", EventErrorHandler);
-        scheduledGuildEventUserAdded = new("SCHEDULED_GUILD_EVENT_USER_ADDED", EventErrorHandler);
-        scheduledGuildEventUserRemoved = new("SCHEDULED_GUILD_EVENT_USER_REMOVED", EventErrorHandler);
-        sessionCreated = new("SESSION_CREATED", EventErrorHandler);
-        sessionResumed = new("SESSION_RESUMED", EventErrorHandler);
-        socketClosed = new("SOCKET_CLOSED", EventErrorHandler);
-        socketErrored = new("SOCKET_ERRORED", EventErrorHandler);
-        socketOpened = new("SOCKET_OPENED", EventErrorHandler);
-        stageInstanceCreated = new("STAGE_INSTANCE_CREATED", EventErrorHandler);
-        stageInstanceDeleted = new("STAGE_INSTANCE_DELETED", EventErrorHandler);
-        stageInstanceUpdated = new("STAGE_INSTANCE_UPDATED", EventErrorHandler);
-        threadCreated = new("THREAD_CREATED", EventErrorHandler);
-        threadDeleted = new("THREAD_DELETED", EventErrorHandler);
-        threadListSynced = new("THREAD_LIST_SYNCED", EventErrorHandler);
-        threadMembersUpdated = new("THREAD_MEMBERS_UPDATED", EventErrorHandler);
-        threadMemberUpdated = new("THREAD_MEMBER_UPDATED", EventErrorHandler);
-        threadUpdated = new("THREAD_UPDATED", EventErrorHandler);
-        typingStarted = new("TYPING_STARTED", EventErrorHandler);
-        unknownEvent = new("UNKNOWN_EVENT", EventErrorHandler);
-        userSettingsUpdated = new("USER_SETTINGS_UPDATED", EventErrorHandler);
-        userUpdated = new("USER_UPDATED", EventErrorHandler);
-        voiceServerUpdated = new("VOICE_SERVER_UPDATED", EventErrorHandler);
-        voiceStateUpdated = new("VOICE_STATE_UPDATED", EventErrorHandler);
-        webhooksUpdated = new("WEBHOOKS_UPDATED", EventErrorHandler);
-        zombied = new("ZOMBIED", EventErrorHandler);
+        DefaultClientErrorHandler handler = new(this.Logger);
+
+        clientErrored = new(handler);
+        applicationCommandPermissionsUpdated = new(handler);
+        autoModerationRuleCreated = new(handler);
+        autoModerationRuleDeleted = new(handler);
+        autoModerationRuleExecuted = new(handler);
+        autoModerationRuleUpdated = new(handler);
+        channelCreated = new(handler);
+        channelDeleted = new(handler);
+        channelPinsUpdated = new(handler);
+        channelUpdated = new(handler);
+        componentInteractionCreated = new(handler);
+        contextMenuInteractionCreated = new(handler);
+        dmChannelDeleted = new(handler);
+        guildAuditLogCreated = new(handler);
+        guildAvailable = new(handler);
+        guildBanAdded = new(handler);
+        guildBanRemoved = new(handler);
+        guildCreated = new(handler);
+        guildDeleted = new(handler);
+        guildDownloadCompleted = new(handler);
+        guildEmojisUpdated = new(handler);
+        guildIntegrationsUpdated = new(handler);
+        guildMemberAdded = new(handler);
+        guildMemberRemoved = new(handler);
+        guildMembersChunked = new(handler);
+        guildMemberUpdated = new(handler);
+        guildRoleCreated = new(handler);
+        guildRoleDeleted = new(handler);
+        guildRoleUpdated = new(handler);
+        guildStickersUpdated = new(handler);
+        guildUnavailable = new(handler);
+        guildUpdated = new(handler);
+        heartbeated = new(handler);
+        integrationCreated = new(handler);
+        integrationDeleted = new(handler);
+        integrationUpdated = new(handler);
+        interactionCreated = new(handler);
+        inviteCreated = new(handler);
+        inviteDeleted = new(handler);
+        messageCreated = new(handler);
+        messageDeleted = new(handler);
+        messageReactionAdded = new(handler);
+        messageReactionRemoved = new(handler);
+        messageReactionRemovedEmoji = new(handler);
+        messageReactionsCleared = new(handler);
+        messagesBulkDeleted = new(handler);
+        messageUpdated = new(handler);
+        modalSubmitted = new(handler);
+        presenceUpdated = new(handler);
+        scheduledGuildEventCompleted = new(handler);
+        scheduledGuildEventCreated = new(handler);
+        scheduledGuildEventDeleted = new(handler);
+        scheduledGuildEventUpdated = new(handler);
+        scheduledGuildEventUserAdded = new(handler);
+        scheduledGuildEventUserRemoved = new(handler);
+        sessionCreated = new(handler);
+        sessionResumed = new(handler);
+        socketClosed = new(handler);
+        socketErrored = new(handler);
+        socketOpened = new(handler);
+        stageInstanceCreated = new(handler);
+        stageInstanceDeleted = new(handler);
+        stageInstanceUpdated = new(handler);
+        threadCreated = new(handler);
+        threadDeleted = new(handler);
+        threadListSynced = new(handler);
+        threadMembersUpdated = new(handler);
+        threadMemberUpdated = new(handler);
+        threadUpdated = new(handler);
+        typingStarted = new(handler);
+        unknownEvent = new(handler);
+        userSettingsUpdated = new(handler);
+        userUpdated = new(handler);
+        voiceServerUpdated = new(handler);
+        voiceStateUpdated = new(handler);
+        webhooksUpdated = new(handler);
+        zombied = new(handler);
     }
 
     private void HookEventHandlers(DiscordClient client)
     {
-        client.ClientErrored += this.ClientErroredDelegator;
         client.ApplicationCommandPermissionsUpdated += this.ApplicationCommandPermissionsUpdatedDelegator;
         client.AutoModerationRuleCreated += this.AutoModerationRuleCreatedDelegator;
         client.AutoModerationRuleDeleted += this.AutoModerationRuleDeletedDelegator;
@@ -844,7 +845,6 @@ public sealed partial class DiscordShardedClient
         client.SessionCreated += this.SessionCreatedDelegator;
         client.SessionResumed += this.SessionResumedDelegator;
         client.SocketClosed += this.SocketClosedDelegator;
-        client.SocketErrored += this.SocketErroredDelegator;
         client.SocketOpened += this.SocketOpenedDelegator;
         client.StageInstanceCreated += this.StageInstanceCreatedDelegator;
         client.StageInstanceDeleted += this.StageInstanceDeletedDelegator;
@@ -867,7 +867,6 @@ public sealed partial class DiscordShardedClient
 
     private void UnhookEventHandlers(DiscordClient client)
     {
-        client.ClientErrored -= this.ClientErroredDelegator;
         client.ApplicationCommandPermissionsUpdated -= this.ApplicationCommandPermissionsUpdatedDelegator;
         client.AutoModerationRuleCreated -= this.AutoModerationRuleCreatedDelegator;
         client.AutoModerationRuleDeleted -= this.AutoModerationRuleDeletedDelegator;
@@ -925,7 +924,6 @@ public sealed partial class DiscordShardedClient
         client.SessionCreated -= this.SessionCreatedDelegator;
         client.SessionResumed -= this.SessionResumedDelegator;
         client.SocketClosed -= this.SocketClosedDelegator;
-        client.SocketErrored -= this.SocketErroredDelegator;
         client.SocketOpened -= this.SocketOpenedDelegator;
         client.StageInstanceCreated -= this.StageInstanceCreatedDelegator;
         client.StageInstanceDeleted -= this.StageInstanceDeletedDelegator;

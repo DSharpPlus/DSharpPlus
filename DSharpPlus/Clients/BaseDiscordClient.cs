@@ -81,9 +81,6 @@ public abstract class BaseDiscordClient : IDisposable
             this.Configuration.LoggerFactory.AddProvider(new DefaultLoggerProvider(config.MinimumLogLevel));
         }
 
-        this.Logger = this.Configuration.LoggerFactory.CreateLogger<BaseDiscordClient>();
-
-        this.ApiClient = new DiscordApiClient(this, rest_client);
         this.UserCache = new ConcurrentDictionary<ulong, DiscordUser>();
         this.InternalVoiceRegions = new ConcurrentDictionary<string, DiscordVoiceRegion>();
         this.voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this.InternalVoiceRegions));

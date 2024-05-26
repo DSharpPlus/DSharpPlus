@@ -129,18 +129,6 @@ public sealed class DiscordConfiguration
     public DiscordIntents Intents { internal get; set; } = DiscordIntents.AllUnprivileged;
 
     /// <summary>
-    /// <para>Sets the factory method used to create instances of WebSocket clients.</para>
-    /// <para>Use <see cref="WebSocketClient.CreateNew(IWebProxy)"/> and equivalents on other implementations to switch out client implementations.</para>
-    /// <para>Defaults to <see cref="WebSocketClient.CreateNew(IWebProxy)"/>.</para>
-    /// </summary>
-    public WebSocketClientFactoryDelegate WebSocketClientFactory
-    {
-        internal get => this.webSocketClientFactory;
-        set => this.webSocketClientFactory = value ?? throw new InvalidOperationException("You need to supply a valid WebSocket client factory method.");
-    }
-    private WebSocketClientFactoryDelegate webSocketClientFactory = WebSocketClient.CreateNew;
-
-    /// <summary>
     /// <para>Sets the factory method used to create instances of UDP clients.</para>
     /// <para>Use <see cref="DspUdpClient.CreateNew"/> and equivalents on other implementations to switch out client implementations.</para>
     /// <para>Defaults to <see cref="DspUdpClient.CreateNew"/>.</para>

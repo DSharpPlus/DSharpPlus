@@ -5,7 +5,7 @@ using System.IO.Compression;
 
 namespace DSharpPlus.Net.WebSocket;
 
-internal sealed class PayloadDecompressor : IDisposable
+public sealed class PayloadDecompressor : IDisposable
 {
     private const uint ZlibFlush = 0x0000FFFF;
     private const byte ZlibPrefix = 0x78;
@@ -65,7 +65,10 @@ internal sealed class PayloadDecompressor : IDisposable
             zlib.CopyTo(decompressed);
             return true;
         }
-        catch { return false; }
+        catch
+        {
+            return false;
+        }
         finally
         {
             this.CompressedStream.Position = 0;

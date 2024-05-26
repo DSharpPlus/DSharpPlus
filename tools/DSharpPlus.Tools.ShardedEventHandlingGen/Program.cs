@@ -11,7 +11,7 @@ namespace DSharpPlus.Tools.ShardedEventHandlingGen;
 
 public static class Program
 {
-    private static readonly ReadOnlyDictionary<string, string> TemplateFiles;
+    private static readonly ReadOnlyDictionary<string, string> templateFiles;
 
     static Program()
     {
@@ -28,7 +28,8 @@ public static class Program
             string templateFile = new StreamReader(assembly.GetManifestResourceStream(filename)!).ReadToEnd();
             templateFiles.Add(Path.GetFileNameWithoutExtension(filename.Replace("DSharpPlus.Tools.ShardedEventHandlingGen.", "")), templateFile);
         }
-        TemplateFiles = new(templateFiles);
+
+        templateFiles = new(templateFiles);
     }
 
     public static void Main()
@@ -43,7 +44,7 @@ public static class Program
         {
             // EventName to eventName
             string eventNameCamelCased = $"_{char.ToLowerInvariant(eventInfo.Name[0])}{eventInfo.Name[1..]}";
-            eventStringBuilder.AppendLine(TemplateFiles["DiscordShardedClient.Event"]
+            eventStringBuilder.AppendLine(templateFiles["DiscordShardedClient.Event"]
                 .Replace("{{EventArgumentType}}", eventInfo.EventHandlerType!.GenericTypeArguments[1].Name)
                 .Replace("{{EventName}}", eventInfo.Name)
                 .Replace("{{EventNameCamelCased}}", eventNameCamelCased)
@@ -70,7 +71,7 @@ public static class Program
             unhookMethodLogic.AppendLine($"        client.{eventInfo.Name} -= this.{eventInfo.Name}Delegator;");
         }
 
-        File.WriteAllText($"{Environment.CurrentDirectory}/DSharpPlus/Clients/DiscordShardedClient.Events.cs", TemplateFiles["DiscordShardedClient"]
+        File.WriteAllText($"{Environment.CurrentDirectory}/DSharpPlus/Clients/DiscordShardedClient.Events.cs", templateFiles["DiscordShardedClient"]
             .Replace("{{Date}}", DateTimeOffset.UtcNow.ToString("F", CultureInfo.InvariantCulture))
             .Replace("    // {{EventHandlers}}", eventStringBuilder.ToString().TrimEnd())
             .Replace("        // {{EventHandlerSetters}}", eventHandlerStringBuilder.ToString().TrimEnd())
