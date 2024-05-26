@@ -46,6 +46,12 @@ ToolMetadata[] tools =
         Name = "copy-concrete-implementations",
         Subset = "extensions",
         Type = ToolType.Generator
+    },
+    new()
+    {
+        Name = "generate-serialization-registration",
+        Subset = "core",
+        Type = ToolType.Generator
     }
 };
 
