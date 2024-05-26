@@ -52,7 +52,9 @@ public class TestMultiLevelSubCommandsFiltered
     public class ContextMenues
     {
         [Command("UserContextOnly"), SlashCommandTypes(DiscordApplicationCommandType.UserContextMenu)]
-        public static ValueTask UserCommand(SlashCommandContext context) => default;
-
+        public static ValueTask UserCommand(SlashCommandContext context, DiscordUser user) => default;
+            
+        [Command("MessageContextOnly"), SlashCommandTypes(DiscordApplicationCommandType.MessageContextMenu)]
+        public static ValueTask MessageCommand(SlashCommandContext context, DiscordMessage message) => default;
     }
 }

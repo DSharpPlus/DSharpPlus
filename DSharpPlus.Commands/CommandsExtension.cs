@@ -198,6 +198,12 @@ public sealed class CommandsExtension : BaseExtension
     /// <returns>Returns a list of valid commands. This list can be empty if no commands are valid for this processor type</returns>
     public IReadOnlyList<Command> GetCommandsForProcessor(ICommandProcessor processor)
     {
+        // Those processors use a different attribute to filter and filter themself 
+        if (processor is MessageCommandProcessor or UserCommandProcessor)
+        {
+            return this.Commands.Values.ToList();
+        }
+        
         Type contextType = processor.ContextType;
         Type processorType = processor.GetType();
         
