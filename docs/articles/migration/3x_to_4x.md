@@ -8,7 +8,7 @@ title: Migration 3.x - 4.x
 ### Proxy Support
 
 The client now supports proxies for both WebSocket and HTTP traffic. To proxy your traffic, create a new instance of
-`System.Net.WebProxy` and assign it to @DSharpPlus.DiscordConfiguration.Proxy property.
+`System.Net.WebProxy` and assign it to `DiscordConfiguration.Proxy` property.
 
 ### Module Rename
 
@@ -22,7 +22,7 @@ The client now supports proxies for both WebSocket and HTTP traffic. To proxy yo
 ### Intents
 
 Due to a change by Discord on their V8 endpoint which DSharpPlus targets, in order to recieve events, intents will have
-to be enabled in both the @DSharpPlus.DiscordConfiguration and the Discord Application Portal. We have an [article][0]
+to be enabled in both the `DiscordConfiguration` and the Discord Application Portal. We have an [article][0]
 that covers all that has to be done to set this up.
 
 ### Event Handlers
@@ -68,16 +68,16 @@ for sending and modifing messages:
 * `DiscordMessage.ModifyAsync(DSharpPlus.Entities.Optional<string>, DSharpPlus.Entities.Optional<DSharpPlus.Entities.DiscordEmbed>)`
 * `DiscordMessage.ModifyAsync(DSharpPlus.Entities.DiscordMessageBuilder)`
 
-Using the @DSharpPlus.Entities.DiscordMessageBuilder can be found [here][2].
+Using the `DiscordMessageBuilder` can be found [here][2].
 
 ### Logging Changes
 
-Logging was overhauled and now some of the Properties on @DSharpPlus.DiscordConfiguration along with some of the events
-on @DSharpPlus.DiscordClient are Gone/Modified/Added. Below is a listing of what changed:
+Logging was overhauled and now some of the Properties on `DiscordConfiguration` along with some of the events
+on `DiscordClient `are Gone/Modified/Added. Below is a listing of what changed:
 
-* @DSharpPlus.DiscordConfiguration.LoggerFactory - this is where you can specify your own logging factory to help
+* `DiscordConfiguration.LoggerFactory` - this is where you can specify your own logging factory to help
   augment the output of the log messages, redirect the output to other locations, etc.
-* @DSharpPlus.DiscordConfiguration.MinimumLogLevel - this replaces LogLevel
+* `DiscordConfiguration.MinimumLogLevel` - this replaces LogLevel
 * **DebugLogger** - this has been removed.
 * **UseInternalLogHandler** - this has been removed.
 * **DebugLogMessageEventArgs** - this event has been removed.
@@ -92,7 +92,7 @@ We have also created an [article][3] on how to setup the new logger.
   override set on channels. Furthermore, the overwrite building is now more intuitive.
 * **Indefinite reconnecting** - the client can now be configured to attempt reconnecting indefinitely.
 * **Channel.Users** - you can now query users in voice and text channels by using
-  @DSharpPlus.Entities.DiscordChannel.Users property.
+  `DiscordChannel.Users` property.
 * **SendFileAsync argument reordering** - arguments for these methods were reordered to prevent overload confusion.
 * **New Discord features** - support for animated emoji and slow mode.
 
@@ -103,16 +103,16 @@ different.
 
 ### Multiprefix support
 
-Prefixes are now configured via @DSharpPlus.CommandsNext.CommandsNextConfiguration.StringPrefixes instead of old
+Prefixes are now configured via `CommandsNextConfiguration.StringPrefixes` instead of old
 `StringPrefix` property. Prefixes passed in this array will all function at the same time. At the same time,
-@DSharpPlus.CommandsNext.CommandContext class has been augmented with @DSharpPlus.CommandsNext.CommandContext.Prefix
+`CommandContext` class has been augmented with `CommandContext.Prefix`
 property, which allows for checking which prefix was used to trigger the command. Furthermore, the new
-@DSharpPlus.CommandsNext.Attributes.RequirePrefixesAttribute can be used as a check to require a specific prefix to be
+`RequirePrefixesAttribute` can be used as a check to require a specific prefix to be
 used with a command.
 
 ### Command hiding inheritance
 
-Much like checks, the @DSharpPlus.CommandsNext.Attributes.HiddenAttribute is now inherited in modules which are not
+Much like checks, the `DSharpPlus.CommandsNext.Attributes.HiddenAttribute` is now inherited in modules which are not
 command groups.
 
 ### Support for `Nullable<T>` and `System.Uri` conversion
@@ -139,14 +139,14 @@ which have the same argument types and order.
 Checks are pooled between all overloads, which means that specifying the same check on every overload will make it run
 several times; if you apply a check to a single overload, it will apply to all of them.
 
-Group command is also done by marking a command with @DSharpPlus.CommandsNext.Attributes.GroupCommandAttribute instead
+Group command is also done by marking a command with `GroupCommandAttribute` instead
 of regular `CommandAttribute`. They can also be overloaded.
 
 ### Common module base
 
-All command modules are now required to inherit from @DSharpPlus.CommandsNext.BaseCommandModule. This also enables the
-modules to use @DSharpPlus.CommandsNext.BaseCommandModule.BeforeExecutionAsync(DSharpPlus.CommandsNext.CommandContext)
-and @DSharpPlus.CommandsNext.BaseCommandModule.AfterExecutionAsync(DSharpPlus.CommandsNext.CommandContext).
+All command modules are now required to inherit from `DSharpPlus.CommandsNext.BaseCommandModule`. This also enables the
+modules to use `DSharpPlus.CommandsNext.BaseCommandModule.BeforeExecutionAsync(DSharpPlus.CommandsNext.CommandContext)`
+and `DSharpPlus.CommandsNext.BaseCommandModule.AfterExecutionAsync(DSharpPlus.CommandsNext.CommandContext)`.
 
 ### Module lifespans
 
@@ -168,7 +168,7 @@ If you need to implement a custom help formatter, see [Custom Help Formatter][6]
 
 ### Custom command handlers
 
-You can now disabe the built-in command handler, and create your own. For more information, see
+You can now disable the built-in command handler, and create your own. For more information, see
 [Custom Command Handlers][7].
 
 ### Minor changes

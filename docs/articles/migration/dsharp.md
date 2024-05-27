@@ -15,7 +15,7 @@ discord.SendLoginRequest();
 discord.Connect();
 ```
 
-The constructor of the @DSharpPlus.DiscordClient now requires a @DSharpPlus.DiscordConfiguration object instead of a
+The constructor of the `DiscordClient` now requires a `DiscordConfiguration` object instead of a
 simple string token and boolean.
 
 ```cs
@@ -44,7 +44,6 @@ discord.MessageReceived += async (sender, arg) =>
 };
 ```
 
-We have a small article covering DSharpPlus events [here][1].
 
 #### New events
 
@@ -97,4 +96,3 @@ PrivateMessageDeleted  | MessageDeleted.
 
 <!-- LINKS -->
 [0]:  https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap
-[1]:  xref:articles.beyond_basics.events
