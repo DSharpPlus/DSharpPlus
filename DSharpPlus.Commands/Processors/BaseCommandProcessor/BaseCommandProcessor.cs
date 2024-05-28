@@ -140,7 +140,10 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
 
     /// <inheritdoc />
     public Type ContextType => typeof(TCommandContext);
-    
+
+    /// <inheritdoc />
+    public abstract IReadOnlyList<Command> Commands { get; }
+
     public virtual void AddConverter<T>(TConverter converter) => AddConverter(typeof(T), converter);
     public virtual void AddConverter(Type type, TConverter converter) => AddConverter(new() { ParameterType = type, ConverterInstance = converter });
     public virtual void AddConverters(Assembly assembly) => AddConverters(assembly.GetTypes());

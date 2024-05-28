@@ -35,7 +35,7 @@ public class TestMultiLevelSubCommandsFiltered
             public static ValueTask SlashOnlyAsync(CommandContext context, DiscordChannel channel) => default;
 
             [Command("slash-only-group2")]
-            public static ValueTask SlashOnlyAsync2(CommandContext context, DiscordChannel channel) => default;
+            public static ValueTask SlashOnlyAsync2(SlashCommandContext context, DiscordChannel channel) => default;
         }
         
         [Command("subgroup-text-only"), AllowedProcessors(typeof(TextCommandProcessor))]
@@ -45,7 +45,7 @@ public class TestMultiLevelSubCommandsFiltered
             public static ValueTask SlashOnlyAsync(CommandContext context, DiscordChannel channel) => default;
 
             [Command("text-only-group2")]
-            public static ValueTask SlashOnlyAsync2(CommandContext context, DiscordChannel channel) => default;
+            public static ValueTask SlashOnlyAsync2(TextCommandContext context, DiscordChannel channel) => default;
         }
     }
     
@@ -56,5 +56,11 @@ public class TestMultiLevelSubCommandsFiltered
             
         [Command("MessageContextOnly"), SlashCommandTypes(DiscordApplicationCommandType.MessageContextMenu)]
         public static ValueTask MessageCommand(SlashCommandContext context, DiscordMessage message) => default;
+        
+        [Command("SlashUserContext"), SlashCommandTypes(DiscordApplicationCommandType.UserContextMenu)]
+        public static ValueTask SlashUserCommand(SlashCommandContext context, DiscordUser user) => default;
+            
+        [Command("SlashMessageContext"), SlashCommandTypes(DiscordApplicationCommandType.MessageContextMenu)]
+        public static ValueTask SlashMessageCommand(SlashCommandContext context, DiscordMessage message) => default;
     }
 }

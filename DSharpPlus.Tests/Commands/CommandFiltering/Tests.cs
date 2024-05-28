@@ -98,8 +98,9 @@ public class Tests
     {
         IReadOnlyList<Command> commands = userCommandProcessor.Commands;
         
-        Assert.That(commands, Has.Count.EqualTo(1));
+        Assert.That(commands, Has.Count.EqualTo(2));
         Assert.That(commands[0].Name, Is.EqualTo("UserContextOnly"));
+        Assert.That(commands[1].Name, Is.EqualTo("SlashUserContext"));
     }
     
     [Test]
@@ -107,9 +108,17 @@ public class Tests
     {
         IReadOnlyList<Command> commands = messageCommandProcessor.Commands;
         
-        Assert.That(commands, Has.Count.EqualTo(1));
+        Assert.That(commands, Has.Count.EqualTo(2));
         Assert.That(commands[0].Name, Is.EqualTo("MessageContextOnly"));
+        Assert.That(commands[1].Name, Is.EqualTo("SlashUserContext"));
     }
+
+    [Test]
+    public static void TestSlashCommandProcessorContextMenus()
+    {
+        
+    }
+
 
     [OneTimeTearDown]
     public static void DisposeExtension() => extension.Dispose();

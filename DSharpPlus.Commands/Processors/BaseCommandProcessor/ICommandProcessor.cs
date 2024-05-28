@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Commands.Converters;
+using DSharpPlus.Commands.Trees;
 
 namespace DSharpPlus.Commands.Processors;
 
@@ -21,6 +22,11 @@ public interface ICommandProcessor
     /// Processor specific context type. Context type which is provided on command invokation
     /// </summary>
     public Type ContextType { get; }
+    
+    /// <summary>
+    /// List of commands which are registered to this processor
+    /// </summary>
+    public IReadOnlyList<Command> Commands { get; }
 }
 
 public interface ICommandProcessor<T> : ICommandProcessor where T : AsyncEventArgs
