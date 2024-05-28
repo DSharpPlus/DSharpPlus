@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -523,12 +524,13 @@ public sealed partial class DiscordClient
     /// <param name="opCode">The opcode to send to the Discord gateway.</param>
     /// <param name="data">The data to deserialize.</param>
     /// <typeparam name="T">The type of data that the object belongs to.</typeparam>
+    /// <remarks>This method should not be used unless you know what you're doing. Instead, look towards the other explicitly implemented methods which come with client-side validation.</remarks>
     /// <returns>A task representing the payload being sent.</returns>
-    [Obsolete("This method should not be used unless you know what you're doing. Instead, look towards the other explicitly implemented methods which come with client-side validation.")]
+    [Experimental("DSP0004")]
     public Task SendPayloadAsync<T>(GatewayOpCode opCode, T data) => SendPayloadAsync(opCode, (object?)data);
 
     /// <inheritdoc cref="SendPayloadAsync{T}(GatewayOpCode, T)"/>
-    [Obsolete("This method should not be used unless you know what you're doing. Instead, look towards the other explicitly implemented methods which come with client-side validation.")]
+    [Experimental("DSP0004")]
     public Task SendPayloadAsync(GatewayOpCode opCode, object? data = null)
     {
         GatewayPayload payload = new()
