@@ -11,10 +11,10 @@ title: Argument Converter
 Writing your own argument converter will enable you to convert custom types and replace the functionality of existing
 converters. Like many things in DSharpPlus, doing this is straightforward and simple.
 
-First, create a new class which implements @DSharpPlus.CommandsNext.Converters.IArgumentConverter`1 and its method
-@DSharpPlus.CommandsNext.Converters.IArgumentConverter`1.ConvertAsync(System.String,DSharpPlus.CommandsNext.CommandContext).
+First, create a new class which implements `IArgumentConverter` and its method
+`IArgumentConverter.ConvertAsync`.
 Our example will be a boolean converter, so we'll also pass `bool` as the type parameter for
-@DSharpPlus.CommandsNext.Converters.IArgumentConverter`1.
+`IArgumentConverter`.
 
 ```cs
 public class CustomArgumentConverter : IArgumentConverter<bool>

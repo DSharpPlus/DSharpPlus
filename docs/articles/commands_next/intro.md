@@ -43,7 +43,7 @@ public class MyFirstModule : BaseCommandModule
 ### Create a Command Method
 
 Within our new module, create a method named `GreetCommand` marked as `async` with a `Task` return type. The first
-parameter of your method *must* be of type @DSharpPlus.CommandsNext.CommandContext, as required by CommandsNext.
+parameter of your method *must* be of type `CommandsNext.CommandContext`, as required by CommandsNext.
 
 ```cs
 public async Task GreetCommand(CommandContext ctx)
@@ -52,13 +52,13 @@ public async Task GreetCommand(CommandContext ctx)
 }
 ```
 
-In the body of our new method, we'll use @DSharpPlus.CommandsNext.CommandContext.RespondAsync* to send a simple message.
+In the body of our new method, we'll use `CommandContext.RespondAsync` to send a simple message.
 
 ```cs
 await ctx.RespondAsync("Greetings! Thank you for executing me!");
 ```
 
-Finally, mark your command method with the @DSharpPlus.CommandsNext.Attributes.CommandAttribute so CommandsNext will
+Finally, mark your command method with the `CommandAttribute` so CommandsNext will
 know to treat our method as a command method. This attribute takes a single parameter: the name of the command.
 
 We'll name our command *greet* to match the name of the method.
@@ -105,9 +105,9 @@ discord.MessageCreated += async (s, e) =>               // REMOVE
 await discord.ConnectAsync();
 ```
 
-Next, call the @DSharpPlus.CommandsNext.ExtensionMethods.UseCommandsNext* extension method on your
-@DSharpPlus.DiscordClient instance and pass it a new @DSharpPlus.CommandsNext.CommandsNextConfiguration instance. Assign
-the resulting @DSharpPlus.CommandsNext.CommandsNextExtension instance to a new variable named*commands*. This important
+Next, call the `ExtensionMethods.UseCommandsNext`* extension method on your
+`DiscordClient` instance and pass it a new `CommandsNextConfiguration` instance. Assign
+the resulting `CommandsNext.CommandsNextExtension` instance to a new variable named *commands*. This important
 step will enable CommandsNext for your Discord client.
 
 ```cs
@@ -115,8 +115,8 @@ var discord = new DiscordClient();
 var commands = discord.UseCommandsNext(new CommandsNextConfiguration());
 ```
 
-Create an object initializer for @DSharpPlus.CommandsNext.CommandsNextConfiguration and assign the
-@DSharpPlus.CommandsNext.CommandsNextConfiguration.StringPrefixes property a new `string` array containing your desired
+Create an object initializer for `CommandsNextConfiguration` and assign the
+`CommandsNextConfiguration.StringPrefixes` property a new `string` array containing your desired
 prefixes. Our example below will only define a single prefix: `!`.
 
 ```cs
@@ -126,8 +126,8 @@ new CommandsNextConfiguration()
 }
 ```
 
-Now we'll register our command module. Call the @DSharpPlus.CommandsNext.CommandsNextExtension.RegisterCommands* method
-on our @DSharpPlus.CommandsNext.CommandsNextExtension instance and provide it with your command module.
+Now we'll register our command module. Call the `CommandsNextExtension.RegisterCommands` method
+on our `CommandsNext.CommandsNextExtension` instance and provide it with your command module.
 
 ```cs
 var discord = new DiscordClient();
@@ -220,7 +220,7 @@ argument, allowing your command to be executed.
 !greet "Luke Smith"
 ```
 
-If you would prefer not to use quotes, you can use the @DSharpPlus.CommandsNext.Attributes.RemainingTextAttribute
+If you would prefer not to use quotes, you can use the `RemainingTextAttribute`
 attribute on your parameter. This attribute will instruct CommandsNext to parse all remaining arguments into that
 parameter.
 
@@ -294,14 +294,14 @@ CommandsNext converted the two arguments from `string` into `int` and passed the
 removing the need to manually parse and convert the arguments yourself.
 
 We'll do one more to drive the point home. Head back to our old `GreetCommand` method, remove our `name` parameter, and
-replace it with a new parameter of type @DSharpPlus.Entities.DiscordMember named `member`.
+replace it with a new parameter of type `DiscordMember` named `member`.
 
 ```cs
 public async Task GreetCommand(CommandContext ctx, DiscordMember member)
 ```
 
-Then modify the response to mention the provided member with the @DSharpPlus.Entities.DiscordUser.Mention property on
-@DSharpPlus.Entities.DiscordMember.
+Then modify the response to mention the provided member with the `DiscordUser.Mention` property on
+`DiscordMember`.
 
 ```cs
 public async Task GreetCommand(CommandContext ctx, DiscordMember member)
@@ -318,7 +318,7 @@ Go ahead and give that a test run.
 
 ![Its wings are too small to get its fat little body off the ground.][13]
 
-The argument converter for @DSharpPlus.Entities.DiscordMember is able to parse mentions, usernames, nicknames, and user
+The argument converter for `DiscordMember` is able to parse mentions, usernames, nicknames, and user
 IDs then look for a matching member within the guild the command was executed from. Ain't that neat?
 
 ## Command Overloads

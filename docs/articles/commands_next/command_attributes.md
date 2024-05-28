@@ -11,29 +11,29 @@ title: Command Attributes
 CommandsNext has a variety of built-in attributes to enhance your commands and provide some access control.
 The majority of these attributes can be applied to your command methods and command groups.
 
-- @DSharpPlus.CommandsNext.Attributes.AliasesAttribute
-- @DSharpPlus.CommandsNext.Attributes.CooldownAttribute
-- @DSharpPlus.CommandsNext.Attributes.DescriptionAttribute
-- @DSharpPlus.CommandsNext.Attributes.CategoryAttribute
-- @DSharpPlus.CommandsNext.Attributes.DontInjectAttribute
-- @DSharpPlus.CommandsNext.Attributes.HiddenAttribute
-- @DSharpPlus.CommandsNext.Attributes.ModuleLifespanAttribute
-- @DSharpPlus.CommandsNext.Attributes.PriorityAttribute
-- @DSharpPlus.CommandsNext.Attributes.RemainingTextAttribute
-- @DSharpPlus.CommandsNext.Attributes.RequireBotPermissionsAttribute
-- @DSharpPlus.CommandsNext.Attributes.RequireDirectMessageAttribute
-- @DSharpPlus.CommandsNext.Attributes.RequireGuildAttribute
-- @DSharpPlus.CommandsNext.Attributes.RequireNsfwAttribute
-- @DSharpPlus.CommandsNext.Attributes.RequireOwnerAttribute
-- @DSharpPlus.CommandsNext.Attributes.RequirePermissionsAttribute
-- @DSharpPlus.CommandsNext.Attributes.RequirePrefixesAttribute
-- @DSharpPlus.CommandsNext.Attributes.RequireRolesAttribute
-- @DSharpPlus.CommandsNext.Attributes.RequireUserPermissionsAttribute
+- `AliasesAttribute`
+- `CooldownAttribute`
+- `DescriptionAttribute`
+- `CategoryAttribute`
+- `DontInjectAttribute`
+- `HiddenAttribute`
+- `ModuleLifespanAttribute`
+- `PriorityAttribute`
+- `RemainingTextAttribute`
+- `RequireBotPermissionsAttribute`
+- `RequireDirectMessageAttribute`
+- `RequireGuildAttribute`
+- `RequireNsfwAttribute`
+- `RequireOwnerAttribute`
+- `RequirePermissionsAttribute`
+- `RequirePrefixesAttribute`
+- `RequireRolesAttribute`
+- `RequireUserPermissionsAttribute`
 
 ## Custom Attributes
 
 If the above attributes don't meet your needs, CommandsNext also gives you the option of writing your own!
-Simply create a new class which inherits from @DSharpPlus.CommandsNext.Attributes.CheckBaseAttribute and implement the
+Simply create a new class which inherits from `CheckBaseAttribute` and implement the
 required method.
 
 Our example below will only allow a command to be ran during a specified year.

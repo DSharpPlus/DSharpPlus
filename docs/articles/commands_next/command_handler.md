@@ -15,7 +15,7 @@ title: Custom Command Handler
 ### Disable Default Handler
 
 To begin, we'll need to disable the default command handler provided by CommandsNext. This is done by setting the
-@DSharpPlus.CommandsNext.CommandsNextConfiguration.UseDefaultCommandHandler configuration property to `false`.
+`UseDefaultCommandHandler` configuration property to `false`.
 
 ```cs
 var discord = new DiscordClient();
@@ -27,8 +27,8 @@ var commands = discord.UseCommandsNext(new CommandsNextConfiguration()
 
 ### Create Event Handler
 
-We'll then write a new handler for the @DSharpPlus.DiscordClient.MessageCreated event fired from
-@DSharpPlus.DiscordClient.
+We'll then write a new handler for the `MessageCreated` event fired from
+`DiscordClient`.
 
 ```cs
 discord.MessageCreated += CommandHandler;
@@ -62,7 +62,7 @@ var prefix = msg.Content.Substring(0, cmdStart);
 var cmdString = msg.Content.Substring(cmdStart);
 ```
 
-Then provide the command string to @DSharpPlus.CommandsNext.CommandsNextExtension.FindCommand*.
+Then provide the command string to `FindCommand`.
 
 ```cs
 var command = cnext.FindCommand(cmdString, out var args);
@@ -74,7 +74,7 @@ Create a command context using our message and prefix, along with the command an
 var ctx = cnext.CreateContext(msg, prefix, command, args);
 ```
 
-And pass the context to @DSharpPlus.CommandsNext.CommandsNextExtension.ExecuteCommandAsync* to execute the command.
+And pass the context to `ExecuteCommandAsync` to execute the command.
 
 ```cs
 _ = Task.Run(async () => await cnext.ExecuteCommandAsync(ctx));

@@ -12,7 +12,7 @@ The built-in help command provided by CommandsNext is generated with a *help for
 a command and its subcommands then returns a formatted help message. If you're not happy with the default help
 formatter, you're able to write your own and customize the output to your liking.
 
-Simply inherit from @DSharpPlus.CommandsNext.Converters.BaseHelpFormatter and provide an implementation for each of the
+Simply inherit from `BaseHelpFormatter` and provide an implementation for each of the
 required methods.
 
 ```cs
@@ -60,8 +60,8 @@ public class CustomHelpFormatter : BaseHelpFormatter
 ```
 
 Alternatively, if you're only wanting to make a few small tweaks to the default help, you can write a simple help
-formatter which inherits from @DSharpPlus.CommandsNext.Converters.DefaultHelpFormatter and modify the inherited
-@DSharpPlus.CommandsNext.Converters.DefaultHelpFormatter.EmbedBuilder property.
+formatter which inherits from `DefaultHelpFormatter` and modify the inherited
+`DefaultHelpFormatter.EmbedBuilder` property.
 
 ```cs
 public class CustomHelpFormatter : DefaultHelpFormatter

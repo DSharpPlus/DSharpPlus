@@ -21,7 +21,7 @@ We'll go through a simple example of this process to help you understand better.
 ### Create a Service Provider
 
 To begin, we'll need to create a service provider; this will act as the container for the services you need for your
-commands. Create a new variable just before you register CommandsNext with your @DSharpPlus.DiscordClient and assign it
+commands. Create a new variable just before you register CommandsNext with your `DiscordClient` and assign it
 a new instance of `ServiceCollection`.
 
 ```cs
@@ -88,7 +88,7 @@ module constructor and CommandsNext will take care of the rest. Ain't that neat?
 
 By default, all command modules have a singleton lifespan; this means each command module is instantiated once for the
 lifetime of the CommandsNext instance. However, if the reuse of a module instance is undesired, you also have the option
-to change the lifespan of a module to *transient* using the @DSharpPlus.CommandsNext.Attributes.ModuleLifespanAttribute.
+to change the lifespan of a module to *transient* using the `ModuleLifespanAttribute`.
 
 ```cs
 [ModuleLifespan(ModuleLifespan.Transient)]
