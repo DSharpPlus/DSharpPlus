@@ -24,4 +24,10 @@ public interface IClientErrorHandler
         object sender,
         object args
     );
+
+    /// <summary>
+    /// Handles a gateway error of any kind.
+    /// </summary>
+    /// <param name="exception">The exception that occurred.</param>
+    public ValueTask HandleGatewayError(Exception exception);
 }

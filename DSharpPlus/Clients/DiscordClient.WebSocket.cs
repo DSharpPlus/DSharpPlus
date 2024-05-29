@@ -140,9 +140,9 @@ public sealed partial class DiscordClient
             }
         }
 
-        Task SocketOnException(IWebSocketClient sender, SocketErrorEventArgs e)
+        async Task SocketOnException(IWebSocketClient sender, SocketErrorEventArgs e)
         {
-            return this.socketErrored.InvokeAsync(this, e);
+            await this.errorHandler.HandleGatewayError(e.Exception);
         }
 
         async Task SocketOnDisconnect(IWebSocketClient sender, SocketClosedEventArgs e)

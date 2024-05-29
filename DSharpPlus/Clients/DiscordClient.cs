@@ -38,6 +38,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
     internal bool isShard = false;
     internal IMessageCacheProvider? MessageCache { get; }
+    private readonly IClientErrorHandler errorHandler;
 
     private List<BaseExtension> extensions = [];
     private StatusUpdate? status = null;
@@ -51,7 +52,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     private readonly PayloadDecompressor payloadDecompressor;
     private CancellationTokenSource cancelTokenSource;
     private CancellationToken cancelToken;
-    private readonly  ManualResetEventSlim sessionLock = new(true);
+    private readonly ManualResetEventSlim sessionLock = new(true);
 
     private readonly ManualResetEventSlim connectionLock = new(true);
 
@@ -142,8 +143,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
         IServiceProvider serviceProvider,
         IOptions<EventHandlerCollection> eventHandlers,
         IClientErrorHandler errorHandler,
-        PayloadDecompressor decompressor
+        PayloadDecompressor decompressor,
+        IOptions<DiscordConfiguration> configuration
     )
+        : base()
     {
         this.Logger = logger;
         this.MessageCache = messageCacheProvider;
@@ -151,6 +154,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.ServiceProvider = serviceProvider;
         this.ApiClient = apiClient;
         this.payloadDecompressor = decompressor;
+        this.errorHandler = errorHandler;
+        this.Configuration = configuration.Value;
 
         foreach (KeyValuePair<Type, ConcurrentBag<Delegate>> kvp in eventHandlers.Value.DelegateHandlers)
         {
@@ -173,28 +178,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
 
         this.presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this.presences));
-    }
-
-    /// <summary>
-    /// This constructor is used when constructing a sharded client to use a shared rest client.
-    /// </summary>
-    /// <param name="config">Specifies configuration parameters.</param>
-    /// <param name="restClient">Restclient which will be used for the underlying ApiClients</param>
-    /// <param name="logger">The logger to log errors to.</param>
-    internal DiscordClient(DiscordConfiguration config, RestClient restClient, ILogger logger)
-        : base(config, restClient)
-    {
-        DiscordIntents intents = this.Configuration.Intents;
-        if (intents.HasIntent(DiscordIntents.GuildMessages) || intents.HasIntent(DiscordIntents.DirectMessages))
-        {
-            this.MessageCache = this.Configuration.MessageCacheProvider
-                                ?? (this.Configuration.MessageCacheSize > 0 ? new MessageCache(this.Configuration.MessageCacheSize) : null);
-        }
-
-        InternalSetup(new DefaultClientErrorHandler(logger));
-
-        this.Guilds = new ReadOnlyConcurrentDictionary<ulong, DiscordGuild>(this.guilds);
-        this.PrivateChannels = new ReadOnlyConcurrentDictionary<ulong, DiscordDmChannel>(this.privateChannels);
     }
 
     internal void InternalSetup(IClientErrorHandler error)

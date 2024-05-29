@@ -42,10 +42,22 @@ public sealed class DefaultClientErrorHandler : IClientErrorHandler
         this.logger.LogError
         (
             exception, 
-            "Event handler exception for event {Event} thrown from {Method} (defined in {DeclaryingType})", 
+            "Event handler exception for event {Event} thrown from {Method} (defined in {DeclaryingType}).", 
             name,
             invokedDelegate.Method,
             invokedDelegate.Method.DeclaringType
+        );
+
+        return ValueTask.CompletedTask;
+    }
+
+    /// <inheritdoc/>
+    public ValueTask HandleGatewayError(Exception exception)
+    {
+        this.logger.LogError
+        (
+            exception,
+            "An error occurred in the DSharpPlus gateway."
         );
 
         return ValueTask.CompletedTask;
