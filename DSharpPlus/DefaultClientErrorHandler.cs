@@ -14,10 +14,16 @@ public sealed class DefaultClientErrorHandler : IClientErrorHandler
 {
     private readonly ILogger logger;
 
+    /// <summary>
+    /// Creates a new instance of this type.
+    /// </summary>
     [ActivatorUtilitiesConstructor]
-    public DefaultClientErrorHandler(ILogger<DiscordClient> logger)
+    public DefaultClientErrorHandler(ILogger<IClientErrorHandler> logger)
         => this.logger = logger;
 
+    /// <summary>
+    /// Don't use this.
+    /// </summary>
     // glue code for legacy handling
     [EditorBrowsable(EditorBrowsableState.Never)]
     public DefaultClientErrorHandler(ILogger logger)

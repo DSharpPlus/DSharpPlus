@@ -209,7 +209,6 @@ public sealed class DiscordConfiguration
         this.ShardCount = other.ShardCount;
         this.GatewayCompressionLevel = other.GatewayCompressionLevel;
         this.MessageCacheSize = other.MessageCacheSize;
-        this.WebSocketClientFactory = other.WebSocketClientFactory;
         this.UdpClientFactory = other.UdpClientFactory;
         this.Proxy = other.Proxy;
         this.HttpTimeout = other.HttpTimeout;

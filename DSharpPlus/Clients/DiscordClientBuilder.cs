@@ -15,6 +15,7 @@ public sealed class DiscordClientBuilder
 {
     private readonly IServiceCollection serviceCollection;
     private bool addDefaultLogging = true;
+    private LogLevel minimumLogLevel = LogLevel.Information;
 
     /// <summary>
     /// Creates a new DiscordClientBuilder from the provided service collection. This is private in favor of static
@@ -52,6 +53,41 @@ public sealed class DiscordClientBuilder
         return this;
     }
 
+    /// <summary>
+    /// Sets the log level for the default logger, should it be used.
+    /// </summary>
+    /// <remarks>
+    /// This does not affect custom logging configurations.
+    /// </remarks>
+    /// <returns>The current instance for chaining.</returns>
+    public DiscordClientBuilder SetLogLevel(LogLevel minimum)
+    {
+        this.minimumLogLevel = minimum;
+        return this;
+    }
+
+    /// <summary>
+    /// Configures logging for this DiscordClientBuilder and disables the default DSharpPlus logger.
+    /// </summary>
+    /// <param name="configure">The configuration delegate.</param>
+    /// <returns>The current instance for chaining.</returns>
+    public DiscordClientBuilder ConfigureLogging(Action<ILoggingBuilder> configure)
+    {
+        this.addDefaultLogging = false;
+        this.serviceCollection.AddLogging(configure);
+        return this;
+    }
+
+    /// <summary>
+    /// Configures services on this DiscordClientBuilder, enabling you to customize the library or your own services.
+    /// </summary>
+    /// <param name="configure">The configureation delegate.</param>
+    /// <returns>The current instance for chaining.</returns>
+    public DiscordClientBuilder ConfigureServices(Action<IServiceCollection> configure)
+    {
+        configure(this.serviceCollection);
+        return this;
+    }
 
     /// <summary>
     /// Configures event handlers on the present client builder.
@@ -71,7 +107,7 @@ public sealed class DiscordClientBuilder
     {
         if (this.addDefaultLogging)
         {
-            this.serviceCollection.AddLogging(builder => builder.AddProvider(new DefaultLoggerProvider()));
+            this.serviceCollection.AddLogging(builder => builder.AddProvider(new DefaultLoggerProvider(this.minimumLogLevel)));
         }
 
         IServiceProvider provider = this.serviceCollection.BuildServiceProvider();

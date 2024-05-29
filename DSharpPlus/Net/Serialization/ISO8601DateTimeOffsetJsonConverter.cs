@@ -11,7 +11,7 @@ namespace DSharpPlus.Net.Serialization;
 internal sealed class ISO8601DateTimeOffsetJsonConverter : JsonConverter
 {
     public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
-        => writer.WriteValue(((DateTimeOffset)value).ToString("O", CultureInfo.InvariantCulture));
+        => writer.WriteValue(((DateTimeOffset)value!).ToString("O", CultureInfo.InvariantCulture));
     public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
     {
         JToken jr = JToken.Load(reader);

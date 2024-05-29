@@ -11,7 +11,7 @@ internal class DefaultLoggerProvider : ILoggerProvider
     private readonly LogLevel minimum;
     private readonly string timestampFormat;
 
-    public DefaultLoggerProvider(LogLevel minimum, string timestampFormat = "yyyy-MM-dd HH:mm:ss zzz")
+    public DefaultLoggerProvider(LogLevel minimum = LogLevel.Trace, string timestampFormat = "yyyy-MM-dd HH:mm:ss zzz")
     {
         this.minimum = minimum;
         this.timestampFormat = timestampFormat;

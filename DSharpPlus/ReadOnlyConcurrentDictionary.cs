@@ -11,6 +11,7 @@ namespace DSharpPlus;
 /// <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
 /// <typeparam name="TValue">The type of values in the dictionary.</typeparam>
 internal readonly struct ReadOnlyConcurrentDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>
+    where TKey : notnull
 {
     private readonly ConcurrentDictionary<TKey, TValue> underlyingDict;
 

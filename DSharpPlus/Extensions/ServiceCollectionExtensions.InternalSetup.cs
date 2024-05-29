@@ -18,7 +18,8 @@ public static partial class ServiceCollectionExtensions
     )
     {
         // peripheral setup
-        serviceCollection.AddSingleton<IMessageCacheProvider, MessageCache>();
+        serviceCollection.AddSingleton<IMessageCacheProvider, MessageCache>()
+            .AddSingleton<IClientErrorHandler, DefaultClientErrorHandler>();
 
         // rest setup
         serviceCollection.AddKeyedSingleton<HttpClient>("DSharpPlus.Rest.HttpClient")
@@ -38,7 +39,8 @@ public static partial class ServiceCollectionExtensions
 
         // gateway setup
         serviceCollection.AddSingleton<IWebSocketClient, WebSocketClient>()
-            .AddSingleton<PayloadDecompressor>();
+            .AddSingleton<PayloadDecompressor>()
+            .AddSingleton<DiscordClient>();
 
         return serviceCollection;
     }
