@@ -49,7 +49,7 @@ public class WebSocketClient : IWebSocketClient
     /// <summary>
     /// Instantiates a new WebSocket client.
     /// </summary>
-    internal WebSocketClient(IClientErrorHandler handler)
+    public WebSocketClient(IClientErrorHandler handler)
     {
         this.connected = new(handler);
         this.disconnected = new(handler);

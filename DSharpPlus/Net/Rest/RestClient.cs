@@ -17,7 +17,7 @@ namespace DSharpPlus.Net;
 /// <summary>
 /// Represents a client used to make REST requests.
 /// </summary>
-internal sealed partial class RestClient : IDisposable
+public sealed partial class RestClient : IDisposable
 {
     [GeneratedRegex(":([a-z_]+)")]
     private static partial Regex GenerateRouteArgumentRegex();
@@ -32,7 +32,7 @@ internal sealed partial class RestClient : IDisposable
 
     private volatile bool disposed;
 
-    internal RestClient
+    public RestClient
     (
         ILogger<RestClient> logger,
         HttpClient client,

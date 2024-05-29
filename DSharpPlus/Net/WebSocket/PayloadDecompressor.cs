@@ -3,6 +3,8 @@ using System.Buffers.Binary;
 using System.IO;
 using System.IO.Compression;
 
+using Microsoft.Extensions.Options;
+
 namespace DSharpPlus.Net.WebSocket;
 
 public sealed class PayloadDecompressor : IDisposable
@@ -15,14 +17,13 @@ public sealed class PayloadDecompressor : IDisposable
     private MemoryStream CompressedStream { get; }
     private DeflateStream DecompressorStream { get; }
 
-    public PayloadDecompressor(GatewayCompressionLevel compressionLevel)
-    {
-        if (compressionLevel == GatewayCompressionLevel.None)
-        {
-            throw new InvalidOperationException("Decompressor requires a valid compression mode.");
-        }
+    private readonly bool noCompression;
 
-        this.CompressionLevel = compressionLevel;
+    public PayloadDecompressor(IOptions<DiscordConfiguration> config)
+    {
+        this.noCompression = config.Value.GatewayCompressionLevel == GatewayCompressionLevel.None;
+
+        this.CompressionLevel = config.Value.GatewayCompressionLevel;
         this.CompressedStream = new MemoryStream();
         if (this.CompressionLevel == GatewayCompressionLevel.Stream)
         {
@@ -32,6 +33,12 @@ public sealed class PayloadDecompressor : IDisposable
 
     public bool TryDecompress(ArraySegment<byte> compressed, MemoryStream decompressed)
     {
+        if (this.noCompression)
+        {
+            decompressed.Write(compressed);
+            return true;
+        }
+
         DeflateStream zlib = this.CompressionLevel == GatewayCompressionLevel.Stream
             ? this.DecompressorStream
             : new DeflateStream(this.CompressedStream, CompressionMode.Decompress, true);

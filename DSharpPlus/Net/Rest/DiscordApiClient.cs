@@ -34,22 +34,18 @@ public sealed class DiscordApiClient
     internal RestClient rest;
 
     [ActivatorUtilitiesConstructor]
-    internal DiscordApiClient(DiscordClient client, RestClient rest)
-    {
-        this.discord = client;
-        this.rest = rest;
-    }
+    public DiscordApiClient(RestClient rest) => this.rest = rest;
 
     // This is for meta-clients, such as the webhook client
     internal DiscordApiClient(TimeSpan timeout, ILogger logger) 
         => this.rest = new(new(), timeout, logger);
 
-    internal DiscordApiClient(RestClient rest)
-        => this.rest = rest;
-
     /// <inheritdoc cref="RestClient.GetRequestMetrics(bool)"/>
     public RequestMetricsCollection GetRequestMetrics(bool sinceLastCall = false)
         => this.rest.GetRequestMetrics(sinceLastCall);
+
+    internal void SetClient(BaseDiscordClient client)
+        => this.discord = client;
 
     private DiscordMessage PrepareMessage(JToken msgRaw)
     {

@@ -5,7 +5,7 @@ namespace DSharpPlus;
 /// <summary>
 /// Holds a delegate to obtain a token to initialize the application with.
 /// </summary>
-internal sealed class TokenContainer
+public sealed class TokenContainer
 {
     /// <summary>
     /// Gets the token for this application.

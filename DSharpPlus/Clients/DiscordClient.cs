@@ -157,6 +157,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.errorHandler = errorHandler;
         this.Configuration = configuration.Value;
 
+        this.ApiClient.SetClient(this);
+
+        this.InternalSetup(errorHandler);
+
         foreach (KeyValuePair<Type, ConcurrentBag<Delegate>> kvp in eventHandlers.Value.DelegateHandlers)
         {
             Type asyncEventType = typeof(AsyncEvent<,>).MakeGenericType

@@ -36,6 +36,8 @@ public class DiscordRestClient : BaseDiscordClient
             config.TimeoutForInitialApiRequest,
             config.MaximumRestRequestsPerSecond
         ));
+
+        this.ApiClient.SetClient(this);
     }
 
     /// <summary>

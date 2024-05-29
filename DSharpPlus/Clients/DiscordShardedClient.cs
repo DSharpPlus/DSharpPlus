@@ -276,7 +276,7 @@ public sealed partial class DiscordShardedClient
                 new ServiceCollection().BuildServiceProvider(),
                 Options.Create(new EventHandlerCollection()),
                 errorHandler,
-                new PayloadDecompressor(this.Configuration.GatewayCompressionLevel),
+                new PayloadDecompressor(Options.Create(this.Configuration)),
                 Options.Create(cfg)
             );
 

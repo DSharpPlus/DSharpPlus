@@ -27,7 +27,6 @@ using DSharpPlus.Exceptions;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 using CheckFunc = System.Func
 <
@@ -110,7 +109,7 @@ public sealed class CommandsExtension : BaseExtension
     /// <summary>
     /// Used to log messages from this extension.
     /// </summary>
-    private readonly ILogger<CommandsExtension> logger;
+    private ILogger<CommandsExtension> logger;
 
     /// <summary>
     /// Creates a new instance of the <see cref="CommandsExtension"/> class.
@@ -124,13 +123,6 @@ public sealed class CommandsExtension : BaseExtension
         this.UseDefaultCommandErrorHandler = configuration.UseDefaultCommandErrorHandler;
         this.RegisterDefaultCommandProcessors = configuration.RegisterDefaultCommandProcessors;
         this.CommandExecutor = configuration.CommandExecutor;
-        if (this.UseDefaultCommandErrorHandler)
-        {
-            this.CommandErrored += DefaultCommandErrorHandlerAsync;
-        }
-
-        // Attempt to get the user defined logging, otherwise setup a null logger since the D#+ Default Logger is internal.
-        this.logger = this.ServiceProvider.GetService<ILogger<CommandsExtension>>() ?? NullLogger<CommandsExtension>.Instance;
     }
 
     /// <summary>
@@ -152,9 +144,16 @@ public sealed class CommandsExtension : BaseExtension
         this.ServiceProvider = client.ServiceProvider;
         this.Client.SessionCreated += async (_, _) => await RefreshAsync();
 
+        this.logger = client.ServiceProvider.GetService<ILogger<CommandsExtension>>();
+
         DefaultClientErrorHandler errorHandler = new(client.Logger);
         this.commandErrored = new(errorHandler);
         this.commandExecuted = new(errorHandler);
+
+        if (this.UseDefaultCommandErrorHandler)
+        {
+            this.CommandErrored += DefaultCommandErrorHandlerAsync;
+        }
 
         AddCheck<DirectMessageUsageCheck>();
         AddCheck<RequireApplicationOwnerCheck>();

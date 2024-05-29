@@ -18,7 +18,8 @@ public static partial class ServiceCollectionExtensions
     )
     {
         // peripheral setup
-        serviceCollection.AddSingleton<IMessageCacheProvider, MessageCache>()
+        serviceCollection.AddMemoryCache()
+            .AddSingleton<IMessageCacheProvider, MessageCache>()
             .AddSingleton<IClientErrorHandler, DefaultClientErrorHandler>();
 
         // rest setup
