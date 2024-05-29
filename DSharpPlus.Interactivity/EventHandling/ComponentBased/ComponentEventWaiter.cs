@@ -75,6 +75,7 @@ internal class ComponentEventWaiter : IDisposable
         {
             this.collectRequests.TryRemove(request);
         }
+
         return request.Collected.ToArray();
     }
 

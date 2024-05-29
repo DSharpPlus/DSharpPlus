@@ -88,14 +88,24 @@ public sealed class CommandsExtension : BaseExtension
     /// <summary>
     /// Executed everytime a command is finished executing.
     /// </summary>
-    public event AsyncEventHandler<CommandsExtension, CommandExecutedEventArgs> CommandExecuted { add => this.commandExecuted.Register(value); remove => this.commandExecuted.Unregister(value); }
-    internal readonly AsyncEvent<CommandsExtension, CommandExecutedEventArgs> commandExecuted = new("COMMANDS_COMMAND_EXECUTED", EverythingWentWrongErrorHandler);
+    public event AsyncEventHandler<CommandsExtension, CommandExecutedEventArgs> CommandExecuted 
+    { 
+        add => this.commandExecuted.Register(value); 
+        remove => this.commandExecuted.Unregister(value); 
+    }
+
+    internal AsyncEvent<CommandsExtension, CommandExecutedEventArgs> commandExecuted;
 
     /// <summary>
     /// Executed everytime a command has errored.
     /// </summary>
-    public event AsyncEventHandler<CommandsExtension, CommandErroredEventArgs> CommandErrored { add => this.commandErrored.Register(value); remove => this.commandErrored.Unregister(value); }
-    internal readonly AsyncEvent<CommandsExtension, CommandErroredEventArgs> commandErrored = new("COMMANDS_COMMAND_ERRORED", EverythingWentWrongErrorHandler);
+    public event AsyncEventHandler<CommandsExtension, CommandErroredEventArgs> CommandErrored 
+    { 
+        add => this.commandErrored.Register(value); 
+        remove => this.commandErrored.Unregister(value); 
+    }
+
+    internal AsyncEvent<CommandsExtension, CommandErroredEventArgs> commandErrored;
 
     /// <summary>
     /// Used to log messages from this extension.
@@ -141,6 +151,10 @@ public sealed class CommandsExtension : BaseExtension
         this.Client = client;
         this.ServiceProvider = client.ServiceProvider;
         this.Client.SessionCreated += async (_, _) => await RefreshAsync();
+
+        DefaultClientErrorHandler errorHandler = new(client.Logger);
+        this.commandErrored = new(errorHandler);
+        this.commandExecuted = new(errorHandler);
 
         AddCheck<DirectMessageUsageCheck>();
         AddCheck<RequireApplicationOwnerCheck>();

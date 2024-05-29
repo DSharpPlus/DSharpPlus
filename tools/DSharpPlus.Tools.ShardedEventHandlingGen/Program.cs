@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -11,13 +10,12 @@ namespace DSharpPlus.Tools.ShardedEventHandlingGen;
 
 public static class Program
 {
-    private static readonly ReadOnlyDictionary<string, string> templateFiles;
+    private static readonly Dictionary<string, string> templateFiles = [];
 
     static Program()
     {
         // Load all resource template files into the dictionary
         Assembly assembly = typeof(Program).Assembly;
-        Dictionary<string, string> templateFiles = [];
         foreach (string filename in assembly.GetManifestResourceNames())
         {
             if (!filename.EndsWith(".template", StringComparison.Ordinal))
@@ -28,8 +26,6 @@ public static class Program
             string templateFile = new StreamReader(assembly.GetManifestResourceStream(filename)!).ReadToEnd();
             templateFiles.Add(Path.GetFileNameWithoutExtension(filename.Replace("DSharpPlus.Tools.ShardedEventHandlingGen.", "")), templateFile);
         }
-
-        templateFiles = new(templateFiles);
     }
 
     public static void Main()

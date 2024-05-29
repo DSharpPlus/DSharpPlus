@@ -123,12 +123,14 @@ public sealed class LavalinkGuildConnection
 
         Volatile.Write(ref this.isDisposed, false);
 
-        this.playerUpdated = new AsyncEvent<LavalinkGuildConnection, PlayerUpdateEventArgs>("LAVALINK_PLAYER_UPDATE", this.Node.Discord.EventErrorHandler);
-        this.playbackStarted = new AsyncEvent<LavalinkGuildConnection, TrackStartEventArgs>("LAVALINK_PLAYBACK_STARTED", this.Node.Discord.EventErrorHandler);
-        this.playbackFinished = new AsyncEvent<LavalinkGuildConnection, TrackFinishEventArgs>("LAVALINK_PLAYBACK_FINISHED", this.Node.Discord.EventErrorHandler);
-        this.trackStuck = new AsyncEvent<LavalinkGuildConnection, TrackStuckEventArgs>("LAVALINK_TRACK_STUCK", this.Node.Discord.EventErrorHandler);
-        this.trackException = new AsyncEvent<LavalinkGuildConnection, TrackExceptionEventArgs>("LAVALINK_TRACK_EXCEPTION", this.Node.Discord.EventErrorHandler);
-        this.webSocketClosed = new AsyncEvent<LavalinkGuildConnection, WebSocketCloseEventArgs>("LAVALINK_DISCORD_WEBSOCKET_CLOSED", this.Node.Discord.EventErrorHandler);
+        DefaultClientErrorHandler errorHandler = new(vstu.Guild.Discord.Logger);
+
+        this.playerUpdated = new AsyncEvent<LavalinkGuildConnection, PlayerUpdateEventArgs>(errorHandler);
+        this.playbackStarted = new AsyncEvent<LavalinkGuildConnection, TrackStartEventArgs>(errorHandler);
+        this.playbackFinished = new AsyncEvent<LavalinkGuildConnection, TrackFinishEventArgs>(errorHandler);
+        this.trackStuck = new AsyncEvent<LavalinkGuildConnection, TrackStuckEventArgs>(errorHandler);
+        this.trackException = new AsyncEvent<LavalinkGuildConnection, TrackExceptionEventArgs>(errorHandler);
+        this.webSocketClosed = new AsyncEvent<LavalinkGuildConnection, WebSocketCloseEventArgs>(errorHandler);
     }
 
     /// <summary>

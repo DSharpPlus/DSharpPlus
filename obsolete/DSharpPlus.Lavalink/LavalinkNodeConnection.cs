@@ -191,16 +191,18 @@ public sealed class LavalinkNodeConnection
         this.ConnectedGuilds = new ReadOnlyConcurrentDictionary<ulong, LavalinkGuildConnection>(this.connectedGuilds);
         this.Statistics = new LavalinkStatistics();
 
-        this.lavalinkSocketError = new AsyncEvent<LavalinkNodeConnection, SocketErrorEventArgs>("LAVALINK_SOCKET_ERROR", this.Discord.EventErrorHandler);
-        this.disconnected = new AsyncEvent<LavalinkNodeConnection, NodeDisconnectedEventArgs>("LAVALINK_NODE_DISCONNECTED", this.Discord.EventErrorHandler);
-        this.statsReceived = new AsyncEvent<LavalinkNodeConnection, StatisticsReceivedEventArgs>("LAVALINK_STATS_RECEIVED", this.Discord.EventErrorHandler);
-        this.playerUpdated = new AsyncEvent<LavalinkGuildConnection, PlayerUpdateEventArgs>("LAVALINK_PLAYER_UPDATED", this.Discord.EventErrorHandler);
-        this.playbackStarted = new AsyncEvent<LavalinkGuildConnection, TrackStartEventArgs>("LAVALINK_PLAYBACK_STARTED", this.Discord.EventErrorHandler);
-        this.playbackFinished = new AsyncEvent<LavalinkGuildConnection, TrackFinishEventArgs>("LAVALINK_PLAYBACK_FINISHED", this.Discord.EventErrorHandler);
-        this.trackStuck = new AsyncEvent<LavalinkGuildConnection, TrackStuckEventArgs>("LAVALINK_TRACK_STUCK", this.Discord.EventErrorHandler);
-        this.trackException = new AsyncEvent<LavalinkGuildConnection, TrackExceptionEventArgs>("LAVALINK_TRACK_EXCEPTION", this.Discord.EventErrorHandler);
-        this.guildConnectionCreated = new AsyncEvent<LavalinkGuildConnection, GuildConnectionCreatedEventArgs>("LAVALINK_GUILD_CONNECTION_CREATED", this.Discord.EventErrorHandler);
-        this.guildConnectionRemoved = new AsyncEvent<LavalinkGuildConnection, GuildConnectionRemovedEventArgs>("LAVALINK_GUILD_CONNECTION_REMOVED", this.Discord.EventErrorHandler);
+        DefaultClientErrorHandler errorHandler = new(client.Logger);
+
+        this.lavalinkSocketError = new AsyncEvent<LavalinkNodeConnection, SocketErrorEventArgs>(errorHandler);
+        this.disconnected = new AsyncEvent<LavalinkNodeConnection, NodeDisconnectedEventArgs>(errorHandler);
+        this.statsReceived = new AsyncEvent<LavalinkNodeConnection, StatisticsReceivedEventArgs>(errorHandler);
+        this.playerUpdated = new AsyncEvent<LavalinkGuildConnection, PlayerUpdateEventArgs>(errorHandler);
+        this.playbackStarted = new AsyncEvent<LavalinkGuildConnection, TrackStartEventArgs>(errorHandler);
+        this.playbackFinished = new AsyncEvent<LavalinkGuildConnection, TrackFinishEventArgs>(errorHandler);
+        this.trackStuck = new AsyncEvent<LavalinkGuildConnection, TrackStuckEventArgs>(errorHandler);
+        this.trackException = new AsyncEvent<LavalinkGuildConnection, TrackExceptionEventArgs>(errorHandler);
+        this.guildConnectionCreated = new AsyncEvent<LavalinkGuildConnection, GuildConnectionCreatedEventArgs>(errorHandler);
+        this.guildConnectionRemoved = new AsyncEvent<LavalinkGuildConnection, GuildConnectionRemovedEventArgs>(errorHandler);
 
         this.VoiceServerUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdatedEventArgs>>();
         this.VoiceStateUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdatedEventArgs>>();
@@ -223,7 +225,7 @@ public sealed class LavalinkNodeConnection
             throw new InvalidOperationException("This operation requires the Discord client to be fully initialized.");
         }
 
-        this.WebSocket = this.Discord.Configuration.WebSocketClientFactory(this.Discord.Configuration.Proxy);
+        this.WebSocket = new WebSocketClient(new DefaultClientErrorHandler(this.Discord.Logger));
         this.WebSocket.Connected += WebSocket_OnConnectAsync;
         this.WebSocket.Disconnected += WebSocket_OnDisconnectAsync;
         this.WebSocket.ExceptionThrown += WebSocket_OnException;

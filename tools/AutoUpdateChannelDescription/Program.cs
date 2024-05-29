@@ -3,8 +3,10 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 
 namespace DSharpPlus.Tools.AutoUpdateChannelDescription;
@@ -23,13 +25,22 @@ public sealed class Program
         string githubUrl = Environment.GetEnvironmentVariable("GITHUB_URL") ?? throw new InvalidOperationException("GITHUB_URL environment variable is not set.");
         string? latestStableVersion = Environment.GetEnvironmentVariable("LATEST_STABLE_VERSION");
 
-        DiscordClient client = new(new DiscordConfiguration
-        {
-            Token = token,
-            TokenType = TokenType.Bot
-        });
+        DiscordClientBuilder builder = DiscordClientBuilder.Default(token, DiscordIntents.Guilds)
+            .ConfigureEventHandling
+            (
+                 b => b.HandleGuildDownloadCompleted(OnGuildDownloadCompletedAsync)
+            );
 
-        client.GuildDownloadCompleted += async (client, eventArgs) =>
+        DiscordClient client = builder.Build();
+        await client.ConnectAsync();
+
+        // The program should exit ASAP after the channel description is updated.
+        // However it may get caught in a ratelimit, so we'll wait for a bit.
+        // The program will exit after 10 seconds no matter what.
+        // This includes the time it takes to connect to the Discord gateway.
+        await Task.Delay(TimeSpan.FromSeconds(30));
+
+        async Task OnGuildDownloadCompletedAsync(DiscordClient client, GuildDownloadCompletedEventArgs eventArgs)
         {
             DiscordGuild guild = client.Guilds[ulong.Parse(guildId, CultureInfo.InvariantCulture)];
             DiscordChannel channel = guild.Channels[ulong.Parse(channelId, CultureInfo.InvariantCulture)];
@@ -85,14 +96,6 @@ public sealed class Program
 
             await client.DisconnectAsync();
             Environment.Exit(0);
-        };
-
-        await client.ConnectAsync();
-
-        // The program should exit ASAP after the channel description is updated.
-        // However it may get caught in a ratelimit, so we'll wait for a bit.
-        // The program will exit after 10 seconds no matter what.
-        // This includes the time it takes to connect to the Discord gateway.
-        await Task.Delay(TimeSpan.FromSeconds(30));
+        }
     }
 }

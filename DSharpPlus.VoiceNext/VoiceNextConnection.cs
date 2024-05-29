@@ -186,11 +186,13 @@ public sealed class VoiceNextConnection : IDisposable
         this.TargetChannel = channel;
         this.TransmittingSSRCs = new ConcurrentDictionary<uint, AudioSender>();
 
-        this.userSpeaking = new AsyncEvent<VoiceNextConnection, UserSpeakingEventArgs>("VNEXT_USER_SPEAKING", this.Discord.EventErrorHandler);
-        this.userJoined = new AsyncEvent<VoiceNextConnection, VoiceUserJoinEventArgs>("VNEXT_USER_JOINED", this.Discord.EventErrorHandler);
-        this.userLeft = new AsyncEvent<VoiceNextConnection, VoiceUserLeaveEventArgs>("VNEXT_USER_LEFT", this.Discord.EventErrorHandler);
-        this.voiceReceived = new AsyncEvent<VoiceNextConnection, VoiceReceiveEventArgs>("VNEXT_VOICE_RECEIVED", this.Discord.EventErrorHandler);
-        this.voiceSocketError = new AsyncEvent<VoiceNextConnection, SocketErrorEventArgs>("VNEXT_WS_ERROR", this.Discord.EventErrorHandler);
+        DefaultClientErrorHandler errorHandler = new(client.Logger);
+
+        this.userSpeaking = new AsyncEvent<VoiceNextConnection, UserSpeakingEventArgs>(errorHandler);
+        this.userJoined = new AsyncEvent<VoiceNextConnection, VoiceUserJoinEventArgs>(errorHandler);
+        this.userLeft = new AsyncEvent<VoiceNextConnection, VoiceUserLeaveEventArgs>(errorHandler);
+        this.voiceReceived = new AsyncEvent<VoiceNextConnection, VoiceReceiveEventArgs>(errorHandler);
+        this.voiceSocketError = new AsyncEvent<VoiceNextConnection, SocketErrorEventArgs>(errorHandler);
         this.TokenSource = new CancellationTokenSource();
 
         this.Configuration = config;
@@ -214,6 +216,7 @@ public sealed class VoiceNextConnection : IDisposable
         {
             eph = eps;
         }
+
         this.WebSocketEndpoint = new ConnectionEndpoint { Hostname = eph, Port = epp };
 
         this.ReadyWait = new TaskCompletionSource<bool>();
@@ -226,7 +229,7 @@ public sealed class VoiceNextConnection : IDisposable
         this.PauseEvent = new AsyncManualResetEvent(true);
 
         this.UdpClient = this.Discord.Configuration.UdpClientFactory();
-        this.VoiceWs = this.Discord.Configuration.WebSocketClientFactory(this.Discord.Configuration.Proxy);
+        this.VoiceWs = new WebSocketClient(errorHandler);
         this.VoiceWs.Disconnected += VoiceWS_SocketClosedAsync;
         this.VoiceWs.MessageReceived += VoiceWS_SocketMessage;
         this.VoiceWs.Connected += VoiceWS_SocketOpened;
@@ -1066,7 +1069,7 @@ public sealed class VoiceNextConnection : IDisposable
         {
             this.TokenSource.Cancel();
             this.TokenSource = new CancellationTokenSource();
-            this.VoiceWs = this.Discord.Configuration.WebSocketClientFactory(this.Discord.Configuration.Proxy);
+            this.VoiceWs = new WebSocketClient(new DefaultClientErrorHandler(this.Discord.Logger));
             this.VoiceWs.Disconnected += VoiceWS_SocketClosedAsync;
             this.VoiceWs.MessageReceived += VoiceWS_SocketMessage;
             this.VoiceWs.Connected += VoiceWS_SocketOpened;

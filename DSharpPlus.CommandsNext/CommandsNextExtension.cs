@@ -170,8 +170,10 @@ public class CommandsNextExtension : BaseExtension
 
         this.Client = client;
 
-        this.executed = new AsyncEvent<CommandsNextExtension, CommandExecutionEventArgs>("COMMAND_EXECUTED", this.Client.EventErrorHandler);
-        this.error = new AsyncEvent<CommandsNextExtension, CommandErrorEventArgs>("COMMAND_ERRORED", this.Client.EventErrorHandler);
+        DefaultClientErrorHandler errorHandler = new(client.Logger);
+
+        this.executed = new AsyncEvent<CommandsNextExtension, CommandExecutionEventArgs>(errorHandler);
+        this.error = new AsyncEvent<CommandsNextExtension, CommandErrorEventArgs>(errorHandler);
 
         if (this.Config.UseDefaultCommandHandler)
         {
