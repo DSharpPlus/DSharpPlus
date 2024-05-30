@@ -25,50 +25,44 @@ run into issues when retrieving entities from the library's cache.
 
 ### Discord Configuration
 
-Within your @DSharpPlus.DiscordConfiguration you will have to specify all the intents you will need. Here is a list of
-all the [Intents][3] DSharpPlus Supports. By default, the configuration will use
-@DSharpPlus.DiscordIntents.AllUnprivileged as the default value. Like above however, we recommend having all intents
-enabled at first, so you should specify @DSharpPlus.DiscordIntents.All in your configuration which will include the
+Within your setup code you will have to specify all the intents you will need. Here is a list of
+all the [Intents][3] DSharpPlus Supports. Like above however, we recommend having all intents
+enabled during initial development, so you should specify @DSharpPlus.DiscordIntents.All in your configuration which will include the
 privleged intents you enabled in your application:
 
 ```csharp
-var config = new DiscordConfiguration()
-{
-    Intents = DiscordIntents.All
-};
+DiscordClientBuilder builder = DiscordClientBuilder.Default(token, DiscordIntents.All);
 ```
 
-When you become more advanced, you can try experimenting with turning off intents you do not need in order to save
-resources. In your @DSharpPlus.DiscordConfiguration you can specify one or many.
+When you become more advanced, you should try experimenting with turning off intents you do not need in order to save
+resources. In your DiscordClientBuilder you can specify one or many.
 
 Here is an example of just specifying one:
 
 ```csharp
-var config = new DiscordConfiguration()
-{
-    Intents = DiscordIntents.GuildMessages
-};
+DiscordClientBuilder builder = DiscordClientBuilder.Default(token, DiscordIntents.GuildMessages);
 ```
 
 Here is an example of specifying many:
 
 ```csharp
-var config = new DiscordConfiguration()
-{
-    Intents = DiscordIntents.DirectMessageReactions 
-    | DiscordIntents.DirectMessages 
-    | DiscordIntents.GuildBans 
-    | DiscordIntents.GuildEmojis 
-    | DiscordIntents.GuildInvites 
-    | DiscordIntents.GuildMembers
-    | DiscordIntents.GuildMessages
-    | DiscordIntents.Guilds
-    | DiscordIntents.GuildVoiceStates 
-    | DiscordIntents.GuildWebhooks,
+DiscordClientBuilder builder = DiscordClientBuilder.Default
+(
+    token, 
+    DiscordIntents.DirectMessageReactions 
+        | DiscordIntents.DirectMessages 
+        | DiscordIntents.GuildBans 
+        | DiscordIntents.GuildEmojis 
+        | DiscordIntents.GuildInvites 
+        | DiscordIntents.GuildMembers
+        | DiscordIntents.GuildMessages
+        | DiscordIntents.Guilds
+        | DiscordIntents.GuildVoiceStates 
+        | DiscordIntents.GuildWebhooks
 };
 ```
 
-Please Note, if you specify a privileged intent within your @DSharpPlus.DiscordConfiguration that you have not signed up
+Please Note, if you specify a privileged intent that you have not signed up
 for on the Discord Application page, an error will be thrown on the connection.
 
 <!-- LINKS -->
