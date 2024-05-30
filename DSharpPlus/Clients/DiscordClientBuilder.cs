@@ -2,6 +2,7 @@ using System;
 
 using DSharpPlus.Extensions;
 using DSharpPlus.Logging;
+using DSharpPlus.Net;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -93,10 +94,32 @@ public sealed class DiscordClientBuilder
     /// Configures event handlers on the present client builder.
     /// </summary>
     /// <param name="configure">A configuration delegate enabling specific configuration.</param>
-    /// <returns>Thecurrent instance for chaining.</returns>
+    /// <returns>The current instance for chaining.</returns>
     public DiscordClientBuilder ConfigureEventHandling(Action<EventHandlingBuilder> configure)
     {
         this.serviceCollection.ConfigureEventHandlers(configure);
+        return this;
+    }
+
+    /// <summary>
+    /// Configures the rest client used by DSharpPlus.
+    /// </summary>
+    /// <param name="configure">A configuration delegate for the rest client.</param>
+    /// <returns>The current instance for chaining.</returns>
+    public DiscordClientBuilder ConfigureRestClient(Action<RestClientOptions> configure)
+    {
+        this.serviceCollection.Configure(configure);
+        return this;
+    }
+
+    /// <summary>
+    /// Configures the gateway client used by DSharpPlus.
+    /// </summary>
+    /// <param name="configure">A configuration delegate for the gateway client.</param>
+    /// <returns>The current instance for chaining.</returns>
+    public DiscordClientBuilder ConfigureGatewayClient(Action<DiscordConfiguration> configure)
+    {
+        this.serviceCollection.Configure(configure);
         return this;
     }
 
