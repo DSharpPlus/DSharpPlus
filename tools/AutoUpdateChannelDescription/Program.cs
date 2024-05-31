@@ -26,7 +26,7 @@ public sealed class Program
         string? latestStableVersion = Environment.GetEnvironmentVariable("LATEST_STABLE_VERSION");
 
         DiscordClientBuilder builder = DiscordClientBuilder.Default(token, DiscordIntents.Guilds)
-            .ConfigureEventHandling
+            .ConfigureEventHandlers
             (
                  b => b.HandleGuildDownloadCompleted(OnGuildDownloadCompletedAsync)
             );
