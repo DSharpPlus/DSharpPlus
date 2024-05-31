@@ -45,7 +45,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
     private int heartbeatInterval;
     private DateTimeOffset lastHeartbeat;
-    private int skippedHeartbeats = 0;
+    private int skippedHeartbeats;
     private long lastSequence;
 
     internal readonly IWebSocketClient webSocketClient;

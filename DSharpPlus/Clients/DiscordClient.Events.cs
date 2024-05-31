@@ -10,6 +10,8 @@ public sealed partial class DiscordClient
     // oh lord why did you have to pack into regions
     // this makes simple copy-paste ineffective
     // :notlikethis:
+    //
+    // i gotchu, they're removed now <3
 
     private const string ObsoletionMessage = "Events on DiscordClient are deprecated and will be removed within the v5 development cycle. " +
         "Please use the ConfigureEventHandlers methods on your preferred construction method instead.";
