@@ -34,10 +34,14 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     public const DiscordIntents RequiredIntents = DiscordIntents.Guilds;
 
     public IReadOnlyDictionary<Type, DiscordApplicationCommandOptionType> TypeMappings { get; private set; } = new Dictionary<Type, DiscordApplicationCommandOptionType>();
-    public IReadOnlyDictionary<ulong, Command> Commands => applicationCommandsMapping;
+    public IReadOnlyDictionary<ulong, Command> CommandsMapping => applicationCommandsMappingMapping;
+
+    public override IReadOnlyList<Command> Commands => this.registeredCommands;
+
+    private List<Command> registeredCommands = [];
 
     private static readonly List<DiscordApplicationCommand> applicationCommands = [];
-    private static IReadOnlyDictionary<ulong, Command> applicationCommandsMapping;
+    private static FrozenDictionary<ulong, Command> applicationCommandsMappingMapping;
 
     [GeneratedRegex(@"^[-_\p{L}\p{N}\p{IsDevanagari}\p{IsThai}]{1,32}$")]
     private partial Regex NameLocalizationRegex();
@@ -146,7 +150,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
 
     public bool TryFindCommand(DiscordInteraction interaction, [NotNullWhen(true)] out Command? command, [NotNullWhen(true)] out IEnumerable<DiscordInteractionDataOption>? options)
     {
-        if (!this.Commands.TryGetValue(interaction.Data.Id, out command))
+        if (!this.CommandsMapping.TryGetValue(interaction.Data.Id, out command))
         {
             options = null;
             return false;
@@ -270,8 +274,8 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
             }
         }
 
-        applicationCommandsMapping = commandsDictionary.ToFrozenDictionary();
-        SlashLogging.registeredCommands(this.logger, this.Commands.Count, this.Commands.Values.SelectMany(command => command.Walk()).Count(), null);
+        applicationCommandsMappingMapping = commandsDictionary.ToFrozenDictionary();
+        SlashLogging.registeredCommands(this.logger, this.CommandsMapping.Count, this.CommandsMapping.Values.SelectMany(command => command.Walk()).Count(), null);
     }
 
 

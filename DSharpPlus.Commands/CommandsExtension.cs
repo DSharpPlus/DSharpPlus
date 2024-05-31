@@ -432,7 +432,7 @@ public sealed class CommandsExtension : BaseExtension
             await processor.ConfigureAsync(this);
         }
     }
-    
+
     internal void BuildCommands()
     {
         Dictionary<string, Command> commands = [];

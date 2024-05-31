@@ -29,11 +29,12 @@ public class Tests
             Token = "FakeToken",
         });
 
-        extension = client.UseCommands(new()
+        extension = client.UseCommands(new CommandsConfiguration()
         {
             RegisterDefaultCommandProcessors = false,
             ServiceProvider = new ServiceCollection().BuildServiceProvider()
         });
+        
         await extension.AddProcessorAsync(textCommandProcessor);
         await extension.AddProcessorAsync(slashCommandProcessor);
         await extension.AddProcessorAsync(userCommandProcessor);
@@ -96,29 +97,28 @@ public class Tests
     [Test]
     public static void TestUserContextMenu()
     {
-        IReadOnlyList<Command> commands = userCommandProcessor.Commands;
+        IReadOnlyList<Command> userContextCommands = userCommandProcessor.Commands;
         
-        Assert.That(commands, Has.Count.EqualTo(2));
-        Assert.That(commands[0].Name, Is.EqualTo("UserContextOnly"));
-        Assert.That(commands[1].Name, Is.EqualTo("SlashUserContext"));
+        Assert.That(userContextCommands, Has.Count.EqualTo(2));
+        Assert.That(userContextCommands[0].Name, Is.EqualTo("UserContextOnly"));
+        Assert.That(userContextCommands[1].Name, Is.EqualTo("SlashUserContext"));
+        
+        IReadOnlyList<Command> slashCommands = extension.GetCommandsForProcessor(slashCommandProcessor);
+        Assert.That(slashCommands.FirstOrDefault(x => x.Name == "SlashUserContext"), Is.Not.Null);
     }
     
     [Test]
     public static void TestMessageContextMenu()
     {
-        IReadOnlyList<Command> commands = messageCommandProcessor.Commands;
+        IReadOnlyList<Command> messageContextCommands = messageCommandProcessor.Commands;
         
-        Assert.That(commands, Has.Count.EqualTo(2));
-        Assert.That(commands[0].Name, Is.EqualTo("MessageContextOnly"));
-        Assert.That(commands[1].Name, Is.EqualTo("SlashUserContext"));
-    }
-
-    [Test]
-    public static void TestSlashCommandProcessorContextMenus()
-    {
+        Assert.That(messageContextCommands, Has.Count.EqualTo(2));
+        Assert.That(messageContextCommands[0].Name, Is.EqualTo("MessageContextOnly"));
+        Assert.That(messageContextCommands[1].Name, Is.EqualTo("SlashMessageContext"));
         
+        IReadOnlyList<Command> slashCommands = extension.GetCommandsForProcessor(slashCommandProcessor);
+        Assert.That(slashCommands.FirstOrDefault(x => x.Name == "SlashMessageContext"), Is.Not.Null);
     }
-
 
     [OneTimeTearDown]
     public static void DisposeExtension() => extension.Dispose();

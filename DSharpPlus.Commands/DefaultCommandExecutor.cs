@@ -158,7 +158,7 @@ public class DefaultCommandExecutor : ICommandExecutor
             try
             {
                 // Create the check instance
-                object check = e(context.ServiceProvider, entry.CheckType);
+                object check = ActivatorUtilities.CreateInstance(context.ServiceProvider, entry.CheckType);
 
                 // Execute it
                 string? result = await entry.ExecuteCheckAsync(check, unconditionalCheck, context);

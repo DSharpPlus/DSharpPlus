@@ -24,6 +24,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     private bool configured;
 
     private FrozenDictionary<string, Command> commands;
+    public override IReadOnlyList<Command> Commands => this.commands.Values;
 
     /// <inheritdoc />
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
