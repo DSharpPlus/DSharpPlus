@@ -159,7 +159,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
         this.ApiClient.SetClient(this);
 
-        this.InternalSetup(errorHandler);
+        InternalSetup(errorHandler);
 
         foreach (KeyValuePair<Type, ConcurrentBag<Delegate>> kvp in eventHandlers.Value.DelegateHandlers)
         {
@@ -171,8 +171,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
             AsyncEvent asyncEvent = this.events.GetOrAdd(kvp.Key, _ => (AsyncEvent)Activator.CreateInstance
             (
-                type: asyncEventType, 
-                args: [kvp.Key.ToString(), errorHandler]
+                type: asyncEventType,
+                args: [errorHandler]
             )!);
 
             foreach (Delegate d in kvp.Value)

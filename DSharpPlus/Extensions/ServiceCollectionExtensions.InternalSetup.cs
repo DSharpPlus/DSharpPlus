@@ -39,7 +39,8 @@ public static partial class ServiceCollectionExtensions
             );
 
         // gateway setup
-        serviceCollection.AddSingleton<IWebSocketClient, WebSocketClient>()
+        serviceCollection.Configure<DiscordConfiguration>(c => c.Intents = intents)
+            .AddSingleton<IWebSocketClient, WebSocketClient>()
             .AddSingleton<PayloadDecompressor>()
             .AddSingleton<DiscordClient>();
 

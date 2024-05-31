@@ -82,7 +82,7 @@ public sealed class DiscordClientBuilder
     /// <summary>
     /// Configures services on this DiscordClientBuilder, enabling you to customize the library or your own services.
     /// </summary>
-    /// <param name="configure">The configureation delegate.</param>
+    /// <param name="configure">The configuration delegate.</param>
     /// <returns>The current instance for chaining.</returns>
     public DiscordClientBuilder ConfigureServices(Action<IServiceCollection> configure)
     {
@@ -95,7 +95,7 @@ public sealed class DiscordClientBuilder
     /// </summary>
     /// <param name="configure">A configuration delegate enabling specific configuration.</param>
     /// <returns>The current instance for chaining.</returns>
-    public DiscordClientBuilder ConfigureEventHandling(Action<EventHandlingBuilder> configure)
+    public DiscordClientBuilder ConfigureEventHandlers(Action<EventHandlingBuilder> configure)
     {
         this.serviceCollection.ConfigureEventHandlers(configure);
         return this;

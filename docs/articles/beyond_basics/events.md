@@ -18,7 +18,7 @@ private async Task Main(string[] args)
 {
     DiscordClientBuilder builder = DiscordClientBuilder.Default( /* token and intents */ );
 
-    builder.ConfigureEvents
+    builder.ConfigureEventHandlers
     (
         b => b.HandleMessageCreated(async (s, e) => 
         {
@@ -45,7 +45,7 @@ private async Task Main(string[] args)
 {
     DiscordClientBuilder builder = DiscordClientBuilder.Default( /* token and intents */ );
 
-    builder.ConfigureEvents
+    builder.ConfigureEventHandlers
     (
         b => b.HandleMessageCreated(MessageCreatedHandler)
               .HandleGuildMemberAdded(MemberAddedHandler)
