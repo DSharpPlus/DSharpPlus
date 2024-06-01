@@ -28,7 +28,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.Commands.Processors.SlashCommands;
 
-public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCreateEventArgs, ISlashArgumentConverter, InteractionConverterContext, SlashCommandContext>
+public sealed partial class SlashCommandProcessor : BaseCommandProcessor<InteractionCreateEventArgs, ISlashArgumentConverter, InteractionConverterContext, SlashCommandContext>
 {
     // Required for GuildDownloadCompleted event
     public const DiscordIntents RequiredIntents = DiscordIntents.Guilds;
@@ -38,6 +38,12 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
     private static readonly List<DiscordApplicationCommand> applicationCommands = [];
     private static IReadOnlyDictionary<ulong, Command> applicationCommandsMapping;
+
+    [GeneratedRegex(@"^[-_\p{L}\p{N}\p{IsDevanagari}\p{IsThai}]{1,32}$")]
+    private partial Regex NameLocalizationRegex();
+
+    [GeneratedRegex("^.{1,100}$")]
+    private partial Regex DescrtiptionLocalizationRegex();
 
     private bool configured;
 
@@ -813,7 +819,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                 );
             }
 
-            if (!SlashCommandRegexHelper.NameLocalizationRegex().IsMatch(nameLocalization.Key))
+            if (!NameLocalizationRegex().IsMatch(nameLocalization.Key))
             {
                 throw new InvalidOperationException
                 (
@@ -834,7 +840,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
                 );
             }
 
-            if (!SlashCommandRegexHelper.DescriptionLocalizationRegex().IsMatch(descriptionLocalization.Key))
+            if (!DescrtiptionLocalizationRegex().IsMatch(descriptionLocalization.Key))
             {
                 throw new InvalidOperationException
                 (
@@ -844,7 +850,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             }
         }
 
-        if (!SlashCommandRegexHelper.NameLocalizationRegex().IsMatch(command.Name))
+        if (!NameLocalizationRegex().IsMatch(command.Name))
         {
             throw new InvalidOperationException
             (
@@ -852,7 +858,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             );
         }
 
-        if (!string.IsNullOrWhiteSpace(command.Description) && !SlashCommandRegexHelper.DescriptionLocalizationRegex().IsMatch(command.Description))
+        if (!string.IsNullOrWhiteSpace(command.Description) && !DescrtiptionLocalizationRegex().IsMatch(command.Description))
         {
             throw new InvalidOperationException
             (
@@ -860,13 +866,4 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             );
         }
     }
-}
-
-internal static partial class SlashCommandRegexHelper
-{
-    [GeneratedRegex(@"^[-_\p{L}\p{N}\p{IsDevanagari}\p{IsThai}]{1,32}$")]
-    public static partial Regex NameLocalizationRegex();
-
-    [GeneratedRegex(@"^.{1,100}$")]
-    public static partial Regex DescriptionLocalizationRegex();
 }
