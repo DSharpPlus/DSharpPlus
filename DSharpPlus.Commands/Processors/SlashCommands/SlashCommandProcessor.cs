@@ -333,7 +333,11 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         );
     }
 
+    [StackTraceHidden]
     public async Task<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command)
+        => await this.ToApplicationParameterAsync(command, 0);
+
+    private async Task<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command, int depth = 1)
     {
         if (this.extension is null)
         {
@@ -342,11 +346,23 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
         // Convert the subcommands or parameters into application options
         List<DiscordApplicationCommandOption> options = [];
-        if (command.Subcommands.Any())
+
+        bool hasSubCommands = command.Subcommands.Count > 0;
+
+        if (hasSubCommands && depth >= 3)
         {
+            throw new InvalidOperationException
+            (
+                $"Slash command failed validation: {command.Name} nests too deeply. Discord only supports up to 3 levels of nesting."
+            );
+        }
+
+        if (hasSubCommands)
+        {
+            depth++;
             foreach (Command subCommand in command.Subcommands)
             {
-                options.Add(await ToApplicationParameterAsync(subCommand));
+                options.Add(await ToApplicationParameterAsync(subCommand, depth));
             }
         }
         else
@@ -381,7 +397,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             description: description,
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
-            type: command.Subcommands.Any() ? DiscordApplicationCommandOptionType.SubCommandGroup : DiscordApplicationCommandOptionType.SubCommand,
+            type: hasSubCommands ? DiscordApplicationCommandOptionType.SubCommandGroup : DiscordApplicationCommandOptionType.SubCommand,
             options: options
         );
     }
