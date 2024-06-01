@@ -2,9 +2,12 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using DSharpPlus.Commands.ArgumentModifiers;
@@ -35,6 +38,9 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
 
     private static readonly List<DiscordApplicationCommand> applicationCommands = [];
     private static IReadOnlyDictionary<ulong, Command> applicationCommandsMapping;
+
+    private readonly Regex nameLocalizationRegex = new(@"^[-_\p{L}\p{N}\p{IsDevanagari}\p{IsThai}]{1,32}$");
+    private readonly Regex descrtiptionLocalizationRegex = new("^.{1,100}$");
 
     private bool configured;
 
@@ -264,6 +270,7 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         SlashLogging.registeredCommands(this.logger, this.Commands.Count, this.Commands.Values.SelectMany(command => command.Walk()).Count(), null);
     }
 
+
     public async Task<DiscordApplicationCommand> ToApplicationCommandAsync(Command command)
     {
         if (this.extension is null)
@@ -280,6 +287,8 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
             nameLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
             descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
         }
+
+        ValidateSlashCommand(command, nameLocalizations, descriptionLocalizations);
 
         // Convert the subcommands or parameters into application options
         List<DiscordApplicationCommandOption> options = [];
@@ -766,5 +775,92 @@ public sealed class SlashCommandProcessor : BaseCommandProcessor<InteractionCrea
         }
 
         return CreateCommandContext(converterContext, eventArgs, parsedArguments);
+    }
+
+    private void ValidateSlashCommand(Command command, IReadOnlyDictionary<string, string> nameLocalizations, IReadOnlyDictionary<string, string> descriptionLocalizations)
+    {
+        if (command.Subcommands.Count > 0)
+        {
+            foreach (Command subCommand in command.Subcommands)
+            {
+                ValidateSlashCommand(subCommand, nameLocalizations, descriptionLocalizations);
+            }
+        }
+
+        if (command.Name.Length > 32)
+        {
+            throw new InvalidOperationException
+            (
+                $"Slash command failed validation: {command.Name} is longer than 32 characters." +
+                $"\n(Name is {command.Name.Length - 32} characters too long)"
+            );
+        }
+
+        if (command.Description?.Length > 100)
+        {
+            throw new InvalidOperationException
+            (
+                $"Slash command failed validation: {command.Name} description is longer than 100 characters." +
+                $"\n(Description is {command.Description.Length - 100} characters too long)"
+            );
+        }
+
+        foreach (KeyValuePair<string, string> nameLocalization in nameLocalizations)
+        {
+            if (nameLocalization.Value.Length > 32)
+            {
+                throw new InvalidOperationException
+                (
+                    $"Slash command failed validation: {command.Name} name localization key is longer than 32 characters.\n" +
+                    $"(Name localization key ({nameLocalization.Key}) is {nameLocalization.Key.Length - 32} characters too long)"
+                );
+            }
+
+            if (!nameLocalizationRegex.IsMatch(nameLocalization.Key))
+            {
+                throw new InvalidOperationException
+                (
+                    $"Slash command failed validation: {command.Name} name localization key contains invalid characters.\n" +
+                    $"(Name localization key ({nameLocalization.Key}) contains invalid characters)"
+                );
+            }
+        }
+
+        foreach (KeyValuePair<string, string> descriptionLocalization in descriptionLocalizations)
+        {
+            if (descriptionLocalization.Value.Length > 100)
+            {
+                throw new InvalidOperationException
+                (
+                    $"Slash command failed validation: {command.Name} description localization key is longer than 100 characters.\n" +
+                    $"(Description localization key ({descriptionLocalization.Key}) is {descriptionLocalization.Key.Length - 100} characters too long)"
+                );
+            }
+
+            if (!descrtiptionLocalizationRegex.IsMatch(descriptionLocalization.Key))
+            {
+                throw new InvalidOperationException
+                (
+                    $"Slash command failed validation: {command.Name} description localization key contains invalid characters.\n" +
+                    $"(Description localization key ({descriptionLocalization.Key}) contains invalid characters)"
+                );
+            }
+        }
+
+        if (!nameLocalizationRegex.IsMatch(command.Name))
+        {
+            throw new InvalidOperationException
+            (
+                $"Slash command failed validation: {command.Name} name contains invalid characters."
+            );
+        }
+
+        if (!string.IsNullOrWhiteSpace(command.Description) && !descrtiptionLocalizationRegex.IsMatch(command.Description))
+        {
+            throw new InvalidOperationException
+            (
+                $"Slash command failed validation: {command.Name} description contains invalid characters."
+            );
+        }
     }
 }
