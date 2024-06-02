@@ -23,7 +23,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleSocketOpened(AsyncEventHandler<DiscordClient, SocketOpenedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(SocketOpenedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(SocketOpenedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -32,7 +32,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleSocketClosed(AsyncEventHandler<DiscordClient, SocketClosedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(SocketClosedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(SocketClosedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -45,7 +45,7 @@ public sealed class EventHandlingBuilder
     /// </remarks>
     public EventHandlingBuilder HandleSessionCreated(AsyncEventHandler<DiscordClient, SessionCreatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(SessionCreatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(SessionCreatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -54,7 +54,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleSessionResumed(AsyncEventHandler<DiscordClient, SessionResumedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(SessionResumedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(SessionResumedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -63,7 +63,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleHeartbeated(AsyncEventHandler<DiscordClient, HeartbeatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(HeartbeatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(HeartbeatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -72,7 +72,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleZombied(AsyncEventHandler<DiscordClient, ZombiedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(ZombiedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ZombiedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -86,7 +86,7 @@ public sealed class EventHandlingBuilder
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers[typeof(ApplicationCommandPermissionsUpdatedEventArgs)].Add(handler)
+            c => c.DelegateHandlers.GetOrAdd(typeof(ApplicationCommandPermissionsUpdatedEventArgs), _ => []).Add(handler)
         );
 
         return this;
@@ -98,7 +98,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleChannelCreated(AsyncEventHandler<DiscordClient, ChannelCreatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(ChannelCreatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ChannelCreatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -108,7 +108,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleChannelUpdated(AsyncEventHandler<DiscordClient, ChannelUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(ChannelUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ChannelUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -118,7 +118,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleDmChannelDeleted(AsyncEventHandler<DiscordClient, DmChannelDeletedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(DmChannelDeletedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(DmChannelDeletedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -128,7 +128,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleChannelPinsUpdated(AsyncEventHandler<DiscordClient, ChannelPinsUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(ChannelPinsUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ChannelPinsUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -138,7 +138,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildCreated(AsyncEventHandler<DiscordClient, GuildCreatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(GuildCreatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildCreatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -148,7 +148,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildAvailable(AsyncEventHandler<DiscordClient, GuildAvailableEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(GuildAvailableEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildAvailableEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -158,7 +158,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildUpdated(AsyncEventHandler<DiscordClient, GuildUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(GuildUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -168,7 +168,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildDeleted(AsyncEventHandler<DiscordClient, GuildDeletedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(GuildDeletedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildDeletedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -178,7 +178,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildUnavailable(AsyncEventHandler<DiscordClient, GuildUnavailableEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(GuildUnavailableEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildUnavailableEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -193,7 +193,7 @@ public sealed class EventHandlingBuilder
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers[typeof(GuildDownloadCompletedEventArgs)].Add(handler)
+            c => c.DelegateHandlers.GetOrAdd(typeof(GuildDownloadCompletedEventArgs), _ => []).Add(handler)
         );
 
         return this;
@@ -205,7 +205,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildEmojisUpdated(AsyncEventHandler<DiscordClient, GuildEmojisUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(GuildEmojisUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildEmojisUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -215,7 +215,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildStickersUpdated(AsyncEventHandler<DiscordClient, GuildStickersUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(GuildStickersUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildStickersUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -229,7 +229,7 @@ public sealed class EventHandlingBuilder
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers[typeof(GuildIntegrationsUpdatedEventArgs)].Add(handler)
+            c => c.DelegateHandlers.GetOrAdd(typeof(GuildIntegrationsUpdatedEventArgs), _ => []).Add(handler)
         );
 
         return this;
@@ -240,7 +240,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildAuditLogCreated(AsyncEventHandler<DiscordClient, GuildAuditLogCreatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(GuildAuditLogCreatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildAuditLogCreatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -254,7 +254,7 @@ public sealed class EventHandlingBuilder
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers[typeof(ScheduledGuildEventCreatedEventArgs)].Add(handler)
+            c => c.DelegateHandlers.GetOrAdd(typeof(ScheduledGuildEventCreatedEventArgs), _ => []).Add(handler)
         );
 
         return this;
@@ -270,7 +270,7 @@ public sealed class EventHandlingBuilder
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers[typeof(ScheduledGuildEventUpdatedEventArgs)].Add(handler)
+            c => c.DelegateHandlers.GetOrAdd(typeof(ScheduledGuildEventUpdatedEventArgs), _ => []).Add(handler)
         );
 
         return this;
@@ -286,7 +286,7 @@ public sealed class EventHandlingBuilder
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers[typeof(ScheduledGuildEventDeletedEventArgs)].Add(handler)
+            c => c.DelegateHandlers.GetOrAdd(typeof(ScheduledGuildEventDeletedEventArgs), _ => []).Add(handler)
         );
 
         return this;
@@ -302,7 +302,7 @@ public sealed class EventHandlingBuilder
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers[typeof(ScheduledGuildEventCompletedEventArgs)].Add(handler)
+            c => c.DelegateHandlers.GetOrAdd(typeof(ScheduledGuildEventCompletedEventArgs), _ => []).Add(handler)
         );
 
         return this;
@@ -318,7 +318,7 @@ public sealed class EventHandlingBuilder
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers[typeof(ScheduledGuildEventUserAddedEventArgs)].Add(handler)
+            c => c.DelegateHandlers.GetOrAdd(typeof(ScheduledGuildEventUserAddedEventArgs), _ => []).Add(handler)
         );
 
         return this;
@@ -334,7 +334,7 @@ public sealed class EventHandlingBuilder
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers[typeof(ScheduledGuildEventUserRemovedEventArgs)].Add(handler)
+            c => c.DelegateHandlers.GetOrAdd(typeof(ScheduledGuildEventUserRemovedEventArgs), _ => []).Add(handler)
         );
 
         return this;
@@ -346,7 +346,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildBanAdded(AsyncEventHandler<DiscordClient, GuildBanAddedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(GuildBanAddedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildBanAddedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -356,7 +356,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildBanRemoved(AsyncEventHandler<DiscordClient, GuildBanRemovedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(GuildBanRemovedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildBanRemovedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -366,7 +366,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildMemberAdded(AsyncEventHandler<DiscordClient, GuildMemberAddedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(GuildMemberAddedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildMemberAddedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -376,7 +376,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildMemberRemoved(AsyncEventHandler<DiscordClient, GuildMemberRemovedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(GuildMemberRemovedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildMemberRemovedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -386,7 +386,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildMemberUpdated(AsyncEventHandler<DiscordClient, GuildMemberUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(GuildMemberUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildMemberUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -395,7 +395,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildMembersChunked(AsyncEventHandler<DiscordClient, GuildMembersChunkedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(GuildMembersChunkedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildMembersChunkedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -405,7 +405,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildRoleCreated(AsyncEventHandler<DiscordClient, GuildRoleCreatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(GuildRoleCreatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildRoleCreatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -415,7 +415,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildRoleUpdated(AsyncEventHandler<DiscordClient, GuildRoleUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(GuildRoleUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildRoleUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -425,7 +425,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildRoleDeleted(AsyncEventHandler<DiscordClient, GuildRoleDeletedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(GuildRoleDeletedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildRoleDeletedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -435,7 +435,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleInviteCreated(AsyncEventHandler<DiscordClient, InviteCreatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(InviteCreatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(InviteCreatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -445,7 +445,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleInviteDeleted(AsyncEventHandler<DiscordClient, InviteDeletedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(InviteDeletedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(InviteDeletedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -456,7 +456,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleMessageCreated(AsyncEventHandler<DiscordClient, MessageCreatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(MessageCreatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(MessageCreatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -467,7 +467,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleMessageUpdated(AsyncEventHandler<DiscordClient, MessageUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(MessageUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(MessageUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -478,7 +478,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleMessageDeleted(AsyncEventHandler<DiscordClient, MessageDeletedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(MessageDeletedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(MessageDeletedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -489,7 +489,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleMessagesBulkDeleted(AsyncEventHandler<DiscordClient, MessagesBulkDeletedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(MessagesBulkDeletedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(MessagesBulkDeletedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -498,7 +498,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleMessagePollVoted(AsyncEventHandler<DiscordClient, MessagePollVotedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(MessagePollVotedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(MessagePollVotedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -508,7 +508,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleMessageReactionAdded(AsyncEventHandler<DiscordClient, MessageReactionAddedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(MessageReactionAddedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(MessageReactionAddedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -523,7 +523,7 @@ public sealed class EventHandlingBuilder
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers[typeof(MessageReactionRemovedEventArgs)].Add(handler)
+            c => c.DelegateHandlers.GetOrAdd(typeof(MessageReactionRemovedEventArgs), _ => []).Add(handler)
         );
 
         return this;
@@ -540,7 +540,7 @@ public sealed class EventHandlingBuilder
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers[typeof(MessageReactionsClearedEventArgs)].Add(handler)
+            c => c.DelegateHandlers.GetOrAdd(typeof(MessageReactionsClearedEventArgs), _ => []).Add(handler)
         );
 
         return this;
@@ -557,7 +557,7 @@ public sealed class EventHandlingBuilder
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers[typeof(MessageReactionRemovedEmojiEventArgs)].Add(handler)
+            c => c.DelegateHandlers.GetOrAdd(typeof(MessageReactionRemovedEmojiEventArgs), _ => []).Add(handler)
         );
 
         return this;
@@ -569,7 +569,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandlePresenceUpdated(AsyncEventHandler<DiscordClient, PresenceUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(PresenceUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(PresenceUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -579,7 +579,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleUserSettingsUpdated(AsyncEventHandler<DiscordClient, UserSettingsUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(UserSettingsUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(UserSettingsUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -592,7 +592,7 @@ public sealed class EventHandlingBuilder
     /// </remarks>
     public EventHandlingBuilder HandleUserUpdated(AsyncEventHandler<DiscordClient, UserUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(UserUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(UserUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -602,7 +602,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleVoiceStateUpdated(AsyncEventHandler<DiscordClient, VoiceStateUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(VoiceStateUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(VoiceStateUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -612,7 +612,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleVoiceServerUpdated(AsyncEventHandler<DiscordClient, VoiceServerUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(VoiceServerUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(VoiceServerUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -622,7 +622,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleThreadCreated(AsyncEventHandler<DiscordClient, ThreadCreatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(ThreadCreatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ThreadCreatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -632,7 +632,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleThreadUpdated(AsyncEventHandler<DiscordClient, ThreadUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(ThreadUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ThreadUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -642,7 +642,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleThreadDeleted(AsyncEventHandler<DiscordClient, ThreadDeletedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(ThreadDeletedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ThreadDeletedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -652,7 +652,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleThreadListSynced(AsyncEventHandler<DiscordClient, ThreadListSyncedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(ThreadListSyncedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ThreadListSyncedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -665,7 +665,7 @@ public sealed class EventHandlingBuilder
     /// </remarks>
     public EventHandlingBuilder HandleThreadMemberUpdated(AsyncEventHandler<DiscordClient, ThreadMemberUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(ThreadMemberUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ThreadMemberUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -675,7 +675,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleThreadMembersUpdated(AsyncEventHandler<DiscordClient, ThreadMembersUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(ThreadMembersUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ThreadMembersUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -684,7 +684,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleIntegrationCreated(AsyncEventHandler<DiscordClient, IntegrationCreatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(IntegrationCreatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(IntegrationCreatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -693,7 +693,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleIntegrationUpdated(AsyncEventHandler<DiscordClient, IntegrationUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(IntegrationUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(IntegrationUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -702,7 +702,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleIntegrationDeleted(AsyncEventHandler<DiscordClient, IntegrationDeletedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(IntegrationDeletedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(IntegrationDeletedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -711,7 +711,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleStageInstanceCreated(AsyncEventHandler<DiscordClient, StageInstanceCreatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(StageInstanceCreatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(StageInstanceCreatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -720,7 +720,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleStageInstanceUpdated(AsyncEventHandler<DiscordClient, StageInstanceUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(StageInstanceUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(StageInstanceUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -729,7 +729,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleStageInstanceDeleted(AsyncEventHandler<DiscordClient, StageInstanceDeletedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(StageInstanceDeletedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(StageInstanceDeletedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -738,7 +738,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleInteractionCreated(AsyncEventHandler<DiscordClient, InteractionCreatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(InteractionCreatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(InteractionCreatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -752,7 +752,7 @@ public sealed class EventHandlingBuilder
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers[typeof(ComponentInteractionCreatedEventArgs)].Add(handler)
+            c => c.DelegateHandlers.GetOrAdd(typeof(ComponentInteractionCreatedEventArgs), _ => []).Add(handler)
         );
 
         return this;
@@ -763,7 +763,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleModalSubmitted(AsyncEventHandler<DiscordClient, ModalSubmittedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(ModalSubmittedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ModalSubmittedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -777,7 +777,7 @@ public sealed class EventHandlingBuilder
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers[typeof(ContextMenuInteractionCreatedEventArgs)].Add(handler)
+            c => c.DelegateHandlers.GetOrAdd(typeof(ContextMenuInteractionCreatedEventArgs), _ => []).Add(handler)
         );
 
         return this;
@@ -788,7 +788,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleTypingStarted(AsyncEventHandler<DiscordClient, TypingStartedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(TypingStartedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(TypingStartedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -797,7 +797,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleUnknownEvent(AsyncEventHandler<DiscordClient, UnknownEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(UnknownEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(UnknownEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -806,7 +806,7 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleWebhooksUpdated(AsyncEventHandler<DiscordClient, WebhooksUpdatedEventArgs> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers[typeof(WebhooksUpdatedEventArgs)].Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(WebhooksUpdatedEventArgs), _ => []).Add(handler));
         return this;
     }
 
@@ -820,7 +820,7 @@ public sealed class EventHandlingBuilder
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers[typeof(AutoModerationRuleCreatedEventArgs)].Add(handler)
+            c => c.DelegateHandlers.GetOrAdd(typeof(AutoModerationRuleCreatedEventArgs), _ => []).Add(handler)
         );
 
         return this;
@@ -836,7 +836,7 @@ public sealed class EventHandlingBuilder
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers[typeof(AutoModerationRuleUpdatedEventArgs)].Add(handler)
+            c => c.DelegateHandlers.GetOrAdd(typeof(AutoModerationRuleUpdatedEventArgs), _ => []).Add(handler)
         );
 
         return this;
@@ -852,7 +852,7 @@ public sealed class EventHandlingBuilder
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers[typeof(AutoModerationRuleDeletedEventArgs)].Add(handler)
+            c => c.DelegateHandlers.GetOrAdd(typeof(AutoModerationRuleDeletedEventArgs), _ => []).Add(handler)
         );
 
         return this;
@@ -868,7 +868,7 @@ public sealed class EventHandlingBuilder
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers[typeof(AutoModerationRuleExecutedEventArgs)].Add(handler)
+            c => c.DelegateHandlers.GetOrAdd(typeof(AutoModerationRuleExecutedEventArgs), _ => []).Add(handler)
         );
 
         return this;
