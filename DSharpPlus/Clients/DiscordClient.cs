@@ -106,7 +106,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// Gets a dictionary of DM channels that have been cached by this client. The dictionary's key is the channel
     /// ID.
     /// </summary>
-    public IReadOnlyDictionary<ulong, DiscordDmChannel> PrivateChannels { get; }
+    public IReadOnlyDictionary<ulong, DiscordDmChannel> PrivateChannels => this.privateChannels;
     internal ConcurrentDictionary<ulong, DiscordDmChannel> privateChannels = new();
 
     /// <summary>
@@ -114,7 +114,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// guild objects in this dictionary will not be filled in if the specific guilds aren't available (the
     /// <see cref="GuildAvailable"/> or <see cref="GuildDownloadCompleted"/> events haven't been fired yet)
     /// </summary>
-    public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds { get; }
+    public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds => this.guilds;
     internal ConcurrentDictionary<ulong, DiscordGuild> guilds = new();
 
     /// <summary>
