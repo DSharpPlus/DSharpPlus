@@ -1135,7 +1135,7 @@ public sealed class DiscordApiClient
         RestRequest request = new()
         {
             Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBER_VERIFICATION}",
-            Url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBER_VERIFICATION}",
+            Url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBER_VERIFICATION}",https://github.com/DSharpPlus/DSharpPlus/blob/master/DSharpPlus/Net/Rest/DiscordApiClient.cs#L5931-L5937
             Method = HttpMethod.Patch,
             Payload = DiscordJson.SerializeObject(payload)
         };
@@ -5933,7 +5933,8 @@ public sealed class DiscordApiClient
                 Route = route,
                 Url = url,
                 Method = HttpMethod.Post,
-                Payload = DiscordJson.SerializeObject(payload)
+                Payload = DiscordJson.SerializeObject(payload),
+                IsExemptFromGlobalLimit = true
             };
 
             await this.rest.ExecuteRequestAsync(request);
