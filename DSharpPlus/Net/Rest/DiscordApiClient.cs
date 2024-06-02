@@ -5933,7 +5933,8 @@ public sealed class DiscordApiClient
                 Route = route,
                 Url = url,
                 Method = HttpMethod.Post,
-                Payload = DiscordJson.SerializeObject(payload)
+                Payload = DiscordJson.SerializeObject(payload),
+                IsExemptFromGlobalLimit = true
             };
 
             await this.rest.ExecuteRequestAsync(request);
