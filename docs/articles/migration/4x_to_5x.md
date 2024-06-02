@@ -15,7 +15,7 @@ The first change you will likely encounter is a rewrite to how bots are set up. 
 The simplest way to get a bot running is to use `DSharpPlus.DiscordClientBuilder`. To get started, create a new builder as follows: 
 
 ```cs
-DiscordClientBuilder builder = DiscordClientBuilder.Default(string token, DiscordIntents intents);
+DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(string token, DiscordIntents intents);
 ```
 
 Then, migrate your configuration options. Rest-related settings from your old DiscordConfiguration are covered by `DiscordClientBuilder.ConfigureRestClient`, gateway-related settings are covered by `DiscordClientBuilder.ConfigureGatewayClient`.

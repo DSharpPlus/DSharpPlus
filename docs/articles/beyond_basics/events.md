@@ -16,7 +16,7 @@ Below is a snippet demonstrating this with a lambda expression.
 ```cs
 private async Task Main(string[] args)
 {
-    DiscordClientBuilder builder = DiscordClientBuilder.Default( /* token and intents */ );
+    DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault( /* token and intents */ );
 
     builder.ConfigureEventHandlers
     (
@@ -43,7 +43,7 @@ Alternatively, you can create a new method to consume an event.
 ```cs
 private async Task Main(string[] args)
 {
-    DiscordClientBuilder builder = DiscordClientBuilder.Default( /* token and intents */ );
+    DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault( /* token and intents */ );
 
     builder.ConfigureEventHandlers
     (

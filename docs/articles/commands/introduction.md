@@ -21,7 +21,7 @@ public async Task Main(string[] args)
         Environment.Exit(1);
     }
 
-    DiscordClientBuilder builder = DiscordClientBuilder.Default(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
+    DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
     DiscordClient discordClient = builder.Build();
 
     // Use the commands extension

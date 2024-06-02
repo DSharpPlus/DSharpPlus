@@ -31,7 +31,7 @@ enabled during initial development, so you should specify @DSharpPlus.DiscordInt
 privleged intents you enabled in your application:
 
 ```csharp
-DiscordClientBuilder builder = DiscordClientBuilder.Default(token, DiscordIntents.All);
+DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(token, DiscordIntents.All);
 ```
 
 When you become more advanced, you should try experimenting with turning off intents you do not need in order to save
@@ -40,13 +40,13 @@ resources. In your DiscordClientBuilder you can specify one or many.
 Here is an example of just specifying one:
 
 ```csharp
-DiscordClientBuilder builder = DiscordClientBuilder.Default(token, DiscordIntents.GuildMessages);
+DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(token, DiscordIntents.GuildMessages);
 ```
 
 Here is an example of specifying many:
 
 ```csharp
-DiscordClientBuilder builder = DiscordClientBuilder.Default
+DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault
 (
     token, 
     DiscordIntents.DirectMessageReactions 

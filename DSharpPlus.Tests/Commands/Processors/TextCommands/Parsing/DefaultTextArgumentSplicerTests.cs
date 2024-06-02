@@ -15,7 +15,7 @@ public sealed class DefaultTextArgumentSplicerTests
     [OneTimeSetUp]
     public static async Task CreateExtensionAsync()
     {
-        DiscordClientBuilder builder = DiscordClientBuilder.Default("faketoken", DiscordIntents.None);
+        DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault("faketoken", DiscordIntents.None);
         DiscordClient client = builder.Build();
 
         extension = client.UseCommands();

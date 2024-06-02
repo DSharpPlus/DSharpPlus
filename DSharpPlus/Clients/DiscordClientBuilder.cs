@@ -33,7 +33,12 @@ public sealed class DiscordClientBuilder
     /// <param name="intents">The intents to connect to the gateway with.</param>
     /// <param name="serviceCollection">The service collection to base this builder on.</param>
     /// <returns>A new DiscordClientBuilder.</returns>
-    public static DiscordClientBuilder Default(string token, DiscordIntents intents, IServiceCollection? serviceCollection = null)
+    public static DiscordClientBuilder CreateDefault
+    (
+        string token,
+        DiscordIntents intents,
+        IServiceCollection? serviceCollection = null
+    )
     {
         serviceCollection ??= new ServiceCollection();
 

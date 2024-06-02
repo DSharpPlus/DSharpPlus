@@ -104,7 +104,7 @@ and populate the @DSharpPlus.DiscordConfiguration.Token property with your bot t
 These Intents are required for certain events to be fired. Please visit this [article][14] for more information.
 
 ```cs
-DiscordClientBuilder builder = DiscordClientBuilder.Default("My First Token", DiscordIntents.AllUnprivileged);
+DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault("My First Token", DiscordIntents.AllUnprivileged);
 DiscordClient client = builder.Build();
 ```
 
@@ -145,7 +145,7 @@ If your bot has over 100 guilds, you'll need approval from Discord's end.
 After enabling the intent in the developer dashboard, you have to specify your intents to the client:
 
 ```cs
-DiscordClientBuilder builder = DiscordClientBuilder.Default("My First Token", DiscordIntents.AllUnprivileged | DiscordIntents.MessageContent);
+DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault("My First Token", DiscordIntents.AllUnprivileged | DiscordIntents.MessageContent);
 ```
 
 Now you can start to listen to messages.
@@ -192,7 +192,7 @@ namespace MyFirstBot
     {
         static async Task Main(string[] args)
         {
-            DiscordClientBuilder builder = DiscordClientBuilder.Default("My First Token", DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents);
+            DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault("My First Token", DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents);
 
             builder.ConfigureEvents
             (

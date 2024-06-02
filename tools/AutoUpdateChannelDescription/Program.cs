@@ -25,7 +25,7 @@ public sealed class Program
         string githubUrl = Environment.GetEnvironmentVariable("GITHUB_URL") ?? throw new InvalidOperationException("GITHUB_URL environment variable is not set.");
         string? latestStableVersion = Environment.GetEnvironmentVariable("LATEST_STABLE_VERSION");
 
-        DiscordClientBuilder builder = DiscordClientBuilder.Default(token, DiscordIntents.Guilds)
+        DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(token, DiscordIntents.Guilds)
             .ConfigureEventHandlers
             (
                  b => b.HandleGuildDownloadCompleted(OnGuildDownloadCompletedAsync)
