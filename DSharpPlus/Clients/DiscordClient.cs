@@ -53,6 +53,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     private CancellationTokenSource cancelTokenSource;
     private CancellationToken cancelToken;
     private readonly ManualResetEventSlim sessionLock = new(true);
+    private readonly string token;
 
     private readonly ManualResetEventSlim connectionLock = new(true);
 
@@ -144,7 +145,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
         IOptions<EventHandlerCollection> eventHandlers,
         IClientErrorHandler errorHandler,
         PayloadDecompressor decompressor,
-        IOptions<DiscordConfiguration> configuration
+        IOptions<DiscordConfiguration> configuration,
+        IOptions<TokenContainer> token
     )
         : base()
     {
@@ -156,6 +158,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.payloadDecompressor = decompressor;
         this.errorHandler = errorHandler;
         this.Configuration = configuration.Value;
+        this.token = token.Value.GetToken();
 
         this.ApiClient.SetClient(this);
 
