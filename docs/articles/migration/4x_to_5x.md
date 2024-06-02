@@ -8,7 +8,7 @@ title: Migration 4.x - 5.x
 > ![NOTE]
 > The API surface of DSharpPlus 5.x is not stable yet. This migration guide may be incomplete or outdated. It is recommended to cross-reference with the [tracking issue](https://github.com/DSharpPlus/DSharpPlus/issues/1585) when migrating.
 
-The first change you will likely encounter is a rewrite to how bots are set up. We now support two approaches to the problem instead of the old approach:
+The first change you will likely encounter is a rewrite to how bots are set up. We now support two approaches instead of the old approach:
 
 # [DiscordClientBuilder](#tab/discordclientbuilder)
 
