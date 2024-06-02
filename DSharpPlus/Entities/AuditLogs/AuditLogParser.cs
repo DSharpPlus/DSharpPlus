@@ -653,7 +653,7 @@ internal static class AuditLogParser
                 threads.TryGetValue(auditLogAction.TargetId!.Value,
                     out DiscordThreadChannel? channel)
                     ? channel
-                    : new DiscordThreadChannel() { Id = auditLogAction.TargetId.Value, Discord = guild.Discord },
+                    : new DiscordThreadChannel() { Id = auditLogAction.TargetId.Value, Discord = guild.Discord, GuildId = guild.Id}
         };
 
         foreach (AuditLogActionChange change in auditLogAction.Changes)
