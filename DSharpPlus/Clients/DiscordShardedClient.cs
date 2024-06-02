@@ -277,7 +277,8 @@ public sealed partial class DiscordShardedClient
                 Options.Create(new EventHandlerCollection()),
                 errorHandler,
                 new PayloadDecompressor(Options.Create(this.Configuration)),
-                Options.Create(cfg)
+                Options.Create(cfg),
+                Options.Create(new TokenContainer() { GetToken = () => this.Configuration.Token })
             );
 
             if (!this.shards.TryAdd(i, client))

@@ -433,7 +433,7 @@ public sealed partial class DiscordClient
     {
         GatewayIdentify identify = new()
         {
-            Token = Utilities.GetFormattedToken(this),
+            Token = $"Bot {this.token}",
             Compress = this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Payload,
             LargeThreshold = this.Configuration.LargeThreshold,
             ShardInfo = new ShardInfo
