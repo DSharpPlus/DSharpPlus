@@ -53,7 +53,7 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
                 continue;
             }
             // Check to see if the method signature is valid.
-            else if (command.Parameters[0].Type != typeof(DiscordUser) && command.Parameters[0].Type != typeof(DiscordMember))
+            else if (command.Parameters.Count < 1 || (command.Parameters[0].Type != typeof(DiscordUser) && command.Parameters[0].Type != typeof(DiscordMember)))
             {
                 logger.LogError("User command '{CommandName}' must have a single parameter of type DiscordUser or DiscordMember.", command.Name);
                 continue;

@@ -1990,13 +1990,7 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
 
-        DiscordChannel ret = JsonConvert.DeserializeObject<DiscordChannel>(res.Response!)!;
-
-        // this is really weird, we should consider doing this better
-        if (ret.IsThread)
-        {
-            ret = JsonConvert.DeserializeObject<DiscordThreadChannel>(res.Response!)!;
-        }
+        DiscordChannel ret = DiscordJson.ToDiscordObject<DiscordChannel>(res.Response!)!;
 
         ret.Discord = this.discord!;
         foreach (DiscordOverwrite xo in ret.permissionOverwrites)
@@ -5935,7 +5929,8 @@ public sealed class DiscordApiClient
                 Route = route,
                 Url = url,
                 Method = HttpMethod.Post,
-                Payload = DiscordJson.SerializeObject(payload)
+                Payload = DiscordJson.SerializeObject(payload),
+                IsExemptFromGlobalLimit = true
             };
 
             await this.rest.ExecuteRequestAsync(request);
