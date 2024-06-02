@@ -50,7 +50,7 @@ public static class ChannelExtensions
     /// <param name="user">The target user.</param>
     /// <param name="timeoutOverride">Overrides the timeout set in <see cref="InteractivityConfiguration.Timeout"/></param>
     /// <exception cref="InvalidOperationException">Thrown if interactivity is not enabled for the client associated with the channel.</exception>
-    public static Task<InteractivityResult<TypingStartEventArgs>> WaitForUserTypingAsync(this DiscordChannel channel, DiscordUser user, TimeSpan? timeoutOverride = null)
+    public static Task<InteractivityResult<TypingStartedEventArgs>> WaitForUserTypingAsync(this DiscordChannel channel, DiscordUser user, TimeSpan? timeoutOverride = null)
         => GetInteractivity(channel).WaitForUserTypingAsync(user, channel, timeoutOverride);
 
     /// <summary>

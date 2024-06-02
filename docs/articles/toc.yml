@@ -99,6 +99,8 @@
     topicUid: articles.migration.2x_to_3x
   - name: 3.x to 4.x
     topicUid: articles.migration.3x_to_4x
+  - name: 4.x to 5.x
+    topicUid: articles.migration.4x_to_5x
   - name: DSharpPlus.SlashCommands to DSharpPlus.Commands
     topicUid: articles.migration.slashcommands_to_commands
 - name: Miscellaneous

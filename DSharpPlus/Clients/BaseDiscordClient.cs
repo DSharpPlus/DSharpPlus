@@ -6,10 +6,11 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+
 using DSharpPlus.Entities;
-using DSharpPlus.Logging;
 using DSharpPlus.Metrics;
 using DSharpPlus.Net;
+
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus;
@@ -19,13 +20,13 @@ namespace DSharpPlus;
 /// </summary>
 public abstract class BaseDiscordClient : IDisposable
 {
-    protected internal DiscordApiClient ApiClient { get; }
-    protected internal DiscordConfiguration Configuration { get; }
+    protected internal DiscordApiClient ApiClient { get; internal init; }
+    protected internal DiscordConfiguration Configuration { get; internal init; }
 
     /// <summary>
     /// Gets the instance of the logger for this client.
     /// </summary>
-    public ILogger<BaseDiscordClient> Logger { get; }
+    public ILogger Logger { get; internal init; }
 
     /// <summary>
     /// Gets the string representing the version of D#+.
@@ -67,21 +68,8 @@ public abstract class BaseDiscordClient : IDisposable
     /// <summary>
     /// Initializes this Discord API client.
     /// </summary>
-    /// <param name="config">Configuration for this client.</param>
-    /// <param name="rest_client">Restclient which will be used for the underlying ApiClients</param>
-    internal BaseDiscordClient(DiscordConfiguration config, RestClient? rest_client = null)
+    internal BaseDiscordClient()
     {
-        this.Configuration = new DiscordConfiguration(config);
-
-        if (this.Configuration.LoggerFactory == null)
-        {
-            this.Configuration.LoggerFactory = new DefaultLoggerFactory();
-            this.Configuration.LoggerFactory.AddProvider(new DefaultLoggerProvider(config.MinimumLogLevel));
-        }
-
-        this.Logger = this.Configuration.LoggerFactory.CreateLogger<BaseDiscordClient>();
-
-        this.ApiClient = new DiscordApiClient(this, rest_client);
         this.UserCache = new ConcurrentDictionary<ulong, DiscordUser>();
         this.InternalVoiceRegions = new ConcurrentDictionary<string, DiscordVoiceRegion>();
         this.voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this.InternalVoiceRegions));

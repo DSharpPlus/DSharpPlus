@@ -19,7 +19,7 @@ public partial class DiscordThreadChannelConverter : ISlashArgumentConverter<Dis
     public string ReadableName => "Discord Thread";
     public bool RequiresText => true;
 
-    public Task<Optional<DiscordThreadChannel>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
+    public Task<Optional<DiscordThreadChannel>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs)
     {
         if (context.Guild is null)
         {
@@ -43,7 +43,7 @@ public partial class DiscordThreadChannelConverter : ISlashArgumentConverter<Dis
             : Task.FromResult(Optional.FromNoValue<DiscordThreadChannel>());
     }
 
-    public Task<Optional<DiscordThreadChannel>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => context.Interaction.Data.Resolved is null
+    public Task<Optional<DiscordThreadChannel>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs) => context.Interaction.Data.Resolved is null
         || !ulong.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out ulong channelId)
         || !context.Interaction.Data.Resolved.Channels.TryGetValue(channelId, out DiscordChannel? channel)
             ? Task.FromResult(Optional.FromNoValue<DiscordThreadChannel>())

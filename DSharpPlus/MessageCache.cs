@@ -1,19 +1,30 @@
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 
 namespace DSharpPlus;
 
-internal class MessageCache : IMessageCacheProvider
+public class MessageCache : IMessageCacheProvider
 {
-    private readonly MemoryCache cache;
+    private readonly IMemoryCache cache;
     private readonly MemoryCacheEntryOptions entryOptions;
+
+    public MessageCache(IMemoryCache cache)
+    {
+        this.cache = cache;
+
+        this.entryOptions = new MemoryCacheEntryOptions()
+        {
+            Size = 1,
+        };
+    }
 
     internal MessageCache(int capacity)
     {
-        this.cache = new MemoryCache(new MemoryCacheOptions()
+        this.cache = new MemoryCache(Options.Create(new MemoryCacheOptions
         {
-            SizeLimit = capacity,
-        });
+            SizeLimit = capacity
+        }));
 
         this.entryOptions = new MemoryCacheEntryOptions()
         {

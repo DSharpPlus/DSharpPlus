@@ -15,7 +15,7 @@ internal sealed class LavalinkVoiceServerUpdate
     [JsonProperty("endpoint")]
     public string Endpoint { get; }
 
-    internal LavalinkVoiceServerUpdate(VoiceServerUpdateEventArgs vsu)
+    internal LavalinkVoiceServerUpdate(VoiceServerUpdatedEventArgs vsu)
     {
         this.Token = vsu.VoiceToken;
         this.GuildId = vsu.Guild.Id.ToString(CultureInfo.InvariantCulture);
@@ -31,7 +31,7 @@ internal sealed class LavalinkVoiceUpdate : LavalinkPayload
     [JsonProperty("event")]
     internal LavalinkVoiceServerUpdate Event { get; }
 
-    public LavalinkVoiceUpdate(VoiceStateUpdateEventArgs vstu, VoiceServerUpdateEventArgs vsrvu)
+    public LavalinkVoiceUpdate(VoiceStateUpdatedEventArgs vstu, VoiceServerUpdatedEventArgs vsrvu)
         : base("voiceUpdate", vstu.Guild.Id.ToString(CultureInfo.InvariantCulture))
     {
         this.SessionId = vstu.SessionId;

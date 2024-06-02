@@ -14,14 +14,14 @@ public class EnumConverter : ISlashArgumentConverter<Enum>, ITextArgumentConvert
     public string ReadableName => "Multiple Choice";
     public bool RequiresText => true;
 
-    public Task<Optional<Enum>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
+    public Task<Optional<Enum>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs)
     {
         return Task.FromResult(Enum.TryParse(context.Parameter.Type, context.Argument, true, out object? result)
             ? Optional.FromValue((Enum)result)
             : Optional.FromNoValue<Enum>());
     }
 
-    public Task<Optional<Enum>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs)
+    public Task<Optional<Enum>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs)
     {
         Type effectiveType = Nullable.GetUnderlyingType(context.Parameter.Type) ?? context.Parameter.Type;
 

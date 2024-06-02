@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Builders;
@@ -15,6 +16,7 @@ using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.CommandsNext.Executors;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -38,7 +40,7 @@ public class CommandsNextExtension : BaseExtension
     /// Gets the service provider this CommandsNext module was configured with.
     /// </summary>
     public IServiceProvider Services
-        => this.Config.Services;
+        => this.Client.ServiceProvider;
 
     internal CommandsNextExtension(CommandsNextConfiguration cfg)
     {
@@ -168,8 +170,10 @@ public class CommandsNextExtension : BaseExtension
 
         this.Client = client;
 
-        this.executed = new AsyncEvent<CommandsNextExtension, CommandExecutionEventArgs>("COMMAND_EXECUTED", this.Client.EventErrorHandler);
-        this.error = new AsyncEvent<CommandsNextExtension, CommandErrorEventArgs>("COMMAND_ERRORED", this.Client.EventErrorHandler);
+        DefaultClientErrorHandler errorHandler = new(client.Logger);
+
+        this.executed = new AsyncEvent<CommandsNextExtension, CommandExecutionEventArgs>(errorHandler);
+        this.error = new AsyncEvent<CommandsNextExtension, CommandErrorEventArgs>(errorHandler);
 
         if (this.Config.UseDefaultCommandHandler)
         {
@@ -211,7 +215,7 @@ public class CommandsNextExtension : BaseExtension
     #endregion
 
     #region Command Handling
-    private async Task HandleCommandsAsync(DiscordClient sender, MessageCreateEventArgs e)
+    private async Task HandleCommandsAsync(DiscordClient sender, MessageCreatedEventArgs e)
     {
         if (e.Author.IsBot) // bad bot
         {

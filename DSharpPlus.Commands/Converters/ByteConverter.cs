@@ -13,11 +13,11 @@ public class ByteConverter : ISlashArgumentConverter<byte>, ITextArgumentConvert
     public string ReadableName => "Positive Tiny Integer";
     public bool RequiresText => true;
 
-    public Task<Optional<byte>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => byte.TryParse(context.Argument, CultureInfo.InvariantCulture, out byte result)
+    public Task<Optional<byte>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs) => byte.TryParse(context.Argument, CultureInfo.InvariantCulture, out byte result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<byte>());
 
-    public Task<Optional<byte>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => byte.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out byte result)
+    public Task<Optional<byte>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs) => byte.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out byte result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<byte>());
 }

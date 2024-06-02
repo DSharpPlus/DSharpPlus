@@ -21,11 +21,8 @@ public async Task Main(string[] args)
         Environment.Exit(1);
     }
 
-    DiscordClient discordClient = new(new DiscordConfiguration()
-    {
-        Token = discordToken,
-        Intents = TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents
-    });
+    DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
+    DiscordClient discordClient = builder.Build();
 
     // Use the commands extension
     CommandsExtension commandsExtension = discordClient.UseCommands(new CommandsConfiguration()
@@ -55,23 +52,15 @@ public async Task Main(string[] args)
 In the main logic of your program, we're going to register the `DiscordClient` to your service provider. I've chosen to do it like such:
 
 ```cs
-serviceCollection.AddSingleton(_ =>
+string discordToken = Environment.GetEnvironmentVariable("DISCORD_TOKEN");
+
+if (string.IsNullOrWhiteSpace(discordToken))
 {
-    string discordToken = Environment.GetEnvironmentVariable("DISCORD_TOKEN");
-    if (string.IsNullOrWhiteSpace(discordToken))
-    {
-        Console.WriteLine("Error: No discord token found. Please provide a token via the DISCORD_TOKEN environment variable.");
-        Environment.Exit(1);
-    }
+    Console.WriteLine("Error: No discord token found. Please provide a token via the DISCORD_TOKEN environment variable.");
+    Environment.Exit(1);
+}
 
-    DiscordClient discordClient = new(new DiscordConfiguration()
-    {
-        Token = discordToken,
-        Intents = TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents
-    });
-
-    return discordClient;
-});
+serviceCollection.AddDiscordClient(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
 ```
 
 And when your program actually starts, you'll want to register the command framework:

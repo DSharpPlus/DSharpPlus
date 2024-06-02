@@ -13,11 +13,11 @@ public class UInt16Converter : ISlashArgumentConverter<ushort>, ITextArgumentCon
     public string ReadableName => "Positive Small Integer";
     public bool RequiresText => true;
 
-    public Task<Optional<ushort>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => ushort.TryParse(context.Argument, CultureInfo.InvariantCulture, out ushort result)
+    public Task<Optional<ushort>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs) => ushort.TryParse(context.Argument, CultureInfo.InvariantCulture, out ushort result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<ushort>());
 
-    public Task<Optional<ushort>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => ushort.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out ushort result)
+    public Task<Optional<ushort>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs) => ushort.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out ushort result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<ushort>());
 }

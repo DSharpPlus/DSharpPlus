@@ -28,7 +28,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.Commands.Processors.SlashCommands;
 
-public sealed partial class SlashCommandProcessor : BaseCommandProcessor<InteractionCreateEventArgs, ISlashArgumentConverter, InteractionConverterContext, SlashCommandContext>
+public sealed partial class SlashCommandProcessor : BaseCommandProcessor<InteractionCreatedEventArgs, ISlashArgumentConverter, InteractionConverterContext, SlashCommandContext>
 {
     // Required for GuildDownloadCompleted event
     public const DiscordIntents RequiredIntents = DiscordIntents.Guilds;
@@ -73,7 +73,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
         }
     }
 
-    public async Task ExecuteInteractionAsync(DiscordClient client, InteractionCreateEventArgs eventArgs)
+    public async Task ExecuteInteractionAsync(DiscordClient client, InteractionCreatedEventArgs eventArgs)
     {
         if (this.extension is null)
         {
@@ -535,7 +535,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
         return localized;
     }
 
-    private async ValueTask<AutoCompleteContext?> ParseAutoCompleteArgumentsAsync(InteractionConverterContext converterContext, InteractionCreateEventArgs eventArgs)
+    private async ValueTask<AutoCompleteContext?> ParseAutoCompleteArgumentsAsync(InteractionConverterContext converterContext, InteractionCreatedEventArgs eventArgs)
     {
         if (this.extension is null)
         {
@@ -623,7 +623,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     public override SlashCommandContext CreateCommandContext
     (
         InteractionConverterContext converterContext,
-        InteractionCreateEventArgs eventArgs,
+        InteractionCreatedEventArgs eventArgs,
         Dictionary<CommandParameter, object?> parsedArguments
     )
     {
@@ -664,7 +664,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     (
         ISlashArgumentConverter converter,
         InteractionConverterContext converterContext,
-        InteractionCreateEventArgs eventArgs
+        InteractionCreatedEventArgs eventArgs
     )
     {
         if (converter is not ISlashArgumentConverter<T> typedConverter)
@@ -698,7 +698,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     public override async ValueTask<SlashCommandContext?> ParseArgumentsAsync
     (
         InteractionConverterContext converterContext,
-        InteractionCreateEventArgs eventArgs
+        InteractionCreatedEventArgs eventArgs
     )
     {
         if (this.extension is null)

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
@@ -10,7 +11,11 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Logging;
 using DSharpPlus.Net;
+using DSharpPlus.Net.WebSocket;
+
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace DSharpPlus;
 
@@ -227,7 +232,25 @@ public sealed partial class DiscordShardedClient
         }
 
         ShardedLoggerFactory loggerFactory = new(this.Configuration.LoggerFactory);
-        RestClient restClient = new(this.Configuration, loggerFactory.CreateLogger<RestClient>());
+
+        RestClient restClient = new
+        (
+            loggerFactory.CreateLogger<RestClient>(),
+            new HttpClient(),
+            Options.Create(new RestClientOptions
+            {
+                RatelimitRetryDelayFallback = this.Configuration.RatelimitRetryDelayFallback,
+                InitialRequestTimeout = this.Configuration.TimeoutForInitialApiRequest,
+                MaximumConcurrentRestRequests = this.Configuration.MaximumRestRequestsPerSecond,
+                MaximumRatelimitRetries = this.Configuration.MaximumRatelimitRetries,
+                Timeout = this.Configuration.HttpTimeout
+            }),
+            Options.Create(new TokenContainer
+            {
+                GetToken = () => this.Configuration.Token
+            })
+        );
+
         DiscordApiClient apiClient = new(restClient);
 
         this.GatewayInfo = await apiClient.GetGatewayInfoAsync();
@@ -242,7 +265,21 @@ public sealed partial class DiscordShardedClient
                 LoggerFactory = loggerFactory
             };
 
-            DiscordClient client = new(cfg, restClient);
+            IClientErrorHandler errorHandler = new DefaultClientErrorHandler(loggerFactory.CreateLogger<IClientErrorHandler>());
+
+            DiscordClient client = new
+            (
+                loggerFactory.CreateLogger<DiscordClient>(),
+                apiClient,
+                this.Configuration.MessageCacheProvider ?? new MessageCache(this.Configuration.MessageCacheSize),
+                new WebSocketClient(errorHandler),
+                new ServiceCollection().BuildServiceProvider(),
+                Options.Create(new EventHandlerCollection()),
+                errorHandler,
+                new PayloadDecompressor(Options.Create(this.Configuration)),
+                Options.Create(cfg)
+            );
+
             if (!this.shards.TryAdd(i, client))
             {
                 throw new InvalidOperationException("Could not initialize shards.");

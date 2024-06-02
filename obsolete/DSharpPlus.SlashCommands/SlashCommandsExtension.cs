@@ -66,14 +66,16 @@ public sealed partial class SlashCommandsExtension : BaseExtension
 
         this.Client = client;
 
-        this.slashError = new AsyncEvent<SlashCommandsExtension, SlashCommandErrorEventArgs>("SLASHCOMMAND_ERRORED", this.Client.EventErrorHandler);
-        this.slashInvoked = new AsyncEvent<SlashCommandsExtension, SlashCommandInvokedEventArgs>("SLASHCOMMAND_RECEIVED", this.Client.EventErrorHandler);
-        this.slashExecuted = new AsyncEvent<SlashCommandsExtension, SlashCommandExecutedEventArgs>("SLASHCOMMAND_EXECUTED", this.Client.EventErrorHandler);
-        this.contextMenuErrored = new AsyncEvent<SlashCommandsExtension, ContextMenuErrorEventArgs>("CONTEXTMENU_ERRORED", this.Client.EventErrorHandler);
-        this.contextMenuExecuted = new AsyncEvent<SlashCommandsExtension, ContextMenuExecutedEventArgs>("CONTEXTMENU_EXECUTED", this.Client.EventErrorHandler);
-        this.contextMenuInvoked = new AsyncEvent<SlashCommandsExtension, ContextMenuInvokedEventArgs>("CONTEXTMENU_RECEIVED", this.Client.EventErrorHandler);
-        this.autocompleteErrored = new AsyncEvent<SlashCommandsExtension, AutocompleteErrorEventArgs>("AUTOCOMPLETE_ERRORED", this.Client.EventErrorHandler);
-        this.autocompleteExecuted = new AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs>("AUTOCOMPLETE_EXECUTED", this.Client.EventErrorHandler);
+        DefaultClientErrorHandler errorHandler = new(client.Logger);
+
+        this.slashError = new AsyncEvent<SlashCommandsExtension, SlashCommandErrorEventArgs>(errorHandler);
+        this.slashInvoked = new AsyncEvent<SlashCommandsExtension, SlashCommandInvokedEventArgs>(errorHandler);
+        this.slashExecuted = new AsyncEvent<SlashCommandsExtension, SlashCommandExecutedEventArgs>(errorHandler);
+        this.contextMenuErrored = new AsyncEvent<SlashCommandsExtension, ContextMenuErrorEventArgs>(errorHandler);
+        this.contextMenuExecuted = new AsyncEvent<SlashCommandsExtension, ContextMenuExecutedEventArgs>(errorHandler);
+        this.contextMenuInvoked = new AsyncEvent<SlashCommandsExtension, ContextMenuInvokedEventArgs>(errorHandler);
+        this.autocompleteErrored = new AsyncEvent<SlashCommandsExtension, AutocompleteErrorEventArgs>(errorHandler);
+        this.autocompleteExecuted = new AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs>(errorHandler);
 
         this.Client.SessionCreated += Update;
         this.Client.InteractionCreated += InteractionHandler;
@@ -129,7 +131,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
     }
 
     //To be run on ready
-    internal Task Update(DiscordClient client, SessionReadyEventArgs e) => Update();
+    internal Task Update(DiscordClient client, SessionCreatedEventArgs e) => Update();
 
     //Actual method for registering, used for RegisterCommands and on Ready
     internal Task Update()
@@ -617,7 +619,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
 
     #region Handling
 
-    private Task InteractionHandler(DiscordClient client, InteractionCreateEventArgs e)
+    private Task InteractionHandler(DiscordClient client, InteractionCreatedEventArgs e)
     {
         _ = Task.Run(async () =>
         {
@@ -765,7 +767,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
         return Task.CompletedTask;
     }
 
-    private Task ContextMenuHandler(DiscordClient client, ContextMenuInteractionCreateEventArgs e)
+    private Task ContextMenuHandler(DiscordClient client, ContextMenuInteractionCreatedEventArgs e)
     {
         _ = Task.Run(async () =>
         {
@@ -947,7 +949,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
     }
 
     //Parses slash command parameters
-    private async Task<List<object>> ResolveInteractionCommandParametersAsync(InteractionCreateEventArgs e, InteractionContext context, MethodInfo method, IEnumerable<DiscordInteractionDataOption> options)
+    private async Task<List<object>> ResolveInteractionCommandParametersAsync(InteractionCreatedEventArgs e, InteractionContext context, MethodInfo method, IEnumerable<DiscordInteractionDataOption> options)
     {
         List<object> args = [context];
         IEnumerable<ParameterInfo> parameters = method.GetParameters().Skip(1);

@@ -16,7 +16,7 @@ public class StringConverter : ISlashArgumentConverter<string>, ITextArgumentCon
     public string ReadableName => "Text";
     public bool RequiresText => true;
 
-    public Task<Optional<string>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
+    public Task<Optional<string>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs)
     {
         foreach (Attribute attribute in context.Parameter.Attributes)
         {
@@ -36,7 +36,7 @@ public class StringConverter : ISlashArgumentConverter<string>, ITextArgumentCon
     }
 
     [SuppressMessage("Roslyn", "IDE0046", Justification = "Ternary rabbit hole.")]
-    public Task<Optional<string>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs)
+    public Task<Optional<string>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs)
     {
         string value = (string)context.Argument.Value;
         if (context.Parameter.Attributes.FirstOrDefault(x => x is FromCodeAttribute) is not FromCodeAttribute codeAttribute)

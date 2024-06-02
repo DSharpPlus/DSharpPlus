@@ -11,9 +11,9 @@ namespace DSharpPlus.Interactivity.EventHandling;
 /// </summary>
 internal sealed class ComponentCollectRequest : ComponentMatchRequest
 {
-    public ConcurrentBag<ComponentInteractionCreateEventArgs> Collected { get; private set; }
+    public ConcurrentBag<ComponentInteractionCreatedEventArgs> Collected { get; private set; }
 
-    public ComponentCollectRequest(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation) :
+    public ComponentCollectRequest(DiscordMessage message, Func<ComponentInteractionCreatedEventArgs, bool> predicate, CancellationToken cancellation) :
         base(message, predicate, cancellation)
     { }
 }

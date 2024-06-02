@@ -1780,7 +1780,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="query">Filters the returned members based on what the username starts with. Either this or <paramref name="userIds"/> must not be null.
     /// The <paramref name="limit"/> must also be greater than 0 if this is specified.</param>
     /// <param name="limit">Total number of members to request. This must be greater than 0 if <paramref name="query"/> is specified.</param>
-    /// <param name="presences">Whether to include the <see cref="GuildMembersChunkEventArgs.Presences"/> associated with the fetched members.</param>
+    /// <param name="presences">Whether to include the <see cref="GuildMembersChunkedEventArgs.Presences"/> associated with the fetched members.</param>
     /// <param name="userIds">Whether to limit the request to the specified user ids. Either this or <paramref name="query"/> must not be null.</param>
     /// <param name="nonce">The unique string to identify the response.</param>
     public async Task RequestMembersAsync(string query = "", int limit = 0, bool? presences = null, IEnumerable<ulong>? userIds = null, string? nonce = null)

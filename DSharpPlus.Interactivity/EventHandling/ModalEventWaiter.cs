@@ -30,7 +30,7 @@ internal class ModalEventWaiter : IDisposable
     /// </summary>
     /// <param name="request">The request to wait for a match.</param>
     /// <returns>The returned args, or null if it timed out.</returns>
-    public async Task<ModalSubmitEventArgs> WaitForMatchAsync(ModalMatchRequest request)
+    public async Task<ModalSubmittedEventArgs> WaitForMatchAsync(ModalMatchRequest request)
     {
         this.MatchRequests.Add(request);
 
@@ -50,12 +50,12 @@ internal class ModalEventWaiter : IDisposable
     }
 
     /// <summary>
-    /// Is called whenever <see cref="ModalSubmitEventArgs"/> is fired. Checks to see submitted modal matches any of the current requests.
+    /// Is called whenever <see cref="ModalSubmittedEventArgs"/> is fired. Checks to see submitted modal matches any of the current requests.
     /// </summary>
     /// <param name="_"></param>
-    /// <param name="args">The <see cref="ModalSubmitEventArgs"/> to match.</param>
+    /// <param name="args">The <see cref="ModalSubmittedEventArgs"/> to match.</param>
     /// <returns>A task that represents matching the requests.</returns>
-    private Task Handle(DiscordClient _, ModalSubmitEventArgs args)
+    private Task Handle(DiscordClient _, ModalSubmittedEventArgs args)
     {
         foreach (ModalMatchRequest? req in this.MatchRequests.ToArray()) // ToArray to get a copy of the collection that won't be modified during iteration
         {

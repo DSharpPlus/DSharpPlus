@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
@@ -15,7 +16,12 @@ using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
+using DSharpPlus.Net.WebSocket;
+
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
 using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus;
@@ -25,19 +31,36 @@ namespace DSharpPlus;
 /// </summary>
 public sealed partial class DiscordClient : BaseDiscordClient
 {
-    #region Internal Fields/Properties
+    internal static readonly DateTimeOffset discordEpoch = new(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
+    private static readonly ConcurrentDictionary<ulong, SocketLock> socketLocks = [];
+
+    private readonly ConcurrentDictionary<Type, AsyncEvent> events = [];
 
     internal bool isShard = false;
     internal IMessageCacheProvider? MessageCache { get; }
+    private readonly IClientErrorHandler errorHandler;
 
     private List<BaseExtension> extensions = [];
-    private StatusUpdate status = null;
+    private StatusUpdate? status = null;
 
-    private ManualResetEventSlim ConnectionLock { get; } = new ManualResetEventSlim(true);
+    private int heartbeatInterval;
+    private DateTimeOffset lastHeartbeat;
+    private int skippedHeartbeats;
+    private long lastSequence;
 
-    #endregion
+    internal readonly IWebSocketClient webSocketClient;
+    private readonly PayloadDecompressor payloadDecompressor;
+    private CancellationTokenSource cancelTokenSource;
+    private CancellationToken cancelToken;
+    private readonly ManualResetEventSlim sessionLock = new(true);
 
-    #region Public Fields/Properties
+    private readonly ManualResetEventSlim connectionLock = new(true);
+
+    /// <summary>
+    /// Gets the service provider used within this Discord application.
+    /// </summary>
+    public IServiceProvider ServiceProvider { get; internal set; }
+
     /// <summary>
     /// Gets the gateway protocol version.
     /// </summary>
@@ -109,140 +132,141 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
     internal Dictionary<ulong, DiscordPresence> presences = [];
     private Lazy<IReadOnlyDictionary<ulong, DiscordPresence>> presencesLazy;
-    #endregion
 
-    #region Constructor/Internal Setup
-
-    /// <summary>
-    /// Initializes a new instance of DiscordClient.
-    /// </summary>
-    /// <param name="config">Specifies configuration parameters.</param>
-    public DiscordClient(DiscordConfiguration config)
-        : base(config)
+    [ActivatorUtilitiesConstructor]
+    public DiscordClient
+    (
+        ILogger<DiscordClient> logger,
+        DiscordApiClient apiClient,
+        IMessageCacheProvider messageCacheProvider,
+        IWebSocketClient webSocketClient,
+        IServiceProvider serviceProvider,
+        IOptions<EventHandlerCollection> eventHandlers,
+        IClientErrorHandler errorHandler,
+        PayloadDecompressor decompressor,
+        IOptions<DiscordConfiguration> configuration
+    )
+        : base()
     {
-        DiscordIntents intents = this.Configuration.Intents;
-        if (intents.HasIntent(DiscordIntents.GuildMessages) || intents.HasIntent(DiscordIntents.DirectMessages))
+        this.Logger = logger;
+        this.MessageCache = messageCacheProvider;
+        this.webSocketClient = webSocketClient;
+        this.ServiceProvider = serviceProvider;
+        this.ApiClient = apiClient;
+        this.payloadDecompressor = decompressor;
+        this.errorHandler = errorHandler;
+        this.Configuration = configuration.Value;
+
+        this.ApiClient.SetClient(this);
+
+        InternalSetup(errorHandler);
+
+        foreach (KeyValuePair<Type, ConcurrentBag<Delegate>> kvp in eventHandlers.Value.DelegateHandlers)
         {
-            this.MessageCache = this.Configuration.MessageCacheProvider
-                ?? (this.Configuration.MessageCacheSize > 0 ? new MessageCache(this.Configuration.MessageCacheSize) : null);
+            Type asyncEventType = typeof(AsyncEvent<,>).MakeGenericType
+            (
+                typeof(DiscordClient),
+                kvp.Key
+            );
+
+            AsyncEvent asyncEvent = this.events.GetOrAdd(kvp.Key, _ => (AsyncEvent)Activator.CreateInstance
+            (
+                type: asyncEventType,
+                args: [errorHandler]
+            )!);
+
+            foreach (Delegate d in kvp.Value)
+            {
+                asyncEvent.Register(d);
+            }
         }
 
-        InternalSetup();
-
-        this.Guilds = new ReadOnlyConcurrentDictionary<ulong, DiscordGuild>(this.guilds);
-        this.PrivateChannels = new ReadOnlyConcurrentDictionary<ulong, DiscordDmChannel>(this.privateChannels);
+        this.presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this.presences));
     }
 
-    /// <summary>
-    /// This constructor is used when constructing a sharded client to use a shared rest client.
-    /// </summary>
-    /// <param name="config">Specifies configuration parameters.</param>
-    /// <param name="restClient">Restclient which will be used for the underlying ApiClients</param>
-    internal DiscordClient(DiscordConfiguration config, RestClient restClient)
-        : base(config, restClient)
+    internal void InternalSetup(IClientErrorHandler error)
     {
-        DiscordIntents intents = this.Configuration.Intents;
-        if (intents.HasIntent(DiscordIntents.GuildMessages) || intents.HasIntent(DiscordIntents.DirectMessages))
-        {
-            this.MessageCache = this.Configuration.MessageCacheProvider
-                                ?? (this.Configuration.MessageCacheSize > 0 ? new MessageCache(this.Configuration.MessageCacheSize) : null);
-        }
-
-        InternalSetup();
-
-        this.Guilds = new ReadOnlyConcurrentDictionary<ulong, DiscordGuild>(this.guilds);
-        this.PrivateChannels = new ReadOnlyConcurrentDictionary<ulong, DiscordDmChannel>(this.privateChannels);
-    }
-
-    internal void InternalSetup()
-    {
-        this.clientErrored = new AsyncEvent<DiscordClient, ClientErrorEventArgs>("CLIENT_ERRORED", Goof);
-        this.socketErrored = new AsyncEvent<DiscordClient, SocketErrorEventArgs>("SOCKET_ERRORED", Goof);
-        this.socketOpened = new AsyncEvent<DiscordClient, SocketEventArgs>("SOCKET_OPENED", EventErrorHandler);
-        this.socketClosed = new AsyncEvent<DiscordClient, SocketCloseEventArgs>("SOCKET_CLOSED", EventErrorHandler);
-        this.ready = new AsyncEvent<DiscordClient, SessionReadyEventArgs>("READY", EventErrorHandler);
-        this.resumed = new AsyncEvent<DiscordClient, SessionReadyEventArgs>("RESUMED", EventErrorHandler);
-        this.channelCreated = new AsyncEvent<DiscordClient, ChannelCreateEventArgs>("CHANNEL_CREATED", EventErrorHandler);
-        this.channelUpdated = new AsyncEvent<DiscordClient, ChannelUpdateEventArgs>("CHANNEL_UPDATED", EventErrorHandler);
-        this.channelDeleted = new AsyncEvent<DiscordClient, ChannelDeleteEventArgs>("CHANNEL_DELETED", EventErrorHandler);
-        this.dmChannelDeleted = new AsyncEvent<DiscordClient, DmChannelDeleteEventArgs>("DM_CHANNEL_DELETED", EventErrorHandler);
-        this.channelPinsUpdated = new AsyncEvent<DiscordClient, ChannelPinsUpdateEventArgs>("CHANNEL_PINS_UPDATED", EventErrorHandler);
-        this.guildCreated = new AsyncEvent<DiscordClient, GuildCreateEventArgs>("GUILD_CREATED", EventErrorHandler);
-        this.guildAvailable = new AsyncEvent<DiscordClient, GuildCreateEventArgs>("GUILD_AVAILABLE", EventErrorHandler);
-        this.guildUpdated = new AsyncEvent<DiscordClient, GuildUpdateEventArgs>("GUILD_UPDATED", EventErrorHandler);
-        this.guildDeleted = new AsyncEvent<DiscordClient, GuildDeleteEventArgs>("GUILD_DELETED", EventErrorHandler);
-        this.guildUnavailable = new AsyncEvent<DiscordClient, GuildDeleteEventArgs>("GUILD_UNAVAILABLE", EventErrorHandler);
-        this.guildDownloadCompletedEv = new AsyncEvent<DiscordClient, GuildDownloadCompletedEventArgs>("GUILD_DOWNLOAD_COMPLETED", EventErrorHandler);
-        this.inviteCreated = new AsyncEvent<DiscordClient, InviteCreateEventArgs>("INVITE_CREATED", EventErrorHandler);
-        this.inviteDeleted = new AsyncEvent<DiscordClient, InviteDeleteEventArgs>("INVITE_DELETED", EventErrorHandler);
-        this.messageCreated = new AsyncEvent<DiscordClient, MessageCreateEventArgs>("MESSAGE_CREATED", EventErrorHandler);
-        this.presenceUpdated = new AsyncEvent<DiscordClient, PresenceUpdateEventArgs>("PRESENCE_UPDATED", EventErrorHandler);
-        this.scheduledGuildEventCreated = new AsyncEvent<DiscordClient, ScheduledGuildEventCreateEventArgs>("SCHEDULED_GUILD_EVENT_CREATED", EventErrorHandler);
-        this.scheduledGuildEventDeleted = new AsyncEvent<DiscordClient, ScheduledGuildEventDeleteEventArgs>("SCHEDULED_GUILD_EVENT_DELETED", EventErrorHandler);
-        this.scheduledGuildEventUpdated = new AsyncEvent<DiscordClient, ScheduledGuildEventUpdateEventArgs>("SCHEDULED_GUILD_EVENT_UPDATED", EventErrorHandler);
-        this.scheduledGuildEventCompleted = new AsyncEvent<DiscordClient, ScheduledGuildEventCompletedEventArgs>("SCHEDULED_GUILD_EVENT_COMPLETED", EventErrorHandler);
-        this.scheduledGuildEventUserAdded = new AsyncEvent<DiscordClient, ScheduledGuildEventUserAddEventArgs>("SCHEDULED_GUILD_EVENT_USER_ADDED", EventErrorHandler);
-        this.scheduledGuildEventUserRemoved = new AsyncEvent<DiscordClient, ScheduledGuildEventUserRemoveEventArgs>("SCHEDULED_GUILD_EVENT_USER_REMOVED", EventErrorHandler);
-        this.guildBanAdded = new AsyncEvent<DiscordClient, GuildBanAddEventArgs>("GUILD_BAN_ADD", EventErrorHandler);
-        this.guildBanRemoved = new AsyncEvent<DiscordClient, GuildBanRemoveEventArgs>("GUILD_BAN_REMOVED", EventErrorHandler);
-        this.guildEmojisUpdated = new AsyncEvent<DiscordClient, GuildEmojisUpdateEventArgs>("GUILD_EMOJI_UPDATED", EventErrorHandler);
-        this.guildStickersUpdated = new AsyncEvent<DiscordClient, GuildStickersUpdateEventArgs>("GUILD_STICKER_UPDATED", EventErrorHandler);
-        this.guildIntegrationsUpdated = new AsyncEvent<DiscordClient, GuildIntegrationsUpdateEventArgs>("GUILD_INTEGRATIONS_UPDATED", EventErrorHandler);
-        this.guildMemberAdded = new AsyncEvent<DiscordClient, GuildMemberAddEventArgs>("GUILD_MEMBER_ADD", EventErrorHandler);
-        this.guildMemberRemoved = new AsyncEvent<DiscordClient, GuildMemberRemoveEventArgs>("GUILD_MEMBER_REMOVED", EventErrorHandler);
-        this.guildMemberUpdated = new AsyncEvent<DiscordClient, GuildMemberUpdateEventArgs>("GUILD_MEMBER_UPDATED", EventErrorHandler);
-        this.guildRoleCreated = new AsyncEvent<DiscordClient, GuildRoleCreateEventArgs>("GUILD_ROLE_CREATED", EventErrorHandler);
-        this.guildRoleUpdated = new AsyncEvent<DiscordClient, GuildRoleUpdateEventArgs>("GUILD_ROLE_UPDATED", EventErrorHandler);
-        this.guildRoleDeleted = new AsyncEvent<DiscordClient, GuildRoleDeleteEventArgs>("GUILD_ROLE_DELETED", EventErrorHandler);
-        this.guildAuditLogCreated = new AsyncEvent<DiscordClient, GuildAuditLogCreatedEventArgs>("GUILD_AUDIT_LOG_CREATED", EventErrorHandler);
-        this.messageUpdated = new AsyncEvent<DiscordClient, MessageUpdateEventArgs>("MESSAGE_UPDATED", EventErrorHandler);
-        this.messageDeleted = new AsyncEvent<DiscordClient, MessageDeleteEventArgs>("MESSAGE_DELETED", EventErrorHandler);
-        this.messagesBulkDeleted = new AsyncEvent<DiscordClient, MessageBulkDeleteEventArgs>("MESSAGE_BULK_DELETED", EventErrorHandler);
-        this.messagePollVoted = new AsyncEvent<DiscordClient, MessagePollVoteEventArgs>("MESSAGE_POLL_VOTED", EventErrorHandler);
-        this.interactionCreated = new AsyncEvent<DiscordClient, InteractionCreateEventArgs>("INTERACTION_CREATED", EventErrorHandler);
-        this.componentInteractionCreated = new AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs>("COMPONENT_INTERACTED", EventErrorHandler);
-        this.modalSubmitted = new AsyncEvent<DiscordClient, ModalSubmitEventArgs>("MODAL_SUBMITTED", EventErrorHandler);
-        this.contextMenuInteractionCreated = new AsyncEvent<DiscordClient, ContextMenuInteractionCreateEventArgs>("CONTEXT_MENU_INTERACTED", EventErrorHandler);
-        this.typingStarted = new AsyncEvent<DiscordClient, TypingStartEventArgs>("TYPING_STARTED", EventErrorHandler);
-        this.userSettingsUpdated = new AsyncEvent<DiscordClient, UserSettingsUpdateEventArgs>("USER_SETTINGS_UPDATED", EventErrorHandler);
-        this.userUpdated = new AsyncEvent<DiscordClient, UserUpdateEventArgs>("USER_UPDATED", EventErrorHandler);
-        this.voiceStateUpdated = new AsyncEvent<DiscordClient, VoiceStateUpdateEventArgs>("VOICE_STATE_UPDATED", EventErrorHandler);
-        this.voiceServerUpdated = new AsyncEvent<DiscordClient, VoiceServerUpdateEventArgs>("VOICE_SERVER_UPDATED", EventErrorHandler);
-        this.guildMembersChunked = new AsyncEvent<DiscordClient, GuildMembersChunkEventArgs>("GUILD_MEMBERS_CHUNKED", EventErrorHandler);
-        this.unknownEvent = new AsyncEvent<DiscordClient, UnknownEventArgs>("UNKNOWN_EVENT", EventErrorHandler);
-        this.messageReactionAdded = new AsyncEvent<DiscordClient, MessageReactionAddEventArgs>("MESSAGE_REACTION_ADDED", EventErrorHandler);
-        this.messageReactionRemoved = new AsyncEvent<DiscordClient, MessageReactionRemoveEventArgs>("MESSAGE_REACTION_REMOVED", EventErrorHandler);
-        this.messageReactionsCleared = new AsyncEvent<DiscordClient, MessageReactionsClearEventArgs>("MESSAGE_REACTIONS_CLEARED", EventErrorHandler);
-        this.messageReactionRemovedEmoji = new AsyncEvent<DiscordClient, MessageReactionRemoveEmojiEventArgs>("MESSAGE_REACTION_REMOVED_EMOJI", EventErrorHandler);
-        this.webhooksUpdated = new AsyncEvent<DiscordClient, WebhooksUpdateEventArgs>("WEBHOOKS_UPDATED", EventErrorHandler);
-        this.heartbeated = new AsyncEvent<DiscordClient, HeartbeatEventArgs>("HEARTBEATED", EventErrorHandler);
-        this.zombied = new AsyncEvent<DiscordClient, ZombiedEventArgs>("ZOMBIED", EventErrorHandler);
-        this.applicationCommandPermissionsUpdated = new AsyncEvent<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs>("APPLICATION_COMMAND_PERMISSIONS_UPDATED", EventErrorHandler);
-        this.integrationCreated = new AsyncEvent<DiscordClient, IntegrationCreateEventArgs>("INTEGRATION_CREATED", EventErrorHandler);
-        this.integrationUpdated = new AsyncEvent<DiscordClient, IntegrationUpdateEventArgs>("INTEGRATION_UPDATED", EventErrorHandler);
-        this.integrationDeleted = new AsyncEvent<DiscordClient, IntegrationDeleteEventArgs>("INTEGRATION_DELETED", EventErrorHandler);
-        this.stageInstanceCreated = new AsyncEvent<DiscordClient, StageInstanceCreateEventArgs>("STAGE_INSTANCE_CREATED", EventErrorHandler);
-        this.stageInstanceUpdated = new AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs>("STAGE_INSTANCE_UPDATED", EventErrorHandler);
-        this.stageInstanceDeleted = new AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs>("STAGE_INSTANCE_DELETED", EventErrorHandler);
-        this.autoModerationRuleCreated = new AsyncEvent<DiscordClient, AutoModerationRuleCreateEventArgs>("AUTO_MODERATION_RULE_CREATE", EventErrorHandler);
-        this.autoModerationRuleUpdated = new AsyncEvent<DiscordClient, AutoModerationRuleUpdateEventArgs>("AUTO_MODERATION_RULE_UPDATE", EventErrorHandler);
-        this.autoModerationRuleDeleted = new AsyncEvent<DiscordClient, AutoModerationRuleDeleteEventArgs>("AUTO_MODERATION_RULE_DELETE", EventErrorHandler);
-        this.autoModerationRuleExecuted = new AsyncEvent<DiscordClient, AutoModerationRuleExecuteEventArgs>("AUTO_MODERATION_ACTION_EXECUTION", EventErrorHandler);
-        #region Threads
-        this.threadCreated = new AsyncEvent<DiscordClient, ThreadCreateEventArgs>("THREAD_CREATED", EventErrorHandler);
-        this.threadUpdated = new AsyncEvent<DiscordClient, ThreadUpdateEventArgs>("THREAD_UPDATED", EventErrorHandler);
-        this.threadDeleted = new AsyncEvent<DiscordClient, ThreadDeleteEventArgs>("THREAD_DELETED", EventErrorHandler);
-        this.threadListSynced = new AsyncEvent<DiscordClient, ThreadListSyncEventArgs>("THREAD_LIST_SYNCED", EventErrorHandler);
-        this.threadMemberUpdated = new AsyncEvent<DiscordClient, ThreadMemberUpdateEventArgs>("THREAD_MEMBER_UPDATED", EventErrorHandler);
-        this.threadMembersUpdated = new AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs>("THREAD_MEMBERS_UPDATED", EventErrorHandler);
-        #endregion
+        this.events[typeof(SocketOpenedEventArgs)] = new AsyncEvent<DiscordClient, SocketOpenedEventArgs>(error);
+        this.events[typeof(SocketClosedEventArgs)] = new AsyncEvent<DiscordClient, SocketClosedEventArgs>(error);
+        this.events[typeof(SessionCreatedEventArgs)] = new AsyncEvent<DiscordClient, SessionCreatedEventArgs>(error);
+        this.events[typeof(SessionResumedEventArgs)] = new AsyncEvent<DiscordClient, SessionResumedEventArgs>(error);
+        this.events[typeof(ChannelCreatedEventArgs)] = new AsyncEvent<DiscordClient, ChannelCreatedEventArgs>(error);
+        this.events[typeof(ChannelUpdatedEventArgs)] = new AsyncEvent<DiscordClient, ChannelUpdatedEventArgs>(error);
+        this.events[typeof(ChannelDeletedEventArgs)] = new AsyncEvent<DiscordClient, ChannelDeletedEventArgs>(error);
+        this.events[typeof(DmChannelDeletedEventArgs)] = new AsyncEvent<DiscordClient, DmChannelDeletedEventArgs>(error);
+        this.events[typeof(ChannelPinsUpdatedEventArgs)] = new AsyncEvent<DiscordClient, ChannelPinsUpdatedEventArgs>(error);
+        this.events[typeof(GuildCreatedEventArgs)] = new AsyncEvent<DiscordClient, GuildCreatedEventArgs>(error);
+        this.events[typeof(GuildAvailableEventArgs)] = new AsyncEvent<DiscordClient, GuildAvailableEventArgs>(error);
+        this.events[typeof(GuildUpdatedEventArgs)] = new AsyncEvent<DiscordClient, GuildUpdatedEventArgs>(error);
+        this.events[typeof(GuildDeletedEventArgs)] = new AsyncEvent<DiscordClient, GuildDeletedEventArgs>(error);
+        this.events[typeof(GuildUnavailableEventArgs)] = new AsyncEvent<DiscordClient, GuildUnavailableEventArgs>(error);
+        this.events[typeof(GuildDownloadCompletedEventArgs)] = new AsyncEvent<DiscordClient, GuildDownloadCompletedEventArgs>(error);
+        this.events[typeof(InviteCreatedEventArgs)] = new AsyncEvent<DiscordClient, InviteCreatedEventArgs>(error);
+        this.events[typeof(InviteDeletedEventArgs)] = new AsyncEvent<DiscordClient, InviteDeletedEventArgs>(error);
+        this.events[typeof(MessageCreatedEventArgs)] = new AsyncEvent<DiscordClient, MessageCreatedEventArgs>(error);
+        this.events[typeof(PresenceUpdatedEventArgs)] = new AsyncEvent<DiscordClient, PresenceUpdatedEventArgs>(error);
+        this.events[typeof(ScheduledGuildEventCreatedEventArgs)] = new AsyncEvent<DiscordClient, ScheduledGuildEventCreatedEventArgs>(error);
+        this.events[typeof(ScheduledGuildEventDeletedEventArgs)] = new AsyncEvent<DiscordClient, ScheduledGuildEventDeletedEventArgs>(error);
+        this.events[typeof(ScheduledGuildEventUpdatedEventArgs)] = new AsyncEvent<DiscordClient, ScheduledGuildEventUpdatedEventArgs>(error);
+        this.events[typeof(ScheduledGuildEventCompletedEventArgs)] = new AsyncEvent<DiscordClient, ScheduledGuildEventCompletedEventArgs>(error);
+        this.events[typeof(ScheduledGuildEventUserAddedEventArgs)] = new AsyncEvent<DiscordClient, ScheduledGuildEventUserAddedEventArgs>(error);
+        this.events[typeof(ScheduledGuildEventUserRemovedEventArgs)] = new AsyncEvent<DiscordClient, ScheduledGuildEventUserRemovedEventArgs>(error);
+        this.events[typeof(GuildBanAddedEventArgs)] = new AsyncEvent<DiscordClient, GuildBanAddedEventArgs>(error);
+        this.events[typeof(GuildBanRemovedEventArgs)] = new AsyncEvent<DiscordClient, GuildBanRemovedEventArgs>(error);
+        this.events[typeof(GuildEmojisUpdatedEventArgs)] = new AsyncEvent<DiscordClient, GuildEmojisUpdatedEventArgs>(error);
+        this.events[typeof(GuildStickersUpdatedEventArgs)] = new AsyncEvent<DiscordClient, GuildStickersUpdatedEventArgs>(error);
+        this.events[typeof(GuildIntegrationsUpdatedEventArgs)] = new AsyncEvent<DiscordClient, GuildIntegrationsUpdatedEventArgs>(error);
+        this.events[typeof(GuildMemberAddedEventArgs)] = new AsyncEvent<DiscordClient, GuildMemberAddedEventArgs>(error);
+        this.events[typeof(GuildMemberRemovedEventArgs)] = new AsyncEvent<DiscordClient, GuildMemberRemovedEventArgs>(error);
+        this.events[typeof(GuildMemberUpdatedEventArgs)] = new AsyncEvent<DiscordClient, GuildMemberUpdatedEventArgs>(error);
+        this.events[typeof(GuildRoleCreatedEventArgs)] = new AsyncEvent<DiscordClient, GuildRoleCreatedEventArgs>(error);
+        this.events[typeof(GuildRoleUpdatedEventArgs)] = new AsyncEvent<DiscordClient, GuildRoleUpdatedEventArgs>(error);
+        this.events[typeof(GuildRoleDeletedEventArgs)] = new AsyncEvent<DiscordClient, GuildRoleDeletedEventArgs>(error);
+        this.events[typeof(GuildAuditLogCreatedEventArgs)] = new AsyncEvent<DiscordClient, GuildAuditLogCreatedEventArgs>(error);
+        this.events[typeof(MessageUpdatedEventArgs)] = new AsyncEvent<DiscordClient, MessageUpdatedEventArgs>(error);
+        this.events[typeof(MessageDeletedEventArgs)] = new AsyncEvent<DiscordClient, MessageDeletedEventArgs>(error);
+        this.events[typeof(MessagesBulkDeletedEventArgs)] = new AsyncEvent<DiscordClient, MessagesBulkDeletedEventArgs>(error);
+        this.events[typeof(MessagePollVotedEventArgs)] = new AsyncEvent<DiscordClient, MessagePollVotedEventArgs>(error);
+        this.events[typeof(InteractionCreatedEventArgs)] = new AsyncEvent<DiscordClient, InteractionCreatedEventArgs>(error);
+        this.events[typeof(ComponentInteractionCreatedEventArgs)] = new AsyncEvent<DiscordClient, ComponentInteractionCreatedEventArgs>(error);
+        this.events[typeof(ModalSubmittedEventArgs)] = new AsyncEvent<DiscordClient, ModalSubmittedEventArgs>(error);
+        this.events[typeof(ContextMenuInteractionCreatedEventArgs)] = new AsyncEvent<DiscordClient, ContextMenuInteractionCreatedEventArgs>(error);
+        this.events[typeof(TypingStartedEventArgs)] = new AsyncEvent<DiscordClient, TypingStartedEventArgs>(error);
+        this.events[typeof(UserSettingsUpdatedEventArgs)] = new AsyncEvent<DiscordClient, UserSettingsUpdatedEventArgs>(error);
+        this.events[typeof(UserUpdatedEventArgs)] = new AsyncEvent<DiscordClient, UserUpdatedEventArgs>(error);
+        this.events[typeof(VoiceStateUpdatedEventArgs)] = new AsyncEvent<DiscordClient, VoiceStateUpdatedEventArgs>(error);
+        this.events[typeof(VoiceServerUpdatedEventArgs)] = new AsyncEvent<DiscordClient, VoiceServerUpdatedEventArgs>(error);
+        this.events[typeof(GuildMembersChunkedEventArgs)] = new AsyncEvent<DiscordClient, GuildMembersChunkedEventArgs>(error);
+        this.events[typeof(UnknownEventArgs)] = new AsyncEvent<DiscordClient, UnknownEventArgs>(error);
+        this.events[typeof(MessageReactionAddedEventArgs)] = new AsyncEvent<DiscordClient, MessageReactionAddedEventArgs>(error);
+        this.events[typeof(MessageReactionRemovedEventArgs)] = new AsyncEvent<DiscordClient, MessageReactionRemovedEventArgs>(error);
+        this.events[typeof(MessageReactionsClearedEventArgs)] = new AsyncEvent<DiscordClient, MessageReactionsClearedEventArgs>(error);
+        this.events[typeof(MessageReactionRemovedEmojiEventArgs)] = new AsyncEvent<DiscordClient, MessageReactionRemovedEmojiEventArgs>(error);
+        this.events[typeof(WebhooksUpdatedEventArgs)] = new AsyncEvent<DiscordClient, WebhooksUpdatedEventArgs>(error);
+        this.events[typeof(HeartbeatedEventArgs)] = new AsyncEvent<DiscordClient, HeartbeatedEventArgs>(error);
+        this.events[typeof(ZombiedEventArgs)] = new AsyncEvent<DiscordClient, ZombiedEventArgs>(error);
+        this.events[typeof(ApplicationCommandPermissionsUpdatedEventArgs)] = new AsyncEvent<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs>(error);
+        this.events[typeof(IntegrationCreatedEventArgs)] = new AsyncEvent<DiscordClient, IntegrationCreatedEventArgs>(error);
+        this.events[typeof(IntegrationUpdatedEventArgs)] = new AsyncEvent<DiscordClient, IntegrationUpdatedEventArgs>(error);
+        this.events[typeof(IntegrationDeletedEventArgs)] = new AsyncEvent<DiscordClient, IntegrationDeletedEventArgs>(error);
+        this.events[typeof(StageInstanceCreatedEventArgs)] = new AsyncEvent<DiscordClient, StageInstanceCreatedEventArgs>(error);
+        this.events[typeof(StageInstanceUpdatedEventArgs)] = new AsyncEvent<DiscordClient, StageInstanceUpdatedEventArgs>(error);
+        this.events[typeof(StageInstanceDeletedEventArgs)] = new AsyncEvent<DiscordClient, StageInstanceDeletedEventArgs>(error);
+        this.events[typeof(AutoModerationRuleCreatedEventArgs)] = new AsyncEvent<DiscordClient, AutoModerationRuleCreatedEventArgs>(error);
+        this.events[typeof(AutoModerationRuleUpdatedEventArgs)] = new AsyncEvent<DiscordClient, AutoModerationRuleUpdatedEventArgs>(error);
+        this.events[typeof(AutoModerationRuleDeletedEventArgs)] = new AsyncEvent<DiscordClient, AutoModerationRuleDeletedEventArgs>(error);
+        this.events[typeof(AutoModerationRuleExecutedEventArgs)] = new AsyncEvent<DiscordClient, AutoModerationRuleExecutedEventArgs>(error);
+        this.events[typeof(ThreadCreatedEventArgs)] = new AsyncEvent<DiscordClient, ThreadCreatedEventArgs>(error);
+        this.events[typeof(ThreadUpdatedEventArgs)] = new AsyncEvent<DiscordClient, ThreadUpdatedEventArgs>(error);
+        this.events[typeof(ThreadDeletedEventArgs)] = new AsyncEvent<DiscordClient, ThreadDeletedEventArgs>(error);
+        this.events[typeof(ThreadListSyncedEventArgs)] = new AsyncEvent<DiscordClient, ThreadListSyncedEventArgs>(error);
+        this.events[typeof(ThreadMemberUpdatedEventArgs)] = new AsyncEvent<DiscordClient, ThreadMemberUpdatedEventArgs>(error);
+        this.events[typeof(ThreadMembersUpdatedEventArgs)] = new AsyncEvent<DiscordClient, ThreadMembersUpdatedEventArgs>(error);
 
         this.guilds.Clear();
 
         this.presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this.presences));
     }
-
-    #endregion
 
     #region Client Extension Methods
 
@@ -279,12 +303,12 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public async Task ConnectAsync(DiscordActivity activity = null, DiscordUserStatus? status = null, DateTimeOffset? idlesince = null)
     {
         // Check if connection lock is already set, and set it if it isn't
-        if (!this.ConnectionLock.Wait(0))
+        if (!this.connectionLock.Wait(0))
         {
             throw new InvalidOperationException("This client is already connected.");
         }
 
-        this.ConnectionLock.Set();
+        this.connectionLock.Set();
 
         int w = 7500;
         int i = 5;
@@ -312,7 +336,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
         {
             if (this.Configuration.TokenType != TokenType.Bot)
             {
-                this.Logger.LogWarning(LoggerEvents.Misc, "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.");
+                this.Logger.LogError(LoggerEvents.Misc, "You are logging in with a token that is not a bot token.");
+                return;
             }
 
             this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus, version {Version}", this.VersionString);
@@ -328,17 +353,17 @@ public sealed partial class DiscordClient : BaseDiscordClient
             }
             catch (UnauthorizedException e)
             {
-                FailConnection(this.ConnectionLock);
+                FailConnection(this.connectionLock);
                 throw new Exception("Authentication failed. Check your token and try again.", e);
             }
             catch (PlatformNotSupportedException)
             {
-                FailConnection(this.ConnectionLock);
+                FailConnection(this.connectionLock);
                 throw;
             }
             catch (NotImplementedException)
             {
-                FailConnection(this.ConnectionLock);
+                FailConnection(this.connectionLock);
                 throw;
             }
             catch (Exception ex)
@@ -363,7 +388,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
         if (!s && cex != null)
         {
-            this.ConnectionLock.Set();
+            this.connectionLock.Set();
             throw new Exception("Could not connect to Discord.", cex);
         }
 

@@ -9,6 +9,8 @@ using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace DSharpPlus;
 
 public class DiscordRestClient : BaseDiscordClient
@@ -22,7 +24,21 @@ public class DiscordRestClient : BaseDiscordClient
     internal Dictionary<ulong, DiscordGuild> guilds = [];
     private bool disposedValue;
 
-    public DiscordRestClient(DiscordConfiguration config) : base(config) { }
+    public DiscordRestClient(DiscordConfiguration config) : base() 
+    {
+        this.ApiClient = new(new
+        (
+            new(),
+            TimeSpan.FromSeconds(10),
+            NullLogger.Instance,
+            config.MaximumRatelimitRetries,
+            config.RatelimitRetryDelayFallback,
+            config.TimeoutForInitialApiRequest,
+            config.MaximumRestRequestsPerSecond
+        ));
+
+        this.ApiClient.SetClient(this);
+    }
 
     /// <summary>
     /// Initializes cache

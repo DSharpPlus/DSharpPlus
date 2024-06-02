@@ -28,7 +28,7 @@ public static class ExtensionMethods
             throw new InvalidOperationException("Commands extension is already initialized.");
         }
 
-        CommandsExtension extension = new(configuration ?? GrabDefaultConfiguration(client.Logger));
+        CommandsExtension extension = new(configuration ?? new());
         client.AddExtension(extension);
         return extension;
     }
@@ -43,7 +43,7 @@ public static class ExtensionMethods
         ArgumentNullException.ThrowIfNull(shardedClient);
 
         await shardedClient.InitializeShardsAsync();
-        configuration ??= GrabDefaultConfiguration(shardedClient.Logger);
+        configuration ??= new();
 
         Dictionary<int, CommandsExtension> extensions = [];
         foreach (DiscordClient shard in shardedClient.ShardClients.Values)
@@ -98,20 +98,5 @@ public static class ExtensionMethods
         }
 
         return -1;
-    }
-
-    private static CommandsConfiguration GrabDefaultConfiguration(ILogger logger)
-    {
-        IServiceCollection services = new ServiceCollection();
-        services.AddLogging(loggerBuilder =>
-        {
-            logger.LogError("Commands: No logger was provided, using NullLoggerProvider. This is not recommended.");
-            loggerBuilder.AddProvider(NullLoggerProvider.Instance);
-        });
-
-        return new()
-        {
-            ServiceProvider = services.BuildServiceProvider()
-        };
     }
 }

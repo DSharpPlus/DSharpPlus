@@ -71,12 +71,12 @@ public interface IWebSocketClient : IDisposable
     /// <summary>
     /// Triggered when the client connects successfully.
     /// </summary>
-    event AsyncEventHandler<IWebSocketClient, SocketEventArgs> Connected;
+    event AsyncEventHandler<IWebSocketClient, SocketOpenedEventArgs> Connected;
 
     /// <summary>
     /// Triggered when the client is disconnected.
     /// </summary>
-    event AsyncEventHandler<IWebSocketClient, SocketCloseEventArgs> Disconnected;
+    event AsyncEventHandler<IWebSocketClient, SocketClosedEventArgs> Disconnected;
 
     /// <summary>
     /// Triggered when the client receives a message from the remote party.
