@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
@@ -8,16 +9,31 @@ public delegate ValueTask<int> ResolvePrefixDelegateAsync(CommandsExtension exte
 
 public sealed class DefaultPrefixResolver
 {
-    public string Prefix { get; init; }
+    /// <summary>
+    /// Prefixes which will trigger command execution
+    /// </summary>
+    public string[] Prefixes { get; init; }
+    
+    /// <summary>
+    /// Setting if a mention will trigger command execution
+    /// </summary>
+    public bool AllowMention { get; init; }
 
-    public DefaultPrefixResolver(string prefix)
+    /// <summary>
+    /// Default prefix resolver
+    /// </summary>
+    /// <param name="allowMention">Set wether mentioning the bot will count as a prefix</param>
+    /// <param name="prefix">A list of prefixes which will trigger commands</param>
+    /// <exception cref="ArgumentException">Is thrown when no prefix is provided or any prefix is null or whitespace only</exception>
+    public DefaultPrefixResolver(bool allowMention, params string[] prefix)
     {
-        if (string.IsNullOrWhiteSpace(prefix))
+        if (prefix.Length == 0 || prefix.Any(string.IsNullOrWhiteSpace))
         {
             throw new ArgumentException("Prefix cannot be null or whitespace.", nameof(prefix));
         }
 
-        this.Prefix = prefix;
+        this.AllowMention = allowMention;
+        this.Prefixes = prefix;
     }
 
     public ValueTask<int> ResolvePrefixAsync(CommandsExtension extension, DiscordMessage message)
@@ -26,14 +42,18 @@ public sealed class DefaultPrefixResolver
         {
             return ValueTask.FromResult(-1);
         }
-        else if (message.Content.StartsWith(this.Prefix, StringComparison.OrdinalIgnoreCase))
-        {
-            return ValueTask.FromResult(this.Prefix.Length);
-        }
         // Mention check
-        else if (message.Content.StartsWith(extension.Client.CurrentUser.Mention, StringComparison.OrdinalIgnoreCase))
+        else if (this.AllowMention && message.Content.StartsWith(extension.Client.CurrentUser.Mention, StringComparison.OrdinalIgnoreCase))
         {
             return ValueTask.FromResult(extension.Client.CurrentUser.Mention.Length);
+        }
+
+        foreach (string prefix in this.Prefixes)
+        {
+            if (message.Content.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return ValueTask.FromResult(prefix.Length);
+            }
         }
 
         return ValueTask.FromResult(-1);
