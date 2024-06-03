@@ -16,15 +16,13 @@ jobs:
     if: "!contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci-skip]')"
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            8
-            7
+          dotnet-version: 8
       - name: Build Project
         run: dotnet build
   package-commit:
@@ -33,16 +31,14 @@ jobs:
     needs: build-commit
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            8
-            7
+          dotnet-version: 8
       - name: Package Project
         run: |
           dotnet pack -c Release -o build
@@ -58,7 +54,7 @@ jobs:
           NUGET_URL: ${{ secrets.NUGET_URL }}
           GITHUB_URL : ${{ github.server_url }}/${{ github.repository }}
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: DSharpPlus.zip
           path: ./build/*
@@ -74,25 +70,23 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            8
-            7
+          dotnet-version: 8
       - name: Build Project
         run: |
           dotnet build
           dotnet tool update -g docfx --prerelease
           docfx docs/docfx.json
       - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./docs/_site/
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4
