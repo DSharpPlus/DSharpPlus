@@ -4,7 +4,7 @@ namespace DSharpPlus.Commands.Processors.TextCommands;
 
 public record TextCommandConfiguration
 {
-    public ResolvePrefixDelegateAsync PrefixResolver { get; init; } = new DefaultPrefixResolver("!").ResolvePrefixAsync;
+    public ResolvePrefixDelegateAsync PrefixResolver { get; init; } = new DefaultPrefixResolver(true,"!").ResolvePrefixAsync;
     public TextArgumentSplicer TextArgumentSplicer { get; init; } = DefaultTextArgumentSplicer.Splice;
     public char[] QuoteCharacters { get; init; } = ['"', '\'', '«', '»', '‘', '“', '„', '‟'];
     public bool IgnoreBots { get; init; } = true;
