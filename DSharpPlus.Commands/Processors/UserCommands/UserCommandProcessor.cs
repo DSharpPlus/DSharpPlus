@@ -25,7 +25,14 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
     public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreatedEventArgs>> Converters => this.slashCommandProcessor?.ConverterDelegates ?? new Dictionary<Type, ConverterDelegate<InteractionCreatedEventArgs>>();
     private CommandsExtension? extension;
     private SlashCommandProcessor? slashCommandProcessor;
+    
+    public IReadOnlyList<Command> Commands => this.commands;
+    private List<Command> commands = [];
 
+    /// <inheritdoc />
+    public Type ContextType => typeof(SlashCommandContext);
+
+    /// <inheritdoc />
     public async ValueTask ConfigureAsync(CommandsExtension extension)
     {
         if (this.extension is null)
@@ -39,7 +46,8 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
 
         ILogger<UserCommandProcessor> logger = this.extension.ServiceProvider.GetService<ILogger<UserCommandProcessor>>() ?? NullLogger<UserCommandProcessor>.Instance;
         List<DiscordApplicationCommand> applicationCommands = [];
-        foreach (Command command in this.extension.GetCommandsForProcessor<UserCommandProcessor>())
+        
+        foreach (Command command in this.extension.GetCommandsForProcessor(this))
         {
             // User commands must be explicitly defined as such, otherwise they are ignored.
             if (!command.Attributes.Any(x => x is SlashCommandTypesAttribute slashCommandTypesAttribute && slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.UserContextMenu)))
@@ -63,7 +71,13 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
                 logger.LogError("User command '{CommandName}' must have all parameters after the first contain a default value.", command.Name);
                 continue;
             }
+            else if (!command.Method!.GetParameters()[0].ParameterType.IsAssignableFrom(typeof(SlashCommandContext)))
+            {
+                logger.LogError("User command '{CommandName}' has an incompatible CommandContext.", command.Name);
+                continue;
+            }
 
+            this.commands.Add(command);
             applicationCommands.Add(await ToApplicationCommandAsync(command));
         }
 

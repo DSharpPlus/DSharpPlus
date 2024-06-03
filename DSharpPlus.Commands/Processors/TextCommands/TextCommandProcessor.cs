@@ -24,14 +24,16 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     private bool configured;
 
     private FrozenDictionary<string, Command> commands;
+    public override IReadOnlyList<Command> Commands => this.commands.Values;
 
+    /// <inheritdoc />
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {
         await base.ConfigureAsync(extension);
 
         Dictionary<string, Command> textCommands = [];
 
-        foreach (Command command in this.extension.GetCommandsForProcessor<TextCommandProcessor>())
+        foreach (Command command in this.extension.GetCommandsForProcessor(this))
         {
             textCommands.Add(command.Name, command);
         }

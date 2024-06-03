@@ -34,10 +34,13 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     public const DiscordIntents RequiredIntents = DiscordIntents.Guilds;
 
     public IReadOnlyDictionary<Type, DiscordApplicationCommandOptionType> TypeMappings { get; private set; } = new Dictionary<Type, DiscordApplicationCommandOptionType>();
-    public IReadOnlyDictionary<ulong, Command> Commands => applicationCommandsMapping;
+    public IReadOnlyDictionary<ulong, Command> ApplicationCommandMapping => applicationCommandMapping;
+
+    /// <inheritdoc/>
+    public override IReadOnlyList<Command> Commands => this.ApplicationCommandMapping.Values.ToList(); //TODO: alloc free?
 
     private static readonly List<DiscordApplicationCommand> applicationCommands = [];
-    private static IReadOnlyDictionary<ulong, Command> applicationCommandsMapping;
+    private static FrozenDictionary<ulong, Command> applicationCommandMapping;
 
     [GeneratedRegex(@"^[-_\p{L}\p{N}\p{IsDevanagari}\p{IsThai}]{1,32}$")]
     private partial Regex NameLocalizationRegex();
@@ -47,10 +50,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
 
     private bool configured;
 
+    /// <inheritdoc />
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {
         await base.ConfigureAsync(extension);
-
+        
         Dictionary<Type, DiscordApplicationCommandOptionType> typeMappings = [];
         foreach (LazyConverter lazyConverter in this.lazyConverters.Values)
         {
@@ -145,7 +149,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
 
     public bool TryFindCommand(DiscordInteraction interaction, [NotNullWhen(true)] out Command? command, [NotNullWhen(true)] out IEnumerable<DiscordInteractionDataOption>? options)
     {
-        if (!this.Commands.TryGetValue(interaction.Data.Id, out command))
+        if (!this.ApplicationCommandMapping.TryGetValue(interaction.Data.Id, out command))
         {
             options = null;
             return false;
@@ -193,7 +197,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     [MemberNotNull(nameof(applicationCommands))]
     public async Task RegisterSlashCommandsAsync(CommandsExtension extension)
     {
-        IReadOnlyList<Command> processorSpecificCommands = extension.GetCommandsForProcessor<SlashCommandProcessor>();
+        IReadOnlyList<Command> processorSpecificCommands = extension.GetCommandsForProcessor(this);
         List<DiscordApplicationCommand> globalApplicationCommands = [];
         Dictionary<ulong, List<DiscordApplicationCommand>> guildsApplicationCommands = [];
         globalApplicationCommands.AddRange(applicationCommands);
@@ -269,8 +273,8 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
             }
         }
 
-        applicationCommandsMapping = commandsDictionary.ToFrozenDictionary();
-        SlashLogging.registeredCommands(this.logger, this.Commands.Count, this.Commands.Values.SelectMany(command => command.Walk()).Count(), null);
+        applicationCommandMapping = commandsDictionary.ToFrozenDictionary();
+        SlashLogging.registeredCommands(this.logger, this.ApplicationCommandMapping.Count, this.ApplicationCommandMapping.Values.SelectMany(command => command.Walk()).Count(), null);
     }
 
 
@@ -286,7 +290,6 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
         Dictionary<string, string> descriptionLocalizations = [];
         if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
         {
-
             nameLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
             descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
         }

@@ -211,28 +211,61 @@ public sealed class CommandsExtension : BaseExtension
     /// <summary>
     /// Gets a list of commands filtered for a specific command processor
     /// </summary>
-    /// <typeparam name="TProcessor">Type of the processor calling this method</typeparam>
+    /// <param name="processor">Processor which is calling this method</param>
     /// <returns>Returns a list of valid commands. This list can be empty if no commands are valid for this processor type</returns>
-    public IReadOnlyList<Command> GetCommandsForProcessor<TProcessor>() where TProcessor : ICommandProcessor
+    public IReadOnlyList<Command> GetCommandsForProcessor(ICommandProcessor processor)
     {
+        // Those processors use a different attribute to filter and filter themself 
+        if (processor is MessageCommandProcessor or UserCommandProcessor)
+        {
+            return this.Commands.Values.ToList();
+        }
+        
+        Type contextType = processor.ContextType;
+        Type processorType = processor.GetType();
+        
         List<Command> commands = new(this.Commands.Values.Count());
 
         foreach (Command command in this.Commands.Values)
         {
-            AllowedProcessorsAttribute? allowedProcessorsAttribute = command.Attributes.OfType<AllowedProcessorsAttribute>().FirstOrDefault();
-            if (allowedProcessorsAttribute is null)
+            Command? filteredCommand = FilterCommand(command, processorType, contextType);
+            if (filteredCommand is not null)
             {
-                commands.Add(command);
-                continue;
-            }
-            
-            if (allowedProcessorsAttribute.Processors.Contains(typeof(TProcessor)))
-            {
-                commands.Add(command);
+                commands.Add(filteredCommand);
             }
         }
 
         return commands;
+    }
+
+    private Command? FilterCommand(Command command, Type processorType, Type contextType)
+    {
+        AllowedProcessorsAttribute? allowedProcessorsAttribute = command.Attributes.OfType<AllowedProcessorsAttribute>().FirstOrDefault();
+        if (allowedProcessorsAttribute is not null && !allowedProcessorsAttribute.Processors.Contains(processorType))
+        {
+            return null;
+        }
+
+        if (command.Method is not null)
+        {
+            Type methodContextType = command.Method.GetParameters().First().ParameterType;
+            if (!methodContextType.IsAssignableTo(contextType) && methodContextType != typeof(CommandContext))
+            {
+                return null;
+            }
+        }
+        
+        List<Command> subCommands = new(command.Subcommands.Count);
+        foreach (Command subcommand in command.Subcommands)
+        {
+            Command? filteredSubCommand = FilterCommand(subcommand, processorType, contextType);
+            if (filteredSubCommand is not null)
+            {
+                subCommands.Add(filteredSubCommand);
+            }
+        }
+
+        return command with { Subcommands = subCommands };
     }
 
     public async ValueTask AddProcessorAsync(ICommandProcessor processor)
@@ -401,6 +434,24 @@ public sealed class CommandsExtension : BaseExtension
 
     public async Task RefreshAsync()
     {
+        BuildCommands();
+        
+        if (this.RegisterDefaultCommandProcessors)
+        {
+            this.processors.TryAdd(typeof(TextCommandProcessor), new TextCommandProcessor());
+            this.processors.TryAdd(typeof(SlashCommandProcessor), new SlashCommandProcessor());
+            this.processors.TryAdd(typeof(MessageCommandProcessor), new MessageCommandProcessor());
+            this.processors.TryAdd(typeof(UserCommandProcessor), new UserCommandProcessor());
+        }
+
+        foreach (ICommandProcessor processor in this.processors.Values)
+        {
+            await processor.ConfigureAsync(this);
+        }
+    }
+
+    internal void BuildCommands()
+    {
         Dictionary<string, Command> commands = [];
         foreach (CommandBuilder commandBuilder in this.commandBuilders)
         {
@@ -416,18 +467,6 @@ public sealed class CommandsExtension : BaseExtension
         }
 
         this.Commands = commands.ToFrozenDictionary();
-        if (this.RegisterDefaultCommandProcessors)
-        {
-            this.processors.TryAdd(typeof(TextCommandProcessor), new TextCommandProcessor());
-            this.processors.TryAdd(typeof(SlashCommandProcessor), new SlashCommandProcessor());
-            this.processors.TryAdd(typeof(MessageCommandProcessor), new MessageCommandProcessor());
-            this.processors.TryAdd(typeof(UserCommandProcessor), new UserCommandProcessor());
-        }
-
-        foreach (ICommandProcessor processor in this.processors.Values)
-        {
-            await processor.ConfigureAsync(this);
-        }
     }
 
     /// <inheritdoc />

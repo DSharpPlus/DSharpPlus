@@ -138,6 +138,12 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
 
     private static readonly Action<ILogger, string, Exception?> failedConverterCreation = LoggerMessage.Define<string>(LogLevel.Error, new EventId(1), "Failed to create instance of converter '{FullName}' due to a lack of empty public constructors, lack of a service provider, or lack of services within the service provider.");
 
+    /// <inheritdoc />
+    public Type ContextType => typeof(TCommandContext);
+
+    /// <inheritdoc />
+    public abstract IReadOnlyList<Command> Commands { get; }
+
     public virtual void AddConverter<T>(TConverter converter) => AddConverter(typeof(T), converter);
     public virtual void AddConverter(Type type, TConverter converter) => AddConverter(new() { ParameterType = type, ConverterInstance = converter });
     public virtual void AddConverters(Assembly assembly) => AddConverters(assembly.GetTypes());
@@ -177,6 +183,7 @@ public abstract class BaseCommandProcessor<TEventArgs, TConverter, TConverterCon
         }
     }
 
+    /// <inheritdoc />
     [MemberNotNull(nameof(extension))]
     public virtual ValueTask ConfigureAsync(CommandsExtension extension)
     {
