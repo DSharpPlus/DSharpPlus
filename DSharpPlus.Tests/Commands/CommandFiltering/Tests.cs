@@ -24,15 +24,11 @@ public class Tests
     [OneTimeSetUp]
     public static async Task CreateExtensionAsync()
     {
-        DiscordClient client = new(new DiscordConfiguration()
-        {
-            Token = "FakeToken",
-        });
-
+        DiscordClient client = DiscordClientBuilder.CreateDefault("faketoken", DiscordIntents.None).Build();
+        
         extension = client.UseCommands(new CommandsConfiguration()
         {
-            RegisterDefaultCommandProcessors = false,
-            ServiceProvider = new ServiceCollection().BuildServiceProvider()
+            RegisterDefaultCommandProcessors = false
         });
         
         await extension.AddProcessorAsync(textCommandProcessor);
