@@ -109,17 +109,9 @@ public record SlashCommandContext : CommandContext
     /// <inheritdoc />
     public override async ValueTask<DiscordMessage> EditFollowupAsync(ulong messageId, IDiscordMessageBuilder builder)
     {
-        // Fetch the follow up message if we don't have it cached.
-        if (!this.followupMessages.TryGetValue(messageId, out DiscordMessage? message))
-        {
-            message = await this.Channel.GetMessageAsync(messageId);
-        }
-
-        DiscordMessageBuilder editedBuilder = builder is DiscordMessageBuilder messageBuilder
-            ? messageBuilder
-            : new DiscordMessageBuilder(builder);
-
-        this.followupMessages[messageId] = await message.ModifyAsync(editedBuilder);
+        DiscordWebhookBuilder editedBuilder = builder as DiscordWebhookBuilder ?? new DiscordWebhookBuilder(builder);
+        
+        this.followupMessages[messageId] = await this.Interaction.EditFollowupMessageAsync(messageId, editedBuilder);
         return this.followupMessages[messageId];
     }
 
