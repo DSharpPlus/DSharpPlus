@@ -13,7 +13,7 @@ This is a basic implementation that only sends log messages to the console.
 
 #### Minimum Logging Level
 
-You're able to adjust the verbosity of log messages via @DSharpPlus.DiscordConfiguration.
+You're able to adjust the verbosity of log messages via `DiscordConfiguration`.
 
 ```cs
 new DiscordConfiguration()
@@ -28,7 +28,7 @@ The example above will display level log messages that are higher than or equal 
 
 #### Timestamp Format
 
-You're also able to change the format of the log timestamp; this is also set through @DSharpPlus.DiscordConfiguration.
+You're also able to change the format of the log timestamp; this is also set through `DiscordConfiguration`.
 
 ```cs
 new DiscordConfiguration()

@@ -66,7 +66,7 @@ public class RequireYearAttribute : CheckBaseAttribute
 }
 ```
 
-You can provide feedback to the user using the @DSharpPlus.CommandsNext.CommandsNextExtension.CommandErrored event.
+You can provide feedback to the user using the `CommandsNextExtension.CommandErrored` event.
 
 ```cs
 private async Task Main(string[] args)

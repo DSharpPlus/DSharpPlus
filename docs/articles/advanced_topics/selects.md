@@ -7,7 +7,7 @@ title: Select Menus
 **They're here!** What's here? Select menus (aka dropdowns) of course.
 
 Dropdowns are another [message component][0] added to the Discord API. Additionally, just like buttons, dropdowns are
-supported in all builders that take @DSharpPlus.Entities.DiscordComponent. However, dropdowns occupy an entire action
+supported in all builders that take `DiscordComponent`. However, dropdowns occupy an entire action
 row, so you can only have up to 5! Furthermore, buttons cannot occupy the same row as a dropdown.
 
 In this article, we will go over what dropdowns are, how to use them, and the limitations of dropdowns.
@@ -30,7 +30,7 @@ Dropdowns consist of several parts, and share some in common with buttons. They 
 So lets go over these one by one, starting with the id. The id of a dropdown should of course be unique, just like
 buttons, and Discord will send this id back in the [interaction object][1].
 
-Placeholder is also relatively relatively simple! It's hopefully self-explanatory, too. Placeholder text is the text the
+Placeholder is also relatively simple! It's hopefully self-explanatory, too. Placeholder text is the text the
 user will see when no options are selected.
 
 If you do not wish to have placeholder text, simply pass `null` as that parameter in the constructor for the dropdown.
@@ -58,14 +58,14 @@ to **25** options, but must have at least 1. These consist of several parts:
 Label is the label of the option. This is always required, and can be up to **100** characters long.
 
 Value is like the custom id of the dropdown; for the most part it should be unique. This will be accessible on the
-@DSharpPlus.Entities.DiscordInteractionData.Values property the interaction, and will contain all the selected options.
+`DiscordInteractionData.Values` property the interaction, and will contain all the selected options.
 
 Individual values unfortunately cannot be disabled.
 
 Description is text that is placed under the label on each option, and can also be up to 100 characters. This text is
 also plain-text, and does not support markdown.
 
-Default determines whether or not the option will be the default option (which overrides placeholder). If you set
+Default determines whether the option will be the default option (which overrides placeholder). If you set
 multiple to default (and allow multiple to be selected), the user will see the options as pre-selected.
 
 Emoji is the same as a button. You can pass an emoji id, a unicode emote or a DiscordEmoji object, which will
@@ -116,8 +116,8 @@ var dropdown = new DiscordSelectComponent("dropdown", null, options, false, 1, 2
 ```
 
 Okay, so we have a dropdown...now what? Simply pass it to any builder that constructs a response, be it a
-@DSharpPlus.Entities.DiscordMessageBuilder, @DSharpPlus.Entities.DiscordInteractionResponseBuilder, or
-@DSharpPlus.Entities.DiscordWebhookBuilder.
+`DiscordMessageBuilder`, `DiscordInteractionResponseBuilder`, or
+`DiscordWebhookBuilder`.
 
 It'll look something like this, using the code above:
 
@@ -147,11 +147,11 @@ two options.
 "**Oh no, I'm getting 'This interaction failed' when selecting! What do I do?**"
 
 Dropdowns are like buttons; when a user interacts with them, you need to respond to that interaction.
-@DSharpPlus.DiscordClient.ComponentInteractionCreated is fired from the client, just like buttons.
+`DiscordClient.ComponentInteractionCreated` is fired from the client, just like buttons.
 
 This applies to interactivity, too! Simply swap
-@DSharpPlus.Interactivity.Extensions.MessageExtensions.WaitForButtonAsync* for
-@DSharpPlus.Interactivity.Extensions.MessageExtensions.WaitForSelectAsync*, and pass a dropdown. How to go about
+`WaitForButtonAsync` for
+`WaitForSelectAsync`, and pass a dropdown. How to go about
 component-based interactivity is described [in the buttons article][4].
 
 And that's it! Go forth and create amazing things.
