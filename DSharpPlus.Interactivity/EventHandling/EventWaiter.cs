@@ -1,8 +1,9 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using ConcurrentCollections;
 using DSharpPlus.AsyncEvents;
@@ -17,6 +18,9 @@ namespace DSharpPlus.Interactivity.EventHandling;
 /// <typeparam name="T"></typeparam>
 internal class EventWaiter<T> : IDisposable where T : AsyncEventArgs
 {
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "events")]
+    private static extern ref ConcurrentDictionary<Type, AsyncEvent> GetEventsField(DiscordClient client);
+
     private DiscordClient client;
     private AsyncEvent<DiscordClient, T> @event;
     private AsyncEventHandler<DiscordClient, T> handler;
@@ -31,12 +35,20 @@ internal class EventWaiter<T> : IDisposable where T : AsyncEventArgs
     public EventWaiter(DiscordClient client)
     {
         this.client = client;
-        TypeInfo tinfo = this.client.GetType().GetTypeInfo();
-        FieldInfo handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, T>));
+        if (GetEventsField(client) is not ConcurrentDictionary<Type, AsyncEvent> events)
+        {
+            throw new NotImplementedException("Could not get the events from the events field in DiscordClient. This is a bug, please report it.");
+        }
+
+        if (!events.TryGetValue(typeof(T), out AsyncEvent? @event))
+        {
+            throw new InvalidOperationException($"The event {typeof(T).Name} is not registered in the DiscordClient. This is a bug, please report it.");
+        }
+
         this.matchrequests = [];
         this.collectrequests = [];
-        this.@event = (AsyncEvent<DiscordClient, T>)handler.GetValue(this.client);
         this.handler = new AsyncEventHandler<DiscordClient, T>(HandleEvent);
+        this.@event = (AsyncEvent<DiscordClient, T>)@event;
         this.@event.Register(this.handler);
     }
 
