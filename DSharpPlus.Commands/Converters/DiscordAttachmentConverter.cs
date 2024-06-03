@@ -15,7 +15,7 @@ public class AttachmentConverter : ISlashArgumentConverter<DiscordAttachment>, I
     public string ReadableName => "Discord File";
     public bool RequiresText => false;
 
-    public Task<Optional<DiscordAttachment>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
+    public Task<Optional<DiscordAttachment>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs)
     {
         DiscordMessage message = eventArgs.Message;
         int currentAttachmentArgumentIndex = context.Command.Parameters.Where(argument => argument.Type == typeof(DiscordAttachment)).IndexOf(context.Parameter);
@@ -37,7 +37,7 @@ public class AttachmentConverter : ISlashArgumentConverter<DiscordAttachment>, I
             : Task.FromResult(Optional.FromValue(message.Attachments[currentAttachmentArgumentIndex]));
     }
 
-    public Task<Optional<DiscordAttachment>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs)
+    public Task<Optional<DiscordAttachment>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs)
     {
         int currentAttachmentArgumentIndex = context.Command.Parameters.Where(argument => argument.Type == typeof(DiscordAttachment)).IndexOf(context.Parameter);
         if (eventArgs.Interaction.Data.Resolved is null)

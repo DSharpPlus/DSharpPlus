@@ -21,11 +21,8 @@ public async Task Main(string[] args)
         Environment.Exit(1);
     }
 
-    DiscordClient discordClient = new(new DiscordConfiguration()
-    {
-        Token = discordToken,
-        Intents = TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents
-    });
+    DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
+    DiscordClient discordClient = builder.Build();
 
     // Use the commands extension
     CommandsExtension commandsExtension = discordClient.UseCommands(new CommandsConfiguration()
@@ -40,10 +37,11 @@ public async Task Main(string[] args)
     commandsExtension.AddCommands(typeof(Program).Assembly);
     TextCommandProcessor textCommandProcessor = new(new()
     {
-        // By default, the prefix will be "!"
-        // However the bot will *always* respond to a direct mention
-        // as long as the `DefaultPrefixResolver` is used
-        PrefixResolver = new DefaultPrefixResolver("?").ResolvePrefixAsync
+        // The default behavior is that the bot reacts to direct mentions
+        // and to the "!" prefix.
+        // If you want to change it, you first set if the bot should react to mentions
+        // and then you can provide as many prefixes as you want.
+        PrefixResolver = new DefaultPrefixResolver(true, "?", "&").ResolvePrefixAsync
     });
 
     // Add text commands with a custom prefix (?ping)
@@ -55,23 +53,15 @@ public async Task Main(string[] args)
 In the main logic of your program, we're going to register the `DiscordClient` to your service provider. I've chosen to do it like such:
 
 ```cs
-serviceCollection.AddSingleton(_ =>
+string discordToken = Environment.GetEnvironmentVariable("DISCORD_TOKEN");
+
+if (string.IsNullOrWhiteSpace(discordToken))
 {
-    string discordToken = Environment.GetEnvironmentVariable("DISCORD_TOKEN");
-    if (string.IsNullOrWhiteSpace(discordToken))
-    {
-        Console.WriteLine("Error: No discord token found. Please provide a token via the DISCORD_TOKEN environment variable.");
-        Environment.Exit(1);
-    }
+    Console.WriteLine("Error: No discord token found. Please provide a token via the DISCORD_TOKEN environment variable.");
+    Environment.Exit(1);
+}
 
-    DiscordClient discordClient = new(new DiscordConfiguration()
-    {
-        Token = discordToken,
-        Intents = TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents
-    });
-
-    return discordClient;
-});
+serviceCollection.AddDiscordClient(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
 ```
 
 And when your program actually starts, you'll want to register the command framework:
@@ -92,10 +82,11 @@ CommandsExtension commandsExtensions = discordClient.UseCommands(new CommandsCon
 commandsExtension.AddCommands(typeof(Program).Assembly);
 TextCommandProcessor textCommandProcessor = new(new()
 {
-    // By default, the prefix will be "!"
-    // However the bot will *always* respond to a direct mention
-    // as long as the `DefaultPrefixResolver` is used
-    PrefixResolver = new DefaultPrefixResolver("?").ResolvePrefixAsync
+    // The default behavior is that the bot reacts to direct mentions
+    // and to the "!" prefix.
+    // If you want to change it, you first set if the bot should react to mentions
+    // and then you can provide as many prefixes as you want.
+    PrefixResolver = new DefaultPrefixResolver(true, "?", "&").ResolvePrefixAsync
 });
 
 // Add text commands with a custom prefix (?ping)

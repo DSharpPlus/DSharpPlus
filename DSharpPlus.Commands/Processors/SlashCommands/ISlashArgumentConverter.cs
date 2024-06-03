@@ -9,4 +9,4 @@ public interface ISlashArgumentConverter : IArgumentConverter
     public DiscordApplicationCommandOptionType ParameterType { get; }
 }
 
-public interface ISlashArgumentConverter<T> : ISlashArgumentConverter, IArgumentConverter<InteractionConverterContext, InteractionCreateEventArgs, T>;
+public interface ISlashArgumentConverter<T> : ISlashArgumentConverter, IArgumentConverter<InteractionConverterContext, InteractionCreatedEventArgs, T>;

@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace DSharpPlus.Entities;
 
 /// <summary>
-/// Represents a button that can be pressed. Fires <see cref="ComponentInteractionCreateEventArgs"/> when pressed.
+/// Represents a button that can be pressed. Fires <see cref="ComponentInteractionCreatedEventArgs"/> when pressed.
 /// </summary>
 public sealed class DiscordButtonComponent : DiscordComponent
 {

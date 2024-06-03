@@ -48,7 +48,9 @@ public sealed class LavalinkExtension : BaseExtension
 
         this.Client = client;
 
-        this.nodeDisconnected = new AsyncEvent<LavalinkNodeConnection, NodeDisconnectedEventArgs>("LAVALINK_NODE_DISCONNECTED", this.Client.EventErrorHandler);
+        DefaultClientErrorHandler errorHandler = new(client.Logger);
+
+        this.nodeDisconnected = new AsyncEvent<LavalinkNodeConnection, NodeDisconnectedEventArgs>(errorHandler);
     }
 
     /// <summary>

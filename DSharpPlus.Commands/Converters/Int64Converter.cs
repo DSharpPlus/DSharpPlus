@@ -16,11 +16,11 @@ public class Int64Converter : ISlashArgumentConverter<long>, ITextArgumentConver
     public string ReadableName => "Large Integer";
     public bool RequiresText => true;
 
-    public Task<Optional<long>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => long.TryParse(context.Argument, CultureInfo.InvariantCulture, out long result)
+    public Task<Optional<long>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs) => long.TryParse(context.Argument, CultureInfo.InvariantCulture, out long result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<long>());
 
-    public Task<Optional<long>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => long.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out long result)
+    public Task<Optional<long>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs) => long.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out long result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<long>());
 }

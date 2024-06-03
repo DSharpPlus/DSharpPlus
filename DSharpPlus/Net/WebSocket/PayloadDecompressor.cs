@@ -3,9 +3,11 @@ using System.Buffers.Binary;
 using System.IO;
 using System.IO.Compression;
 
+using Microsoft.Extensions.Options;
+
 namespace DSharpPlus.Net.WebSocket;
 
-internal sealed class PayloadDecompressor : IDisposable
+public sealed class PayloadDecompressor : IDisposable
 {
     private const uint ZlibFlush = 0x0000FFFF;
     private const byte ZlibPrefix = 0x78;
@@ -15,14 +17,13 @@ internal sealed class PayloadDecompressor : IDisposable
     private MemoryStream CompressedStream { get; }
     private DeflateStream DecompressorStream { get; }
 
-    public PayloadDecompressor(GatewayCompressionLevel compressionLevel)
-    {
-        if (compressionLevel == GatewayCompressionLevel.None)
-        {
-            throw new InvalidOperationException("Decompressor requires a valid compression mode.");
-        }
+    private readonly bool noCompression;
 
-        this.CompressionLevel = compressionLevel;
+    public PayloadDecompressor(IOptions<DiscordConfiguration> config)
+    {
+        this.noCompression = config.Value.GatewayCompressionLevel == GatewayCompressionLevel.None;
+
+        this.CompressionLevel = config.Value.GatewayCompressionLevel;
         this.CompressedStream = new MemoryStream();
         if (this.CompressionLevel == GatewayCompressionLevel.Stream)
         {
@@ -32,6 +33,12 @@ internal sealed class PayloadDecompressor : IDisposable
 
     public bool TryDecompress(ArraySegment<byte> compressed, MemoryStream decompressed)
     {
+        if (this.noCompression)
+        {
+            decompressed.Write(compressed);
+            return true;
+        }
+
         DeflateStream zlib = this.CompressionLevel == GatewayCompressionLevel.Stream
             ? this.DecompressorStream
             : new DeflateStream(this.CompressedStream, CompressionMode.Decompress, true);
@@ -65,7 +72,10 @@ internal sealed class PayloadDecompressor : IDisposable
             zlib.CopyTo(decompressed);
             return true;
         }
-        catch { return false; }
+        catch
+        {
+            return false;
+        }
         finally
         {
             this.CompressedStream.Position = 0;

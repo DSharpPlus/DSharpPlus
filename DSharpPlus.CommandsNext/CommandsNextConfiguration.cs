@@ -84,13 +84,6 @@ public sealed class CommandsNextConfiguration
     public bool EnableDms { internal get; set; } = true;
 
     /// <summary>
-    /// <para>Sets the service provider for this CommandsNext instance.</para>
-    /// <para>Objects in this provider are used when instantiating command modules. This allows passing data around without resorting to static members.</para>
-    /// <para>Defaults to null.</para>
-    /// </summary>
-    public IServiceProvider Services { internal get; set; } = new ServiceCollection().BuildServiceProvider(true);
-
-    /// <summary>
     /// <para>Gets whether any extra arguments passed to commands should be ignored or not. If this is set to false, extra arguments will throw, otherwise they will be ignored.</para>
     /// <para>Defaults to false.</para>
     /// </summary>
@@ -141,7 +134,6 @@ public sealed class CommandsNextConfiguration
         this.IgnoreExtraArguments = other.IgnoreExtraArguments;
         this.QuotationMarks = other.QuotationMarks;
         this.UseDefaultCommandHandler = other.UseDefaultCommandHandler;
-        this.Services = other.Services;
         this.StringPrefixes = other.StringPrefixes.ToArray();
         this.DmHelp = other.DmHelp;
         this.DefaultParserCulture = other.DefaultParserCulture;

@@ -13,11 +13,11 @@ public class DoubleConverter : ISlashArgumentConverter<double>, ITextArgumentCon
     public string ReadableName => "Decimal Number";
     public bool RequiresText => true;
 
-    public Task<Optional<double>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => double.TryParse(context.Argument, CultureInfo.InvariantCulture, out double result)
+    public Task<Optional<double>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs) => double.TryParse(context.Argument, CultureInfo.InvariantCulture, out double result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<double>());
 
-    public Task<Optional<double>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => double.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out double result)
+    public Task<Optional<double>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs) => double.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out double result)
         ? Task.FromResult(Optional.FromValue(result))
         : Task.FromResult(Optional.FromNoValue<double>());
 }

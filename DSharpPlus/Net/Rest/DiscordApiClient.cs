@@ -8,12 +8,16 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+
 using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.Metrics;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
+
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -26,30 +30,22 @@ public sealed class DiscordApiClient
 {
     private const string REASON_HEADER_NAME = "X-Audit-Log-Reason";
 
-    internal BaseDiscordClient? discord { get; }
-    internal RestClient rest { get; }
+    internal BaseDiscordClient? discord;
+    internal RestClient rest;
 
-    internal DiscordApiClient(BaseDiscordClient client, RestClient? rest = null)
-    {
-        this.discord = client;
-        rest ??= new RestClient(client.Configuration, client.Logger);
-        this.rest = rest;
-    }
+    [ActivatorUtilitiesConstructor]
+    public DiscordApiClient(RestClient rest) => this.rest = rest;
 
-    internal DiscordApiClient
-    (
-        IWebProxy proxy,
-        TimeSpan timeout,
-        ILogger logger
-    ) // This is for meta-clients, such as the webhook client
-        => this.rest = new(proxy, timeout, logger);
-
-    internal DiscordApiClient(RestClient rest)
-        => this.rest = rest;
+    // This is for meta-clients, such as the webhook client
+    internal DiscordApiClient(TimeSpan timeout, ILogger logger) 
+        => this.rest = new(new(), timeout, logger);
 
     /// <inheritdoc cref="RestClient.GetRequestMetrics(bool)"/>
     public RequestMetricsCollection GetRequestMetrics(bool sinceLastCall = false)
         => this.rest.GetRequestMetrics(sinceLastCall);
+
+    internal void SetClient(BaseDiscordClient client)
+        => this.discord = client;
 
     private DiscordMessage PrepareMessage(JToken msgRaw)
     {

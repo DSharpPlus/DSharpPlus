@@ -19,12 +19,12 @@ internal class ComponentMatchRequest
     /// <summary>
     /// The completion source that represents the result of the match.
     /// </summary>
-    public TaskCompletionSource<ComponentInteractionCreateEventArgs> Tcs { get; private set; } = new();
+    public TaskCompletionSource<ComponentInteractionCreatedEventArgs> Tcs { get; private set; } = new();
 
     protected readonly CancellationToken cancellation;
-    protected readonly Func<ComponentInteractionCreateEventArgs, bool> predicate;
+    protected readonly Func<ComponentInteractionCreatedEventArgs, bool> predicate;
 
-    public ComponentMatchRequest(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation)
+    public ComponentMatchRequest(DiscordMessage message, Func<ComponentInteractionCreatedEventArgs, bool> predicate, CancellationToken cancellation)
     {
         this.Message = message;
         this.predicate = predicate;
@@ -32,5 +32,5 @@ internal class ComponentMatchRequest
         this.cancellation.Register(() => this.Tcs.TrySetResult(null)); // TrySetCancelled would probably be better but I digress ~Velvet //
     }
 
-    public bool IsMatch(ComponentInteractionCreateEventArgs args) => this.predicate(args);
+    public bool IsMatch(ComponentInteractionCreatedEventArgs args) => this.predicate(args);
 }

@@ -16,14 +16,14 @@ public sealed class AsyncEvent<TSender, TArgs> : AsyncEvent
     where TArgs : AsyncEventArgs
 {
     private readonly SemaphoreSlim @lock = new(1);
-    private readonly AsyncEventExceptionHandler<TSender, TArgs> exceptionHandler;
+    private readonly IClientErrorHandler errorHandler;
     private List<AsyncEventHandler<TSender, TArgs>> handlers;
 
-    public AsyncEvent(string name, AsyncEventExceptionHandler<TSender, TArgs> exceptionHandler)
-        : base(name)
+    public AsyncEvent(IClientErrorHandler errorHandler)
+        : base(typeof(TArgs).ToString())
     {
         this.handlers = [];
-        this.exceptionHandler = exceptionHandler;
+        this.errorHandler = errorHandler;
     }
 
     /// <summary>
@@ -43,6 +43,10 @@ public sealed class AsyncEvent<TSender, TArgs> : AsyncEvent
             this.@lock.Release();
         }
     }
+
+    // this serves as a stopgap solution until we address the shortcomings of event dispatch in DiscordClient
+    internal override void Register(Delegate @delegate)
+        => Register((AsyncEventHandler<TSender, TArgs>)@delegate);
 
     /// <summary>
     /// Unregisters a specific handler from this event.
@@ -92,7 +96,7 @@ public sealed class AsyncEvent<TSender, TArgs> : AsyncEvent
             }
             catch (Exception ex)
             {
-                this.exceptionHandler?.Invoke(this, ex, handler, sender, args);
+                await this.errorHandler.HandleEventHandlerError(this.Name, ex, handler, sender, args);
             }
         }));
 

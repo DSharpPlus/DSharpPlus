@@ -15,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Commands.Processors.TextCommands;
 
-public sealed class TextCommandProcessor(TextCommandConfiguration? configuration = null) : BaseCommandProcessor<MessageCreateEventArgs, ITextArgumentConverter, TextConverterContext, TextCommandContext>
+public sealed class TextCommandProcessor(TextCommandConfiguration? configuration = null) : BaseCommandProcessor<MessageCreatedEventArgs, ITextArgumentConverter, TextConverterContext, TextCommandContext>
 {
     public const DiscordIntents RequiredIntents = DiscordIntents.DirectMessages // Required for commands executed in DMs
                                                 | DiscordIntents.GuildMessages; // Required for commands that are executed via bot ping
@@ -57,7 +57,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         }
     }
 
-    public async Task ExecuteTextCommandAsync(DiscordClient client, MessageCreateEventArgs eventArgs)
+    public async Task ExecuteTextCommandAsync(DiscordClient client, MessageCreatedEventArgs eventArgs)
     {
         if (this.extension is null)
         {
@@ -218,7 +218,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     public override TextCommandContext CreateCommandContext
     (
         TextConverterContext converterContext,
-        MessageCreateEventArgs eventArgs,
+        MessageCreatedEventArgs eventArgs,
         Dictionary<CommandParameter, object?> parsedArguments
     )
     {
@@ -239,7 +239,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     (
         ITextArgumentConverter converter,
         TextConverterContext converterContext,
-        MessageCreateEventArgs eventArgs
+        MessageCreatedEventArgs eventArgs
     )
     {   
         if (converter is not ITextArgumentConverter<T> typedConverter)
@@ -279,7 +279,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     public override async ValueTask<TextCommandContext?> ParseArgumentsAsync
     (
         TextConverterContext converterContext, 
-        MessageCreateEventArgs eventArgs
+        MessageCreatedEventArgs eventArgs
     )
     {
         if (this.extension is null)

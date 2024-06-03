@@ -17,8 +17,8 @@ public sealed class VoiceNextExtension : BaseExtension
     private VoiceNextConfiguration Configuration { get; set; }
 
     private ConcurrentDictionary<ulong, VoiceNextConnection> ActiveConnections { get; set; }
-    private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>> VoiceStateUpdates { get; set; }
-    private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdateEventArgs>> VoiceServerUpdates { get; set; }
+    private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdatedEventArgs>> VoiceStateUpdates { get; set; }
+    private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdatedEventArgs>> VoiceServerUpdates { get; set; }
 
     /// <summary>
     /// Gets whether this connection has incoming voice enabled.
@@ -31,8 +31,8 @@ public sealed class VoiceNextExtension : BaseExtension
         this.IsIncomingEnabled = config.EnableIncoming;
 
         this.ActiveConnections = new ConcurrentDictionary<ulong, VoiceNextConnection>();
-        this.VoiceStateUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>>();
-        this.VoiceServerUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdateEventArgs>>();
+        this.VoiceStateUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdatedEventArgs>>();
+        this.VoiceServerUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdatedEventArgs>>();
     }
 
     /// <summary>
@@ -81,8 +81,8 @@ public sealed class VoiceNextExtension : BaseExtension
             throw new InvalidOperationException("This guild already has a voice connection");
         }
 
-        TaskCompletionSource<VoiceStateUpdateEventArgs> vstut = new();
-        TaskCompletionSource<VoiceServerUpdateEventArgs> vsrut = new();
+        TaskCompletionSource<VoiceStateUpdatedEventArgs> vstut = new();
+        TaskCompletionSource<VoiceServerUpdatedEventArgs> vsrut = new();
         this.VoiceStateUpdates[gld.Id] = vstut;
         this.VoiceServerUpdates[gld.Id] = vsrut;
 
@@ -100,13 +100,13 @@ public sealed class VoiceNextExtension : BaseExtension
         string vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
         await (channel.Discord as DiscordClient).SendRawPayloadAsync(vsj);
 
-        VoiceStateUpdateEventArgs vstu = await vstut.Task;
+        VoiceStateUpdatedEventArgs vstu = await vstut.Task;
         VoiceStateUpdatePayload vstup = new()
         {
             SessionId = vstu.SessionId,
             UserId = vstu.User.Id
         };
-        VoiceServerUpdateEventArgs vsru = await vsrut.Task;
+        VoiceServerUpdatedEventArgs vsru = await vsrut.Task;
         VoiceServerUpdatePayload vsrup = new()
         {
             Endpoint = vsru.Endpoint,
@@ -150,7 +150,7 @@ public sealed class VoiceNextExtension : BaseExtension
         await (guild.Discord as DiscordClient).SendRawPayloadAsync(vsj);
     }
 
-    private Task Client_VoiceStateUpdate(DiscordClient client, VoiceStateUpdateEventArgs e)
+    private Task Client_VoiceStateUpdate(DiscordClient client, VoiceStateUpdatedEventArgs e)
     {
         DiscordGuild gld = e.Guild;
         if (gld == null)
@@ -175,7 +175,7 @@ public sealed class VoiceNextExtension : BaseExtension
                 vnc.TargetChannel = e.Channel;
             }
 
-            if (!string.IsNullOrWhiteSpace(e.SessionId) && e.Channel != null && this.VoiceStateUpdates.TryRemove(gld.Id, out TaskCompletionSource<VoiceStateUpdateEventArgs>? xe))
+            if (!string.IsNullOrWhiteSpace(e.SessionId) && e.Channel != null && this.VoiceStateUpdates.TryRemove(gld.Id, out TaskCompletionSource<VoiceStateUpdatedEventArgs>? xe))
             {
                 xe.SetResult(e);
             }
@@ -184,7 +184,7 @@ public sealed class VoiceNextExtension : BaseExtension
         return Task.CompletedTask;
     }
 
-    private async Task Client_VoiceServerUpdateAsync(DiscordClient client, VoiceServerUpdateEventArgs e)
+    private async Task Client_VoiceServerUpdateAsync(DiscordClient client, VoiceServerUpdatedEventArgs e)
     {
         DiscordGuild gld = e.Guild;
         if (gld == null)
@@ -222,7 +222,7 @@ public sealed class VoiceNextExtension : BaseExtension
 
         if (this.VoiceServerUpdates.ContainsKey(gld.Id))
         {
-            this.VoiceServerUpdates.TryRemove(gld.Id, out TaskCompletionSource<VoiceServerUpdateEventArgs>? xe);
+            this.VoiceServerUpdates.TryRemove(gld.Id, out TaskCompletionSource<VoiceServerUpdatedEventArgs>? xe);
             xe.SetResult(e);
         }
     }

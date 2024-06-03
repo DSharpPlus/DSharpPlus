@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
@@ -23,9 +24,10 @@ using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+
 using CheckFunc = System.Func
 <
     object,
@@ -33,6 +35,7 @@ using CheckFunc = System.Func
     DSharpPlus.Commands.CommandContext,
     System.Threading.Tasks.ValueTask<string?>
 >;
+
 using ParameterCheckFunc = System.Func
 <
     object,
@@ -49,8 +52,8 @@ namespace DSharpPlus.Commands;
 /// </summary>
 public sealed class CommandsExtension : BaseExtension
 {
-    /// <inheritdoc cref="CommandsConfiguration.ServiceProvider"/>
-    public IServiceProvider ServiceProvider { get; init; }
+    /// <inheritdoc cref="DiscordClient.ServiceProvider"/>
+    public IServiceProvider ServiceProvider { get; private set; }
 
     /// <inheritdoc cref="CommandsConfiguration.DebugGuildId"/>
     public ulong DebugGuildId { get; init; }
@@ -84,19 +87,29 @@ public sealed class CommandsExtension : BaseExtension
     /// <summary>
     /// Executed everytime a command is finished executing.
     /// </summary>
-    public event AsyncEventHandler<CommandsExtension, CommandExecutedEventArgs> CommandExecuted { add => this.commandExecuted.Register(value); remove => this.commandExecuted.Unregister(value); }
-    internal readonly AsyncEvent<CommandsExtension, CommandExecutedEventArgs> commandExecuted = new("COMMANDS_COMMAND_EXECUTED", EverythingWentWrongErrorHandler);
+    public event AsyncEventHandler<CommandsExtension, CommandExecutedEventArgs> CommandExecuted 
+    { 
+        add => this.commandExecuted.Register(value); 
+        remove => this.commandExecuted.Unregister(value); 
+    }
+
+    internal AsyncEvent<CommandsExtension, CommandExecutedEventArgs> commandExecuted;
 
     /// <summary>
     /// Executed everytime a command has errored.
     /// </summary>
-    public event AsyncEventHandler<CommandsExtension, CommandErroredEventArgs> CommandErrored { add => this.commandErrored.Register(value); remove => this.commandErrored.Unregister(value); }
-    internal readonly AsyncEvent<CommandsExtension, CommandErroredEventArgs> commandErrored = new("COMMANDS_COMMAND_ERRORED", EverythingWentWrongErrorHandler);
+    public event AsyncEventHandler<CommandsExtension, CommandErroredEventArgs> CommandErrored 
+    { 
+        add => this.commandErrored.Register(value); 
+        remove => this.commandErrored.Unregister(value); 
+    }
+
+    internal AsyncEvent<CommandsExtension, CommandErroredEventArgs> commandErrored;
 
     /// <summary>
     /// Used to log messages from this extension.
     /// </summary>
-    private readonly ILogger<CommandsExtension> logger;
+    private ILogger<CommandsExtension> logger;
 
     /// <summary>
     /// Creates a new instance of the <see cref="CommandsExtension"/> class.
@@ -106,18 +119,10 @@ public sealed class CommandsExtension : BaseExtension
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        this.ServiceProvider = configuration.ServiceProvider;
         this.DebugGuildId = configuration.DebugGuildId;
         this.UseDefaultCommandErrorHandler = configuration.UseDefaultCommandErrorHandler;
         this.RegisterDefaultCommandProcessors = configuration.RegisterDefaultCommandProcessors;
         this.CommandExecutor = configuration.CommandExecutor;
-        if (this.UseDefaultCommandErrorHandler)
-        {
-            this.CommandErrored += DefaultCommandErrorHandlerAsync;
-        }
-
-        // Attempt to get the user defined logging, otherwise setup a null logger since the D#+ Default Logger is internal.
-        this.logger = this.ServiceProvider.GetService<ILogger<CommandsExtension>>() ?? NullLogger<CommandsExtension>.Instance;
     }
 
     /// <summary>
@@ -136,7 +141,19 @@ public sealed class CommandsExtension : BaseExtension
         }
 
         this.Client = client;
+        this.ServiceProvider = client.ServiceProvider;
         this.Client.SessionCreated += async (_, _) => await RefreshAsync();
+
+        this.logger = client.ServiceProvider.GetService<ILogger<CommandsExtension>>();
+
+        DefaultClientErrorHandler errorHandler = new(client.Logger);
+        this.commandErrored = new(errorHandler);
+        this.commandExecuted = new(errorHandler);
+
+        if (this.UseDefaultCommandErrorHandler)
+        {
+            this.CommandErrored += DefaultCommandErrorHandlerAsync;
+        }
 
         AddCheck<DirectMessageUsageCheck>();
         AddCheck<RequireApplicationOwnerCheck>();

@@ -62,7 +62,7 @@ internal sealed class DefaultLogger : ILogger
                 _ => throw new ArgumentException("Invalid log level specified.", nameof(logLevel))
             };
 
-            Console.WriteLine
+            Console.Write
             (
                 logLevel switch
                 {
