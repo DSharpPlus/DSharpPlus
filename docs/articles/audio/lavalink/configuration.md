@@ -2,6 +2,10 @@
 uid: articles.audio.lavalink.configuration
 title: Lavalink Configuration
 ---
+---
+uid: articles.audio.lavalink.configuration
+title: Lavalink Configuration
+---
 
 >[!WARNING]
 > `DSharpPlus.Lavalink` has been deprecated, and this article may contain outdated information. Both the extension and this article will be removed

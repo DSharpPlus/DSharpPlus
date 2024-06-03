@@ -11,8 +11,8 @@ Install the `DSharpPlus.VoiceNext` package from NuGet.
 
 ![NuGet Package Manager][0]
 
-Then use the @DSharpPlus.VoiceNext.DiscordClientExtensions.UseVoiceNext* extension method on your instance of
-@DSharpPlus.DiscordClient.
+Then use the `DiscordClientExtensions.UseVoiceNext` extension method on your instance of
+`DiscordClient`.
 
 ```cs
 var discord = new DiscordClient();
@@ -21,8 +21,8 @@ discord.UseVoiceNext();
 
 ### Connect
 
-Joining a voice channel is *very* easy; simply use the @DSharpPlus.VoiceNext.DiscordClientExtensions.ConnectAsync*
-extension method on @DSharpPlus.Entities.DiscordChannel.
+Joining a voice channel is *very* easy; simply use the `ConnectAsync`
+extension method on `DiscordChannel`.
 
 ```cs
 DiscordChannel channel;

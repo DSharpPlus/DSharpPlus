@@ -6,12 +6,12 @@ title: Message Builder
 ## Background
 
 Before the message builder was put into place, we had one large method for sending messages along with 3 additional
-methods for sending files. This was becoming a major code smell and it was hard to maintain and add more parameters onto
+methods for sending files. This was becoming a major code smell, and it was hard to maintain and add more parameters onto
 it. Now we support just sending a simple message, an embed, a simple message with an embed, or a message builder.
 
 ## Using the Message Builder
 
-The API Documentation for the message builder can be found at @DSharpPlus.Entities.DiscordMessageBuilder but here we'll
+The API Documentation for the message builder can be found at `DiscordMessageBuilder` but here we'll
 go over some of the concepts of using the message builder:
 
 ### Adding a File

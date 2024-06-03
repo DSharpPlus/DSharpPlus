@@ -33,8 +33,8 @@ Next, create a new variable and assign it a new `LoggerFactory` instance which c
 var logFactory = new LoggerFactory().AddSerilog();
 ```
 
-Then assign that variable to the @DSharpPlus.DiscordConfiguration.LoggerFactory property of your of
-@DSharpPlus.DiscordConfiguration.
+Then assign that variable to the `DiscordConfiguration.LoggerFactory` property of your of
+`DiscordConfiguration`.
 
 ```cs
 new DiscordConfiguration()

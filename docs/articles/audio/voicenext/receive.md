@@ -9,7 +9,7 @@ title: Receiving
 
 Receiving incoming audio is disabled by default to save on bandwidth, as most users will never make use of incoming
 data. This can be changed by providing a configuration object to
-@DSharpPlus.VoiceNext.DiscordClientExtensions.UseVoiceNext*.
+`DiscordClientExtensions.UseVoiceNext`.
 
 ```cs
 var discord = new DiscordClient();
@@ -31,8 +31,8 @@ VoiceNextConnection connection = await channel.ConnectAsync();
 
 ### Write Event Handler
 
-We'll be able to receive incoming audio from the @DSharpPlus.VoiceNext.VoiceNextConnection.VoiceReceived event fired by
-@DSharpPlus.VoiceNext.VoiceNextConnection.
+We'll be able to receive incoming audio from the `VoiceNextConnection.VoiceReceived` event fired by
+`VoiceNext.VoiceNextConnection`.
 
 ```cs
 connection.VoiceReceived += ReceiveHandler;
@@ -44,7 +44,7 @@ The event arguments will contain a PCM audio packet for you to make use of. You 
 format, concatenate them all together, feed them into an external program, or process the packets any way that'll suit
 your needs.
 
-When a user is speaking, @DSharpPlus.VoiceNext.VoiceNextConnection.VoiceReceived should fire once every twenty
+When a user is speaking, `VoiceNextConnection.VoiceReceived should` fire once every twenty
 milliseconds and its packet will contain around twenty milliseconds worth of audio; this can vary due to differences in
 client settings. To help keep track of the torrent of packets for each user, you can use user IDs in combination the
 synchronization value (SSRC) sent by Discord to determine the source of each packet.

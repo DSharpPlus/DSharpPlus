@@ -96,11 +96,11 @@ Then apply the recommended solution.
 
 We'll now create a new `DiscordClient` instance in our brand new asynchronous method.
 
-Create a new variable in `Main` and assign it a new @DSharpPlus.DiscordClient instance, then pass an instance of
-@DSharpPlus.DiscordConfiguration to its constructor. Create an object initializer for @DSharpPlus.DiscordConfiguration
-and populate the @DSharpPlus.DiscordConfiguration.Token property with your bot token then set the
-@DSharpPlus.DiscordConfiguration.TokenType property to @DSharpPlus.TokenType.Bot. Next add the
-@DSharpPlus.DiscordClient.Intents property and populate it with @DSharpPlus.DiscordIntents.AllUnprivileged.
+Create a new variable in `Main` and assign it a new `DSharpPlus.DiscordClient` instance, then pass an instance of
+`DSharpPlus.DiscordConfiguration` to its constructor. Create an object initializer for `DiscordConfiguration`
+and populate the `DiscordConfiguration.Token` property with your bot token then set the
+`DiscordConfiguration.TokenType` property to `TokenType.Bot`. Next add the
+`DiscordClient.Intents` property and populate it with `DiscordIntents.AllUnprivileged`.
 These Intents are required for certain events to be fired. Please visit this [article][14] for more information.
 
 ```cs
@@ -119,7 +119,7 @@ var discord = new DiscordClient(new DiscordConfiguration()
 > Instead you should store your token in an external medium, such as a configuration file or environment variable, and
 > read that into your program to be used with DSharpPlus.
 
-Follow that up with @DSharpPlus.DiscordClient.ConnectAsync* to connect and login to Discord, and `await Task.Delay(-1);`
+Follow that up with `DiscordClient.ConnectAsync` to connect and login to Discord, and `await Task.Delay(-1);`
 at the end of the method to prevent the console window from closing prematurely.
 
 ```cs
@@ -159,7 +159,7 @@ var discord = new DiscordClient(new DiscordConfiguration()
 
 Now you can start to listen to messages.
 
-Hook the @DSharpPlus.DiscordClient.MessageCreated event fired by @DSharpPlus.DiscordClient with a [lambda][18]. Mark it
+Hook the `DiscordClient.MessageCreated` event fired by `DiscordClient` with a [lambda][18]. Mark it
 as `async` and give it two parameters: `s` and `e`.
 
 ```cs
@@ -170,8 +170,8 @@ discord.MessageCreated += async (s, e) =>
 ```
 
 Then, add an `if` statement into the body of your event lambda that will check if
-@DSharpPlus.Entities.DiscordMessage.Content starts with your desired trigger word and respond with a message using
-@DSharpPlus.Entities.DiscordMessage.RespondAsync* if it does. For this example, we'll have the bot to respond with
+`DiscordMessage.Content` starts with your desired trigger word and respond with a message using
+`DiscordMessage.RespondAsync` if it does. For this example, we'll have the bot to respond with
 *pong!*for each message that starts with*ping*.
 
 ```cs
