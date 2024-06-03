@@ -40,7 +40,7 @@ public async Task Main(string[] args)
         // The default behavior is that the bot reacts to direct mentions
         // and to the "!" prefix.
         // If you want to change it, you first set if the bot should react to mentions
-        // and then you can provide as much prefixes as you want.
+        // and then you can provide as many prefixes as you want.
         PrefixResolver = new DefaultPrefixResolver(true, "?", "&").ResolvePrefixAsync
     });
 
@@ -85,7 +85,7 @@ TextCommandProcessor textCommandProcessor = new(new()
     // The default behavior is that the bot reacts to direct mentions
     // and to the "!" prefix.
     // If you want to change it, you first set if the bot should react to mentions
-    // and then you can provide as much prefixes as you want.
+    // and then you can provide as many prefixes as you want.
     PrefixResolver = new DefaultPrefixResolver(true, "?", "&").ResolvePrefixAsync
 });
 
