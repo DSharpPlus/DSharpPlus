@@ -19,7 +19,7 @@ namespace DSharpPlus.Interactivity.EventHandling;
 internal class EventWaiter<T> : IDisposable where T : AsyncEventArgs
 {
     [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "events")]
-    private static extern ref readonly ConcurrentDictionary<Type, AsyncEvent> GetEventsField(DiscordClient client);
+    private static extern ConcurrentDictionary<Type, AsyncEvent> GetEventsField(DiscordClient client);
 
     private DiscordClient client;
     private AsyncEvent<DiscordClient, T> @event;
