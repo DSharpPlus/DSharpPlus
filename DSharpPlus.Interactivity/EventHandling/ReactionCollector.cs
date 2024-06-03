@@ -1,8 +1,8 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using ConcurrentCollections;
@@ -35,26 +35,39 @@ internal class ReactionCollector : IDisposable
     public ReactionCollector(DiscordClient client)
     {
         this.client = client;
-        TypeInfo tinfo = this.client.GetType().GetTypeInfo();
-
         this.requests = [];
 
         // Grabbing all three events from client
-        FieldInfo handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, MessageReactionAddedEventArgs>));
+        if (InteractivityExtension.GetEventsField(client) is not ConcurrentDictionary<Type, AsyncEvent> events)
+        {
+            throw new NotImplementedException("Could not get the events from the events field in DiscordClient. This is a bug, please report it.");
+        }
 
-        this.reactionAddEvent = (AsyncEvent<DiscordClient, MessageReactionAddedEventArgs>)handler.GetValue(this.client);
+        if (!events.TryGetValue(typeof(MessageReactionAddedEventArgs), out AsyncEvent? reactionAddEvent))
+        {
+            throw new NotImplementedException("The event MessageReactionAddedEventArgs is not registered in the DiscordClient. This is a bug, please report it.");
+        }
+
+        if (!events.TryGetValue(typeof(MessageReactionRemovedEventArgs), out AsyncEvent? reactionRemoveEvent))
+        {
+            throw new NotImplementedException("The event MessageReactionRemovedEventArgs is not registered in the DiscordClient. This is a bug, please report it.");
+        }
+
+        if (!events.TryGetValue(typeof(MessageReactionsClearedEventArgs), out AsyncEvent? reactionClearEvent))
+        {
+            throw new NotImplementedException("The event MessageReactionsClearedEventArgs is not registered in the DiscordClient. This is a bug, please report it.");
+        }
+
+        // Registering handlers
+        this.reactionAddEvent = (AsyncEvent<DiscordClient, MessageReactionAddedEventArgs>)reactionAddEvent;
         this.reactionAddHandler = new AsyncEventHandler<DiscordClient, MessageReactionAddedEventArgs>(HandleReactionAdd);
         this.reactionAddEvent.Register(this.reactionAddHandler);
 
-        handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, MessageReactionRemovedEventArgs>));
-
-        this.reactionRemoveEvent = (AsyncEvent<DiscordClient, MessageReactionRemovedEventArgs>)handler.GetValue(this.client);
+        this.reactionRemoveEvent = (AsyncEvent<DiscordClient, MessageReactionRemovedEventArgs>)reactionRemoveEvent;
         this.reactionRemoveHandler = new AsyncEventHandler<DiscordClient, MessageReactionRemovedEventArgs>(HandleReactionRemove);
         this.reactionRemoveEvent.Register(this.reactionRemoveHandler);
 
-        handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, MessageReactionsClearedEventArgs>));
-
-        this.reactionClearEvent = (AsyncEvent<DiscordClient, MessageReactionsClearedEventArgs>)handler.GetValue(this.client);
+        this.reactionClearEvent = (AsyncEvent<DiscordClient, MessageReactionsClearedEventArgs>)reactionClearEvent;
         this.reactionClearHandler = new AsyncEventHandler<DiscordClient, MessageReactionsClearedEventArgs>(HandleReactionClear);
         this.reactionClearEvent.Register(this.reactionClearHandler);
     }

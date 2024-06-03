@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
@@ -17,6 +19,9 @@ namespace DSharpPlus.Interactivity;
 /// </summary>
 public class InteractivityExtension : BaseExtension
 {
+    // This is declared here because apparently the UnsafeAccessorAttribute cannot be used within generic types.
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "events")]
+    internal static extern ref readonly ConcurrentDictionary<Type, AsyncEvent> GetEventsField(DiscordClient client);
 
 #pragma warning disable IDE1006 // Naming Styles
     internal InteractivityConfiguration Config { get; }
