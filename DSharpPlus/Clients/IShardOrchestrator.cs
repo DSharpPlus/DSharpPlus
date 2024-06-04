@@ -11,4 +11,9 @@ public interface IShardOrchestrator
     /// Starts all shards associated with this orchestrator.
     /// </summary>
     public ValueTask StartAsync();
+
+    /// <summary>
+    /// Stops all shards associated with this orchestrator.
+    /// </summary>
+    public ValueTask StopAsync();
 }
