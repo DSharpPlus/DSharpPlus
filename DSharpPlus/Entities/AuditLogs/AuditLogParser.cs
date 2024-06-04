@@ -245,7 +245,7 @@ internal static class AuditLogParser
                             if (guild.Discord.Configuration.LogUnknownAuditlogs)
                             {
                                 guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                                    "Unknown key in emote update: {Key}",
+                                    "Unknown key in emote update: {Key} - Please take a look at GitHub issue #1580",
                                     actionChange.Key);
                             }
 
@@ -467,7 +467,7 @@ internal static class AuditLogParser
                 if (guild.Discord.Configuration.LogUnknownAuditlogs)
                 {
                     guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                        "Unknown audit log action type: {type}",
+                        "Unknown audit log action type: {type} - Please take a look at GitHub issue #1580",
                         (int)auditLogAction.ActionType);
                 }
 
@@ -626,7 +626,7 @@ internal static class AuditLogParser
                     if (guild.Discord.Configuration.LogUnknownAuditlogs)
                     {
                         guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                            "Unknown key in AutoModRule update: {Key}",
+                            "Unknown key in AutoModRule update: {Key} - Please take a look at GitHub issue #1580",
                             change.Key);
                     }
 
@@ -696,7 +696,7 @@ internal static class AuditLogParser
                     if (guild.Discord.Configuration.LogUnknownAuditlogs)
                     {
                         guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                            "Unknown key in thread update: {Key}",
+                            "Unknown key in thread update: {Key} - Please take a look at GitHub issue #1580",
                             change.Key);
                     }
 
@@ -780,7 +780,7 @@ internal static class AuditLogParser
                     if (guild.Discord.Configuration.LogUnknownAuditlogs)
                     {
                         guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                            "Unknown key in scheduled event update: {Key}",
+                            "Unknown key in scheduled event update: {Key} - Please take a look at GitHub issue #1580",
                             change.Key);
                     }
 
@@ -944,7 +944,7 @@ internal static class AuditLogParser
                     if (guild.Discord.Configuration.LogUnknownAuditlogs)
                     {
                         guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                            "Unknown key in guild update: {Key}",
+                            "Unknown key in guild update: {Key} - Please take a look at GitHub issue #1580",
                             change.Key);
                     }
 
@@ -1067,7 +1067,7 @@ internal static class AuditLogParser
                     if (guild.Discord.Configuration.LogUnknownAuditlogs)
                     {
                         guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                            "Unknown key in channel update: {Key}",
+                            "Unknown key in channel update: {Key} - Please take a look at GitHub issue #1580",
                             change.Key);
                     }
 
@@ -1120,7 +1120,7 @@ internal static class AuditLogParser
                     if (guild.Discord.Configuration.LogUnknownAuditlogs)
                     {
                         guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                            "Unknown key in overwrite update: {Key}",
+                            "Unknown key in overwrite update: {Key} - Please take a look at GitHub issue #1580",
                             change.Key);
                     }
 
@@ -1184,7 +1184,7 @@ internal static class AuditLogParser
                     if (guild.Discord.Configuration.LogUnknownAuditlogs)
                     {
                         guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                            "Unknown key in member update: {Key}",
+                            "Unknown key in member update: {Key} - Please take a look at GitHub issue #1580",
                             change.Key);
                     }
 
@@ -1242,7 +1242,7 @@ internal static class AuditLogParser
                     if (guild.Discord.Configuration.LogUnknownAuditlogs)
                     {
                         guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                            "Unknown key in role update: {Key}",
+                            "Unknown key in role update: {Key} - Please take a look at GitHub issue #1580",
                             change.Key);
                     }
 
@@ -1384,7 +1384,7 @@ internal static class AuditLogParser
                     if (guild.Discord.Configuration.LogUnknownAuditlogs)
                     {
                         guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                            "Unknown key in invite update: {Key}",
+                            "Unknown key in invite update: {Key} - Please take a look at GitHub issue #1580",
                             change.Key);
                     }
 
@@ -1468,7 +1468,7 @@ internal static class AuditLogParser
                     if (guild.Discord.Configuration.LogUnknownAuditlogs)
                     {
                         guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                            "Unknown key in webhook update: {Key}",
+                            "Unknown key in webhook update: {Key} - Please take a look at GitHub issue #1580",
                             change.Key);
                     }
 
@@ -1538,7 +1538,7 @@ internal static class AuditLogParser
                     if (guild.Discord.Configuration.LogUnknownAuditlogs)
                     {
                         guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                            "Unknown key in sticker update: {Key}",
+                            "Unknown key in sticker update: {Key} - Please take a look at GitHub issue #1580",
                             change.Key);
                     }
 
@@ -1587,7 +1587,7 @@ internal static class AuditLogParser
                     if (guild.Discord.Configuration.LogUnknownAuditlogs)
                     {
                         guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                            "Unknown key in integration update: {Key}",
+                            "Unknown key in integration update: {Key} - Please take a look at GitHub issue #1580",
                             change.Key);
                     }
 
