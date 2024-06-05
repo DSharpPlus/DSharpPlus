@@ -66,12 +66,12 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
             // Check to see if the method signature is valid.
             else if (command.Parameters.Count < 1 || command.Parameters[0].Type != typeof(DiscordMessage))
             {
-                logger.LogError("Message command '{CommandName}' must it's first parameter be of type DiscordMessage.", command.Name);
+                logger.LogError("Message command '{CommandName}' must have the signature (CommandContext, DiscordMessage). Any additional parameter must have a default value.", command.Name);
                 continue;
             }
             else if (!command.Parameters.Skip(1).All(parameter => parameter.DefaultValue.HasValue))
             {
-                logger.LogError("Message command '{CommandName}' must have all parameters after the first contain a default value.", command.Name);
+                logger.LogError("Message command '{CommandName}' must have the signature (CommandContext, DiscordMessage). Any additional parameter must have a default value.", command.Name);
                 continue;
             }
             else if (!command.Method!.GetParameters()[0].ParameterType.IsAssignableFrom(typeof(SlashCommandContext)))
