@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 
 using DSharpPlus.Net;
-
+using DSharpPlus.Net.Gateway;
 using Microsoft.Extensions.Options;
 
 namespace DSharpPlus.Clients;

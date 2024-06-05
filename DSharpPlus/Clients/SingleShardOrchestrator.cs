@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using DSharpPlus.Net.Gateway;
 
 namespace DSharpPlus.Clients;
 
