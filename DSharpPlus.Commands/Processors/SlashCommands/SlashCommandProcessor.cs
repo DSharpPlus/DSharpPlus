@@ -274,7 +274,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
         }
 
         applicationCommandMapping = commandsDictionary.ToFrozenDictionary();
-        SlashLogging.registeredCommands(this.logger, this.ApplicationCommandMapping.Count, this.ApplicationCommandMapping.Values.SelectMany(command => command.Walk()).Count(), null);
+        SlashLogging.registeredCommands(this.logger, this.ApplicationCommandMapping.Count, this.ApplicationCommandMapping.Values.SelectMany(command => command.Flatten()).Count(), null);
     }
 
 

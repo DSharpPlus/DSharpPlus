@@ -26,12 +26,12 @@ public record Command
     /// Traverses this command tree, returning this command and all subcommands recursively.
     /// </summary>
     /// <returns>A list of all commands in this tree.</returns>
-    public IReadOnlyList<Command> Walk()
+    public IReadOnlyList<Command> Flatten()
     {
         List<Command> commands = [this];
         foreach (Command subcommand in this.Subcommands)
         {
-            commands.AddRange(subcommand.Walk());
+            commands.AddRange(subcommand.Flatten());
         }
 
         return commands;
