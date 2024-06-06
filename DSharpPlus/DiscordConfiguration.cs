@@ -84,7 +84,7 @@ public sealed class DiscordConfiguration
     /// <summary>
     /// <para>Sets the level of compression for WebSocket traffic.</para>
     /// <para>Disabling this option will increase the amount of traffic sent via WebSocket. Setting <see cref="GatewayCompressionLevel.Payload"/> will enable compression for READY and GUILD_CREATE payloads. Setting <see cref="Stream"/> will enable compression for the entire WebSocket stream, drastically reducing amount of traffic.</para>
-    /// <para>Defaults to <see cref="None"/>.</para>
+    /// <para>Defaults to <see cref="GatewayCompressionLevel.None"/>.</para>
     /// </summary>
     /// <remarks>This value used to <see cref="GatewayCompressionLevel.Stream"/>, however due to a bug with rapid reconnections, this has been disabled by default.</remarks>
     // Here be dragons, ye who use compression.
