@@ -253,17 +253,35 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
         }
 
         Dictionary<ulong, Command> commandsDictionary = [];
+        IReadOnlyList<Command> flattenCommands = processorSpecificCommands.SelectMany(x => x.Flatten()).ToList();
         foreach (DiscordApplicationCommand discordCommand in discordCommands)
         {
             bool commandFound = false;
-            foreach (Command command in processorSpecificCommands)
+
+            if (discordCommand.Type is DiscordApplicationCommandType.MessageContextMenu
+                                    or DiscordApplicationCommandType.UserContextMenu)
             {
-                string snakeCaseCommandName = ToSnakeCase(command.Name);
-                if (snakeCaseCommandName == ToSnakeCase(discordCommand.Name) || ToSnakeCase(command.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName) == snakeCaseCommandName)
+                foreach (Command command in flattenCommands)
                 {
-                    commandsDictionary.Add(discordCommand.Id, command);
-                    commandFound = true;
-                    break;
+                    if (command.FullName == discordCommand.Name || command.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName == discordCommand.Name)
+                    {
+                        commandsDictionary.Add(discordCommand.Id, command);
+                        commandFound = true;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                foreach (Command command in processorSpecificCommands)
+                {
+                    string snakeCaseCommandName = ToSnakeCase(command.Name);
+                    if (snakeCaseCommandName == ToSnakeCase(discordCommand.Name) || ToSnakeCase(command.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName) == snakeCaseCommandName)
+                    {
+                        commandsDictionary.Add(discordCommand.Id, command);
+                        commandFound = true;
+                        break;
+                    }
                 }
             }
 
