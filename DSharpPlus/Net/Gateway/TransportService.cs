@@ -1,5 +1,4 @@
 using System;
-using System.Buffers;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -14,13 +13,9 @@ namespace DSharpPlus.Net.Gateway;
 /// <inheritdoc/>
 internal sealed class TransportService : ITransportService
 {
-    private const int ReadingFrameSize = 4096;
-
     private readonly ILogger<ITransportService> logger;
     private readonly ClientWebSocket socket;
     private readonly ArrayPoolBufferWriter<byte> writer;
-
-    private readonly byte[] readingBuffer;
 
     private bool isConnected = false;
     private bool isDisposed = false;
@@ -35,8 +30,6 @@ internal sealed class TransportService : ITransportService
         this.logger = logger;
         this.socket = new();
         this.writer = new();
-
-        this.readingBuffer = ArrayPool<byte>.Shared.Rent(ReadingFrameSize);
     }
 
     /// <inheritdoc/>
@@ -136,9 +129,9 @@ internal sealed class TransportService : ITransportService
         {
             do
             {
-                receiveResult = await this.socket.ReceiveAsync(this.readingBuffer.AsMemory(), CancellationToken.None);
+                receiveResult = await this.socket.ReceiveAsync(this.writer.GetMemory(), CancellationToken.None);
 
-                this.writer.Write(this.readingBuffer.AsSpan()[..receiveResult.Count]);
+                this.writer.Advance(receiveResult.Count);
 
             } while (!receiveResult.EndOfMessage);
         }
@@ -181,7 +174,6 @@ internal sealed class TransportService : ITransportService
         if (!this.isDisposed)
         {
             this.socket.Dispose();
-            ArrayPool<byte>.Shared.Return(this.readingBuffer);
         }
 
         this.isDisposed = true;
