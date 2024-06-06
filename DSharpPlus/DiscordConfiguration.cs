@@ -84,9 +84,11 @@ public sealed class DiscordConfiguration
     /// <summary>
     /// <para>Sets the level of compression for WebSocket traffic.</para>
     /// <para>Disabling this option will increase the amount of traffic sent via WebSocket. Setting <see cref="GatewayCompressionLevel.Payload"/> will enable compression for READY and GUILD_CREATE payloads. Setting <see cref="Stream"/> will enable compression for the entire WebSocket stream, drastically reducing amount of traffic.</para>
-    /// <para>Defaults to <see cref="Stream"/>.</para>
+    /// <para>Defaults to <see cref="GatewayCompressionLevel.None"/>.</para>
     /// </summary>
-    public GatewayCompressionLevel GatewayCompressionLevel { internal get; set; } = GatewayCompressionLevel.Stream;
+    /// <remarks>This property's default has been changed from <see cref="GatewayCompressionLevel.Stream"/> due to a bug in the client wherein rapid reconnections causes payloads to be decompressed into a mangled string.</remarks>
+    // Here be dragons, ye who use compression.
+    public GatewayCompressionLevel GatewayCompressionLevel { internal get; set; } = GatewayCompressionLevel.None;
 
     /// <summary>
     /// Specifies the probing interval in ms to use when first making requests to the API. This should be slightly higher than your average ping to the discord rest api.
