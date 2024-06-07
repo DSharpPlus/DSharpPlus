@@ -1,10 +1,13 @@
 using System;
+using System.IO;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 using CommunityToolkit.HighPerformance.Buffers;
+
+using DSharpPlus.Net.WebSocket;
 
 using Microsoft.Extensions.Logging;
 
@@ -16,6 +19,8 @@ internal sealed class TransportService : ITransportService
     private readonly ILogger<ITransportService> logger;
     private readonly ClientWebSocket socket;
     private readonly ArrayPoolBufferWriter<byte> writer;
+    private readonly ArrayPoolBufferWriter<byte> decompressedWriter;
+    private readonly PayloadDecompressor decompressor;
 
     private bool isConnected = false;
     private bool isDisposed = false;
@@ -25,11 +30,13 @@ internal sealed class TransportService : ITransportService
     /// </summary>
     public string? ResumeUrl { get; private set; }
 
-    public TransportService(ILogger<ITransportService> logger)
+    public TransportService(ILogger<ITransportService> logger, PayloadDecompressor decompressor)
     {
         this.logger = logger;
         this.socket = new();
         this.writer = new();
+        this.decompressedWriter = new();
+        this.decompressor = decompressor;
     }
 
     /// <inheritdoc/>
@@ -124,6 +131,7 @@ internal sealed class TransportService : ITransportService
         ValueWebSocketReceiveResult receiveResult;
 
         this.writer.Clear();
+        this.decompressedWriter.Clear();
 
         try
         {
@@ -137,7 +145,12 @@ internal sealed class TransportService : ITransportService
         }
         catch (OperationCanceledException) { }
 
-        string result = Encoding.UTF8.GetString(this.writer.WrittenSpan);
+        if (!this.decompressor.TryDecompress(this.writer.WrittenSpan, this.decompressedWriter))
+        {
+            throw new InvalidDataException("Failed to decompress a gateway payload.");
+        }
+
+        string result = Encoding.UTF8.GetString(this.decompressedWriter.WrittenSpan);
 
 #if DEBUG
         this.logger.LogTrace("Length for the last inbound gateway event: {length}", this.writer.WrittenCount);
