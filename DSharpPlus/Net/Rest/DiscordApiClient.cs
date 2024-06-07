@@ -6769,4 +6769,22 @@ public sealed class DiscordApiClient
 
         await this.rest.ExecuteRequestAsync(request);
     }
+
+    internal async ValueTask<IReadOnlyList<DiscordStockKeepingUnit>> ListStockKeepingUnitsAsync(ulong applicationId)
+    {
+        string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.SKUS}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.SKUS}";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        IReadOnlyList<DiscordStockKeepingUnit> rules = JsonConvert.DeserializeObject<IReadOnlyList<DiscordStockKeepingUnit>>(res.Response!)!;
+
+        return rules;
+    }
 }

@@ -56,6 +56,7 @@ internal static class Endpoints
     public const string ROLES = "roles";
     public const string RULES = "rules";
     public const string SEARCH = "search";
+    public const string SKUS = "skus";
     public const string SLACK = "slack";
     public const string STAGE_INSTANCES = "stage-instances";
     public const string STICKERPACKS = "sticker-packs";
