@@ -1049,7 +1049,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 GuildId = guild.Id,
                 Discord = this
             };
-        
+
         UpdateChannelCache(channel);
 
         message.Channel = channel;

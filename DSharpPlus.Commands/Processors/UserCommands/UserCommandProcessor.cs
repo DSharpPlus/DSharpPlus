@@ -47,7 +47,10 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
         ILogger<UserCommandProcessor> logger = this.extension.ServiceProvider.GetService<ILogger<UserCommandProcessor>>() ?? NullLogger<UserCommandProcessor>.Instance;
         List<DiscordApplicationCommand> applicationCommands = [];
         
-        foreach (Command command in this.extension.GetCommandsForProcessor(this))
+        IReadOnlyList<Command> commands = this.extension.GetCommandsForProcessor(this);
+        IEnumerable<Command> flattenCommands = commands.SelectMany(x => x.Flatten());
+
+        foreach (Command command in flattenCommands)
         {
             // User commands must be explicitly defined as such, otherwise they are ignored.
             if (!command.Attributes.Any(x => x is SlashCommandTypesAttribute slashCommandTypesAttribute && slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.UserContextMenu)))
@@ -63,12 +66,12 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
             // Check to see if the method signature is valid.
             else if (command.Parameters.Count < 1 || (command.Parameters[0].Type != typeof(DiscordUser) && command.Parameters[0].Type != typeof(DiscordMember)))
             {
-                logger.LogError("User command '{CommandName}' must have a single parameter of type DiscordUser or DiscordMember.", command.Name);
+                logger.LogError("User command '{CommandName}' must have the signature (CommandContext, DiscordUser). Any additional parameter must have a default value.", command.Name);
                 continue;
             }
             else if (!command.Parameters.Skip(1).All(parameter => parameter.DefaultValue.HasValue))
             {
-                logger.LogError("User command '{CommandName}' must have all parameters after the first contain a default value.", command.Name);
+                logger.LogError("User command '{CommandName}' must have the signature (CommandContext, DiscordUser). Any additional parameter must have a default value.", command.Name);
                 continue;
             }
             else if (!command.Method!.GetParameters()[0].ParameterType.IsAssignableFrom(typeof(SlashCommandContext)))
@@ -154,7 +157,7 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
         }
 
         return new(
-            name: command.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName ?? command.Name,
+            name: command.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName ?? command.FullName,
             description: string.Empty,
             type: DiscordApplicationCommandType.UserContextMenu,
             name_localizations: nameLocalizations,

@@ -1,6 +1,9 @@
 using System;
 using System.Linq;
 using DSharpPlus.Commands.Processors;
+using DSharpPlus.Commands.Processors.MessageCommands;
+using DSharpPlus.Commands.Processors.SlashCommands;
+using DSharpPlus.Commands.Processors.UserCommands;
 
 namespace DSharpPlus.Commands.Trees.Metadata;
 
@@ -25,7 +28,14 @@ public class AllowedProcessorsAttribute : Attribute
             throw new ArgumentException("All processors must implement ICommandProcessor.", nameof(processors));
         }
 
-        this.Processors = processors;
+        if ((processors.Contains(typeof(MessageCommandProcessor)) || processors.Contains(typeof(UserCommandProcessor))) && !processors.Contains(typeof(SlashCommandProcessor)))
+        {
+            this.Processors = processors.Append(typeof(SlashCommandProcessor)).ToArray();
+        }
+        else
+        {
+            this.Processors = processors;
+        }
     }
 
     /// <summary>

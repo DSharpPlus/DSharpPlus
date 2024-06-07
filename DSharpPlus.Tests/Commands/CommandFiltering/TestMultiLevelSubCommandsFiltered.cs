@@ -63,4 +63,20 @@ public class TestMultiLevelSubCommandsFiltered
         [Command("SlashMessageContext"), SlashCommandTypes(DiscordApplicationCommandType.MessageContextMenu, DiscordApplicationCommandType.SlashCommand)]
         public static ValueTask SlashMessageCommand(SlashCommandContext context, DiscordMessage message) => default;
     }
+    
+    [Command("group")]
+    public class ContextMenuesInGroup
+    {
+        [Command("UserContextOnly"), SlashCommandTypes(DiscordApplicationCommandType.UserContextMenu)]
+        public static ValueTask UserCommand(SlashCommandContext context, DiscordUser user) => default;
+        
+        [Command("SlashUserContext"), SlashCommandTypes(DiscordApplicationCommandType.UserContextMenu, DiscordApplicationCommandType.SlashCommand)]
+        public static ValueTask SlashUserCommand(SlashCommandContext context, DiscordUser user) => default;
+        
+        [Command("MessageContextOnly"), SlashCommandTypes(DiscordApplicationCommandType.MessageContextMenu)]
+        public static ValueTask MessageCommand(SlashCommandContext context, DiscordMessage message) => default;
+            
+        [Command("SlashMessageContext"), SlashCommandTypes(DiscordApplicationCommandType.MessageContextMenu, DiscordApplicationCommandType.SlashCommand)]
+        public static ValueTask SlashMessageCommand(SlashCommandContext context, DiscordMessage message) => default;
+    }
 }

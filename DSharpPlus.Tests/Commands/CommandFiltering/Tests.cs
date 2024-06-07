@@ -36,7 +36,7 @@ public class Tests
         await extension.AddProcessorAsync(userCommandProcessor);
         await extension.AddProcessorAsync(messageCommandProcessor);
         
-        extension.AddCommands([typeof(TestMultiLevelSubCommandsFiltered.RootCommand), typeof(TestMultiLevelSubCommandsFiltered.ContextMenues)]);
+        extension.AddCommands([typeof(TestMultiLevelSubCommandsFiltered.RootCommand), typeof(TestMultiLevelSubCommandsFiltered.ContextMenues), typeof(TestMultiLevelSubCommandsFiltered.ContextMenuesInGroup)]);
         extension.BuildCommands();
         await userCommandProcessor.ConfigureAsync(extension);
         await messageCommandProcessor.ConfigureAsync(extension);
@@ -95,9 +95,11 @@ public class Tests
     {
         IReadOnlyList<Command> userContextCommands = userCommandProcessor.Commands;
         
-        Assert.That(userContextCommands, Has.Count.EqualTo(2));
-        Assert.That(userContextCommands[0].Name, Is.EqualTo("UserContextOnly"));
-        Assert.That(userContextCommands[1].Name, Is.EqualTo("SlashUserContext"));
+        Command? contextOnlyCommand = userContextCommands.FirstOrDefault(x => x.Name == "UserContextOnly");
+        Assert.That(contextOnlyCommand, Is.Not.Null);
+        
+        Command? bothCommand = userContextCommands.FirstOrDefault(x => x.Name == "SlashUserContext");
+        Assert.That(bothCommand, Is.Not.Null);
         
         IReadOnlyList<Command> slashCommands = extension.GetCommandsForProcessor(slashCommandProcessor);
         Assert.That(slashCommands.FirstOrDefault(x => x.Name == "SlashUserContext"), Is.Not.Null);
@@ -107,13 +109,50 @@ public class Tests
     public static void TestMessageContextMenu()
     {
         IReadOnlyList<Command> messageContextCommands = messageCommandProcessor.Commands;
+
+        Command? contextOnlyCommand = messageContextCommands.FirstOrDefault(x => x.Name == "MessageContextOnly");
+        Assert.That(contextOnlyCommand, Is.Not.Null);
         
-        Assert.That(messageContextCommands, Has.Count.EqualTo(2));
-        Assert.That(messageContextCommands[0].Name, Is.EqualTo("MessageContextOnly"));
-        Assert.That(messageContextCommands[1].Name, Is.EqualTo("SlashMessageContext"));
+        Command? bothCommand = messageContextCommands.FirstOrDefault(x => x.Name == "SlashMessageContext");
+        Assert.That(bothCommand, Is.Not.Null);
         
         IReadOnlyList<Command> slashCommands = extension.GetCommandsForProcessor(slashCommandProcessor);
         Assert.That(slashCommands.FirstOrDefault(x => x.Name == "SlashMessageContext"), Is.Not.Null);
+    }
+    
+    [Test]
+    public static void TestUserContextMenuInGroup()
+    {
+        IReadOnlyList<Command> userContextCommands = userCommandProcessor.Commands;
+        
+        Command? contextOnlyCommand = userContextCommands.FirstOrDefault(x => x.FullName == "group UserContextOnly");
+        Assert.That(contextOnlyCommand, Is.Not.Null);
+        
+        Command? bothCommand = userContextCommands.FirstOrDefault(x => x.FullName == "group SlashUserContext");
+        Assert.That(bothCommand, Is.Not.Null);
+        
+        IReadOnlyList<Command> slashCommands = extension.GetCommandsForProcessor(slashCommandProcessor);
+        Command? group = slashCommands.FirstOrDefault(x => x.Name == "group");
+        Assert.That(group, Is.Not.Null);
+        Assert.That(group.Subcommands.Any(x => x.Name == "SlashUserContext"));
+        
+    }
+    
+    [Test]
+    public static void TestMessageContextMenuInGroup()
+    {
+        IReadOnlyList<Command> messageContextCommands = messageCommandProcessor.Commands;
+        
+        Command? contextOnlyCommand = messageContextCommands.FirstOrDefault(x => x.FullName == "group MessageContextOnly");
+        Assert.That(contextOnlyCommand, Is.Not.Null);
+        
+        Command? bothCommand = messageContextCommands.FirstOrDefault(x => x.FullName == "group SlashMessageContext");
+        Assert.That(bothCommand, Is.Not.Null);
+        
+        IReadOnlyList<Command> slashCommands = extension.GetCommandsForProcessor(slashCommandProcessor);
+        Command? group = slashCommands.FirstOrDefault(x => x.Name == "group");
+        Assert.That(group, Is.Not.Null);
+        Assert.That(group.Subcommands.Any(x => x.Name == "SlashMessageContext"));
     }
 
     [OneTimeTearDown]

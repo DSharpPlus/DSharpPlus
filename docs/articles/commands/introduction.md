@@ -27,7 +27,6 @@ public async Task Main(string[] args)
     // Use the commands extension
     CommandsExtension commandsExtension = discordClient.UseCommands(new CommandsConfiguration()
     {
-        ServiceProvider = serviceProvider,
         DebugGuildId = Environment.GetEnvironmentVariable("DEBUG_GUILD_ID") ?? 0,
         // The default value, however it's shown here for clarity
         RegisterDefaultCommandProcessors = true
@@ -46,6 +45,15 @@ public async Task Main(string[] args)
 
     // Add text commands with a custom prefix (?ping)
     await commandsExtension.AddProcessorsAsync(textCommandProcessor);
+
+    // We can specify a status for our bot. Let's set it to "playing" and set the activity to "with fire".
+    DiscordActivity status = new("with fire", DiscordActivityType.Playing);
+
+    // Now we connect and log in.
+    await discordClient.ConnectAsync(status, DiscordUserStatus.Online);
+
+    // And now we wait infinitely so that our bot actually stays connected.
+    await Task.Delay(-1);
 }
 ```
 
@@ -72,7 +80,6 @@ DiscordClient discordClient = serviceProvider.GetRequiredService<DiscordClient>(
 // Register extensions outside of the service provider lambda since these involve asynchronous operations
 CommandsExtension commandsExtensions = discordClient.UseCommands(new CommandsConfiguration()
 {
-    ServiceProvider = serviceProvider,
     DebugGuildId = Environment.GetEnvironmentVariable("DEBUG_GUILD_ID") ?? 0,
     // The default value, however it's shown here for clarity
     RegisterDefaultCommandProcessors = true
@@ -91,6 +98,15 @@ TextCommandProcessor textCommandProcessor = new(new()
 
 // Add text commands with a custom prefix (?ping)
 await commandsExtension.AddProcessorsAsync(textCommandProcessor);
+
+// We can specify a status for our bot. Let's set it to "playing" and set the activity to "with fire".
+DiscordActivity status = new("with fire", DiscordActivityType.Playing);
+
+// Now we connect and log in.
+await discordClient.ConnectAsync(status, DiscordUserStatus.Online);
+
+// And now we wait infinitely so that our bot actually stays connected.
+await Task.Delay(-1);
 
 ```
 
