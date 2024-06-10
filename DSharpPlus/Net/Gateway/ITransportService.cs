@@ -12,7 +12,7 @@ public interface ITransportService : IDisposable
     /// <summary>
     /// Opens a connection to the gateway.
     /// </summary>
-    public ValueTask ConnectAsync(string? url = null);
+    public ValueTask ConnectAsync(string url);
 
     /// <summary>
     /// Reads the next message from the gateway asynchronously.

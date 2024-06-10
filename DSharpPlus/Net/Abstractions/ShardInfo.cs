@@ -8,7 +8,7 @@ namespace DSharpPlus.Net.Abstractions;
 /// Represents data for identify payload's shard info.
 /// </summary>
 [JsonConverter(typeof(ShardInfoConverter))]
-internal sealed class ShardInfo
+public sealed class ShardInfo
 {
     /// <summary>
     /// Gets or sets this client's shard id.
@@ -23,16 +23,20 @@ internal sealed class ShardInfo
 
 internal sealed class ShardInfoConverter : JsonConverter
 {
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
     {
-        ShardInfo? sinfo = value as ShardInfo;
-        object[] obj = [sinfo.ShardId, sinfo.ShardCount];
+        ArgumentNullException.ThrowIfNull(value, nameof(value));
+
+        ShardInfo info = (ShardInfo)value;
+        int[] obj = [info.ShardId, info.ShardCount];
+
         serializer.Serialize(writer, obj);
     }
 
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
     {
         JArray arr = ReadArrayObject(reader, serializer);
+
         return new ShardInfo
         {
             ShardId = (int)arr[0],
@@ -40,9 +44,12 @@ internal sealed class ShardInfoConverter : JsonConverter
         };
     }
 
-    private static JArray ReadArrayObject(JsonReader reader, JsonSerializer serializer) => serializer.Deserialize<JToken>(reader) is not JArray arr || arr.Count != 2
+    private static JArray ReadArrayObject(JsonReader reader, JsonSerializer serializer)
+    {
+        return serializer.Deserialize<JToken>(reader) is not JArray arr || arr.Count != 2
             ? throw new JsonSerializationException("Expected array of length 2")
             : arr;
+    }
 
     public override bool CanConvert(Type objectType) => objectType == typeof(ShardInfo);
 }

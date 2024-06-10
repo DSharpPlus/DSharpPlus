@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+
 using DSharpPlus.Net.Gateway;
 
 namespace DSharpPlus.Clients;
@@ -17,5 +18,8 @@ public sealed class SingleShardOrchestrator : IShardOrchestrator
         => this.gatewayClient = gatewayClient;
 
     /// <inheritdoc/>
-    public ValueTask StartAsync() => throw new System.NotImplementedException();
+    public async ValueTask StartAsync() => await this.gatewayClient.ConnectAsync();
+
+    /// <inheritdoc/>
+    public async ValueTask StopAsync() => await this.gatewayClient.DisconnectAsync();
 }

@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
+using DSharpPlus.Net.Abstractions;
 
 namespace DSharpPlus.Net.Gateway;
 
@@ -15,7 +16,8 @@ public interface IGatewayClient
         string url,
         DiscordActivity? activity = null,
         DiscordUserStatus? status = null,
-        DateTimeOffset? idleSince = null
+        DateTimeOffset? idleSince = null,
+        ShardInfo? shardInfo = null
     );
 
     public ValueTask DisconnectAsync();

@@ -1,6 +1,10 @@
 using System.Net.Http;
+using System.Threading.Channels;
 
+using DSharpPlus.Clients;
 using DSharpPlus.Net;
+using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Gateway;
 using DSharpPlus.Net.WebSocket;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -40,8 +44,11 @@ public static partial class ServiceCollectionExtensions
 
         // gateway setup
         serviceCollection.Configure<DiscordConfiguration>(c => c.Intents = intents)
-            .AddSingleton<IWebSocketClient, WebSocketClient>()
-            .AddSingleton<PayloadDecompressor>()
+            .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>())
+            .AddTransient<ITransportService, TransportService>()
+            .AddTransient<IGatewayClient, GatewayClient>()
+            .AddTransient<PayloadDecompressor>()
+            .AddSingleton<IShardOrchestrator, SingleShardOrchestrator>()
             .AddSingleton<DiscordClient>();
 
         return serviceCollection;

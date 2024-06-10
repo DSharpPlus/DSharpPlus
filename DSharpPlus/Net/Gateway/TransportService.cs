@@ -25,11 +25,6 @@ internal sealed class TransportService : ITransportService
     private bool isConnected = false;
     private bool isDisposed = false;
 
-    /// <summary>
-    /// Specifies the URL this transport service will attempt to resume to.
-    /// </summary>
-    public string? ResumeUrl { get; private set; }
-
     public TransportService(ILogger<ITransportService> logger, PayloadDecompressor decompressor)
     {
         this.logger = logger;
@@ -40,7 +35,7 @@ internal sealed class TransportService : ITransportService
     }
 
     /// <inheritdoc/>
-    public async ValueTask ConnectAsync(string? url = null)
+    public async ValueTask ConnectAsync(string url)
     {
         ObjectDisposedException.ThrowIf(this.isDisposed, this);
 
@@ -50,22 +45,12 @@ internal sealed class TransportService : ITransportService
             return;
         }
 
-        if (this.ResumeUrl is null)
-        {
-            this.logger.LogDebug("Connecting to the Discord gateway.");
+        this.logger.LogTrace("Connecting to the Discord gateway.");
 
-            await this.socket.ConnectAsync(new($"{url}?v=10&encoding=json"), CancellationToken.None);
-        }
-        else
-        {
-            this.logger.LogDebug("Attempting to resume existing session.");
-
-            await this.socket.ConnectAsync(new($"{this.ResumeUrl}?v=10&encoding=json"), CancellationToken.None);
-        }
-
+        await this.socket.ConnectAsync(new($"{url}?v=10&encoding=json"), CancellationToken.None);
         this.isConnected = true;
 
-        this.logger.LogDebug("Connected to the Discord websocket.");
+        this.logger.LogTrace("Connected to the Discord websocket.");
     }
 
     /// <inheritdoc/>
