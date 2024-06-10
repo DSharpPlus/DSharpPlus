@@ -2391,7 +2391,7 @@ public sealed class DiscordApiClient
         Optional<IEnumerable<DiscordEmbed>> embeds = default,
         Optional<IEnumerable<IMention>> mentions = default,
         IReadOnlyList<DiscordActionRowComponent>? components = null,
-        IReadOnlyCollection<DiscordMessageFile>? files = null,
+        IReadOnlyList<DiscordMessageFile>? files = null,
         DiscordMessageFlags? flags = null,
         IEnumerable<DiscordAttachment>? attachments = null
     )
@@ -5578,7 +5578,7 @@ public sealed class DiscordApiClient
         ulong commandId,
         Optional<string> name = default,
         Optional<string> description = default,
-        Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options = default,
+        Optional<IReadOnlyList<DiscordApplicationCommandOption>> options = default,
         Optional<bool?> defaultPermission = default,
         Optional<bool?> nsfw = default,
         IReadOnlyDictionary<string, string>? nameLocalizations = null,
@@ -5788,7 +5788,7 @@ public sealed class DiscordApiClient
         ulong commandId,
         Optional<string> name = default,
         Optional<string> description = default,
-        Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options = default,
+        Optional<IReadOnlyList<DiscordApplicationCommandOption>> options = default,
         Optional<bool?> defaultPermission = default,
         Optional<bool?> nsfw = default,
         IReadOnlyDictionary<string, string>? nameLocalizations = null,

@@ -93,7 +93,7 @@ public sealed class DiscordTeamMember : IEquatable<DiscordTeamMember>
     /// <summary>
     /// Gets the member's permissions within the team.
     /// </summary>
-    public IReadOnlyCollection<string> Permissions { get; internal set; }
+    public IReadOnlyList<string> Permissions { get; internal set; }
 
     /// <summary>
     /// Gets the team this member belongs to.

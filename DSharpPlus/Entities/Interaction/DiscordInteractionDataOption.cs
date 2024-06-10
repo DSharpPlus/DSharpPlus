@@ -63,5 +63,5 @@ public sealed class DiscordInteractionDataOption
     /// Gets the additional parameters if this parameter is a subcommand.
     /// </summary>
     [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<DiscordInteractionDataOption> Options { get; internal set; }
+    public IReadOnlyList<DiscordInteractionDataOption> Options { get; internal set; }
 }
