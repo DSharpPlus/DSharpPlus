@@ -4,7 +4,7 @@ namespace DSharpPlus.Entities;
 
 public static class PermissionMethods
 {
-    internal static DiscordPermissions FULL_PERMS { get; } = (DiscordPermissions)1829587348619263L;
+    internal static DiscordPermissions FULL_PERMS { get; } = (DiscordPermissions)0x0004FFFFFFFFFFFF;
 
     /// <summary>
     /// Calculates whether this permission set contains the given permission.
