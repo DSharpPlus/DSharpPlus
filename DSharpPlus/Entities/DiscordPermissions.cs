@@ -4,7 +4,7 @@ namespace DSharpPlus.Entities;
 
 public static class PermissionMethods
 {
-    internal static DiscordPermissions FULL_PERMS { get; } = (DiscordPermissions)703687441776639L;
+    internal static DiscordPermissions FULL_PERMS { get; } = (DiscordPermissions)1829587348619263L;
 
     /// <summary>
     /// Calculates whether this permission set contains the given permission.
@@ -352,6 +352,14 @@ public enum DiscordPermissions : long
     /// </summary>
     [PermissionString("Send Polls")]
     SendPolls = 0x0002000000000000,
+    
+    /// <summary>
+    /// Allows user-installed apps to send public responses.
+    /// When disabled, users will still be allowed to use their apps but the responses will be ephemeral.
+    /// This only applies to apps not also installed to the server.
+    /// </summary>
+    [PermissionString("Use External Apps")]
+    UseExternalApps = 0x0004000000000000,
 }
 
 /// <summary>
