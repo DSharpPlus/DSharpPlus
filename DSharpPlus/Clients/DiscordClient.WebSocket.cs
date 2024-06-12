@@ -81,11 +81,6 @@ public sealed partial class DiscordClient
         this.cancelTokenSource = new CancellationTokenSource();
         this.cancelToken = this.cancelTokenSource.Token;
 
-        this.webSocketClient.Connected += SocketOnConnect;
-        this.webSocketClient.Disconnected += SocketOnDisconnect;
-        this.webSocketClient.MessageReceived += SocketOnMessage;
-        this.webSocketClient.ExceptionThrown += SocketOnException;
-
         QueryUriBuilder gwuri = this.gatewayResumeUrl is not null && !string.IsNullOrWhiteSpace(this.sessionId)
             ? new QueryUriBuilder(this.gatewayResumeUrl)
             : new QueryUriBuilder(this.GatewayUri.ToString());
@@ -99,91 +94,95 @@ public sealed partial class DiscordClient
         }
 
         await this.webSocketClient.ConnectAsync(new Uri(gwuri.Build()));
+    }
 
-        Task SocketOnConnect(IWebSocketClient sender, SocketOpenedEventArgs e)
+    private Task SocketOnConnect(IWebSocketClient sender, SocketOpenedEventArgs e)
+    {
+        return this.events[typeof(SocketOpenedEventArgs)]
+            .As<SocketOpenedEventArgs>()
+            .InvokeAsync(this, e);
+    }
+
+    private async Task SocketOnMessage(IWebSocketClient sender, SocketMessageEventArgs e)
+    {
+        string? msg = null;
+
+        if (e is SocketTextMessageEventArgs etext)
         {
-            return this.events[typeof(SocketOpenedEventArgs)]
-                .As<SocketOpenedEventArgs>()
-                .InvokeAsync(this, e);
+            msg = etext.Message;
+        }
+        else if (e is SocketBinaryMessageEventArgs ebin) // :DDDD
+        {
+            using MemoryStream ms = new();
+            if (!this.payloadDecompressor.TryDecompress(new ArraySegment<byte>(ebin.Message), ms))
+            {
+                this.Logger.LogError(LoggerEvents.WebSocketReceiveFailure, "Payload decompression failed");
+                return;
+            }
+
+            ms.Position = 0;
+            using StreamReader sr = new(ms, Utilities.UTF8);
+            msg = await sr.ReadToEndAsync();
         }
 
-        async Task SocketOnMessage(IWebSocketClient sender, SocketMessageEventArgs e)
+        try
         {
-            string? msg = null;
+            this.Logger.LogTrace(LoggerEvents.GatewayWsRx, "{WebsocketPayload}", msg);
+            await HandleSocketMessageAsync(msg);
+        }
+        catch (Exception ex)
+        {
+            this.Logger.LogError(LoggerEvents.WebSocketReceiveFailure, ex, "Socket handler suppressed an exception");
+        }
+    }
 
-            if (e is SocketTextMessageEventArgs etext)
-            {
-                msg = etext.Message;
-            }
-            else if (e is SocketBinaryMessageEventArgs ebin) // :DDDD
-            {
-                using MemoryStream ms = new();
-                if (!this.payloadDecompressor.TryDecompress(new ArraySegment<byte>(ebin.Message), ms))
-                {
-                    this.Logger.LogError(LoggerEvents.WebSocketReceiveFailure, "Payload decompression failed");
-                    return;
-                }
+    private async Task SocketOnException(IWebSocketClient sender, SocketErrorEventArgs e)
+    {
+        await this.errorHandler.HandleGatewayError(e.Exception);
+    }
 
-                ms.Position = 0;
-                using StreamReader sr = new(ms, Utilities.UTF8);
-                msg = await sr.ReadToEndAsync();
-            }
+    private async Task SocketOnDisconnect(IWebSocketClient sender, SocketClosedEventArgs e)
+    {
+        // release session and connection
+        this.connectionLock.Set();
+        this.sessionLock.Set();
 
-            try
-            {
-                this.Logger.LogTrace(LoggerEvents.GatewayWsRx, "{WebsocketPayload}", msg);
-                await HandleSocketMessageAsync(msg);
-            }
-            catch (Exception ex)
-            {
-                this.Logger.LogError(LoggerEvents.WebSocketReceiveFailure, ex, "Socket handler suppressed an exception");
-            }
+        if (!this.disposed)
+        {
+            this.cancelTokenSource.Cancel();
         }
 
-        async Task SocketOnException(IWebSocketClient sender, SocketErrorEventArgs e)
-        {
-            await this.errorHandler.HandleGatewayError(e.Exception);
-        }
+        this.Logger.LogDebug(LoggerEvents.ConnectionClose, "Connection closed ({CloseCode}, '{CloseMessage}')",
+            e.CloseCode, e.CloseMessage);
 
-        async Task SocketOnDisconnect(IWebSocketClient sender, SocketClosedEventArgs e)
-        {
-            // release session and connection
-            this.connectionLock.Set();
-            this.sessionLock.Set();
+        await this.events[typeof(SocketClosedEventArgs)]
+            .As<SocketClosedEventArgs>()
+            .InvokeAsync(this, e);
 
-            if (!this.disposed)
+        if (this.Configuration.AutoReconnect &&
+            (e.CloseCode <= 4003 || (e.CloseCode >= 4005 && e.CloseCode <= 4009) || e.CloseCode >= 5000))
+        {
+            this.Logger.LogCritical(LoggerEvents.ConnectionClose,
+                "Connection terminated ({CloseCode}, '{CloseMessage}'), reconnecting", e.CloseCode, e.CloseMessage);
+
+            if (this.status == null)
             {
-                this.cancelTokenSource.Cancel();
+                await ConnectAsync();
             }
-
-            this.Logger.LogDebug(LoggerEvents.ConnectionClose, "Connection closed ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
-            
-            await this.events[typeof(SocketClosedEventArgs)]
-                .As<SocketClosedEventArgs>()
-                .InvokeAsync(this, e);
-
-            if (this.Configuration.AutoReconnect && (e.CloseCode <= 4003 || (e.CloseCode >= 4005 && e.CloseCode <= 4009) || e.CloseCode >= 5000))
+            else if (this.status.IdleSince.HasValue)
             {
-                this.Logger.LogCritical(LoggerEvents.ConnectionClose, "Connection terminated ({CloseCode}, '{CloseMessage}'), reconnecting", e.CloseCode, e.CloseMessage);
-
-                if (this.status == null)
-                {
-                    await ConnectAsync();
-                }
-                else
-                    if (this.status.IdleSince.HasValue)
-                {
-                    await ConnectAsync(this.status.activity, this.status.Status, Utilities.GetDateTimeOffsetFromMilliseconds(this.status.IdleSince.Value));
-                }
-                else
-                {
-                    await ConnectAsync(this.status.activity, this.status.Status);
-                }
+                await ConnectAsync(this.status.activity, this.status.Status,
+                    Utilities.GetDateTimeOffsetFromMilliseconds(this.status.IdleSince.Value));
             }
             else
             {
-                this.Logger.LogInformation(LoggerEvents.ConnectionClose, "Connection terminated ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
+                await ConnectAsync(this.status.activity, this.status.Status);
             }
+        }
+        else
+        {
+            this.Logger.LogInformation(LoggerEvents.ConnectionClose,
+                "Connection terminated ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
         }
     }
 
