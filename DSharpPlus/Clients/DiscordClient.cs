@@ -185,6 +185,12 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
 
         this.presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this.presences));
+        
+        //Register websocket managment event handlers
+        this.webSocketClient.Connected += SocketOnConnect;
+        this.webSocketClient.Disconnected += SocketOnDisconnect;
+        this.webSocketClient.MessageReceived += SocketOnMessage;
+        this.webSocketClient.ExceptionThrown += SocketOnException;
     }
 
     internal void InternalSetup(IClientErrorHandler error)
