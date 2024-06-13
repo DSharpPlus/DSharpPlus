@@ -5599,7 +5599,7 @@ public sealed class DiscordApiClient
         {
             Name = name,
             Description = description,
-            Options = option,
+            Options = options,
             DefaultPermission = defaultPermission,
             NameLocalizations = nameLocalizations,
             DescriptionLocalizations = descriptionLocalizations,
