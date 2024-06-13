@@ -3,6 +3,9 @@ uid: articles.preamble
 title: Article Preamble
 ---
 
+> [!IMPORTANT]
+> This documentation is built from the newest nightly (prerelease) version.
+> 
 ## Knowledge Prerequisites
 
 Before attempting to write a Discord bot, you should be familiar with the concepts of [Object Oriented Programing][0],
