@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
 using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.WebSocket;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -23,14 +24,19 @@ public sealed class GatewayClient : IGatewayClient
     private readonly ILogger<IGatewayClient> logger;
     private readonly ITransportService transportService;
     private readonly ChannelWriter<GatewayPayload> eventWriter;
+    private readonly GatewayClientOptions options;
     private readonly CancellationTokenSource gatewayTokenSource;
     private readonly string token;
+    private readonly bool compress;
 
     private int remainingOutboundPayloads = 120;
     private DateTimeOffset lastOutboundPayloadReset = DateTimeOffset.UtcNow;
     private SpinLock resetLock = new();
 
     private int lastReceivedSequence = 0;
+    private string? resumeUrl;
+    private string? sessionId;
+    private string? reconnectUrl;
     
     public GatewayClient
     (
@@ -39,7 +45,9 @@ public sealed class GatewayClient : IGatewayClient
         
         ITransportService transportService,
         ILogger<IGatewayClient> logger,
-        IOptions<TokenContainer> tokenContainer
+        IOptions<TokenContainer> tokenContainer,
+        PayloadDecompressor decompressor,
+        IOptions<GatewayClientOptions> options
     )
     {
         this.transportService = transportService;
@@ -47,6 +55,8 @@ public sealed class GatewayClient : IGatewayClient
         this.logger = logger;
         this.token = tokenContainer.Value.GetToken();
         this.gatewayTokenSource = new();
+        this.compress = decompressor.CompressionLevel != GatewayCompressionLevel.None;
+        this.options = options.Value;
     }
 
     /// <inheritdoc/>
@@ -59,6 +69,7 @@ public sealed class GatewayClient : IGatewayClient
         ShardInfo? shardInfo = null
     )
     {
+        this.reconnectUrl = url;
         await this.transportService.ConnectAsync(url);
 
         string hello = await this.transportService.ReadAsync();
@@ -81,8 +92,8 @@ public sealed class GatewayClient : IGatewayClient
         GatewayIdentify identify = new()
         {
             Token = this.token,
-            Compress = false, // todo: GatewayOptions
-            // LargeThreshold = ...,
+            Compress = this.compress,
+            LargeThreshold = this.options.LargeThreshold,
             ShardInfo = shardInfo,
             Presence = new()
             {
@@ -90,7 +101,7 @@ public sealed class GatewayClient : IGatewayClient
                 Status = status ?? DiscordUserStatus.Online,
                 IdleSince = idleSince?.ToUnixTimeMilliseconds()
             },
-            // Intents = ...,
+            Intents = this.options.Intents
         };
 
         await WriteAsync(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(identify)));
@@ -124,7 +135,7 @@ public sealed class GatewayClient : IGatewayClient
             this.resetLock.TryEnter(ref taken);
 
             // assume that another thread is taking care of this. wait until the lock is free to continue (this is horrible)
-            if (taken)
+            if (!taken)
             {
                 this.resetLock.Enter(ref taken);
                 this.resetLock.Exit();
@@ -141,6 +152,9 @@ public sealed class GatewayClient : IGatewayClient
         await this.transportService.WriteAsync(payload);
     }
 
+    /// <summary>
+    /// Handles dispatching heartbeats to Discord.
+    /// </summary>
     private async Task HeartbeatAsync(int heartbeatInterval, CancellationToken ct)
     {
         double jitter = Random.Shared.NextDouble() * 0.95;
@@ -155,12 +169,25 @@ public sealed class GatewayClient : IGatewayClient
         } while (await timer.WaitForNextTickAsync(ct));
     }
 
+    /// <summary>
+    /// Handles events incoming from Discord.
+    /// </summary>
     private async Task HandleEventsAsync(CancellationToken ct)
     {
         while (!ct.IsCancellationRequested)
         {
             string data = await this.transportService.ReadAsync();
-            GatewayPayload? payload = JsonConvert.DeserializeObject<GatewayPayload>(data);
+            GatewayPayload? payload;
+
+            try
+            {
+                payload = JsonConvert.DeserializeObject<GatewayPayload>(data);
+            }
+            catch (WebSocketException e)
+            {
+                await HandleExceptionAndAttemptReconnectAsync(e);
+                continue;
+            }
 
             if (payload is null)
             {
@@ -170,23 +197,70 @@ public sealed class GatewayClient : IGatewayClient
 
             this.lastReceivedSequence = payload.Sequence ?? this.lastReceivedSequence;
 
-            // TODO
             switch (payload.OpCode)
             {
                 case GatewayOpCode.Dispatch when payload.EventName is "READY":
+
+                    ReadyPayload readyPayload = (ReadyPayload)payload.Data;
+                    this.resumeUrl = readyPayload.ResumeGatewayUrl;
+                    this.sessionId = readyPayload.SessionId;
+
+                    this.logger.LogTrace("Received READY, the gateway is now operational.");
+
                     break;
 
+                // TODO: heartbeat tracking
                 case GatewayOpCode.HeartbeatAck:
                     break;
 
                 case GatewayOpCode.InvalidSession:
+
+                    this.logger.LogTrace("Received INVALID_SESSION, resumable: {Resumable}", (bool)payload.Data);
+                    bool success = (bool)payload.Data ? await TryResumeAsync() : await TryReconnectAsync();
+
+                    if (!success)
+                    {
+                        this.logger.LogError("The session was invalidated and resuming/reconnecting failed.");
+                    }
+
                     break;
 
                 case GatewayOpCode.Reconnect:
+
+                    this.logger.LogTrace("Received RECONNECT");
+                    
+                    if (!await TryReconnectAsync())
+                    {
+                        this.logger.LogError("A reconnection attempt requested by Discord failed.");
+                    }
+
                     break;
             }
 
             await this.eventWriter.WriteAsync(payload, ct);
         }
+
+        this.eventWriter.Complete();
+    }
+
+    /// <summary>
+    /// Attempts to resume a connection, returning whether this was successful.
+    /// </summary>
+    private async Task<bool> TryResumeAsync()
+    {
+
+    }
+
+    /// <summary>
+    /// Attempts to reconnect to the gateway, returning whether this was successful.
+    /// </summary>
+    private async Task<bool> TryReconnectAsync()
+    {
+
+    }
+
+    private async Task HandleExceptionAndAttemptReconnectAsync(WebSocketException exception)
+    {
+
     }
 }

@@ -61,24 +61,28 @@ public sealed class DiscordConfiguration
     /// <para>Sets the member count threshold at which guilds are considered large.</para>
     /// <para>Defaults to 250.</para>
     /// </summary>
+    [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0005")]
     public int LargeThreshold { internal get; set; } = 250;
 
     /// <summary>
     /// <para>Sets whether to automatically reconnect in case a connection is lost.</para>
     /// <para>Defaults to true.</para>
     /// </summary>
+    [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0005")]
     public bool AutoReconnect { internal get; set; } = true;
 
     /// <summary>
     /// <para>Sets the ID of the shard to connect to.</para>
     /// <para>If not sharding, or sharding automatically, this value should be left with the default value of 0.</para>
     /// </summary>
+    [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0005")]
     public int ShardId { internal get; set; } = 0;
 
     /// <summary>
     /// <para>Sets the total number of shards the bot is on. If not sharding, this value should be left with a default value of 1.</para>
     /// <para>If sharding automatically, this value will indicate how many shards to boot. If left default for automatic sharding, the client will determine the shard count automatically.</para>
     /// </summary>
+    [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0005")]
     public int ShardCount { internal get; set; } = 1;
 
     /// <summary>
@@ -122,6 +126,7 @@ public sealed class DiscordConfiguration
     /// <para>This is typically a very bad idea to set to <c>true</c>, as it will swallow all connection errors.</para>
     /// <para>Defaults to false.</para>
     /// </summary>
+    [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0005")]
     public bool ReconnectIndefinitely { internal get; set; } = false;
 
     /// <summary>
