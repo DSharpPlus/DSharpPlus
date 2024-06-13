@@ -5,7 +5,7 @@ title: Article Preamble
 
 > [!IMPORTANT]
 > This documentation is built from the newest nightly (prerelease) DSharpPlus version.
-> 
+
 ## Knowledge Prerequisites
 
 Before attempting to write a Discord bot, you should be familiar with the concepts of [Object Oriented Programing][0],
