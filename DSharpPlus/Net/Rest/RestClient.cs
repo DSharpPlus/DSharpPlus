@@ -123,6 +123,7 @@ public sealed partial class RestClient : IDisposable
             context.Properties.Set(new("route"), request.Route);
             context.Properties.Set(new("exempt-from-global-limit"), request.IsExemptFromGlobalLimit);
             context.Properties.Set(new("trace-id"), traceId);
+            context.Properties.Set(new("exempt-from-all-limits"), request.IsExemptFromAllLimits);
 
             using HttpResponseMessage response = await this.pipeline.ExecuteAsync
             (

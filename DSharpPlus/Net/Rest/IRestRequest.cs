@@ -27,4 +27,9 @@ internal interface IRestRequest
     /// Specifies whether this request is exempt from the global limit. Generally applies to webhook requests.
     /// </summary>
     public bool IsExemptFromGlobalLimit { get; init; }
+
+    /// <summary>
+    /// Specifies whether this request is exempt from all ratelimits.
+    /// </summary>
+    public bool IsExemptFromAllLimits { get; init; }
 }

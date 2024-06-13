@@ -48,6 +48,20 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         // get trace id for logging
         Ulid traceId = context.Properties.TryGetValue(new("trace-id"), out Ulid tid) ? tid : Ulid.Empty;
 
+        // if we're exempt, execute immediately
+        if (context.Properties.TryGetValue(new("exempt-from-all-limits"), out bool allExempt) && allExempt)
+        {
+            this.logger.LogTrace
+            (
+                LoggerEvents.RatelimitDiag,
+                "Request ID:{TraceId}: Executing request exempt from all ratelimits to {Route}",
+                traceId,
+                route
+            );
+
+            return await action(context, state);
+        }
+
         // get global limit
         bool exemptFromGlobalLimit = false;
 

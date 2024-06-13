@@ -35,6 +35,9 @@ internal readonly record struct RestRequest : IRestRequest
     public string? Payload { get; init; }
 
     /// <inheritdoc/>
+    public bool IsExemptFromAllLimits { get; init; }
+
+    /// <inheritdoc/>
     public HttpRequestMessage Build()
     {
         HttpRequestMessage request = new()
