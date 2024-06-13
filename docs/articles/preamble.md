@@ -4,7 +4,7 @@ title: Article Preamble
 ---
 
 > [!IMPORTANT]
-> This documentation is built from the newest nightly (prerelease) version.
+> This documentation is built from the newest nightly (prerelease) DSharpPlus version.
 > 
 ## Knowledge Prerequisites
 
