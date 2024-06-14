@@ -459,7 +459,7 @@ public sealed partial class DiscordClient
     {
         GatewayResume resume = new()
         {
-            Token = Utilities.GetFormattedToken(this),
+            Token = $"Bot {this.token}",
             SessionId = this.sessionId,
             SequenceNumber = Volatile.Read(ref this.lastSequence)
         };
