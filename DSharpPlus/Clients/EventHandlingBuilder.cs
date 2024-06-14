@@ -113,6 +113,16 @@ public sealed class EventHandlingBuilder
     }
 
     /// <summary>
+    /// Fired when a channel is deleted. 
+    /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
+    /// </summary>
+    public EventHandlingBuilder HandleChannelDeleted(AsyncEventHandler<DiscordClient, ChannelDeletedEventArgs> handler)
+    {
+        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ChannelDeletedEventArgs), _ => []).Add(handler));
+        return this;
+    }
+
+    /// <summary>
     /// Fired when a DM channel is deleted. 
     /// For this event to fire you need the <see cref="DiscordIntents.DirectMessages"/> intent.
     /// </summary>
