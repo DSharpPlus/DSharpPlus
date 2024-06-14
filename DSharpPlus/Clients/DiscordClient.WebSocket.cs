@@ -23,6 +23,7 @@ public sealed partial class DiscordClient
         if (startNewSession)
         {
             this.sessionId = null;
+            this.gatewayResumeUrl = null;
         }
 
         _ = this.webSocketClient.DisconnectAsync(code, message);
@@ -250,14 +251,14 @@ public sealed partial class DiscordClient
         if (data)
         {
             this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received INVALID_SESSION (OP9, true)");
-            await Task.Delay(6000);
-            await SendResumeAsync();
+            await InternalReconnectAsync(code: 1000, message: "OP9 acknowledged");
         }
         else
         {
             this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received INVALID_SESSION (OP9, false)");
             this.sessionId = null;
-            await SendIdentifyAsync(this.status);
+            this.gatewayResumeUrl = null;
+            await InternalReconnectAsync(code: 1000, message: "OP9 acknowledged");
         }
     }
 
@@ -458,7 +459,7 @@ public sealed partial class DiscordClient
     {
         GatewayResume resume = new()
         {
-            Token = Utilities.GetFormattedToken(this),
+            Token = $"Bot {this.token}",
             SessionId = this.sessionId,
             SequenceNumber = Volatile.Read(ref this.lastSequence)
         };
