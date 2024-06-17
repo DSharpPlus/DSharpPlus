@@ -243,13 +243,16 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
         }
         else
         {
-            discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, globalApplicationCommands));
-
-            //If the same command is registered in multiple guilds, only add it once to the debug guild
-            discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, guildsApplicationCommands
+            // 1. Aggregate all guild specific and global commands
+            // 2. Groupby name
+            // 3. Only take the first command per name
+            IEnumerable<DiscordApplicationCommand> distinctCommands = guildsApplicationCommands
                 .SelectMany(x => x.Value)
+                .Concat(globalApplicationCommands)
                 .GroupBy(x => x.Name)
-                .Select(x => x.First())));
+                .Select(x => x.First());
+            
+            discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, distinctCommands));
         }
 
         Dictionary<ulong, Command> commandsDictionary = [];
