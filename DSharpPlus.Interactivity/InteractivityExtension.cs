@@ -756,7 +756,9 @@ public class InteractivityExtension : BaseExtension
 
         bts = new(bts);
 
-        if (pages.Count() == 1)
+        Page[] pageArray = pages.ToArray();
+
+        if (pageArray.Length == 1)
         {
             bts.SkipLeft.Disable();
             bts.Left.Disable();
@@ -769,20 +771,80 @@ public class InteractivityExtension : BaseExtension
             bts.SkipLeft.Disable();
             bts.Left.Disable();
 
-            if (pages.Count() == 2)
+            if (pageArray.Length == 2)
             {
                 bts.SkipRight.Disable();
             }
         }
 
         DiscordMessageBuilder builder = new DiscordMessageBuilder()
-            .WithContent(pages.First().Content)
-            .AddEmbed(pages.First().Embed)
+            .WithContent(pageArray[0].Content)
+            .AddEmbed(pageArray[0].Embed)
             .AddComponents(bts.ButtonArray);
+
+        foreach (DiscordActionRowComponent acr in pageArray[0].Components)
+        {
+            builder.AddComponents(acr);
+        }
 
         DiscordMessage message = await builder.SendAsync(channel);
 
-        ButtonPaginationRequest req = new(message, user, bhv, del, bts, pages.ToArray(), token == default ? GetCancellationToken() : token);
+        ButtonPaginationRequest req = new(message, user, bhv, del, bts, pageArray, token == default ? GetCancellationToken() : token);
+
+        await this.compPaginator.DoPaginationAsync(req);
+    }
+
+    public async Task SendPaginatedMessageAsync
+    (
+        DiscordChannel channel,
+        DiscordUser user,
+        IEnumerable<DiscordMessageBuilder> pageBuilders,
+        PaginationButtons buttons,
+        PaginationBehaviour? behaviour = default,
+        ButtonPaginationBehavior? deletion = default,
+        CancellationToken token = default
+    )
+    {
+        PaginationBehaviour bhv = behaviour     ?? this.Config.PaginationBehaviour;
+        ButtonPaginationBehavior del = deletion ?? this.Config.ButtonBehavior;
+        PaginationButtons bts = buttons         ?? this.Config.PaginationButtons;
+
+        bts = new(bts);
+
+        Page[] pages = pageBuilders.Select(x => new Page(x)).ToArray();
+
+        if (pages.Length == 1)
+        {
+            bts.SkipLeft.Disable();
+            bts.Left.Disable();
+            bts.Right.Disable();
+            bts.SkipRight.Disable();
+        }
+
+        if (bhv is PaginationBehaviour.Ignore)
+        {
+            bts.SkipLeft.Disable();
+            bts.Left.Disable();
+
+            if (pages.Length == 2)
+            {
+                bts.SkipRight.Disable();
+            }
+        }
+
+        DiscordMessageBuilder builder = new DiscordMessageBuilder()
+                                        .WithContent(pages[0].Content)
+                                        .AddEmbed(pages[0].Embed)
+                                        .AddComponents(bts.ButtonArray);
+
+        foreach (DiscordActionRowComponent acr in pages[0].Components)
+        {
+            builder.AddComponents(acr);
+        }
+
+        DiscordMessage message = await builder.SendAsync(channel);
+
+        ButtonPaginationRequest req = new(message, user, bhv, del, bts, pages, token == default ? GetCancellationToken() : token);
 
         await this.compPaginator.DoPaginationAsync(req);
     }
