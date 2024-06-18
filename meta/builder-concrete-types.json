@@ -5,6 +5,8 @@
     "./src/core/DSharpPlus.Internal.Models/Interactions/MessageCallbackData.cs",
     "./src/core/DSharpPlus.Internal.Models/MessageComponents/ActionRowComponent.cs",
     "./src/core/DSharpPlus.Internal.Models/MessageComponents/TextInputComponent.cs",
+    "./src/core/DSharpPlus.Internal.Rest/Payloads/Channels/CreateMessagePayload.cs",
+    "./src/core/DSharpPlus.Internal.Rest/Payloads/Channels/EditMessagePayload.cs",
     "./src/core/DSharpPlus.Internal.Rest/Payloads/Interactions/CreateFollowupMessagePayload.cs",
     "./src/core/DSharpPlus.Internal.Rest/Payloads/Interactions/EditFollowupMessagePayload.cs",
     "./src/core/DSharpPlus.Internal.Rest/Payloads/Interactions/EditInteractionResponsePayload.cs"
