@@ -230,7 +230,7 @@ for (int i = 0; i < collectedMetadata.Count; i++)
         writer.AppendLine
         (
             $"""
-            {string.Join('\n', group.OrderBy(name => name))}
+            {string.Join("\r\n", group.OrderBy(name => name))}
 
             """
         );

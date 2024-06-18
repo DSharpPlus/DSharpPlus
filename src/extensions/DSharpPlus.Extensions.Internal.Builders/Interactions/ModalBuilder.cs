@@ -14,8 +14,6 @@ using DSharpPlus.Extensions.Internal.Builders.Implementations;
 using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Results;
 
-using OneOf;
-
 namespace DSharpPlus.Extensions.Internal.Builders.Interactions;
 
 /// <summary>
@@ -127,7 +125,7 @@ public static class ModalBuilderExtensions
         return new BuiltInteractionResponse
         {
             Type = DiscordInteractionCallbackType.Modal,
-            Data = OneOf<IAutocompleteCallbackData, IMessageCallbackData, IModalCallbackData>.FromT2
+            Data = new
             (
                 new BuiltModalCallbackData
                 {

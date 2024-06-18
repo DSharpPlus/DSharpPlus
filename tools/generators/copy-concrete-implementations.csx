@@ -22,7 +22,7 @@ if (Args is ["-h" or "--help" or "-?"])
         """
         [plum1]DSharpPlus Concrete Implementation Theft, v0.1.0[/]
 
-          Usage: copy-concrete-implementations.csx [path to meta file]]
+          Usage: copy-concrete-implementations.csx [[path to meta file]]
           Extracts the required concrete types for DSharpPlus.Extensions.Internal.Builders to remove dependency on concrete implementations.
         
         """
@@ -90,7 +90,7 @@ if (changes.Removed.Any())
     AnsiConsole.MarkupLine
     (
         """
-        [red]Some concrete types were deleted. Please update the meta file and the corresponding builder code, if applicable:
+        [red]Some concrete types were deleted. Please update the meta file and the corresponding builder code, if applicable:[/]
         """
     );
 

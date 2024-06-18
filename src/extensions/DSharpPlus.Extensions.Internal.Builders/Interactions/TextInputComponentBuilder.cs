@@ -12,7 +12,6 @@ using DSharpPlus.Entities;
 using DSharpPlus.Extensions.Internal.Builders.Errors;
 using DSharpPlus.Extensions.Internal.Builders.Implementations;
 using DSharpPlus.Internal.Abstractions.Models;
-
 using DSharpPlus.Results;
 
 namespace DSharpPlus.Extensions.Internal.Builders.Interactions;
