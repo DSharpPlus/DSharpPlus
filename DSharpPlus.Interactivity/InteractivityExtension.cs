@@ -805,11 +805,9 @@ public class InteractivityExtension : BaseExtension
         CancellationToken token = default
     )
     {
-        PaginationBehaviour bhv = behaviour     ?? this.Config.PaginationBehaviour;
-        ButtonPaginationBehavior del = deletion ?? this.Config.ButtonBehavior;
-        PaginationButtons bts = buttons         ?? this.Config.PaginationButtons;
-
-        bts = new(bts);
+        PaginationButtons bts = buttons ?? this.Config.PaginationButtons;
+        PaginationBehaviour pageBehavior = behaviour ?? this.Config.PaginationBehaviour;
+        ButtonPaginationBehavior deletionBehavior = deletion ?? this.Config.ButtonBehavior;
 
         Page[] pages = pageBuilders.Select(x => new Page(x)).ToArray();
 
@@ -821,7 +819,7 @@ public class InteractivityExtension : BaseExtension
             bts.SkipRight.Disable();
         }
 
-        if (bhv is PaginationBehaviour.Ignore)
+        if (pageBehavior is PaginationBehaviour.Ignore)
         {
             bts.SkipLeft.Disable();
             bts.Left.Disable();
@@ -844,7 +842,7 @@ public class InteractivityExtension : BaseExtension
 
         DiscordMessage message = await builder.SendAsync(channel);
 
-        ButtonPaginationRequest req = new(message, user, bhv, del, bts, pages, token == default ? GetCancellationToken() : token);
+        ButtonPaginationRequest req = new(message, user, pageBehavior, deletionBehavior, bts, pages, token == default ? GetCancellationToken() : token);
 
         await this.compPaginator.DoPaginationAsync(req);
     }
