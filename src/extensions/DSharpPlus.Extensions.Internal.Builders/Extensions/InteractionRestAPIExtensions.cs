@@ -5,7 +5,6 @@
 #pragma warning disable IDE0046 // we have a lot of early returns here that we don't want to become ternaries.
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -80,7 +79,7 @@ public static class InteractionRestAPIExtensions
         Snowflake interactionId,
         string interactionToken,
         EmbedBuilder embed,
-        bool ephemeral,
+        bool ephemeral = false,
         RequestInfo info = default,
         CancellationToken ct = default
     )
@@ -134,7 +133,7 @@ public static class InteractionRestAPIExtensions
         Snowflake applicationId,
         string interactionToken,
         EmbedBuilder embed,
-        bool ephemeral,
+        bool ephemeral = false,
         RequestInfo info = default,
         CancellationToken ct = default
     )
@@ -238,54 +237,6 @@ public static class InteractionRestAPIExtensions
             {
                 Embeds = new([embed.Build()])
             },
-            info,
-            ct
-        );
-    }
-
-    /// <inheritdoc cref="RespondWithEmbedAsync(IInteractionRestAPI, Snowflake, string, EmbedBuilder, bool, RequestInfo, CancellationToken)"/>
-    [StackTraceHidden]
-    [DebuggerStepThrough]
-    public static ValueTask<Result> RespondWithEmbedAsync
-    (
-        this IInteractionRestAPI underlying,
-        Snowflake interactionId,
-        string interactionToken,
-        EmbedBuilder embed,
-        RequestInfo info = default,
-        CancellationToken ct = default
-    )
-    {
-        return underlying.RespondWithEmbedAsync
-        (
-            interactionId,
-            interactionToken,
-            embed,
-            false,
-            info,
-            ct
-        );
-    }
-
-    /// <inheritdoc cref="FollowupWithEmbedAsync(IInteractionRestAPI, Snowflake, string, EmbedBuilder, bool, RequestInfo, CancellationToken)"/>
-    [StackTraceHidden]
-    [DebuggerStepThrough]
-    public static ValueTask<Result<IMessage>> FollowupWithEmbedAsync
-    (
-        this IInteractionRestAPI underlying,
-        Snowflake applicationId,
-        string interactionToken,
-        EmbedBuilder embed,
-        RequestInfo info = default,
-        CancellationToken ct = default
-    )
-    {
-        return underlying.FollowupWithEmbedAsync
-        (
-            applicationId,
-            interactionToken,
-            embed,
-            false,
             info,
             ct
         );
