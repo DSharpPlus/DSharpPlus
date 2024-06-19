@@ -25,5 +25,10 @@ public enum DiscordAutoModerationActionType
     /// <see cref="DiscordAutoModerationTriggerType.Keyword"/> and 
     /// <see cref="DiscordAutoModerationTriggerType.MentionSpam"/>.
     /// </summary>
-    Timeout
+    Timeout,
+
+    /// <summary>
+    /// Prevents a member from using text, voice or other interactions.
+    /// </summary>
+    BlockMemberInteraction
 }

@@ -35,9 +35,6 @@ AnsiConsole.MarkupLine
 (
     """
     [plum1]DSharpPlus Concrete Implementation Theft, v0.1.0[/]
-
-      Extracts the required concrete types for DSharpPlus.Extensions.Internal.Builders to remove dependency on concrete implementations.
-    
     """
 );
 
@@ -84,6 +81,15 @@ if (!changes.Added.Any() && !changes.Modified.Any() && !changes.Removed.Any())
 
     return 0;
 }
+
+AnsiConsole.MarkupLine
+(
+    """
+
+      Extracts the required concrete types for DSharpPlus.Extensions.Internal.Builders to remove dependency on concrete implementations.
+    
+    """
+)
 
 if (changes.Removed.Any())
 {

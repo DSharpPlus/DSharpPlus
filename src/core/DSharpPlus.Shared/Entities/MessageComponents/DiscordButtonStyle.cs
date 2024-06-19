@@ -32,5 +32,10 @@ public enum DiscordButtonStyle
     /// <summary>
     /// A gray button, navigating to an URL.
     /// </summary>
-    Link
+    Link,
+
+    /// <summary>
+    /// A discord-blurple button directing an user to purchase an SKU. 
+    /// </summary>
+    Premium
 }

@@ -12,5 +12,10 @@ public enum DiscordAutoModerationEventType
     /// <summary>
     /// Fired when a member sends or edits a message.
     /// </summary>
-    MessageSend = 1
+    MessageSend = 1,
+
+    /// <summary>
+    /// Fired when a member edits their profile.
+    /// </summary>
+    MemberUpdate
 }

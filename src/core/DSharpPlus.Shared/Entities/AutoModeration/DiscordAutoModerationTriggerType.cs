@@ -28,5 +28,10 @@ public enum DiscordAutoModerationTriggerType
     /// <summary>
     /// Check whether the message content contains more unique mentions than allowed.
     /// </summary>
-    MentionSpam
+    MentionSpam,
+
+    /// <summary>
+    /// Check whether the member profile contains words from an user-defined list of keyword.
+    /// </summary>
+    MemberProfile
 }

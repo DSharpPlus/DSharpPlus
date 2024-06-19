@@ -30,4 +30,7 @@ public sealed record ButtonComponent : IButtonComponent
 
     /// <inheritdoc/>
     public Optional<bool> Disabled { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<Snowflake> SkuId { get; init; }
 }

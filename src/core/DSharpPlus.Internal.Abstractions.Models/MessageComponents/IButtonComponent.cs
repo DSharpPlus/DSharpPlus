@@ -46,4 +46,9 @@ public interface IButtonComponent : IInteractiveComponent
     /// Indicates whether this button is disabled, default false.
     /// </summary>
     public Optional<bool> Disabled { get; }
+
+    /// <summary>
+    /// A snowflake identifier of a purchasable SKU to link to. This is only available on premium buttons.
+    /// </summary>
+    public Optional<Snowflake> SkuId { get; }
 }
