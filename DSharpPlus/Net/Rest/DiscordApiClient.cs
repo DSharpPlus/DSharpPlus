@@ -6783,8 +6783,83 @@ public sealed class DiscordApiClient
         };
 
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
-        IReadOnlyList<DiscordStockKeepingUnit> rules = JsonConvert.DeserializeObject<IReadOnlyList<DiscordStockKeepingUnit>>(res.Response!)!;
+        IReadOnlyList<DiscordStockKeepingUnit> stockKeepingUnits = JsonConvert.DeserializeObject<IReadOnlyList<DiscordStockKeepingUnit>>(res.Response!)!;
 
-        return rules;
+        return stockKeepingUnits;
     }
+
+    internal async ValueTask<IReadOnlyList<DiscordEntitlement>> ListEntitlementsAsync
+    (
+        ulong applicationId,
+        IEnumerable<ulong>? userId = null,
+        ulong? skuId = null,
+        ulong? before = null,
+        ulong? after = null,
+        ulong? guildId = null,
+        bool? excludeEnded = null,
+        int? limit = null
+    )
+    {
+        string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        IReadOnlyList<DiscordEntitlement> entitlements = JsonConvert.DeserializeObject<IReadOnlyList<DiscordEntitlement>>(res.Response!)!;
+
+        return entitlements;
+    }
+    
+    internal async ValueTask ConsumeEntitlementAsync(ulong applicationId, ulong entitlementId)
+    {
+        string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}/:entitlementId/{Endpoints.CONSUME}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}/{entitlementId}/{Endpoints.CONSUME}";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post
+        };
+
+        await this.rest.ExecuteRequestAsync(request);
+    }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="applicationId"></param>
+    /// <param name="skuId"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="ownerType"></param>
+    /// <returns>Returns a partial entitlment</returns>
+    internal async ValueTask<DiscordEntitlement> CreateTestEntitlementAsync(ulong applicationId, ulong skuId, ulong ownerId, DiscordTestEntitlementOwnerType ownerType)
+    {
+        string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}";
+
+        string payload = DiscordJson.SerializeObject(
+            new RestCreateTestEntitlementPayload() { SkuId = skuId, OwnerId = ownerId, OwnerType = ownerType });
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post,
+            Payload = payload
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        DiscordEntitlement entitlement = JsonConvert.DeserializeObject<DiscordEntitlement>(res.Response!)!;
+
+        return entitlement;
+    }
+    
+    
 }
