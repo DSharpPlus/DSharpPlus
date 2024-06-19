@@ -418,6 +418,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         _ => null
     };
     
+    //TODO: implement pagination and turn this into IAsyncEnumerable
     /// <summary>
     /// List all stock keeping units belonging to this application
     /// </summary>
