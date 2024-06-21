@@ -711,24 +711,36 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// </summary>
     /// <param name="username">New username.</param>
     /// <param name="avatar">New avatar.</param>
+    /// <param name="banner">New banner.</param>
     /// <returns></returns>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the user does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordUser> UpdateCurrentUserAsync(string username = null, Optional<Stream> avatar = default)
+    public async Task<DiscordUser> ModifyCurrentUserAsync(string username = null, Optional<Stream> avatar = default, Optional<Stream> banner = default)
     {
-        Optional<string> av64 = Optional.FromNoValue<string>();
+        Optional<string> avatarBase64 = Optional.FromNoValue<string>();
         if (avatar.HasValue && avatar.Value != null)
         {
             using ImageTool imgtool = new(avatar.Value);
-            av64 = imgtool.GetBase64();
+            avatarBase64 = imgtool.GetBase64();
         }
         else if (avatar.HasValue)
         {
-            av64 = null;
+            avatarBase64 = null;
+        }
+        
+        Optional<string> bannerBase64 = Optional.FromNoValue<string>();
+        if (banner.HasValue && banner.Value != null)
+        {
+            using ImageTool imgtool = new(banner.Value);
+            bannerBase64 = imgtool.GetBase64();
+        }
+        else if (banner.HasValue)
+        {
+            bannerBase64 = null;
         }
 
-        TransportUser usr = await this.ApiClient.ModifyCurrentUserAsync(username, av64);
+        TransportUser usr = await this.ApiClient.ModifyCurrentUserAsync(username, avatarBase64, bannerBase64);
 
         this.CurrentUser.Username = usr.Username;
         this.CurrentUser.Discriminator = usr.Discriminator;

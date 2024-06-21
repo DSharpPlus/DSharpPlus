@@ -1185,26 +1185,35 @@ public class DiscordRestClient : BaseDiscordClient
     /// </summary>
     /// <param name="username">New username</param>
     /// <param name="base64Avatar">New avatar (base64)</param>
+    /// <param name="base64Banner">New banner (base64)</param>
     /// <returns></returns>
-    public async Task<DiscordUser> ModifyCurrentUserAsync(string username, string base64Avatar)
-        => new DiscordUser(await this.ApiClient.ModifyCurrentUserAsync(username, base64Avatar)) { Discord = this };
+    public async Task<DiscordUser> ModifyCurrentUserAsync(string username, string base64Avatar, string base64Banner)
+        => new DiscordUser(await this.ApiClient.ModifyCurrentUserAsync(username, base64Avatar, base64Banner)) { Discord = this };
 
     /// <summary>
     /// Modifies current user
     /// </summary>
     /// <param name="username">username</param>
     /// <param name="avatar">avatar</param>
+    /// <param name="banner">New banner</param>
     /// <returns></returns>
-    public async Task<DiscordUser> ModifyCurrentUserAsync(string username = null, Stream avatar = null)
+    public async Task<DiscordUser> ModifyCurrentUserAsync(string username = null, Stream? avatar = null, Stream? banner = null)
     {
-        string av64 = null;
+        string avatarBase64 = null;
         if (avatar is not null)
         {
             using ImageTool imgtool = new(avatar);
-            av64 = imgtool.GetBase64();
+            avatarBase64 = imgtool.GetBase64();
+        }
+        
+        string bannerBase64 = null;
+        if (banner is not null)
+        {
+            using ImageTool imgtool = new(banner);
+            bannerBase64 = imgtool.GetBase64();
         }
 
-        return new DiscordUser(await this.ApiClient.ModifyCurrentUserAsync(username, av64)) { Discord = this };
+        return new DiscordUser(await this.ApiClient.ModifyCurrentUserAsync(username, avatarBase64, bannerBase64)) { Discord = this };
     }
 
     /// <summary>
