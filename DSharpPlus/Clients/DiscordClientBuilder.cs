@@ -1,5 +1,6 @@
 using System;
 
+using DSharpPlus.Clients;
 using DSharpPlus.Extensions;
 using DSharpPlus.Logging;
 using DSharpPlus.Net;
@@ -45,6 +46,46 @@ public sealed class DiscordClientBuilder
         DiscordClientBuilder builder = new(serviceCollection);
         builder.serviceCollection.Configure<TokenContainer>(x => x.GetToken = () => token);
         builder.serviceCollection.AddDSharpPlusDefaultsSingleShard(intents);
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Creates a new sharding DiscordClientbuilder using the specified token.
+    /// </summary>
+    /// <remarks>
+    /// DSharpPlus supports more advanced sharding over just specifying the amount of shards, which can be accessed
+    /// through the underlying service collection: <br/>
+    /// <code>
+    /// builder.ConfigureServices(services =>
+    /// {
+    ///     services.Configure&lt;ShardingOptions&gt;(x => ...);
+    ///     
+    ///     // The default orchestrator supports a shard count and a "stride" (offset from shard 0), which requires
+    ///     // a total shard count. If you wish to customize sharding further, you can specify your own orchestrator:
+    ///     services.AddSingleton&lt;IShardOrchestrator, MyCustomShardOrchestrator&gt;();
+    /// }
+    /// </code>
+    /// </remarks>
+    /// <param name="token">The token to use for this application.</param>
+    /// <param name="intents">The intents to connect to the gateway with.</param>
+    /// <param name="shardCount">The amount of shards to start.</param>
+    /// <param name="serviceCollection">The service collection to base this builder on.</param>
+    /// <returns>A new DiscordClientBuilder.</returns>
+    public static DiscordClientBuilder CreateSharded
+    (
+        string token,
+        DiscordIntents intents,
+        uint shardCount,
+        IServiceCollection? serviceCollection = null
+    )
+    {
+        serviceCollection ??= new ServiceCollection();
+
+        DiscordClientBuilder builder = new(serviceCollection);
+        builder.serviceCollection.Configure<ShardingOptions>(x => x.ShardCount = shardCount);
+        builder.serviceCollection.Configure<TokenContainer>(x => x.GetToken = () => token);
+        builder.serviceCollection.AddDSharpPlusDefaultsSharded(intents);
 
         return builder;
     }

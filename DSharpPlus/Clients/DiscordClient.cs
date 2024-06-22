@@ -42,17 +42,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
     private List<BaseExtension> extensions = [];
     private StatusUpdate? status = null;
-
-    private int heartbeatInterval;
-    private DateTimeOffset lastHeartbeat;
-    private int skippedHeartbeats;
-    private long lastSequence;
-
-    internal readonly IWebSocketClient webSocketClient;
-    private readonly PayloadDecompressor payloadDecompressor;
-    private CancellationTokenSource cancelTokenSource;
-    private CancellationToken cancelToken;
-    private readonly ManualResetEventSlim sessionLock = new(true);
     private readonly string token;
 
     private readonly ManualResetEventSlim connectionLock = new(true);
@@ -140,11 +129,9 @@ public sealed partial class DiscordClient : BaseDiscordClient
         ILogger<DiscordClient> logger,
         DiscordApiClient apiClient,
         IMessageCacheProvider messageCacheProvider,
-        IWebSocketClient webSocketClient,
         IServiceProvider serviceProvider,
         IOptions<EventHandlerCollection> eventHandlers,
         IClientErrorHandler errorHandler,
-        PayloadDecompressor decompressor,
         IOptions<DiscordConfiguration> configuration,
         IOptions<TokenContainer> token
     )
@@ -152,10 +139,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     {
         this.Logger = logger;
         this.MessageCache = messageCacheProvider;
-        this.webSocketClient = webSocketClient;
         this.ServiceProvider = serviceProvider;
         this.ApiClient = apiClient;
-        this.payloadDecompressor = decompressor;
         this.errorHandler = errorHandler;
         this.Configuration = configuration.Value;
         this.token = token.Value.GetToken();

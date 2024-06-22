@@ -30,6 +30,29 @@ public static partial class ServiceCollectionExtensions
     }
 
     /// <summary>
+    /// Adds DSharpPlus' DiscordClient and all its dependent services to the service collection, initialized
+    /// for running multiple shards.
+    /// </summary>
+    /// <remarks>
+    /// This requires specifying shard information using <c>Configure&lt;ShardingOptions&gt;(...);</c>
+    /// /// </remarks>
+    /// <param name="services">The service collection to add the DiscordClient to.</param>
+    /// <param name="token">The bot token to use to connect to Discord.</param>
+    /// <param name="intents">The intents to use to connect to Discord.</param>
+    /// <returns>The current instance for chaining.</returns>
+    public static IServiceCollection AddShardedDiscordClient
+    (
+        this IServiceCollection services,
+        string token,
+        DiscordIntents intents
+    )
+    {
+        services.Configure<TokenContainer>(c => c.GetToken = () => token);
+        services.AddDSharpPlusDefaultsSharded(intents);
+        return services;
+    }
+
+    /// <summary>
 	/// Decorates a given <typeparamref name="TInterface"/> with a decorator of type <typeparamref name="TDecorator"/>.
 	/// </summary>
 	/// <typeparam name="TInterface">
