@@ -1,4 +1,7 @@
+using System;
 using System.Threading.Tasks;
+
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.Clients;
 
@@ -10,7 +13,7 @@ public interface IShardOrchestrator
     /// <summary>
     /// Starts all shards associated with this orchestrator.
     /// </summary>
-    public ValueTask StartAsync();
+    public ValueTask StartAsync(DiscordActivity? activity, DiscordUserStatus? status, DateTimeOffset? idleSince);
 
     /// <summary>
     /// Stops all shards associated with this orchestrator.

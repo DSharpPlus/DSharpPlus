@@ -57,7 +57,7 @@ public sealed class GatewayClient : IGatewayClient
         this.logger = logger;
         this.token = tokenContainer.Value.GetToken();
         this.gatewayTokenSource = new();
-        this.compress = decompressor.CompressionLevel != GatewayCompressionLevel.None;
+        this.compress = decompressor.CompressionLevel == GatewayCompressionLevel.Payload;
         this.options = options.Value;
     }
 
