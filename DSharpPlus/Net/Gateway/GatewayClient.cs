@@ -25,7 +25,6 @@ public sealed class GatewayClient : IGatewayClient
     private readonly ITransportService transportService;
     private readonly ChannelWriter<GatewayPayload> eventWriter;
     private readonly GatewayClientOptions options;
-    private readonly CancellationTokenSource gatewayTokenSource;
     private readonly string token;
     private readonly bool compress;
 
@@ -37,7 +36,10 @@ public sealed class GatewayClient : IGatewayClient
     private string? resumeUrl;
     private string? sessionId;
     private string? reconnectUrl;
-    
+
+    private GatewayIdentify? identify;
+    private CancellationTokenSource gatewayTokenSource;
+
     public GatewayClient
     (
         [FromKeyedServices("DSharpPlus.Gateway.EventChannel")]
@@ -72,7 +74,13 @@ public sealed class GatewayClient : IGatewayClient
         this.reconnectUrl = url;
         await this.transportService.ConnectAsync(url);
 
-        string hello = await this.transportService.ReadAsync();
+        TransportFrame initialFrame = await this.transportService.ReadAsync();
+
+        if (!initialFrame.TryGetMessage(out string? hello))
+        {
+            await HandleErrorAndAttemptToReconnectAsync(initialFrame);
+        }
+
         GatewayPayload? helloEvent = JsonConvert.DeserializeObject<GatewayPayload>(hello);
 
         if (helloEvent is not { OpCode: GatewayOpCode.Hello, Data: GatewayHello helloPayload })
@@ -103,6 +111,8 @@ public sealed class GatewayClient : IGatewayClient
             },
             Intents = this.options.Intents
         };
+
+        this.identify = identify;
 
         await WriteAsync(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(identify)));
 
@@ -176,18 +186,16 @@ public sealed class GatewayClient : IGatewayClient
     {
         while (!ct.IsCancellationRequested)
         {
-            string data = await this.transportService.ReadAsync();
+            TransportFrame frame = await this.transportService.ReadAsync();
             GatewayPayload? payload;
 
-            try
+            if (!frame.TryGetMessage(out string? data))
             {
-                payload = JsonConvert.DeserializeObject<GatewayPayload>(data);
-            }
-            catch (WebSocketException e)
-            {
-                await HandleExceptionAndAttemptReconnectAsync(e);
+                await HandleErrorAndAttemptToReconnectAsync(frame);
                 continue;
             }
+
+            payload = JsonConvert.DeserializeObject<GatewayPayload>(data);
 
             if (payload is null)
             {
@@ -248,7 +256,39 @@ public sealed class GatewayClient : IGatewayClient
     /// </summary>
     private async Task<bool> TryResumeAsync()
     {
+        if (this.resumeUrl is null || this.sessionId is null)
+        {
+            return await TryReconnectAsync();
+        }
 
+        try
+        {
+            await this.transportService.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
+            await this.transportService.ConnectAsync(this.resumeUrl);
+            await WriteAsync
+            (
+                Encoding.UTF8.GetBytes
+                (
+                    JsonConvert.SerializeObject
+                    (
+                        new GatewayResume
+                        {
+                            SequenceNumber = this.lastReceivedSequence,
+                            Token = this.token,
+                            SessionId = this.sessionId
+                        }
+                    )
+                )
+            );
+
+            this.logger.LogTrace("Resumed an existing gateway session.");
+        }
+        catch
+        {
+            return await TryReconnectAsync();
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -256,11 +296,66 @@ public sealed class GatewayClient : IGatewayClient
     /// </summary>
     private async Task<bool> TryReconnectAsync()
     {
+        try
+        {
+            this.gatewayTokenSource.Cancel();
+            this.gatewayTokenSource = new();
+            await this.transportService.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
+            await this.transportService.ConnectAsync(this.reconnectUrl!);
 
+            TransportFrame initialFrame = await this.transportService.ReadAsync();
+
+            if (!initialFrame.TryGetMessage(out string? hello))
+            {
+                await HandleErrorAndAttemptToReconnectAsync(initialFrame);
+            }
+
+            GatewayPayload? helloEvent = JsonConvert.DeserializeObject<GatewayPayload>(hello);
+
+            if (helloEvent is not { OpCode: GatewayOpCode.Hello, Data: GatewayHello helloPayload })
+            {
+                throw new InvalidDataException($"Expected HELLO payload from Discord, received {hello}");
+            }
+
+            this.logger.LogTrace
+            (
+                "Received hello event, starting heartbeating with an interval of {interval} and identifying.",
+                TimeSpan.FromMilliseconds(helloPayload.HeartbeatInterval)
+            );
+
+            _ = HeartbeatAsync(helloPayload.HeartbeatInterval, this.gatewayTokenSource.Token);
+            _ = HandleEventsAsync(this.gatewayTokenSource.Token);
+
+            await WriteAsync(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this.identify)));
+
+            this.logger.LogTrace("Identified with the Discord gateway");
+        }
+        catch
+        {
+            return false;
+        }
+
+        return true;
     }
 
-    private async Task HandleExceptionAndAttemptReconnectAsync(WebSocketException exception)
+    private async Task HandleErrorAndAttemptToReconnectAsync(TransportFrame frame)
     {
-
+        if (frame.TryGetException<WebSocketException>(out _))
+        {
+            await TryResumeAsync();
+        }
+        else if (frame.TryGetException(out _))
+        {
+            await TryReconnectAsync();
+        }
+        else if (frame.TryGetErrorCode(out int errorCode))
+        {
+            _ = errorCode switch
+            {
+                >= 4000 and <= 4003 => await TryResumeAsync(),
+                >= 4005 and <= 4009 => await TryResumeAsync(),
+                _ => await TryReconnectAsync()
+            };
+        }
     }
 }

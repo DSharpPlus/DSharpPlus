@@ -17,7 +17,7 @@ public interface ITransportService : IDisposable
     /// <summary>
     /// Reads the next message from the gateway asynchronously.
     /// </summary>
-    public ValueTask<string> ReadAsync();
+    public ValueTask<TransportFrame> ReadAsync();
 
     /// <summary>
     /// Writes the specified message to the gateway.

@@ -104,7 +104,7 @@ internal sealed class TransportService : ITransportService
     }
 
     /// <inheritdoc/>
-    public async ValueTask<string> ReadAsync()
+    public async ValueTask<TransportFrame> ReadAsync()
     {
         ObjectDisposedException.ThrowIf(this.isDisposed, this);
 
@@ -129,6 +129,10 @@ internal sealed class TransportService : ITransportService
             } while (!receiveResult.EndOfMessage);
         }
         catch (OperationCanceledException) { }
+        catch (Exception ex)
+        {
+            return new(ex);
+        }
 
         if (!this.decompressor.TryDecompress(this.writer.WrittenSpan, this.decompressedWriter))
         {
@@ -142,7 +146,7 @@ internal sealed class TransportService : ITransportService
         this.logger.LogTrace("Payload for the last inbound gateway event:\n{event}", result);
 #endif
 
-        return this.writer.WrittenCount == 0 ? string.Empty : result;
+        return this.writer.WrittenCount == 0 ? new((int)this.socket.CloseStatus!) : new(result);
     }
 
     /// <inheritdoc/>
