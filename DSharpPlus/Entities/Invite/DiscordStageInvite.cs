@@ -12,7 +12,7 @@ public class DiscordStageInvite
     /// Gets the members that are currently speaking in the stage channel.
     /// </summary>
     [JsonProperty("members")]
-    public IReadOnlyCollection<DiscordMember> Members { get; internal set; }
+    public IReadOnlyList<DiscordMember> Members { get; internal set; }
 
     /// <summary>
     /// Gets the number of participants in the stage channel.

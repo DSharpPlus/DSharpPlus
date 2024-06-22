@@ -5,7 +5,7 @@ title: Migration 4.x - 5.x
 
 ## Migration from 4.x to 5.x
 
-> ![NOTE]
+> [!NOTE]
 > The API surface of DSharpPlus 5.x is not stable yet. This migration guide may be incomplete or outdated. It is recommended to cross-reference with the [tracking issue](https://github.com/DSharpPlus/DSharpPlus/issues/1585) when migrating.
 
 The first change you will likely encounter is a rewrite to how bots are set up. We now support two approaches instead of the old approach:
@@ -24,7 +24,7 @@ Then, migrate your configuration options. Rest-related settings from your old Di
 
 Lastly, we will need to update event handling. For more information, see [the dedicated article](../beyond_basics/events), but in short, events have also been migrated to DiscordClientBuilder.
 
-> ![IMPORTANT]
+> [!IMPORTANT]
 > The ability to handle events from DiscordClient will be removed entirely in a future nightly build, and today, it is no longer possible to unregister events.
 
 Events are now handled through `DiscordClientBuilder.ConfigureEventHandlers`. You can register handlers on the configuration delegate as follows:
@@ -61,7 +61,7 @@ serviceCollection.AddDiscordClient(string intents, DiscordIntents intents);
 
 Then, migrate your configuration options to calls to `IServiceCollection.Configure<RestClientOptions>();` and `IServiceCollection.Configure<DiscordConfiguration>();`.
 
-> ![NOTE]
+> [!NOTE]
 > Old rest-related settings on DiscordConfiguration do not work when specified on DiscordConfiguration, and they are only currently retained as glue code for DiscordShardedClient.
 
 When registering against a service collection, you are expected to provide your own logging setup, and DSharpPlus' default logging will not be registered.

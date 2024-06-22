@@ -63,6 +63,9 @@ internal readonly record struct MultipartRestRequest : IRestRequest
     /// </summary>
     public IReadOnlyList<DiscordMessageFile> Files { get; init; }
 
+    /// <inheritdoc/>
+    public bool IsExemptFromAllLimits { get; init; }
+
     public HttpRequestMessage Build()
     {
         HttpRequestMessage request = new()

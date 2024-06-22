@@ -1990,7 +1990,13 @@ public sealed class DiscordApiClient
 
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
 
-        DiscordChannel ret = DiscordJson.ToDiscordObject<DiscordChannel>(res.Response!)!;
+        DiscordChannel ret = JsonConvert.DeserializeObject<DiscordChannel>(res.Response!)!;
+
+        // this is really weird, we should consider doing this better
+        if (ret.IsThread)
+        {
+            ret = JsonConvert.DeserializeObject<DiscordThreadChannel>(res.Response!)!;
+        }
 
         ret.Discord = this.discord!;
         foreach (DiscordOverwrite xo in ret.permissionOverwrites)
@@ -2391,7 +2397,7 @@ public sealed class DiscordApiClient
         Optional<IEnumerable<DiscordEmbed>> embeds = default,
         Optional<IEnumerable<IMention>> mentions = default,
         IReadOnlyList<DiscordActionRowComponent>? components = null,
-        IReadOnlyCollection<DiscordMessageFile>? files = null,
+        IReadOnlyList<DiscordMessageFile>? files = null,
         DiscordMessageFlags? flags = null,
         IEnumerable<DiscordAttachment>? attachments = null
     )
@@ -5578,7 +5584,7 @@ public sealed class DiscordApiClient
         ulong commandId,
         Optional<string> name = default,
         Optional<string> description = default,
-        Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options = default,
+        Optional<IReadOnlyList<DiscordApplicationCommandOption>> options = default,
         Optional<bool?> defaultPermission = default,
         Optional<bool?> nsfw = default,
         IReadOnlyDictionary<string, string>? nameLocalizations = null,
@@ -5788,7 +5794,7 @@ public sealed class DiscordApiClient
         ulong commandId,
         Optional<string> name = default,
         Optional<string> description = default,
-        Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options = default,
+        Optional<IReadOnlyList<DiscordApplicationCommandOption>> options = default,
         Optional<bool?> defaultPermission = default,
         Optional<bool?> nsfw = default,
         IReadOnlyDictionary<string, string>? nameLocalizations = null,
@@ -5910,7 +5916,7 @@ public sealed class DiscordApiClient
                 Method = HttpMethod.Post,
                 Values = values,
                 Files = builder.Files,
-                IsExemptFromGlobalLimit = true
+                IsExemptFromAllLimits = true
             };
 
             try
@@ -5998,7 +6004,7 @@ public sealed class DiscordApiClient
                 Method = HttpMethod.Patch,
                 Values = values,
                 Files = builder.Files,
-                IsExemptFromGlobalLimit = true
+                IsExemptFromAllLimits = true
             };
 
             RestResponse res = await this.rest.ExecuteRequestAsync(request);
@@ -6029,7 +6035,7 @@ public sealed class DiscordApiClient
             Route = route,
             Url = url,
             Method = HttpMethod.Delete,
-            IsExemptFromGlobalLimit = true
+            IsExemptFromAllLimits = true
         };
 
         await this.rest.ExecuteRequestAsync(request);
@@ -6085,7 +6091,7 @@ public sealed class DiscordApiClient
             Method = HttpMethod.Post,
             Values = values,
             Files = builder.Files,
-            IsExemptFromGlobalLimit = true
+            IsExemptFromAllLimits = true
         };
 
         RestResponse res;
@@ -6118,8 +6124,8 @@ public sealed class DiscordApiClient
         ulong messageId,
         DiscordWebhookBuilder builder,
         IEnumerable<DiscordAttachment> attachments
-    ) =>
-        EditWebhookMessageAsync(applicationId, interactionToken, messageId, builder, attachments);
+    ) 
+        => EditWebhookMessageAsync(applicationId, interactionToken, messageId, builder, attachments);
 
     internal ValueTask DeleteFollowupMessageAsync(ulong applicationId, string interactionToken, ulong messageId)
         => DeleteWebhookMessageAsync(applicationId, interactionToken, messageId);
