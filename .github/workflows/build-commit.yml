@@ -8,6 +8,7 @@ on:
       - "DSharpPlus*/**"
       - "tools/**"
       - "*.sln"
+      - 'obsolete/DSharpPlus*/**'
   workflow_dispatch:
 
 env:
