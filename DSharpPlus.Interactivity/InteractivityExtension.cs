@@ -746,6 +746,7 @@ public class InteractivityExtension : BaseExtension
     /// <param name="behaviour">Pagination behaviour.</param>
     /// <param name="deletion">Deletion behaviour</param>
     /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
+    // Ideally this would take a [list of] builder(s), but there's complications with muddying APIs further than we already do.
     public async Task SendPaginatedMessageAsync(
         DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons,
         PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default)
@@ -790,59 +791,6 @@ public class InteractivityExtension : BaseExtension
         DiscordMessage message = await builder.SendAsync(channel);
 
         ButtonPaginationRequest req = new(message, user, bhv, del, bts, pageArray, token == default ? GetCancellationToken() : token);
-
-        await this.compPaginator.DoPaginationAsync(req);
-    }
-
-    public async Task SendPaginatedMessageAsync
-    (
-        DiscordChannel channel,
-        DiscordUser user,
-        IEnumerable<DiscordMessageBuilder> pageBuilders,
-        PaginationButtons buttons,
-        PaginationBehaviour? behaviour = default,
-        ButtonPaginationBehavior? deletion = default,
-        CancellationToken token = default
-    )
-    {
-        PaginationButtons bts = buttons ?? this.Config.PaginationButtons;
-        PaginationBehaviour pageBehavior = behaviour ?? this.Config.PaginationBehaviour;
-        ButtonPaginationBehavior deletionBehavior = deletion ?? this.Config.ButtonBehavior;
-
-        Page[] pages = pageBuilders.Select(x => new Page(x)).ToArray();
-
-        if (pages.Length == 1)
-        {
-            bts.SkipLeft.Disable();
-            bts.Left.Disable();
-            bts.Right.Disable();
-            bts.SkipRight.Disable();
-        }
-
-        if (pageBehavior is PaginationBehaviour.Ignore)
-        {
-            bts.SkipLeft.Disable();
-            bts.Left.Disable();
-
-            if (pages.Length == 2)
-            {
-                bts.SkipRight.Disable();
-            }
-        }
-
-        DiscordMessageBuilder builder = new DiscordMessageBuilder()
-                                        .WithContent(pages[0].Content)
-                                        .AddEmbed(pages[0].Embed)
-                                        .AddComponents(bts.ButtonArray);
-
-        foreach (DiscordActionRowComponent acr in pages[0].Components)
-        {
-            builder.AddComponents(acr);
-        }
-
-        DiscordMessage message = await builder.SendAsync(channel);
-
-        ButtonPaginationRequest req = new(message, user, pageBehavior, deletionBehavior, bts, pages, token == default ? GetCancellationToken() : token);
 
         await this.compPaginator.DoPaginationAsync(req);
     }
