@@ -30,13 +30,10 @@ public class Page
 
     public IReadOnlyList<DiscordActionRowComponent> Components { get; }
 
-    public Page(IDiscordMessageBuilder builder)
-    : this(builder.Content, builder.Embeds.FirstOrDefault(), builder.Components) { }
-
     public Page(string content = "", DiscordEmbedBuilder? embed = null, IReadOnlyList<DiscordComponent> components = null)
         : this(content, embed?.Build(), components) {}
 
-    private Page(string content = "", DiscordEmbed? embed = null, IReadOnlyList<DiscordComponent> components = null)
+    public Page(string content = "", DiscordEmbed? embed = null, IReadOnlyList<DiscordComponent> components = null)
     {
         this.Content = content;
         this.Embed = embed;
