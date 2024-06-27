@@ -113,6 +113,11 @@ internal class ComponentPaginator : IPaginator
                 .AddEmbed(page.Embed)
                 .AddComponents(bts);
 
+            foreach (DiscordActionRowComponent actionRow in page.Components)
+            {
+                builder.AddComponents(actionRow);
+            }
+
             await args.Interaction.EditOriginalResponseAsync(builder);
             return;
         }
@@ -123,6 +128,11 @@ internal class ComponentPaginator : IPaginator
             .WithContent(page.Content)
             .AddEmbed(page.Embed)
             .AddComponents(bts);
+
+        foreach (DiscordActionRowComponent actionRow in page.Components)
+        {
+            builder.AddComponents(actionRow);
+        }
 
         await this.builder.ModifyAsync(msg);
 
