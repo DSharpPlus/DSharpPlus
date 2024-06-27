@@ -819,12 +819,28 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
         return CreateCommandContext(converterContext, eventArgs, parsedArguments);
     }
 
+    /// <summary>
+    /// Only use this for commands of type <see cref="DiscordApplicationCommandType.SlashCommand "/>.
+    /// It will NOT validate every subcommands which are considered to be a SlashCommand 
+    /// </summary>
+    /// <param name="command"></param>
+    /// <param name="nameLocalizations"></param>
+    /// <param name="descriptionLocalizations"></param>
+    /// <exception cref="InvalidOperationException"></exception>
     private void ValidateSlashCommand(Command command, IReadOnlyDictionary<string, string> nameLocalizations, IReadOnlyDictionary<string, string> descriptionLocalizations)
     {
         if (command.Subcommands.Count > 0)
         {
             foreach (Command subCommand in command.Subcommands)
             {
+                // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
+                // If there isn't, default to SlashCommands
+                if (command.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute &&
+                    !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.SlashCommand))
+                {
+                    continue;
+                }
+                
                 ValidateSlashCommand(subCommand, nameLocalizations, descriptionLocalizations);
             }
         }
