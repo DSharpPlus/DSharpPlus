@@ -835,7 +835,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
             {
                 // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
                 // If there isn't, default to SlashCommands
-                if (command.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute &&
+                if (subCommand.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute &&
                     !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.SlashCommand))
                 {
                     continue;
