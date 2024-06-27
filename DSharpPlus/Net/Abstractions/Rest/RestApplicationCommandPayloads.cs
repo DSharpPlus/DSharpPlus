@@ -23,6 +23,7 @@
 
 using System.Collections.Generic;
 using DSharpPlus.Entities;
+using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions
@@ -54,8 +55,8 @@ namespace DSharpPlus.Net.Abstractions
         public bool? AllowDMUsage { get; set; }
 
         [JsonProperty("default_member_permissions", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(DiscordPermissionsJsonConverter))]
         public Permissions? DefaultMemberPermissions { get; set; }
-
     }
 
     internal class RestApplicationCommandEditPayload

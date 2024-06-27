@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
+using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions
@@ -287,9 +288,11 @@ namespace DSharpPlus.Net.Abstractions
     internal sealed class RestChannelPermissionEditPayload
     {
         [JsonProperty("allow", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(DiscordPermissionsJsonConverter))]
         public Permissions Allow { get; set; }
 
         [JsonProperty("deny", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(DiscordPermissionsJsonConverter))]
         public Permissions Deny { get; set; }
 
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]

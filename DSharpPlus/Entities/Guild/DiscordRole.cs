@@ -27,6 +27,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
+using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -87,6 +88,7 @@ namespace DSharpPlus.Entities
         /// Gets the permissions set for this role.
         /// </summary>
         [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(DiscordPermissionsJsonConverter))]
         public Permissions Permissions { get; internal set; }
 
         /// <summary>

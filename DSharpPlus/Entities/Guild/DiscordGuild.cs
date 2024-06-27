@@ -109,6 +109,7 @@ namespace DSharpPlus.Entities
         /// Gets permissions for the user in the guild (does not include channel overrides)
         /// </summary>
         [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(DiscordPermissionsJsonConverter))]
         public Permissions? Permissions { get; set; }
 
         /// <summary>

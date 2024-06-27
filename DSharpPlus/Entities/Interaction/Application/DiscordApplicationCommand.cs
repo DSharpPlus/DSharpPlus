@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -81,6 +82,7 @@ namespace DSharpPlus.Entities
         /// What permissions this command requires to be invoked.
         /// </summary>
         [JsonProperty("default_member_permissions")]
+        [JsonConverter(typeof(DiscordPermissionsJsonConverter))]
         public Permissions? DefaultMemberPermissions { get; internal set; }
 
 

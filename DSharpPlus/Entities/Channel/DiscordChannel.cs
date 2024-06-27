@@ -236,6 +236,7 @@ namespace DSharpPlus.Entities
         /// <para>Only sent on the resolved channels of interaction responses for application commands.</para>
         /// </summary>
         [JsonProperty("permissions")]
+        [JsonConverter(typeof(DiscordPermissionsJsonConverter))]
         public Permissions? UserPermissions { get; internal set; }
 
         internal DiscordChannel()

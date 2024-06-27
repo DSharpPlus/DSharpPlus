@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System.Collections.Generic;
+using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions
@@ -71,6 +72,7 @@ namespace DSharpPlus.Net.Abstractions
         public bool IsOwner { get; set; }
 
         [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(DiscordPermissionsJsonConverter))]
         public Permissions Permissions { get; set; }
     }
 

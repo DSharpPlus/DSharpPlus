@@ -37,7 +37,7 @@ namespace DSharpPlus.Net.Serialization
         {
             ContractResolver = new OptionalJsonContractResolver(),
             DateParseHandling = DateParseHandling.None,
-            Converters = new[] { new ISO8601DateTimeOffsetJsonConverter() }
+            Converters = new JsonConverter[] { new ISO8601DateTimeOffsetJsonConverter(), new DiscordPermissionsJsonConverter() }
         });
 
         /// <summary>Serializes the specified object to a JSON string.</summary>

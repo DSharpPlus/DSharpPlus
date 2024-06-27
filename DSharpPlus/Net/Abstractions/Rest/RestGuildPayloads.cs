@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
+using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions
@@ -261,6 +262,7 @@ namespace DSharpPlus.Net.Abstractions
         public string Name { get; set; }
 
         [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(DiscordPermissionsJsonConverter))]
         public Permissions? Permissions { get; set; }
 
         [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]

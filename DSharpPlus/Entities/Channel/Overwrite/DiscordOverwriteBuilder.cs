@@ -23,6 +23,7 @@
 
 using System;
 using System.Threading.Tasks;
+using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -158,9 +159,11 @@ namespace DSharpPlus.Entities
     internal struct DiscordRestOverwrite
     {
         [JsonProperty("allow", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(DiscordPermissionsJsonConverter))]
         internal Permissions Allow { get; set; }
 
         [JsonProperty("deny", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(DiscordPermissionsJsonConverter))]
         internal Permissions Deny { get; set; }
 
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]

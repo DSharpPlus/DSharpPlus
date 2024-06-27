@@ -23,6 +23,7 @@
 
 using System;
 using System.Threading.Tasks;
+using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -42,12 +43,14 @@ namespace DSharpPlus.Entities
         /// Gets the allowed permission set.
         /// </summary>
         [JsonProperty("allow", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(DiscordPermissionsJsonConverter))]
         public Permissions Allowed { get; internal set; }
 
         /// <summary>
         /// Gets the denied permission set.
         /// </summary>
         [JsonProperty("deny", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(DiscordPermissionsJsonConverter))]
         public Permissions Denied { get; internal set; }
 
         [JsonIgnore]
