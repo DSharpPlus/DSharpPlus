@@ -299,6 +299,13 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     }
 
 
+    /// <summary>
+    /// Only use this for commands of type <see cref="DiscordApplicationCommandType.SlashCommand "/>.
+    /// It will cut out every subcommands which are considered to be not a SlashCommand 
+    /// </summary>
+    /// <param name="command"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     public async Task<DiscordApplicationCommand> ToApplicationCommandAsync(Command command)
     {
         if (this.extension is null)
@@ -323,6 +330,14 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
         {
             foreach (Command subCommand in command.Subcommands)
             {
+                // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
+                // If there isn't, default to SlashCommands
+                if (command.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute &&
+                    !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.SlashCommand))
+                {
+                    continue;
+                }
+                
                 options.Add(await ToApplicationParameterAsync(subCommand));
             }
         }
