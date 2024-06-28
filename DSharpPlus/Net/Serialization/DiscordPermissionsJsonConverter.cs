@@ -34,6 +34,12 @@ namespace DSharpPlus.Net.Serialization
         public override Permissions ReadJson(JsonReader reader, Type objectType, Permissions existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             var token = JToken.Load(reader);
+
+            if (token != null || token.Type == JTokenType.Null)
+            {
+                return Permissions.None;
+            }
+
             var value = token.ToObject<BigInteger>();
 
             return (Permissions)(ulong)(value & ulong.MaxValue);
