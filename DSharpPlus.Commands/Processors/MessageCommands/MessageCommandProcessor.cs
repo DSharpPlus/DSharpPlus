@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -99,6 +100,13 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
         }
 
         AsyncServiceScope scope = this.extension.ServiceProvider.CreateAsyncScope();
+
+        if (this.slashCommandProcessor.ApplicationCommandMapping == FrozenDictionary<ulong, Command>.Empty)
+        {
+            ILogger<MessageCommandProcessor> logger = this.extension.ServiceProvider.GetService<ILogger<MessageCommandProcessor>>() ?? NullLogger<MessageCommandProcessor>.Instance;
+            logger.LogWarning("Received an interaction for a user command, but commands have not been registered yet. Ignoring interaction");
+        }
+
         if (!this.slashCommandProcessor.TryFindCommand(eventArgs.Interaction, out Command? command, out _))
         {
             await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
