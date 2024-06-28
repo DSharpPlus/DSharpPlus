@@ -29,6 +29,15 @@ public sealed partial class DiscordClient
 
     #region Dispatch Handler
 
+    private async ValueTask ReceiveGatewayEventsAsync()
+    {
+        while (!this.eventReader.Completion.IsCompleted)
+        {
+            GatewayPayload payload = await this.eventReader.ReadAsync();
+            await HandleDispatchAsync(payload);
+        }
+    }
+
     internal async Task HandleDispatchAsync(GatewayPayload payload)
     {
         if (payload.Data is not JObject dat)

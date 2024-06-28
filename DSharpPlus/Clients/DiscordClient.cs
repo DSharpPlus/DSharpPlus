@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 using DSharpPlus.AsyncEvents;
@@ -41,6 +42,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     internal IMessageCacheProvider? MessageCache { get; }
     private readonly IClientErrorHandler errorHandler;
     private readonly IShardOrchestrator orchestrator;
+    private readonly ChannelReader<GatewayPayload> eventReader;
 
     private List<BaseExtension> extensions = [];
     private StatusUpdate? status = null;
@@ -109,12 +111,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
     internal ConcurrentDictionary<ulong, DiscordGuild> guilds = new();
 
     /// <summary>
-    /// Gets the WS latency for this client.
+    /// Gets the latency in the connection to a specific guild.
     /// </summary>
-    public int Ping
-        => Volatile.Read(ref this.ping);
-
-    private int ping;
+    public TimeSpan GetConnectionLatency(ulong guildId)
+        => this.orchestrator.GetConnectionLatency(guildId);
 
     /// <summary>
     /// Gets the collection of presences held by this client.
@@ -136,7 +136,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
         IClientErrorHandler errorHandler,
         IOptions<DiscordConfiguration> configuration,
         IOptions<TokenContainer> token,
-        IShardOrchestrator shardOrchestrator
+        IShardOrchestrator shardOrchestrator,
+
+        [FromKeyedServices("DSharpPlus.Gateway.EventChannel")]
+        Channel<GatewayPayload> eventChannel
     )
         : base()
     {
@@ -148,6 +151,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.Configuration = configuration.Value;
         this.token = token.Value.GetToken();
         this.orchestrator = shardOrchestrator;
+        this.eventReader = eventChannel.Reader;
 
         this.ApiClient.SetClient(this);
 
@@ -339,7 +343,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
         {
             try
             {
-                await this.orchestrator.StartAsync();
+                await this.orchestrator.StartAsync(activity, status, idlesince);
+                _ = ReceiveGatewayEventsAsync();
                 s = true;
                 break;
             }
