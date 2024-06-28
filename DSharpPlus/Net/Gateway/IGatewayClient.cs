@@ -23,4 +23,8 @@ public interface IGatewayClient
     public ValueTask DisconnectAsync();
 
     public ValueTask WriteAsync(byte[] payload);
+
+    public bool IsConnected { get; }
+
+    public TimeSpan Ping { get; }
 }

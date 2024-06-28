@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus.AsyncEvents;
+using DSharpPlus.Clients;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
@@ -39,6 +40,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     internal bool isShard = false;
     internal IMessageCacheProvider? MessageCache { get; }
     private readonly IClientErrorHandler errorHandler;
+    private readonly IShardOrchestrator orchestrator;
 
     private List<BaseExtension> extensions = [];
     private StatusUpdate? status = null;
@@ -88,8 +90,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <summary>
     /// Gets whether this client is connected to the gateway.
     /// </summary>
-    public bool IsConnected
-        => this.webSocketClient is not null && this.webSocketClient.IsConnected;
+    public bool AllShardsConnected
+        => this.orchestrator.AllShardsConnected;
 
     /// <summary>
     /// Gets a dictionary of DM channels that have been cached by this client. The dictionary's key is the channel
@@ -133,7 +135,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
         IOptions<EventHandlerCollection> eventHandlers,
         IClientErrorHandler errorHandler,
         IOptions<DiscordConfiguration> configuration,
-        IOptions<TokenContainer> token
+        IOptions<TokenContainer> token,
+        IShardOrchestrator shardOrchestrator
     )
         : base()
     {
@@ -144,6 +147,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.errorHandler = errorHandler;
         this.Configuration = configuration.Value;
         this.token = token.Value.GetToken();
+        this.orchestrator = shardOrchestrator;
 
         this.ApiClient.SetClient(this);
 
@@ -170,12 +174,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
 
         this.presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this.presences));
-        
-        //Register websocket managment event handlers
-        this.webSocketClient.Connected += SocketOnConnect;
-        this.webSocketClient.Disconnected += SocketOnDisconnect;
-        this.webSocketClient.MessageReceived += SocketOnMessage;
-        this.webSocketClient.ExceptionThrown += SocketOnException;
     }
 
     internal void InternalSetup(IClientErrorHandler error)
@@ -341,7 +339,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         {
             try
             {
-                await InternalConnectAsync();
+                await this.orchestrator.StartAsync();
                 s = true;
                 break;
             }
@@ -401,14 +399,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// Disconnects from the gateway
     /// </summary>
     /// <returns></returns>
-    public async Task DisconnectAsync()
-    {
-        this.Configuration.AutoReconnect = false;
-        if (this.webSocketClient != null)
-        {
-            await this.webSocketClient.DisconnectAsync();
-        }
-    }
+    public async Task DisconnectAsync() 
+        => await this.orchestrator.StopAsync();
 
     #endregion
 

@@ -28,6 +28,9 @@ public sealed class GatewayClient : IGatewayClient
     private readonly string token;
     private readonly bool compress;
 
+    private DateTimeOffset lastSentHeartbeat = DateTimeOffset.UtcNow;
+    private int pendingHeartbeats;
+
     private int remainingOutboundPayloads = 120;
     private DateTimeOffset lastOutboundPayloadReset = DateTimeOffset.UtcNow;
     private SpinLock resetLock = new();
@@ -39,6 +42,12 @@ public sealed class GatewayClient : IGatewayClient
 
     private GatewayIdentify? identify;
     private CancellationTokenSource gatewayTokenSource;
+
+    /// <inheritdoc/>
+    public bool IsConnected { get; private set; }
+
+    /// <inheritdoc/>
+    public TimeSpan Ping { get; private set; }
 
     public GatewayClient
     (
@@ -94,6 +103,7 @@ public sealed class GatewayClient : IGatewayClient
             TimeSpan.FromMilliseconds(helloPayload.HeartbeatInterval)
         );
 
+        this.IsConnected = true;
         _ = HeartbeatAsync(helloPayload.HeartbeatInterval, this.gatewayTokenSource.Token);
         _ = HandleEventsAsync(this.gatewayTokenSource.Token);
 
@@ -122,6 +132,7 @@ public sealed class GatewayClient : IGatewayClient
     /// <inheritdoc/>
     public async ValueTask DisconnectAsync()
     {
+        this.IsConnected = false;
         this.gatewayTokenSource.Cancel();
         await this.transportService.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
     }
@@ -176,6 +187,14 @@ public sealed class GatewayClient : IGatewayClient
         {
             await WriteAsync(Encoding.UTF8.GetBytes($"{{\"op\":1,\"d\":{this.lastReceivedSequence}}}"));
             this.logger.LogTrace("Heartbeat sent with sequence number {Sequence}.", this.lastReceivedSequence);
+
+            this.lastSentHeartbeat = DateTimeOffset.UtcNow;
+            this.pendingHeartbeats++;
+
+            if (this.pendingHeartbeats > 5)
+            {
+                // invoke Zombied
+            }
         } while (await timer.WaitForNextTickAsync(ct));
     }
 
@@ -219,6 +238,10 @@ public sealed class GatewayClient : IGatewayClient
 
                 // TODO: heartbeat tracking
                 case GatewayOpCode.HeartbeatAck:
+
+                    this.Ping = DateTimeOffset.UtcNow - this.lastSentHeartbeat;
+                    this.pendingHeartbeats = 0;
+
                     break;
 
                 case GatewayOpCode.InvalidSession:
@@ -263,6 +286,7 @@ public sealed class GatewayClient : IGatewayClient
 
         try
         {
+            this.IsConnected = false;
             await this.transportService.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
             await this.transportService.ConnectAsync(this.resumeUrl);
             await WriteAsync
@@ -282,6 +306,7 @@ public sealed class GatewayClient : IGatewayClient
             );
 
             this.logger.LogTrace("Resumed an existing gateway session.");
+            this.IsConnected = true;
         }
         catch
         {
@@ -298,6 +323,7 @@ public sealed class GatewayClient : IGatewayClient
     {
         try
         {
+            this.IsConnected = false;
             this.gatewayTokenSource.Cancel();
             this.gatewayTokenSource = new();
             await this.transportService.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
@@ -323,6 +349,7 @@ public sealed class GatewayClient : IGatewayClient
                 TimeSpan.FromMilliseconds(helloPayload.HeartbeatInterval)
             );
 
+            this.IsConnected = true;
             _ = HeartbeatAsync(helloPayload.HeartbeatInterval, this.gatewayTokenSource.Token);
             _ = HandleEventsAsync(this.gatewayTokenSource.Token);
 

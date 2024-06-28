@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
@@ -22,6 +23,12 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     private readonly ShardingOptions options;
     private readonly IServiceProvider serviceProvider;
     private readonly PayloadDecompressor decompressor;
+
+    private uint shardCount;
+    private uint stride;
+
+    /// <inheritdoc/>
+    public bool AllShardsConnected => this.shards.All(shard => shard.IsConnected);
 
     public MultiShardOrchestrator
     (
@@ -64,6 +71,9 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
             }
         }
 
+        this.stride = stride;
+        this.shardCount = startShards;
+
         QueryUriBuilder gwuri = new(info.Url);
 
         gwuri.AddParameter("v", "10")
@@ -95,6 +105,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
         }
     }
 
+    /// <inheritdoc/>
     public async ValueTask StopAsync()
     {
         foreach (IGatewayClient client in this.shards)
@@ -102,4 +113,29 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
             await client.DisconnectAsync();
         }
     }
+
+    /// <inheritdoc/>
+    public bool IsConnected(ulong guildId)
+    {
+        uint shardId = GetShardIdForGuildId(guildId);
+
+        ArgumentOutOfRangeException.ThrowIfLessThan(shardId, this.stride);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(shardId, this.stride + this.shardCount);
+
+        return this.shards[shardId - this.stride].IsConnected;
+    }
+
+    /// <inheritdoc/>
+    public TimeSpan GetConnectionLatency(ulong guildId)
+    {
+        uint shardId = GetShardIdForGuildId(guildId);
+
+        ArgumentOutOfRangeException.ThrowIfLessThan(shardId, this.stride);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(shardId, this.stride + this.shardCount);
+
+        return this.shards[shardId - this.stride].Ping;
+    }
+
+    private uint GetShardIdForGuildId(ulong guildId)
+        => (uint)((guildId >> 22) % this.options.TotalShards);
 }

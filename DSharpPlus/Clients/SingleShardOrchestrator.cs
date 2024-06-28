@@ -33,6 +33,15 @@ public sealed class SingleShardOrchestrator : IShardOrchestrator
     }
 
     /// <inheritdoc/>
+    public bool AllShardsConnected => this.gatewayClient.IsConnected;
+
+    /// <inheritdoc/>
+    public TimeSpan GetConnectionLatency(ulong guildId) => this.gatewayClient.Ping;
+
+    /// <inheritdoc/>
+    public bool IsConnected(ulong guildId) => this.gatewayClient.IsConnected;
+
+    /// <inheritdoc/>
     public async ValueTask StartAsync(DiscordActivity? activity, DiscordUserStatus? status, DateTimeOffset? idleSince)
     {
         GatewayInfo info = await this.apiClient.GetGatewayInfoAsync();

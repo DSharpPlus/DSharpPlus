@@ -19,4 +19,19 @@ public interface IShardOrchestrator
     /// Stops all shards associated with this orchestrator.
     /// </summary>
     public ValueTask StopAsync();
+
+    /// <summary>
+    /// Indicates whether all shards are connected.
+    /// </summary>
+    public bool AllShardsConnected { get; }
+
+    /// <summary>
+    /// Indicates whether the bot's connection to the given guild is functional.
+    /// </summary>
+    public bool IsConnected(ulong guildId);
+
+    /// <summary>
+    /// Gets the connection latency to a specific guild, otherwise known as ping.
+    /// </summary>
+    public TimeSpan GetConnectionLatency(ulong guildId);
 }
