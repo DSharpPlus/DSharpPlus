@@ -783,9 +783,9 @@ public class InteractivityExtension : BaseExtension
             .AddEmbed(pageArray[0].Embed)
             .AddComponents(bts.ButtonArray);
 
-        foreach (DiscordActionRowComponent acr in pageArray[0].Components)
+        if (pageArray[0].Components is [..] pac)
         {
-            builder.AddComponents(acr);
+            builder.AddComponents(pac);
         }
 
         DiscordMessage message = await builder.SendAsync(channel);
@@ -947,22 +947,35 @@ public class InteractivityExtension : BaseExtension
 
             buttonArray = [.. buttonList];
         }
+
+        Page[] pageArray = pages.ToArray();
+
         if (asEditResponse)
         {
             DiscordWebhookBuilder builder = new DiscordWebhookBuilder()
-                .WithContent(pages.First().Content)
-                .AddEmbed(pages.First().Embed)
+                .WithContent(pageArray[0].Content)
+                .AddEmbed(pageArray[0].Embed)
                 .AddComponents(buttonArray);
+
+            if (pageArray[0].Components is [..] pac)
+            {
+                builder.AddComponents(pac);
+            }
 
             message = await interaction.EditOriginalResponseAsync(builder);
         }
         else
         {
             DiscordInteractionResponseBuilder builder = new DiscordInteractionResponseBuilder()
-                .WithContent(pages.First().Content)
-                .AddEmbed(pages.First().Embed)
+                .WithContent(pageArray[0].Content)
+                .AddEmbed(pageArray[0].Embed)
                 .AsEphemeral(ephemeral)
                 .AddComponents(buttonArray);
+
+            if (pageArray[0].Components is [..] pac)
+            {
+                builder.AddComponents(pac);
+            }
 
             await interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, builder);
             message = await interaction.GetOriginalResponseAsync();
