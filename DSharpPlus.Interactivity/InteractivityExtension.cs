@@ -957,9 +957,9 @@ public class InteractivityExtension : BaseExtension
                 .AddEmbed(pageArray[0].Embed)
                 .AddComponents(buttonArray);
 
-            if (pageArray[0].Components is [..] pac)
+            if (pageArray[0].Components is [..] pageArrayComponents)
             {
-                builder.AddComponents(pac);
+                builder.AddComponents(pageArrayComponents);
             }
 
             message = await interaction.EditOriginalResponseAsync(builder);
@@ -972,9 +972,9 @@ public class InteractivityExtension : BaseExtension
                 .AsEphemeral(ephemeral)
                 .AddComponents(buttonArray);
 
-            if (pageArray[0].Components is [..] pac)
+            if (pageArray[0].Components is [..] pageArrayComponents)
             {
-                builder.AddComponents(pac);
+                builder.AddComponents(pageArrayComponents);
             }
 
             await interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, builder);
