@@ -30,15 +30,15 @@ instead of DSharpPlus.
 
 If you use unsupported software, you are on your own with any arising issues.
 
-### Latest Stable 4.4.2
+#### Latest Stable 4.4.9
 
-Version 4.4.2 *should* work on EoL versions Core 3.1 and 5.0 and is supported from version 6.0 upwards.
+Version 4.4.9 *should* work on .NET and .NET Core versions after 3.1 and is supported from version 8.0 upwards.
 
-### Nightly 5.0
+#### Nightly 5.0
 
 5.0 nightly builds target .NET 8.0, and will target the latest stable .NET version going forward.
 
-### 6.0 early work
+#### 6.0 early work
 
 6.0 work targets the latest available bleeding edge of .NET, and will target the latest stable .NET version once there is a semblance
 of completion and stability on the v6 branch.
