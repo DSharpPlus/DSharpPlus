@@ -154,10 +154,10 @@ public sealed partial class SlashCommandsExtension : BaseExtension
     private void RegisterCommands(IEnumerable<Type> types, ulong? guildId)
     {
         //Initialize empty lists to be added to the global ones at the end
-        List<CommandMethod> commandMethods = [];
-        List<GroupCommand> groupCommands = [];
-        List<SubGroupCommand> subGroupCommands = [];
-        List<ContextMenuCommand> contextMenuCommands = [];
+        List<CommandMethod> commandMethodsToAdd = [];
+        List<GroupCommand> groupCommandsToAdd = [];
+        List<SubGroupCommand> subGroupCommandsToAdd = [];
+        List<ContextMenuCommand> contextMenuCommandsToAdd = [];
         List<DiscordApplicationCommand> updateList = [];
 
         _ = Task.Run(async () =>
@@ -238,7 +238,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
 
                             //Adds it to the method lists
                             commandmethods.Add(new(commandAttribute.Name, submethod));
-                            groupCommands.Add(new() { Name = groupAttribute.Name, Methods = commandmethods });
+                            groupCommandsToAdd.Add(new() { Name = groupAttribute.Name, Methods = commandmethods });
                         }
 
                         SubGroupCommand command = new() { Name = groupAttribute.Name };
@@ -295,7 +295,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
 
                         if (command.SubCommands.Count != 0)
                         {
-                            subGroupCommands.Add(command);
+                            subGroupCommandsToAdd.Add(command);
                         }
 
                         updateList.Add(payload);
@@ -326,7 +326,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                             parameters = parameters.Skip(1).ToArray();
                             List<DiscordApplicationCommandOption> options = await ParseParametersAsync(parameters, guildId);
 
-                            commandMethods.Add(new() { Method = method, Name = commandattribute.Name });
+                            commandMethodsToAdd.Add(new() { Method = method, Name = commandattribute.Name });
 
                             IReadOnlyDictionary<string, string> nameLocalizations = GetNameLocalizations(method);
                             IReadOnlyDictionary<string, string> descriptionLocalizations = GetDescriptionLocalizations(method);
@@ -373,7 +373,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                                 throw new ArgumentException($"A context menu cannot have parameters!");
                             }
 
-                            contextMenuCommands.Add(new ContextMenuCommand { Method = contextMethod, Name = contextAttribute.Name });
+                            contextMenuCommandsToAdd.Add(new ContextMenuCommand { Method = contextMethod, Name = contextAttribute.Name });
 
                             updateList.Add(command);
                         }
@@ -408,28 +408,28 @@ public sealed partial class SlashCommandsExtension : BaseExtension
                     //Checks against the ids and adds them to the command method lists
                     foreach (DiscordApplicationCommand command in commands)
                     {
-                        if (commandMethods.Any(x => x.Name == command.Name))
+                        if (commandMethodsToAdd.Any(x => x.Name == command.Name))
                         {
-                            commandMethods.First(x => x.Name == command.Name).CommandId = command.Id;
+                            commandMethodsToAdd.First(x => x.Name == command.Name).CommandId = command.Id;
                         }
-                        else if (groupCommands.Any(x => x.Name == command.Name))
+                        else if (groupCommandsToAdd.Any(x => x.Name == command.Name))
                         {
-                            groupCommands.First(x => x.Name == command.Name).CommandId = command.Id;
+                            groupCommandsToAdd.First(x => x.Name == command.Name).CommandId = command.Id;
                         }
-                        else if (subGroupCommands.Any(x => x.Name == command.Name))
+                        else if (subGroupCommandsToAdd.Any(x => x.Name == command.Name))
                         {
-                            subGroupCommands.First(x => x.Name == command.Name).CommandId = command.Id;
+                            subGroupCommandsToAdd.First(x => x.Name == command.Name).CommandId = command.Id;
                         }
-                        else if (contextMenuCommands.Any(x => x.Name == command.Name))
+                        else if (contextMenuCommandsToAdd.Any(x => x.Name == command.Name))
                         {
-                            contextMenuCommands.First(x => x.Name == command.Name).CommandId = command.Id;
+                            contextMenuCommandsToAdd.First(x => x.Name == command.Name).CommandId = command.Id;
                         }
                     }
                     //Adds to the global lists finally
-                    commandMethods.AddRange(commandMethods);
-                    groupCommands.AddRange(groupCommands);
-                    subGroupCommands.AddRange(subGroupCommands);
-                    contextMenuCommands.AddRange(contextMenuCommands);
+                    commandMethods.AddRange(commandMethodsToAdd);
+                    groupCommands.AddRange(groupCommandsToAdd);
+                    subGroupCommands.AddRange(subGroupCommandsToAdd);
+                    contextMenuCommands.AddRange(contextMenuCommandsToAdd);
 
                     registeredCommands.Add(new(guildId, commands.ToList()));
                 }

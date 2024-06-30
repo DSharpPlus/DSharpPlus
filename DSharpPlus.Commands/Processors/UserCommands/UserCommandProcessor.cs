@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -25,7 +26,7 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
     public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreatedEventArgs>> Converters => this.slashCommandProcessor?.ConverterDelegates ?? new Dictionary<Type, ConverterDelegate<InteractionCreatedEventArgs>>();
     private CommandsExtension? extension;
     private SlashCommandProcessor? slashCommandProcessor;
-    
+
     public IReadOnlyList<Command> Commands => this.commands;
     private List<Command> commands = [];
 
@@ -46,7 +47,7 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
 
         ILogger<UserCommandProcessor> logger = this.extension.ServiceProvider.GetService<ILogger<UserCommandProcessor>>() ?? NullLogger<UserCommandProcessor>.Instance;
         List<DiscordApplicationCommand> applicationCommands = [];
-        
+
         IReadOnlyList<Command> commands = this.extension.GetCommandsForProcessor(this);
         IEnumerable<Command> flattenCommands = commands.SelectMany(x => x.Flatten());
 
@@ -99,6 +100,13 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
         }
 
         AsyncServiceScope scope = this.extension.ServiceProvider.CreateAsyncScope();
+
+        if (this.slashCommandProcessor.ApplicationCommandMapping == FrozenDictionary<ulong, Command>.Empty)
+        {
+            ILogger<UserCommandProcessor> logger = this.extension.ServiceProvider.GetService<ILogger<UserCommandProcessor>>() ?? NullLogger<UserCommandProcessor>.Instance;
+            logger.LogWarning("Received an interaction for a user command, but commands have not been registered yet. Ignoring interaction");
+        }
+
         if (!this.slashCommandProcessor.TryFindCommand(eventArgs.Interaction, out Command? command, out _))
         {
             await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()

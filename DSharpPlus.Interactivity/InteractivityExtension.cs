@@ -746,6 +746,7 @@ public class InteractivityExtension : BaseExtension
     /// <param name="behaviour">Pagination behaviour.</param>
     /// <param name="deletion">Deletion behaviour</param>
     /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
+    // Ideally this would take a [list of] builder(s), but there's complications with muddying APIs further than we already do.
     public async Task SendPaginatedMessageAsync(
         DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons,
         PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default)
@@ -756,7 +757,9 @@ public class InteractivityExtension : BaseExtension
 
         bts = new(bts);
 
-        if (pages.Count() == 1)
+        Page[] pageArray = pages.ToArray();
+
+        if (pageArray.Length == 1)
         {
             bts.SkipLeft.Disable();
             bts.Left.Disable();
@@ -769,20 +772,25 @@ public class InteractivityExtension : BaseExtension
             bts.SkipLeft.Disable();
             bts.Left.Disable();
 
-            if (pages.Count() == 2)
+            if (pageArray.Length == 2)
             {
                 bts.SkipRight.Disable();
             }
         }
 
         DiscordMessageBuilder builder = new DiscordMessageBuilder()
-            .WithContent(pages.First().Content)
-            .AddEmbed(pages.First().Embed)
+            .WithContent(pageArray[0].Content)
+            .AddEmbed(pageArray[0].Embed)
             .AddComponents(bts.ButtonArray);
+
+        if (pageArray[0].Components is [..] pac)
+        {
+            builder.AddComponents(pac);
+        }
 
         DiscordMessage message = await builder.SendAsync(channel);
 
-        ButtonPaginationRequest req = new(message, user, bhv, del, bts, pages.ToArray(), token == default ? GetCancellationToken() : token);
+        ButtonPaginationRequest req = new(message, user, bhv, del, bts, pageArray, token == default ? GetCancellationToken() : token);
 
         await this.compPaginator.DoPaginationAsync(req);
     }
@@ -939,22 +947,35 @@ public class InteractivityExtension : BaseExtension
 
             buttonArray = [.. buttonList];
         }
+
+        Page[] pageArray = pages.ToArray();
+
         if (asEditResponse)
         {
             DiscordWebhookBuilder builder = new DiscordWebhookBuilder()
-                .WithContent(pages.First().Content)
-                .AddEmbed(pages.First().Embed)
+                .WithContent(pageArray[0].Content)
+                .AddEmbed(pageArray[0].Embed)
                 .AddComponents(buttonArray);
+
+            if (pageArray[0].Components is [..] pageArrayComponents)
+            {
+                builder.AddComponents(pageArrayComponents);
+            }
 
             message = await interaction.EditOriginalResponseAsync(builder);
         }
         else
         {
             DiscordInteractionResponseBuilder builder = new DiscordInteractionResponseBuilder()
-                .WithContent(pages.First().Content)
-                .AddEmbed(pages.First().Embed)
+                .WithContent(pageArray[0].Content)
+                .AddEmbed(pageArray[0].Embed)
                 .AsEphemeral(ephemeral)
                 .AddComponents(buttonArray);
+
+            if (pageArray[0].Components is [..] pageArrayComponents)
+            {
+                builder.AddComponents(pageArrayComponents);
+            }
 
             await interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, builder);
             message = await interaction.GetOriginalResponseAsync();

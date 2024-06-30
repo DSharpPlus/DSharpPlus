@@ -40,7 +40,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     public override IReadOnlyList<Command> Commands => this.ApplicationCommandMapping.Values.ToList(); //TODO: alloc free?
 
     private static readonly List<DiscordApplicationCommand> applicationCommands = [];
-    private static FrozenDictionary<ulong, Command> applicationCommandMapping;
+    private static FrozenDictionary<ulong, Command> applicationCommandMapping = FrozenDictionary<ulong, Command>.Empty;
 
     [GeneratedRegex(@"^[-_\p{L}\p{N}\p{IsDevanagari}\p{IsThai}]{1,32}$")]
     private partial Regex NameLocalizationRegex();
@@ -54,7 +54,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {
         await base.ConfigureAsync(extension);
-        
+
         Dictionary<Type, DiscordApplicationCommandOptionType> typeMappings = [];
         foreach (LazyConverter lazyConverter in this.lazyConverters.Values)
         {
@@ -85,6 +85,13 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
         }
         else if (eventArgs.Interaction.Type is not DiscordInteractionType.ApplicationCommand and not DiscordInteractionType.AutoComplete || eventArgs.Interaction.Data.Type is not DiscordApplicationCommandType.SlashCommand)
         {
+            return;
+        }
+
+        if (this.ApplicationCommandMapping == FrozenDictionary<ulong, Command>.Empty)
+        {
+            this.logger.LogWarning("Received an interaction for a slash command, but commands have not been registered yet. Ignoring interaction");
+
             return;
         }
 
@@ -251,7 +258,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
                 .Concat(globalApplicationCommands)
                 .GroupBy(x => x.Name)
                 .Select(x => x.First());
-            
+
             discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, distinctCommands));
         }
 

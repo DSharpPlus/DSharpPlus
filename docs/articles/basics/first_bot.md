@@ -153,7 +153,7 @@ Now you can start to listen to messages.
 Register an event handler as follows:
 
 ```cs
-builder.ConfigureEvents
+builder.ConfigureEventHandlers
 (
     b => b.HandleMessageCreated(async s, e) => {})
 );
@@ -165,7 +165,7 @@ Then, add an `if` statement into the body of your event lambda that will check i
 *pong!*for each message that starts with*ping*.
 
 ```cs
-builder.ConfigureEvents
+builder.ConfigureEventHandlers
 (
     b => b.HandleMessageCreated(async s, e) => 
     {
@@ -194,7 +194,7 @@ namespace MyFirstBot
         {
             DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault("My First Token", DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents);
 
-            builder.ConfigureEvents
+            builder.ConfigureEventHandlers
             (
                 b => b.HandleMessageCreated(async (s, e) => 
                 {

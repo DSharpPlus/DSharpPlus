@@ -25,7 +25,7 @@ body:
         label: What version of the library are you using?
         multiple: false
         options:
-          - v4.4.6 (Stable)
+          - v4.4.9 (Stable)
           - v5.0.0-nightly (make sure you are using the latest nightly!)
     validations:
       required: true
