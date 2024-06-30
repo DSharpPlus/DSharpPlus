@@ -2,6 +2,8 @@ using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
 
+using DSharpPlus.Exceptions;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -39,6 +41,26 @@ public sealed class DefaultClientErrorHandler : IClientErrorHandler
         object args
     )
     {
+        if (exception is BadRequestException badRequest)
+        {
+            this.logger.LogError
+            (
+                "Event handler exception for event {Event} thrown from {Method} (defined in {DeclaryingType}):\n" +
+                "A request was rejected by the Discord API.\n" +
+                "  Errors: {Errors}\n" +
+                "  Message: {JsonMessage}\n" +
+                "  Stack trace: {Stacktrace}",
+                name,
+                invokedDelegate.Method,
+                invokedDelegate.Method.DeclaringType,
+                badRequest.Errors,
+                badRequest.JsonMessage,
+                badRequest.StackTrace
+            );
+
+            return ValueTask.CompletedTask;
+        }
+
         this.logger.LogError
         (
             exception, 
