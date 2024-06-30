@@ -24,7 +24,8 @@ public static partial class ServiceCollectionExtensions
         // peripheral setup
         serviceCollection.AddMemoryCache()
             .AddSingleton<IMessageCacheProvider, MessageCache>()
-            .AddSingleton<IClientErrorHandler, DefaultClientErrorHandler>();
+            .AddSingleton<IClientErrorHandler, DefaultClientErrorHandler>()
+            .AddSingleton<IGatewayController, DefaultGatewayController>();
 
         // rest setup
         serviceCollection.AddKeyedSingleton<HttpClient>("DSharpPlus.Rest.HttpClient")
@@ -63,7 +64,8 @@ public static partial class ServiceCollectionExtensions
         // peripheral setup
         serviceCollection.AddMemoryCache()
             .AddSingleton<IMessageCacheProvider, MessageCache>()
-            .AddSingleton<IClientErrorHandler, DefaultClientErrorHandler>();
+            .AddSingleton<IClientErrorHandler, DefaultClientErrorHandler>()
+            .AddSingleton<IGatewayController, DefaultGatewayController>();
 
         // rest setup
         serviceCollection.AddKeyedSingleton<HttpClient>("DSharpPlus.Rest.HttpClient")

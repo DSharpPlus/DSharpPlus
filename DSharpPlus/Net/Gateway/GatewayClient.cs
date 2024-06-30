@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
+using DSharpPlus.Clients;
 using DSharpPlus.Entities;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.WebSocket;
@@ -22,6 +23,7 @@ namespace DSharpPlus.Net.Gateway;
 public sealed class GatewayClient : IGatewayClient
 {
     private readonly ILogger<IGatewayClient> logger;
+    private readonly IGatewayController controller;
     private readonly ITransportService transportService;
     private readonly ChannelWriter<GatewayPayload> eventWriter;
     private readonly GatewayClientOptions options;
@@ -58,7 +60,8 @@ public sealed class GatewayClient : IGatewayClient
         ILogger<IGatewayClient> logger,
         IOptions<TokenContainer> tokenContainer,
         PayloadDecompressor decompressor,
-        IOptions<GatewayClientOptions> options
+        IOptions<GatewayClientOptions> options,
+        IGatewayController controller
     )
     {
         this.transportService = transportService;
@@ -68,6 +71,7 @@ public sealed class GatewayClient : IGatewayClient
         this.gatewayTokenSource = new();
         this.compress = decompressor.CompressionLevel == GatewayCompressionLevel.Payload;
         this.options = options.Value;
+        this.controller = controller;
     }
 
     /// <inheritdoc/>
@@ -193,7 +197,7 @@ public sealed class GatewayClient : IGatewayClient
 
             if (this.pendingHeartbeats > 5)
             {
-                // invoke Zombied
+                await this.controller.ZombiedAsync(this);
             }
         } while (await timer.WaitForNextTickAsync(ct));
     }
