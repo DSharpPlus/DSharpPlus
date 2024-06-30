@@ -42,6 +42,13 @@ public sealed class SingleShardOrchestrator : IShardOrchestrator
     public bool IsConnected(ulong guildId) => this.gatewayClient.IsConnected;
 
     /// <inheritdoc/>
+    public async ValueTask ReconnectAsync() => await this.gatewayClient.ReconnectAsync();
+
+    /// <inheritdoc/>
+    public async ValueTask SendOutboundEventAsync(byte[] payload) 
+        => await this.gatewayClient.WriteAsync(payload);
+
+    /// <inheritdoc/>
     public async ValueTask StartAsync(DiscordActivity? activity, DiscordUserStatus? status, DateTimeOffset? idleSince)
     {
         GatewayInfo info = await this.apiClient.GetGatewayInfoAsync();

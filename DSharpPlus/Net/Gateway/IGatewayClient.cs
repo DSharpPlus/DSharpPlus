@@ -22,6 +22,8 @@ public interface IGatewayClient
 
     public ValueTask DisconnectAsync();
 
+    public ValueTask ReconnectAsync();
+
     public ValueTask WriteAsync(byte[] payload);
 
     public bool IsConnected { get; }

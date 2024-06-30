@@ -21,6 +21,16 @@ public interface IShardOrchestrator
     public ValueTask StopAsync();
 
     /// <summary>
+    /// Reconnects all shards associated with this orchestrator.
+    /// </summary>
+    public ValueTask ReconnectAsync();
+
+    /// <summary>
+    /// Sends an outbound event to Discord.
+    /// </summary>
+    public ValueTask SendOutboundEventAsync(byte[] payload);
+
+    /// <summary>
     /// Indicates whether all shards are connected.
     /// </summary>
     public bool AllShardsConnected { get; }

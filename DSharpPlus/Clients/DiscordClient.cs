@@ -2,9 +2,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -397,8 +399,34 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
     }
 
-    public Task ReconnectAsync(bool startNewSession = false)
-        => InternalReconnectAsync(startNewSession, code: startNewSession ? 1000 : 4002);
+    /// <summary>
+    /// Sends a raw payload to the gateway. This method is not recommended for use unless you know what you're doing.
+    /// </summary>
+    /// <param name="opCode">The opcode to send to the Discord gateway.</param>
+    /// <param name="data">The data to deserialize.</param>
+    /// <remarks>
+    /// This method should not be used unless you know what you're doing. Instead, look towards the other 
+    /// explicitly implemented methods which come with client-side validation.
+    /// </remarks>
+    /// <returns>A task representing the payload being sent.</returns>
+    [Experimental("DSP0004")]
+    public async Task SendPayloadAsync(GatewayOpCode opCode, object? data)
+    {
+        GatewayPayload payload = new()
+        {
+            OpCode = opCode,
+            Data = data
+        };
+
+        string payloadString = DiscordJson.SerializeObject(payload);
+        await this.orchestrator.SendOutboundEventAsync(Encoding.UTF8.GetBytes(payloadString));
+    }
+
+    /// <summary>
+    /// Reconnects all shards to the gateway.
+    /// </summary>
+    public async Task ReconnectAsync()
+        => await this.orchestrator.ReconnectAsync();
 
     /// <summary>
     /// Disconnects from the gateway
@@ -685,8 +713,22 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="userStatus">Status of the user.</param>
     /// <param name="idleSince">Since when is the client performing the specified activity.</param>
     /// <returns></returns>
-    public Task UpdateStatusAsync(DiscordActivity activity = null, DiscordUserStatus? userStatus = null, DateTimeOffset? idleSince = null)
-        => InternalUpdateStatusAsync(activity, userStatus, idleSince);
+    public async Task UpdateStatusAsync(DiscordActivity activity = null, DiscordUserStatus? userStatus = null, DateTimeOffset? idleSince = null)
+    {
+        StatusUpdate update = new()
+        {
+            Activity = new(activity),
+            IdleSince = idleSince?.ToUnixTimeMilliseconds()
+        };
+
+        if (userStatus is not null)
+        {
+            update.Status = userStatus.Value;
+        }
+
+        string payload = DiscordJson.SerializeObject(update);
+        await this.orchestrator.SendOutboundEventAsync(Encoding.UTF8.GetBytes(payload));
+    }
 
     /// <summary>
     /// Edits current user.
@@ -1296,13 +1338,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 disposable.Dispose();
             }
         }
-
-        try
-        {
-            this.cancelTokenSource?.Cancel();
-            this.cancelTokenSource?.Dispose();
-        }
-        catch { }
 
         this.guilds = null!;
         this.privateChannels = null!;

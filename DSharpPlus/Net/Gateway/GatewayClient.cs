@@ -68,7 +68,7 @@ public sealed class GatewayClient : IGatewayClient
         this.eventWriter = eventChannel.Writer;
         this.logger = logger;
         this.token = tokenContainer.Value.GetToken();
-        this.gatewayTokenSource = new();
+        this.gatewayTokenSource = null!;
         this.compress = decompressor.CompressionLevel == GatewayCompressionLevel.Payload;
         this.options = options.Value;
         this.controller = controller;
@@ -85,6 +85,7 @@ public sealed class GatewayClient : IGatewayClient
     )
     {
         this.reconnectUrl = url;
+        this.gatewayTokenSource = new();
         await this.transportService.ConnectAsync(url);
 
         TransportFrame initialFrame = await this.transportService.ReadAsync();
@@ -389,4 +390,8 @@ public sealed class GatewayClient : IGatewayClient
             };
         }
     }
+
+    /// <inheritdoc/>
+    public async ValueTask ReconnectAsync() 
+        => _ = await TryReconnectAsync();
 }

@@ -138,4 +138,18 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
 
     private uint GetShardIdForGuildId(ulong guildId)
         => (uint)((guildId >> 22) % this.options.TotalShards);
+
+    /// <inheritdoc/>
+    public async ValueTask ReconnectAsync()
+    {
+        // don't parallelize this, we can't start shards too wildly out of order
+        foreach(IGatewayClient shard in this.shards)
+        {
+            await shard.ReconnectAsync();
+        }
+    }
+
+    /// <inheritdoc/>
+    public async ValueTask SendOutboundEventAsync(byte[] payload) 
+        => await this.shards[0].WriteAsync(payload);
 }

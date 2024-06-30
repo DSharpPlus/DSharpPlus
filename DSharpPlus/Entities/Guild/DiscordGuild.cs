@@ -1815,8 +1815,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             Data = gatewayRequestGuildMembers
         };
 
-        string payloadStr = JsonConvert.SerializeObject(payload, Formatting.None);
-        await client.SendRawPayloadAsync(payloadStr);
+#pragma warning disable DSP0004 
+        await client.SendPayloadAsync(GatewayOpCode.RequestGuildMembers, gatewayRequestGuildMembers);
+#pragma warning restore DSP0004 
     }
 
     /// <summary>
