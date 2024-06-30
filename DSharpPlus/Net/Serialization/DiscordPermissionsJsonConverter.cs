@@ -35,7 +35,7 @@ namespace DSharpPlus.Net.Serialization
         {
             var token = JToken.Load(reader);
 
-            if (token != null || token.Type == JTokenType.Null)
+            if (token == null || token.Type == JTokenType.Null)
             {
                 return Permissions.None;
             }
