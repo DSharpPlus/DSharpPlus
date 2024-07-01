@@ -44,7 +44,7 @@ public static partial class ServiceCollectionExtensions
             );
 
         // gateway setup
-        serviceCollection.Configure<DiscordConfiguration>(c => c.Intents = intents)
+        serviceCollection.Configure<GatewayClientOptions>(c => c.Intents = intents)
             .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>())
             .AddTransient<ITransportService, TransportService>()
             .AddTransient<IGatewayClient, GatewayClient>()
@@ -84,7 +84,7 @@ public static partial class ServiceCollectionExtensions
             );
 
         // gateway setup
-        serviceCollection.Configure<DiscordConfiguration>(c => c.Intents = intents)
+        serviceCollection.Configure<GatewayClientOptions>(c => c.Intents = intents)
             .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>())
             .AddTransient<ITransportService, TransportService>()
             .AddTransient<IGatewayClient, GatewayClient>()

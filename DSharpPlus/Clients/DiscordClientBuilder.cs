@@ -76,7 +76,7 @@ public sealed class DiscordClientBuilder
     (
         string token,
         DiscordIntents intents,
-        uint shardCount,
+        uint? shardCount = null,
         IServiceCollection? serviceCollection = null
     )
     {
