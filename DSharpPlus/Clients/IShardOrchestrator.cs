@@ -26,9 +26,10 @@ public interface IShardOrchestrator
     public ValueTask ReconnectAsync();
 
     /// <summary>
-    /// Sends an outbound event to Discord.
+    /// Sends an outbound event to Discord from the specified guild. Pass 0 to send a guild-independent outbound event
+    /// to shard 0.
     /// </summary>
-    public ValueTask SendOutboundEventAsync(byte[] payload);
+    public ValueTask SendOutboundEventAsync(byte[] payload, ulong guildId);
 
     /// <summary>
     /// Indicates whether all shards are connected.

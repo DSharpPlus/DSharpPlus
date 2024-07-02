@@ -29,7 +29,7 @@ public sealed partial class DiscordClient
 
     #region Dispatch Handler
 
-    private async ValueTask ReceiveGatewayEventsAsync()
+    private async Task ReceiveGatewayEventsAsync()
     {
         while (!this.eventReader.Completion.IsCompleted)
         {
@@ -581,7 +581,6 @@ public sealed partial class DiscordClient
         this.CurrentUser.Verified = rusr.Verified;
         this.CurrentUser.IsBot = rusr.IsBot;
 
-        this.GatewayVersion = ready.GatewayVersion;
         this.sessionId = ready.SessionId;
         this.gatewayResumeUrl = ready.ResumeGatewayUrl;
         Dictionary<ulong, JObject> raw_guild_index = rawGuilds.ToDictionary(xt => (ulong)xt["id"], xt => (JObject)xt);

@@ -150,6 +150,13 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     }
 
     /// <inheritdoc/>
-    public async ValueTask SendOutboundEventAsync(byte[] payload) 
-        => await this.shards[0].WriteAsync(payload);
+    public async ValueTask SendOutboundEventAsync(byte[] payload, ulong guildId)
+    {
+        uint shardId = GetShardIdForGuildId(guildId);
+
+        ArgumentOutOfRangeException.ThrowIfLessThan(shardId, this.stride);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(shardId, this.stride + this.shardCount);
+
+        await this.shards[shardId].WriteAsync(payload);
+    }
 }

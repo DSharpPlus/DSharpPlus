@@ -84,54 +84,66 @@ public sealed class GatewayClient : IGatewayClient
         ShardInfo? shardInfo = null
     )
     {
-        this.reconnectUrl = url;
-        this.gatewayTokenSource = new();
-        await this.transportService.ConnectAsync(url);
-
-        TransportFrame initialFrame = await this.transportService.ReadAsync();
-
-        if (!initialFrame.TryGetMessage(out string? hello))
+        for (uint i = 0; i < this.options.MaxReconnects; i++)
         {
-            await HandleErrorAndAttemptToReconnectAsync(initialFrame);
-        }
-
-        GatewayPayload? helloEvent = JsonConvert.DeserializeObject<GatewayPayload>(hello);
-
-        if (helloEvent is not { OpCode: GatewayOpCode.Hello, Data: GatewayHello helloPayload })
-        {
-            throw new InvalidDataException($"Expected HELLO payload from Discord, received {hello}");
-        }
-
-        this.logger.LogTrace
-        (
-            "Received hello event, starting heartbeating with an interval of {interval} and identifying.",
-            TimeSpan.FromMilliseconds(helloPayload.HeartbeatInterval)
-        );
-
-        this.IsConnected = true;
-        _ = HeartbeatAsync(helloPayload.HeartbeatInterval, this.gatewayTokenSource.Token);
-        _ = HandleEventsAsync(this.gatewayTokenSource.Token);
-
-        GatewayIdentify identify = new()
-        {
-            Token = this.token,
-            Compress = this.compress,
-            LargeThreshold = this.options.LargeThreshold,
-            ShardInfo = shardInfo,
-            Presence = new()
+            try
             {
-                Activity = new TransportActivity(activity),
-                Status = status ?? DiscordUserStatus.Online,
-                IdleSince = idleSince?.ToUnixTimeMilliseconds()
-            },
-            Intents = this.options.Intents
-        };
+                this.reconnectUrl = url;
+                this.gatewayTokenSource = new();
+                await this.transportService.ConnectAsync(url);
 
-        this.identify = identify;
+                TransportFrame initialFrame = await this.transportService.ReadAsync();
 
-        await WriteAsync(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(identify)));
+                if (!initialFrame.TryGetMessage(out string? hello))
+                {
+                    await HandleErrorAndAttemptToReconnectAsync(initialFrame);
+                }
 
-        this.logger.LogTrace("Identified with the Discord gateway");
+                GatewayPayload? helloEvent = JsonConvert.DeserializeObject<GatewayPayload>(hello);
+
+                if (helloEvent is not { OpCode: GatewayOpCode.Hello, Data: GatewayHello helloPayload })
+                {
+                    throw new InvalidDataException($"Expected HELLO payload from Discord, received {hello}");
+                }
+
+                this.logger.LogTrace
+                (
+                    "Received hello event, starting heartbeating with an interval of {interval} and identifying.",
+                    TimeSpan.FromMilliseconds(helloPayload.HeartbeatInterval)
+                );
+
+                this.IsConnected = true;
+                _ = HeartbeatAsync(helloPayload.HeartbeatInterval, this.gatewayTokenSource.Token);
+                _ = HandleEventsAsync(this.gatewayTokenSource.Token);
+
+                GatewayIdentify identify = new()
+                {
+                    Token = this.token,
+                    Compress = this.compress,
+                    LargeThreshold = this.options.LargeThreshold,
+                    ShardInfo = shardInfo,
+                    Presence = new()
+                    {
+                        Activity = new TransportActivity(activity),
+                        Status = status ?? DiscordUserStatus.Online,
+                        IdleSince = idleSince?.ToUnixTimeMilliseconds()
+                    },
+                    Intents = this.options.Intents
+                };
+
+                this.identify = identify;
+
+                await WriteAsync(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(identify)));
+
+                this.logger.LogTrace("Identified with the Discord gateway");
+                break;
+            }
+            catch
+            {
+                await Task.Delay(this.options.GetReconnectionDelay(i));
+                continue;
+            }
+        }
     }
 
     /// <inheritdoc/>
@@ -265,7 +277,7 @@ public sealed class GatewayClient : IGatewayClient
 
                     this.logger.LogTrace("Received RECONNECT");
                     
-                    if (!await TryReconnectAsync())
+                    if (!(this.options.AutoReconnect && await TryReconnectAsync()))
                     {
                         this.logger.LogError("A reconnection attempt requested by Discord failed.");
                     }
@@ -286,7 +298,7 @@ public sealed class GatewayClient : IGatewayClient
     {
         if (this.resumeUrl is null || this.sessionId is null)
         {
-            return await TryReconnectAsync();
+            return this.options.AutoReconnect && await TryReconnectAsync();
         }
 
         try
@@ -315,7 +327,7 @@ public sealed class GatewayClient : IGatewayClient
         }
         catch
         {
-            return await TryReconnectAsync();
+            return this.options.AutoReconnect && await TryReconnectAsync();
         }
 
         return true;
@@ -326,45 +338,59 @@ public sealed class GatewayClient : IGatewayClient
     /// </summary>
     private async Task<bool> TryReconnectAsync()
     {
-        try
+        for (uint i = 0; i < this.options.MaxReconnects; i++)
         {
-            this.IsConnected = false;
-            this.gatewayTokenSource.Cancel();
-            this.gatewayTokenSource = new();
-            await this.transportService.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
-            await this.transportService.ConnectAsync(this.reconnectUrl!);
-
-            TransportFrame initialFrame = await this.transportService.ReadAsync();
-
-            if (!initialFrame.TryGetMessage(out string? hello))
+            try
             {
-                await HandleErrorAndAttemptToReconnectAsync(initialFrame);
+                this.IsConnected = false;
+
+                try
+                {
+                    this.gatewayTokenSource.Cancel();
+                    this.gatewayTokenSource = new();
+                    await this.transportService.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
+                }
+                catch (ObjectDisposedException)
+                {
+                    // thrown if gatewayTokenSource was disposed when cancelling, ignore since we create a new one anyway
+                }
+
+                await this.transportService.ConnectAsync(this.reconnectUrl!);
+
+                TransportFrame initialFrame = await this.transportService.ReadAsync();
+
+                if (!initialFrame.TryGetMessage(out string? hello))
+                {
+                    await HandleErrorAndAttemptToReconnectAsync(initialFrame);
+                }
+
+                GatewayPayload? helloEvent = JsonConvert.DeserializeObject<GatewayPayload>(hello);
+
+                if (helloEvent is not { OpCode: GatewayOpCode.Hello, Data: GatewayHello helloPayload })
+                {
+                    throw new InvalidDataException($"Expected HELLO payload from Discord, received {hello}");
+                }
+
+                this.logger.LogTrace
+                (
+                    "Received hello event, starting heartbeating with an interval of {interval} and identifying.",
+                    TimeSpan.FromMilliseconds(helloPayload.HeartbeatInterval)
+                );
+
+                this.IsConnected = true;
+                _ = HeartbeatAsync(helloPayload.HeartbeatInterval, this.gatewayTokenSource.Token);
+                _ = HandleEventsAsync(this.gatewayTokenSource.Token);
+
+                await WriteAsync(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this.identify)));
+
+                this.logger.LogTrace("Identified with the Discord gateway");
+                break;
             }
-
-            GatewayPayload? helloEvent = JsonConvert.DeserializeObject<GatewayPayload>(hello);
-
-            if (helloEvent is not { OpCode: GatewayOpCode.Hello, Data: GatewayHello helloPayload })
+            catch
             {
-                throw new InvalidDataException($"Expected HELLO payload from Discord, received {hello}");
+                await Task.Delay(this.options.GetReconnectionDelay(i));
+                continue;
             }
-
-            this.logger.LogTrace
-            (
-                "Received hello event, starting heartbeating with an interval of {interval} and identifying.",
-                TimeSpan.FromMilliseconds(helloPayload.HeartbeatInterval)
-            );
-
-            this.IsConnected = true;
-            _ = HeartbeatAsync(helloPayload.HeartbeatInterval, this.gatewayTokenSource.Token);
-            _ = HandleEventsAsync(this.gatewayTokenSource.Token);
-
-            await WriteAsync(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this.identify)));
-
-            this.logger.LogTrace("Identified with the Discord gateway");
-        }
-        catch
-        {
-            return false;
         }
 
         return true;
@@ -376,7 +402,7 @@ public sealed class GatewayClient : IGatewayClient
         {
             await TryResumeAsync();
         }
-        else if (frame.TryGetException(out _))
+        else if (frame.TryGetException(out _) && this.options.AutoReconnect)
         {
             await TryReconnectAsync();
         }
@@ -386,7 +412,7 @@ public sealed class GatewayClient : IGatewayClient
             {
                 >= 4000 and <= 4003 => await TryResumeAsync(),
                 >= 4005 and <= 4009 => await TryResumeAsync(),
-                _ => await TryReconnectAsync()
+                _ => this.options.AutoReconnect && await TryReconnectAsync()
             };
         }
     }

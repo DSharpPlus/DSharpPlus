@@ -18,6 +18,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Gateway;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.WebSocket;
@@ -58,38 +59,9 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public IServiceProvider ServiceProvider { get; internal set; }
 
     /// <summary>
-    /// Gets the gateway protocol version.
-    /// </summary>
-    public int GatewayVersion { get; internal set; }
-
-    /// <summary>
-    /// Gets the gateway session information for this client.
-    /// </summary>
-    public GatewayInfo GatewayInfo { get; internal set; }
-
-    /// <summary>
-    /// Gets the gateway URL.
-    /// </summary>
-    public Uri GatewayUri { get; internal set; }
-
-    /// <summary>
-    /// Gets the total number of shards the bot is connected to.
-    /// </summary>
-    public int ShardCount => this.GatewayInfo != null
-        ? this.GatewayInfo.ShardCount
-        : this.Configuration.ShardCount;
-
-    /// <summary>
-    /// Gets the currently connected shard ID.
-    /// </summary>
-    public int ShardId
-        => this.Configuration.ShardId;
-
-    /// <summary>
     /// Gets the intents configured for this client.
     /// </summary>
-    public DiscordIntents Intents
-        => this.Configuration.Intents;
+    public DiscordIntents Intents { get; }
 
     /// <summary>
     /// Gets whether this client is connected to the gateway.
@@ -139,6 +111,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         IOptions<DiscordConfiguration> configuration,
         IOptions<TokenContainer> token,
         IShardOrchestrator shardOrchestrator,
+        IOptions<GatewayClientOptions> gatewayOptions,
 
         [FromKeyedServices("DSharpPlus.Gateway.EventChannel")]
         Channel<GatewayPayload> eventChannel
@@ -156,6 +129,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.eventReader = eventChannel.Reader;
 
         this.ApiClient.SetClient(this);
+        this.Intents = gatewayOptions.Value.Intents;
 
         InternalSetup(errorHandler);
 
@@ -308,11 +282,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
         this.connectionLock.Set();
 
-        int w = 7500;
-        int i = 5;
-        bool s = false;
-        Exception cex = null;
-
         if (activity == null && status == null && idlesince == null)
         {
             this.status = null;
@@ -330,87 +299,25 @@ public sealed partial class DiscordClient : BaseDiscordClient
             };
         }
 
-        if (!this.isShard)
-        {
-            if (this.Configuration.TokenType != TokenType.Bot)
-            {
-                this.Logger.LogError(LoggerEvents.Misc, "You are logging in with a token that is not a bot token.");
-                return;
-            }
+        this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus; version {Version}", this.VersionString);
 
-            this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus, version {Version}", this.VersionString);
-        }
-
-        while (i-- > 0 || this.Configuration.ReconnectIndefinitely)
-        {
-            try
-            {
-                await this.orchestrator.StartAsync(activity, status, idlesince);
-                _ = ReceiveGatewayEventsAsync();
-                s = true;
-                break;
-            }
-            catch (UnauthorizedException e)
-            {
-                FailConnection(this.connectionLock);
-                throw new Exception("Authentication failed. Check your token and try again.", e);
-            }
-            catch (PlatformNotSupportedException)
-            {
-                FailConnection(this.connectionLock);
-                throw;
-            }
-            catch (NotImplementedException)
-            {
-                FailConnection(this.connectionLock);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                FailConnection(null);
-
-                cex = ex;
-                if (i <= 0 && !this.Configuration.ReconnectIndefinitely)
-                {
-                    break;
-                }
-
-                this.Logger.LogError(LoggerEvents.ConnectionFailure, ex, "Connection attempt failed, retrying in {Seconds}s", w / 1000);
-                await Task.Delay(w);
-
-                if (i > 0)
-                {
-                    w *= 2;
-                }
-            }
-        }
-
-        if (!s && cex != null)
-        {
-            this.connectionLock.Set();
-            throw new Exception("Could not connect to Discord.", cex);
-        }
-
-        // non-closure, hence args
-        static void FailConnection(ManualResetEventSlim cl)
-        {
-            // unlock this (if applicable) so we can let others attempt to connect
-            cl?.Set();
-        }
+        await this.orchestrator.StartAsync(activity, status, idlesince);
+        _ = ReceiveGatewayEventsAsync();
     }
 
     /// <summary>
     /// Sends a raw payload to the gateway. This method is not recommended for use unless you know what you're doing.
     /// </summary>
     /// <param name="opCode">The opcode to send to the Discord gateway.</param>
-    /// <param name="data">The data to deserialize.</param>
+    /// <param name="data">The data to serialize.</param>
+    /// <param name="guildId">The guild this payload originates from. Pass 0 for shard-independent payloads.</param>
     /// <remarks>
     /// This method should not be used unless you know what you're doing. Instead, look towards the other 
     /// explicitly implemented methods which come with client-side validation.
     /// </remarks>
     /// <returns>A task representing the payload being sent.</returns>
     [Experimental("DSP0004")]
-    public async Task SendPayloadAsync(GatewayOpCode opCode, object? data)
+    public async Task SendPayloadAsync(GatewayOpCode opCode, object? data, ulong guildId)
     {
         GatewayPayload payload = new()
         {
@@ -419,7 +326,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         };
 
         string payloadString = DiscordJson.SerializeObject(payload);
-        await this.orchestrator.SendOutboundEventAsync(Encoding.UTF8.GetBytes(payloadString));
+        await this.orchestrator.SendOutboundEventAsync(Encoding.UTF8.GetBytes(payloadString), guildId);
     }
 
     /// <summary>
@@ -727,7 +634,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
 
         string payload = DiscordJson.SerializeObject(update);
-        await this.orchestrator.SendOutboundEventAsync(Encoding.UTF8.GetBytes(payload));
+        await this.orchestrator.SendOutboundEventAsync(Encoding.UTF8.GetBytes(payload), 0);
     }
 
     /// <summary>
@@ -1098,7 +1005,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 usr = new DiscordMember(mbr) { Discord = this, guild_id = guildId.Value };
             }
 
-            DiscordIntents intents = this.Configuration.Intents;
+            DiscordIntents intents = this.Intents;
 
             DiscordMember member = default;
 
@@ -1269,7 +1176,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             xr.Emoji.Discord = this;
         }
 
-        if (this.Configuration.MessageCacheSize > 0 && message.Channel != null)
+        if (message.Channel is not null)
         {
             this.MessageCache?.Add(message);
         }
