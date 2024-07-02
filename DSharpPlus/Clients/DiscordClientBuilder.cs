@@ -1,9 +1,11 @@
 using System;
+using System.Threading.Tasks;
 
 using DSharpPlus.Clients;
 using DSharpPlus.Extensions;
 using DSharpPlus.Logging;
 using DSharpPlus.Net;
+using DSharpPlus.Net.Gateway;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -17,6 +19,7 @@ public sealed class DiscordClientBuilder
 {
     private readonly IServiceCollection serviceCollection;
     private bool addDefaultLogging = true;
+    private bool sharding = false;
     private LogLevel minimumLogLevel = LogLevel.Information;
 
     /// <summary>
@@ -86,6 +89,8 @@ public sealed class DiscordClientBuilder
         builder.serviceCollection.Configure<ShardingOptions>(x => x.ShardCount = shardCount);
         builder.serviceCollection.Configure<TokenContainer>(x => x.GetToken = () => token);
         builder.serviceCollection.AddDSharpPlusDefaultsSharded(intents);
+
+        builder.sharding = true;
 
         return builder;
     }
@@ -163,7 +168,34 @@ public sealed class DiscordClientBuilder
     /// </summary>
     /// <param name="configure">A configuration delegate for the gateway client.</param>
     /// <returns>The current instance for chaining.</returns>
-    public DiscordClientBuilder ConfigureGatewayClient(Action<DiscordConfiguration> configure)
+    public DiscordClientBuilder ConfigureGatewayClient(Action<GatewayClientOptions> configure)
+    {
+        this.serviceCollection.Configure(configure);
+        return this;
+    }
+
+    /// <summary>
+    /// Configures the sharding attempted by DSharpPlus. Throws if the builder was not set up for sharding.
+    /// </summary>
+    /// <param name="configure">A configuration delegate for sharding.</param>
+    /// <returns>The current instance for chaining.</returns>
+    public DiscordClientBuilder ConfigureSharding(Action<ShardingOptions> configure)
+    {
+        if (!this.sharding)
+        {
+            throw new InvalidOperationException("This client builder is not set up for sharding.");
+        }
+
+        this.serviceCollection.Configure(configure);
+        return this;
+    }
+
+    /// <summary>
+    /// Tweaks assorted extra configuration knobs around the library.
+    /// </summary>
+    /// <param name="configure">A configuration delegate for the remaining library.</param>
+    /// <returns>The current instance for chaining.</returns>
+    public DiscordClientBuilder ConfigureExtraFeatures(Action<DiscordConfiguration> configure)
     {
         this.serviceCollection.Configure(configure);
         return this;
@@ -181,5 +213,14 @@ public sealed class DiscordClientBuilder
 
         IServiceProvider provider = this.serviceCollection.BuildServiceProvider();
         return provider.GetRequiredService<DiscordClient>();
+    }
+
+    /// <summary>
+    /// Builds the client and connects to Discord. The client instance will be unobtainable in user code.
+    /// </summary>
+    public async Task ConnectAsync()
+    {
+        DiscordClient client = Build();
+        await client.ConnectAsync();
     }
 }
