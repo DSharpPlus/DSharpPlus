@@ -14,28 +14,44 @@ Sharding is recommended once you reach 1,000 servers, and is a *requirement* whe
 
 ## Automated Sharding
 
-DSharpPlus provides a built-in sharding solution: @DSharpPlus.DiscordShardedClient. This client will *automatically*
-spawn shards for you and manage their events. Each DSharpPlus extension (e.g. CommandsNext, Interactivity) also supplies
-an extension method to register themselves automatically on each shard.
+DSharpPlus provides a built-in sharding solution: `DiscordClient`. `DiscordClientBuilder` and the service collection configuration both offer ways to configure a sharding DiscordClient:
+
+# [DiscordClientBuilder](#tab/discordclientbuilder)
 
 ```cs
-var discord = new DiscordShardedClient(new DiscordConfiguration
-{
-    Token = "My First Token",
-    TokenType = TokenType.Bot
-});
+DiscordClientBuilder builder = DiscordClientBuilder.CreateSharded("My First Token", DiscordIntents.All);
+DiscordClient shardingClient = builder.Build();
+```
 
-await discord.UseCommandsNextAsync(new CommandsNextConfiguration()
+# [IServiceCollection](#tab/iservicecollection)
+
+```cs
+serviceCollection.AddShardedDiscordClient("My First Token", DiscordIntents.All);
+```
+
+---
+
+## Further Customization
+
+For most looking to shard, the built-in sharded client will work well enough. However, those looking for more control over the sharding process may want to handle it manually. The default `MultiShardOrchestrator` provides the ability to only start a certain set of the total shards within the current `DiscordClient` via setting the `Stride` and `TotalShards` properties:
+
+```cs
+serviceCollection.Configure<ShardingOptions>(x => 
 {
-    StringPrefixes = new[] { "!" }
+    x.Stride = 16;
+    x.ShardCount = 16;
+    x.TotalShards = 32;
 });
 ```
 
-## Manual Sharding
+Furthermore, it is possible to override the orchestrator entirely and replace it with your own, which can then do whatever you want:
 
-For most looking to shard, the built-in @DSharpPlus.DiscordShardedClient will work well enough. However, those looking
-for more control over the sharding process may want to handle it manually.
+```cs
+public class MyCustomOrchestrator : IShardOrchestrator;
 
-This would involve creating new @DSharpPlus.DiscordClient instances, assigning each one an appropriate shard ID number,
-and handling the events from each instance. Considering the potential complexity imposed by this process, you should
-only do this if you have a valid reason to do so and *know what you are doing*.
+serviceCollection.AddSingleton<IShardOrchestrator, MyCustomOrchestrator>();
+```
+
+Your orchestrator will need to be able to connect, reconnect and disconnect, it will need to be able to send payloads to Discord and expose whether a certain shard is connected correctly. By default, each shard is represented as an `IGatewayClient`, but if you are writing your own orchestrator, you are free to implement the individual shards yourself.
+
+Implementing a custom orchestrator should be done as a last resort, when you have verified the default implementations cannot do anything for you nor can be adapted to work for you and when you are entirely sure you understand sharding to a degree where you would be able to implement your own orchestrator.
