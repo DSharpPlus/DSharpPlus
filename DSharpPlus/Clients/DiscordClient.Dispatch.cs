@@ -1707,9 +1707,7 @@ public sealed partial class DiscordClient
 
         DiscordMessage oldmsg = null;
 
-        if (this.Configuration.MessageCacheSize == 0
-            || this.MessageCache == null
-            || !this.MessageCache.TryGet(event_message.Id, out message)) // previous message was not in cache
+        if (!this.MessageCache.TryGet(event_message.Id, out message)) // previous message was not in cache
         {
             message = event_message;
             PopulateMessageReactionsAndCache(message, author, member);
@@ -1784,10 +1782,7 @@ public sealed partial class DiscordClient
             this.privateChannels[channelId] = (DiscordDmChannel)channel;
         }
 
-        if (channel == null
-            || this.Configuration.MessageCacheSize == 0
-            || this.MessageCache == null
-            || !this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
+        if (!this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
         {
             msg = new DiscordMessage
             {
@@ -1797,10 +1792,7 @@ public sealed partial class DiscordClient
             };
         }
 
-        if (this.Configuration.MessageCacheSize > 0)
-        {
-            this.MessageCache?.Remove(msg.Id);
-        }
+        this.MessageCache?.Remove(msg.Id);
 
         MessageDeletedEventArgs ea = new()
         {
@@ -1836,10 +1828,7 @@ public sealed partial class DiscordClient
         List<DiscordMessage> msgs = new(messageIds.Length);
         foreach (ulong messageId in messageIds)
         {
-            if (channel == null
-                || this.Configuration.MessageCacheSize == 0
-                || this.MessageCache == null
-                || !this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
+            if (!this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
             {
                 msg = new DiscordMessage
                 {
@@ -1849,10 +1838,7 @@ public sealed partial class DiscordClient
                 };
             }
 
-            if (this.Configuration.MessageCacheSize > 0)
-            {
-                this.MessageCache?.Remove(msg.Id);
-            }
+            this.MessageCache?.Remove(msg.Id);
 
             msgs.Add(msg);
         }
@@ -1899,10 +1885,7 @@ public sealed partial class DiscordClient
             this.privateChannels[channelId] = (DiscordDmChannel)channel;
         }
 
-        if (channel == null
-            || this.Configuration.MessageCacheSize == 0
-            || this.MessageCache == null
-            || !this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
+        if (!this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
         {
             msg = new DiscordMessage
             {
@@ -1973,10 +1956,7 @@ public sealed partial class DiscordClient
                 : new DiscordMember(usr) { Discord = this, guild_id = channel.GuildId.Value };
         }
 
-        if (channel == null
-            || this.Configuration.MessageCacheSize == 0
-            || this.MessageCache == null
-            || !this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
+        if (!this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
         {
             msg = new DiscordMessage
             {
@@ -2023,10 +2003,7 @@ public sealed partial class DiscordClient
     {
         DiscordChannel channel = InternalGetCachedChannel(channelId) ?? InternalGetCachedThread(channelId);
 
-        if (channel == null
-            || this.Configuration.MessageCacheSize == 0
-            || this.MessageCache == null
-            || !this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
+        if (!this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
         {
             msg = new DiscordMessage
             {
@@ -2065,10 +2042,7 @@ public sealed partial class DiscordClient
             this.privateChannels[channelId] = (DiscordDmChannel)channel;
         }
 
-        if (channel == null
-            || this.Configuration.MessageCacheSize == 0
-            || this.MessageCache == null
-            || !this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
+        if (!this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
         {
             msg = new DiscordMessage
             {

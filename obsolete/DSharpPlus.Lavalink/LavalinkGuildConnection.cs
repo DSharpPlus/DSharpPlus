@@ -9,6 +9,8 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Lavalink.Entities;
 using DSharpPlus.Lavalink.EventArgs;
+using DSharpPlus.Net.Abstractions;
+
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Lavalink;
@@ -164,19 +166,17 @@ public sealed class LavalinkGuildConnection
 
     internal async Task SendVoiceUpdateAsync()
     {
-        VoiceDispatch vsd = new()
+        VoiceStateUpdatePayload payload = new()
         {
-            OpCode = 4,
-            Payload = new VoiceStateUpdatePayload
-            {
-                GuildId = this.GuildId,
-                ChannelId = null,
-                Deafened = false,
-                Muted = false
-            }
+            GuildId = this.GuildId,
+            ChannelId = null,
+            Deafened = false,
+            Muted = false
         };
-        string vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-        await (this.Channel.Discord as DiscordClient).SendRawPayloadAsync(vsj);
+
+#pragma warning disable DSP0004 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+        await (this.Channel.Discord as DiscordClient).SendPayloadAsync(GatewayOpCode.VoiceStateUpdate, payload, this.GuildId);
+#pragma warning restore DSP0004 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
     }
 
     /// <summary>

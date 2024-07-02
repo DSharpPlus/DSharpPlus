@@ -75,7 +75,7 @@ public class InteractivityExtension : BaseExtension
     /// <returns></returns>
     public async Task<ReadOnlyCollection<PollEmoji>> DoPollAsync(DiscordMessage m, IEnumerable<DiscordEmoji> emojis, PollBehaviour? behaviour = default, TimeSpan? timeout = null)
     {
-        if (!Utilities.HasReactionIntents(this.Client.Configuration.Intents))
+        if (!Utilities.HasReactionIntents(this.Client.Intents))
         {
             throw new InvalidOperationException("No reaction intents are enabled.");
         }
@@ -559,7 +559,7 @@ public class InteractivityExtension : BaseExtension
     public async Task<InteractivityResult<DiscordMessage>> WaitForMessageAsync(Func<DiscordMessage, bool> predicate,
         TimeSpan? timeoutoverride = null)
     {
-        if (!Utilities.HasMessageIntents(this.Client.Configuration.Intents))
+        if (!Utilities.HasMessageIntents(this.Client.Intents))
         {
             throw new InvalidOperationException("No message intents are enabled.");
         }
@@ -579,7 +579,7 @@ public class InteractivityExtension : BaseExtension
     public async Task<InteractivityResult<MessageReactionAddedEventArgs>> WaitForReactionAsync(Func<MessageReactionAddedEventArgs, bool> predicate,
         TimeSpan? timeoutoverride = null)
     {
-        if (!Utilities.HasReactionIntents(this.Client.Configuration.Intents))
+        if (!Utilities.HasReactionIntents(this.Client.Intents))
         {
             throw new InvalidOperationException("No reaction intents are enabled.");
         }
@@ -592,7 +592,7 @@ public class InteractivityExtension : BaseExtension
 
     /// <summary>
     /// Wait for a specific reaction.
-    /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     /// <param name="message">Message reaction was added to.</param>
     /// <param name="user">User that made the reaction.</param>
@@ -604,7 +604,7 @@ public class InteractivityExtension : BaseExtension
 
     /// <summary>
     /// Waits for a specific reaction.
-    /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     /// <param name="predicate">Predicate to match.</param>
     /// <param name="message">Message reaction was added to.</param>
@@ -617,7 +617,7 @@ public class InteractivityExtension : BaseExtension
 
     /// <summary>
     /// Waits for a specific reaction.
-    /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     /// <param name="predicate">predicate to match.</param>
     /// <param name="user">User that made the reaction.</param>
@@ -637,7 +637,7 @@ public class InteractivityExtension : BaseExtension
     public async Task<InteractivityResult<TypingStartedEventArgs>> WaitForUserTypingAsync(DiscordUser user,
         DiscordChannel channel, TimeSpan? timeoutoverride = null)
     {
-        if (!Utilities.HasTypingIntents(this.Client.Configuration.Intents))
+        if (!Utilities.HasTypingIntents(this.Client.Intents))
         {
             throw new InvalidOperationException("No typing intents are enabled.");
         }
@@ -658,7 +658,7 @@ public class InteractivityExtension : BaseExtension
     /// <returns></returns>
     public async Task<InteractivityResult<TypingStartedEventArgs>> WaitForUserTypingAsync(DiscordUser user, TimeSpan? timeoutoverride = null)
     {
-        if (!Utilities.HasTypingIntents(this.Client.Configuration.Intents))
+        if (!Utilities.HasTypingIntents(this.Client.Intents))
         {
             throw new InvalidOperationException("No typing intents are enabled.");
         }
@@ -679,7 +679,7 @@ public class InteractivityExtension : BaseExtension
     /// <returns></returns>
     public async Task<InteractivityResult<TypingStartedEventArgs>> WaitForTypingAsync(DiscordChannel channel, TimeSpan? timeoutoverride = null)
     {
-        if (!Utilities.HasTypingIntents(this.Client.Configuration.Intents))
+        if (!Utilities.HasTypingIntents(this.Client.Intents))
         {
             throw new InvalidOperationException("No typing intents are enabled.");
         }
@@ -700,7 +700,7 @@ public class InteractivityExtension : BaseExtension
     /// <returns></returns>
     public async Task<ReadOnlyCollection<Reaction>> CollectReactionsAsync(DiscordMessage m, TimeSpan? timeoutoverride = null)
     {
-        if (!Utilities.HasReactionIntents(this.Client.Configuration.Intents))
+        if (!Utilities.HasReactionIntents(this.Client.Intents))
         {
             throw new InvalidOperationException("No reaction intents are enabled.");
         }
@@ -822,7 +822,7 @@ public class InteractivityExtension : BaseExtension
 
     /// <summary>
     /// Sends a paginated message.
-    /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     /// <param name="channel">Channel to send paginated message in.</param>
     /// <param name="user">User to give control.</param>

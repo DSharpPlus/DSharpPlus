@@ -59,11 +59,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public IServiceProvider ServiceProvider { get; internal set; }
 
     /// <summary>
-    /// Gets the intents configured for this client.
-    /// </summary>
-    public DiscordIntents Intents { get; }
-
-    /// <summary>
     /// Gets whether this client is connected to the gateway.
     /// </summary>
     public bool AllShardsConnected
