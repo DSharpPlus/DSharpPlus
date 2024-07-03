@@ -288,13 +288,12 @@ public sealed class GatewayClient : IGatewayClient
 
                         break;
 
-                    // TODO: heartbeat tracking
                     case GatewayOpCode.HeartbeatAck:
 
                         this.Ping = DateTimeOffset.UtcNow - this.lastSentHeartbeat;
                         this.pendingHeartbeats = 0;
 
-                        break;
+                        continue;
 
                     case GatewayOpCode.InvalidSession:
 
@@ -317,7 +316,7 @@ public sealed class GatewayClient : IGatewayClient
                             this.logger.LogError("A reconnection attempt requested by Discord failed.");
                         }
 
-                        break;
+                        continue;
                 }
 
                 await this.eventWriter.WriteAsync(payload, ct);
