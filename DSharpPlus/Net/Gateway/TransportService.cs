@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Net.Gateway;
 
-/// <inheritdoc/>
+/// <inheritdoc cref="ITransportService"/>
 internal sealed class TransportService : ITransportService
 {
     private readonly ILogger<ITransportService> logger;
@@ -56,6 +56,8 @@ internal sealed class TransportService : ITransportService
     /// <inheritdoc/>
     public async ValueTask DisconnectAsync(WebSocketCloseStatus closeStatus)
     {
+        this.logger.LogTrace("Disconnect requested: {CloseStatus}", closeStatus.ToString());
+
         if (!this.isConnected)
         {
             this.logger.LogWarning
@@ -144,6 +146,11 @@ internal sealed class TransportService : ITransportService
 #if DEBUG
         this.logger.LogTrace("Length for the last inbound gateway event: {length}", this.writer.WrittenCount);
         this.logger.LogTrace("Payload for the last inbound gateway event:\n{event}", result);
+
+        if (this.writer.WrittenCount == 0)
+        {
+            this.logger.LogTrace("Disconnected: {CloseStatus}", this.socket.CloseStatus.Value.ToString());
+        }
 #endif
 
         return this.writer.WrittenCount == 0 ? new((int)this.socket.CloseStatus!) : new(result);

@@ -296,8 +296,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
         this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus; version {Version}", this.VersionString);
 
-        await this.orchestrator.StartAsync(activity, status, idlesince);
         _ = ReceiveGatewayEventsAsync();
+        await this.orchestrator.StartAsync(activity, status, idlesince);
     }
 
     /// <summary>

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Clients;
 using DSharpPlus.Entities;
 using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.WebSocket;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -16,10 +17,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Net.Gateway;
 
-/// <inheritdoc/>
+/// <inheritdoc cref="IGatewayClient"/>
 public sealed class GatewayClient : IGatewayClient
 {
     private readonly ILogger<IGatewayClient> logger;
@@ -42,7 +44,7 @@ public sealed class GatewayClient : IGatewayClient
     private string? sessionId;
     private string? reconnectUrl;
 
-    private GatewayIdentify? identify;
+    private GatewayPayload? identify;
     private CancellationTokenSource gatewayTokenSource;
 
     /// <inheritdoc/>
@@ -101,10 +103,13 @@ public sealed class GatewayClient : IGatewayClient
 
                 GatewayPayload? helloEvent = JsonConvert.DeserializeObject<GatewayPayload>(hello);
 
-                if (helloEvent is not { OpCode: GatewayOpCode.Hello, Data: GatewayHello helloPayload })
+                if (helloEvent is not { OpCode: GatewayOpCode.Hello })
                 {
-                    throw new InvalidDataException($"Expected HELLO payload from Discord, received {hello}");
+                    this.logger.LogWarning("Expected HELLO payload from Discord, received {NotQuiteHello}", hello);
+                    continue;
                 }
+
+                GatewayHello helloPayload = ((JObject)helloEvent.Data).ToDiscordObject<GatewayHello>();
 
                 this.logger.LogTrace
                 (
@@ -116,19 +121,46 @@ public sealed class GatewayClient : IGatewayClient
                 _ = HeartbeatAsync(helloPayload.HeartbeatInterval, this.gatewayTokenSource.Token);
                 _ = HandleEventsAsync(this.gatewayTokenSource.Token);
 
-                GatewayIdentify identify = new()
+                StatusUpdate? statusUpdate;
+
+                if (activity is null && status is null && idleSince is null)
+                {
+                    statusUpdate = null;
+                }
+                else
+                {
+                    statusUpdate = new();
+
+                    if (activity is not null)
+                    {
+                        statusUpdate.Activity = new TransportActivity(activity);
+                    }
+
+                    if (status is not null)
+                    {
+                        statusUpdate.Status = status.Value;
+                    }
+
+                    if (idleSince is not null)
+                    {
+                        statusUpdate.IdleSince = idleSince.Value.ToUnixTimeMilliseconds();
+                    }
+                }
+
+                GatewayIdentify inner = new()
                 {
                     Token = this.token,
                     Compress = this.compress,
                     LargeThreshold = this.options.LargeThreshold,
                     ShardInfo = shardInfo,
-                    Presence = new()
-                    {
-                        Activity = new TransportActivity(activity),
-                        Status = status ?? DiscordUserStatus.Online,
-                        IdleSince = idleSince?.ToUnixTimeMilliseconds()
-                    },
+                    Presence = statusUpdate,
                     Intents = this.options.Intents
+                };
+
+                GatewayPayload identify = new()
+                {
+                    OpCode = GatewayOpCode.Identify,
+                    Data = inner
                 };
 
                 this.identify = identify;
@@ -138,8 +170,9 @@ public sealed class GatewayClient : IGatewayClient
                 this.logger.LogTrace("Identified with the Discord gateway");
                 break;
             }
-            catch
+            catch (Exception e)
             {
+                this.logger.LogError(exception: e, "Encountered an error while connecting.");
                 await Task.Delay(this.options.GetReconnectionDelay(i));
                 continue;
             }
@@ -220,72 +253,79 @@ public sealed class GatewayClient : IGatewayClient
     /// </summary>
     private async Task HandleEventsAsync(CancellationToken ct)
     {
-        while (!ct.IsCancellationRequested)
+        try
         {
-            TransportFrame frame = await this.transportService.ReadAsync();
-            GatewayPayload? payload;
-
-            if (!frame.TryGetMessage(out string? data))
+            while (!ct.IsCancellationRequested)
             {
-                await HandleErrorAndAttemptToReconnectAsync(frame);
-                continue;
+                TransportFrame frame = await this.transportService.ReadAsync();
+                GatewayPayload? payload;
+
+                if (!frame.TryGetMessage(out string? data))
+                {
+                    await HandleErrorAndAttemptToReconnectAsync(frame);
+                    continue;
+                }
+
+                payload = JsonConvert.DeserializeObject<GatewayPayload>(data);
+
+                if (payload is null)
+                {
+                    this.logger.LogError("Received invalid inbound event: {Data}", data);
+                    continue;
+                }
+
+                this.lastReceivedSequence = payload.Sequence ?? this.lastReceivedSequence;
+
+                switch (payload.OpCode)
+                {
+                    case GatewayOpCode.Dispatch when payload.EventName is "READY":
+
+                        ReadyPayload readyPayload = ((JObject)payload.Data).ToDiscordObject<ReadyPayload>();
+                        this.resumeUrl = readyPayload.ResumeGatewayUrl;
+                        this.sessionId = readyPayload.SessionId;
+
+                        this.logger.LogTrace("Received READY, the gateway is now operational.");
+
+                        break;
+
+                    // TODO: heartbeat tracking
+                    case GatewayOpCode.HeartbeatAck:
+
+                        this.Ping = DateTimeOffset.UtcNow - this.lastSentHeartbeat;
+                        this.pendingHeartbeats = 0;
+
+                        break;
+
+                    case GatewayOpCode.InvalidSession:
+
+                        this.logger.LogTrace("Received INVALID_SESSION, resumable: {Resumable}", (bool)payload.Data);
+                        bool success = (bool)payload.Data ? await TryResumeAsync() : await TryReconnectAsync();
+
+                        if (!success)
+                        {
+                            this.logger.LogError("The session was invalidated and resuming/reconnecting failed.");
+                        }
+
+                        break;
+
+                    case GatewayOpCode.Reconnect:
+
+                        this.logger.LogTrace("Received RECONNECT");
+
+                        if (!(this.options.AutoReconnect && await TryReconnectAsync()))
+                        {
+                            this.logger.LogError("A reconnection attempt requested by Discord failed.");
+                        }
+
+                        break;
+                }
+
+                await this.eventWriter.WriteAsync(payload, ct);
             }
-
-            payload = JsonConvert.DeserializeObject<GatewayPayload>(data);
-
-            if (payload is null)
-            {
-                this.logger.LogError("Received invalid inbound event: {Data}", data);
-                continue;
-            }
-
-            this.lastReceivedSequence = payload.Sequence ?? this.lastReceivedSequence;
-
-            switch (payload.OpCode)
-            {
-                case GatewayOpCode.Dispatch when payload.EventName is "READY":
-
-                    ReadyPayload readyPayload = (ReadyPayload)payload.Data;
-                    this.resumeUrl = readyPayload.ResumeGatewayUrl;
-                    this.sessionId = readyPayload.SessionId;
-
-                    this.logger.LogTrace("Received READY, the gateway is now operational.");
-
-                    break;
-
-                // TODO: heartbeat tracking
-                case GatewayOpCode.HeartbeatAck:
-
-                    this.Ping = DateTimeOffset.UtcNow - this.lastSentHeartbeat;
-                    this.pendingHeartbeats = 0;
-
-                    break;
-
-                case GatewayOpCode.InvalidSession:
-
-                    this.logger.LogTrace("Received INVALID_SESSION, resumable: {Resumable}", (bool)payload.Data);
-                    bool success = (bool)payload.Data ? await TryResumeAsync() : await TryReconnectAsync();
-
-                    if (!success)
-                    {
-                        this.logger.LogError("The session was invalidated and resuming/reconnecting failed.");
-                    }
-
-                    break;
-
-                case GatewayOpCode.Reconnect:
-
-                    this.logger.LogTrace("Received RECONNECT");
-                    
-                    if (!(this.options.AutoReconnect && await TryReconnectAsync()))
-                    {
-                        this.logger.LogError("A reconnection attempt requested by Discord failed.");
-                    }
-
-                    break;
-            }
-
-            await this.eventWriter.WriteAsync(payload, ct);
+        }
+        catch (Exception e)
+        {
+            this.logger.LogError(e, "An exception occurred in event handling.");
         }
 
         this.eventWriter.Complete();
@@ -312,11 +352,15 @@ public sealed class GatewayClient : IGatewayClient
                 (
                     JsonConvert.SerializeObject
                     (
-                        new GatewayResume
+                        new GatewayPayload
                         {
-                            SequenceNumber = this.lastReceivedSequence,
-                            Token = this.token,
-                            SessionId = this.sessionId
+                            OpCode = GatewayOpCode.Resume,
+                            Data = new GatewayResume
+                            {
+                                SequenceNumber = this.lastReceivedSequence,
+                                Token = this.token,
+                                SessionId = this.sessionId
+                            }
                         }
                     )
                 )

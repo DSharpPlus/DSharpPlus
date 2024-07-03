@@ -574,12 +574,17 @@ public sealed partial class DiscordClient
         //ready.CurrentUser.Discord = this;
 
         TransportUser rusr = ready.CurrentUser;
-        this.CurrentUser.Username = rusr.Username;
-        this.CurrentUser.Discriminator = rusr.Discriminator;
-        this.CurrentUser.AvatarHash = rusr.AvatarHash;
-        this.CurrentUser.MfaEnabled = rusr.MfaEnabled;
-        this.CurrentUser.Verified = rusr.Verified;
-        this.CurrentUser.IsBot = rusr.IsBot;
+        this.CurrentUser = new()
+        {
+            Username = rusr.Username,
+            Discriminator = rusr.Discriminator,
+            AvatarHash = rusr.AvatarHash,
+            MfaEnabled = rusr.MfaEnabled,
+            Verified = rusr.Verified,
+            IsBot = rusr.IsBot
+        };
+
+        this.CurrentApplication = ready.Application;
 
         this.sessionId = ready.SessionId;
         this.gatewayResumeUrl = ready.ResumeGatewayUrl;
