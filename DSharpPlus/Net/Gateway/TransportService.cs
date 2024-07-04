@@ -16,27 +16,34 @@ namespace DSharpPlus.Net.Gateway;
 /// <inheritdoc cref="ITransportService"/>
 internal sealed class TransportService : ITransportService
 {
-    private readonly ILogger<ITransportService> logger;
+    private ILogger logger;
     private readonly ClientWebSocket socket;
     private readonly ArrayPoolBufferWriter<byte> writer;
     private readonly ArrayPoolBufferWriter<byte> decompressedWriter;
     private readonly PayloadDecompressor decompressor;
+    private readonly ILoggerFactory factory;
 
     private bool isConnected = false;
     private bool isDisposed = false;
 
-    public TransportService(ILogger<ITransportService> logger, PayloadDecompressor decompressor)
+    public TransportService(ILoggerFactory factory, PayloadDecompressor decompressor)
     {
-        this.logger = logger;
+        this.factory = factory;
         this.socket = new();
         this.writer = new();
         this.decompressedWriter = new();
         this.decompressor = decompressor;
+
+        this.logger = factory.CreateLogger("DSharpPlus.Net.Gateway.ITransportService - invalid shard");
     }
 
     /// <inheritdoc/>
-    public async ValueTask ConnectAsync(string url)
+    public async ValueTask ConnectAsync(string url, int? shardId)
     {
+        this.logger = shardId is null
+            ? this.factory.CreateLogger("DSharpPlus.Net.Gateway.ITransportService")
+            : this.factory.CreateLogger($"DSharpPlus.Net.Gateway.ITransportService - Shard {shardId}");
+
         ObjectDisposedException.ThrowIf(this.isDisposed, this);
 
         if (this.isConnected)

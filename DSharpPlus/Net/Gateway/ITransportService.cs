@@ -12,7 +12,7 @@ public interface ITransportService : IDisposable
     /// <summary>
     /// Opens a connection to the gateway.
     /// </summary>
-    public ValueTask ConnectAsync(string url);
+    public ValueTask ConnectAsync(string url, int? shardId);
 
     /// <summary>
     /// Reads the next message from the gateway asynchronously.

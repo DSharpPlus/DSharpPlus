@@ -24,11 +24,12 @@ namespace DSharpPlus.Net.Gateway;
 /// <inheritdoc cref="IGatewayClient"/>
 public sealed class GatewayClient : IGatewayClient
 {
-    private readonly ILogger<IGatewayClient> logger;
+    private ILogger logger;
     private readonly IGatewayController controller;
     private readonly ITransportService transportService;
     private readonly ChannelWriter<GatewayPayload> eventWriter;
     private readonly GatewayClientOptions options;
+    private readonly ILoggerFactory factory;
     private readonly string token;
     private readonly bool compress;
 
@@ -43,6 +44,7 @@ public sealed class GatewayClient : IGatewayClient
     private string? resumeUrl;
     private string? sessionId;
     private string? reconnectUrl;
+    private ShardInfo? shardInfo;
 
     private GatewayPayload? identify;
     private CancellationTokenSource gatewayTokenSource;
@@ -59,21 +61,23 @@ public sealed class GatewayClient : IGatewayClient
         Channel<GatewayPayload> eventChannel,
         
         ITransportService transportService,
-        ILogger<IGatewayClient> logger,
         IOptions<TokenContainer> tokenContainer,
         PayloadDecompressor decompressor,
         IOptions<GatewayClientOptions> options,
-        IGatewayController controller
+        IGatewayController controller,
+        ILoggerFactory factory
     )
     {
         this.transportService = transportService;
         this.eventWriter = eventChannel.Writer;
-        this.logger = logger;
+        this.factory = factory;
         this.token = tokenContainer.Value.GetToken();
         this.gatewayTokenSource = null!;
         this.compress = decompressor.CompressionLevel == GatewayCompressionLevel.Payload;
         this.options = options.Value;
         this.controller = controller;
+
+        this.logger = factory.CreateLogger("DSharpPlus.Net.Gateway.IGatewayClient - invalid shard");
     }
 
     /// <inheritdoc/>
@@ -86,13 +90,19 @@ public sealed class GatewayClient : IGatewayClient
         ShardInfo? shardInfo = null
     )
     {
+        this.logger = shardInfo is null
+            ? this.factory.CreateLogger("DSharpPlus.Net.Gateway.IGatewayClient")
+            : this.factory.CreateLogger($"DSharpPlus.Net.Gateway.IGatewayClient - Shard {shardInfo.ShardId}");
+
+        this.shardInfo = shardInfo;
+        this.reconnectUrl = url;
+
         for (uint i = 0; i < this.options.MaxReconnects; i++)
         {
             try
             {
-                this.reconnectUrl = url;
                 this.gatewayTokenSource = new();
-                await this.transportService.ConnectAsync(url);
+                await this.transportService.ConnectAsync(url, shardInfo?.ShardId);
 
                 TransportFrame initialFrame = await this.transportService.ReadAsync();
 
@@ -344,7 +354,7 @@ public sealed class GatewayClient : IGatewayClient
         {
             this.IsConnected = false;
             await this.transportService.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
-            await this.transportService.ConnectAsync(this.resumeUrl);
+            await this.transportService.ConnectAsync(this.resumeUrl, this.shardInfo?.ShardId);
             await WriteAsync
             (
                 Encoding.UTF8.GetBytes
@@ -398,7 +408,7 @@ public sealed class GatewayClient : IGatewayClient
                     // thrown if gatewayTokenSource was disposed when cancelling, ignore since we create a new one anyway
                 }
 
-                await this.transportService.ConnectAsync(this.reconnectUrl!);
+                await this.transportService.ConnectAsync(this.reconnectUrl!, this.shardInfo?.ShardId);
 
                 TransportFrame initialFrame = await this.transportService.ReadAsync();
 
