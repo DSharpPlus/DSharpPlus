@@ -55,3 +55,5 @@ serviceCollection.AddSingleton<IShardOrchestrator, MyCustomOrchestrator>();
 Your orchestrator will need to be able to connect, reconnect and disconnect, it will need to be able to send payloads to Discord and expose whether a certain shard is connected correctly. By default, each shard is represented as an `IGatewayClient`, but if you are writing your own orchestrator, you are free to implement the individual shards yourself.
 
 Implementing a custom orchestrator should be done as a last resort, when you have verified the default implementations cannot do anything for you nor can be adapted to work for you and when you are entirely sure you understand sharding to a degree where you would be able to implement your own orchestrator.
+
+Additionally, if you have a very large bot, the default `MultiShardOrchestrator` may not meet your needs. In that case, please review the documentation and all material Discord has provided you with carefully and consider implementing your own `IShardOrchestrator` or reaching out to us to find a solution.
