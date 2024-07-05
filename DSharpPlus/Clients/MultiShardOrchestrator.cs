@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -86,22 +87,34 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
 
         this.shards = new IGatewayClient[startShards];
 
-        for (int i = 0; i < startShards; i++)
+        for (int i = 0; i < startShards; i += info.SessionBucket.MaxConcurrency)
         {
-            this.shards[i] = this.serviceProvider.GetRequiredService<IGatewayClient>();
+            DateTimeOffset startTime = DateTimeOffset.UtcNow;
 
-            await this.shards[i].ConnectAsync
-            (
-                gwuri.Build(),
-                activity,
-                status,
-                idleSince,
-                new ShardInfo
-                {
-                    ShardCount = (int)totalShards,
-                    ShardId = (int)stride + i
-                }
-            );
+            for (int j = i; j < i + info.SessionBucket.MaxConcurrency && j < startShards; j++)
+            {
+                this.shards[j] = this.serviceProvider.GetRequiredService<IGatewayClient>();
+
+                await this.shards[j].ConnectAsync
+                (
+                    gwuri.Build(),
+                    activity,
+                    status,
+                    idleSince,
+                    new ShardInfo
+                    {
+                        ShardCount = (int)totalShards,
+                        ShardId = (int)stride + j
+                    }
+                );
+            }
+
+            TimeSpan diff = DateTimeOffset.UtcNow - startTime;
+
+            if (diff < TimeSpan.FromSeconds(5))
+            {
+                await Task.Delay(TimeSpan.FromSeconds(5) - diff);
+            }
         }
     }
 
