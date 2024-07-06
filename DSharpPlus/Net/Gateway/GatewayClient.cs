@@ -336,8 +336,6 @@ public sealed class GatewayClient : IGatewayClient
         {
             this.logger.LogError(e, "An exception occurred in event handling.");
         }
-
-        this.eventWriter.Complete();
     }
 
     /// <summary>
@@ -393,6 +391,8 @@ public sealed class GatewayClient : IGatewayClient
     {
         for (uint i = 0; i < this.options.MaxReconnects; i++)
         {
+            this.logger.LogTrace("Attempting reconnect, attempt {Attempt}", i + 1);
+
             try
             {
                 this.IsConnected = false;
@@ -400,13 +400,16 @@ public sealed class GatewayClient : IGatewayClient
                 try
                 {
                     this.gatewayTokenSource.Cancel();
-                    this.gatewayTokenSource = new();
-                    await this.transportService.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
                 }
                 catch (ObjectDisposedException)
                 {
                     // thrown if gatewayTokenSource was disposed when cancelling, ignore since we create a new one anyway
                 }
+
+                this.gatewayTokenSource = new();
+
+                // ensure we're disconnected no matter what the previous state was
+                await this.transportService.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
 
                 await this.transportService.ConnectAsync(this.reconnectUrl!, this.shardInfo?.ShardId);
 
@@ -419,10 +422,12 @@ public sealed class GatewayClient : IGatewayClient
 
                 GatewayPayload? helloEvent = JsonConvert.DeserializeObject<GatewayPayload>(hello);
 
-                if (helloEvent is not { OpCode: GatewayOpCode.Hello, Data: GatewayHello helloPayload })
+                if (helloEvent is not { OpCode: GatewayOpCode.Hello })
                 {
                     throw new InvalidDataException($"Expected HELLO payload from Discord, received {hello}");
                 }
+
+                GatewayHello helloPayload = ((JObject)helloEvent.Data).ToDiscordObject<GatewayHello>();
 
                 this.logger.LogTrace
                 (
@@ -437,16 +442,20 @@ public sealed class GatewayClient : IGatewayClient
                 await WriteAsync(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this.identify)));
 
                 this.logger.LogTrace("Identified with the Discord gateway");
-                break;
+                return true;
             }
-            catch
+            catch (Exception e)
             {
-                await Task.Delay(this.options.GetReconnectionDelay(i));
+                TimeSpan delay = this.options.GetReconnectionDelay(i);
+
+                this.logger.LogError(e, "Reconnecting failed, waiting for {Delay}", delay);
+
+                await Task.Delay(delay);
                 continue;
             }
         }
 
-        return true;
+        return false;
     }
 
     private async Task HandleErrorAndAttemptToReconnectAsync(TransportFrame frame)

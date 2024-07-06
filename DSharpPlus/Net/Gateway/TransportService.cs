@@ -17,7 +17,7 @@ namespace DSharpPlus.Net.Gateway;
 internal sealed class TransportService : ITransportService
 {
     private ILogger logger;
-    private readonly ClientWebSocket socket;
+    private ClientWebSocket socket;
     private readonly ArrayPoolBufferWriter<byte> writer;
     private readonly ArrayPoolBufferWriter<byte> decompressedWriter;
     private readonly PayloadDecompressor decompressor;
@@ -29,7 +29,6 @@ internal sealed class TransportService : ITransportService
     public TransportService(ILoggerFactory factory, PayloadDecompressor decompressor)
     {
         this.factory = factory;
-        this.socket = new();
         this.writer = new();
         this.decompressedWriter = new();
         this.decompressor = decompressor;
@@ -43,6 +42,8 @@ internal sealed class TransportService : ITransportService
         this.logger = shardId is null
             ? this.factory.CreateLogger("DSharpPlus.Net.Gateway.ITransportService")
             : this.factory.CreateLogger($"DSharpPlus.Net.Gateway.ITransportService - Shard {shardId}");
+
+        this.socket = new();
 
         ObjectDisposedException.ThrowIf(this.isDisposed, this);
 
@@ -67,10 +68,12 @@ internal sealed class TransportService : ITransportService
 
         if (!this.isConnected)
         {
-            this.logger.LogWarning
+            this.logger.LogTrace
             (
                 "Attempting to disconnect from the Discord gateway, but there was no open connection. Ignoring."
             );
+
+            return;
         }
 
         this.isConnected = false;
@@ -82,7 +85,7 @@ internal sealed class TransportService : ITransportService
             case WebSocketState.Closed:
             case WebSocketState.Aborted:
 
-                this.logger.LogWarning
+                this.logger.LogTrace
                 (
                     "Attempting to disconnect from the Discord gateway, but there is a disconnect in progress or complete. " +
                     "Current websocket state: {state}",
@@ -94,7 +97,7 @@ internal sealed class TransportService : ITransportService
             case WebSocketState.Open:
             case WebSocketState.Connecting:
 
-                this.logger.LogDebug("Disconnecting. Current websocket state: {state}", this.socket.State.ToString());
+                this.logger.LogTrace("Disconnecting. Current websocket state: {state}", this.socket.State.ToString());
 
                 try
                 {
@@ -110,6 +113,8 @@ internal sealed class TransportService : ITransportService
 
                 break;
         }
+
+        this.socket.Dispose();
     }
 
     /// <inheritdoc/>
