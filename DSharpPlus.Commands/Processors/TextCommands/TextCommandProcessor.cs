@@ -38,7 +38,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             textCommands.Add(command.Name, command);
         }
  
-        this.commands = textCommands.ToFrozenDictionary();
+        this.commands = textCommands.ToFrozenDictionary(this.Configuration.CommandNameComparer);
         
         if (this.configured)
         {
