@@ -13,43 +13,43 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
     public const string DiagnosticId = "DSP0002";
     public const string Category = "Usage";
 
-    private static readonly LocalizableString Title = new LocalizableResourceString(
+    private static readonly LocalizableString title = new LocalizableResourceString(
         nameof(Resources.DSP0002Title),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
-    private static readonly LocalizableString Description = new LocalizableResourceString(
+    private static readonly LocalizableString description = new LocalizableResourceString(
         nameof(Resources.DSP0002Description),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
-    private static readonly LocalizableString MessageFormat = new LocalizableResourceString(
+    private static readonly LocalizableString messageFormat = new LocalizableResourceString(
         nameof(Resources.DSP0002MessageFormat),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
-    private static readonly DiagnosticDescriptor Rule = new(
+    private static readonly DiagnosticDescriptor rule = new(
         DiagnosticId,
-        Title,
-        MessageFormat,
+        title,
+        messageFormat,
         Category,
         DiagnosticSeverity.Warning,
         true,
-        Description
+        description
     );
 
-    private readonly Dictionary<MethodDeclarationSyntax, HashSet<string>> _invocations = new();
+    private readonly Dictionary<MethodDeclarationSyntax, HashSet<string>> invocations = new();
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(Rule);
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);
 
     public override void Initialize(AnalysisContext ctx)
     {
         ctx.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         ctx.EnableConcurrentExecution();
-        ctx.RegisterSyntaxNodeAction(this.Analyze, SyntaxKind.InvocationExpression);
+        ctx.RegisterSyntaxNodeAction(Analyze, SyntaxKind.InvocationExpression);
     }
 
     private void Analyze(SyntaxNodeAnalysisContext ctx)
@@ -81,16 +81,16 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        MethodDeclarationSyntax? method = this.FindMethodDecl(invocation);
+        MethodDeclarationSyntax? method = FindMethodDecl(invocation);
         if (method is null)
         {
             return;
         }
 
         string memberText = memberAccess.GetText().ToString();
-        if (!this._invocations.TryGetValue(method, out HashSet<string> hashSet))
+        if (!this.invocations.TryGetValue(method, out HashSet<string> hashSet))
         {
-            this._invocations.Add(method, [memberText]);
+            this.invocations.Add(method, [memberText]);
             return;
         }
 
@@ -100,7 +100,7 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
         }
 
         Diagnostic diagnostic = Diagnostic.Create(
-            Rule,
+            rule,
             invocation.GetLocation(),
             memberAccess.Expression
         );
@@ -119,6 +119,6 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
             return method;
         }
 
-        return this.FindMethodDecl(syntax.Parent);
+        return FindMethodDecl(syntax.Parent);
     }
 }

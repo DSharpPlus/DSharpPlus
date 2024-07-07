@@ -13,35 +13,35 @@ public class HasPermissionAnalyzer : DiagnosticAnalyzer
 
     public const string Category = "Usage";
 
-    private static readonly LocalizableString Title = new LocalizableResourceString(
+    private static readonly LocalizableString title = new LocalizableResourceString(
         nameof(Resources.DSP0001Title),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
-    private static readonly LocalizableString Description = new LocalizableResourceString(
+    private static readonly LocalizableString description = new LocalizableResourceString(
         nameof(Resources.DSP0001Description),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
-    private static readonly LocalizableString MessageFormat = new LocalizableResourceString(
+    private static readonly LocalizableString messageFormat = new LocalizableResourceString(
         nameof(Resources.DSP0001MessageFormat),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
-    private static readonly DiagnosticDescriptor Rule = new(
+    private static readonly DiagnosticDescriptor rule = new(
         DiagnosticId,
-        Title,
-        MessageFormat,
+        title,
+        messageFormat,
         Category,
         DiagnosticSeverity.Warning,
         true,
-        Description
+        description
     );
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(Rule);
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);
 
     public override void Initialize(AnalysisContext ctx)
     {
@@ -74,8 +74,8 @@ public class HasPermissionAnalyzer : DiagnosticAnalyzer
         }
 
         TypeInfo typeInfo = ctx.SemanticModel.GetTypeInfo(leftBinary.Left);
-        if (typeInfo.Type?.Name != "Permissions" || 
-            !Utility.CheckIfSameTypeByNamespace(typeInfo, "DSharpPlus.Permissions", ctx.Compilation))
+        if (typeInfo.Type?.Name != "DiscordPermissions" || 
+            !Utility.CheckIfSameTypeByNamespace(typeInfo, "DSharpPlus.Entities.DiscordPermissions", ctx.Compilation))
         {
             return;
         }
@@ -91,7 +91,7 @@ public class HasPermissionAnalyzer : DiagnosticAnalyzer
         }
 
         Diagnostic diagnostic = Diagnostic.Create(
-            Rule,
+            rule,
             binaryExpression.GetLocation(),
             leftBinary.Left.GetText().ToString().Trim(),
             leftBinary.Right.GetText().ToString().Trim());

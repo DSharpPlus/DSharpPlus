@@ -1,15 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <RootNamespace>DSharpPlus.Analyzers.Test</RootNamespace>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\..\DSharpPlus\DSharpPlus.csproj" />
-        <ProjectReference Include="..\DSharpPlus.Analyzers\DSharpPlus.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    </ItemGroup>
-
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <TargetFramework>net8.0</TargetFramework>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\DSharpPlus.Analyzers\DSharpPlus.Analyzers.csproj" />
+    <ProjectReference Include="..\..\DSharpPlus\DSharpPlus.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Basic.Reference.Assemblies.Net80" />
+    <PackageReference Include="Microsoft.CodeAnalysis" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit.Analyzers" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+  </ItemGroup>
 </Project>
