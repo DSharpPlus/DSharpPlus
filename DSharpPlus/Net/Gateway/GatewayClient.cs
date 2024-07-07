@@ -128,7 +128,6 @@ public sealed class GatewayClient : IGatewayClient
                     TimeSpan.FromMilliseconds(helloPayload.HeartbeatInterval)
                 );
 
-                this.IsConnected = true;
                 _ = HeartbeatAsync(helloPayload.HeartbeatInterval, this.gatewayTokenSource.Token);
                 _ = HandleEventsAsync(this.gatewayTokenSource.Token);
 
@@ -292,8 +291,11 @@ public sealed class GatewayClient : IGatewayClient
                     case GatewayOpCode.Dispatch when payload.EventName is "READY":
 
                         ReadyPayload readyPayload = ((JObject)payload.Data).ToDiscordObject<ReadyPayload>();
+
                         this.resumeUrl = readyPayload.ResumeGatewayUrl;
                         this.sessionId = readyPayload.SessionId;
+
+                        this.IsConnected = true;
 
                         this.logger.LogTrace("Received READY, the gateway is now operational.");
 

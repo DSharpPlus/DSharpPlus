@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,7 +18,7 @@ namespace DSharpPlus.Clients;
 /// </summary>
 public sealed class MultiShardOrchestrator : IShardOrchestrator
 {
-    private IGatewayClient[] shards;
+    private IGatewayClient[]? shards;
     private readonly DiscordApiClient apiClient;
     private readonly ShardingOptions options;
     private readonly IServiceProvider serviceProvider;
@@ -29,7 +28,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     private uint stride;
 
     /// <inheritdoc/>
-    public bool AllShardsConnected => this.shards.All(shard => shard.IsConnected);
+    public bool AllShardsConnected => this.shards?.All(shard => shard.IsConnected) == true;
 
     public MultiShardOrchestrator
     (
@@ -87,14 +86,18 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
 
         this.shards = new IGatewayClient[startShards];
 
+        // create all shard instances before starting any of them
+        for (int i = 0; i < startShards; i++)
+        {
+            this.shards[i] = this.serviceProvider.GetRequiredService<IGatewayClient>();
+        }
+
         for (int i = 0; i < startShards; i += info.SessionBucket.MaxConcurrency)
         {
             DateTimeOffset startTime = DateTimeOffset.UtcNow;
 
             for (int j = i; j < i + info.SessionBucket.MaxConcurrency && j < startShards; j++)
             {
-                this.shards[j] = this.serviceProvider.GetRequiredService<IGatewayClient>();
-
                 await this.shards[j].ConnectAsync
                 (
                     gwuri.Build(),

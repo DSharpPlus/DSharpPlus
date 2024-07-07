@@ -7,12 +7,15 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
+
 using Microsoft.Extensions.Logging;
+
 using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus;
@@ -695,7 +698,7 @@ public sealed partial class DiscordClient
             .As<SessionCreatedEventArgs>()
             .InvokeAsync(this, new SessionCreatedEventArgs());
 
-        if (!guilds.Any())
+        if (!guilds.Any() && this.orchestrator.AllShardsConnected)
         {
             this.guildDownloadCompleted = true;
             GuildDownloadCompletedEventArgs ea = new(this.Guilds);
@@ -1123,7 +1126,7 @@ public sealed partial class DiscordClient
                 .InvokeAsync(this, new GuildCreatedEventArgs { Guild = guild });
         }
 
-        if (dcompl && !old)
+        if (dcompl && !old && this.orchestrator.AllShardsConnected)
         {
             await this.events[typeof(GuildDownloadCompletedEventArgs)]
                 .As<GuildDownloadCompletedEventArgs>()
