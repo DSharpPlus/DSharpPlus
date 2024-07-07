@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Net.Http;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -350,34 +352,60 @@ public sealed class GatewayClient : IGatewayClient
 
         try
         {
-            this.IsConnected = false;
-            await this.transportService.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
-            await this.transportService.ConnectAsync(this.resumeUrl, this.shardInfo?.ShardId);
-            await WriteAsync
-            (
-                Encoding.UTF8.GetBytes
-                (
-                    JsonConvert.SerializeObject
-                    (
-                        new GatewayPayload
-                        {
-                            OpCode = GatewayOpCode.Resume,
-                            Data = new GatewayResume
-                            {
-                                SequenceNumber = this.lastReceivedSequence,
-                                Token = this.token,
-                                SessionId = this.sessionId
-                            }
-                        }
-                    )
-                )
-            );
+            for (uint i = 0; i < this.options.MaxReconnects; i++)
+            {
+                this.logger.LogTrace("Attempting resume, attempt {Attempt}", i + 1);
 
-            this.logger.LogTrace("Resumed an existing gateway session.");
-            this.IsConnected = true;
+                try
+                {
+                    this.IsConnected = false;
+
+                    await this.transportService.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
+                    await this.transportService.ConnectAsync(this.resumeUrl, this.shardInfo?.ShardId);
+
+                    await WriteAsync
+                    (
+                        Encoding.UTF8.GetBytes
+                        (
+                            JsonConvert.SerializeObject
+                            (
+                                new GatewayPayload
+                                {
+                                    OpCode = GatewayOpCode.Resume,
+                                    Data = new GatewayResume
+                                    {
+                                        SequenceNumber = this.lastReceivedSequence,
+                                        Token = this.token,
+                                        SessionId = this.sessionId
+                                    }
+                                }
+                            )
+                        )
+                    );
+
+                    this.logger.LogTrace("Resumed an existing gateway session.");
+                    this.IsConnected = true;
+                    break;
+                }
+                catch (WebSocketException e) when (e.InnerException is HttpRequestException)
+                {
+                    // no internet connection, but we can still try to resume later
+                    TimeSpan delay = this.options.GetReconnectionDelay(i);
+
+                    this.logger.LogWarning("Internet connection interrupted, waiting for {Delay}", delay);
+
+                    await Task.Delay(delay);
+                    continue;
+                }
+                catch
+                {
+                    throw;
+                }
+            }
         }
-        catch
+        catch (Exception e)
         {
+            this.logger.LogError(e, "Failed to resume an existing gateway session.");
             return this.options.AutoReconnect && await TryReconnectAsync();
         }
 

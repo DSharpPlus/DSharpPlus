@@ -46,6 +46,11 @@ public sealed partial class DiscordClient
             return;
         }
 
+        if (payload.OpCode is not GatewayOpCode.Dispatch)
+        {
+            return;
+        }
+
         DiscordChannel chn;
         DiscordThreadChannel thread;
         ulong gid;
