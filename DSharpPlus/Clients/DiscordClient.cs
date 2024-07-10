@@ -617,6 +617,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <returns></returns>
     public async Task UpdateStatusAsync(DiscordActivity activity = null, DiscordUserStatus? userStatus = null, DateTimeOffset? idleSince = null)
     {
+        
+        
         StatusUpdate update = new()
         {
             Activity = new(activity),
@@ -628,7 +630,9 @@ public sealed partial class DiscordClient : BaseDiscordClient
             update.Status = userStatus.Value;
         }
 
-        string payload = DiscordJson.SerializeObject(update);
+        GatewayPayload gatewayPayload = new() {OpCode = GatewayOpCode.StatusUpdate, Data = update};
+
+        string payload = DiscordJson.SerializeObject(gatewayPayload);
         await this.orchestrator.SendOutboundEventAsync(Encoding.UTF8.GetBytes(payload), 0);
     }
 
