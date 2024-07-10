@@ -24,6 +24,11 @@ public abstract class BaseDiscordClient : IDisposable
     protected internal DiscordConfiguration Configuration { get; internal init; }
 
     /// <summary>
+    /// Gets the intents this client has.
+    /// </summary>
+    public DiscordIntents Intents { get; internal set; } = DiscordIntents.None;
+
+    /// <summary>
     /// Gets the instance of the logger for this client.
     /// </summary>
     public ILogger Logger { get; internal init; }
@@ -167,18 +172,18 @@ public abstract class BaseDiscordClient : IDisposable
     /// <returns></returns>
     public virtual async Task InitializeAsync()
     {
-        if (this.CurrentUser == null)
+        if (this.CurrentUser is null)
         {
             this.CurrentUser = await this.ApiClient.GetCurrentUserAsync();
             UpdateUserCache(this.CurrentUser);
         }
 
-        if (this.Configuration.TokenType == TokenType.Bot && this.CurrentApplication == null)
+        if (this is DiscordClient && this.CurrentApplication is null)
         {
             this.CurrentApplication = await GetCurrentApplicationAsync();
         }
 
-        if (this.Configuration.TokenType != TokenType.Bearer && this.InternalVoiceRegions.IsEmpty)
+        if (this is DiscordClient && this.InternalVoiceRegions.IsEmpty)
         {
             IReadOnlyList<DiscordVoiceRegion> vrs = await ListVoiceRegionsAsync();
             foreach (DiscordVoiceRegion xvr in vrs)

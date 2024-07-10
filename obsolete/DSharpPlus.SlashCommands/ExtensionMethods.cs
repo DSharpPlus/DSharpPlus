@@ -39,26 +39,6 @@ public static class ExtensionMethods
         => client.GetExtension<SlashCommandsExtension>();
 
     /// <summary>
-    /// Enables slash commands on this <see cref="DiscordShardedClient"/>.
-    /// </summary>
-    /// <param name="client">Client to enable slash commands on.</param>
-    /// <param name="config">Configuration to use.</param>
-    /// <returns>A dictionary of created <see cref="SlashCommandsExtension"/> with the key being the shard id.</returns>
-    [Obsolete("DSharpPlus.SlashCommands is obsolete. Please consider using the new DSharpPlus.Commands extension instead.")]
-    public static async Task<IReadOnlyDictionary<int, SlashCommandsExtension>> UseSlashCommandsAsync(this DiscordShardedClient client, SlashCommandsConfiguration config = null)
-    {
-        Dictionary<int, SlashCommandsExtension> modules = [];
-        await client.InitializeShardsAsync();
-        foreach (DiscordClient shard in client.ShardClients.Values)
-        {
-            SlashCommandsExtension? scomm = shard.GetSlashCommands() ?? shard.UseSlashCommands(config);
-            modules[shard.ShardId] = scomm;
-        }
-
-        return modules;
-    }
-
-    /// <summary>
     /// Registers a commands class.
     /// </summary>
     /// <typeparam name="T">The command class to register.</typeparam>

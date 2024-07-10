@@ -1652,7 +1652,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     {
         IReadOnlyList<DiscordInvite> res = await this.Discord.ApiClient.GetGuildInvitesAsync(this.Id);
 
-        DiscordIntents intents = this.Discord.Configuration.Intents;
+        DiscordIntents intents = this.Discord.Intents;
 
         if (!intents.HasIntent(DiscordIntents.GuildInvites))
         {
@@ -1717,7 +1717,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
         mbr = await this.Discord.ApiClient.GetGuildMemberAsync(this.Id, userId);
 
-        DiscordIntents intents = this.Discord.Configuration.Intents;
+        DiscordIntents intents = this.Discord.Intents;
 
         if (intents.HasIntent(DiscordIntents.GuildMembers))
         {
@@ -1815,8 +1815,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             Data = gatewayRequestGuildMembers
         };
 
-        string payloadStr = JsonConvert.SerializeObject(payload, Formatting.None);
-        await client.SendRawPayloadAsync(payloadStr);
+#pragma warning disable DSP0004 
+        await client.SendPayloadAsync(GatewayOpCode.RequestGuildMembers, gatewayRequestGuildMembers, this.Id);
+#pragma warning restore DSP0004 
     }
 
     /// <summary>

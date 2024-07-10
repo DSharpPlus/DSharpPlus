@@ -87,13 +87,8 @@ public sealed partial class SlashCommandsExtension : BaseExtension
     /// </summary>
     /// <typeparam name="T">The command class to register.</typeparam>
     /// <param name="guildId">The guild id to register it on. If you want global commands, leave it null.</param>
-    public void RegisterCommands<T>(ulong? guildId = null) where T : ApplicationCommandModule
-    {
-        if (this.Client.ShardId is 0)
-        {
-            this.updateList.Add(new(guildId, typeof(T)));
-        }
-    }
+    public void RegisterCommands<T>(ulong? guildId = null) where T : ApplicationCommandModule 
+        => this.updateList.Add(new(guildId, typeof(T)));
 
     /// <summary>
     /// Registers a command class.
@@ -106,11 +101,8 @@ public sealed partial class SlashCommandsExtension : BaseExtension
         {
             throw new ArgumentException("Command classes have to inherit from ApplicationCommandModule", nameof(type));
         }
-        //If sharding, only register for shard 0
-        if (this.Client.ShardId is 0)
-        {
-            this.updateList.Add(new(guildId, type));
-        }
+            
+        this.updateList.Add(new(guildId, type));
     }
 
     /// <summary>
@@ -136,15 +128,12 @@ public sealed partial class SlashCommandsExtension : BaseExtension
     //Actual method for registering, used for RegisterCommands and on Ready
     internal Task Update()
     {
-        //Only update for shard 0
-        if (this.Client.ShardId is 0)
+        //Groups commands by guild id or global
+        foreach (ulong? key in this.updateList.Select(x => x.Key).Distinct())
         {
-            //Groups commands by guild id or global
-            foreach (ulong? key in this.updateList.Select(x => x.Key).Distinct())
-            {
-                RegisterCommands(this.updateList.Where(x => x.Key == key).Select(x => x.Value), key);
-            }
+            RegisterCommands(this.updateList.Where(x => x.Key == key).Select(x => x.Value), key);
         }
+
         return Task.CompletedTask;
     }
 

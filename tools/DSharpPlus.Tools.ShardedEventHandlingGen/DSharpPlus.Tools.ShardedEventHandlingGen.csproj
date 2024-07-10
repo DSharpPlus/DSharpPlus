@@ -1,9 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-    </PropertyGroup>
-    <ItemGroup>
-        <EmbeddedResource Include="$(ProjectRoot)\tools\DSharpPlus.Tools.ShardedEventHandlingGen\*.template" Pack="true" PackagePath="" />
-        <ProjectReference Include="$(ProjectRoot)\DSharpPlus\DSharpPlus.csproj" />
-    </ItemGroup>
-</Project>
