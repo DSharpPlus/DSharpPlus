@@ -153,7 +153,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     }
 
     private uint GetShardIdForGuildId(ulong guildId)
-        => (uint)((guildId >> 22) % this.options.TotalShards);
+        => (uint)((guildId >> 22) % (this.shardCount + this.stride));
 
     /// <inheritdoc/>
     public async ValueTask ReconnectAsync()
