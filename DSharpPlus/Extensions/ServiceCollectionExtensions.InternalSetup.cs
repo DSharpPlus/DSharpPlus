@@ -5,7 +5,8 @@ using DSharpPlus.Clients;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Gateway;
-using DSharpPlus.Net.WebSocket;
+using DSharpPlus.Net.Gateway.Compression;
+using DSharpPlus.Net.Gateway.Compression.Zlib;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -48,7 +49,7 @@ public static partial class ServiceCollectionExtensions
             .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>())
             .AddTransient<ITransportService, TransportService>()
             .AddTransient<IGatewayClient, GatewayClient>()
-            .AddTransient<PayloadDecompressor>()
+            .AddTransient<IPayloadDecompressor, ZlibStreamDecompressor>()
             .AddSingleton<IShardOrchestrator, SingleShardOrchestrator>()
             .AddSingleton<DiscordClient>();
 
@@ -88,7 +89,7 @@ public static partial class ServiceCollectionExtensions
             .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>())
             .AddTransient<ITransportService, TransportService>()
             .AddTransient<IGatewayClient, GatewayClient>()
-            .AddTransient<PayloadDecompressor>()
+            .AddTransient<IPayloadDecompressor, ZlibStreamDecompressor>()
             .AddSingleton<IShardOrchestrator, MultiShardOrchestrator>()
             .AddSingleton<DiscordClient>();
 

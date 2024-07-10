@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 using CommunityToolkit.HighPerformance.Buffers;
 
-using DSharpPlus.Net.WebSocket;
+using DSharpPlus.Net.Gateway.Compression;
 
 using Microsoft.Extensions.Logging;
 
@@ -20,13 +20,13 @@ internal sealed class TransportService : ITransportService
     private ClientWebSocket socket;
     private readonly ArrayPoolBufferWriter<byte> writer;
     private readonly ArrayPoolBufferWriter<byte> decompressedWriter;
-    private readonly PayloadDecompressor decompressor;
+    private readonly IPayloadDecompressor decompressor;
     private readonly ILoggerFactory factory;
 
     private bool isConnected = false;
     private bool isDisposed = false;
 
-    public TransportService(ILoggerFactory factory, PayloadDecompressor decompressor)
+    public TransportService(ILoggerFactory factory, IPayloadDecompressor decompressor)
     {
         this.factory = factory;
         this.writer = new();
