@@ -53,10 +53,11 @@ The first results should be the six DSharpPlus packages.
 Package                    | Description
 :-------------------------:|:---:
 `DSharpPlus`               | Main package; Discord API client.
-`DSharpPlus.CommandsNext`  | Add-on which provides a command framework.
-`DSharpPlus.SlashCommands` | Add-on which provides an application command framework.
+`DSharpPlus.Commands`      | Add-on which provides a command framework for both messages and application commands.
+`DSharpPlus.CommandsNext`  | Add-on which provides a command framework. Scheduled for obsoletion.
+`DSharpPlus.SlashCommands` | Add-on which provides an application command framework. Obsolete.
 `DSharpPlus.Interactivity` | Add-on which allows for interactive commands.
-`DSharpPlus.Lavalink`      | Client implementation for [Lavalink][9]. Useful for music bots.
+`DSharpPlus.Lavalink`      | Client implementation for [Lavalink][9]. Defunct.
 `DSharpPlus.VoiceNext`     | Add-on which enables connectivity to Discord voice channels.
 `DSharpPlus.Rest`          | REST-only Discord client.
 
@@ -205,9 +206,7 @@ namespace MyFirstBot
                 })
             );
 
-            DiscordClient client = builder.Build();
-
-            await client.ConnectAsync();
+            await builder.ConnectAsync();
             await Task.Delay(-1);
         }
     }

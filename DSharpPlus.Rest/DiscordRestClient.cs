@@ -24,20 +24,22 @@ public class DiscordRestClient : BaseDiscordClient
     internal Dictionary<ulong, DiscordGuild> guilds = [];
     private bool disposedValue;
 
-    public DiscordRestClient(DiscordConfiguration config) : base() 
+    public string Token { get; }
+
+    public TokenType TokenType { get; }
+
+    public DiscordRestClient(DiscordConfiguration config, string token, TokenType tokenType) : base() 
     {
         this.ApiClient = new(new
         (
             new(),
             TimeSpan.FromSeconds(10),
-            NullLogger.Instance,
-            config.MaximumRatelimitRetries,
-            config.RatelimitRetryDelayFallback,
-            config.TimeoutForInitialApiRequest,
-            config.MaximumRestRequestsPerSecond
+            NullLogger.Instance
         ));
 
         this.ApiClient.SetClient(this);
+        this.Token = token;
+        this.TokenType = tokenType;
     }
 
     /// <summary>
@@ -1015,7 +1017,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="nickname">DM nickname</param>
     /// <returns></returns>
     public async Task JoinGroupDmAsync(ulong channelId, string nickname)
-        => await this.ApiClient.AddGroupDmRecipientAsync(channelId, this.CurrentUser.Id, this.Configuration.Token, nickname);
+        => await this.ApiClient.AddGroupDmRecipientAsync(channelId, this.CurrentUser.Id, this.Token, nickname);
 
     /// <summary>
     /// Adds a member to a group DM
@@ -1063,7 +1065,7 @@ public class DiscordRestClient : BaseDiscordClient
     public async Task<DiscordDmChannel> CreateGroupDmWithCurrentUserAsync(IEnumerable<string> accessTokens, IDictionary<ulong, string> nicks)
     {
         List<string> a = accessTokens.ToList();
-        a.Add(this.Configuration.Token);
+        a.Add(this.Token);
         return await this.ApiClient.CreateGroupDmAsync(a, nicks);
     }
 

@@ -352,12 +352,8 @@ public sealed class LavalinkRestClient
         {
             UseCookies = false,
             AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
-            UseProxy = client != null && client.Configuration.Proxy != null
+            UseProxy = false
         };
-        if (httphandler.UseProxy) // because mono doesn't implement this properly
-        {
-            httphandler.Proxy = client.Configuration.Proxy;
-        }
 
         this.http = new HttpClient(httphandler);
 
