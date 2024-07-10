@@ -617,8 +617,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <returns></returns>
     public async Task UpdateStatusAsync(DiscordActivity activity = null, DiscordUserStatus? userStatus = null, DateTimeOffset? idleSince = null)
     {
-        
-        
         StatusUpdate update = new()
         {
             Activity = new(activity),
