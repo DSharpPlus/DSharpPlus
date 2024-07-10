@@ -628,7 +628,9 @@ public sealed partial class DiscordClient : BaseDiscordClient
             update.Status = userStatus.Value;
         }
 
-        string payload = DiscordJson.SerializeObject(update);
+        GatewayPayload gatewayPayload = new() {OpCode = GatewayOpCode.StatusUpdate, Data = update};
+
+        string payload = DiscordJson.SerializeObject(gatewayPayload);
         await this.orchestrator.SendOutboundEventAsync(Encoding.UTF8.GetBytes(payload), 0);
     }
 
