@@ -168,7 +168,7 @@ public static partial class ServiceCollectionExtensions
             services.Remove(old);
         }
 
-        services.Add(new ServiceDescriptor(typeof(TInterface), factory, old?.Lifetime ?? lifetime));
+        services.Add(new ServiceDescriptor(typeof(TInterface), factory, lifetime));
 
         return services;
     }
