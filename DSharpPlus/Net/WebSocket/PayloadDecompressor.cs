@@ -3,6 +3,9 @@ using System.Buffers.Binary;
 using System.IO;
 using System.IO.Compression;
 
+using CommunityToolkit.HighPerformance;
+using CommunityToolkit.HighPerformance.Buffers;
+
 using Microsoft.Extensions.Options;
 
 namespace DSharpPlus.Net.WebSocket;
@@ -31,7 +34,7 @@ public sealed class PayloadDecompressor : IDisposable
         }
     }
 
-    public bool TryDecompress(ArraySegment<byte> compressed, MemoryStream decompressed)
+    public bool TryDecompress(ReadOnlySpan<byte> compressed, ArrayPoolBufferWriter<byte> decompressed)
     {
         if (this.noCompression)
         {
@@ -43,20 +46,19 @@ public sealed class PayloadDecompressor : IDisposable
             ? this.DecompressorStream
             : new DeflateStream(this.CompressedStream, CompressionMode.Decompress, true);
 
-        if (compressed.Array[0] == ZlibPrefix)
+        if (compressed[0] == ZlibPrefix)
         {
-            this.CompressedStream.Write(compressed.Array, compressed.Offset + 2, compressed.Count - 2);
+            this.CompressedStream.Write(compressed[2..]);
         }
         else
         {
-            this.CompressedStream.Write(compressed.Array, compressed.Offset, compressed.Count);
+            this.CompressedStream.Write(compressed);
         }
 
         this.CompressedStream.Flush();
         this.CompressedStream.Position = 0;
 
-        Span<byte> cspan = compressed.AsSpan();
-        uint suffix = BinaryPrimitives.ReadUInt32BigEndian(cspan[^4..]);
+        uint suffix = BinaryPrimitives.ReadUInt32BigEndian(compressed[^4..]);
         if (this.CompressionLevel == GatewayCompressionLevel.Stream && suffix != ZlibFlush)
         {
             if (this.CompressionLevel == GatewayCompressionLevel.Payload)
@@ -69,7 +71,14 @@ public sealed class PayloadDecompressor : IDisposable
 
         try
         {
-            zlib.CopyTo(decompressed);
+            int readLength;
+
+            do
+            {
+                readLength = zlib.Read(decompressed.GetSpan());
+                decompressed.Advance(readLength);
+            } while (readLength != 0);
+
             return true;
         }
         catch

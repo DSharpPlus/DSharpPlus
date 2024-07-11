@@ -46,6 +46,12 @@ internal class ReadyPayload
     public string ResumeGatewayUrl { get; private set; }
 
     /// <summary>
+    /// Gets the current application sent by Discord.
+    /// </summary>
+    [JsonProperty("application")]
+    public DiscordApplication Application { get; private set; }
+
+    /// <summary>
     /// Gets debug data sent by Discord. This contains a list of servers to which the client is connected.
     /// </summary>
     [JsonProperty("_trace")]

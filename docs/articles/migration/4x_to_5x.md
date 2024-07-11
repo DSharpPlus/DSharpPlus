@@ -18,9 +18,14 @@ The simplest way to get a bot running is to use `DSharpPlus.DiscordClientBuilder
 DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(string token, DiscordIntents intents);
 ```
 
+Instead, if you are sharding, create it as follows:
+```cs
+DiscordClientBuilder builder = DiscordClientBuilder.CreateSharded(string token, DiscordIntents intents, uint? shardCount);
+```
+
 Then, migrate your configuration options. Rest-related settings from your old DiscordConfiguration are covered by `DiscordClientBuilder.ConfigureRestClient`, gateway-related settings are covered by `DiscordClientBuilder.ConfigureGatewayClient`.
 
-`LogLevel` has been migrated to `DiscordClientBuilder.SetLogLevel`, and configuring the websocket client is now done through either overriding or decorating the default client via `DiscordClientBuilder.ConfigureServices`. 
+`LogLevel` has been migrated to `DiscordClientBuilder.SetLogLevel`, and configuring the gateway client is now done through either overriding or decorating the default client via `DiscordClientBuilder.ConfigureServices`. It is comprised of two parts, `ITransportService` and `IGatewayClient`
 
 Lastly, we will need to update event handling. For more information, see [the dedicated article](../beyond_basics/events), but in short, events have also been migrated to DiscordClientBuilder.
 
@@ -56,13 +61,16 @@ If you need more advanced setup than DiscordClientBuilder facilitates, you can r
 First, register all necessary services:
 
 ```cs
-serviceCollection.AddDiscordClient(string intents, DiscordIntents intents);
+serviceCollection.AddDiscordClient(string token, DiscordIntents intents);
 ```
 
-Then, migrate your configuration options to calls to `IServiceCollection.Configure<RestClientOptions>();` and `IServiceCollection.Configure<DiscordConfiguration>();`.
+Alternatively, if you are sharding, register them as such:
 
-> [!NOTE]
-> Old rest-related settings on DiscordConfiguration do not work when specified on DiscordConfiguration, and they are only currently retained as glue code for DiscordShardedClient.
+```cs
+serviceCollection.AddShardedDiscordClient(string token, DiscordIntents intents);
+```
+
+Then, migrate your configuration options to calls to `serviceCollection.Configure<RestClientOptions>();`, `serviceCollection.Configure<GatewayClientOptions>();` and `serviceCollection.Configure<ShardingOptions>();`, respectively. `DiscordConfiguration` is a valid target to configure, however it only contains a few remaining configuration knobs not covered by the other configurations.
 
 When registering against a service collection, you are expected to provide your own logging setup, and DSharpPlus' default logging will not be registered.
 

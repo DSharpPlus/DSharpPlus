@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net;
+using DSharpPlus.Net.Abstractions;
 using DSharpPlus.VoiceNext.Entities;
 using Newtonsoft.Json;
 
@@ -86,19 +87,17 @@ public sealed class VoiceNextExtension : BaseExtension
         this.VoiceStateUpdates[gld.Id] = vstut;
         this.VoiceServerUpdates[gld.Id] = vsrut;
 
-        VoiceDispatch vsd = new()
+        VoiceStateUpdatePayload payload = new()
         {
-            OpCode = 4,
-            Payload = new VoiceStateUpdatePayload
-            {
-                GuildId = gld.Id,
-                ChannelId = channel.Id,
-                Deafened = false,
-                Muted = false
-            }
+            GuildId = gld.Id,
+            ChannelId = channel.Id,
+            Deafened = false,
+            Muted = false
         };
-        string vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-        await (channel.Discord as DiscordClient).SendRawPayloadAsync(vsj);
+
+#pragma warning disable DSP0004 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+        await (channel.Discord as DiscordClient).SendPayloadAsync(GatewayOpCode.VoiceStateUpdate, payload, gld.Id);
+#pragma warning restore DSP0004 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 
         VoiceStateUpdatedEventArgs vstu = await vstut.Task;
         VoiceStateUpdatePayload vstup = new()
@@ -137,17 +136,15 @@ public sealed class VoiceNextExtension : BaseExtension
             this.ActiveConnections.TryRemove(guild.Id, out _);
         }
 
-        VoiceDispatch vsd = new()
+        VoiceStateUpdatePayload payload = new()
         {
-            OpCode = 4,
-            Payload = new VoiceStateUpdatePayload
-            {
-                GuildId = guild.Id,
-                ChannelId = null
-            }
+            GuildId = guild.Id,
+            ChannelId = null
         };
-        string vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-        await (guild.Discord as DiscordClient).SendRawPayloadAsync(vsj);
+
+#pragma warning disable DSP0004 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+        await (guild.Discord as DiscordClient).SendPayloadAsync(GatewayOpCode.VoiceStateUpdate, payload, guild.Id);
+#pragma warning restore DSP0004 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
     }
 
     private Task Client_VoiceStateUpdate(DiscordClient client, VoiceStateUpdatedEventArgs e)

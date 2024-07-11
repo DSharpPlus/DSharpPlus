@@ -82,7 +82,7 @@ public class DiscordThreadChannel : DiscordChannel
 
     /// <summary>
     /// Returns a full list of the thread members in this thread.
-    /// Requires the <see cref="DiscordIntents.GuildMembers"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// Requires the <see cref="DiscordIntents.GuildMembers"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     /// <returns>A collection of all threads members in this thread.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>

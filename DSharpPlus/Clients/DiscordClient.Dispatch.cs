@@ -7,12 +7,15 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
+
 using Microsoft.Extensions.Logging;
+
 using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus;
@@ -29,11 +32,25 @@ public sealed partial class DiscordClient
 
     #region Dispatch Handler
 
+    private async Task ReceiveGatewayEventsAsync()
+    {
+        while (!this.eventReader.Completion.IsCompleted)
+        {
+            GatewayPayload payload = await this.eventReader.ReadAsync();
+            await HandleDispatchAsync(payload);
+        }
+    }
+
     internal async Task HandleDispatchAsync(GatewayPayload payload)
     {
         if (payload.Data is not JObject dat)
         {
             this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Invalid payload body (this message is probably safe to ignore); opcode: {Op} event: {Event}; payload: {Payload}", payload.OpCode, payload.EventName, payload.Data);
+            return;
+        }
+
+        if (payload.OpCode is not GatewayOpCode.Dispatch)
+        {
             return;
         }
 
@@ -562,20 +579,17 @@ public sealed partial class DiscordClient
 
     internal async Task OnReadyEventAsync(ReadyPayload ready, JArray rawGuilds, JArray rawDmChannels)
     {
-        //ready.CurrentUser.Discord = this;
-
         TransportUser rusr = ready.CurrentUser;
-        this.CurrentUser.Username = rusr.Username;
-        this.CurrentUser.Discriminator = rusr.Discriminator;
-        this.CurrentUser.AvatarHash = rusr.AvatarHash;
-        this.CurrentUser.MfaEnabled = rusr.MfaEnabled;
-        this.CurrentUser.Verified = rusr.Verified;
-        this.CurrentUser.IsBot = rusr.IsBot;
+        this.CurrentUser = new DiscordUser(rusr)
+        {
+            Discord = this
+        };
 
-        this.GatewayVersion = ready.GatewayVersion;
+        this.CurrentApplication = ready.Application;
+
         this.sessionId = ready.SessionId;
         this.gatewayResumeUrl = ready.ResumeGatewayUrl;
-        Dictionary<ulong, JObject> raw_guild_index = rawGuilds.ToDictionary(xt => (ulong)xt["id"], xt => (JObject)xt);
+        Dictionary<ulong, JObject> rawGuildIndex = rawGuilds.ToDictionary(xt => (ulong)xt["id"], xt => (JObject)xt);
 
         this.privateChannels.Clear();
         foreach (JToken rawChannel in rawDmChannels)
@@ -588,9 +602,9 @@ public sealed partial class DiscordClient
             //    .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this })
             //    .ToList();
 
-            IEnumerable<TransportUser> recips_raw = rawChannel["recipients"].ToDiscordObject<IEnumerable<TransportUser>>();
+            IEnumerable<TransportUser> recipsRaw = rawChannel["recipients"].ToDiscordObject<IEnumerable<TransportUser>>();
             List<DiscordUser> recipients = [];
-            foreach (TransportUser xr in recips_raw)
+            foreach (TransportUser xr in recipsRaw)
             {
                 DiscordUser xu = new(xr) { Discord = this };
                 xu = UpdateUserCache(xu);
@@ -637,15 +651,15 @@ public sealed partial class DiscordClient
                 xr.guild_id = guild.Id;
             }
 
-            JObject raw_guild = raw_guild_index[guild.Id];
-            JArray? raw_members = (JArray)raw_guild["members"];
+            JObject rawGuild = rawGuildIndex[guild.Id];
+            JArray? rawMembers = (JArray)rawGuild["members"];
 
             guild.members?.Clear();
             guild.members ??= new ConcurrentDictionary<ulong, DiscordMember>();
 
-            if (raw_members != null)
+            if (rawMembers != null)
             {
-                foreach (JToken xj in raw_members)
+                foreach (JToken xj in rawMembers)
                 {
                     TransportMember xtm = xj.ToDiscordObject<TransportMember>();
 
@@ -677,7 +691,7 @@ public sealed partial class DiscordClient
             .As<SessionCreatedEventArgs>()
             .InvokeAsync(this, new SessionCreatedEventArgs());
 
-        if (!guilds.Any())
+        if (!guilds.Any() && this.orchestrator.AllShardsConnected)
         {
             this.guildDownloadCompleted = true;
             GuildDownloadCompletedEventArgs ea = new(this.Guilds);
@@ -1105,7 +1119,7 @@ public sealed partial class DiscordClient
                 .InvokeAsync(this, new GuildCreatedEventArgs { Guild = guild });
         }
 
-        if (dcompl && !old)
+        if (dcompl && !old && this.orchestrator.AllShardsConnected)
         {
             await this.events[typeof(GuildDownloadCompletedEventArgs)]
                 .As<GuildDownloadCompletedEventArgs>()
@@ -1699,9 +1713,7 @@ public sealed partial class DiscordClient
 
         DiscordMessage oldmsg = null;
 
-        if (this.Configuration.MessageCacheSize == 0
-            || this.MessageCache == null
-            || !this.MessageCache.TryGet(event_message.Id, out message)) // previous message was not in cache
+        if (!this.MessageCache.TryGet(event_message.Id, out message)) // previous message was not in cache
         {
             message = event_message;
             PopulateMessageReactionsAndCache(message, author, member);
@@ -1776,10 +1788,7 @@ public sealed partial class DiscordClient
             this.privateChannels[channelId] = (DiscordDmChannel)channel;
         }
 
-        if (channel == null
-            || this.Configuration.MessageCacheSize == 0
-            || this.MessageCache == null
-            || !this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
+        if (!this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
         {
             msg = new DiscordMessage
             {
@@ -1789,10 +1798,7 @@ public sealed partial class DiscordClient
             };
         }
 
-        if (this.Configuration.MessageCacheSize > 0)
-        {
-            this.MessageCache?.Remove(msg.Id);
-        }
+        this.MessageCache?.Remove(msg.Id);
 
         MessageDeletedEventArgs ea = new()
         {
@@ -1828,10 +1834,7 @@ public sealed partial class DiscordClient
         List<DiscordMessage> msgs = new(messageIds.Length);
         foreach (ulong messageId in messageIds)
         {
-            if (channel == null
-                || this.Configuration.MessageCacheSize == 0
-                || this.MessageCache == null
-                || !this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
+            if (!this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
             {
                 msg = new DiscordMessage
                 {
@@ -1841,10 +1844,7 @@ public sealed partial class DiscordClient
                 };
             }
 
-            if (this.Configuration.MessageCacheSize > 0)
-            {
-                this.MessageCache?.Remove(msg.Id);
-            }
+            this.MessageCache?.Remove(msg.Id);
 
             msgs.Add(msg);
         }
@@ -1891,10 +1891,7 @@ public sealed partial class DiscordClient
             this.privateChannels[channelId] = (DiscordDmChannel)channel;
         }
 
-        if (channel == null
-            || this.Configuration.MessageCacheSize == 0
-            || this.MessageCache == null
-            || !this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
+        if (!this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
         {
             msg = new DiscordMessage
             {
@@ -1965,10 +1962,7 @@ public sealed partial class DiscordClient
                 : new DiscordMember(usr) { Discord = this, guild_id = channel.GuildId.Value };
         }
 
-        if (channel == null
-            || this.Configuration.MessageCacheSize == 0
-            || this.MessageCache == null
-            || !this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
+        if (!this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
         {
             msg = new DiscordMessage
             {
@@ -2015,10 +2009,7 @@ public sealed partial class DiscordClient
     {
         DiscordChannel channel = InternalGetCachedChannel(channelId) ?? InternalGetCachedThread(channelId);
 
-        if (channel == null
-            || this.Configuration.MessageCacheSize == 0
-            || this.MessageCache == null
-            || !this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
+        if (!this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
         {
             msg = new DiscordMessage
             {
@@ -2057,10 +2048,7 @@ public sealed partial class DiscordClient
             this.privateChannels[channelId] = (DiscordDmChannel)channel;
         }
 
-        if (channel == null
-            || this.Configuration.MessageCacheSize == 0
-            || this.MessageCache == null
-            || !this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
+        if (!this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
         {
             msg = new DiscordMessage
             {

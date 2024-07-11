@@ -23,7 +23,7 @@ public static class DiscordClientExtensions
             throw new InvalidOperationException("Lavalink is already enabled for that client.");
         }
 
-        if (!client.Configuration.Intents.HasIntent(DiscordIntents.GuildVoiceStates))
+        if (!client.Intents.HasIntent(DiscordIntents.GuildVoiceStates))
         {
             client.Logger.LogCritical(LavalinkEvents.Intents, "The Lavalink extension is registered but the guild voice states intent is not enabled. It is highly recommended to enable it.");
         }
@@ -34,27 +34,6 @@ public static class DiscordClientExtensions
     }
 
     /// <summary>
-    /// Creates new Lavalink clients on all shards in a given sharded client.
-    /// </summary>
-    /// <param name="client">Discord sharded client to create Lavalink instances for.</param>
-    /// <returns>A dictionary of created Lavalink clients.</returns>
-
-    [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
-    public static async Task<IReadOnlyDictionary<int, LavalinkExtension>> UseLavalinkAsync(this DiscordShardedClient client)
-    {
-        Dictionary<int, LavalinkExtension> modules = [];
-        await client.InitializeShardsAsync();
-
-        foreach (DiscordClient? shard in client.ShardClients.Select(xkvp => xkvp.Value))
-        {
-            LavalinkExtension? lava = shard.GetExtension<LavalinkExtension>() ?? shard.UseLavalink();
-            modules[shard.ShardId] = lava;
-        }
-
-        return new ReadOnlyDictionary<int, LavalinkExtension>(modules);
-    }
-
-    /// <summary>
     /// Gets the active instance of the Lavalink client for the DiscordClient.
     /// </summary>
     /// <param name="client">Discord client to get Lavalink instance for.</param>
@@ -62,25 +41,6 @@ public static class DiscordClientExtensions
     [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
     public static LavalinkExtension GetLavalink(this DiscordClient client)
         => client.GetExtension<LavalinkExtension>();
-
-    /// <summary>
-    /// Retrieves a <see cref="LavalinkExtension"/> instance for each shard.
-    /// </summary>
-    /// <param name="client">The shard client to retrieve <see cref="LavalinkExtension"/> instances from.</param>
-    /// <returns>A dictionary containing <see cref="LavalinkExtension"/> instances for each shard.</returns>
-    [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
-    public static async Task<IReadOnlyDictionary<int, LavalinkExtension>> GetLavalinkAsync(this DiscordShardedClient client)
-    {
-        await client.InitializeShardsAsync();
-        Dictionary<int, LavalinkExtension> extensions = [];
-
-        foreach (DiscordClient shard in client.ShardClients.Values)
-        {
-            extensions.Add(shard.ShardId, shard.GetExtension<LavalinkExtension>());
-        }
-
-        return new ReadOnlyDictionary<int, LavalinkExtension>(extensions);
-    }
 
     /// <summary>
     /// Connects to this voice channel using Lavalink.

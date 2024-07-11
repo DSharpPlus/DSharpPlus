@@ -38,7 +38,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             textCommands.Add(command.Name, command);
         }
  
-        this.commands = textCommands.ToFrozenDictionary();
+        this.commands = textCommands.ToFrozenDictionary(this.Configuration.CommandNameComparer);
         
         if (this.configured)
         {
@@ -96,7 +96,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             foreach (Command officialCommand in this.commands.Values)
             {
                 TextAliasAttribute? aliasAttribute = officialCommand.Attributes.OfType<TextAliasAttribute>().FirstOrDefault();
-                if (aliasAttribute is not null && aliasAttribute.Aliases.Any(alias => alias.Equals(commandText[..index], StringComparison.OrdinalIgnoreCase)))
+                if (aliasAttribute is not null && aliasAttribute.Aliases.Any(alias => this.Configuration.CommandNameComparer.Equals(alias, commandText[..index])))
                 {
                     command = officialCommand;
                     break;
@@ -156,7 +156,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             Command? foundCommand = command.Subcommands.FirstOrDefault(command => command.Name.Equals(commandText[index..nextIndex], StringComparison.OrdinalIgnoreCase));
             if (foundCommand is null)
             {
-                foundCommand = command.Subcommands.FirstOrDefault(command => command.Attributes.OfType<TextAliasAttribute>().FirstOrDefault()?.Aliases.Any(alias => alias.Equals(commandText[index..nextIndex], StringComparison.OrdinalIgnoreCase)) ?? false);
+                foundCommand = command.Subcommands.FirstOrDefault(command => command.Attributes.OfType<TextAliasAttribute>().FirstOrDefault()?.Aliases.Any(alias => this.Configuration.CommandNameComparer.Equals(alias, commandText[index..nextIndex])) ?? false);
                 if (foundCommand is null)
                 {
                     break;

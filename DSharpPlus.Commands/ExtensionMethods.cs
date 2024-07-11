@@ -34,54 +34,12 @@ public static class ExtensionMethods
     }
 
     /// <summary>
-    /// Registers the extension with all the shards on the <see cref="DiscordShardedClient"/>.
-    /// </summary>
-    /// <param name="shardedClient">The client to register the extension with.</param>
-    /// <param name="configuration">The configuration to use for the extension.</param>
-    public static async Task<IReadOnlyDictionary<int, CommandsExtension>> UseCommandsAsync(this DiscordShardedClient shardedClient, CommandsConfiguration? configuration = null)
-    {
-        ArgumentNullException.ThrowIfNull(shardedClient);
-
-        await shardedClient.InitializeShardsAsync();
-        configuration ??= new();
-
-        Dictionary<int, CommandsExtension> extensions = [];
-        foreach (DiscordClient shard in shardedClient.ShardClients.Values)
-        {
-            extensions[shard.ShardId] = shard.GetExtension<CommandsExtension>() ?? shard.UseCommands(configuration);
-        }
-
-        return extensions.AsReadOnly();
-    }
-
-    /// <summary>
     /// Retrieves the <see cref="CommandsExtension"/> from the <see cref="DiscordClient"/>.
     /// </summary>
     /// <param name="client">The client to retrieve the extension from.</param>
     public static CommandsExtension? GetCommandsExtension(this DiscordClient client) => client is null
         ? throw new ArgumentNullException(nameof(client))
         : client.GetExtension<CommandsExtension>();
-
-    /// <summary>
-    /// Retrieves the <see cref="CommandsExtension"/> from all of the shards on <see cref="DiscordShardedClient"/>.
-    /// </summary>
-    /// <param name="shardedClient">The client to retrieve the extension from.</param>
-    public static IReadOnlyDictionary<int, CommandsExtension> GetCommandsExtensions(this DiscordShardedClient shardedClient)
-    {
-        ArgumentNullException.ThrowIfNull(shardedClient);
-
-        Dictionary<int, CommandsExtension> extensions = [];
-        foreach (DiscordClient shard in shardedClient.ShardClients.Values)
-        {
-            CommandsExtension? extension = shard.GetExtension<CommandsExtension>();
-            if (extension is not null)
-            {
-                extensions[shard.ShardId] = extension;
-            }
-        }
-
-        return extensions.AsReadOnly();
-    }
 
     /// <inheritdoc cref="Array.IndexOf{T}(T[], T)"/>
     internal static int IndexOf<T>(this IEnumerable<T> array, T? value) where T : IEquatable<T>

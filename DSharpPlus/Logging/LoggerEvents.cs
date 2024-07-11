@@ -73,11 +73,6 @@ public static class LoggerEvents
     public static EventId RestError { get; } = new EventId(112, nameof(RestError));
 
     /// <summary>
-    /// Events pertaining to the <see cref="DiscordShardedClient"/> shard startup.
-    /// </summary>
-    public static EventId ShardStartup { get; } = new EventId(113, nameof(ShardStartup));
-
-    /// <summary>
     /// Events pertaining to ratelimit exhaustion.
     /// </summary>
     public static EventId RatelimitHit { get; } = new EventId(114, nameof(RatelimitHit));
@@ -118,11 +113,6 @@ public static class LoggerEvents
     public static EventId ShardShutdown { get; } = new EventId(121, nameof(ShardShutdown));
 
     /// <summary>
-    /// Events pertaining to the <see cref="DiscordShardedClient"/>'s shards not initializing correctly.
-    /// </summary>
-    public static EventId ShardClientError { get; } = new EventId(122, nameof(ShardClientError));
-
-    /// <summary>
     /// Events containing raw payloads, as they're received from Discord's REST API.
     /// </summary>
     public static EventId RestRx { get; } = new EventId(123, "REST ↓");
@@ -135,9 +125,4 @@ public static class LoggerEvents
     public static EventId RestCleaner { get; } = new EventId(125, nameof(RestCleaner));
 
     public static EventId RestHashMover { get; } = new EventId(126, nameof(RestHashMover));
-
-    /// <summary>
-    /// Events pertaining to Discord API requests from the <see cref="DiscordShardedClient"/>.
-    /// </summary>
-    public static EventId ShardRest { get; } = new EventId(127, nameof(ShardRest));
 }

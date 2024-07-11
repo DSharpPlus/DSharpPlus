@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 
@@ -19,8 +20,10 @@ public class SlashChoiceProviderAttribute(Type providerType) : Attribute
         {
             choiceProvider = (IChoiceProvider)ActivatorUtilities.CreateInstance(serviceProvider, this.ProviderType);
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            ILogger<SlashCommandProcessor> logger = serviceProvider.GetRequiredService<ILogger<SlashCommandProcessor>>();
+            logger.LogWarning("""ChoiceProvider for parameter "{ParameterName}" was not able to be constructed: {ExceptionType}""", parameter.Name, e.Message);
             return [];
         }
 

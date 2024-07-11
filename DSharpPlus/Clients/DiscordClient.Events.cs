@@ -99,7 +99,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a new channel is created.
-    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ChannelCreatedEventArgs> ChannelCreated
@@ -110,7 +110,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a channel is updated.
-    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ChannelUpdatedEventArgs> ChannelUpdated
@@ -121,7 +121,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a channel is deleted
-    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ChannelDeletedEventArgs> ChannelDeleted
@@ -132,7 +132,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a dm channel is deleted
-    /// For this Event you need the <see cref="DiscordIntents.DirectMessages"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.DirectMessages"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, DmChannelDeletedEventArgs> DmChannelDeleted
@@ -143,7 +143,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired whenever a channel's pinned message list is updated.
-    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ChannelPinsUpdatedEventArgs> ChannelPinsUpdated
@@ -154,7 +154,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when the user joins a new guild.
-    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     /// <remarks>[alias="GuildJoined"][alias="JoinedGuild"]</remarks>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
@@ -166,7 +166,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a guild is becoming available.
-    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildAvailableEventArgs> GuildAvailable
@@ -177,7 +177,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a guild is updated.
-    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildUpdatedEventArgs> GuildUpdated
@@ -188,7 +188,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when the user leaves or is removed from a guild.
-    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildDeletedEventArgs> GuildDeleted
@@ -219,7 +219,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a guilds emojis get updated
-    /// For this Event you need the <see cref="DiscordIntents.GuildEmojisAndStickers"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildEmojisAndStickers"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildEmojisUpdatedEventArgs> GuildEmojisUpdated
@@ -299,7 +299,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a guild ban gets added
-    /// For this Event you need the <see cref="DiscordIntents.GuildModeration"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildModeration"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildBanAddedEventArgs> GuildBanAdded
@@ -310,7 +310,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a guild ban gets removed
-    /// For this Event you need the <see cref="DiscordIntents.GuildModeration"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildModeration"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildBanRemovedEventArgs> GuildBanRemoved
@@ -321,7 +321,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a new user joins a guild.
-    /// For this Event you need the <see cref="DiscordIntents.GuildMembers"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildMembers"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildMemberAddedEventArgs> GuildMemberAdded
@@ -332,7 +332,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a user is removed from a guild (leave/kick/ban).
-    /// For this Event you need the <see cref="DiscordIntents.GuildMembers"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildMembers"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildMemberRemovedEventArgs> GuildMemberRemoved
@@ -343,7 +343,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a guild member is updated.
-    /// For this Event you need the <see cref="DiscordIntents.GuildMembers"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildMembers"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildMemberUpdatedEventArgs> GuildMemberUpdated
@@ -364,7 +364,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a guild role is created.
-    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildRoleCreatedEventArgs> GuildRoleCreated
@@ -375,7 +375,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a guild role is updated.
-    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildRoleUpdatedEventArgs> GuildRoleUpdated
@@ -386,7 +386,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a guild role is updated.
-    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, GuildRoleDeletedEventArgs> GuildRoleDeleted
@@ -397,7 +397,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when an invite is created.
-    /// For this Event you need the <see cref="DiscordIntents.GuildInvites"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildInvites"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, InviteCreatedEventArgs> InviteCreated
@@ -408,7 +408,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when an invite is deleted.
-    /// For this Event you need the <see cref="DiscordIntents.GuildInvites"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildInvites"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, InviteDeletedEventArgs> InviteDeleted
@@ -419,7 +419,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a message is created.
-    /// For this Event you need the <see cref="DiscordIntents.GuildMessages"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildMessages"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, MessageCreatedEventArgs> MessageCreated
@@ -430,7 +430,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a message is updated.
-    /// For this Event you need the <see cref="DiscordIntents.GuildMessages"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildMessages"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, MessageUpdatedEventArgs> MessageUpdated
@@ -441,7 +441,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a message is deleted.
-    /// For this Event you need the <see cref="DiscordIntents.GuildMessages"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildMessages"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, MessageDeletedEventArgs> MessageDeleted
@@ -452,7 +452,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when multiple messages are deleted at once.
-    /// For this Event you need the <see cref="DiscordIntents.GuildMessages"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildMessages"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, MessagesBulkDeletedEventArgs> MessagesBulkDeleted
@@ -470,7 +470,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a reaction gets added to a message.
-    /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, MessageReactionAddedEventArgs> MessageReactionAdded
@@ -481,7 +481,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a reaction gets removed from a message.
-    /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, MessageReactionRemovedEventArgs> MessageReactionRemoved
@@ -492,7 +492,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when all reactions get removed from a message.
-    /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, MessageReactionsClearedEventArgs> MessageReactionsCleared
@@ -503,7 +503,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when all reactions of a specific reaction are removed from a message.
-    /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, MessageReactionRemovedEmojiEventArgs> MessageReactionRemovedEmoji
@@ -514,7 +514,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a presence has been updated.
-    /// For this Event you need the <see cref="DiscordIntents.GuildPresences"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildPresences"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, PresenceUpdatedEventArgs> PresenceUpdated
@@ -525,7 +525,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when the current user updates their settings.
-    /// For this Event you need the <see cref="DiscordIntents.GuildPresences"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildPresences"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, UserSettingsUpdatedEventArgs> UserSettingsUpdated
@@ -539,7 +539,7 @@ public sealed partial class DiscordClient
     /// </summary>
     /// <remarks>
     /// NB: This event only applies for changes to the <b>current user</b>, the client that is connected to Discord.
-    /// For this Event you need the <see cref="DiscordIntents.GuildPresences"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildPresences"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </remarks>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, UserUpdatedEventArgs> UserUpdated
@@ -550,7 +550,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when someone joins/leaves/moves voice channels.
-    /// For this Event you need the <see cref="DiscordIntents.GuildVoiceStates"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildVoiceStates"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, VoiceStateUpdatedEventArgs> VoiceStateUpdated
@@ -561,7 +561,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a guild's voice server is updated.
-    /// For this Event you need the <see cref="DiscordIntents.GuildVoiceStates"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildVoiceStates"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, VoiceServerUpdatedEventArgs> VoiceServerUpdated
@@ -572,7 +572,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a thread is created.
-    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ThreadCreatedEventArgs> ThreadCreated
@@ -583,7 +583,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a thread is updated.
-    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ThreadUpdatedEventArgs> ThreadUpdated
@@ -594,7 +594,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when a thread is deleted.
-    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ThreadDeletedEventArgs> ThreadDeleted
@@ -605,7 +605,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when the current member gains access to a channel(s) that has threads.
-    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ThreadListSyncedEventArgs> ThreadListSynced
@@ -616,7 +616,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when the thread member for the current user is updated.
-    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     /// <remarks>
     /// This event is primarily implemented for completeness and unlikely to be useful to bots.
@@ -630,7 +630,7 @@ public sealed partial class DiscordClient
 
     /// <summary>
     /// Fired when the thread members are updated.
-    /// For this Event you need the <see cref="DiscordIntents.GuildMembers"/> or <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// For this Event you need the <see cref="DiscordIntents.GuildMembers"/> or <see cref="DiscordIntents.Guilds"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     [Obsolete(ObsoletionMessage, DiagnosticId = "DSP0001")]
     public event AsyncEventHandler<DiscordClient, ThreadMembersUpdatedEventArgs> ThreadMembersUpdated

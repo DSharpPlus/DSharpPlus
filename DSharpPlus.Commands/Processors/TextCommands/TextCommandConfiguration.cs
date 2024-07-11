@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using DSharpPlus.Commands.Processors.TextCommands.Parsing;
 
 namespace DSharpPlus.Commands.Processors.TextCommands;
@@ -13,4 +15,6 @@ public record TextCommandConfiguration
     /// Whether to suppress the missing message content intent warning.
     /// </summary>
     public bool SuppressMissingMessageContentIntentWarning { get; set; }
+    
+    public IEqualityComparer<string> CommandNameComparer { get; init; } = StringComparer.OrdinalIgnoreCase;
 }
