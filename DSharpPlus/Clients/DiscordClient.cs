@@ -910,6 +910,15 @@ public sealed partial class DiscordClient : BaseDiscordClient
     {
         DiscordHttpInteraction interaction = DiscordJson.ToDiscordObject<DiscordHttpInteraction>(body);
 
+        if (interaction.Type is DiscordInteractionType.Ping)
+        {
+            RestInteractionResponsePayload responsePayload = new() {Type = DiscordInteractionResponseType.Pong};
+            string responseString = DiscordJson.SerializeObject(responsePayload);
+            byte[] responseBytes = Encoding.UTF8.GetBytes(responseString);
+            
+            return responseBytes;
+        }
+
         await this.events[typeof(InteractionCreatedEventArgs)]
             .As<InteractionCreatedEventArgs>()
             .InvokeAsync(this, new InteractionCreatedEventArgs()
