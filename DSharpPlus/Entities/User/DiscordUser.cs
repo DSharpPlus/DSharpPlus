@@ -258,13 +258,18 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async ValueTask<DiscordDmChannel> CreateDmChannelAsync()
+    public async ValueTask<DiscordDmChannel> CreateDmChannelAsync(bool skipCache = false)
     {
+        if (!skipCache)
+        {
+            return await this.Discord.ApiClient.CreateDmAsync(this.Id);
+        }
+        
         DiscordDmChannel? dm = default;
 
         if (this.Discord is DiscordClient dc)
         {
-            dm = dc.privateChannels.Values.FirstOrDefault(x => x.Recipients.FirstOrDefault(y => y.Id == this.Id) is not null);
+            dm = dc.privateChannels.Values.FirstOrDefault(x => x.Recipients.FirstOrDefault(y => y is not null && y.Id == this.Id) is not null);
         }
 
         return dm ?? await this.Discord.ApiClient.CreateDmAsync(this.Id);
