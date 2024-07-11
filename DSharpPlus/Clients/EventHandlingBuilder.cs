@@ -1,3 +1,4 @@
+using System;
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.EventArgs;
 
@@ -58,9 +59,11 @@ public sealed class EventHandlingBuilder
         return this;
     }
 
+    
     /// <summary>
     /// Fired whenever we receive a heartbeat from Discord.
     /// </summary>
+    [Obsolete("This event is obsolete and wont be invoked. Use IGatewayController.HeartbeatedAsync instead")]
     public EventHandlingBuilder HandleHeartbeated(AsyncEventHandler<DiscordClient, HeartbeatedEventArgs> handler)
     {
         this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(HeartbeatedEventArgs), _ => []).Add(handler));
