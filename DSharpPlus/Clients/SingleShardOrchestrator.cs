@@ -61,9 +61,9 @@ public sealed class SingleShardOrchestrator : IShardOrchestrator
         gwuri.AddParameter("v", "10")
              .AddParameter("encoding", "json");
 
-        if (this.decompressor.CompressionLevel == GatewayCompressionLevel.Stream)
+        if (this.decompressor.IsTransportCompression)
         {
-            gwuri.AddParameter("compress", "zlib-stream");
+            gwuri.AddParameter("compress", this.decompressor.Name);
         }
 
         await this.gatewayClient.ConnectAsync(gwuri.Build(), activity, status, idleSince);

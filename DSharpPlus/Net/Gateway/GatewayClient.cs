@@ -74,7 +74,7 @@ public sealed class GatewayClient : IGatewayClient
         this.factory = factory;
         this.token = tokenContainer.Value.GetToken();
         this.gatewayTokenSource = null!;
-        this.compress = decompressor.CompressionLevel == GatewayCompressionLevel.Payload;
+        this.compress = !decompressor.IsTransportCompression;
         this.options = options.Value;
         this.controller = controller;
 

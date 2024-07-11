@@ -11,6 +11,8 @@ internal unsafe partial struct ZstdInterop : IDisposable
     private bool isCompleted = true;
     private int index = 0;
 
+    internal static int RecommendedBufferSize { get; } = (int)Bindings.ZSTD_DStreamOutSize();
+
     public ZstdInterop()
     {
         this.stream = Bindings.ZSTD_createDStream();

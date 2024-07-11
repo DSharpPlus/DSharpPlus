@@ -11,7 +11,7 @@ namespace DSharpPlus.Net.Gateway.Compression;
 public sealed class NullDecompressor : IPayloadDecompressor
 {
     /// <inheritdoc/>
-    public string Name => string.Empty;
+    public string? Name => null;
 
     // this decompressor *technically* applies transport-wide, and this simplifies composing the IDENTIFY payload.
     /// <inheritdoc/>
@@ -22,5 +22,11 @@ public sealed class NullDecompressor : IPayloadDecompressor
     {
         decompressed.Write(compressed);
         return true;
+    }
+
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+
     }
 }

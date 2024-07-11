@@ -7,12 +7,12 @@ namespace DSharpPlus.Net.Gateway.Compression;
 /// <summary>
 /// Contains functionality for decompressing inbound gateway payloads.
 /// </summary>
-public interface IPayloadDecompressor
+public interface IPayloadDecompressor : IDisposable
 {
     /// <summary>
     /// Gets the name of the decompressor.
     /// </summary>
-    public string Name { get; }
+    public string? Name { get; }
 
     /// <summary>
     /// Indicates whether the present compression format is connection-wide.

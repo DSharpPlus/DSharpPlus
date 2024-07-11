@@ -79,9 +79,9 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
         gwuri.AddParameter("v", "10")
              .AddParameter("encoding", "json");
 
-        if (this.decompressor.CompressionLevel == GatewayCompressionLevel.Stream)
+        if (this.decompressor.IsTransportCompression)
         {
-            gwuri.AddParameter("compress", "zlib-stream");
+            gwuri.AddParameter("compress", this.decompressor.Name);
         }
 
         this.shards = new IGatewayClient[startShards];
