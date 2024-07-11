@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
+
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
+using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus;
@@ -28,13 +32,22 @@ public class DiscordRestClient : BaseDiscordClient
 
     public TokenType TokenType { get; }
 
-    public DiscordRestClient(DiscordConfiguration config, string token, TokenType tokenType) : base() 
+    public DiscordRestClient(RestClientOptions options, string token, TokenType tokenType, ILogger? logger = null) : base()
     {
+        string headerTokenType = tokenType == TokenType.Bot ? "Bot" : "Bearer";
+        
+        HttpClient httpClient = new();
+        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"{headerTokenType} {token}");
+        
         this.ApiClient = new(new
         (
-            new(),
-            TimeSpan.FromSeconds(10),
-            NullLogger.Instance
+            httpClient,
+            options.Timeout,
+            logger ?? NullLogger.Instance,
+            options.MaximumRatelimitRetries,
+            options.RatelimitRetryDelayFallback,
+            options.InitialRequestTimeout,
+            options.MaximumConcurrentRestRequests
         ));
 
         this.ApiClient.SetClient(this);
