@@ -306,6 +306,9 @@ public sealed class GatewayClient : IGatewayClient
                         this.Ping = DateTimeOffset.UtcNow - this.lastSentHeartbeat;
                         this.pendingHeartbeats = 0;
 
+                        // Task is not awaited to dont block gw recieve loop
+                        _ = this.controller.HeartbeatedAsync(this);
+
                         continue;
 
                     case GatewayOpCode.InvalidSession:
