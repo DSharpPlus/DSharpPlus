@@ -14,8 +14,8 @@ When the Discord App (the client you use, not the bot) starts up, it fetches all
 
 #### Help! They're still not showing up!
 
-There are many ways a command can violate given constraints (For SlashCommands discords naming constraints or a missing type converter for example).
-In this case the extensions throws an exception, dont register any commands and logs the exception with a descriptiv message
+There are many ways a command can violate the given constraints (For SlashCommands discords naming constraints or a missing type converter for example).
+In this case the extensions throws an exception, dont register any commands and logs the exception with a descriptive message
 
 
 If you have text commands enabled, try mentioning your bot with the command name and see if it responds. 
