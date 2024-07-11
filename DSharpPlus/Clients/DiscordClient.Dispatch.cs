@@ -579,24 +579,17 @@ public sealed partial class DiscordClient
 
     internal async Task OnReadyEventAsync(ReadyPayload ready, JArray rawGuilds, JArray rawDmChannels)
     {
-        //ready.CurrentUser.Discord = this;
-
         TransportUser rusr = ready.CurrentUser;
-        this.CurrentUser = new()
+        this.CurrentUser = new DiscordUser(rusr)
         {
-            Username = rusr.Username,
-            Discriminator = rusr.Discriminator,
-            AvatarHash = rusr.AvatarHash,
-            MfaEnabled = rusr.MfaEnabled,
-            Verified = rusr.Verified,
-            IsBot = rusr.IsBot
+            Discord = this
         };
 
         this.CurrentApplication = ready.Application;
 
         this.sessionId = ready.SessionId;
         this.gatewayResumeUrl = ready.ResumeGatewayUrl;
-        Dictionary<ulong, JObject> raw_guild_index = rawGuilds.ToDictionary(xt => (ulong)xt["id"], xt => (JObject)xt);
+        Dictionary<ulong, JObject> rawGuildIndex = rawGuilds.ToDictionary(xt => (ulong)xt["id"], xt => (JObject)xt);
 
         this.privateChannels.Clear();
         foreach (JToken rawChannel in rawDmChannels)
@@ -609,9 +602,9 @@ public sealed partial class DiscordClient
             //    .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this })
             //    .ToList();
 
-            IEnumerable<TransportUser> recips_raw = rawChannel["recipients"].ToDiscordObject<IEnumerable<TransportUser>>();
+            IEnumerable<TransportUser> recipsRaw = rawChannel["recipients"].ToDiscordObject<IEnumerable<TransportUser>>();
             List<DiscordUser> recipients = [];
-            foreach (TransportUser xr in recips_raw)
+            foreach (TransportUser xr in recipsRaw)
             {
                 DiscordUser xu = new(xr) { Discord = this };
                 xu = UpdateUserCache(xu);
@@ -658,15 +651,15 @@ public sealed partial class DiscordClient
                 xr.guild_id = guild.Id;
             }
 
-            JObject raw_guild = raw_guild_index[guild.Id];
-            JArray? raw_members = (JArray)raw_guild["members"];
+            JObject rawGuild = rawGuildIndex[guild.Id];
+            JArray? rawMembers = (JArray)rawGuild["members"];
 
             guild.members?.Clear();
             guild.members ??= new ConcurrentDictionary<ulong, DiscordMember>();
 
-            if (raw_members != null)
+            if (rawMembers != null)
             {
-                foreach (JToken xj in raw_members)
+                foreach (JToken xj in rawMembers)
                 {
                     TransportMember xtm = xj.ToDiscordObject<TransportMember>();
 
