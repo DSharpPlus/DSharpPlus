@@ -210,7 +210,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.events[typeof(MessageReactionsClearedEventArgs)] = new AsyncEvent<DiscordClient, MessageReactionsClearedEventArgs>(error);
         this.events[typeof(MessageReactionRemovedEmojiEventArgs)] = new AsyncEvent<DiscordClient, MessageReactionRemovedEmojiEventArgs>(error);
         this.events[typeof(WebhooksUpdatedEventArgs)] = new AsyncEvent<DiscordClient, WebhooksUpdatedEventArgs>(error);
-        this.events[typeof(HeartbeatedEventArgs)] = new AsyncEvent<DiscordClient, HeartbeatedEventArgs>(error);
         this.events[typeof(ZombiedEventArgs)] = new AsyncEvent<DiscordClient, ZombiedEventArgs>(error);
         this.events[typeof(ApplicationCommandPermissionsUpdatedEventArgs)] = new AsyncEvent<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs>(error);
         this.events[typeof(IntegrationCreatedEventArgs)] = new AsyncEvent<DiscordClient, IntegrationCreatedEventArgs>(error);

@@ -14,4 +14,10 @@ public interface IGatewayController
     /// </summary>
     /// <param name="client">The gateway client whose connection zombied.</param>
     public ValueTask ZombiedAsync(IGatewayClient client);
+
+    /// <summary>
+    /// Called when the gateway heartbeated correctly and got an ACK from Discord
+    /// </summary>
+    /// <param name="client">The gateway client who recieved the heartbeat ACK.</param>
+    public Task HeartbeatedAsync(IGatewayClient client);
 }
