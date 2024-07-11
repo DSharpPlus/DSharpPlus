@@ -26,7 +26,7 @@ using DSharpPlus.Net.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus;
@@ -908,11 +908,20 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <returns></returns>
     public async Task<byte[]> HandleHttpInteractionAsync(byte[] body)
     {
-        DiscordHttpInteraction interaction = DiscordJson.ToDiscordObject<DiscordHttpInteraction>(body);
-
+        string bodyString = Encoding.UTF8.GetString(body);
+        
+        DiscordHttpInteraction? interaction = JsonConvert.DeserializeObject<DiscordHttpInteraction>(bodyString);
+        
+        if (interaction is null)
+        {
+            throw new ArgumentException("Unable to parse provided request body to DiscordHttpInteraction");
+        }
+        
+        interaction.Discord = this;
+        
         if (interaction.Type is DiscordInteractionType.Ping)
         {
-            RestInteractionResponsePayload responsePayload = new() {Type = DiscordInteractionResponseType.Pong};
+            DiscordInteractionResponsePayload responsePayload = new() {Type = DiscordInteractionResponseType.Pong};
             string responseString = DiscordJson.SerializeObject(responsePayload);
             byte[] responseBytes = Encoding.UTF8.GetBytes(responseString);
             

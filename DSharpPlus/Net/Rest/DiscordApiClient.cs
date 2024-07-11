@@ -5874,7 +5874,7 @@ public sealed class DiscordApiClient
             }
         }
 
-        RestInteractionResponsePayload payload = new()
+        DiscordInteractionResponsePayload payload = new()
         {
             Type = type,
             Data = builder is not null

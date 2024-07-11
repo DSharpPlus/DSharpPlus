@@ -5,12 +5,16 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
 public class DiscordHttpInteraction : DiscordInteraction
 {
+    [JsonIgnore]
     internal readonly TaskCompletionSource taskCompletionSource = new();
+    
+    [JsonIgnore]
     internal byte[] response;
 
     internal async Task<byte[]> GetResponseAsync()
@@ -31,7 +35,7 @@ public class DiscordHttpInteraction : DiscordInteraction
             ? DiscordInteractionResponseState.Deferred
             : DiscordInteractionResponseState.Replied;
         
-        RestInteractionResponsePayload payload = new()
+        DiscordInteractionResponsePayload payload = new()
         {
             Type = type,
             Data = builder is not null
