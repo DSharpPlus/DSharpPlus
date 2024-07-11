@@ -19,5 +19,5 @@ public interface IGatewayController
     /// Called when the gateway heartbeated correctly and got an ACK from Discord
     /// </summary>
     /// <param name="client">The gateway client who recieved the heartbeat ACK.</param>
-    public ValueTask HeartbeatedAsync(IGatewayClient client);
+    public Task HeartbeatedAsync(IGatewayClient client);
 }
