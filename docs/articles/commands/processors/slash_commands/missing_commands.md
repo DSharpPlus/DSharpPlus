@@ -5,14 +5,14 @@ title: Missing Commands
 
 # Missing Commands
 
-> Help! I registered all my slash commands but they aren't showing up!
+#### Help! I registered all my slash commands but they aren't showing up!
 
 When the Discord App (the client you use, not the bot) starts up, it fetches all the commands that are registered with the bot and caches them to a Discord channel.
 
-[!IMPORTANT]
-This cache is only populated at startup, so updating commands requires reloading your app (`ctrl + r` on desktop, or re-launching the app on mobile)
+>[!IMPORTANT]
+> This cache is only populated at startup, so updating commands requires reloading your app (`ctrl + r` on desktop, or re-launching the app on mobile)
 
-> Help! They're still not showing up!
+#### Help! They're still not showing up!
 
 There are many ways a command can violate given constraints (For SlashCommands discords naming constraints or a missing type converter for example).
 In this case the extensions throws an exception, dont register any commands and logs the exception with a descriptiv message
