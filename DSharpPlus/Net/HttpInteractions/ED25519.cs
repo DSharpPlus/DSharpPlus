@@ -7,15 +7,7 @@ public static partial class Ed25519
 {
     public const int SignatureBytes = 64;
     public const int PublicKeyBytes = 32;
-
-    static Ed25519()
-    {
-        if (Init() == -1)
-        {
-            throw new InvalidOperationException("Failed to initialize libsodium.");
-        }
-    }
-
+    
     public static unsafe bool TryVerifySignature(ReadOnlySpan<byte> body, ReadOnlySpan<byte> publicKey, ReadOnlySpan<byte> signature)
     {
         ArgumentOutOfRangeException.ThrowIfNotEqual(signature.Length, SignatureBytes);
@@ -25,13 +17,28 @@ public static partial class Ed25519
         fixed (byte* messagePtr = body)
         fixed (byte* publicKeyPtr = publicKey)
         {
-            return VerifyDetached(signaturePtr, messagePtr, (ulong)body.Length, publicKeyPtr) == 0;
+            return Bindings.crypto_sign_ed25519_verify_detached(signaturePtr, messagePtr, (ulong)body.Length, publicKeyPtr) == 0;
         }
     }
 
-    [LibraryImport("libsodium", EntryPoint = "sodium_init")]
-    private static unsafe partial int Init();
+    // Ed25519.Bindings is a nested type to lazily load sodium. the native load is done by the static constructor,
+    // which will not be executed unless this code actually gets used. since we cannot rely on sodium being present at all
+    // times, it is imperative this remains a nested type.
+    private static partial class Bindings
+    {
+        static Bindings()
+        {
+            if (sodium_init() == -1)
+            {
+                throw new InvalidOperationException("Failed to initialize libsodium.");
+            }
+        }
+        
+        [LibraryImport("sodium")]
+        private static unsafe partial int sodium_init();
 
-    [LibraryImport("libsodium", EntryPoint = "crypto_sign_ed25519_verify_detached")]
-    private static unsafe partial int VerifyDetached(byte* signature, byte* message, ulong messageLength, byte* publicKey);
+        [LibraryImport("sodium")]
+        internal static unsafe partial int crypto_sign_ed25519_verify_detached(byte* signature, byte* message, ulong messageLength, byte* publicKey);
+    }
+
 }

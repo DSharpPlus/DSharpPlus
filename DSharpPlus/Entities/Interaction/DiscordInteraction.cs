@@ -14,7 +14,7 @@ public class DiscordInteraction : SnowflakeObject
     /// Gets the response state of the interaction.
     /// </summary>
     [JsonIgnore]
-    public DiscordInteractionResponseState ResponseState { get; private set; }
+    public DiscordInteractionResponseState ResponseState { get; protected set; }
 
     /// <summary>
     /// Gets the type of interaction invoked.
