@@ -8,6 +8,7 @@ title: Missing Commands
 > Help! I registered all my slash commands but they aren't showing up!
 
 When the Discord App (the client you use, not the bot) starts up, it fetches all the commands that are registered with the bot and caches them to a Discord channel.
+
 [!IMPORTANT]
 This cache is only populated at startup, so updating commands requires reloading your app (`ctrl + r` on desktop, or re-launching the app on mobile)
 
