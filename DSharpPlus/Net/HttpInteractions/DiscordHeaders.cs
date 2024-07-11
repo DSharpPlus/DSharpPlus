@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Buffers;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
 
 namespace DSharpPlus.Net.HttpInteractions;

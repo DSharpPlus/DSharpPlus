@@ -901,6 +901,25 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
     #endregion
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="body"></param>
+    /// <returns></returns>
+    public async Task<byte[]> HandleHttpInteractionAsync(byte[] body)
+    {
+        DiscordHttpInteraction interaction = DiscordJson.ToDiscordObject<DiscordHttpInteraction>(body);
+
+        await this.events[typeof(InteractionCreatedEventArgs)]
+            .As<InteractionCreatedEventArgs>()
+            .InvokeAsync(this, new InteractionCreatedEventArgs()
+            {
+                Interaction = interaction
+            });
+
+        return await interaction.GetResponseAsync();
+    }
+
     #region Internal Caching Methods
 
     internal DiscordThreadChannel? InternalGetCachedThread(ulong threadId)
