@@ -9,4 +9,5 @@ namespace DSharpPlus.Clients;
 internal class DefaultGatewayController : IGatewayController
 {
     public ValueTask ZombiedAsync(IGatewayClient client) => ValueTask.CompletedTask;
+    public ValueTask HeartbeatedAsync(IGatewayClient client) => ValueTask.CompletedTask;
 }
