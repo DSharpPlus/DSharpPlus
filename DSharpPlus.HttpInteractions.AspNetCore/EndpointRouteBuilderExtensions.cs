@@ -56,7 +56,7 @@ public static class EndpointRouteBuilderExtensions
         httpContext.Response.ContentLength = result.Length;
         httpContext.Response.ContentType = MediaTypeNames.Application.Json;
                 
-        await httpContext.Response.WriteAsync(Encoding.UTF8.GetString(result));
+        await httpContext.Response.Body.WriteAsync(result);
     }
     
 
