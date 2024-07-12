@@ -123,7 +123,8 @@ public abstract class BaseDiscordClient : IDisposable
             Flags = tapp.Flags,
             RequiresCodeGrant = tapp.BotRequiresCodeGrant,
             IsPublic = tapp.IsPublicBot,
-            CoverImageHash = null
+            CoverImageHash = null,
+            VerifyKey = tapp.VerifyKey
         };
 
         // do team and owners

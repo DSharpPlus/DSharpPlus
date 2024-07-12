@@ -45,6 +45,12 @@ internal sealed class TransportApplication
 
     [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordApplicationFlags? Flags { get; set; }
+    
+    /// <summary>
+    /// Hex encoded key for verification of http interactions and the GameSDK's GetTicket 
+    /// </summary>
+    [JsonProperty("verify_key", NullValueHandling = NullValueHandling.Ignore)]
+    public string VerifyKey { get; internal set; }
 
     // These are dispatch (store) properties - can't imagine them being needed in bots
     //[JsonProperty("verify_key", NullValueHandling = NullValueHandling.Include)]
