@@ -26,6 +26,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
 
     private uint shardCount;
     private uint stride;
+    private uint totalShards;
 
     /// <inheritdoc/>
     public bool AllShardsConnected => this.shards?.All(shard => shard.IsConnected) == true;
@@ -73,6 +74,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
 
         this.stride = stride;
         this.shardCount = startShards;
+        this.totalShards = totalShards;
 
         QueryUriBuilder gwuri = new(info.Url);
 
@@ -153,7 +155,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     }
 
     private uint GetShardIdForGuildId(ulong guildId)
-        => (uint)((guildId >> 22) % (this.shardCount + this.stride));
+        => (uint)((guildId >> 22) % this.totalShards);
 
     /// <inheritdoc/>
     public async ValueTask ReconnectAsync()
