@@ -1,15 +1,13 @@
 using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
-using System.Text;
+
 using DSharpPlus.Net.HttpInteractions;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
+
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 
-namespace DSharpPlus.HttpInteraction.AspNetCore;
+namespace DSharpPlus.HttpInteractions.AspNetCore;
 
 public static class EndpointRouteBuilderExtensions
 {
