@@ -902,11 +902,13 @@ public sealed partial class DiscordClient : BaseDiscordClient
     #endregion
 
     /// <summary>
-    /// 
+    /// This method is used to inject interactions into the client which are coming from http webhooks.
     /// </summary>
-    /// <param name="body"></param>
-    /// <returns></returns>
-    public async Task<byte[]> HandleHttpInteractionAsync(byte[] body)
+    /// <param name="body">Body of the http request. Should be UTF8 encoded</param>
+    /// <param name="cancellationToken">Token to cancel the interaction when the http request was canceled</param>
+    /// <returns>Returns the body which should be returned to the http request</returns>
+    /// <exception cref="TaskCanceledException">Thrown when the passed cancellation token was canceled</exception>
+    public async Task<byte[]> HandleHttpInteractionAsync(byte[] body, CancellationToken cancellationToken)
     {
         string bodyString = Encoding.UTF8.GetString(body);
         
@@ -918,6 +920,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
         
         interaction.Discord = this;
+
+        cancellationToken.Register(() => interaction.Cancel());
         
         if (interaction.Type is DiscordInteractionType.Ping)
         {

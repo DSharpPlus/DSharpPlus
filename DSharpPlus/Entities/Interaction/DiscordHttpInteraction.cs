@@ -17,6 +17,8 @@ public class DiscordHttpInteraction : DiscordInteraction
     [JsonIgnore]
     internal byte[] response;
 
+    internal bool Cancel() => this.taskCompletionSource.TrySetCanceled();
+
     internal async Task<byte[]> GetResponseAsync()
     {
         await this.taskCompletionSource.Task;
