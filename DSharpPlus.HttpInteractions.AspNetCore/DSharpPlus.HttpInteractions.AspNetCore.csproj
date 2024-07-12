@@ -1,15 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
-    <PropertyGroup>
-        <PackageId>DSharpPlus.HttpInteractions.AspNetCore</PackageId>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <IsPackable>true</IsPackable>
-        <RootNamespace>DSharpPlus.HttpInteraction.AspNetCore</RootNamespace>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
-    </ItemGroup>
-  
+  <PropertyGroup>
+    <PackageId>DSharpPlus.HttpInteractions.AspNetCore</PackageId>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj"/>
+  </ItemGroup>
 </Project>
