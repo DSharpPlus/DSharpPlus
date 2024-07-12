@@ -1,5 +1,7 @@
 using System;
+using System.Buffers.Binary;
 
+using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace DSharpPlus.Net.Gateway.Compression.Zstd;
@@ -20,6 +22,12 @@ public sealed class ZstdDecompressor : IPayloadDecompressor
     /// <inheritdoc/>
     public bool TryDecompress(ReadOnlySpan<byte> compressed, ArrayPoolBufferWriter<byte> decompressed)
     {
+        if (BinaryPrimitives.ReadUInt32LittleEndian(compressed) is not 0xFD2FB528)
+        {
+            decompressed.Write(compressed);
+            return true;
+        }
+
         while (true)
         {
             bool complete = this.wrapper.Decompress

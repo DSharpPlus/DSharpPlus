@@ -148,6 +148,8 @@ internal sealed class TransportService : ITransportService
             return new(ex);
         }
 
+        this.logger.LogTrace("Compressed payload for the last inbound gateway event:\n{event}", Encoding.UTF8.GetString(this.writer.WrittenSpan));
+
         if (!this.decompressor.TryDecompress(this.writer.WrittenSpan, this.decompressedWriter))
         {
             throw new InvalidDataException("Failed to decompress a gateway payload.");

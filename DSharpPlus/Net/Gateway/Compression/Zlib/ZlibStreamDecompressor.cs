@@ -1,5 +1,7 @@
 using System;
+using System.Buffers.Binary;
 
+using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace DSharpPlus.Net.Gateway.Compression.Zlib;
@@ -20,6 +22,12 @@ public sealed class ZlibStreamDecompressor : IPayloadDecompressor
     /// <inheritdoc/>
     public bool TryDecompress(ReadOnlySpan<byte> compressed, ArrayPoolBufferWriter<byte> decompressed)
     {
+        if (BinaryPrimitives.ReadUInt16BigEndian(compressed) is not (0x7801 or 0x785E or 0x789C or 0x78DA))
+        {
+            decompressed.Write(compressed);
+            return true;
+        }
+
         while (true)
         {
             bool complete = this.wrapper.Inflate

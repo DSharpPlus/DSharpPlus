@@ -35,10 +35,10 @@ internal unsafe partial struct ZlibInterop : IDisposable
         fixed (byte* pDecompressed = decompressed)
         fixed (ZlibStream* pStream = &this.stream)
         {
-            this.stream.nextInputByte = pCompressed + this.index;
-            this.stream.availableInputBytes = (uint)compressed.Length;
-            this.stream.nextOutputByte = pDecompressed;
-            this.stream.availableOutputBytes = (uint)decompressed.Length;
+            pStream->nextInputByte = pCompressed + this.index;
+            pStream->availableInputBytes = (uint)compressed.Length;
+            pStream->nextOutputByte = pDecompressed;
+            pStream->availableOutputBytes = (uint)decompressed.Length;
 
             while (true)
             {
@@ -53,7 +53,7 @@ internal unsafe partial struct ZlibInterop : IDisposable
                 else if (code == ZlibErrorCode.BufferError)
                 {
                     // save where we left off for the next call with another output buffer
-                    this.index = (uint)compressed.Length - this.stream.availableInputBytes;
+                    this.index = (uint)compressed.Length - pStream->availableInputBytes;
                     break;
                 }
                 else if (code == ZlibErrorCode.Ok)
@@ -67,7 +67,7 @@ internal unsafe partial struct ZlibInterop : IDisposable
                 }
             }
 
-            written = decompressed.Length - (int)this.stream.availableOutputBytes;
+            written = decompressed.Length - (int)pStream->availableOutputBytes;
         }
 
         return isCompleted;
