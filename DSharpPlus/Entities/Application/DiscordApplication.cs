@@ -84,14 +84,74 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// Public key used to verify http interactions
     /// </summary>
     public string VerifikationKey { get; internal set; }
+    
+    /// <summary>
+    /// Partial user object for the bot user associated with the app. 
+    /// </summary>
+    public DiscordUser? Bot { get; internal set; }
 
     /// <summary>
     /// Default scopes and permissions for each supported installation context.
     /// </summary>
-    [JsonProperty("integration_types_config")]
-    public IReadOnlyDictionary<DiscordApplicationIntegrationType, DiscordApplicationIntegrationTypeConfiguration?>
+    public IReadOnlyDictionary<DiscordApplicationIntegrationType, DiscordApplicationIntegrationTypeConfiguration>?
         IntegrationTypeConfigurations { get; internal set; }
+    
+    /// <summary>
+    /// Guild associated with the app. For example, a developer support server.
+    /// </summary>
+    public ulong? GuildId { get; internal set; }
+    
+    /// <summary>
+    /// Partial object of the associated guild
+    /// </summary>
+    public DiscordGuild? Guild { get; internal set; }
+    
+    /// <summary>
+    /// If this app is a game sold on Discord, this field will be the id of the "Game SKU" that is created, if exists
+    /// </summary>
+    public ulong? PrimarySkuId { get; internal set; }
+    
+    /// <summary>
+    /// If this app is a game sold on Discord, this field will be the URL slug that links to the store page
+    /// </summary>
+    public string? Slug { get; internal set; }
+    
+    /// <summary>
+    /// Approximate count of guilds the app has been added to
+    /// </summary>
+    public int? ApproximateGuildCount { get; internal set; }
+    
+    /// <summary>
+    /// Array of redirect URIs for the app
+    /// </summary>
+    public string[] RedirectUris { get; internal set; }
+    
+    /// <summary>
+    /// Interactions endpoint URL for the app
+    /// </summary>
+    public string? InteractionsEndpointUrl { get; internal set; }
+    
+    /// <summary>
+    /// Interactions endpoint URL for the app
+    /// </summary>
+    public string? RoleConnectionsVerificationEndpointUrl { get; internal set; }
 
+    /// <summary>
+    /// List of tags describing the content and functionality of the app. Max of 5 tags.
+    /// </summary>
+    public string[]? Tags { get; internal set; }
+    
+    /// <summary>
+    /// Settings for the app's default in-app authorization link, if enabled
+    /// </summary>
+    public DiscordApplicationOAuth2InstallParams? InstallParams { get; internal set; }
+    
+    
+    /// <summary>
+    /// Default custom authorization URL for the app, if enabled
+    /// </summary>
+    public string? CustomInstallUrl { get; internal set; }
+    
     private IReadOnlyList<DiscordApplicationAsset>? Assets { get; set; }
 
     internal DiscordApplication() { }
@@ -102,7 +162,6 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         this.Name = transportApplication.Name;
         this.IconHash = transportApplication.IconHash;
         this.Description = transportApplication.Description;
-        this.RpcOrigins = new List<string>(transportApplication.RpcOrigins);
         this.IsPublic = transportApplication.IsPublicBot;
         this.RequiresCodeGrant = transportApplication.BotRequiresCodeGrant;
         this.TermsOfServiceUrl = transportApplication.TermsOfServiceUrl;
@@ -111,11 +170,29 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
             ? new ReadOnlyCollection<string>(transportApplication.RpcOrigins)
             : null;
         this.Flags = transportApplication.Flags;
-        this.RequiresCodeGrant = transportApplication.BotRequiresCodeGrant;
-        this.IsPublic = transportApplication.IsPublicBot;
-        this.CoverImageHash = null;
+        this.CoverImageHash = transportApplication.CoverImageHash;
         this.VerifikationKey = transportApplication.VerifyKey;
 
+        this.Bot = transportApplication.Bot is null 
+            ? null 
+            : new DiscordUser(transportApplication.Bot) 
+            {
+                Discord = this.Discord
+            };
+
+        this.GuildId = transportApplication.GuildId;
+        this.Guild = transportApplication.Guild;
+        this.PrimarySkuId = transportApplication.PrimarySkuId;
+        this.Slug = transportApplication.Slug;
+        this.ApproximateGuildCount = transportApplication.ApproximateGuildCount;
+        this.RedirectUris = transportApplication.RedirectUris;
+        this.InteractionsEndpointUrl = transportApplication.InteractionEndpointUrl;
+        this.RoleConnectionsVerificationEndpointUrl = transportApplication.RoleConnectionsVerificationUrl;
+        this.Tags = transportApplication.Tags;
+        this.InstallParams = transportApplication.InstallParams;
+        this.IntegrationTypeConfigurations = transportApplication.IntegrationTypeConfigurations;
+        this.CustomInstallUrl = transportApplication.CustomInstallUrl;
+        
 
         // do team and owners
         // tbh fuck doing this properly

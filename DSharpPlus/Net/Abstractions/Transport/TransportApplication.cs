@@ -19,7 +19,7 @@ internal sealed class TransportApplication
     public string Description { get; set; }
     
     [JsonProperty("rpc_origins", NullValueHandling = NullValueHandling.Ignore)]
-    public IList<string> RpcOrigins { get; set; }
+    public IList<string>? RpcOrigins { get; set; }
 
     [JsonProperty("bot_public", NullValueHandling = NullValueHandling.Include)]
     public bool IsPublicBot { get; set; }
@@ -46,16 +46,46 @@ internal sealed class TransportApplication
     public TransportTeam? Team { get; set; }
     
     [JsonProperty("guild_id")]
-    public Optional<ulong> GuildId { get; set; }
+    public ulong? GuildId { get; set; }
     
-    [JsonProperty("guild_id")]
+    [JsonProperty("guild")]
     public DiscordGuild? Guild { get; set; }
 
+    [JsonProperty("primary_sku_id")]
+    public ulong PrimarySkuId { get; set; }
+    
+    [JsonProperty("slug")]
+    public string Slug { get; set; }
+    
+    [JsonProperty("cover_image")]
+    public string CoverImageHash { get; set; }
+    
     [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordApplicationFlags? Flags { get; set; }
     
     [JsonProperty("approximate_guild_count")]
     public int? ApproximateGuildCount { get; set; }
+    
+    [JsonProperty("redirect_uris")]
+    public string[] RedirectUris { get; set; }
+    
+    [JsonProperty("interactions_endpoint_url")]
+    public string? InteractionEndpointUrl { get; set; }
+    
+    [JsonProperty("role_connections_verification_url")]
+    public string? RoleConnectionsVerificationUrl { get; set; }
+    
+    [JsonProperty("tags")]
+    public string[]? Tags { get; set; }
+    
+    [JsonProperty("install_params")]
+    public DiscordApplicationOAuth2InstallParams InstallParams { get; set; }
+    
+    [JsonProperty("integration_types_config")]
+    public Dictionary<DiscordApplicationIntegrationType, DiscordApplicationIntegrationTypeConfiguration> IntegrationTypeConfigurations { get; set; }
 
+    [JsonProperty("custom_install_url")]
+    public string CustomInstallUrl { get; set; }
+    
     internal TransportApplication() { }
 }
