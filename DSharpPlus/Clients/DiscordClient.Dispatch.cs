@@ -585,8 +585,6 @@ public sealed partial class DiscordClient
             Discord = this
         };
 
-        this.CurrentApplication = ready.Application;
-
         this.sessionId = ready.SessionId;
         this.gatewayResumeUrl = ready.ResumeGatewayUrl;
         Dictionary<ulong, JObject> rawGuildIndex = rawGuilds.ToDictionary(xt => (ulong)xt["id"], xt => (JObject)xt);
