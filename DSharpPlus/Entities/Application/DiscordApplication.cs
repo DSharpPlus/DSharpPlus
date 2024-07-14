@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -13,15 +16,12 @@ namespace DSharpPlus.Entities;
 public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<DiscordApplication>
 {
     /// <summary>
-    /// Gets the application's summary.
-    /// </summary>
-    public string? Summary { get; internal set; }
-
-    /// <summary>
     /// Gets the application's icon.
     /// </summary>
     public override string? Icon
-        => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png?size=1024" : null;
+        => !string.IsNullOrWhiteSpace(this.IconHash)
+            ? $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png?size=1024"
+            : null;
 
     /// <summary>
     /// Gets the application's icon hash.
@@ -72,22 +72,81 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// Gets this application's cover image URL.
     /// </summary>
     public override string? CoverImageUrl
-        => $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.CoverImageHash}.png?size=1024";
+        =>
+            $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.CoverImageHash}.png?size=1024";
 
     /// <summary>
     /// Gets the team which owns this application.
     /// </summary>
     public DiscordTeam? Team { get; internal set; }
+    
+    /// <summary>
+    /// Public key used to verify http interactions
+    /// </summary>
+    public string VerifikationKey { get; internal set; }
 
     /// <summary>
     /// Default scopes and permissions for each supported installation context.
     /// </summary>
     [JsonProperty("integration_types_config")]
-    public IReadOnlyDictionary<DiscordApplicationIntegrationType, DiscordApplicationIntegrationTypeConfiguration?> IntegrationTypeConfigurations { get; internal set; }
+    public IReadOnlyDictionary<DiscordApplicationIntegrationType, DiscordApplicationIntegrationTypeConfiguration?>
+        IntegrationTypeConfigurations { get; internal set; }
 
     private IReadOnlyList<DiscordApplicationAsset>? Assets { get; set; }
 
     internal DiscordApplication() { }
+
+    internal DiscordApplication(TransportApplication transportApplication)
+    {
+        this.Id = transportApplication.Id;
+        this.Name = transportApplication.Name;
+        this.IconHash = transportApplication.IconHash;
+        this.Description = transportApplication.Description;
+        this.RpcOrigins = new List<string>(transportApplication.RpcOrigins);
+        this.IsPublic = transportApplication.IsPublicBot;
+        this.RequiresCodeGrant = transportApplication.BotRequiresCodeGrant;
+        this.TermsOfServiceUrl = transportApplication.TermsOfServiceUrl;
+        this.PrivacyPolicyUrl = transportApplication.PrivacyPolicyUrl;
+        this.RpcOrigins = transportApplication.RpcOrigins != null
+            ? new ReadOnlyCollection<string>(transportApplication.RpcOrigins)
+            : null;
+        this.Flags = transportApplication.Flags;
+        this.RequiresCodeGrant = transportApplication.BotRequiresCodeGrant;
+        this.IsPublic = transportApplication.IsPublicBot;
+        this.CoverImageHash = null;
+        this.VerifikationKey = transportApplication.VerifyKey;
+
+
+        // do team and owners
+        // tbh fuck doing this properly
+        if (transportApplication.Team == null)
+        {
+            // singular owner
+
+            this.Owners = new ReadOnlyCollection<DiscordUser>(new[] { new DiscordUser(transportApplication.Owner) });
+            this.Team = null;
+        }
+        else
+        {
+            // team owner
+
+            this.Team = new DiscordTeam(transportApplication.Team);
+
+            DiscordTeamMember[] members = transportApplication.Team.Members
+                .Select(x => new DiscordTeamMember(x) { Team = this.Team, User = new DiscordUser(x.User) })
+                .ToArray();
+
+            DiscordUser[] owners = members
+                .Where(x => x.MembershipStatus == DiscordTeamMembershipStatus.Accepted)
+                .Select(x => x.User)
+                .ToArray();
+
+            this.Owners = new ReadOnlyCollection<DiscordUser>(owners);
+            this.Team.Owner = owners.FirstOrDefault(x => x.Id == transportApplication.Team.OwnerId);
+            this.Team.Members = new ReadOnlyCollection<DiscordTeamMember>(members);
+        }
+    }
+
 
     /// <summary>
     /// Gets the application's cover image URL, in requested format and size.
@@ -171,7 +230,8 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// </param>
     /// <param name="permissions">Permissions for your bot. Only required if the <seealso cref="DiscordOAuthScope.Bot"/> scope is passed.</param>
     /// <param name="scopes">OAuth scopes for your application.</param>
-    public string GenerateOAuthUri(string? redirectUri = null, DiscordPermissions? permissions = null, params DiscordOAuthScope[] scopes)
+    public string GenerateOAuthUri(string? redirectUri = null, DiscordPermissions? permissions = null,
+        params DiscordOAuthScope[] scopes)
     {
         permissions &= PermissionMethods.FULL_PERMS;
 
@@ -230,9 +290,9 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     public static bool operator ==(DiscordApplication right, DiscordApplication left)
     {
         return (right is not null || left is null)
-            && (right is null || left is not null)
-            && ((right is null && left is null)
-                || right!.Id == left!.Id);
+               && (right is null || left is not null)
+               && ((right is null && left is null)
+                   || right!.Id == left!.Id);
     }
 
     /// <summary>
