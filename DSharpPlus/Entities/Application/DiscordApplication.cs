@@ -83,7 +83,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// <summary>
     /// Public key used to verify http interactions
     /// </summary>
-    public string VerifikationKey { get; internal set; }
+    public string VerificationKey { get; internal set; }
     
     /// <summary>
     /// Partial user object for the bot user associated with the app. 
@@ -171,7 +171,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
             : null;
         this.Flags = transportApplication.Flags;
         this.CoverImageHash = transportApplication.CoverImageHash;
-        this.VerifikationKey = transportApplication.VerifyKey;
+        this.VerificationKey = transportApplication.VerifyKey;
 
         this.Bot = transportApplication.Bot is null 
             ? null 
@@ -182,6 +182,11 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
 
         this.GuildId = transportApplication.GuildId;
         this.Guild = transportApplication.Guild;
+        if (this.Guild is not null)
+        {
+            this.Guild.Discord = this.Discord
+        }
+        
         this.PrimarySkuId = transportApplication.PrimarySkuId;
         this.Slug = transportApplication.Slug;
         this.ApproximateGuildCount = transportApplication.ApproximateGuildCount;
