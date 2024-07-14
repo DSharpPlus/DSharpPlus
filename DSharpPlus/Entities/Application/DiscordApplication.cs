@@ -72,8 +72,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// Gets this application's cover image URL.
     /// </summary>
     public override string? CoverImageUrl
-        =>
-            $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.CoverImageHash}.png?size=1024";
+        => $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.CoverImageHash}.png?size=1024";
 
     /// <summary>
     /// Gets the team which owns this application.
