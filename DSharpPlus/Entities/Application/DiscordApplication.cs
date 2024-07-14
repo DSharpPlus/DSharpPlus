@@ -184,7 +184,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         this.Guild = transportApplication.Guild;
         if (this.Guild is not null)
         {
-            this.Guild.Discord = this.Discord
+            this.Guild.Discord = this.Discord;
         }
         
         this.PrimarySkuId = transportApplication.PrimarySkuId;
