@@ -268,6 +268,9 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task ConnectAsync(DiscordActivity activity = null, DiscordUserStatus? status = null, DateTimeOffset? idlesince = null)
     {
+        // method checks if its already initialized
+        await InitializeAsync();
+        
         // Check if connection lock is already set, and set it if it isn't
         if (!this.connectionLock.Wait(0))
         {

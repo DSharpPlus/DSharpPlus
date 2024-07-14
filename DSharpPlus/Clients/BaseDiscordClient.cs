@@ -109,53 +109,7 @@ public abstract class BaseDiscordClient : IDisposable
     public async Task<DiscordApplication> GetCurrentApplicationAsync()
     {
         Net.Abstractions.TransportApplication tapp = await this.ApiClient.GetCurrentApplicationInfoAsync();
-        DiscordApplication app = new()
-        {
-            Discord = this,
-            Id = tapp.Id,
-            Name = tapp.Name,
-            Description = tapp.Description,
-            Summary = tapp.Summary,
-            IconHash = tapp.IconHash,
-            TermsOfServiceUrl = tapp.TermsOfServiceUrl,
-            PrivacyPolicyUrl = tapp.PrivacyPolicyUrl,
-            RpcOrigins = tapp.RpcOrigins != null ? new ReadOnlyCollection<string>(tapp.RpcOrigins) : null,
-            Flags = tapp.Flags,
-            RequiresCodeGrant = tapp.BotRequiresCodeGrant,
-            IsPublic = tapp.IsPublicBot,
-            CoverImageHash = null
-        };
-
-        // do team and owners
-        // tbh fuck doing this properly
-        if (tapp.Team == null)
-        {
-            // singular owner
-
-            app.Owners = new ReadOnlyCollection<DiscordUser>(new[] { new DiscordUser(tapp.Owner) });
-            app.Team = null;
-        }
-        else
-        {
-            // team owner
-
-            app.Team = new DiscordTeam(tapp.Team);
-
-            DiscordTeamMember[] members = tapp.Team.Members
-                .Select(x => new DiscordTeamMember(x) { Team = app.Team, User = new DiscordUser(x.User) })
-                .ToArray();
-
-            DiscordUser[] owners = members
-                .Where(x => x.MembershipStatus == DiscordTeamMembershipStatus.Accepted)
-                .Select(x => x.User)
-                .ToArray();
-
-            app.Owners = new ReadOnlyCollection<DiscordUser>(owners);
-            app.Team.Owner = owners.FirstOrDefault(x => x.Id == tapp.Team.OwnerId);
-            app.Team.Members = new ReadOnlyCollection<DiscordTeamMember>(members);
-        }
-
-        return app;
+        return new DiscordApplication(tapp);
     }
 
     /// <summary>
