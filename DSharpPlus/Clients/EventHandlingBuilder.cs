@@ -1,5 +1,6 @@
 using System;
-using DSharpPlus.AsyncEvents;
+using System.Threading.Tasks;
+
 using DSharpPlus.EventArgs;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -20,20 +21,30 @@ public sealed class EventHandlingBuilder
         => this.Services = services;
 
     /// <summary>
+    /// Registers all event handlers implemented on the provided type.
+    /// </summary>
+    public EventHandlingBuilder AddEventHandlers<T>()
+        where T : IEventHandler
+    {
+        this.Services.Configure<EventHandlerCollection>(c => c.Register<T>());
+        return this;
+    }
+
+    /// <summary>
     /// Fired whenever the underlying websocket connection is established.
     /// </summary>
-    public EventHandlingBuilder HandleSocketOpened(AsyncEventHandler<DiscordClient, SocketOpenedEventArgs> handler)
+    public EventHandlingBuilder HandleSocketOpened(Func<DiscordClient, SocketOpenedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(SocketOpenedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
     /// <summary>
     /// Fired whenever the underlying websocket connection is terminated.
     /// </summary>
-    public EventHandlingBuilder HandleSocketClosed(AsyncEventHandler<DiscordClient, SocketClosedEventArgs> handler)
+    public EventHandlingBuilder HandleSocketClosed(Func<DiscordClient, SocketClosedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(SocketClosedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -44,38 +55,27 @@ public sealed class EventHandlingBuilder
     /// <i><see cref="DiscordClient.Guilds"/> will not be populated when this event is fired.</i><br/>
     /// See also: <see cref="HandleGuildAvailable"/>, <see cref="HandleGuildDownloadCompleted"/>
     /// </remarks>
-    public EventHandlingBuilder HandleSessionCreated(AsyncEventHandler<DiscordClient, SessionCreatedEventArgs> handler)
+    public EventHandlingBuilder HandleSessionCreated(Func<DiscordClient, SessionCreatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(SessionCreatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
     /// <summary>
     /// Fired whenever a session is resumed.
     /// </summary>
-    public EventHandlingBuilder HandleSessionResumed(AsyncEventHandler<DiscordClient, SessionResumedEventArgs> handler)
+    public EventHandlingBuilder HandleSessionResumed(Func<DiscordClient, SessionResumedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(SessionResumedEventArgs), _ => []).Add(handler));
-        return this;
-    }
-
-    
-    /// <summary>
-    /// Fired whenever we receive a heartbeat from Discord.
-    /// </summary>
-    [Obsolete("This event is obsolete and wont be invoked. Use IGatewayController.HeartbeatedAsync instead")]
-    public EventHandlingBuilder HandleHeartbeated(AsyncEventHandler<DiscordClient, HeartbeatedEventArgs> handler)
-    {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(HeartbeatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
     /// <summary>
     /// Fired when too many consecutive heartbeats fail and the library considers the connection zombied.
     /// </summary>
-    public EventHandlingBuilder HandleZombied(AsyncEventHandler<DiscordClient, ZombiedEventArgs> handler)
+    public EventHandlingBuilder HandleZombied(Func<DiscordClient, ZombiedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ZombiedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -84,14 +84,10 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleApplicationCommandPermissionsUpdated
     (
-        AsyncEventHandler<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs> handler
+        Func<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs, Task> handler
     )
     {
-        this.Services.Configure<EventHandlerCollection>
-        (
-            c => c.DelegateHandlers.GetOrAdd(typeof(ApplicationCommandPermissionsUpdatedEventArgs), _ => []).Add(handler)
-        );
-
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -99,9 +95,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a new channel is created. 
     /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleChannelCreated(AsyncEventHandler<DiscordClient, ChannelCreatedEventArgs> handler)
+    public EventHandlingBuilder HandleChannelCreated(Func<DiscordClient, ChannelCreatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ChannelCreatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -109,9 +105,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a channel is updated. 
     /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleChannelUpdated(AsyncEventHandler<DiscordClient, ChannelUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandleChannelUpdated(Func<DiscordClient, ChannelUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ChannelUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -119,9 +115,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a channel is deleted. 
     /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleChannelDeleted(AsyncEventHandler<DiscordClient, ChannelDeletedEventArgs> handler)
+    public EventHandlingBuilder HandleChannelDeleted(Func<DiscordClient, ChannelDeletedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ChannelDeletedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -129,9 +125,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a DM channel is deleted. 
     /// For this event to fire you need the <see cref="DiscordIntents.DirectMessages"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleDmChannelDeleted(AsyncEventHandler<DiscordClient, DmChannelDeletedEventArgs> handler)
+    public EventHandlingBuilder HandleDmChannelDeleted(Func<DiscordClient, DmChannelDeletedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(DmChannelDeletedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -139,9 +135,9 @@ public sealed class EventHandlingBuilder
     /// Fired whenever a channels pinned message list is updated.
     /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleChannelPinsUpdated(AsyncEventHandler<DiscordClient, ChannelPinsUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandleChannelPinsUpdated(Func<DiscordClient, ChannelPinsUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ChannelPinsUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -149,9 +145,9 @@ public sealed class EventHandlingBuilder
     /// Fired when the user joins a new guild.
     /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleGuildCreated(AsyncEventHandler<DiscordClient, GuildCreatedEventArgs> handler)
+    public EventHandlingBuilder HandleGuildCreated(Func<DiscordClient, GuildCreatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildCreatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -159,9 +155,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a guild is becoming available.
     /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleGuildAvailable(AsyncEventHandler<DiscordClient, GuildAvailableEventArgs> handler)
+    public EventHandlingBuilder HandleGuildAvailable(Func<DiscordClient, GuildAvailableEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildAvailableEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -169,9 +165,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a guild is updated.
     /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleGuildUpdated(AsyncEventHandler<DiscordClient, GuildUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandleGuildUpdated(Func<DiscordClient, GuildUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -179,9 +175,9 @@ public sealed class EventHandlingBuilder
     /// Fired when the user leaves or is removed from a guild.
     /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleGuildDeleted(AsyncEventHandler<DiscordClient, GuildDeletedEventArgs> handler)
+    public EventHandlingBuilder HandleGuildDeleted(Func<DiscordClient, GuildDeletedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildDeletedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -189,9 +185,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a guild becomes unavailable.
     /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleGuildUnavailable(AsyncEventHandler<DiscordClient, GuildUnavailableEventArgs> handler)
+    public EventHandlingBuilder HandleGuildUnavailable(Func<DiscordClient, GuildUnavailableEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildUnavailableEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -201,14 +197,10 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildDownloadCompleted
     (
-        AsyncEventHandler<DiscordClient, GuildDownloadCompletedEventArgs> handler
+        Func<DiscordClient, GuildDownloadCompletedEventArgs, Task> handler
     )
     {
-        this.Services.Configure<EventHandlerCollection>
-        (
-            c => c.DelegateHandlers.GetOrAdd(typeof(GuildDownloadCompletedEventArgs), _ => []).Add(handler)
-        );
-
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -216,9 +208,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a guilds emojis get updated.
     /// For this event to fire you need the <see cref="DiscordIntents.GuildEmojisAndStickers"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleGuildEmojisUpdated(AsyncEventHandler<DiscordClient, GuildEmojisUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandleGuildEmojisUpdated(Func<DiscordClient, GuildEmojisUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildEmojisUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -226,9 +218,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a guilds stickers get updated.
     /// For this event to fire you need the <see cref="DiscordIntents.GuildEmojisAndStickers"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleGuildStickersUpdated(AsyncEventHandler<DiscordClient, GuildStickersUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandleGuildStickersUpdated(Func<DiscordClient, GuildStickersUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildStickersUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -237,23 +229,19 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleGuildIntegrationsUpdated
     (
-        AsyncEventHandler<DiscordClient, GuildIntegrationsUpdatedEventArgs> handler
+        Func<DiscordClient, GuildIntegrationsUpdatedEventArgs, Task> handler
     )
     {
-        this.Services.Configure<EventHandlerCollection>
-        (
-            c => c.DelegateHandlers.GetOrAdd(typeof(GuildIntegrationsUpdatedEventArgs), _ => []).Add(handler)
-        );
-
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
     /// <summary>
     /// Fired when a audit log entry is created.
     /// </summary>
-    public EventHandlingBuilder HandleGuildAuditLogCreated(AsyncEventHandler<DiscordClient, GuildAuditLogCreatedEventArgs> handler)
+    public EventHandlingBuilder HandleGuildAuditLogCreated(Func<DiscordClient, GuildAuditLogCreatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildAuditLogCreatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register<GuildAuditLogCreatedEventArgs>(handler));
         return this;
     }
 
@@ -262,12 +250,12 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleScheduledGuildEventCreated
     (
-        AsyncEventHandler<DiscordClient, ScheduledGuildEventCreatedEventArgs> handler
+        Func<DiscordClient, ScheduledGuildEventCreatedEventArgs, Task> handler
     )
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers.GetOrAdd(typeof(ScheduledGuildEventCreatedEventArgs), _ => []).Add(handler)
+            c => c.Register<ScheduledGuildEventCreatedEventArgs>(handler)
         );
 
         return this;
@@ -278,14 +266,10 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleScheduledGuildEventUpdated
     (
-        AsyncEventHandler<DiscordClient, ScheduledGuildEventUpdatedEventArgs> handler
+        Func<DiscordClient, ScheduledGuildEventUpdatedEventArgs, Task> handler
     )
     {
-        this.Services.Configure<EventHandlerCollection>
-        (
-            c => c.DelegateHandlers.GetOrAdd(typeof(ScheduledGuildEventUpdatedEventArgs), _ => []).Add(handler)
-        );
-
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -294,14 +278,10 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleScheduledGuildEventDeleted
     (
-        AsyncEventHandler<DiscordClient, ScheduledGuildEventDeletedEventArgs> handler
+        Func<DiscordClient, ScheduledGuildEventDeletedEventArgs, Task> handler
     )
     {
-        this.Services.Configure<EventHandlerCollection>
-        (
-            c => c.DelegateHandlers.GetOrAdd(typeof(ScheduledGuildEventDeletedEventArgs), _ => []).Add(handler)
-        );
-
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -310,14 +290,10 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleScheduledGuildEventCompleted
     (
-        AsyncEventHandler<DiscordClient, ScheduledGuildEventCompletedEventArgs> handler
+        Func<DiscordClient, ScheduledGuildEventCompletedEventArgs, Task> handler
     )
     {
-        this.Services.Configure<EventHandlerCollection>
-        (
-            c => c.DelegateHandlers.GetOrAdd(typeof(ScheduledGuildEventCompletedEventArgs), _ => []).Add(handler)
-        );
-
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -326,13 +302,10 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleScheduledGuildEventUserAdded
     (
-        AsyncEventHandler<DiscordClient, ScheduledGuildEventUserAddedEventArgs> handler
+        Func<DiscordClient, ScheduledGuildEventUserAddedEventArgs, Task> handler
     )
     {
-        this.Services.Configure<EventHandlerCollection>
-        (
-            c => c.DelegateHandlers.GetOrAdd(typeof(ScheduledGuildEventUserAddedEventArgs), _ => []).Add(handler)
-        );
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
 
         return this;
     }
@@ -342,13 +315,10 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleScheduledGuildEventUserRemoved
     (
-        AsyncEventHandler<DiscordClient, ScheduledGuildEventUserRemovedEventArgs> handler
+        Func<DiscordClient, ScheduledGuildEventUserRemovedEventArgs, Task> handler
     )
     {
-        this.Services.Configure<EventHandlerCollection>
-        (
-            c => c.DelegateHandlers.GetOrAdd(typeof(ScheduledGuildEventUserRemovedEventArgs), _ => []).Add(handler)
-        );
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
 
         return this;
     }
@@ -357,9 +327,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a guild ban gets added.
     /// For this event to fire you need the <see cref="DiscordIntents.GuildModeration"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleGuildBanAdded(AsyncEventHandler<DiscordClient, GuildBanAddedEventArgs> handler)
+    public EventHandlingBuilder HandleGuildBanAdded(Func<DiscordClient, GuildBanAddedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildBanAddedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -367,9 +337,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a guild ban gets removed.
     /// For this event to fire you need the <see cref="DiscordIntents.GuildModeration"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleGuildBanRemoved(AsyncEventHandler<DiscordClient, GuildBanRemovedEventArgs> handler)
+    public EventHandlingBuilder HandleGuildBanRemoved(Func<DiscordClient, GuildBanRemovedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildBanRemovedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -377,9 +347,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a new user joins a guild.
     /// For this event to fire you need the <see cref="DiscordIntents.GuildMembers"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleGuildMemberAdded(AsyncEventHandler<DiscordClient, GuildMemberAddedEventArgs> handler)
+    public EventHandlingBuilder HandleGuildMemberAdded(Func<DiscordClient, GuildMemberAddedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildMemberAddedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -387,9 +357,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a user is removed from a guild, by leaving, a kick or a ban.
     /// For this event to fire you need the <see cref="DiscordIntents.GuildMembers"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleGuildMemberRemoved(AsyncEventHandler<DiscordClient, GuildMemberRemovedEventArgs> handler)
+    public EventHandlingBuilder HandleGuildMemberRemoved(Func<DiscordClient, GuildMemberRemovedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildMemberRemovedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -397,18 +367,18 @@ public sealed class EventHandlingBuilder
     /// Fired when a guild member is updated.
     /// For this event to fire you need the <see cref="DiscordIntents.GuildMembers"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleGuildMemberUpdated(AsyncEventHandler<DiscordClient, GuildMemberUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandleGuildMemberUpdated(Func<DiscordClient, GuildMemberUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildMemberUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
     /// <summary>
     /// Fired in response to requesting guild members over the gateway.
     /// </summary>
-    public EventHandlingBuilder HandleGuildMembersChunked(AsyncEventHandler<DiscordClient, GuildMembersChunkedEventArgs> handler)
+    public EventHandlingBuilder HandleGuildMembersChunked(Func<DiscordClient, GuildMembersChunkedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildMembersChunkedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -416,9 +386,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a guild role is created.
     /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleGuildRoleCreated(AsyncEventHandler<DiscordClient, GuildRoleCreatedEventArgs> handler)
+    public EventHandlingBuilder HandleGuildRoleCreated(Func<DiscordClient, GuildRoleCreatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildRoleCreatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -426,9 +396,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a guild role is updated.
     /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleGuildRoleUpdated(AsyncEventHandler<DiscordClient, GuildRoleUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandleGuildRoleUpdated(Func<DiscordClient, GuildRoleUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildRoleUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -436,9 +406,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a guild role is deleted.
     /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleGuildRoleDeleted(AsyncEventHandler<DiscordClient, GuildRoleDeletedEventArgs> handler)
+    public EventHandlingBuilder HandleGuildRoleDeleted(Func<DiscordClient, GuildRoleDeletedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(GuildRoleDeletedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -446,9 +416,9 @@ public sealed class EventHandlingBuilder
     /// Fired when an invite is created.
     /// For this event to fire you need the <see cref="DiscordIntents.GuildInvites"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleInviteCreated(AsyncEventHandler<DiscordClient, InviteCreatedEventArgs> handler)
+    public EventHandlingBuilder HandleInviteCreated(Func<DiscordClient, InviteCreatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(InviteCreatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -456,9 +426,9 @@ public sealed class EventHandlingBuilder
     /// Fired when an invite is deleted.
     /// For this event to fire you need the <see cref="DiscordIntents.GuildInvites"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleInviteDeleted(AsyncEventHandler<DiscordClient, InviteDeletedEventArgs> handler)
+    public EventHandlingBuilder HandleInviteDeleted(Func<DiscordClient, InviteDeletedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(InviteDeletedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -467,9 +437,9 @@ public sealed class EventHandlingBuilder
     /// For this event to fire you need the <see cref="DiscordIntents.GuildMessages"/> or 
     /// <see cref="DiscordIntents.DirectMessages"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleMessageCreated(AsyncEventHandler<DiscordClient, MessageCreatedEventArgs> handler)
+    public EventHandlingBuilder HandleMessageCreated(Func<DiscordClient, MessageCreatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(MessageCreatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -478,9 +448,9 @@ public sealed class EventHandlingBuilder
     /// For this event to fire you need the <see cref="DiscordIntents.GuildMessages"/> or 
     /// <see cref="DiscordIntents.DirectMessages"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleMessageUpdated(AsyncEventHandler<DiscordClient, MessageUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandleMessageUpdated(Func<DiscordClient, MessageUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(MessageUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -489,9 +459,9 @@ public sealed class EventHandlingBuilder
     /// For this event to fire you need the <see cref="DiscordIntents.GuildMessages"/> or 
     /// <see cref="DiscordIntents.DirectMessages"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleMessageDeleted(AsyncEventHandler<DiscordClient, MessageDeletedEventArgs> handler)
+    public EventHandlingBuilder HandleMessageDeleted(Func<DiscordClient, MessageDeletedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(MessageDeletedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -500,18 +470,18 @@ public sealed class EventHandlingBuilder
     /// For this event to fire you need the <see cref="DiscordIntents.GuildMessages"/> or 
     /// <see cref="DiscordIntents.DirectMessages"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleMessagesBulkDeleted(AsyncEventHandler<DiscordClient, MessagesBulkDeletedEventArgs> handler)
+    public EventHandlingBuilder HandleMessagesBulkDeleted(Func<DiscordClient, MessagesBulkDeletedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(MessagesBulkDeletedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
     /// <summary>
     /// Fired when a vote was cast on a poll.
     /// </summary>
-    public EventHandlingBuilder HandleMessagePollVoted(AsyncEventHandler<DiscordClient, MessagePollVotedEventArgs> handler)
+    public EventHandlingBuilder HandleMessagePollVoted(Func<DiscordClient, MessagePollVotedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(MessagePollVotedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -519,9 +489,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a reaction gets added to a message.
     /// For this event to fire you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleMessageReactionAdded(AsyncEventHandler<DiscordClient, MessageReactionAddedEventArgs> handler)
+    public EventHandlingBuilder HandleMessageReactionAdded(Func<DiscordClient, MessageReactionAddedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(MessageReactionAddedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -531,14 +501,10 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleMessageReactionRemoved
     (
-        AsyncEventHandler<DiscordClient, MessageReactionRemovedEventArgs> handler
+        Func<DiscordClient, MessageReactionRemovedEventArgs, Task> handler
     )
     {
-        this.Services.Configure<EventHandlerCollection>
-        (
-            c => c.DelegateHandlers.GetOrAdd(typeof(MessageReactionRemovedEventArgs), _ => []).Add(handler)
-        );
-
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -548,14 +514,10 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleMessageReactionsCleared
     (
-        AsyncEventHandler<DiscordClient, MessageReactionsClearedEventArgs> handler
+        Func<DiscordClient, MessageReactionsClearedEventArgs, Task> handler
     )
     {
-        this.Services.Configure<EventHandlerCollection>
-        (
-            c => c.DelegateHandlers.GetOrAdd(typeof(MessageReactionsClearedEventArgs), _ => []).Add(handler)
-        );
-
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -565,14 +527,10 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleMessageReactionRemovedEmoji
     (
-        AsyncEventHandler<DiscordClient, MessageReactionRemovedEmojiEventArgs> handler
+        Func<DiscordClient, MessageReactionRemovedEmojiEventArgs, Task> handler
     )
     {
-        this.Services.Configure<EventHandlerCollection>
-        (
-            c => c.DelegateHandlers.GetOrAdd(typeof(MessageReactionRemovedEmojiEventArgs), _ => []).Add(handler)
-        );
-
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -580,9 +538,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a user presence has been updated.
     /// For this event to fire you need the <see cref="DiscordIntents.GuildPresences"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandlePresenceUpdated(AsyncEventHandler<DiscordClient, PresenceUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandlePresenceUpdated(Func<DiscordClient, PresenceUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(PresenceUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -590,9 +548,9 @@ public sealed class EventHandlingBuilder
     /// Fired when the current user updates their settings.
     /// For this event to fire you need the <see cref="DiscordIntents.GuildPresences"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleUserSettingsUpdated(AsyncEventHandler<DiscordClient, UserSettingsUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandleUserSettingsUpdated(Func<DiscordClient, UserSettingsUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(UserSettingsUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -603,9 +561,9 @@ public sealed class EventHandlingBuilder
     /// Note that this event only applies for changes to the <b>current user</b>, the client that is connected to Discord.
     /// For this event to fire you need the <see cref="DiscordIntents.GuildPresences"/> intent.
     /// </remarks>
-    public EventHandlingBuilder HandleUserUpdated(AsyncEventHandler<DiscordClient, UserUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandleUserUpdated(Func<DiscordClient, UserUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(UserUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -613,9 +571,9 @@ public sealed class EventHandlingBuilder
     /// Fired when someone joins, leaves or moves voice channels.
     /// For this event to fire you need the <see cref="DiscordIntents.GuildVoiceStates"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleVoiceStateUpdated(AsyncEventHandler<DiscordClient, VoiceStateUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandleVoiceStateUpdated(Func<DiscordClient, VoiceStateUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(VoiceStateUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -623,9 +581,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a guild's voice server is updated.
     /// For this event to fire you need the <see cref="DiscordIntents.GuildVoiceStates"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleVoiceServerUpdated(AsyncEventHandler<DiscordClient, VoiceServerUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandleVoiceServerUpdated(Func<DiscordClient, VoiceServerUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(VoiceServerUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -633,9 +591,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a thread is created.
     /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleThreadCreated(AsyncEventHandler<DiscordClient, ThreadCreatedEventArgs> handler)
+    public EventHandlingBuilder HandleThreadCreated(Func<DiscordClient, ThreadCreatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ThreadCreatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -643,9 +601,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a thread is updated.
     /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleThreadUpdated(AsyncEventHandler<DiscordClient, ThreadUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandleThreadUpdated(Func<DiscordClient, ThreadUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ThreadUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -653,9 +611,9 @@ public sealed class EventHandlingBuilder
     /// Fired when a thread is deleted.
     /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleThreadDeleted(AsyncEventHandler<DiscordClient, ThreadDeletedEventArgs> handler)
+    public EventHandlingBuilder HandleThreadDeleted(Func<DiscordClient, ThreadDeletedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ThreadDeletedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -663,9 +621,9 @@ public sealed class EventHandlingBuilder
     /// Fired when the current member gains access to channels that contain threads.
     /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleThreadListSynced(AsyncEventHandler<DiscordClient, ThreadListSyncedEventArgs> handler)
+    public EventHandlingBuilder HandleThreadListSynced(Func<DiscordClient, ThreadListSyncedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ThreadListSyncedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -676,9 +634,9 @@ public sealed class EventHandlingBuilder
     /// <remarks>
     /// This event is primarily implemented for completeness and unlikely to be useful to bots.
     /// </remarks>
-    public EventHandlingBuilder HandleThreadMemberUpdated(AsyncEventHandler<DiscordClient, ThreadMemberUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandleThreadMemberUpdated(Func<DiscordClient, ThreadMemberUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ThreadMemberUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -686,72 +644,72 @@ public sealed class EventHandlingBuilder
     /// Fired when the thread members are updated.
     /// For this event to fire you need the <see cref="DiscordIntents.GuildMembers"/> or <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>
-    public EventHandlingBuilder HandleThreadMembersUpdated(AsyncEventHandler<DiscordClient, ThreadMembersUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandleThreadMembersUpdated(Func<DiscordClient, ThreadMembersUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ThreadMembersUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
     /// <summary>
     /// Fired when an integration is created.
     /// </summary>
-    public EventHandlingBuilder HandleIntegrationCreated(AsyncEventHandler<DiscordClient, IntegrationCreatedEventArgs> handler)
+    public EventHandlingBuilder HandleIntegrationCreated(Func<DiscordClient, IntegrationCreatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(IntegrationCreatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
     /// <summary>
     /// Fired when an integration is updated.
     /// </summary>
-    public EventHandlingBuilder HandleIntegrationUpdated(AsyncEventHandler<DiscordClient, IntegrationUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandleIntegrationUpdated(Func<DiscordClient, IntegrationUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(IntegrationUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
     /// <summary>
     /// Fired when an integration is deleted.
     /// </summary>
-    public EventHandlingBuilder HandleIntegrationDeleted(AsyncEventHandler<DiscordClient, IntegrationDeletedEventArgs> handler)
+    public EventHandlingBuilder HandleIntegrationDeleted(Func<DiscordClient, IntegrationDeletedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(IntegrationDeletedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
     /// <summary>
     /// Fired when a stage instance is created.
     /// </summary>
-    public EventHandlingBuilder HandleStageInstanceCreated(AsyncEventHandler<DiscordClient, StageInstanceCreatedEventArgs> handler)
+    public EventHandlingBuilder HandleStageInstanceCreated(Func<DiscordClient, StageInstanceCreatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(StageInstanceCreatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
     /// <summary>
     /// Fired when a stage instance is updated.
     /// </summary>
-    public EventHandlingBuilder HandleStageInstanceUpdated(AsyncEventHandler<DiscordClient, StageInstanceUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandleStageInstanceUpdated(Func<DiscordClient, StageInstanceUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(StageInstanceUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
     /// <summary>
     /// Fired when a stage instance is deleted.
     /// </summary>
-    public EventHandlingBuilder HandleStageInstanceDeleted(AsyncEventHandler<DiscordClient, StageInstanceDeletedEventArgs> handler)
+    public EventHandlingBuilder HandleStageInstanceDeleted(Func<DiscordClient, StageInstanceDeletedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(StageInstanceDeletedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
     /// <summary>
     /// Fired when any interaction is invoked.
     /// </summary>
-    public EventHandlingBuilder HandleInteractionCreated(AsyncEventHandler<DiscordClient, InteractionCreatedEventArgs> handler)
+    public EventHandlingBuilder HandleInteractionCreated(Func<DiscordClient, InteractionCreatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(InteractionCreatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -760,23 +718,19 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleComponentInteractionCreated
     (
-        AsyncEventHandler<DiscordClient, ComponentInteractionCreatedEventArgs> handler
+        Func<DiscordClient, ComponentInteractionCreatedEventArgs, Task> handler
     )
     {
-        this.Services.Configure<EventHandlerCollection>
-        (
-            c => c.DelegateHandlers.GetOrAdd(typeof(ComponentInteractionCreatedEventArgs), _ => []).Add(handler)
-        );
-
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
     /// <summary>
     /// Fired when a modal is submitted. If a modal is closed, this event is not fired.
     /// </summary>
-    public EventHandlingBuilder HandleModalSubmitted(AsyncEventHandler<DiscordClient, ModalSubmittedEventArgs> handler)
+    public EventHandlingBuilder HandleModalSubmitted(Func<DiscordClient, ModalSubmittedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(ModalSubmittedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -785,41 +739,37 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleContextMenuInteractionCreated
     (
-        AsyncEventHandler<DiscordClient, ContextMenuInteractionCreatedEventArgs> handler
+        Func<DiscordClient, ContextMenuInteractionCreatedEventArgs, Task> handler
     )
     {
-        this.Services.Configure<EventHandlerCollection>
-        (
-            c => c.DelegateHandlers.GetOrAdd(typeof(ContextMenuInteractionCreatedEventArgs), _ => []).Add(handler)
-        );
-
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
     /// <summary>
     /// Fired when a user starts typing in a channel.
     /// </summary>
-    public EventHandlingBuilder HandleTypingStarted(AsyncEventHandler<DiscordClient, TypingStartedEventArgs> handler)
+    public EventHandlingBuilder HandleTypingStarted(Func<DiscordClient, TypingStartedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(TypingStartedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
     /// <summary>
     /// Fired when an unknown event gets received.
     /// </summary>
-    public EventHandlingBuilder HandleUnknownEvent(AsyncEventHandler<DiscordClient, UnknownEventArgs> handler)
+    public EventHandlingBuilder HandleUnknownEvent(Func<DiscordClient, UnknownEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(UnknownEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
     /// <summary>
     /// Fired whenever webhooks update.
     /// </summary>
-    public EventHandlingBuilder HandleWebhooksUpdated(AsyncEventHandler<DiscordClient, WebhooksUpdatedEventArgs> handler)
+    public EventHandlingBuilder HandleWebhooksUpdated(Func<DiscordClient, WebhooksUpdatedEventArgs, Task> handler)
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.DelegateHandlers.GetOrAdd(typeof(WebhooksUpdatedEventArgs), _ => []).Add(handler));
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -828,14 +778,10 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleAutoModerationRuleCreated
     (
-        AsyncEventHandler<DiscordClient, AutoModerationRuleCreatedEventArgs> handler
+        Func<DiscordClient, AutoModerationRuleCreatedEventArgs, Task> handler
     )
     {
-        this.Services.Configure<EventHandlerCollection>
-        (
-            c => c.DelegateHandlers.GetOrAdd(typeof(AutoModerationRuleCreatedEventArgs), _ => []).Add(handler)
-        );
-
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -844,14 +790,10 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleAutoModerationRuleUpdated
     (
-        AsyncEventHandler<DiscordClient, AutoModerationRuleUpdatedEventArgs> handler
+        Func<DiscordClient, AutoModerationRuleUpdatedEventArgs, Task> handler
     )
     {
-        this.Services.Configure<EventHandlerCollection>
-        (
-            c => c.DelegateHandlers.GetOrAdd(typeof(AutoModerationRuleUpdatedEventArgs), _ => []).Add(handler)
-        );
-
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -860,14 +802,10 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleAutoModerationRuleDeleted
     (
-        AsyncEventHandler<DiscordClient, AutoModerationRuleDeletedEventArgs> handler
+        Func<DiscordClient, AutoModerationRuleDeletedEventArgs, Task> handler
     )
     {
-        this.Services.Configure<EventHandlerCollection>
-        (
-            c => c.DelegateHandlers.GetOrAdd(typeof(AutoModerationRuleDeletedEventArgs), _ => []).Add(handler)
-        );
-
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 
@@ -876,14 +814,10 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleAutoModerationRuleExecuted
     (
-        AsyncEventHandler<DiscordClient, AutoModerationRuleExecutedEventArgs> handler
+        Func<DiscordClient, AutoModerationRuleExecutedEventArgs, Task> handler
     )
     {
-        this.Services.Configure<EventHandlerCollection>
-        (
-            c => c.DelegateHandlers.GetOrAdd(typeof(AutoModerationRuleExecutedEventArgs), _ => []).Add(handler)
-        );
-
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
 }
