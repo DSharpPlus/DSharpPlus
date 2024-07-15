@@ -36,6 +36,9 @@ public sealed class SingleShardOrchestrator : IShardOrchestrator
     public bool AllShardsConnected => this.gatewayClient.IsConnected;
 
     /// <inheritdoc/>
+    public ValueTask BroadcastOutboundEventAsync(byte[] payload) => SendOutboundEventAsync(payload, 0);
+
+    /// <inheritdoc/>
     public TimeSpan GetConnectionLatency(ulong guildId) => this.gatewayClient.Ping;
 
     /// <inheritdoc/>
