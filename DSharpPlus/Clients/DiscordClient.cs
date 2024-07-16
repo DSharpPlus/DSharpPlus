@@ -616,8 +616,11 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="activity">Activity to set.</param>
     /// <param name="userStatus">Status of the user.</param>
     /// <param name="idleSince">Since when is the client performing the specified activity.</param>
-    /// <returns></returns>
-    public async Task UpdateStatusAsync(DiscordActivity activity = null, DiscordUserStatus? userStatus = null, DateTimeOffset? idleSince = null)
+    /// <param name="shardId">
+    /// The ID of the shard whose status should be updated. Defaults to null, which will update all shards controlled by
+    /// this DiscordClient.
+    /// </param>
+    public async Task UpdateStatusAsync(DiscordActivity activity = null, DiscordUserStatus? userStatus = null, DateTimeOffset? idleSince = null, int? shardId = null)
     {
         StatusUpdate update = new()
         {
@@ -633,7 +636,17 @@ public sealed partial class DiscordClient : BaseDiscordClient
         GatewayPayload gatewayPayload = new() {OpCode = GatewayOpCode.StatusUpdate, Data = update};
 
         string payload = DiscordJson.SerializeObject(gatewayPayload);
-        await this.orchestrator.SendOutboundEventAsync(Encoding.UTF8.GetBytes(payload), 0);
+
+        if (shardId is null)
+        {
+            await this.orchestrator.BroadcastOutboundEventAsync(Encoding.UTF8.GetBytes(payload));
+        }
+        else
+        {
+            // this is a bit of a hack. x % n, for any x < n, will always return x, so we can just pass the shard ID
+            // as guild ID. this won't be very graceful if you pass an invalid ID, though.
+            await this.orchestrator.SendOutboundEventAsync(Encoding.UTF8.GetBytes(payload), (ulong)shardId.Value);
+        }
     }
 
     /// <summary>

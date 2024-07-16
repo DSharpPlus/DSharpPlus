@@ -32,6 +32,11 @@ public interface IShardOrchestrator
     public ValueTask SendOutboundEventAsync(byte[] payload, ulong guildId);
 
     /// <summary>
+    /// Sends an outbound event to Discord on all shards.
+    /// </summary>
+    public ValueTask BroadcastOutboundEventAsync(byte[] payload);
+
+    /// <summary>
     /// Indicates whether all shards are connected.
     /// </summary>
     public bool AllShardsConnected { get; }
