@@ -184,6 +184,13 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     }
 
     /// <inheritdoc/>
-    public async ValueTask BroadcastOutboundEventAsync(byte[] payload) 
-        => await Parallel.ForEachAsync(this.shards, async (shard, _) => await shard.WriteAsync(payload));
+    public async ValueTask BroadcastOutboundEventAsync(byte[] payload)
+    {
+        if (!this.AllShardsConnected)
+        {
+            throw new InvalidOperationException("Broadcast is only possible when all shards are connected");
+        }
+
+        await Parallel.ForEachAsync(this.shards, async (shard, _) => await shard.WriteAsync(payload));
+    }
 }
