@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
@@ -51,11 +52,11 @@ public sealed class SingleShardOrchestrator : IShardOrchestrator
     /// <summary>
     /// Sends an outbound event to Discord.
     /// </summary>
-    public async ValueTask SendOutboundEventAsync(byte[] payload, ulong _) 
+    public async ValueTask SendOutboundEventAsync(byte[] payload, ulong _)
         => await this.gatewayClient.WriteAsync(payload);
 
     /// <inheritdoc/>
-    public async ValueTask StartAsync(DiscordActivity? activity, DiscordUserStatus? status, DateTimeOffset? idleSince)
+    public async ValueTask StartAsync(DiscordActivity? activity, DiscordUserStatus? status, DateTimeOffset? idleSince, CancellationToken ct = default)
     {
         GatewayInfo info = await this.apiClient.GetGatewayInfoAsync();
 
@@ -69,7 +70,7 @@ public sealed class SingleShardOrchestrator : IShardOrchestrator
             gwuri.AddParameter("compress", "zlib-stream");
         }
 
-        await this.gatewayClient.ConnectAsync(gwuri.Build(), activity, status, idleSince);
+        await this.gatewayClient.ConnectAsync(gwuri.Build(), activity, status, idleSince, ct: ct);
     }
 
     /// <inheritdoc/>

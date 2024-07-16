@@ -118,13 +118,18 @@ internal sealed class TransportService : ITransportService
     }
 
     /// <inheritdoc/>
-    public async ValueTask<TransportFrame> ReadAsync()
+    public async ValueTask<TransportFrame> ReadAsync(CancellationToken ct = default)
     {
         ObjectDisposedException.ThrowIf(this.isDisposed, this);
 
         if (!this.isConnected)
         {
             throw new InvalidOperationException("The transport service was not connected to the gateway.");
+        }
+
+        if (ct.IsCancellationRequested)
+        {
+            return new TransportFrame(new OperationCanceledException(ct));
         }
 
         ValueWebSocketReceiveResult receiveResult;
