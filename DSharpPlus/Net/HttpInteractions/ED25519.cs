@@ -3,12 +3,12 @@ using System.Runtime.InteropServices;
 
 namespace DSharpPlus.Net.HttpInteractions;
 
-public static partial class Ed25519
+internal static partial class Ed25519
 {
-    public const int SignatureBytes = 64;
-    public const int PublicKeyBytes = 32;
+    internal const int SignatureBytes = 64;
+    internal const int PublicKeyBytes = 32;
     
-    public static unsafe bool TryVerifySignature(ReadOnlySpan<byte> body, ReadOnlySpan<byte> publicKey, ReadOnlySpan<byte> signature)
+    internal static unsafe bool TryVerifySignature(ReadOnlySpan<byte> body, ReadOnlySpan<byte> publicKey, ReadOnlySpan<byte> signature)
     {
         ArgumentOutOfRangeException.ThrowIfNotEqual(signature.Length, SignatureBytes);
         ArgumentOutOfRangeException.ThrowIfNotEqual(publicKey.Length, PublicKeyBytes);

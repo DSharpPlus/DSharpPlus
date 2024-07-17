@@ -30,10 +30,10 @@ public static class EndpointRouteBuilderExtensions
             httpContext.Response.StatusCode = 400;
             return;
         }
-                
+
         byte[] bodyBuffer = ArrayPool<byte>.Shared.Rent(length);
         await httpContext.Request.Body.ReadExactlyAsync(bodyBuffer.AsMemory(..length), cancellationToken);
-                
+
         if (!TryExtractHeaders(httpContext.Request.Headers, out string? timestamp, out string? key))
         {
             httpContext.Response.StatusCode = 401;
@@ -47,18 +47,17 @@ public static class EndpointRouteBuilderExtensions
         }
 
         ArraySegment<byte> body = new(bodyBuffer, 0, length);
-                
+
         byte[] result = await client.HandleHttpInteractionAsync(body, cancellationToken);
-                
+
         ArrayPool<byte>.Shared.Return(bodyBuffer);
-                
+
         httpContext.Response.StatusCode = 200;
         httpContext.Response.ContentLength = result.Length;
         httpContext.Response.ContentType = MediaTypeNames.Application.Json;
-                
+
         await httpContext.Response.Body.WriteAsync(result, cancellationToken);
     }
-    
 
     public static bool TryExtractHeaders(IDictionary<string, StringValues> headers, out string? timestamp, out string? key)
     {
