@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <PackageId>DSharpPlus.HttpInteractions.AspNetCore</PackageId>
+    <Description>A package to easily use http based discord interactions with DSharpPlus in a Asp.Net project</Description>
+    <PackageTags>$(PackageTags), interactions, slash-commands</PackageTags>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>true</IsPackable>

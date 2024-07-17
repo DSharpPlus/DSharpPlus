@@ -12,7 +12,7 @@ namespace DSharpPlus.HttpInteractions.AspNetCore;
 public static class EndpointRouteBuilderExtensions
 {
     /// <summary>
-    /// Adds handling of Discords http interactions to the specified route.
+    /// Registers an endpoint to handle HTTP-based interactions from Discord
     /// </summary>
     /// <returns>A <see cref="RouteHandlerBuilder"/> that can be used to further customize the endpoint.</returns>
     public static RouteHandlerBuilder AddDiscordHttpInteractions
