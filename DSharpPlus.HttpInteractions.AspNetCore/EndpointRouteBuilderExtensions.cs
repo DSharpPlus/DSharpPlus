@@ -45,8 +45,10 @@ public static class EndpointRouteBuilderExtensions
             httpContext.Response.StatusCode = 401;
             return;
         }
+
+        ArraySegment<byte> body = new(bodyBuffer, 0, length);
                 
-        byte[] result = await client.HandleHttpInteractionAsync(bodyBuffer[..length], cancellationToken);
+        byte[] result = await client.HandleHttpInteractionAsync(body, cancellationToken);
                 
         ArrayPool<byte>.Shared.Return(bodyBuffer);
                 

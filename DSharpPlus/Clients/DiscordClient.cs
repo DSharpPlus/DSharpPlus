@@ -924,7 +924,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="cancellationToken">Token to cancel the interaction when the http request was canceled</param>
     /// <returns>Returns the body which should be returned to the http request</returns>
     /// <exception cref="TaskCanceledException">Thrown when the passed cancellation token was canceled</exception>
-    public async Task<byte[]> HandleHttpInteractionAsync(byte[] body, CancellationToken cancellationToken = default)
+    public async Task<byte[]> HandleHttpInteractionAsync(ArraySegment<byte> body, CancellationToken cancellationToken = default)
     {
         string bodyString = Encoding.UTF8.GetString(body);
         
