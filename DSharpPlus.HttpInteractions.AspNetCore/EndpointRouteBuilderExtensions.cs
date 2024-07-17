@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
 
 using DSharpPlus.Net.HttpInteractions;
-
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 
@@ -22,7 +22,7 @@ public static class EndpointRouteBuilderExtensions
     ) 
         => builder.MapPost(url, HandleDiscordInteractionAsync);
 
-    private static async Task HandleDiscordInteractionAsync(HttpContext httpContext, DiscordClient client)
+    private static async Task HandleDiscordInteractionAsync(HttpContext httpContext, CancellationToken cancellationToken, [FromServices] DiscordClient client)
     {
         if (!httpContext.Request.Headers.TryGetValue(HeaderNames.ContentLength, out StringValues lengthString) 
             || !int.TryParse(lengthString, out int length))
@@ -46,7 +46,7 @@ public static class EndpointRouteBuilderExtensions
             return;
         }
                 
-        byte[] result = await client.HandleHttpInteractionAsync(bodyBuffer[..length]);
+        byte[] result = await client.HandleHttpInteractionAsync(bodyBuffer[..length], cancellationToken);
                 
         ArrayPool<byte>.Shared.Return(bodyBuffer);
                 
