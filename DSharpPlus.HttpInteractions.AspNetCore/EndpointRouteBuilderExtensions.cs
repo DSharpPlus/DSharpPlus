@@ -32,7 +32,7 @@ public static class EndpointRouteBuilderExtensions
         }
                 
         byte[] bodyBuffer = ArrayPool<byte>.Shared.Rent(length);
-        await httpContext.Request.Body.ReadExactlyAsync(bodyBuffer.AsMemory(..length));
+        await httpContext.Request.Body.ReadExactlyAsync(bodyBuffer.AsMemory(..length), cancellationToken);
                 
         if (!TryExtractHeaders(httpContext.Request.Headers, out string? timestamp, out string? key))
         {
