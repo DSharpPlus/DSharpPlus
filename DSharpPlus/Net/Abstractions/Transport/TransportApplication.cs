@@ -17,56 +17,75 @@ internal sealed class TransportApplication
 
     [JsonProperty("description", NullValueHandling = NullValueHandling.Include)]
     public string Description { get; set; }
-
-    [JsonProperty("summary", NullValueHandling = NullValueHandling.Include)]
-    public string Summary { get; set; }
+    
+    [JsonProperty("rpc_origins", NullValueHandling = NullValueHandling.Ignore)]
+    public IList<string>? RpcOrigins { get; set; }
 
     [JsonProperty("bot_public", NullValueHandling = NullValueHandling.Include)]
     public bool IsPublicBot { get; set; }
 
     [JsonProperty("bot_require_code_grant", NullValueHandling = NullValueHandling.Include)]
     public bool BotRequiresCodeGrant { get; set; }
+    
+    [JsonProperty("bot")]
+    public TransportUser? Bot { get; set; }
 
     [JsonProperty("terms_of_service_url", NullValueHandling = NullValueHandling.Ignore)]
-    public string TermsOfServiceUrl { get; set; }
+    public string? TermsOfServiceUrl { get; set; }
 
     [JsonProperty("privacy_policy_url", NullValueHandling = NullValueHandling.Ignore)]
-    public string PrivacyPolicyUrl { get; set; }
-
-    // Json.NET can figure the type out
-    [JsonProperty("rpc_origins", NullValueHandling = NullValueHandling.Ignore)]
-    public IList<string> RpcOrigins { get; set; }
+    public string? PrivacyPolicyUrl { get; set; }
 
     [JsonProperty("owner", NullValueHandling = NullValueHandling.Include)]
-    public TransportUser Owner { get; set; }
+    public TransportUser? Owner { get; set; }
+    
+    [JsonProperty("verify_key", NullValueHandling = NullValueHandling.Include)]
+    public string VerifyKey { get; set; }
 
     [JsonProperty("team", NullValueHandling = NullValueHandling.Include)]
-    public TransportTeam Team { get; set; }
+    public TransportTeam? Team { get; set; }
+    
+    [JsonProperty("guild_id")]
+    public ulong? GuildId { get; set; }
+    
+    [JsonProperty("guild")]
+    public DiscordGuild? Guild { get; set; }
 
+    [JsonProperty("primary_sku_id")]
+    public ulong PrimarySkuId { get; set; }
+    
+    [JsonProperty("slug")]
+    public string Slug { get; set; }
+    
+    [JsonProperty("cover_image")]
+    public string CoverImageHash { get; set; }
+    
     [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordApplicationFlags? Flags { get; set; }
     
-    /// <summary>
-    /// Hex encoded key for verification of http interactions and the GameSDK's GetTicket 
-    /// </summary>
-    [JsonProperty("verify_key", NullValueHandling = NullValueHandling.Ignore)]
-    public string VerifyKey { get; internal set; }
+    [JsonProperty("approximate_guild_count")]
+    public int? ApproximateGuildCount { get; set; }
+    
+    [JsonProperty("redirect_uris")]
+    public string[] RedirectUris { get; set; }
+    
+    [JsonProperty("interactions_endpoint_url")]
+    public string? InteractionEndpointUrl { get; set; }
+    
+    [JsonProperty("role_connections_verification_url")]
+    public string? RoleConnectionsVerificationUrl { get; set; }
+    
+    [JsonProperty("tags")]
+    public string[]? Tags { get; set; }
+    
+    [JsonProperty("install_params")]
+    public DiscordApplicationOAuth2InstallParams InstallParams { get; set; }
+    
+    [JsonProperty("integration_types_config")]
+    public Dictionary<DiscordApplicationIntegrationType, DiscordApplicationIntegrationTypeConfiguration> IntegrationTypeConfigurations { get; set; }
 
-    // These are dispatch (store) properties - can't imagine them being needed in bots
-    //[JsonProperty("verify_key", NullValueHandling = NullValueHandling.Include)]
-    //public string VerifyKey { get; set; }
-
-    //[JsonProperty("guild_id")]
-    //public Optional<ulong> GuildId { get; set; }
-
-    //[JsonProperty("primary_sku_id")]
-    //public Optional<ulong> PrimarySkuId { get; set; }
-
-    //[JsonProperty("slug")] // sluggg :DDDDDD
-    //public Optional<string> SkuSlug { get; set; }
-
-    //[JsonProperty("cover_image")]
-    //public Optional<string> CoverImageHash { get; set; }
-
+    [JsonProperty("custom_install_url")]
+    public string CustomInstallUrl { get; set; }
+    
     internal TransportApplication() { }
 }

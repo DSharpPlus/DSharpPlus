@@ -9,31 +9,21 @@ public class MessageCache : IMessageCacheProvider
     private readonly IMemoryCache cache;
     private readonly MemoryCacheEntryOptions entryOptions;
 
-    public MessageCache(IMemoryCache cache)
+    public MessageCache(IMemoryCache cache, IOptions<DiscordConfiguration> config)
     {
         this.cache = cache;
 
         this.entryOptions = new MemoryCacheEntryOptions()
         {
             Size = 1,
-        };
-    }
-
-    internal MessageCache(int capacity)
-    {
-        this.cache = new MemoryCache(Options.Create(new MemoryCacheOptions
-        {
-            SizeLimit = capacity
-        }));
-
-        this.entryOptions = new MemoryCacheEntryOptions()
-        {
-            Size = 1,
+            SlidingExpiration = config.Value.SlidingMessageCacheExpiration,
+            AbsoluteExpirationRelativeToNow = config.Value.AbsoluteMessageCacheExpiration
         };
     }
 
     /// <inheritdoc/>
-    public void Add(DiscordMessage message) => this.cache.Set(message.Id, message, this.entryOptions);
+    public void Add(DiscordMessage message) 
+        => this.cache.Set(message.Id, message, this.entryOptions);
 
     /// <inheritdoc/>
     public void Remove(ulong messageId) => this.cache.Remove(messageId);
