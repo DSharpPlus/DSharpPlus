@@ -152,11 +152,6 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     public string? CustomInstallUrl { get; internal set; }
     
     private IReadOnlyList<DiscordApplicationAsset>? Assets { get; set; }
-    
-    /// <summary>
-    /// Hex encoded key for verification of http interactions and the GameSDK's GetTicket 
-    /// </summary>
-    public string VerifyKey { get; internal set; }
 
     internal DiscordApplication() { }
 
