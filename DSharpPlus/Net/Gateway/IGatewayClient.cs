@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
@@ -19,13 +20,15 @@ public interface IGatewayClient
     /// <param name="status">An optional status to send to the gateway when connecting.</param>
     /// <param name="idleSince">An optional idle timer to send to the gateway when connecting.</param>
     /// <param name="shardInfo">If this isn't the only shard, additional information about this shard.</param>
+    /// <param name="ct">A token to cancel the connection operation.</param>
     public ValueTask ConnectAsync
     (
         string url,
         DiscordActivity? activity = null,
         DiscordUserStatus? status = null,
         DateTimeOffset? idleSince = null,
-        ShardInfo? shardInfo = null
+        ShardInfo? shardInfo = null,
+        CancellationToken ct = default
     );
 
     /// <summary>

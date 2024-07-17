@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
@@ -33,7 +34,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
 
     public MultiShardOrchestrator
     (
-        IServiceProvider serviceProvider, 
+        IServiceProvider serviceProvider,
         IOptions<ShardingOptions> options,
         DiscordApiClient apiClient,
         PayloadDecompressor decompressor
@@ -46,7 +47,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     }
 
     /// <inheritdoc/>
-    public async ValueTask StartAsync(DiscordActivity? activity, DiscordUserStatus? status, DateTimeOffset? idleSince)
+    public async ValueTask StartAsync(DiscordActivity? activity, DiscordUserStatus? status, DateTimeOffset? idleSince, CancellationToken ct = default)
     {
         uint startShards, totalShards, stride;
         GatewayInfo info = await this.apiClient.GetGatewayInfoAsync();
@@ -110,7 +111,8 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
                     {
                         ShardCount = (int)totalShards,
                         ShardId = (int)stride + j
-                    }
+                    },
+                    ct
                 );
             }
 
@@ -118,7 +120,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
 
             if (diff < TimeSpan.FromSeconds(5))
             {
-                await Task.Delay(TimeSpan.FromSeconds(5) - diff);
+                await Task.Delay(TimeSpan.FromSeconds(5) - diff, CancellationToken.None);
             }
         }
     }
@@ -184,6 +186,6 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     }
 
     /// <inheritdoc/>
-    public async ValueTask BroadcastOutboundEventAsync(byte[] payload) 
+    public async ValueTask BroadcastOutboundEventAsync(byte[] payload)
         => await Parallel.ForEachAsync(this.shards, async (shard, _) => await shard.WriteAsync(payload));
 }

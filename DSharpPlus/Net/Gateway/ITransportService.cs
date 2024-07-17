@@ -1,5 +1,6 @@
 using System;
 using System.Net.WebSockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Net.Gateway;
@@ -17,7 +18,7 @@ public interface ITransportService : IDisposable
     /// <summary>
     /// Reads the next message from the gateway asynchronously.
     /// </summary>
-    public ValueTask<TransportFrame> ReadAsync();
+    public ValueTask<TransportFrame> ReadAsync(CancellationToken ct = default);
 
     /// <summary>
     /// Writes the specified message to the gateway.

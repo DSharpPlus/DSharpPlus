@@ -266,11 +266,11 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.UnauthorizedException">Thrown when an invalid token was provided.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task ConnectAsync(DiscordActivity activity = null, DiscordUserStatus? status = null, DateTimeOffset? idlesince = null)
+    public async Task ConnectAsync(DiscordActivity activity = null, DiscordUserStatus? status = null, DateTimeOffset? idlesince = null, CancellationToken ct = default)
     {
         // method checks if its already initialized
         await InitializeAsync();
-        
+
         // Check if connection lock is already set, and set it if it isn't
         if (!this.connectionLock.Wait(0))
         {
@@ -299,7 +299,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus; version {Version}", this.VersionString);
 
         _ = ReceiveGatewayEventsAsync();
-        await this.orchestrator.StartAsync(activity, status, idlesince);
+        await this.orchestrator.StartAsync(activity, status, idlesince, ct);
     }
 
     /// <summary>
@@ -309,7 +309,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="data">The data to serialize.</param>
     /// <param name="guildId">The guild this payload originates from. Pass 0 for shard-independent payloads.</param>
     /// <remarks>
-    /// This method should not be used unless you know what you're doing. Instead, look towards the other 
+    /// This method should not be used unless you know what you're doing. Instead, look towards the other
     /// explicitly implemented methods which come with client-side validation.
     /// </remarks>
     /// <returns>A task representing the payload being sent.</returns>
@@ -336,7 +336,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// Disconnects from the gateway
     /// </summary>
     /// <returns></returns>
-    public async Task DisconnectAsync() 
+    public async Task DisconnectAsync()
         => await this.orchestrator.StopAsync();
 
     #endregion

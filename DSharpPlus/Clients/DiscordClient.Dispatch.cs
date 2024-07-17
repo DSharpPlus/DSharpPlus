@@ -36,6 +36,7 @@ public sealed partial class DiscordClient
     {
         while (!this.eventReader.Completion.IsCompleted)
         {
+            // Open question: Do we want to pass a CT here?
             GatewayPayload payload = await this.eventReader.ReadAsync();
             await HandleDispatchAsync(payload);
         }

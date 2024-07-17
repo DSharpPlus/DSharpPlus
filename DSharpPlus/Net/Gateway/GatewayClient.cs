@@ -60,7 +60,7 @@ public sealed class GatewayClient : IGatewayClient
     (
         [FromKeyedServices("DSharpPlus.Gateway.EventChannel")]
         Channel<GatewayPayload> eventChannel,
-        
+
         ITransportService transportService,
         IOptions<TokenContainer> tokenContainer,
         PayloadDecompressor decompressor,
@@ -88,7 +88,8 @@ public sealed class GatewayClient : IGatewayClient
         DiscordActivity? activity = null,
         DiscordUserStatus? status = null,
         DateTimeOffset? idleSince = null,
-        ShardInfo? shardInfo = null
+        ShardInfo? shardInfo = null,
+        CancellationToken ct = default
     )
     {
         this.logger = shardInfo is null
@@ -102,10 +103,10 @@ public sealed class GatewayClient : IGatewayClient
         {
             try
             {
-                this.gatewayTokenSource = new();
+                this.gatewayTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct);
                 await this.transportService.ConnectAsync(url, shardInfo?.ShardId);
 
-                TransportFrame initialFrame = await this.transportService.ReadAsync();
+                TransportFrame initialFrame = await this.transportService.ReadAsync(ct);
 
                 if (!initialFrame.TryGetMessage(out string? hello))
                 {
@@ -267,7 +268,7 @@ public sealed class GatewayClient : IGatewayClient
         {
             while (!ct.IsCancellationRequested)
             {
-                TransportFrame frame = await this.transportService.ReadAsync();
+                TransportFrame frame = await this.transportService.ReadAsync(ct);
                 GatewayPayload? payload;
 
                 if (!frame.TryGetMessage(out string? data))
@@ -496,6 +497,10 @@ public sealed class GatewayClient : IGatewayClient
         {
             await TryResumeAsync();
         }
+        else if (frame.TryGetException<OperationCanceledException>(out _))
+        {
+            return;
+        }
         else if (frame.TryGetException(out _) && this.options.AutoReconnect)
         {
             await TryReconnectAsync();
@@ -512,6 +517,6 @@ public sealed class GatewayClient : IGatewayClient
     }
 
     /// <inheritdoc/>
-    public async ValueTask ReconnectAsync() 
+    public async ValueTask ReconnectAsync()
         => _ = await TryReconnectAsync();
 }
