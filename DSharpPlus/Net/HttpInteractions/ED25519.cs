@@ -40,5 +40,4 @@ public static partial class Ed25519
         [LibraryImport("sodium")]
         internal static unsafe partial int crypto_sign_ed25519_verify_detached(byte* signature, byte* message, ulong messageLength, byte* publicKey);
     }
-
 }
