@@ -28,6 +28,12 @@ public class DiscordHttpInteraction : DiscordInteraction
     
     public override Task CreateResponseAsync(DiscordInteractionResponseType type, DiscordInteractionResponseBuilder? builder = null)
     {
+        if (this.taskCompletionSource.Task.IsCanceled)
+        {
+            throw new InvalidOperationException(
+                "Discord closed the connection. This is likely due to exeeding the limit of 3 seconds to the response.");
+        }
+        
         if (this.ResponseState is not DiscordInteractionResponseState.Unacknowledged)
         {
             throw new InvalidOperationException("A response has already been made to this interaction.");
