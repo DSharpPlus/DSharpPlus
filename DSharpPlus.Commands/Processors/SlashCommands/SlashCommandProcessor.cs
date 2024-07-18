@@ -197,7 +197,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
 
     public async Task RegisterSlashCommandsAsync(CommandsExtension extension)
     {
-        if (!this.configured)
+        if (this.configured)
         {
             return;
         }
