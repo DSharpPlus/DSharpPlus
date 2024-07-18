@@ -37,8 +37,15 @@ public sealed partial class DiscordClient
         while (!this.eventReader.Completion.IsCompleted)
         {
             GatewayPayload payload = await this.eventReader.ReadAsync();
-            try { await HandleDispatchAsync(payload); }
-            catch (Exception ex) { this.Logger.LogCritical(ex, "Dispatch threw an exception: "); }
+
+            try
+            {
+                await HandleDispatchAsync(payload);
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Dispatch threw an exception: ");
+            }
         }
     }
 
