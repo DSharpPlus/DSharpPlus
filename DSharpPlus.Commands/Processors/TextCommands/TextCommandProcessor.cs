@@ -46,7 +46,6 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         }
 
         this.configured = true;
-        extension.Client.MessageCreated += ExecuteTextCommandAsync;
         if (!extension.Client.Intents.HasIntent(DiscordIntents.GuildMessages) && !extension.Client.Intents.HasIntent(DiscordIntents.DirectMessages))
         {
             TextLogging.MissingRequiredIntents(this.logger, RequiredIntents, null);
