@@ -49,6 +49,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     private partial Regex DescrtiptionLocalizationRegex();
 
     private bool configured;
+    private bool registered;
 
     /// <inheritdoc />
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
@@ -197,10 +198,12 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
 
     public async Task RegisterSlashCommandsAsync(CommandsExtension extension)
     {
-        if (this.configured)
+        if (this.registered)
         {
             return;
         }
+
+        this.registered = true;
 
         IReadOnlyList<Command> processorSpecificCommands = extension.GetCommandsForProcessor(this);
         List<DiscordApplicationCommand> globalApplicationCommands = [];
