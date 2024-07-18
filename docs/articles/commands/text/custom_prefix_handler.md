@@ -44,8 +44,7 @@ public interface IPrefixResolver
 }
 ```
 
-On the surface, this is very similar to using the delegate method, with one important change: you can implement this interface.
-One may prefer this approach as opposed to setting the `PrefixResolver` property because implementing the interface allows you to participate in dependency injection.
+On the surface, this is very similar to setting the delegate property, however implementing the interface allows you to participate in dependency injection.
 
 A common scenario is using a database to retrieve a per-server prefix. 
 Here's an example of how you can implement the `IPrefixResolver` interface:
@@ -81,7 +80,7 @@ public class CustomPrefixResolver(IDatabaseService database) : IPrefixResolver
 Now, unlike the normal prefix resolver delegate, this isn't set on the TextCommandConfiguration. Instead, you'll register this class with your service provider. This allows you to inject dependencies into your prefix resolver.
 
 > [!IMPORTANT]
-> The prefix resolver is resolved from a scoped service provider. For most scenarios, the only stipulation is that state should be held in an external, more persistent (e.g. singleton) service. Users of EntityFramework Core users should ensure that the DbContext is scoped correctly.
+> The prefix resolver is resolved from a scoped service provider. For most scenarios, the only stipulation is that state should be held in an external, more persistent (e.g. singleton) service. Users of EntityFramework Core should ensure that the DbContext is scoped correctly.
 
 ```cs
 DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents)
@@ -95,5 +94,3 @@ DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, 
 ```
 
 And just like that, you're off to the races.
-
----
