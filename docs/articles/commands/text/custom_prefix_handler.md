@@ -9,14 +9,17 @@ Prefixes are commonplace among Discord bots, and are used to determine if a mess
 
 There are two manners of going about this; you can either use a prefix resolver delegate, or implement the `IPrefixResolver` interface. The former is simpler, but the latter is more powerful.
 
-# [Prefix resolver delegate](#tab/prefix_resolver_delegate)
+## Prefix resolver delegate
 The prefix resolver delegate is very simple to use. Any method that can be converted into a `Func<CommandsExtension, DiscordMessage, ValueTask<int>>` (a method that takes a `CommandsExtension` and a `DiscordMessage`, and returns a `ValueTask<int>`) can be used as a prefix resolver delegate. This method will be called for every message, and the return value will be used as the prefix length. If the return value is -1, the message will be ignored.
 
 The default prefix resolver uses the `!` prefix. To change this, you can use the following code:
 
+> [!IMPORTANT]
+> Lambdas generated via reflection or compiled expressions should be compiled to `ResolvePrefixDelegateAsync`. Compiling to `Func<CommandsExtension, DiscordMessage, ValueTask<int>>` will result in a runtime exception.
+
 ```cs
 
-var prefixResolver = new DefaultPrefixResolver(true, "!", "?");
+DefaultPrefixResolver prefixResolver = new DefaultPrefixResolver(true, "!", "?");
 
 TextCommandProcessor textCommandProcessor = new(new()
 {
@@ -30,9 +33,9 @@ TextCommandProcessor textCommandProcessor = new(new()
 
 In this example, the bot will react to mentions and to the `!` and `?` prefixes. The `true` argument in the `DefaultPrefixResolver` constructor specifies that the bot should react to mentions.
 
-# [IPrefixResolver](#tab/iprefixresolver)
+## IPrefixResolver
 
-The `IPrefixResolver` interface is a bit more complex, but also more powerful. It allows you to implement your own prefix resolver logic. The interface is as follows:
+The `IPrefixResolver` interface is a bit more complex to set up, but can make dynamic prefixes easier overall. The interface is as follows:
 
 ```cs
 public interface IPrefixResolver
@@ -42,10 +45,9 @@ public interface IPrefixResolver
 ```
 
 On the surface, this is very similar to using the delegate method, with one important change: you can implement this interface.
-Of course, this raises the question of why implement an interface when you can just pass a method to the `PrefixResolver` property. The answer is that implementing the interface allows you to participate in dependency injection.
+One may prefer this approach as opposed to setting the `PrefixResolver` property because implementing the interface allows you to participate in dependency injection.
 
-For example, you can inject a logger into your prefix resolver, or you can use a service from your service provider. This is especially useful if you need to access a database or other external service to determine the prefix.
-
+A common scenario is using a database to retrieve a per-server prefix. 
 Here's an example of how you can implement the `IPrefixResolver` interface:
 
 ```cs
@@ -64,7 +66,7 @@ public class CustomPrefixResolver(IDatabaseService database) : IPrefixResolver
         }
         
         // Database check
-        var prefix = await database.GetPrefixAsync(message.Channel.GuildId);
+        string prefix = await database.GetPrefixAsync(message.Channel.GuildId);
         
         if (message.Content.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
         {
@@ -79,7 +81,7 @@ public class CustomPrefixResolver(IDatabaseService database) : IPrefixResolver
 Now, unlike the normal prefix resolver delegate, this isn't set on the TextCommandConfiguration. Instead, you'll register this class with your service provider. This allows you to inject dependencies into your prefix resolver.
 
 > [!IMPORTANT]
-> The prefix resolver is resolved from a scoped service provider. For most users this just means that holding state should be avoided, but this is especially important for users of EntityFramework Core. If you are using EntityFramework Core, you should ensure that your context is scoped correctly.
+> The prefix resolver is resolved from a scoped service provider. For most scenarios, the only stipulation is that state should be held in an external, more persistent (e.g. singleton) service. Users of EntityFramework Core users should ensure that the DbContext is scoped correctly.
 
 ```cs
 DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents)
