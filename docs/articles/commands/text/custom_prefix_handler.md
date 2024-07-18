@@ -1,5 +1,5 @@
 ---
-uid: articles.commands.custom_prefix_handler
+uid: articles.commands.text.custom_prefix_handler
 title: Custom Prefix Handler
 ---
 

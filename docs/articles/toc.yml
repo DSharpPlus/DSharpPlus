@@ -34,7 +34,7 @@
   - name: Custom Error Handler
     topicUid: articles.commands.custom_error_handler
   - name: Custom Prefix Handler
-    topicUid: articles.commands.custom_prefix_handler
+    topicUid: articles.commands.text.custom_prefix_handler
   - name: Command Processors
     items:
     - name: Introduction
