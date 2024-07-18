@@ -30,6 +30,17 @@ public sealed class DiscordConfiguration
     public bool AlwaysCacheMembers { internal get; set; } = true;
 
     /// <summary>
+    /// Sets the default absolute expiration time for cached messages.
+    /// </summary>
+    public TimeSpan AbsoluteMessageCacheExpiration { internal get; set; } = TimeSpan.FromDays(1);
+
+    /// <summary>
+    /// Sets the default sliding expiration time for cached messages. This is refreshed every time the message is
+    /// accessed.
+    /// </summary>
+    public TimeSpan SlidingMessageCacheExpiration { internal get; set; } = TimeSpan.FromMinutes(30);
+    
+    /// <summary>
     /// <para>Sets the factory method used to create instances of UDP clients.</para>
     /// <para>Use <see cref="DspUdpClient.CreateNew"/> and equivalents on other implementations to switch out client implementations.</para>
     /// <para>Defaults to <see cref="DspUdpClient.CreateNew"/>.</para>

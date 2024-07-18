@@ -170,11 +170,27 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     /// <inheritdoc/>
     public async ValueTask SendOutboundEventAsync(byte[] payload, ulong guildId)
     {
+        if (guildId == 0)
+        {
+            await this.shards[0].WriteAsync(payload);
+        }
+
         uint shardId = GetShardIdForGuildId(guildId);
 
         ArgumentOutOfRangeException.ThrowIfLessThan(shardId, this.stride);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(shardId, this.stride + this.shardCount);
 
         await this.shards[shardId].WriteAsync(payload);
+    }
+
+    /// <inheritdoc/>
+    public async ValueTask BroadcastOutboundEventAsync(byte[] payload)
+    {
+        if (!this.AllShardsConnected)
+        {
+            throw new InvalidOperationException("Broadcast is only possible when all shards are connected");
+        }
+
+        await Parallel.ForEachAsync(this.shards, async (shard, _) => await shard.WriteAsync(payload));
     }
 }

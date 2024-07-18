@@ -122,7 +122,7 @@ at the end of the method to prevent the console window from closing prematurely.
 ```cs
 DiscordClient client = builder.Build();
 
-await discord.ConnectAsync();
+await client.ConnectAsync();
 await Task.Delay(-1);
 ```
 
