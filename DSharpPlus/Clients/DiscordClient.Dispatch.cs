@@ -1102,7 +1102,6 @@ public sealed partial class DiscordClient
 
         bool old = Volatile.Read(ref this.guildDownloadCompleted);
         bool dcompl = this.guilds.Values.All(xg => !xg.IsUnavailable);
-        Volatile.Write(ref this.guildDownloadCompleted, dcompl);
 
         if (exists)
         {
@@ -1119,6 +1118,8 @@ public sealed partial class DiscordClient
 
         if (dcompl && !old && this.orchestrator.AllShardsConnected)
         {
+            Volatile.Write(ref this.guildDownloadCompleted, dcompl);
+
             await this.events[typeof(GuildDownloadCompletedEventArgs)]
                 .As<GuildDownloadCompletedEventArgs>()
                 .InvokeAsync(this, new GuildDownloadCompletedEventArgs(this.Guilds));
