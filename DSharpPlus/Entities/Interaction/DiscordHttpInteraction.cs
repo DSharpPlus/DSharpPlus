@@ -26,6 +26,7 @@ public class DiscordHttpInteraction : DiscordInteraction
         return this.response;
     }
     
+    /// <inheritdoc/>
     public override Task CreateResponseAsync(DiscordInteractionResponseType type, DiscordInteractionResponseBuilder? builder = null)
     {
         if (this.taskCompletionSource.Task.IsCanceled)
