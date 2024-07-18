@@ -4,7 +4,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.MessageUpdated"/> event.
+/// Represents arguments for MessageUpdated event.
 /// </summary>
 public class MessageUpdatedEventArgs : DiscordEventArgs
 {
@@ -45,7 +45,7 @@ public class MessageUpdatedEventArgs : DiscordEventArgs
     /// Gets the collection of mentioned roles.
     /// </summary>
     /// <remarks>
-    /// Only shows the mentioned roles from <see cref="DiscordClient.MessageCreated" />. EDITS ARE NOT INCLUDED.
+    /// Only shows the mentioned roles from MessageCreated. EDITS ARE NOT INCLUDED.
     /// </remarks>
     public IReadOnlyList<DiscordRole> MentionedRoles { get; internal set; }
 

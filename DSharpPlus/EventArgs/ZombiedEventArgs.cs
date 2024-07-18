@@ -2,7 +2,7 @@ namespace DSharpPlus.EventArgs;
 
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.Zombied"/> event.
+/// Represents arguments for the Zombied event.
 /// </summary>
 public class ZombiedEventArgs : DiscordEventArgs
 {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -42,8 +43,8 @@ public sealed class DefaultEventDispatcher : IEventDispatcher
     public ValueTask DispatchAsync<T>(DiscordClient client, T eventArgs)
         where T : DiscordEventArgs
     {
-        IReadOnlyList<Handler> general = this.handlers[typeof(DiscordEventArgs)];
-        IReadOnlyList<Handler> specific = this.handlers[typeof(T)];
+        IReadOnlyList<object> general = this.handlers[typeof(DiscordEventArgs)];
+        IReadOnlyList<object> specific = this.handlers[typeof(T)];
 
         using IServiceScope scope = this.serviceProvider.CreateScope();
 
@@ -59,11 +60,11 @@ public sealed class DefaultEventDispatcher : IEventDispatcher
                 {
                     try
                     {
-                        await handler(client, eventArgs, scope.ServiceProvider);
+                        await ((Func<DiscordClient, T, IServiceProvider, Task>)handler)(client, eventArgs, scope.ServiceProvider);
                     }
                     catch (Exception e)
                     {
-                        await this.errorHandler.HandleEventHandlerError(typeof(T).ToString(), e, handler, client, eventArgs);
+                        await this.errorHandler.HandleEventHandlerError(typeof(T).ToString(), e, (Delegate)handler, client, eventArgs);
                     }
                 })
         );

@@ -1774,7 +1774,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     }
 
     /// <summary>
-    /// Requests that Discord send a list of guild members based on the specified arguments. This method will fire the <see cref="DiscordClient.GuildMembersChunked"/> event.
+    /// Requests that Discord send a list of guild members based on the specified arguments. This method will fire the GuildMembersChunked event.
     /// <para>If no arguments aside from <paramref name="presences"/> and <paramref name="nonce"/> are specified, this will request all guild members.</para>
     /// </summary>
     /// <param name="query">Filters the returned members based on what the username starts with. Either this or <paramref name="userIds"/> must not be null.

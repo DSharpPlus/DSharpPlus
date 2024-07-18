@@ -22,22 +22,29 @@ namespace DSharpPlus;
 public sealed class EventHandlerCollection
 {
     /// <summary>
-    /// Gets the registered handlers for a type, or an empty collection if none were configured.
+    /// Gets the registered handlers for a type, or an empty collection if none were configured. These are returned as
+    /// <see langword="object"/>, and individual elements must be casted to
+    /// <c>Func&lt;DiscordClient, TEventArgs, IServiceProvider, Task&gt;</c>.
     /// </summary>
-    /// <param name="type"></param>
-    /// <returns></returns>
-    public IReadOnlyList<Handler> this[Type type] 
-        => this.Handlers.TryGetValue(type, out IReadOnlyList<Handler>? handlers) ? handlers : ([]);
+    public IReadOnlyList<object> this[Type type]
+    {
+        get
+        {
+            return this.Handlers.TryGetValue(type, out IReadOnlyList<object>? handlers)
+                ? handlers
+                : ([]);
+        }
+    }
 
     /// <summary>
     /// The event handlers configured for this application.
     /// </summary>
-    private FrozenDictionary<Type, IReadOnlyList<Handler>> Handlers
+    private FrozenDictionary<Type, IReadOnlyList<object>> Handlers
         => this.immutableHandlers ?? AsImmutable();
 
-    private FrozenDictionary<Type, IReadOnlyList<Handler>>? immutableHandlers = null;
+    private FrozenDictionary<Type, IReadOnlyList<object>>? immutableHandlers = null;
 
-    private readonly Dictionary<Type, List<Handler>> handlers = [];
+    private readonly Dictionary<Type, List<object>> handlers = [];
 
     /// <summary>
     /// Registers a single simple event handler.
@@ -47,13 +54,16 @@ public sealed class EventHandlerCollection
     public void Register<T>(Func<DiscordClient, T, Task> handler)
         where T : DiscordEventArgs
     {
-        if (this.handlers.TryGetValue(typeof(T), out List<Handler>? value))
+        if (this.handlers.TryGetValue(typeof(T), out List<object>? value))
         {
             value.Add(CanonicalizeSimpleDelegateHandler(Unsafe.As<SimpleHandler>(handler)));
         }
         else
         {
-            this.handlers.Add(typeof(T), [CanonicalizeSimpleDelegateHandler(Unsafe.As<SimpleHandler>(handler))]);
+            List<object> temporary = [];
+            temporary.Add(CanonicalizeSimpleDelegateHandler(Unsafe.As<SimpleHandler>(handler)));
+
+            this.handlers.Add(typeof(T), temporary);
         }
     }
 
@@ -66,13 +76,16 @@ public sealed class EventHandlerCollection
     {
         foreach ((Type args, Handler handler) in CanonicalizeTypeHandlerImplementations(typeof(T)))
         {
-            if (this.handlers.TryGetValue(args, out List<Handler>? value))
+            if (this.handlers.TryGetValue(args, out List<object>? value))
             {
                 value.Add(handler);
             }
             else
             {
-                this.handlers.Add(args, [handler]);
+                List<object> temporary = [];
+                temporary.Add(handler);
+
+                this.handlers.Add(args, temporary);
             }
         }
     }
@@ -106,14 +119,18 @@ public sealed class EventHandlerCollection
 
                 MethodInfo handlerMethod = targetType.GetMethod
                 (
-                    name: "HandleAsync",
+                    name: "HandleEventAsync",
                     bindingAttr: BindingFlags.Public | BindingFlags.Instance,
                     types: [typeof(DiscordClient), argumentType]
                 )!;
 
                 MethodCallExpression handlerCall = Expression.Call
                 (
-                    Expression.Call(null, serviceProviderMethod, services, Expression.Constant(targetType)),
+                    Expression.Convert
+                    (
+                        Expression.Call(null, serviceProviderMethod, services, Expression.Constant(targetType)),
+                        targetType
+                    ),
                     handlerMethod,
                     client, eventArgs
                 );
@@ -124,11 +141,11 @@ public sealed class EventHandlerCollection
             });
     }
 
-    private FrozenDictionary<Type, IReadOnlyList<Handler>> AsImmutable()
+    private FrozenDictionary<Type, IReadOnlyList<object>> AsImmutable()
     {
-        Dictionary<Type, IReadOnlyList<Handler>> copy = new(this.handlers.Count);
+        Dictionary<Type, IReadOnlyList<object>> copy = new(this.handlers.Count);
 
-        foreach (KeyValuePair<Type, List<Handler>> handler in this.handlers)
+        foreach (KeyValuePair<Type, List<object>> handler in this.handlers)
         {
             copy.Add(handler.Key, handler.Value);
         }

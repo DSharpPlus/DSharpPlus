@@ -119,6 +119,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.token = token.Value.GetToken();
         this.orchestrator = shardOrchestrator;
         this.eventReader = eventChannel.Reader;
+        this.dispatcher = eventDispatcher;
 
         this.ApiClient.SetClient(this);
         this.Intents = gatewayOptions.Value.Intents;

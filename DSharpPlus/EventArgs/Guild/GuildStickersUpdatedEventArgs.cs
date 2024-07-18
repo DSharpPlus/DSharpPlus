@@ -4,7 +4,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents event args for the <see cref="DiscordClient.GuildStickersUpdated"/> event.
+/// Represents event args for the GuildStickersUpdated event.
 /// </summary>
 public class GuildStickersUpdatedEventArgs : DiscordEventArgs
 {
