@@ -270,7 +270,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     {
         // method checks if its already initialized
         await InitializeAsync();
-        
+
         // Check if connection lock is already set, and set it if it isn't
         if (!this.connectionLock.Wait(0))
         {
@@ -309,7 +309,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="data">The data to serialize.</param>
     /// <param name="guildId">The guild this payload originates from. Pass 0 for shard-independent payloads.</param>
     /// <remarks>
-    /// This method should not be used unless you know what you're doing. Instead, look towards the other 
+    /// This method should not be used unless you know what you're doing. Instead, look towards the other
     /// explicitly implemented methods which come with client-side validation.
     /// </remarks>
     /// <returns>A task representing the payload being sent.</returns>
@@ -336,7 +336,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// Disconnects from the gateway
     /// </summary>
     /// <returns></returns>
-    public async Task DisconnectAsync() 
+    public async Task DisconnectAsync()
         => await this.orchestrator.StopAsync();
 
     #endregion
@@ -852,6 +852,71 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public IAsyncEnumerable<DiscordGuild> GetGuildsAsync(int limit = 200, bool? withCount = null, CancellationToken cancellationToken = default) =>
         GetGuildsInternalAsync(limit, withCount: withCount, cancellationToken: cancellationToken);
 
+    /// <summary>
+    /// Creates a new emoji owned by the current application.
+    /// </summary>
+    /// <param name="name">The name of the emoji.</param>
+    /// <param name="image">The image of the emoji.</param>
+    /// <returns>The created emoji.</returns>
+    public async ValueTask<DiscordEmoji> CreateApplicationEmojiAsync(string name, Stream image)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentNullException(nameof(name));
+        }
+
+        name = name.Trim();
+        if (name.Length is < 2 or > 50)
+        {
+            throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.");
+        }
+
+        ArgumentNullException.ThrowIfNull(image);
+
+        string? image64 = null;
+
+        using (ImageTool imgtool = new(image))
+        {
+            image64 = imgtool.GetBase64();
+        }
+
+        return await this.ApiClient.CreateApplicationEmojiAsync(this.CurrentApplication.Id, name, image64);
+    }
+
+    /// <summary>
+    /// Gets an emoji owned by the current application.
+    /// </summary>
+    /// <param name="emojiId">The ID of the emoji</param>
+    /// <returns>The emoji.</returns>
+    public async ValueTask<DiscordEmoji> GetApplicationEmojiAsync(ulong emojiId)
+        => await this.ApiClient.GetApplicationEmojiAsync(this.CurrentApplication.Id, emojiId);
+
+    /// <summary>
+    /// Gets all emojis created or owned by the current application.
+    /// </summary>
+    /// <returns>All emojis associated with the current application.
+    /// This includes emojis uploaded by the owner or members of the team the application is on, if applicable.</returns>
+    public async ValueTask<IReadOnlyList<DiscordEmoji>> GetApplicationEmojisAsync()
+        => await this.ApiClient.GetApplicationEmojisAsync(this.CurrentApplication.Id);
+
+    /// <summary>
+    /// Modifies an existing application emoji.
+    /// </summary>
+    /// <param name="emojiId">The ID of the emoji.</param>
+    /// <param name="name">The new name of the emoji.</param>
+    /// <returns>The updated emoji.</returns>
+    public async ValueTask<DiscordEmoji> ModifyApplicationEmojiAsync(ulong emojiId, string name)
+        => await this.ApiClient.ModifyApplicationEmojiAsync(this.CurrentApplication.Id, emojiId, name);
+
+    /// <summary>
+    /// Deletes an emoji.
+    /// </summary>
+    /// <param name="emojiId">The ID of the emoji to delete.</param>
+    public async ValueTask DeleteApplicationEmojiAsync(ulong emojiId)
+        => await this.ApiClient.DeleteApplicationEmojiAsync(this.CurrentApplication.Id, emojiId);
+
+
+
     private async IAsyncEnumerable<DiscordGuild> GetGuildsInternalAsync
     (
         int limit = 200,
@@ -914,6 +979,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
         while (remaining > 0 && lastCount is > 0 and 100);
     }
+
+
 
     #endregion
 

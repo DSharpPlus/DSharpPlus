@@ -21,7 +21,7 @@ internal class RestGuildCreatePayload
     [JsonProperty("region", NullValueHandling = NullValueHandling.Ignore)]
     public string RegionId { get; set; }
 
-    [JsonProperty("icon", NullValueHandling = NullValueHandling.Include)]
+    [JsonProperty("image", NullValueHandling = NullValueHandling.Include)]
     public Optional<string> IconBase64 { get; set; }
 
     [JsonProperty("verification_level", NullValueHandling = NullValueHandling.Ignore)]

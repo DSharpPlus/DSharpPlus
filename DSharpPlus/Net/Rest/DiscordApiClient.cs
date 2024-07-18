@@ -37,7 +37,7 @@ public sealed class DiscordApiClient
     public DiscordApiClient(RestClient rest) => this.rest = rest;
 
     // This is for meta-clients, such as the webhook client
-    internal DiscordApiClient(TimeSpan timeout, ILogger logger) 
+    internal DiscordApiClient(TimeSpan timeout, ILogger logger)
         => this.rest = new(new(), timeout, logger);
 
     /// <inheritdoc cref="RestClient.GetRequestMetrics(bool)"/>
@@ -6124,7 +6124,7 @@ public sealed class DiscordApiClient
         ulong messageId,
         DiscordWebhookBuilder builder,
         IEnumerable<DiscordAttachment> attachments
-    ) 
+    )
         => EditWebhookMessageAsync(applicationId, interactionToken, messageId, builder, attachments);
 
     internal ValueTask DeleteFollowupMessageAsync(ulong applicationId, string interactionToken, ulong messageId)
@@ -6323,6 +6323,120 @@ public sealed class DiscordApiClient
         return info;
     }
     #endregion
+
+    public async ValueTask<DiscordEmoji> CreateApplicationEmojiAsync(ulong applicationID, string name, string image)
+    {
+        string route = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}";
+
+        RestGuildCreatePayload pld = new()
+        {
+            Name = name,
+            IconBase64 = image
+        };
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post,
+            Payload = DiscordJson.SerializeObject(pld)
+        };
+
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        DiscordEmoji emoji = JsonConvert.DeserializeObject<DiscordEmoji>(res.Response!)!;
+        emoji.Discord = this.discord!;
+        emoji.User!.Discord = this.discord!;
+
+        return emoji;
+    }
+
+    public async ValueTask<DiscordEmoji> ModifyApplicationEmojiAsync(ulong applicationID, ulong emojiID, string name)
+    {
+        string route = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}/{emojiID}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}/{emojiID}";
+
+        RestGuildEmojiModifyPayload pld = new()
+        {
+            Name = name,
+        };
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Patch,
+            Payload = DiscordJson.SerializeObject(pld)
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        DiscordEmoji emoji = JsonConvert.DeserializeObject<DiscordEmoji>(res.Response!)!;
+
+        emoji.Discord = this.discord!;
+        emoji.User!.Discord = this.discord!;
+
+        return emoji;
+    }
+
+    public async ValueTask DeleteApplicationEmojiAsync(ulong applicationID, ulong emojiID)
+    {
+        string route = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}/{emojiID}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}/{emojiID}";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Delete
+        };
+
+        await this.rest.ExecuteRequestAsync(request);
+    }
+
+    public async ValueTask<DiscordEmoji> GetApplicationEmojiAsync(ulong applicationID, ulong emojiID)
+    {
+        string route = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}/{emojiID}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}/{emojiID}";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        DiscordEmoji emoji = JsonConvert.DeserializeObject<DiscordEmoji>(res.Response!)!;
+        emoji.Discord = this.discord!;
+        emoji.User!.Discord = this.discord!;
+
+        return emoji;
+    }
+
+    public async ValueTask<IReadOnlyList<DiscordEmoji>> GetApplicationEmojisAsync(ulong applicationID)
+    {
+        string route = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        IEnumerable<DiscordEmoji> emojis = JObject.Parse(res.Response!)["items"]!.ToDiscordObject<DiscordEmoji[]>();
+
+        foreach (DiscordEmoji emoji in emojis)
+        {
+            emoji.Discord = this.discord!;
+            emoji.User!.Discord = this.discord!;
+        }
+
+        return emojis.ToList();
+    }
 
     public async ValueTask<DiscordForumPostStarter> CreateForumPostAsync
     (
