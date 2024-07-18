@@ -72,7 +72,9 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         }
 
         AsyncServiceScope scope = this.extension.ServiceProvider.CreateAsyncScope();
-        ResolvePrefixDelegateAsync resolvePrefix = scope.ServiceProvider.GetService<IPrefixResolver>() is {} pr ? pr.ResolvePrefixAsync : this.Configuration.PrefixResolver;
+        ResolvePrefixDelegateAsync resolvePrefix = scope.ServiceProvider.GetService<IPrefixResolver>() is {} pr
+            ? pr.ResolvePrefixAsync
+            : this.Configuration.PrefixResolver;
 
         int prefixLength = await resolvePrefix(this.extension, eventArgs.Message);
         if (prefixLength < 0)
