@@ -37,7 +37,8 @@ public sealed partial class DiscordClient
         while (!this.eventReader.Completion.IsCompleted)
         {
             GatewayPayload payload = await this.eventReader.ReadAsync();
-            await HandleDispatchAsync(payload);
+            try { await HandleDispatchAsync(payload); }
+            catch (Exception ex) { this.Logger.LogCritical(ex, "Dispatch threw an exception: "); }
         }
     }
 
@@ -614,8 +615,6 @@ public sealed partial class DiscordClient
 
             this.privateChannels[channel.Id] = channel;
         }
-
-        this.guilds.Clear();
 
         IEnumerable<DiscordGuild> guilds = rawGuilds.ToDiscordObject<IEnumerable<DiscordGuild>>();
         foreach (DiscordGuild guild in guilds)
