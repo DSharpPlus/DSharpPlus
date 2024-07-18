@@ -33,6 +33,8 @@
     topicUid: articles.commands.custom_context_checks
   - name: Custom Error Handler
     topicUid: articles.commands.custom_error_handler
+  - name: Custom Prefix Handler
+    topicUid: articles.commands.text.custom_prefix_handler
   - name: Command Processors
     items:
     - name: Introduction

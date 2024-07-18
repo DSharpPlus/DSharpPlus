@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
+using DSharpPlus.Commands.Processors.TextCommands.Parsing;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
@@ -37,9 +38,9 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         {
             textCommands.Add(command.Name, command);
         }
- 
+
         this.commands = textCommands.ToFrozenDictionary(this.Configuration.CommandNameComparer);
-        
+
         if (this.configured)
         {
             return;
@@ -70,7 +71,12 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             return;
         }
 
-        int prefixLength = await this.Configuration.PrefixResolver(this.extension, eventArgs.Message);
+        AsyncServiceScope scope = this.extension.ServiceProvider.CreateAsyncScope();
+        ResolvePrefixDelegateAsync resolvePrefix = scope.ServiceProvider.GetService<IPrefixResolver>() is {} pr
+            ? pr.ResolvePrefixAsync
+            : this.Configuration.PrefixResolver;
+
+        int prefixLength = await resolvePrefix(this.extension, eventArgs.Message);
         if (prefixLength < 0)
         {
             return;
@@ -89,7 +95,6 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             }
         }
 
-        AsyncServiceScope scope = this.extension.ServiceProvider.CreateAsyncScope();
         if (!this.commands.TryGetValue(commandText[..index], out Command? command))
         {
             // Search for any aliases
@@ -241,7 +246,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         TextConverterContext converterContext,
         MessageCreatedEventArgs eventArgs
     )
-    {   
+    {
         if (converter is not ITextArgumentConverter<T> typedConverter)
         {
             throw new InvalidOperationException("The provided converter was of the wrong type.");
@@ -259,7 +264,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         }
 
         List<T> values = [];
-        
+
         do
         {
             Optional<T> optional = await typedConverter.ConvertAsync(converterContext, eventArgs);
@@ -278,7 +283,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     /// <inheritdoc/>
     public override async ValueTask<TextCommandContext?> ParseArgumentsAsync
     (
-        TextConverterContext converterContext, 
+        TextConverterContext converterContext,
         MessageCreatedEventArgs eventArgs
     )
     {
