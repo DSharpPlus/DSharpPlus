@@ -129,7 +129,7 @@ public sealed class CommandsExtension : BaseExtension
     /// Sets up the extension to use the specified <see cref="DiscordClient"/>.
     /// </summary>
     /// <param name="client">The client to register our event handlers too.</param>
-    protected override void Setup(DiscordClient client)
+    public override void Setup(DiscordClient client)
     {
         if (client is null)
         {
@@ -142,7 +142,6 @@ public sealed class CommandsExtension : BaseExtension
 
         this.Client = client;
         this.ServiceProvider = client.ServiceProvider;
-        this.Client.SessionCreated += async (_, _) => await RefreshAsync();
 
         this.logger = client.ServiceProvider.GetService<ILogger<CommandsExtension>>();
 

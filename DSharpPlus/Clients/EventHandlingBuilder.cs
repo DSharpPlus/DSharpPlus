@@ -23,10 +23,11 @@ public sealed class EventHandlingBuilder
     /// <summary>
     /// Registers all event handlers implemented on the provided type.
     /// </summary>
-    public EventHandlingBuilder AddEventHandlers<T>()
+    public EventHandlingBuilder AddEventHandlers<T>(ServiceLifetime lifetime = ServiceLifetime.Transient)
         where T : IEventHandler
     {
         this.Services.Configure<EventHandlerCollection>(c => c.Register<T>());
+        this.Services.Add(ServiceDescriptor.Describe(typeof(T), typeof(T), lifetime));
         return this;
     }
 

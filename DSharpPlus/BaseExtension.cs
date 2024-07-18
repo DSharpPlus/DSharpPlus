@@ -18,5 +18,5 @@ public abstract class BaseExtension : IDisposable
     /// Initializes this extension for given <see cref="DiscordClient"/> instance.
     /// </summary>
     /// <param name="client">Discord client to initialize for.</param>
-    protected internal abstract void Setup(DiscordClient client);
+    public abstract void Setup(DiscordClient client);
 }
