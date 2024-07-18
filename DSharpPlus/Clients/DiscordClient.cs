@@ -927,17 +927,15 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public async Task<byte[]> HandleHttpInteractionAsync(ArraySegment<byte> body, CancellationToken cancellationToken = default)
     {
         string bodyString = Encoding.UTF8.GetString(body);
+
+        JObject data = JObject.Parse(bodyString);
         
-        DiscordHttpInteraction? interaction = JsonConvert.DeserializeObject<DiscordHttpInteraction>(bodyString);
+        DiscordHttpInteraction? interaction = data.ToDiscordObject<DiscordHttpInteraction>();
         
         if (interaction is null)
         {
             throw new ArgumentException("Unable to parse provided request body to DiscordHttpInteraction");
         }
-        
-        interaction.Discord = this;
-
-        cancellationToken.Register(() => interaction.Cancel());
         
         if (interaction.Type is DiscordInteractionType.Ping)
         {
@@ -948,12 +946,33 @@ public sealed partial class DiscordClient : BaseDiscordClient
             return responseBytes;
         }
 
-        await this.events[typeof(InteractionCreatedEventArgs)]
-            .As<InteractionCreatedEventArgs>()
-            .InvokeAsync(this, new InteractionCreatedEventArgs()
-            {
-                Interaction = interaction
-            });
+        cancellationToken.Register(() => interaction.Cancel());
+        
+        ulong? guildId = (ulong?)data["guild_id"];
+        ulong channelId = (ulong)data["channel_id"];
+        
+        JToken rawMember = data["member"];
+        TransportMember? transportMember = null;
+        TransportUser transportUser;
+        if (rawMember != null)
+        {
+            transportMember = data["member"].ToDiscordObject<TransportMember>();
+            transportUser = transportMember.User;
+        }
+        else
+        {
+            transportUser = data["user"].ToDiscordObject<TransportUser>();
+        }
+
+        JToken? rawChannel = data["channel"];
+        DiscordChannel? channel = null;
+        if (rawChannel is not null)
+        {
+            channel = rawChannel.ToDiscordObject<DiscordChannel>();
+            channel.Discord = this;
+        }
+
+        await OnInteractionCreateAsync(guildId, channelId, transportUser, transportMember, channel, interaction);
 
         return await interaction.GetResponseAsync();
     }
