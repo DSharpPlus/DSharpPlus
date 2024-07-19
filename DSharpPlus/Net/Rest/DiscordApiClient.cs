@@ -6348,11 +6348,6 @@ public sealed class DiscordApiClient
         DiscordEmoji emoji = JsonConvert.DeserializeObject<DiscordEmoji>(res.Response!)!;
         emoji.Discord = this.discord!;
 
-        if (emoji.User is not null)
-        {
-            emoji.User.Discord = this.discord!;
-        }
-
         return emoji;
     }
 
@@ -6378,11 +6373,6 @@ public sealed class DiscordApiClient
         DiscordEmoji emoji = JsonConvert.DeserializeObject<DiscordEmoji>(res.Response!)!;
 
         emoji.Discord = this.discord!;
-
-        if (emoji.User is not null)
-        {
-            emoji.User.Discord = this.discord!;
-        }
 
         return emoji;
     }
@@ -6418,11 +6408,6 @@ public sealed class DiscordApiClient
         DiscordEmoji emoji = JsonConvert.DeserializeObject<DiscordEmoji>(res.Response!)!;
         emoji.Discord = this.discord!;
 
-        if (emoji.User is not null)
-        {
-            emoji.User.Discord = this.discord!;
-        }
-
         return emoji;
     }
 
@@ -6444,10 +6429,7 @@ public sealed class DiscordApiClient
         foreach (DiscordEmoji emoji in emojis)
         {
             emoji.Discord = this.discord!;
-            if (emoji.User is not null)
-            {
-                emoji.User.Discord = this.discord!;
-            }
+            emoji.User!.Discord = this.discord!;
         }
 
         return emojis.ToList();
