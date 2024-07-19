@@ -1,12 +1,12 @@
 # Interactions
 
 [Interactions](https://discord.com/developers/docs/interactions/receiving-and-responding#interactions) represent a user interacting with your bot.
-This can happen in different ways. The most prominent case is Application Commands ("slash commands") but also button presses or context menus.
+This can happen in different ways. The most prominent case is "slash commands" but also button presses or context menus.
 
 ## Recieving interactions
 Discord offers two ways to receive interactions: Through the gateway, and via an inbound HTTP webhook.
 Currently DSharpPlus only supports the first one but there are plans to also integrate webhooks.
-To recieve an interaction over the gateway you do not have to configure anything and simply register an EventHandler to the `InteractionCreated`event.
+To recieve an interaction over the gateway you do not have to configure anything and simply register an EventHandler to the `InteractionCreated` event.
 
 In addition to that event we have some events that are filtered to provide some convienience:
 
