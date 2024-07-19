@@ -6329,10 +6329,10 @@ public sealed class DiscordApiClient
         string route = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}";
 
-        RestGuildCreatePayload pld = new()
+        RestApplicationEmojiCreatePayload pld = new()
         {
             Name = name,
-            IconBase64 = image
+            ImageB64 = image
         };
 
         RestRequest request = new()
@@ -6361,7 +6361,7 @@ public sealed class DiscordApiClient
         string route = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}/{emojiID}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}/{emojiID}";
 
-        RestGuildEmojiModifyPayload pld = new()
+        RestApplicationEmojiModifyPayload pld = new()
         {
             Name = name,
         };

@@ -21,7 +21,7 @@ internal class RestGuildCreatePayload
     [JsonProperty("region", NullValueHandling = NullValueHandling.Ignore)]
     public string RegionId { get; set; }
 
-    [JsonProperty("image", NullValueHandling = NullValueHandling.Include)]
+    [JsonProperty("icon", NullValueHandling = NullValueHandling.Include)]
     public Optional<string> IconBase64 { get; set; }
 
     [JsonProperty("verification_level", NullValueHandling = NullValueHandling.Ignore)]
@@ -302,6 +302,18 @@ internal class RestGuildEmojiCreatePayload : RestGuildEmojiModifyPayload
 {
     [JsonProperty("image")]
     public string? ImageB64 { get; set; }
+}
+
+internal class RestApplicationEmojiCreatePayload : RestApplicationEmojiModifyPayload
+{
+    [JsonProperty("image")]
+    public string ImageB64 { get; set; }
+}
+
+internal class RestApplicationEmojiModifyPayload
+{
+    [JsonProperty("name")]
+    public string Name { get; set; }
 }
 
 internal class RestGuildWidgetSettingsPayload
