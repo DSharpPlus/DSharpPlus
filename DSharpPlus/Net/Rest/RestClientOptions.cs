@@ -9,9 +9,9 @@ public sealed class RestClientOptions
 {
     /// <summary>
     /// Sets the timeout for HTTP operations. Set this to <see cref="System.Threading.Timeout.InfiniteTimeSpan"/> 
-    /// to never time out. Defaults to 10 seconds.
+    /// to never time out. Defaults to 100 seconds.
     /// </summary>
-    public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(10);
+    public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(100);
 
     /// <summary>
     /// Specifies the maximum amount of retries to attempt when ratelimited. Retries will still try to respect the ratelimit.
