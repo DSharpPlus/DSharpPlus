@@ -6324,10 +6324,10 @@ public sealed class DiscordApiClient
     }
     #endregion
 
-    public async ValueTask<DiscordEmoji> CreateApplicationEmojiAsync(ulong applicationID, string name, string image)
+    public async ValueTask<DiscordEmoji> CreateApplicationEmojiAsync(ulong applicationId, string name, string image)
     {
-        string route = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}";
-        string url = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}";
+        string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}";
 
         RestApplicationEmojiCreatePayload pld = new()
         {
@@ -6356,10 +6356,10 @@ public sealed class DiscordApiClient
         return emoji;
     }
 
-    public async ValueTask<DiscordEmoji> ModifyApplicationEmojiAsync(ulong applicationID, ulong emojiID, string name)
+    public async ValueTask<DiscordEmoji> ModifyApplicationEmojiAsync(ulong applicationId, ulong emojiId, string name)
     {
-        string route = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}/{emojiID}";
-        string url = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}/{emojiID}";
+        string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
 
         RestApplicationEmojiModifyPayload pld = new()
         {
@@ -6387,10 +6387,10 @@ public sealed class DiscordApiClient
         return emoji;
     }
 
-    public async ValueTask DeleteApplicationEmojiAsync(ulong applicationID, ulong emojiID)
+    public async ValueTask DeleteApplicationEmojiAsync(ulong applicationId, ulong emojiId)
     {
-        string route = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}/{emojiID}";
-        string url = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}/{emojiID}";
+        string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
 
         RestRequest request = new()
         {
@@ -6402,10 +6402,10 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    public async ValueTask<DiscordEmoji> GetApplicationEmojiAsync(ulong applicationID, ulong emojiID)
+    public async ValueTask<DiscordEmoji> GetApplicationEmojiAsync(ulong applicationId, ulong emojiId)
     {
-        string route = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}/{emojiID}";
-        string url = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}/{emojiID}";
+        string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
 
         RestRequest request = new()
         {
@@ -6426,10 +6426,10 @@ public sealed class DiscordApiClient
         return emoji;
     }
 
-    public async ValueTask<IReadOnlyList<DiscordEmoji>> GetApplicationEmojisAsync(ulong applicationID)
+    public async ValueTask<IReadOnlyList<DiscordEmoji>> GetApplicationEmojisAsync(ulong applicationId)
     {
-        string route = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}";
-        string url = $"{Endpoints.APPLICATIONS}/{applicationID}/{Endpoints.EMOJIS}";
+        string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}";
 
         RestRequest request = new()
         {
