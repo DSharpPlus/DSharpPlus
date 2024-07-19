@@ -29,6 +29,13 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
     private readonly Lazy<IReadOnlyList<ulong>> rolesLazy;
 
     /// <summary>
+    /// Gets the user who uploaded this emoji.
+    /// </summary>
+    /// <remarks>This property only applies to application-owned emojis.</remarks>
+    [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordUser? User { get; internal set; }
+
+    /// <summary>
     /// Gets whether this emoji requires colons to use.
     /// </summary>
     [JsonProperty("require_colons")]

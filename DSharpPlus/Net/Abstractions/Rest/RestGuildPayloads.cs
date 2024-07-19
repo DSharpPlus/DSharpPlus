@@ -304,6 +304,18 @@ internal class RestGuildEmojiCreatePayload : RestGuildEmojiModifyPayload
     public string? ImageB64 { get; set; }
 }
 
+internal class RestApplicationEmojiCreatePayload : RestApplicationEmojiModifyPayload
+{
+    [JsonProperty("image")]
+    public string ImageB64 { get; set; }
+}
+
+internal class RestApplicationEmojiModifyPayload
+{
+    [JsonProperty("name")]
+    public string Name { get; set; }
+}
+
 internal class RestGuildWidgetSettingsPayload
 {
     [JsonProperty("enabled", NullValueHandling = NullValueHandling.Ignore)]
