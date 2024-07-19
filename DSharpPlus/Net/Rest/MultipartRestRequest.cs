@@ -113,7 +113,7 @@ internal readonly record struct MultipartRestRequest : IRestRequest
                 }
                 catch
                 {
-                    writer = new ArrayPoolBufferWriter<byte>();
+                    writer = new ArrayPoolBufferWriter<byte>(4096);
                 }
 
                 current.Stream.Seek(0, SeekOrigin.Begin);
