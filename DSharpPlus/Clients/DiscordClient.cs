@@ -979,9 +979,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
         while (remaining > 0 && lastCount is > 0 and 100);
     }
-
-
-
     #endregion
 
     #region Internal Caching Methods
