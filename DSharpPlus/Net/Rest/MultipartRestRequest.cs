@@ -118,12 +118,16 @@ internal readonly record struct MultipartRestRequest : IRestRequest
 
                 current.Stream.Seek(0, SeekOrigin.Begin);
 
-                while (current.Stream.Read(writer.GetSpan()) > 0)
+                int writtenBytes;
+                while ((writtenBytes = current.Stream.Read(writer.GetSpan())) > 0)
                 {
+                    writer.Advance(writtenBytes);
                 }
 
                 ByteArrayContent file = new(writer.WrittenSpan.ToArray());
 
+                writer.Dispose();
+                
                 if (current.ContentType is not null)
                 {
                     file.Headers.ContentType = MediaTypeHeaderValue.Parse(current.ContentType);
