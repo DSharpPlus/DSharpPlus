@@ -23,8 +23,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using CommunityToolkit.HighPerformance.Buffers;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Net;
@@ -103,7 +105,24 @@ internal readonly record struct MultipartRestRequest : IRestRequest
             {
                 DiscordMessageFile current = this.Files[i];
 
-                StreamContent file = new(current.Stream);
+                ArrayPoolBufferWriter<byte> writer;
+
+                try
+                {
+                    writer = new ArrayPoolBufferWriter<byte>((int)current.Stream.Length);
+                }
+                catch
+                {
+                    writer = new ArrayPoolBufferWriter<byte>();
+                }
+
+                current.Stream.Seek(0, SeekOrigin.Begin);
+
+                while (current.Stream.Read(writer.GetSpan()) > 0)
+                {
+                }
+
+                ByteArrayContent file = new(writer.WrittenSpan.ToArray());
 
                 if (current.ContentType is not null)
                 {
