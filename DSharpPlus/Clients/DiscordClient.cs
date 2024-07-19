@@ -915,8 +915,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public async ValueTask DeleteApplicationEmojiAsync(ulong emojiId)
         => await this.ApiClient.DeleteApplicationEmojiAsync(this.CurrentApplication.Id, emojiId);
 
-
-
     private async IAsyncEnumerable<DiscordGuild> GetGuildsInternalAsync
     (
         int limit = 200,
