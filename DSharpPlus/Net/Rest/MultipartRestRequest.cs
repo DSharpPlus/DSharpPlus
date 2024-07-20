@@ -109,9 +109,9 @@ internal readonly record struct MultipartRestRequest : IRestRequest
 
                 try
                 {
-                    writer = new ArrayPoolBufferWriter<byte>((int)current.Stream.Length);
+                    writer = new ArrayPoolBufferWriter<byte>(checked((int)current.Stream.Length));
                 }
-                catch
+                catch (NotSupportedException)
                 {
                     writer = new ArrayPoolBufferWriter<byte>(4096);
                 }
