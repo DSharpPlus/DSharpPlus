@@ -1,8 +1,6 @@
 using System.Threading.Tasks;
 
-using DSharpPlus.Net.Gateway;
-
-namespace DSharpPlus.Clients;
+namespace DSharpPlus.Net.Gateway;
 
 /// <summary>
 /// Provides a low-level interface for controlling individual gateway clients and their connections.

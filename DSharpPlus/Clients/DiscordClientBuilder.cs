@@ -202,6 +202,17 @@ public sealed class DiscordClientBuilder
     }
 
     /// <summary>
+    /// Instructs DSharpPlus to try reconnecting when encountering a fatal gateway error. By default, DSharpPlus will
+    /// leave the decision on fatal gateway errors to the user.
+    /// </summary>
+    /// <returns>The current instance for chaining.</returns>
+    public DiscordClientBuilder SetReconnectOnFatalGatewayErrors()
+    {
+        this.serviceCollection.AddOrReplace<IGatewayController, ReconnectingGatewayController>(ServiceLifetime.Singleton);
+        return this;
+    }
+
+    /// <summary>
     /// Builds a new client from the present builder.
     /// </summary>
     public DiscordClient Build()
