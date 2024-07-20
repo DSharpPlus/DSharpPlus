@@ -21,6 +21,7 @@ using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Exceptions;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -242,11 +243,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
         List<DiscordApplicationCommand> discordCommands = [];
         if (extension.DebugGuildId == 0)
         {
-            discordCommands.AddRange(await extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(globalApplicationCommands));
+            discordCommands.AddRange(await RegisterGlobalCommandsRetryingAsync(globalApplicationCommands));
 
             foreach ((ulong guildId, List<DiscordApplicationCommand> guildCommands) in guildsApplicationCommands)
             {
-                discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId, guildCommands));
+                discordCommands.AddRange(await RegisterGuildCommandsRetryingAsync(guildId, guildCommands));
             }
         }
         else
@@ -260,7 +261,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
                 .GroupBy(x => x.Name)
                 .Select(x => x.First());
 
-            discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, distinctCommands));
+            discordCommands.AddRange(await RegisterGuildCommandsRetryingAsync(extension.DebugGuildId, distinctCommands));
         }
 
         Dictionary<ulong, Command> commandsDictionary = [];
@@ -394,7 +395,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
 
     [StackTraceHidden]
     public async Task<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command)
-        => await this.ToApplicationParameterAsync(command, 0);
+        => await ToApplicationParameterAsync(command, 0);
 
     private async Task<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command, int depth = 1)
     {
@@ -927,6 +928,46 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
             (
                 $"Slash command failed validation: {command.Name} description contains invalid characters."
             );
+        }
+    }
+
+    private async Task<IReadOnlyList<DiscordApplicationCommand>> RegisterGlobalCommandsRetryingAsync
+    (
+        IEnumerable<DiscordApplicationCommand> commands
+    )
+    {
+        while (true)
+        {
+            try
+            {
+                return await this.extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(commands);
+            }
+            catch (ServerErrorException)
+            {
+                // short-ish delay to avoid ratelimit explosions
+                await Task.Delay(100);
+                continue;
+            }
+        }
+    }
+
+    private async Task<IReadOnlyList<DiscordApplicationCommand>> RegisterGuildCommandsRetryingAsync
+    (
+        ulong guildId,
+        IEnumerable<DiscordApplicationCommand> commands
+    )
+    {
+        while (true)
+        {
+            try
+            {
+                return await this.extension.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId, commands);
+            }
+            catch (ServerErrorException)
+            {
+                await Task.Delay(100);
+                continue;
+            }
         }
     }
 }
