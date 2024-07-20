@@ -944,6 +944,8 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
             }
             catch (ServerErrorException)
             {
+                this.logger.LogWarning("Slash command registration failed on Discord's side, retrying.");
+
                 // short-ish delay to avoid ratelimit explosions
                 await Task.Delay(100);
                 continue;
@@ -965,6 +967,8 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
             }
             catch (ServerErrorException)
             {
+                this.logger.LogWarning("Slash command registration failed on Discord's side, retrying.");
+
                 await Task.Delay(100);
                 continue;
             }
