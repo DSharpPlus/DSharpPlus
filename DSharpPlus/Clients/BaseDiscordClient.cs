@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -62,13 +60,12 @@ public abstract class BaseDiscordClient : IDisposable
     /// Gets the list of available voice regions. Note that this property will not contain VIP voice regions.
     /// </summary>
     public IReadOnlyDictionary<string, DiscordVoiceRegion> VoiceRegions
-        => this.voice_regions_lazy.Value;
+        => this.InternalVoiceRegions;
 
     /// <summary>
     /// Gets the list of available voice regions. This property is meant as a way to modify <see cref="VoiceRegions"/>.
     /// </summary>
     protected internal ConcurrentDictionary<string, DiscordVoiceRegion> InternalVoiceRegions { get; set; }
-    internal Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>> voice_regions_lazy;
 
     /// <summary>
     /// Initializes this Discord API client.
@@ -77,8 +74,7 @@ public abstract class BaseDiscordClient : IDisposable
     {
         this.UserCache = new ConcurrentDictionary<ulong, DiscordUser>();
         this.InternalVoiceRegions = new ConcurrentDictionary<string, DiscordVoiceRegion>();
-        this.voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this.InternalVoiceRegions));
-
+        
         Assembly a = typeof(DiscordClient).GetTypeInfo().Assembly;
 
         AssemblyInformationalVersionAttribute? iv = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>();

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -90,13 +89,10 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// </summary>
     [JsonIgnore]
     public IReadOnlyList<DiscordOverwrite> PermissionOverwrites
-        => this.permissionOverwritesLazy.Value;
+        => this.permissionOverwrites;
 
     [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
     internal List<DiscordOverwrite> permissionOverwrites = [];
-
-    [JsonIgnore]
-    private readonly Lazy<IReadOnlyList<DiscordOverwrite>> permissionOverwritesLazy;
 
     /// <summary>
     /// Gets the channel's topic. This is applicable to text channels only.
@@ -198,7 +194,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     [JsonProperty("permissions")]
     public DiscordPermissions? UserPermissions { get; internal set; }
 
-    internal DiscordChannel() => this.permissionOverwritesLazy = new Lazy<IReadOnlyList<DiscordOverwrite>>(() => new ReadOnlyCollection<DiscordOverwrite>(this.permissionOverwrites));
+    internal DiscordChannel() { }
 
     #region Methods
 

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
@@ -46,7 +45,6 @@ public class CommandsNextExtension : BaseExtension
     {
         this.Config = new CommandsNextConfiguration(cfg);
         this.TopLevelCommands = [];
-        this.registeredCommandsLazy = new Lazy<IReadOnlyDictionary<string, Command>>(() => new ReadOnlyDictionary<string, Command>(this.TopLevelCommands));
         this.HelpFormatter = new HelpFormatterFactory();
         this.HelpFormatter.SetFormatterType<DefaultHelpFormatter>();
 
@@ -431,10 +429,9 @@ public class CommandsNextExtension : BaseExtension
     /// Gets a dictionary of registered top-level commands.
     /// </summary>
     public IReadOnlyDictionary<string, Command> RegisteredCommands
-        => this.registeredCommandsLazy.Value;
+        => this.TopLevelCommands;
 
     private Dictionary<string, Command> TopLevelCommands { get; set; }
-    private readonly Lazy<IReadOnlyDictionary<string, Command>> registeredCommandsLazy;
 
     /// <summary>
     /// Registers all commands from a given assembly. The command classes need to be public to be considered for registration.

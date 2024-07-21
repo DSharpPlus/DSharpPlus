@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -89,10 +88,9 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// Gets the collection of presences held by this client.
     /// </summary>
     public IReadOnlyDictionary<ulong, DiscordPresence> Presences
-        => this.presencesLazy.Value;
+        => this.presences;
 
     internal Dictionary<ulong, DiscordPresence> presences = [];
-    private Lazy<IReadOnlyDictionary<ulong, DiscordPresence>> presencesLazy;
 
     [ActivatorUtilitiesConstructor]
     public DiscordClient
@@ -147,8 +145,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 asyncEvent.Register(d);
             }
         }
-
-        this.presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this.presences));
     }
 
     internal void InternalSetup(IClientErrorHandler error)
@@ -230,8 +226,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.events[typeof(ThreadMembersUpdatedEventArgs)] = new AsyncEvent<DiscordClient, ThreadMembersUpdatedEventArgs>(error);
 
         this.guilds.Clear();
-
-        this.presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this.presences));
     }
 
     #region Client Extension Methods
