@@ -24,7 +24,7 @@
   - name: Message Builder
     topicUid: articles.beyond_basics.messagebuilder
   - name: Interactions
-    topiUid: articles.beyond_basics.interactions
+    topicUid: articles.beyond_basics.interactions
 - name: Commands
   items:
   - name: Introduction
