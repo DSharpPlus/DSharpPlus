@@ -24,7 +24,7 @@ public class DiscordPollVoteUpdate
     public DiscordUser User => this.client.GetCachedOrEmptyUserInternal(this.UserId);
 
     [JsonIgnore]
-    public DiscordChannel Channel => this.client.InternalGetCachedChannel(this.ChannelId);
+    public DiscordChannel Channel => this.client.InternalGetCachedChannel(this.ChannelId, this.GuildId);
 
     /// <summary>
     /// Gets the message that the poll is attached to.
@@ -34,7 +34,7 @@ public class DiscordPollVoteUpdate
     /// being enabled in the client. If no cache provider is enabled, this property will always return <see langword="null"/>.
     /// </remarks>
     // Should this pull from cache as an auto-property? Perhaps having a hard-set message pulled from cache further up
-    // instead. 
+    // instead.
     [JsonIgnore]
     public DiscordMessage? Message
         => this.client.MessageCache?.TryGet(this.MessageId, out DiscordMessage? msg) ?? false ? msg : null;
