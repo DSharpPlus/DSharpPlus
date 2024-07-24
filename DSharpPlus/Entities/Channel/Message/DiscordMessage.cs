@@ -67,7 +67,13 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     [JsonIgnore]
     public DiscordChannel? Channel
     {
-        get => (this.Discord as DiscordClient)?.InternalGetCachedChannel(this.ChannelId) ?? (this.Discord as DiscordClient)?.InternalGetCachedThread(this.ChannelId) ?? this.channel;
+        get
+        {
+            DiscordClient? client = this.Discord as DiscordClient;
+
+            return client?.InternalGetCachedChannel(this.ChannelId, this.guildId) ??
+                   client?.InternalGetCachedThread(this.ChannelId) ?? this.channel;
+        }
         internal set => this.channel = value;
     }
 
@@ -326,7 +332,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
                 };
         }
 
-        DiscordChannel channel = client.InternalGetCachedChannel(channelId!.Value);
+        DiscordChannel? channel = client.InternalGetCachedChannel(channelId!.Value, this.guildId);
 
         if (channel is null)
         {

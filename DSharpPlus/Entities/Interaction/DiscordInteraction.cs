@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -52,7 +53,30 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     [JsonIgnore]
     public DiscordChannel Channel
-        => (this.Discord as DiscordClient).InternalGetCachedChannel(this.ChannelId) ?? (DiscordChannel)(this.Discord as DiscordClient).InternalGetCachedThread(this.ChannelId) ?? (this.Guild == null ? new DiscordDmChannel { Id = this.ChannelId, Type = DiscordChannelType.Private, Discord = this.Discord, Recipients = new DiscordUser[] { this.User } } : null);
+    {
+        get
+        {
+            DiscordClient client = (this.Discord as DiscordClient)!;
+
+            DiscordChannel? cachedChannel = client.InternalGetCachedChannel(this.ChannelId, this.GuildId) ??
+                                            client.InternalGetCachedThread(this.ChannelId);
+
+            if (cachedChannel is not null)
+            {
+                return cachedChannel;
+            }
+
+            Trace.Assert(this.GuildId is null, "GuildId is not null, but channel is not cached.");
+
+            return new DiscordDmChannel
+            {
+                Id = this.ChannelId,
+                Type = DiscordChannelType.Private,
+                Discord = this.Discord,
+                Recipients = new DiscordUser[] { this.User }
+            };
+        }
+    }
 
     /// <summary>
     /// Gets the user that invoked this interaction.
