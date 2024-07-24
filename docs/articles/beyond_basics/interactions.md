@@ -23,20 +23,20 @@ Available response types vary depending on the type of interaction.
 > The initial response has to decide if the repsonse should be ephemeral. You can NOT change this later.
 
 ### Application Commands
-When responding to an Application Command you can defer your response and extend the window for the interaction to 15 minutes.
-This defered response ("XY is thinking..." in the client) can later be edited to show your desired response.
+When responding to an Application Command ("Slash commands" or context menues) you can defer your response and extend the window for the interaction to 15 minutes.
+This deferred response ("XY is thinking..." in the client) can later be edited to show your desired response.
 
 ### Message Components
 Responding to a Message Component is pretty much the same as a reaction to a application command. 
-Biggest difference is that you can use the `UpdateMessage` response type to directly update the message the component is located on.
-This response type is also deferable with `DeferrredMessageUpdate`.
+The biggest difference is that you can use the `UpdateMessage` response type to directly update the message the component is located on.
+This response type is also deferrable with `DeferrredMessageUpdate`.
 
 
 ### Modals 
-Also if you want to respond to any interaction with a modal it has to be the initial response.
+If you want to respond to any interaction with a modal it has to be the initial response.
 When responding to a modal you can not respond with another Modal.
 
 ### Autocompletion
-When responing to an autocompletion request you have to respond with `DiscordInteractionResponseType.AutoCompleteResult` and zero to 25 results within the 3 second window.
+When responing to an Autocomplete request you have to respond with `DiscordInteractionResponseType.AutoCompleteResult` and zero to 25 results within the 3 second window.
 
 
