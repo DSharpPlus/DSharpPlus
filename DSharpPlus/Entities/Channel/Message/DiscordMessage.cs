@@ -689,15 +689,54 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <summary>
     /// Gets users that reacted with this emoji.
     /// </summary>
-    /// <param name="emoji">Emoji to react with.</param>
-    /// <param name="limit">Limit of users to fetch.</param>
-    /// <param name="after">Fetch users after this user's id.</param>
+    /// <param name="emoji">The emoji those users reacted with.</param>
+    /// <param name="cancellationToken">Cancels enumeration before the next API request.</param>
     /// <returns></returns>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null)
-        => GetReactionsInternalAsync(emoji, limit, after);
+    public async IAsyncEnumerable<DiscordUser> GetReactionsAsync
+    (
+        DiscordEmoji emoji,
+
+        [EnumeratorCancellation]
+        CancellationToken cancellationToken = default
+    )
+    {
+        // the API request limit is 100, the default is 25
+        int receivedOnLastCall = 100;
+        ulong? last = null;
+
+        while (receivedOnLastCall == 100)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                yield break;
+            }
+
+            IReadOnlyList<DiscordUser> users = await this.Discord.ApiClient.GetReactionsAsync
+             (
+                channelId: this.ChannelId,
+                messageId: this.Id,
+                emoji: emoji.ToReactionString(),
+                afterId: last,
+                limit: 100
+             );
+
+            receivedOnLastCall = users.Count;
+
+            foreach (DiscordUser user in users)
+            {
+                user.Discord = this.Discord;
+
+                _ = this.Discord.UpdateUserCache(user);
+
+                yield return user;
+            }
+
+            last = users.LastOrDefault()?.Id;
+        }
+    }
 
     /// <summary>
     /// Deletes all reactions for this message.
