@@ -1,4 +1,7 @@
-# Interactions
+---
+uid: articles.beyond_basics.interactions
+title: Interactions
+---
 
 [Interactions](https://discord.com/developers/docs/interactions/receiving-and-responding#interactions) represent a user interacting with your bot.
 This can happen in different ways. The most prominent case is "slash commands" but also button presses or context menus.
