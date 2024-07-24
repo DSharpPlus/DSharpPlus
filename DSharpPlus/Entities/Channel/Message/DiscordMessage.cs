@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -810,41 +809,6 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
 
             last = users.LastOrDefault()?.Id;
         }
-    }
-
-    private async Task<IReadOnlyList<DiscordUser>> GetReactionsInternalAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null)
-    {
-        if (limit < 0)
-        {
-            throw new ArgumentException("Cannot get a negative number of reactions' users.");
-        }
-
-        if (limit == 0)
-        {
-            return [];
-        }
-
-        List<DiscordUser> users = new(limit);
-        int remaining = limit;
-        ulong? last = after;
-
-        do
-        {
-            int fetchSize = remaining > 100 ? 100 : remaining;
-            IReadOnlyList<DiscordUser> fetch = await this.Discord.ApiClient.GetReactionsAsync(this.ChannelId, this.Id, emoji.ToReactionString(), last, fetchSize);
-
-            remaining -= fetch.Count;
-
-            if (fetch.Count == 0)
-            {
-                break;
-            }
-
-            users.AddRange(fetch);
-            last = fetch[^1]?.Id;
-        } while (remaining > 0);
-
-        return new ReadOnlyCollection<DiscordUser>(users);
     }
 
     /// <summary>
