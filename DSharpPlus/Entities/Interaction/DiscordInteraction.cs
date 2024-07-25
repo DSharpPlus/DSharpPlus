@@ -9,13 +9,13 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents an interaction that was invoked.
 /// </summary>
-public sealed class DiscordInteraction : SnowflakeObject
+public class DiscordInteraction : SnowflakeObject
 {
     /// <summary>
     /// Gets the response state of the interaction.
     /// </summary>
     [JsonIgnore]
-    public DiscordInteractionResponseState ResponseState { get; private set; }
+    public DiscordInteractionResponseState ResponseState { get; protected set; }
 
     /// <summary>
     /// Gets the type of interaction invoked.
@@ -170,7 +170,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     /// <param name="type">The type of the response.</param>
     /// <param name="builder">The data, if any, to send.</param>
-    public async Task CreateResponseAsync(DiscordInteractionResponseType type, DiscordInteractionResponseBuilder builder = null)
+    public virtual async Task CreateResponseAsync(DiscordInteractionResponseType type, DiscordInteractionResponseBuilder builder = null)
     {
         if (this.ResponseState is not DiscordInteractionResponseState.Unacknowledged)
         {

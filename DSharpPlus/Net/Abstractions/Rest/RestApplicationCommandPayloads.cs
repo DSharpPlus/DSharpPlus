@@ -93,7 +93,7 @@ internal class RestApplicationCommandEditPayload
     public Optional<IEnumerable<DiscordApplicationIntegrationType>> InstallTypes { get; set; }
 }
 
-internal class RestInteractionResponsePayload
+internal class DiscordInteractionResponsePayload
 {
     [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordInteractionResponseType Type { get; set; }
