@@ -381,7 +381,7 @@ public sealed partial class DiscordClient
                 break;
 
             case "message_reaction_remove_all":
-                await OnMessageReactionRemoveAllAsync((ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong)dat["guild_id"]);
+                await OnMessageReactionRemoveAllAsync((ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"]);
                 break;
 
             case "message_reaction_remove_emoji":
