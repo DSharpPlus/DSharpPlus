@@ -988,6 +988,21 @@ public sealed partial class DiscordClient : BaseDiscordClient
         return null;
     }
 
+    internal DiscordThreadChannel? InternalGetCachedThread(ulong threadId, ulong? guildId)
+    {
+        if (!guildId.HasValue)
+        {
+            return InternalGetCachedThread(threadId);
+        }
+
+        if (this.guilds.TryGetValue(guildId.Value, out DiscordGuild? guild))
+        {
+            return guild.Threads.GetValueOrDefault(threadId);
+        }
+
+        return null;
+    }
+
     internal DiscordChannel InternalGetCachedChannel(ulong channelId)
     {
         if (this.privateChannels?.TryGetValue(channelId, out DiscordDmChannel? foundDmChannel) == true)
@@ -1048,7 +1063,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             message.Author = UpdateUser(usr, guild?.Id, guild, member);
         }
 
-        DiscordChannel? channel = InternalGetCachedChannel(message.ChannelId, message.guildId) ?? InternalGetCachedThread(message.ChannelId);
+        DiscordChannel? channel = InternalGetCachedChannel(message.ChannelId, message.guildId) ?? InternalGetCachedThread(message.ChannelId, message.guildId);
 
         if (channel != null)
         {

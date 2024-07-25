@@ -59,7 +59,7 @@ public sealed class DiscordInteraction : SnowflakeObject
             DiscordClient client = (this.Discord as DiscordClient)!;
 
             DiscordChannel? cachedChannel = client.InternalGetCachedChannel(this.ChannelId, this.GuildId) ??
-                                            client.InternalGetCachedThread(this.ChannelId);
+                                            client.InternalGetCachedThread(this.ChannelId, this.GuildId);
 
             if (cachedChannel is not null)
             {

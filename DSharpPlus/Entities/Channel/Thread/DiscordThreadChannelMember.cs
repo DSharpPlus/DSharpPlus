@@ -12,6 +12,12 @@ public class DiscordThreadChannelMember
     public ulong ThreadId { get; set; }
 
     /// <summary>
+    /// Gets ID of the guild.
+    /// </summary>
+    [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+    public ulong GuildId { get; set; }
+
+    /// <summary>
     /// Gets ID of the user.
     /// </summary>
     [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
@@ -31,7 +37,7 @@ public class DiscordThreadChannelMember
     /// </summary>
     [JsonIgnore]
     public DiscordMember Member
-        => this.Guild != null ? (this.Guild.members.TryGetValue(this.Id, out DiscordMember? member) ? member : new DiscordMember { Id = this.Id, guild_id = this.guild_id, Discord = this.Discord }) : null;
+        => this.Guild != null ? (this.Guild.members.TryGetValue(this.Id, out DiscordMember? member) ? member : new DiscordMember { Id = this.Id, guild_id = this.GuildId, Discord = this.Discord }) : null;
 
     /// <summary>
     /// Gets the category that contains this channel. For threads, gets the channel this thread was created in.
@@ -45,10 +51,7 @@ public class DiscordThreadChannelMember
     /// </summary>
     [JsonIgnore]
     public DiscordGuild Guild
-        => this.Discord.Guilds.TryGetValue(this.guild_id, out DiscordGuild? guild) ? guild : null;
-
-    [JsonIgnore]
-    internal ulong guild_id;
+        => this.Discord.Guilds.TryGetValue(this.GuildId, out DiscordGuild? guild) ? guild : null;
 
     /// <summary>
     /// Gets the client instance this object is tied to.
