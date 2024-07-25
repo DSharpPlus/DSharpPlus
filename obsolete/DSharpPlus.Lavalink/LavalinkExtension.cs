@@ -26,13 +26,13 @@ public sealed class LavalinkExtension : BaseExtension
     /// <summary>
     /// Gets a dictionary of connected Lavalink nodes for the extension.
     /// </summary>
-    public IReadOnlyDictionary<ConnectionEndpoint, LavalinkNodeConnection> ConnectedNodes { get; }
+    public IReadOnlyDictionary<ConnectionEndpoint, LavalinkNodeConnection> ConnectedNodes => this.connectedNodes;
     private readonly ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection> connectedNodes = new();
 
     /// <summary>
     /// Creates a new instance of this Lavalink extension.
     /// </summary>
-    internal LavalinkExtension() => this.ConnectedNodes = new ReadOnlyConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection>(this.connectedNodes);
+    internal LavalinkExtension() { }
 
     /// <summary>
     /// DO NOT USE THIS MANUALLY.
