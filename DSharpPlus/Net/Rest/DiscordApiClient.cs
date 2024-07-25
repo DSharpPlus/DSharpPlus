@@ -3330,7 +3330,7 @@ public sealed class DiscordApiClient
         foreach (DiscordThreadChannelMember member in result.Members)
         {
             member.Discord = this.discord!;
-            member.GuildId = guildId;
+            member.guild_id = guildId;
             DiscordThreadChannel? thread = result.Threads.SingleOrDefault(x => x.Id == member.ThreadId);
             if (thread is not null)
             {
@@ -3382,7 +3382,7 @@ public sealed class DiscordApiClient
         foreach (DiscordThreadChannelMember member in result.Members)
         {
             member.Discord = this.discord!;
-            member.GuildId = guildId;
+            member.guild_id = guildId;
             DiscordThreadChannel? thread = result.Threads.SingleOrDefault(x => x.Id == member.ThreadId);
             if (thread is not null)
             {
@@ -3433,7 +3433,7 @@ public sealed class DiscordApiClient
         foreach (DiscordThreadChannelMember member in result.Members)
         {
             member.Discord = this.discord!;
-            member.GuildId = guildId;
+            member.guild_id = guildId;
             DiscordThreadChannel? thread = result.Threads.SingleOrDefault(x => x.Id == member.ThreadId);
             if (thread is not null)
             {
@@ -3484,7 +3484,7 @@ public sealed class DiscordApiClient
         foreach (DiscordThreadChannelMember member in result.Members)
         {
             member.Discord = this.discord!;
-            member.GuildId = guildId;
+            member.guild_id = guildId;
             DiscordThreadChannel? thread = result.Threads.SingleOrDefault(x => x.Id == member.ThreadId);
             if (thread is not null)
             {

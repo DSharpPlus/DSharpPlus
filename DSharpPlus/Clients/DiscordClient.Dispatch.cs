@@ -443,7 +443,8 @@ public sealed partial class DiscordClient
                 break;
 
             case "thread_member_update":
-                await OnThreadMemberUpdateEventAsync(dat.ToDiscordObject<DiscordThreadChannelMember>());
+                gid = (ulong)dat["guild_id"];
+                await OnThreadMemberUpdateEventAsync(this.guilds[gid], dat.ToDiscordObject<DiscordThreadChannelMember>());
                 break;
 
             case "thread_members_update":
@@ -2390,7 +2391,7 @@ public sealed partial class DiscordClient
         foreach (DiscordThreadChannelMember member in members)
         {
             member.Discord = this;
-            member.GuildId = guild.Id;
+            member.guild_id = guild.Id;
 
             DiscordThreadChannel? thread = threads.SingleOrDefault(x => x.Id == member.ThreadId);
             if (thread != null)
@@ -2404,13 +2405,14 @@ public sealed partial class DiscordClient
                 .InvokeAsync(this, new ThreadListSyncedEventArgs { Guild = guild, Channels = channels.ToList().AsReadOnly(), Threads = threads, CurrentMembers = members.ToList().AsReadOnly() });
     }
 
-    internal async Task OnThreadMemberUpdateEventAsync(DiscordThreadChannelMember member)
+    internal async Task OnThreadMemberUpdateEventAsync(DiscordGuild guild, DiscordThreadChannelMember member)
     {
         member.Discord = this;
 
-        DiscordThreadChannel thread = InternalGetCachedThread(member.ThreadId, member.GuildId);
+        DiscordThreadChannel thread = InternalGetCachedThread(member.ThreadId, guild.Id);
+        member.guild_id = guild.Id;
         thread.CurrentMember = member;
-        thread.Guild.threads[thread.Id] = thread;
+        guild.threads[thread.Id] = thread;
 
         await this.events[typeof(ThreadMemberUpdatedEventArgs)]
                 .As<ThreadMemberUpdatedEventArgs>()
@@ -2451,7 +2453,7 @@ public sealed partial class DiscordClient
             foreach (DiscordThreadChannelMember threadMember in addedMembers)
             {
                 threadMember.Discord = this;
-                threadMember.GuildId = guild.Id;
+                threadMember.guild_id = guild.Id;
             }
 
             if (addedMembers.Any(member => member.Id == this.CurrentUser.Id))
