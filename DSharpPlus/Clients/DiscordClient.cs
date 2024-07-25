@@ -28,6 +28,8 @@ using Microsoft.Extensions.Options;
 
 using Newtonsoft.Json.Linq;
 
+using NonBlocking;
+
 namespace DSharpPlus;
 
 /// <summary>
@@ -36,9 +38,9 @@ namespace DSharpPlus;
 public sealed partial class DiscordClient : BaseDiscordClient
 {
     internal static readonly DateTimeOffset discordEpoch = new(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
-    private static readonly ConcurrentDictionary<ulong, SocketLock> socketLocks = [];
+    private static readonly NonBlockingDictionary<ulong, SocketLock> socketLocks = [];
 
-    private readonly ConcurrentDictionary<Type, AsyncEvent> events = [];
+    private readonly NonBlockingDictionary<Type, AsyncEvent> events = [];
 
     internal bool isShard = false;
     internal IMessageCacheProvider? MessageCache { get; }
@@ -68,7 +70,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// ID.
     /// </summary>
     public IReadOnlyDictionary<ulong, DiscordDmChannel> PrivateChannels => this.privateChannels;
-    internal ConcurrentDictionary<ulong, DiscordDmChannel> privateChannels = new();
+    internal NonBlockingDictionary<ulong, DiscordDmChannel> privateChannels = new();
 
     /// <summary>
     /// Gets a dictionary of guilds that this client is in. The dictionary's key is the guild ID. Note that the
@@ -76,7 +78,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <see cref="GuildAvailable"/> or <see cref="GuildDownloadCompleted"/> events haven't been fired yet)
     /// </summary>
     public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds => this.guilds;
-    internal ConcurrentDictionary<ulong, DiscordGuild> guilds = new();
+    internal NonBlockingDictionary<ulong, DiscordGuild> guilds = new();
 
     /// <summary>
     /// Gets the latency in the connection to a specific guild.

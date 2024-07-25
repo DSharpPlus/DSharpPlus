@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Concurrent;
 
+using NonBlocking;
+
 namespace DSharpPlus;
 
 /// <summary>
@@ -11,5 +13,5 @@ public sealed class EventHandlerCollection
     /// <summary>
     /// The delegate-based event handlers configured for this application.
     /// </summary>
-    public ConcurrentDictionary<Type, ConcurrentBag<Delegate>> DelegateHandlers { get; } = [];
+    public NonBlockingDictionary<Type, ConcurrentBag<Delegate>> DelegateHandlers { get; } = [];
 }

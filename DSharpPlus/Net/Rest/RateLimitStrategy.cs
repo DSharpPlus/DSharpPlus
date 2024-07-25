@@ -1,11 +1,13 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+
+using NonBlocking;
+
 using Polly;
 
 namespace DSharpPlus.Net;
@@ -13,8 +15,8 @@ namespace DSharpPlus.Net;
 internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDisposable
 {
     private readonly RateLimitBucket globalBucket;
-    private readonly ConcurrentDictionary<string, RateLimitBucket> buckets = [];
-    private readonly ConcurrentDictionary<string, string> routeHashes = [];
+    private readonly NonBlockingDictionary<string, RateLimitBucket> buckets = [];
+    private readonly NonBlockingDictionary<string, string> routeHashes = [];
 
     private readonly ILogger logger;
     private readonly int waitingForHashMilliseconds;

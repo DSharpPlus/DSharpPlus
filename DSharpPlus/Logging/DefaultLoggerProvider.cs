@@ -1,13 +1,14 @@
 using System;
-using System.Collections.Concurrent;
 
 using Microsoft.Extensions.Logging;
+
+using NonBlocking;
 
 namespace DSharpPlus.Logging;
 
 internal class DefaultLoggerProvider : ILoggerProvider
 {
-    private readonly ConcurrentDictionary<string, DefaultLogger> loggers = new(StringComparer.Ordinal);
+    private readonly NonBlockingDictionary<string, DefaultLogger> loggers = new(StringComparer.Ordinal);
     private readonly LogLevel minimum;
     private readonly string timestampFormat;
 

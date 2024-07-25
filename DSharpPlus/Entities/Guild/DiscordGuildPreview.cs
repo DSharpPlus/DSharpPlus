@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 
+using NonBlocking;
+
 namespace DSharpPlus.Entities;
 
 /// <summary>
@@ -42,7 +44,7 @@ public class DiscordGuildPreview : SnowflakeObject
 
     [JsonProperty("emojis", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-    internal ConcurrentDictionary<ulong, DiscordEmoji> emojis;
+    internal NonBlockingDictionary<ulong, DiscordEmoji> emojis;
 
     /// <summary>
     /// Gets a collection of this guild's features.
