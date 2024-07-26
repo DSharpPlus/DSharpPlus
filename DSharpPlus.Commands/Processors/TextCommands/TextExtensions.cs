@@ -24,7 +24,9 @@ internal static partial class TextExtensions
     [UnsafeAccessor(UnsafeAccessorKind.Constructor)] private static extern DiscordMessage _messageConstructor();
     [UnsafeAccessor(UnsafeAccessorKind.Constructor)] private static extern DiscordMessage _messageConstructor(DiscordMessage message);
     [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "set_Content")] private static extern void _messageContentSetter(DiscordMessage message, string content);
+    [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "set_Channel")] private static extern void _messageChannelSetter(DiscordMessage message, DiscordChannel channel);
     [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "set_ChannelId")] private static extern void _messageChannelIdSetter(DiscordMessage message, ulong channelId);
+    [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "set_guildId")] private static extern void _messageGuildIdSetter(DiscordMessage message, ulong? guildId);
     [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "set_Author")] private static extern void _messageAuthorSetter(DiscordMessage message, DiscordUser author);
     [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "mentionedUsers")] private static extern ref List<DiscordUser> _messageMentionedUsersSetter(DiscordMessage message);
     [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "mentionedRoles")] private static extern ref List<DiscordRole> _messageMentionedRolesSetter(DiscordMessage message);
@@ -59,7 +61,7 @@ internal static partial class TextExtensions
 
         // Create the message created event args.
         MessageCreatedEventArgs messageCreateEventArgs = _messageCreateEventArgsConstructor();
-        _messageCreateEventArgsMessageSetter(messageCreateEventArgs, message);
+        _messageCreateEventArgsMessageSetter(messageCreateEventArgs, messageCopy);
         _messageCreateEventArgsMentionedUsersSetter(messageCreateEventArgs, message.MentionedUsers);
         _messageCreateEventArgsMentionedRolesSetter(messageCreateEventArgs, message.MentionedRoles);
         _messageCreateEventArgsMentionedChannelsSetter(messageCreateEventArgs, message.MentionedChannels);
@@ -123,7 +125,9 @@ internal static partial class TextExtensions
         }
 
         _messageContentSetter(message, content);
+        _messageChannelSetter(message, channel);
         _messageChannelIdSetter(message, channel.Id);
+        _messageGuildIdSetter(message, channel.GuildId ?? 0);
         _messageAuthorSetter(message, user);
         _messageMentionedUsersSetter(message) = userMentions;
         _messageMentionedRolesSetter(message) = roleMentions;
