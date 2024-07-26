@@ -90,11 +90,12 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <summary>
     /// Gets the guild's owner.
     /// </summary>
-    [JsonIgnore]
-    public DiscordMember Owner
-        => this.Members.TryGetValue(this.OwnerId, out DiscordMember? owner)
+    public async Task<DiscordMember> GetGuildOwnerAsync()
+    {
+        return this.Members.TryGetValue(this.OwnerId, out DiscordMember? owner)
             ? owner
-            : this.Discord.ApiClient.GetGuildMemberAsync(this.Id, this.OwnerId).AsTask().GetAwaiter().GetResult();
+            : await this.Discord.ApiClient.GetGuildMemberAsync(this.Id, this.OwnerId);
+    }
 
     /// <summary>
     /// Gets the guild's voice region ID.
