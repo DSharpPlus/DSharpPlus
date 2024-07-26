@@ -71,7 +71,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
             DiscordClient? client = this.Discord as DiscordClient;
 
             return client?.InternalGetCachedChannel(this.ChannelId, this.guildId) ??
-                   client?.InternalGetCachedThread(this.ChannelId) ?? this.channel;
+                   client?.InternalGetCachedThread(this.ChannelId, this.guildId) ?? this.channel;
         }
         internal set => this.channel = value;
     }

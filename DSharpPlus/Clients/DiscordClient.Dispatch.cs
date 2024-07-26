@@ -381,7 +381,7 @@ public sealed partial class DiscordClient
                 break;
 
             case "message_reaction_remove_all":
-                await OnMessageReactionRemoveAllAsync((ulong)dat["message_id"], (ulong)dat["channel_id"]);
+                await OnMessageReactionRemoveAllAsync((ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"]);
                 break;
 
             case "message_reaction_remove_emoji":
@@ -443,7 +443,8 @@ public sealed partial class DiscordClient
                 break;
 
             case "thread_member_update":
-                await OnThreadMemberUpdateEventAsync(dat.ToDiscordObject<DiscordThreadChannelMember>());
+                gid = (ulong)dat["guild_id"];
+                await OnThreadMemberUpdateEventAsync(this.guilds[gid], dat.ToDiscordObject<DiscordThreadChannelMember>());
                 break;
 
             case "thread_members_update":
@@ -841,7 +842,7 @@ public sealed partial class DiscordClient
     internal async Task OnChannelPinsUpdateAsync(ulong? guildId, ulong channelId, DateTimeOffset? lastPinTimestamp)
     {
         DiscordGuild guild = InternalGetCachedGuild(guildId);
-        DiscordChannel? channel = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId);
+        DiscordChannel? channel = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId, guildId);
 
         if (channel == null)
         {
@@ -1778,7 +1779,7 @@ public sealed partial class DiscordClient
     internal async Task OnMessageDeleteEventAsync(ulong messageId, ulong channelId, ulong? guildId)
     {
         DiscordGuild guild = InternalGetCachedGuild(guildId);
-        DiscordChannel? channel = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId);
+        DiscordChannel? channel = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId, guildId);
 
         if (channel == null)
         {
@@ -1835,7 +1836,7 @@ public sealed partial class DiscordClient
 
     internal async Task OnMessageBulkDeleteEventAsync(ulong[] messageIds, ulong channelId, ulong? guildId)
     {
-        DiscordChannel? channel = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId);
+        DiscordChannel? channel = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId, guildId);
 
         List<DiscordMessage> msgs = new(messageIds.Length);
         foreach (ulong messageId in messageIds)
@@ -1875,7 +1876,7 @@ public sealed partial class DiscordClient
 
     internal async Task OnMessageReactionAddAsync(ulong userId, ulong messageId, ulong channelId, ulong? guildId, TransportMember mbr, DiscordEmoji emoji)
     {
-        DiscordChannel? channel = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId);
+        DiscordChannel? channel = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId, guildId);
         DiscordGuild? guild = InternalGetCachedGuild(guildId);
 
         emoji.Discord = this;
@@ -1940,7 +1941,7 @@ public sealed partial class DiscordClient
 
     internal async Task OnMessageReactionRemoveAsync(ulong userId, ulong messageId, ulong channelId, ulong? guildId, DiscordEmoji emoji)
     {
-        DiscordChannel? channel = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId);
+        DiscordChannel? channel = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId, guildId);
 
         emoji.Discord = this;
 
@@ -2011,9 +2012,9 @@ public sealed partial class DiscordClient
                 .InvokeAsync(this, ea);
     }
 
-    internal async Task OnMessageReactionRemoveAllAsync(ulong messageId, ulong channelId)
+    internal async Task OnMessageReactionRemoveAllAsync(ulong messageId, ulong channelId, ulong? guildId)
     {
-        DiscordChannel channel = InternalGetCachedChannel(channelId) ?? InternalGetCachedThread(channelId);
+        DiscordChannel? channel = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId, guildId);
 
         if (!this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
         {
@@ -2040,7 +2041,7 @@ public sealed partial class DiscordClient
     internal async Task OnMessageReactionRemoveEmojiAsync(ulong messageId, ulong channelId, ulong guildId, JToken dat)
     {
         DiscordGuild guild = InternalGetCachedGuild(guildId);
-        DiscordChannel? channel = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId);
+        DiscordChannel? channel = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId, guildId);
 
         if (channel == null)
         {
@@ -2307,7 +2308,7 @@ public sealed partial class DiscordClient
         DiscordGuild guild = thread.Guild;
         guild.Discord = this;
 
-        DiscordThreadChannel cthread = InternalGetCachedThread(thread.Id);
+        DiscordThreadChannel cthread = InternalGetCachedThread(thread.Id, thread.GuildId);
 
         if (cthread != null) //thread is cached
         {
@@ -2404,14 +2405,14 @@ public sealed partial class DiscordClient
                 .InvokeAsync(this, new ThreadListSyncedEventArgs { Guild = guild, Channels = channels.ToList().AsReadOnly(), Threads = threads, CurrentMembers = members.ToList().AsReadOnly() });
     }
 
-    internal async Task OnThreadMemberUpdateEventAsync(DiscordThreadChannelMember member)
+    internal async Task OnThreadMemberUpdateEventAsync(DiscordGuild guild, DiscordThreadChannelMember member)
     {
         member.Discord = this;
 
-        DiscordThreadChannel thread = InternalGetCachedThread(member.ThreadId);
-        member.guild_id = thread.Guild.Id;
+        DiscordThreadChannel thread = InternalGetCachedThread(member.ThreadId, guild.Id);
+        member.guild_id = guild.Id;
         thread.CurrentMember = member;
-        thread.Guild.threads[thread.Id] = thread;
+        guild.threads[thread.Id] = thread;
 
         await this.events[typeof(ThreadMemberUpdatedEventArgs)]
                 .As<ThreadMemberUpdatedEventArgs>()
@@ -2420,7 +2421,7 @@ public sealed partial class DiscordClient
 
     internal async Task OnThreadMembersUpdateEventAsync(DiscordGuild guild, ulong thread_id, IReadOnlyList<DiscordThreadChannelMember> addedMembers, IReadOnlyList<ulong?> removed_member_ids, int member_count)
     {
-        DiscordThreadChannel? thread = InternalGetCachedThread(thread_id) ?? new DiscordThreadChannel
+        DiscordThreadChannel? thread = InternalGetCachedThread(thread_id, guild.Id) ?? new DiscordThreadChannel
         {
             Id = thread_id,
             GuildId = guild.Id,
