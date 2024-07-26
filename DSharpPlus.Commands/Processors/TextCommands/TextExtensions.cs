@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
@@ -79,7 +80,7 @@ internal static partial class TextExtensions
     /// <param name="message">The message to use as a base for the new message.</param>
     /// <param name="content">The content of the new message.</param>
     /// <returns>The created message created event args object.</returns>
-    public static MessageCreatedEventArgs CreateFakeMessageEventArgs(CommandContext context, DiscordMessage message, string content)
+    public static async ValueTask<MessageCreatedEventArgs> CreateFakeMessageEventArgsAsync(CommandContext context, DiscordMessage message, string content)
     {
         ArgumentNullException.ThrowIfNull(context, nameof(context));
         ArgumentNullException.ThrowIfNull(message, nameof(message));
@@ -90,7 +91,7 @@ internal static partial class TextExtensions
         DiscordMessage messageCopy = message.Copy();
 
         // Modify the copied message to contain the contents that the user wants.
-        messageCopy.ModifyMessageProperties(content, context.Client, context.User, context.Channel, context.Guild);
+        await messageCopy.ModifyMessagePropertiesAsync(content, context.Client, context.User, context.Channel, context.Guild);
 
         // Create the message created event args.
         MessageCreatedEventArgs messageCreateEventArgs = messageCreateEventArgsConstructor();
@@ -112,7 +113,7 @@ internal static partial class TextExtensions
     /// <param name="user">The new author of the message.</param>
     /// <param name="channel">The new channel of the message.</param>
     /// <param name="guild">The guild to use for fetching roles.</param>
-    public static void ModifyMessageProperties(
+    public static async ValueTask ModifyMessagePropertiesAsync(
         this DiscordMessage message,
         string content,
         DiscordClient client,
@@ -139,7 +140,7 @@ internal static partial class TextExtensions
             {
                 if (ulong.TryParse(match.Groups[1].Value, out ulong userId))
                 {
-                    userMentions.Add(client.GetUserAsync(userId).GetAwaiter().GetResult());
+                    userMentions.Add(await client.GetUserAsync(userId));
                 }
             }
         }
@@ -152,7 +153,7 @@ internal static partial class TextExtensions
                 DiscordChannel? mentionedChannel;
                 try
                 {
-                    mentionedChannel = client.GetChannelAsync(channelId).GetAwaiter().GetResult();
+                    mentionedChannel = await client.GetChannelAsync(channelId);
                 }
                 catch (DiscordException)
                 {

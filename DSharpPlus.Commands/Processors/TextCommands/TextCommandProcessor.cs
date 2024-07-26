@@ -36,7 +36,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
 
     /// <inheritdoc />
     public override IReadOnlyList<Command> Commands => this.commands.Values;
-    private FrozenDictionary<string, Command> commands = new Dictionary<string, Command>().ToFrozenDictionary();
+    private FrozenDictionary<string, Command> commands = FrozenDictionary<string, Command>.Empty;
 
     /// <inheritdoc />
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
@@ -174,9 +174,9 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         await this.extension.CommandExecutor.ExecuteAsync(commandContext);
     }
 
-    /// <inheritdoc cref="TextExtensions.CreateFakeMessageEventArgs(CommandContext, DiscordMessage, string)" />
-    public static MessageCreatedEventArgs CreateFakeMessageEventArgs(CommandContext context, DiscordMessage message, string content)
-        => TextExtensions.CreateFakeMessageEventArgs(context, message, content);
+    /// <inheritdoc cref="TextExtensions.CreateFakeMessageEventArgsAsync(CommandContext, DiscordMessage, string)" />
+    public static async ValueTask<MessageCreatedEventArgs> CreateFakeMessageEventArgsAsync(CommandContext context, DiscordMessage message, string content)
+        => await TextExtensions.CreateFakeMessageEventArgsAsync(context, message, content);
 
     /// <inheritdoc/>
     public override TextCommandContext CreateCommandContext
