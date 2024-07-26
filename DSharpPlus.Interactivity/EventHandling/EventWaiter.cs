@@ -128,24 +128,10 @@ internal class EventWaiter<T> : IDisposable where T : AsyncEventArgs
         {
             return;
         }
-
+        
         this.disposed = true;
-
-        if (this.@event != null && this.handler != null)
-        {
-            this.@event.Unregister(this.handler);
-        }
-
-        this.@event = null!;
-        this.handler = null!;
-        this.client = null!;
-
-        this.matchrequests?.Clear();
-
-        this.collectrequests?.Clear();
-
-        this.matchrequests = null!;
-        this.collectrequests = null!;
+        this.matchrequests.Clear();
+        this.collectrequests.Clear();
 
         // Satisfy rule CA1816. Can be removed if this class is sealed.
         GC.SuppressFinalize(this);
