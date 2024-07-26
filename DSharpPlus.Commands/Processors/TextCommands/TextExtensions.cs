@@ -127,7 +127,7 @@ internal static partial class TextExtensions
         _messageContentSetter(message, content);
         _messageChannelSetter(message, channel);
         _messageChannelIdSetter(message, channel.Id);
-        _messageGuildIdSetter(message, channel.GuildId ?? 0);
+        _messageGuildIdSetter(message, channel.GuildId);
         _messageAuthorSetter(message, user);
         _messageMentionedUsersSetter(message) = userMentions;
         _messageMentionedRolesSetter(message) = roleMentions;
