@@ -175,7 +175,8 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     }
 
     /// <inheritdoc cref="TextExtensions.CreateFakeMessageEventArgs(CommandContext, DiscordMessage, string)" />
-    public static MessageCreatedEventArgs CreateFakeMessageEventArgs(CommandContext context, DiscordMessage message, string content) => TextExtensions.CreateFakeMessageEventArgs(context, message, content);
+    public static MessageCreatedEventArgs CreateFakeMessageEventArgs(CommandContext context, DiscordMessage message, string content)
+        => TextExtensions.CreateFakeMessageEventArgs(context, message, content);
 
     /// <inheritdoc/>
     public override TextCommandContext CreateCommandContext
@@ -320,7 +321,8 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     }
 
     /// <summary>
-    /// Attempts to retrieve a command from the provided command text. Searches for the command by name, then by alias. Subcommands are also resolved. This method ignores <see cref="DefaultGroupCommandAttribute"/>'s and will instead return the group command instead of the default subcommand.
+    /// Attempts to retrieve a command from the provided command text. Searches for the command by name, then by alias. Subcommands are also resolved.
+    /// This method ignores <see cref="DefaultGroupCommandAttribute"/>'s and will instead return the group command instead of the default subcommand.
     /// </summary>
     /// <param name="commandText">The full command name and optionally it's arguments.</param>
     /// <param name="guildId">The guild ID to check if the command is available in the guild. Pass 0 if not applicable.</param>
@@ -392,7 +394,26 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             if (foundCommand is null)
             {
                 // Search for any aliases that the subcommand may have
-                foundCommand = command.Subcommands.FirstOrDefault(subCommand => subCommand.Attributes.OfType<TextAliasAttribute>().FirstOrDefault()?.Aliases.Any(alias => this.Configuration.CommandNameComparer.Equals(alias, subcommandName)) ?? false);
+                foreach (Command subcommand in command.Subcommands)
+                {
+                    foreach (Attribute attribute in subcommand.Attributes)
+                    {
+                        if (attribute is not TextAliasAttribute aliasAttribute)
+                        {
+                            continue;
+                        }
+
+                        foreach (string alias in aliasAttribute.Aliases)
+                        {
+                            if (this.Configuration.CommandNameComparer.Equals(alias, subcommandName))
+                            {
+                                foundCommand = subcommand;
+                                break;
+                            }
+                        }
+                    }
+                }
+
                 if (foundCommand is null)
                 {
                     // There was no subcommand found by name or by alias.
