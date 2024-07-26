@@ -70,7 +70,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
     }
 
     /// <summary>
-    /// Parses, resolves, and executes a text command.
+    /// Resolves, parses, and executes a text command.
     /// </summary>
     /// <param name="client">The client that received the message.</param>
     /// <param name="eventArgs">The event arguments containing the message.</param>
