@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,16 +17,26 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Commands.Processors.TextCommands;
 
+/// <summary>
+/// Handles the processing of text-based commands executed via Discord messages.
+/// </summary>
 public sealed class TextCommandProcessor(TextCommandConfiguration? configuration = null) : BaseCommandProcessor<MessageCreatedEventArgs, ITextArgumentConverter, TextConverterContext, TextCommandContext>
 {
+    /// <summary>
+    /// The intents required for this processor to function.
+    /// </summary>
     public const DiscordIntents RequiredIntents = DiscordIntents.DirectMessages // Required for commands executed in DMs
                                                 | DiscordIntents.GuildMessages; // Required for commands that are executed via bot ping
 
+    /// <summary>
+    /// The configuration for this text command processor.
+    /// </summary>
     public TextCommandConfiguration Configuration { get; init; } = configuration ?? new();
     private bool configured;
 
-    private FrozenDictionary<string, Command> commands;
+    /// <inheritdoc />
     public override IReadOnlyList<Command> Commands => this.commands.Values;
+    private FrozenDictionary<string, Command> commands = new Dictionary<string, Command>().ToFrozenDictionary();
 
     /// <inheritdoc />
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
@@ -58,6 +69,12 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         }
     }
 
+    /// <summary>
+    /// Parses, resolves, and executes a text command.
+    /// </summary>
+    /// <param name="client">The client that received the message.</param>
+    /// <param name="eventArgs">The event arguments containing the message.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task ExecuteTextCommandAsync(DiscordClient client, MessageCreatedEventArgs eventArgs)
     {
         if (this.extension is null)
@@ -72,8 +89,8 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         }
 
         AsyncServiceScope scope = this.extension.ServiceProvider.CreateAsyncScope();
-        ResolvePrefixDelegateAsync resolvePrefix = scope.ServiceProvider.GetService<IPrefixResolver>() is {} pr
-            ? pr.ResolvePrefixAsync
+        ResolvePrefixDelegateAsync resolvePrefix = scope.ServiceProvider.GetService<IPrefixResolver>() is IPrefixResolver prefixResolver
+            ? prefixResolver.ResolvePrefixAsync
             : this.Configuration.PrefixResolver;
 
         int prefixLength = await resolvePrefix(this.extension, eventArgs.Message);
@@ -85,33 +102,8 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         // Remove the prefix
         string commandText = eventArgs.Message.Content[prefixLength..].TrimStart();
 
-        // Declare the index here for scope, keep reading until a whitespace character is found.
-        int index;
-        for (index = 0; index < commandText.Length; index++)
-        {
-            if (char.IsWhiteSpace(commandText[index]))
-            {
-                break;
-            }
-        }
-
-        if (!this.commands.TryGetValue(commandText[..index], out Command? command))
-        {
-            // Search for any aliases
-            foreach (Command officialCommand in this.commands.Values)
-            {
-                TextAliasAttribute? aliasAttribute = officialCommand.Attributes.OfType<TextAliasAttribute>().FirstOrDefault();
-                if (aliasAttribute is not null && aliasAttribute.Aliases.Any(alias => this.Configuration.CommandNameComparer.Equals(alias, commandText[..index])))
-                {
-                    command = officialCommand;
-                    break;
-                }
-            }
-        }
-
-        // No alias was found
-        if (command is null ||
-            (command.GuildIds.Count > 0 && !command.GuildIds.Contains(eventArgs.Guild?.Id ?? 0)))
+        // Parse the full command name
+        if (!TryGetCommand(commandText, eventArgs.Guild?.Id ?? 0, out int index, out Command? command))
         {
             await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
             {
@@ -133,45 +125,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
             return;
         }
 
-        // If there is a space after the command's name, skip it.
-        if (index < commandText.Length && commandText[index] == ' ')
-        {
-            index++;
-        }
-
-        // Recursively resolve subcommands
-        int nextIndex = index;
-        while (nextIndex != -1)
-        {
-            // If the index is at the end of the string, break
-            if (nextIndex >= commandText.Length)
-            {
-                break;
-            }
-
-            // If there was no space found after the subcommand, break
-            nextIndex = commandText.IndexOf(' ', nextIndex);
-            if (nextIndex == -1)
-            {
-                // No more spaces. Search the rest of the string to see if there is a subcommand that matches.
-                nextIndex = commandText.Length;
-            }
-
-            // Resolve subcommands
-            Command? foundCommand = command.Subcommands.FirstOrDefault(command => command.Name.Equals(commandText[index..nextIndex], StringComparison.OrdinalIgnoreCase));
-            if (foundCommand is null)
-            {
-                foundCommand = command.Subcommands.FirstOrDefault(command => command.Attributes.OfType<TextAliasAttribute>().FirstOrDefault()?.Aliases.Any(alias => this.Configuration.CommandNameComparer.Equals(alias, commandText[index..nextIndex])) ?? false);
-                if (foundCommand is null)
-                {
-                    break;
-                }
-            }
-
-            index = nextIndex;
-            command = foundCommand;
-        }
-
+        // If this is a group command, try to see if it's executable.
         if (command.Method is null)
         {
             Command? defaultGroupCommand = command.Subcommands.FirstOrDefault(subcommand => subcommand.Attributes.OfType<DefaultGroupCommandAttribute>().Any());
@@ -220,6 +174,10 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         await this.extension.CommandExecutor.ExecuteAsync(commandContext);
     }
 
+    /// <inheritdoc cref="TextExtensions.CreateFakeMessageEventArgs(CommandContext, DiscordMessage, string)" />
+    public static MessageCreatedEventArgs CreateFakeMessageEventArgs(CommandContext context, DiscordMessage message, string content) => TextExtensions.CreateFakeMessageEventArgs(context, message, content);
+
+    /// <inheritdoc/>
     public override TextCommandContext CreateCommandContext
     (
         TextConverterContext converterContext,
@@ -359,5 +317,96 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         }
 
         return CreateCommandContext(converterContext, eventArgs, parsedArguments);
+    }
+
+    /// <summary>
+    /// Attempts to retrieve a command from the provided command text. Searches for the command by name, then by alias. Subcommands are also resolved. This method ignores <see cref="DefaultGroupCommandAttribute"/>'s and will instead return the group command instead of the default subcommand.
+    /// </summary>
+    /// <param name="commandText">The full command name and optionally it's arguments.</param>
+    /// <param name="guildId">The guild ID to check if the command is available in the guild. Pass 0 if not applicable.</param>
+    /// <param name="index">The index of <paramref name="commandText"/> that the command name ends at.</param>
+    /// <param name="command">The resolved command.</param>
+    /// <returns>If the command was found.</returns>
+    public bool TryGetCommand(string commandText, ulong guildId, out int index, [NotNullWhen(true)] out Command? command)
+    {
+        // Declare the index here for scope, keep reading until a whitespace character is found.
+        for (index = 0; index < commandText.Length; index++)
+        {
+            if (char.IsWhiteSpace(commandText[index]))
+            {
+                break;
+            }
+        }
+
+        string rootCommandText = commandText[..index];
+        if (!this.commands.TryGetValue(rootCommandText, out command))
+        {
+            // Search for any aliases
+            foreach (Command officialCommand in this.commands.Values)
+            {
+                TextAliasAttribute? aliasAttribute = officialCommand.Attributes.OfType<TextAliasAttribute>().FirstOrDefault();
+                if (aliasAttribute is not null && aliasAttribute.Aliases.Any(alias => this.Configuration.CommandNameComparer.Equals(alias, rootCommandText)))
+                {
+                    command = officialCommand;
+                    return true;
+                }
+            }
+        }
+
+        // No alias was found
+        if (command is null || (command.GuildIds.Count > 0 && !command.GuildIds.Contains(guildId)))
+        {
+            return false;
+        }
+
+        // If there is a space after the command's name, skip it.
+        if (index < commandText.Length && commandText[index] == ' ')
+        {
+            index++;
+        }
+
+        // Recursively resolve subcommands
+        int nextIndex = index;
+        while (nextIndex != -1)
+        {
+            // If the index is at the end of the string, break
+            if (nextIndex >= commandText.Length)
+            {
+                break;
+            }
+
+            // If there was no space found after the subcommand, break
+            nextIndex = commandText.IndexOf(' ', nextIndex);
+            if (nextIndex == -1)
+            {
+                // No more spaces. Search the rest of the string to see if there is a subcommand that matches.
+                nextIndex = commandText.Length;
+            }
+
+            // Resolve subcommands
+            string subcommandName = commandText[index..nextIndex];
+
+            // Try searching for the subcommand by name, then by alias
+            // We prioritize the name over the aliases to avoid a poor dev debugging experience
+            Command? foundCommand = command.Subcommands.FirstOrDefault(subCommand => subCommand.Name.Equals(subcommandName, StringComparison.OrdinalIgnoreCase));
+            if (foundCommand is null)
+            {
+                // Search for any aliases that the subcommand may have
+                foundCommand = command.Subcommands.FirstOrDefault(subCommand => subCommand.Attributes.OfType<TextAliasAttribute>().FirstOrDefault()?.Aliases.Any(alias => this.Configuration.CommandNameComparer.Equals(alias, subcommandName)) ?? false);
+                if (foundCommand is null)
+                {
+                    // There was no subcommand found by name or by alias.
+                    // Maybe the index is on an argument for the command?
+                    return true;
+                }
+            }
+
+            // Try to parse the next subcommand
+            index = nextIndex;
+            command = foundCommand;
+        }
+
+        // We found it!! Good job!
+        return true;
     }
 }
