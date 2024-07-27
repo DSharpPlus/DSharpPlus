@@ -178,15 +178,6 @@ public class CommandsNextExtension : BaseExtension
         this.executed = new AsyncEvent<CommandsNextExtension, CommandExecutionEventArgs>(errorHandler);
         this.error = new AsyncEvent<CommandsNextExtension, CommandErrorEventArgs>(errorHandler);
 
-        if (this.Config.UseDefaultCommandHandler)
-        {
-            this.Client.MessageCreated += HandleCommandsAsync;
-        }
-        else
-        {
-            this.Client.Logger.LogWarning(CommandsNextEvents.Misc, "Not attaching default command handler - if this is intentional, you can ignore this message");
-        }
-
         if (this.Config.EnableDefaultHelp)
         {
             RegisterCommands(typeof(DefaultHelpModule), null, [], out List<CommandBuilder>? tcmds);

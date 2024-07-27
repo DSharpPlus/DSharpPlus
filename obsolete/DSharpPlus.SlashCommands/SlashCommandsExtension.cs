@@ -76,10 +76,6 @@ public sealed partial class SlashCommandsExtension : BaseExtension
         this.contextMenuInvoked = new AsyncEvent<SlashCommandsExtension, ContextMenuInvokedEventArgs>(errorHandler);
         this.autocompleteErrored = new AsyncEvent<SlashCommandsExtension, AutocompleteErrorEventArgs>(errorHandler);
         this.autocompleteExecuted = new AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs>(errorHandler);
-
-        this.Client.SessionCreated += Update;
-        this.Client.InteractionCreated += InteractionHandler;
-        this.Client.ContextMenuInteractionCreated += ContextMenuHandler;
     }
 
     /// <summary>

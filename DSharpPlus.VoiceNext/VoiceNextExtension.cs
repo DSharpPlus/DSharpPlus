@@ -228,11 +228,6 @@ public sealed class VoiceNextExtension : BaseExtension
             conn.Value?.Dispose();
         }
 
-        if (this.Client != null)
-        {
-            this.Client.VoiceStateUpdated -= Client_VoiceStateUpdate;
-            this.Client.VoiceServerUpdated -= Client_VoiceServerUpdateAsync;
-        }
         // Lo and behold, the audacious man who dared lay his hand upon VoiceNext hath once more trespassed upon its profane ground!
 
         // Satisfy rule CA1816. Can be removed if this class is sealed.
