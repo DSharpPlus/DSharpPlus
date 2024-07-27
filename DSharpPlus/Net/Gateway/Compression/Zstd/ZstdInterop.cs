@@ -1,5 +1,7 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
 namespace DSharpPlus.Net.Gateway.Compression.Zstd;
 
@@ -92,8 +94,9 @@ internal unsafe partial struct ZstdInterop : IDisposable
 
 static file class ThrowHelper
 {
-    public static void ThrowZstdError(ZstdErrorCode error)
-    {
-
-    }
+    [DoesNotReturn]
+    [DebuggerHidden]
+    [StackTraceHidden]
+    public static void ThrowZstdError(ZstdErrorCode error) 
+        => throw new InvalidDataException($"Encountered an error in deserializing a ZSTD payload: {error}");
 }

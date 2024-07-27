@@ -1,5 +1,7 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
 namespace DSharpPlus.Net.Gateway.Compression.Zlib;
 
@@ -84,8 +86,9 @@ internal unsafe partial struct ZlibInterop : IDisposable
 
 static file class ThrowHelper
 {
+    [DoesNotReturn]
+    [DebuggerHidden]
+    [StackTraceHidden]
     public static void ThrowZlibError(ZlibErrorCode error)
-    {
-
-    }
+        => throw new InvalidDataException($"Encountered an error in deserializing a zlib payload: {error}");
 }
