@@ -1,47 +1,53 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
+
 using DSharpPlus.Entities;
+using DSharpPlus.Extensions;
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.VoiceNext;
 
 public static class DiscordClientExtensions
 {
     /// <summary>
-    /// Creates a new VoiceNext client with default settings.
+    /// Registers a new VoiceNext client to the service collection.
     /// </summary>
-    /// <param name="client">Discord client to create VoiceNext instance for.</param>
-    /// <returns>VoiceNext client instance.</returns>
-    public static VoiceNextExtension UseVoiceNext(this DiscordClient client)
-        => UseVoiceNext(client, new VoiceNextConfiguration());
-
-    /// <summary>
-    /// Creates a new VoiceNext client with specified settings.
-    /// </summary>
-    /// <param name="client">Discord client to create VoiceNext instance for.</param>
-    /// <param name="config">Configuration for the VoiceNext client.</param>
-    /// <returns>VoiceNext client instance.</returns>
-    public static VoiceNextExtension UseVoiceNext(this DiscordClient client, VoiceNextConfiguration config)
+    /// <param name="services">The service collection to register to.</param>
+    /// <param name="configuration">Configuration for this VoiceNext client.</param>
+    /// <returns>The same service collection for chaining</returns>
+    public static IServiceCollection AddVoiceNextExtension
+    (
+        this IServiceCollection services,
+        VoiceNextConfiguration configuration
+    )
     {
-        if (client.GetExtension<VoiceNextExtension>() != null)
-        {
-            throw new InvalidOperationException("VoiceNext is already enabled for that client.");
-        }
+        services.ConfigureEventHandlers(b => b.AddEventHandlers<VoiceNextEventHandler>())
+            .AddSingleton(provider =>
+            {
+                DiscordClient client = provider.GetRequiredService<DiscordClient>();
 
-        VoiceNextExtension vnext = new(config);
-        client.AddExtension(vnext);
-        return vnext;
+                VoiceNextExtension extension = new(configuration ?? new());
+                extension.Setup(client);
+
+                return extension;
+            });
+
+        return services;
     }
 
     /// <summary>
-    /// Gets the active instance of VoiceNext client for the DiscordClient.
+    /// Registers a new VoiceNext client to the specified client builder.
     /// </summary>
-    /// <param name="client">Discord client to get VoiceNext instance for.</param>
-    /// <returns>VoiceNext client instance.</returns>
-    public static VoiceNextExtension GetVoiceNext(this DiscordClient client)
-        => client.GetExtension<VoiceNextExtension>();
+    /// <param name="builder">The builder to register to.</param>
+    /// <param name="configuration">Configuration for this VoiceNext client.</param>
+    /// <returns>The same builder for chaining</returns>
+    public static DiscordClientBuilder UseVoiceNext
+    (
+        this DiscordClientBuilder builder,
+        VoiceNextConfiguration configuration
+    )
+        => builder.ConfigureServices(services => services.AddVoiceNextExtension(configuration));
 
     /// <summary>
     /// Connects to this voice channel using VoiceNext.
@@ -70,7 +76,8 @@ public static class DiscordClientExtensions
             throw new NullReferenceException();
         }
 
-        VoiceNextExtension vnext = discord.GetVoiceNext() ?? throw new InvalidOperationException("VoiceNext is not initialized for this Discord client.");
+        VoiceNextExtension vnext = discord.ServiceProvider.GetService<VoiceNextExtension>()
+            ?? throw new InvalidOperationException("VoiceNext is not initialized for this Discord client.");
         VoiceNextConnection? vnc = vnext.GetConnection(channel.Guild);
         return vnc != null
             ? throw new InvalidOperationException("VoiceNext is already connected in this guild.")

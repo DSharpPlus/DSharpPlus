@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.VoiceNext.Entities;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.VoiceNext;
 
@@ -41,7 +41,7 @@ public sealed class VoiceNextExtension : BaseExtension
     /// </summary>
     /// <param name="client">DO NOT USE THIS MANUALLY.</param>
     /// <exception cref="InvalidOperationException"/>
-    protected internal override void Setup(DiscordClient client)
+    public override void Setup(DiscordClient client)
     {
         if (this.Client != null)
         {
@@ -49,9 +49,6 @@ public sealed class VoiceNextExtension : BaseExtension
         }
 
         this.Client = client;
-
-        this.Client.VoiceStateUpdated += Client_VoiceStateUpdate;
-        this.Client.VoiceServerUpdated += Client_VoiceServerUpdateAsync;
     }
 
     /// <summary>
@@ -147,7 +144,7 @@ public sealed class VoiceNextExtension : BaseExtension
 #pragma warning restore DSP0004 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
     }
 
-    private Task Client_VoiceStateUpdate(DiscordClient client, VoiceStateUpdatedEventArgs e)
+    internal Task Client_VoiceStateUpdate(DiscordClient client, VoiceStateUpdatedEventArgs e)
     {
         DiscordGuild gld = e.Guild;
         if (gld == null)
@@ -181,7 +178,7 @@ public sealed class VoiceNextExtension : BaseExtension
         return Task.CompletedTask;
     }
 
-    private async Task Client_VoiceServerUpdateAsync(DiscordClient client, VoiceServerUpdatedEventArgs e)
+    internal async Task Client_VoiceServerUpdateAsync(DiscordClient client, VoiceServerUpdatedEventArgs e)
     {
         DiscordGuild gld = e.Guild;
         if (gld == null)
