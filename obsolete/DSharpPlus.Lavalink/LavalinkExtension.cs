@@ -39,7 +39,7 @@ public sealed class LavalinkExtension : BaseExtension
     /// </summary>
     /// <param name="client">DO NOT USE THIS MANUALLY.</param>
     /// <exception cref="InvalidOperationException"/>
-    protected internal override void Setup(DiscordClient client)
+    public override void Setup(DiscordClient client)
     {
         if (this.Client != null)
         {
