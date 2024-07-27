@@ -57,7 +57,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
     /// Runs setup. DO NOT RUN THIS MANUALLY. DO NOT DO ANYTHING WITH THIS.
     /// </summary>
     /// <param name="client">The client to setup on.</param>
-    protected internal override void Setup(DiscordClient client)
+    public override void Setup(DiscordClient client)
     {
         if (this.Client != null)
         {
@@ -608,7 +608,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
 
     #region Handling
 
-    private Task InteractionHandler(DiscordClient client, InteractionCreatedEventArgs e)
+    internal Task InteractionHandler(DiscordClient client, InteractionCreatedEventArgs e)
     {
         _ = Task.Run(async () =>
         {
@@ -756,7 +756,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
         return Task.CompletedTask;
     }
 
-    private Task ContextMenuHandler(DiscordClient client, ContextMenuInteractionCreatedEventArgs e)
+    internal Task ContextMenuHandler(DiscordClient client, ContextMenuInteractionCreatedEventArgs e)
     {
         _ = Task.Run(async () =>
         {
@@ -1374,13 +1374,6 @@ public sealed partial class SlashCommandsExtension : BaseExtension
         this.contextMenuInvoked?.UnregisterAll();
         this.autocompleteErrored?.UnregisterAll();
         this.autocompleteExecuted?.UnregisterAll();
-
-        if (this.Client != null)
-        {
-            this.Client.SessionCreated -= Update;
-            this.Client.InteractionCreated -= InteractionHandler;
-            this.Client.ContextMenuInteractionCreated -= ContextMenuHandler;
-        }
 
         // Satisfy rule CA1816. Can be removed if this class is sealed.
         GC.SuppressFinalize(this);

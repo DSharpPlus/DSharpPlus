@@ -32,7 +32,7 @@ public static class ExtensionMethods
     /// <param name="services">The service collection to register the extension with.</param>
     /// <param name="setup">Any setup code you want to run on the extension, such as registering commands and converters.</param>
     /// <param name="configuration">The configuration to use for the extension.</param>
-    public static void AddCommandsExtension
+    public static IServiceCollection AddCommandsExtension
     (
         this IServiceCollection services,
         Action<CommandsExtension> setup,
@@ -54,6 +54,8 @@ public static class ExtensionMethods
 
                 return extension;
             });
+
+        return services;
     }
 
     /// <inheritdoc cref="Array.IndexOf{T}(T[], T)"/>
