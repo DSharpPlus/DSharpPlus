@@ -66,8 +66,6 @@ public class DiscordInteraction : SnowflakeObject
                 return cachedChannel;
             }
 
-            Trace.Assert(this.GuildId is null, "GuildId is not null, but channel is not cached.");
-
             return new DiscordDmChannel
             {
                 Id = this.ChannelId,
