@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -8,13 +9,13 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents an interaction that was invoked.
 /// </summary>
-public sealed class DiscordInteraction : SnowflakeObject
+public class DiscordInteraction : SnowflakeObject
 {
     /// <summary>
     /// Gets the response state of the interaction.
     /// </summary>
     [JsonIgnore]
-    public DiscordInteractionResponseState ResponseState { get; private set; }
+    public DiscordInteractionResponseState ResponseState { get; protected set; }
 
     /// <summary>
     /// Gets the type of interaction invoked.
@@ -52,7 +53,28 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     [JsonIgnore]
     public DiscordChannel Channel
-        => (this.Discord as DiscordClient).InternalGetCachedChannel(this.ChannelId) ?? (DiscordChannel)(this.Discord as DiscordClient).InternalGetCachedThread(this.ChannelId) ?? (this.Guild == null ? new DiscordDmChannel { Id = this.ChannelId, Type = DiscordChannelType.Private, Discord = this.Discord, Recipients = new DiscordUser[] { this.User } } : null);
+    {
+        get
+        {
+            DiscordClient client = (this.Discord as DiscordClient)!;
+
+            DiscordChannel? cachedChannel = client.InternalGetCachedChannel(this.ChannelId, this.GuildId) ??
+                                            client.InternalGetCachedThread(this.ChannelId, this.GuildId);
+
+            if (cachedChannel is not null)
+            {
+                return cachedChannel;
+            }
+
+            return new DiscordDmChannel
+            {
+                Id = this.ChannelId,
+                Type = DiscordChannelType.Private,
+                Discord = this.Discord,
+                Recipients = new DiscordUser[] { this.User }
+            };
+        }
+    }
 
     /// <summary>
     /// Gets the user that invoked this interaction.
@@ -146,7 +168,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     /// <param name="type">The type of the response.</param>
     /// <param name="builder">The data, if any, to send.</param>
-    public async Task CreateResponseAsync(DiscordInteractionResponseType type, DiscordInteractionResponseBuilder builder = null)
+    public virtual async Task CreateResponseAsync(DiscordInteractionResponseType type, DiscordInteractionResponseBuilder builder = null)
     {
         if (this.ResponseState is not DiscordInteractionResponseState.Unacknowledged)
         {

@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Collections.Generic;
 
 namespace DSharpPlus.Entities;
@@ -7,12 +8,12 @@ public partial class DiscordEmoji
     /// <summary>
     /// Gets a mapping of :name: => unicode.
     /// </summary>
-    private static Dictionary<string, string> UnicodeEmojis { get; }
+    private static FrozenDictionary<string, string> UnicodeEmojis { get; }
 
     /// <summary>
     /// Gets a mapping of unicode => :name:.
     /// </summary>
-    private static Dictionary<string, string> DiscordNameLookup { get; }
+    private static FrozenDictionary<string, string> DiscordNameLookup { get; }
 
     static DiscordEmoji()
     {
@@ -7705,7 +7706,7 @@ public partial class DiscordEmoji
             [":zipper_mouth_face:"] = "\U0001f910",
             [":zombie:"] = "\U0001f9df",
             [":zzz:"] = "\U0001f4a4",
-        };
+        }.ToFrozenDictionary();
 
         DiscordNameLookup = new Dictionary<string, string>
         {
@@ -11283,7 +11284,7 @@ public partial class DiscordEmoji
             ["\U0001f910"] = ":zipper_mouth:",
             ["\U0001f9df"] = ":zombie:",
             ["\U0001f4a4"] = ":zzz:",
-        };
+        }.ToFrozenDictionary();
         #endregion
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
@@ -22,11 +21,17 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
     /// Gets IDs the roles this emoji is enabled for.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyList<ulong> Roles => this.rolesLazy.Value;
+    public IReadOnlyList<ulong> Roles => this.roles;
 
     [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
     internal List<ulong> roles;
-    private readonly Lazy<IReadOnlyList<ulong>> rolesLazy;
+
+    /// <summary>
+    /// Gets the user who uploaded this emoji.
+    /// </summary>
+    /// <remarks>This property only applies to application-owned emojis.</remarks>
+    [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordUser? User { get; internal set; }
 
     /// <summary>
     /// Gets whether this emoji requires colons to use.
@@ -63,7 +68,7 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
     [JsonProperty("available", NullValueHandling = NullValueHandling.Ignore)]
     public bool IsAvailable { get; internal set; }
 
-    internal DiscordEmoji() => this.rolesLazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this.roles));
+    internal DiscordEmoji() { }
 
     /// <summary>
     /// Gets emoji's name in non-Unicode format (eg. :thinking: instead of the Unicode representation of the emoji).

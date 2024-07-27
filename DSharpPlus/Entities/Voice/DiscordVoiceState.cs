@@ -35,7 +35,7 @@ public class DiscordVoiceState
     /// Gets the channel this user is connected to.
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel? Channel => (this.ChannelId.HasValue && this.ChannelId.Value != 0) ? this.Discord.InternalGetCachedChannel(this.ChannelId.Value) : null;
+    public DiscordChannel? Channel => this.ChannelId is {} cid and not 0 ? this.Discord.InternalGetCachedChannel(cid, this.GuildId) : null;
 
     /// <summary>
     /// Gets ID of the user to which this voice state belongs.

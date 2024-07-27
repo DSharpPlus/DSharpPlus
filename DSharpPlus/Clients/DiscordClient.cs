@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -24,7 +23,7 @@ using DSharpPlus.Net.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus;
@@ -86,10 +85,9 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// Gets the collection of presences held by this client.
     /// </summary>
     public IReadOnlyDictionary<ulong, DiscordPresence> Presences
-        => this.presencesLazy.Value;
+        => this.presences;
 
     internal Dictionary<ulong, DiscordPresence> presences = [];
-    private readonly Lazy<IReadOnlyDictionary<ulong, DiscordPresence>> presencesLazy;
 
     [ActivatorUtilitiesConstructor]
     public DiscordClient
@@ -125,7 +123,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.Intents = gatewayOptions.Value.Intents;
 
         this.guilds.Clear();
-        this.presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this.presences));
     }
 
     #region Client Extension Methods
@@ -164,7 +161,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     {
         // method checks if its already initialized
         await InitializeAsync();
-        
+
         // Check if connection lock is already set, and set it if it isn't
         if (!this.connectionLock.Wait(0))
         {
@@ -203,7 +200,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="data">The data to serialize.</param>
     /// <param name="guildId">The guild this payload originates from. Pass 0 for shard-independent payloads.</param>
     /// <remarks>
-    /// This method should not be used unless you know what you're doing. Instead, look towards the other 
+    /// This method should not be used unless you know what you're doing. Instead, look towards the other
     /// explicitly implemented methods which come with client-side validation.
     /// </remarks>
     /// <returns>A task representing the payload being sent.</returns>
@@ -230,7 +227,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// Disconnects from the gateway
     /// </summary>
     /// <returns></returns>
-    public async Task DisconnectAsync() 
+    public async Task DisconnectAsync()
         => await this.orchestrator.StopAsync();
 
     #endregion
@@ -746,6 +743,69 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public IAsyncEnumerable<DiscordGuild> GetGuildsAsync(int limit = 200, bool? withCount = null, CancellationToken cancellationToken = default) =>
         GetGuildsInternalAsync(limit, withCount: withCount, cancellationToken: cancellationToken);
 
+    /// <summary>
+    /// Creates a new emoji owned by the current application.
+    /// </summary>
+    /// <param name="name">The name of the emoji.</param>
+    /// <param name="image">The image of the emoji.</param>
+    /// <returns>The created emoji.</returns>
+    public async ValueTask<DiscordEmoji> CreateApplicationEmojiAsync(string name, Stream image)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentNullException(nameof(name));
+        }
+
+        name = name.Trim();
+        if (name.Length is < 2 or > 50)
+        {
+            throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.");
+        }
+
+        ArgumentNullException.ThrowIfNull(image);
+
+        string? image64 = null;
+
+        using (ImageTool imgtool = new(image))
+        {
+            image64 = imgtool.GetBase64();
+        }
+
+        return await this.ApiClient.CreateApplicationEmojiAsync(this.CurrentApplication.Id, name, image64);
+    }
+
+    /// <summary>
+    /// Gets an emoji owned by the current application.
+    /// </summary>
+    /// <param name="emojiId">The ID of the emoji</param>
+    /// <returns>The emoji.</returns>
+    public async ValueTask<DiscordEmoji> GetApplicationEmojiAsync(ulong emojiId)
+        => await this.ApiClient.GetApplicationEmojiAsync(this.CurrentApplication.Id, emojiId);
+
+    /// <summary>
+    /// Gets all emojis created or owned by the current application.
+    /// </summary>
+    /// <returns>All emojis associated with the current application.
+    /// This includes emojis uploaded by the owner or members of the team the application is on, if applicable.</returns>
+    public async ValueTask<IReadOnlyList<DiscordEmoji>> GetApplicationEmojisAsync()
+        => await this.ApiClient.GetApplicationEmojisAsync(this.CurrentApplication.Id);
+
+    /// <summary>
+    /// Modifies an existing application emoji.
+    /// </summary>
+    /// <param name="emojiId">The ID of the emoji.</param>
+    /// <param name="name">The new name of the emoji.</param>
+    /// <returns>The updated emoji.</returns>
+    public async ValueTask<DiscordEmoji> ModifyApplicationEmojiAsync(ulong emojiId, string name)
+        => await this.ApiClient.ModifyApplicationEmojiAsync(this.CurrentApplication.Id, emojiId, name);
+
+    /// <summary>
+    /// Deletes an emoji.
+    /// </summary>
+    /// <param name="emojiId">The ID of the emoji to delete.</param>
+    public async ValueTask DeleteApplicationEmojiAsync(ulong emojiId)
+        => await this.ApiClient.DeleteApplicationEmojiAsync(this.CurrentApplication.Id, emojiId);
+
     private async IAsyncEnumerable<DiscordGuild> GetGuildsInternalAsync
     (
         int limit = 200,
@@ -808,8 +868,67 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
         while (remaining > 0 && lastCount is > 0 and 100);
     }
-
     #endregion
+
+    /// <summary>
+    /// This method is used to inject interactions into the client which are coming from http webhooks.
+    /// </summary>
+    /// <param name="body">Body of the http request. Should be UTF8 encoded</param>
+    /// <param name="cancellationToken">Token to cancel the interaction when the http request was canceled</param>
+    /// <returns>Returns the body which should be returned to the http request</returns>
+    /// <exception cref="TaskCanceledException">Thrown when the passed cancellation token was canceled</exception>
+    public async Task<byte[]> HandleHttpInteractionAsync(ArraySegment<byte> body, CancellationToken cancellationToken = default)
+    {
+        string bodyString = Encoding.UTF8.GetString(body);
+
+        JObject data = JObject.Parse(bodyString);
+        
+        DiscordHttpInteraction? interaction = data.ToDiscordObject<DiscordHttpInteraction>();
+        
+        if (interaction is null)
+        {
+            throw new ArgumentException("Unable to parse provided request body to DiscordHttpInteraction");
+        }
+        
+        if (interaction.Type is DiscordInteractionType.Ping)
+        {
+            DiscordInteractionResponsePayload responsePayload = new() {Type = DiscordInteractionResponseType.Pong};
+            string responseString = DiscordJson.SerializeObject(responsePayload);
+            byte[] responseBytes = Encoding.UTF8.GetBytes(responseString);
+            
+            return responseBytes;
+        }
+
+        cancellationToken.Register(() => interaction.Cancel());
+        
+        ulong? guildId = (ulong?)data["guild_id"];
+        ulong channelId = (ulong)data["channel_id"];
+        
+        JToken rawMember = data["member"];
+        TransportMember? transportMember = null;
+        TransportUser transportUser;
+        if (rawMember != null)
+        {
+            transportMember = data["member"].ToDiscordObject<TransportMember>();
+            transportUser = transportMember.User;
+        }
+        else
+        {
+            transportUser = data["user"].ToDiscordObject<TransportUser>();
+        }
+
+        JToken? rawChannel = data["channel"];
+        DiscordChannel? channel = null;
+        if (rawChannel is not null)
+        {
+            channel = rawChannel.ToDiscordObject<DiscordChannel>();
+            channel.Discord = this;
+        }
+
+        await OnInteractionCreateAsync(guildId, channelId, transportUser, transportMember, channel, interaction);
+
+        return await interaction.GetResponseAsync();
+    }
 
     #region Internal Caching Methods
 
@@ -821,6 +940,21 @@ public sealed partial class DiscordClient : BaseDiscordClient
             {
                 return foundThread;
             }
+        }
+
+        return null;
+    }
+
+    internal DiscordThreadChannel? InternalGetCachedThread(ulong threadId, ulong? guildId)
+    {
+        if (!guildId.HasValue)
+        {
+            return InternalGetCachedThread(threadId);
+        }
+
+        if (this.guilds.TryGetValue(guildId.Value, out DiscordGuild? guild))
+        {
+            return guild.Threads.GetValueOrDefault(threadId);
         }
 
         return null;
@@ -839,6 +973,21 @@ public sealed partial class DiscordClient : BaseDiscordClient
             {
                 return foundChannel;
             }
+        }
+
+        return null;
+    }
+
+    internal DiscordChannel? InternalGetCachedChannel(ulong channelId, ulong? guildId)
+    {
+        if (guildId is not { } nonNullGuildID)
+        {
+            return this.privateChannels.GetValueOrDefault(channelId);
+        }
+
+        if (this.guilds.TryGetValue(nonNullGuildID, out DiscordGuild? guild))
+        {
+            return guild.Channels.GetValueOrDefault(channelId);
         }
 
         return null;
@@ -871,7 +1020,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             message.Author = UpdateUser(usr, guild?.Id, guild, member);
         }
 
-        DiscordChannel? channel = InternalGetCachedChannel(message.ChannelId) ?? InternalGetCachedThread(message.ChannelId);
+        DiscordChannel? channel = InternalGetCachedChannel(message.ChannelId, message.guildId) ?? InternalGetCachedThread(message.ChannelId, message.guildId);
 
         if (channel != null)
         {
