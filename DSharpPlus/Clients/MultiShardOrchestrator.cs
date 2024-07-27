@@ -26,6 +26,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
 
     private uint shardCount;
     private uint stride;
+    private uint totalShards;
 
     /// <inheritdoc/>
     public bool AllShardsConnected => this.shards?.All(shard => shard.IsConnected) == true;
@@ -73,6 +74,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
 
         this.stride = stride;
         this.shardCount = startShards;
+        this.totalShards = totalShards;
 
         QueryUriBuilder gwuri = new(info.Url);
 
@@ -153,7 +155,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     }
 
     private uint GetShardIdForGuildId(ulong guildId)
-        => (uint)((guildId >> 22) % this.options.TotalShards);
+        => (uint)((guildId >> 22) % this.totalShards);
 
     /// <inheritdoc/>
     public async ValueTask ReconnectAsync()
@@ -168,11 +170,27 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     /// <inheritdoc/>
     public async ValueTask SendOutboundEventAsync(byte[] payload, ulong guildId)
     {
+        if (guildId == 0)
+        {
+            await this.shards[0].WriteAsync(payload);
+        }
+
         uint shardId = GetShardIdForGuildId(guildId);
 
         ArgumentOutOfRangeException.ThrowIfLessThan(shardId, this.stride);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(shardId, this.stride + this.shardCount);
 
         await this.shards[shardId].WriteAsync(payload);
+    }
+
+    /// <inheritdoc/>
+    public async ValueTask BroadcastOutboundEventAsync(byte[] payload)
+    {
+        if (!this.AllShardsConnected)
+        {
+            throw new InvalidOperationException("Broadcast is only possible when all shards are connected");
+        }
+
+        await Parallel.ForEachAsync(this.shards, async (shard, _) => await shard.WriteAsync(payload));
     }
 }

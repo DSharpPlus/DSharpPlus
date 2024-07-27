@@ -6,8 +6,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-
-using DSharpPlus.Clients;
 using DSharpPlus.Entities;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Gateway.Compression;
@@ -305,6 +303,9 @@ public sealed class GatewayClient : IGatewayClient
 
                         this.Ping = DateTimeOffset.UtcNow - this.lastSentHeartbeat;
                         this.pendingHeartbeats = 0;
+
+                        // Task is not awaited to dont block gw recieve loop
+                        _ = this.controller.HeartbeatedAsync(this);
 
                         continue;
 

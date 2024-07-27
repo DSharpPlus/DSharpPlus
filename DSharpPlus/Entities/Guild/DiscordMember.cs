@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,7 +15,7 @@ namespace DSharpPlus.Entities;
 /// </summary>
 public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
 {
-    internal DiscordMember() => this.role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this.role_ids));
+    internal DiscordMember() { }
 
     internal DiscordMember(DiscordUser user)
     {
@@ -25,7 +24,6 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         this.Id = user.Id;
 
         this.role_ids = [];
-        this.role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this.role_ids));
     }
 
     internal DiscordMember(TransportMember member)
@@ -39,7 +37,6 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         this.IsPending = member.IsPending;
         this.avatarHash = member.AvatarHash;
         this.role_ids = member.Roles ?? [];
-        this.role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this.role_ids));
         this.CommunicationDisabledUntil = member.CommunicationDisabledUntil;
     }
 
@@ -80,12 +77,10 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// List of role IDs
     /// </summary>
     [JsonIgnore]
-    internal IReadOnlyList<ulong> RoleIds => this.role_ids_lazy.Value;
+    internal IReadOnlyList<ulong> RoleIds => this.role_ids;
 
     [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
     internal List<ulong> role_ids;
-    [JsonIgnore]
-    private readonly Lazy<IReadOnlyList<ulong>> role_ids_lazy;
 
     /// <summary>
     /// Gets the list of roles associated with this member.

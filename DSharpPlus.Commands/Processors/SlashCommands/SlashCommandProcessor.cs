@@ -49,6 +49,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     private partial Regex DescrtiptionLocalizationRegex();
 
     private bool configured;
+    private bool registered;
 
     /// <inheritdoc />
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
@@ -67,7 +68,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
         {
             this.configured = true;
             extension.Client.InteractionCreated += ExecuteInteractionAsync;
-            extension.Client.GuildDownloadCompleted += async (client, eventArgs) => await RegisterSlashCommandsAsync(extension);
+            extension.Client.SessionCreated += async (client, eventArgs) => await RegisterSlashCommandsAsync(extension);
         }
     }
 
@@ -195,9 +196,15 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
         }
     }
 
-    [MemberNotNull(nameof(applicationCommands))]
     public async Task RegisterSlashCommandsAsync(CommandsExtension extension)
     {
+        if (this.registered)
+        {
+            return;
+        }
+
+        this.registered = true;
+
         IReadOnlyList<Command> processorSpecificCommands = extension.GetCommandsForProcessor(this);
         List<DiscordApplicationCommand> globalApplicationCommands = [];
         Dictionary<ulong, List<DiscordApplicationCommand>> guildsApplicationCommands = [];
@@ -302,7 +309,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
 
     /// <summary>
     /// Only use this for commands of type <see cref="DiscordApplicationCommandType.SlashCommand "/>.
-    /// It will cut out every subcommands which are considered to be not a SlashCommand 
+    /// It will cut out every subcommands which are considered to be not a SlashCommand
     /// </summary>
     /// <param name="command"></param>
     /// <returns></returns>
@@ -338,7 +345,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
                 {
                     continue;
                 }
-                
+
                 options.Add(await ToApplicationParameterAsync(subCommand));
             }
         }
@@ -822,7 +829,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
 
     /// <summary>
     /// Only use this for commands of type <see cref="DiscordApplicationCommandType.SlashCommand "/>.
-    /// It will NOT validate every subcommands which are considered to be a SlashCommand 
+    /// It will NOT validate every subcommands which are considered to be a SlashCommand
     /// </summary>
     /// <param name="command"></param>
     /// <param name="nameLocalizations"></param>
@@ -841,7 +848,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
                 {
                     continue;
                 }
-                
+
                 ValidateSlashCommand(subCommand, nameLocalizations, descriptionLocalizations);
             }
         }

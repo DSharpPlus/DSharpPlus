@@ -46,7 +46,7 @@ public static partial class ServiceCollectionExtensions
 
         // gateway setup
         serviceCollection.Configure<GatewayClientOptions>(c => c.Intents = intents)
-            .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>())
+            .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>(new UnboundedChannelOptions { SingleReader = true }))
             .AddTransient<ITransportService, TransportService>()
             .AddTransient<IGatewayClient, GatewayClient>()
             .AddTransient<IPayloadDecompressor, ZlibStreamDecompressor>()
@@ -86,7 +86,7 @@ public static partial class ServiceCollectionExtensions
 
         // gateway setup
         serviceCollection.Configure<GatewayClientOptions>(c => c.Intents = intents)
-            .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>())
+            .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>(new UnboundedChannelOptions { SingleReader = true }))
             .AddTransient<ITransportService, TransportService>()
             .AddTransient<IGatewayClient, GatewayClient>()
             .AddTransient<IPayloadDecompressor, ZlibStreamDecompressor>()

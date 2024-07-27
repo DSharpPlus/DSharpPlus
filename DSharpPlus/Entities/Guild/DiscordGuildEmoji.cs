@@ -10,7 +10,7 @@ public sealed class DiscordGuildEmoji : DiscordEmoji
     /// Gets the user that created this emoji.
     /// </summary>
     [JsonIgnore]
-    public DiscordUser User { get; internal set; }
+    public new DiscordUser User { get; internal set; }
 
     /// <summary>
     /// Gets the guild to which this emoji belongs.

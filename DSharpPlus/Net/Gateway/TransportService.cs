@@ -157,15 +157,13 @@ internal sealed class TransportService : ITransportService
 
         string result = Encoding.UTF8.GetString(this.decompressedWriter.WrittenSpan);
 
-#if DEBUG
-        this.logger.LogTrace("Length for the last inbound gateway event: {length}", this.writer.WrittenCount);
-        this.logger.LogTrace("Payload for the last inbound gateway event:\n{event}", result);
+        this.logger.LogTrace
+        (
+            "Length for the last inbound gateway event: {length}",
+            this.writer.WrittenCount != 0 ? this.writer.WrittenCount : $"closed: {(int)this.socket.CloseStatus!}"
+        );
 
-        if (this.writer.WrittenCount == 0)
-        {
-            this.logger.LogTrace("Disconnected: {CloseStatus}", this.socket.CloseStatus.Value.ToString());
-        }
-#endif
+        this.logger.LogTrace("Payload for the last inbound gateway event:\n{event}", result);
 
         return this.writer.WrittenCount == 0 ? new((int)this.socket.CloseStatus!) : new(result);
     }

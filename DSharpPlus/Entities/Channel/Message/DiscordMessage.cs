@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -67,7 +66,13 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     [JsonIgnore]
     public DiscordChannel? Channel
     {
-        get => (this.Discord as DiscordClient)?.InternalGetCachedChannel(this.ChannelId) ?? (this.Discord as DiscordClient)?.InternalGetCachedThread(this.ChannelId) ?? this.channel;
+        get
+        {
+            DiscordClient? client = this.Discord as DiscordClient;
+
+            return client?.InternalGetCachedChannel(this.ChannelId, this.guildId) ??
+                   client?.InternalGetCachedThread(this.ChannelId, this.guildId) ?? this.channel;
+        }
         internal set => this.channel = value;
     }
 
@@ -326,7 +331,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
                 };
         }
 
-        DiscordChannel channel = client.InternalGetCachedChannel(channelId!.Value);
+        DiscordChannel? channel = client.InternalGetCachedChannel(channelId!.Value, this.guildId);
 
         if (channel is null)
         {
@@ -683,15 +688,54 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <summary>
     /// Gets users that reacted with this emoji.
     /// </summary>
-    /// <param name="emoji">Emoji to react with.</param>
-    /// <param name="limit">Limit of users to fetch.</param>
-    /// <param name="after">Fetch users after this user's id.</param>
+    /// <param name="emoji">The emoji those users reacted with.</param>
+    /// <param name="cancellationToken">Cancels enumeration before the next API request.</param>
     /// <returns></returns>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null)
-        => GetReactionsInternalAsync(emoji, limit, after);
+    public async IAsyncEnumerable<DiscordUser> GetReactionsAsync
+    (
+        DiscordEmoji emoji,
+
+        [EnumeratorCancellation]
+        CancellationToken cancellationToken = default
+    )
+    {
+        // the API request limit is 100, the default is 25
+        int receivedOnLastCall = 100;
+        ulong? last = null;
+
+        while (receivedOnLastCall == 100)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                yield break;
+            }
+
+            IReadOnlyList<DiscordUser> users = await this.Discord.ApiClient.GetReactionsAsync
+             (
+                channelId: this.ChannelId,
+                messageId: this.Id,
+                emoji: emoji.ToReactionString(),
+                afterId: last,
+                limit: 100
+             );
+
+            receivedOnLastCall = users.Count;
+
+            foreach (DiscordUser user in users)
+            {
+                user.Discord = this.Discord;
+
+                _ = this.Discord.UpdateUserCache(user);
+
+                yield return user;
+            }
+
+            last = users.LastOrDefault()?.Id;
+        }
+    }
 
     /// <summary>
     /// Deletes all reactions for this message.
@@ -765,41 +809,6 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
 
             last = users.LastOrDefault()?.Id;
         }
-    }
-
-    private async Task<IReadOnlyList<DiscordUser>> GetReactionsInternalAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null)
-    {
-        if (limit < 0)
-        {
-            throw new ArgumentException("Cannot get a negative number of reactions' users.");
-        }
-
-        if (limit == 0)
-        {
-            return [];
-        }
-
-        List<DiscordUser> users = new(limit);
-        int remaining = limit;
-        ulong? last = after;
-
-        do
-        {
-            int fetchSize = remaining > 100 ? 100 : remaining;
-            IReadOnlyList<DiscordUser> fetch = await this.Discord.ApiClient.GetReactionsAsync(this.ChannelId, this.Id, emoji.ToReactionString(), last, fetchSize);
-
-            remaining -= fetch.Count;
-
-            if (fetch.Count == 0)
-            {
-                break;
-            }
-
-            users.AddRange(fetch);
-            last = fetch[^1]?.Id;
-        } while (remaining > 0);
-
-        return new ReadOnlyCollection<DiscordUser>(users);
     }
 
     /// <summary>

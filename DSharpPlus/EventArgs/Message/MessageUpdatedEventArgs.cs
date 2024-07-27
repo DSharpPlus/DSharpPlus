@@ -16,7 +16,7 @@ public class MessageUpdatedEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the message before it got updated. This property will be null if the message was not cached.
     /// </summary>
-    public DiscordMessage MessageBefore { get; internal set; }
+    public DiscordMessage? MessageBefore { get; internal set; }
 
     /// <summary>
     /// Gets the channel this message belongs to.
