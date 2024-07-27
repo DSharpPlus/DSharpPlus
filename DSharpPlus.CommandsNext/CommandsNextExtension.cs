@@ -159,14 +159,19 @@ public class CommandsNextExtension : BaseExtension
     /// </summary>
     /// <param name="client">DO NOT USE THIS MANUALLY.</param>
     /// <exception cref="InvalidOperationException"/>
-    protected internal override void Setup(DiscordClient client)
+    public override void Setup(DiscordClient client)
     {
-        if (this.Client != null)
+        this.Client = client;
+
+        if (!Utilities.HasMessageIntents(client.Intents))
         {
-            throw new InvalidOperationException("What did I tell you?");
+            client.Logger.LogCritical(CommandsNextEvents.Intents, "The CommandsNext extension is registered but there are no message intents enabled. It is highly recommended to enable them.");
         }
 
-        this.Client = client;
+        if (!client.Intents.HasIntent(DiscordIntents.Guilds))
+        {
+            client.Logger.LogCritical(CommandsNextEvents.Intents, "The CommandsNext extension is registered but the guilds intent is not enabled. It is highly recommended to enable it.");
+        }
 
         DefaultClientErrorHandler errorHandler = new(client.Logger);
 
@@ -213,7 +218,7 @@ public class CommandsNextExtension : BaseExtension
     #endregion
 
     #region Command Handling
-    private async Task HandleCommandsAsync(DiscordClient sender, MessageCreatedEventArgs e)
+    internal async Task HandleCommandsAsync(DiscordClient sender, MessageCreatedEventArgs e)
     {
         if (e.Author.IsBot) // bad bot
         {
