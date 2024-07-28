@@ -67,8 +67,10 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
         {
             this.configured = true;
             extension.Client.InteractionCreated += ExecuteInteractionAsync;
-            extension.Client.SessionCreated += async (client, eventArgs) => await RegisterSlashCommandsAsync(extension);
         }
+
+        // ConfigureAsync is called everytime DiscordClient.SessionCreated is invoked
+        await RegisterSlashCommandsAsync(extension);
     }
 
     public async Task ExecuteInteractionAsync(DiscordClient client, InteractionCreatedEventArgs eventArgs)
