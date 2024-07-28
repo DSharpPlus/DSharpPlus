@@ -113,13 +113,15 @@ internal static partial class TextExtensions
     /// <param name="user">The new author of the message.</param>
     /// <param name="channel">The new channel of the message.</param>
     /// <param name="guild">The guild to use for fetching roles.</param>
-    public static async ValueTask ModifyMessagePropertiesAsync(
+    public static async ValueTask ModifyMessagePropertiesAsync
+    (
         this DiscordMessage message,
         string content,
         DiscordClient client,
         DiscordUser user,
         DiscordChannel channel,
-        DiscordGuild? guild = null)
+        DiscordGuild? guild = null
+    )
     {
         List<DiscordRole> roleMentions = [];
         List<DiscordUser> userMentions = [];
