@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -263,9 +262,26 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
             discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, distinctCommands));
         }
 
+        applicationCommandMapping = MapApplicationCommands(discordCommands).ToFrozenDictionary();
+        SlashLogging.registeredCommands(this.logger, this.ApplicationCommandMapping.Count, this.ApplicationCommandMapping.Values.SelectMany(command => command.Flatten()).Count(), null);
+    }
+
+    /// <summary>
+    /// Matches the application commands to the commands in the command tree.
+    /// </summary>
+    /// <param name="applicationCommands">The application commands obtained from Discord. Accepts both global and guild commands.</param>
+    /// <returns>A dictionary mapping the application command id to the command in the command tree.</returns>
+    public IReadOnlyDictionary<ulong, Command> MapApplicationCommands(IReadOnlyList<DiscordApplicationCommand> applicationCommands)
+    {
+        if (!this.configured)
+        {
+            throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
+        }
+
         Dictionary<ulong, Command> commandsDictionary = [];
+        IReadOnlyList<Command> processorSpecificCommands = this.extension!.GetCommandsForProcessor(this);
         IReadOnlyList<Command> flattenCommands = processorSpecificCommands.SelectMany(x => x.Flatten()).ToList();
-        foreach (DiscordApplicationCommand discordCommand in discordCommands)
+        foreach (DiscordApplicationCommand discordCommand in applicationCommands)
         {
             bool commandFound = false;
 
@@ -298,12 +314,12 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
 
             if (!commandFound)
             {
+                // TODO: How do we report this to the user? Return a custom object perhaps?
                 SlashLogging.unknownCommandName(this.logger, discordCommand.Name, null);
             }
         }
 
-        applicationCommandMapping = commandsDictionary.ToFrozenDictionary();
-        SlashLogging.registeredCommands(this.logger, this.ApplicationCommandMapping.Count, this.ApplicationCommandMapping.Values.SelectMany(command => command.Flatten()).Count(), null);
+        return commandsDictionary;
     }
 
 
@@ -394,7 +410,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
 
     [StackTraceHidden]
     public async Task<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command)
-        => await this.ToApplicationParameterAsync(command, 0);
+        => await ToApplicationParameterAsync(command, 0);
 
     private async Task<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command, int depth = 1)
     {
