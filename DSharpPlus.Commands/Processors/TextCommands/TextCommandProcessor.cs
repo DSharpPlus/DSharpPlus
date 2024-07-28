@@ -124,21 +124,24 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<MessageCreatedEv
         if (command is null ||
             (command.GuildIds.Count > 0 && !command.GuildIds.Contains(eventArgs.Guild?.Id ?? 0)))
         {
-            await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
+            if (!configuration!.DisableCommandNotFoundException)
             {
-                Context = new TextCommandContext()
+                await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
                 {
-                    Arguments = new Dictionary<CommandParameter, object?>(),
-                    Channel = eventArgs.Channel,
-                    Command = null!,
-                    Extension = this.extension,
-                    Message = eventArgs.Message,
-                    ServiceScope = scope,
-                    User = eventArgs.Author
-                },
-                Exception = new CommandNotFoundException(commandText[..index]),
-                CommandObject = null
-            });
+                    Context = new TextCommandContext()
+                    {
+                        Arguments = new Dictionary<CommandParameter, object?>(),
+                        Channel = eventArgs.Channel,
+                        Command = null!,
+                        Extension = this.extension,
+                        Message = eventArgs.Message,
+                        ServiceScope = scope,
+                        User = eventArgs.Author
+                    },
+                    Exception = new CommandNotFoundException(commandText[..index]),
+                    CommandObject = null
+                });
+            }
 
             await scope.DisposeAsync();
             return;
@@ -188,22 +191,26 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<MessageCreatedEv
             Command? defaultGroupCommand = command.Subcommands.FirstOrDefault(subcommand => subcommand.Attributes.OfType<DefaultGroupCommandAttribute>().Any());
             if (defaultGroupCommand is null)
             {
-                await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
+                if (!configuration!.DisableCommandNotFoundException)
                 {
-                    Context = CreateCommandContext(new()
+                    await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
                     {
-                        Channel = eventArgs.Channel,
-                        Command = command,
-                        Extension = this.extension,
-                        RawArguments = commandText[index..],
-                        ServiceScope = scope,
-                        Splicer = this.Configuration.TextArgumentSplicer,
-                        User = eventArgs.Author
-                    }, eventArgs, []),
-                    Exception = new CommandNotExecutableException(command, "Unable to execute a command that has no method. Is this command a group command?"),
-                    CommandObject = null
-                });
+                        Context = CreateCommandContext(new()
+                        {
+                            Channel = eventArgs.Channel,
+                            Command = command,
+                            Extension = this.extension,
+                            RawArguments = commandText[index..],
+                            ServiceScope = scope,
+                            Splicer = this.Configuration.TextArgumentSplicer,
+                            User = eventArgs.Author
+                        }, eventArgs, []),
+                        Exception = new CommandNotExecutableException(command, "Unable to execute a command that has no method. Is this command a group command?"),
+                        CommandObject = null
+                    });
+                }
 
+                // I wish the above if statement could be merged with the one below
                 return;
             }
 
