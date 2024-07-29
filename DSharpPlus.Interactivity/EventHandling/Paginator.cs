@@ -274,14 +274,6 @@ internal class Paginator : IPaginator
     {
         // Why doesn't this class implement IDisposable?
 
-        if (this.client != null)
-        {
-            this.client.MessageReactionAdded -= HandleReactionAdd;
-            this.client.MessageReactionRemoved -= HandleReactionRemove;
-            this.client.MessageReactionsCleared -= HandleReactionClear;
-            this.client = null!;
-        }
-
         this.requests?.Clear();
         this.requests = null!;
     }
