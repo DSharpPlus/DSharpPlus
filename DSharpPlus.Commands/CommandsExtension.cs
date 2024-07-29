@@ -87,10 +87,10 @@ public sealed class CommandsExtension : BaseExtension
     /// <summary>
     /// Executed everytime a command is finished executing.
     /// </summary>
-    public event AsyncEventHandler<CommandsExtension, CommandExecutedEventArgs> CommandExecuted 
-    { 
-        add => this.commandExecuted.Register(value); 
-        remove => this.commandExecuted.Unregister(value); 
+    public event AsyncEventHandler<CommandsExtension, CommandExecutedEventArgs> CommandExecuted
+    {
+        add => this.commandExecuted.Register(value);
+        remove => this.commandExecuted.Unregister(value);
     }
 
     internal AsyncEvent<CommandsExtension, CommandExecutedEventArgs> commandExecuted;
@@ -98,10 +98,10 @@ public sealed class CommandsExtension : BaseExtension
     /// <summary>
     /// Executed everytime a command has errored.
     /// </summary>
-    public event AsyncEventHandler<CommandsExtension, CommandErroredEventArgs> CommandErrored 
-    { 
-        add => this.commandErrored.Register(value); 
-        remove => this.commandErrored.Unregister(value); 
+    public event AsyncEventHandler<CommandsExtension, CommandErroredEventArgs> CommandErrored
+    {
+        add => this.commandErrored.Register(value);
+        remove => this.commandErrored.Unregister(value);
     }
 
     internal AsyncEvent<CommandsExtension, CommandErroredEventArgs> commandErrored;
@@ -215,15 +215,15 @@ public sealed class CommandsExtension : BaseExtension
     /// <returns>Returns a list of valid commands. This list can be empty if no commands are valid for this processor type</returns>
     public IReadOnlyList<Command> GetCommandsForProcessor(ICommandProcessor processor)
     {
-        // Those processors use a different attribute to filter and filter themself 
+        // Those processors use a different attribute to filter and filter themself
         if (processor is MessageCommandProcessor or UserCommandProcessor)
         {
             return this.Commands.Values.ToList();
         }
-        
+
         Type contextType = processor.ContextType;
         Type processorType = processor.GetType();
-        
+
         List<Command> commands = new(this.Commands.Values.Count());
 
         foreach (Command command in this.Commands.Values)
@@ -254,7 +254,7 @@ public sealed class CommandsExtension : BaseExtension
                 return null;
             }
         }
-        
+
         List<Command> subCommands = new(command.Subcommands.Count);
         foreach (Command subcommand in command.Subcommands)
         {
@@ -279,8 +279,7 @@ public sealed class CommandsExtension : BaseExtension
     {
         foreach (ICommandProcessor processor in processors)
         {
-            this.processors.Add(processor.GetType(), processor);
-            await processor.ConfigureAsync(this);
+            await AddProcessorAsync(processor);
         }
     }
 
@@ -435,7 +434,7 @@ public sealed class CommandsExtension : BaseExtension
     public async Task RefreshAsync()
     {
         BuildCommands();
-        
+
         if (this.RegisterDefaultCommandProcessors)
         {
             this.processors.TryAdd(typeof(TextCommandProcessor), new TextCommandProcessor());
@@ -498,23 +497,23 @@ public sealed class CommandsExtension : BaseExtension
         // Error message
         stringBuilder.Append(eventArgs.Exception switch
         {
-            CommandNotFoundException commandNotFoundException 
+            CommandNotFoundException commandNotFoundException
                 => $"Command {Formatter.InlineCode(Formatter.Sanitize(commandNotFoundException.CommandName))} was not found.",
-            ArgumentParseException argumentParseException 
+            ArgumentParseException argumentParseException
                 => $"Failed to parse argument {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.Parameter.Name))}.",
-            ChecksFailedException checksFailedException when checksFailedException.Errors.Count == 1 
+            ChecksFailedException checksFailedException when checksFailedException.Errors.Count == 1
                 => $"The following error occurred: {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.Errors[0].ErrorMessage))}",
-            ChecksFailedException checksFailedException 
+            ChecksFailedException checksFailedException
                 => $"The following context checks failed: {Formatter.InlineCode(Formatter.Sanitize(string.Join("\n\n", checksFailedException.Errors.Select(x => x.ErrorMessage))))}.",
             ParameterChecksFailedException checksFailedException when checksFailedException.Errors.Count == 1
                 => $"The following error occurred: {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.Errors[0].ErrorMessage))}",
             ParameterChecksFailedException checksFailedException
                 => $"The following context checks failed: {Formatter.InlineCode(Formatter.Sanitize(string.Join("\n\n", checksFailedException.Errors.Select(x => x.ErrorMessage))))}.",
-            DiscordException discordException when discordException.Response is not null 
-                && (int)discordException.Response.StatusCode >= 500 
-                && (int)discordException.Response.StatusCode < 600 
+            DiscordException discordException when discordException.Response is not null
+                && (int)discordException.Response.StatusCode >= 500
+                && (int)discordException.Response.StatusCode < 600
                 => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? "No further information was provided."}",
-            DiscordException discordException when discordException.Response is not null 
+            DiscordException discordException when discordException.Response is not null
             => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? discordException.Message}",
             _ => $"An unexpected error occurred: {eventArgs.Exception.Message}"
         });
