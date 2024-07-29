@@ -50,7 +50,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     private static partial Regex NameLocalizationRegex();
 
     [GeneratedRegex("^.{1,100}$")]
-    private static partial Regex DescrtiptionLocalizationRegex();
+    private static partial Regex DescriptionLocalizationRegex();
 
     private bool configured;
     private bool registered;
@@ -939,7 +939,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
                 );
             }
 
-            if (!DescrtiptionLocalizationRegex().IsMatch(descriptionLocalization.Key))
+            if (!DescriptionLocalizationRegex().IsMatch(descriptionLocalization.Key))
             {
                 throw new InvalidOperationException
                 (
@@ -957,7 +957,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
             );
         }
 
-        if (!string.IsNullOrWhiteSpace(command.Description) && !DescrtiptionLocalizationRegex().IsMatch(command.Description))
+        if (!string.IsNullOrWhiteSpace(command.Description) && !DescriptionLocalizationRegex().IsMatch(command.Description))
         {
             throw new InvalidOperationException
             (
