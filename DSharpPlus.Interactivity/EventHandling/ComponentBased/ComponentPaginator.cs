@@ -49,6 +49,8 @@ internal class ComponentPaginator : IPaginator
             }
         }
     }
+
+    public void Dispose() => this.requests.Clear();
     
     private async Task HandleAsync(DiscordClient _, ComponentInteractionCreatedEventArgs e)
     {
