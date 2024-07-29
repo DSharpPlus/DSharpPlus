@@ -49,9 +49,6 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     [GeneratedRegex(@"^[-_\p{L}\p{N}\p{IsDevanagari}\p{IsThai}]{1,32}$")]
     private static partial Regex NameLocalizationRegex();
 
-    [GeneratedRegex("^.{1,100}$")]
-    private static partial Regex DescriptionLocalizationRegex();
-
     private bool configured;
     private bool registered;
 
@@ -939,13 +936,20 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
                 );
             }
 
-            if (!DescriptionLocalizationRegex().IsMatch(descriptionLocalization.Key))
+            if (descriptionLocalization.Key.Length is < 1 or > 100)
             {
                 throw new InvalidOperationException
                 (
-                    $"Slash command failed validation: {command.Name} description localization key contains invalid characters.\n" +
-                    $"(Description localization key ({descriptionLocalization.Key}) contains invalid characters)"
+                    $"Slash command failed validation: {command.Name} description localization key is longer than 100 characters.\n" +
+                    $"(Description localization key ({descriptionLocalization.Key}) is {descriptionLocalization.Key.Length - 100} characters too long)"
                 );
+
+                // Come back to this when we have actual validation that does more than a length check
+                //throw new InvalidOperationException
+                //(
+                //    $"Slash command failed validation: {command.Name} description localization key contains invalid characters.\n" +
+                //    $"(Description localization key ({descriptionLocalization.Key}) contains invalid characters)"
+                //);
             }
         }
 
@@ -957,12 +961,18 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
             );
         }
 
-        if (!string.IsNullOrWhiteSpace(command.Description) && !DescriptionLocalizationRegex().IsMatch(command.Description))
+        if (command.Description?.Length is < 1 or > 100)
         {
             throw new InvalidOperationException
             (
-                $"Slash command failed validation: {command.Name} description contains invalid characters."
+                $"Slash command failed validation: {command.Name} description is longer than 100 characters."
             );
+
+            // Come back to this when we have actual validation that does more than a length check
+            //throw new InvalidOperationException
+            //(
+            //    $"Slash command failed validation: {command.Name} description contains invalid characters."
+            //);
         }
     }
 }
