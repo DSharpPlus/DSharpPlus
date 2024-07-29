@@ -36,7 +36,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     public IReadOnlyDictionary<ulong, Command> ApplicationCommandMapping => applicationCommandMapping;
 
     /// <inheritdoc/>
-    public override IReadOnlyList<Command> Commands => [.. this.ApplicationCommandMapping.Values];
+    public override IReadOnlyList<Command> Commands => applicationCommandMapping.Values;
 
     /// <summary>
     /// The configuration values being used for this processor.
