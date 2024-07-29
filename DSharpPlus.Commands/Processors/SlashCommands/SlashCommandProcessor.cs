@@ -36,19 +36,30 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     public IReadOnlyDictionary<ulong, Command> ApplicationCommandMapping => applicationCommandMapping;
 
     /// <inheritdoc/>
-    public override IReadOnlyList<Command> Commands => this.ApplicationCommandMapping.Values.ToList(); //TODO: alloc free?
+    public override IReadOnlyList<Command> Commands => [.. this.ApplicationCommandMapping.Values];
+
+    /// <summary>
+    /// The configuration values being used for this processor.
+    /// </summary>
+    public SlashCommandConfiguration Configuration { get; init; }
 
     private static readonly List<DiscordApplicationCommand> applicationCommands = [];
     private static FrozenDictionary<ulong, Command> applicationCommandMapping = FrozenDictionary<ulong, Command>.Empty;
 
     [GeneratedRegex(@"^[-_\p{L}\p{N}\p{IsDevanagari}\p{IsThai}]{1,32}$")]
-    private partial Regex NameLocalizationRegex();
+    private static partial Regex NameLocalizationRegex();
 
     [GeneratedRegex("^.{1,100}$")]
-    private partial Regex DescrtiptionLocalizationRegex();
+    private static partial Regex DescrtiptionLocalizationRegex();
 
     private bool configured;
     private bool registered;
+
+    /// <summary>
+    /// Creates a new instance of <see cref="SlashCommandProcessor"/>.
+    /// </summary>
+    /// <param name="configuration">The configuration values to use for this processor.</param>
+    public SlashCommandProcessor(SlashCommandConfiguration? configuration = null) => this.Configuration = configuration ?? new();
 
     /// <inheritdoc />
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
@@ -69,9 +80,8 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
             extension.Client.InteractionCreated += ExecuteInteractionAsync;
         }
 
-        if (!this.registered)
+        if (!this.registered && this.Configuration.RegisterCommands)
         {
-            // ConfigureAsync is called everytime DiscordClient.SessionCreated is invoked
             await RegisterSlashCommandsAsync(extension);
         }
     }
@@ -200,6 +210,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
         }
     }
 
+    /// <summary>
+    /// Registers <see cref="CommandsExtension.Commands"/> as application commands.
+    /// This will registers regardless of <see cref="SlashCommandConfiguration.RegisterCommands"/>'s value.
+    /// </summary>
+    /// <param name="extension">The extension to read the commands from.</param>
     public async Task RegisterSlashCommandsAsync(CommandsExtension extension)
     {
         if (this.registered)
@@ -256,7 +271,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
         else
         {
             // 1. Aggregate all guild specific and global commands
-            // 2. Groupby name
+            // 2. GroupBy name
             // 3. Only take the first command per name
             IEnumerable<DiscordApplicationCommand> distinctCommands = guildsApplicationCommands
                 .SelectMany(x => x.Value)
