@@ -114,6 +114,5 @@ internal class ComponentEventWaiter : IDisposable
     {
         this.matchRequests.Clear();
         this.collectRequests.Clear();
-        this.client.ComponentInteractionCreated -= HandleAsync;
     }
 }
