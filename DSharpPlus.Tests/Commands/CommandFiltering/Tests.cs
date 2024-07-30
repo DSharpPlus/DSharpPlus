@@ -29,8 +29,6 @@ public class Tests
         DiscordClient client = DiscordClientBuilder.CreateDefault("faketoken", DiscordIntents.None).Build();
 
         extension = client.UseCommands();
-
-        // Now to register the default processors...
         extension.AddProcessor(slashCommandProcessor);
         extension.AddCommands([typeof(TestMultiLevelSubCommandsFiltered.RootCommand), typeof(TestMultiLevelSubCommandsFiltered.ContextMenues), typeof(TestMultiLevelSubCommandsFiltered.ContextMenuesInGroup)]);
         extension.BuildCommands();
