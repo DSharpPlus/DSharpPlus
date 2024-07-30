@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.Design;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.MessageCommands;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Processors.UserCommands;
 using DSharpPlus.Commands.Trees;
+
 using Microsoft.Extensions.DependencyInjection;
+
 using NUnit.Framework;
 
 namespace DSharpPlus.Tests.Commands.CommandFiltering;
@@ -26,24 +28,33 @@ public class Tests
     private static MessageCommandProcessor messageCommandProcessor = new();
 
     [OneTimeSetUp]
-    public static async Task CreateExtensionAsync()
+    public static void CreateExtensionAsync()
     {
-        DiscordClient client = DiscordClientBuilder.CreateDefault("faketoken", DiscordIntents.None).Build();
+        DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault("faketoken", DiscordIntents.None);
 
-        extension = client.UseCommands(new CommandsConfiguration()
-        {
-            RegisterDefaultCommandProcessors = false
-        });
+        builder.UseCommands
+        (
+            async extension =>
+            {
+                await extension.AddProcessorAsync(textCommandProcessor);
+                await extension.AddProcessorAsync(slashCommandProcessor);
+                await extension.AddProcessorAsync(userCommandProcessor);
+                await extension.AddProcessorAsync(messageCommandProcessor);
 
-        await extension.AddProcessorAsync(textCommandProcessor);
-        await extension.AddProcessorAsync(slashCommandProcessor);
-        await extension.AddProcessorAsync(userCommandProcessor);
-        await extension.AddProcessorAsync(messageCommandProcessor);
+                extension.AddCommands([typeof(TestMultiLevelSubCommandsFiltered.RootCommand), typeof(TestMultiLevelSubCommandsFiltered.ContextMenues), typeof(TestMultiLevelSubCommandsFiltered.ContextMenuesInGroup)]);
+                extension.BuildCommands();
+                await userCommandProcessor.ConfigureAsync(extension);
+                await messageCommandProcessor.ConfigureAsync(extension);
+            },
+            new CommandsConfiguration()
+            {
+                RegisterDefaultCommandProcessors = false
+            }
+        );
 
-        extension.AddCommands([typeof(TestMultiLevelSubCommandsFiltered.RootCommand), typeof(TestMultiLevelSubCommandsFiltered.ContextMenues), typeof(TestMultiLevelSubCommandsFiltered.ContextMenuesInGroup)]);
-        extension.BuildCommands();
-        await userCommandProcessor.ConfigureAsync(extension);
-        await messageCommandProcessor.ConfigureAsync(extension);
+        DiscordClient client = builder.Build();
+
+        extension = client.ServiceProvider.GetRequiredService<CommandsExtension>();
     }
 
     [Test]

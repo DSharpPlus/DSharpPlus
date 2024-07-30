@@ -1,9 +1,12 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
+
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Processors.TextCommands.Parsing;
 using DSharpPlus.Tests.Commands.Cases;
+
+using Microsoft.Extensions.DependencyInjection;
+
 using NUnit.Framework;
 
 namespace DSharpPlus.Tests.Commands.Processors.TextCommands.Parsing;
@@ -13,13 +16,14 @@ public sealed class DefaultTextArgumentSplicerTests
     private static CommandsExtension extension = null!;
 
     [OneTimeSetUp]
-    public static async Task CreateExtensionAsync()
+    public static void CreateExtensionAsync()
     {
         DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault("faketoken", DiscordIntents.None);
-        DiscordClient client = builder.Build();
 
-        extension = client.UseCommands();
-        await extension.AddProcessorAsync(new TextCommandProcessor());
+        builder.UseCommands(async extension => await extension.AddProcessorAsync(new TextCommandProcessor()));
+
+        DiscordClient client = builder.Build();
+        extension = client.ServiceProvider.GetRequiredService<CommandsExtension>();
     }
 
     [TestCaseSource(typeof(UserInput), nameof(UserInput.ExpectedNormal), null)]
