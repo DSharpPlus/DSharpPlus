@@ -51,4 +51,7 @@ public static class ClientExtensions
 
         return services;
     }
+
+    internal static InteractivityExtension GetInteractivity(this DiscordClient client)
+        => client.ServiceProvider.GetRequiredService<InteractivityExtension>();
 }

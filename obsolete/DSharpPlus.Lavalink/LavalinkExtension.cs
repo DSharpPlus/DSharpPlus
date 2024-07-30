@@ -27,7 +27,7 @@ public sealed class LavalinkExtension
     /// Gets a dictionary of connected Lavalink nodes for the extension.
     /// </summary>
     public IReadOnlyDictionary<ConnectionEndpoint, LavalinkNodeConnection> ConnectedNodes { get; }
-    public object Client { get; private set; }
+    public DiscordClient Client { get; private set; }
 
     private readonly ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection> connectedNodes = new();
 
