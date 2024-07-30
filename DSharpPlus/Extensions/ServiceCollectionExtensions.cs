@@ -30,25 +30,6 @@ public static partial class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Adds DSharpPlus' DiscordClient and all its dependent services to the service collection.
-    /// </summary>
-    /// <param name="services">The service collection to add the DiscordClient to.</param>
-    /// <param name="tokenFactory">A factory for the bot token to use to connect to Discord.</param>
-    /// <param name="intents">The intents to use to connect to Discord.</param>
-    /// <returns>The current instance for chaining.</returns>
-    public static IServiceCollection AddDiscordClient
-    (
-        this IServiceCollection services,
-        Func<IServiceProvider, string> tokenFactory,
-        DiscordIntents intents
-    )
-    {
-        services.Configure<TokenContainer>(c => c.GetToken = () => tokenFactory(services.BuildServiceProvider()));
-        services.AddDSharpPlusDefaultsSingleShard(intents);
-        return services;
-    }
-
-    /// <summary>
     /// Adds DSharpPlus' DiscordClient and all its dependent services to the service collection, initialized
     /// for running multiple shards.
     /// </summary>
