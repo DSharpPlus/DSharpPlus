@@ -49,7 +49,7 @@ internal class ComponentPaginator : IPaginator
         }
     }
 
-    public void Dispose() => this.client.ComponentInteractionCreated -= HandleAsync;
+    public void Dispose() => this.requests.Clear();
 
     internal async Task HandleAsync(DiscordClient _, ComponentInteractionCreatedEventArgs e)
     {

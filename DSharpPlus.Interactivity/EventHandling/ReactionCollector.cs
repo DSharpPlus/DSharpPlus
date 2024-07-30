@@ -159,32 +159,7 @@ internal class ReactionCollector : IDisposable
     /// </summary>
     public void Dispose()
     {
-        this.client = null!;
-
-        if (this.reactionAddHandler != null)
-        {
-            this.reactionAddEvent?.Unregister(this.reactionAddHandler);
-        }
-
-        if (this.reactionRemoveHandler != null)
-        {
-            this.reactionRemoveEvent?.Unregister(this.reactionRemoveHandler);
-        }
-
-        if (this.reactionClearHandler != null)
-        {
-            this.reactionClearEvent?.Unregister(this.reactionClearHandler);
-        }
-
-        this.reactionAddEvent = null!;
-        this.reactionAddHandler = null!;
-        this.reactionRemoveEvent = null!;
-        this.reactionRemoveHandler = null!;
-        this.reactionClearEvent = null!;
-        this.reactionClearHandler = null!;
-
-        this.requests?.Clear();
-        this.requests = null!;
+        this.requests.Clear();
 
         // Satisfy rule CA1816. Can be removed if this class is sealed.
         GC.SuppressFinalize(this);
@@ -212,10 +187,7 @@ public class ReactionCollectRequest : IDisposable
     public void Dispose()
     {
         this.ct.Dispose();
-        this.tcs = null;
-        this.message = null;
-        this.collected?.Clear();
-        this.collected = null;
+        this.collected.Clear();
 
         // Satisfy rule CA1816. Can be removed if this class is sealed.
         GC.SuppressFinalize(this);

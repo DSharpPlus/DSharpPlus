@@ -116,15 +116,7 @@ internal class Poller
     public void Dispose()
     {
         // Why doesn't this class implement IDisposable?
-
-        if (this.client != null)
-        {
-            this.client.MessageReactionAdded -= HandleReactionAdd;
-            this.client.MessageReactionRemoved -= HandleReactionRemove;
-            this.client.MessageReactionsCleared -= HandleReactionClear;
-            this.client = null!;
-        }
-
+        
         if (this.requests != null)
         {
             this.requests.Clear();

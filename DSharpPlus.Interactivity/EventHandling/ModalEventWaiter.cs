@@ -64,9 +64,5 @@ internal class ModalEventWaiter : IDisposable
         return Task.CompletedTask;
     }
 
-    public void Dispose()
-    {
-        this.MatchRequests.Clear();
-        this.Client.ModalSubmitted -= Handle;
-    }
+    public void Dispose() => this.MatchRequests.Clear();
 }
