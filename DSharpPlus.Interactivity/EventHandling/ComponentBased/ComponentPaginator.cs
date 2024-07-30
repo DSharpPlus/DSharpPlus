@@ -18,7 +18,6 @@ internal class ComponentPaginator : IPaginator
     public ComponentPaginator(DiscordClient client, InteractivityConfiguration config)
     {
         this.client = client;
-        this.client.ComponentInteractionCreated += HandleAsync;
         this.config = config;
     }
 
@@ -52,7 +51,7 @@ internal class ComponentPaginator : IPaginator
 
     public void Dispose() => this.client.ComponentInteractionCreated -= HandleAsync;
 
-    private async Task HandleAsync(DiscordClient _, ComponentInteractionCreatedEventArgs e)
+    internal async Task HandleAsync(DiscordClient _, ComponentInteractionCreatedEventArgs e)
     {
         if (!this.requests.TryGetValue(e.Message.Id, out IPaginationRequest? req))
         {
