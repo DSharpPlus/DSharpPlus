@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Commands;
@@ -8,42 +7,39 @@ using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Processors.UserCommands;
 using DSharpPlus.Commands.Trees;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace DSharpPlus.Tests.Commands.CommandFiltering;
 
 public class Tests
 {
-    private static CommandsExtension extension = null!;
-    private static TextCommandProcessor textCommandProcessor = new();
-    private static SlashCommandProcessor slashCommandProcessor = new(new()
+    private static readonly SlashCommandProcessor slashCommandProcessor = new(new()
     {
         RegisterCommands = false
     });
 
-    private static UserCommandProcessor userCommandProcessor = new();
-    private static MessageCommandProcessor messageCommandProcessor = new();
+    private static CommandsExtension extension = null!;
+    private static TextCommandProcessor textCommandProcessor = null!;
+    private static UserCommandProcessor userCommandProcessor = null!;
+    private static MessageCommandProcessor messageCommandProcessor = null!;
 
     [OneTimeSetUp]
     public static async Task CreateExtensionAsync()
     {
         DiscordClient client = DiscordClientBuilder.CreateDefault("faketoken", DiscordIntents.None).Build();
 
-        extension = client.UseCommands(new CommandsConfiguration()
-        {
-            RegisterDefaultCommandProcessors = false
-        });
+        extension = client.UseCommands();
 
-        await extension.AddProcessorAsync(textCommandProcessor);
-        await extension.AddProcessorAsync(slashCommandProcessor);
-        await extension.AddProcessorAsync(userCommandProcessor);
-        await extension.AddProcessorAsync(messageCommandProcessor);
-
+        // Now to register the default processors...
+        extension.AddProcessor(slashCommandProcessor);
         extension.AddCommands([typeof(TestMultiLevelSubCommandsFiltered.RootCommand), typeof(TestMultiLevelSubCommandsFiltered.ContextMenues), typeof(TestMultiLevelSubCommandsFiltered.ContextMenuesInGroup)]);
         extension.BuildCommands();
-        await userCommandProcessor.ConfigureAsync(extension);
-        await messageCommandProcessor.ConfigureAsync(extension);
+
+        // Prepare the extension and processors
+        await extension.RefreshAsync();
+        textCommandProcessor = extension.GetProcessor<TextCommandProcessor>();
+        userCommandProcessor = extension.GetProcessor<UserCommandProcessor>();
+        messageCommandProcessor = extension.GetProcessor<MessageCommandProcessor>();
     }
 
     [Test]

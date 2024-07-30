@@ -17,9 +17,13 @@ public sealed class DefaultTextArgumentSplicerTests
     {
         DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault("faketoken", DiscordIntents.None);
         DiscordClient client = builder.Build();
+        extension = client.UseCommands(new()
+        {
+            RegisterDefaultCommandProcessors = false
+        });
 
-        extension = client.UseCommands();
-        await extension.AddProcessorAsync(new TextCommandProcessor());
+        extension.AddProcessor<TextCommandProcessor>();
+        await extension.RefreshAsync();
     }
 
     [TestCaseSource(typeof(UserInput), nameof(UserInput.ExpectedNormal), null)]

@@ -143,8 +143,7 @@ public sealed class CommandsExtension : BaseExtension
         this.Client = client;
         this.ServiceProvider = client.ServiceProvider;
         this.Client.SessionCreated += async (_, _) => await RefreshAsync();
-
-        this.logger = client.ServiceProvider.GetService<ILogger<CommandsExtension>>();
+        this.logger = client.ServiceProvider.GetRequiredService<ILogger<CommandsExtension>>();
 
         DefaultClientErrorHandler errorHandler = new(client.Logger);
         this.commandErrored = new(errorHandler);
@@ -268,18 +267,14 @@ public sealed class CommandsExtension : BaseExtension
         return command with { Subcommands = subCommands };
     }
 
-    public async ValueTask AddProcessorAsync(ICommandProcessor processor)
-    {
-        this.processors.Add(processor.GetType(), processor);
-        await processor.ConfigureAsync(this);
-    }
-
-    public ValueTask AddProcessorsAsync(params ICommandProcessor[] processors) => AddProcessorsAsync((IEnumerable<ICommandProcessor>)processors);
-    public async ValueTask AddProcessorsAsync(IEnumerable<ICommandProcessor> processors)
+    public void AddProcessor(ICommandProcessor processor) => this.processors.Add(processor.GetType(), processor);
+    public void AddProcessor<TProcessor>() where TProcessor : ICommandProcessor, new() => AddProcessor(new TProcessor());
+    public void AddProcessors(params ICommandProcessor[] processors) => AddProcessors((IEnumerable<ICommandProcessor>)processors);
+    public void AddProcessors(IEnumerable<ICommandProcessor> processors)
     {
         foreach (ICommandProcessor processor in processors)
         {
-            await AddProcessorAsync(processor);
+            AddProcessor(processor);
         }
     }
 
@@ -473,16 +468,6 @@ public sealed class CommandsExtension : BaseExtension
     {
         return;
     }
-
-    /// <summary>
-    /// The event handler used to log all unhandled exceptions, usually from when <see cref="commandErrored"/> itself errors.
-    /// </summary>
-    /// <param name="asyncEvent">The event that errored.</param>
-    /// <param name="error">The error that occurred.</param>
-    /// <param name="handler">The handler/method that errored.</param>
-    /// <param name="sender">The extension.</param>
-    /// <param name="eventArgs">The event arguments passed to <paramref name="handler"/>.</param>
-    private static void EverythingWentWrongErrorHandler<TArgs>(AsyncEvent<CommandsExtension, TArgs> asyncEvent, Exception error, AsyncEventHandler<CommandsExtension, TArgs> handler, CommandsExtension sender, TArgs eventArgs) where TArgs : AsyncEventArgs => sender.logger.LogError(error, "Event handler '{Method}' for event {AsyncEvent} threw an unhandled exception.", handler.Method, asyncEvent.Name);
 
     /// <summary>
     /// The default command error handler. Only used if <see cref="UseDefaultCommandErrorHandler"/> is set to true.
