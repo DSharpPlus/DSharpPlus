@@ -125,7 +125,4 @@ public sealed class DefaultTextArgumentSplicerTests
         Assert.That(arguments, Has.Count.EqualTo(expectedArguments.Length));
         Assert.That(arguments, Is.EqualTo(expectedArguments));
     }
-
-    [OneTimeTearDown]
-    public static void DisposeExtension() => extension.Dispose();
 }

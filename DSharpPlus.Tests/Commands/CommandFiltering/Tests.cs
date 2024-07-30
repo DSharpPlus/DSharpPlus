@@ -169,7 +169,4 @@ public class Tests
         Assert.That(group, Is.Not.Null);
         Assert.That(group.Subcommands.Any(x => x.Name == "SlashMessageContext"));
     }
-
-    [OneTimeTearDown]
-    public static void DisposeExtension() => extension.Dispose();
 }

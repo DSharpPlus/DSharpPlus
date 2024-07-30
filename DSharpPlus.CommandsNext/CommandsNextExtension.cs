@@ -24,7 +24,7 @@ namespace DSharpPlus.CommandsNext;
 /// <summary>
 /// This is the class which handles command registration, management, and execution.
 /// </summary>
-public class CommandsNextExtension : BaseExtension
+public class CommandsNextExtension
 {
     private CommandsNextConfiguration Config { get; }
     private HelpFormatterFactory HelpFormatter { get; }
@@ -145,7 +145,7 @@ public class CommandsNextExtension : BaseExtension
     /// <summary>
     /// Disposes of this the resources used by CNext.
     /// </summary>
-    public override void Dispose()
+    public void Dispose()
     {
         this.Config.CommandExecutor.Dispose();
 
@@ -159,7 +159,7 @@ public class CommandsNextExtension : BaseExtension
     /// </summary>
     /// <param name="client">DO NOT USE THIS MANUALLY.</param>
     /// <exception cref="InvalidOperationException"/>
-    public override void Setup(DiscordClient client)
+    public void Setup(DiscordClient client)
     {
         this.Client = client;
 
@@ -428,6 +428,7 @@ public class CommandsNextExtension : BaseExtension
         => this.TopLevelCommands;
 
     private Dictionary<string, Command> TopLevelCommands { get; set; }
+    public DiscordClient Client { get; private set; }
 
     /// <summary>
     /// Registers all commands from a given assembly. The command classes need to be public to be considered for registration.

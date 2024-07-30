@@ -43,7 +43,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
     private readonly ChannelReader<GatewayPayload> eventReader;
     private readonly IEventDispatcher dispatcher;
 
-    private List<BaseExtension> extensions = [];
     private StatusUpdate? status = null;
     private readonly string token;
 
@@ -124,29 +123,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
         this.guilds.Clear();
     }
-
-    #region Client Extension Methods
-
-    /// <summary>
-    /// Registers an extension with this client.
-    /// </summary>
-    /// <param name="ext">Extension to register.</param>
-    /// <returns></returns>
-    public void AddExtension(BaseExtension ext)
-    {
-        ext.Setup(this);
-        this.extensions.Add(ext);
-    }
-
-    /// <summary>
-    /// Retrieves a previously-registered extension from this client.
-    /// </summary>
-    /// <typeparam name="T">Type of extension to retrieve.</typeparam>
-    /// <returns>The requested extension.</returns>
-    public T GetExtension<T>() where T : BaseExtension
-        => this.extensions.FirstOrDefault(x => x.GetType() == typeof(T)) as T;
-
-    #endregion
 
     #region Public Connection Methods
 
@@ -1289,17 +1265,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
         DisconnectAsync().GetAwaiter().GetResult();
         this.ApiClient?.rest?.Dispose();
         this.CurrentUser = null!;
-
-        List<BaseExtension> extensions = this.extensions; // prevent extensions being modified during dispose
-        this.extensions = null!;
-
-        foreach (BaseExtension extension in extensions)
-        {
-            if (extension is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-        }
 
         this.guilds = null!;
         this.privateChannels = null!;

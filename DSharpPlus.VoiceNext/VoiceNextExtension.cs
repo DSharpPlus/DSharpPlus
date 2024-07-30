@@ -13,7 +13,7 @@ namespace DSharpPlus.VoiceNext;
 /// <summary>
 /// Represents VoiceNext extension, which acts as Discord voice client.
 /// </summary>
-public sealed class VoiceNextExtension : BaseExtension
+public sealed class VoiceNextExtension
 {
     private VoiceNextConfiguration Configuration { get; set; }
 
@@ -25,6 +25,7 @@ public sealed class VoiceNextExtension : BaseExtension
     /// Gets whether this connection has incoming voice enabled.
     /// </summary>
     public bool IsIncomingEnabled { get; }
+    public DiscordClient Client { get; private set; }
 
     internal VoiceNextExtension(VoiceNextConfiguration config)
     {
@@ -41,7 +42,7 @@ public sealed class VoiceNextExtension : BaseExtension
     /// </summary>
     /// <param name="client">DO NOT USE THIS MANUALLY.</param>
     /// <exception cref="InvalidOperationException"/>
-    public override void Setup(DiscordClient client)
+    public void Setup(DiscordClient client)
     {
         if (this.Client != null)
         {
@@ -221,7 +222,7 @@ public sealed class VoiceNextExtension : BaseExtension
         }
     }
 
-    public override void Dispose()
+    public void Dispose()
     {
         foreach (System.Collections.Generic.KeyValuePair<ulong, VoiceNextConnection> conn in this.ActiveConnections)
         {

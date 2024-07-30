@@ -16,13 +16,14 @@ namespace DSharpPlus.Interactivity;
 /// <summary>
 /// Extension class for DSharpPlus.Interactivity
 /// </summary>
-public class InteractivityExtension : BaseExtension
+public class InteractivityExtension
 {
     internal readonly ConcurrentDictionary<Type, AsyncEvent> eventDistributor = [];
     internal IClientErrorHandler errorHandler;
 
 #pragma warning disable IDE1006 // Naming Styles
     internal InteractivityConfiguration Config { get; }
+    public DiscordClient Client { get; private set; }
 
     private EventWaiter<MessageCreatedEventArgs> MessageCreatedWaiter;
 
@@ -47,7 +48,7 @@ public class InteractivityExtension : BaseExtension
 
     internal InteractivityExtension(InteractivityConfiguration cfg) => this.Config = new InteractivityConfiguration(cfg);
 
-    public override void Setup(DiscordClient client)
+    public void Setup(DiscordClient client)
     {
         this.Client = client;
         this.MessageCreatedWaiter = new EventWaiter<MessageCreatedEventArgs>(this);
@@ -1131,7 +1132,7 @@ public class InteractivityExtension : BaseExtension
 
     private CancellationToken GetCancellationToken(TimeSpan? timeout = null) => new CancellationTokenSource(timeout ?? this.Config.Timeout).Token;
 
-    public override void Dispose()
+    public void Dispose()
     {
         this.ComponentEventWaiter?.Dispose();
         this.ModalEventWaiter?.Dispose();

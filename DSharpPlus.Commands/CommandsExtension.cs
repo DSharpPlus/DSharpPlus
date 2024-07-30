@@ -50,8 +50,10 @@ namespace DSharpPlus.Commands;
 /// <summary>
 /// An all in one extension for managing commands.
 /// </summary>
-public sealed class CommandsExtension : BaseExtension
+public sealed class CommandsExtension
 {
+    public DiscordClient Client { get; private set; }
+
     /// <inheritdoc cref="DiscordClient.ServiceProvider"/>
     public IServiceProvider ServiceProvider { get; private set; }
 
@@ -129,7 +131,7 @@ public sealed class CommandsExtension : BaseExtension
     /// Sets up the extension to use the specified <see cref="DiscordClient"/>.
     /// </summary>
     /// <param name="client">The client to register our event handlers too.</param>
-    public override void Setup(DiscordClient client)
+    public void Setup(DiscordClient client)
     {
         if (client is null)
         {
@@ -465,12 +467,6 @@ public sealed class CommandsExtension : BaseExtension
         }
 
         this.Commands = commands.ToFrozenDictionary();
-    }
-
-    /// <inheritdoc />
-    public override void Dispose()
-    {
-        return;
     }
 
     /// <summary>

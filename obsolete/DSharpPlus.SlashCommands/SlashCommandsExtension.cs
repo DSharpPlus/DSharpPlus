@@ -20,7 +20,7 @@ namespace DSharpPlus.SlashCommands;
 /// A class that handles slash commands for a client.
 /// </summary>
 [Obsolete("DSharpPlus.SlashCommands is obsolete. Please consider using the new DSharpPlus.Commands extension instead.")]
-public sealed partial class SlashCommandsExtension : BaseExtension
+public sealed partial class SlashCommandsExtension
 {
     //A list of methods for top level commands
     private static List<CommandMethod> commandMethods { get; set; } = [];
@@ -45,6 +45,9 @@ public sealed partial class SlashCommandsExtension : BaseExtension
     /// Gets a list of registered commands. The key is the guild id (null if global).
     /// </summary>
     public static IReadOnlyList<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> RegisteredCommands => registeredCommands;
+
+    public DiscordClient Client { get; private set; }
+
     private static readonly List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> registeredCommands = [];
 
     internal SlashCommandsExtension(SlashCommandsConfiguration configuration)
@@ -57,7 +60,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
     /// Runs setup. DO NOT RUN THIS MANUALLY. DO NOT DO ANYTHING WITH THIS.
     /// </summary>
     /// <param name="client">The client to setup on.</param>
-    public override void Setup(DiscordClient client)
+    public void Setup(DiscordClient client)
     {
         if (this.Client != null)
         {
@@ -1360,7 +1363,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
     }
     private AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs> autocompleteExecuted;
 
-    public override void Dispose()
+    public void Dispose()
     {
         this.slashError?.UnregisterAll();
         this.slashInvoked?.UnregisterAll();
