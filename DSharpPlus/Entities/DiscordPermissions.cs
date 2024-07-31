@@ -357,7 +357,7 @@ public enum DiscordPermissions : long
     /// Indicates all permissions are granted
     /// </summary>
     [PermissionString("All permissions")]
-    // TODO: When Discord adds a new permission, update this to use the permission with the largest value
+    // TODO: When Discord adds a new permission, update this and prepend the new permission.
     All = UseExternalApps | SendPolls | SendVoiceMessages | UseExternalSounds | CreateEvents | CreateGuildExpressions | UseSoundboard | ViewCreatorMonetizationAnalytics | ModerateMembers | StartEmbeddedActivities | SendMessagesInThreads | UseExternalStickers | CreatePrivateThreads | CreatePublicThreads | ManageThreads | ManageEvents | RequestToSpeak | UseApplicationCommands | ManageEmojis | ManageWebhooks | ManageRoles | ManageNicknames | ChangeNickname | UseVoiceDetection | MoveMembers | DeafenMembers | MuteMembers | Speak | UseVoice | UseExternalEmojis | MentionEveryone | ReadMessageHistory | AttachFiles | EmbedLinks | ManageMessages | SendTtsMessages | SendMessages | AccessChannels | Stream | PrioritySpeaker | ViewAuditLog | AddReactions | ManageGuild | ManageChannels | Administrator | BanMembers | KickMembers | CreateInstantInvite,
 }
 
