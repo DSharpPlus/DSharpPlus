@@ -124,7 +124,7 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<MessageCreatedEv
         if (command is null ||
             (command.GuildIds.Count > 0 && !command.GuildIds.Contains(eventArgs.Guild?.Id ?? 0)))
         {
-            if (configuration!.EnableCommandNotFoundException)
+            if (this.Configuration!.EnableCommandNotFoundException)
             {
                 await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
                 {
@@ -191,7 +191,7 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<MessageCreatedEv
             Command? defaultGroupCommand = command.Subcommands.FirstOrDefault(subcommand => subcommand.Attributes.OfType<DefaultGroupCommandAttribute>().Any());
             if (defaultGroupCommand is null)
             {
-                if (configuration!.EnableCommandNotFoundException)
+                if (this.Configuration!.EnableCommandNotFoundException)
                 {
                     await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
                     {
