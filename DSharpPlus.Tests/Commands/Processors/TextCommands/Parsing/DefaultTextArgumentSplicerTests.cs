@@ -16,11 +16,18 @@ public sealed class DefaultTextArgumentSplicerTests
     private static CommandsExtension extension = null!;
 
     [OneTimeSetUp]
-    public static void CreateExtensionAsync()
+    public static void CreateExtension()
     {
         DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault("faketoken", DiscordIntents.None);
 
-        builder.UseCommands(async extension => await extension.AddProcessorAsync(new TextCommandProcessor()));
+        builder.UseCommands
+        (
+            extension => extension.AddProcessor(new TextCommandProcessor()),
+            new()
+            {
+                RegisterDefaultCommandProcessors = false
+            }
+        );
 
         DiscordClient client = builder.Build();
         extension = client.ServiceProvider.GetRequiredService<CommandsExtension>();

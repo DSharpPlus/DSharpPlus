@@ -55,8 +55,13 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
     /// <summary>
     /// Creates a new instance of <see cref="SlashCommandProcessor"/>.
     /// </summary>
+    public SlashCommandProcessor() : this(new()) { }
+
+    /// <summary>
+    /// Creates a new instance of <see cref="SlashCommandProcessor"/>.
+    /// </summary>
     /// <param name="configuration">The configuration values to use for this processor.</param>
-    public SlashCommandProcessor(SlashCommandConfiguration? configuration = null) => this.Configuration = configuration ?? new();
+    public SlashCommandProcessor(SlashCommandConfiguration configuration) => this.Configuration = configuration;
 
     /// <inheritdoc />
     public override async ValueTask ConfigureAsync(CommandsExtension extension)

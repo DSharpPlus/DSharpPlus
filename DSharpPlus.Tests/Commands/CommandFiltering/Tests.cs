@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.MessageCommands;
@@ -17,15 +16,15 @@ namespace DSharpPlus.Tests.Commands.CommandFiltering;
 
 public class Tests
 {
-    private static CommandsExtension extension = null!;
-    private static TextCommandProcessor textCommandProcessor = new();
-    private static SlashCommandProcessor slashCommandProcessor = new(new()
+    private static readonly SlashCommandProcessor slashCommandProcessor = new(new()
     {
         RegisterCommands = false
     });
 
-    private static UserCommandProcessor userCommandProcessor = new();
-    private static MessageCommandProcessor messageCommandProcessor = new();
+    private static CommandsExtension extension = null!;
+    private static TextCommandProcessor textCommandProcessor = null!;
+    private static UserCommandProcessor userCommandProcessor = null!;
+    private static MessageCommandProcessor messageCommandProcessor = null!;
 
     [OneTimeSetUp]
     public static void CreateExtensionAsync()
@@ -36,10 +35,10 @@ public class Tests
         (
             async extension =>
             {
-                await extension.AddProcessorAsync(textCommandProcessor);
-                await extension.AddProcessorAsync(slashCommandProcessor);
-                await extension.AddProcessorAsync(userCommandProcessor);
-                await extension.AddProcessorAsync(messageCommandProcessor);
+                extension.AddProcessor(textCommandProcessor);
+                extension.AddProcessor(slashCommandProcessor);
+                extension.AddProcessor(userCommandProcessor);
+                extension.AddProcessor(messageCommandProcessor);
 
                 extension.AddCommands([typeof(TestMultiLevelSubCommandsFiltered.RootCommand), typeof(TestMultiLevelSubCommandsFiltered.ContextMenues), typeof(TestMultiLevelSubCommandsFiltered.ContextMenuesInGroup)]);
                 extension.BuildCommands();

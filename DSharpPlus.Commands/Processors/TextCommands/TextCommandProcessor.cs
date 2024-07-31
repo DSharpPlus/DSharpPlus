@@ -16,16 +16,27 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Commands.Processors.TextCommands;
 
-public sealed class TextCommandProcessor(TextCommandConfiguration? configuration = null) : BaseCommandProcessor<MessageCreatedEventArgs, ITextArgumentConverter, TextConverterContext, TextCommandContext>
+public sealed class TextCommandProcessor : BaseCommandProcessor<MessageCreatedEventArgs, ITextArgumentConverter, TextConverterContext, TextCommandContext>
 {
     public const DiscordIntents RequiredIntents = DiscordIntents.DirectMessages // Required for commands executed in DMs
                                                 | DiscordIntents.GuildMessages; // Required for commands that are executed via bot ping
 
-    public TextCommandConfiguration Configuration { get; init; } = configuration ?? new();
+    public TextCommandConfiguration Configuration { get; init; }
     private bool configured;
 
-    private FrozenDictionary<string, Command> commands;
     public override IReadOnlyList<Command> Commands => this.commands.Values;
+    private FrozenDictionary<string, Command> commands = FrozenDictionary<string, Command>.Empty;
+
+    /// <summary>
+    /// Creates a new instance of <see cref="TextCommandProcessor"/> with the default configuration.
+    /// </summary>
+    public TextCommandProcessor() : this(new TextCommandConfiguration()) { }
+
+    /// <summary>
+    /// Creates a new instance of <see cref="TextCommandProcessor"/> with the specified configuration.
+    /// </summary>
+    /// <param name="configuration">The configuration to use with this processor.</param>
+    public TextCommandProcessor(TextCommandConfiguration configuration) => this.Configuration = configuration;
 
     /// <inheritdoc />
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
@@ -71,7 +82,7 @@ public sealed class TextCommandProcessor(TextCommandConfiguration? configuration
         }
 
         AsyncServiceScope scope = this.extension.ServiceProvider.CreateAsyncScope();
-        ResolvePrefixDelegateAsync resolvePrefix = scope.ServiceProvider.GetService<IPrefixResolver>() is {} pr
+        ResolvePrefixDelegateAsync resolvePrefix = scope.ServiceProvider.GetService<IPrefixResolver>() is { } pr
             ? pr.ResolvePrefixAsync
             : this.Configuration.PrefixResolver;
 
