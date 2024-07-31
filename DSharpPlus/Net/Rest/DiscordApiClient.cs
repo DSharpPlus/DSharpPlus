@@ -2660,8 +2660,8 @@ public sealed class DiscordApiClient
         RestChannelPermissionEditPayload pld = new()
         {
             Type = type,
-            Allow = allow & PermissionMethods.FULL_PERMS,
-            Deny = deny & PermissionMethods.FULL_PERMS
+            Allow = allow & DiscordPermissions.All,
+            Deny = deny & DiscordPermissions.All
         };
 
         Dictionary<string, string> headers = [];
@@ -3878,7 +3878,7 @@ public sealed class DiscordApiClient
         RestGuildRolePayload pld = new()
         {
             Name = name,
-            Permissions = permissions & PermissionMethods.FULL_PERMS,
+            Permissions = permissions & DiscordPermissions.All,
             Color = color,
             Hoist = hoist,
             Mentionable = mentionable,
@@ -3964,7 +3964,7 @@ public sealed class DiscordApiClient
         RestGuildRolePayload pld = new()
         {
             Name = name,
-            Permissions = permissions & PermissionMethods.FULL_PERMS,
+            Permissions = permissions & DiscordPermissions.All,
             Color = color,
             Hoist = hoist,
             Mentionable = mentionable,

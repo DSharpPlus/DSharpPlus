@@ -78,14 +78,14 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// Gets the team which owns this application.
     /// </summary>
     public DiscordTeam? Team { get; internal set; }
-    
+
     /// <summary>
     /// Public key used to verify http interactions
     /// </summary>
     public string VerifyKey { get; internal set; }
-    
+
     /// <summary>
-    /// Partial user object for the bot user associated with the app. 
+    /// Partial user object for the bot user associated with the app.
     /// </summary>
     public DiscordUser? Bot { get; internal set; }
 
@@ -93,43 +93,44 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// Default scopes and permissions for each supported installation context.
     /// </summary>
     public IReadOnlyDictionary<DiscordApplicationIntegrationType, DiscordApplicationIntegrationTypeConfiguration>?
-        IntegrationTypeConfigurations { get; internal set; }
-    
+        IntegrationTypeConfigurations
+    { get; internal set; }
+
     /// <summary>
     /// Guild associated with the app. For example, a developer support server.
     /// </summary>
     public ulong? GuildId { get; internal set; }
-    
+
     /// <summary>
     /// Partial object of the associated guild
     /// </summary>
     public DiscordGuild? Guild { get; internal set; }
-    
+
     /// <summary>
     /// If this app is a game sold on Discord, this field will be the id of the "Game SKU" that is created, if exists
     /// </summary>
     public ulong? PrimarySkuId { get; internal set; }
-    
+
     /// <summary>
     /// If this app is a game sold on Discord, this field will be the URL slug that links to the store page
     /// </summary>
     public string? Slug { get; internal set; }
-    
+
     /// <summary>
     /// Approximate count of guilds the app has been added to
     /// </summary>
     public int? ApproximateGuildCount { get; internal set; }
-    
+
     /// <summary>
     /// Array of redirect URIs for the app
     /// </summary>
     public string[] RedirectUris { get; internal set; }
-    
+
     /// <summary>
     /// Interactions endpoint URL for the app
     /// </summary>
     public string? InteractionsEndpointUrl { get; internal set; }
-    
+
     /// <summary>
     /// Interactions endpoint URL for the app
     /// </summary>
@@ -139,18 +140,18 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// List of tags describing the content and functionality of the app. Max of 5 tags.
     /// </summary>
     public string[]? Tags { get; internal set; }
-    
+
     /// <summary>
     /// Settings for the app's default in-app authorization link, if enabled
     /// </summary>
     public DiscordApplicationOAuth2InstallParams? InstallParams { get; internal set; }
-    
-    
+
+
     /// <summary>
     /// Default custom authorization URL for the app, if enabled
     /// </summary>
     public string? CustomInstallUrl { get; internal set; }
-    
+
     private IReadOnlyList<DiscordApplicationAsset>? Assets { get; set; }
 
     internal DiscordApplication() { }
@@ -172,9 +173,9 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         this.CoverImageHash = transportApplication.CoverImageHash;
         this.VerifyKey = transportApplication.VerifyKey;
 
-        this.Bot = transportApplication.Bot is null 
-            ? null 
-            : new DiscordUser(transportApplication.Bot) 
+        this.Bot = transportApplication.Bot is null
+            ? null
+            : new DiscordUser(transportApplication.Bot)
             {
                 Discord = this.Discord
             };
@@ -185,7 +186,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         {
             this.Guild.Discord = this.Discord;
         }
-        
+
         this.PrimarySkuId = transportApplication.PrimarySkuId;
         this.Slug = transportApplication.Slug;
         this.ApproximateGuildCount = transportApplication.ApproximateGuildCount;
@@ -196,7 +197,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         this.InstallParams = transportApplication.InstallParams;
         this.IntegrationTypeConfigurations = transportApplication.IntegrationTypeConfigurations;
         this.CustomInstallUrl = transportApplication.CustomInstallUrl;
-        
+
 
         // do team and owners
         // tbh fuck doing this properly
@@ -292,7 +293,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
 
     public string GenerateBotOAuth(DiscordPermissions permissions = DiscordPermissions.None)
     {
-        permissions &= PermissionMethods.FULL_PERMS;
+        permissions &= DiscordPermissions.All;
         // hey look, it's not all annoying and blue :P
         return new QueryUriBuilder("https://discord.com/oauth2/authorize")
             .AddParameter("client_id", this.Id.ToString(CultureInfo.InvariantCulture))
@@ -314,7 +315,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     public string GenerateOAuthUri(string? redirectUri = null, DiscordPermissions? permissions = null,
         params DiscordOAuthScope[] scopes)
     {
-        permissions &= PermissionMethods.FULL_PERMS;
+        permissions &= DiscordPermissions.All;
 
         StringBuilder scopeBuilder = new();
 
