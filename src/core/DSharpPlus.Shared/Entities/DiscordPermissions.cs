@@ -3,242 +3,302 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 using System;
+using System.Buffers.Binary;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
+using System.Text;
+
+using CommunityToolkit.HighPerformance.Helpers;
+
+using HashCode = CommunityToolkit.HighPerformance.Helpers.HashCode<ulong>;
 
 namespace DSharpPlus.Entities;
 
 /// <summary>
-/// Represents discord permissions - role permission, channel overwrites.
+/// Represents a set of Discord permissions.
 /// </summary>
-[Flags]
-public enum DiscordPermissions : ulong
+/// <remarks>
+/// This type expects to be zero-initialized. Using this type in <c>[SkipLocalsInit]</c> contexts may be dangerous.
+/// </remarks>
+public readonly partial struct DiscordPermissions
+    : IEquatable<DiscordPermissions>
 {
-    /// <summary>
-    /// No permissions.
-    /// </summary>
-    None = 0,
+    // only change ContainerWidth here, the other two constants are automatically updated for internal uses
+    // for ContainerWidth, 1 width == 128 bits.
+    private const int ContainerWidth = 1;
+    private const int ContainerElementCount = ContainerWidth * 4;
+    private const int ContainerByteCount = ContainerWidth * 16;
+
+    private readonly DiscordPermissionContainer data;
 
     /// <summary>
-    /// Allows members to create invites.
+    /// Creates a new instance of this type from exactly the specified permission.
     /// </summary>
-    CreateInvite = 1 << 0,
+    public DiscordPermissions(DiscordPermission permission)
+        => this.data.SetFlag((int)permission, true);
 
     /// <summary>
-    /// Allows members to kick others, limited by role hierarchy.
+    /// Creates a new instance of this type from the specified permissions.
     /// </summary>
-    KickMembers = 1 << 1,
+    public DiscordPermissions(params ReadOnlySpan<DiscordPermission> permissions)
+    {
+        foreach (DiscordPermission permission in permissions)
+        {
+            this.data.SetFlag((int)permission, true);
+        }
+    }
 
     /// <summary>
-    /// Allows members to ban others, limited by role hierarchy.
+    /// Creates a new instance of this type from the specified big integer. This assumes that the data is unsigned.
     /// </summary>
-    BanMembers = 1 << 2,
+    public DiscordPermissions(BigInteger permissionSet)
+    {
+        Span<byte> buffer = MemoryMarshal.Cast<uint, byte>(MemoryMarshal.CreateSpan(ref this.data[0], ContainerElementCount));
+
+        if (!permissionSet.TryWriteBytes(buffer, out _, isUnsigned: true))
+        {
+            // we don't want to fail in release mode, which would break perfectly working code because the library
+            // hasn't been updated to support a new permission or because Discord is testing in prod again.
+            // seeing this assertion in dev should be an indication to expand this type.
+            Debug.Assert(false, "The amount of permissions DSharpPlus can represent has been exceeded.");
+        }
+    }
 
     /// <summary>
-    /// Administrator permission. Overrides every other permission, allows bypassing channel-specific restrictions.
+    /// Creates a new instance of this type from the specified raw data. This assumes that the data is unsigned.
     /// </summary>
-    Administrator = 1 << 3,
+    public DiscordPermissions(scoped ReadOnlySpan<byte> raw)
+    {
+        Span<byte> buffer = MemoryMarshal.Cast<uint, byte>(MemoryMarshal.CreateSpan(ref this.data[0], ContainerElementCount * 4));
+
+        if (!raw.TryCopyTo(buffer))
+        {
+            // we don't want to fail in release mode, which would break perfectly working code because the library
+            // hasn't been updated to support a new permission or because Discord is testing in prod again.
+            // seeing this assertion in dev should be an indication to expand this type.
+            Debug.Assert(false, "The amount of permissions DSharpPlus can represent has been exceeded.");
+        }
+    }
 
     /// <summary>
-    /// Allows members to create, edit and delete channels.
+    /// A copy constructor that sets an arbitrary amount of flags to their respective values.
     /// </summary>
-    ManageChannels = 1 << 4,
+    private DiscordPermissions
+    (
+        scoped ReadOnlySpan<byte> raw,
+        ReadOnlySpan<DiscordPermission> setPermissions,
+        ReadOnlySpan<DiscordPermission> removePermissions
+    )
+        : this(raw)
+    {
+        foreach (DiscordPermission permission in setPermissions)
+        {
+            this.data.SetFlag((int)permission, true);
+        }
+
+        foreach (DiscordPermission permission in removePermissions)
+        {
+            this.data.SetFlag((int)permission, false);
+        }
+    }
 
     /// <summary>
-    /// Allows members to change (most) guild settings.
+    /// A copy constructor that sets one specific flag to the specified value.
     /// </summary>
-    ManageGuild = 1 << 5,
+    private DiscordPermissions(DiscordPermissions original, int index, bool flag)
+        : this(original.AsSpan)
+        => this.data.SetFlag(index, flag);
+
+    public static implicit operator DiscordPermissions(DiscordPermission initial) => new(initial);
 
     /// <summary>
-    /// Allows members to add a reaction to a message.
+    /// Returns an empty Discord permission set.
     /// </summary>
-    AddReactions = 1 << 6,
+    public static DiscordPermissions None => default;
 
     /// <summary>
-    /// Allows members to access the guild's audit logs.
+    /// Returns a full Discord permission set with all flags set to true.
     /// </summary>
-    ViewAuditLog = 1 << 7,
+    public static DiscordPermissions AllBitsSet
+    {
+        get
+        {
+            Span<byte> result = stackalloc byte[ContainerByteCount];
+
+            for (int i = 0; i < ContainerElementCount; i += 16)
+            {
+                Vector128.StoreUnsafe(Vector128<byte>.AllBitsSet, ref result[i]);
+            }
+
+            return new(result);
+        }
+    }
 
     /// <summary>
-    /// Allows members to use Priority Speaker functionality.
+    /// Returns a Discord permission set with all documented permissions set to true.
     /// </summary>
-    PrioritySpeaker = 1 << 8,
+    public static DiscordPermissions All { get; } = new(DiscordPermissionExtensions.GetValues());
+
+    private ReadOnlySpan<byte> AsSpan
+        => MemoryMarshal.Cast<uint, byte>(MemoryMarshal.CreateReadOnlySpan(in this.data[0], ContainerElementCount));
+
+    private bool GetFlag(int index)
+        => this.data.HasFlag(index);
 
     /// <summary>
-    /// Allows members to go live in voice channels.
+    /// Determines whether this Discord permission set is equal to the provided object.
     /// </summary>
-    Stream = 1 << 9,
+    public override bool Equals([NotNullWhen(true)] object? obj)
+        => obj is DiscordPermissions permissions && this.Equals(permissions);
 
     /// <summary>
-    /// Allows members to view (read) channels.
+    /// Determines whether this Discord permission set is equal to the provided Discord permission set.
     /// </summary>
-    ViewChannel = 1 << 10,
+    public bool Equals(DiscordPermissions other)
+    {
+        for (int i = 0; i < ContainerElementCount; i += 4)
+        {
+            Vector128<uint> current = Vector128.LoadUnsafe(in this.data[i]);
+            Vector128<uint> comparison = Vector128.LoadUnsafe(in other.data[i]);
+
+            if (current != comparison)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     /// <summary>
-    /// Allows members to send messages in channels and to create threads in a forum channel.
+    /// Returns a string representation of this permission set.
     /// </summary>
-    SendMessages = 1 << 11,
+    public override string ToString() => this.ToString("a placeholder format string that doesn't do anything");
 
     /// <summary>
-    /// Allows members to send text-to-speech messages.
+    /// Returns a string representation of this permission set, according to the provided format string.
     /// </summary>
-    SendTTSMessages = 1 << 12,
+    /// <param name="format">
+    /// Specifies the format in which the string should be created. Currently supported formats are: <br/>
+    /// - <c>raw</c>: This prints the raw, byte-wise backing data of this instance. <br/>
+    /// - <c>name</c>: This prints each flag by name, separated by commas. <br/>
+    /// - anything else will print the integer value contained in this <see cref="DiscordPermissions"/> instance.
+    /// </param>
+    public string ToString(string format)
+    {
+        if (format == "raw")
+        {
+            StringBuilder builder = new("DiscordPermissions - raw value:");
+
+            foreach (byte b in this.AsSpan)
+            {
+                _ = builder.Append(' ');
+                _ = builder.Append(b.ToString("x2", CultureInfo.InvariantCulture));
+            }
+
+            return builder.ToString();
+        }
+        else if (format == "name")
+        {
+            StringBuilder builder = new();
+
+            foreach (DiscordPermission permission in EnumeratePermissions())
+            {
+                _ = builder.Append(permission.ToStringFast());
+                _ = builder.Append(", ");
+            }
+
+            return builder.ToString().TrimEnd(", ");
+        }
+        else
+        {
+            Span<byte> buffer = stackalloc byte[ContainerElementCount * 4];
+            this.AsSpan.CopyTo(buffer);
+
+            if (!BitConverter.IsLittleEndian)
+            {
+                Span<uint> bigEndianWorkaround = MemoryMarshal.Cast<byte, uint>(buffer);
+                BinaryPrimitives.ReverseEndianness(bigEndianWorkaround, bigEndianWorkaround);
+            }
+
+            return new BigInteger(buffer, true, false).ToString(CultureInfo.InvariantCulture);
+        }
+    }
 
     /// <summary>
-    /// Allows members to delete other's messages.
+    /// Calculates a hash code for this Discord permission set. The hash code is only guaranteed to be consistent
+    /// within a process, and sharing this data across process boundaries is dangerous.
     /// </summary>
-    ManageMessages = 1 << 13,
+    public override int GetHashCode()
+        => HashCode.Combine(MemoryMarshal.Cast<uint, ulong>(MemoryMarshal.CreateReadOnlySpan(in this.data[0], ContainerElementCount)));
 
-    /// <summary>
-    /// Allows members' messages to embed sent links.
-    /// </summary>
-    EmbedLinks = 1 << 14,
+    public IEnumerable<DiscordPermission> EnumeratePermissions()
+    {
+        for (int block = 0; block < ContainerElementCount; block++)
+        {
+            uint value = this.data[block];
 
-    /// <summary>
-    /// Allows members to attach files.
-    /// </summary>
-    AttachFiles = 1 << 15,
+            for (int bit = 0; bit < 32; bit++)
+            {
+                if (BitHelper.HasFlag(value, bit))
+                {
+                    yield return (DiscordPermission)(32 * block) + bit;
+                }
+            }
+        }
 
-    /// <summary>
-    /// Allows members to read a channels' message history.
-    /// </summary>
-    ReadMessageHistory = 1 << 16,
+        yield break;
+    }
 
-    /// <summary>
-    /// Allows members to mention @everyone, @here and all roles.
-    /// </summary>
-    MentionEveryone = 1 << 17,
+    public static bool operator ==(DiscordPermissions left, DiscordPermissions right) => left.Equals(right);
+    public static bool operator !=(DiscordPermissions left, DiscordPermissions right) => !(left == right);
 
+    // we will be using an inline array from the start here so that further increases in the bit width
+    // only require increasing this number instead of switching to a new backing implementation strategy.
+    // if Discord changes the way permissions are represented in the API, this will obviously have to change.
+    //
+    // this should always be backed by a 32-bit integer, to make our life easier around popcnt and BitHelper.
+    //
     /// <summary>
-    /// Allows members to use emojis from other guilds.
+    /// Represents a container for the backing storage of Discord permissions.
     /// </summary>
-    UseExternalEmojis = 1 << 18,
+    [InlineArray(ContainerElementCount)]
+    private struct DiscordPermissionContainer
+    {
+        public uint value;
 
-    /// <summary>
-    /// Allows members to access and view the Guild Insights menu.
-    /// </summary>
-    ViewGuildInsights = 1 << 19,
+        /// <summary>
+        /// Sets a specified flag to the specific value. This function fails in debug mode if the flag was out of range.
+        /// </summary>
+        public void SetFlag(int index, bool value)
+        {
+            int fieldIndex = index >> 5;
 
-    /// <summary>
-    /// Allows members to connect to voice channels.
-    /// </summary>
-    Connect = 1 << 20,
+            Debug.Assert(fieldIndex < ContainerElementCount);
 
-    /// <summary>
-    /// Allows members to speak in voice channels.
-    /// </summary>
-    Speak = 1 << 21,
+            int bitIndex = index & 0x1F;
+            ref uint segment = ref this[fieldIndex];
+            BitHelper.SetFlag(ref segment, bitIndex, value);
+        }
 
-    /// <summary>
-    /// Allows members to mute others in voice channels.
-    /// </summary>
-    MuteMembers = 1 << 22,
+        /// <summary>
+        /// Returns the value of a specified flag. This function fails in debug mode if the flag was out of range.
+        /// </summary>
+        public readonly bool HasFlag(int index)
+        {
+            int fieldIndex = index >> 5;
 
-    /// <summary>
-    /// Allows members to deafen others in voice channels.
-    /// </summary>
-    DeafenMembers = 1 << 23,
+            Debug.Assert(fieldIndex < ContainerElementCount);
 
-    /// <summary>
-    /// Allows members to move others between voice channels they have access to.
-    /// </summary>
-    MoveMembers = 1 << 24,
-
-    /// <summary>
-    /// Allows members to use voice activity detection instead of push-to-talk.
-    /// </summary>
-    UseVoiceActivity = 1 << 25,
-
-    /// <summary>
-    /// Allows members to change their own nickname.
-    /// </summary>
-    ChangeNickname = 1 << 26,
-
-    /// <summary>
-    /// Allows members to change and remove other's nicknames.
-    /// </summary>
-    ManageNicknames = 1 << 27,
-
-    /// <summary>
-    /// Allows members to create, change and grant roles lower than their highest role.
-    /// </summary>
-    ManageRoles = 1 << 28,
-
-    /// <summary>
-    /// Allows members to create and delete webhooks.
-    /// </summary>
-    ManageWebhooks = 1 << 29,
-
-    /// <summary>
-    /// Allows members to manage guild emojis and stickers.
-    /// </summary>
-    ManageEmojisStickers = 1 << 30,
-
-    /// <summary>
-    /// Allows members to use slash and right-click commands.
-    /// </summary>
-    UseApplicationCommands = 1L << 31,
-
-    /// <summary>
-    /// Allows members to request to speak in stage channels.
-    /// </summary>
-    RequestToSpeak = 1L << 32,
-
-    /// <summary>
-    /// Allows members to create, edit and delete events.
-    /// </summary>
-    ManageEvents = 1L << 33,
-
-    /// <summary>
-    /// Allows members to manage threads.
-    /// </summary>
-    ManageThreads = 1L << 34,
-
-    /// <summary>
-    /// Allows members to create public threads.
-    /// </summary>
-    CreatePublicThreads = 1L << 35,
-
-    /// <summary>
-    /// Allows members to create private threads.
-    /// </summary>
-    CreatePrivateThreads = 1L << 36,
-
-    /// <summary>
-    /// Allows members to use stickers from other guilds.
-    /// </summary>
-    UseExternalStickers = 1L << 37,
-
-    /// <summary>
-    /// Allows members to send messages in threads.
-    /// </summary>
-    SendThreadMessages = 1L << 38,
-
-    /// <summary>
-    /// Allows members to start embedded activities.
-    /// </summary>
-    StartEmbeddedActivities = 1L << 39,
-
-    /// <summary>
-    /// Allows members to time out other members.
-    /// </summary>
-    ModerateMembers = 1L << 40,
-
-    /// <summary>
-    /// Allows members to view role subscription insights.
-    /// </summary>
-    ViewCreatorMonetizationAnalytics = 1L << 41,
-
-    /// <summary>
-    /// Allows members to use the soundboard in a voice channel.
-    /// </summary>
-    UseSoundboard = 1L << 42,
-
-    /// <summary>
-    /// Allows members to send voice messages.
-    /// </summary>
-    SendVoiceMessages = 1L << 46,
-
-    /// <summary>
-    /// Allows members to send polls.
-    /// </summary>
-    SendPolls = 1L << 49
+            int bitIndex = index & 0x1F;
+            uint segment = this[fieldIndex];
+            return BitHelper.HasFlag(segment, bitIndex);
+        }
+    }
 }

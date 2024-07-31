@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Extensions.Internal.Builders", "src\extensions\DSharpPlus.Extensions.Internal.Builders\DSharpPlus.Extensions.Internal.Builders.csproj", "{7A6F0CF2-2BB9-4AAC-95EC-8640A06DD17B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Shared.Tests", "tests\core\DSharpPlus.Shared.Tests\DSharpPlus.Shared.Tests.csproj", "{E0EB9E13-D33A-4C2A-BB87-09D2B706597A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,10 @@ Global
 		{7A6F0CF2-2BB9-4AAC-95EC-8640A06DD17B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A6F0CF2-2BB9-4AAC-95EC-8640A06DD17B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A6F0CF2-2BB9-4AAC-95EC-8640A06DD17B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0EB9E13-D33A-4C2A-BB87-09D2B706597A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0EB9E13-D33A-4C2A-BB87-09D2B706597A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0EB9E13-D33A-4C2A-BB87-09D2B706597A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0EB9E13-D33A-4C2A-BB87-09D2B706597A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,6 +87,7 @@ Global
 		{CD440954-E19A-4E94-A217-CCC1DC4AF095} = {BC8D8750-48A4-49EF-9D1F-BE4DBA5B500E}
 		{9CEC3D27-9014-48B6-910F-D25233BF8C44} = {BC8D8750-48A4-49EF-9D1F-BE4DBA5B500E}
 		{7A6F0CF2-2BB9-4AAC-95EC-8640A06DD17B} = {96A3D7EF-3576-423C-9529-60C8AE319C15}
+		{E0EB9E13-D33A-4C2A-BB87-09D2B706597A} = {21927A64-7345-4D90-9EE2-7FA4B1973AAC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {55CDA684-8900-479B-9DAE-BA3BE09B337B}

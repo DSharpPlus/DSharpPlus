@@ -2,8 +2,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+#pragma warning disable IDE0072
+
 using System;
+using System.Buffers;
 using System.Globalization;
+using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -24,16 +28,15 @@ public class DiscordPermissionConverter : JsonConverter<DiscordPermissions>
         JsonSerializerOptions options
     )
     {
-        if (reader.TokenType is not JsonTokenType.String or JsonTokenType.Number)
+        return reader.TokenType switch
         {
-            throw new JsonException("The provided permission value was provided in an unrecognized format.");
-        }
+            JsonTokenType.String => !BigInteger.TryParse(reader.GetString()!, out BigInteger permissions)
+                ? throw new JsonException("The provided permission value could not be parsed.")
+                : new DiscordPermissions(permissions),
 
-        string raw = reader.GetString()!;
-
-        return !ulong.TryParse(raw, out ulong permissions)
-            ? throw new JsonException("The provided permission value could not be parsed.")
-            : (DiscordPermissions)permissions;
+            JsonTokenType.Number => new DiscordPermissions(new BigInteger(reader.GetUInt64())),
+            _ => throw new JsonException("The provided permission value was provided in an unrecognized format.")
+        };
     }
 
     /// <inheritdoc/>
@@ -43,5 +46,5 @@ public class DiscordPermissionConverter : JsonConverter<DiscordPermissions>
         DiscordPermissions value,
         JsonSerializerOptions options
     )
-        => writer.WriteStringValue(((ulong)value).ToString(CultureInfo.InvariantCulture));
+        => writer.WriteStringValue(value.ToString());
 }
