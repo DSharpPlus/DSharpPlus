@@ -16,7 +16,7 @@ namespace DSharpPlus.Interactivity;
 /// <summary>
 /// Extension class for DSharpPlus.Interactivity
 /// </summary>
-public class InteractivityExtension
+public class InteractivityExtension : IDisposable
 {
     internal readonly ConcurrentDictionary<Type, AsyncEvent> eventDistributor = [];
     internal IClientErrorHandler errorHandler;

@@ -24,7 +24,7 @@ namespace DSharpPlus.CommandsNext;
 /// <summary>
 /// This is the class which handles command registration, management, and execution.
 /// </summary>
-public class CommandsNextExtension
+public class CommandsNextExtension : IDisposable
 {
     private CommandsNextConfiguration Config { get; }
     private HelpFormatterFactory HelpFormatter { get; }

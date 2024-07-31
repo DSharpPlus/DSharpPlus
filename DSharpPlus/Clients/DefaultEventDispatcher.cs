@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using DSharpPlus.EventArgs;
@@ -9,8 +9,6 @@ using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
-using Handler = System.Func<DSharpPlus.DiscordClient, DSharpPlus.EventArgs.DiscordEventArgs, System.IServiceProvider, System.Threading.Tasks.Task>;
 
 namespace DSharpPlus.Clients;
 
@@ -40,6 +38,7 @@ public sealed class DefaultEventDispatcher : IEventDispatcher
     }
 
     /// <inheritdoc/>
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
     public ValueTask DispatchAsync<T>(DiscordClient client, T eventArgs)
         where T : DiscordEventArgs
     {

@@ -13,7 +13,7 @@ namespace DSharpPlus.VoiceNext;
 /// <summary>
 /// Represents VoiceNext extension, which acts as Discord voice client.
 /// </summary>
-public sealed class VoiceNextExtension
+public sealed class VoiceNextExtension : IDisposable
 {
     private VoiceNextConfiguration Configuration { get; set; }
 

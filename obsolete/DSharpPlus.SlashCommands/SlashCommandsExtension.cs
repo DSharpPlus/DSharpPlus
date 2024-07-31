@@ -20,7 +20,7 @@ namespace DSharpPlus.SlashCommands;
 /// A class that handles slash commands for a client.
 /// </summary>
 [Obsolete("DSharpPlus.SlashCommands is obsolete. Please consider using the new DSharpPlus.Commands extension instead.")]
-public sealed partial class SlashCommandsExtension
+public sealed partial class SlashCommandsExtension : IDisposable
 {
     //A list of methods for top level commands
     private static List<CommandMethod> commandMethods { get; set; } = [];
