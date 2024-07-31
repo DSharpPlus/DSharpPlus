@@ -18,7 +18,7 @@ public record TextCommandConfiguration
     /// <summary>
     /// Disables the exception thrown when a command is not found.
     /// </summary>
-    public bool DisableCommandNotFoundException { get; init; }
+    public bool EnableCommandNotFoundException { get; init; }
 
     /// <summary>
     /// Whether to suppress the missing message content intent warning.
