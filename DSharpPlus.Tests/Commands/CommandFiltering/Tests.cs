@@ -22,9 +22,9 @@ public class Tests
     });
 
     private static CommandsExtension extension = null!;
-    private static TextCommandProcessor textCommandProcessor = null!;
-    private static UserCommandProcessor userCommandProcessor = null!;
-    private static MessageCommandProcessor messageCommandProcessor = null!;
+    private static readonly TextCommandProcessor textCommandProcessor = new();
+    private static readonly UserCommandProcessor userCommandProcessor = new();
+    private static readonly MessageCommandProcessor messageCommandProcessor = new();
 
     [OneTimeSetUp]
     public static void CreateExtensionAsync()
