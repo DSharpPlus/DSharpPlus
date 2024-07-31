@@ -92,9 +92,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// <summary>
     /// Default scopes and permissions for each supported installation context.
     /// </summary>
-    public IReadOnlyDictionary<DiscordApplicationIntegrationType, DiscordApplicationIntegrationTypeConfiguration>?
-        IntegrationTypeConfigurations
-    { get; internal set; }
+    public IReadOnlyDictionary<DiscordApplicationIntegrationType, DiscordApplicationIntegrationTypeConfiguration>? IntegrationTypeConfigurations { get; internal set; }
 
     /// <summary>
     /// Guild associated with the app. For example, a developer support server.
