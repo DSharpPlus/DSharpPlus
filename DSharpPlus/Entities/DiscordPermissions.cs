@@ -4,8 +4,6 @@ namespace DSharpPlus.Entities;
 
 public static class PermissionMethods
 {
-    internal static DiscordPermissions FULL_PERMS { get; } = (DiscordPermissions)0x0006_7FFF_FFFF_FFFF;
-    
     /// <summary>
     /// Calculates whether this permission set contains the given permission.
     /// </summary>
@@ -64,12 +62,6 @@ public enum DiscordPermissions : long
     /// </summary>
     [PermissionString("No permissions")]
     None = 0x0000000000000000,
-
-    /// <summary>
-    /// Indicates all permissions are granted
-    /// </summary>
-    [PermissionString("All permissions")]
-    All = 703687441776639,
 
     /// <summary>
     /// Allows creation of instant channel invites.
@@ -352,7 +344,7 @@ public enum DiscordPermissions : long
     /// </summary>
     [PermissionString("Send Polls")]
     SendPolls = 0x0002000000000000,
-    
+
     /// <summary>
     /// Allows user-installed apps to send public responses.
     /// When disabled, users will still be allowed to use their apps but the responses will be ephemeral.
@@ -360,6 +352,13 @@ public enum DiscordPermissions : long
     /// </summary>
     [PermissionString("Use External Apps")]
     UseExternalApps = 0x0004000000000000,
+
+    /// <summary>
+    /// Indicates all permissions are granted
+    /// </summary>
+    [PermissionString("All permissions")]
+    // TODO: When Discord adds a new permission, update this and prepend the new permission.
+    All = UseExternalApps | SendPolls | SendVoiceMessages | UseExternalSounds | CreateEvents | CreateGuildExpressions | UseSoundboard | ViewCreatorMonetizationAnalytics | ModerateMembers | StartEmbeddedActivities | SendMessagesInThreads | UseExternalStickers | CreatePrivateThreads | CreatePublicThreads | ManageThreads | ManageEvents | RequestToSpeak | UseApplicationCommands | ManageEmojis | ManageWebhooks | ManageRoles | ManageNicknames | ChangeNickname | UseVoiceDetection | MoveMembers | DeafenMembers | MuteMembers | Speak | UseVoice | UseExternalEmojis | MentionEveryone | ReadMessageHistory | AttachFiles | EmbedLinks | ManageMessages | SendTtsMessages | SendMessages | AccessChannels | Stream | PrioritySpeaker | ViewAuditLog | AddReactions | ManageGuild | ManageChannels | Administrator | BanMembers | KickMembers | CreateInstantInvite,
 }
 
 /// <summary>

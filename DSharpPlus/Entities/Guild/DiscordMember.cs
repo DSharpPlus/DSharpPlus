@@ -604,7 +604,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     {
         if (this.Guild.OwnerId == this.Id)
         {
-            return PermissionMethods.FULL_PERMS;
+            return DiscordPermissions.All;
         }
 
         DiscordPermissions perms;
@@ -617,6 +617,6 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         perms |= this.Roles.Aggregate(DiscordPermissions.None, (c, role) => c | role.Permissions);
 
         // Administrator grants all permissions and cannot be overridden
-        return (perms & DiscordPermissions.Administrator) == DiscordPermissions.Administrator ? PermissionMethods.FULL_PERMS : perms;
+        return (perms & DiscordPermissions.Administrator) == DiscordPermissions.Administrator ? DiscordPermissions.All : perms;
     }
 }
