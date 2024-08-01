@@ -411,4 +411,12 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         DiscordOAuthScope.RelationshipsRead => "relationships.read",
         _ => null
     };
+    
+    //TODO: implement pagination and turn this into IAsyncEnumerable
+    /// <summary>
+    /// List all stock keeping units belonging to this application
+    /// </summary>
+    /// <returns></returns>
+    public async ValueTask<IReadOnlyList<DiscordStockKeepingUnit>> ListStockKeepingUnitsAsync() 
+        => await this.Discord.ApiClient.ListStockKeepingUnitsAsync(this.Id);
 }

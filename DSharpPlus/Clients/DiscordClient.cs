@@ -224,6 +224,9 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.events[typeof(ThreadListSyncedEventArgs)] = new AsyncEvent<DiscordClient, ThreadListSyncedEventArgs>(error);
         this.events[typeof(ThreadMemberUpdatedEventArgs)] = new AsyncEvent<DiscordClient, ThreadMemberUpdatedEventArgs>(error);
         this.events[typeof(ThreadMembersUpdatedEventArgs)] = new AsyncEvent<DiscordClient, ThreadMembersUpdatedEventArgs>(error);
+        this.events[typeof(EntitlementCreatedEventArgs)] = new AsyncEvent<DiscordClient, EntitlementCreatedEventArgs>(error);
+        this.events[typeof(EntitlementUpdatedEventArgs)] = new AsyncEvent<DiscordClient, EntitlementUpdatedEventArgs>(error);
+        this.events[typeof(EntitlementDeletedEventArgs)] = new AsyncEvent<DiscordClient, EntitlementDeletedEventArgs>(error);
 
         this.guilds.Clear();
     }

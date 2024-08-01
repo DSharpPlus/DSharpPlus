@@ -23,8 +23,10 @@ internal static class Endpoints
     public const string CHANNELS = "channels";
     public const string COMMANDS = "commands";
     public const string CONNECTIONS = "connections";
+    public const string CONSUME = "consume";
     public const string CROSSPOST = "crosspost";
     public const string EMOJIS = "emojis";
+    public const string ENTITLEMENTS = "entitlements";
     public const string EVENTS = "scheduled-events";
     public const string FOLLOWERS = "followers";
     public const string GATEWAY = "gateway";
@@ -56,6 +58,7 @@ internal static class Endpoints
     public const string ROLES = "roles";
     public const string RULES = "rules";
     public const string SEARCH = "search";
+    public const string SKUS = "skus";
     public const string SLACK = "slack";
     public const string STAGE_INSTANCES = "stage-instances";
     public const string STICKERPACKS = "sticker-packs";
