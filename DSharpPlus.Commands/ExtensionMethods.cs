@@ -18,7 +18,7 @@ public static class ExtensionMethods
     /// <param name="builder">The client builder to register the extension with.</param>
     /// <param name="setup">Any setup code you want to run on the extension, such as registering commands and converters.</param>
     /// <param name="configuration">The configuration to use for the extension.</param>
-    public static void UseCommands
+    public static DiscordClientBuilder UseCommands
     (
         this DiscordClientBuilder builder,
         Action<CommandsExtension> setup,
