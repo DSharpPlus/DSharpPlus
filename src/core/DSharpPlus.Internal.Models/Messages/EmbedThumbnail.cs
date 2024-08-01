@@ -6,18 +6,18 @@ using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Models;
 
-/// <inheritdoc cref="IMessageReference" />
-public sealed record MessageReference : IMessageReference
+/// <inheritdoc cref="IEmbedThumbnail" />
+public sealed record EmbedThumbnail : IEmbedThumbnail
 {
     /// <inheritdoc/>
-    public Optional<Snowflake> MessageId { get; init; }
+    public required string Url { get; init; }
 
     /// <inheritdoc/>
-    public Optional<Snowflake> ChannelId { get; init; }
+    public Optional<string> ProxyUrl { get; init; }
 
     /// <inheritdoc/>
-    public Optional<Snowflake> GuildId { get; init; }
+    public Optional<int> Height { get; init; }
 
     /// <inheritdoc/>
-    public Optional<bool> FailIfNotExists { get; init; }
+    public Optional<int> Width { get; init; }
 }

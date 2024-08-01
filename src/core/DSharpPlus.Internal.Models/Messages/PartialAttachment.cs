@@ -9,14 +9,17 @@ using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Models;
 
-/// <inheritdoc cref="IAttachment" />
-public sealed record Attachment : IAttachment
+/// <inheritdoc cref="IPartialAttachment" />
+public sealed record PartialAttachment : IPartialAttachment
 {
     /// <inheritdoc/>
-    public required Snowflake Id { get; init; }
+    public Optional<Snowflake> Id { get; init; }
 
     /// <inheritdoc/>
-    public required string Filename { get; init; }
+    public Optional<string> Filename { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<string> Title { get; init; }
 
     /// <inheritdoc/>
     public Optional<string> Description { get; init; }
@@ -25,13 +28,13 @@ public sealed record Attachment : IAttachment
     public Optional<string> ContentType { get; init; }
 
     /// <inheritdoc/>
-    public required int Size { get; init; }
+    public Optional<int> Size { get; init; }
 
     /// <inheritdoc/>
-    public required string Url { get; init; }
+    public Optional<string> Url { get; init; }
 
     /// <inheritdoc/>
-    public required string ProxyUrl { get; init; }
+    public Optional<string> ProxyUrl { get; init; }
 
     /// <inheritdoc/>
     public Optional<int?> Height { get; init; }

@@ -4,26 +4,28 @@
 
 using System.Collections.Generic;
 
-using DSharpPlus.Entities;
 using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Models;
 
-/// <inheritdoc cref="ICreatePoll" />
-public sealed record CreatePoll : ICreatePoll
+/// <inheritdoc cref="IReaction" />
+public sealed record Reaction : IReaction
 {
     /// <inheritdoc/>
-    public required IPollMedia Question { get; init; }
+    public required int Count { get; init; }
 
     /// <inheritdoc/>
-    public required IReadOnlyList<IPollAnswer> Answers { get; init; }
+    public required IReactionCountDetails CountDetails { get; init; }
 
     /// <inheritdoc/>
-    public Optional<int> Duration { get; init; }
+    public required bool Me { get; init; }
 
     /// <inheritdoc/>
-    public Optional<bool> AllowMultiselect { get; init; }
+    public required bool MeBurst { get; init; }
 
     /// <inheritdoc/>
-    public Optional<DiscordPollLayoutType> LayoutType { get; init; }
+    public required IPartialEmoji Emoji { get; init; }
+
+    /// <inheritdoc/>
+    public required IReadOnlyList<int> BurstColors { get; init; }
 }

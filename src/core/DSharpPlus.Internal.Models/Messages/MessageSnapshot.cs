@@ -6,15 +6,9 @@ using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Models;
 
-/// <inheritdoc cref="IEmbedFooter" />
-public sealed record EmbedFooter : IEmbedFooter
+/// <inheritdoc cref="IMessageSnapshot" />
+public sealed record MessageSnapshot : IMessageSnapshot
 {
     /// <inheritdoc/>
-    public required string Text { get; init; }
-
-    /// <inheritdoc/>
-    public Optional<string> IconUrl { get; init; }
-
-    /// <inheritdoc/>
-    public Optional<string> ProxyIconUrl { get; init; }
+    public required IPartialMessage Message { get; init; }
 }

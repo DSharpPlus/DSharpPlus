@@ -27,11 +27,8 @@ partial class ServiceCollectionExtensions
                 options.AddModel<IEditCurrentApplicationPayload, EditCurrentApplicationPayload>();
                 options.AddModel<ICreateAutoModerationRulePayload, CreateAutoModerationRulePayload>();
                 options.AddModel<IModifyAutoModerationRulePayload, ModifyAutoModerationRulePayload>();
-                options.AddModel<IBulkDeleteMessagesPayload, BulkDeleteMessagesPayload>();
                 options.AddModel<ICreateChannelInvitePayload, CreateChannelInvitePayload>();
-                options.AddModel<ICreateMessagePayload, CreateMessagePayload>();
                 options.AddModel<IEditChannelPermissionsPayload, EditChannelPermissionsPayload>();
-                options.AddModel<IEditMessagePayload, EditMessagePayload>();
                 options.AddModel<IFollowAnnouncementChannelPayload, FollowAnnouncementChannelPayload>();
                 options.AddModel<IForumAndMediaThreadMessage, ForumAndMediaThreadMessage>();
                 options.AddModel<IGroupDMAddRecipientPayload, GroupDMAddRecipientPayload>();
@@ -41,7 +38,9 @@ partial class ServiceCollectionExtensions
                 options.AddModel<IStartThreadFromMessagePayload, StartThreadFromMessagePayload>();
                 options.AddModel<IStartThreadInForumOrMediaChannelPayload, StartThreadInForumOrMediaChannelPayload>();
                 options.AddModel<IStartThreadWithoutMessagePayload, StartThreadWithoutMessagePayload>();
+                options.AddModel<ICreateApplicationEmojiPayload, CreateApplicationEmojiPayload>();
                 options.AddModel<ICreateGuildEmojiPayload, CreateGuildEmojiPayload>();
+                options.AddModel<IModifyApplicationEmojiPayload, ModifyApplicationEmojiPayload>();
                 options.AddModel<IModifyGuildEmojiPayload, ModifyGuildEmojiPayload>();
                 options.AddModel<ICreateTestEntitlementPayload, CreateTestEntitlementPayload>();
                 options.AddModel<IAddGuildMemberPayload, AddGuildMemberPayload>();
@@ -67,6 +66,9 @@ partial class ServiceCollectionExtensions
                 options.AddModel<ICreateFollowupMessagePayload, CreateFollowupMessagePayload>();
                 options.AddModel<IEditFollowupMessagePayload, EditFollowupMessagePayload>();
                 options.AddModel<IEditInteractionResponsePayload, EditInteractionResponsePayload>();
+                options.AddModel<IBulkDeleteMessagesPayload, BulkDeleteMessagesPayload>();
+                options.AddModel<ICreateMessagePayload, CreateMessagePayload>();
+                options.AddModel<IEditMessagePayload, EditMessagePayload>();
                 options.AddModel<ICreateGuildScheduledEventPayload, CreateGuildScheduledEventPayload>();
                 options.AddModel<IModifyGuildScheduledEventPayload, ModifyGuildScheduledEventPayload>();
                 options.AddModel<ICreateStageInstancePayload, CreateStageInstancePayload>();

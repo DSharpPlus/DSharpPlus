@@ -6,18 +6,12 @@ using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Models;
 
-/// <inheritdoc cref="IEmbedVideo" />
-public sealed record EmbedVideo : IEmbedVideo
+/// <inheritdoc cref="IEmbedProvider" />
+public sealed record EmbedProvider : IEmbedProvider
 {
     /// <inheritdoc/>
+    public Optional<string> Name { get; init; }
+
+    /// <inheritdoc/>
     public Optional<string> Url { get; init; }
-
-    /// <inheritdoc/>
-    public Optional<string> ProxyUrl { get; init; }
-
-    /// <inheritdoc/>
-    public Optional<int> Height { get; init; }
-
-    /// <inheritdoc/>
-    public Optional<int> Width { get; init; }
 }

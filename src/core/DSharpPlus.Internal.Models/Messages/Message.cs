@@ -77,10 +77,13 @@ public sealed record Message : IMessage
     public Optional<Snowflake> ApplicationId { get; init; }
 
     /// <inheritdoc/>
+    public Optional<DiscordMessageFlags> Flags { get; init; }
+
+    /// <inheritdoc/>
     public Optional<IMessageReference> MessageReference { get; init; }
 
     /// <inheritdoc/>
-    public Optional<DiscordMessageFlags> Flags { get; init; }
+    public Optional<IReadOnlyList<IMessageSnapshot>> MessageSnapshots { get; init; }
 
     /// <inheritdoc/>
     public Optional<IPartialMessage?> ReferencedMessage { get; init; }

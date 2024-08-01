@@ -2,22 +2,23 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+using DSharpPlus.Entities;
 using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Models;
 
-/// <inheritdoc cref="IEmbedThumbnail" />
-public sealed record EmbedThumbnail : IEmbedThumbnail
+/// <inheritdoc cref="IChannelMention" />
+public sealed record ChannelMention : IChannelMention
 {
     /// <inheritdoc/>
-    public required string Url { get; init; }
+    public required Snowflake Id { get; init; }
 
     /// <inheritdoc/>
-    public Optional<string> ProxyUrl { get; init; }
+    public required Snowflake GuildId { get; init; }
 
     /// <inheritdoc/>
-    public Optional<int> Height { get; init; }
+    public required DiscordChannelType Type { get; init; }
 
     /// <inheritdoc/>
-    public Optional<int> Width { get; init; }
+    public required string Name { get; init; }
 }

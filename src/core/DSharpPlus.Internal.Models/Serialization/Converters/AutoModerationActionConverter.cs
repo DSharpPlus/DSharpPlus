@@ -32,24 +32,42 @@ public class AutoModerationActionConverter : JsonConverter<IAutoModerationAction
         if
         (
             !JsonDocument.TryParseValue(ref reader, out JsonDocument? document)
-            || document.RootElement.TryGetProperty("type", out JsonElement property)
-            || !property.TryGetInt32(out int type)
-            || document.RootElement.TryGetProperty("metadata", out JsonElement metadata)
+                || document.RootElement.TryGetProperty("type", out JsonElement typeElement)
+                || !typeElement.TryGetInt32(out int type)
         )
         {
             throw new JsonException("The provided JSON object was malformed.");
         }
 
-        Optional<IAutoModerationActionMetadata> data = (DiscordAutoModerationActionType)type switch
+        Optional<IAutoModerationActionMetadata> data;
+
+        // these three types have associated metadata, deserialize accordingly
+        if
+        (
+            (DiscordAutoModerationActionType)type is DiscordAutoModerationActionType.BlockMessage
+                or DiscordAutoModerationActionType.SendAlertMessage
+                or DiscordAutoModerationActionType.Timeout
+            && document.RootElement.TryGetProperty("metadata", out JsonElement metadata)
+        )
         {
-            DiscordAutoModerationActionType.BlockMessage
-                => new(metadata.Deserialize<IBlockMessageActionMetadata>(options)!),
-            DiscordAutoModerationActionType.SendAlertMessage
-                => new(metadata.Deserialize<ISendAlertMessageActionMetadata>(options)!),
-            DiscordAutoModerationActionType.Timeout
-                => new(metadata.Deserialize<ITimeoutActionMetadata>(options)!),
-            _ => new()
-        };
+#pragma warning disable IDE0072
+            data = (DiscordAutoModerationActionType)type switch
+            {
+                DiscordAutoModerationActionType.BlockMessage
+                    => new(metadata.Deserialize<IBlockMessageActionMetadata>(options)!),
+                DiscordAutoModerationActionType.SendAlertMessage
+                    => new(metadata.Deserialize<ISendAlertMessageActionMetadata>(options)!),
+                DiscordAutoModerationActionType.Timeout
+                    => new(metadata.Deserialize<ITimeoutActionMetadata>(options)!),
+                _ => Optional<IAutoModerationActionMetadata>.None
+            };
+#pragma warning restore IDE0072
+        }
+        // everyone else doesn't have metadata, good job, we made it through
+        else
+        {
+            data = Optional<IAutoModerationActionMetadata>.None;
+        }
 
         document.Dispose();
 

@@ -124,15 +124,20 @@ public interface IPartialMessage
     public Optional<Snowflake> ApplicationId { get; }
 
     /// <summary>
+    /// Additional flags for this message.
+    /// </summary>
+    public Optional<DiscordMessageFlags> Flags { get; }
+
+    /// <summary>
     /// A message reference showing the source of a crosspost, channel follow, pin, reply or thread
     /// creation/start message.
     /// </summary>
     public Optional<IMessageReference> MessageReference { get; }
 
     /// <summary>
-    /// Additional flags for this message.
+    /// Contains message snapshot objects associated with the <see cref="MessageReference"/>.
     /// </summary>
-    public Optional<DiscordMessageFlags> Flags { get; }
+    public Optional<IReadOnlyList<IMessageSnapshot>> MessageSnapshots { get; }
 
     /// <summary>
     /// The message associated with the <see cref="MessageReference"/>.

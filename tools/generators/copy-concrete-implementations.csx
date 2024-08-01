@@ -89,7 +89,7 @@ AnsiConsole.MarkupLine
       Extracts the required concrete types for DSharpPlus.Extensions.Internal.Builders to remove dependency on concrete implementations.
     
     """
-)
+);
 
 if (changes.Removed.Any())
 {

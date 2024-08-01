@@ -6,18 +6,15 @@ using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Models;
 
-/// <inheritdoc cref="IEmbedImage" />
-public sealed record EmbedImage : IEmbedImage
+/// <inheritdoc cref="IEmbedFooter" />
+public sealed record EmbedFooter : IEmbedFooter
 {
     /// <inheritdoc/>
-    public required string Url { get; init; }
+    public required string Text { get; init; }
 
     /// <inheritdoc/>
-    public Optional<string> ProxyUrl { get; init; }
+    public Optional<string> IconUrl { get; init; }
 
     /// <inheritdoc/>
-    public Optional<int> Height { get; init; }
-
-    /// <inheritdoc/>
-    public Optional<int> Width { get; init; }
+    public Optional<string> ProxyIconUrl { get; init; }
 }

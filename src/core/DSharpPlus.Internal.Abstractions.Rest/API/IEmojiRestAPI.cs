@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Abstractions.Rest.Payloads;
+using DSharpPlus.Internal.Abstractions.Rest.Responses;
 using DSharpPlus.Results;
 
 namespace DSharpPlus.Internal.Abstractions.Rest.API;
@@ -97,6 +98,84 @@ public interface IEmojiRestAPI
         Snowflake guildId,
         Snowflake emojiId,
         string? reason = null,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
+    /// Lists all emojis belonging to the given application.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of the current application.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    public ValueTask<Result<ListApplicationEmojisResponse>> ListApplicationEmojisAsync
+    (
+        Snowflake applicationId,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
+    /// Returns a specified emoji from the given application.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of the current application.</param>
+    /// <param name="emojiId">The snowflake identifier of the requested emoji.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    public ValueTask<Result<IEmoji>> GetApplicationEmojiAsync
+    (
+        Snowflake applicationId,
+        Snowflake emojiId,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
+    /// Creates a new emoji for the given application.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of the current application.</param>
+    /// <param name="payload">The payload containing the new emoji.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns>The newly created emoji.</returns>
+    public ValueTask<Result<IEmoji>> CreateApplicationEmojiAsync
+    (
+        Snowflake applicationId,
+        ICreateApplicationEmojiPayload payload,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
+    /// Modifies an existing emoji of the given application.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of the current application.</param>
+    /// <param name="emojiId">The snowflake identifier of the emoji to modify.</param>
+    /// <param name="payload">The payload containing updated information.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns>The newly modified emoji.</returns>
+    public ValueTask<Result<IEmoji>> ModifyApplicationEmojiAsync
+    (
+        Snowflake applicationId,
+        Snowflake emojiId,
+        IModifyApplicationEmojiPayload payload,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
+    /// Deletes an existing emoji of the given application.
+    /// </summary>
+    /// <param name="applicationId">The snowflake identifier of the current application.</param>
+    /// <param name="emojiId">The snowflake identifier of the emoji to delete.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns>A value indicating whether the deletion was successful.</returns>
+    public ValueTask<Result> DeleteApplicationEmojiAsync
+    (
+        Snowflake applicationId,
+        Snowflake emojiId,
         RequestInfo info = default,
         CancellationToken ct = default
     );

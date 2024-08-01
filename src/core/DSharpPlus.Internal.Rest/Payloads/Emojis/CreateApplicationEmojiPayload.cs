@@ -2,19 +2,16 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-using DSharpPlus.Internal.Abstractions.Models;
+using DSharpPlus.Internal.Abstractions.Rest.Payloads;
 
-namespace DSharpPlus.Internal.Models;
+namespace DSharpPlus.Internal.Rest.Payloads;
 
-/// <inheritdoc cref="IEmbedField" />
-public sealed record EmbedField : IEmbedField
+/// <inheritdoc cref="ICreateApplicationEmojiPayload" />
+public sealed record CreateApplicationEmojiPayload : ICreateApplicationEmojiPayload
 {
     /// <inheritdoc/>
     public required string Name { get; init; }
 
     /// <inheritdoc/>
-    public required string Value { get; init; }
-
-    /// <inheritdoc/>
-    public Optional<bool> Inline { get; init; }
+    public required ImageData Image { get; init; }
 }

@@ -24,6 +24,11 @@ public interface IPartialAttachment
     public Optional<string> Filename { get; }
 
     /// <summary>
+    /// The attachment's title.
+    /// </summary>
+    public Optional<string> Title { get; }
+
+    /// <summary>
     /// The file description, up to 1024 characters.
     /// </summary>
     public Optional<string> Description { get; }

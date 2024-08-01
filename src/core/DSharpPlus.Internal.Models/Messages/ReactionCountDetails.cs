@@ -6,18 +6,12 @@ using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Models;
 
-/// <inheritdoc cref="IEmbedAuthor" />
-public sealed record EmbedAuthor : IEmbedAuthor
+/// <inheritdoc cref="IReactionCountDetails" />
+public sealed record ReactionCountDetails : IReactionCountDetails
 {
     /// <inheritdoc/>
-    public required string Name { get; init; }
+    public required int Burst { get; init; }
 
     /// <inheritdoc/>
-    public Optional<string> Url { get; init; }
-
-    /// <inheritdoc/>
-    public Optional<string> IconUrl { get; init; }
-
-    /// <inheritdoc/>
-    public Optional<string> ProxyIconUrl { get; init; }
+    public required int Normal { get; init; }
 }

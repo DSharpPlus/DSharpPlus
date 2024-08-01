@@ -17,14 +17,14 @@ using DSharpPlus.Results;
 namespace DSharpPlus.Extensions.Internal.Builders.Extensions;
 
 /// <summary>
-/// Contains extension methods on <see cref="IChannelRestAPI"/> to enable using builders.
+/// Contains extension methods on <see cref="IMessageRestAPI"/> to enable using builders.
 /// </summary>
-public static class ChannelRestAPIExtensions
+public static class MessageRestAPIExtensions
 {
     /// <summary>
     /// Creates a new message comprising the specified embed in a channel.
     /// </summary>
-    /// <param name="underlying">The underlying channel API.</param>
+    /// <param name="underlying">The underlying message API.</param>
     /// <param name="channelId">The snowflake identifier of the message's target channel.</param>
     /// <param name="embed">The embed this message is to be comprised of.</param>
     /// <param name="info">Additional instructions regarding this request.</param>
@@ -32,7 +32,7 @@ public static class ChannelRestAPIExtensions
     /// <returns>The newly created message object.</returns>
     public static async ValueTask<Result<IMessage>> SendEmbedAsync
     (
-        this IChannelRestAPI underlying,
+        this IMessageRestAPI underlying,
         Snowflake channelId,
         EmbedBuilder embed,
         RequestInfo info = default,
@@ -61,7 +61,7 @@ public static class ChannelRestAPIExtensions
     /// <summary>
     /// Modifies the specified message to comprise the specified embed. This will only update embeds for this message.
     /// </summary>
-    /// <param name="underlying">The underlying channel API.</param>
+    /// <param name="underlying">The underlying message API.</param>
     /// <param name="channelId">The snowflake identifier of the channel this message was sent in.</param>
     /// <param name="messageId">The snowflake identifier of the message to modify with the embed.</param>
     /// <param name="embed">The embed this message is to be comprised of.</param>
@@ -70,7 +70,7 @@ public static class ChannelRestAPIExtensions
     /// <returns>The newly modified message object.</returns>
     public static async ValueTask<Result<IMessage>> ModifyEmbedAsync
     (
-        this IChannelRestAPI underlying,
+        this IMessageRestAPI underlying,
         Snowflake channelId,
         Snowflake messageId,
         EmbedBuilder embed,

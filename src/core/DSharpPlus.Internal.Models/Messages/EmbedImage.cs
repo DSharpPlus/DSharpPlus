@@ -6,15 +6,18 @@ using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Models;
 
-/// <inheritdoc cref="IReaction" />
-public sealed record Reaction : IReaction
+/// <inheritdoc cref="IEmbedImage" />
+public sealed record EmbedImage : IEmbedImage
 {
     /// <inheritdoc/>
-    public required int Count { get; init; }
+    public required string Url { get; init; }
 
     /// <inheritdoc/>
-    public required bool Me { get; init; }
+    public Optional<string> ProxyUrl { get; init; }
 
     /// <inheritdoc/>
-    public required IPartialEmoji Emoji { get; init; }
+    public Optional<int> Height { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<int> Width { get; init; }
 }

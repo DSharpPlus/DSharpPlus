@@ -24,14 +24,14 @@ public interface ICreatePoll
     public IReadOnlyList<IPollAnswer> Answers { get; }
 
     /// <summary>
-    /// The duration in hours this poll should last; up to 7 days or 168 hours.
+    /// The duration in hours this poll should last; up to 32 days or 768 hours. Defaults to one day or 24 hours.
     /// </summary>
-    public int Duration { get; }
+    public Optional<int> Duration { get; }
 
     /// <summary>
-    /// Specifies whether this poll allows selecting multiple answers.
+    /// Specifies whether this poll allows selecting multiple answers. Defaults to false.
     /// </summary>
-    public bool AllowMultiselect { get; }
+    public Optional<bool> AllowMultiselect { get; }
 
     /// <summary>
     /// The layout type of this poll. "Defaults to... DEFAULT!" - Discord.

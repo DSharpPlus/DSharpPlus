@@ -6,18 +6,18 @@ using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Models;
 
-/// <inheritdoc cref="IRoleSubscriptionData" />
-public sealed record RoleSubscriptionData : IRoleSubscriptionData
+/// <inheritdoc cref="IEmbedAuthor" />
+public sealed record EmbedAuthor : IEmbedAuthor
 {
     /// <inheritdoc/>
-    public required Snowflake RoleSubscriptionListingId { get; init; }
+    public required string Name { get; init; }
 
     /// <inheritdoc/>
-    public required string TierName { get; init; }
+    public Optional<string> Url { get; init; }
 
     /// <inheritdoc/>
-    public required int TotalMonthsSubscribed { get; init; }
+    public Optional<string> IconUrl { get; init; }
 
     /// <inheritdoc/>
-    public required bool IsRenewal { get; init; }
+    public Optional<string> ProxyIconUrl { get; init; }
 }
