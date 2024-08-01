@@ -8,10 +8,12 @@ using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using NonBlocking;
+
 namespace DSharpPlus.Net.Serialization;
 
 /// <summary>
-/// Used for a <see cref="Dictionary{TKey,TValue}"/> or <see cref="ConcurrentDictionary{TKey,TValue}"/> mapping
+/// Used for a <see cref="Dictionary{TKey,TValue}"/> or <see cref="NonBlockingDictionary{TKey,TValue}"/> mapping
 /// <see cref="ulong"/> to any class extending <see cref="SnowflakeObject"/> (or, as a special case,
 /// <see cref="DiscordVoiceState"/>). When serializing, discards the ulong
 /// keys and writes only the values. When deserializing, pulls the keys from <see cref="SnowflakeObject.Id"/> (or,
@@ -59,7 +61,7 @@ internal class SnowflakeArrayAsDictionaryJsonConverter : JsonConverter
     public override bool CanConvert(Type objectType)
     {
         Type genericTypedef = objectType.GetGenericTypeDefinition();
-        if (genericTypedef != typeof(Dictionary<,>) && genericTypedef != typeof(ConcurrentDictionary<,>))
+        if (genericTypedef != typeof(Dictionary<,>) && genericTypedef != typeof(NonBlockingDictionary<,>))
         {
             return false;
         }

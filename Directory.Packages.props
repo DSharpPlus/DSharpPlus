@@ -1,5 +1,6 @@
 <Project>
   <ItemGroup>
+    <PackageVersion Include="AG.NonBlocking" Version="2.1.1" />
     <PackageVersion Include="CommunityToolkit.HighPerformance" Version="8.2.2" />
     <PackageVersion Include="ConcurrentHashSet" Version="1.3.0" />
     <PackageVersion Include="DSharpPlus.VoiceNext.Natives" Version="1.0.0" />

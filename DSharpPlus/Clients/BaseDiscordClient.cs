@@ -11,6 +11,8 @@ using DSharpPlus.Net;
 
 using Microsoft.Extensions.Logging;
 
+using NonBlocking;
+
 namespace DSharpPlus;
 
 /// <summary>
@@ -54,7 +56,7 @@ public abstract class BaseDiscordClient : IDisposable
     /// <summary>
     /// Gets the cached users for this client.
     /// </summary>
-    protected internal ConcurrentDictionary<ulong, DiscordUser> UserCache { get; }
+    protected internal NonBlockingDictionary<ulong, DiscordUser> UserCache { get; }
 
     /// <summary>
     /// Gets the list of available voice regions. Note that this property will not contain VIP voice regions.
@@ -65,15 +67,15 @@ public abstract class BaseDiscordClient : IDisposable
     /// <summary>
     /// Gets the list of available voice regions. This property is meant as a way to modify <see cref="VoiceRegions"/>.
     /// </summary>
-    protected internal ConcurrentDictionary<string, DiscordVoiceRegion> InternalVoiceRegions { get; set; }
+    protected internal NonBlockingDictionary<string, DiscordVoiceRegion> InternalVoiceRegions { get; set; }
 
     /// <summary>
     /// Initializes this Discord API client.
     /// </summary>
     internal BaseDiscordClient()
     {
-        this.UserCache = new ConcurrentDictionary<ulong, DiscordUser>();
-        this.InternalVoiceRegions = new ConcurrentDictionary<string, DiscordVoiceRegion>();
+        this.UserCache = new NonBlockingDictionary<ulong, DiscordUser>();
+        this.InternalVoiceRegions = new NonBlockingDictionary<string, DiscordVoiceRegion>();
         
         Assembly a = typeof(DiscordClient).GetTypeInfo().Assembly;
 

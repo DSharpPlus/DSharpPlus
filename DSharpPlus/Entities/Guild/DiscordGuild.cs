@@ -16,6 +16,8 @@ using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 
+using NonBlocking;
+
 namespace DSharpPlus.Entities;
 
 /// <summary>
@@ -294,7 +296,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
     [JsonProperty("guild_scheduled_events")]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-    internal ConcurrentDictionary<ulong, DiscordScheduledGuildEvent> scheduledEvents = new();
+    internal NonBlockingDictionary<ulong, DiscordScheduledGuildEvent> scheduledEvents = new();
 
     /// <summary>
     /// Gets a collection of this guild's roles.
@@ -304,7 +306,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
     [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-    internal ConcurrentDictionary<ulong, DiscordRole> roles;
+    internal NonBlockingDictionary<ulong, DiscordRole> roles;
 
     /// <summary>
     /// Gets a collection of this guild's stickers.
@@ -314,7 +316,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
     [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-    internal ConcurrentDictionary<ulong, DiscordMessageSticker> stickers = new();
+    internal NonBlockingDictionary<ulong, DiscordMessageSticker> stickers = new();
 
     /// <summary>
     /// Gets a collection of this guild's emojis.
@@ -324,7 +326,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
     [JsonProperty("emojis", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-    internal ConcurrentDictionary<ulong, DiscordEmoji> emojis;
+    internal NonBlockingDictionary<ulong, DiscordEmoji> emojis;
 
     /// <summary>
     /// Gets a collection of this guild's features.
@@ -403,7 +405,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
     [JsonProperty("voice_states", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-    internal ConcurrentDictionary<ulong, DiscordVoiceState> voiceStates;
+    internal NonBlockingDictionary<ulong, DiscordVoiceState> voiceStates;
 
     /// <summary>
     /// Gets a dictionary of all the members that belong to this guild. The dictionary's key is the member ID.
@@ -413,7 +415,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
     [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-    internal ConcurrentDictionary<ulong, DiscordMember> members;
+    internal NonBlockingDictionary<ulong, DiscordMember> members;
 
     /// <summary>
     /// Gets a dictionary of all the channels associated with this guild. The dictionary's key is the channel ID.
@@ -423,7 +425,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
     [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-    internal ConcurrentDictionary<ulong, DiscordChannel> channels;
+    internal NonBlockingDictionary<ulong, DiscordChannel> channels;
 
     /// <summary>
     /// Gets a dictionary of all the active threads associated with this guild the user has permission to view. The dictionary's key is the channel ID.
@@ -433,9 +435,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
     [JsonProperty("threads", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-    internal ConcurrentDictionary<ulong, DiscordThreadChannel> threads = new();
+    internal NonBlockingDictionary<ulong, DiscordThreadChannel> threads = new();
 
-    internal ConcurrentDictionary<string, DiscordInvite> invites;
+    internal NonBlockingDictionary<string, DiscordInvite> invites;
 
     /// <summary>
     /// Gets the guild member for current user.
@@ -524,7 +526,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
     [JsonProperty("stage_instances", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-    internal ConcurrentDictionary<ulong, DiscordStageInstance> stageInstances;
+    internal NonBlockingDictionary<ulong, DiscordStageInstance> stageInstances;
 
     // Failed attempts so far: 8
     // Velvet got it working in one attempt. I'm not mad, why would I be mad. - Lunar
@@ -549,7 +551,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     internal DiscordGuild()
     {
         this.current_member_lazy = new Lazy<DiscordMember>(() => this.members != null && this.members.TryGetValue(this.Discord.CurrentUser.Id, out DiscordMember? member) ? member : null);
-        this.invites = new ConcurrentDictionary<string, DiscordInvite>();
+        this.invites = new NonBlockingDictionary<string, DiscordInvite>();
     }
 
     #region Guild Methods

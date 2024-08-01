@@ -152,7 +152,7 @@ public sealed class LavalinkNodeConnection
     /// <summary>
     /// Gets a dictionary of Lavalink guild connections for this node.
     /// </summary>
-    public IReadOnlyDictionary<ulong, LavalinkGuildConnection> ConnectedGuilds { get; }
+    public IReadOnlyDictionary<ulong, LavalinkGuildConnection> ConnectedGuilds => this.connectedGuilds;
     internal ConcurrentDictionary<ulong, LavalinkGuildConnection> connectedGuilds = new();
 
     /// <summary>
@@ -189,7 +189,6 @@ public sealed class LavalinkNodeConnection
             this.Region = config.Region;
         }
 
-        this.ConnectedGuilds = new ReadOnlyConcurrentDictionary<ulong, LavalinkGuildConnection>(this.connectedGuilds);
         this.Statistics = new LavalinkStatistics();
 
         DefaultClientErrorHandler errorHandler = new(client.Logger);
