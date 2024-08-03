@@ -406,8 +406,9 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
 
         if (!descriptionLocalizations.TryGetValue("en-US", out string? description))
         {
-            description = command.Description;
         }
+        
+        description = command.Description;
 
         if (string.IsNullOrWhiteSpace(description))
         {
@@ -416,7 +417,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
 
         // Create the top level application command.
         return new(
-            name: ToSnakeCase(nameLocalizations.TryGetValue("en-US", out string? name) ? name : command.Name),
+            name: ToSnakeCase(command.Name),
             description: description,
             options: options,
             type: DiscordApplicationCommandType.SlashCommand,
@@ -536,17 +537,10 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
             using AsyncServiceScope scope = this.extension.ServiceProvider.CreateAsyncScope();
             choices = await choiceAttribute.GrabChoicesAsync(scope.ServiceProvider, parameter);
         }
-
-        if (!nameLocalizations.TryGetValue("en-US", out string? name))
-        {
-            name = i.HasValue ? $"{parameter.Name}_{i}" : parameter.Name;
-        }
-
-        if (!descriptionLocalizations.TryGetValue("en-US", out string? description))
-        {
-            description = parameter.Description;
-        }
-
+        
+        string name = i.HasValue ? $"{parameter.Name}_{i}" : parameter.Name;
+        string description = parameter.Description;
+        
         if (string.IsNullOrWhiteSpace(description))
         {
             description = "No description provided.";
