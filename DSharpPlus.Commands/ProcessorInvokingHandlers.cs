@@ -11,8 +11,7 @@ namespace DSharpPlus.Commands;
 
 // this is a temporary measure until we can land proper IoC support
 internal sealed class ProcessorInvokingHandlers
-    : IEventHandler<SessionCreatedEventArgs>,
-    IEventHandler<ContextMenuInteractionCreatedEventArgs>,
+    : IEventHandler<ContextMenuInteractionCreatedEventArgs>,
     IEventHandler<InteractionCreatedEventArgs>,
     IEventHandler<MessageCreatedEventArgs>
 {
@@ -20,15 +19,6 @@ internal sealed class ProcessorInvokingHandlers
 
     public ProcessorInvokingHandlers(CommandsExtension extension)
         => this.extension = extension;
-
-    // slash command registration
-    public async Task HandleEventAsync(DiscordClient sender, SessionCreatedEventArgs eventArgs)
-    {
-        if (this.extension.Processors.TryGetValue(typeof(SlashCommandProcessor), out ICommandProcessor? processor))
-        {
-            await ((SlashCommandProcessor)processor).RegisterSlashCommandsAsync(this.extension);
-        }
-    }
     
     // user and message context menu commands
     public async Task HandleEventAsync(DiscordClient sender, ContextMenuInteractionCreatedEventArgs eventArgs)
