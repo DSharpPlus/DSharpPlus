@@ -440,8 +440,25 @@ public sealed class CommandsExtension
             this.processors.TryAdd(typeof(UserCommandProcessor), new UserCommandProcessor());
         }
 
+
+        if (this.processors.TryGetValue(typeof(UserCommandProcessor), out ICommandProcessor userProcessor))
+        {
+            await userProcessor.ConfigureAsync(this);
+        }
+        
+        if (this.processors.TryGetValue(typeof(MessageCommandProcessor), out ICommandProcessor messageProcessor))
+        {
+            await messageProcessor.ConfigureAsync(this);
+        }
+        
         foreach (ICommandProcessor processor in this.processors.Values)
         {
+            Type type = processor.GetType();
+            if (type == typeof(UserCommandProcessor) || type == typeof(MessageCommandProcessor))
+            {
+                continue;
+            }
+            
             await processor.ConfigureAsync(this);
         }
     }

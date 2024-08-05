@@ -38,7 +38,6 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
     {
         this.extension = extension;
         this.slashCommandProcessor = this.extension.GetProcessor<SlashCommandProcessor>() ?? new SlashCommandProcessor();
-        await this.slashCommandProcessor.ConfigureAsync(this.extension);
 
         ILogger<UserCommandProcessor> logger = this.extension.ServiceProvider.GetService<ILogger<UserCommandProcessor>>() ?? NullLogger<UserCommandProcessor>.Instance;
         List<DiscordApplicationCommand> applicationCommands = [];
