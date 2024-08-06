@@ -219,7 +219,11 @@ public sealed class DiscordClientBuilder
     {
         if (this.addDefaultLogging)
         {
-            this.serviceCollection.AddLogging(builder => builder.AddProvider(new DefaultLoggerProvider(this.minimumLogLevel)));
+            this.serviceCollection.AddLogging(builder =>
+            {
+                builder.AddProvider(new DefaultLoggerProvider())
+                    .SetMinimumLevel(this.minimumLogLevel);
+            });
         }
 
         IServiceProvider provider = this.serviceCollection.BuildServiceProvider();
