@@ -58,6 +58,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         this.Timestamp = other.Timestamp;
         this.WebhookId = other.WebhookId;
         this.ApplicationId = other.ApplicationId;
+        this.Components = other.Components;
     }
 
     /// <summary>
