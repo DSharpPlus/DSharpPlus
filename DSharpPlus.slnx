@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/Core/">
+    <Project Path="src\core\DSharpPlus.Internal.Abstractions.Models\DSharpPlus.Internal.Abstractions.Models.csproj" />
+    <Project Path="src\core\DSharpPlus.Internal.Abstractions.Rest\DSharpPlus.Internal.Abstractions.Rest.csproj" />
+    <Project Path="src\core\DSharpPlus.Internal.Models\DSharpPlus.Internal.Models.csproj" />
+    <Project Path="src\core\DSharpPlus.Internal.Rest\DSharpPlus.Internal.Rest.csproj" />
+    <Project Path="src\core\DSharpPlus.Shared\DSharpPlus.Shared.csproj" />
+  </Folder>
+  <Folder Name="/Extensions/">
+    <Project Path="src\extensions\DSharpPlus.Extensions.Internal.Builders\DSharpPlus.Extensions.Internal.Builders.csproj" />
+  </Folder>
+  <Folder Name="/Generators/">
+    <Project Path="gen\common\DSharpPlus.SourceGenerators.Common.csproj" />
+  </Folder>
+  <Folder Name="/Tests/" />
+  <Folder Name="/Tests/Core/">
+    <Project Path="tests\core\DSharpPlus.Internal.Models.Tests\DSharpPlus.Internal.Models.Tests.csproj" />
+    <Project Path="tests\core\DSharpPlus.Shared.Tests\DSharpPlus.Shared.Tests.csproj" />
+  </Folder>
+  <Properties Name="Visual Studio">
+    <Property Name="OpenWith" Value="17" />
+  </Properties>
+</Solution>
