@@ -51,45 +51,49 @@ public sealed class DiscordApiClient
     {
         TransportUser author = msgRaw["author"]!.ToDiscordObject<TransportUser>();
         DiscordMessage message = msgRaw.ToDiscordObject<DiscordMessage>();
-
         message.Discord = this.discord!;
-
         PopulateMessage(author, message);
 
         JToken? referencedMsg = msgRaw["referenced_message"];
-
-        if (message.MessageType == DiscordMessageType.Reply && !string.IsNullOrWhiteSpace(referencedMsg?.ToString()))
+        if (message.MessageType == DiscordMessageType.Reply && referencedMsg is not null && message.ReferencedMessage is not null)
         {
             TransportUser referencedAuthor = referencedMsg["author"]!.ToDiscordObject<TransportUser>();
             message.ReferencedMessage.Discord = this.discord!;
             PopulateMessage(referencedAuthor, message.ReferencedMessage);
         }
 
-        if (message.Channel is not null)
-        {
-            return message;
-        }
-
-        message.Channel = !message.guildId.HasValue
-            ? new DiscordDmChannel
-            {
-                Id = message.ChannelId,
-                Discord = this.discord!,
-                Type = DiscordChannelType.Private
-            }
-            : new DiscordChannel
-            {
-                Id = message.ChannelId,
-                GuildId = message.guildId,
-                Discord = this.discord!
-            };
-
         return message;
     }
 
     private void PopulateMessage(TransportUser author, DiscordMessage ret)
     {
-        DiscordGuild? guild = ret.Channel?.Guild;
+        if (ret.Channel is null && ret.Discord is DiscordClient client)
+        {
+            ret.Channel = client.InternalGetCachedChannel(ret.ChannelId);
+        }
+
+        if (ret.guildId is null || !ret.Discord.Guilds.TryGetValue(ret.guildId.Value, out DiscordGuild? guild))
+        {
+            guild = ret.Channel?.Guild;
+        }
+
+        ret.guildId ??= guild?.Id;
+
+        // I can't think of a case where guildId will never be not null since the guildId is a gateway exclusive
+        // property, however if that property is added later to the rest api response, this case would be hit.
+        ret.Channel ??= ret.guildId is null
+            ? new DiscordDmChannel
+            {
+                Id = ret.ChannelId,
+                Discord = this.discord!,
+                Type = DiscordChannelType.Private
+            }
+            : new DiscordChannel
+            {
+                Id = ret.ChannelId,
+                GuildId = ret.guildId,
+                Discord = this.discord!
+            };
 
         //If this is a webhook, it shouldn't be in the user cache.
         if (author.IsBot && int.Parse(author.Discriminator) == 0)
