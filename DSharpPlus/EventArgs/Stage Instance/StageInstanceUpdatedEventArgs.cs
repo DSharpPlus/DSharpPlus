@@ -3,7 +3,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.StageInstanceUpdated"/>.
+/// Represents arguments for StageInstanceUpdated.
 /// </summary>
 public class StageInstanceUpdatedEventArgs : DiscordEventArgs
 {

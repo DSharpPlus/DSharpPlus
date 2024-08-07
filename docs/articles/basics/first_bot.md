@@ -46,7 +46,7 @@ Select the `Browse` tab towards the top left, then type `DSharpPlus` into the se
 
 ![NuGet Package Search][7]
 
-The first results should be the six DSharpPlus packages.
+The first results should be the eight DSharpPlus packages.
 
 ![Search Results][8]
 

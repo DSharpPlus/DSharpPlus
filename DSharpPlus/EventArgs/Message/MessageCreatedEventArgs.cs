@@ -4,7 +4,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.MessageCreated"/> event.
+/// Represents arguments for MessageCreated event.
 /// </summary>
 public class MessageCreatedEventArgs : DiscordEventArgs
 {

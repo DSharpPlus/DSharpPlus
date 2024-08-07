@@ -3,7 +3,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.MessageReactionAdded"/> event.
+/// Represents arguments for MessageReactionAdded event.
 /// </summary>
 public class MessageReactionAddedEventArgs : DiscordEventArgs
 {

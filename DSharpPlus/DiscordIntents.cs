@@ -48,100 +48,100 @@ public enum DiscordIntents
 
     /// <summary>
     /// Whether to include general guild events.
-    /// <para>These include <see cref="DiscordClient.GuildCreated"/>, <see cref="DiscordClient.GuildDeleted"/>, <see cref="DiscordClient.GuildAvailable"/>, <see cref="DiscordClient.GuildDownloadCompleted"/>,</para>
-    /// <para><see cref="DiscordClient.GuildRoleCreated"/>, <see cref="DiscordClient.GuildRoleUpdated"/>, <see cref="DiscordClient.GuildRoleDeleted"/>,</para>
-    /// <para><see cref="DiscordClient.ChannelCreated"/>, <see cref="DiscordClient.ChannelUpdated"/>, <see cref="DiscordClient.ChannelDeleted"/>, and <see cref="DiscordClient.ChannelPinsUpdated"/>.</para>
+    /// These include GuildCreated, GuildDeleted, GuildAvailable, GuildDownloadCompleted,
+    /// GuildRoleCreated, GuildRoleUpdated, GuildRoleDeleted,
+    /// ChannelCreated, ChannelUpdated, ChannelDeleted, and ChannelPinsUpdated.
     /// </summary>
     Guilds = 1 << 0,
 
     /// <summary>
     /// Whether to include guild member events.
-    /// <para>These include <see cref="DiscordClient.GuildMemberAdded"/>, <see cref="DiscordClient.GuildMemberUpdated"/>, and <see cref="DiscordClient.GuildMemberRemoved"/>.</para>
-    /// <para>This is a privileged intent, and must be enabled on the bot's developer page.</para>
+    /// These include GuildMemberAdded, GuildMemberUpdated, and GuildMemberRemoved.
+    /// This is a privileged intent, and must be enabled on the bot's developer page.
     /// </summary>
     GuildMembers = 1 << 1,
 
     /// <summary>
     /// Whether to include guild ban events.
-    /// <para>These include <see cref="DiscordClient.GuildBanAdded"/>, <see cref="DiscordClient.GuildBanRemoved"/> and <see cref="DiscordClient.GuildAuditLogCreated"/>.</para>
+    /// <para>These include GuildBanAdded, GuildBanRemoved and GuildAuditLogCreated.</para>
     /// </summary>
     GuildModeration = 1 << 2,
 
     /// <summary>
     /// Whether to include guild emoji events.
-    /// <para>This includes <see cref="DiscordClient.GuildEmojisUpdated"/>.</para>
+    /// <para>This includes GuildEmojisUpdated.</para>
     /// </summary>
     GuildEmojisAndStickers = 1 << 3,
 
     /// <summary>
     /// Whether to include guild integration events.
-    /// <para>This includes <see cref="DiscordClient.GuildIntegrationsUpdated"/>.</para>
+    /// <para>This includes GuildIntegrationsUpdated.</para>
     /// </summary>
     GuildIntegrations = 1 << 4,
 
     /// <summary>
     /// Whether to include guild webhook events.
-    /// <para>This includes <see cref="DiscordClient.WebhooksUpdated"/>.</para>
+    /// <para>This includes WebhooksUpdated.</para>
     /// </summary>
     GuildWebhooks = 1 << 5,
 
     /// <summary>
     /// Whether to include guild invite events.
-    /// <para>These include <see cref="DiscordClient.InviteCreated"/>, and <see cref="DiscordClient.InviteDeleted"/>.</para>
+    /// <para>These include InviteCreated and InviteDeleted.</para>
     /// </summary>
     GuildInvites = 1 << 6,
 
     /// <summary>
     /// Whether to include guild voice state events.
-    /// <para>This includes <see cref="DiscordClient.VoiceStateUpdated"/>.</para>
+    /// <para>This includes VoiceStateUpdated.</para>
     /// </summary>
     GuildVoiceStates = 1 << 7,
 
     /// <summary>
     /// Whether to include guild presence events.
-    /// <para>This includes <see cref="DiscordClient.PresenceUpdated"/>.</para>
+    /// <para>This includes PresenceUpdated.</para>
     /// <para>This is a privileged intent, and must be enabled on the bot's developer page.</para>
     /// </summary>
     GuildPresences = 1 << 8,
 
     /// <summary>
     /// Whether to include guild message events.
-    /// <para>These include <see cref="DiscordClient.MessageCreated"/>, <see cref="DiscordClient.MessageUpdated"/>, and <see cref="DiscordClient.MessageDeleted"/>.</para>
+    /// <para>These include MessageCreated, MessageUpdated, and MessageDeleted.</para>
     /// </summary>
     GuildMessages = 1 << 9,
 
     /// <summary>
     /// Whether to include guild reaction events.
-    /// <para>These include <see cref="DiscordClient.MessageReactionAdded"/>, <see cref="DiscordClient.MessageReactionRemoved"/>, <see cref="DiscordClient.MessageReactionsCleared"/>,</para>
-    /// <para>and <see cref="DiscordClient.MessageReactionRemovedEmoji"/>.</para>
+    /// These include MessageReactionAdded, MessageReactionRemoved, MessageReactionsCleared,
+    /// and MessageReactionRemovedEmoji.
     /// </summary>
     GuildMessageReactions = 1 << 10,
 
     /// <summary>
     /// Whether to include guild typing events.
-    /// <para>These include <see cref="DiscordClient.TypingStarted"/>.</para>
+    /// <para>These include TypingStarted.</para>
     /// </summary>
     GuildMessageTyping = 1 << 11,
 
     /// <summary>
     /// Whether to include general direct message events.
-    /// <para>These include <see cref="DiscordClient.ChannelCreated"/>, <see cref="DiscordClient.MessageCreated"/>, <see cref="DiscordClient.MessageUpdated"/>, </para>
-    /// <para><see cref="DiscordClient.MessageDeleted"/>, <see cref="DiscordClient.ChannelPinsUpdated"/>.</para>
-    /// <para>These events only fire for DM channels.</para>
+    /// These include ChannelCreated, MessageCreated, MessageUpdated,
+    /// MessageDeleted, ChannelPinsUpdated.
+    /// These events only fire for DM channels.
     /// </summary>
     DirectMessages = 1 << 12,
 
     /// <summary>
     /// Whether to include direct message reaction events.
-    /// <para>These include <see cref="DiscordClient.MessageReactionAdded"/>, <see cref="DiscordClient.MessageReactionRemoved"/>,</para>
-    /// <para><see cref="DiscordClient.MessageReactionsCleared"/>, and <see cref="DiscordClient.MessageReactionRemovedEmoji"/>.</para>
-    /// <para>These events only fire for DM channels.</para>
+    /// These include MessageReactionAdded, MessageReactionRemoved,
+    /// MessageReactionsCleared, and MessageReactionRemovedEmoji.
+    /// These events only fire for DM channels.
     /// </summary>
     DirectMessageReactions = 1 << 13,
 
     /// <summary>
     /// Whether to include direct message typing events.
-    /// <para>This includes <see cref="DiscordClient.TypingStarted"/>.</para>
+    /// <para>This includes TypingStarted.</para>
     /// <para>This event only fires for DM channels.</para>
     /// </summary>
     DirectMessageTyping = 1 << 14,
@@ -170,13 +170,13 @@ public enum DiscordIntents
 
     /// <summary>
     ///  Whetever to include add and remove of a poll votes events in guilds.
-    /// <para>This includes <see cref="DiscordClient.MessagePollVoted"/></para>
+    /// <para>This includes MessagePollVoted</para>
     /// </summary>
     GuildMessagePolls = 1 << 24,
 
     /// <summary>
     ///  Whetever to include add and remove of a poll votes events in direct messages.
-    /// <para>This includes <see cref="DiscordClient.MessagePollVoted"/></para>
+    /// <para>This includes MessagePollVoted</para>
     /// </summary>
     DirectMessagePolls = 1 << 25,
 

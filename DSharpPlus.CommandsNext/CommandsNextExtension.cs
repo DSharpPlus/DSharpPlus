@@ -24,7 +24,7 @@ namespace DSharpPlus.CommandsNext;
 /// <summary>
 /// This is the class which handles command registration, management, and execution.
 /// </summary>
-public class CommandsNextExtension : BaseExtension
+public class CommandsNextExtension : IDisposable
 {
     private CommandsNextConfiguration Config { get; }
     private HelpFormatterFactory HelpFormatter { get; }
@@ -145,7 +145,7 @@ public class CommandsNextExtension : BaseExtension
     /// <summary>
     /// Disposes of this the resources used by CNext.
     /// </summary>
-    public override void Dispose()
+    public void Dispose()
     {
         this.Config.CommandExecutor.Dispose();
 
@@ -159,28 +159,24 @@ public class CommandsNextExtension : BaseExtension
     /// </summary>
     /// <param name="client">DO NOT USE THIS MANUALLY.</param>
     /// <exception cref="InvalidOperationException"/>
-    protected internal override void Setup(DiscordClient client)
+    public void Setup(DiscordClient client)
     {
-        if (this.Client != null)
+        this.Client = client;
+
+        if (!Utilities.HasMessageIntents(client.Intents))
         {
-            throw new InvalidOperationException("What did I tell you?");
+            client.Logger.LogCritical(CommandsNextEvents.Intents, "The CommandsNext extension is registered but there are no message intents enabled. It is highly recommended to enable them.");
         }
 
-        this.Client = client;
+        if (!client.Intents.HasIntent(DiscordIntents.Guilds))
+        {
+            client.Logger.LogCritical(CommandsNextEvents.Intents, "The CommandsNext extension is registered but the guilds intent is not enabled. It is highly recommended to enable it.");
+        }
 
         DefaultClientErrorHandler errorHandler = new(client.Logger);
 
         this.executed = new AsyncEvent<CommandsNextExtension, CommandExecutionEventArgs>(errorHandler);
         this.error = new AsyncEvent<CommandsNextExtension, CommandErrorEventArgs>(errorHandler);
-
-        if (this.Config.UseDefaultCommandHandler)
-        {
-            this.Client.MessageCreated += HandleCommandsAsync;
-        }
-        else
-        {
-            this.Client.Logger.LogWarning(CommandsNextEvents.Misc, "Not attaching default command handler - if this is intentional, you can ignore this message");
-        }
 
         if (this.Config.EnableDefaultHelp)
         {
@@ -213,7 +209,7 @@ public class CommandsNextExtension : BaseExtension
     #endregion
 
     #region Command Handling
-    private async Task HandleCommandsAsync(DiscordClient sender, MessageCreatedEventArgs e)
+    internal async Task HandleCommandsAsync(DiscordClient sender, MessageCreatedEventArgs e)
     {
         if (e.Author.IsBot) // bad bot
         {
@@ -432,6 +428,7 @@ public class CommandsNextExtension : BaseExtension
         => this.TopLevelCommands;
 
     private Dictionary<string, Command> TopLevelCommands { get; set; }
+    public DiscordClient Client { get; private set; }
 
     /// <summary>
     /// Registers all commands from a given assembly. The command classes need to be public to be considered for registration.

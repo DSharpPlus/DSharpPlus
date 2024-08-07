@@ -50,6 +50,7 @@ public static partial class ServiceCollectionExtensions
             .AddTransient<IGatewayClient, GatewayClient>()
             .AddTransient<PayloadDecompressor>()
             .AddSingleton<IShardOrchestrator, SingleShardOrchestrator>()
+            .AddSingleton<IEventDispatcher, DefaultEventDispatcher>()
             .AddSingleton<DiscordClient>();
 
         return serviceCollection;
@@ -90,6 +91,7 @@ public static partial class ServiceCollectionExtensions
             .AddTransient<IGatewayClient, GatewayClient>()
             .AddTransient<PayloadDecompressor>()
             .AddSingleton<IShardOrchestrator, MultiShardOrchestrator>()
+            .AddSingleton<IEventDispatcher, DefaultEventDispatcher>()
             .AddSingleton<DiscordClient>();
 
         return serviceCollection;

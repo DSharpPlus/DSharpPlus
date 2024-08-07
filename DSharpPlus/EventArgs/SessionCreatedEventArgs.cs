@@ -1,7 +1,7 @@
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.SessionCreated"/> event.
+/// Represents arguments for SessionCreated event.
 /// </summary>
 public sealed class SessionCreatedEventArgs : DiscordEventArgs
 {

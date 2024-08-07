@@ -19,20 +19,18 @@ DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(string token, 
 ```
 
 Instead, if you are sharding, create it as follows:
+
 ```cs
 DiscordClientBuilder builder = DiscordClientBuilder.CreateSharded(string token, DiscordIntents intents, uint? shardCount);
 ```
+
+You may omit the shard count to instead defer to Discord's recommended shard count.
 
 Then, migrate your configuration options. Rest-related settings from your old DiscordConfiguration are covered by `DiscordClientBuilder.ConfigureRestClient`, gateway-related settings are covered by `DiscordClientBuilder.ConfigureGatewayClient`.
 
 `LogLevel` has been migrated to `DiscordClientBuilder.SetLogLevel`, and configuring the gateway client is now done through either overriding or decorating the default client via `DiscordClientBuilder.ConfigureServices`. It is comprised of two parts, `ITransportService` and `IGatewayClient`
 
-Lastly, we will need to update event handling. For more information, see [the dedicated article](../beyond_basics/events), but in short, events have also been migrated to DiscordClientBuilder.
-
-> [!IMPORTANT]
-> The ability to handle events from DiscordClient will be removed entirely in a future nightly build, and today, it is no longer possible to unregister events.
-
-Events are now handled through `DiscordClientBuilder.ConfigureEventHandlers`. You can register handlers on the configuration delegate as follows:
+Then, we will need to update event handling. For more information, see [the dedicated article](../beyond_basics/events), but in short, events have also been migrated to DiscordClientBuilder: events are now handled through `DiscordClientBuilder.ConfigureEventHandlers`. You can register handlers on the configuration delegate as follows:
 
 ```cs
 builder.ConfigureEventHandlers
@@ -52,6 +50,19 @@ private Task OnGuildMemberAdded(DiscordClient sender, GuildMemberAddedEventArgs 
     // non-asynchronous code here
     return Task.CompletedTask;
 }
+```
+
+Lastly, we'll need to migrate our extensions. Our extensions have an `UseExtensionName` method for DiscordClientBuilder, similar to how they previously had such extensions for DiscordClient. Some extensions take an additional `Action<ExtensionType>` parameter you can use to configure the extension, like so:
+
+```cs
+builder.UseCommandsExtension
+(
+    extension =>
+    {
+        extension.AddCommands([typeof(MyCommands)]);
+        extension.AddParameterCheck(typeof(MyCheck))
+    }
+);
 ```
 
 # [IServiceCollection](#tab/iservicecollection)
@@ -94,6 +105,23 @@ private Task OnGuildMemberAdded(DiscordClient sender, GuildMemberAddedEventArgs 
     // non-asynchronous code here
     return Task.CompletedTask;
 }
+```
+
+To register extensions, use their extension methods on IServiceCollection. These methods are named `AddXExtension` and accept a configuration object and optionally an `Action<ExtensionType>` for further configuration:
+
+```cs
+services.AddCommandsExtension
+(
+    extension =>
+    {
+        extension.AddCommands([typeof(MyCommands)]);
+        extension.AddParameterCheck(typeof(MyCheck));
+    },
+    new CommandsConfiguration()
+    {
+        // ...
+    }
+);
 ```
 
 ---

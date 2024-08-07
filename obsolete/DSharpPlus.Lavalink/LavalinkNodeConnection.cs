@@ -207,8 +207,6 @@ public sealed class LavalinkNodeConnection
 
         this.VoiceServerUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdatedEventArgs>>();
         this.VoiceStateUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdatedEventArgs>>();
-        this.Discord.VoiceStateUpdated += Discord_VoiceStateUpdated;
-        this.Discord.VoiceServerUpdated += Discord_VoiceServerUpdated;
 
         this.Rest = new LavalinkRestClient(this.Configuration, this.Discord);
 

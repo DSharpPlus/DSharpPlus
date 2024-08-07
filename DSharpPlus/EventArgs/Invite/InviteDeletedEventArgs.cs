@@ -3,7 +3,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.InviteDeleted"/>
+/// Represents arguments for InviteDeleted
 /// </summary>
 public sealed class InviteDeletedEventArgs : DiscordEventArgs
 {

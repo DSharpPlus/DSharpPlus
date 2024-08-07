@@ -79,7 +79,6 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
         if (!this.configured)
         {
             this.configured = true;
-            extension.Client.InteractionCreated += ExecuteInteractionAsync;
         }
 
         if (!this.registered && this.Configuration.RegisterCommands)

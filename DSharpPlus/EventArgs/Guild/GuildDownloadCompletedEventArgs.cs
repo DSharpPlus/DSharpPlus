@@ -4,7 +4,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.GuildDownloadCompleted"/> event.
+/// Represents arguments for GuildDownloadCompleted event.
 /// </summary>
 public class GuildDownloadCompletedEventArgs : DiscordEventArgs
 {

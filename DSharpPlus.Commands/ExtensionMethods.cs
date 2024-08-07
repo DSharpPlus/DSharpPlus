@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+
+using DSharpPlus.Extensions;
+
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.Commands;
 
@@ -13,33 +13,50 @@ namespace DSharpPlus.Commands;
 public static class ExtensionMethods
 {
     /// <summary>
-    /// Registers the extension with the <see cref="DiscordClient"/>.
+    /// Registers the extension with the <see cref="DiscordClientBuilder"/>.
     /// </summary>
-    /// <param name="client">The client to register the extension with.</param>
+    /// <param name="builder">The client builder to register the extension with.</param>
+    /// <param name="setup">Any setup code you want to run on the extension, such as registering commands and converters.</param>
     /// <param name="configuration">The configuration to use for the extension.</param>
-    public static CommandsExtension UseCommands(this DiscordClient client, CommandsConfiguration? configuration = null)
-    {
-        if (client is null)
-        {
-            throw new ArgumentNullException(nameof(client));
-        }
-        else if (client.GetExtension<CommandsExtension>() is not null)
-        {
-            throw new InvalidOperationException("Commands extension is already initialized.");
-        }
-
-        CommandsExtension extension = new(configuration ?? new());
-        client.AddExtension(extension);
-        return extension;
-    }
+    public static DiscordClientBuilder UseCommands
+    (
+        this DiscordClientBuilder builder,
+        Action<CommandsExtension> setup,
+        CommandsConfiguration? configuration = null
+    ) 
+        => builder.ConfigureServices(services => services.AddCommandsExtension(setup, configuration));
 
     /// <summary>
-    /// Retrieves the <see cref="CommandsExtension"/> from the <see cref="DiscordClient"/>.
+    /// Registers the commands extension with an <see cref="IServiceCollection"/>.
     /// </summary>
-    /// <param name="client">The client to retrieve the extension from.</param>
-    public static CommandsExtension? GetCommandsExtension(this DiscordClient client) => client is null
-        ? throw new ArgumentNullException(nameof(client))
-        : client.GetExtension<CommandsExtension>();
+    /// <param name="services">The service collection to register the extension with.</param>
+    /// <param name="setup">Any setup code you want to run on the extension, such as registering commands and converters.</param>
+    /// <param name="configuration">The configuration to use for the extension.</param>
+    public static IServiceCollection AddCommandsExtension
+    (
+        this IServiceCollection services,
+        Action<CommandsExtension> setup,
+        CommandsConfiguration? configuration = null
+    )
+    {
+        services.ConfigureEventHandlers(b =>
+            {
+                b.AddEventHandlers<RefreshEventHandler>(ServiceLifetime.Singleton)
+                    .AddEventHandlers<ProcessorInvokingHandlers>(ServiceLifetime.Transient);
+            })
+            .AddSingleton(provider =>
+            {
+                DiscordClient client = provider.GetRequiredService<DiscordClient>();
+
+                CommandsExtension extension = new(configuration ?? new());
+                extension.Setup(client);
+                setup(extension);
+
+                return extension;
+            });
+
+        return services;
+    }
 
     /// <inheritdoc cref="Array.IndexOf{T}(T[], T)"/>
     internal static int IndexOf<T>(this IEnumerable<T> array, T? value) where T : IEquatable<T>

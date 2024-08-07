@@ -11,7 +11,7 @@ using DSharpPlus.Net;
 namespace DSharpPlus.Lavalink;
 
 [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]
-public sealed class LavalinkExtension : BaseExtension
+public sealed class LavalinkExtension
 {
     /// <summary>
     /// Triggered whenever a node disconnects.
@@ -27,6 +27,8 @@ public sealed class LavalinkExtension : BaseExtension
     /// Gets a dictionary of connected Lavalink nodes for the extension.
     /// </summary>
     public IReadOnlyDictionary<ConnectionEndpoint, LavalinkNodeConnection> ConnectedNodes { get; }
+    public DiscordClient Client { get; private set; }
+
     private readonly ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection> connectedNodes = new();
 
     /// <summary>
@@ -39,7 +41,7 @@ public sealed class LavalinkExtension : BaseExtension
     /// </summary>
     /// <param name="client">DO NOT USE THIS MANUALLY.</param>
     /// <exception cref="InvalidOperationException"/>
-    protected internal override void Setup(DiscordClient client)
+    public void Setup(DiscordClient client)
     {
         if (this.Client != null)
         {
@@ -186,7 +188,7 @@ public sealed class LavalinkExtension : BaseExtension
     private Task Con_Disconnected(LavalinkNodeConnection node, NodeDisconnectedEventArgs e)
         => this.nodeDisconnected.InvokeAsync(node, e);
 
-    public override void Dispose()
+    public void Dispose()
     {
         foreach (KeyValuePair<ConnectionEndpoint, LavalinkNodeConnection> node in this.connectedNodes)
         {

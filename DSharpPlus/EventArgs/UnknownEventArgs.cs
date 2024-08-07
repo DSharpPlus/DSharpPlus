@@ -2,7 +2,7 @@ namespace DSharpPlus.EventArgs;
 
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.UnknownEvent"/> event.
+/// Represents arguments for UnknownEvent.
 /// </summary>
 public class UnknownEventArgs : DiscordEventArgs
 {

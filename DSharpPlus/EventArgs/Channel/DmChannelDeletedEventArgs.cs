@@ -3,7 +3,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.DmChannelDeleted"/> event.
+/// Represents arguments for the DmChannelDeleted event.
 /// </summary>
 public class DmChannelDeletedEventArgs : DiscordEventArgs
 {

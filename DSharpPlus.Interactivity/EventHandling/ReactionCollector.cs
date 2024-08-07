@@ -5,14 +5,18 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 using ConcurrentCollections;
+
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Interactivity.EventHandling;
 
+// nice documentation lmfao
 /// <summary>
 /// Eventwaiter is a class that serves as a layer between the InteractivityExtension
 /// and the DiscordClient to listen to an event and check for matches to a predicate.
@@ -31,43 +35,37 @@ internal class ReactionCollector : IDisposable
     /// <summary>
     /// Creates a new Eventwaiter object.
     /// </summary>
-    /// <param name="client">Your DiscordClient</param>
-    public ReactionCollector(DiscordClient client)
+    /// <param name="extension">Your DiscordClient</param>
+    public ReactionCollector(InteractivityExtension extension)
     {
-        this.client = client;
         this.requests = [];
+        this.client = extension.Client;
 
-        // Grabbing all three events from client
-        if (InteractivityExtension.GetEventsField(client) is not ConcurrentDictionary<Type, AsyncEvent> events)
-        {
-            throw new NotImplementedException("Could not get the events from the events field in DiscordClient. This is a bug, please report it.");
-        }
+        this.reactionAddEvent = (AsyncEvent<DiscordClient, MessageReactionAddedEventArgs>)extension.eventDistributor.GetOrAdd
+        (
+            typeof(MessageReactionAddedEventArgs),
+            new AsyncEvent<DiscordClient, MessageReactionAddedEventArgs>(extension.errorHandler)
+        );
 
-        if (!events.TryGetValue(typeof(MessageReactionAddedEventArgs), out AsyncEvent? reactionAddEvent))
-        {
-            throw new NotImplementedException("The event MessageReactionAddedEventArgs is not registered in the DiscordClient. This is a bug, please report it.");
-        }
+        this.reactionRemoveEvent = (AsyncEvent<DiscordClient, MessageReactionRemovedEventArgs>)extension.eventDistributor.GetOrAdd
+        (
+            typeof(MessageReactionRemovedEventArgs),
+            new AsyncEvent<DiscordClient, MessageReactionRemovedEventArgs>(extension.errorHandler)
+        );
 
-        if (!events.TryGetValue(typeof(MessageReactionRemovedEventArgs), out AsyncEvent? reactionRemoveEvent))
-        {
-            throw new NotImplementedException("The event MessageReactionRemovedEventArgs is not registered in the DiscordClient. This is a bug, please report it.");
-        }
-
-        if (!events.TryGetValue(typeof(MessageReactionsClearedEventArgs), out AsyncEvent? reactionClearEvent))
-        {
-            throw new NotImplementedException("The event MessageReactionsClearedEventArgs is not registered in the DiscordClient. This is a bug, please report it.");
-        }
+        this.reactionClearEvent = (AsyncEvent<DiscordClient, MessageReactionsClearedEventArgs>)extension.eventDistributor.GetOrAdd
+        (
+            typeof(MessageReactionsClearedEventArgs),
+            new AsyncEvent<DiscordClient, MessageReactionsClearedEventArgs>(extension.errorHandler)
+        );
 
         // Registering handlers
-        this.reactionAddEvent = (AsyncEvent<DiscordClient, MessageReactionAddedEventArgs>)reactionAddEvent;
         this.reactionAddHandler = new AsyncEventHandler<DiscordClient, MessageReactionAddedEventArgs>(HandleReactionAdd);
         this.reactionAddEvent.Register(this.reactionAddHandler);
 
-        this.reactionRemoveEvent = (AsyncEvent<DiscordClient, MessageReactionRemovedEventArgs>)reactionRemoveEvent;
         this.reactionRemoveHandler = new AsyncEventHandler<DiscordClient, MessageReactionRemovedEventArgs>(HandleReactionRemove);
         this.reactionRemoveEvent.Register(this.reactionRemoveHandler);
 
-        this.reactionClearEvent = (AsyncEvent<DiscordClient, MessageReactionsClearedEventArgs>)reactionClearEvent;
         this.reactionClearHandler = new AsyncEventHandler<DiscordClient, MessageReactionsClearedEventArgs>(HandleReactionClear);
         this.reactionClearEvent.Register(this.reactionClearHandler);
     }

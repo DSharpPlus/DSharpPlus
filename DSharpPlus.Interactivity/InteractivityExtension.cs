@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.AsyncEvents;
@@ -17,14 +16,14 @@ namespace DSharpPlus.Interactivity;
 /// <summary>
 /// Extension class for DSharpPlus.Interactivity
 /// </summary>
-public class InteractivityExtension : BaseExtension
+public class InteractivityExtension : IDisposable
 {
-    // This is declared here because apparently the UnsafeAccessorAttribute cannot be used within generic types.
-    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "events")]
-    internal static extern ref readonly ConcurrentDictionary<Type, AsyncEvent> GetEventsField(DiscordClient client);
+    internal readonly ConcurrentDictionary<Type, AsyncEvent> eventDistributor = [];
+    internal IClientErrorHandler errorHandler;
 
 #pragma warning disable IDE1006 // Naming Styles
     internal InteractivityConfiguration Config { get; }
+    public DiscordClient Client { get; private set; }
 
     private EventWaiter<MessageCreatedEventArgs> MessageCreatedWaiter;
 
@@ -34,35 +33,35 @@ public class InteractivityExtension : BaseExtension
 
     private EventWaiter<ComponentInteractionCreatedEventArgs> ComponentInteractionWaiter;
 
-    private ComponentEventWaiter ComponentEventWaiter;
+    internal ComponentEventWaiter ComponentEventWaiter;
 
-    private ModalEventWaiter ModalEventWaiter;
+    internal ModalEventWaiter ModalEventWaiter;
 
-    private ReactionCollector ReactionCollector;
+    internal ReactionCollector ReactionCollector;
 
-    private Poller Poller;
+    internal Poller Poller;
 
-    private Paginator Paginator;
-    private ComponentPaginator compPaginator;
+    internal Paginator Paginator;
+    internal ComponentPaginator compPaginator;
 
 #pragma warning restore IDE1006 // Naming Styles
 
     internal InteractivityExtension(InteractivityConfiguration cfg) => this.Config = new InteractivityConfiguration(cfg);
 
-    protected internal override void Setup(DiscordClient client)
+    public void Setup(DiscordClient client)
     {
         this.Client = client;
-        this.MessageCreatedWaiter = new EventWaiter<MessageCreatedEventArgs>(this.Client);
-        this.MessageReactionAddWaiter = new EventWaiter<MessageReactionAddedEventArgs>(this.Client);
-        this.ComponentInteractionWaiter = new EventWaiter<ComponentInteractionCreatedEventArgs>(this.Client);
-        this.TypingStartWaiter = new EventWaiter<TypingStartedEventArgs>(this.Client);
+        this.MessageCreatedWaiter = new EventWaiter<MessageCreatedEventArgs>(this);
+        this.MessageReactionAddWaiter = new EventWaiter<MessageReactionAddedEventArgs>(this);
+        this.ComponentInteractionWaiter = new EventWaiter<ComponentInteractionCreatedEventArgs>(this);
+        this.TypingStartWaiter = new EventWaiter<TypingStartedEventArgs>(this);
         this.Poller = new Poller(this.Client);
-        this.ReactionCollector = new ReactionCollector(this.Client);
+        this.ReactionCollector = new ReactionCollector(this);
         this.Paginator = new Paginator(this.Client);
         this.compPaginator = new(this.Client, this.Config);
         this.ComponentEventWaiter = new(this.Client, this.Config);
         this.ModalEventWaiter = new(this.Client);
-
+        this.errorHandler = new DefaultClientErrorHandler(this.Client.Logger);
     }
 
     /// <summary>
@@ -722,7 +721,7 @@ public class InteractivityExtension : BaseExtension
     {
         TimeSpan timeout = timeoutoverride ?? this.Config.Timeout;
 
-        EventWaiter<T> waiter = new(this.Client);
+        using EventWaiter<T> waiter = new(this);
         T? res = await waiter.WaitForMatchAsync(new MatchRequest<T>(predicate, timeout));
         return new InteractivityResult<T>(res == null, res);
     }
@@ -731,7 +730,7 @@ public class InteractivityExtension : BaseExtension
     {
         TimeSpan timeout = timeoutoverride ?? this.Config.Timeout;
 
-        using EventWaiter<T> waiter = new(this.Client);
+        using EventWaiter<T> waiter = new(this);
         ReadOnlyCollection<T> res = await waiter.CollectMatchesAsync(new CollectRequest<T>(predicate, timeout));
         return res;
     }
@@ -1133,7 +1132,7 @@ public class InteractivityExtension : BaseExtension
 
     private CancellationToken GetCancellationToken(TimeSpan? timeout = null) => new CancellationTokenSource(timeout ?? this.Config.Timeout).Token;
 
-    public override void Dispose()
+    public void Dispose()
     {
         this.ComponentEventWaiter?.Dispose();
         this.ModalEventWaiter?.Dispose();

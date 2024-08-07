@@ -3,7 +3,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.ComponentInteractionCreated"/>.
+/// Represents arguments for the ComponentInteractionCreated event.
 /// </summary>
 public class ComponentInteractionCreatedEventArgs : InteractionCreatedEventArgs
 {

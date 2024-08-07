@@ -52,7 +52,7 @@ private async Task Main(string[] args)
     );
 }
 
-private async Task MessageCreatedHandler(DiscordClient s, MessageCreateEventArgs e)
+private async Task MessageCreatedHandler(DiscordClient s, MessageCreatedEventArgs e)
 {
     if (e.Guild?.Id == 379378609942560770 && e.Author.Id == 168548441939509248)
     {
@@ -60,20 +60,36 @@ private async Task MessageCreatedHandler(DiscordClient s, MessageCreateEventArgs
     }
 }
 
-private Task MemberAddedHandler(DiscordClient s, GuildMemberAddEventArgs e)
+private Task MemberAddedHandler(DiscordClient s, GuildMemberAddedEventArgs e)
 {
     // Non asynchronous code here.
     return Task.CompletedTask;
 }
 ```
 
-You should only ever register events, and only do so on startup. The ability to unregister event handlers and registering them after startup will be removed in the future.
+Furthermore, DSharpPlus supports using types as event handlers. These types can participate in dependency injection and will have a respected service lifetime. All you need to do is implement `IEventHandler<TEventArgs>` and enlighten the builder about your event handler:
+
+```cs
+public class MyEventHandler : IEventHandler<GuildMemberAddedEventArgs>
+{
+    // ...
+}
+
+DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(token, intents);
+builder.ConfigureEventHandlers(b => b.AddEventHandlers<MyEventHandler>(ServiceLifetime.Singleton));
+```
+
+One event handler type may handle as many events as you want, simply implement the interface multiple times:
+
+```cs
+public class MyEventHandler : IEventHandler<GuildMemberAddedEventArgs>, IEventHandler<GuildMemberRemovedEventArgs>
+```
 
 ## Usage of the right events
 
-We advise against the use of the `Ready` event in the `DiscordClient`, as it does not necessarily mean that the client
-is ready. If the goal is to obtain  `DiscordMember`/`DiscordGuild` information, this event should not be used. Instead,
-the `GuildDownloadCompleted` event should be used. The `Ready` event is only meant to signal that the client has
+We advise against the use of the `SessionCreated`, as it does not necessarily mean that the client
+is ready for use. If the goal is to obtain  `DiscordMember`/`DiscordGuild` information, this event should not be used. Instead,
+the `GuildDownloadCompleted` event should be used. The `SessionCreated` event is only meant to signal that the client has
 finished the initial handshake with the gateway and is prepared to begin sending payloads.
 
 ## Migrating to parallel events

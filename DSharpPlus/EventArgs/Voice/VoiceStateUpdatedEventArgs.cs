@@ -3,7 +3,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.VoiceStateUpdated"/> event.
+/// Represents arguments for VoiceStateUpdated event.
 /// </summary>
 public class VoiceStateUpdatedEventArgs : DiscordEventArgs
 {

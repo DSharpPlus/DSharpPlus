@@ -1,9 +1,12 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
+
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Processors.TextCommands.Parsing;
 using DSharpPlus.Tests.Commands.Cases;
+
+using Microsoft.Extensions.DependencyInjection;
+
 using NUnit.Framework;
 
 namespace DSharpPlus.Tests.Commands.Processors.TextCommands.Parsing;
@@ -13,17 +16,21 @@ public sealed class DefaultTextArgumentSplicerTests
     private static CommandsExtension extension = null!;
 
     [OneTimeSetUp]
-    public static async Task CreateExtensionAsync()
+    public static void CreateExtension()
     {
         DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault("faketoken", DiscordIntents.None);
-        DiscordClient client = builder.Build();
-        extension = client.UseCommands(new()
-        {
-            RegisterDefaultCommandProcessors = false
-        });
 
-        extension.AddProcessor<TextCommandProcessor>();
-        await extension.RefreshAsync();
+        builder.UseCommands
+        (
+            extension => extension.AddProcessor(new TextCommandProcessor()),
+            new()
+            {
+                RegisterDefaultCommandProcessors = false
+            }
+        );
+
+        DiscordClient client = builder.Build();
+        extension = client.ServiceProvider.GetRequiredService<CommandsExtension>();
     }
 
     [TestCaseSource(typeof(UserInput), nameof(UserInput.ExpectedNormal), null)]
@@ -125,7 +132,4 @@ public sealed class DefaultTextArgumentSplicerTests
         Assert.That(arguments, Has.Count.EqualTo(expectedArguments.Length));
         Assert.That(arguments, Is.EqualTo(expectedArguments));
     }
-
-    [OneTimeTearDown]
-    public static void DisposeExtension() => extension.Dispose();
 }

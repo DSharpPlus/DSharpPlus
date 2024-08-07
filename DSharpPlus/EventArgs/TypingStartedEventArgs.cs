@@ -4,7 +4,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.TypingStarted"/> event.
+/// Represents arguments for TypingStarted event.
 /// </summary>
 public class TypingStartedEventArgs : DiscordEventArgs
 {
