@@ -50,7 +50,6 @@ partial class ServiceCollectionExtensions
                 options.AddModel<ICreateGuildPayload, CreateGuildPayload>();
                 options.AddModel<ICreateGuildRolePayload, CreateGuildRolePayload>();
                 options.AddModel<IModifyCurrentMemberPayload, ModifyCurrentMemberPayload>();
-                options.AddModel<IModifyCurrentUserVoiceStatePayload, ModifyCurrentUserVoiceStatePayload>();
                 options.AddModel<IModifyGuildChannelPositionsPayload, ModifyGuildChannelPositionsPayload>();
                 options.AddModel<IModifyGuildMemberPayload, ModifyGuildMemberPayload>();
                 options.AddModel<IModifyGuildMfaLevelPayload, ModifyGuildMfaLevelPayload>();
@@ -59,7 +58,6 @@ partial class ServiceCollectionExtensions
                 options.AddModel<IModifyGuildRolePayload, ModifyGuildRolePayload>();
                 options.AddModel<IModifyGuildRolePositionsPayload, ModifyGuildRolePositionsPayload>();
                 options.AddModel<IModifyGuildWelcomeScreenPayload, ModifyGuildWelcomeScreenPayload>();
-                options.AddModel<IModifyUserVoiceStatePayload, ModifyUserVoiceStatePayload>();
                 options.AddModel<ICreateGuildFromGuildTemplatePayload, CreateGuildFromGuildTemplatePayload>();
                 options.AddModel<ICreateGuildTemplatePayload, CreateGuildTemplatePayload>();
                 options.AddModel<IModifyGuildTemplatePayload, ModifyGuildTemplatePayload>();
@@ -79,6 +77,8 @@ partial class ServiceCollectionExtensions
                 options.AddModel<ICreateGroupDmPayload, CreateGroupDmPayload>();
                 options.AddModel<IModifyCurrentUserPayload, ModifyCurrentUserPayload>();
                 options.AddModel<IUpdateCurrentUserApplicationRoleConnectionPayload, UpdateCurrentUserApplicationRoleConnectionPayload>();
+                options.AddModel<IModifyCurrentUserVoiceStatePayload, ModifyCurrentUserVoiceStatePayload>();
+                options.AddModel<IModifyUserVoiceStatePayload, ModifyUserVoiceStatePayload>();
                 options.AddModel<ICreateWebhookPayload, CreateWebhookPayload>();
                 options.AddModel<IEditWebhookMessagePayload, EditWebhookMessagePayload>();
                 options.AddModel<IExecuteWebhookPayload, ExecuteWebhookPayload>();

@@ -747,28 +747,6 @@ public sealed class GuildRestAPI(IRestClient restClient)
     }
 
     /// <inheritdoc/>
-    public async ValueTask<Result> ModifyCurrentUserVoiceStateAsync
-    (
-        Snowflake guildId,
-        IModifyCurrentUserVoiceStatePayload payload,
-        RequestInfo info = default,
-        CancellationToken ct = default
-    )
-    {
-        Result<HttpResponseMessage> response = await restClient.ExecuteRequestAsync
-        (
-            HttpMethod.Patch,
-            $"guilds/{guildId}/voice-states/@me",
-            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
-                 .WithPayload(payload),
-            info,
-            ct
-        );
-
-        return (Result)response;
-    }
-
-    /// <inheritdoc/>
     public async ValueTask<Result<IGuild>> ModifyGuildAsync
     (
         Snowflake guildId,
@@ -993,30 +971,6 @@ public sealed class GuildRestAPI(IRestClient restClient)
             info,
             ct
         );
-    }
-
-    /// <inheritdoc/>
-    public async ValueTask<Result> ModifyUserVoiceStateAsync
-    (
-        Snowflake guildId,
-        Snowflake userId,
-        IModifyUserVoiceStatePayload payload,
-        RequestInfo info = default,
-        CancellationToken ct = default
-    )
-    {
-        Result<HttpResponseMessage> response = await restClient.ExecuteRequestAsync
-        (
-            HttpMethod.Patch,
-            $"guilds/{guildId}/voice-states/{userId}",
-            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
-                 .WithRoute($"PATCH guilds/{guildId}/voice-states/:user-id")
-                 .WithPayload(payload),
-            info,
-            ct
-        );
-
-        return (Result)response;
     }
 
     /// <inheritdoc/>

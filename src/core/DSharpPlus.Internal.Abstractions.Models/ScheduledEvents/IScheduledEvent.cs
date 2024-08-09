@@ -37,6 +37,9 @@ public interface IScheduledEvent : IPartialScheduledEvent
     /// <inheritdoc cref="IPartialScheduledEvent.EntityType"/>
     public new DiscordScheduledEventType EntityType { get; }
 
+    /// <inheritdoc cref="IPartialScheduledEvent.RecurrenceRule"/>
+    public new IScheduledEventRecurrenceRule? RecurrenceRule { get; }
+
     // partial access routes
 
     /// <inheritdoc/>
@@ -62,4 +65,7 @@ public interface IScheduledEvent : IPartialScheduledEvent
 
     /// <inheritdoc/>
     Optional<DiscordScheduledEventType> IPartialScheduledEvent.EntityType => this.EntityType;
+
+    /// <inheritdoc/>
+    Optional<IScheduledEventRecurrenceRule?> IPartialScheduledEvent.RecurrenceRule => new(this.RecurrenceRule);
 }

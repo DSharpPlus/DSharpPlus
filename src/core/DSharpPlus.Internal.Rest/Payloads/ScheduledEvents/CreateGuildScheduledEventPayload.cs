@@ -39,4 +39,7 @@ public sealed record CreateGuildScheduledEventPayload : ICreateGuildScheduledEve
 
     /// <inheritdoc/>
     public Optional<ImageData> Image { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<IScheduledEventRecurrenceRule> RecurrenceRule { get; init; }
 }

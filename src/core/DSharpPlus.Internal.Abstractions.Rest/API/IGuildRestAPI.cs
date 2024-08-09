@@ -734,36 +734,4 @@ public interface IGuildRestAPI
         RequestInfo info = default,
         CancellationToken ct = default
     );
-
-    /// <summary>
-    /// Modifies the current user's stage voice state.
-    /// </summary>
-    /// <param name="guildId">The snowflake identifier of the guild everything takes place in.</param>
-    /// <param name="payload">Information on how to update the current voice state.</param>
-    /// <param name="info">Additional instructions regarding this request.</param>
-    /// <param name="ct">A cancellation token for this operation.</param>
-    public ValueTask<Result> ModifyCurrentUserVoiceStateAsync
-    (
-        Snowflake guildId,
-        IModifyCurrentUserVoiceStatePayload payload,
-        RequestInfo info = default,
-        CancellationToken ct = default
-    );
-
-    /// <summary>
-    /// Modifies another user's stage voice state.
-    /// </summary>
-    /// <param name="guildId">The snowflake identifier of the guild everything takes place in.</param>
-    /// <param name="userId">The snowflake identifier of the user whose voice state to modify.</param>
-    /// <param name="payload">Information on how to modify the user's voice state.</param>
-    /// <param name="info">Additional instructions regarding this request.</param>
-    /// <param name="ct">A cancellation token for this operation.</param>
-    public ValueTask<Result> ModifyUserVoiceStateAsync
-    (
-        Snowflake guildId,
-        Snowflake userId,
-        IModifyUserVoiceStatePayload payload,
-        RequestInfo info = default,
-        CancellationToken ct = default
-    );
 }

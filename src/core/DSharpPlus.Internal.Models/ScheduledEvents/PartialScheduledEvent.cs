@@ -50,4 +50,7 @@ public sealed record PartialScheduledEvent : IPartialScheduledEvent
 
     /// <inheritdoc/>
     public Optional<string?> Image { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<IScheduledEventRecurrenceRule?> RecurrenceRule { get; init; }
 }

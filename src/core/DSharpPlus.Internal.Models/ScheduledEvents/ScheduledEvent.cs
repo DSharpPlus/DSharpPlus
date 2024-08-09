@@ -50,4 +50,7 @@ public sealed record ScheduledEvent : IScheduledEvent
 
     /// <inheritdoc/>
     public Optional<string?> Image { get; init; }
+
+    /// <inheritdoc/>
+    public IScheduledEventRecurrenceRule? RecurrenceRule { get; init; }
 }

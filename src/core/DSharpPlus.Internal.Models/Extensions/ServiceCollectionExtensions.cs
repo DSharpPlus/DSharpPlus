@@ -42,6 +42,7 @@ public static partial class ServiceCollectionExtensions
                 options.Converters.Add(new OptionalConverterFactory());
                 options.Converters.Add(new SnowflakeConverter());
                 options.Converters.Add(new OneOfConverterFactory());
+                options.Converters.Add(new ImageDataConverter());
 
                 options.Converters.Add(new AuditLogChangeConverter());
                 options.Converters.Add(new AutoModerationActionConverter());

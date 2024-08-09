@@ -131,6 +131,8 @@ partial class ServiceCollectionExtensions
                 options.AddModel<IPartialScheduledEvent, PartialScheduledEvent>();
                 options.AddModel<IScheduledEvent, ScheduledEvent>();
                 options.AddModel<IScheduledEventMetadata, ScheduledEventMetadata>();
+                options.AddModel<IScheduledEventRecurrenceDay, ScheduledEventRecurrenceDay>();
+                options.AddModel<IScheduledEventRecurrenceRule, ScheduledEventRecurrenceRule>();
                 options.AddModel<IScheduledEventUser, ScheduledEventUser>();
                 options.AddModel<ISku, Sku>();
                 options.AddModel<IPartialStageInstance, PartialStageInstance>();
