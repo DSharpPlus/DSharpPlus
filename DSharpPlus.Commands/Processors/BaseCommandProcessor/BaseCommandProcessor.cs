@@ -179,7 +179,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
     /// </remarks>
     /// <param name="type">The type to find the base type for.</param>
     /// <returns>The base type to use for converter registration.</returns>
-    public static Type GetConverterFriendlyBaseType(Type type)
+    public Type GetConverterFriendlyBaseType(Type type)
     {
         ArgumentNullException.ThrowIfNull(type, nameof(type));
 

@@ -59,18 +59,20 @@ public sealed class UserCommandProcessor : ICommandProcessor
             // Ensure there are no subcommands.
             else if (command.Subcommands.Count != 0)
             {
-                UserCommandLogging.userCommandCannotHaveSubcommands(logger, command.Name, null);
+                UserCommandLogging.userCommandCannotHaveSubcommands(logger, command.FullName, null);
                 continue;
             }
             else if (!command.Method!.GetParameters()[0].ParameterType.IsAssignableFrom(typeof(SlashCommandContext)))
             {
-                UserCommandLogging.userCommandContextParameterType(logger, command.Name, null);
+                UserCommandLogging.userCommandContextParameterType(logger, command.FullName, null);
                 continue;
             }
+
             // Check to see if the method signature is valid.
-            else if (command.Parameters.Count < 1 || command.Parameters[0].Type != typeof(DiscordUser) || command.Parameters[0].Type != typeof(DiscordMember))
+            Type firstParameterType = this.slashCommandProcessor.GetConverterFriendlyBaseType(command.Parameters[0].Type);
+            if (command.Parameters.Count < 1 || firstParameterType != typeof(DiscordUser) || firstParameterType != typeof(DiscordMember))
             {
-                UserCommandLogging.invalidParameterType(logger, command.Name, null);
+                UserCommandLogging.invalidParameterType(logger, command.FullName, null);
                 continue;
             }
 
@@ -79,7 +81,7 @@ public sealed class UserCommandProcessor : ICommandProcessor
             {
                 if (!command.Parameters[i].DefaultValue.HasValue)
                 {
-                    UserCommandLogging.invalidParameterMissingDefaultValue(logger, i, command.Name, null);
+                    UserCommandLogging.invalidParameterMissingDefaultValue(logger, i, command.FullName, null);
                     continue;
                 }
             }

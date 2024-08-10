@@ -59,18 +59,18 @@ public sealed class MessageCommandProcessor : ICommandProcessor
             // Ensure there are no subcommands.
             else if (command.Subcommands.Count != 0)
             {
-                MessageCommandLogging.messageCommandCannotHaveSubcommands(logger, command.Name, null);
+                MessageCommandLogging.messageCommandCannotHaveSubcommands(logger, command.FullName, null);
                 continue;
             }
             else if (!command.Method!.GetParameters()[0].ParameterType.IsAssignableFrom(typeof(SlashCommandContext)))
             {
-                MessageCommandLogging.messageCommandContextParameterType(logger, command.Name, null);
+                MessageCommandLogging.messageCommandContextParameterType(logger, command.FullName, null);
                 continue;
             }
             // Check to see if the method signature is valid.
-            else if (command.Parameters.Count < 1 || command.Parameters[0].Type != typeof(DiscordMessage))
+            else if (command.Parameters.Count < 1 || this.slashCommandProcessor.GetConverterFriendlyBaseType(command.Parameters[0].Type) != typeof(DiscordMessage))
             {
-                MessageCommandLogging.invalidParameterType(logger, command.Name, null);
+                MessageCommandLogging.invalidParameterType(logger, command.FullName, null);
                 continue;
             }
 
@@ -79,7 +79,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor
             {
                 if (!command.Parameters[i].DefaultValue.HasValue)
                 {
-                    MessageCommandLogging.invalidParameterMissingDefaultValue(logger, i, command.Name, null);
+                    MessageCommandLogging.invalidParameterMissingDefaultValue(logger, i, command.FullName, null);
                     continue;
                 }
             }
