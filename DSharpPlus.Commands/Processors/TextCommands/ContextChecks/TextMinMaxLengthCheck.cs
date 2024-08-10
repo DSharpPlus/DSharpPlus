@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 using DSharpPlus.Commands.ArgumentModifiers;
@@ -12,33 +11,19 @@ namespace DSharpPlus.Commands.Processors.TextCommands.ContextChecks;
 internal sealed class TextMinMaxLengthCheck : IParameterCheck<MinMaxLengthAttribute>
 {
     /// <inheritdoc/>
-    [SuppressMessage("Quality", "IDE0046", Justification = "Triple nested ternary.")]
-    public ValueTask<string?> ExecuteCheckAsync
-    (
-        MinMaxLengthAttribute attribute,
-        ParameterCheckInfo info, 
-        CommandContext context
-    )
+    public ValueTask<string?> ExecuteCheckAsync(MinMaxLengthAttribute attribute, ParameterCheckInfo info, CommandContext context)
     {
         if (info.Value is not string value)
         {
             return ValueTask.FromResult<string?>(null);
         }
-
-        if (value.Length < attribute.MinLength)
+        else if (value.Length < attribute.MinLength)
         {
-            return ValueTask.FromResult<string?>
-            (
-                $"The supplied string was too short, expected a minimum length of {attribute.MinLength}."
-            );
+            return ValueTask.FromResult<string?>($"The supplied string was too short, expected a minimum length of {attribute.MinLength}.");
         }
-
-        if (value.Length > attribute.MaxLength)
+        else if (value.Length > attribute.MaxLength)
         {
-            return ValueTask.FromResult<string?>
-            (
-                $"The supplied string was too long, expected a maximum length of {attribute.MaxLength}."
-            );
+            return ValueTask.FromResult<string?>($"The supplied string was too long, expected a maximum length of {attribute.MaxLength}.");
         }
 
         return ValueTask.FromResult<string?>(null);

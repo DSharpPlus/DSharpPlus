@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace DSharpPlus.Commands.Trees;
 
@@ -21,7 +20,7 @@ public record Command
     public string FullName => this.Parent is null ? this.Name : $"{this.Parent.FullName} {this.Name}";
 
     public Command(IEnumerable<CommandBuilder> subCommandBuilders) => this.Subcommands = subCommandBuilders.Select(x => x.WithParent(this).Build()).ToArray();
-    
+
     /// <summary>
     /// Traverses this command tree, returning this command and all subcommands recursively.
     /// </summary>

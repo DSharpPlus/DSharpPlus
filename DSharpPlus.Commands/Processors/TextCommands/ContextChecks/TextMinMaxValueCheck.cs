@@ -10,12 +10,7 @@ namespace DSharpPlus.Commands.Processors.TextCommands.ContextChecks;
 /// </summary>
 internal sealed class TextMinMaxValueCheck : IParameterCheck<MinMaxValueAttribute>
 {
-    public ValueTask<string?> ExecuteCheckAsync
-    (
-        MinMaxValueAttribute attribute,
-        ParameterCheckInfo info,
-        CommandContext context
-    )
+    public ValueTask<string?> ExecuteCheckAsync(MinMaxValueAttribute attribute, ParameterCheckInfo info, CommandContext context)
     {
         if (info.Value is null)
         {

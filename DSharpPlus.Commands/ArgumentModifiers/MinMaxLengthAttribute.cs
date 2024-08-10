@@ -28,7 +28,7 @@ public sealed class MinMaxLengthAttribute : ParameterCheckAttribute
     /// <summary>
     /// Determines the minimum and maximum length that a parameter can accept.
     /// </summary>
-    public MinMaxLengthAttribute(int minLength = MinLengthMinimum, int maxLength = MaxLengthMaximum )
+    public MinMaxLengthAttribute(int minLength = MinLengthMinimum, int maxLength = MaxLengthMaximum)
     {
         this.MinLength = minLength;
         this.MaxLength = maxLength;

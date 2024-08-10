@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,20 +13,13 @@ namespace DSharpPlus.Commands.Processors.TextCommands.ContextChecks;
 internal sealed class TextChannelTypesCheck : IParameterCheck<ChannelTypesAttribute>
 {
     /// <inheritdoc/>
-    [SuppressMessage("Quality", "IDE0046", Justification = "Double nested ternary.")]
-    public ValueTask<string?> ExecuteCheckAsync
-    (
-        ChannelTypesAttribute attribute,
-        ParameterCheckInfo info,
-        CommandContext context
-    )
+    public ValueTask<string?> ExecuteCheckAsync(ChannelTypesAttribute attribute, ParameterCheckInfo info, CommandContext context)
     {
         if (info.Value is not DiscordChannel channel)
         {
             return ValueTask.FromResult<string?>(null);
         }
-
-        if (attribute.ChannelTypes.Contains(channel.Type))
+        else if (attribute.ChannelTypes.Contains(channel.Type))
         {
             return ValueTask.FromResult<string?>(null);
         }

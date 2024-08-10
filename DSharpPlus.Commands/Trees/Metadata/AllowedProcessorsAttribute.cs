@@ -28,14 +28,9 @@ public class AllowedProcessorsAttribute : Attribute
             throw new ArgumentException("All processors must implement ICommandProcessor.", nameof(processors));
         }
 
-        if ((processors.Contains(typeof(MessageCommandProcessor)) || processors.Contains(typeof(UserCommandProcessor))) && !processors.Contains(typeof(SlashCommandProcessor)))
-        {
-            this.Processors = processors.Append(typeof(SlashCommandProcessor)).ToArray();
-        }
-        else
-        {
-            this.Processors = processors;
-        }
+        this.Processors = (processors.Contains(typeof(MessageCommandProcessor)) || processors.Contains(typeof(UserCommandProcessor))) && !processors.Contains(typeof(SlashCommandProcessor))
+            ? [.. processors, typeof(SlashCommandProcessor)]
+            : processors;
     }
 
     /// <summary>

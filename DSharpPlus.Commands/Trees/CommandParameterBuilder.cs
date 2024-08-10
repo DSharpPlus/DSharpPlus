@@ -4,10 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-
-using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
-using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Commands.Trees;
@@ -25,11 +22,6 @@ public partial class CommandParameterBuilder
         if (string.IsNullOrWhiteSpace(name))
         {
             throw new ArgumentNullException(nameof(name), "The name of the command cannot be null or whitespace.");
-        }
-
-        if (!this.Attributes.Any(x => x is SnakeCasedNameAttribute))
-        {
-            this.Attributes.Add(new SnakeCasedNameAttribute(SlashCommandProcessor.ToSnakeCase(name)));
         }
 
         this.Name = name;
