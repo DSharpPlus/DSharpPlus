@@ -6,10 +6,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.Commands.Converters;
 
@@ -22,30 +19,47 @@ public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>
     public string ReadableName => "Discord User";
     public bool RequiresText => true;
 
-    private readonly ILogger<DiscordUserConverter> logger;
-
-    public DiscordUserConverter(ILogger<DiscordUserConverter>? logger = null) => this.logger = logger ?? NullLogger<DiscordUserConverter>.Instance;
-
-    public async Task<Optional<DiscordUser>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs)
+    public async Task<Optional<DiscordUser>> ConvertAsync(ConverterContext context)
     {
-        if (context.Guild is null)
+        if (context is InteractionConverterContext interactionContext
+            // Resolved can be null on autocomplete contexts
+            && interactionContext.Interaction.Data.Resolved is not null
+            // Check if we can parse the member ID (this should be guaranteed by Discord)
+            && ulong.TryParse(interactionContext.Argument?.RawValue, CultureInfo.InvariantCulture, out ulong memberId)
+            // Check if the member is in the resolved data
+            && interactionContext.Interaction.Data.Resolved.Users.TryGetValue(memberId, out DiscordUser? user))
+        {
+            return Optional.FromValue(user);
+        }
+
+        string? value = context.Argument?.ToString();
+        if (string.IsNullOrWhiteSpace(value))
         {
             return Optional.FromNoValue<DiscordUser>();
         }
 
-        if (!ulong.TryParse(context.Argument, CultureInfo.InvariantCulture, out ulong memberId))
+        // Try parsing by the member id
+        if (!ulong.TryParse(value, CultureInfo.InvariantCulture, out memberId))
         {
-            Match match = getMemberRegex().Match(context.Argument);
+            // Try parsing through a member mention
+            Match match = getMemberRegex().Match(value);
             if (!match.Success || !ulong.TryParse(match.Groups[1].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out memberId))
             {
-                // Attempt to find a member by name, case sensitive.
-                DiscordUser? namedMember = context.Guild.Members.Values.FirstOrDefault(member => member.DisplayName.Equals(context.Argument, StringComparison.Ordinal));
-                return namedMember is not null ? Optional.FromValue(namedMember) : Optional.FromNoValue<DiscordUser>();
+                // If this is invoked in a guild, try to get the member first.
+                if (context.Guild is not null && context.Guild.Members.Values.FirstOrDefault(member => member.DisplayName.Equals(value, StringComparison.Ordinal)) is DiscordMember namedMember)
+                {
+                    // Attempt to find a member by name, case sensitive.
+                    return Optional.FromValue<DiscordUser>(namedMember);
+                }
+
+                // An invalid user id was passed and we couldn't find a member by name.
+                return Optional.FromNoValue<DiscordUser>();
             }
         }
 
-        // Search the guild first
-        if (context.Guild.Members.TryGetValue(memberId, out DiscordMember? member))
+        // Search the guild cache first. We want to allow the dev to
+        // try casting to a member for the most amount of information available.
+        if (context.Guild is not null && context.Guild.Members.TryGetValue(memberId, out DiscordMember? member))
         {
             return Optional.FromValue<DiscordUser>(member);
         }
@@ -53,23 +67,11 @@ public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>
         // If we didn't find the user in the guild, try to get the user from the API.
         try
         {
-            DiscordUser? possiblyCachedUser = await context.Client.GetUserAsync(memberId);
-            if (possiblyCachedUser is not null)
-            {
-                return Optional.FromValue(possiblyCachedUser);
-            }
+            return Optional.FromValue(await context.Client.GetUserAsync(memberId));
         }
-        catch (DiscordException error)
+        catch (DiscordException)
         {
-            this.logger.LogError(error, "Failed to get user from client.");
+            return Optional.FromNoValue<DiscordUser>();
         }
-
-        return Optional.FromNoValue<DiscordUser>();
     }
-
-    public Task<Optional<DiscordUser>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs) => context.Interaction.Data.Resolved is null
-        || !ulong.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out ulong memberId)
-        || !context.Interaction.Data.Resolved.Users.TryGetValue(memberId, out DiscordUser? user)
-            ? Task.FromResult(Optional.FromNoValue<DiscordUser>())
-            : Task.FromResult(Optional.FromValue(user));
 }

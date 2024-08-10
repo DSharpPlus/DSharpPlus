@@ -17,13 +17,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Commands.Processors.TextCommands;
 
-public sealed class TextCommandProcessor : BaseCommandProcessor<MessageCreatedEventArgs, ITextArgumentConverter, TextConverterContext, TextCommandContext>
+public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentConverter, TextConverterContext, TextCommandContext>
 {
     public const DiscordIntents RequiredIntents = DiscordIntents.DirectMessages // Required for commands executed in DMs
                                                 | DiscordIntents.GuildMessages; // Required for commands that are executed via bot ping
 
     public TextCommandConfiguration Configuration { get; init; }
-    private bool configured;
 
     public override IReadOnlyList<Command> Commands => this.commands.Values;
     private FrozenDictionary<string, Command> commands = FrozenDictionary<string, Command>.Empty;
@@ -42,31 +41,29 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<MessageCreatedEv
     /// <inheritdoc />
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {
-        await base.ConfigureAsync(extension);
-
         Dictionary<string, Command> textCommands = [];
-
-        foreach (Command command in this.extension.GetCommandsForProcessor(this))
+        foreach (Command command in extension.GetCommandsForProcessor(this))
         {
             textCommands.Add(command.Name, command);
         }
 
         this.commands = textCommands.ToFrozenDictionary(this.Configuration.CommandNameComparer);
+        if (this.extension is null)
+        {
+            extension.Client.MessageCreated += ExecuteTextCommandAsync;
 
-        if (this.configured)
-        {
-            return;
+            // Put these logs here so that they only appear when the processor is configured the first time.
+            if (!extension.Client.Intents.HasIntent(DiscordIntents.GuildMessages) && !extension.Client.Intents.HasIntent(DiscordIntents.DirectMessages))
+            {
+                TextLogging.missingRequiredIntents(this.logger, RequiredIntents, null);
+            }
+            else if (!extension.Client.Intents.HasIntent(DiscordIntents.MessageContents) && !this.Configuration.SuppressMissingMessageContentIntentWarning)
+            {
+                TextLogging.missingMessageContentIntent(this.logger, null);
+            }
         }
 
-        this.configured = true;
-        if (!extension.Client.Intents.HasIntent(DiscordIntents.GuildMessages) && !extension.Client.Intents.HasIntent(DiscordIntents.DirectMessages))
-        {
-            TextLogging.MissingRequiredIntents(this.logger, RequiredIntents, null);
-        }
-        else if (!extension.Client.Intents.HasIntent(DiscordIntents.MessageContents) && !this.Configuration.SuppressMissingMessageContentIntentWarning)
-        {
-            TextLogging.MissingMessageContentIntent(this.logger, null);
-        }
+        await base.ConfigureAsync(extension);
     }
 
     public async Task ExecuteTextCommandAsync(DiscordClient client, MessageCreatedEventArgs eventArgs)
@@ -82,8 +79,8 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<MessageCreatedEv
             return;
         }
 
-        AsyncServiceScope scope = this.extension.ServiceProvider.CreateAsyncScope();
-        ResolvePrefixDelegateAsync resolvePrefix = scope.ServiceProvider.GetService<IPrefixResolver>() is IPrefixResolver prefixResolver
+        AsyncServiceScope serviceScope = this.extension.ServiceProvider.CreateAsyncScope();
+        ResolvePrefixDelegateAsync resolvePrefix = serviceScope.ServiceProvider.GetService<IPrefixResolver>() is IPrefixResolver prefixResolver
             ? prefixResolver.ResolvePrefixAsync
             : this.Configuration.PrefixResolver;
 
@@ -110,7 +107,7 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<MessageCreatedEv
                         Command = null!,
                         Extension = this.extension,
                         Message = eventArgs.Message,
-                        ServiceScope = scope,
+                        ServiceScope = serviceScope,
                         User = eventArgs.Author
                     },
                     Exception = new CommandNotFoundException(commandText[..index]),
@@ -118,7 +115,7 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<MessageCreatedEv
                 });
             }
 
-            await scope.DisposeAsync();
+            await serviceScope.DisposeAsync();
             return;
         }
 
@@ -132,22 +129,22 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<MessageCreatedEv
                 {
                     await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
                     {
-                        Context = CreateCommandContext(new()
+                        Context = new TextCommandContext()
                         {
+                            Arguments = new Dictionary<CommandParameter, object?>(),
                             Channel = eventArgs.Channel,
                             Command = command,
                             Extension = this.extension,
-                            RawArguments = commandText[index..],
-                            ServiceScope = scope,
-                            Splicer = this.Configuration.TextArgumentSplicer,
+                            Message = eventArgs.Message,
+                            ServiceScope = serviceScope,
                             User = eventArgs.Author
-                        }, eventArgs, []),
+                        },
                         Exception = new CommandNotExecutableException(command, "Unable to execute a command that has no method. Is this command a group command?"),
                         CommandObject = null
                     });
                 }
 
-                // I wish the above if statement could be merged with the one below
+                await serviceScope.DisposeAsync();
                 return;
             }
 
@@ -159,48 +156,64 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<MessageCreatedEv
             Channel = eventArgs.Channel,
             Command = command,
             Extension = this.extension,
+            Message = eventArgs.Message,
             RawArguments = commandText[index..],
-            ServiceScope = scope,
+            ServiceScope = serviceScope,
             Splicer = this.Configuration.TextArgumentSplicer,
             User = eventArgs.Author
         };
 
-        TextCommandContext? commandContext = await ParseArgumentsAsync(converterContext, eventArgs);
-        if (commandContext is null)
+        IReadOnlyDictionary<CommandParameter, object?> parsedArguments = await ParseParametersAsync(converterContext);
+        TextCommandContext commandContext = CreateCommandContext(converterContext, parsedArguments);
+
+        // Iterate over all arguments and check if any of them failed to parse.
+        foreach (KeyValuePair<CommandParameter, object?> argument in parsedArguments)
         {
-            await scope.DisposeAsync();
-            return;
+            if (argument.Value is ArgumentFailedConversionValue argumentFailedConversionValue)
+            {
+                await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
+                {
+                    Context = commandContext,
+                    CommandObject = null,
+                    Exception = new ArgumentParseException(argument.Key, argumentFailedConversionValue.Error)
+                });
+
+                await serviceScope.DisposeAsync();
+                return;
+            }
+            else if (argument.Value is ArgumentNotParsedValue)
+            {
+                await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
+                {
+                    Context = commandContext,
+                    CommandObject = null,
+                    Exception = new ArgumentParseException(argument.Key, new ArgumentException("Argument could not be parsed."))
+                });
+
+                await serviceScope.DisposeAsync();
+                return;
+            }
         }
 
         await this.extension.CommandExecutor.ExecuteAsync(commandContext);
     }
 
-    public override TextCommandContext CreateCommandContext
-    (
-        TextConverterContext converterContext,
-        MessageCreatedEventArgs eventArgs,
-        Dictionary<CommandParameter, object?> parsedArguments
-    )
+    public override TextCommandContext CreateCommandContext(TextConverterContext converterContext, IReadOnlyDictionary<CommandParameter, object?> parsedArguments)
     {
         return new()
         {
             Arguments = parsedArguments,
-            Channel = eventArgs.Channel,
+            Channel = converterContext.Channel,
             Command = converterContext.Command,
             Extension = this.extension ?? throw new InvalidOperationException("TextCommandProcessor has not been configured."),
-            Message = eventArgs.Message,
+            Message = converterContext.Message,
             ServiceScope = converterContext.ServiceScope,
-            User = eventArgs.Author
+            User = converterContext.User
         };
     }
 
     /// <inheritdoc/>
-    protected override async ValueTask<IOptional> ExecuteConverterAsync<T>
-    (
-        ITextArgumentConverter converter,
-        TextConverterContext converterContext,
-        MessageCreatedEventArgs eventArgs
-    )
+    protected override async ValueTask<IOptional> ExecuteConverterAsync<T>(ITextArgumentConverter converter, TextConverterContext converterContext)
     {
         if (converter is not ITextArgumentConverter<T> typedConverter)
         {
@@ -215,15 +228,14 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<MessageCreatedEv
         }
         else if (!converterContext.Parameter.Attributes.OfType<ParamArrayAttribute>().Any())
         {
-            return await typedConverter.ConvertAsync(converterContext, eventArgs);
+            return await typedConverter.ConvertAsync(converterContext);
         }
 
         List<T> values = [];
 
         do
         {
-            Optional<T> optional = await typedConverter.ConvertAsync(converterContext, eventArgs);
-
+            Optional<T> optional = await typedConverter.ConvertAsync(converterContext);
             if (!optional.HasValue)
             {
                 break;
@@ -233,87 +245,6 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<MessageCreatedEv
         } while (converterContext.NextArgument());
 
         return Optional.FromValue(values.ToArray());
-    }
-
-    /// <inheritdoc/>
-    public override async ValueTask<TextCommandContext?> ParseArgumentsAsync
-    (
-        TextConverterContext converterContext,
-        MessageCreatedEventArgs eventArgs
-    )
-    {
-        if (this.extension is null)
-        {
-            return null;
-        }
-
-        Dictionary<CommandParameter, object?> parsedArguments = new(converterContext.Command.Parameters.Count);
-
-        foreach (CommandParameter parameter in converterContext.Command.Parameters)
-        {
-            parsedArguments.Add(parameter, new ConverterSentinel());
-        }
-
-        try
-        {
-            while (converterContext.NextParameter())
-            {
-                IOptional optional = await this.ConverterDelegates[GetConverterFriendlyBaseType(converterContext.Parameter.Type)](converterContext, eventArgs);
-
-                if (!optional.HasValue)
-                {
-                    await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
-                    {
-                        Context = CreateCommandContext(converterContext, eventArgs, parsedArguments),
-                        Exception = new ArgumentParseException(converterContext.Parameter, null, $"Argument Converter for type {converterContext.Parameter.Type.FullName} was unable to parse the argument."),
-                        CommandObject = null
-                    });
-
-                    return null;
-                }
-
-                parsedArguments[converterContext.Parameter] = optional.RawValue;
-            }
-
-            if (parsedArguments.Any(x => x.Value is ConverterSentinel))
-            {
-                // Try to fill with default values
-                foreach (CommandParameter parameter in converterContext.Command.Parameters)
-                {
-                    if (parsedArguments[parameter] is not ConverterSentinel)
-                    {
-                        continue;
-                    }
-
-                    if (!parameter.DefaultValue.HasValue)
-                    {
-                        await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
-                        {
-                            Context = CreateCommandContext(converterContext, eventArgs, parsedArguments),
-                            Exception = new ArgumentParseException(converterContext.Parameter, null, "No value was provided for this parameter."),
-                            CommandObject = null
-                        });
-
-                        return null;
-                    }
-
-                    parsedArguments[parameter] = parameter.DefaultValue.Value;
-                }
-            }
-        }
-        catch (Exception error)
-        {
-            await this.extension.commandErrored.InvokeAsync(converterContext.Extension, new CommandErroredEventArgs()
-            {
-                Context = CreateCommandContext(converterContext, eventArgs, parsedArguments),
-                Exception = new ArgumentParseException(converterContext.Parameter, error),
-                CommandObject = null
-            });
-
-            return null;
-        }
-
-        return CreateCommandContext(converterContext, eventArgs, parsedArguments);
     }
 
     /// <summary>

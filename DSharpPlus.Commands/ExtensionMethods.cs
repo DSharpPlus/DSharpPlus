@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-
 using DSharpPlus.Extensions;
-
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Commands;
@@ -23,7 +21,7 @@ public static class ExtensionMethods
         this DiscordClientBuilder builder,
         Action<CommandsExtension> setup,
         CommandsConfiguration? configuration = null
-    ) 
+    )
         => builder.ConfigureServices(services => services.AddCommandsExtension(setup, configuration));
 
     /// <summary>

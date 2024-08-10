@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.Commands.Converters;
 
@@ -18,11 +17,9 @@ public partial class TimeSpanConverter : ISlashArgumentConverter<TimeSpan>, ITex
     public string ReadableName => "Duration";
     public bool RequiresText => true;
 
-    public Task<Optional<TimeSpan>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs) => ConvertAsync(context, context.Argument);
-    public Task<Optional<TimeSpan>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs) => ConvertAsync(context, context.Argument.RawValue);
-
-    public static Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context, string? value)
+    public Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context)
     {
+        string? value = context.Argument?.ToString();
         if (string.IsNullOrWhiteSpace(value))
         {
             return Task.FromResult(Optional.FromNoValue<TimeSpan>());

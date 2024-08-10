@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Frozen;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.Converters;
@@ -21,17 +20,22 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.Commands.Processors.UserCommands;
 
-public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedEventArgs>
+public sealed class UserCommandProcessor : ICommandProcessor
 {
-    public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreatedEventArgs>> Converters => this.slashCommandProcessor?.ConverterDelegates ?? new Dictionary<Type, ConverterDelegate<InteractionCreatedEventArgs>>();
-    private CommandsExtension? extension;
-    private SlashCommandProcessor? slashCommandProcessor;
-
-    public IReadOnlyList<Command> Commands => this.commands;
-    private List<Command> commands = [];
-
     /// <inheritdoc />
     public Type ContextType => typeof(SlashCommandContext);
+
+    /// <inheritdoc />
+    public IReadOnlyDictionary<Type, IArgumentConverter> Converters => this.slashCommandProcessor is not null
+        ? Unsafe.As<IReadOnlyDictionary<Type, IArgumentConverter>>(this.slashCommandProcessor.Converters)
+        : new Dictionary<Type, IArgumentConverter>();
+
+    /// <inheritdoc />
+    public IReadOnlyList<Command> Commands => this.commands;
+    private readonly List<Command> commands = [];
+
+    private CommandsExtension? extension;
+    private SlashCommandProcessor? slashCommandProcessor;
 
     /// <inheritdoc />
     public async ValueTask ConfigureAsync(CommandsExtension extension)
@@ -47,7 +51,7 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
 
         foreach (Command command in flattenCommands)
         {
-            // User commands must be explicitly defined as such, otherwise they are ignored.
+            // Message commands must be explicitly defined as such, otherwise they are ignored.
             if (!command.Attributes.Any(x => x is SlashCommandTypesAttribute slashCommandTypesAttribute && slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.UserContextMenu)))
             {
                 continue;
@@ -55,24 +59,29 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
             // Ensure there are no subcommands.
             else if (command.Subcommands.Count != 0)
             {
-                logger.LogError("User command '{CommandName}' cannot have subcommands.", command.Name);
-                continue;
-            }
-            // Check to see if the method signature is valid.
-            else if (command.Parameters.Count < 1 || (command.Parameters[0].Type != typeof(DiscordUser) && command.Parameters[0].Type != typeof(DiscordMember)))
-            {
-                logger.LogError("User command '{CommandName}' must have the signature (CommandContext, DiscordUser). Any additional parameter must have a default value.", command.Name);
-                continue;
-            }
-            else if (!command.Parameters.Skip(1).All(parameter => parameter.DefaultValue.HasValue))
-            {
-                logger.LogError("User command '{CommandName}' must have the signature (CommandContext, DiscordUser). Any additional parameter must have a default value.", command.Name);
+                UserCommandLogging.userCommandCannotHaveSubcommands(logger, command.Name, null);
                 continue;
             }
             else if (!command.Method!.GetParameters()[0].ParameterType.IsAssignableFrom(typeof(SlashCommandContext)))
             {
-                logger.LogError("User command '{CommandName}' has an incompatible CommandContext.", command.Name);
+                UserCommandLogging.userCommandContextParameterType(logger, command.Name, null);
                 continue;
+            }
+            // Check to see if the method signature is valid.
+            else if (command.Parameters.Count < 1 || command.Parameters[0].Type != typeof(DiscordUser) || command.Parameters[0].Type != typeof(DiscordMember))
+            {
+                UserCommandLogging.invalidParameterType(logger, command.Name, null);
+                continue;
+            }
+
+            // Iterate over all parameters and ensure they have default values.
+            for (int i = 1; i < command.Parameters.Count; i++)
+            {
+                if (!command.Parameters[i].DefaultValue.HasValue)
+                {
+                    UserCommandLogging.invalidParameterMissingDefaultValue(logger, i, command.Name, null);
+                    continue;
+                }
             }
 
             this.commands.Add(command);
@@ -88,14 +97,14 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
         {
             throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
         }
-        else if (eventArgs.Interaction.Type is not DiscordInteractionType.ApplicationCommand || eventArgs.Interaction.Data.Type is not DiscordApplicationCommandType.UserContextMenu)
+        else if (eventArgs.Interaction.Type is not DiscordInteractionType.ApplicationCommand
+              || eventArgs.Interaction.Data.Type is not DiscordApplicationCommandType.UserContextMenu)
         {
             return;
         }
 
         AsyncServiceScope scope = this.extension.ServiceProvider.CreateAsyncScope();
-
-        if (this.slashCommandProcessor.ApplicationCommandMapping == FrozenDictionary<ulong, Command>.Empty)
+        if (this.slashCommandProcessor.ApplicationCommandMapping.Count == 0)
         {
             ILogger<UserCommandProcessor> logger = this.extension.ServiceProvider.GetService<ILogger<UserCommandProcessor>>() ?? NullLogger<UserCommandProcessor>.Instance;
             logger.LogWarning("Received an interaction for a user command, but commands have not been registered yet. Ignoring interaction");
@@ -124,11 +133,16 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
             return;
         }
 
+        // The first parameter for MessageContextMenu commands is always the DiscordMessage.
         Dictionary<CommandParameter, object?> arguments = new()
         {
             { command.Parameters[0], eventArgs.TargetUser }
         };
 
+        // Because methods can have multiple interaction invocation types,
+        // there has been a demand to be able to register methods with multiple
+        // parameters, even for MessageContextMenu commands.
+        // The condition is that all the parameters on the method must have default values.
         for (int i = 1; i < command.Parameters.Count; i++)
         {
             // We verify at startup that all parameters have default values.
@@ -152,14 +166,19 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
 
     public async Task<DiscordApplicationCommand> ToApplicationCommandAsync(Command command)
     {
+        if (this.slashCommandProcessor is null)
+        {
+            throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
+        }
+
         IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
         if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
         {
-            nameLocalizations = await this.slashCommandProcessor!.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
+            nameLocalizations = await this.slashCommandProcessor.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
         }
 
         return new(
-            name: command.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName ?? command.FullName,
+            name: this.slashCommandProcessor.Configuration.ParameterNamePolicy.GetCommandName(command),
             description: string.Empty,
             type: DiscordApplicationCommandType.UserContextMenu,
             name_localizations: nameLocalizations,

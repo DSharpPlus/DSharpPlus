@@ -1,3 +1,5 @@
+using DSharpPlus.Commands.Processors.SlashCommands.ParameterNamingPolicies;
+
 namespace DSharpPlus.Commands.Processors.SlashCommands;
 
 /// <summary>
@@ -14,4 +16,9 @@ public sealed class SlashCommandConfiguration
     /// commands or obtain your application commands from a different source.
     /// </remarks>
     public bool RegisterCommands { get; init; } = true;
+
+    /// <summary>
+    /// How to name parameters when registering or receiving interaction data.
+    /// </summary>
+    public IInteractionNamingPolicy ParameterNamePolicy { get; init; } = new SnakeCaseNamingPolicy();
 }

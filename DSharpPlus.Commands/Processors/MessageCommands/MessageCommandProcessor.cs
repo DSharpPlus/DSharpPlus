@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Frozen;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.Converters;
@@ -21,17 +20,22 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.Commands.Processors.MessageCommands;
 
-public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreatedEventArgs>
+public sealed class MessageCommandProcessor : ICommandProcessor
 {
-    public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreatedEventArgs>> Converters => this.slashCommandProcessor?.ConverterDelegates ?? new Dictionary<Type, ConverterDelegate<InteractionCreatedEventArgs>>();
-    private CommandsExtension? extension;
-    private SlashCommandProcessor? slashCommandProcessor;
-
-    public IReadOnlyList<Command> Commands => this.commands;
-    private List<Command> commands = [];
-
     /// <inheritdoc />
     public Type ContextType => typeof(SlashCommandContext);
+
+    /// <inheritdoc />
+    public IReadOnlyDictionary<Type, IArgumentConverter> Converters => this.slashCommandProcessor is not null
+        ? Unsafe.As<IReadOnlyDictionary<Type, IArgumentConverter>>(this.slashCommandProcessor.Converters)
+        : new Dictionary<Type, IArgumentConverter>();
+
+    /// <inheritdoc />
+    public IReadOnlyList<Command> Commands => this.commands;
+    private readonly List<Command> commands = [];
+
+    private CommandsExtension? extension;
+    private SlashCommandProcessor? slashCommandProcessor;
 
     /// <inheritdoc />
     public async ValueTask ConfigureAsync(CommandsExtension extension)
@@ -55,24 +59,29 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
             // Ensure there are no subcommands.
             else if (command.Subcommands.Count != 0)
             {
-                logger.LogError("Message command '{CommandName}' cannot have subcommands.", command.Name);
+                MessageCommandLogging.messageCommandCannotHaveSubcommands(logger, command.Name, null);
+                continue;
+            }
+            else if (!command.Method!.GetParameters()[0].ParameterType.IsAssignableFrom(typeof(SlashCommandContext)))
+            {
+                MessageCommandLogging.messageCommandContextParameterType(logger, command.Name, null);
                 continue;
             }
             // Check to see if the method signature is valid.
             else if (command.Parameters.Count < 1 || command.Parameters[0].Type != typeof(DiscordMessage))
             {
-                logger.LogError("Message command '{CommandName}' must have the signature (CommandContext, DiscordMessage). Any additional parameter must have a default value.", command.Name);
+                MessageCommandLogging.invalidParameterType(logger, command.Name, null);
                 continue;
             }
-            else if (!command.Parameters.Skip(1).All(parameter => parameter.DefaultValue.HasValue))
+
+            // Iterate over all parameters and ensure they have default values.
+            for (int i = 1; i < command.Parameters.Count; i++)
             {
-                logger.LogError("Message command '{CommandName}' must have the signature (CommandContext, DiscordMessage). Any additional parameter must have a default value.", command.Name);
-                continue;
-            }
-            else if (!command.Method!.GetParameters()[0].ParameterType.IsAssignableFrom(typeof(SlashCommandContext)))
-            {
-                logger.LogError("Message command '{CommandName}' has an incompatible CommandContext.", command.Name);
-                continue;
+                if (!command.Parameters[i].DefaultValue.HasValue)
+                {
+                    MessageCommandLogging.invalidParameterMissingDefaultValue(logger, i, command.Name, null);
+                    continue;
+                }
             }
 
             this.commands.Add(command);
@@ -88,14 +97,14 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
         {
             throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
         }
-        else if (eventArgs.Interaction.Type is not DiscordInteractionType.ApplicationCommand || eventArgs.Interaction.Data.Type is not DiscordApplicationCommandType.MessageContextMenu)
+        else if (eventArgs.Interaction.Type is not DiscordInteractionType.ApplicationCommand
+              || eventArgs.Interaction.Data.Type is not DiscordApplicationCommandType.MessageContextMenu)
         {
             return;
         }
 
         AsyncServiceScope scope = this.extension.ServiceProvider.CreateAsyncScope();
-
-        if (this.slashCommandProcessor.ApplicationCommandMapping == FrozenDictionary<ulong, Command>.Empty)
+        if (this.slashCommandProcessor.ApplicationCommandMapping.Count == 0)
         {
             ILogger<MessageCommandProcessor> logger = this.extension.ServiceProvider.GetService<ILogger<MessageCommandProcessor>>() ?? NullLogger<MessageCommandProcessor>.Instance;
             logger.LogWarning("Received an interaction for a user command, but commands have not been registered yet. Ignoring interaction");
@@ -124,11 +133,16 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
             return;
         }
 
+        // The first parameter for MessageContextMenu commands is always the DiscordMessage.
         Dictionary<CommandParameter, object?> arguments = new()
         {
             { command.Parameters[0], eventArgs.TargetMessage }
         };
 
+        // Because methods can have multiple interaction invocation types,
+        // there has been a demand to be able to register methods with multiple
+        // parameters, even for MessageContextMenu commands.
+        // The condition is that all the parameters on the method must have default values.
         for (int i = 1; i < command.Parameters.Count; i++)
         {
             // We verify at startup that all parameters have default values.
@@ -152,14 +166,19 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
 
     public async Task<DiscordApplicationCommand> ToApplicationCommandAsync(Command command)
     {
+        if (this.slashCommandProcessor is null)
+        {
+            throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
+        }
+
         IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
         if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
         {
-            nameLocalizations = await this.slashCommandProcessor!.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
+            nameLocalizations = await this.slashCommandProcessor.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
         }
 
         return new(
-            name: command.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName ?? command.FullName,
+            name: this.slashCommandProcessor.Configuration.ParameterNamePolicy.GetCommandName(command),
             description: string.Empty,
             type: DiscordApplicationCommandType.MessageContextMenu,
             name_localizations: nameLocalizations,

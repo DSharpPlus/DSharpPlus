@@ -37,6 +37,11 @@ public abstract record ConverterContext : AbstractContext
     }
 
     /// <summary>
+    /// Advances to the next argument, returning a value indicating whether there was another argument.
+    /// </summary>
+    public abstract bool NextArgument();
+
+    /// <summary>
     /// Short-hand for converting to a more specific converter context type.
     /// </summary>
     public T As<T>() where T : ConverterContext => (T)this;

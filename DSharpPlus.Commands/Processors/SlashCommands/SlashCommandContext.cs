@@ -12,7 +12,7 @@ namespace DSharpPlus.Commands.Processors.SlashCommands;
 public record SlashCommandContext : CommandContext
 {
     public required DiscordInteraction Interaction { get; init; }
-    public required IEnumerable<DiscordInteractionDataOption> Options { get; init; }
+    public required IReadOnlyList<DiscordInteractionDataOption> Options { get; init; }
 
     /// <inheritdoc cref="CommandContext.RespondAsync(string)" />
     /// <param name="content">Content to send in the response.</param>
@@ -81,7 +81,7 @@ public record SlashCommandContext : CommandContext
         {
             throw new ArgumentException("Modals currently only support TextInputComponents");
         }
-        
+
         await this.Interaction.CreateResponseAsync(DiscordInteractionResponseType.Modal, builder);
     }
 
@@ -137,7 +137,7 @@ public record SlashCommandContext : CommandContext
     public override async ValueTask<DiscordMessage> EditFollowupAsync(ulong messageId, IDiscordMessageBuilder builder)
     {
         DiscordWebhookBuilder editedBuilder = builder as DiscordWebhookBuilder ?? new DiscordWebhookBuilder(builder);
-        
+
         this.followupMessages[messageId] = await this.Interaction.EditFollowupMessageAsync(messageId, editedBuilder);
         return this.followupMessages[messageId];
     }

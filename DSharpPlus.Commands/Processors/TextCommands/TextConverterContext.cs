@@ -1,17 +1,19 @@
 using DSharpPlus.Commands.Converters;
 using DSharpPlus.Commands.Processors.TextCommands.Parsing;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.Commands.Processors.TextCommands;
 
 public record TextConverterContext : ConverterContext
 {
+    public required DiscordMessage Message { get; init; }
     public required TextArgumentSplicer Splicer { get; init; }
     public required string RawArguments { get; init; }
     public new string Argument => (string)(base.Argument ?? string.Empty);
     public int CurrentArgumentIndex { get; private set; }
     public int NextArgumentIndex { get; private set; }
 
-    public bool NextArgument()
+    public override bool NextArgument()
     {
         if (this.NextArgumentIndex >= this.RawArguments.Length || this.NextArgumentIndex == -1)
         {

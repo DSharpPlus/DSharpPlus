@@ -6,10 +6,12 @@ namespace DSharpPlus.Commands.Processors.SlashCommands.Localization;
 
 public static class LocalesHelper
 {
+#pragma warning disable IDE1006
     public static readonly FrozenDictionary<string, DiscordLocale> EnglishToLocale;
     public static readonly FrozenDictionary<string, DiscordLocale> NativeToLocale;
     public static readonly FrozenDictionary<DiscordLocale, string> LocaleToEnglish;
     public static readonly FrozenDictionary<DiscordLocale, string> LocaleToNative;
+#pragma warning restore IDE1006
 
     static LocalesHelper()
     {

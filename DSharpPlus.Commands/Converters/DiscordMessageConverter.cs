@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 
 namespace DSharpPlus.Commands.Converters;
@@ -18,25 +17,34 @@ public partial class DiscordMessageConverter : ISlashArgumentConverter<DiscordMe
     public string ReadableName => "Discord Message Link";
     public bool RequiresText => true;
 
-    public Task<Optional<DiscordMessage>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs) => ConvertAsync(context, context.Argument);
-    public Task<Optional<DiscordMessage>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs) => ConvertAsync(context, context.Argument.RawValue);
-
-    public static async Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context, string? value)
+    public async Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context)
     {
+        string? value = context.Argument?.ToString();
         if (string.IsNullOrWhiteSpace(value))
         {
             return Optional.FromNoValue<DiscordMessage>();
         }
 
         Match match = GetMessageRegex().Match(value);
-        if (!match.Success || !ulong.TryParse(match.Groups["message"].ValueSpan, CultureInfo.InvariantCulture, out ulong messageId))
+        if (!match.Success
+            || !ulong.TryParse(match.Groups["message"].ValueSpan, CultureInfo.InvariantCulture, out ulong messageId)
+            || !match.Groups.TryGetValue("channel", out Group? channelGroup)
+            || !ulong.TryParse(channelGroup.ValueSpan, CultureInfo.InvariantCulture, out ulong channelId))
         {
-            return Optional.FromNoValue<DiscordMessage>();
-        }
-
-        if (!match.Groups.TryGetValue("channel", out Group? channelGroup) || !ulong.TryParse(channelGroup.ValueSpan, CultureInfo.InvariantCulture, out ulong channelId))
-        {
-            return Optional.FromNoValue<DiscordMessage>();
+            // Check to see if it's just a normal message id. If it is, try setting the channel to the current channel.
+            if (ulong.TryParse(value, out messageId))
+            {
+                channelId = context.Channel.Id;
+            }
+            else
+            {
+                // Try to see if it's Discord weird "Copy Message ID" format (channelId-messageId)
+                string[] parts = value.Split('-');
+                if (parts.Length != 2 || !ulong.TryParse(parts[0], out channelId) || !ulong.TryParse(parts[1], out messageId))
+                {
+                    return Optional.FromNoValue<DiscordMessage>();
+                }
+            }
         }
 
         DiscordChannel? channel = null;
@@ -75,9 +83,9 @@ public partial class DiscordMessageConverter : ISlashArgumentConverter<DiscordMe
         catch (DiscordException)
         {
             // Not logging because users can intentionally give us incorrect data to intentionally spam logs.
-            message = null;
+            return Optional.FromNoValue<DiscordMessage>();
         }
 
-        return message is not null ? Optional.FromValue(message) : Optional.FromNoValue<DiscordMessage>();
+        return Optional.FromValue(message);
     }
 }
