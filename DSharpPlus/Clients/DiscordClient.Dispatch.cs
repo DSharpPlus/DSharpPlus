@@ -18,6 +18,8 @@ using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json.Linq;
 
+using NonBlocking;
+
 namespace DSharpPlus;
 
 public sealed partial class DiscordClient
@@ -629,8 +631,8 @@ public sealed partial class DiscordClient
         foreach (DiscordGuild guild in guilds)
         {
             guild.Discord = this;
-            guild.channels ??= new ConcurrentDictionary<ulong, DiscordChannel>();
-            guild.threads ??= new ConcurrentDictionary<ulong, DiscordThreadChannel>();
+            guild.channels ??= new NonBlockingDictionary<ulong, DiscordChannel>();
+            guild.threads ??= new NonBlockingDictionary<ulong, DiscordThreadChannel>();
 
             foreach (DiscordChannel xc in guild.Channels.Values)
             {
@@ -649,7 +651,7 @@ public sealed partial class DiscordClient
                 xt.Discord = this;
             }
 
-            guild.roles ??= new ConcurrentDictionary<ulong, DiscordRole>();
+            guild.roles ??= new NonBlockingDictionary<ulong, DiscordRole>();
 
             foreach (DiscordRole xr in guild.Roles.Values)
             {
@@ -661,7 +663,7 @@ public sealed partial class DiscordClient
             JArray? rawMembers = (JArray)rawGuild["members"];
 
             guild.members?.Clear();
-            guild.members ??= new ConcurrentDictionary<ulong, DiscordMember>();
+            guild.members ??= new NonBlockingDictionary<ulong, DiscordMember>();
 
             if (rawMembers != null)
             {
@@ -676,14 +678,14 @@ public sealed partial class DiscordClient
                 }
             }
 
-            guild.emojis ??= new ConcurrentDictionary<ulong, DiscordEmoji>();
+            guild.emojis ??= new NonBlockingDictionary<ulong, DiscordEmoji>();
 
             foreach (DiscordEmoji xe in guild.Emojis.Values)
             {
                 xe.Discord = this;
             }
 
-            guild.voiceStates ??= new ConcurrentDictionary<ulong, DiscordVoiceState>();
+            guild.voiceStates ??= new NonBlockingDictionary<ulong, DiscordVoiceState>();
 
             foreach (DiscordVoiceState xvs in guild.VoiceStates.Values)
             {
@@ -1027,15 +1029,15 @@ public sealed partial class DiscordClient
             guild = foundGuild;
         }
 
-        guild.channels ??= new ConcurrentDictionary<ulong, DiscordChannel>();
-        guild.threads ??= new ConcurrentDictionary<ulong, DiscordThreadChannel>();
-        guild.roles ??= new ConcurrentDictionary<ulong, DiscordRole>();
-        guild.emojis ??= new ConcurrentDictionary<ulong, DiscordEmoji>();
-        guild.stickers ??= new ConcurrentDictionary<ulong, DiscordMessageSticker>();
-        guild.voiceStates ??= new ConcurrentDictionary<ulong, DiscordVoiceState>();
-        guild.members ??= new ConcurrentDictionary<ulong, DiscordMember>();
-        guild.stageInstances ??= new ConcurrentDictionary<ulong, DiscordStageInstance>();
-        guild.scheduledEvents ??= new ConcurrentDictionary<ulong, DiscordScheduledGuildEvent>();
+        guild.channels ??= new NonBlockingDictionary<ulong, DiscordChannel>();
+        guild.threads ??= new NonBlockingDictionary<ulong, DiscordThreadChannel>();
+        guild.roles ??= new NonBlockingDictionary<ulong, DiscordRole>();
+        guild.emojis ??= new NonBlockingDictionary<ulong, DiscordEmoji>();
+        guild.stickers ??= new NonBlockingDictionary<ulong, DiscordMessageSticker>();
+        guild.voiceStates ??= new NonBlockingDictionary<ulong, DiscordVoiceState>();
+        guild.members ??= new NonBlockingDictionary<ulong, DiscordMember>();
+        guild.stageInstances ??= new NonBlockingDictionary<ulong, DiscordStageInstance>();
+        guild.scheduledEvents ??= new NonBlockingDictionary<ulong, DiscordScheduledGuildEvent>();
 
         UpdateCachedGuild(eventGuild, rawMembers);
 
@@ -1181,12 +1183,12 @@ public sealed partial class DiscordClient
                 voiceRegionId = gld.voiceRegionId,
                 PremiumProgressBarEnabled = gld.PremiumProgressBarEnabled,
                 IsNSFW = gld.IsNSFW,
-                channels = new ConcurrentDictionary<ulong, DiscordChannel>(),
-                threads = new ConcurrentDictionary<ulong, DiscordThreadChannel>(),
-                emojis = new ConcurrentDictionary<ulong, DiscordEmoji>(),
-                members = new ConcurrentDictionary<ulong, DiscordMember>(),
-                roles = new ConcurrentDictionary<ulong, DiscordRole>(),
-                voiceStates = new ConcurrentDictionary<ulong, DiscordVoiceState>()
+                channels = new NonBlockingDictionary<ulong, DiscordChannel>(),
+                threads = new NonBlockingDictionary<ulong, DiscordThreadChannel>(),
+                emojis = new NonBlockingDictionary<ulong, DiscordEmoji>(),
+                members = new NonBlockingDictionary<ulong, DiscordMember>(),
+                roles = new NonBlockingDictionary<ulong, DiscordRole>(),
+                voiceStates = new NonBlockingDictionary<ulong, DiscordVoiceState>()
             };
 
             foreach (KeyValuePair<ulong, DiscordChannel> kvp in gld.channels ??= new())
@@ -1208,7 +1210,7 @@ public sealed partial class DiscordClient
             {
                 oldGuild.roles[kvp.Key] = kvp.Value;
             }
-            //new ConcurrentDictionary<ulong, DiscordVoiceState>()
+            //new NonBlockingDictionary<ulong, DiscordVoiceState>()
             foreach (KeyValuePair<ulong, DiscordVoiceState> kvp in gld.voiceStates ??= new())
             {
                 oldGuild.voiceStates[kvp.Key] = kvp.Value;
@@ -1224,12 +1226,12 @@ public sealed partial class DiscordClient
         guild.IsUnavailable = false;
         DiscordGuild eventGuild = guild;
         guild = this.guilds[eventGuild.Id];
-        guild.channels ??= new ConcurrentDictionary<ulong, DiscordChannel>();
-        guild.threads ??= new ConcurrentDictionary<ulong, DiscordThreadChannel>();
-        guild.roles ??= new ConcurrentDictionary<ulong, DiscordRole>();
-        guild.emojis ??= new ConcurrentDictionary<ulong, DiscordEmoji>();
-        guild.voiceStates ??= new ConcurrentDictionary<ulong, DiscordVoiceState>();
-        guild.members ??= new ConcurrentDictionary<ulong, DiscordMember>();
+        guild.channels ??= new NonBlockingDictionary<ulong, DiscordChannel>();
+        guild.threads ??= new NonBlockingDictionary<ulong, DiscordThreadChannel>();
+        guild.roles ??= new NonBlockingDictionary<ulong, DiscordRole>();
+        guild.emojis ??= new NonBlockingDictionary<ulong, DiscordEmoji>();
+        guild.voiceStates ??= new NonBlockingDictionary<ulong, DiscordVoiceState>();
+        guild.members ??= new NonBlockingDictionary<ulong, DiscordMember>();
         UpdateCachedGuild(eventGuild, rawMembers);
 
         foreach (DiscordChannel xc in guild.channels.Values)
@@ -1300,7 +1302,7 @@ public sealed partial class DiscordClient
 
     internal async Task OnGuildEmojisUpdateEventAsync(DiscordGuild guild, IEnumerable<DiscordEmoji> newEmojis)
     {
-        ConcurrentDictionary<ulong, DiscordEmoji> oldEmojis = new(guild.emojis);
+        NonBlockingDictionary<ulong, DiscordEmoji> oldEmojis = new(guild.emojis);
         guild.emojis.Clear();
 
         foreach (DiscordEmoji emoji in newEmojis)
@@ -2810,7 +2812,7 @@ public sealed partial class DiscordClient
     internal async Task OnStickersUpdatedAsync(IEnumerable<DiscordMessageSticker> newStickers, JObject raw)
     {
         DiscordGuild guild = InternalGetCachedGuild((ulong)raw["guild_id"]);
-        ConcurrentDictionary<ulong, DiscordMessageSticker> oldStickers = new(guild.stickers);
+        NonBlockingDictionary<ulong, DiscordMessageSticker> oldStickers = new(guild.stickers);
 
         guild.stickers.Clear();
 

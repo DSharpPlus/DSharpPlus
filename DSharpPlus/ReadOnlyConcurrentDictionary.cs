@@ -1,25 +1,26 @@
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+
+using NonBlocking;
 
 namespace DSharpPlus;
 
 /// <summary>
-/// Read-only view of a given <see cref="ConcurrentDictionary{TKey,TValue}"/>.
+/// Read-only view of a given <see cref="NonBlockingDictionary{TKey,TValue}"/>.
 /// </summary>
 /// <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
 /// <typeparam name="TValue">The type of values in the dictionary.</typeparam>
 internal readonly struct ReadOnlyConcurrentDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>
     where TKey : notnull
 {
-    private readonly ConcurrentDictionary<TKey, TValue> underlyingDict;
+    private readonly NonBlockingDictionary<TKey, TValue> underlyingDict;
 
     /// <summary>
     /// Creates a new read-only view of the given dictionary.
     /// </summary>
     /// <param name="underlyingDict">Dictionary to create a view over.</param>
-    public ReadOnlyConcurrentDictionary(ConcurrentDictionary<TKey, TValue> underlyingDict) => this.underlyingDict = underlyingDict;
+    public ReadOnlyConcurrentDictionary(NonBlockingDictionary<TKey, TValue> underlyingDict) => this.underlyingDict = underlyingDict;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => this.underlyingDict.GetEnumerator();
