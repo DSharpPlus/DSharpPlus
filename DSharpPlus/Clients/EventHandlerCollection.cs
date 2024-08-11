@@ -82,9 +82,7 @@ public sealed class EventHandlerCollection
             }
             else
             {
-                List<object> temporary = [];
-                temporary.Add(handler);
-
+                List<object> temporary = [handler];
                 this.handlers.Add(args, temporary);
             }
         }

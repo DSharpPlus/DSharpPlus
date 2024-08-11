@@ -27,7 +27,7 @@ public class Tests
     private static readonly MessageCommandProcessor messageCommandProcessor = new();
 
     [OneTimeSetUp]
-    public static void CreateExtensionAsync()
+    public static void CreateExtension()
     {
         DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault("faketoken", DiscordIntents.None);
 
