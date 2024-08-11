@@ -3,7 +3,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.ThreadDeleted"/> event.
+/// Represents arguments for ThreadDeleted event.
 /// </summary>
 public class ThreadDeletedEventArgs : DiscordEventArgs
 {

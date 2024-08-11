@@ -20,7 +20,7 @@ namespace DSharpPlus.SlashCommands;
 /// A class that handles slash commands for a client.
 /// </summary>
 [Obsolete("DSharpPlus.SlashCommands is obsolete. Please consider using the new DSharpPlus.Commands extension instead.")]
-public sealed partial class SlashCommandsExtension : BaseExtension
+public sealed partial class SlashCommandsExtension : IDisposable
 {
     //A list of methods for top level commands
     private static List<CommandMethod> commandMethods { get; set; } = [];
@@ -45,6 +45,9 @@ public sealed partial class SlashCommandsExtension : BaseExtension
     /// Gets a list of registered commands. The key is the guild id (null if global).
     /// </summary>
     public static IReadOnlyList<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> RegisteredCommands => registeredCommands;
+
+    public DiscordClient Client { get; private set; }
+
     private static readonly List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> registeredCommands = [];
 
     internal SlashCommandsExtension(SlashCommandsConfiguration configuration)
@@ -57,7 +60,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
     /// Runs setup. DO NOT RUN THIS MANUALLY. DO NOT DO ANYTHING WITH THIS.
     /// </summary>
     /// <param name="client">The client to setup on.</param>
-    protected internal override void Setup(DiscordClient client)
+    public void Setup(DiscordClient client)
     {
         if (this.Client != null)
         {
@@ -76,10 +79,6 @@ public sealed partial class SlashCommandsExtension : BaseExtension
         this.contextMenuInvoked = new AsyncEvent<SlashCommandsExtension, ContextMenuInvokedEventArgs>(errorHandler);
         this.autocompleteErrored = new AsyncEvent<SlashCommandsExtension, AutocompleteErrorEventArgs>(errorHandler);
         this.autocompleteExecuted = new AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs>(errorHandler);
-
-        this.Client.SessionCreated += Update;
-        this.Client.InteractionCreated += InteractionHandler;
-        this.Client.ContextMenuInteractionCreated += ContextMenuHandler;
     }
 
     /// <summary>
@@ -608,7 +607,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
 
     #region Handling
 
-    private Task InteractionHandler(DiscordClient client, InteractionCreatedEventArgs e)
+    internal Task InteractionHandler(DiscordClient client, InteractionCreatedEventArgs e)
     {
         _ = Task.Run(async () =>
         {
@@ -756,7 +755,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
         return Task.CompletedTask;
     }
 
-    private Task ContextMenuHandler(DiscordClient client, ContextMenuInteractionCreatedEventArgs e)
+    internal Task ContextMenuHandler(DiscordClient client, ContextMenuInteractionCreatedEventArgs e)
     {
         _ = Task.Run(async () =>
         {
@@ -1364,7 +1363,7 @@ public sealed partial class SlashCommandsExtension : BaseExtension
     }
     private AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs> autocompleteExecuted;
 
-    public override void Dispose()
+    public void Dispose()
     {
         this.slashError?.UnregisterAll();
         this.slashInvoked?.UnregisterAll();
@@ -1374,13 +1373,6 @@ public sealed partial class SlashCommandsExtension : BaseExtension
         this.contextMenuInvoked?.UnregisterAll();
         this.autocompleteErrored?.UnregisterAll();
         this.autocompleteExecuted?.UnregisterAll();
-
-        if (this.Client != null)
-        {
-            this.Client.SessionCreated -= Update;
-            this.Client.InteractionCreated -= InteractionHandler;
-            this.Client.ContextMenuInteractionCreated -= ContextMenuHandler;
-        }
 
         // Satisfy rule CA1816. Can be removed if this class is sealed.
         GC.SuppressFinalize(this);

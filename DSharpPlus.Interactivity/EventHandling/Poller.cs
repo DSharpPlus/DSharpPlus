@@ -23,10 +23,6 @@ internal class Poller
     {
         this.client = client;
         this.requests = [];
-
-        this.client.MessageReactionAdded += HandleReactionAdd;
-        this.client.MessageReactionRemoved += HandleReactionRemove;
-        this.client.MessageReactionsCleared += HandleReactionClear;
     }
 
     public async Task<ReadOnlyCollection<PollEmoji>> DoPollAsync(PollRequest request)
@@ -50,7 +46,7 @@ internal class Poller
         return result;
     }
 
-    private Task HandleReactionAdd(DiscordClient client, MessageReactionAddedEventArgs eventargs)
+    internal Task HandleReactionAdd(DiscordClient client, MessageReactionAddedEventArgs eventargs)
     {
         if (this.requests.Count == 0)
         {
@@ -85,7 +81,7 @@ internal class Poller
         return Task.CompletedTask;
     }
 
-    private Task HandleReactionRemove(DiscordClient client, MessageReactionRemovedEventArgs eventargs)
+    internal Task HandleReactionRemove(DiscordClient client, MessageReactionRemovedEventArgs eventargs)
     {
         foreach (PollRequest req in this.requests)
         {
@@ -101,7 +97,7 @@ internal class Poller
         return Task.CompletedTask;
     }
 
-    private Task HandleReactionClear(DiscordClient client, MessageReactionsClearedEventArgs eventargs)
+    internal Task HandleReactionClear(DiscordClient client, MessageReactionsClearedEventArgs eventargs)
     {
         foreach (PollRequest req in this.requests)
         {

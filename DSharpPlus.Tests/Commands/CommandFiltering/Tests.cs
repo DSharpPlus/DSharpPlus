@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.MessageCommands;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Processors.UserCommands;
 using DSharpPlus.Commands.Trees;
+
+using Microsoft.Extensions.DependencyInjection;
+
 using NUnit.Framework;
 
 namespace DSharpPlus.Tests.Commands.CommandFiltering;
@@ -19,25 +22,38 @@ public class Tests
     });
 
     private static CommandsExtension extension = null!;
-    private static TextCommandProcessor textCommandProcessor = null!;
-    private static UserCommandProcessor userCommandProcessor = null!;
-    private static MessageCommandProcessor messageCommandProcessor = null!;
+    private static readonly TextCommandProcessor textCommandProcessor = new();
+    private static readonly UserCommandProcessor userCommandProcessor = new();
+    private static readonly MessageCommandProcessor messageCommandProcessor = new();
 
     [OneTimeSetUp]
-    public static async Task CreateExtensionAsync()
+    public static void CreateExtension()
     {
-        DiscordClient client = DiscordClientBuilder.CreateDefault("faketoken", DiscordIntents.None).Build();
+        DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault("faketoken", DiscordIntents.None);
 
-        extension = client.UseCommands();
-        extension.AddProcessor(slashCommandProcessor);
-        extension.AddCommands([typeof(TestMultiLevelSubCommandsFiltered.RootCommand), typeof(TestMultiLevelSubCommandsFiltered.ContextMenues), typeof(TestMultiLevelSubCommandsFiltered.ContextMenuesInGroup)]);
-        extension.BuildCommands();
+        builder.UseCommands
+        (
+            async extension =>
+            {
+                extension.AddProcessor(textCommandProcessor);
+                extension.AddProcessor(slashCommandProcessor);
+                extension.AddProcessor(userCommandProcessor);
+                extension.AddProcessor(messageCommandProcessor);
 
-        // Prepare the extension and processors
-        await extension.RefreshAsync();
-        textCommandProcessor = extension.GetProcessor<TextCommandProcessor>();
-        userCommandProcessor = extension.GetProcessor<UserCommandProcessor>();
-        messageCommandProcessor = extension.GetProcessor<MessageCommandProcessor>();
+                extension.AddCommands([typeof(TestMultiLevelSubCommandsFiltered.RootCommand), typeof(TestMultiLevelSubCommandsFiltered.ContextMenues), typeof(TestMultiLevelSubCommandsFiltered.ContextMenuesInGroup)]);
+                extension.BuildCommands();
+                await userCommandProcessor.ConfigureAsync(extension);
+                await messageCommandProcessor.ConfigureAsync(extension);
+            },
+            new CommandsConfiguration()
+            {
+                RegisterDefaultCommandProcessors = false
+            }
+        );
+
+        DiscordClient client = builder.Build();
+
+        extension = client.ServiceProvider.GetRequiredService<CommandsExtension>();
     }
 
     [Test]
@@ -152,7 +168,4 @@ public class Tests
         Assert.That(group, Is.Not.Null);
         Assert.That(group.Subcommands.Any(x => x.Name == "SlashMessageContext"));
     }
-
-    [OneTimeTearDown]
-    public static void DisposeExtension() => extension.Dispose();
 }

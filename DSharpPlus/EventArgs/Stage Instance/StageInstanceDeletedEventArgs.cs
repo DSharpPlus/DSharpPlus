@@ -3,7 +3,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.StageInstanceDeleted"/>.
+/// Represents arguments for StageInstanceDeleted.
 /// </summary>
 public class StageInstanceDeletedEventArgs : DiscordEventArgs
 {

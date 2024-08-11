@@ -19,11 +19,8 @@ internal class ModalEventWaiter : IDisposable
     /// </summary>
     private ConcurrentHashSet<ModalMatchRequest> MatchRequests { get; } = [];
 
-    public ModalEventWaiter(DiscordClient client)
-    {
-        this.Client = client;
-        this.Client.ModalSubmitted += Handle; //registering Handle event to be fired upon ModalSubmitted
-    }
+    public ModalEventWaiter(DiscordClient client) 
+        => this.Client = client;
 
     /// <summary>
     /// Waits for a specified <see cref="ModalMatchRequest"/>'s predicate to be fulfilled.
@@ -55,7 +52,7 @@ internal class ModalEventWaiter : IDisposable
     /// <param name="_"></param>
     /// <param name="args">The <see cref="ModalSubmittedEventArgs"/> to match.</param>
     /// <returns>A task that represents matching the requests.</returns>
-    private Task Handle(DiscordClient _, ModalSubmittedEventArgs args)
+    internal Task Handle(DiscordClient _, ModalSubmittedEventArgs args)
     {
         foreach (ModalMatchRequest? req in this.MatchRequests.ToArray()) // ToArray to get a copy of the collection that won't be modified during iteration
         {

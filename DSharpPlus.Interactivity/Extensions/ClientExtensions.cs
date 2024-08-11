@@ -1,4 +1,6 @@
-using System;
+using DSharpPlus.Extensions;
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Interactivity.Extensions;
 
@@ -8,31 +10,48 @@ namespace DSharpPlus.Interactivity.Extensions;
 public static class ClientExtensions
 {
     /// <summary>
-    /// Enables interactivity for this <see cref="DiscordClient"/> instance.
+    /// Enables interactivity for this <see cref="DiscordClientBuilder"/> instance.
     /// </summary>
-    /// <param name="client">The client to enable interactivity for.</param>
+    /// <param name="builder">The client builder to enable interactivity for.</param>
     /// <param name="configuration">A configuration instance. Default configuration values will be used if none is provided.</param>
-    /// <returns>A brand new <see cref="InteractivityExtension"/> instance.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if interactivity has already been enabled for the client instance.</exception>
-    public static InteractivityExtension UseInteractivity(this DiscordClient client, InteractivityConfiguration configuration = null)
+    /// <returns>The client builder for chaining.</returns>
+    public static DiscordClientBuilder UseInteractivity
+    (
+        this DiscordClientBuilder builder,
+        InteractivityConfiguration? configuration = null
+    )
     {
-        if (client.GetExtension<InteractivityExtension>() != null)
-        {
-            throw new InvalidOperationException($"Interactivity is already enabled for this {(client.isShard ? "shard" : "client")}.");
-        }
+        builder.ConfigureServices(services => services.AddInteractivityExtension(configuration));
 
-        configuration ??= new InteractivityConfiguration();
-        InteractivityExtension extension = new(configuration);
-        client.AddExtension(extension);
-
-        return extension;
+        return builder;
     }
 
     /// <summary>
-    /// Retrieves the registered <see cref="InteractivityExtension"/> instance for this client.
+    /// Adds interactivity to the present service collection.
     /// </summary>
-    /// <param name="client">The client to retrieve an <see cref="InteractivityExtension"/> instance from.</param>
-    /// <returns>An existing <see cref="InteractivityExtension"/> instance, or <see langword="null"/> if interactivity is not enabled for the <see cref="DiscordClient"/> instance.</returns>
-    public static InteractivityExtension GetInteractivity(this DiscordClient client)
-        => client.GetExtension<InteractivityExtension>();
+    /// <param name="services">The service collection to enable interactivity for.</param>
+    /// <param name="configuration">A configuration instance. Default configuration values will be used if none is provided.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddInteractivityExtension
+    (
+        this IServiceCollection services,
+        InteractivityConfiguration? configuration = null
+    )
+    {
+        services.ConfigureEventHandlers(b => b.AddEventHandlers<InteractivityEventHandler>(ServiceLifetime.Transient))
+            .AddSingleton(provider =>
+            {
+                DiscordClient client = provider.GetRequiredService<DiscordClient>();
+
+                InteractivityExtension extension = new(configuration ?? new());
+                extension.Setup(client);
+
+                return extension;
+            });
+
+        return services;
+    }
+
+    internal static InteractivityExtension GetInteractivity(this DiscordClient client)
+        => client.ServiceProvider.GetRequiredService<InteractivityExtension>();
 }

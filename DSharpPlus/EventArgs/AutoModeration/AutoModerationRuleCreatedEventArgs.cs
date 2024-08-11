@@ -3,7 +3,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents argument for <see cref="DiscordClient.AutoModerationRuleCreated"/> event.
+/// Represents argument for the AutoModerationRuleCreated event.
 /// </summary>
 public class AutoModerationRuleCreatedEventArgs : DiscordEventArgs
 {

@@ -4,7 +4,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.ChannelPinsUpdated"/> event.
+/// Represents arguments for the ChannelPinsUpdated event.
 /// </summary>
 public class ChannelPinsUpdatedEventArgs : DiscordEventArgs
 {

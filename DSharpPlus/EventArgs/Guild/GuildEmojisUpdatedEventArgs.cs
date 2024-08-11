@@ -4,7 +4,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.GuildEmojisUpdated"/> event.
+/// Represents arguments for GuildEmojisUpdated event.
 /// </summary>
 public class GuildEmojisUpdatedEventArgs : DiscordEventArgs
 {
