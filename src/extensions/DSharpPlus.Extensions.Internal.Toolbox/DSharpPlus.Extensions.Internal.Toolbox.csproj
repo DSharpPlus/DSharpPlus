@@ -1,11 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>$(_DSharpPlusExtensionsInternalBuildersVersion)</VersionPrefix>
-    <Description>
-      $(Description) This package provides useful builder utilities for working directly with the internal models. 
-    </Description>
-    <OutputType>Library</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <VersionPrefix>$(_DSharpPlusExtensionsInternalToolboxVersion)</VersionPrefix>
   </PropertyGroup>
 
   <ItemGroup>

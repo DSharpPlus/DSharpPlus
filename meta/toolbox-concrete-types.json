@@ -5,6 +5,8 @@
     "./src/core/DSharpPlus.Internal.Models/Interactions/MessageCallbackData.cs",
     "./src/core/DSharpPlus.Internal.Models/MessageComponents/ActionRowComponent.cs",
     "./src/core/DSharpPlus.Internal.Models/MessageComponents/TextInputComponent.cs",
+    "./src/core/DSharpPlus.Internal.Models/ScheduledEvents/ScheduledEventRecurrenceDay.cs",
+    "./src/core/DSharpPlus.Internal.Models/ScheduledEvents/ScheduledEventRecurrenceRule.cs",
     "./src/core/DSharpPlus.Internal.Rest/Payloads/Messages/CreateMessagePayload.cs",
     "./src/core/DSharpPlus.Internal.Rest/Payloads/Messages/EditMessagePayload.cs",
     "./src/core/DSharpPlus.Internal.Rest/Payloads/Interactions/CreateFollowupMessagePayload.cs",

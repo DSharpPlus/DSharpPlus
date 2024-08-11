@@ -10,15 +10,15 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
-using DSharpPlus.Extensions.Internal.Builders.Implementations;
-using DSharpPlus.Extensions.Internal.Builders.Interactions;
-using DSharpPlus.Extensions.Internal.Builders.Messages;
+using DSharpPlus.Extensions.Internal.Toolbox.Implementations;
+using DSharpPlus.Extensions.Internal.Toolbox.Builders.Interactions;
+using DSharpPlus.Extensions.Internal.Toolbox.Builders.Messages;
 using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Abstractions.Rest;
 using DSharpPlus.Internal.Abstractions.Rest.API;
 using DSharpPlus.Results;
 
-namespace DSharpPlus.Extensions.Internal.Builders.Extensions;
+namespace DSharpPlus.Extensions.Internal.Toolbox.Extensions;
 
 /// <summary>
 /// Contains extension methods on <see cref="IInteractionRestAPI"/> to enable using builders.

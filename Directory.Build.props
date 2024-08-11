@@ -53,8 +53,8 @@
 
     <!-- EXTENSION PACKAGE VERSIONS -->
 
-    <!-- DSharpPlus.Extensions.Internal.Builders -->
-    <_DSharpPlusExtensionsInternalBuildersVersion>0.1.0</_DSharpPlusExtensionsInternalBuildersVersion>
+    <!-- DSharpPlus.Extensions.Internal.Toolbox -->
+    <_DSharpPlusExtensionsInternalToolboxVersion>0.1.0</_DSharpPlusExtensionsInternalToolboxVersion>
   </PropertyGroup>
 
 </Project>

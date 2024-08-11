@@ -7,10 +7,10 @@ using System.Collections.Generic;
 using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Abstractions.Rest.Payloads;
 
-namespace DSharpPlus.Extensions.Internal.Builders.Implementations;
+namespace DSharpPlus.Extensions.Internal.Toolbox.Implementations;
 
-/// <inheritdoc cref="IEditFollowupMessagePayload" />
-internal sealed record BuiltEditFollowupMessagePayload : IEditFollowupMessagePayload
+/// <inheritdoc cref="IEditInteractionResponsePayload" />
+internal sealed record BuiltEditInteractionResponsePayload : IEditInteractionResponsePayload
 {
     /// <inheritdoc/>
     public Optional<string?> Content { get; init; }

@@ -9,12 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 
 using DSharpPlus.Entities;
-using DSharpPlus.Extensions.Internal.Builders.Errors;
-using DSharpPlus.Extensions.Internal.Builders.Implementations;
+using DSharpPlus.Extensions.Internal.Toolbox.Errors;
+using DSharpPlus.Extensions.Internal.Toolbox.Implementations;
 using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Results;
 
-namespace DSharpPlus.Extensions.Internal.Builders.Interactions;
+namespace DSharpPlus.Extensions.Internal.Toolbox.Builders.Interactions;
 
 /// <summary>
 /// Represents a modal under construction.

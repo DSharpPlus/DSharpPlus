@@ -7,7 +7,7 @@ using DSharpPlus.Internal.Abstractions.Models;
 
 using OneOf;
 
-namespace DSharpPlus.Extensions.Internal.Builders.Implementations;
+namespace DSharpPlus.Extensions.Internal.Toolbox.Implementations;
 
 /// <inheritdoc cref="IInteractionResponse" />
 internal sealed record BuiltInteractionResponse : IInteractionResponse

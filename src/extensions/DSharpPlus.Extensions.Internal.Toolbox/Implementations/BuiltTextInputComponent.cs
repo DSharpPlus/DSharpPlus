@@ -5,7 +5,7 @@
 using DSharpPlus.Entities;
 using DSharpPlus.Internal.Abstractions.Models;
 
-namespace DSharpPlus.Extensions.Internal.Builders.Implementations;
+namespace DSharpPlus.Extensions.Internal.Toolbox.Implementations;
 
 /// <inheritdoc cref="ITextInputComponent" />
 internal sealed record BuiltTextInputComponent : ITextInputComponent

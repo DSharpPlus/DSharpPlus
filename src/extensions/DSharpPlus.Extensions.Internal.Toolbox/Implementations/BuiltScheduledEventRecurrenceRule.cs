@@ -8,10 +8,10 @@ using System.Collections.Generic;
 using DSharpPlus.Entities;
 using DSharpPlus.Internal.Abstractions.Models;
 
-namespace DSharpPlus.Internal.Models;
+namespace DSharpPlus.Extensions.Internal.Toolbox.Implementations;
 
 /// <inheritdoc cref="IScheduledEventRecurrenceRule" />
-public sealed record ScheduledEventRecurrenceRule : IScheduledEventRecurrenceRule
+internal sealed record BuiltScheduledEventRecurrenceRule : IScheduledEventRecurrenceRule
 {
     /// <inheritdoc/>
     public required DateTimeOffset Start { get; init; }

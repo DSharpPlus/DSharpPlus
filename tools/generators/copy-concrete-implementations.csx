@@ -20,10 +20,10 @@ if (Args is ["-h" or "--help" or "-?"])
     AnsiConsole.MarkupLine
     (
         """
-        [plum1]DSharpPlus Concrete Implementation Theft, v0.1.0[/]
+        [plum1]DSharpPlus Concrete Implementation Theft, v0.2.0[/]
 
           Usage: copy-concrete-implementations.csx [[path to meta file]]
-          Extracts the required concrete types for DSharpPlus.Extensions.Internal.Builders to remove dependency on concrete implementations.
+          Extracts the required concrete types for DSharpPlus.Extensions.Internal.Toolbox to remove dependency on concrete implementations.
         
         """
     );
@@ -34,16 +34,16 @@ if (Args is ["-h" or "--help" or "-?"])
 AnsiConsole.MarkupLine
 (
     """
-    [plum1]DSharpPlus Concrete Implementation Theft, v0.1.0[/]
+    [plum1]DSharpPlus Concrete Implementation Theft, v0.2.0[/]
     """
 );
 
 string meta;
-string basePath = "./src/extensions/DSharpPlus.Extensions.Internal.Builders/Implementations/";
+string basePath = "./src/extensions/DSharpPlus.Extensions.Internal.Toolbox/Implementations/";
 
 if (Args.Count == 0)
 {
-    meta = "./meta/builder-concrete-types.json";
+    meta = "./meta/toolbox-concrete-types.json";
 }
 
 // there are args passed, which override the given instructions
@@ -81,15 +81,6 @@ if (!changes.Added.Any() && !changes.Modified.Any() && !changes.Removed.Any())
 
     return 0;
 }
-
-AnsiConsole.MarkupLine
-(
-    """
-
-      Extracts the required concrete types for DSharpPlus.Extensions.Internal.Builders to remove dependency on concrete implementations.
-    
-    """
-);
 
 if (changes.Removed.Any())
 {
@@ -134,7 +125,7 @@ bool success = toExtract.AsParallel()
                 int endOfNamespaceLine = text.IndexOf('\n', namespaceIndex);
 
                 text = text.Remove(namespaceIndex, endOfNamespaceLine - namespaceIndex);
-                text = text.Insert(namespaceIndex, "namespace DSharpPlus.Extensions.Internal.Builders.Implementations;");
+                text = text.Insert(namespaceIndex, "namespace DSharpPlus.Extensions.Internal.Toolbox.Implementations;");
 
                 text = text.Replace("public sealed record", "internal sealed record");
 

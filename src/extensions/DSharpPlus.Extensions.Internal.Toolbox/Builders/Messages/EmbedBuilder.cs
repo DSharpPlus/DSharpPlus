@@ -7,13 +7,13 @@
 using System;
 using System.Collections.Generic;
 
-using DSharpPlus.Extensions.Internal.Builders.Errors;
-using DSharpPlus.Extensions.Internal.Builders.Implementations;
+using DSharpPlus.Extensions.Internal.Toolbox.Errors;
+using DSharpPlus.Extensions.Internal.Toolbox.Implementations;
 using DSharpPlus.Internal.Abstractions.Models;
 
 using DSharpPlus.Results;
 
-namespace DSharpPlus.Extensions.Internal.Builders.Messages;
+namespace DSharpPlus.Extensions.Internal.Toolbox.Builders.Messages;
 
 /// <summary>
 /// Represents an <see cref="IEmbed"/> currently under construction.

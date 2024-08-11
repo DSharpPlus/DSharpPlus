@@ -8,7 +8,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Abstractions.Rest.Payloads;
 
-namespace DSharpPlus.Extensions.Internal.Builders.Implementations;
+namespace DSharpPlus.Extensions.Internal.Toolbox.Implementations;
 
 /// <inheritdoc cref="IEditMessagePayload" />
 internal sealed record BuiltEditMessagePayload : IEditMessagePayload

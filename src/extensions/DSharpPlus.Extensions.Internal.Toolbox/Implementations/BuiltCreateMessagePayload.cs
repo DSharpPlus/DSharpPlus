@@ -8,13 +8,16 @@ using DSharpPlus.Entities;
 using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Abstractions.Rest.Payloads;
 
-namespace DSharpPlus.Extensions.Internal.Builders.Implementations;
+namespace DSharpPlus.Extensions.Internal.Toolbox.Implementations;
 
-/// <inheritdoc cref="ICreateFollowupMessagePayload" />
-internal sealed record BuiltCreateFollowupMessagePayload : ICreateFollowupMessagePayload
+/// <inheritdoc cref="ICreateMessagePayload" />
+internal sealed record BuiltCreateMessagePayload : ICreateMessagePayload
 {
     /// <inheritdoc/>
     public Optional<string> Content { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<string> Nonce { get; init; }
 
     /// <inheritdoc/>
     public Optional<bool> Tts { get; init; }
@@ -26,7 +29,13 @@ internal sealed record BuiltCreateFollowupMessagePayload : ICreateFollowupMessag
     public Optional<IAllowedMentions> AllowedMentions { get; init; }
 
     /// <inheritdoc/>
+    public Optional<IMessageReference> MessageReference { get; init; }
+
+    /// <inheritdoc/>
     public Optional<IReadOnlyList<IActionRowComponent>> Components { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<IReadOnlyList<Snowflake>> StickerIds { get; init; }
 
     /// <inheritdoc/>
     public IReadOnlyList<AttachmentData>? Files { get; init; }
@@ -36,6 +45,9 @@ internal sealed record BuiltCreateFollowupMessagePayload : ICreateFollowupMessag
 
     /// <inheritdoc/>
     public Optional<DiscordMessageFlags> Flags { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<bool> EnforceNonce { get; init; }
 
     /// <inheritdoc/>
     public Optional<ICreatePoll> Poll { get; init; }

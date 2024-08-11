@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using DSharpPlus.Entities;
 using DSharpPlus.Internal.Abstractions.Models;
 
-namespace DSharpPlus.Extensions.Internal.Builders.Implementations;
+namespace DSharpPlus.Extensions.Internal.Toolbox.Implementations;
 
 /// <inheritdoc cref="IActionRowComponent" />
 internal sealed record BuiltActionRowComponent : IActionRowComponent

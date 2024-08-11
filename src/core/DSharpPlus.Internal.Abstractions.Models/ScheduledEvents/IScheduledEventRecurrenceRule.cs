@@ -24,7 +24,7 @@ public interface IScheduledEventRecurrenceRule
     /// <summary>
     /// Specifies the ending time of the recurrence interval. This cannot be set by the application.
     /// </summary>
-    public DateTimeOffset End { get; }
+    public DateTimeOffset? End { get; }
 
     /// <summary>
     /// Specifies how often this event should occur.
@@ -35,6 +35,9 @@ public interface IScheduledEventRecurrenceRule
     /// Specifies the interval according to <see cref="Frequency"/>. For example, a frequency of
     /// <see cref="DiscordScheduledEventRecurrenceFrequency.Weekly"/> with an interval of 2 would mean "every other week".
     /// </summary>
+    /// <remarks>
+    /// This can only be set to 1 or 2 (not higher) for weekly events, and exactly 1 for all other events.
+    /// </remarks>
     public int Interval { get; }
 
     /// <summary>

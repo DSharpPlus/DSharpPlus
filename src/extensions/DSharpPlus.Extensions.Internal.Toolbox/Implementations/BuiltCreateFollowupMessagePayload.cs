@@ -6,17 +6,18 @@ using System.Collections.Generic;
 
 using DSharpPlus.Entities;
 using DSharpPlus.Internal.Abstractions.Models;
+using DSharpPlus.Internal.Abstractions.Rest.Payloads;
 
-namespace DSharpPlus.Extensions.Internal.Builders.Implementations;
+namespace DSharpPlus.Extensions.Internal.Toolbox.Implementations;
 
-/// <inheritdoc cref="IMessageCallbackData" />
-internal sealed record BuiltMessageCallbackData : IMessageCallbackData
+/// <inheritdoc cref="ICreateFollowupMessagePayload" />
+internal sealed record BuiltCreateFollowupMessagePayload : ICreateFollowupMessagePayload
 {
     /// <inheritdoc/>
-    public Optional<bool> Tts { get; init; }
+    public Optional<string> Content { get; init; }
 
     /// <inheritdoc/>
-    public Optional<string> Content { get; init; }
+    public Optional<bool> Tts { get; init; }
 
     /// <inheritdoc/>
     public Optional<IReadOnlyList<IEmbed>> Embeds { get; init; }
@@ -25,17 +26,17 @@ internal sealed record BuiltMessageCallbackData : IMessageCallbackData
     public Optional<IAllowedMentions> AllowedMentions { get; init; }
 
     /// <inheritdoc/>
-    public Optional<DiscordMessageFlags> Flags { get; init; }
+    public Optional<IReadOnlyList<IActionRowComponent>> Components { get; init; }
 
     /// <inheritdoc/>
-    public Optional<IReadOnlyList<IActionRowComponent>> Components { get; init; }
+    public IReadOnlyList<AttachmentData>? Files { get; init; }
 
     /// <inheritdoc/>
     public Optional<IReadOnlyList<IPartialAttachment>> Attachments { get; init; }
 
     /// <inheritdoc/>
-    public Optional<ICreatePoll> Poll { get; init; }
+    public Optional<DiscordMessageFlags> Flags { get; init; }
 
     /// <inheritdoc/>
-    public IReadOnlyList<AttachmentData>? Files { get; init; }
+    public Optional<ICreatePoll> Poll { get; init; }
 }

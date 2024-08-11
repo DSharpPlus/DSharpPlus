@@ -9,7 +9,7 @@ using System.Text;
 
 using DSharpPlus.Results.Errors;
 
-namespace DSharpPlus.Extensions.Internal.Builders.Errors;
+namespace DSharpPlus.Extensions.Internal.Toolbox.Errors;
 
 /// <summary>
 /// Represents an error encountered when attempting to validate a builder.
