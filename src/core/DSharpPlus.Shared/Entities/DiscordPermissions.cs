@@ -238,11 +238,19 @@ public readonly partial struct DiscordPermissions
     public override int GetHashCode()
         => HashCode.Combine(MemoryMarshal.Cast<uint, ulong>(MemoryMarshal.CreateReadOnlySpan(in this.data[0], ContainerElementCount)));
 
+    /// <summary>
+    /// Enumerates all permissions specified by this set.
+    /// </summary>
     public IEnumerable<DiscordPermission> EnumeratePermissions()
     {
         for (int block = 0; block < ContainerElementCount; block++)
         {
             uint value = this.data[block];
+
+            if (BitOperations.PopCount(value) == 0)
+            {
+                continue;
+            }
 
             for (int bit = 0; bit < 32; bit++)
             {
