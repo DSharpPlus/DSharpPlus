@@ -45,7 +45,7 @@ public sealed class DefaultEventDispatcher : IEventDispatcher
         IReadOnlyList<object> general = this.handlers[typeof(DiscordEventArgs)];
         IReadOnlyList<object> specific = this.handlers[typeof(T)];
 
-        using IServiceScope scope = this.serviceProvider.CreateScope();
+        IServiceScope scope = this.serviceProvider.CreateScope();
 
         if (general.Count == 0 && specific.Count == 0)
         {
@@ -66,7 +66,8 @@ public sealed class DefaultEventDispatcher : IEventDispatcher
                         await this.errorHandler.HandleEventHandlerError(typeof(T).ToString(), e, (Delegate)handler, client, eventArgs);
                     }
                 })
-        );
+        )
+        .ContinueWith((_) => scope.Dispose());
 
         return ValueTask.CompletedTask;
     }
