@@ -4,7 +4,6 @@
 
 using System;
 using System.Buffers.Binary;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -239,30 +238,10 @@ public readonly partial struct DiscordPermissions
         => HashCode.Combine(MemoryMarshal.Cast<uint, ulong>(MemoryMarshal.CreateReadOnlySpan(in this.data[0], ContainerElementCount)));
 
     /// <summary>
-    /// Enumerates all permissions specified by this set.
+    /// Provides an enumeration of all permissions specified by this set.
     /// </summary>
-    public IEnumerable<DiscordPermission> EnumeratePermissions()
-    {
-        for (int block = 0; block < ContainerElementCount; block++)
-        {
-            uint value = this.data[block];
-
-            if (BitOperations.PopCount(value) == 0)
-            {
-                continue;
-            }
-
-            for (int bit = 0; bit < 32; bit++)
-            {
-                if (BitHelper.HasFlag(value, bit))
-                {
-                    yield return (DiscordPermission)(32 * block) + bit;
-                }
-            }
-        }
-
-        yield break;
-    }
+    public DiscordPermissionEnumerable EnumeratePermissions()
+        => new(this.data);
 
     public static bool operator ==(DiscordPermissions left, DiscordPermissions right) => left.Equals(right);
     public static bool operator !=(DiscordPermissions left, DiscordPermissions right) => !(left == right);
@@ -277,7 +256,7 @@ public readonly partial struct DiscordPermissions
     /// Represents a container for the backing storage of Discord permissions.
     /// </summary>
     [InlineArray(ContainerElementCount)]
-    private struct DiscordPermissionContainer
+    internal struct DiscordPermissionContainer
     {
         public uint value;
 
