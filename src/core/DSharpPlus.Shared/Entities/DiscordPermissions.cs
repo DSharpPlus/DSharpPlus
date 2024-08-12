@@ -15,7 +15,7 @@ using System.Text;
 
 using CommunityToolkit.HighPerformance.Helpers;
 
-using HashCode = CommunityToolkit.HighPerformance.Helpers.HashCode<ulong>;
+using HashCode = CommunityToolkit.HighPerformance.Helpers.HashCode<uint>;
 
 namespace DSharpPlus.Entities;
 
@@ -111,8 +111,10 @@ public readonly partial struct DiscordPermissions
     /// A copy constructor that sets one specific flag to the specified value.
     /// </summary>
     private DiscordPermissions(DiscordPermissions original, int index, bool flag)
-        : this(original.AsSpan)
-        => this.data.SetFlag(index, flag);
+    {
+        this.data = original.data;
+        this.data.SetFlag(index, flag);
+    }
 
     public static implicit operator DiscordPermissions(DiscordPermission initial) => new(initial);
 
@@ -144,8 +146,9 @@ public readonly partial struct DiscordPermissions
     /// </summary>
     public static DiscordPermissions All { get; } = new(DiscordPermissionExtensions.GetValues());
 
+    [UnscopedRef]
     private ReadOnlySpan<byte> AsSpan
-        => MemoryMarshal.Cast<uint, byte>(MemoryMarshal.CreateReadOnlySpan(in this.data[0], ContainerElementCount));
+        => MemoryMarshal.Cast<uint, byte>((ReadOnlySpan<uint>)this.data);
 
     private bool GetFlag(int index)
         => this.data.HasFlag(index);
@@ -235,7 +238,7 @@ public readonly partial struct DiscordPermissions
     /// within a process, and sharing this data across process boundaries is dangerous.
     /// </summary>
     public override int GetHashCode()
-        => HashCode.Combine(MemoryMarshal.Cast<uint, ulong>(MemoryMarshal.CreateReadOnlySpan(in this.data[0], ContainerElementCount)));
+        => HashCode.Combine(this.data);
 
     /// <summary>
     /// Provides an enumeration of all permissions specified by this set.
