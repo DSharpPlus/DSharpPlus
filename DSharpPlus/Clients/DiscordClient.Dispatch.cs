@@ -702,7 +702,8 @@ public sealed partial class DiscordClient
             this,
             new()
             {
-                ShardId = shardId
+                ShardId = shardId,
+                GuildIds = [.. guilds.Select(guild => guild.Id)]
             }
         );
 
