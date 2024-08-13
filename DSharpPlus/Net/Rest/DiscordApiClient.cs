@@ -3783,6 +3783,31 @@ public sealed class DiscordApiClient
     #endregion
 
     #region Roles
+    internal async ValueTask<DiscordRole> GetGuildRoleAsync
+    (
+        ulong guildId,
+        ulong roleId
+    )
+    {
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.ROLES}/:role_id";
+        string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.ROLES}/{roleId}";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+
+        DiscordRole role = JsonConvert.DeserializeObject<DiscordRole>(res.Response!)!;
+        role.Discord = this.discord!;
+        role.guild_id = guildId;
+
+        return role;
+    }
+
     internal async ValueTask<IReadOnlyList<DiscordRole>> GetGuildRolesAsync
     (
         ulong guildId
