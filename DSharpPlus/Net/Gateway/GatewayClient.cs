@@ -296,9 +296,31 @@ public sealed class GatewayClient : IGatewayClient
                         this.resumeUrl = readyPayload.ResumeGatewayUrl;
                         this.sessionId = readyPayload.SessionId;
 
+                        payload = new ShardIdContainingGatewayPayload
+                        {
+                            Data = payload.Data,
+                            EventName = payload.EventName,
+                            OpCode = payload.OpCode,
+                            Sequence = payload.Sequence,
+                            ShardId = this.ShardId
+                        };
+
                         this.IsConnected = true;
 
                         this.logger.LogTrace("Received READY, the gateway is now operational.");
+
+                        break;
+
+                    case GatewayOpCode.Resume:
+
+                        payload = new ShardIdContainingGatewayPayload
+                        {
+                            Data = payload.Data,
+                            EventName = payload.EventName,
+                            OpCode = payload.OpCode,
+                            Sequence = payload.Sequence,
+                            ShardId = this.ShardId
+                        };
 
                         break;
 

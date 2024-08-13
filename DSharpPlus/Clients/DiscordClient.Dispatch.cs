@@ -86,11 +86,15 @@ public sealed partial class DiscordClient
                 dat.Remove("guilds");
                 dat.Remove("private_channels");
 
-                await OnReadyEventAsync(dat.ToDiscordObject<ReadyPayload>(), glds, dmcs);
+                int readyShardId = payload is ShardIdContainingGatewayPayload { ShardId: { } id } ? id : 0;
+
+                await OnReadyEventAsync(dat.ToDiscordObject<ReadyPayload>(), glds, dmcs, readyShardId);
                 break;
 
             case "resumed":
-                await OnResumedAsync();
+                int resumedShardId = payload is ShardIdContainingGatewayPayload { ShardId: { } otherId } ? otherId : 0;
+
+                await OnResumedAsync(resumedShardId);
                 break;
 
             #endregion
@@ -587,7 +591,7 @@ public sealed partial class DiscordClient
 
     #region Gateway
 
-    internal async Task OnReadyEventAsync(ReadyPayload ready, JArray rawGuilds, JArray rawDmChannels)
+    internal async Task OnReadyEventAsync(ReadyPayload ready, JArray rawGuilds, JArray rawDmChannels, int shardId)
     {
         TransportUser rusr = ready.CurrentUser;
         this.CurrentUser = new DiscordUser(rusr)
@@ -693,7 +697,14 @@ public sealed partial class DiscordClient
             this.guilds[guild.Id] = guild;
         }
 
-        await this.dispatcher.DispatchAsync<SessionCreatedEventArgs>(this, new());
+        await this.dispatcher.DispatchAsync<SessionCreatedEventArgs>
+        (
+            this,
+            new()
+            {
+                ShardId = shardId
+            }
+        );
 
         if (!guilds.Any() && this.orchestrator.AllShardsConnected)
         {
@@ -704,10 +715,17 @@ public sealed partial class DiscordClient
         }
     }
 
-    internal async Task OnResumedAsync()
+    internal async Task OnResumedAsync(int shardId)
     {
         this.Logger.LogInformation(LoggerEvents.SessionUpdate, "Session resumed");
-        await this.dispatcher.DispatchAsync<SessionResumedEventArgs>(this, new());
+        await this.dispatcher.DispatchAsync<SessionResumedEventArgs>
+        (
+            this,
+            new()
+            {
+                ShardId = shardId
+            }
+        );
     }
 
     #endregion
