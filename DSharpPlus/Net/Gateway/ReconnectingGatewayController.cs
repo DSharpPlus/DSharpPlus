@@ -11,5 +11,14 @@ public sealed class ReconnectingGatewayController : IGatewayController
     public Task HeartbeatedAsync(IGatewayClient client) => Task.CompletedTask;
 
     /// <inheritdoc/>
-    public async ValueTask ZombiedAsync(IGatewayClient client) => await client.ReconnectAsync();
+    public Task ReconnectFailedAsync(IGatewayClient client) => Task.CompletedTask;
+
+    /// <inheritdoc/>
+    public Task ReconnectRequestedAsync(IGatewayClient client) => Task.CompletedTask;
+
+    /// <inheritdoc/>
+    public async Task SessionInvalidatedAsync(IGatewayClient client) => await client.ReconnectAsync();
+
+    /// <inheritdoc/>
+    public async Task ZombiedAsync(IGatewayClient client) => await client.ReconnectAsync();
 }

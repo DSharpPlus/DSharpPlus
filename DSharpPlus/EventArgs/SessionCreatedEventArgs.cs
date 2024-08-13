@@ -6,4 +6,9 @@ namespace DSharpPlus.EventArgs;
 public sealed class SessionCreatedEventArgs : DiscordEventArgs
 {
     internal SessionCreatedEventArgs() : base() { }
+
+    /// <summary>
+    /// The ID of the shard this event occurred on.
+    /// </summary>
+    public int ShardId { get; internal set; }
 }

@@ -5,7 +5,7 @@ namespace DSharpPlus.Net.Abstractions;
 /// <summary>
 /// Represents a websocket payload exchanged between Discord and the client.
 /// </summary>
-public sealed class GatewayPayload
+public class GatewayPayload
 {
     /// <summary>
     /// Gets or sets the OP code of the payload.
