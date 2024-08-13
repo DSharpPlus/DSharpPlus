@@ -1206,7 +1206,7 @@ internal static class AuditLogParser
     {
         DiscordAuditLogRoleUpdateEntry entry = new()
         {
-            Target = guild.GetRole(auditLogAction.TargetId!.Value) ??
+            Target = guild.Roles.GetValueOrDefault(auditLogAction.TargetId!.Value) ??
                      new DiscordRole { Id = auditLogAction.TargetId.Value, Discord = guild.Discord }
         };
 

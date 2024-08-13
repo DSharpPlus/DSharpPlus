@@ -452,7 +452,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public DiscordRole EveryoneRole
-        => GetRole(this.Id);
+        => this.Roles.GetValueOrDefault(this.Id)!;
 
     [JsonIgnore]
     internal bool isOwner;
@@ -1110,7 +1110,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     }
 
     /// <summary>
-    /// Gets a singular role in the guild.
+    /// Gets a singular role from this guild by its ID.
     /// </summary>
     /// <param name="roleId">The ID of the role.</param>
     /// <param name="skipCache">Whether to skip checking cache for the role.</param>
@@ -1874,14 +1874,6 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordRole> CreateRoleAsync(string? name = null, DiscordPermissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string? reason = null, Stream? icon = null, DiscordEmoji? emoji = null)
         => await this.Discord.ApiClient.CreateGuildRoleAsync(this.Id, name, permissions, color?.Value, hoist, mentionable, icon, emoji?.ToString(), reason);
-    /// <summary>
-    /// Gets a role from this guild by its ID.
-    /// </summary>
-    /// <param name="id">ID of the role to get.</param>
-    /// <returns>Requested role.</returns>
-    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public DiscordRole? GetRole(ulong id)
-        => this.roles.TryGetValue(id, out DiscordRole? role) ? role : null;
 
     /// <summary>
     /// Gets a channel from this guild by its ID.

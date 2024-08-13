@@ -981,7 +981,7 @@ public class CommandsNextExtension : IDisposable
             if (msg.Channel.Guild != null)
             {
                 mentionedUsers = Utilities.GetUserMentions(msg).Select(xid => msg.Channel.Guild.members.TryGetValue(xid, out DiscordMember? member) ? member : null).Cast<DiscordUser>().ToList();
-                mentionedRoles = Utilities.GetRoleMentions(msg).Select(xid => msg.Channel.Guild.GetRole(xid)).ToList();
+                mentionedRoles = Utilities.GetRoleMentions(msg).Select(xid => msg.Channel.Guild.roles.GetValueOrDefault(xid)!).ToList();
                 mentionedChannels = Utilities.GetChannelMentions(msg).Select(xid => msg.Channel.Guild.GetChannel(xid)).ToList();
             }
             else
