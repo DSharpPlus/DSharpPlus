@@ -572,11 +572,11 @@ internal static class AuditLogParser
 
                     IEnumerable<DiscordRole>? oldRoles = oldRoleIds?
                         .Select(x => x.ToObject<ulong>())
-                        .Select(guild.GetRole);
+                        .Select(x => guild.roles.GetValueOrDefault(x)!);
 
                     IEnumerable<DiscordRole>? newRoles = newRoleIds?
                         .Select(x => x.ToObject<ulong>())
-                        .Select(guild.GetRole);
+                        .Select(x => guild.roles.GetValueOrDefault(x)!);
 
                     ruleEntry.ExemptRoles =
                         PropertyChange<IEnumerable<DiscordRole>?>.From(oldRoles, newRoles);
@@ -1171,13 +1171,13 @@ internal static class AuditLogParser
                 case "$add":
                     entry.AddedRoles =
                         new ReadOnlyCollection<DiscordRole>(change.NewValues.Select(xo => (ulong)xo["id"]!)
-                            .Select(guild.GetRole).ToList());
+                            .Select(gx => guild.roles.GetValueOrDefault(gx)!).ToList());
                     break;
 
                 case "$remove":
                     entry.RemovedRoles =
                         new ReadOnlyCollection<DiscordRole>(change.NewValues.Select(xo => (ulong)xo["id"]!)
-                            .Select(guild.GetRole).ToList());
+                            .Select(x => guild.roles.GetValueOrDefault(x)!).ToList());
                     break;
 
                 default:
