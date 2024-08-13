@@ -54,6 +54,9 @@ public sealed class GatewayClient : IGatewayClient
     /// <inheritdoc/>
     public TimeSpan Ping { get; private set; }
 
+    /// <inheritdoc/>
+    public int ShardId => this.shardInfo?.ShardId ?? 0;
+
     public GatewayClient
     (
         [FromKeyedServices("DSharpPlus.Gateway.EventChannel")]
@@ -251,7 +254,7 @@ public sealed class GatewayClient : IGatewayClient
 
             if (this.pendingHeartbeats > 5)
             {
-                await this.controller.ZombiedAsync(this);
+                _ = this.controller.ZombiedAsync(this);
             }
         } while (await timer.WaitForNextTickAsync(ct));
     }
@@ -317,6 +320,7 @@ public sealed class GatewayClient : IGatewayClient
                         if (!success)
                         {
                             this.logger.LogError("The session was invalidated and resuming/reconnecting failed.");
+                            _ = this.controller.SessionInvalidatedAsync(this);
                         }
 
                         break;
@@ -324,10 +328,12 @@ public sealed class GatewayClient : IGatewayClient
                     case GatewayOpCode.Reconnect:
 
                         this.logger.LogTrace("Received RECONNECT");
+                        _ = this.controller.ReconnectRequestedAsync(this);
 
                         if (!(this.options.AutoReconnect && await TryReconnectAsync()))
                         {
                             this.logger.LogError("A reconnection attempt requested by Discord failed.");
+                            _ = this.controller.ReconnectFailedAsync(this);
                         }
 
                         continue;

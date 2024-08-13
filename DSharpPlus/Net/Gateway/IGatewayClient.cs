@@ -52,4 +52,9 @@ public interface IGatewayClient
     /// Indicates the latency between this client and Discord.
     /// </summary>
     public TimeSpan Ping { get; }
+
+    /// <summary>
+    /// Gets the shard ID of this client. Defaults to zero if not sharding.
+    /// </summary>
+    public int ShardId { get; }
 }

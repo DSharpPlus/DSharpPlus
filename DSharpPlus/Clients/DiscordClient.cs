@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Clients;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
@@ -23,7 +24,7 @@ using DSharpPlus.Net.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+
 using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus;
@@ -165,6 +166,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
         this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus; version {Version}", this.VersionString);
 
+        await this.dispatcher.DispatchAsync(this, new ClientStartedEventArgs());
         _ = ReceiveGatewayEventsAsync();
         await this.orchestrator.StartAsync(activity, status, idlesince);
     }
@@ -204,7 +206,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// </summary>
     /// <returns></returns>
     public async Task DisconnectAsync()
-        => await this.orchestrator.StopAsync();
+    {
+        await this.orchestrator.StopAsync();
+        await this.dispatcher.DispatchAsync(this, new ClientStoppedEventArgs());
+    }
 
     #endregion
 
