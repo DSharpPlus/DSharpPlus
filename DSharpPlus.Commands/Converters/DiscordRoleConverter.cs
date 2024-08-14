@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -38,7 +39,7 @@ public partial class DiscordRoleConverter : ISlashArgumentConverter<DiscordRole>
             }
         }
 
-        return context.Guild.GetRole(roleId) is DiscordRole guildRole
+        return context.Guild.Roles.GetValueOrDefault(roleId) is DiscordRole guildRole
             ? Task.FromResult(Optional.FromValue(guildRole))
             : Task.FromResult(Optional.FromNoValue<DiscordRole>());
     }

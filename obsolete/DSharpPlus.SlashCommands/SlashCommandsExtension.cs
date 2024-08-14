@@ -86,7 +86,7 @@ public sealed partial class SlashCommandsExtension : IDisposable
     /// </summary>
     /// <typeparam name="T">The command class to register.</typeparam>
     /// <param name="guildId">The guild id to register it on. If you want global commands, leave it null.</param>
-    public void RegisterCommands<T>(ulong? guildId = null) where T : ApplicationCommandModule 
+    public void RegisterCommands<T>(ulong? guildId = null) where T : ApplicationCommandModule
         => this.updateList.Add(new(guildId, typeof(T)));
 
     /// <summary>
@@ -100,7 +100,7 @@ public sealed partial class SlashCommandsExtension : IDisposable
         {
             throw new ArgumentException("Command classes have to inherit from ApplicationCommandModule", nameof(type));
         }
-            
+
         this.updateList.Add(new(guildId, type));
     }
 
@@ -1090,7 +1090,7 @@ public sealed partial class SlashCommandsExtension : IDisposable
                     }
                     else
                     {
-                        args.Add(e.Interaction.Guild.GetRole((ulong)option.Value));
+                        args.Add(e.Interaction.Guild.Roles.GetValueOrDefault((ulong)option.Value));
                     }
                 }
                 else if (parameter.ParameterType == typeof(SnowflakeObject))

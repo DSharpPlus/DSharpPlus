@@ -452,7 +452,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public DiscordRole EveryoneRole
-        => GetRole(this.Id);
+        => this.Roles.GetValueOrDefault(this.Id)!;
 
     [JsonIgnore]
     internal bool isOwner;
@@ -894,7 +894,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         DiscordUser user,
         string accessToken,
         string? nickname = null,
-        bool muted = false, 
+        bool muted = false,
         bool deaf = false
     )
         => await this.Discord.ApiClient.AddGuildMemberAsync(this.Id, user.Id, accessToken, muted, deaf, nickname, null);
@@ -921,7 +921,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         bool deaf = false
     )
         => await this.Discord.ApiClient.AddGuildMemberAsync(this.Id, userId, accessToken, muted, deaf, nickname, null);
-    
+
     /// <summary>
     /// Adds a new member to this guild
     /// </summary>
@@ -1021,7 +1021,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         bool deaf = false
     )
         => await this.Discord.ApiClient.AddGuildMemberAsync(this.Id, userId, accessToken, muted, deaf, nickname, roles?.Select(x => x.Id));
-    
+
     /// <summary>
     /// Deletes this guild. Requires the caller to be the owner of the guild.
     /// </summary>
@@ -1096,6 +1096,35 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             mdl.Description, mdl.DiscoverySplash, mdl.Features, mdl.PreferredLocale,
             mdl.PublicUpdatesChannel.IfPresent(e => e?.Id), mdl.RulesChannel.IfPresent(e => e?.Id),
             mdl.SystemChannelFlags, mdl.AuditLogReason);
+    }
+
+    /// <summary>
+    /// Gets the roles in this guild.
+    /// </summary>
+    /// <returns>All the roles in the guild.</returns>
+    public async Task<IReadOnlyList<DiscordRole>> GetRolesAsync()
+    {
+        IReadOnlyList<DiscordRole> roles = await this.Discord.ApiClient.GetGuildRolesAsync(this.Id);
+        this.roles = new ConcurrentDictionary<ulong, DiscordRole>(roles.ToDictionary(x => x.Id));
+        return roles;
+    }
+
+    /// <summary>
+    /// Gets a singular role from this guild by its ID.
+    /// </summary>
+    /// <param name="roleId">The ID of the role.</param>
+    /// <param name="skipCache">Whether to skip checking cache for the role.</param>
+    /// <returns>The role from the guild if it exists.</returns>
+    public async Task<DiscordRole> GetRoleAsync(ulong roleId, bool skipCache = false)
+    {
+        if (!skipCache && this.roles.TryGetValue(roleId, out DiscordRole? role))
+        {
+            return role;
+        }
+
+        role = await this.Discord.ApiClient.GetGuildRoleAsync(this.Id, roleId);
+        this.roles[role.Id] = role;
+        return role;
     }
 
     /// <summary>
@@ -1816,9 +1845,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             Data = gatewayRequestGuildMembers
         };
 
-#pragma warning disable DSP0004 
+#pragma warning disable DSP0004
         await client.SendPayloadAsync(GatewayOpCode.RequestGuildMembers, gatewayRequestGuildMembers, this.Id);
-#pragma warning restore DSP0004 
+#pragma warning restore DSP0004
     }
 
     /// <summary>
@@ -1845,14 +1874,6 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordRole> CreateRoleAsync(string? name = null, DiscordPermissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string? reason = null, Stream? icon = null, DiscordEmoji? emoji = null)
         => await this.Discord.ApiClient.CreateGuildRoleAsync(this.Id, name, permissions, color?.Value, hoist, mentionable, icon, emoji?.ToString(), reason);
-    /// <summary>
-    /// Gets a role from this guild by its ID.
-    /// </summary>
-    /// <param name="id">ID of the role to get.</param>
-    /// <returns>Requested role.</returns>
-    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public DiscordRole? GetRole(ulong id)
-        => this.roles.TryGetValue(id, out DiscordRole? role) ? role : null;
 
     /// <summary>
     /// Gets a channel from this guild by its ID.
@@ -1861,7 +1882,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>Requested channel.</returns>
     internal DiscordChannel? GetChannel(ulong id)
         => this.channels != null && this.channels.TryGetValue(id, out DiscordChannel? channel) ? channel : null;
-    
+
     /// <summary>
     /// Gets a channel from this guild by its ID.
     /// </summary>
@@ -1877,7 +1898,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         if (skipCache)
         {
             channel = await this.Discord.ApiClient.GetChannelAsync(id);
-            
+
             if (channel.GuildId is null || (channel.GuildId is not null && channel.GuildId.Value != this.Id))
             {
                 throw new InvalidOperationException("The channel exists but does not belong to this guild.");
@@ -1895,7 +1916,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         {
             return threadChannel;
         }
-        
+
         channel = await this.Discord.ApiClient.GetChannelAsync(id);
 
         if (channel.GuildId is null || (channel.GuildId is not null && channel.GuildId.Value != this.Id))

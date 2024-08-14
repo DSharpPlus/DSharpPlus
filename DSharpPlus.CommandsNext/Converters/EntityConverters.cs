@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -164,7 +165,7 @@ public partial class DiscordRoleConverter : IArgumentConverter<DiscordRole>
 
         if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulong rid))
         {
-            DiscordRole result = ctx.Guild.GetRole(rid);
+            DiscordRole? result = ctx.Guild.Roles.GetValueOrDefault(rid);
             Optional<DiscordRole> ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordRole>();
             return Task.FromResult(ret);
         }
@@ -172,7 +173,7 @@ public partial class DiscordRoleConverter : IArgumentConverter<DiscordRole>
         Match m = GetRoleRegex().Match(value);
         if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out rid))
         {
-            DiscordRole result = ctx.Guild.GetRole(rid);
+            DiscordRole? result = ctx.Guild.Roles.GetValueOrDefault(rid);
             Optional<DiscordRole> ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordRole>();
             return Task.FromResult(ret);
         }
