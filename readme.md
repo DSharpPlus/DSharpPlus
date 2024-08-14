@@ -6,14 +6,13 @@ while DSharpPlus v5 is tracked on the master branch.
 
 ## Licensing
 
-DSharpPlus is based off DiscordSharp, whose license can be found [here](./DiscordSharp.LICENSE).
+DSharpPlus is based off DiscordSharp, whose license can be found [here](./DiscordSharp.Old.License).
 
-DSharpPlus, up to version 5.x, uses the MIT License, which can be found [here](./LICENSE-OLD)
+DSharpPlus, up to version 5.x, uses the MIT License, which can be found [here](./DSharpPlus.Old.License)
 
 DSharpPlus, starting with version 6.x, uses the Mozilla Public License, v2.0, which can be found [here](./LICENSE).
-This version does not contain any code from previous versions, and is built from ground up.
+This version does not contain any code from previous versions, and is built from ground up. 
 
-Additionally, because DSharpPlus references LGPL libraries, single-file published distributions of applications using
-DSharpPlus must in turn be licensed compatibly with LGPL. This is not applicable for undistributed applications or
-applications distributed with multiple files, because only a single-file distribution is statically linked to LGPL
-software and thus falls under the LGPL requirement of compatible licensing for statically linking code.
+The following contributor(s) to v6 and up have chosen to license their code under the [MIT License](./LICENSE-MIT)
+in addition to MPL-2.0:
+- [akiraveliara](https://github.com/akiraveliara)
