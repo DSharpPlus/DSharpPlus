@@ -20,7 +20,7 @@ public sealed class ZlibPayloadDecompressor : IPayloadDecompressor
     /// <inheritdoc/>
     public bool TryDecompress(ReadOnlySpan<byte> compressed, ArrayPoolBufferWriter<byte> decompressed)
     {
-        if (BinaryPrimitives.ReadUInt32BigEndian(compressed[^4..]) is not 0x0000FFFF)
+        if (BinaryPrimitives.ReadUInt16BigEndian(compressed) is not (0x7801 or 0x785E or 0x789C or 0x78DA))
         {
             decompressed.Write(compressed);
             return true;
@@ -28,11 +28,15 @@ public sealed class ZlibPayloadDecompressor : IPayloadDecompressor
 
         using ZlibInterop wrapper = new();
 
+        ArrayPoolBufferWriter<byte> fixedCompressedPayload = new(compressed.Length + 4);
+        fixedCompressedPayload.Write(compressed);
+        fixedCompressedPayload.Write<byte>([0x00, 0x00, 0xFF, 0xFF]);
+
         while (true)
         {
             bool complete = wrapper.Inflate
             (
-                compressed,
+                fixedCompressedPayload.WrittenSpan,
                 decompressed.GetSpan(),
                 out int written
             );
