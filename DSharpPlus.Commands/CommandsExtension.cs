@@ -50,8 +50,10 @@ namespace DSharpPlus.Commands;
 /// <summary>
 /// An all in one extension for managing commands.
 /// </summary>
-public sealed class CommandsExtension : BaseExtension
+public sealed class CommandsExtension
 {
+    public DiscordClient Client { get; private set; }
+
     /// <inheritdoc cref="DiscordClient.ServiceProvider"/>
     public IServiceProvider ServiceProvider { get; private set; }
 
@@ -87,10 +89,10 @@ public sealed class CommandsExtension : BaseExtension
     /// <summary>
     /// Executed everytime a command is finished executing.
     /// </summary>
-    public event AsyncEventHandler<CommandsExtension, CommandExecutedEventArgs> CommandExecuted 
-    { 
-        add => this.commandExecuted.Register(value); 
-        remove => this.commandExecuted.Unregister(value); 
+    public event AsyncEventHandler<CommandsExtension, CommandExecutedEventArgs> CommandExecuted
+    {
+        add => this.commandExecuted.Register(value);
+        remove => this.commandExecuted.Unregister(value);
     }
 
     internal AsyncEvent<CommandsExtension, CommandExecutedEventArgs> commandExecuted;
@@ -98,10 +100,10 @@ public sealed class CommandsExtension : BaseExtension
     /// <summary>
     /// Executed everytime a command has errored.
     /// </summary>
-    public event AsyncEventHandler<CommandsExtension, CommandErroredEventArgs> CommandErrored 
-    { 
-        add => this.commandErrored.Register(value); 
-        remove => this.commandErrored.Unregister(value); 
+    public event AsyncEventHandler<CommandsExtension, CommandErroredEventArgs> CommandErrored
+    {
+        add => this.commandErrored.Register(value);
+        remove => this.commandErrored.Unregister(value);
     }
 
     internal AsyncEvent<CommandsExtension, CommandErroredEventArgs> commandErrored;
@@ -129,7 +131,7 @@ public sealed class CommandsExtension : BaseExtension
     /// Sets up the extension to use the specified <see cref="DiscordClient"/>.
     /// </summary>
     /// <param name="client">The client to register our event handlers too.</param>
-    protected override void Setup(DiscordClient client)
+    public void Setup(DiscordClient client)
     {
         if (client is null)
         {
@@ -142,7 +144,6 @@ public sealed class CommandsExtension : BaseExtension
 
         this.Client = client;
         this.ServiceProvider = client.ServiceProvider;
-        this.Client.SessionCreated += async (_, _) => await RefreshAsync();
 
         this.logger = client.ServiceProvider.GetService<ILogger<CommandsExtension>>();
 
@@ -215,15 +216,15 @@ public sealed class CommandsExtension : BaseExtension
     /// <returns>Returns a list of valid commands. This list can be empty if no commands are valid for this processor type</returns>
     public IReadOnlyList<Command> GetCommandsForProcessor(ICommandProcessor processor)
     {
-        // Those processors use a different attribute to filter and filter themself 
+        // Those processors use a different attribute to filter and filter themself
         if (processor is MessageCommandProcessor or UserCommandProcessor)
         {
             return this.Commands.Values.ToList();
         }
-        
+
         Type contextType = processor.ContextType;
         Type processorType = processor.GetType();
-        
+
         List<Command> commands = new(this.Commands.Values.Count());
 
         foreach (Command command in this.Commands.Values)
@@ -254,7 +255,7 @@ public sealed class CommandsExtension : BaseExtension
                 return null;
             }
         }
-        
+
         List<Command> subCommands = new(command.Subcommands.Count);
         foreach (Command subcommand in command.Subcommands)
         {
@@ -268,19 +269,14 @@ public sealed class CommandsExtension : BaseExtension
         return command with { Subcommands = subCommands };
     }
 
-    public async ValueTask AddProcessorAsync(ICommandProcessor processor)
-    {
-        this.processors.Add(processor.GetType(), processor);
-        await processor.ConfigureAsync(this);
-    }
-
-    public ValueTask AddProcessorsAsync(params ICommandProcessor[] processors) => AddProcessorsAsync((IEnumerable<ICommandProcessor>)processors);
-    public async ValueTask AddProcessorsAsync(IEnumerable<ICommandProcessor> processors)
+    public void AddProcessor(ICommandProcessor processor) => this.processors.Add(processor.GetType(), processor);
+    public void AddProcessor<TProcessor>() where TProcessor : ICommandProcessor, new() => AddProcessor(new TProcessor());
+    public void AddProcessors(params ICommandProcessor[] processors) => AddProcessors((IEnumerable<ICommandProcessor>)processors);
+    public void AddProcessors(IEnumerable<ICommandProcessor> processors)
     {
         foreach (ICommandProcessor processor in processors)
         {
-            this.processors.Add(processor.GetType(), processor);
-            await processor.ConfigureAsync(this);
+            AddProcessor(processor);
         }
     }
 
@@ -435,7 +431,7 @@ public sealed class CommandsExtension : BaseExtension
     public async Task RefreshAsync()
     {
         BuildCommands();
-        
+
         if (this.RegisterDefaultCommandProcessors)
         {
             this.processors.TryAdd(typeof(TextCommandProcessor), new TextCommandProcessor());
@@ -444,8 +440,25 @@ public sealed class CommandsExtension : BaseExtension
             this.processors.TryAdd(typeof(UserCommandProcessor), new UserCommandProcessor());
         }
 
+
+        if (this.processors.TryGetValue(typeof(UserCommandProcessor), out ICommandProcessor userProcessor))
+        {
+            await userProcessor.ConfigureAsync(this);
+        }
+        
+        if (this.processors.TryGetValue(typeof(MessageCommandProcessor), out ICommandProcessor messageProcessor))
+        {
+            await messageProcessor.ConfigureAsync(this);
+        }
+        
         foreach (ICommandProcessor processor in this.processors.Values)
         {
+            Type type = processor.GetType();
+            if (type == typeof(UserCommandProcessor) || type == typeof(MessageCommandProcessor))
+            {
+                continue;
+            }
+            
             await processor.ConfigureAsync(this);
         }
     }
@@ -469,22 +482,6 @@ public sealed class CommandsExtension : BaseExtension
         this.Commands = commands.ToFrozenDictionary();
     }
 
-    /// <inheritdoc />
-    public override void Dispose()
-    {
-        return;
-    }
-
-    /// <summary>
-    /// The event handler used to log all unhandled exceptions, usually from when <see cref="commandErrored"/> itself errors.
-    /// </summary>
-    /// <param name="asyncEvent">The event that errored.</param>
-    /// <param name="error">The error that occurred.</param>
-    /// <param name="handler">The handler/method that errored.</param>
-    /// <param name="sender">The extension.</param>
-    /// <param name="eventArgs">The event arguments passed to <paramref name="handler"/>.</param>
-    private static void EverythingWentWrongErrorHandler<TArgs>(AsyncEvent<CommandsExtension, TArgs> asyncEvent, Exception error, AsyncEventHandler<CommandsExtension, TArgs> handler, CommandsExtension sender, TArgs eventArgs) where TArgs : AsyncEventArgs => sender.logger.LogError(error, "Event handler '{Method}' for event {AsyncEvent} threw an unhandled exception.", handler.Method, asyncEvent.Name);
-
     /// <summary>
     /// The default command error handler. Only used if <see cref="UseDefaultCommandErrorHandler"/> is set to true.
     /// </summary>
@@ -498,23 +495,23 @@ public sealed class CommandsExtension : BaseExtension
         // Error message
         stringBuilder.Append(eventArgs.Exception switch
         {
-            CommandNotFoundException commandNotFoundException 
+            CommandNotFoundException commandNotFoundException
                 => $"Command {Formatter.InlineCode(Formatter.Sanitize(commandNotFoundException.CommandName))} was not found.",
-            ArgumentParseException argumentParseException 
+            ArgumentParseException argumentParseException
                 => $"Failed to parse argument {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.Parameter.Name))}.",
-            ChecksFailedException checksFailedException when checksFailedException.Errors.Count == 1 
+            ChecksFailedException checksFailedException when checksFailedException.Errors.Count == 1
                 => $"The following error occurred: {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.Errors[0].ErrorMessage))}",
-            ChecksFailedException checksFailedException 
+            ChecksFailedException checksFailedException
                 => $"The following context checks failed: {Formatter.InlineCode(Formatter.Sanitize(string.Join("\n\n", checksFailedException.Errors.Select(x => x.ErrorMessage))))}.",
             ParameterChecksFailedException checksFailedException when checksFailedException.Errors.Count == 1
                 => $"The following error occurred: {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.Errors[0].ErrorMessage))}",
             ParameterChecksFailedException checksFailedException
                 => $"The following context checks failed: {Formatter.InlineCode(Formatter.Sanitize(string.Join("\n\n", checksFailedException.Errors.Select(x => x.ErrorMessage))))}.",
-            DiscordException discordException when discordException.Response is not null 
-                && (int)discordException.Response.StatusCode >= 500 
-                && (int)discordException.Response.StatusCode < 600 
+            DiscordException discordException when discordException.Response is not null
+                && (int)discordException.Response.StatusCode >= 500
+                && (int)discordException.Response.StatusCode < 600
                 => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? "No further information was provided."}",
-            DiscordException discordException when discordException.Response is not null 
+            DiscordException discordException when discordException.Response is not null
             => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? discordException.Message}",
             _ => $"An unexpected error occurred: {eventArgs.Exception.Message}"
         });

@@ -25,7 +25,6 @@ internal class ComponentEventWaiter : IDisposable
     public ComponentEventWaiter(DiscordClient client, InteractivityConfiguration config)
     {
         this.client = client;
-        this.client.ComponentInteractionCreated += HandleAsync;
         this.config = config;
 
         this.message = new() { Content = config.ResponseMessage ?? "This message was not meant for you.", IsEphemeral = true };
@@ -79,7 +78,7 @@ internal class ComponentEventWaiter : IDisposable
         return request.Collected.ToArray();
     }
 
-    private async Task HandleAsync(DiscordClient _, ComponentInteractionCreatedEventArgs args)
+    internal async Task HandleAsync(DiscordClient _, ComponentInteractionCreatedEventArgs args)
     {
         foreach (ComponentMatchRequest? mreq in this.matchRequests.ToArray())
         {
@@ -114,6 +113,5 @@ internal class ComponentEventWaiter : IDisposable
     {
         this.matchRequests.Clear();
         this.collectRequests.Clear();
-        this.client.ComponentInteractionCreated -= HandleAsync;
     }
 }

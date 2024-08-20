@@ -12,5 +12,14 @@ internal class DefaultGatewayController : IGatewayController
     public Task HeartbeatedAsync(IGatewayClient client) => Task.CompletedTask;
 
     /// <inheritdoc/>
-    public ValueTask ZombiedAsync(IGatewayClient client) => ValueTask.CompletedTask;
+    public Task ReconnectFailedAsync(IGatewayClient client) => Task.CompletedTask;
+
+    /// <inheritdoc/>
+    public Task ReconnectRequestedAsync(IGatewayClient client) => Task.CompletedTask;
+
+    /// <inheritdoc/>
+    public Task SessionInvalidatedAsync(IGatewayClient client) => Task.CompletedTask;
+
+    /// <inheritdoc/>
+    public Task ZombiedAsync(IGatewayClient client) => Task.CompletedTask;
 }

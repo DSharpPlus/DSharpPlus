@@ -31,6 +31,24 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     /// <inheritdoc/>
     public bool AllShardsConnected => this.shards?.All(shard => shard.IsConnected) == true;
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <remarks>
+    /// This value may be inaccurate before startup. It is guaranteed to be correct by the time the first SessionCreated event
+    /// is fired.
+    /// </remarks>
+    public int TotalShardCount => (int)this.totalShards;
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <remarks>
+    /// This value may be inaccurate before startup. It is guaranteed to be correct by the time the first SessionCreated event
+    /// is fired.
+    /// </remarks>
+    public int ConnectedShardCount => (int)this.shardCount;
+
     public MultiShardOrchestrator
     (
         IServiceProvider serviceProvider, 

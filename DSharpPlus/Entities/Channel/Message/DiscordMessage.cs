@@ -58,6 +58,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         this.Timestamp = other.Timestamp;
         this.WebhookId = other.WebhookId;
         this.ApplicationId = other.ApplicationId;
+        this.Components = other.Components;
     }
 
     /// <summary>
@@ -429,7 +430,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         if (guild is not null && !string.IsNullOrWhiteSpace(this.Content))
         {
             this.mentionedChannels = this.mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(guild.GetChannel)).ToList();
-            this.mentionedRoles = this.mentionedRoles.Union(this.mentionedRoleIds.Select(guild.GetRole)).ToList();
+            this.mentionedRoles = this.mentionedRoles.Union(this.mentionedRoleIds.Select(x => guild.roles.GetValueOrDefault(x)!)).ToList();
 
             //uncomment if this breaks
             //mentionedUsers.UnionWith(Utilities.GetUserMentions(this).Select(this.Discord.GetCachedOrEmptyUserInternal));

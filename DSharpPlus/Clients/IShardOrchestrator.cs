@@ -37,11 +37,6 @@ public interface IShardOrchestrator
     public ValueTask BroadcastOutboundEventAsync(byte[] payload);
 
     /// <summary>
-    /// Indicates whether all shards are connected.
-    /// </summary>
-    public bool AllShardsConnected { get; }
-
-    /// <summary>
     /// Indicates whether the bot's connection to the given guild is functional.
     /// </summary>
     public bool IsConnected(ulong guildId);
@@ -50,4 +45,19 @@ public interface IShardOrchestrator
     /// Gets the connection latency to a specific guild, otherwise known as ping.
     /// </summary>
     public TimeSpan GetConnectionLatency(ulong guildId);
+
+    /// <summary>
+    /// Indicates whether all shards are connected.
+    /// </summary>
+    public bool AllShardsConnected { get; }
+
+    /// <summary>
+    /// Gets the total amount of shards connected to this bot.
+    /// </summary>
+    public int TotalShardCount { get; }
+
+    /// <summary>
+    /// Gets the amount of shards handled by this orchestrator.
+    /// </summary>
+    public int ConnectedShardCount { get; }
 }

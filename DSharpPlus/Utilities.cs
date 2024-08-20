@@ -259,7 +259,7 @@ public static partial class Utilities
             return PermissionStrings[perm];
         }
 
-        perm &= PermissionMethods.FULL_PERMS;
+        perm &= DiscordPermissions.All;
 
         IEnumerable<string> strs = PermissionStrings
             .Where(xkvp => xkvp.Key != DiscordPermissions.None && (perm & xkvp.Key) == xkvp.Key)

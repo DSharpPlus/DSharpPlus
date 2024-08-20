@@ -3,7 +3,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.MessageReactionRemovedEmoji"/>
+/// Represents arguments for MessageReactionRemovedEmoji
 /// </summary>
 public sealed class MessageReactionRemovedEmojiEventArgs : DiscordEventArgs
 {

@@ -36,6 +36,12 @@ public sealed class SingleShardOrchestrator : IShardOrchestrator
     public bool AllShardsConnected => this.gatewayClient.IsConnected;
 
     /// <inheritdoc/>
+    public int TotalShardCount => 1;
+
+    /// <inheritdoc/>
+    public int ConnectedShardCount => 1;
+
+    /// <inheritdoc/>
     public async ValueTask BroadcastOutboundEventAsync(byte[] payload)
     {
         if (!this.AllShardsConnected)

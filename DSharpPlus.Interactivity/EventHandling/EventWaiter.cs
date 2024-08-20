@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using ConcurrentCollections;
@@ -28,24 +26,20 @@ internal class EventWaiter<T> : IDisposable where T : AsyncEventArgs
     /// <summary>
     /// Creates a new Eventwaiter object.
     /// </summary>
-    /// <param name="client">Your DiscordClient</param>
-    public EventWaiter(DiscordClient client)
+    /// <param name="extension">The extension to register to.</param>
+    public EventWaiter(InteractivityExtension extension)
     {
-        this.client = client;
-        if (InteractivityExtension.GetEventsField(client) is not ConcurrentDictionary<Type, AsyncEvent> events)
-        {
-            throw new UnreachableException("Could not get the events from the events field in DiscordClient. This is a bug, please report it.");
-        }
+        this.client = extension.Client;
 
-        if (!events.TryGetValue(typeof(T), out AsyncEvent? @event))
-        {
-            throw new UnreachableException($"The event {typeof(T).Name} is not registered in the DiscordClient. This is a bug, please report it.");
-        }
+        this.@event = (AsyncEvent<DiscordClient, T>)extension.eventDistributor.GetOrAdd
+        (
+            typeof(T),
+            new AsyncEvent<DiscordClient, T>(extension.errorHandler)
+        );
 
         this.matchrequests = [];
         this.collectrequests = [];
         this.handler = new AsyncEventHandler<DiscordClient, T>(HandleEvent);
-        this.@event = (AsyncEvent<DiscordClient, T>)@event;
         this.@event.Register(this.handler);
     }
 
@@ -71,6 +65,7 @@ internal class EventWaiter<T> : IDisposable where T : AsyncEventArgs
             request.Dispose();
             this.matchrequests.TryRemove(request);
         }
+
         return result;
     }
 
@@ -128,24 +123,10 @@ internal class EventWaiter<T> : IDisposable where T : AsyncEventArgs
         {
             return;
         }
-
+        
         this.disposed = true;
-
-        if (this.@event != null && this.handler != null)
-        {
-            this.@event.Unregister(this.handler);
-        }
-
-        this.@event = null!;
-        this.handler = null!;
-        this.client = null!;
-
-        this.matchrequests?.Clear();
-
-        this.collectrequests?.Clear();
-
-        this.matchrequests = null!;
-        this.collectrequests = null!;
+        this.matchrequests.Clear();
+        this.collectrequests.Clear();
 
         // Satisfy rule CA1816. Can be removed if this class is sealed.
         GC.SuppressFinalize(this);

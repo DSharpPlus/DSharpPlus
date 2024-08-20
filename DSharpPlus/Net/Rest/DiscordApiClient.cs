@@ -51,45 +51,49 @@ public sealed class DiscordApiClient
     {
         TransportUser author = msgRaw["author"]!.ToDiscordObject<TransportUser>();
         DiscordMessage message = msgRaw.ToDiscordObject<DiscordMessage>();
-
         message.Discord = this.discord!;
-
         PopulateMessage(author, message);
 
         JToken? referencedMsg = msgRaw["referenced_message"];
-
-        if (message.MessageType == DiscordMessageType.Reply && !string.IsNullOrWhiteSpace(referencedMsg?.ToString()))
+        if (message.MessageType == DiscordMessageType.Reply && referencedMsg is not null && message.ReferencedMessage is not null)
         {
             TransportUser referencedAuthor = referencedMsg["author"]!.ToDiscordObject<TransportUser>();
             message.ReferencedMessage.Discord = this.discord!;
             PopulateMessage(referencedAuthor, message.ReferencedMessage);
         }
 
-        if (message.Channel is not null)
-        {
-            return message;
-        }
-
-        message.Channel = !message.guildId.HasValue
-            ? new DiscordDmChannel
-            {
-                Id = message.ChannelId,
-                Discord = this.discord!,
-                Type = DiscordChannelType.Private
-            }
-            : new DiscordChannel
-            {
-                Id = message.ChannelId,
-                GuildId = message.guildId,
-                Discord = this.discord!
-            };
-
         return message;
     }
 
     private void PopulateMessage(TransportUser author, DiscordMessage ret)
     {
-        DiscordGuild? guild = ret.Channel?.Guild;
+        if (ret.Channel is null && ret.Discord is DiscordClient client)
+        {
+            ret.Channel = client.InternalGetCachedChannel(ret.ChannelId);
+        }
+
+        if (ret.guildId is null || !ret.Discord.Guilds.TryGetValue(ret.guildId.Value, out DiscordGuild? guild))
+        {
+            guild = ret.Channel?.Guild;
+        }
+
+        ret.guildId ??= guild?.Id;
+
+        // I can't think of a case where guildId will never be not null since the guildId is a gateway exclusive
+        // property, however if that property is added later to the rest api response, this case would be hit.
+        ret.Channel ??= ret.guildId is null
+            ? new DiscordDmChannel
+            {
+                Id = ret.ChannelId,
+                Discord = this.discord!,
+                Type = DiscordChannelType.Private
+            }
+            : new DiscordChannel
+            {
+                Id = ret.ChannelId,
+                GuildId = ret.guildId,
+                Discord = this.discord!
+            };
 
         //If this is a webhook, it shouldn't be in the user cache.
         if (author.IsBot && int.Parse(author.Discriminator) == 0)
@@ -2660,8 +2664,8 @@ public sealed class DiscordApiClient
         RestChannelPermissionEditPayload pld = new()
         {
             Type = type,
-            Allow = allow & PermissionMethods.FULL_PERMS,
-            Deny = deny & PermissionMethods.FULL_PERMS
+            Allow = allow & DiscordPermissions.All,
+            Deny = deny & DiscordPermissions.All
         };
 
         Dictionary<string, string> headers = [];
@@ -3779,6 +3783,31 @@ public sealed class DiscordApiClient
     #endregion
 
     #region Roles
+    internal async ValueTask<DiscordRole> GetGuildRoleAsync
+    (
+        ulong guildId,
+        ulong roleId
+    )
+    {
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.ROLES}/:role_id";
+        string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.ROLES}/{roleId}";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+
+        DiscordRole role = JsonConvert.DeserializeObject<DiscordRole>(res.Response!)!;
+        role.Discord = this.discord!;
+        role.guild_id = guildId;
+
+        return role;
+    }
+
     internal async ValueTask<IReadOnlyList<DiscordRole>> GetGuildRolesAsync
     (
         ulong guildId
@@ -3878,7 +3907,7 @@ public sealed class DiscordApiClient
         RestGuildRolePayload pld = new()
         {
             Name = name,
-            Permissions = permissions & PermissionMethods.FULL_PERMS,
+            Permissions = permissions & DiscordPermissions.All,
             Color = color,
             Hoist = hoist,
             Mentionable = mentionable,
@@ -3964,7 +3993,7 @@ public sealed class DiscordApiClient
         RestGuildRolePayload pld = new()
         {
             Name = name,
-            Permissions = permissions & PermissionMethods.FULL_PERMS,
+            Permissions = permissions & DiscordPermissions.All,
             Color = color,
             Hoist = hoist,
             Mentionable = mentionable,

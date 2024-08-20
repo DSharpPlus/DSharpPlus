@@ -36,14 +36,8 @@ public sealed class MessageCommandProcessor : ICommandProcessor<InteractionCreat
     /// <inheritdoc />
     public async ValueTask ConfigureAsync(CommandsExtension extension)
     {
-        if (this.extension is null)
-        {
-            extension.Client.ContextMenuInteractionCreated += ExecuteInteractionAsync;
-        }
-
         this.extension = extension;
         this.slashCommandProcessor = this.extension.GetProcessor<SlashCommandProcessor>() ?? new SlashCommandProcessor();
-        await this.slashCommandProcessor.ConfigureAsync(this.extension);
 
         ILogger<MessageCommandProcessor> logger = this.extension.ServiceProvider.GetService<ILogger<MessageCommandProcessor>>() ?? NullLogger<MessageCommandProcessor>.Instance;
         List<DiscordApplicationCommand> applicationCommands = [];

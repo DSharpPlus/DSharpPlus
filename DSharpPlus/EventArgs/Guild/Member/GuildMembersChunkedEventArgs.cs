@@ -4,7 +4,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.GuildMembersChunked"/> event.
+/// Represents arguments for GuildMembersChunked event.
 /// </summary>
 public class GuildMembersChunkedEventArgs : DiscordEventArgs
 {

@@ -4,7 +4,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.ThreadMembersUpdated"/> event.
+/// Represents arguments for ThreadMembersUpdated event.
 /// </summary>
 public class ThreadMembersUpdatedEventArgs : DiscordEventArgs
 {

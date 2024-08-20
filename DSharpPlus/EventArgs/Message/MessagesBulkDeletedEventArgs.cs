@@ -4,7 +4,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.MessagesBulkDeleted"/> event.
+/// Represents arguments for MessagesBulkDeleted event.
 /// </summary>
 public class MessagesBulkDeletedEventArgs : DiscordEventArgs
 {

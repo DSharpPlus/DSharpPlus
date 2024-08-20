@@ -999,7 +999,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
 
         if (this.Guild.OwnerId == mbr.Id)
         {
-            return PermissionMethods.FULL_PERMS;
+            return DiscordPermissions.All;
         }
 
         DiscordPermissions perms;
@@ -1017,7 +1017,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         // Administrator grants all permissions and cannot be overridden
         if ((perms & DiscordPermissions.Administrator) == DiscordPermissions.Administrator)
         {
-            return PermissionMethods.FULL_PERMS;
+            return DiscordPermissions.All;
         }
 
         // channel overrides for roles that member is in
@@ -1087,7 +1087,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         // Administrator grants all permissions and cannot be overridden
         if ((perms & DiscordPermissions.Administrator) == DiscordPermissions.Administrator)
         {
-            return PermissionMethods.FULL_PERMS;
+            return DiscordPermissions.All;
         }
 
         // channel overrides for the @everyone role
