@@ -971,7 +971,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             return guild.Channels.GetValueOrDefault(channelId);
         }
 
-        return null;
+        return InternalGetCachedChannel(channelId);
     }
 
     internal DiscordGuild InternalGetCachedGuild(ulong? guildId)
