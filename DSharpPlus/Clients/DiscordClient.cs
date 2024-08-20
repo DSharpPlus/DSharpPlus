@@ -961,9 +961,9 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
     internal DiscordChannel? InternalGetCachedChannel(ulong channelId, ulong? guildId)
     {
-        if (guildId is not { } nonNullGuildID)
+        if (guildId is not ulong nonNullGuildID)
         {
-            return this.privateChannels.GetValueOrDefault(channelId);
+            return this.privateChannels.GetValueOrDefault(channelId) ?? InternalGetCachedChannel(channelId);
         }
 
         if (this.guilds.TryGetValue(nonNullGuildID, out DiscordGuild? guild))
