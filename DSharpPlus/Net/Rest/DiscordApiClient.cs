@@ -5992,7 +5992,9 @@ public sealed class DiscordApiClient
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
         DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
 
+        ret.Channel = (this.discord as DiscordClient).InternalGetCachedChannel(ret.ChannelId);
         ret.Discord = this.discord!;
+
         return ret;
     }
 
