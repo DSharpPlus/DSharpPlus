@@ -38,13 +38,17 @@ internal unsafe partial struct ZlibInterop : IDisposable
         fixed (ZlibStream* pStream = &this.stream)
         {
             pStream->nextInputByte = pCompressed + this.index;
-            pStream->availableInputBytes = (uint)compressed.Length;
+            pStream->availableInputBytes = (uint)compressed.Length - this.index;
             pStream->nextOutputByte = pDecompressed;
             pStream->availableOutputBytes = (uint)decompressed.Length;
 
             while (true)
             {
+                uint inputBytes = pStream->availableInputBytes;
+
                 ZlibErrorCode code = Bindings.CompressionNative_Inflate(pStream, ZlibFlushCode.SyncFlush);
+
+                this.index += inputBytes - pStream->availableInputBytes;
 
                 if (code == ZlibErrorCode.StreamEnd)
                 {
@@ -60,6 +64,19 @@ internal unsafe partial struct ZlibInterop : IDisposable
                 }
                 else if (code == ZlibErrorCode.Ok)
                 {
+                    if (pStream->availableInputBytes == 0)
+                    {
+                        isCompleted = true;
+                        this.index = 0;
+                        break;
+                    }
+
+                    // no need to do a second iteration if the buffer is empty
+                    if (pStream->availableOutputBytes == 0)
+                    {
+                        break;
+                    }
+
                     continue;
                 }
                 else

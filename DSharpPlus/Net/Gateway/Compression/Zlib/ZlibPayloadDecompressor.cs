@@ -28,15 +28,11 @@ public sealed class ZlibPayloadDecompressor : IPayloadDecompressor
 
         using ZlibInterop wrapper = new();
 
-        ArrayPoolBufferWriter<byte> fixedCompressedPayload = new(compressed.Length + 4);
-        fixedCompressedPayload.Write(compressed);
-        fixedCompressedPayload.Write<byte>([0x00, 0x00, 0xFF, 0xFF]);
-
         while (true)
         {
             bool complete = wrapper.Inflate
             (
-                fixedCompressedPayload.WrittenSpan,
+                compressed,
                 decompressed.GetSpan(),
                 out int written
             );
