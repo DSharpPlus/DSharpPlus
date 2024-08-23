@@ -39,7 +39,7 @@ internal unsafe partial struct ZstdInterop
 
         [LibraryImport("libzstd")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        internal static unsafe partial ZstdErrorCode ZSTD_getErrorCode(nuint returnCode);
+        internal static unsafe partial ZstdErrorCode ZSTD_getErrorCode(ZstdErrorCodeConvertible returnCode);
     }
 
     // exists purely to put a name on the relevant parameters
