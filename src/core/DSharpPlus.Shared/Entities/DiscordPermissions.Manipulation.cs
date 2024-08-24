@@ -112,7 +112,7 @@ partial struct DiscordPermissions
     /// Returns a permission set containing either no value if the flag was not found, or exactly the specified flag if it was.
     /// </summary>
     public static DiscordPermissions operator &(DiscordPermissions value, DiscordPermission flag)
-        => value & (DiscordPermissions)flag;
+        => value.HasFlag(flag) ? new(flag) : None;
 
     /// <summary>
     /// Performs a bitwise AND between the two permission sets.

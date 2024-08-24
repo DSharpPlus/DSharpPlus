@@ -46,7 +46,7 @@ partial struct DiscordPermissions
         internal DiscordPermissionEnumerator(DiscordPermissionContainer data)
             => this.data = data;
 
-        public readonly DiscordPermission Current => (DiscordPermission)(32 * this.block) + this.bit;
+        public readonly DiscordPermission Current => (DiscordPermission)(this.block << 5) + this.bit;
 
         readonly object IEnumerator.Current => this.Current;
 
@@ -55,7 +55,7 @@ partial struct DiscordPermissions
 
         public bool MoveNext()
         {
-            for (; this.block < 4; this.block++)
+            for (; this.block < ContainerElementCount; this.block++)
             {
                 this.bit++;
                 uint value = this.data[this.block];
