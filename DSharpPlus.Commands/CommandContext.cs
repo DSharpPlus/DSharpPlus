@@ -22,10 +22,10 @@ public abstract record CommandContext : AbstractContext
     protected Dictionary<ulong, DiscordMessage> followupMessages = [];
 
     /// <inheritdoc cref="RespondAsync(string, DiscordEmbed)"/>
-    public virtual ValueTask RespondAsync(string content) => RespondAsync(new DiscordMessageBuilder().WithContent(content));
+    public virtual ValueTask<DiscordMessage> RespondAsync(string content) => RespondAsync(new DiscordMessageBuilder().WithContent(content));
 
     /// <inheritdoc cref="RespondAsync(string, DiscordEmbed)"/>
-    public virtual ValueTask RespondAsync(DiscordEmbed embed) => RespondAsync(new DiscordMessageBuilder().AddEmbed(embed));
+    public virtual ValueTask<DiscordMessage> RespondAsync(DiscordEmbed embed) => RespondAsync(new DiscordMessageBuilder().AddEmbed(embed));
 
     /// <summary>
     /// Creates a response to this interaction.
@@ -33,11 +33,11 @@ public abstract record CommandContext : AbstractContext
     /// </summary>
     /// <param name="content">Content to send in the response.</param>
     /// <param name="embed">Embed to send in the response.</param>
-    public virtual ValueTask RespondAsync(string content, DiscordEmbed embed) => RespondAsync(new DiscordMessageBuilder().WithContent(content).AddEmbed(embed));
+    public virtual ValueTask<DiscordMessage> RespondAsync(string content, DiscordEmbed embed) => RespondAsync(new DiscordMessageBuilder().WithContent(content).AddEmbed(embed));
 
     /// <inheritdoc cref="RespondAsync(string, DiscordEmbed)"/>
     /// <param name="builder">The message builder.</param>
-    public abstract ValueTask RespondAsync(IDiscordMessageBuilder builder);
+    public abstract ValueTask<DiscordMessage> RespondAsync(IDiscordMessageBuilder builder);
 
     /// <inheritdoc cref="EditResponseAsync(string, DiscordEmbed)"/>
     public virtual ValueTask<DiscordMessage> EditResponseAsync(string content) => EditResponseAsync(new DiscordMessageBuilder().WithContent(content));

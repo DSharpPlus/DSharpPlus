@@ -11,7 +11,7 @@ public sealed record TextCommandContext : CommandContext
     public bool Delayed { get; private set; }
 
     /// <inheritdoc />
-    public override async ValueTask RespondAsync(IDiscordMessageBuilder builder)
+    public override async ValueTask<DiscordMessage> RespondAsync(IDiscordMessageBuilder builder)
     {
         DiscordMessageBuilder messageBuilder = new(builder);
 
@@ -27,7 +27,7 @@ public sealed record TextCommandContext : CommandContext
             messageBuilder.WithAllowedMentions(Mentions.None);
         }
 
-        this.Response = await this.Channel.SendMessageAsync(messageBuilder);
+        return this.Response = await this.Channel.SendMessageAsync(messageBuilder);
     }
 
     /// <inheritdoc />

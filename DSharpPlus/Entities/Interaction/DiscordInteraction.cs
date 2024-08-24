@@ -168,7 +168,7 @@ public class DiscordInteraction : SnowflakeObject
     /// </summary>
     /// <param name="type">The type of the response.</param>
     /// <param name="builder">The data, if any, to send.</param>
-    public virtual async Task CreateResponseAsync(DiscordInteractionResponseType type, DiscordInteractionResponseBuilder builder = null)
+    public virtual async Task<DiscordMessage> CreateResponseAsync(DiscordInteractionResponseType type, DiscordInteractionResponseBuilder builder = null)
     {
         if (this.ResponseState is not DiscordInteractionResponseState.Unacknowledged)
         {
@@ -179,7 +179,7 @@ public class DiscordInteraction : SnowflakeObject
             ? DiscordInteractionResponseState.Deferred
             : DiscordInteractionResponseState.Replied;
 
-        await this.Discord.ApiClient.CreateInteractionResponseAsync(this.Id, this.Token, type, builder);
+        return await this.Discord.ApiClient.CreateInteractionResponseAsync(this.Id, this.Token, type, builder);
     }
 
     /// <summary>

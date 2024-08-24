@@ -13,7 +13,7 @@ public class DiscordHttpInteraction : DiscordInteraction
 {
     [JsonIgnore]
     internal readonly TaskCompletionSource taskCompletionSource = new();
-    
+
     [JsonIgnore]
     internal byte[] response;
 
@@ -25,16 +25,16 @@ public class DiscordHttpInteraction : DiscordInteraction
 
         return this.response;
     }
-    
+
     /// <inheritdoc/>
-    public override Task CreateResponseAsync(DiscordInteractionResponseType type, DiscordInteractionResponseBuilder? builder = null)
+    public override Task<DiscordMessage> CreateResponseAsync(DiscordInteractionResponseType type, DiscordInteractionResponseBuilder? builder = null)
     {
         if (this.taskCompletionSource.Task.IsCanceled)
         {
             throw new InvalidOperationException(
                 "Discord closed the connection. This is likely due to exeeding the limit of 3 seconds to the response.");
         }
-        
+
         if (this.ResponseState is not DiscordInteractionResponseState.Unacknowledged)
         {
             throw new InvalidOperationException("A response has already been made to this interaction.");
@@ -43,7 +43,7 @@ public class DiscordHttpInteraction : DiscordInteraction
         this.ResponseState = type == DiscordInteractionResponseType.DeferredChannelMessageWithSource
             ? DiscordInteractionResponseState.Deferred
             : DiscordInteractionResponseState.Replied;
-        
+
         DiscordInteractionResponsePayload payload = new()
         {
             Type = type,
@@ -66,7 +66,7 @@ public class DiscordHttpInteraction : DiscordInteraction
 
         this.response = Encoding.UTF8.GetBytes(DiscordJson.SerializeObject(payload));
         this.taskCompletionSource.SetResult();
-        
-        return Task.CompletedTask;
+
+        return this.Discord.ApiClient.GetOriginalInteractionResponseAsync(ApplicationId, this.Token).AsTask();
     }
 }

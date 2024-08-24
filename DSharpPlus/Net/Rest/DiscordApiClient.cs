@@ -5884,7 +5884,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask CreateInteractionResponseAsync
+    internal async ValueTask<DiscordMessage> CreateInteractionResponseAsync
     (
         ulong interactionId,
         string interactionToken,
@@ -5934,7 +5934,7 @@ public sealed class DiscordApiClient
         }
 
         string route = $"{Endpoints.INTERACTIONS}/{interactionId}/:interaction_token/{Endpoints.CALLBACK}";
-        string url = $"{Endpoints.INTERACTIONS}/{interactionId}/{interactionToken}/{Endpoints.CALLBACK}";
+        string url = $"{Endpoints.INTERACTIONS}/{interactionId}/{interactionToken}/{Endpoints.CALLBACK}?with_response=true";
 
         if (builder is not null && builder.Files.Count != 0)
         {
@@ -5950,7 +5950,14 @@ public sealed class DiscordApiClient
 
             try
             {
-                await this.rest.ExecuteRequestAsync(request);
+                RestResponse ret = await this.rest.ExecuteRequestAsync(request);
+
+                DiscordMessage res = JsonConvert.DeserializeObject<DiscordMessage>(ret.Response!)!;
+
+                res.Channel = (this.discord as DiscordClient)!.InternalGetCachedChannel(res.ChannelId);
+                res.Discord = this.discord!;
+
+                return res;
             }
             finally
             {
@@ -5968,7 +5975,14 @@ public sealed class DiscordApiClient
                 IsExemptFromGlobalLimit = true
             };
 
-            await this.rest.ExecuteRequestAsync(request);
+            RestResponse res = await this.rest.ExecuteRequestAsync(request);
+
+            DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
+
+            ret.Channel = (this.discord as DiscordClient)!.InternalGetCachedChannel(ret.ChannelId);
+            ret.Discord = this.discord!;
+
+            return ret;
         }
     }
 
