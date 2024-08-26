@@ -36,10 +36,10 @@ public sealed partial class SlashCommandsExtension : IDisposable
 
     //List of modules to register
     private List<KeyValuePair<ulong?, Type>> updateList { get; set; } = [];
-    //Configuration for DI
-    private readonly SlashCommandsConfiguration configuration;
     //Set to true if anything fails when registering
     private static bool errored { get; set; } = false;
+
+    private readonly IServiceProvider services;
 
     /// <summary>
     /// Gets a list of registered commands. The key is the guild id (null if global).
@@ -50,17 +50,14 @@ public sealed partial class SlashCommandsExtension : IDisposable
 
     private static readonly List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> registeredCommands = [];
 
-    internal SlashCommandsExtension(SlashCommandsConfiguration configuration)
-    {
-        this.configuration = configuration ?? new SlashCommandsConfiguration();
-        ;
-    }
+    internal SlashCommandsExtension(IServiceProvider serviceProvider) 
+        => this.services = serviceProvider;
 
     /// <summary>
     /// Runs setup. DO NOT RUN THIS MANUALLY. DO NOT DO ANYTHING WITH THIS.
     /// </summary>
     /// <param name="client">The client to setup on.</param>
-    public void Setup(DiscordClient client)
+    internal void Setup(DiscordClient client)
     {
         if (this.Client != null)
         {
@@ -277,7 +274,7 @@ public sealed partial class SlashCommandsExtension : IDisposable
                             //Accounts for lifespans for the sub group
                             if (subclass.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
                             {
-                                singletonModules.Add(CreateInstance(subclass, this.configuration?.Services));
+                                singletonModules.Add(CreateInstance(subclass, this.services));
                             }
                         }
 
@@ -291,7 +288,7 @@ public sealed partial class SlashCommandsExtension : IDisposable
                         //Accounts for lifespans
                         if (subclassinfo.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
                         {
-                            singletonModules.Add(CreateInstance(subclassinfo, this.configuration?.Services));
+                            singletonModules.Add(CreateInstance(subclassinfo, this.services));
                         }
                     }
 
@@ -335,7 +332,7 @@ public sealed partial class SlashCommandsExtension : IDisposable
                         //Accounts for lifespans
                         if (module.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
                         {
-                            singletonModules.Add(CreateInstance(module, this.configuration?.Services));
+                            singletonModules.Add(CreateInstance(module, this.services));
                         }
                     }
 
@@ -540,7 +537,7 @@ public sealed partial class SlashCommandsExtension : IDisposable
                         ?.SetValue(instance, guildId);
 
                     choiceProviderAttribute.ProviderType.GetProperty(nameof(ChoiceProvider.Services))
-                        ?.SetValue(instance, this.configuration.Services);
+                        ?.SetValue(instance, this.services);
                 }
 
                 //Gets the choices from the method
@@ -640,7 +637,7 @@ public sealed partial class SlashCommandsExtension : IDisposable
                     QualifiedName = qualifiedName.ToString(),
                     InteractionId = e.Interaction.Id,
                     Token = e.Interaction.Token,
-                    Services = this.configuration?.Services,
+                    Services = this.services,
                     ResolvedUserMentions = e.Interaction.Data.Resolved?.Users?.Values.ToList(),
                     ResolvedRoleMentions = e.Interaction.Data.Resolved?.Roles?.Values.ToList(),
                     ResolvedChannelMentions = e.Interaction.Data.Resolved?.Channels?.Values.ToList(),
@@ -765,7 +762,7 @@ public sealed partial class SlashCommandsExtension : IDisposable
                 Interaction = e.Interaction,
                 Channel = e.Interaction.Channel,
                 Client = client,
-                Services = this.configuration?.Services,
+                Services = this.services,
                 CommandName = e.Interaction.Data.Name,
                 SlashCommandsExtension = this,
                 Guild = e.Interaction.Guild,
@@ -812,9 +809,9 @@ public sealed partial class SlashCommandsExtension : IDisposable
         object classInstance = moduleLifespan switch //Accounts for static methods and adds DI
         {
             // Accounts for static methods and adds DI
-            SlashModuleLifespan.Scoped => method.IsStatic ? ActivatorUtilities.CreateInstance(this.configuration?.Services.CreateScope().ServiceProvider, method.DeclaringType) : CreateInstance(method.DeclaringType, this.configuration?.Services.CreateScope().ServiceProvider),
+            SlashModuleLifespan.Scoped => method.IsStatic ? ActivatorUtilities.CreateInstance(this.services.CreateScope().ServiceProvider, method.DeclaringType) : CreateInstance(method.DeclaringType, this.services.CreateScope().ServiceProvider),
             // Accounts for static methods and adds DI
-            SlashModuleLifespan.Transient => method.IsStatic ? ActivatorUtilities.CreateInstance(this.configuration?.Services, method.DeclaringType) : CreateInstance(method.DeclaringType, this.configuration?.Services),
+            SlashModuleLifespan.Transient => method.IsStatic ? ActivatorUtilities.CreateInstance(this.services, method.DeclaringType) : CreateInstance(method.DeclaringType, this.services),
             // If singleton, gets it from the singleton list
             SlashModuleLifespan.Singleton => singletonModules.First(x => ReferenceEquals(x.GetType(), method.DeclaringType)),
             // TODO: Use a more specific exception type
@@ -1222,7 +1219,7 @@ public sealed partial class SlashCommandsExtension : IDisposable
         {
             Interaction = interaction,
             Client = this.Client,
-            Services = this.configuration?.Services,
+            Services = this.services,
             SlashCommandsExtension = this,
             Guild = interaction.Guild,
             Channel = interaction.Channel,
@@ -1241,7 +1238,7 @@ public sealed partial class SlashCommandsExtension : IDisposable
             }
 
             MethodInfo? providerMethod = provider.GetMethod(nameof(IAutocompleteProvider.Provider));
-            object providerInstance = ActivatorUtilities.CreateInstance(this.configuration.Services, provider);
+            object providerInstance = ActivatorUtilities.CreateInstance(this.services, provider);
 
             IEnumerable<DiscordAutoCompleteChoice> choices = await (Task<IEnumerable<DiscordAutoCompleteChoice>>)providerMethod.Invoke(providerInstance, new[] { context });
 

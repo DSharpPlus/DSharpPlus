@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
@@ -19,14 +18,12 @@ public static class ExtensionMethods
     /// </summary>
     /// <param name="services">The service collection to register into.</param>
     /// <param name="setup">Any setup code you want to run on the extension, such as registering commands.</param>
-    /// <param name="configuration">The configuration to initialize the extension with.</param>
     /// <returns>The same service collection for chaining.</returns>
     [Obsolete("DSharpPlus.SlashCommands is obsolete. Please consider using the new DSharpPlus.Commands extension instead.")]
     public static IServiceCollection AddSlashCommandsExtension
     (
         this IServiceCollection services,
-        Action<SlashCommandsExtension> setup,
-        SlashCommandsConfiguration? configuration = null
+        Action<SlashCommandsExtension> setup
     )
     {
         services.ConfigureEventHandlers(b => b.AddEventHandlers<SlashCommandsEventHandler>())
@@ -34,7 +31,7 @@ public static class ExtensionMethods
             {
                 DiscordClient client = provider.GetRequiredService<DiscordClient>();
 
-                SlashCommandsExtension extension = new(configuration ?? new());
+                SlashCommandsExtension extension = new(provider);
                 extension.Setup(client);
                 setup(extension);
 
@@ -43,22 +40,6 @@ public static class ExtensionMethods
 
         return services;
     }
-
-    /// <summary>
-    /// Adds the slash commands extension to the provided DiscordClientBuilder.
-    /// </summary>
-    /// <param name="builder">The builder to register into.</param>
-    /// <param name="setup">Any setup code you want to run on the extension, such as registering commands.</param>
-    /// <param name="configuration">The configuration to initialize the extension with.</param>
-    /// <returns>The same builder for chaining.</returns>
-    [Obsolete("DSharpPlus.SlashCommands is obsolete. Please consider using the new DSharpPlus.Commands extension instead.")]
-    public static DiscordClientBuilder UseSlashCommands
-    (
-        this DiscordClientBuilder builder,
-        Action<SlashCommandsExtension> setup,
-        SlashCommandsConfiguration? configuration = null
-    )
-        => builder.ConfigureServices(services => services.AddSlashCommandsExtension(setup, configuration));
 
     /// <summary>
     /// Gets the name from the <see cref="ChoiceNameAttribute"/> for this enum value.
