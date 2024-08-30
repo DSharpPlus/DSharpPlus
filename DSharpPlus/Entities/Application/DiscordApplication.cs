@@ -120,6 +120,11 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     public int? ApproximateGuildCount { get; internal set; }
 
     /// <summary>
+    /// Approximate count of users that have installed the app
+    /// </summary>
+    public int? ApproximateUserInstallCount { get; internal set; }
+
+    /// <summary>
     /// Array of redirect URIs for the app
     /// </summary>
     public string[] RedirectUris { get; internal set; }
@@ -188,6 +193,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         this.PrimarySkuId = transportApplication.PrimarySkuId;
         this.Slug = transportApplication.Slug;
         this.ApproximateGuildCount = transportApplication.ApproximateGuildCount;
+        this.ApproximateUserInstallCount = transportApplication.ApproximateUserInstallCount;
         this.RedirectUris = transportApplication.RedirectUris;
         this.InteractionsEndpointUrl = transportApplication.InteractionEndpointUrl;
         this.RoleConnectionsVerificationEndpointUrl = transportApplication.RoleConnectionsVerificationUrl;
