@@ -4,7 +4,7 @@
 
 using System;
 
-namespace DSharpPlus.Runtime.RuntimeFeatures;
+namespace DSharpPlus.RuntimeServices.RuntimeFeatures;
 
 /// <summary>
 /// This attribute causes code to be trimmed or ignored at JIT time conditional on the feature switch

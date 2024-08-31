@@ -5,7 +5,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace DSharpPlus.Runtime.RuntimeFeatures;
+namespace DSharpPlus.RuntimeServices.RuntimeFeatures;
 
 /// <summary>
 /// Contains the runtime feature switch for logging rest request data.
