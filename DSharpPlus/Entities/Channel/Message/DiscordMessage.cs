@@ -102,7 +102,7 @@ namespace DSharpPlus.Entities
         /// Gets the components this message was sent with.
         /// </summary>
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-        public IReadOnlyCollection<DiscordActionRowComponent> Components { get; internal set; }
+        public IReadOnlyCollection<DiscordComponent> Components { get; internal set; }
 
         /// <summary>
         /// Gets the user or member that sent the message.
