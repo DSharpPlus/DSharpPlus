@@ -65,10 +65,10 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Components on this interaction. Only applies to modal interactions.
         /// </summary>
-        public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
+        public IReadOnlyList<DiscordComponent> Components => this._components;
 
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordActionRowComponent> _components;
+        internal List<DiscordComponent> _components;
 
         /// <summary>
         /// The Id of the target. Applicable for context menus.

@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -102,7 +103,7 @@ namespace DSharpPlus.Entities
         /// Gets the components this message was sent with.
         /// </summary>
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-        public IReadOnlyCollection<DiscordActionRowComponent> Components { get; internal set; }
+        public IReadOnlyCollection<DiscordComponent> Components { get; internal set; }
 
         /// <summary>
         /// Gets the user or member that sent the message.
@@ -438,6 +439,35 @@ namespace DSharpPlus.Entities
                 }
             }
             this._mentionedUsers = mentionedUsers.ToList();
+        }
+
+        /// <summary>
+        /// Searches the components on this message for an aggregate of all components of a certain type.
+        /// </summary>
+        public IReadOnlyList<T> FilterComponents<T>()
+            where T : DiscordComponent
+        {
+            List<T> components = new();
+
+            foreach (DiscordComponent component in this.Components)
+            {
+                if (component is DiscordActionRowComponent actionRowComponent)
+                {
+                    foreach (DiscordComponent subComponent in actionRowComponent.Components)
+                    {
+                        if (subComponent is T filteredComponent)
+                        {
+                            components.Add(filteredComponent);
+                        }
+                    }
+                }
+                else if (component is T filteredComponent)
+                {
+                    components.Add(filteredComponent);
+                }
+            }
+
+            return components;
         }
 
         /// <summary>

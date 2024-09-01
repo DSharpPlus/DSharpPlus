@@ -46,7 +46,7 @@ namespace DSharpPlus.EventArgs
             var dict = new Dictionary<string, string>();
 
             foreach (var component in interaction.Data._components)
-                if (component.Components.First() is TextInputComponent input)
+                if ((component as DiscordActionRowComponent)?.Components.First() is TextInputComponent input)
                     dict.Add(input.CustomId, input.Value);
 
             this.Values = dict;
