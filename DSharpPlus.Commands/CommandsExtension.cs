@@ -551,6 +551,14 @@ public sealed class CommandsExtension
             messageBuilder.WithContent(stringBuilder.ToString());
         }
 
-        await eventArgs.Context.RespondAsync(messageBuilder);
+
+        if (eventArgs.Context is SlashCommandContext { Interaction.ResponseState: not DiscordInteractionResponseState.Unacknowledged })
+        {
+            await eventArgs.Context.FollowupAsync(messageBuilder);
+        }
+        else
+        {
+            await eventArgs.Context.RespondAsync(messageBuilder);
+        }
     }
 }
