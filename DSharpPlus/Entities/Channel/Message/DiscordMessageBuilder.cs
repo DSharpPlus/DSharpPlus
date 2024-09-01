@@ -115,7 +115,10 @@ namespace DSharpPlus.Entities
         {
             this.IsTTS = baseMessage.IsTTS;
             this.ReplyId = baseMessage.ReferencedMessage?.Id;
-            this._components = baseMessage.Components.ToList(); // Calling ToList copies the list instead of referencing it
+
+            // calling tolist copies the list, which is good since we inaccurately reflect the message in case of
+            // unknown components
+            this._components = baseMessage.Components.OfType<DiscordActionRowComponent>().ToList(); 
             this._content = baseMessage.Content;
             this._embeds = baseMessage.Embeds.ToList();
             this._stickers = baseMessage.Stickers.ToList();
