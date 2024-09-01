@@ -2,6 +2,9 @@ using System;
 
 namespace DSharpPlus.Entities;
 
+/// <summary>
+/// Entitlement owned by a user or guild
+/// </summary>
 public class DiscordEntitlement
 {
     /// <summary>

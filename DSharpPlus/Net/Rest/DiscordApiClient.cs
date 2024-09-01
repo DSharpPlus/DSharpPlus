@@ -8,7 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Xml.Schema;
 using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.Metrics;
@@ -6770,6 +6770,11 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
+    /// <summary>
+    /// TODO
+    /// </summary>
+    /// <param name="applicationId"></param>
+    /// <returns></returns>
     internal async ValueTask<IReadOnlyList<DiscordStockKeepingUnit>> ListStockKeepingUnitsAsync(ulong applicationId)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.SKUS}";
@@ -6788,11 +6793,12 @@ public sealed class DiscordApiClient
         return stockKeepingUnits;
     }
 
+    // TODO: docs
     internal async ValueTask<IReadOnlyList<DiscordEntitlement>> ListEntitlementsAsync
     (
         ulong applicationId,
-        IEnumerable<ulong>? userId = null,
-        ulong? skuId = null,
+        ulong? userId = null,
+        IEnumerable<ulong>? skuIds = null,
         ulong? before = null,
         ulong? after = null,
         ulong? guildId = null,
@@ -6802,11 +6808,51 @@ public sealed class DiscordApiClient
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}";
+        
+        QueryUriBuilder builder = new(url);
+
+        if (userId is not null)
+        {
+            builder.AddParameter("user_id", userId.ToString());
+        }
+        
+        if (skuIds is not null)
+        {
+            builder.AddParameter("sku_ids", string.Join(",", skuIds.Select(x => x.ToString())));
+        }
+
+        if (before is not null)
+        {
+            builder.AddParameter("before", before.ToString());
+        }
+
+        if (after is not null)
+        {
+            builder.AddParameter("after", after.ToString());
+        }
+
+        if (limit is not null)
+        {
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(limit.Value, 100);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(limit.Value);
+            
+            builder.AddParameter("limit", limit.ToString());
+        }
+
+        if (guildId is not null)
+        {
+            builder.AddParameter("guild_id", guildId.ToString());
+        }
+
+        if (excludeEnded is not null)
+        {
+            builder.AddParameter("exclude_ended", excludeEnded.ToString());
+        }
 
         RestRequest request = new()
         {
             Route = route,
-            Url = url,
+            Url = builder.ToString(),
             Method = HttpMethod.Get
         };
 
@@ -6816,6 +6862,7 @@ public sealed class DiscordApiClient
         return entitlements;
     }
     
+    // Todo: docs
     internal async ValueTask ConsumeEntitlementAsync(ulong applicationId, ulong entitlementId)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}/:entitlementId/{Endpoints.CONSUME}";
@@ -6832,14 +6879,20 @@ public sealed class DiscordApiClient
     }
     
     /// <summary>
-    /// 
+    /// TODO
     /// </summary>
     /// <param name="applicationId"></param>
     /// <param name="skuId"></param>
     /// <param name="ownerId"></param>
     /// <param name="ownerType"></param>
     /// <returns>Returns a partial entitlment</returns>
-    internal async ValueTask<DiscordEntitlement> CreateTestEntitlementAsync(ulong applicationId, ulong skuId, ulong ownerId, DiscordTestEntitlementOwnerType ownerType)
+    internal async ValueTask<DiscordEntitlement> CreateTestEntitlementAsync
+    (
+        ulong applicationId,
+        ulong skuId,
+        ulong ownerId,
+        DiscordTestEntitlementOwnerType ownerType
+    )
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}";
@@ -6860,6 +6913,4 @@ public sealed class DiscordApiClient
 
         return entitlement;
     }
-    
-    
 }
