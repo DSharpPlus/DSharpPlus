@@ -89,7 +89,13 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Gets the components this message was sent with.
     /// </summary>
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyList<DiscordActionRowComponent>? Components { get; internal set; }
+    public IReadOnlyList<DiscordComponent>? Components { get; internal set; }
+
+    /// <summary>
+    /// Gets the action rows this message was sent with - components holding buttons, selects and the likes.
+    /// </summary>
+    public IReadOnlyList<DiscordActionRowComponent>? ComponentActionRows
+        => this.Components?.Where(x => x is DiscordActionRowComponent).Cast<DiscordActionRowComponent>().ToList();
 
     /// <summary>
     /// Gets the user or member that sent the message.
@@ -436,6 +442,35 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
             //mentionedUsers.UnionWith(Utilities.GetUserMentions(this).Select(this.Discord.GetCachedOrEmptyUserInternal));
             //this.mentionedRoles = this.mentionedRoles.Union(Utilities.GetRoleMentions(this).Select(xid => guild.GetRole(xid))).ToList();
         }
+    }
+
+    /// <summary>
+    /// Searches the components on this message for an aggregate of all components of a certain type.
+    /// </summary>
+    public IReadOnlyList<T> FilterComponents<T>()
+        where T : DiscordComponent
+    {
+        List<T> components = [];
+
+        foreach (DiscordComponent component in this.Components)
+        {
+            if (component is DiscordActionRowComponent actionRowComponent)
+            {
+                foreach (DiscordComponent subComponent in actionRowComponent.Components)
+                {
+                    if (subComponent is T filteredComponent)
+                    {
+                        components.Add(filteredComponent);
+                    }
+                }
+            }
+            else if (component is T filteredComponent)
+            {
+                components.Add(filteredComponent);
+            }
+        }
+
+        return components;
     }
 
     /// <summary>

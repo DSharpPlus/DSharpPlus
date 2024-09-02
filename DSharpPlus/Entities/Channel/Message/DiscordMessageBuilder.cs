@@ -99,7 +99,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
         this.IsTTS = baseMessage.IsTTS;
         this.Poll = baseMessage.Poll == null ? null : new DiscordPollBuilder(baseMessage.Poll);
         this.ReplyId = baseMessage.ReferencedMessage?.Id;
-        this.components = [.. baseMessage.Components];
+        this.components = [.. baseMessage.Components?.OfType<DiscordActionRowComponent>()];
         this.content = baseMessage.Content;
         this.embeds = [.. baseMessage.Embeds];
         this.stickers = [.. baseMessage.Stickers];
