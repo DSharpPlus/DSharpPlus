@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -121,6 +122,52 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
                 this.mentions.Add(new RoleMention(role.Id));
             }
         }
+    }
+
+    /// <summary>
+    /// Deserializes a JSON string into a <see cref="DiscordMessage"/> object.
+    /// </summary>
+    /// <param name="discordmessageJson">The JSON string representing a Discord embed.</param>
+    /// <returns>A <see cref="DiscordMessage"/> object deserialized from the JSON string.</returns>
+    /// <exception cref="ArgumentException">Thrown when the provided JSON is invalid or does not match the <see cref="DiscordMessage"/> structure.</exception>
+    public static DiscordMessage fromJson(string discordmessageJson)
+    {
+        DiscordMessage? discordMessage = JsonConvert.DeserializeObject<DiscordMessage>(discordmessageJson, new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore
+        });
+
+        return discordMessage ?? throw new ArgumentException("The provided JSON is invalid or does not match the DiscordMessage structure.");
+    }
+
+    /// <summary>
+    /// Serializes a <see cref="DiscordMessage"/> object into a JSON string.
+    /// </summary>
+    /// <param name="discordMessage">The <see cref="DiscordMessage"/> object to serialize.</param>
+    /// <returns>A JSON string representing the <see cref="DiscordMessage"/> object.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the provided <see cref="DiscordMessage"/> object is null.</exception>
+    public static string ToJson(DiscordMessage discordMessage)
+    {
+        return discordMessage == null
+            ? throw new ArgumentNullException(nameof(discordMessage), "The provided DiscordMessage object cannot be null.")
+            : JsonConvert.SerializeObject(discordMessage, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            });
+    }
+
+    /// <summary>
+    /// Serializes a <see cref="DiscordMessage"/> object into a JSON string using the specified <see cref="JsonSerializerSettings"/>.
+    /// </summary>
+    /// <param name="discordMessage">The <see cref="DiscordMessage"/> object to serialize.</param>
+    /// <param name="jsonSerializerSettings">The <see cref="JsonSerializerSettings"/> to use for serialization.</param>
+    /// <returns>A JSON string representing the <see cref="DiscordMessage"/> object.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the provided <see cref="DiscordMessage"/> object is null.</exception>
+    public static string ToJson(DiscordMessage discordMessage, JsonSerializerSettings jsonSerializerSettings)
+    {
+        return discordMessage == null
+            ? throw new ArgumentNullException(nameof(discordMessage), "The provided DiscordMessage object cannot be null.")
+            : JsonConvert.SerializeObject(discordMessage, jsonSerializerSettings);
     }
 
     /// <summary>

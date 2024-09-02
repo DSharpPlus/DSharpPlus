@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using DSharpPlus.Net;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
@@ -155,6 +156,51 @@ public sealed class DiscordEmbedBuilder
         {
             this.fields.RemoveAt(this.fields.Count - 1);
         }
+    }
+
+    /// <summary>
+    /// Deserializes a JSON string into a <see cref="DiscordEmbed"/> object.
+    /// </summary>
+    /// <param name="embedJson">The JSON string representing a Discord embed.</param>
+    /// <returns>A <see cref="DiscordEmbed"/> object deserialized from the JSON string.</returns>
+    /// <exception cref="ArgumentException">Thrown when the provided JSON is invalid or does not match the <see cref="DiscordEmbed"/> structure.</exception>
+    public static DiscordEmbed fromJson(string embedJson)
+    {
+        DiscordEmbed? discordEmbed = JsonConvert.DeserializeObject<DiscordEmbed>(embedJson, new JsonSerializerSettings { 
+            NullValueHandling = NullValueHandling.Ignore
+        });
+
+        return discordEmbed ?? throw new ArgumentException("The provided JSON is invalid or does not match the DiscordEmbed structure.");
+    }
+
+    /// <summary>
+    /// Serializes a <see cref="DiscordEmbed"/> object into a JSON string.
+    /// </summary>
+    /// <param name="discordEmbed">The <see cref="DiscordEmbed"/> object to serialize.</param>
+    /// <returns>A JSON string representing the <see cref="DiscordEmbed"/> object.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the provided <see cref="DiscordEmbed"/> object is null.</exception>
+    public static string ToJson(DiscordEmbed discordEmbed)
+    {
+        return discordEmbed == null
+            ? throw new ArgumentNullException(nameof(discordEmbed), "The provided DiscordEmbed object cannot be null.")
+            : JsonConvert.SerializeObject(discordEmbed, new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore
+        });
+    }
+
+    /// <summary>
+    /// Serializes a <see cref="DiscordEmbed"/> object into a JSON string using the specified <see cref="JsonSerializerSettings"/>.
+    /// </summary>
+    /// <param name="discordEmbed">The <see cref="DiscordEmbed"/> object to serialize.</param>
+    /// <param name="jsonSerializerSettings">The <see cref="JsonSerializerSettings"/> to use for serialization.</param>
+    /// <returns>A JSON string representing the <see cref="DiscordEmbed"/> object.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the provided <see cref="DiscordEmbed"/> object is null.</exception>
+    public static string ToJson(DiscordEmbed discordEmbed, JsonSerializerSettings jsonSerializerSettings)
+    {
+        return discordEmbed == null
+            ? throw new ArgumentNullException(nameof(discordEmbed), "The provided DiscordEmbed object cannot be null.")
+            : JsonConvert.SerializeObject(discordEmbed, jsonSerializerSettings);
     }
 
     /// <summary>
