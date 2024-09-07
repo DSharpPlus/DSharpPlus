@@ -11,7 +11,7 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 /// <summary>
 /// Represents a dropdown menu from where users can select discord-supplied users.
 /// </summary>
-public interface IUserSelectComponent : IInteractiveComponent
+public interface IUserSelectComponent : IComponent
 {
     /// <summary>
     /// The type of this component.

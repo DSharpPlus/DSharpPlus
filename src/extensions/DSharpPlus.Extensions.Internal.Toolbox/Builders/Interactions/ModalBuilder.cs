@@ -131,7 +131,7 @@ public static class ModalBuilderExtensions
                 {
                     Title = builder.Title,
                     CustomId = builder.CustomId,
-                    Components = builder.Components.Select<ITextInputComponent, IActionRowComponent>
+                    Components = builder.Components.Select<ITextInputComponent, IComponent>
                     (
                         x =>
                         {

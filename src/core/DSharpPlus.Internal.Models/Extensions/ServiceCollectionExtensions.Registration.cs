@@ -93,13 +93,14 @@ partial class ServiceCollectionExtensions
                 options.AddModel<IActionRowComponent, ActionRowComponent>();
                 options.AddModel<IButtonComponent, ButtonComponent>();
                 options.AddModel<IChannelSelectComponent, ChannelSelectComponent>();
+                options.AddModel<IComponent, Component>();
                 options.AddModel<IDefaultSelectValue, DefaultSelectValue>();
-                options.AddModel<IInteractiveComponent, InteractiveComponent>();
                 options.AddModel<IMentionableSelectComponent, MentionableSelectComponent>();
                 options.AddModel<IRoleSelectComponent, RoleSelectComponent>();
                 options.AddModel<ISelectOption, SelectOption>();
                 options.AddModel<IStringSelectComponent, StringSelectComponent>();
                 options.AddModel<ITextInputComponent, TextInputComponent>();
+                options.AddModel<IUnknownComponent, UnknownComponent>();
                 options.AddModel<IUserSelectComponent, UserSelectComponent>();
                 options.AddModel<IAllowedMentions, AllowedMentions>();
                 options.AddModel<IAttachment, Attachment>();

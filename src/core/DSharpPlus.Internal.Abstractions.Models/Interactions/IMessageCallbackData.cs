@@ -41,7 +41,7 @@ public interface IMessageCallbackData
     /// <summary>
     /// Up to five action rows of components to attach to this message.
     /// </summary>
-    public Optional<IReadOnlyList<IActionRowComponent>> Components { get; }
+    public Optional<IReadOnlyList<IComponent>> Components { get; }
 
     /// <summary>
     /// Attachments to this message.

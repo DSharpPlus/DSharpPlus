@@ -39,7 +39,7 @@ public interface IEditMessagePayload
     /// <summary>
     /// New components for this message.
     /// </summary>
-    public Optional<IReadOnlyList<IActionRowComponent>?> Components { get; }
+    public Optional<IReadOnlyList<IComponent>?> Components { get; }
 
     /// <summary>
     /// Attached files to this message. This must include old attachments to be retained and new attachments, 

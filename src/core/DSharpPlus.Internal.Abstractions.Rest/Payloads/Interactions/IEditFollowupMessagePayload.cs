@@ -31,7 +31,7 @@ public interface IEditFollowupMessagePayload
     /// <summary>
     /// The components for this message.
     /// </summary>
-    public Optional<IReadOnlyList<IActionRowComponent>?> Components { get; }
+    public Optional<IReadOnlyList<IComponent>?> Components { get; }
 
     /// <summary>
     /// Attached files to keep and possible descriptions for new files to upload.

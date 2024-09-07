@@ -16,5 +16,5 @@ public sealed record ActionRowComponent : IActionRowComponent
     public required DiscordMessageComponentType Type { get; init; }
 
     /// <inheritdoc/>
-    public required IReadOnlyList<IInteractiveComponent> Components { get; init; }
+    public required IReadOnlyList<IComponent> Components { get; init; }
 }

@@ -9,7 +9,7 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 /// <summary>
 /// Represents a text input field in a modal.
 /// </summary>
-public interface ITextInputComponent : IInteractiveComponent
+public interface ITextInputComponent : IComponent
 {
     /// <summary>
     /// The type of this component.

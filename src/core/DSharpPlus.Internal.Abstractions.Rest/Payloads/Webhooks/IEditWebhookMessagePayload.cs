@@ -31,7 +31,7 @@ public interface IEditWebhookMessagePayload
     /// <summary>
     /// The new components attached to this message.
     /// </summary>
-    public Optional<IReadOnlyList<IActionRowComponent>?> Components { get; }
+    public Optional<IReadOnlyList<IComponent>?> Components { get; }
 
     /// <summary>
     /// The new files to be sent along with the edit. Note that all used files in this message must be passed here,

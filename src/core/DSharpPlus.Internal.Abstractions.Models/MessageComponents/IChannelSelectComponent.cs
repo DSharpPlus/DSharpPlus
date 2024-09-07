@@ -12,7 +12,7 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 /// Represents a dropdown menu from where users can select discord-supplied channels,
 /// optionally restricted by channel type.
 /// </summary>
-public interface IChannelSelectComponent : IInteractiveComponent
+public interface IChannelSelectComponent : IComponent
 {
     /// <summary>
     /// The type of this component.

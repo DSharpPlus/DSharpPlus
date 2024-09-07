@@ -95,7 +95,7 @@ public sealed record PartialMessage : IPartialMessage
     public Optional<IPartialChannel> Thread { get; init; }
 
     /// <inheritdoc/>
-    public Optional<IReadOnlyList<IActionRowComponent>> Components { get; init; }
+    public Optional<IReadOnlyList<IComponent>> Components { get; init; }
 
     /// <inheritdoc/>
     public Optional<IStickerItem> StickerItems { get; init; }

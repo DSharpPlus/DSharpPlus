@@ -19,5 +19,5 @@ public interface IModalInteractionData
     /// <summary>
     /// The values submitted by the user.
     /// </summary>
-    public IReadOnlyList<IActionRowComponent> Components { get; }
+    public IReadOnlyList<IComponent> Components { get; }
 }

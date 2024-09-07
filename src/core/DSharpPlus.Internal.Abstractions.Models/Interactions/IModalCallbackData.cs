@@ -24,5 +24,5 @@ public interface IModalCallbackData
     /// <summary>
     /// Between 1 and 5 action rows containing each one text input component.
     /// </summary>
-    public IReadOnlyList<IActionRowComponent> Components { get; }
+    public IReadOnlyList<IComponent> Components { get; }
 }

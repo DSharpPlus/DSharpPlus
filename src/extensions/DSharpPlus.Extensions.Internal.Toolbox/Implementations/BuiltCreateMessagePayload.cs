@@ -32,7 +32,7 @@ internal sealed record BuiltCreateMessagePayload : ICreateMessagePayload
     public Optional<IMessageReference> MessageReference { get; init; }
 
     /// <inheritdoc/>
-    public Optional<IReadOnlyList<IActionRowComponent>> Components { get; init; }
+    public Optional<IReadOnlyList<IComponent>> Components { get; init; }
 
     /// <inheritdoc/>
     public Optional<IReadOnlyList<Snowflake>> StickerIds { get; init; }

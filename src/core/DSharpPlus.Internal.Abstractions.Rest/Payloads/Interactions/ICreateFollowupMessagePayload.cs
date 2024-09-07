@@ -40,7 +40,7 @@ public interface ICreateFollowupMessagePayload
     /// <summary>
     /// Up to five action rows worth of components to include with this message.
     /// </summary>
-    public Optional<IReadOnlyList<IActionRowComponent>> Components { get; }
+    public Optional<IReadOnlyList<IComponent>> Components { get; }
 
     /// <summary>
     /// Files to upload with this message.

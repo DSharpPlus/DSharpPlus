@@ -29,7 +29,7 @@ public interface IForumAndMediaThreadMessage
     /// <summary>
     /// A list of components to include with the message.
     /// </summary>
-    public Optional<IReadOnlyList<IActionRowComponent>> Components { get; }
+    public Optional<IReadOnlyList<IComponent>> Components { get; }
 
     /// <summary>
     /// Up to 3 snowflake identifiers of stickers to be attached to this message.

@@ -7,4 +7,4 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 /// <summary>
 /// Represents a message component that users can interact with.
 /// </summary>
-public interface IInteractiveComponent;
+public interface IComponent;

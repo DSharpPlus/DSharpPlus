@@ -162,7 +162,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
             return new ValidationError("A webhook message cannot contain more than 10 embeds.");
         }
 
-        if (payload.Components.TryGetNonNullValue(out IReadOnlyList<IActionRowComponent>? components) && components.Count > 5)
+        if (payload.Components.TryGetNonNullValue(out IReadOnlyList<IComponent>? components) && components.Count > 5)
         {
             return new ValidationError("A webhook message cannot contain more than 5 action rows.");
         }
@@ -208,7 +208,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
             return new ValidationError("A webhook message cannot contain more than 10 embeds.");
         }
 
-        if (payload.Components.TryGetNonNullValue(out IReadOnlyList<IActionRowComponent>? components) && components.Count > 5)
+        if (payload.Components.TryGetNonNullValue(out IReadOnlyList<IComponent>? components) && components.Count > 5)
         {
             return new ValidationError("A webhook message cannot contain more than 5 action rows.");
         }

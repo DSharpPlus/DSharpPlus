@@ -11,7 +11,7 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 /// <summary>
 /// Represents a dropdown menu from where users can select dev-supplied strings.
 /// </summary>
-public interface IStringSelectComponent : IInteractiveComponent
+public interface IStringSelectComponent : IComponent
 {
     /// <summary>
     /// The type of this component.

@@ -47,7 +47,7 @@ public interface IExecuteWebhookPayload
     /// <summary>
     /// Components to include with this message.
     /// </summary>
-    public Optional<IReadOnlyList<IActionRowComponent>> Components { get; }
+    public Optional<IReadOnlyList<IComponent>> Components { get; }
 
     /// <summary>
     /// Attachment files to include with this message.

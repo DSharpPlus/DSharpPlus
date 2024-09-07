@@ -157,7 +157,7 @@ public interface IPartialMessage
     /// <summary>
     /// The components attached to this message.
     /// </summary>
-    public Optional<IReadOnlyList<IActionRowComponent>> Components { get; }
+    public Optional<IReadOnlyList<IComponent>> Components { get; }
 
     /// <summary>
     /// The stickers sent along with this message.

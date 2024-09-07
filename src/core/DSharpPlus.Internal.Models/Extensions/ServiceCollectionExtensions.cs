@@ -47,7 +47,7 @@ public static partial class ServiceCollectionExtensions
                 options.Converters.Add(new AuditLogChangeConverter());
                 options.Converters.Add(new AutoModerationActionConverter());
                 options.Converters.Add(new DiscordPermissionConverter());
-                options.Converters.Add(new MessageComponentConverter());
+                options.Converters.Add(new ComponentConverter());
                 options.Converters.Add(new ApplicationIntegrationTypeKeyConverter());
 
                 options.TypeInfoResolverChain.Add(OptionalTypeInfoResolver.Default);

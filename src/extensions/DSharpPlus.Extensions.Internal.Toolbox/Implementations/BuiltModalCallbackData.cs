@@ -18,5 +18,5 @@ internal sealed record BuiltModalCallbackData : IModalCallbackData
     public required string Title { get; init; }
 
     /// <inheritdoc/>
-    public required IReadOnlyList<IActionRowComponent> Components { get; init; }
+    public required IReadOnlyList<IComponent> Components { get; init; }
 }

@@ -9,7 +9,7 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 /// <summary>
 /// Represents a button attached to a message.
 /// </summary>
-public interface IButtonComponent : IInteractiveComponent
+public interface IButtonComponent : IComponent
 {
     /// <summary>
     /// The type of this component.

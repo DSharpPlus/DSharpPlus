@@ -11,13 +11,10 @@ using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Models.Serialization.Converters;
 
-/// <summary>
-/// Converts between message components and JSON.
-/// </summary>
-public class MessageComponentConverter : JsonConverter<IInteractiveComponent>
+public class ComponentConverter : JsonConverter<IComponent>
 {
     /// <inheritdoc/>
-    public override IInteractiveComponent? Read
+    public override IComponent? Read
     (
         ref Utf8JsonReader reader,
         Type typeToConvert,
@@ -32,17 +29,17 @@ public class MessageComponentConverter : JsonConverter<IInteractiveComponent>
         if
         (
             !JsonDocument.TryParseValue(ref reader, out JsonDocument? document)
-            || document.RootElement.TryGetProperty("type", out JsonElement property)
+            || !document.RootElement.TryGetProperty("type", out JsonElement property)
             || !property.TryGetInt32(out int type)
         )
         {
             throw new JsonException("The provided JSON object was malformed.");
         }
 
-        IInteractiveComponent? component = (DiscordMessageComponentType)type switch
+        IComponent? component = (DiscordMessageComponentType)type switch
         {
             DiscordMessageComponentType.ActionRow
-                => throw new JsonException("Invalid JSON structure: expected an interactive component, not an action row."),
+                => document.Deserialize<IActionRowComponent>(options),
 
             DiscordMessageComponentType.Button
                 => document.Deserialize<IButtonComponent>(options),
@@ -65,7 +62,11 @@ public class MessageComponentConverter : JsonConverter<IInteractiveComponent>
             DiscordMessageComponentType.ChannelSelect
                 => document.Deserialize<IChannelSelectComponent>(options),
 
-            _ => throw new JsonException("Unknown component type.")
+            _ => new UnknownComponent
+            {
+                Type = (DiscordMessageComponentType)type,
+                RawPayload = JsonSerializer.Serialize(document)
+            }
         };
 
         document.Dispose();
@@ -73,45 +74,6 @@ public class MessageComponentConverter : JsonConverter<IInteractiveComponent>
     }
 
     /// <inheritdoc/>
-    public override void Write
-    (
-        Utf8JsonWriter writer,
-        IInteractiveComponent value,
-        JsonSerializerOptions options
-    )
-    {
-        switch (value)
-        {
-            case IButtonComponent button:
-                JsonSerializer.Serialize(writer, button, options);
-                break;
-
-            case IStringSelectComponent stringSelect:
-                JsonSerializer.Serialize(writer, stringSelect, options);
-                break;
-
-            case ITextInputComponent text:
-                JsonSerializer.Serialize(writer, text, options);
-                break;
-
-            case IUserSelectComponent user:
-                JsonSerializer.Serialize(writer, user, options);
-                break;
-
-            case IRoleSelectComponent role:
-                JsonSerializer.Serialize(writer, role, options);
-                break;
-
-            case IMentionableSelectComponent mentionable:
-                JsonSerializer.Serialize(writer, mentionable, options);
-                break;
-
-            case IChannelSelectComponent channel:
-                JsonSerializer.Serialize(writer, channel, options);
-                break;
-
-            default:
-                throw new InvalidOperationException($"The component {value} could not be serialized.");
-        }
-    }
+    public override void Write(Utf8JsonWriter writer, IComponent value, JsonSerializerOptions options)
+        => JsonSerializer.Serialize(writer, (object)value, options);
 }

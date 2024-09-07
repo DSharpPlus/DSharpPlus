@@ -11,7 +11,7 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 /// <summary>
 /// Represents a dropdown menu from where users can select discord-supplied roles.
 /// </summary>
-public interface IRoleSelectComponent : IInteractiveComponent
+public interface IRoleSelectComponent : IComponent
 {
     /// <summary>
     /// The type of this component.

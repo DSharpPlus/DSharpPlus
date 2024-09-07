@@ -9,4 +9,4 @@ namespace DSharpPlus.Internal.Models;
 /// <summary>
 /// Placeholder implementation of a marker interface. Please report spotting this to library developers.
 /// </summary>
-internal sealed record InteractiveComponent : IInteractiveComponent;
+internal sealed record Component : IComponent;

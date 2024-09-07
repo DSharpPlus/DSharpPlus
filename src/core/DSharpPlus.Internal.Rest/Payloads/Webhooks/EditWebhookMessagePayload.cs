@@ -22,7 +22,7 @@ public sealed record EditWebhookMessagePayload : IEditWebhookMessagePayload
     public Optional<IAllowedMentions?> AllowedMentions { get; init; }
 
     /// <inheritdoc/>
-    public Optional<IReadOnlyList<IActionRowComponent>?> Components { get; init; }
+    public Optional<IReadOnlyList<IComponent>?> Components { get; init; }
 
     /// <inheritdoc/>
     public IReadOnlyList<AttachmentData>? Files { get; init; }

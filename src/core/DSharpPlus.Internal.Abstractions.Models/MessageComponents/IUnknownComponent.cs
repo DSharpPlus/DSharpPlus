@@ -2,24 +2,22 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-using System.Collections.Generic;
-
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Internal.Abstractions.Models;
 
 /// <summary>
-/// Represents a container component for other components.
+/// Specifies a component of unknown type.
 /// </summary>
-public interface IActionRowComponent : IComponent
+public interface IUnknownComponent : IComponent
 {
     /// <summary>
-    /// <see cref="DiscordMessageComponentType.ActionRow"/>
+    /// Gets the type of this component. You should expect to handle values not specified by the enum type.
     /// </summary>
     public DiscordMessageComponentType Type { get; }
 
     /// <summary>
-    /// The child components of this action row: up to five buttons, or one non-button component.
+    /// Gets the raw string represented by this component.
     /// </summary>
-    public IReadOnlyList<IComponent> Components { get; }
+    public string RawPayload { get; }
 }
