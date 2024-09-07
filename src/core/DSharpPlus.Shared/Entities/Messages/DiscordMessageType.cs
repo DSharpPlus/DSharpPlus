@@ -42,5 +42,7 @@ public enum DiscordMessageType
     GuildIncidentAlertModeEnabled = 36,
     GuildIncidentAlertModeDisabled,
     GuildIncidentReportRaid,
-    GuildIncidentReportFalseAlarm
+    GuildIncidentReportFalseAlarm,
+    PurchaseNotification = 44,
+    PollResult = 46
 }

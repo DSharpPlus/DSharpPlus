@@ -14,9 +14,6 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 /// </summary>
 public interface IMessage : IPartialMessage
 {
-    /// <inheritdoc cref="IPartialMessage.Id"/>
-    public new Snowflake Id { get; }
-
     /// <inheritdoc cref="IPartialMessage.ChannelId"/>
     public new Snowflake ChannelId { get; }
 
@@ -57,9 +54,6 @@ public interface IMessage : IPartialMessage
     public new DiscordMessageType Type { get; }
 
     // explicit routes for partial access
-
-    /// <inheritdoc/>
-    Optional<Snowflake> IPartialMessage.Id => this.Id;
 
     /// <inheritdoc/>
     Optional<Snowflake> IPartialMessage.ChannelId => this.ChannelId;

@@ -6,8 +6,7 @@
 
 using System;
 using System.Buffers;
-using System.Reflection.Metadata;
-using System.Text;
+
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace DSharpPlus.RuntimeServices.TextWriters;

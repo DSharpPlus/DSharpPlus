@@ -10,5 +10,5 @@ namespace DSharpPlus.Internal.Models;
 public sealed record MessageSnapshot : IMessageSnapshot
 {
     /// <inheritdoc/>
-    public required IPartialMessage Message { get; init; }
+    public required IMessageSnapshotContent Message { get; init; }
 }

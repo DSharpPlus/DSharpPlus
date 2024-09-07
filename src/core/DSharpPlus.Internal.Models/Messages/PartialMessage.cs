@@ -14,7 +14,7 @@ namespace DSharpPlus.Internal.Models;
 public sealed record PartialMessage : IPartialMessage
 {
     /// <inheritdoc/>
-    public Optional<Snowflake> Id { get; init; }
+    public required Snowflake Id { get; init; }
 
     /// <inheritdoc/>
     public Optional<Snowflake> ChannelId { get; init; }

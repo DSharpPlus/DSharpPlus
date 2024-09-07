@@ -26,6 +26,8 @@ partial class ServiceCollectionExtensions
                 options.AddModel<IApplicationCommandPermission, ApplicationCommandPermission>();
                 options.AddModel<IApplicationCommandPermissions, ApplicationCommandPermissions>();
                 options.AddModel<IPartialApplicationCommandPermissions, PartialApplicationCommandPermissions>();
+                options.AddModel<IActivityInstance, ActivityInstance>();
+                options.AddModel<IActivityLocation, ActivityLocation>();
                 options.AddModel<IApplication, Application>();
                 options.AddModel<IApplicationIntegrationTypeConfiguration, ApplicationIntegrationTypeConfiguration>();
                 options.AddModel<IInstallParameters, InstallParameters>();
@@ -116,6 +118,7 @@ partial class ServiceCollectionExtensions
                 options.AddModel<IMessageInteractionMetadata, MessageInteractionMetadata>();
                 options.AddModel<IMessageReference, MessageReference>();
                 options.AddModel<IMessageSnapshot, MessageSnapshot>();
+                options.AddModel<IMessageSnapshotContent, MessageSnapshotContent>();
                 options.AddModel<IPartialAttachment, PartialAttachment>();
                 options.AddModel<IPartialMessage, PartialMessage>();
                 options.AddModel<IReaction, Reaction>();
@@ -141,6 +144,7 @@ partial class ServiceCollectionExtensions
                 options.AddModel<ISticker, Sticker>();
                 options.AddModel<IStickerItem, StickerItem>();
                 options.AddModel<IStickerPack, StickerPack>();
+                options.AddModel<ISubscription, Subscription>();
                 options.AddModel<ITeam, Team>();
                 options.AddModel<ITeamMember, TeamMember>();
                 options.AddModel<IApplicationRoleConnection, ApplicationRoleConnection>();

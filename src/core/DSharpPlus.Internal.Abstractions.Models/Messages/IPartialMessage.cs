@@ -17,7 +17,7 @@ public interface IPartialMessage
     /// <summary>
     /// The snowflake identifier of this message.
     /// </summary>
-    public Optional<Snowflake> Id { get; }
+    public Snowflake Id { get; }
 
     /// <summary>
     /// The snowflake identifier of the channel this message was sent in.

@@ -44,5 +44,5 @@ public sealed record ModifyGuildScheduledEventPayload : IModifyGuildScheduledEve
     public Optional<ImageData> Image { get; init; }
 
     /// <inheritdoc/>
-    public Optional<IScheduledEventRecurrenceRule> RecurrenceRule { get; init; }
+    public Optional<IScheduledEventRecurrenceRule?> RecurrenceRule { get; init; }
 }

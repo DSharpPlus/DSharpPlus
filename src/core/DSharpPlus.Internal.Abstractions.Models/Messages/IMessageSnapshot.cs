@@ -9,8 +9,11 @@ namespace DSharpPlus.Internal.Abstractions.Models;
 /// </summary>
 public interface IMessageSnapshot
 {
+    // this is documented as IPartialMessage, however, per the documentation it is not explicitly guaranteed to
+    // have an ID - therefore, we represent it as a distinct type that does not assume an ID is present
+
     /// <summary>
     /// A subset of the data contained within the referenced message.
     /// </summary>
-    public IPartialMessage Message { get; }
+    public IMessageSnapshotContent Message { get; }
 }

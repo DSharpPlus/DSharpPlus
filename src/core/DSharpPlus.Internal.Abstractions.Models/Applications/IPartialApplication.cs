@@ -149,4 +149,9 @@ public interface IPartialApplication
     /// The default custom authorization link for this application, if enabled.
     /// </summary>
     public Optional<string> CustomInstallUrl { get; }
+
+    /// <summary>
+    /// An approximate to the amount of users who installed this app.
+    /// </summary>
+    public Optional<int> ApproximateUserInstallCount { get; }
 }

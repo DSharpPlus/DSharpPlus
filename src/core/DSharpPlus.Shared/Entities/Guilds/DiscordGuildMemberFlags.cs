@@ -33,5 +33,30 @@ public enum DiscordGuildMemberFlags
     /// <summary>
     /// Indicates that this member has started the guild onboarding process.
     /// </summary>
-    StartedOnboarding = 1 << 3
+    StartedOnboarding = 1 << 3,
+
+    /// <summary>
+    /// Indicates that this member is a guest and can only access the voice channel they were invited to.
+    /// </summary>
+    IsGuest = 1 << 4,
+
+    /// <summary>
+    /// Indicates that this member has started the 'new member' actions in the server guide.
+    /// </summary>
+    StartedServerGuide = 1 << 5,
+
+    /// <summary>
+    /// Indicates that this member has completed the 'new member' actions in the server guide.
+    /// </summary>
+    CompletedServerGuide = 1 << 6,
+
+    /// <summary>
+    /// Indicates that this member was quarantined by automod for their username, global name or nickname.
+    /// </summary>
+    AutomodQuarantinedUsername = 1 << 7,
+
+    /// <summary>
+    /// Indicates that this member has acknowledged and dismissed the DM settings upsell.
+    /// </summary>
+    DmSettingsUpsellAcknowledged = 1 << 9
 }

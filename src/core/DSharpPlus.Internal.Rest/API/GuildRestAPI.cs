@@ -1110,4 +1110,24 @@ public sealed class GuildRestAPI(IRestClient restClient)
             ct
         );
     }
+
+    /// <inheritdoc/>
+    public async ValueTask<Result<IRole>> GetGuildRoleAsync
+    (
+        Snowflake guildId,
+        Snowflake roleId,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    )
+    {
+        return await restClient.ExecuteRequestAsync<IRole>
+        (
+            HttpMethod.Get,
+            $"guilds/{guildId}/roles/{roleId}",
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
+                  .WithRoute($"GET guilds/{guildId}/roles/:role-id"),
+            info,
+            ct
+        );
+    }
 }

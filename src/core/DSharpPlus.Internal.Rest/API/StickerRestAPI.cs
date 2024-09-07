@@ -124,6 +124,24 @@ public sealed class StickerRestAPI(IRestClient restClient)
     }
 
     /// <inheritdoc/>
+    public async ValueTask<Result<IStickerPack>> GetStickerPackAsync
+    (
+        Snowflake packId,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    )
+    {
+        return await restClient.ExecuteRequestAsync<IStickerPack>
+        (
+            HttpMethod.Get,
+            $"sticker-packs/{packId}",
+            b => b.WithRoute("GET sticker-packs/:pack-id"),
+            info,
+            ct
+        );
+    }
+
+    /// <inheritdoc/>
     public async ValueTask<Result<IReadOnlyList<ISticker>>> ListGuildStickersAsync
     (
         Snowflake guildId,

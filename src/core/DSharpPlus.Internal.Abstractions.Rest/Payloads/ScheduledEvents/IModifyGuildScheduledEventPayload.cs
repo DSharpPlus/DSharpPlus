@@ -67,5 +67,5 @@ public interface IModifyGuildScheduledEventPayload
     /// <summary>
     /// A definition for how often and at what dates this event should recur.
     /// </summary>
-    public Optional<IScheduledEventRecurrenceRule> RecurrenceRule { get; }
+    public Optional<IScheduledEventRecurrenceRule?> RecurrenceRule { get; }
 }

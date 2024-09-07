@@ -92,4 +92,7 @@ public sealed record Application : IApplication
 
     /// <inheritdoc/>
     public Optional<string> CustomInstallUrl { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<int> ApproximateUserInstallCount { get; init; }
 }

@@ -124,4 +124,17 @@ public interface IStickerRestAPI
         RequestInfo info = default,
         CancellationToken ct = default
     );
+
+    /// <summary>
+    /// Gets the specified sticker pack.
+    /// </summary>
+    /// <param name="packId">The snowflake identifier of the sticker pack in question.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    public ValueTask<Result<IStickerPack>> GetStickerPackAsync
+    (
+        Snowflake packId,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
 }

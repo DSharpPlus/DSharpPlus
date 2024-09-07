@@ -421,6 +421,21 @@ public interface IGuildRestAPI
     );
 
     /// <summary>
+    /// Fetches the specified role from the specified guild.
+    /// </summary>
+    /// <param name="guildId">The snowflake identifier of the guild in question.</param>
+    /// <param name="roleId">The snowflake identifier of the role in question.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    public ValueTask<Result<IRole>> GetGuildRoleAsync
+    (
+        Snowflake guildId,
+        Snowflake roleId,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
     /// Creates a role in a given guild.
     /// </summary>
     /// <param name="guildId">The snowflake identifier of the guild in question.</param>
