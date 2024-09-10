@@ -564,9 +564,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <summary>
     /// Gets all the global application commands for this application.
     /// </summary>
+    /// <param name="withLocalizations">Whether to include localizations in the response.</param>
     /// <returns>A list of global application commands.</returns>
-    public async Task<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync() =>
-        await this.ApiClient.GetGlobalApplicationCommandsAsync(this.CurrentApplication.Id);
+    public async Task<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync(bool withLocalizations = false) =>
+        await this.ApiClient.GetGlobalApplicationCommandsAsync(this.CurrentApplication.Id, withLocalizations);
 
     /// <summary>
     /// Overwrites the existing global application commands. New commands are automatically created and missing commands are automatically deleted.
@@ -596,10 +597,11 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// Gets a global application command by its name.
     /// </summary>
     /// <param name="commandName">The name of the command to get.</param>
+    /// <param name="withLocalizations">Whether to include localizations in the response.</param>
     /// <returns>The command with the name.</returns>
-    public async Task<DiscordApplicationCommand> GetGlobalApplicationCommandAsync(string commandName)
+    public async Task<DiscordApplicationCommand> GetGlobalApplicationCommandAsync(string commandName, bool withLocalizations = false)
     {
-        foreach (DiscordApplicationCommand command in await this.ApiClient.GetGlobalApplicationCommandsAsync(this.CurrentApplication.Id))
+        foreach (DiscordApplicationCommand command in await this.ApiClient.GetGlobalApplicationCommandsAsync(this.CurrentApplication.Id, withLocalizations))
         {
             if (command.Name == commandName)
             {
@@ -635,9 +637,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// Gets all the application commands for a guild.
     /// </summary>
     /// <param name="guildId">The ID of the guild to get application commands for.</param>
+    /// <param name="withLocalizations">Whether to include localizations in the response.</param>
     /// <returns>A list of application commands in the guild.</returns>
-    public async Task<IReadOnlyList<DiscordApplicationCommand>> GetGuildApplicationCommandsAsync(ulong guildId) =>
-        await this.ApiClient.GetGuildApplicationCommandsAsync(this.CurrentApplication.Id, guildId);
+    public async Task<IReadOnlyList<DiscordApplicationCommand>> GetGuildApplicationCommandsAsync(ulong guildId, bool withLocalizations = false) =>
+        await this.ApiClient.GetGuildApplicationCommandsAsync(this.CurrentApplication.Id, guildId, withLocalizations);
 
     /// <summary>
     /// Overwrites the existing application commands in a guild. New commands are automatically created and missing commands are automatically deleted.
