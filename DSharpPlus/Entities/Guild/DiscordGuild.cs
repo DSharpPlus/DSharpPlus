@@ -2307,9 +2307,10 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <summary>
     /// Gets all the application commands in this guild.
     /// </summary>
+    /// <param name="withLocalizations">Whether to include localizations in the response.</param>
     /// <returns>A list of application commands in this guild.</returns>
-    public async Task<IReadOnlyList<DiscordApplicationCommand>> GetApplicationCommandsAsync() =>
-        await this.Discord.ApiClient.GetGuildApplicationCommandsAsync(this.Discord.CurrentApplication.Id, this.Id);
+    public async Task<IReadOnlyList<DiscordApplicationCommand>> GetApplicationCommandsAsync(bool withLocalizations = false) =>
+        await this.Discord.ApiClient.GetGuildApplicationCommandsAsync(this.Discord.CurrentApplication.Id, this.Id, withLocalizations);
 
     /// <summary>
     /// Overwrites the existing application commands in this guild. New commands are automatically created and missing commands are automatically delete
@@ -2352,10 +2353,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets a application command in this guild by its name.
     /// </summary>
     /// <param name="commandName">The name of the command to get.</param>
+    /// <param name="withLocalizations">Whether to include localizations in the response.</param>
     /// <returns>The command with the name. This is null when the command is not found</returns>
-    public async Task<DiscordApplicationCommand?> GetApplicationCommandAsync(string commandName)
+    public async Task<DiscordApplicationCommand?> GetApplicationCommandAsync(string commandName, bool withLocalizations = false)
     {
-        foreach (DiscordApplicationCommand command in await this.Discord.ApiClient.GetGlobalApplicationCommandsAsync(this.Discord.CurrentApplication.Id))
+        foreach (DiscordApplicationCommand command in await this.Discord.ApiClient.GetGlobalApplicationCommandsAsync(this.Discord.CurrentApplication.Id, withLocalizations))
         {
             if (command.Name == commandName)
             {

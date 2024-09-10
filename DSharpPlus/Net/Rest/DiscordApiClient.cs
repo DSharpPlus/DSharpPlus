@@ -5470,21 +5470,27 @@ public sealed class DiscordApiClient
     #region Application Commands
     internal async ValueTask<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync
     (
-        ulong applicationId
+        ulong applicationId,
+        bool withLocalizations = false
     )
     {
         string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.COMMANDS}";
-        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.COMMANDS}";
+        QueryUriBuilder builder = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.COMMANDS}");
+
+        if (withLocalizations)
+        {
+            builder.AddParameter("with_localizations", "true");
+        }
 
         RestRequest request = new()
         {
             Route = route,
-            Url = url,
+            Url = builder.Build(),
             Method = HttpMethod.Get
         };
 
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
-
+        
         IEnumerable<DiscordApplicationCommand> ret = JsonConvert.DeserializeObject<IEnumerable<DiscordApplicationCommand>>(res.Response!)!;
         foreach (DiscordApplicationCommand app in ret)
         {
@@ -5680,16 +5686,22 @@ public sealed class DiscordApiClient
     internal async ValueTask<IReadOnlyList<DiscordApplicationCommand>> GetGuildApplicationCommandsAsync
     (
         ulong applicationId,
-        ulong guildId
+        ulong guildId,
+        bool withLocalizations = false
     )
     {
         string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.GUILDS}/:guild_id/{Endpoints.COMMANDS}";
-        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.GUILDS}/{guildId}/{Endpoints.COMMANDS}";
+        QueryUriBuilder builder = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.GUILDS}/{guildId}/{Endpoints.COMMANDS}");
+
+        if (withLocalizations)
+        {
+            builder.AddParameter("with_localizations", "true");
+        }
 
         RestRequest request = new()
         {
             Route = route,
-            Url = url,
+            Url = builder.Build(),
             Method = HttpMethod.Get
         };
 

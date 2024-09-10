@@ -72,11 +72,17 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
     [JsonProperty("version")]
     public ulong Version { get; internal set; }
 
+    /// <summary>
+    /// Gets the localization dictionary for the <see cref="Name"/> field.
+    /// </summary>
     [JsonProperty("name_localizations")]
-    public IReadOnlyDictionary<string, string> NameLocalizations { get; internal set; }
+    public IReadOnlyDictionary<string, string>? NameLocalizations { get; internal set; }
 
+    /// <summary>
+    /// Gets the localization dictionary for the <see cref="Description"/> field.
+    /// </summary>
     [JsonProperty("description_localizations")]
-    public IReadOnlyDictionary<string, string> DescriptionLocalizations { get; internal set; }
+    public IReadOnlyDictionary<string, string>? DescriptionLocalizations { get; internal set; }
 
     /// <summary>
     /// Contexts in which this command can be invoked.
