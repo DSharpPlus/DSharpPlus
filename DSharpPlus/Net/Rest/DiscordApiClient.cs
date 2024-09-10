@@ -5490,7 +5490,7 @@ public sealed class DiscordApiClient
         };
 
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
-        
+
         IEnumerable<DiscordApplicationCommand> ret = JsonConvert.DeserializeObject<IEnumerable<DiscordApplicationCommand>>(res.Response!)!;
         foreach (DiscordApplicationCommand app in ret)
         {
