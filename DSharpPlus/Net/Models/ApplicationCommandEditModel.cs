@@ -4,6 +4,12 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.Net.Models;
 
+/// <summary>
+/// Specifies the parameters for modifying an application command.
+/// </summary>
+/// <remarks>
+/// If an <see cref="Optional{T}"/> parameter is not specified, it's state will be left unchanged.
+/// </remarks>
 public class ApplicationCommandEditModel
 {
     /// <summary>
@@ -11,7 +17,7 @@ public class ApplicationCommandEditModel
     /// </summary>
     public Optional<string> Name
     {
-        internal get => this.name;
+        get => this.name;
         set
         {
             if (value.Value.Length > 32)
@@ -30,7 +36,7 @@ public class ApplicationCommandEditModel
     /// </summary>
     public Optional<string> Description
     {
-        internal get => this.description;
+        get => this.description;
         set
         {
             if (value.Value.Length > 100)
@@ -47,25 +53,25 @@ public class ApplicationCommandEditModel
     /// <summary>
     /// Sets the command's new options.
     /// </summary>
-    public Optional<IReadOnlyList<DiscordApplicationCommandOption>> Options { internal get; set; }
+    public Optional<List<DiscordApplicationCommandOption>> Options { get; set; }
 
     /// <summary>
     /// Sets whether the command is enabled by default when the application is added to a guild.
     /// </summary>
-    public Optional<bool?> DefaultPermission { internal get; set; }
+    public Optional<bool?> DefaultPermission { get; set; }
 
     /// <summary>
     /// Sets whether the command can be invoked in DMs.
     /// </summary>
-    public Optional<bool> AllowDMUsage { internal get; set; }
+    public Optional<bool> AllowDMUsage { get; set; }
 
     /// <summary>
     /// Sets the requisite permissions for the command.
     /// </summary>
-    public Optional<DiscordPermissions?> DefaultMemberPermissions { internal get; set; }
+    public Optional<DiscordPermissions?> DefaultMemberPermissions { get; set; }
 
     /// <summary>
     /// Sets whether this command is age restricted.
     /// </summary>
-    public Optional<bool?> NSFW { internal get; set; }
+    public Optional<bool?> NSFW { get; set; }
 }

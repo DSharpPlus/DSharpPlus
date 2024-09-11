@@ -2,11 +2,26 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.Net.Models;
 
+/// <summary>
+/// Specifies the parameters for modifying a sticker.
+/// </summary>
+/// <remarks>
+/// If an <see cref="Optional{T}"/> parameter is not specified, it's state will be left unchanged.
+/// </remarks>
 public class StickerEditModel : BaseEditModel
 {
-    public Optional<string> Name { internal get; set; }
+    /// <summary>
+    /// The new sticker name.
+    /// </summary>
+    public Optional<string> Name { get; set; }
 
-    public Optional<string> Description { internal get; set; }
+    /// <summary>
+    /// The new sticker description.
+    /// </summary>
+    public Optional<string> Description { get; set; }
 
-    public Optional<string> Tags { internal get; set; }
+    /// <summary>
+    /// The new sticker tags, delimited by commas.
+    /// </summary>
+    public Optional<string> Tags { get; set; }
 }

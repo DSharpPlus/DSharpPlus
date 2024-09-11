@@ -4,6 +4,12 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.Net.Models;
 
+/// <summary>
+/// Specifies the parameters for modifying a scheduled guild event.
+/// </summary>
+/// <remarks>
+/// If an <see cref="Optional{T}"/> parameter is not specified, it's state will be left unchanged.
+/// </remarks>
 public class ScheduledGuildEventEditModel : BaseEditModel
 {
     /// <summary>
