@@ -505,7 +505,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             update.Status = userStatus.Value;
         }
 
-        GatewayPayload gatewayPayload = new() {OpCode = GatewayOpCode.StatusUpdate, Data = update};
+        GatewayPayload gatewayPayload = new() { OpCode = GatewayOpCode.StatusUpdate, Data = update };
 
         string payload = DiscordJson.SerializeObject(gatewayPayload);
 
@@ -623,7 +623,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         ApplicationCommandEditModel mdl = new();
         action(mdl);
         ulong applicationId = this.CurrentApplication?.Id ?? (await GetCurrentApplicationAsync()).Id;
-        return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
+        return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options.Value, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
     }
 
     /// <summary>
@@ -681,7 +681,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         ApplicationCommandEditModel mdl = new();
         action(mdl);
         ulong applicationId = this.CurrentApplication?.Id ?? (await GetCurrentApplicationAsync()).Id;
-        return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
+        return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options.Value, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
     }
 
     /// <summary>
@@ -864,30 +864,24 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public async Task<byte[]> HandleHttpInteractionAsync(ArraySegment<byte> body, CancellationToken cancellationToken = default)
     {
         string bodyString = Encoding.UTF8.GetString(body);
-
         JObject data = JObject.Parse(bodyString);
-        
-        DiscordHttpInteraction? interaction = data.ToDiscordObject<DiscordHttpInteraction>();
-        
-        if (interaction is null)
-        {
-            throw new ArgumentException("Unable to parse provided request body to DiscordHttpInteraction");
-        }
-        
+        DiscordHttpInteraction? interaction = data.ToDiscordObject<DiscordHttpInteraction>()
+            ?? throw new ArgumentException("Unable to parse provided request body to DiscordHttpInteraction");
+
         if (interaction.Type is DiscordInteractionType.Ping)
         {
-            DiscordInteractionResponsePayload responsePayload = new() {Type = DiscordInteractionResponseType.Pong};
+            DiscordInteractionResponsePayload responsePayload = new() { Type = DiscordInteractionResponseType.Pong };
             string responseString = DiscordJson.SerializeObject(responsePayload);
             byte[] responseBytes = Encoding.UTF8.GetBytes(responseString);
-            
+
             return responseBytes;
         }
 
         cancellationToken.Register(() => interaction.Cancel());
-        
+
         ulong? guildId = (ulong?)data["guild_id"];
         ulong channelId = (ulong)data["channel_id"];
-        
+
         JToken rawMember = data["member"];
         TransportMember? transportMember = null;
         TransportUser transportUser;
@@ -935,8 +929,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         {
             return InternalGetCachedThread(threadId);
         }
-
-        if (this.guilds.TryGetValue(guildId.Value, out DiscordGuild? guild))
+        else if (this.guilds.TryGetValue(guildId.Value, out DiscordGuild? guild))
         {
             return guild.Threads.GetValueOrDefault(threadId);
         }
@@ -968,8 +961,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         {
             return this.privateChannels.GetValueOrDefault(channelId) ?? InternalGetCachedChannel(channelId);
         }
-
-        if (this.guilds.TryGetValue(nonNullGuildID, out DiscordGuild? guild))
+        else if (this.guilds.TryGetValue(nonNullGuildID, out DiscordGuild? guild))
         {
             return guild.Channels.GetValueOrDefault(channelId);
         }

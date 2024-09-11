@@ -121,15 +121,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="skipCache">If set to true this method will skip all caches and always perform a rest api call</param>
     /// <returns>Returns null if the guild has no AFK channel</returns>
-    public async Task<DiscordChannel?> GetAfkChannelAsync(bool skipCache = false)
-    {
-        if (this.AfkChannelId is null)
-        {
-            return null;
-        }
-
-        return await GetChannelAsync(this.AfkChannelId.Value);
-    }
+    public async Task<DiscordChannel?> GetAfkChannelAsync(bool skipCache = false) => this.AfkChannelId is null ? null : await GetChannelAsync(this.AfkChannelId.Value, skipCache);
 
     /// <summary>
     /// Gets the guild's AFK timeout.
@@ -172,15 +164,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="skipCache">If set to true this method will skip all caches and always perform a rest api call</param>
     /// <returns>Returns null if the guild has no configured system channel.</returns>
-    public async Task<DiscordChannel?> GetSystemChannelAsync(bool skipCache = false)
-    {
-        if (this.SystemChannelId is null)
-        {
-            return null;
-        }
-
-        return await GetChannelAsync(this.SystemChannelId.Value);
-    }
+    public async Task<DiscordChannel?> GetSystemChannelAsync(bool skipCache = false) => this.SystemChannelId is null ? null : await GetChannelAsync(this.SystemChannelId.Value, skipCache);
 
     /// <summary>
     /// Gets the settings for this guild's system channel.
@@ -199,15 +183,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="skipCache">If set to true this method will skip all caches and always perform a rest api call</param>
     ///<returns>Returns null if the guild has no configured safety alerts channel.</returns>
-    public async Task<DiscordChannel?> GetSafetyAlertsChannelAsync(bool skipCache = false)
-    {
-        if (this.SafetyAlertsChannelId is null)
-        {
-            return null;
-        }
-
-        return await GetChannelAsync(this.SafetyAlertsChannelId.Value);
-    }
+    public async Task<DiscordChannel?> GetSafetyAlertsChannelAsync(bool skipCache = false) => this.SafetyAlertsChannelId is null ? null : await GetChannelAsync(this.SafetyAlertsChannelId.Value, skipCache);
 
     /// <summary>
     /// Gets whether this guild's widget is enabled.
@@ -226,15 +202,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="skipCache">If set to true this method will skip all caches and always perform a rest api call</param>
     /// <returns>Returns null if the guild has no widget channel configured.</returns>
-    public async Task<DiscordChannel?> GetWidgetChannelAsync(bool skipCache = false)
-    {
-        if (this.WidgetChannelId is null)
-        {
-            return null;
-        }
-
-        return await GetChannelAsync(this.WidgetChannelId.Value);
-    }
+    public async Task<DiscordChannel?> GetWidgetChannelAsync(bool skipCache = false) => this.WidgetChannelId is null ? null : await GetChannelAsync(this.WidgetChannelId.Value, skipCache);
 
     /// <summary>
     /// Id of the rules channel of this guild. Null if the guild has no configured rules channel.
@@ -248,15 +216,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="skipCache">If set to true this method will skip all caches and always perform a rest api call</param>
     /// <returns>Returns null if the guild has no rules channel configured</returns>
-    public async Task<DiscordChannel?> GetRulesChannelAsync(bool skipCache = false)
-    {
-        if (this.RulesChannelId is null)
-        {
-            return null;
-        }
-
-        return await GetChannelAsync(this.RulesChannelId.Value);
-    }
+    public async Task<DiscordChannel?> GetRulesChannelAsync(bool skipCache = false) => this.RulesChannelId is null ? null : await GetChannelAsync(this.RulesChannelId.Value, skipCache);
 
     /// <summary>
     /// Id of the channel where admins and moderators receive messages from Discord
@@ -270,15 +230,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="skipCache">If set to true this method will skip all caches and always perform a rest api call</param>
     /// <returns>Returns null if the guild has no public updates channel configured</returns>
-    public async Task<DiscordChannel?> GetPublicUpdatesChannelAsync(bool skipCache = false)
-    {
-        if (this.PublicUpdatesChannelId is null)
-        {
-            return null;
-        }
-
-        return await GetChannelAsync(this.PublicUpdatesChannelId.Value);
-    }
+    public async Task<DiscordChannel?> GetPublicUpdatesChannelAsync(bool skipCache = false) => this.PublicUpdatesChannelId is null ? null : await GetChannelAsync(this.PublicUpdatesChannelId.Value, skipCache);
 
     /// <summary>
     /// Gets the application ID of this guild if it is bot created.
@@ -972,7 +924,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     )
         => await this.Discord.ApiClient.AddGuildMemberAsync(this.Id, userId, accessToken, muted, deaf, nickname, roles);
 
-        /// <summary>
+    /// <summary>
     /// Adds a new member to this guild
     /// </summary>
     /// <param name="user">User to add</param>
@@ -1093,7 +1045,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             mdl.VerificationLevel, mdl.DefaultMessageNotifications, mdl.MfaLevel, mdl.ExplicitContentFilter,
             mdl.AfkChannel.IfPresent(e => e?.Id), mdl.AfkTimeout, iconb64, mdl.Owner.IfPresent(e => e.Id), splashb64,
             mdl.SystemChannel.IfPresent(e => e?.Id), bannerb64,
-            mdl.Description, mdl.DiscoverySplash, mdl.Features, mdl.PreferredLocale,
+            mdl.Description, mdl.DiscoverySplash, mdl.Features.Value, mdl.PreferredLocale,
             mdl.PublicUpdatesChannel.IfPresent(e => e?.Id), mdl.RulesChannel.IfPresent(e => e?.Id),
             mdl.SystemChannelFlags, mdl.AuditLogReason);
     }
@@ -1898,13 +1850,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         if (skipCache)
         {
             channel = await this.Discord.ApiClient.GetChannelAsync(id);
-
-            if (channel.GuildId is null || (channel.GuildId is not null && channel.GuildId.Value != this.Id))
-            {
-                throw new InvalidOperationException("The channel exists but does not belong to this guild.");
-            }
-
-            return channel;
+            return channel.GuildId is null || (channel.GuildId is not null && channel.GuildId.Value != this.Id)
+                ? throw new InvalidOperationException("The channel exists but does not belong to this guild.")
+                : channel;
         }
 
         if (this.channels is not null && this.channels.TryGetValue(id, out channel))
@@ -1918,13 +1866,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         }
 
         channel = await this.Discord.ApiClient.GetChannelAsync(id);
-
-        if (channel.GuildId is null || (channel.GuildId is not null && channel.GuildId.Value != this.Id))
-        {
-            throw new InvalidOperationException("The channel exists but does not belong to this guild.");
-        }
-
-        return channel;
+        return channel.GuildId is null || (channel.GuildId is not null && channel.GuildId.Value != this.Id)
+            ? throw new InvalidOperationException("The channel exists but does not belong to this guild.")
+            : channel;
     }
 
     /// <summary>
@@ -2212,7 +2156,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     {
         MembershipScreeningEditModel editModel = new();
         action(editModel);
-        return await this.Discord.ApiClient.ModifyGuildMembershipScreeningFormAsync(this.Id, editModel.Enabled, editModel.Fields, editModel.Description);
+        return await this.Discord.ApiClient.ModifyGuildMembershipScreeningFormAsync(this.Id, editModel.Enabled, editModel.Fields.Value, editModel.Description);
     }
 
     /// <summary>
@@ -2338,7 +2282,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     {
         ApplicationCommandEditModel editModel = new();
         action(editModel);
-        return await this.Discord.ApiClient.EditGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, commandId, editModel.Name, editModel.Description, editModel.Options, editModel.DefaultPermission, editModel.NSFW, default, default, editModel.AllowDMUsage, editModel.DefaultMemberPermissions);
+        return await this.Discord.ApiClient.EditGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, commandId, editModel.Name, editModel.Description, editModel.Options.Value, editModel.DefaultPermission, editModel.NSFW, default, default, editModel.AllowDMUsage, editModel.DefaultMemberPermissions);
     }
 
     /// <summary>
@@ -2388,7 +2332,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     {
         WelcomeScreenEditModel editModel = new();
         action(editModel);
-        return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, editModel.Enabled, editModel.WelcomeChannels, editModel.Description, reason);
+        return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, editModel.Enabled, editModel.WelcomeChannels.Value, editModel.Description, reason);
     }
 
     /// <summary>
@@ -2499,10 +2443,10 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             model.Name,
             model.EventType,
             model.TriggerMetadata,
-            model.Actions,
+            model.Actions.Value,
             model.Enable,
-            model.ExemptRoles,
-            model.ExemptChannels,
+            model.ExemptRoles.Value,
+            model.ExemptChannels.Value,
             model.AuditLogReason
         );
     }

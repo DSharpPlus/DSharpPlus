@@ -1121,7 +1121,7 @@ public sealed class DiscordApiClient
     (
         ulong guildId,
         Optional<bool> enabled = default,
-        Optional<DiscordGuildMembershipScreeningField[]> fields = default,
+        Optional<IReadOnlyList<DiscordGuildMembershipScreeningField>> fields = default,
         Optional<string> description = default
     )
     {
