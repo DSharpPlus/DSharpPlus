@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using CommunityToolkit.HighPerformance.Buffers;
-
+using DSharpPlus.Logging;
 using DSharpPlus.Net.WebSocket;
 
 using Microsoft.Extensions.Logging;
@@ -155,13 +155,29 @@ internal sealed class TransportService : ITransportService
 
         string result = Encoding.UTF8.GetString(this.decompressedWriter.WrittenSpan);
 
-        this.logger.LogTrace
-        (
-            "Length for the last inbound gateway event: {length}",
-            this.writer.WrittenCount != 0 ? this.writer.WrittenCount : $"closed: {(int)this.socket.CloseStatus!}"
-        );
+        if (this.logger.IsEnabled(LogLevel.Trace) && RuntimeFeatures.EnableInboundGatewayLogging)
+        {
 
-        this.logger.LogTrace("Payload for the last inbound gateway event:\n{event}", result);
+            this.logger.LogTrace
+            (
+                "Length for the last inbound gateway event: {length}",
+                this.writer.WrittenCount != 0 ? this.writer.WrittenCount : $"closed: {(int)this.socket.CloseStatus!}"
+            );
+
+            string anonymized = result;
+
+            if (RuntimeFeatures.AnonymizeTokens)
+            {
+                anonymized = AnonymizationUtilities.AnonymizeTokens(anonymized);
+            }
+
+            if (RuntimeFeatures.AnonymizeContents)
+            {
+                anonymized = AnonymizationUtilities.AnonymizeContents(anonymized);
+            }
+
+            this.logger.LogTrace("Payload for the last inbound gateway event: {event}", anonymized);
+        }
 
         return this.writer.WrittenCount == 0 ? new((int)this.socket.CloseStatus!) : new(result);
     }
@@ -171,13 +187,26 @@ internal sealed class TransportService : ITransportService
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(payload.Length, 4096, nameof(payload));
 
-#if DEBUG
-        this.logger.LogTrace
-        (
-            "Sending outbound gateway event:\n{event}",
-            Encoding.UTF8.GetString(payload)
-        );
-#endif
+        if (this.logger.IsEnabled(LogLevel.Trace) && RuntimeFeatures.EnableOutboundGatewayLogging)
+        {
+
+            this.logger.LogTrace("Length for the last outbound outbound event: {length}", payload.Length);
+
+            string anonymized = Encoding.UTF8.GetString(payload);
+
+            if (RuntimeFeatures.AnonymizeTokens)
+            {
+                anonymized = AnonymizationUtilities.AnonymizeTokens(anonymized);
+            }
+
+            if (RuntimeFeatures.AnonymizeContents)
+            {
+                anonymized = AnonymizationUtilities.AnonymizeContents(anonymized);
+            }
+
+            this.logger.LogTrace("Payload for the last outbound gateway event: {event}", anonymized);
+        }
+
         await this.socket.SendAsync
         (
             buffer: payload,
