@@ -30,7 +30,7 @@ internal static partial class AnonymizationUtilities
 
     public static string AnonymizeContents(string input)
     {
-        string intermediate = GetSnowflakeRegex().Replace(input, "\"<redacted ID>\"");
+        string intermediate = GetSnowflakeRegex().Replace(input, "\"<redacted>\"");
         intermediate = GetMessageContentRegex().Replace(intermediate, "\"content\":\"<redacted>\"");
         intermediate = GetUsernameRegex().Replace(intermediate, "\"username\":\"<redacted>\"");
         return intermediate;
