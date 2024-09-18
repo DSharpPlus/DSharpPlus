@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <Description>An implementation of the Discord voice gateway for DSharpPlus.</Description>
+    <PackageId>DSharpPlus.Voice</PackageId>
+    <PackageTags>$(PackageTags), voice, dave, dave-v1, e2ee-voice</PackageTags>
+    <IsPackable>true</IsPackable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DSharpPlus.Natives.Opus" />
+    <PackageReference Include="DSharpPlus.Natives.Sodium" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../natives/libaerith/**/*" Pack="true" PackagePath="runtimes" />
+  </ItemGroup>
+
+  <Target Name="WarnOnUnsupportedTargets" BeforeTargets="CoreCompile">
+    <Warning Text="The current runtime identifier is unsupported and may be insecure. See details in BUILDING.md." Condition="'$(RuntimeIdentifier)' != '' And '$(RuntimeIdentifier)' != 'win-x64' And '$(RuntimeIdentifier)' != 'linux-x64' And '$(RuntimeIdentifier)' != 'osx-x64'" />
+  </Target>
+
+</Project>

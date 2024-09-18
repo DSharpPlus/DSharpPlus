@@ -5,25 +5,25 @@ We're really happy to accept contributions. However we also ask that you follow 
 > [!NOTE]
 > We do not merge pull requests for undocumented or in-PR Discord features. Before we merge support for any Discord feature, we require the relevant docs PR to be merged first.
 
-# Proper base
+## Proper base
 
-When opening a PR, please make sure your branch targets the latest master branch. Also make sure your branch is even with the target branch, to avoid unnecessary surprises.
+When opening a PR, please make sure your branch targets the latest master branch, unless otherwise discussed. Also make sure your branch is even with the target branch, to avoid unnecessary surprises.
 
-# Versioning
+## Versioning
 
 We generally attempt to follow [semantic versioning](https://semver.org/) when it comes to pushing stable releases. Ideally, this means you should only be creating PRs for `patch` and `minor` changes. If you wish to introduce a `major` (breaking) change, please discuss it beforehand so we can determine how to integrate it into our next major version. If this involves removing a public facing property/method, mark it with the `Obsolete` attribute instead on the latest release branch.
 
 We may make exceptions to this rule to ease adoption of Discord features and/or changes. In particular, we allow minor versions to break existing code if the scope of such breaks is limited or the change is considered crucially important.
 
-# Proper titles
+## Proper titles
 
 When opening issues, make sure the title reflects the purpose of the issue or the pull request. Prefer past tense, and be brief. Further description belongs inside the issue or PR.
 
-# New additions
+## New additions
 
 When adding new features that do not correspond to API features, please attempt to add tests for them. Our tests follow a specific naming convention. If any changes are made to the `DSharpPlus.Commands` namespace, then the tests for those will be found in the `DSharpPlus.Tests.Commands` namespace and directory.
 
-# Descriptive changes
+## Descriptive changes
 
 We require the commits describe the change made. It can be a short description. If you fixed or resolved an open issue, please refer to it using Github's # links.
 
@@ -49,12 +49,12 @@ Examples of bad commit messages:
 * `Fixed.`
 * `Oops.`
 
-# Code style
+## C# code style
 
 We use [Microsoft C# Coding Conventions](https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions) throughout the repository, with a series of exceptions:
 
-* Preference of `this`. While this one is not required, it's ill-advised to remove the existing instances thereof.
-* In the same vein, we prefer you not use underscores for private fields in conjunction to using `this`. It is, again, ill-advised to go out of your way to change existing code.
+* Preference of `this`.
+* In the same vein, we prefer you not use underscores for private fields in conjunction to using `this`. It is, ill-advised to go out of your way to change existing code.
 * Do not use `var`. Always specify the type name.
 * Do not use `ConfigureAwait(false)`. Other ConfigureAwait overloads may be warranted.
 * Use the LINQ methods as opposed to the keyword constructs.
@@ -80,8 +80,6 @@ We use [Microsoft C# Coding Conventions](https://learn.microsoft.com/en-us/dotne
   }
   ```
 
-In addition to these, we also have several preferences:
-
 * Use initializer syntax or collection expressions when possible:
 
   ```cs
@@ -98,35 +96,30 @@ In addition to these, we also have several preferences:
   };
 
   int[] c = [42, 69];
-```
+  ```
 
 * Inline `out` declarations when possible: `SomeOutMethod(42, out string stringified);`
+* Attempt to keep classes to a reasonable size, and consider partial types if a large implementation cannot be split apart.
 * Members in classes should be ordered as follows (with few exceptions):
-  * Public `const` fields.
-  * Non-public `const` fields.
-  * Public static properties.
-  * Public static fields.
-  * Non-public static properties.
-  * Non-public static fields.
-  * Public properties.
-  * Public fields.
-  * Private properties.
-  * Private fields.
-  * Static constructor.
-  * Public constructors.
-  * Non-public constructors.
-  * Public methods (with the exception of methods overriden from `System.Object`).
-  * Non-public methods.
-  * Methods overriden from `System.Object`.
-  * Public static methods.
-  * Non-public static methods.
-  * Operator overloads.
-  * Public events.
-  * Non-public events.
+  * constants
+  * private fields
+  * constructors
+  * public API
+  * private methods
+  * `Dispose()`, `DisposeAsync()`, `~TypeName()`
 
 Use your own best judgement with regards to this ordering, and prefer intuitiveness over strict adherence.
 
-# Code changes
+## Rust code style
+
+DSharpPlus contains minor amounts of rust code to make the voice gateway work. Since DSharpPlus is still primarily a C# project, please be mindful of the fact that your rust contribution will be reviewed and maintained by C# developers. As such, write your code to be as explicit as possible, and write as much as possible in C#. The following guidelines specifically should be adhered to:
+
+* Do not rely on type inference if at all feasible, specify types wherever possible.
+* Always explicitly use the `return` keyword.
+* Stick to using rust primitives instead of `std::ffi::c_*` types; they can be more cleanly mapped to C# types (use `*const/mut c_void` to represent C# `void*`, though).
+* If possible, export signatures consisting of primitives only, and document structs designed for export accordingly.
+
+## Code changes
 
 One of our requirements is that all code change commits must build successfully. This is verified by our CI. When you open a pull request, Github will start an action which will perform a build and create PR artifacts. You can view its summary by visiting it from the checks section on
 the PR overview page.
@@ -137,6 +130,6 @@ Furthermore we require that methods you implement on Discord entities have a ref
 
 In the event your code change is a style change, XML doc change, or otherwise does not change how the code works, tag the commit with `[ci skip]`.
 
-# Non-code changes
+## Non-code changes
 
 In the event you change something outside of code (i.e. a meta-change or documentation), you must tag your commit with `[ci skip]`.
