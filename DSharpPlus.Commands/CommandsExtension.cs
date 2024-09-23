@@ -108,6 +108,14 @@ public sealed class CommandsExtension
 
     internal AsyncEvent<CommandsExtension, CommandErroredEventArgs> commandErrored;
 
+    public event AsyncEventHandler<CommandsExtension, ConfigureCommandsEventArgs> ConfiguringCommands
+    {
+        add => this.configuringCommands.Register(value);
+        remove => this.configuringCommands.Unregister(value);
+    }
+
+    private AsyncEvent<CommandsExtension, ConfigureCommandsEventArgs> configuringCommands;
+
     /// <summary>
     /// Used to log messages from this extension.
     /// </summary>
@@ -150,6 +158,7 @@ public sealed class CommandsExtension
         DefaultClientErrorHandler errorHandler = new(client.Logger);
         this.commandErrored = new(errorHandler);
         this.commandExecuted = new(errorHandler);
+        this.configuringCommands = new(errorHandler);
 
         if (this.UseDefaultCommandErrorHandler)
         {
@@ -430,7 +439,7 @@ public sealed class CommandsExtension
 
     public async Task RefreshAsync()
     {
-        BuildCommands();
+        await BuildCommandsAsync();
 
         if (this.RegisterDefaultCommandProcessors)
         {
@@ -440,13 +449,12 @@ public sealed class CommandsExtension
             this.processors.TryAdd(typeof(UserCommandProcessor), new UserCommandProcessor());
         }
 
-
-        if (this.processors.TryGetValue(typeof(UserCommandProcessor), out ICommandProcessor userProcessor))
+        if (this.processors.TryGetValue(typeof(UserCommandProcessor), out ICommandProcessor? userProcessor))
         {
             await userProcessor.ConfigureAsync(this);
         }
 
-        if (this.processors.TryGetValue(typeof(MessageCommandProcessor), out ICommandProcessor messageProcessor))
+        if (this.processors.TryGetValue(typeof(MessageCommandProcessor), out ICommandProcessor? messageProcessor))
         {
             await messageProcessor.ConfigureAsync(this);
         }
@@ -463,8 +471,13 @@ public sealed class CommandsExtension
         }
     }
 
-    internal void BuildCommands()
+    internal async ValueTask BuildCommandsAsync()
     {
+        await this.configuringCommands.InvokeAsync(this, new ConfigureCommandsEventArgs()
+        {
+            CommandTrees = this.commandBuilders
+        });
+
         Dictionary<string, Command> commands = [];
         foreach (CommandBuilder commandBuilder in this.commandBuilders)
         {
