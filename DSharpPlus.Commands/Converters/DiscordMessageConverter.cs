@@ -1,8 +1,10 @@
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.TextCommands;
+using DSharpPlus.Commands.Processors.TextCommands.ContextChecks;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 
@@ -19,6 +21,24 @@ public partial class DiscordMessageConverter : ISlashArgumentConverter<DiscordMe
 
     public async Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context)
     {
+        // Check if the parameter desires a message reply
+        if (context is TextConverterContext textContext
+            && textContext.Parameter.Attributes.OfType<TextMessageReplyAttribute>().FirstOrDefault() is TextMessageReplyAttribute replyAttribute)
+        {
+            // It requested a reply and we have one available.
+            if (textContext.Message.ReferencedMessage is not null)
+            {
+                return Optional.FromValue(textContext.Message.ReferencedMessage);
+            }
+            // It required a reply and we don't have one.
+            else if (replyAttribute.RequiresReply)
+            {
+                return Optional.FromNoValue<DiscordMessage>();
+            }
+
+            // It requested a reply and we don't have one, but it's not required.
+        }
+
         string? value = context.Argument?.ToString();
         if (string.IsNullOrWhiteSpace(value))
         {
