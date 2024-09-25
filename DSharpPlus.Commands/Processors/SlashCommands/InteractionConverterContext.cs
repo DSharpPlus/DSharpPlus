@@ -30,7 +30,7 @@ public record InteractionConverterContext : ConverterContext
     /// <summary>
     /// The current argument to convert.
     /// </summary>
-    public override DiscordInteractionDataOption? Argument => base.Argument as DiscordInteractionDataOption;
+    public new DiscordInteractionDataOption? Argument { get; protected set; }
 
     /// <summary>
     /// The current index of the argument for enumerable parameters.
@@ -72,7 +72,8 @@ public record InteractionConverterContext : ConverterContext
             return false;
         }
 
-        base.Argument = argument;
+        this.Argument = argument;
+        base.Argument = argument.Value;
         return true;
     }
 }
