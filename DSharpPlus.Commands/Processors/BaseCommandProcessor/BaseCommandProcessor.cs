@@ -131,15 +131,21 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
     /// <param name="factory">The factory that will create the argument converter and it's delegate.</param>
     protected virtual void AddConverter(ConverterDelegateFactory factory)
     {
-        if (!this.converterFactories.TryGetValue(factory.ParameterType, out ConverterDelegateFactory? existingFactory))
+        if (this.converterFactories.TryGetValue(factory.ParameterType, out ConverterDelegateFactory? existingFactory))
         {
-            BaseCommandLogging.duplicateArgumentConvertersRegistered(
-                this.logger,
-                factory.ConverterType?.GetType().FullName ?? factory.ConverterInstance!.GetType().FullName!,
-                factory.ParameterType.FullName ?? factory.ParameterType.Name,
-                existingFactory?.ConverterType?.FullName ?? existingFactory?.ConverterInstance?.GetType().FullName!,
-                null
-            );
+            // If it's a different factory trying to be added, log it.
+            // If it's the same factory that's being readded (likely
+            // from a gateway disconnect), ignore it.
+            if (existingFactory != factory)
+            {
+                BaseCommandLogging.duplicateArgumentConvertersRegistered(
+                    this.logger,
+                    factory.ToString()!,
+                    factory.ParameterType.FullName ?? factory.ParameterType.Name,
+                    existingFactory.ToString()!,
+                    null
+                );
+            }
 
             return;
         }
@@ -172,39 +178,18 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
     }
 
     /// <summary>
-    /// Finds the base type to use for converter registration.
-    /// </summary>
-    /// <remarks>
-    /// More specifically, this methods returns the base type that can be found from <see cref="Nullable{T}"/>, <see cref="Enum"/>, or <see cref="Array"/>'s.
-    /// </remarks>
-    /// <param name="type">The type to find the base type for.</param>
-    /// <returns>The base type to use for converter registration.</returns>
-    public Type GetConverterFriendlyBaseType(Type type)
-    {
-        ArgumentNullException.ThrowIfNull(type, nameof(type));
-
-        Type effectiveType = Nullable.GetUnderlyingType(type) ?? type;
-        if (effectiveType.IsEnum)
-        {
-            return typeof(Enum);
-        }
-        else if (effectiveType.IsArray)
-        {
-            // The type could be an array of enums or nullable
-            // objects or worse: an array of arrays.
-            return GetConverterFriendlyBaseType(effectiveType.GetElementType()!);
-        }
-
-        return effectiveType;
-    }
-
-    /// <summary>
     /// Parses the arguments provided to the command and returns a prepared command context.
     /// </summary>
     /// <param name="converterContext">The context used for the argument converters.</param>
     /// <returns>The prepared CommandContext.</returns>
     public virtual async ValueTask<IReadOnlyDictionary<CommandParameter, object?>> ParseParametersAsync(TConverterContext converterContext)
     {
+        // If there's no parameters, begone.
+        if (converterContext.Command.Parameters.Count == 0)
+        {
+            return FrozenDictionary<CommandParameter, object?>.Empty;
+        }
+
         // Populate the parsed arguments with <see cref="ArgumentNotParsedValue"/>
         // to indicate that the arguments haven't been parsed yet.
         // If this method ever exits early without finishing parsing, the
@@ -215,127 +200,151 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
             parsedArguments.Add(parameter, new ArgumentNotParsedValue());
         }
 
-        try
+        while (converterContext.NextParameter())
         {
-            while (converterContext.NextParameter())
+            object? parsedArgument = await ParseParameterAsync(converterContext);
+            parsedArguments[converterContext.Parameter] = parsedArgument;
+            if (parsedArgument is ArgumentFailedConversionValue)
             {
-                object? parsedArgument = await ParseParameterAsync(converterContext);
-                if (parsedArgument is ArgumentNotParsedValue)
-                {
-                    // Try to fill with it's default value
-                    if (!converterContext.Parameter.DefaultValue.HasValue)
-                    {
-                        continue;
-                    }
-
-                    parsedArgument = converterContext.Parameter.DefaultValue.Value;
-                }
-
-                parsedArguments[converterContext.Parameter] = parsedArgument;
-                if (parsedArgument is ArgumentFailedConversionValue)
-                {
-                    // Stop parsing if the argument failed to convert.
-                    // The other parameters will be set to <see cref="ArgumentNotParsedValue"/>.
-                    // ...XML docs don't work in comments. Pretend they do <3
-                    return parsedArguments;
-                }
+                // Stop parsing if the argument failed to convert.
+                // The other parameters will be set to <see cref="ArgumentNotParsedValue"/>.
+                // ...XML docs don't work in comments. Pretend they do <3
+                break;
             }
-        }
-        catch (Exception error)
-        {
-            // If an exception occurs during argument parsing, parsing is immediately stopped.
-            // We'll set the current parameter to an error state and return the parsed arguments.
-            // The callee will choose how to handle the error.
-            parsedArguments[converterContext.Parameter] = new ArgumentFailedConversionValue
-            {
-                Error = error
-            };
         }
 
         return parsedArguments;
     }
 
     /// <summary>
-    ///
+    /// Parses a single parameter from the command context. This method will handle <see cref="MultiArgumentAttribute"/> annotated parameters.
     /// </summary>
-    /// <param name="converterContext"></param>
+    /// <param name="converterContext">The converter context containing all the relevant data for the argument parsing.</param>
     public virtual async ValueTask<object?> ParseParameterAsync(TConverterContext converterContext)
     {
         if (this.extension is null)
         {
             throw new InvalidOperationException("The processor has not been configured yet.");
         }
-        else if (converterContext.Argument is null)
+        else if (!converterContext.NextArgument())
         {
-            return new ArgumentNotParsedValue();
+            // Try to fill with it's default value
+            return converterContext.Parameter.DefaultValue.HasValue
+                ? converterContext.Parameter.DefaultValue.Value
+                : new ArgumentNotParsedValue();
         }
 
-        ConverterDelegate converterDelegate = this.ConverterDelegates[GetConverterFriendlyBaseType(converterContext.Parameter.Type)];
-
-        // Multi-argument parameters are handled differently
-        // than regular parameters. They're treated as a single
-        // parameter with multiple values.
-        MultiArgumentAttribute? multiArgumentAttribute = converterContext.Parameter.Attributes.FirstOrDefault(attribute => attribute is MultiArgumentAttribute) as MultiArgumentAttribute;
-
-        // Check if the parameter is using params instead of a multi-argument attribute.
-        if (multiArgumentAttribute is null && converterContext.Parameter.Attributes.Any(attribute => attribute is ParamArrayAttribute))
+        try
         {
-            multiArgumentAttribute = new MultiArgumentAttribute(int.MaxValue, 1);
-        }
-
-        // If the parameter is a multi-argument parameter or params, we'll
-        // parse all the arguments until we reach the maximum argument count.
-        if (multiArgumentAttribute is not null)
-        {
-            List<object?> multiArgumentValues = new(multiArgumentAttribute.MaximumArgumentCount);
-            while (converterContext.NextArgument())
+            ConverterDelegate converterDelegate = this.ConverterDelegates[IArgumentConverter.GetConverterFriendlyBaseType(converterContext.Parameter.Type)];
+            IOptional optional = await converterDelegate(converterContext);
+            if (optional.HasValue)
             {
-                IOptional? parsedArgument = await converterDelegate(converterContext);
-                if (!parsedArgument.HasValue)
-                {
-                    // If the argument converter failed, we might
-                    // have reached the end of the arguments.
-                    // Return what we have now, the next time this
-                    // method is invoked, we'll be able to determine if
-                    // the argument failed to convert or if there are
-                    // no more arguments for this parameter.
-                    return new ArgumentFailedConversionValue();
-                }
-
-                multiArgumentValues.Add(parsedArgument);
+                // Thanks Roslyn for not yelling at me to make a ternary operator.
+                return optional.RawValue;
             }
 
-            if (multiArgumentValues.Count < multiArgumentAttribute.MinimumArgumentCount)
-            {
-                // If the minimum argument count isn't met, we'll return an error.
-                // The callee will choose how to handle the error.
-                return new ArgumentFailedConversionValue();
-            }
-
-            return multiArgumentValues;
+            // If there's invalid input, the argument converter should throw.
+            // Returning an Optional<T> with no value means that the argument converter
+            // expected this case and intentionally failed.
+            // We return a special value here to indicate that the argument failed conversion,
+            // which allows the callee to choose how to handle the failure
+            // (e.g. return an error message or selecting the default value).
+            return new ArgumentFailedConversionValue();
         }
-
-        // Just a regular parameter, parse it like normal.
-        IOptional optional = await converterDelegate(converterContext);
-        if (optional.HasValue)
+        catch (Exception error)
         {
-            // Thanks Roslyn for not yelling at me to make a ternary operator.
-            return optional.RawValue;
+            // If an exception occurs during argument parsing, parsing is immediately stopped.
+            // We'll set the current parameter to an error state and return the parsed arguments.
+            // The callee will choose how to handle the error.
+            return new ArgumentFailedConversionValue
+            {
+                Error = error,
+                Value = converterContext.Argument
+            };
         }
-
-        // If there's invalid input, the argument converter should throw.
-        // Returning an Optional<T> with no value means that the argument converter
-        // expected to fail and everything is working as expected.
-        // We return a special value here to indicate that the argument failed to convert,
-        // which allows the callee to choose how to handle the failure
-        // (e.g. return an error message or selecting the default value).
-        return new ArgumentFailedConversionValue();
     }
 
     /// <summary>
     /// Executes an argument converter on the specified context.
     /// </summary>
-    protected abstract ValueTask<IOptional> ExecuteConverterAsync<T>(TConverter converter, TConverterContext context);
+    protected virtual async ValueTask<IOptional> ExecuteConverterAsync<T>(TConverter converter, TConverterContext context)
+    {
+        if (converter is not IArgumentConverter<T> typedConverter)
+        {
+            throw new InvalidOperationException($"The converter {converter.GetType().FullName} does not implement IArgumentConverter<{typeof(T).FullName}>.");
+        }
+
+        // If the parameter is a multi-argument parameter or params, we'll
+        // parse all the arguments until we reach the maximum argument count.
+        if (context.Parameter.Attributes.FirstOrDefault(attribute => attribute is MultiArgumentAttribute) is not MultiArgumentAttribute multiArgumentAttribute)
+        {
+            return await typedConverter.ConvertAsync(context);
+        }
+
+        // TODO: Find a way to use an array pool for this.
+        // There's two ways that come to mind, both of which involve
+        // subscribing to CommandsExtension.CommandExecuted/CommandErrored:
+        // 1. Use ArrayPool<object?>.Shared and have the processor recollect the used
+        //    arrays after the commands finishes executing or erroring. As there are multiple
+        //    processors that could be running at the same time, which means our event handler
+        //    would need to track which command was invoked by this processor... Such as a
+        //    AbstractContext.Id property that's tracked by the processor.
+        // 2. Add a `ArrayPoolBufferWriter<object?>` as a transient service to the DI container.
+        //    Have the (single) event handler iterate over multi-argument parameters return the
+        //    arrays to the pool.
+        // Either way, I'm not doing those now because I believe said
+        // optimization would be better done by the hands of Akiraveliara. <3
+        // This 100% isn't just me trying to get out of work - Lunar
+        List<T> multiArgumentValues = [];
+
+        // int.MaxValue is used to indicate that there's no maximum argument count.
+        // If there's a maximum argument count, we'll ensure that the list has enough
+        // capacity to store all the arguments.
+        // `params` parameters are treated as multi-argument parameters with no maximum argument count.
+        // Due to `params` being semi-used, let's not allocate 2+ gigabytes of memory for a single parameter.
+        if (multiArgumentAttribute.MaximumArgumentCount != int.MaxValue)
+        {
+            multiArgumentValues.EnsureCapacity(multiArgumentAttribute.MaximumArgumentCount);
+        }
+
+        // This is a do-while loop because we called NextArgument() at the top of the method.
+        do
+        {
+            Optional<T> parsedArgument = await typedConverter.ConvertAsync(context);
+            if (!parsedArgument.HasValue)
+            {
+                // If the argument converter failed, we might
+                // have reached the end of the arguments.
+                // Return what we have now, the next time this
+                // method is invoked, we'll be able to determine if
+                // the argument failed to convert or if there are
+                // no more arguments for this parameter.
+                return Optional.FromValue<ArgumentFailedConversionValue>(new()
+                {
+                    Value = context.Argument
+                });
+            }
+
+            multiArgumentValues.Add(parsedArgument.Value);
+        } while (context.NextArgument());
+
+        if (multiArgumentValues.Count < multiArgumentAttribute.MinimumArgumentCount)
+        {
+            // If the minimum argument count isn't met, we'll return an error.
+            // The callee will choose how to handle the error.
+            return Optional.FromValue<ArgumentFailedConversionValue>(new()
+            {
+                Error = new ArgumentException($"The parameter {context.Parameter.Name} requires at least {multiArgumentAttribute.MinimumArgumentCount:N0} arguments, but only {multiArgumentValues.Count:N0} were provided."),
+                Value = multiArgumentValues.ToArray()
+            });
+        }
+
+        // Oh my heart </3
+        return context.Parameter.Type.IsArray
+            ? Optional.FromValue<T[]>(multiArgumentValues.ToArray())
+            : Optional.FromValue<List<T>>(multiArgumentValues);
+    }
 
     /// <summary>
     /// Constructs a command context from the parsed arguments and the current state of the <see cref="ConverterContext"/>.
