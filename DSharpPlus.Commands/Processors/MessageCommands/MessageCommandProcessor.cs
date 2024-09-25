@@ -68,7 +68,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor
                 continue;
             }
             // Check to see if the method signature is valid.
-            else if (command.Parameters.Count < 1 || this.slashCommandProcessor.GetConverterFriendlyBaseType(command.Parameters[0].Type) != typeof(DiscordMessage))
+            else if (command.Parameters.Count < 1 || IArgumentConverter.GetConverterFriendlyBaseType(command.Parameters[0].Type) != typeof(DiscordMessage))
             {
                 MessageCommandLogging.invalidParameterType(logger, command.FullName, null);
                 continue;

@@ -69,7 +69,7 @@ public sealed class UserCommandProcessor : ICommandProcessor
             }
 
             // Check to see if the method signature is valid.
-            Type firstParameterType = this.slashCommandProcessor.GetConverterFriendlyBaseType(command.Parameters[0].Type);
+            Type firstParameterType = IArgumentConverter.GetConverterFriendlyBaseType(command.Parameters[0].Type);
             if (command.Parameters.Count < 1 || firstParameterType != typeof(DiscordUser) || firstParameterType != typeof(DiscordMember))
             {
                 UserCommandLogging.invalidParameterType(logger, command.FullName, null);
