@@ -108,6 +108,12 @@ public sealed class CommandsExtension
 
     internal AsyncEvent<CommandsExtension, CommandErroredEventArgs> commandErrored;
 
+    /// <summary>
+    /// Executed before commands are finalized into a read-only state.
+    /// </summary>
+    /// <remarks>
+    /// Apply any mass-mutations to the commands or command parameters here.
+    /// </remarks>
     public event AsyncEventHandler<CommandsExtension, ConfigureCommandsEventArgs> ConfiguringCommands
     {
         add => this.configuringCommands.Register(value);
@@ -152,8 +158,7 @@ public sealed class CommandsExtension
 
         this.Client = client;
         this.ServiceProvider = client.ServiceProvider;
-
-        this.logger = client.ServiceProvider.GetService<ILogger<CommandsExtension>>();
+        this.logger = client.ServiceProvider.GetRequiredService<ILogger<CommandsExtension>>();
 
         DefaultClientErrorHandler errorHandler = new(client.Logger);
         this.commandErrored = new(errorHandler);
