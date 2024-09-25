@@ -1,9 +1,9 @@
 using System;
-using DSharpPlus.AsyncEvents;
+using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.Commands.EventArgs;
 
-public sealed class CommandErroredEventArgs : AsyncEventArgs
+public sealed class CommandErroredEventArgs : DiscordEventArgs
 {
     public required CommandContext Context { get; init; }
     public required Exception Exception { get; init; }
