@@ -48,12 +48,6 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
     /// <inheritdoc />
     public override async ValueTask ConfigureAsync(CommandsExtension extension)
     {
-        // If this processor is not configured, register the event handler.
-        if (this.extension is null)
-        {
-            extension.Client.InteractionCreated += ExecuteInteractionAsync;
-        }
-
         // Find all converters and prepare other helpful data.
         await base.ConfigureAsync(extension);
 

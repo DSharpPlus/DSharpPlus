@@ -50,8 +50,6 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
         this.commands = textCommands.ToFrozenDictionary(this.Configuration.CommandNameComparer);
         if (this.extension is null)
         {
-            extension.Client.MessageCreated += ExecuteTextCommandAsync;
-
             // Put these logs here so that they only appear when the processor is configured the first time.
             if (!extension.Client.Intents.HasIntent(DiscordIntents.GuildMessages) && !extension.Client.Intents.HasIntent(DiscordIntents.DirectMessages))
             {
