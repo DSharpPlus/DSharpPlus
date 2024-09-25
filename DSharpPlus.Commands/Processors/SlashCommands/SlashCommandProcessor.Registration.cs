@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Commands.Converters;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Commands.Processors.SlashCommands.Localization;
 using DSharpPlus.Commands.Processors.SlashCommands.Metadata;
@@ -212,30 +213,54 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         }
         else
         {
+            int minimumMultiArgumentCount = 0;
+            foreach (Attribute attribute in command.Parameters.SelectMany(parameter => parameter.Attributes))
+            {
+                if (attribute is not MultiArgumentAttribute multiArgumentAttribute)
+                {
+                    continue;
+                }
+
+                /*
+                 * Take the following scenario:
+                 *
+                 * public static async ValueTask ExecuteAsync(
+                 *     CommandContext context,
+                 *     [MultiArgument(Max = 50, Minimum = 10)] DiscordMember[] members,
+                 *     [MultiArgument(Max = 50, Minimum = 16)] DiscordRole[] roles
+                 * );
+                 *
+                 * The total minimum argument count would be 26. Discord only supports up to 25 parameters.
+                 * There is not a feasible workaround for this, so let's yell at the user.
+                 */
+
+                minimumMultiArgumentCount += multiArgumentAttribute.MinimumArgumentCount;
+                if (minimumMultiArgumentCount > 25)
+                {
+                    throw new InvalidOperationException($"Slash command failed validation: Command '{command.Name}' has too many minimum arguments. Discord only supports up to 25 parameters, please lower the total minimum argument count that's set through {nameof(MultiArgumentAttribute)}.");
+                }
+            }
+
             foreach (CommandParameter parameter in command.Parameters)
             {
                 // Check if the parameter is using a multi-argument attribute.
                 // If it is we need to add the parameter multiple times.
                 MultiArgumentAttribute? multiArgumentAttribute = parameter.Attributes.FirstOrDefault(attribute => attribute is MultiArgumentAttribute) as MultiArgumentAttribute;
-
-                // Check if the parameter is using params instead of a multi-argument attribute.
-                if (multiArgumentAttribute is null)
+                if (multiArgumentAttribute is not null)
                 {
-                    // This is just a normal parameter.
-                    if (!parameter.Attributes.Any(attribute => attribute is ParamArrayAttribute))
+                    // Add the multi-argument parameter multiple times until we reach the maximum argument count.
+                    int maximumArgumentCount = Math.Min(multiArgumentAttribute.MaximumArgumentCount, 25 - options.Count);
+                    for (int i = 0; i < maximumArgumentCount; i++)
                     {
-                        options.Add(await ToApplicationParameterAsync(command, parameter));
-                        continue;
+                        options.Add(await ToApplicationParameterAsync(command, parameter, i));
                     }
 
-                    multiArgumentAttribute = new MultiArgumentAttribute(int.MaxValue, 1);
+                    continue;
                 }
 
-                // Add the multi-argument parameter multiple times until we reach the maximum argument count.
-                for (int i = 0; i < Math.Min(multiArgumentAttribute.MaximumArgumentCount - 1, 24 - options.Count); i++)
-                {
-                    options.Add(await ToApplicationParameterAsync(command, parameter, i));
-                }
+                // This is just a normal parameter.
+                options.Add(await ToApplicationParameterAsync(command, parameter));
+                continue;
             }
         }
 
@@ -288,30 +313,54 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         }
         else
         {
+            int minimumMultiArgumentCount = 0;
+            foreach (Attribute attribute in command.Parameters.SelectMany(parameter => parameter.Attributes))
+            {
+                if (attribute is not MultiArgumentAttribute multiArgumentAttribute)
+                {
+                    continue;
+                }
+
+                /*
+                 * Take the following scenario:
+                 *
+                 * public static async ValueTask ExecuteAsync(
+                 *     CommandContext context,
+                 *     [MultiArgument(Max = 50, Minimum = 10)] DiscordMember[] members,
+                 *     [MultiArgument(Max = 50, Minimum = 16)] DiscordRole[] roles
+                 * );
+                 *
+                 * The total minimum argument count would be 26. Discord only supports up to 25 parameters.
+                 * There is not a feasible workaround for this, so let's yell at the user.
+                 */
+
+                minimumMultiArgumentCount += multiArgumentAttribute.MinimumArgumentCount;
+                if (minimumMultiArgumentCount > 25)
+                {
+                    throw new InvalidOperationException($"Slash command failed validation: Command '{command.Name}' has too many minimum arguments. Discord only supports up to 25 parameters, please lower the total minimum argument count that's set through {nameof(MultiArgumentAttribute)}.");
+                }
+            }
+
             foreach (CommandParameter parameter in command.Parameters)
             {
                 // Check if the parameter is using a multi-argument attribute.
                 // If it is we need to add the parameter multiple times.
                 MultiArgumentAttribute? multiArgumentAttribute = parameter.Attributes.FirstOrDefault(attribute => attribute is MultiArgumentAttribute) as MultiArgumentAttribute;
-
-                // Check if the parameter is using params instead of a multi-argument attribute.
-                if (multiArgumentAttribute is null)
+                if (multiArgumentAttribute is not null)
                 {
-                    // This is just a normal parameter.
-                    if (!parameter.Attributes.Any(attribute => attribute is ParamArrayAttribute))
+                    // Add the multi-argument parameter multiple times until we reach the maximum argument count.
+                    int maximumArgumentCount = Math.Min(multiArgumentAttribute.MaximumArgumentCount, 25 - options.Count);
+                    for (int i = 0; i < maximumArgumentCount; i++)
                     {
-                        options.Add(await ToApplicationParameterAsync(command, parameter));
-                        continue;
+                        options.Add(await ToApplicationParameterAsync(command, parameter, i));
                     }
 
-                    multiArgumentAttribute = new MultiArgumentAttribute(int.MaxValue, 1);
+                    continue;
                 }
 
-                // Add the multi-argument parameter multiple times until we reach the maximum argument count.
-                for (int i = 0; i < Math.Min(multiArgumentAttribute.MaximumArgumentCount - 1, 24 - options.Count); i++)
-                {
-                    options.Add(await ToApplicationParameterAsync(command, parameter, i));
-                }
+                // This is just a normal parameter.
+                options.Add(await ToApplicationParameterAsync(command, parameter));
+                continue;
             }
         }
 
@@ -349,7 +398,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
 
         // Fucking scope man. Let me else if in peace
         // We need the converter to grab the parameter type's application command option type value.
-        if (!this.Converters.TryGetValue(GetConverterFriendlyBaseType(parameter.Type), out ISlashArgumentConverter? slashArgumentConverter))
+        if (!this.Converters.TryGetValue(IArgumentConverter.GetConverterFriendlyBaseType(parameter.Type), out ISlashArgumentConverter? slashArgumentConverter))
         {
             throw new InvalidOperationException($"No converter found for parameter type '{parameter.Type.Name}'");
         }
