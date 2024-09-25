@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.Converters;
 using DSharpPlus.Entities;
@@ -29,6 +28,11 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         /// The exception that occurred during conversion, if any.
         /// </summary>
         public Exception? Error { get; init; }
+
+        /// <summary>
+        /// The value that failed to convert.
+        /// </summary>
+        public object? Value { get; init; }
     }
 
     /// <summary>
@@ -37,7 +41,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
     protected class ConverterDelegateFactory
     {
         private static readonly MethodInfo createConverterDelegateMethod = typeof(ConverterDelegateFactory)
-            .GetMethod(nameof(CreateConverterDelegate), BindingFlags.Static | BindingFlags.NonPublic)
+            .GetMethod(nameof(CreateConverterDelegate), BindingFlags.Instance | BindingFlags.NonPublic)
                 ?? throw new UnreachableException($"Method {nameof(CreateConverterDelegate)} was unable to be found.");
 
         /// <summary>
@@ -136,19 +140,19 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
             // Create the generic version of CreateConverterDelegate<T> to the parameter type
             MethodInfo createConverterDelegateGenericMethod = createConverterDelegateMethod.MakeGenericMethod(this.ParameterType);
 
-            // Invoke the generic method to obtain ExecuteCOnverterAsync<T> as a delegate
+            // Invoke the generic method to obtain ExecuteConverterAsync<T> as a delegate
             this.converterDelegate = (ConverterDelegate)createConverterDelegateGenericMethod.Invoke(this, [])!;
             return this.converterDelegate;
         }
 
         /// <summary>
-        /// A generic method used for obtaining the <see cref="ExecuteConverterAsync{T}(TConverterContext)"/> method as a delegate.
+        /// A generic method used for obtaining the <see cref="ExecuteConverterAsync{T}"/> method as a delegate.
         /// </summary>
         /// <typeparam name="T">The type of the parameter that the converter converts to.</typeparam>
         /// <returns>A delegate that executes the converter, casting the returned strongly typed value (<see cref="Optional{T}"/>)
         /// to a less strongly typed value (<see cref="IOptional"/>) for easier argument converter invocation.
         /// </returns>
-        private ConverterDelegate CreateConverterDelegate<T>() => Unsafe.As<ConverterDelegate>((object)ExecuteConverterAsync<T>);
+        private ConverterDelegate CreateConverterDelegate<T>() => ((Delegate)ExecuteConverterAsync<T>).Method.CreateDelegate<ConverterDelegate>(this);
 
         /// <summary>
         /// Invokes the converter on the provided context, casting the returned strongly typed value (<see cref="Optional{T}"/>)
@@ -157,7 +161,42 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         /// <param name="context">The converter context passed to the converter.</param>
         /// <typeparam name="T">The type of the parameter that the converter converts to.</typeparam>
         /// <returns>The result of the converter.</returns>
-        private async ValueTask<IOptional> ExecuteConverterAsync<T>(TConverterContext context) => await this.CommandProcessor.ExecuteConverterAsync<T>(this.ConverterInstance!, context);
-    }
+        private async ValueTask<IOptional> ExecuteConverterAsync<T>(ConverterContext context) => await this.CommandProcessor.ExecuteConverterAsync<T>(this.ConverterInstance!, context.As<TConverterContext>());
 
+        /// <inheritdoc/>
+        public override string? ToString()
+        {
+            if (this.ConverterType is not null)
+            {
+                return this.ConverterType.FullName ?? this.ConverterType.Name;
+            }
+            else if (this.ConverterInstance is not null)
+            {
+                Type type = this.ConverterInstance.GetType();
+                return type.FullName ?? type.Name;
+            }
+            else if (this.converterDelegate is not null)
+            {
+                return this.converterDelegate.Method.DeclaringType is null
+                    ? this.converterDelegate.ToString()
+                    : this.converterDelegate.Method.DeclaringType.FullName ?? this.converterDelegate.Method.DeclaringType.Name;
+            }
+
+            return base.ToString();
+        }
+
+        /// <inheritdoc/>
+        public override bool Equals(object? obj) => obj is ConverterDelegateFactory other
+            && (this.ConverterType == other.ConverterType || this.ConverterInstance == other.ConverterInstance || this.converterDelegate == other.converterDelegate);
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+            => HashCode.Combine(this.ConverterType, this.ConverterInstance, this.converterDelegate);
+
+        /// <inheritdoc/>
+        public static bool operator ==(ConverterDelegateFactory left, ConverterDelegateFactory right) => left.Equals(right);
+
+        /// <inheritdoc/>
+        public static bool operator !=(ConverterDelegateFactory left, ConverterDelegateFactory right) => !left.Equals(right);
+    }
 }
