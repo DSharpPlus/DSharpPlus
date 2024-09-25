@@ -15,27 +15,6 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
     where TCommandContext : CommandContext
 {
     /// <summary>
-    /// This class represents an argument that was not parsed during the argument conversion process.
-    /// </summary>
-    protected class ArgumentNotParsedValue;
-
-    /// <summary>
-    /// This class represents an argument that failed to convert during the argument conversion process.
-    /// </summary>
-    protected class ArgumentFailedConversionValue
-    {
-        /// <summary>
-        /// The exception that occurred during conversion, if any.
-        /// </summary>
-        public Exception? Error { get; init; }
-
-        /// <summary>
-        /// The value that failed to convert.
-        /// </summary>
-        public object? Value { get; init; }
-    }
-
-    /// <summary>
     /// A factory used for creating and caching converter objects and delegates.
     /// </summary>
     protected class ConverterDelegateFactory

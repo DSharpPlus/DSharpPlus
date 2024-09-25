@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
-
+using DSharpPlus.Commands.Converters.Results;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Processors.TextCommands.Parsing;
@@ -167,19 +167,19 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
         // Iterate over all arguments and check if any of them failed to parse.
         foreach (KeyValuePair<CommandParameter, object?> argument in parsedArguments)
         {
-            if (argument.Value is ArgumentFailedConversionValue argumentFailedConversionValue)
+            if (argument.Value is ArgumentFailedConversionResult argumentFailedConversionResult)
             {
                 await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
                 {
                     Context = commandContext,
                     CommandObject = null,
-                    Exception = new ArgumentParseException(argument.Key, argumentFailedConversionValue.Error)
+                    Exception = new ArgumentParseException(argument.Key, argumentFailedConversionResult.Error)
                 });
 
                 await serviceScope.DisposeAsync();
                 return;
             }
-            else if (argument.Value is ArgumentNotParsedValue)
+            else if (argument.Value is ArgumentNotParsedResult)
             {
                 await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
                 {

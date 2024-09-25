@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.Converters;
+using DSharpPlus.Commands.Converters.Results;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
@@ -190,24 +191,24 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
             return FrozenDictionary<CommandParameter, object?>.Empty;
         }
 
-        // Populate the parsed arguments with <see cref="ArgumentNotParsedValue"/>
+        // Populate the parsed arguments with <see cref="ArgumentNotParsedResult"/>
         // to indicate that the arguments haven't been parsed yet.
         // If this method ever exits early without finishing parsing, the
         // callee will know where the argument parsing stopped.
         Dictionary<CommandParameter, object?> parsedArguments = new(converterContext.Command.Parameters.Count);
         foreach (CommandParameter parameter in converterContext.Command.Parameters)
         {
-            parsedArguments.Add(parameter, new ArgumentNotParsedValue());
+            parsedArguments.Add(parameter, new ArgumentNotParsedResult());
         }
 
         while (converterContext.NextParameter())
         {
             object? parsedArgument = await ParseParameterAsync(converterContext);
             parsedArguments[converterContext.Parameter] = parsedArgument;
-            if (parsedArgument is ArgumentFailedConversionValue)
+            if (parsedArgument is ArgumentFailedConversionResult)
             {
                 // Stop parsing if the argument failed to convert.
-                // The other parameters will be set to <see cref="ArgumentNotParsedValue"/>.
+                // The other parameters will be set to <see cref="ArgumentNotParsedResult"/>.
                 // ...XML docs don't work in comments. Pretend they do <3
                 break;
             }
@@ -231,7 +232,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
             // Try to fill with it's default value
             return converterContext.Parameter.DefaultValue.HasValue
                 ? converterContext.Parameter.DefaultValue.Value
-                : new ArgumentNotParsedValue();
+                : new ArgumentNotParsedResult();
         }
 
         try
@@ -250,14 +251,14 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
             // We return a special value here to indicate that the argument failed conversion,
             // which allows the callee to choose how to handle the failure
             // (e.g. return an error message or selecting the default value).
-            return new ArgumentFailedConversionValue();
+            return new ArgumentFailedConversionResult();
         }
         catch (Exception error)
         {
             // If an exception occurs during argument parsing, parsing is immediately stopped.
             // We'll set the current parameter to an error state and return the parsed arguments.
             // The callee will choose how to handle the error.
-            return new ArgumentFailedConversionValue
+            return new ArgumentFailedConversionResult
             {
                 Error = error,
                 Value = converterContext.Argument
@@ -320,7 +321,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
                 // method is invoked, we'll be able to determine if
                 // the argument failed to convert or if there are
                 // no more arguments for this parameter.
-                return Optional.FromValue<ArgumentFailedConversionValue>(new()
+                return Optional.FromValue<ArgumentFailedConversionResult>(new()
                 {
                     Value = context.Argument
                 });
@@ -333,7 +334,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         {
             // If the minimum argument count isn't met, we'll return an error.
             // The callee will choose how to handle the error.
-            return Optional.FromValue<ArgumentFailedConversionValue>(new()
+            return Optional.FromValue<ArgumentFailedConversionResult>(new()
             {
                 Error = new ArgumentException($"The parameter {context.Parameter.Name} requires at least {multiArgumentAttribute.MinimumArgumentCount:N0} arguments, but only {multiArgumentValues.Count:N0} were provided."),
                 Value = multiArgumentValues.ToArray()
