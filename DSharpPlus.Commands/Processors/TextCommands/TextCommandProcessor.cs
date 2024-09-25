@@ -213,38 +213,15 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
     }
 
     /// <inheritdoc/>
-    protected override async ValueTask<IOptional> ExecuteConverterAsync<T>(ITextArgumentConverter converter, TextConverterContext converterContext)
+    protected override async ValueTask<IOptional> ExecuteConverterAsync<T>(ITextArgumentConverter converter, TextConverterContext context)
     {
-        if (converter is not ITextArgumentConverter<T> typedConverter)
+        if (!converter.RequiresText)
         {
-            throw new InvalidOperationException("The provided converter was of the wrong type.");
+            // Go to the previous argument if the converter does not require text.
+            context.NextArgumentIndex = context.CurrentArgumentIndex;
         }
 
-        if (!converterContext.NextArgument())
-        {
-            return converterContext.Parameter.DefaultValue.HasValue
-                ? Optional.FromValue(converterContext.Parameter.DefaultValue.Value)
-                : throw new ArgumentParseException(converterContext.Parameter, message: $"Missing argument for {converterContext.Parameter.Name}.");
-        }
-        else if (!converterContext.Parameter.Attributes.OfType<ParamArrayAttribute>().Any())
-        {
-            return await typedConverter.ConvertAsync(converterContext);
-        }
-
-        List<T> values = [];
-
-        do
-        {
-            Optional<T> optional = await typedConverter.ConvertAsync(converterContext);
-            if (!optional.HasValue)
-            {
-                break;
-            }
-
-            values.Add(optional.Value);
-        } while (converterContext.NextArgument());
-
-        return Optional.FromValue(values.ToArray());
+        return await base.ExecuteConverterAsync<T>(converter, context);
     }
 
     /// <summary>
