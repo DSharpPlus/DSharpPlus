@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.Converters;
+using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Commands.Processors.SlashCommands.Localization;
 using DSharpPlus.Commands.Processors.SlashCommands.Metadata;
@@ -567,5 +568,37 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         }
 
         return localized;
+    }
+
+    internal static Task ConfigureCommands(CommandsExtension extension, ConfigureCommandsEventArgs eventArgs)
+    {
+        foreach (CommandBuilder commandBuilder in eventArgs.CommandTrees.SelectMany(command => command.Flatten()))
+        {
+            foreach (CommandParameterBuilder parameterBuilder in commandBuilder.Parameters)
+            {
+                if (parameterBuilder.Type is null || parameterBuilder.Attributes.Any(attribute => attribute is SlashAutoCompleteProviderAttribute or SlashChoiceProviderAttribute))
+                {
+                    continue;
+                }
+
+                Type baseType = IArgumentConverter.GetConverterFriendlyBaseType(parameterBuilder.Type);
+                if (!baseType.IsEnum)
+                {
+                    continue;
+                }
+
+                // If the enum has less than 25 values, we can use a choice provider. If it has more than 25 values, use autocomplete.
+                if (Enum.GetValues(baseType).Length > 25)
+                {
+                    parameterBuilder.Attributes.Add(new SlashAutoCompleteProviderAttribute(typeof(EnumAutoCompleteProvider<>).MakeGenericType(baseType)));
+                }
+                else
+                {
+                    parameterBuilder.Attributes.Add(new SlashChoiceProviderAttribute<EnumOptionChoiceProvider>());
+                }
+            }
+        }
+
+        return Task.CompletedTask;
     }
 }

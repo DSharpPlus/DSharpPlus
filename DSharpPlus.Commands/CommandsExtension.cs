@@ -165,6 +165,10 @@ public sealed class CommandsExtension
         this.commandExecuted = new(errorHandler);
         this.configuringCommands = new(errorHandler);
 
+        // TODO: Move this to the IEventHandler system so the Commands namespace
+        // will have zero awareness of built-in command processors.
+        this.configuringCommands.Register(SlashCommandProcessor.ConfigureCommands);
+
         if (this.UseDefaultCommandErrorHandler)
         {
             this.CommandErrored += DefaultCommandErrorHandlerAsync;

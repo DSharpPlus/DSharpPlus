@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using DSharpPlus.Commands.ArgumentModifiers;
-using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Commands.Trees;
@@ -42,15 +41,6 @@ public partial class CommandParameterBuilder
     public CommandParameterBuilder WithType(Type type)
     {
         this.Type = type;
-
-        if (type.IsEnum || (type is { Namespace: "System", Name: "Nullable`1" } && type.GetGenericArguments()[0].IsEnum))
-        {
-            if (this.Attributes.All(attribute => attribute is not SlashChoiceProviderAttribute and not SlashAutoCompleteProviderAttribute))
-            {
-                this.Attributes.Add(new SlashChoiceProviderAttribute<EnumOptionProvider>());
-            }
-        }
-
         return this;
     }
 
