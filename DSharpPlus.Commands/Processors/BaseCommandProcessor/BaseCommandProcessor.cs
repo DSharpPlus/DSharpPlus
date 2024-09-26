@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
@@ -154,6 +155,56 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         this.converterFactories.Add(factory.ParameterType, factory);
     }
 
+    /// <summary>
+    /// Finds all parameters that are enums and creates a generic enum converter for them.
+    /// </summary>
+    protected virtual void AddEnumConverters()
+    {
+        if (this.extension is null)
+        {
+            throw new InvalidOperationException("The processor has not been configured yet.");
+        }
+
+        // Double check to make sure the enum converter can be casted to TConverter.
+        if (!typeof(TConverter).IsAssignableFrom(typeof(EnumConverter<>)))
+        {
+            BaseCommandLogging.invalidEnumConverterImplementation(
+                this.logger,
+                typeof(EnumConverter<>).FullName ?? typeof(EnumConverter<>).Name,
+                typeof(TConverter).FullName ?? typeof(TConverter).Name,
+                GetType().FullName ?? GetType().Name,
+                nameof(AddEnumConverters),
+                null
+            );
+        }
+
+        // For every enum type found, add the enum converter to it directly.
+        Dictionary<Type, TConverter> enumConverterCache = [];
+        foreach (Command command in this.extension.Commands.Values.SelectMany(command => command.Flatten()))
+        {
+            foreach (CommandParameter parameter in command.Parameters)
+            {
+                Type baseType = IArgumentConverter.GetConverterFriendlyBaseType(parameter.Type);
+                if (!baseType.IsEnum)
+                {
+                    continue;
+                }
+
+                // Try to reuse any existing enum converters for this enum type.
+                if (!enumConverterCache.TryGetValue(baseType, out TConverter? enumConverter))
+                {
+                    Type genericConverter = typeof(EnumConverter<>).MakeGenericType(baseType);
+                    ConstructorInfo? constructor = genericConverter.GetConstructor([]) ?? throw new UnreachableException($"The generic enum converter {genericConverter.FullName!} does not have a parameterless constructor.");
+                    enumConverter = (TConverter)constructor.Invoke([]);
+                    enumConverterCache.Add(baseType, enumConverter);
+                }
+
+                AddConverter(baseType, enumConverter);
+            }
+        }
+
+    }
+
     /// <inheritdoc />
     [MemberNotNull(nameof(extension))]
     public virtual ValueTask ConfigureAsync(CommandsExtension extension)
@@ -163,6 +214,9 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
 
         // Register all converters from the processor's assembly
         AddConverters(GetType().Assembly);
+
+        // This goes through all command parameters and creates the generic version of the enum converters.
+        AddEnumConverters();
 
         // Populate the default converters
         Dictionary<Type, TConverter> converters = [];
