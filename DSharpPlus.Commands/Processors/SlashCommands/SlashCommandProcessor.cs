@@ -9,7 +9,6 @@ using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Commands.Trees;
-using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
@@ -116,8 +115,18 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             AutoCompleteContext? autoCompleteContext = await ParseAutoCompleteArgumentsAsync(converterContext);
             if (autoCompleteContext is not null)
             {
-                IEnumerable<DiscordAutoCompleteChoice> choices = await autoCompleteContext.AutoCompleteArgument.Attributes.OfType<SlashAutoCompleteProviderAttribute>().First().AutoCompleteAsync(autoCompleteContext);
-                await eventArgs.Interaction.CreateResponseAsync(DiscordInteractionResponseType.AutoCompleteResult, new DiscordInteractionResponseBuilder().AddAutoCompleteChoices(choices));
+                foreach (Attribute attribute in autoCompleteContext.Parameter.Attributes)
+                {
+                    if (attribute is SlashAutoCompleteProviderAttribute autoCompleteProviderAttribute)
+                    {
+                        await eventArgs.Interaction.CreateResponseAsync(
+                            DiscordInteractionResponseType.AutoCompleteResult,
+                            new DiscordInteractionResponseBuilder().AddAutoCompleteChoices(await autoCompleteProviderAttribute.AutoCompleteAsync(autoCompleteContext))
+                        );
+
+                        break;
+                    }
+                }
             }
 
             converterContext.ServiceScope.Dispose();
@@ -218,19 +227,16 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             // Parse until we find the parameter that the user is currently typing
             while (converterContext.NextParameter())
             {
-                SnakeCasedNameAttribute attribute = converterContext.Parameter.Attributes
-                    .OfType<SnakeCasedNameAttribute>()
-                    .Single();
-
-                DiscordInteractionDataOption? option = converterContext.Options
-                    .FirstOrDefault(x => x.Name.Equals(attribute.Name, StringComparison.OrdinalIgnoreCase));
+                DiscordInteractionDataOption? option = converterContext.Options.FirstOrDefault(discordOption =>
+                    discordOption.Name.Equals(converterContext
+                        .Extension.GetProcessor<SlashCommandProcessor>().Configuration
+                            .ParameterNamePolicy.GetParameterName(converterContext.Parameter, -1), StringComparison.OrdinalIgnoreCase));
 
                 if (option is null)
                 {
                     continue;
                 }
-
-                if (option.Focused)
+                else if (option.Focused)
                 {
                     autoCompleteParameter = converterContext.Parameter;
                     autoCompleteOption = option;
@@ -275,7 +281,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         return new AutoCompleteContext()
         {
             Arguments = parsedArguments,
-            AutoCompleteArgument = autoCompleteParameter,
+            Parameter = autoCompleteParameter,
             Channel = converterContext.Interaction.Channel,
             Command = converterContext.Command,
             Extension = converterContext.Extension,

@@ -1,9 +1,11 @@
 using System;
-using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.Commands.Processors.SlashCommands;
 
@@ -13,11 +15,11 @@ namespace DSharpPlus.Commands.Processors.SlashCommands;
 /// <typeparam name="T">The enum type to provide choices for.</typeparam>
 public class EnumAutoCompleteProvider<T> : IAutoCompleteProvider where T : struct, Enum
 {
-    private static readonly FrozenDictionary<string, object> choices;
+    private static readonly DiscordAutoCompleteChoice[] choices;
 
     static EnumAutoCompleteProvider()
     {
-        Dictionary<string, object> choiceDictionary = [];
+        List<DiscordAutoCompleteChoice> choiceList = [];
         foreach (FieldInfo fieldInfo in typeof(T).GetFields())
         {
             if (fieldInfo.IsSpecialName || !fieldInfo.IsStatic)
@@ -25,32 +27,49 @@ public class EnumAutoCompleteProvider<T> : IAutoCompleteProvider where T : struc
                 continue;
             }
 
-            object value = fieldInfo.GetValue(null) ?? throw new InvalidOperationException($"Enum '{typeof(T).Name}' field '{fieldInfo.Name}' returned a null value.");
-            choiceDictionary.Add(fieldInfo.GetCustomAttribute<ChoiceDisplayNameAttribute>() is ChoiceDisplayNameAttribute displayNameAttribute ? displayNameAttribute.DisplayName : fieldInfo.Name, value);
+            // Add support for ChoiceDisplayNameAttribute
+            string displayName = fieldInfo.GetCustomAttribute<ChoiceDisplayNameAttribute>() is ChoiceDisplayNameAttribute displayNameAttribute ? displayNameAttribute.DisplayName : fieldInfo.Name;
+            object? obj = fieldInfo.GetValue(null);
+            if (obj is not T enumValue)
+            {
+                // Hey what the fuck
+                continue;
+            }
+
+            // Put ulong as a string, bool, byte, short and int as int, uint and long as long.
+            choiceList.Add(Convert.ChangeType(obj, Enum.GetUnderlyingType(typeof(T)), CultureInfo.InvariantCulture) switch
+            {
+                bool value => new DiscordAutoCompleteChoice(displayName, value ? 1 : 0),
+                byte value => new DiscordAutoCompleteChoice(displayName, value),
+                sbyte value => new DiscordAutoCompleteChoice(displayName, value),
+                short value => new DiscordAutoCompleteChoice(displayName, value),
+                ushort value => new DiscordAutoCompleteChoice(displayName, value),
+                int value => new DiscordAutoCompleteChoice(displayName, value),
+                uint value => new DiscordAutoCompleteChoice(displayName, value),
+                long value => new DiscordAutoCompleteChoice(displayName, value),
+                ulong value => new DiscordAutoCompleteChoice(displayName, value),
+                double value => new DiscordAutoCompleteChoice(displayName, value),
+                float value => new DiscordAutoCompleteChoice(displayName, value),
+                _ => throw new UnreachableException($"Unknown enum base type encountered: {obj.GetType()}")
+            });
         }
 
-        choices = choiceDictionary.ToFrozenDictionary();
+        choices = [.. choiceList];
     }
 
     /// <inheritdoc />
-    public ValueTask<IReadOnlyDictionary<string, object>> AutoCompleteAsync(AutoCompleteContext context)
+    public ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(AutoCompleteContext context)
     {
-        if (string.IsNullOrWhiteSpace(context.UserInput))
+        List<DiscordAutoCompleteChoice> results = [];
+        for (int i = 0; i < Math.Min(25, choices.Length); i++)
         {
-            return ValueTask.FromResult<IReadOnlyDictionary<string, object>>(choices);
-        }
-
-        // Find the choices that start with the provided input
-        Dictionary<string, object> matchingChoices = [];
-        foreach (KeyValuePair<string, object> choice in choices)
-        {
-            // Use InvariantCultureIgnoreCase so characters from other languages (such as German's ß) are treated as equal to their base characters (ss)
-            if (choice.Key.StartsWith(context.UserInput, StringComparison.InvariantCultureIgnoreCase))
+            DiscordAutoCompleteChoice choice = choices[i];
+            if (choice.Name.Contains(context.UserInput ?? "", StringComparison.OrdinalIgnoreCase))
             {
-                matchingChoices.Add(choice.Key, choice.Value);
+                results.Add(choice);
             }
         }
 
-        return ValueTask.FromResult<IReadOnlyDictionary<string, object>>(matchingChoices);
+        return ValueTask.FromResult<IEnumerable<DiscordAutoCompleteChoice>>(results);
     }
 }
