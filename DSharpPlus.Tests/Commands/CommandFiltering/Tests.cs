@@ -33,7 +33,7 @@ public class Tests
 
         builder.UseCommands
         (
-            async extension =>
+            async (serviceProvider, extension) =>
             {
                 extension.AddProcessor(textCommandProcessor);
                 extension.AddProcessor(slashCommandProcessor);
@@ -41,7 +41,7 @@ public class Tests
                 extension.AddProcessor(messageCommandProcessor);
 
                 extension.AddCommands([typeof(TestMultiLevelSubCommandsFiltered.RootCommand), typeof(TestMultiLevelSubCommandsFiltered.ContextMenues), typeof(TestMultiLevelSubCommandsFiltered.ContextMenuesInGroup)]);
-                extension.BuildCommands();
+                await extension.BuildCommandsAsync();
                 await userCommandProcessor.ConfigureAsync(extension);
                 await messageCommandProcessor.ConfigureAsync(extension);
             },

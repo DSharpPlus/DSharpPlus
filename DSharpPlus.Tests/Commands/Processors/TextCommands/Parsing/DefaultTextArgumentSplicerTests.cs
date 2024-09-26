@@ -22,7 +22,7 @@ public sealed class DefaultTextArgumentSplicerTests
 
         builder.UseCommands
         (
-            extension => extension.AddProcessor(new TextCommandProcessor()),
+            (serviceProvider, extension) => extension.AddProcessor(new TextCommandProcessor()),
             new()
             {
                 RegisterDefaultCommandProcessors = false

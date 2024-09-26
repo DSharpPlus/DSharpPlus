@@ -16,7 +16,7 @@ public class EnumConverter : ISlashArgumentConverter<Enum>, ITextArgumentConvert
     public Task<Optional<Enum>> ConvertAsync(ConverterContext context)
     {
         // The parameter type could be an Enum? or an Enum[] or an Enum?[] or an Enum[][]. You get it.
-        Type enumType = IArgumentConverter.GetConverterFriendlyBaseType(context.Parameter.Type, ConverterFriendlySearchFlags.ReturnEnumType);
+        Type enumType = IArgumentConverter.GetConverterFriendlyBaseType(context.Parameter.Type);
         if (context.Argument is string stringArgument && Enum.TryParse(enumType, stringArgument, true, out object? result))
         {
             return Task.FromResult(Optional.FromValue((Enum)result));
