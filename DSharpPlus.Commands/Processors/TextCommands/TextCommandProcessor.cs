@@ -173,7 +173,7 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
                 {
                     Context = commandContext,
                     CommandObject = null,
-                    Exception = new ArgumentParseException(argument.Key, argumentFailedConversionResult.Error)
+                    Exception = new ArgumentParseException(argument.Key, argumentFailedConversionResult)
                 });
 
                 await serviceScope.DisposeAsync();
@@ -185,7 +185,7 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
                 {
                     Context = commandContext,
                     CommandObject = null,
-                    Exception = new ArgumentParseException(argument.Key, new ArgumentException("Argument could not be parsed."))
+                    Exception = new ArgumentParseException(argument.Key, null, "An earlier argument failed to parse, causing this argument to not be parsed.")
                 });
 
                 await serviceScope.DisposeAsync();
