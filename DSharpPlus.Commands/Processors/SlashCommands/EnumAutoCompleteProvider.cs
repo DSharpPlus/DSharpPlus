@@ -61,12 +61,15 @@ public class EnumAutoCompleteProvider<T> : IAutoCompleteProvider where T : struc
     public ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(AutoCompleteContext context)
     {
         List<DiscordAutoCompleteChoice> results = [];
-        for (int i = 0; i < Math.Min(25, choices.Length); i++)
+        foreach (DiscordAutoCompleteChoice choice in choices)
         {
-            DiscordAutoCompleteChoice choice = choices[i];
             if (choice.Name.Contains(context.UserInput ?? "", StringComparison.OrdinalIgnoreCase))
             {
                 results.Add(choice);
+                if (results.Count == 25)
+                {
+                    break;
+                }
             }
         }
 
