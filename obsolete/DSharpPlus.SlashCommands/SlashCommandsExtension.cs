@@ -50,7 +50,7 @@ public sealed partial class SlashCommandsExtension : IDisposable
 
     private static readonly List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> registeredCommands = [];
 
-    internal SlashCommandsExtension(IServiceProvider serviceProvider) 
+    internal SlashCommandsExtension(IServiceProvider serviceProvider)
         => this.services = serviceProvider;
 
     /// <summary>
@@ -598,7 +598,7 @@ public sealed partial class SlashCommandsExtension : IDisposable
     //Gets choices from choice attributes
     private static List<DiscordApplicationCommandOptionChoice> GetChoiceAttributesFromParameter(IEnumerable<ChoiceAttribute> choiceattributes) => !choiceattributes.Any()
             ? null
-            : choiceattributes.Select(att => new DiscordApplicationCommandOptionChoice(att.Name, att.Value)).ToList();
+            : choiceattributes.Select(att => new DiscordApplicationCommandOptionChoice(att.Name, att.Value.ToString())).ToList();
 
     #endregion
 
