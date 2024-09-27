@@ -145,7 +145,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
                 {
                     Context = commandContext,
                     CommandObject = null,
-                    Exception = new ArgumentParseException(argument.Key, argumentFailedConversionResult.Error)
+                    Exception = new ArgumentParseException(argument.Key, argumentFailedConversionResult)
                 });
 
                 await serviceScope.DisposeAsync();
@@ -157,7 +157,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
                 {
                     Context = commandContext,
                     CommandObject = null,
-                    Exception = new ArgumentParseException(argument.Key, new ArgumentException("Argument could not be parsed."))
+                    Exception = new ArgumentParseException(argument.Key, null, $"An earlier argument failed to parse, causing this argument to not be parsed.")
                 });
 
                 await serviceScope.DisposeAsync();
@@ -271,7 +271,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
                     ServiceScope = converterContext.ServiceScope,
                     User = converterContext.Interaction.User
                 },
-                Exception = new ArgumentParseException(converterContext.Parameter, error),
+                Exception = new ArgumentParseException(converterContext.Parameter, new()
+                {
+                    Error = error,
+                    Value = converterContext.Argument?.RawValue
+                }),
                 CommandObject = null
             });
 

@@ -519,8 +519,10 @@ public sealed class CommandsExtension
         {
             CommandNotFoundException commandNotFoundException
                 => $"Command {Formatter.InlineCode(Formatter.Sanitize(commandNotFoundException.CommandName))} was not found.",
+            ArgumentParseException argumentParseException when argumentParseException.ConversionResult?.Value is not null
+                => $"Failed to parse argument {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.Parameter.Name))}: {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.ConversionResult.Value.ToString() ?? "<null>"))} is not a valid value. {argumentParseException.Message}",
             ArgumentParseException argumentParseException
-                => $"Failed to parse argument {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.Parameter.Name))}.",
+                => $"Failed to parse argument {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.Parameter.Name))}: {argumentParseException.Message}",
             ChecksFailedException checksFailedException when checksFailedException.Errors.Count == 1
                 => $"The following error occurred: {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.Errors[0].ErrorMessage))}",
             ChecksFailedException checksFailedException
