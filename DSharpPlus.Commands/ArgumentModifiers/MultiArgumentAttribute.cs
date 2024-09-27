@@ -13,12 +13,12 @@ public sealed class MultiArgumentAttribute : Attribute
     /// <summary>
     /// The maximum number of arguments that this parameter can accept.
     /// </summary>
-    public int MaximumArgumentCount { get; init; }
+    public int MaximumArgumentCount { get; }
 
     /// <summary>
     /// The minimum number of arguments that this parameter can accept.
     /// </summary>
-    public int MinimumArgumentCount { get; init; }
+    public int MinimumArgumentCount { get; }
 
     /// <summary>
     /// The number of arguments that this parameter can accept.
