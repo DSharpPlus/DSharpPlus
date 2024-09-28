@@ -95,6 +95,8 @@
     topicUid: articles.advanced_topics.generic_host
   - name: Metrics and Profiling
     topicUid: articles.advanced_topics.metrics_profiling
+  - name: Trace Logging
+    topicUid: articles.advanced_topics.trace
 - name: Hosting
   topicUid: articles.hosting
 - name: Version Migration

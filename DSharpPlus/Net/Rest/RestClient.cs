@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
+using DSharpPlus.Logging;
 using DSharpPlus.Metrics;
 
 using Microsoft.Extensions.Logging;
@@ -145,7 +146,22 @@ public sealed partial class RestClient : IDisposable
             string content = await response.Content.ReadAsStringAsync();
 
             // consider logging headers too
-            this.logger.LogTrace(LoggerEvents.RestRx, "Request {TraceId}: {Content}", traceId, content);
+            if (this.logger.IsEnabled(LogLevel.Trace) && RuntimeFeatures.EnableRestRequestLogging)
+            {
+                string anonymized = content;
+
+                if (RuntimeFeatures.AnonymizeTokens)
+                {
+                    anonymized = AnonymizationUtilities.AnonymizeTokens(anonymized);
+                }
+
+                if (RuntimeFeatures.AnonymizeContents)
+                {
+                    anonymized = AnonymizationUtilities.AnonymizeContents(anonymized);
+                }
+
+                this.logger.LogTrace("Request {TraceId}: {Content}", traceId, anonymized);
+            }
 
             switch (response.StatusCode)
             {
