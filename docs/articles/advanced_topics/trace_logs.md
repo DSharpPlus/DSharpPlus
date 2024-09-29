@@ -30,9 +30,9 @@ DSharpPlus offers several options to configure what specific data should be logg
 2. In your `.csproj` file:
 
 ```xml
-<PropertyGroup>
+<ItemGroup>
     <RuntimeHostConfigurationOption Include="DSharpPlus.Trace.EnableInboundGatewayLogging" Value="true" />
-</PropertyGroup>
+</ItemGroup>
 ```
 
 DSharpPlus supports the following switches for controlling trace log contents: 
