@@ -17,7 +17,10 @@ public class SnakeCaseNamingPolicy : IInteractionNamingPolicy
     /// <inheritdoc />
     public string GetCommandName(Command command)
     {
-        string commandName = command.Attributes.FirstOrDefault(attribute => attribute is DisplayNameAttribute) is DisplayNameAttribute displayNameAttribute
+        string commandName = command.Attributes.FirstOrDefault(attribute =>
+            attribute is DisplayNameAttribute
+        )
+            is DisplayNameAttribute displayNameAttribute
             ? displayNameAttribute.DisplayName
             : command.Name;
 

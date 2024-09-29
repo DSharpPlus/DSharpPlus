@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
@@ -24,20 +23,15 @@ using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
-using CheckFunc = System.Func
-<
+using CheckFunc = System.Func<
     object,
     DSharpPlus.Commands.ContextChecks.ContextCheckAttribute,
     DSharpPlus.Commands.CommandContext,
     System.Threading.Tasks.ValueTask<string?>
 >;
-
-using ParameterCheckFunc = System.Func
-<
+using ParameterCheckFunc = System.Func<
     object,
     DSharpPlus.Commands.ContextChecks.ParameterChecks.ParameterCheckAttribute,
     DSharpPlus.Commands.ContextChecks.ParameterChecks.ParameterCheckInfo,
@@ -71,7 +65,8 @@ public sealed class CommandsExtension
     /// <summary>
     /// The registered commands that the users can execute.
     /// </summary>
-    public IReadOnlyDictionary<string, Command> Commands { get; private set; } = new Dictionary<string, Command>();
+    public IReadOnlyDictionary<string, Command> Commands { get; private set; } =
+        new Dictionary<string, Command>();
     private readonly List<CommandBuilder> commandBuilders = [];
 
     /// <summary>
@@ -114,7 +109,10 @@ public sealed class CommandsExtension
     /// <remarks>
     /// Apply any mass-mutations to the commands or command parameters here.
     /// </remarks>
-    public event AsyncEventHandler<CommandsExtension, ConfigureCommandsEventArgs> ConfiguringCommands
+    public event AsyncEventHandler<
+        CommandsExtension,
+        ConfigureCommandsEventArgs
+    > ConfiguringCommands
     {
         add => this.configuringCommands.Register(value);
         remove => this.configuringCommands.Unregister(value);
@@ -187,26 +185,41 @@ public sealed class CommandsExtension
         AddParameterCheck<TextChannelTypesCheck>();
     }
 
-    public void AddCommand(Delegate commandDelegate) => this.commandBuilders.Add(CommandBuilder.From(commandDelegate));
-    public void AddCommand(Delegate commandDelegate, params ulong[] guildIds) => this.commandBuilders.Add(CommandBuilder.From(commandDelegate, guildIds));
+    public void AddCommand(Delegate commandDelegate) =>
+        this.commandBuilders.Add(CommandBuilder.From(commandDelegate));
+
+    public void AddCommand(Delegate commandDelegate, params ulong[] guildIds) =>
+        this.commandBuilders.Add(CommandBuilder.From(commandDelegate, guildIds));
 
     public void AddCommand(Type type) => this.commandBuilders.Add(CommandBuilder.From(type));
-    public void AddCommand(Type type, params ulong[] guildIds) => this.commandBuilders.Add(CommandBuilder.From(type, guildIds));
+
+    public void AddCommand(Type type, params ulong[] guildIds) =>
+        this.commandBuilders.Add(CommandBuilder.From(type, guildIds));
 
     public void AddCommand(CommandBuilder command) => this.commandBuilders.Add(command);
-    public void AddCommands(IEnumerable<CommandBuilder> commands) => this.commandBuilders.AddRange(commands);
-    public void AddCommands(params CommandBuilder[] commands) => this.commandBuilders.AddRange(commands);
+
+    public void AddCommands(IEnumerable<CommandBuilder> commands) =>
+        this.commandBuilders.AddRange(commands);
+
+    public void AddCommands(params CommandBuilder[] commands) =>
+        this.commandBuilders.AddRange(commands);
 
     public void AddCommands(Assembly assembly) => AddCommands(assembly.GetTypes());
-    public void AddCommands(Assembly assembly, params ulong[] guildIds) => AddCommands(assembly.GetTypes(), guildIds);
+
+    public void AddCommands(Assembly assembly, params ulong[] guildIds) =>
+        AddCommands(assembly.GetTypes(), guildIds);
 
     public void AddCommands(Type type) => AddCommands([type]);
+
     public void AddCommands(Type type, params ulong[] guildIds) => AddCommands([type], guildIds);
 
     public void AddCommands<T>() => this.commandBuilders.Add(CommandBuilder.From<T>());
-    public void AddCommands<T>(params ulong[] guildIds) => this.commandBuilders.Add(CommandBuilder.From<T>(guildIds));
+
+    public void AddCommands<T>(params ulong[] guildIds) =>
+        this.commandBuilders.Add(CommandBuilder.From<T>(guildIds));
 
     public void AddCommands(IEnumerable<Type> types) => AddCommands(types, []);
+
     public void AddCommands(IEnumerable<Type> types, params ulong[] guildIds)
     {
         foreach (Type type in types)
@@ -259,8 +272,13 @@ public sealed class CommandsExtension
 
     private Command? FilterCommand(Command command, Type processorType, Type contextType)
     {
-        AllowedProcessorsAttribute? allowedProcessorsAttribute = command.Attributes.OfType<AllowedProcessorsAttribute>().FirstOrDefault();
-        if (allowedProcessorsAttribute is not null && !allowedProcessorsAttribute.Processors.Contains(processorType))
+        AllowedProcessorsAttribute? allowedProcessorsAttribute = command
+            .Attributes.OfType<AllowedProcessorsAttribute>()
+            .FirstOrDefault();
+        if (
+            allowedProcessorsAttribute is not null
+            && !allowedProcessorsAttribute.Processors.Contains(processorType)
+        )
         {
             return null;
         }
@@ -268,7 +286,10 @@ public sealed class CommandsExtension
         if (command.Method is not null)
         {
             Type methodContextType = command.Method.GetParameters().First().ParameterType;
-            if (!methodContextType.IsAssignableTo(contextType) && methodContextType != typeof(CommandContext))
+            if (
+                !methodContextType.IsAssignableTo(contextType)
+                && methodContextType != typeof(CommandContext)
+            )
             {
                 return null;
             }
@@ -284,12 +305,21 @@ public sealed class CommandsExtension
             }
         }
 
-        return command with { Subcommands = subCommands };
+        return command with
+        {
+            Subcommands = subCommands,
+        };
     }
 
-    public void AddProcessor(ICommandProcessor processor) => this.processors.Add(processor.GetType(), processor);
-    public void AddProcessor<TProcessor>() where TProcessor : ICommandProcessor, new() => AddProcessor(new TProcessor());
-    public void AddProcessors(params ICommandProcessor[] processors) => AddProcessors((IEnumerable<ICommandProcessor>)processors);
+    public void AddProcessor(ICommandProcessor processor) =>
+        this.processors.Add(processor.GetType(), processor);
+
+    public void AddProcessor<TProcessor>()
+        where TProcessor : ICommandProcessor, new() => AddProcessor(new TProcessor());
+
+    public void AddProcessors(params ICommandProcessor[] processors) =>
+        AddProcessors((IEnumerable<ICommandProcessor>)processors);
+
     public void AddProcessors(IEnumerable<ICommandProcessor> processors)
     {
         foreach (ICommandProcessor processor in processors)
@@ -298,7 +328,8 @@ public sealed class CommandsExtension
         }
     }
 
-    public TProcessor GetProcessor<TProcessor>() where TProcessor : ICommandProcessor => (TProcessor)this.processors[typeof(TProcessor)];
+    public TProcessor GetProcessor<TProcessor>()
+        where TProcessor : ICommandProcessor => (TProcessor)this.processors[typeof(TProcessor)];
 
     /// <summary>
     /// Adds all public checks from the provided assembly to the extension.
@@ -318,8 +349,7 @@ public sealed class CommandsExtension
     /// Adds a new check to the extension.
     /// </summary>
     public void AddCheck<T>()
-        where T : IContextCheck
-        => AddCheck(typeof(T));
+        where T : IContextCheck => AddCheck(typeof(T));
 
     /// <summary>
     /// Adds a new check to the extension.
@@ -336,33 +366,42 @@ public sealed class CommandsExtension
 
             Type attributeType = t.GetGenericArguments()[0];
 
-            MethodInfo method = checkType.GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                .First(x => x.Name == "ExecuteCheckAsync" && x.GetParameters()[0].ParameterType == attributeType);
+            MethodInfo method = checkType
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .First(x =>
+                    x.Name == "ExecuteCheckAsync"
+                    && x.GetParameters()[0].ParameterType == attributeType
+                );
 
             // create the func for invoking the check here, during startup
             ParameterExpression check = Expression.Parameter(checkType);
             ParameterExpression attribute = Expression.Parameter(attributeType);
             ParameterExpression context = Expression.Parameter(typeof(CommandContext));
 
-            MethodCallExpression call = Expression.Call
-            (
+            MethodCallExpression call = Expression.Call(
                 instance: check,
                 method: method,
                 arg0: attribute,
                 arg1: context
             );
 
-            Type delegateType = typeof(Func<,,,>).MakeGenericType(checkType, attributeType, typeof(CommandContext), typeof(ValueTask<string>));
+            Type delegateType = typeof(Func<,,,>).MakeGenericType(
+                checkType,
+                attributeType,
+                typeof(CommandContext),
+                typeof(ValueTask<string>)
+            );
 
-            CheckFunc func = Unsafe.As<CheckFunc>(Expression.Lambda(delegateType, call, check, attribute, context).Compile());
+            CheckFunc func = Unsafe.As<CheckFunc>(
+                Expression.Lambda(delegateType, call, check, attribute, context).Compile()
+            );
 
-            this.checks.Add
-            (
+            this.checks.Add(
                 new()
                 {
                     AttributeType = attributeType,
                     CheckType = checkType,
-                    ExecuteCheckAsync = func
+                    ExecuteCheckAsync = func,
                 }
             );
         }
@@ -375,7 +414,12 @@ public sealed class CommandsExtension
     {
         foreach (Type t in assembly.GetTypes())
         {
-            if (t.GetInterface("DSharpPlus.Commands.ContextChecks.ParameterChecks.IParameterCheck`1") is not null)
+            if (
+                t.GetInterface(
+                    "DSharpPlus.Commands.ContextChecks.ParameterChecks.IParameterCheck`1"
+                )
+                is not null
+            )
             {
                 AddParameterCheck(t);
             }
@@ -386,8 +430,7 @@ public sealed class CommandsExtension
     /// Adds a new check to the extension.
     /// </summary>
     public void AddParameterCheck<T>()
-        where T : IParameterCheck
-        => AddParameterCheck(typeof(T));
+        where T : IParameterCheck => AddParameterCheck(typeof(T));
 
     /// <summary>
     /// Adds a new check to the extension.
@@ -397,15 +440,22 @@ public sealed class CommandsExtension
         // get all implemented check interfaces, we can pretty easily handle having multiple checks in one type
         foreach (Type t in checkType.GetInterfaces())
         {
-            if (t.Namespace != "DSharpPlus.Commands.ContextChecks.ParameterChecks" || t.Name != "IParameterCheck`1")
+            if (
+                t.Namespace != "DSharpPlus.Commands.ContextChecks.ParameterChecks"
+                || t.Name != "IParameterCheck`1"
+            )
             {
                 continue;
             }
 
             Type attributeType = t.GetGenericArguments()[0];
 
-            MethodInfo method = checkType.GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                .First(x => x.Name == "ExecuteCheckAsync" && x.GetParameters()[0].ParameterType == attributeType);
+            MethodInfo method = checkType
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .First(x =>
+                    x.Name == "ExecuteCheckAsync"
+                    && x.GetParameters()[0].ParameterType == attributeType
+                );
 
             // create the func for invoking the check here, during startup
             ParameterExpression check = Expression.Parameter(checkType);
@@ -413,8 +463,7 @@ public sealed class CommandsExtension
             ParameterExpression info = Expression.Parameter(typeof(ParameterCheckInfo));
             ParameterExpression context = Expression.Parameter(typeof(CommandContext));
 
-            MethodCallExpression call = Expression.Call
-            (
+            MethodCallExpression call = Expression.Call(
                 instance: check,
                 method: method,
                 arg0: attribute,
@@ -422,8 +471,7 @@ public sealed class CommandsExtension
                 arg2: context
             );
 
-            Type delegateType = typeof(Func<,,,,>).MakeGenericType
-            (
+            Type delegateType = typeof(Func<,,,,>).MakeGenericType(
                 checkType,
                 attributeType,
                 typeof(ParameterCheckInfo),
@@ -431,16 +479,16 @@ public sealed class CommandsExtension
                 typeof(ValueTask<string>)
             );
 
-            ParameterCheckFunc func = Unsafe.As<ParameterCheckFunc>(Expression.Lambda(delegateType, call, check, attribute, info, context)
-                .Compile());
+            ParameterCheckFunc func = Unsafe.As<ParameterCheckFunc>(
+                Expression.Lambda(delegateType, call, check, attribute, info, context).Compile()
+            );
 
-            this.parameterChecks.Add
-            (
+            this.parameterChecks.Add(
                 new()
                 {
                     AttributeType = attributeType,
                     CheckType = checkType,
-                    ExecuteCheckAsync = func
+                    ExecuteCheckAsync = func,
                 }
             );
         }
@@ -458,12 +506,22 @@ public sealed class CommandsExtension
             this.processors.TryAdd(typeof(UserCommandProcessor), new UserCommandProcessor());
         }
 
-        if (this.processors.TryGetValue(typeof(UserCommandProcessor), out ICommandProcessor? userProcessor))
+        if (
+            this.processors.TryGetValue(
+                typeof(UserCommandProcessor),
+                out ICommandProcessor? userProcessor
+            )
+        )
         {
             await userProcessor.ConfigureAsync(this);
         }
 
-        if (this.processors.TryGetValue(typeof(MessageCommandProcessor), out ICommandProcessor? messageProcessor))
+        if (
+            this.processors.TryGetValue(
+                typeof(MessageCommandProcessor),
+                out ICommandProcessor? messageProcessor
+            )
+        )
         {
             await messageProcessor.ConfigureAsync(this);
         }
@@ -482,10 +540,10 @@ public sealed class CommandsExtension
 
     internal async ValueTask BuildCommandsAsync()
     {
-        await this.configuringCommands.InvokeAsync(this, new ConfigureCommandsEventArgs()
-        {
-            CommandTrees = this.commandBuilders
-        });
+        await this.configuringCommands.InvokeAsync(
+            this,
+            new ConfigureCommandsEventArgs() { CommandTrees = this.commandBuilders }
+        );
 
         Dictionary<string, Command> commands = [];
         foreach (CommandBuilder commandBuilder in this.commandBuilders)
@@ -497,7 +555,11 @@ public sealed class CommandsExtension
             }
             catch (Exception error)
             {
-                this.logger.LogError(error, "Failed to build command '{CommandBuilder}'", commandBuilder.Name);
+                this.logger.LogError(
+                    error,
+                    "Failed to build command '{CommandBuilder}'",
+                    commandBuilder.Name
+                );
             }
         }
 
@@ -509,36 +571,45 @@ public sealed class CommandsExtension
     /// </summary>
     /// <param name="extension">The extension.</param>
     /// <param name="eventArgs">The event arguments containing the exception.</param>
-    private static async Task DefaultCommandErrorHandlerAsync(CommandsExtension extension, CommandErroredEventArgs eventArgs)
+    private static async Task DefaultCommandErrorHandlerAsync(
+        CommandsExtension extension,
+        CommandErroredEventArgs eventArgs
+    )
     {
         StringBuilder stringBuilder = new();
         DiscordMessageBuilder messageBuilder = new();
 
         // Error message
-        stringBuilder.Append(eventArgs.Exception switch
-        {
-            CommandNotFoundException commandNotFoundException
-                => $"Command {Formatter.InlineCode(Formatter.Sanitize(commandNotFoundException.CommandName))} was not found.",
-            ArgumentParseException argumentParseException when argumentParseException.ConversionResult?.Value is not null
-                => $"Failed to parse argument {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.Parameter.Name))}: {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.ConversionResult.Value.ToString() ?? "<null>"))} is not a valid value. {argumentParseException.Message}",
-            ArgumentParseException argumentParseException
-                => $"Failed to parse argument {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.Parameter.Name))}: {argumentParseException.Message}",
-            ChecksFailedException checksFailedException when checksFailedException.Errors.Count == 1
-                => $"The following error occurred: {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.Errors[0].ErrorMessage))}",
-            ChecksFailedException checksFailedException
-                => $"The following context checks failed: {Formatter.InlineCode(Formatter.Sanitize(string.Join("\n\n", checksFailedException.Errors.Select(x => x.ErrorMessage))))}.",
-            ParameterChecksFailedException checksFailedException when checksFailedException.Errors.Count == 1
-                => $"The following error occurred: {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.Errors[0].ErrorMessage))}",
-            ParameterChecksFailedException checksFailedException
-                => $"The following context checks failed: {Formatter.InlineCode(Formatter.Sanitize(string.Join("\n\n", checksFailedException.Errors.Select(x => x.ErrorMessage))))}.",
-            DiscordException discordException when discordException.Response is not null
-                && (int)discordException.Response.StatusCode >= 500
-                && (int)discordException.Response.StatusCode < 600
-                => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? "No further information was provided."}",
-            DiscordException discordException when discordException.Response is not null
-            => $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? discordException.Message}",
-            _ => $"An unexpected error occurred: {eventArgs.Exception.Message}"
-        });
+        stringBuilder.Append(
+            eventArgs.Exception switch
+            {
+                CommandNotFoundException commandNotFoundException =>
+                    $"Command {Formatter.InlineCode(Formatter.Sanitize(commandNotFoundException.CommandName))} was not found.",
+                ArgumentParseException argumentParseException
+                    when argumentParseException.ConversionResult?.Value is not null =>
+                    $"Failed to parse argument {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.Parameter.Name))}: {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.ConversionResult.Value.ToString() ?? "<null>"))} is not a valid value. {argumentParseException.Message}",
+                ArgumentParseException argumentParseException =>
+                    $"Failed to parse argument {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.Parameter.Name))}: {argumentParseException.Message}",
+                ChecksFailedException checksFailedException
+                    when checksFailedException.Errors.Count == 1 =>
+                    $"The following error occurred: {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.Errors[0].ErrorMessage))}",
+                ChecksFailedException checksFailedException =>
+                    $"The following context checks failed: {Formatter.InlineCode(Formatter.Sanitize(string.Join("\n\n", checksFailedException.Errors.Select(x => x.ErrorMessage))))}.",
+                ParameterChecksFailedException checksFailedException
+                    when checksFailedException.Errors.Count == 1 =>
+                    $"The following error occurred: {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.Errors[0].ErrorMessage))}",
+                ParameterChecksFailedException checksFailedException =>
+                    $"The following context checks failed: {Formatter.InlineCode(Formatter.Sanitize(string.Join("\n\n", checksFailedException.Errors.Select(x => x.ErrorMessage))))}.",
+                DiscordException discordException
+                    when discordException.Response is not null
+                        && (int)discordException.Response.StatusCode >= 500
+                        && (int)discordException.Response.StatusCode < 600 =>
+                    $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? "No further information was provided."}",
+                DiscordException discordException when discordException.Response is not null =>
+                    $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? discordException.Message}",
+                _ => $"An unexpected error occurred: {eventArgs.Exception.Message}",
+            }
+        );
 
         // Stack trace
         if (!string.IsNullOrWhiteSpace(eventArgs.Exception.StackTrace))
@@ -552,22 +623,39 @@ public sealed class CommandsExtension
             // If the exception message exceeds the message character limit, cram it all into an attatched file with a simple message in the content.
             else if (stringBuilder.Length >= 2000)
             {
-                messageBuilder.WithContent("Exception Message exceeds character limit, see attached file.");
-                string formattedFile = $"{stringBuilder}{Environment.NewLine}{Environment.NewLine}Stack Trace:{Environment.NewLine}{eventArgs.Exception.StackTrace}";
-                messageBuilder.AddFile("MessageAndStackTrace.txt", new MemoryStream(Encoding.UTF8.GetBytes(formattedFile)), AddFileOptions.CloseStream);
+                messageBuilder.WithContent(
+                    "Exception Message exceeds character limit, see attached file."
+                );
+                string formattedFile =
+                    $"{stringBuilder}{Environment.NewLine}{Environment.NewLine}Stack Trace:{Environment.NewLine}{eventArgs.Exception.StackTrace}";
+                messageBuilder.AddFile(
+                    "MessageAndStackTrace.txt",
+                    new MemoryStream(Encoding.UTF8.GetBytes(formattedFile)),
+                    AddFileOptions.CloseStream
+                );
             }
             // Otherwise, display the exception message in the content and the trace in an attached file
             else
             {
                 messageBuilder.WithContent(stringBuilder.ToString());
-                messageBuilder.AddFile("StackTrace.txt", new MemoryStream(Encoding.UTF8.GetBytes(eventArgs.Exception.StackTrace)), AddFileOptions.CloseStream);
+                messageBuilder.AddFile(
+                    "StackTrace.txt",
+                    new MemoryStream(Encoding.UTF8.GetBytes(eventArgs.Exception.StackTrace)),
+                    AddFileOptions.CloseStream
+                );
             }
         }
         // If no stack trace, and the message is still too long, attatch a file with the message and use a simple message in the content.
         else if (stringBuilder.Length >= 2000)
         {
-            messageBuilder.WithContent("Exception Message exceeds character limit, see attached file.");
-            messageBuilder.AddFile("Message.txt", new MemoryStream(Encoding.UTF8.GetBytes(stringBuilder.ToString())), AddFileOptions.CloseStream);
+            messageBuilder.WithContent(
+                "Exception Message exceeds character limit, see attached file."
+            );
+            messageBuilder.AddFile(
+                "Message.txt",
+                new MemoryStream(Encoding.UTF8.GetBytes(stringBuilder.ToString())),
+                AddFileOptions.CloseStream
+            );
         }
         // Otherwise, if no stack trace and the Exception message will fit, send the message as content
         else
@@ -575,8 +663,12 @@ public sealed class CommandsExtension
             messageBuilder.WithContent(stringBuilder.ToString());
         }
 
-
-        if (eventArgs.Context is SlashCommandContext { Interaction.ResponseState: not DiscordInteractionResponseState.Unacknowledged })
+        if (
+            eventArgs.Context is SlashCommandContext
+            {
+                Interaction.ResponseState: not DiscordInteractionResponseState.Unacknowledged
+            }
+        )
         {
             await eventArgs.Context.FollowupAsync(messageBuilder);
         }

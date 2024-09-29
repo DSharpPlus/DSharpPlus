@@ -10,21 +10,33 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.Commands.Converters;
 
-public partial class DiscordRoleConverter : ISlashArgumentConverter<DiscordRole>, ITextArgumentConverter<DiscordRole>
+public partial class DiscordRoleConverter
+    : ISlashArgumentConverter<DiscordRole>,
+        ITextArgumentConverter<DiscordRole>
 {
     [GeneratedRegex(@"^<@&(\d+?)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
     private static partial Regex getRoleRegex();
 
-    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Role;
+    public DiscordApplicationCommandOptionType ParameterType =>
+        DiscordApplicationCommandOptionType.Role;
     public string ReadableName => "Discord Role";
     public bool RequiresText => true;
 
     public Task<Optional<DiscordRole>> ConvertAsync(ConverterContext context)
     {
-        if (context is InteractionConverterContext interactionContext
+        if (
+            context is InteractionConverterContext interactionContext
             && interactionContext.Interaction.Data.Resolved is not null
-            && ulong.TryParse(interactionContext.Argument?.RawValue, CultureInfo.InvariantCulture, out ulong roleId)
-            && interactionContext.Interaction.Data.Resolved.Roles.TryGetValue(roleId, out DiscordRole? role))
+            && ulong.TryParse(
+                interactionContext.Argument?.RawValue,
+                CultureInfo.InvariantCulture,
+                out ulong roleId
+            )
+            && interactionContext.Interaction.Data.Resolved.Roles.TryGetValue(
+                roleId,
+                out DiscordRole? role
+            )
+        )
         {
             return Task.FromResult(Optional.FromValue(role));
         }
@@ -46,11 +58,25 @@ public partial class DiscordRoleConverter : ISlashArgumentConverter<DiscordRole>
         {
             // value can be a raw channel id or a channel mention. The regex will match both.
             Match match = getRoleRegex().Match(value);
-            if (!match.Success || !ulong.TryParse(match.Groups[1].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out roleId))
+            if (
+                !match.Success
+                || !ulong.TryParse(
+                    match.Groups[1].ValueSpan,
+                    NumberStyles.Number,
+                    CultureInfo.InvariantCulture,
+                    out roleId
+                )
+            )
             {
                 // Attempt to find a role by name, case sensitive.
-                DiscordRole? namedRole = context.Guild.Roles.Values.FirstOrDefault(role => role.Name.Equals(value, StringComparison.Ordinal));
-                return Task.FromResult(namedRole is not null ? Optional.FromValue(namedRole) : Optional.FromNoValue<DiscordRole>());
+                DiscordRole? namedRole = context.Guild.Roles.Values.FirstOrDefault(role =>
+                    role.Name.Equals(value, StringComparison.Ordinal)
+                );
+                return Task.FromResult(
+                    namedRole is not null
+                        ? Optional.FromValue(namedRole)
+                        : Optional.FromNoValue<DiscordRole>()
+                );
             }
         }
 

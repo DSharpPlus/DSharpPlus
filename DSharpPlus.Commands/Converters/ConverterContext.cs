@@ -44,5 +44,6 @@ public abstract record ConverterContext : AbstractContext
     /// <summary>
     /// Short-hand for converting to a more specific converter context type.
     /// </summary>
-    public T As<T>() where T : ConverterContext => (T)this;
+    public T As<T>()
+        where T : ConverterContext => (T)this;
 }

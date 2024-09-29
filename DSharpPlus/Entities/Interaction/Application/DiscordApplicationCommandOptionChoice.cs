@@ -42,11 +42,17 @@ public sealed class DiscordApplicationCommandOptionChoice
     /// <summary>
     /// Creates a new instance of a <see cref="DiscordApplicationCommandOptionChoice"/>.
     /// </summary>
-    private DiscordApplicationCommandOptionChoice(string name, IReadOnlyDictionary<string, string>? nameLocalizations)
+    private DiscordApplicationCommandOptionChoice(
+        string name,
+        IReadOnlyDictionary<string, string>? nameLocalizations
+    )
     {
         if (name.Length is < 1 or > 100)
         {
-            throw new ArgumentException("Application command choice name cannot be empty or exceed 100 characters.", nameof(name));
+            throw new ArgumentException(
+                "Application command choice name cannot be empty or exceed 100 characters.",
+                nameof(name)
+            );
         }
 
         if (nameLocalizations is not null)
@@ -55,7 +61,10 @@ public sealed class DiscordApplicationCommandOptionChoice
             {
                 if (localized.Length is < 1 or > 100)
                 {
-                    throw new ArgumentException($"Localized application command choice name for locale {locale} cannot be empty or exceed 100 characters. Value: '{localized}'", nameof(nameLocalizations));
+                    throw new ArgumentException(
+                        $"Localized application command choice name for locale {locale} cannot be empty or exceed 100 characters. Value: '{localized}'",
+                        nameof(nameLocalizations)
+                    );
                 }
             }
         }
@@ -72,25 +81,53 @@ public sealed class DiscordApplicationCommandOptionChoice
     /// Localized names for this choice. The keys must be appropriate locales as documented by Discord:
     /// <seealso href="https://discord.com/developers/docs/reference#locales"/>.
     /// </param>
-    public DiscordApplicationCommandOptionChoice(string name, string value, IReadOnlyDictionary<string, string>? nameLocalizations = null) : this(name, nameLocalizations)
+    public DiscordApplicationCommandOptionChoice(
+        string name,
+        string value,
+        IReadOnlyDictionary<string, string>? nameLocalizations = null
+    )
+        : this(name, nameLocalizations)
     {
         if (value.Length > 100)
         {
-            throw new ArgumentException("Application command choice value cannot exceed 100 characters.", nameof(value));
+            throw new ArgumentException(
+                "Application command choice value cannot exceed 100 characters.",
+                nameof(value)
+            );
         }
 
         this.Value = value;
     }
 
     /// <inheritdoc cref="DiscordApplicationCommandOptionChoice(string, string, IReadOnlyDictionary{string, string}?)"/>
-    public DiscordApplicationCommandOptionChoice(string name, int value, IReadOnlyDictionary<string, string>? nameLocalizations = null) : this(name, nameLocalizations) => this.Value = value;
+    public DiscordApplicationCommandOptionChoice(
+        string name,
+        int value,
+        IReadOnlyDictionary<string, string>? nameLocalizations = null
+    )
+        : this(name, nameLocalizations) => this.Value = value;
 
     /// <inheritdoc cref="DiscordApplicationCommandOptionChoice(string, string, IReadOnlyDictionary{string, string}?)"/>
-    public DiscordApplicationCommandOptionChoice(string name, long value, IReadOnlyDictionary<string, string>? nameLocalizations = null) : this(name, nameLocalizations) => this.Value = value;
+    public DiscordApplicationCommandOptionChoice(
+        string name,
+        long value,
+        IReadOnlyDictionary<string, string>? nameLocalizations = null
+    )
+        : this(name, nameLocalizations) => this.Value = value;
 
     /// <inheritdoc cref="DiscordApplicationCommandOptionChoice(string, string, IReadOnlyDictionary{string, string}?)"/>
-    public DiscordApplicationCommandOptionChoice(string name, double value, IReadOnlyDictionary<string, string>? nameLocalizations = null) : this(name, nameLocalizations) => this.Value = value;
+    public DiscordApplicationCommandOptionChoice(
+        string name,
+        double value,
+        IReadOnlyDictionary<string, string>? nameLocalizations = null
+    )
+        : this(name, nameLocalizations) => this.Value = value;
 
     /// <inheritdoc cref="DiscordApplicationCommandOptionChoice(string, string, IReadOnlyDictionary{string, string}?)"/>
-    public DiscordApplicationCommandOptionChoice(string name, float value, IReadOnlyDictionary<string, string>? nameLocalizations = null) : this(name, nameLocalizations) => this.Value = value;
+    public DiscordApplicationCommandOptionChoice(
+        string name,
+        float value,
+        IReadOnlyDictionary<string, string>? nameLocalizations = null
+    )
+        : this(name, nameLocalizations) => this.Value = value;
 }

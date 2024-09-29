@@ -25,12 +25,19 @@ public class AllowedProcessorsAttribute : Attribute
 
         if (!processors.All(x => x.IsAssignableTo(typeof(ICommandProcessor))))
         {
-            throw new ArgumentException("All processors must implement ICommandProcessor.", nameof(processors));
+            throw new ArgumentException(
+                "All processors must implement ICommandProcessor.",
+                nameof(processors)
+            );
         }
 
-        this.Processors = (processors.Contains(typeof(MessageCommandProcessor)) || processors.Contains(typeof(UserCommandProcessor))) && !processors.Contains(typeof(SlashCommandProcessor))
-            ? [.. processors, typeof(SlashCommandProcessor)]
-            : processors;
+        this.Processors =
+            (
+                processors.Contains(typeof(MessageCommandProcessor))
+                || processors.Contains(typeof(UserCommandProcessor))
+            ) && !processors.Contains(typeof(SlashCommandProcessor))
+                ? [.. processors, typeof(SlashCommandProcessor)]
+                : processors;
     }
 
     /// <summary>

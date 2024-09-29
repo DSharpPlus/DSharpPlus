@@ -9,7 +9,8 @@ namespace DSharpPlus.Commands.Converters;
 
 public class EnumConverter : ISlashArgumentConverter<Enum>, ITextArgumentConverter<Enum>
 {
-    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Integer;
+    public DiscordApplicationCommandOptionType ParameterType =>
+        DiscordApplicationCommandOptionType.Integer;
     public string ReadableName => "Multiple Choice";
     public bool RequiresText => true;
 
@@ -17,7 +18,10 @@ public class EnumConverter : ISlashArgumentConverter<Enum>, ITextArgumentConvert
     {
         // The parameter type could be an Enum? or an Enum[] or an Enum?[] or an Enum[][]. You get it.
         Type enumType = IArgumentConverter.GetConverterFriendlyBaseType(context.Parameter.Type);
-        if (context.Argument is string stringArgument && Enum.TryParse(enumType, stringArgument, true, out object? result))
+        if (
+            context.Argument is string stringArgument
+            && Enum.TryParse(enumType, stringArgument, true, out object? result)
+        )
         {
             return Task.FromResult(Optional.FromValue((Enum)result));
         }
@@ -28,7 +32,11 @@ public class EnumConverter : ISlashArgumentConverter<Enum>, ITextArgumentConvert
         // Convert the argument to the base type of the enum. If this was invoked via slash commands,
         // Discord will send us the argument as a number, which STJ will convert to an unknown numeric type.
         // We need to ensure that the argument is the same type as it's enum base type.
-        object? value = Convert.ChangeType(context.Argument, baseEnumType, CultureInfo.InvariantCulture);
+        object? value = Convert.ChangeType(
+            context.Argument,
+            baseEnumType,
+            CultureInfo.InvariantCulture
+        );
         return value is not null && Enum.IsDefined(enumType, value)
             ? Task.FromResult(Optional.FromValue((Enum)Enum.ToObject(enumType, value)))
             : Task.FromResult(Optional.FromNoValue<Enum>());

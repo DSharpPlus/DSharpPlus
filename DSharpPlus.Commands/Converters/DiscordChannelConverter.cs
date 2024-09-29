@@ -10,24 +10,36 @@ using DSharpPlus.Exceptions;
 
 namespace DSharpPlus.Commands.Converters;
 
-public partial class DiscordChannelConverter : ISlashArgumentConverter<DiscordChannel>, ITextArgumentConverter<DiscordChannel>
+public partial class DiscordChannelConverter
+    : ISlashArgumentConverter<DiscordChannel>,
+        ITextArgumentConverter<DiscordChannel>
 {
     [GeneratedRegex(@"^<#(\d+)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
     public static partial Regex GetChannelMatchingRegex();
 
-    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Channel;
+    public DiscordApplicationCommandOptionType ParameterType =>
+        DiscordApplicationCommandOptionType.Channel;
     public string ReadableName => "Discord Channel";
     public bool RequiresText => true;
 
     public async Task<Optional<DiscordChannel>> ConvertAsync(ConverterContext context)
     {
-        if (context is InteractionConverterContext interactionConverterContext
+        if (
+            context is InteractionConverterContext interactionConverterContext
             // Resolved can be null on autocomplete contexts
             && interactionConverterContext.Interaction.Data.Resolved is not null
             // Check if we can parse the channel ID (this should be guaranteed by Discord)
-            && ulong.TryParse(interactionConverterContext.Argument?.RawValue, CultureInfo.InvariantCulture, out ulong channelId)
+            && ulong.TryParse(
+                interactionConverterContext.Argument?.RawValue,
+                CultureInfo.InvariantCulture,
+                out ulong channelId
+            )
             // Check if the channel is in the resolved data
-            && interactionConverterContext.Interaction.Data.Resolved.Channels.TryGetValue(channelId, out DiscordChannel? channel))
+            && interactionConverterContext.Interaction.Data.Resolved.Channels.TryGetValue(
+                channelId,
+                out DiscordChannel? channel
+            )
+        )
         {
             return Optional.FromValue(channel);
         }
@@ -51,11 +63,24 @@ public partial class DiscordChannelConverter : ISlashArgumentConverter<DiscordCh
         {
             // Value could be a channel mention.
             Match match = GetChannelMatchingRegex().Match(channelIdString);
-            if (!match.Success || !ulong.TryParse(match.Groups[1].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out channelId))
+            if (
+                !match.Success
+                || !ulong.TryParse(
+                    match.Groups[1].ValueSpan,
+                    NumberStyles.Number,
+                    CultureInfo.InvariantCulture,
+                    out channelId
+                )
+            )
             {
                 // Try searching by name
-                DiscordChannel? namedChannel = context.Guild.Channels.Values.FirstOrDefault(channel => channel.Name.Equals(channelIdString, StringComparison.OrdinalIgnoreCase));
-                return namedChannel is not null ? Optional.FromValue(namedChannel) : Optional.FromNoValue<DiscordChannel>();
+                DiscordChannel? namedChannel = context.Guild.Channels.Values.FirstOrDefault(
+                    channel =>
+                        channel.Name.Equals(channelIdString, StringComparison.OrdinalIgnoreCase)
+                );
+                return namedChannel is not null
+                    ? Optional.FromValue(namedChannel)
+                    : Optional.FromNoValue<DiscordChannel>();
             }
         }
 

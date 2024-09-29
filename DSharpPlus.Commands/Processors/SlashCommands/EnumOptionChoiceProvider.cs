@@ -11,7 +11,9 @@ namespace DSharpPlus.Commands.Processors.SlashCommands;
 
 public class EnumOptionChoiceProvider : IChoiceProvider
 {
-    public ValueTask<IEnumerable<DiscordApplicationCommandOptionChoice>> ProvideAsync(CommandParameter parameter)
+    public ValueTask<IEnumerable<DiscordApplicationCommandOptionChoice>> ProvideAsync(
+        CommandParameter parameter
+    )
     {
         List<string> enumNames = [];
         Type baseType = IArgumentConverter.GetConverterFriendlyBaseType(parameter.Type);
@@ -21,7 +23,10 @@ public class EnumOptionChoiceProvider : IChoiceProvider
             {
                 continue;
             }
-            else if (fieldInfo.GetCustomAttribute<ChoiceDisplayNameAttribute>() is ChoiceDisplayNameAttribute displayNameAttribute)
+            else if (
+                fieldInfo.GetCustomAttribute<ChoiceDisplayNameAttribute>()
+                is ChoiceDisplayNameAttribute displayNameAttribute
+            )
             {
                 enumNames.Add(displayNameAttribute.DisplayName);
             }
@@ -40,22 +45,29 @@ public class EnumOptionChoiceProvider : IChoiceProvider
         for (int i = 0; i < enumNames.Count; i++)
         {
             object? obj = enumValues.GetValue(i);
-            choices.Add(obj switch
-            {
-                null => throw new InvalidOperationException($"Failed to get the value of the enum {parameter.Type.Name} for element {enumNames[i]}"),
-                bool value => new DiscordApplicationCommandOptionChoice(enumNames[i], value ? 1 : 0),
-                byte value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
-                sbyte value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
-                short value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
-                ushort value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
-                int value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
-                uint value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
-                long value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
-                ulong value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
-                float value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
-                double value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
-                _ => new DiscordApplicationCommandOptionChoice(enumNames[i], obj.ToString()!)
-            });
+            choices.Add(
+                obj switch
+                {
+                    null => throw new InvalidOperationException(
+                        $"Failed to get the value of the enum {parameter.Type.Name} for element {enumNames[i]}"
+                    ),
+                    bool value => new DiscordApplicationCommandOptionChoice(
+                        enumNames[i],
+                        value ? 1 : 0
+                    ),
+                    byte value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
+                    sbyte value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
+                    short value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
+                    ushort value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
+                    int value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
+                    uint value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
+                    long value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
+                    ulong value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
+                    float value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
+                    double value => new DiscordApplicationCommandOptionChoice(enumNames[i], value),
+                    _ => new DiscordApplicationCommandOptionChoice(enumNames[i], obj.ToString()!),
+                }
+            );
         }
 
         return ValueTask.FromResult<IEnumerable<DiscordApplicationCommandOptionChoice>>(choices);

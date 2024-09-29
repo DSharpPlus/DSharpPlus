@@ -20,5 +20,6 @@ public sealed class SlashCommandConfiguration
     /// <summary>
     /// How to name parameters when registering or receiving interaction data.
     /// </summary>
-    public IInteractionNamingPolicy ParameterNamePolicy { get; init; } = new SnakeCaseNamingPolicy();
+    public IInteractionNamingPolicy ParameterNamePolicy { get; init; } =
+        new SnakeCaseNamingPolicy();
 }

@@ -21,21 +21,33 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.Commands.Processors.SlashCommands;
 
-public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashArgumentConverter, InteractionConverterContext, SlashCommandContext>
+public sealed partial class SlashCommandProcessor
+    : BaseCommandProcessor<
+        ISlashArgumentConverter,
+        InteractionConverterContext,
+        SlashCommandContext
+    >
 {
     [GeneratedRegex(@"^[-_\p{L}\p{N}\p{IsDevanagari}\p{IsThai}]{1,32}$")]
     private static partial Regex NameLocalizationRegex();
 
-    private static FrozenDictionary<ulong, Command> applicationCommandMapping = FrozenDictionary<ulong, Command>.Empty;
+    private static FrozenDictionary<ulong, Command> applicationCommandMapping = FrozenDictionary<
+        ulong,
+        Command
+    >.Empty;
     private static readonly List<DiscordApplicationCommand> applicationCommands = [];
 
     /// <summary>
     /// The mapping of application command ids to <see cref="Command"/> objects.
     /// </summary>
-    public IReadOnlyDictionary<ulong, Command> ApplicationCommandMapping => applicationCommandMapping;
+    public IReadOnlyDictionary<ulong, Command> ApplicationCommandMapping =>
+        applicationCommandMapping;
 
-    public void AddApplicationCommands(params DiscordApplicationCommand[] commands) => applicationCommands.AddRange(commands);
-    public void AddApplicationCommands(IEnumerable<DiscordApplicationCommand> commands) => applicationCommands.AddRange(commands);
+    public void AddApplicationCommands(params DiscordApplicationCommand[] commands) =>
+        applicationCommands.AddRange(commands);
+
+    public void AddApplicationCommands(IEnumerable<DiscordApplicationCommand> commands) =>
+        applicationCommands.AddRange(commands);
 
     /// <summary>
     /// Registers <see cref="CommandsExtension.Commands"/> as application commands.
@@ -59,8 +71,13 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         {
             // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
             // If there isn't, default to SlashCommands
-            if (command.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute &&
-                !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.SlashCommand))
+            if (
+                command.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault()
+                    is SlashCommandTypesAttribute slashCommandTypesAttribute
+                && !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(
+                    DiscordApplicationCommandType.SlashCommand
+                )
+            )
             {
                 continue;
             }
@@ -75,7 +92,12 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
 
             foreach (ulong guildId in command.GuildIds)
             {
-                if (!guildsApplicationCommands.TryGetValue(guildId, out List<DiscordApplicationCommand>? guildCommands))
+                if (
+                    !guildsApplicationCommands.TryGetValue(
+                        guildId,
+                        out List<DiscordApplicationCommand>? guildCommands
+                    )
+                )
                 {
                     guildCommands = [];
                     guildsApplicationCommands.Add(guildId, guildCommands);
@@ -88,11 +110,25 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         List<DiscordApplicationCommand> discordCommands = [];
         if (extension.DebugGuildId == 0)
         {
-            discordCommands.AddRange(await extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(globalApplicationCommands));
+            discordCommands.AddRange(
+                await extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(
+                    globalApplicationCommands
+                )
+            );
 
-            foreach ((ulong guildId, List<DiscordApplicationCommand> guildCommands) in guildsApplicationCommands)
+            foreach (
+                (
+                    ulong guildId,
+                    List<DiscordApplicationCommand> guildCommands
+                ) in guildsApplicationCommands
+            )
             {
-                discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId, guildCommands));
+                discordCommands.AddRange(
+                    await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(
+                        guildId,
+                        guildCommands
+                    )
+                );
             }
         }
         else
@@ -106,11 +142,21 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
                 .GroupBy(x => x.Name)
                 .Select(x => x.First());
 
-            discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, distinctCommands));
+            discordCommands.AddRange(
+                await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(
+                    extension.DebugGuildId,
+                    distinctCommands
+                )
+            );
         }
 
         applicationCommandMapping = MapApplicationCommands(discordCommands).ToFrozenDictionary();
-        SlashLogging.registeredCommands(this.logger, applicationCommandMapping.Count, applicationCommandMapping.Values.SelectMany(command => command.Flatten()).Count(), null);
+        SlashLogging.registeredCommands(
+            this.logger,
+            applicationCommandMapping.Count,
+            applicationCommandMapping.Values.SelectMany(command => command.Flatten()).Count(),
+            null
+        );
     }
 
     /// <summary>
@@ -118,7 +164,9 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
     /// </summary>
     /// <param name="applicationCommands">The application commands obtained from Discord. Accepts both global and guild commands.</param>
     /// <returns>A dictionary mapping the application command id to the command in the command tree.</returns>
-    public IReadOnlyDictionary<ulong, Command> MapApplicationCommands(IReadOnlyList<DiscordApplicationCommand> applicationCommands)
+    public IReadOnlyDictionary<ulong, Command> MapApplicationCommands(
+        IReadOnlyList<DiscordApplicationCommand> applicationCommands
+    )
     {
         if (this.extension is null)
         {
@@ -126,17 +174,29 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         }
 
         Dictionary<ulong, Command> commandsDictionary = [];
-        IReadOnlyList<Command> processorSpecificCommands = this.extension!.GetCommandsForProcessor(this);
-        IReadOnlyList<Command> flattenCommands = processorSpecificCommands.SelectMany(x => x.Flatten()).ToList();
+        IReadOnlyList<Command> processorSpecificCommands = this.extension!.GetCommandsForProcessor(
+            this
+        );
+        IReadOnlyList<Command> flattenCommands = processorSpecificCommands
+            .SelectMany(x => x.Flatten())
+            .ToList();
         foreach (DiscordApplicationCommand discordCommand in applicationCommands)
         {
             bool commandFound = false;
-            string discordCommandName = this.Configuration.ParameterNamePolicy.TransformText(discordCommand.Name).ToString();
-            if (discordCommand.Type is DiscordApplicationCommandType.MessageContextMenu or DiscordApplicationCommandType.UserContextMenu)
+            string discordCommandName = this
+                .Configuration.ParameterNamePolicy.TransformText(discordCommand.Name)
+                .ToString();
+            if (
+                discordCommand.Type
+                is DiscordApplicationCommandType.MessageContextMenu
+                    or DiscordApplicationCommandType.UserContextMenu
+            )
             {
                 foreach (Command command in flattenCommands)
                 {
-                    string commandName = this.Configuration.ParameterNamePolicy.GetCommandName(command);
+                    string commandName = this.Configuration.ParameterNamePolicy.GetCommandName(
+                        command
+                    );
                     if (commandName == discordCommandName)
                     {
                         commandsDictionary.Add(discordCommand.Id, command);
@@ -149,7 +209,9 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             {
                 foreach (Command command in processorSpecificCommands)
                 {
-                    string commandName = this.Configuration.ParameterNamePolicy.GetCommandName(command);
+                    string commandName = this.Configuration.ParameterNamePolicy.GetCommandName(
+                        command
+                    );
                     if (commandName == discordCommandName)
                     {
                         commandsDictionary.Add(discordCommand.Id, command);
@@ -169,7 +231,6 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         return commandsDictionary;
     }
 
-
     /// <summary>
     /// Only use this for commands of type <see cref="DiscordApplicationCommandType.SlashCommand "/>.
     /// It will cut out every subcommands which are considered to be not a SlashCommand
@@ -187,10 +248,19 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         // Translate the command's name and description.
         Dictionary<string, string> nameLocalizations = [];
         Dictionary<string, string> descriptionLocalizations = [];
-        if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
+        if (
+            command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault()
+            is InteractionLocalizerAttribute localizerAttribute
+        )
         {
-            nameLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
-            descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
+            nameLocalizations = await ExecuteLocalizerAsync(
+                localizerAttribute.LocalizerType,
+                $"{command.FullName}.name"
+            );
+            descriptionLocalizations = await ExecuteLocalizerAsync(
+                localizerAttribute.LocalizerType,
+                $"{command.FullName}.description"
+            );
         }
 
         ValidateSlashCommand(command, nameLocalizations, descriptionLocalizations);
@@ -207,8 +277,13 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             {
                 // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
                 // If there isn't, default to SlashCommands
-                if (subCommand.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute
-                    && !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.SlashCommand))
+                if (
+                    subCommand.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault()
+                        is SlashCommandTypesAttribute slashCommandTypesAttribute
+                    && !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(
+                        DiscordApplicationCommandType.SlashCommand
+                    )
+                )
                 {
                     continue;
                 }
@@ -232,17 +307,30 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
             allowDMUsage: command.Attributes.Any(x => x is AllowDMUsageAttribute),
-            defaultMemberPermissions: command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? DiscordPermissions.None,
+            defaultMemberPermissions: command
+                .Attributes.OfType<RequirePermissionsAttribute>()
+                .FirstOrDefault()
+                ?.UserPermissions ?? DiscordPermissions.None,
             nsfw: command.Attributes.Any(x => x is RequireNsfwAttribute),
-            contexts: command.Attributes.OfType<InteractionAllowedContextsAttribute>().FirstOrDefault()?.AllowedContexts,
-            integrationTypes: command.Attributes.OfType<InteractionInstallTypeAttribute>().FirstOrDefault()?.InstallTypes
+            contexts: command
+                .Attributes.OfType<InteractionAllowedContextsAttribute>()
+                .FirstOrDefault()
+                ?.AllowedContexts,
+            integrationTypes: command
+                .Attributes.OfType<InteractionInstallTypeAttribute>()
+                .FirstOrDefault()
+                ?.InstallTypes
         );
     }
 
-    public async ValueTask<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command)
-        => await ToApplicationParameterAsync(command, 0);
+    public async ValueTask<DiscordApplicationCommandOption> ToApplicationParameterAsync(
+        Command command
+    ) => await ToApplicationParameterAsync(command, 0);
 
-    private async ValueTask<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command, int depth = 1)
+    private async ValueTask<DiscordApplicationCommandOption> ToApplicationParameterAsync(
+        Command command,
+        int depth = 1
+    )
     {
         if (this.extension is null)
         {
@@ -259,7 +347,9 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         {
             if (depth >= 3)
             {
-                throw new InvalidOperationException($"Slash command failed validation: Command '{command.Name}' nests too deeply. Discord only supports up to 3 levels of nesting.");
+                throw new InvalidOperationException(
+                    $"Slash command failed validation: Command '{command.Name}' nests too deeply. Discord only supports up to 3 levels of nesting."
+                );
             }
 
             depth++;
@@ -272,10 +362,19 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         // Translate the subcommand's name and description.
         Dictionary<string, string> nameLocalizations = [];
         Dictionary<string, string> descriptionLocalizations = [];
-        if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
+        if (
+            command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault()
+            is InteractionLocalizerAttribute localizerAttribute
+        )
         {
-            nameLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
-            descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
+            nameLocalizations = await ExecuteLocalizerAsync(
+                localizerAttribute.LocalizerType,
+                $"{command.FullName}.name"
+            );
+            descriptionLocalizations = await ExecuteLocalizerAsync(
+                localizerAttribute.LocalizerType,
+                $"{command.FullName}.description"
+            );
         }
 
         string? description = command.Description;
@@ -289,12 +388,18 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             description: description,
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
-            type: command.Subcommands.Count > 0 ? DiscordApplicationCommandOptionType.SubCommandGroup : DiscordApplicationCommandOptionType.SubCommand,
+            type: command.Subcommands.Count > 0
+                ? DiscordApplicationCommandOptionType.SubCommandGroup
+                : DiscordApplicationCommandOptionType.SubCommand,
             options: options
         );
     }
 
-    private async ValueTask<DiscordApplicationCommandOption> ToApplicationParameterAsync(Command command, CommandParameter parameter, int i = -1)
+    private async ValueTask<DiscordApplicationCommandOption> ToApplicationParameterAsync(
+        Command command,
+        CommandParameter parameter,
+        int i = -1
+    )
     {
         if (this.extension is null)
         {
@@ -303,15 +408,25 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
 
         // Fucking scope man. Let me else if in peace
         // We need the converter to grab the parameter type's application command option type value.
-        if (!this.Converters.TryGetValue(IArgumentConverter.GetConverterFriendlyBaseType(parameter.Type), out ISlashArgumentConverter? slashArgumentConverter))
+        if (
+            !this.Converters.TryGetValue(
+                IArgumentConverter.GetConverterFriendlyBaseType(parameter.Type),
+                out ISlashArgumentConverter? slashArgumentConverter
+            )
+        )
         {
-            throw new InvalidOperationException($"No converter found for parameter type '{parameter.Type.Name}'");
+            throw new InvalidOperationException(
+                $"No converter found for parameter type '{parameter.Type.Name}'"
+            );
         }
 
         // Translate the parameter's name and description.
         Dictionary<string, string> nameLocalizations = [];
         Dictionary<string, string> descriptionLocalizations = [];
-        if (parameter.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
+        if (
+            parameter.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault()
+            is InteractionLocalizerAttribute localizerAttribute
+        )
         {
             StringBuilder localeIdBuilder = new();
             localeIdBuilder.Append($"{command.FullName}.parameters.{parameter.Name}");
@@ -320,12 +435,21 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
                 localeIdBuilder.Append($".{i}");
             }
 
-            nameLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".name");
-            descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".description");
+            nameLocalizations = await ExecuteLocalizerAsync(
+                localizerAttribute.LocalizerType,
+                localeIdBuilder.ToString() + ".name"
+            );
+            descriptionLocalizations = await ExecuteLocalizerAsync(
+                localizerAttribute.LocalizerType,
+                localeIdBuilder.ToString() + ".description"
+            );
         }
 
         IEnumerable<DiscordApplicationCommandOptionChoice> choices = [];
-        if (parameter.Attributes.OfType<SlashChoiceProviderAttribute>().FirstOrDefault() is SlashChoiceProviderAttribute choiceAttribute)
+        if (
+            parameter.Attributes.OfType<SlashChoiceProviderAttribute>().FirstOrDefault()
+            is SlashChoiceProviderAttribute choiceAttribute
+        )
         {
             using AsyncServiceScope scope = this.extension.ServiceProvider.CreateAsyncScope();
             choices = await choiceAttribute.GrabChoicesAsync(scope.ServiceProvider, parameter);
@@ -337,8 +461,12 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             description = "No description provided.";
         }
 
-        MinMaxLengthAttribute? minMaxLength = parameter.Attributes.OfType<MinMaxLengthAttribute>().FirstOrDefault();
-        MinMaxValueAttribute? minMaxValue = parameter.Attributes.OfType<MinMaxValueAttribute>().FirstOrDefault();
+        MinMaxLengthAttribute? minMaxLength = parameter
+            .Attributes.OfType<MinMaxLengthAttribute>()
+            .FirstOrDefault();
+        MinMaxValueAttribute? minMaxValue = parameter
+            .Attributes.OfType<MinMaxValueAttribute>()
+            .FirstOrDefault();
         object maxValue = minMaxValue?.MaxValue!;
         object minValue = minMaxValue?.MinValue!;
 
@@ -370,21 +498,36 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
             autocomplete: parameter.Attributes.Any(x => x is SlashAutoCompleteProviderAttribute),
-            channelTypes: parameter.Attributes.OfType<ChannelTypesAttribute>().FirstOrDefault()?.ChannelTypes ?? [],
+            channelTypes: parameter
+                .Attributes.OfType<ChannelTypesAttribute>()
+                .FirstOrDefault()
+                ?.ChannelTypes ?? [],
             choices: choices,
             maxLength: minMaxLength?.MaxLength,
             maxValue: maxValue,
             minLength: minMaxLength?.MinLength,
             minValue: minValue,
-            required: !parameter.DefaultValue.HasValue && parameter.Attributes.Select(attribute => attribute is MultiArgumentAttribute multiArgumentAttribute ? multiArgumentAttribute.MinimumArgumentCount : 0).Sum() > i,
+            required: !parameter.DefaultValue.HasValue
+                && parameter
+                    .Attributes.Select(attribute =>
+                        attribute is MultiArgumentAttribute multiArgumentAttribute
+                            ? multiArgumentAttribute.MinimumArgumentCount
+                            : 0
+                    )
+                    .Sum() > i,
             type: slashArgumentConverter.ParameterType
         );
     }
 
-    private async ValueTask PopulateMultiArgumentParametersAsync(Command command, List<DiscordApplicationCommandOption> options)
+    private async ValueTask PopulateMultiArgumentParametersAsync(
+        Command command,
+        List<DiscordApplicationCommandOption> options
+    )
     {
         int minimumMultiArgumentCount = 0;
-        foreach (Attribute attribute in command.Parameters.SelectMany(parameter => parameter.Attributes))
+        foreach (
+            Attribute attribute in command.Parameters.SelectMany(parameter => parameter.Attributes)
+        )
         {
             if (attribute is not MultiArgumentAttribute multiArgumentAttribute)
             {
@@ -407,7 +550,9 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             minimumMultiArgumentCount += multiArgumentAttribute.MinimumArgumentCount;
             if (minimumMultiArgumentCount > 25)
             {
-                throw new InvalidOperationException($"Slash command failed validation: Command '{command.Name}' has too many minimum arguments. Discord only supports up to 25 parameters, please lower the total minimum argument count that's set through {nameof(MultiArgumentAttribute)}.");
+                throw new InvalidOperationException(
+                    $"Slash command failed validation: Command '{command.Name}' has too many minimum arguments. Discord only supports up to 25 parameters, please lower the total minimum argument count that's set through {nameof(MultiArgumentAttribute)}."
+                );
             }
         }
 
@@ -415,11 +560,17 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         {
             // Check if the parameter is using a multi-argument attribute.
             // If it is we need to add the parameter multiple times.
-            MultiArgumentAttribute? multiArgumentAttribute = parameter.Attributes.FirstOrDefault(attribute => attribute is MultiArgumentAttribute) as MultiArgumentAttribute;
+            MultiArgumentAttribute? multiArgumentAttribute =
+                parameter.Attributes.FirstOrDefault(attribute =>
+                    attribute is MultiArgumentAttribute
+                ) as MultiArgumentAttribute;
             if (multiArgumentAttribute is not null)
             {
                 // Add the multi-argument parameter multiple times until we reach the maximum argument count.
-                int maximumArgumentCount = Math.Min(multiArgumentAttribute.MaximumArgumentCount, 25 - options.Count);
+                int maximumArgumentCount = Math.Min(
+                    multiArgumentAttribute.MaximumArgumentCount,
+                    25 - options.Count
+                );
                 for (int i = 0; i < maximumArgumentCount; i++)
                 {
                     options.Add(await ToApplicationParameterAsync(command, parameter, i));
@@ -442,7 +593,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
     /// <param name="nameLocalizations"></param>
     /// <param name="descriptionLocalizations"></param>
     /// <exception cref="InvalidOperationException"></exception>
-    private void ValidateSlashCommand(Command command, IReadOnlyDictionary<string, string> nameLocalizations, IReadOnlyDictionary<string, string> descriptionLocalizations)
+    private void ValidateSlashCommand(
+        Command command,
+        IReadOnlyDictionary<string, string> nameLocalizations,
+        IReadOnlyDictionary<string, string> descriptionLocalizations
+    )
     {
         if (command.Subcommands.Count > 0)
         {
@@ -450,8 +605,13 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             {
                 // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
                 // If there isn't, default to SlashCommands
-                if (subCommand.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute &&
-                    !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.SlashCommand))
+                if (
+                    subCommand.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault()
+                        is SlashCommandTypesAttribute slashCommandTypesAttribute
+                    && !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(
+                        DiscordApplicationCommandType.SlashCommand
+                    )
+                )
                 {
                     continue;
                 }
@@ -462,19 +622,17 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
 
         if (command.Name.Length > 32)
         {
-            throw new InvalidOperationException
-            (
-                $"Slash command failed validation: {command.Name} is longer than 32 characters." +
-                $"\n(Name is {command.Name.Length - 32} characters too long)"
+            throw new InvalidOperationException(
+                $"Slash command failed validation: {command.Name} is longer than 32 characters."
+                    + $"\n(Name is {command.Name.Length - 32} characters too long)"
             );
         }
 
         if (command.Description?.Length > 100)
         {
-            throw new InvalidOperationException
-            (
-                $"Slash command failed validation: {command.Name} description is longer than 100 characters." +
-                $"\n(Description is {command.Description.Length - 100} characters too long)"
+            throw new InvalidOperationException(
+                $"Slash command failed validation: {command.Name} description is longer than 100 characters."
+                    + $"\n(Description is {command.Description.Length - 100} characters too long)"
             );
         }
 
@@ -482,19 +640,17 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         {
             if (nameLocalization.Value.Length > 32)
             {
-                throw new InvalidOperationException
-                (
-                    $"Slash command failed validation: {command.Name} name localization key is longer than 32 characters.\n" +
-                    $"(Name localization key ({nameLocalization.Key}) is {nameLocalization.Key.Length - 32} characters too long)"
+                throw new InvalidOperationException(
+                    $"Slash command failed validation: {command.Name} name localization key is longer than 32 characters.\n"
+                        + $"(Name localization key ({nameLocalization.Key}) is {nameLocalization.Key.Length - 32} characters too long)"
                 );
             }
 
             if (!NameLocalizationRegex().IsMatch(nameLocalization.Key))
             {
-                throw new InvalidOperationException
-                (
-                    $"Slash command failed validation: {command.Name} name localization key contains invalid characters.\n" +
-                    $"(Name localization key ({nameLocalization.Key}) contains invalid characters)"
+                throw new InvalidOperationException(
+                    $"Slash command failed validation: {command.Name} name localization key contains invalid characters.\n"
+                        + $"(Name localization key ({nameLocalization.Key}) contains invalid characters)"
                 );
             }
         }
@@ -503,19 +659,17 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         {
             if (descriptionLocalization.Value.Length > 100)
             {
-                throw new InvalidOperationException
-                (
-                    $"Slash command failed validation: {command.Name} description localization key is longer than 100 characters.\n" +
-                    $"(Description localization key ({descriptionLocalization.Key}) is {descriptionLocalization.Key.Length - 100} characters too long)"
+                throw new InvalidOperationException(
+                    $"Slash command failed validation: {command.Name} description localization key is longer than 100 characters.\n"
+                        + $"(Description localization key ({descriptionLocalization.Key}) is {descriptionLocalization.Key.Length - 100} characters too long)"
                 );
             }
 
             if (descriptionLocalization.Key.Length is < 1 or > 100)
             {
-                throw new InvalidOperationException
-                (
-                    $"Slash command failed validation: {command.Name} description localization key is longer than 100 characters.\n" +
-                    $"(Description localization key ({descriptionLocalization.Key}) is {descriptionLocalization.Key.Length - 100} characters too long)"
+                throw new InvalidOperationException(
+                    $"Slash command failed validation: {command.Name} description localization key is longer than 100 characters.\n"
+                        + $"(Description localization key ({descriptionLocalization.Key}) is {descriptionLocalization.Key.Length - 100} characters too long)"
                 );
 
                 // Come back to this when we have actual validation that does more than a length check
@@ -529,12 +683,16 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
 
         if (!NameLocalizationRegex().IsMatch(command.Name))
         {
-            throw new InvalidOperationException($"Slash command failed validation: {command.Name} name contains invalid characters.");
+            throw new InvalidOperationException(
+                $"Slash command failed validation: {command.Name} name contains invalid characters."
+            );
         }
 
         if (command.Description?.Length is < 1 or > 100)
         {
-            throw new InvalidOperationException($"Slash command failed validation: {command.Name} description is longer than 100 characters.");
+            throw new InvalidOperationException(
+                $"Slash command failed validation: {command.Name} description is longer than 100 characters."
+            );
 
             // Come back to this when we have actual validation that does more than a length check
             //throw new InvalidOperationException
@@ -544,25 +702,38 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         }
     }
 
-    internal async ValueTask<Dictionary<string, string>> ExecuteLocalizerAsync(Type localizer, string name)
+    internal async ValueTask<Dictionary<string, string>> ExecuteLocalizerAsync(
+        Type localizer,
+        string name
+    )
     {
         using AsyncServiceScope scope = this.extension!.ServiceProvider.CreateAsyncScope();
         IInteractionLocalizer instance;
         try
         {
-            instance = (IInteractionLocalizer)ActivatorUtilities.CreateInstance(scope.ServiceProvider, localizer);
+            instance = (IInteractionLocalizer)
+                ActivatorUtilities.CreateInstance(scope.ServiceProvider, localizer);
         }
         catch (Exception)
         {
-            ILogger<InteractionLocalizerAttribute> logger = this.extension!.ServiceProvider
-                .GetService<ILogger<InteractionLocalizerAttribute>>() ?? NullLogger<InteractionLocalizerAttribute>.Instance;
+            ILogger<InteractionLocalizerAttribute> logger =
+                this.extension!.ServiceProvider.GetService<ILogger<InteractionLocalizerAttribute>>()
+                ?? NullLogger<InteractionLocalizerAttribute>.Instance;
 
-            logger.LogWarning("Failed to create an instance of {TypeName} for localization of {SymbolName}.", localizer, name);
+            logger.LogWarning(
+                "Failed to create an instance of {TypeName} for localization of {SymbolName}.",
+                localizer,
+                name
+            );
             return [];
         }
 
         Dictionary<string, string> localized = [];
-        foreach ((DiscordLocale locale, string translation) in await instance.TranslateAsync(name.Replace(' ', '.').ToLowerInvariant()))
+        foreach (
+            (DiscordLocale locale, string translation) in await instance.TranslateAsync(
+                name.Replace(' ', '.').ToLowerInvariant()
+            )
+        )
         {
             localized.Add(locale.ToString().Replace('_', '-'), translation);
         }
@@ -570,18 +741,34 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         return localized;
     }
 
-    internal static Task ConfigureCommands(CommandsExtension extension, ConfigureCommandsEventArgs eventArgs)
+    internal static Task ConfigureCommands(
+        CommandsExtension extension,
+        ConfigureCommandsEventArgs eventArgs
+    )
     {
-        foreach (CommandBuilder commandBuilder in eventArgs.CommandTrees.SelectMany(command => command.Flatten()))
+        foreach (
+            CommandBuilder commandBuilder in eventArgs.CommandTrees.SelectMany(command =>
+                command.Flatten()
+            )
+        )
         {
             foreach (CommandParameterBuilder parameterBuilder in commandBuilder.Parameters)
             {
-                if (parameterBuilder.Type is null || parameterBuilder.Attributes.Any(attribute => attribute is SlashAutoCompleteProviderAttribute or SlashChoiceProviderAttribute))
+                if (
+                    parameterBuilder.Type is null
+                    || parameterBuilder.Attributes.Any(attribute =>
+                        attribute
+                            is SlashAutoCompleteProviderAttribute
+                                or SlashChoiceProviderAttribute
+                    )
+                )
                 {
                     continue;
                 }
 
-                Type baseType = IArgumentConverter.GetConverterFriendlyBaseType(parameterBuilder.Type);
+                Type baseType = IArgumentConverter.GetConverterFriendlyBaseType(
+                    parameterBuilder.Type
+                );
                 if (!baseType.IsEnum)
                 {
                     continue;
@@ -590,11 +777,17 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
                 // If the enum has less than 25 values, we can use a choice provider. If it has more than 25 values, use autocomplete.
                 if (Enum.GetValues(baseType).Length > 25)
                 {
-                    parameterBuilder.Attributes.Add(new SlashAutoCompleteProviderAttribute(typeof(EnumAutoCompleteProvider<>).MakeGenericType(baseType)));
+                    parameterBuilder.Attributes.Add(
+                        new SlashAutoCompleteProviderAttribute(
+                            typeof(EnumAutoCompleteProvider<>).MakeGenericType(baseType)
+                        )
+                    );
                 }
                 else
                 {
-                    parameterBuilder.Attributes.Add(new SlashChoiceProviderAttribute<EnumOptionChoiceProvider>());
+                    parameterBuilder.Attributes.Add(
+                        new SlashChoiceProviderAttribute<EnumOptionChoiceProvider>()
+                    );
                 }
             }
         }

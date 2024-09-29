@@ -35,17 +35,23 @@ public sealed class MinMaxLengthAttribute : ParameterCheckAttribute
 
         if (this.MinLength is < MinLengthMinimum or > MinLengthMaximum)
         {
-            throw new ArgumentException($"The minimum length cannot be less than {MinLengthMinimum} and greater than {MinLengthMaximum}.");
+            throw new ArgumentException(
+                $"The minimum length cannot be less than {MinLengthMinimum} and greater than {MinLengthMaximum}."
+            );
         }
 
         if (this.MaxLength is < MaxLengthMinimum or > MaxLengthMaximum)
         {
-            throw new ArgumentException($"The maximum length cannot be less than {MaxLengthMinimum} and greater than {MaxLengthMaximum}.");
+            throw new ArgumentException(
+                $"The maximum length cannot be less than {MaxLengthMinimum} and greater than {MaxLengthMaximum}."
+            );
         }
 
         if (this.MinLength > this.MaxLength)
         {
-            throw new ArgumentException("The minimum length cannot be greater than the maximum length.");
+            throw new ArgumentException(
+                "The minimum length cannot be greater than the maximum length."
+            );
         }
     }
 }

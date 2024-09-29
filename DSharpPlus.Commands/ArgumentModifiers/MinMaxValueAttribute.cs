@@ -1,5 +1,4 @@
 using System;
-
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
 
 namespace DSharpPlus.Commands.ArgumentModifiers;
@@ -28,7 +27,11 @@ public sealed class MinMaxValueAttribute : ParameterCheckAttribute
         this.MinValue = minValue;
         this.MaxValue = maxValue;
 
-        if (minValue is not null && maxValue is not null && minValue.GetType() != maxValue.GetType())
+        if (
+            minValue is not null
+            && maxValue is not null
+            && minValue.GetType() != maxValue.GetType()
+        )
         {
             throw new ArgumentException("The minimum and maximum values must be of the same type.");
         }
@@ -50,12 +53,16 @@ public sealed class MinMaxValueAttribute : ParameterCheckAttribute
             ulong => (ulong)minValue <= (ulong)maxValue,
             float => (float)minValue <= (float)maxValue,
             double => (double)minValue <= (double)maxValue,
-            _ => throw new ArgumentException("The type of the minimum/maximum values is not supported.")
+            _ => throw new ArgumentException(
+                "The type of the minimum/maximum values is not supported."
+            ),
         };
 
         if (!correctlyOrdered)
         {
-            throw new ArgumentException("The minimum value cannot be greater than the maximum value.");
+            throw new ArgumentException(
+                "The minimum value cannot be greater than the maximum value."
+            );
         }
     }
 }

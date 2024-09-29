@@ -25,7 +25,10 @@ public partial class CommandParameterBuilder
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            throw new ArgumentNullException(nameof(name), "The name of the command cannot be null or whitespace.");
+            throw new ArgumentNullException(
+                nameof(name),
+                "The name of the command cannot be null or whitespace."
+            );
         }
 
         this.Name = name;
@@ -57,7 +60,10 @@ public partial class CommandParameterBuilder
             {
                 WithDescription(descriptionAttribute.Description);
             }
-            else if (attribute is ParamArrayAttribute && !this.Attributes.Any(attribute => attribute is MultiArgumentAttribute))
+            else if (
+                attribute is ParamArrayAttribute
+                && !this.Attributes.Any(attribute => attribute is MultiArgumentAttribute)
+            )
             {
                 // Transform the params into a MultiArgumentAttribute
                 listedAttributes.Add(new MultiArgumentAttribute(int.MaxValue));
@@ -105,7 +111,7 @@ public partial class CommandParameterBuilder
             Type = this.Type,
             Attributes = this.Attributes,
             DefaultValue = this.DefaultValue,
-            Parent = command
+            Parent = command,
         };
     }
 
@@ -114,7 +120,10 @@ public partial class CommandParameterBuilder
         ArgumentNullException.ThrowIfNull(parameterInfo, nameof(parameterInfo));
         if (parameterInfo.ParameterType.IsAssignableTo(typeof(CommandContext)))
         {
-            throw new ArgumentException("The parameter cannot be a CommandContext.", nameof(parameterInfo));
+            throw new ArgumentException(
+                "The parameter cannot be a CommandContext.",
+                nameof(parameterInfo)
+            );
         }
 
         CommandParameterBuilder commandParameterBuilder = new();

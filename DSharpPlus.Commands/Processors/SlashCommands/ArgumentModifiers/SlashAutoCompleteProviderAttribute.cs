@@ -18,27 +18,47 @@ public class SlashAutoCompleteProviderAttribute : Attribute
         this.AutoCompleteType = autoCompleteType;
     }
 
-    public async ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(AutoCompleteContext context)
+    public async ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(
+        AutoCompleteContext context
+    )
     {
         IAutoCompleteProvider autoCompleteProvider;
         try
         {
-            autoCompleteProvider = (IAutoCompleteProvider)ActivatorUtilities.CreateInstance(context.ServiceProvider, this.AutoCompleteType);
+            autoCompleteProvider = (IAutoCompleteProvider)
+                ActivatorUtilities.CreateInstance(context.ServiceProvider, this.AutoCompleteType);
         }
         catch (Exception error)
         {
-            ILogger<IAutoCompleteProvider> logger = context.ServiceProvider.GetRequiredService<ILogger<IAutoCompleteProvider>>();
-            logger.LogError(error, "AutoCompleteProvider '{Type}' for parameter '{ParameterName}' was not able to be constructed.", this.AutoCompleteType, context.Parameter.ToString());
+            ILogger<IAutoCompleteProvider> logger = context.ServiceProvider.GetRequiredService<
+                ILogger<IAutoCompleteProvider>
+            >();
+            logger.LogError(
+                error,
+                "AutoCompleteProvider '{Type}' for parameter '{ParameterName}' was not able to be constructed.",
+                this.AutoCompleteType,
+                context.Parameter.ToString()
+            );
             return [];
         }
 
         List<DiscordAutoCompleteChoice> choices = new(25);
-        foreach (DiscordAutoCompleteChoice choice in await autoCompleteProvider.AutoCompleteAsync(context))
+        foreach (
+            DiscordAutoCompleteChoice choice in await autoCompleteProvider.AutoCompleteAsync(
+                context
+            )
+        )
         {
             if (choices.Count == 25)
             {
-                ILogger<IAutoCompleteProvider> logger = context.ServiceProvider.GetRequiredService<ILogger<IAutoCompleteProvider>>();
-                logger.LogWarning("AutoCompleteProvider '{Type}' for parameter '{ParameterName}' returned more than 25 choices, only the first 25 will be used.", this.AutoCompleteType, context.Parameter.ToString());
+                ILogger<IAutoCompleteProvider> logger = context.ServiceProvider.GetRequiredService<
+                    ILogger<IAutoCompleteProvider>
+                >();
+                logger.LogWarning(
+                    "AutoCompleteProvider '{Type}' for parameter '{ParameterName}' returned more than 25 choices, only the first 25 will be used.",
+                    this.AutoCompleteType,
+                    context.Parameter.ToString()
+                );
                 break;
             }
 
@@ -49,13 +69,21 @@ public class SlashAutoCompleteProviderAttribute : Attribute
     }
 }
 
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
-public sealed class SlashAutoCompleteProviderAttribute<T> : SlashAutoCompleteProviderAttribute where T : IAutoCompleteProvider
+[AttributeUsage(
+    AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter,
+    Inherited = false,
+    AllowMultiple = false
+)]
+public sealed class SlashAutoCompleteProviderAttribute<T> : SlashAutoCompleteProviderAttribute
+    where T : IAutoCompleteProvider
 {
-    public SlashAutoCompleteProviderAttribute() : base(typeof(T)) { }
+    public SlashAutoCompleteProviderAttribute()
+        : base(typeof(T)) { }
 }
 
 public interface IAutoCompleteProvider
 {
-    public ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(AutoCompleteContext context);
+    public ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(
+        AutoCompleteContext context
+    );
 }

@@ -21,13 +21,17 @@ public class CommandBuilder
     public List<CommandParameterBuilder> Parameters { get; set; } = [];
     public List<Attribute> Attributes { get; set; } = [];
     public List<ulong> GuildIds { get; set; } = [];
-    public string? FullName => this.Parent is not null ? $"{this.Parent.FullName}.{this.Name}" : this.Name;
+    public string? FullName =>
+        this.Parent is not null ? $"{this.Parent.FullName}.{this.Name}" : this.Name;
 
     public CommandBuilder WithName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            throw new ArgumentNullException(nameof(name), "The name of the command cannot be null or whitespace.");
+            throw new ArgumentNullException(
+                nameof(name),
+                "The name of the command cannot be null or whitespace."
+            );
         }
 
         this.Name = name;
@@ -40,15 +44,23 @@ public class CommandBuilder
         return this;
     }
 
-    public CommandBuilder WithDelegate(Delegate? method) => WithDelegate(method?.Method, method?.Target);
+    public CommandBuilder WithDelegate(Delegate? method) =>
+        WithDelegate(method?.Method, method?.Target);
+
     public CommandBuilder WithDelegate(MethodInfo? method, object? target = null)
     {
         if (method is not null)
         {
             ParameterInfo[] parameters = method.GetParameters();
-            if (parameters.Length == 0 || !parameters[0].ParameterType.IsAssignableTo(typeof(CommandContext)))
+            if (
+                parameters.Length == 0
+                || !parameters[0].ParameterType.IsAssignableTo(typeof(CommandContext))
+            )
             {
-                throw new ArgumentException($"The command method \"{(method.DeclaringType is not null ? $"{method.DeclaringType.FullName}.{method.Name}" : method.Name)}\" must have it's first parameter be a CommandContext.", nameof(method));
+                throw new ArgumentException(
+                    $"The command method \"{(method.DeclaringType is not null ? $"{method.DeclaringType.FullName}.{method.Name}" : method.Name)}\" must have it's first parameter be a CommandContext.",
+                    nameof(method)
+                );
             }
         }
 
@@ -134,7 +146,7 @@ public class CommandBuilder
             Target = this.Target,
             Parent = parent,
             Attributes = this.Attributes,
-            GuildIds = this.GuildIds
+            GuildIds = this.GuildIds,
         };
     }
 
@@ -179,30 +191,48 @@ public class CommandBuilder
 
         // Add subcommands
         List<CommandBuilder> subCommandBuilders = [];
-        foreach (Type subCommand in type.GetNestedTypes(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
+        foreach (
+            Type subCommand in type.GetNestedTypes(
+                BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static
+            )
+        )
         {
             if (subCommand.GetCustomAttribute<CommandAttribute>() is null)
             {
                 continue;
             }
 
-            subCommandBuilders.Add(From(subCommand, [.. commandBuilder.GuildIds]).WithParent(commandBuilder));
+            subCommandBuilders.Add(
+                From(subCommand, [.. commandBuilder.GuildIds]).WithParent(commandBuilder)
+            );
         }
 
         // Add methods
-        foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
+        foreach (
+            MethodInfo method in type.GetMethods(
+                BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static
+            )
+        )
         {
             if (method.GetCustomAttribute<CommandAttribute>() is null)
             {
                 continue;
             }
 
-            subCommandBuilders.Add(From(method, guildIds: [.. commandBuilder.GuildIds]).WithParent(commandBuilder));
+            subCommandBuilders.Add(
+                From(method, guildIds: [.. commandBuilder.GuildIds]).WithParent(commandBuilder)
+            );
         }
 
-        if (type.GetCustomAttribute<CommandAttribute>() is not null && subCommandBuilders.Count == 0)
+        if (
+            type.GetCustomAttribute<CommandAttribute>() is not null
+            && subCommandBuilders.Count == 0
+        )
         {
-            throw new ArgumentException($"The type \"{type.FullName ?? type.Name}\" does not have any subcommands or methods with a CommandAttribute.", nameof(type));
+            throw new ArgumentException(
+                $"The type \"{type.FullName ?? type.Name}\" does not have any subcommands or methods with a CommandAttribute.",
+                nameof(type)
+            );
         }
 
         commandBuilder.WithSubcommands(subCommandBuilders);
@@ -220,10 +250,12 @@ public class CommandBuilder
     public static CommandBuilder From(Delegate method) => From(method.Method, method.Target, []);
 
     /// <inheritdoc cref="From(MethodInfo, object?, ulong[])"/>
-    public static CommandBuilder From(Delegate method, params ulong[] guildIds) => From(method.Method, method.Target, guildIds);
+    public static CommandBuilder From(Delegate method, params ulong[] guildIds) =>
+        From(method.Method, method.Target, guildIds);
 
     /// <inheritdoc cref="From(MethodInfo, object?, ulong[])"/>
-    public static CommandBuilder From(MethodInfo method, object? target = null) => From(method, target, []);
+    public static CommandBuilder From(MethodInfo method, object? target = null) =>
+        From(method, target, []);
 
     /// <summary>
     /// Creates a new <see cref="CommandBuilder"/> from the specified <paramref name="method"/>.
@@ -232,24 +264,42 @@ public class CommandBuilder
     /// <param name="target">The object/class instance of which <paramref name="method"/> will create a delegate with.</param>
     /// <param name="guildIds">The guild IDs that this command will be registered in.</param>
     /// <returns>A new <see cref="CommandBuilder"/> which does it's best to build a pre-filled <see cref="CommandBuilder"/> from the specified <paramref name="method"/>.</returns>
-    public static CommandBuilder From(MethodInfo method, object? target = null, params ulong[] guildIds)
+    public static CommandBuilder From(
+        MethodInfo method,
+        object? target = null,
+        params ulong[] guildIds
+    )
     {
         ArgumentNullException.ThrowIfNull(method, nameof(method));
         if (method.GetCustomAttribute<CommandAttribute>() is null)
         {
-            throw new ArgumentException($"The method \"{(method.DeclaringType is not null ? $"{method.DeclaringType.FullName}.{method.Name}" : method.Name)}\" does not have a CommandAttribute.", nameof(method));
+            throw new ArgumentException(
+                $"The method \"{(method.DeclaringType is not null ? $"{method.DeclaringType.FullName}.{method.Name}" : method.Name)}\" does not have a CommandAttribute.",
+                nameof(method)
+            );
         }
 
         ParameterInfo[] parameters = method.GetParameters();
-        if (parameters.Length == 0 || !parameters[0].ParameterType.IsAssignableTo(typeof(CommandContext)))
+        if (
+            parameters.Length == 0
+            || !parameters[0].ParameterType.IsAssignableTo(typeof(CommandContext))
+        )
         {
-            throw new ArgumentException($"The command method \"{(method.DeclaringType is not null ? $"{method.DeclaringType.FullName}.{method.Name}" : method.Name)}\" must have a parameter and it must be a type of {nameof(CommandContext)}.", nameof(method));
+            throw new ArgumentException(
+                $"The command method \"{(method.DeclaringType is not null ? $"{method.DeclaringType.FullName}.{method.Name}" : method.Name)}\" must have a parameter and it must be a type of {nameof(CommandContext)}.",
+                nameof(method)
+            );
         }
 
         CommandBuilder commandBuilder = new();
         commandBuilder.WithAttributes(method.GetCustomAttributes());
         commandBuilder.WithDelegate(method, target);
-        commandBuilder.WithParameters(parameters[1..].Select(parameterInfo => CommandParameterBuilder.From(parameterInfo).WithParent(commandBuilder)));
+        commandBuilder.WithParameters(
+            parameters[1..]
+                .Select(parameterInfo =>
+                    CommandParameterBuilder.From(parameterInfo).WithParent(commandBuilder)
+                )
+        );
         commandBuilder.GuildIds.AddRange(guildIds);
         return commandBuilder;
     }

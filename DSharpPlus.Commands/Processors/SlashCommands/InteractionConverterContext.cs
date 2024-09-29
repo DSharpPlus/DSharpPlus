@@ -38,13 +38,19 @@ public record InteractionConverterContext : ConverterContext
     public int ArgumentEnumerableIndex { get; private set; } = -1;
 
     /// <inheritdoc/>
-    public override bool NextParameter() => this.Interaction.Data.Options is not null && base.NextParameter();
+    public override bool NextParameter() =>
+        this.Interaction.Data.Options is not null && base.NextParameter();
 
     /// <inheritdoc/>
     public override bool NextArgument()
     {
         // Support for multi-argument parameters
-        if (this.Parameter.Attributes.SingleOrDefault(attribute => attribute is MultiArgumentAttribute) is MultiArgumentAttribute multiArgumentAttribute)
+        if (
+            this.Parameter.Attributes.SingleOrDefault(attribute =>
+                attribute is MultiArgumentAttribute
+            )
+            is MultiArgumentAttribute multiArgumentAttribute
+        )
         {
             // If we've reached the maximum argument count, return false
             // This means we'll move on to the next parameter without consuming the next argument
@@ -65,8 +71,13 @@ public record InteractionConverterContext : ConverterContext
         }
 
         // Convert the parameter into it's interaction-friendly name
-        string parameterPolicyName = this.ParameterNamePolicy.GetParameterName(this.Parameter, this.ArgumentEnumerableIndex);
-        DiscordInteractionDataOption? argument = this.Options.SingleOrDefault(argument => argument.Name == parameterPolicyName);
+        string parameterPolicyName = this.ParameterNamePolicy.GetParameterName(
+            this.Parameter,
+            this.ArgumentEnumerableIndex
+        );
+        DiscordInteractionDataOption? argument = this.Options.SingleOrDefault(argument =>
+            argument.Name == parameterPolicyName
+        );
         if (argument is null)
         {
             return false;

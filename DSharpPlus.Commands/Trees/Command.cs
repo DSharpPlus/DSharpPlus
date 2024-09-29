@@ -20,9 +20,13 @@ public record Command
     public IReadOnlyList<CommandParameter> Parameters { get; init; }
     public required IReadOnlyList<Attribute> Attributes { get; init; }
     public IReadOnlyList<ulong> GuildIds { get; init; } = [];
-    public string FullName => this.Parent is null ? this.Name : $"{this.Parent.FullName} {this.Name}";
+    public string FullName =>
+        this.Parent is null ? this.Name : $"{this.Parent.FullName} {this.Name}";
 
-    public Command(IEnumerable<CommandBuilder> subCommandBuilders, IEnumerable<CommandParameterBuilder> parameterBuilders)
+    public Command(
+        IEnumerable<CommandBuilder> subCommandBuilders,
+        IEnumerable<CommandParameterBuilder> parameterBuilders
+    )
     {
         this.Subcommands = subCommandBuilders.Select(x => x.Build(this)).ToArray();
         this.Parameters = parameterBuilders.Select(x => x.Build(this)).ToArray();

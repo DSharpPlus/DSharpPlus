@@ -10,24 +10,36 @@ using DSharpPlus.Exceptions;
 
 namespace DSharpPlus.Commands.Converters;
 
-public partial class DiscordMemberConverter : ISlashArgumentConverter<DiscordMember>, ITextArgumentConverter<DiscordMember>
+public partial class DiscordMemberConverter
+    : ISlashArgumentConverter<DiscordMember>,
+        ITextArgumentConverter<DiscordMember>
 {
     [GeneratedRegex("""^<@!?(\d+?)>$""", RegexOptions.Compiled | RegexOptions.ECMAScript)]
     private static partial Regex getMemberRegex();
 
-    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.User;
+    public DiscordApplicationCommandOptionType ParameterType =>
+        DiscordApplicationCommandOptionType.User;
     public string ReadableName => "Discord Server Member";
     public bool RequiresText => true;
 
     public async Task<Optional<DiscordMember>> ConvertAsync(ConverterContext context)
     {
-        if (context is InteractionConverterContext interactionConverterContext
+        if (
+            context is InteractionConverterContext interactionConverterContext
             // Resolved can be null on autocomplete contexts
             && interactionConverterContext.Interaction.Data.Resolved is not null
             // Check if we can parse the member ID (this should be guaranteed by Discord)
-            && ulong.TryParse(interactionConverterContext.Argument?.RawValue, CultureInfo.InvariantCulture, out ulong memberId)
+            && ulong.TryParse(
+                interactionConverterContext.Argument?.RawValue,
+                CultureInfo.InvariantCulture,
+                out ulong memberId
+            )
             // Check if the member is in the resolved data
-            && interactionConverterContext.Interaction.Data.Resolved.Members.TryGetValue(memberId, out DiscordMember? member))
+            && interactionConverterContext.Interaction.Data.Resolved.Members.TryGetValue(
+                memberId,
+                out DiscordMember? member
+            )
+        )
         {
             return Optional.FromValue(member);
         }
@@ -49,11 +61,23 @@ public partial class DiscordMemberConverter : ISlashArgumentConverter<DiscordMem
         {
             // Try parsing through a member mention
             Match match = getMemberRegex().Match(value);
-            if (!match.Success || !ulong.TryParse(match.Groups[1].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out memberId))
+            if (
+                !match.Success
+                || !ulong.TryParse(
+                    match.Groups[1].ValueSpan,
+                    NumberStyles.Number,
+                    CultureInfo.InvariantCulture,
+                    out memberId
+                )
+            )
             {
                 // Try to find a member by name, case sensitive.
-                DiscordMember? namedMember = context.Guild.Members.Values.FirstOrDefault(member => member.DisplayName.Equals(value, StringComparison.Ordinal));
-                return namedMember is not null ? Optional.FromValue(namedMember) : Optional.FromNoValue<DiscordMember>();
+                DiscordMember? namedMember = context.Guild.Members.Values.FirstOrDefault(member =>
+                    member.DisplayName.Equals(value, StringComparison.Ordinal)
+                );
+                return namedMember is not null
+                    ? Optional.FromValue(namedMember)
+                    : Optional.FromNoValue<DiscordMember>();
             }
         }
 
@@ -61,7 +85,9 @@ public partial class DiscordMemberConverter : ISlashArgumentConverter<DiscordMem
         {
             // GetMemberAsync will search the member cache first, then fetch the member from the API if not found.
             member = await context.Guild.GetMemberAsync(memberId);
-            return member is not null ? Optional.FromValue(member) : Optional.FromNoValue<DiscordMember>();
+            return member is not null
+                ? Optional.FromValue(member)
+                : Optional.FromNoValue<DiscordMember>();
         }
         catch (DiscordException)
         {
