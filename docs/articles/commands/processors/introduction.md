@@ -22,14 +22,14 @@ processors:
 [Command("debug")]
 public class InfoCommand
 {
-    // only usable throug a text message
-    [Command("textCommand"), AllowedProcessors(typeof(TextCommandProcessor))]
-    public static ValueTask TextOnlyAsync(CommandContext context) => default;
+    [Command("textCommand"), AllowedProcessors<TextCommandProcessor>()]
+    public static async ValueTask TextOnlyAsync(CommandContext context) =>
+        await context.RespondAsync("This is a text command");
 
-    // only usable through a slashcommand
-    [Command("slashCommand"), AllowedProcessors(typeof(SlashCommandProcessor))]
-    public static ValueTask TextOnlyAsync2(TextCommandContext context) => default;
-
+    [Command("slashCommand"), AllowedProcessors<SlashCommandProcessor>()]
+    public static async ValueTask SlashCommand(TextCommandContext context) =>
+        await context.RespondAsync("This is a slash command");
+}
 ```
 
 ### Filter with concrete commandcontext types
@@ -41,12 +41,12 @@ to processors which context is assignable to that specific type
 [Command("debug")]
 public class InfoCommand
 {
-    // only usable throug a text message
     [Command("textCommand")]
-    public static ValueTask TextOnlyAsync(TextCommandContext context) => default;
+    public static async ValueTask TextOnlyAsync(TextCommandContext context) =>
+        await context.RespondAsync("This is a text command");
 
-    // only usable through a slashcommand
     [Command("slashCommand")]
-    public static ValueTask TextOnlyAsync2(SlashCommandContext context) => default;
-
+    public static async ValueTask TextOnlyAsync2(SlashCommandContext context) =>
+        await context.RespondAsync("This is a slash command");
+}
 ```

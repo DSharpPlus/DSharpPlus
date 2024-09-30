@@ -12,12 +12,18 @@ Argument converters are command processor specific. This means that if you want 
 ```cs
 public class UlidArgumentConverter : ITextArgumentConverter<Ulid>, ISlashArgumentConverter<Ulid>
 {
-    public Task<Optional<Ulid>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs)
+    public Task<Optional<Ulid>> ConvertAsync(
+        TextConverterContext context,
+        MessageCreateEventArgs eventArgs
+    )
     {
         throw new NotImplementedException();
     }
 
-    public Task<Optional<Ulid>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs)
+    public Task<Optional<Ulid>> ConvertAsync(
+        InteractionConverterContext context,
+        InteractionCreateEventArgs eventArgs
+    )
     {
         throw new NotImplementedException();
     }
@@ -29,9 +35,15 @@ Now, a `ConverterContext` is very similar to a `CommandContext` - so much so tha
 ```cs
 public class UlidArgumentConverter : ITextArgumentConverter<Ulid>, ISlashArgumentConverter<Ulid>
 {
-    public Task<Optional<Ulid>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context.Argument);
+    public Task<Optional<Ulid>> ConvertAsync(
+        TextConverterContext context,
+        MessageCreateEventArgs eventArgs
+    ) => ConvertAsync(context.Argument);
 
-    public Task<Optional<Ulid>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context.Argument.RawValue);
+    public Task<Optional<Ulid>> ConvertAsync(
+        InteractionConverterContext context,
+        InteractionCreateEventArgs eventArgs
+    ) => ConvertAsync(context.Argument.RawValue);
 
     public Task<Optional<Ulid>> ConvertAsync(string value) => throw new NotImplementedException();
 }
@@ -43,11 +55,18 @@ Now, we need to implement the actual conversion logic. The `Ulid` type has a `Tr
 public class UlidArgumentConverter : ITextArgumentConverter<Ulid>, ISlashArgumentConverter<Ulid>
 {
     private readonly ILogger<UlidArgumentConverter> logger;
+
     public UlidArgumentConverter(ILogger<UlidArgumentConverter> logger) => logger = logger;
 
-    public Task<Optional<Ulid>> ConvertAsync(TextConverterContext context, MessageCreateEventArgs eventArgs) => ConvertAsync(context.Argument);
+    public Task<Optional<Ulid>> ConvertAsync(
+        TextConverterContext context,
+        MessageCreateEventArgs eventArgs
+    ) => ConvertAsync(context.Argument);
 
-    public Task<Optional<Ulid>> ConvertAsync(InteractionConverterContext context, InteractionCreateEventArgs eventArgs) => ConvertAsync(context.Argument.RawValue);
+    public Task<Optional<Ulid>> ConvertAsync(
+        InteractionConverterContext context,
+        InteractionCreateEventArgs eventArgs
+    ) => ConvertAsync(context.Argument.RawValue);
 
     public Task<Optional<Ulid>> ConvertAsync(string value)
     {
@@ -90,5 +109,6 @@ And that's it! We've now created a custom argument converter for the `Ulid` type
 
 ```cs
 [Command("ulid")]
-public async ValueTask GetUlid(CommandContext commandContext, Ulid ulid) => await commandContext.RespondAsync($"The Ulid is: {ulid}");
+public async ValueTask GetUlid(CommandContext commandContext, Ulid ulid) =>
+    await commandContext.RespondAsync($"The Ulid is: {ulid}");
 ```
