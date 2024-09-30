@@ -41,7 +41,7 @@ public sealed class DiscordApiClient
         => this.rest = new(new(), timeout, logger);
 
     /// <inheritdoc cref="RestClient.GetRequestMetrics(bool)"/>
-    public RequestMetricsCollection GetRequestMetrics(bool sinceLastCall = false)
+    internal RequestMetricsCollection GetRequestMetrics(bool sinceLastCall = false)
         => this.rest.GetRequestMetrics(sinceLastCall);
 
     internal void SetClient(BaseDiscordClient client)
@@ -6367,7 +6367,7 @@ public sealed class DiscordApiClient
     }
     #endregion
 
-    public async ValueTask<DiscordEmoji> CreateApplicationEmojiAsync(ulong applicationId, string name, string image)
+    internal async ValueTask<DiscordEmoji> CreateApplicationEmojiAsync(ulong applicationId, string name, string image)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}";
@@ -6394,7 +6394,7 @@ public sealed class DiscordApiClient
         return emoji;
     }
 
-    public async ValueTask<DiscordEmoji> ModifyApplicationEmojiAsync(ulong applicationId, ulong emojiId, string name)
+    internal async ValueTask<DiscordEmoji> ModifyApplicationEmojiAsync(ulong applicationId, ulong emojiId, string name)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
@@ -6420,7 +6420,7 @@ public sealed class DiscordApiClient
         return emoji;
     }
 
-    public async ValueTask DeleteApplicationEmojiAsync(ulong applicationId, ulong emojiId)
+    internal async ValueTask DeleteApplicationEmojiAsync(ulong applicationId, ulong emojiId)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
@@ -6435,7 +6435,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    public async ValueTask<DiscordEmoji> GetApplicationEmojiAsync(ulong applicationId, ulong emojiId)
+    internal async ValueTask<DiscordEmoji> GetApplicationEmojiAsync(ulong applicationId, ulong emojiId)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
@@ -6454,7 +6454,7 @@ public sealed class DiscordApiClient
         return emoji;
     }
 
-    public async ValueTask<IReadOnlyList<DiscordEmoji>> GetApplicationEmojisAsync(ulong applicationId)
+    internal async ValueTask<IReadOnlyList<DiscordEmoji>> GetApplicationEmojisAsync(ulong applicationId)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}";
@@ -6478,7 +6478,7 @@ public sealed class DiscordApiClient
         return emojis.ToList();
     }
 
-    public async ValueTask<DiscordForumPostStarter> CreateForumPostAsync
+    internal async ValueTask<DiscordForumPostStarter> CreateForumPostAsync
     (
         ulong channelId,
         string name,
