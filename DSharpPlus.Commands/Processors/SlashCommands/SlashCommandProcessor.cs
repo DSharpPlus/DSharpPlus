@@ -20,6 +20,7 @@ using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Exceptions;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -262,11 +263,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
         List<DiscordApplicationCommand> discordCommands = [];
         if (extension.DebugGuildId == 0)
         {
-            discordCommands.AddRange(await extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(globalApplicationCommands));
+            discordCommands.AddRange(await RegisterGlobalCommandsRetryingAsync(globalApplicationCommands));
 
             foreach ((ulong guildId, List<DiscordApplicationCommand> guildCommands) in guildsApplicationCommands)
             {
-                discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId, guildCommands));
+                discordCommands.AddRange(await RegisterGuildCommandsRetryingAsync(guildId, guildCommands));
             }
         }
         else
@@ -280,7 +281,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
                 .GroupBy(x => x.Name)
                 .Select(x => x.First());
 
-            discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, distinctCommands));
+            discordCommands.AddRange(await RegisterGuildCommandsRetryingAsync(extension.DebugGuildId, distinctCommands));
         }
 
         applicationCommandMapping = MapApplicationCommands(discordCommands).ToFrozenDictionary();
@@ -977,6 +978,50 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<Interac
             //(
             //    $"Slash command failed validation: {command.Name} description contains invalid characters."
             //);
+        }
+    }
+
+    private async Task<IReadOnlyList<DiscordApplicationCommand>> RegisterGlobalCommandsRetryingAsync
+    (
+        IEnumerable<DiscordApplicationCommand> commands
+    )
+    {
+        while (true)
+        {
+            try
+            {
+                return await this.extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(commands);
+            }
+            catch (ServerErrorException)
+            {
+                this.logger.LogWarning("Slash command registration failed on Discord's side, retrying.");
+
+                // short-ish delay to avoid ratelimit explosions
+                await Task.Delay(100);
+                continue;
+            }
+        }
+    }
+
+    private async Task<IReadOnlyList<DiscordApplicationCommand>> RegisterGuildCommandsRetryingAsync
+    (
+        ulong guildId,
+        IEnumerable<DiscordApplicationCommand> commands
+    )
+    {
+        while (true)
+        {
+            try
+            {
+                return await this.extension.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId, commands);
+            }
+            catch (ServerErrorException)
+            {
+                this.logger.LogWarning("Slash command registration failed on Discord's side, retrying.");
+
+                await Task.Delay(100);
+                continue;
+            }
         }
     }
 }
