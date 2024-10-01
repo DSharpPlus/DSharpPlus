@@ -18,12 +18,13 @@ public class EnumConverter : ISlashArgumentConverter<Enum>, ITextArgumentConvert
     {
         // The parameter type could be an Enum? or an Enum[] or an Enum?[] or an Enum[][]. You get it.
         Type enumType = IArgumentConverter.GetConverterFriendlyBaseType(context.Parameter.Type);
-        if (
-            context.Argument is string stringArgument
-            && Enum.TryParse(enumType, stringArgument, true, out object? result)
-        )
+        if (context.Argument is string stringArgument)
         {
-            return Task.FromResult(Optional.FromValue((Enum)result));
+            return Task.FromResult(
+                Enum.TryParse(enumType, stringArgument, true, out object? result)
+                    ? Optional.FromValue((Enum)result)
+                    : Optional.FromNoValue<Enum>()
+            );
         }
 
         // Figure out what the base type of Enum actually is (int, long, byte, etc).

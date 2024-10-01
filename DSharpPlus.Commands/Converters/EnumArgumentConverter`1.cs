@@ -24,12 +24,13 @@ public class EnumConverter<T> : ISlashArgumentConverter<T>, ITextArgumentConvert
         {
             return Task.FromResult(Optional.FromNoValue<T>());
         }
-        else if (
-            context.Argument is string stringArgument
-            && Enum.TryParse(stringArgument, true, out T result)
-        )
+        else if (context.Argument is string stringArgument)
         {
-            return Task.FromResult(Optional.FromValue(result));
+            return Task.FromResult(
+                Enum.TryParse(stringArgument, true, out T result)
+                    ? Optional.FromValue(result)
+                    : Optional.FromNoValue<T>()
+            );
         }
 
         // Convert the argument to the base type of the enum. If this was invoked via slash commands,
