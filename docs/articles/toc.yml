@@ -47,6 +47,8 @@
       items:
       - name: Choice Providers vs AutoComplete
         topicUid: articles.commands.command_processors.slash_commands.choice_provider_vs_autocomplete
+      - name: Naming Policies
+        topicUid: articles.commands.command_processors.slash_commands.naming_policies
       - name: Missing Commands
         topicUid: articles.commands.command_processors.slash_commands.missing_commands
 - name: CommandsNext
