@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.Converters;
-using DSharpPlus.Commands.Processors.SlashCommands.ParameterNamingPolicies;
+using DSharpPlus.Commands.Processors.SlashCommands.NamingPolicies;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Commands.Processors.SlashCommands;

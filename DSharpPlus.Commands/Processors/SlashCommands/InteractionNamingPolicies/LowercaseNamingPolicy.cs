@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using DSharpPlus.Commands.Trees;
 
-namespace DSharpPlus.Commands.Processors.SlashCommands.ParameterNamingPolicies;
+namespace DSharpPlus.Commands.Processors.SlashCommands.NamingPolicies;
 
 /// <summary>
 /// Transforms parameter names into lowercase.

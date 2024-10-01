@@ -1,4 +1,4 @@
-using DSharpPlus.Commands.Processors.SlashCommands.ParameterNamingPolicies;
+using DSharpPlus.Commands.Processors.SlashCommands.NamingPolicies;
 
 namespace DSharpPlus.Commands.Processors.SlashCommands;
 
