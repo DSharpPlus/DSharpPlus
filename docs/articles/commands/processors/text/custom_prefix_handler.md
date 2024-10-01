@@ -10,7 +10,7 @@ Prefixes are commonplace among Discord bots, and are used to determine if a mess
 There are two manners of going about this; you can either use a prefix resolver delegate, or implement the `IPrefixResolver` interface. The former is simpler, but the latter is more powerful.
 
 ## Prefix resolver delegate
-The prefix resolver delegate is very simple to use. Any method that can be converted into a `Func<CommandsExtension, DiscordMessage, ValueTask<int>>` (a method that takes a `CommandsExtension` and a `DiscordMessage`, and returns a `ValueTask<int>`) can be used as a prefix resolver delegate. This method will be called for every message, and the return value will be used as the prefix length. If the return value is -1, the message will be ignored.
+The prefix resolver delegate is very simple to use. Any method that can be converted into a `Func<CommandsExtension, DiscordMessage, ValueTask<int>>` (a method that takes a `CommandsExtension` and a `DiscordMessage`, and returns a `ValueTask<int>`) can be used as a prefix resolver delegate. This method will be called for every message, and the return value will be used as the prefix length to slice off the prefix from the message content. If the return value is `-1`, the message will be ignored.
 
 > [!IMPORTANT]
 > Lambdas generated via reflection or compiled expressions should be compiled to `ResolvePrefixDelegateAsync`. Compiling to `Func<CommandsExtension, DiscordMessage, ValueTask<int>>` will result in a runtime exception.
@@ -32,11 +32,11 @@ TextCommandProcessor textCommandProcessor =
     );
 ```
 
-In this example, the bot will react to mentions and to the `!` and `?` prefixes. The `true` argument in the `DefaultPrefixResolver` constructor specifies that the bot should treat it's own mention as a prefix: @BotName ping. This should usually be left to `true` as Discord will always pass the message content when the bot is mentioned.
+In this example, the bot will react to bot mentions, to the `!` prefix, and the `?` prefix. The `true` argument in the `DefaultPrefixResolver` constructor specifies that the bot should treat it's own mention as a prefix: @BotName ping. This should usually be left to `true` as Discord will always pass the message content when the bot is mentioned, preventing the need to request for the message content privileged intent.
 
 ## IPrefixResolver
 
-The `IPrefixResolver` interface is a bit more complex to set up, but can make dynamic prefixes easier overall. The interface is as follows:
+The `IPrefixResolver` interface has a bit more setup, but can make dynamic prefixes easier overall. The interface is as follows:
 
 ```cs
 public interface IPrefixResolver
@@ -87,10 +87,10 @@ public class CustomPrefixResolver(IDatabaseService database) : IPrefixResolver
 }
 ```
 
-Now, unlike the normal prefix resolver delegate, this isn't set on the TextCommandConfiguration. Instead, you'll register this class with your service provider. This allows you to inject dependencies into your prefix resolver.
+Now, unlike the normal prefix resolver delegate, this isn't set on the TextCommandConfiguration. Instead, you'll register this class with your service provider and the text command processor will use it by default, even if the prefix resolver delegate is already set somewhere else.
 
 > [!IMPORTANT]
-> The prefix resolver is resolved from a scoped service provider. For most scenarios, the only stipulation is that state should be held in an external, more persistent (e.g. singleton) service. Users of EntityFramework Core should ensure that the DbContext is scoped correctly.
+> The prefix resolver is resolved from a scoped service provider. For most scenarios, the only stipulation is that state should be held in an external, more persistent (e.g. singleton) service. Users of Entity Framework Core (EFCore) should ensure that the DbContext is scoped correctly.
 
 ```cs
 DiscordClientBuilder builder = DiscordClientBuilder

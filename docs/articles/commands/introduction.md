@@ -50,11 +50,11 @@ public async Task Main(string[] args)
                 );
 
             // Add text commands with a custom prefix (?ping)
-            extension.AddProcessors(textCommandProcessor);
+            extension.AddProcessor(textCommandProcessor);
         },
         new CommandsConfiguration()
         {
-            // The default value, however it's shown here for clarity
+            // The default value is true, however it's shown here for clarity
             RegisterDefaultCommandProcessors = true,
             DebugGuildId = Environment.GetEnvironmentVariable("DEBUG_GUILD_ID") ?? 0,
         }
@@ -113,11 +113,11 @@ serviceCollection.AddCommandsExtension(
             );
 
         // Add text commands with a custom prefix (?ping)
-        extension.AddProcessors(textCommandProcessor);
+        extension.AddProcessor(textCommandProcessor);
     },
     new CommandsConfiguration()
     {
-        // The default value, however it's shown here for clarity
+        // The default value is true, however it's shown here for clarity
         RegisterDefaultCommandProcessors = true,
         DebugGuildId = Environment.GetEnvironmentVariable("DEBUG_GUILD_ID") ?? 0,
     }

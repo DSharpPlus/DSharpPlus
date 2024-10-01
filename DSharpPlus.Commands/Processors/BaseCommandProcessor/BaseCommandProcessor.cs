@@ -74,6 +74,10 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
     protected ILogger<BaseCommandProcessor<TConverter, TConverterContext, TCommandContext>> logger =
         NullLogger<BaseCommandProcessor<TConverter, TConverterContext, TCommandContext>>.Instance;
 
+    /// <inheritdoc cref="AddConverter{T}(TConverter)" />
+    // TODO: Register to the service provider and create the converters through the service provider.
+    public virtual void AddConverter<T>() where T : TConverter, new() => AddConverter(typeof(T), new T());
+
     /// <summary>
     /// Registers a new argument converter with the processor.
     /// </summary>

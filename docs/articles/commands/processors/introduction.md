@@ -9,14 +9,13 @@ and auto-complete, while the `TextCommand` processor has support for command ali
 their own processor, explaining which features are available and how to use them.
 
 ## Filter allowed processors
-The extension allows you to configure what processors are allowed to register a certain command.
+The extension allows you to configure what processors can execute a specific command. This is useful if you want to have commands that are only available for text or slash commands.
 
 There are two ways to accomplish this filtering:
 
-### Filter with attribute
+### Filter with the `AllowedProcessors` attribute
 
-Apply the `AllowedProcessor` attribute to your command and the command with all subcommands is only allowed on the given
-processors:
+Apply the `AllowedProcessors` attribute to your command, specifying the allowed processors:
 
 ```csharp
 [Command("debug")]
@@ -27,12 +26,14 @@ public class InfoCommand
         await context.RespondAsync("This is a text command");
 
     [Command("slashCommand"), AllowedProcessors<SlashCommandProcessor>()]
-    public static async ValueTask SlashCommand(TextCommandContext context) =>
+    public static async ValueTask SlashOnlyAsync(CommandContext context) =>
         await context.RespondAsync("This is a slash command");
 }
 ```
 
-### Filter with concrete commandcontext types
+The attribute can only be applied to the top-level command, and will be inherited by all subcommands.
+
+### Filter with concrete `CommandContext` types
 
 If you use a specific command context instead of the default `CommandContext` the command is only registered
 to processors which context is assignable to that specific type
@@ -46,7 +47,7 @@ public class InfoCommand
         await context.RespondAsync("This is a text command");
 
     [Command("slashCommand")]
-    public static async ValueTask TextOnlyAsync2(SlashCommandContext context) =>
+    public static async ValueTask SlashOnlyAsync(SlashCommandContext context) =>
         await context.RespondAsync("This is a slash command");
 }
 ```

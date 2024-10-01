@@ -4,7 +4,7 @@ title: Custom Context Checks
 ---
 
 # Custom Context Checks
-Context checks are safeguards to a command that will help it to execute successfully. Context checks like `RequireGuild` or `RequirePermissions` will cause the command not to execute if the user executes the command in a DM or if the user/bot does not have the required permissions. Occasionally, you may want to create your own context checks to ensure that a command can only be executed under certain conditions.
+Context checks are safeguards to a command that will help it to execute successfully. Context checks like `RequireGuild` or `RequirePermissions` will cause the command not to execute if the user runs  the command in a DM or if the user/bot does not have the required permissions. Occasionally, you may want to create your own context checks to ensure that a command can only be executed under certain conditions.
 
 A context check contains two important pieces:
 - The attribute that will be applied to the command. This contains parameters that will be passed to the executing check.
@@ -24,10 +24,9 @@ public class DirectMessageUsageAttribute : ContextCheckAttribute
 ```
 
 ## Implementing the context check
-Now we're going to implement the logic which checks if the command is allowed to be executed. The `IContextCheck<T>` interface is used to define the check method. The `T` is the attribute that was applied to the command. In this case, it's the `DirectMessageUsageAttribute`, but it can be any check attribute - if desired, there can be multiple checks for attribute.
+Now we're going to implement the logic which checks if the command is allowed to be executed. The `IContextCheck<T>` interface is used to define the check method. The `T` in `IContextCheck<T>` is the attribute that was applied to the command. In this case, it's the `DirectMessageUsageAttribute`, but it can be any check attribute - if desired, the same attribute can invoke multiple different context checks at once by implementing multiple `IContextCheck<T>` interfaces.
 
-If the check was successful, the method should return `null`. If it was unsuccessful, the method should return a string that will then be provided
-to `CommandsExtension.CommandErrored`.
+If the check was successful, the method should return `null`. If it was unsuccessful, the method should return a string that will then be provided to `CommandsExtension.CommandErrored`.
 
 ```cs
 public class DirectMessageUsageCheck : IContextCheck<DirectMessageUsageAttribute>
@@ -120,7 +119,7 @@ public sealed class MaximumStringLengthCheck : IParameterCheck<MaximumStringLeng
 {
     public ValueTask<string?> ExecuteCheckAsync(
         MaximumStringLengthAttribute attribute,
-        ParameterInfo info,
+        ParameterCheckInfo info,
         CommandContext context
     )
     {
