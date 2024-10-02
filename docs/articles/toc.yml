@@ -29,14 +29,20 @@
   items:
   - name: Introduction
     topicUid: articles.commands.introduction
-  - name: Custom Argument Converters
-    topicUid: articles.commands.custom_argument_converters
   - name: Custom Context Checks
     topicUid: articles.commands.custom_context_checks
   - name: Custom Error Handler
     topicUid: articles.commands.custom_error_handler
   - name: Multi-Argument Parameters
     topicUid: articles.commands.multi_argument_parameters
+  - name: Argument Converters
+    items:
+    - name: Built-In Converters
+      topicUid: articles.commands.converters.built_in_converters
+    - name: Manually Invoking Converters
+      topicUid: articles.commands.converters.manually_invoking_converters
+    - name: Custom Argument Converters
+      topicUid: articles.commands.converters.custom_argument_converters
   - name: Command Processors
     items:
     - name: Introduction
