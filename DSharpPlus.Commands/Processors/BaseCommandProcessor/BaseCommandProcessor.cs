@@ -76,7 +76,8 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
 
     /// <inheritdoc cref="AddConverter{T}(TConverter)" />
     // TODO: Register to the service provider and create the converters through the service provider.
-    public virtual void AddConverter<T>() where T : TConverter, new() => AddConverter(typeof(T), new T());
+    public virtual void AddConverter<T>()
+        where T : TConverter, new() => AddConverter(typeof(T), new T());
 
     /// <summary>
     /// Registers a new argument converter with the processor.
@@ -380,43 +381,29 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
                 $"The converter {converter.GetType().FullName} does not implement IArgumentConverter<{typeof(T).FullName}>."
             );
         }
-
         // If the parameter is a multi-argument parameter or params, we'll
         // parse all the arguments until we reach the maximum argument count.
-        if (
-            context.Parameter.Attributes.FirstOrDefault(attribute =>
-                attribute is MultiArgumentAttribute
-            )
-            is not MultiArgumentAttribute multiArgumentAttribute
-        )
+        else if (context.MultiArgumentAttribute is not null)
         {
             return await typedConverter.ConvertAsync(context);
         }
-
-        // TODO: Find a way to use an array pool for this.
-        // There's two ways that come to mind, both of which involve
-        // subscribing to CommandsExtension.CommandExecuted/CommandErrored:
-        // 1. Use ArrayPool<object?>.Shared and have the processor recollect the used
-        //    arrays after the commands finishes executing or erroring. As there are multiple
-        //    processors that could be running at the same time, which means our event handler
-        //    would need to track which command was invoked by this processor... Such as a
-        //    AbstractContext.Id property that's tracked by the processor.
-        // 2. Add a `ArrayPoolBufferWriter<object?>` as a transient service to the DI container.
-        //    Have the (single) event handler iterate over multi-argument parameters return the
-        //    arrays to the pool.
-        // Either way, I'm not doing those now because I believe said
-        // optimization would be better done by the hands of Akiraveliara. <3
-        // This 100% isn't just me trying to get out of work - Lunar
-        List<T> multiArgumentValues = [];
+        // Call next multi-argument to ensure that the context is ready to parse the next argument.
+        else if (!context.NextMultiArgument())
+        {
+            return Optional.FromValue<ArgumentFailedConversionResult>(
+                new() { Value = context.Argument }
+            );
+        }
 
         // int.MaxValue is used to indicate that there's no maximum argument count.
         // If there's a maximum argument count, we'll ensure that the list has enough
         // capacity to store all the arguments.
         // `params` parameters are treated as multi-argument parameters with no maximum argument count.
         // Due to `params` being semi-used, let's not allocate 2+ gigabytes of memory for a single parameter.
-        if (multiArgumentAttribute.MaximumArgumentCount != int.MaxValue)
+        List<T> multiArgumentValues = [];
+        if (context.MultiArgumentAttribute.MaximumArgumentCount != int.MaxValue)
         {
-            multiArgumentValues.EnsureCapacity(multiArgumentAttribute.MaximumArgumentCount);
+            multiArgumentValues.EnsureCapacity(context.MultiArgumentAttribute.MaximumArgumentCount);
         }
 
         // This is a do-while loop because we called NextArgument() at the top of the method.
@@ -437,9 +424,9 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
             }
 
             multiArgumentValues.Add(parsedArgument.Value);
-        } while (context.NextArgument());
+        } while (context.NextArgument() && context.NextMultiArgument());
 
-        if (multiArgumentValues.Count < multiArgumentAttribute.MinimumArgumentCount)
+        if (multiArgumentValues.Count < context.MultiArgumentAttribute.MinimumArgumentCount)
         {
             // If the minimum argument count isn't met, we'll return an error.
             // The callee will choose how to handle the error.
@@ -447,7 +434,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
                 new()
                 {
                     Error = new ArgumentException(
-                        $"The parameter {context.Parameter.Name} requires at least {multiArgumentAttribute.MinimumArgumentCount:N0} arguments, but only {multiArgumentValues.Count:N0} were provided."
+                        $"The parameter {context.Parameter.Name} requires at least {context.MultiArgumentAttribute.MinimumArgumentCount:N0} arguments, but only {multiArgumentValues.Count:N0} were provided."
                     ),
                     Value = multiArgumentValues.ToArray(),
                 }

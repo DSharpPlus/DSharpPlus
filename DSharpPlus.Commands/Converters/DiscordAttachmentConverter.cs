@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Trees;
@@ -24,19 +25,42 @@ public class AttachmentConverter
         IReadOnlyList<CommandParameter> attachmentParameters = context
             .Command.Parameters.Where(argument => argument.Type == typeof(DiscordAttachment))
             .ToList();
-        int currentAttachmentArgumentIndex = attachmentParameters.IndexOf(context.Parameter);
 
-        if (
-            context is TextConverterContext textConverterContext
-            && textConverterContext.Message.Attachments.Count > currentAttachmentArgumentIndex
-        )
+        int currentAttachmentArgumentIndex = attachmentParameters.IndexOf(context.Parameter);
+        if (context is TextConverterContext textConverterContext)
         {
-            // Return the attachment from the original message
-            return Task.FromResult(
-                Optional.FromValue(
-                    textConverterContext.Message.Attachments[currentAttachmentArgumentIndex]
+            foreach (CommandParameter attachmentParameter in attachmentParameters)
+            {
+                // Don't increase past the current attachment parameter
+                if (attachmentParameter == context.Parameter)
+                {
+                    break;
+                }
+                else if (
+                    attachmentParameter.Attributes.FirstOrDefault(attribute =>
+                        attribute is MultiArgumentAttribute
+                    )
+                    is MultiArgumentAttribute multiArgumentAttribute
                 )
-            );
+                {
+                    // Increase the index by however many attachments we've already parsed
+                    // We add by maximum argument count because the attachment converter will never fail to parse
+                    // the attachment when it's present.
+                    currentAttachmentArgumentIndex = multiArgumentAttribute.MaximumArgumentCount;
+                }
+            }
+
+            // Add the currently parsed attachment count to the index
+            currentAttachmentArgumentIndex += context.MultiArgumentParameterIndex;
+
+            // Return the attachment from the original message
+            return textConverterContext.Message.Attachments.Count <= currentAttachmentArgumentIndex
+                ? Task.FromResult(Optional.FromNoValue<DiscordAttachment>())
+                : Task.FromResult(
+                    Optional.FromValue(
+                        textConverterContext.Message.Attachments[currentAttachmentArgumentIndex]
+                    )
+                );
         }
         else if (
             context is InteractionConverterContext interactionConverterContext
