@@ -10,36 +10,24 @@ using DSharpPlus.Exceptions;
 
 namespace DSharpPlus.Commands.Converters;
 
-public partial class DiscordUserConverter
-    : ISlashArgumentConverter<DiscordUser>,
-        ITextArgumentConverter<DiscordUser>
+public partial class DiscordUserConverter : ISlashArgumentConverter<DiscordUser>, ITextArgumentConverter<DiscordUser>
 {
     [GeneratedRegex("""^<@!?(\d+?)>$""", RegexOptions.Compiled | RegexOptions.ECMAScript)]
-    private static partial Regex getMemberRegex();
+    public static partial Regex GetMemberRegex();
 
-    public DiscordApplicationCommandOptionType ParameterType =>
-        DiscordApplicationCommandOptionType.User;
+    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.User;
     public string ReadableName => "Discord User";
     public bool RequiresText => true;
 
     public async Task<Optional<DiscordUser>> ConvertAsync(ConverterContext context)
     {
-        if (
-            context is InteractionConverterContext interactionContext
+        if (context is InteractionConverterContext interactionContext
             // Resolved can be null on autocomplete contexts
             && interactionContext.Interaction.Data.Resolved is not null
             // Check if we can parse the member ID (this should be guaranteed by Discord)
-            && ulong.TryParse(
-                interactionContext.Argument?.RawValue,
-                CultureInfo.InvariantCulture,
-                out ulong memberId
-            )
+            && ulong.TryParse(interactionContext.Argument?.RawValue, CultureInfo.InvariantCulture, out ulong memberId)
             // Check if the member is in the resolved data
-            && interactionContext.Interaction.Data.Resolved.Users.TryGetValue(
-                memberId,
-                out DiscordUser? user
-            )
-        )
+            && interactionContext.Interaction.Data.Resolved.Users.TryGetValue(memberId, out DiscordUser? user))
         {
             return Optional.FromValue(user);
         }
@@ -54,24 +42,12 @@ public partial class DiscordUserConverter
         if (!ulong.TryParse(value, CultureInfo.InvariantCulture, out memberId))
         {
             // Try parsing through a member mention
-            Match match = getMemberRegex().Match(value);
-            if (
-                !match.Success
-                || !ulong.TryParse(
-                    match.Groups[1].ValueSpan,
-                    NumberStyles.Number,
-                    CultureInfo.InvariantCulture,
-                    out memberId
-                )
-            )
+            Match match = GetMemberRegex().Match(value);
+            if (!match.Success || !ulong.TryParse(match.Groups[1].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out memberId))
             {
                 // If this is invoked in a guild, try to get the member first.
-                if (
-                    context.Guild is not null
-                    && context.Guild.Members.Values.FirstOrDefault(member =>
-                        member.DisplayName.Equals(value, StringComparison.Ordinal)
-                    )
-                        is DiscordMember namedMember
+                if (context.Guild is not null
+                    && context.Guild.Members.Values.FirstOrDefault(member => member.DisplayName.Equals(value, StringComparison.Ordinal)) is DiscordMember namedMember
                 )
                 {
                     // Attempt to find a member by name, case sensitive.
@@ -85,10 +61,7 @@ public partial class DiscordUserConverter
 
         // Search the guild cache first. We want to allow the dev to
         // try casting to a member for the most amount of information available.
-        if (
-            context.Guild is not null
-            && context.Guild.Members.TryGetValue(memberId, out DiscordMember? member)
-        )
+        if (context.Guild is not null && context.Guild.Members.TryGetValue(memberId, out DiscordMember? member))
         {
             return Optional.FromValue<DiscordUser>(member);
         }

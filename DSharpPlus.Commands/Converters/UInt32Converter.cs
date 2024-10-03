@@ -8,8 +8,7 @@ namespace DSharpPlus.Commands.Converters;
 
 public class UInt32Converter : ISlashArgumentConverter<uint>, ITextArgumentConverter<uint>
 {
-    public DiscordApplicationCommandOptionType ParameterType =>
-        DiscordApplicationCommandOptionType.Integer;
+    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Integer;
     public string ReadableName => "Positive Integer";
     public bool RequiresText => true;
 

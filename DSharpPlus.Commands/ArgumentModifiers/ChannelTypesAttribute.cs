@@ -9,8 +9,7 @@ namespace DSharpPlus.Commands.ArgumentModifiers;
 /// </summary>
 /// <param name="channelTypes">The required types of channels.</param>
 [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]
-public sealed class ChannelTypesAttribute(params DiscordChannelType[] channelTypes)
-    : ParameterCheckAttribute
+public sealed class ChannelTypesAttribute(params DiscordChannelType[] channelTypes) : ParameterCheckAttribute
 {
     /// <summary>
     /// Gets the channel types allowed for this parameter.

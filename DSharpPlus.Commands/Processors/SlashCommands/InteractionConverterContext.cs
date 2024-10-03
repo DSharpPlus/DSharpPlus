@@ -32,8 +32,7 @@ public record InteractionConverterContext : ConverterContext
     public new DiscordInteractionDataOption? Argument { get; protected set; }
 
     /// <inheritdoc/>
-    public override bool NextParameter() =>
-        this.Interaction.Data.Options is not null && base.NextParameter();
+    public override bool NextParameter() => this.Interaction.Data.Options is not null && base.NextParameter();
 
     /// <inheritdoc/>
     public override bool NextArgument()
@@ -45,13 +44,8 @@ public record InteractionConverterContext : ConverterContext
         }
 
         // Convert the parameter into it's interaction-friendly name
-        string parameterPolicyName = this.ParameterNamePolicy.GetParameterName(
-            this.Parameter,
-            this.MultiArgumentParameterIndex
-        );
-        DiscordInteractionDataOption? argument = this.Options.SingleOrDefault(argument =>
-            argument.Name == parameterPolicyName
-        );
+        string parameterPolicyName = this.ParameterNamePolicy.GetParameterName(this.Parameter, this.MultiArgumentParameterIndex);
+        DiscordInteractionDataOption? argument = this.Options.SingleOrDefault(argument => argument.Name == parameterPolicyName);
         if (argument is null)
         {
             return false;

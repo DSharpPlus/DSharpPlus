@@ -31,8 +31,7 @@ namespace DSharpPlus.Commands.Processors;
 /// </typeparam>
 /// <typeparam name="TConverterContext">The context type that's used for argument converters.</typeparam>
 /// <typeparam name="TCommandContext">The context type that's used for command execution.</typeparam>
-public abstract partial class BaseCommandProcessor<TConverter, TConverterContext, TCommandContext>
-    : ICommandProcessor
+public abstract partial class BaseCommandProcessor<TConverter, TConverterContext, TCommandContext> : ICommandProcessor
     where TConverter : class, IArgumentConverter
     where TConverterContext : ConverterContext
     where TCommandContext : CommandContext
@@ -44,18 +43,15 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
     public abstract IReadOnlyList<Command> Commands { get; }
 
     /// <inheritdoc cref="ICommandProcessor.Converters" />
-    public IReadOnlyDictionary<Type, TConverter> Converters { get; protected set; } =
-        new Dictionary<Type, TConverter>();
+    public IReadOnlyDictionary<Type, TConverter> Converters { get; protected set; } = FrozenDictionary<Type, TConverter>.Empty;
 
     /// <inheritdoc />
-    IReadOnlyDictionary<Type, IArgumentConverter> ICommandProcessor.Converters =>
-        Unsafe.As<IReadOnlyDictionary<Type, IArgumentConverter>>(this.Converters);
+    IReadOnlyDictionary<Type, IArgumentConverter> ICommandProcessor.Converters => Unsafe.As<IReadOnlyDictionary<Type, IArgumentConverter>>(this.Converters);
 
     /// <summary>
     /// A dictionary of argument converter delegates indexed by the output type they convert to.
     /// </summary>
-    public IReadOnlyDictionary<Type, ConverterDelegate> ConverterDelegates { get; protected set; } =
-        new Dictionary<Type, ConverterDelegate>();
+    public IReadOnlyDictionary<Type, ConverterDelegate> ConverterDelegates { get; protected set; } = FrozenDictionary<Type, ConverterDelegate>.Empty;
 
     /// <summary>
     /// A dictionary of argument converter factories indexed by the output type they convert to.
@@ -76,8 +72,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
 
     /// <inheritdoc cref="AddConverter{T}(TConverter)" />
     // TODO: Register to the service provider and create the converters through the service provider.
-    public virtual void AddConverter<T>()
-        where T : TConverter, new() => AddConverter(typeof(T), new T());
+    public virtual void AddConverter<T>() where T : TConverter, new() => AddConverter(typeof(T), new T());
 
     /// <summary>
     /// Registers a new argument converter with the processor.
@@ -91,8 +86,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
     /// </summary>
     /// <param name="type">The type that the converter converts to.</param>
     /// <param name="converter">The converter to register.</param>
-    public virtual void AddConverter(Type type, TConverter converter) =>
-        AddConverter(new(this, type, converter));
+    public virtual void AddConverter(Type type, TConverter converter) => AddConverter(new(this, type, converter));
 
     /// <summary>
     /// Scans the specified assembly for argument converters and registers them with the processor.
@@ -115,22 +109,13 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
             // Ignore types that don't have a concrete implementation (abstract classes or interfaces)
             // Additionally ignore types that have open generics (IArgumentConverter<T>)
             // instead of closed generics (IArgumentConverter<string>)
-            if (
-                type.IsAbstract
-                || type.IsInterface
-                || type.IsGenericTypeDefinition
-                || !type.IsAssignableTo(typeof(TConverter))
-            )
+            if (type.IsAbstract || type.IsInterface || type.IsGenericTypeDefinition || !type.IsAssignableTo(typeof(TConverter)))
             {
                 continue;
             }
 
             // Check if the type implements IArgumentConverter<T>
-            Type? genericArgumentConverter = type.GetInterfaces()
-                .FirstOrDefault(type =>
-                    type.IsGenericType
-                    && type.GetGenericTypeDefinition() == typeof(IArgumentConverter<>)
-                );
+            Type? genericArgumentConverter = type.GetInterfaces().FirstOrDefault(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IArgumentConverter<>));
             if (genericArgumentConverter is null)
             {
                 BaseCommandLogging.invalidArgumentConverterImplementation(
@@ -154,12 +139,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
     /// <param name="factory">The factory that will create the argument converter and it's delegate.</param>
     protected virtual void AddConverter(ConverterDelegateFactory factory)
     {
-        if (
-            this.converterFactories.TryGetValue(
-                factory.ParameterType,
-                out ConverterDelegateFactory? existingFactory
-            )
-        )
+        if (this.converterFactories.TryGetValue(factory.ParameterType, out ConverterDelegateFactory? existingFactory))
         {
             // If it's a different factory trying to be added, log it.
             // If it's the same factory that's being readded (likely
@@ -206,11 +186,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
 
         // For every enum type found, add the enum converter to it directly.
         Dictionary<Type, TConverter> enumConverterCache = [];
-        foreach (
-            Command command in this.extension.Commands.Values.SelectMany(command =>
-                command.Flatten()
-            )
-        )
+        foreach (Command command in this.extension.Commands.Values.SelectMany(command => command.Flatten()))
         {
             foreach (CommandParameter parameter in command.Parameters)
             {
@@ -224,11 +200,9 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
                 if (!enumConverterCache.TryGetValue(baseType, out TConverter? enumConverter))
                 {
                     Type genericConverter = typeof(EnumConverter<>).MakeGenericType(baseType);
-                    ConstructorInfo? constructor =
-                        genericConverter.GetConstructor([])
-                        ?? throw new UnreachableException(
-                            $"The generic enum converter {genericConverter.FullName!} does not have a parameterless constructor."
-                        );
+                    ConstructorInfo? constructor = genericConverter.GetConstructor([])
+                        ?? throw new UnreachableException($"The generic enum converter {genericConverter.FullName!} does not have a parameterless constructor.");
+
                     enumConverter = (TConverter)constructor.Invoke([]);
                     enumConverterCache.Add(baseType, enumConverter);
                 }
@@ -243,13 +217,8 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
     public virtual ValueTask ConfigureAsync(CommandsExtension extension)
     {
         this.extension = extension;
-        this.logger =
-            extension.ServiceProvider.GetService<
-                ILogger<BaseCommandProcessor<TConverter, TConverterContext, TCommandContext>>
-            >()
-            ?? NullLogger<
-                BaseCommandProcessor<TConverter, TConverterContext, TCommandContext>
-            >.Instance;
+        this.logger = extension.ServiceProvider.GetService<ILogger<BaseCommandProcessor<TConverter, TConverterContext, TCommandContext>>>()
+            ?? NullLogger<BaseCommandProcessor<TConverter, TConverterContext, TCommandContext>>.Instance;
 
         // Register all converters from the processor's assembly
         AddConverters(GetType().Assembly);
@@ -263,10 +232,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         foreach (KeyValuePair<Type, ConverterDelegateFactory> factory in this.converterFactories)
         {
             converters.Add(factory.Key, factory.Value.GetConverter(extension.ServiceProvider));
-            converterDelegates.Add(
-                factory.Key,
-                factory.Value.GetConverterDelegate(extension.ServiceProvider)
-            );
+            converterDelegates.Add(factory.Key, factory.Value.GetConverterDelegate(extension.ServiceProvider));
         }
 
         this.Converters = converters.ToFrozenDictionary();
@@ -279,9 +245,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
     /// </summary>
     /// <param name="converterContext">The context used for the argument converters.</param>
     /// <returns>The prepared CommandContext.</returns>
-    public virtual async ValueTask<
-        IReadOnlyDictionary<CommandParameter, object?>
-    > ParseParametersAsync(TConverterContext converterContext)
+    public virtual async ValueTask<IReadOnlyDictionary<CommandParameter, object?>> ParseParametersAsync(TConverterContext converterContext)
     {
         // If there's no parameters, begone.
         if (converterContext.Command.Parameters.Count == 0)
@@ -293,8 +257,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         // to indicate that the arguments haven't been parsed yet.
         // If this method ever exits early without finishing parsing, the
         // callee will know where the argument parsing stopped.
-        Dictionary<CommandParameter, object?> parsedArguments =
-            new(converterContext.Command.Parameters.Count);
+        Dictionary<CommandParameter, object?> parsedArguments = new(converterContext.Command.Parameters.Count);
         foreach (CommandParameter parameter in converterContext.Command.Parameters)
         {
             parsedArguments.Add(parameter, new ArgumentNotParsedResult());
@@ -329,16 +292,12 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         else if (!converterContext.NextArgument())
         {
             // Try to fill with it's default value
-            return converterContext.Parameter.DefaultValue.HasValue
-                ? converterContext.Parameter.DefaultValue.Value
-                : new ArgumentNotParsedResult();
+            return converterContext.Parameter.DefaultValue.HasValue ? converterContext.Parameter.DefaultValue.Value : new ArgumentNotParsedResult();
         }
 
         try
         {
-            ConverterDelegate converterDelegate = this.ConverterDelegates[
-                IArgumentConverter.GetConverterFriendlyBaseType(converterContext.Parameter.Type)
-            ];
+            ConverterDelegate converterDelegate = this.ConverterDelegates[IArgumentConverter.GetConverterFriendlyBaseType(converterContext.Parameter.Type)];
             IOptional optional = await converterDelegate(converterContext);
             if (optional.HasValue)
             {
@@ -370,16 +329,11 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
     /// <summary>
     /// Executes an argument converter on the specified context.
     /// </summary>
-    protected virtual async ValueTask<IOptional> ExecuteConverterAsync<T>(
-        TConverter converter,
-        TConverterContext context
-    )
+    protected virtual async ValueTask<IOptional> ExecuteConverterAsync<T>(TConverter converter, TConverterContext context)
     {
         if (converter is not IArgumentConverter<T> typedConverter)
         {
-            throw new InvalidOperationException(
-                $"The converter {converter.GetType().FullName} does not implement IArgumentConverter<{typeof(T).FullName}>."
-            );
+            throw new InvalidOperationException($"The converter {converter.GetType().FullName} does not implement IArgumentConverter<{typeof(T).FullName}>.");
         }
         // If the parameter is a multi-argument parameter or params, we'll
         // parse all the arguments until we reach the maximum argument count.
@@ -390,9 +344,10 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         // Call next multi-argument to ensure that the context is ready to parse the next argument.
         else if (!context.NextMultiArgument())
         {
-            return Optional.FromValue<ArgumentFailedConversionResult>(
-                new() { Value = context.Argument }
-            );
+            return Optional.FromValue<ArgumentFailedConversionResult>(new()
+            {
+                Value = context.Argument
+            });
         }
 
         // int.MaxValue is used to indicate that there's no maximum argument count.
@@ -418,9 +373,10 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
                 // method is invoked, we'll be able to determine if
                 // the argument failed to convert or if there are
                 // no more arguments for this parameter.
-                return Optional.FromValue<ArgumentFailedConversionResult>(
-                    new() { Value = context.Argument }
-                );
+                return Optional.FromValue<ArgumentFailedConversionResult>(new()
+                {
+                    Value = context.Argument
+                });
             }
 
             multiArgumentValues.Add(parsedArgument.Value);
@@ -430,15 +386,11 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         {
             // If the minimum argument count isn't met, we'll return an error.
             // The callee will choose how to handle the error.
-            return Optional.FromValue<ArgumentFailedConversionResult>(
-                new()
-                {
-                    Error = new ArgumentException(
-                        $"The parameter {context.Parameter.Name} requires at least {context.MultiArgumentAttribute.MinimumArgumentCount:N0} arguments, but only {multiArgumentValues.Count:N0} were provided."
-                    ),
-                    Value = multiArgumentValues.ToArray(),
-                }
-            );
+            return Optional.FromValue<ArgumentFailedConversionResult>(new()
+            {
+                Error = new ArgumentException($"The parameter {context.Parameter.Name} requires at least {context.MultiArgumentAttribute.MinimumArgumentCount:N0} arguments, but only {multiArgumentValues.Count:N0} were provided."),
+                Value = multiArgumentValues.ToArray(),
+            });
         }
 
         // Oh my heart </3
@@ -453,8 +405,5 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
     /// <param name="converterContext">The context used for the argument converters.</param>
     /// <param name="parsedArguments">The arguments successfully parsed by the argument converters.</param>
     /// <returns>The constructed command context.</returns>
-    public abstract TCommandContext CreateCommandContext(
-        TConverterContext converterContext,
-        IReadOnlyDictionary<CommandParameter, object?> parsedArguments
-    );
+    public abstract TCommandContext CreateCommandContext(TConverterContext converterContext, IReadOnlyDictionary<CommandParameter, object?> parsedArguments);
 }

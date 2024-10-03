@@ -8,8 +8,7 @@ namespace DSharpPlus.Commands.Converters;
 
 public class SByteConverter : ISlashArgumentConverter<sbyte>, ITextArgumentConverter<sbyte>
 {
-    public DiscordApplicationCommandOptionType ParameterType =>
-        DiscordApplicationCommandOptionType.Integer;
+    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Integer;
     public string ReadableName => "Tiny Integer";
     public bool RequiresText => true;
 

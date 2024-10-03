@@ -9,11 +9,7 @@ namespace DSharpPlus.Commands.Processors.TextCommands.ContextChecks;
 /// </summary>
 internal sealed class TextMinMaxValueCheck : IParameterCheck<MinMaxValueAttribute>
 {
-    public ValueTask<string?> ExecuteCheckAsync(
-        MinMaxValueAttribute attribute,
-        ParameterCheckInfo info,
-        CommandContext context
-    )
+    public ValueTask<string?> ExecuteCheckAsync(MinMaxValueAttribute attribute, ParameterCheckInfo info, CommandContext context)
     {
         if (info.Value is null)
         {
@@ -40,9 +36,7 @@ internal sealed class TextMinMaxValueCheck : IParameterCheck<MinMaxValueAttribut
 
             if (!correctlyOrdered)
             {
-                return ValueTask.FromResult<string?>(
-                    $"The provided value (`{info.Value}`) was less than the minimum value (`{attribute.MinValue}`)."
-                );
+                return ValueTask.FromResult<string?>($"The provided value (`{info.Value}`) was less than the minimum value (`{attribute.MinValue}`).");
             }
         }
 
@@ -65,9 +59,7 @@ internal sealed class TextMinMaxValueCheck : IParameterCheck<MinMaxValueAttribut
 
             if (!correctlyOrdered)
             {
-                return ValueTask.FromResult<string?>(
-                    $"The provided value (`{info.Value}`) was greater than the maximum value (`{attribute.MaxValue}`)."
-                );
+                return ValueTask.FromResult<string?>($"The provided value (`{info.Value}`) was greater than the maximum value (`{attribute.MaxValue}`).");
             }
         }
 

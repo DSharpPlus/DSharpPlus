@@ -47,10 +47,7 @@ public abstract record ConverterContext : AbstractContext
 
         this.ParameterIndex++;
         this.MultiArgumentParameterIndex = -1;
-        this.MultiArgumentAttribute =
-            this.Parameter.Attributes.FirstOrDefault(attribute =>
-                attribute is MultiArgumentAttribute
-            ) as MultiArgumentAttribute;
+        this.MultiArgumentAttribute = this.Parameter.Attributes.FirstOrDefault(attribute => attribute is MultiArgumentAttribute) as MultiArgumentAttribute;
         return true;
     }
 
@@ -70,9 +67,7 @@ public abstract record ConverterContext : AbstractContext
         {
             return false;
         }
-        else if (
-            this.MultiArgumentParameterIndex++ >= this.MultiArgumentAttribute.MaximumArgumentCount
-        )
+        else if (this.MultiArgumentParameterIndex++ >= this.MultiArgumentAttribute.MaximumArgumentCount)
         {
             this.MultiArgumentParameterIndex--;
             return false;
@@ -84,6 +79,5 @@ public abstract record ConverterContext : AbstractContext
     /// <summary>
     /// Short-hand for converting to a more specific converter context type.
     /// </summary>
-    public T As<T>()
-        where T : ConverterContext => (T)this;
+    public T As<T>() where T : ConverterContext => (T)this;
 }

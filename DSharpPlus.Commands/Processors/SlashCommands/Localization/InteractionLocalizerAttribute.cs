@@ -11,8 +11,5 @@ public class InteractionLocalizerAttribute(Type localizerType) : Attribute
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
 public sealed class InteractionLocalizerAttribute<T> : InteractionLocalizerAttribute where T : IInteractionLocalizer
 {
-    public InteractionLocalizerAttribute() : base(typeof(T))
-    {
-
-    }
+    public InteractionLocalizerAttribute() : base(typeof(T)) { }
 }

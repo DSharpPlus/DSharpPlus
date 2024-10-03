@@ -27,21 +27,9 @@ public sealed class MultiArgumentAttribute : Attribute
     /// <param name="minimumArgumentCount">The minimum number of arguments that this parameter can accept.</param>
     public MultiArgumentAttribute(int maximumArgumentCount, int minimumArgumentCount = 1)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(
-            minimumArgumentCount,
-            1,
-            nameof(minimumArgumentCount)
-        );
-        ArgumentOutOfRangeException.ThrowIfLessThan(
-            maximumArgumentCount,
-            1,
-            nameof(maximumArgumentCount)
-        );
-        ArgumentOutOfRangeException.ThrowIfLessThan(
-            maximumArgumentCount,
-            minimumArgumentCount,
-            nameof(maximumArgumentCount)
-        );
+        ArgumentOutOfRangeException.ThrowIfLessThan(minimumArgumentCount, 1, nameof(minimumArgumentCount));
+        ArgumentOutOfRangeException.ThrowIfLessThan(maximumArgumentCount, 1, nameof(maximumArgumentCount));
+        ArgumentOutOfRangeException.ThrowIfLessThan(maximumArgumentCount, minimumArgumentCount, nameof(maximumArgumentCount));
 
         this.MaximumArgumentCount = maximumArgumentCount;
         this.MinimumArgumentCount = minimumArgumentCount;

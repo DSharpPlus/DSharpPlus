@@ -9,16 +9,8 @@ namespace DSharpPlus.Commands.Processors.TextCommands;
 
 public record TextConverterContext : ConverterContext
 {
-    public required string RawArguments
-    {
-        get => this.rawArguments;
-        init => this.rawArguments = value;
-    }
-    public required DiscordMessage Message
-    {
-        get => this.message;
-        init => this.message = value;
-    }
+    public required string RawArguments { get => this.rawArguments; init => this.rawArguments = value; }
+    public required DiscordMessage Message { get => this.message; init => this.message = value; }
     public required TextArgumentSplicer Splicer { get; init; }
     public new string Argument => base.Argument as string ?? string.Empty;
     public int CurrentArgumentIndex { get; private set; }
@@ -42,9 +34,7 @@ public record TextConverterContext : ConverterContext
         }
 
         // If the parameter wants a reply, switch to it.
-        this.replyAttribute = this
-            .Parameter.Attributes.OfType<TextMessageReplyAttribute>()
-            .FirstOrDefault();
+        this.replyAttribute = this.Parameter.Attributes.OfType<TextMessageReplyAttribute>().FirstOrDefault();
         if (this.replyAttribute is not null && this.IsOnMessageReply)
         {
             return false;
@@ -122,9 +112,7 @@ public record TextConverterContext : ConverterContext
         // copy the other context's state to this context.
         if (this.replyConverterContext is null)
         {
-            throw new UnreachableException(
-                "The reply context should not be null when switching to the original message."
-            );
+            throw new UnreachableException("The reply context should not be null when switching to the original message.");
         }
 
         // We're no longer on a reply parameter, so we need to switch back to the original context

@@ -30,28 +30,13 @@ public sealed class MinMaxLengthAttribute : ParameterCheckAttribute
     /// </summary>
     public MinMaxLengthAttribute(int minLength = MinLengthMinimum, int maxLength = MaxLengthMaximum)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(minLength, MinLengthMinimum, nameof(minLength));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(minLength, MinLengthMaximum, nameof(minLength));
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxLength, MaxLengthMinimum, nameof(maxLength));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(maxLength, MaxLengthMaximum, nameof(maxLength));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(minLength, maxLength, nameof(minLength));
+
         this.MinLength = minLength;
         this.MaxLength = maxLength;
-
-        if (this.MinLength is < MinLengthMinimum or > MinLengthMaximum)
-        {
-            throw new ArgumentException(
-                $"The minimum length cannot be less than {MinLengthMinimum} and greater than {MinLengthMaximum}."
-            );
-        }
-
-        if (this.MaxLength is < MaxLengthMinimum or > MaxLengthMaximum)
-        {
-            throw new ArgumentException(
-                $"The maximum length cannot be less than {MaxLengthMinimum} and greater than {MaxLengthMaximum}."
-            );
-        }
-
-        if (this.MinLength > this.MaxLength)
-        {
-            throw new ArgumentException(
-                "The minimum length cannot be greater than the maximum length."
-            );
-        }
     }
 }

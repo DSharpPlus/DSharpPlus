@@ -9,8 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Commands.Processors;
 
-public abstract partial class BaseCommandProcessor<TConverter, TConverterContext, TCommandContext>
-    : ICommandProcessor
+public abstract partial class BaseCommandProcessor<TConverter, TConverterContext, TCommandContext> : ICommandProcessor
     where TConverter : class, IArgumentConverter
     where TConverterContext : ConverterContext
     where TCommandContext : CommandContext
@@ -20,14 +19,9 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
     /// </summary>
     protected class ConverterDelegateFactory
     {
-        private static readonly MethodInfo createConverterDelegateMethod =
-            typeof(ConverterDelegateFactory).GetMethod(
-                nameof(CreateConverterDelegate),
-                BindingFlags.Instance | BindingFlags.NonPublic
-            )
-            ?? throw new UnreachableException(
-                $"Method {nameof(CreateConverterDelegate)} was unable to be found."
-            );
+        private static readonly MethodInfo createConverterDelegateMethod = typeof(ConverterDelegateFactory)
+            .GetMethod(nameof(CreateConverterDelegate), BindingFlags.Instance | BindingFlags.NonPublic)
+                ?? throw new UnreachableException($"Method {nameof(CreateConverterDelegate)} was unable to be found.");
 
         /// <summary>
         /// The converter instance, if it's already been created.
@@ -50,11 +44,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         /// <summary>
         /// The command processor that this converter is associated with.
         /// </summary>
-        public BaseCommandProcessor<
-            TConverter,
-            TConverterContext,
-            TCommandContext
-        > CommandProcessor { get; init; }
+        public BaseCommandProcessor<TConverter, TConverterContext, TCommandContext> CommandProcessor { get; init; }
 
         /// <summary>
         /// The delegate that executes the converter, casting the returned strongly typed value (<see cref="Optional{T}"/>)
@@ -69,11 +59,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         /// <param name="processor">The command processor that this converter is associated with.</param>
         /// <param name="parameterType">The parameter type that this converter converts to.</param>
         /// <param name="converter">The converter instance to use.</param>
-        public ConverterDelegateFactory(
-            BaseCommandProcessor<TConverter, TConverterContext, TCommandContext> processor,
-            Type parameterType,
-            TConverter converter
-        )
+        public ConverterDelegateFactory(BaseCommandProcessor<TConverter, TConverterContext, TCommandContext> processor, Type parameterType, TConverter converter)
         {
             this.ConverterInstance = converter;
             this.ConverterType = null;
@@ -86,11 +72,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         /// <see cref="ConverterInstance"/> through the service provider as needed.
         /// The converter delegate will be created using the newly created converter instance.
         /// </summary>
-        public ConverterDelegateFactory(
-            BaseCommandProcessor<TConverter, TConverterContext, TCommandContext> processor,
-            Type parameterType,
-            Type converterType
-        )
+        public ConverterDelegateFactory(BaseCommandProcessor<TConverter, TConverterContext, TCommandContext> processor, Type parameterType, Type converterType)
         {
             this.ConverterType = converterType;
             this.ParameterType = parameterType;
@@ -111,13 +93,10 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
             }
             else if (this.ConverterType is null)
             {
-                throw new UnreachableException(
-                    $"Both {nameof(this.ConverterInstance)} and {nameof(this.ConverterType)} are null. Please open an issue about this."
-                );
+                throw new UnreachableException($"Both {nameof(this.ConverterInstance)} and {nameof(this.ConverterType)} are null. Please open an issue about this.");
             }
 
-            this.ConverterInstance = (TConverter)
-                ActivatorUtilities.GetServiceOrCreateInstance(serviceProvider, this.ConverterType);
+            this.ConverterInstance = (TConverter)ActivatorUtilities.GetServiceOrCreateInstance(serviceProvider, this.ConverterType);
             return this.ConverterInstance;
         }
 
@@ -138,12 +117,10 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
             GetConverter(serviceProvider);
 
             // Create the generic version of CreateConverterDelegate<T> to the parameter type
-            MethodInfo createConverterDelegateGenericMethod =
-                createConverterDelegateMethod.MakeGenericMethod(this.ParameterType);
+            MethodInfo createConverterDelegateGenericMethod = createConverterDelegateMethod.MakeGenericMethod(this.ParameterType);
 
             // Invoke the generic method to obtain ExecuteConverterAsync<T> as a delegate
-            this.converterDelegate = (ConverterDelegate)
-                createConverterDelegateGenericMethod.Invoke(this, [])!;
+            this.converterDelegate = (ConverterDelegate)createConverterDelegateGenericMethod.Invoke(this, [])!;
             return this.converterDelegate;
         }
 
@@ -154,8 +131,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         /// <returns>A delegate that executes the converter, casting the returned strongly typed value (<see cref="Optional{T}"/>)
         /// to a less strongly typed value (<see cref="IOptional"/>) for easier argument converter invocation.
         /// </returns>
-        private ConverterDelegate CreateConverterDelegate<T>() =>
-            ((Delegate)ExecuteConverterAsync<T>).Method.CreateDelegate<ConverterDelegate>(this);
+        private ConverterDelegate CreateConverterDelegate<T>() => ((Delegate)ExecuteConverterAsync<T>).Method.CreateDelegate<ConverterDelegate>(this);
 
         /// <summary>
         /// Invokes the converter on the provided context, casting the returned strongly typed value (<see cref="Optional{T}"/>)
@@ -164,11 +140,10 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         /// <param name="context">The converter context passed to the converter.</param>
         /// <typeparam name="T">The type of the parameter that the converter converts to.</typeparam>
         /// <returns>The result of the converter.</returns>
-        private async ValueTask<IOptional> ExecuteConverterAsync<T>(ConverterContext context) =>
-            await this.CommandProcessor.ExecuteConverterAsync<T>(
-                this.ConverterInstance!,
-                context.As<TConverterContext>()
-            );
+        private async ValueTask<IOptional> ExecuteConverterAsync<T>(ConverterContext context) => await this.CommandProcessor.ExecuteConverterAsync<T>(
+            this.ConverterInstance!,
+            context.As<TConverterContext>()
+        );
 
         /// <inheritdoc/>
         public override string? ToString()
@@ -194,28 +169,18 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         }
 
         /// <inheritdoc/>
-        public override bool Equals(object? obj) =>
-            obj is ConverterDelegateFactory other
-            && (
-                this.ConverterType == other.ConverterType
+        public override bool Equals(object? obj) => obj is ConverterDelegateFactory other
+            && (this.ConverterType == other.ConverterType
                 || this.ConverterInstance == other.ConverterInstance
-                || this.converterDelegate == other.converterDelegate
-            );
+                || this.converterDelegate == other.converterDelegate);
 
         /// <inheritdoc/>
-        public override int GetHashCode() =>
-            HashCode.Combine(this.ConverterType, this.ConverterInstance, this.converterDelegate);
+        public override int GetHashCode() => HashCode.Combine(this.ConverterType, this.ConverterInstance, this.converterDelegate);
 
         /// <inheritdoc/>
-        public static bool operator ==(
-            ConverterDelegateFactory left,
-            ConverterDelegateFactory right
-        ) => left.Equals(right);
+        public static bool operator ==(ConverterDelegateFactory left, ConverterDelegateFactory right) => left.Equals(right);
 
         /// <inheritdoc/>
-        public static bool operator !=(
-            ConverterDelegateFactory left,
-            ConverterDelegateFactory right
-        ) => !left.Equals(right);
+        public static bool operator !=(ConverterDelegateFactory left, ConverterDelegateFactory right) => !left.Equals(right);
     }
 }

@@ -12,11 +12,7 @@ namespace DSharpPlus.Commands.Processors.TextCommands.ContextChecks;
 internal sealed class TextChannelTypesCheck : IParameterCheck<ChannelTypesAttribute>
 {
     /// <inheritdoc/>
-    public ValueTask<string?> ExecuteCheckAsync(
-        ChannelTypesAttribute attribute,
-        ParameterCheckInfo info,
-        CommandContext context
-    )
+    public ValueTask<string?> ExecuteCheckAsync(ChannelTypesAttribute attribute, ParameterCheckInfo info, CommandContext context)
     {
         if (info.Value is not DiscordChannel channel)
         {
@@ -27,8 +23,6 @@ internal sealed class TextChannelTypesCheck : IParameterCheck<ChannelTypesAttrib
             return ValueTask.FromResult<string?>(null);
         }
 
-        return ValueTask.FromResult<string?>(
-            "The specified channel was not of one of the required types."
-        );
+        return ValueTask.FromResult<string?>("The specified channel was not of one of the required types.");
     }
 }

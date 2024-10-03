@@ -14,15 +14,11 @@ public partial class TimeSpanConverter
 {
     [GeneratedRegex(
         @"^((?<years>\d+)y\s*)?((?<months>\d+)mo\s*)?((?<weeks>\d+)w\s*)?((?<days>\d+)d\s*)?((?<hours>\d+)h\s*)?((?<minutes>\d+)m\s*)?((?<seconds>\d+)s\s*)?((?<milliseconds>\d+)ms\s*)?((?<microseconds>\d+)(µs|us)\s*)?((?<nanoseconds>\d+)ns\s*)?$",
-        RegexOptions.ExplicitCapture
-            | RegexOptions.Compiled
-            | RegexOptions.RightToLeft
-            | RegexOptions.CultureInvariant
+        RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.RightToLeft | RegexOptions.CultureInvariant
     )]
-    private static partial Regex getTimeSpanRegex();
+    private static partial Regex GetTimeSpanRegex();
 
-    public DiscordApplicationCommandOptionType ParameterType =>
-        DiscordApplicationCommandOptionType.String;
+    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.String;
     public string ReadableName => "Duration";
     public bool RequiresText => true;
 
@@ -33,8 +29,7 @@ public partial class TimeSpanConverter
         {
             return Task.FromResult(Optional.FromNoValue<TimeSpan>());
         }
-
-        if (value == "0")
+        else if (value == "0")
         {
             return Task.FromResult(Optional.FromValue(TimeSpan.Zero));
         }
@@ -48,43 +43,22 @@ public partial class TimeSpanConverter
         }
         else
         {
-            Match match = getTimeSpanRegex().Match(value);
+            Match match = GetTimeSpanRegex().Match(value);
             if (!match.Success)
             {
                 return Task.FromResult(Optional.FromNoValue<TimeSpan>());
             }
 
-            int years = match.Groups["years"].Success
-                ? int.Parse(match.Groups["years"].Value, CultureInfo.InvariantCulture)
-                : 0;
-            int months = match.Groups["months"].Success
-                ? int.Parse(match.Groups["months"].Value, CultureInfo.InvariantCulture)
-                : 0;
-            int weeks = match.Groups["weeks"].Success
-                ? int.Parse(match.Groups["weeks"].Value, CultureInfo.InvariantCulture)
-                : 0;
-            int days = match.Groups["days"].Success
-                ? int.Parse(match.Groups["days"].Value, CultureInfo.InvariantCulture)
-                : 0;
-            int hours = match.Groups["hours"].Success
-                ? int.Parse(match.Groups["hours"].Value, CultureInfo.InvariantCulture)
-                : 0;
-            int minutes = match.Groups["minutes"].Success
-                ? int.Parse(match.Groups["minutes"].Value, CultureInfo.InvariantCulture)
-                : 0;
-            int seconds = match.Groups["seconds"].Success
-                ? int.Parse(match.Groups["seconds"].Value, CultureInfo.InvariantCulture)
-                : 0;
-            int milliseconds = match.Groups["milliseconds"].Success
-                ? int.Parse(match.Groups["milliseconds"].Value, CultureInfo.InvariantCulture)
-                : 0;
-            int microseconds = match.Groups["microseconds"].Success
-                ? int.Parse(match.Groups["microseconds"].Value, CultureInfo.InvariantCulture)
-                : 0;
-            int nanoseconds = match.Groups["nanoseconds"].Success
-                ? int.Parse(match.Groups["nanoseconds"].Value, CultureInfo.InvariantCulture)
-                : 0;
-
+            int years = match.Groups["years"].Success ? int.Parse(match.Groups["years"].Value, CultureInfo.InvariantCulture) : 0;
+            int months = match.Groups["months"].Success ? int.Parse(match.Groups["months"].Value, CultureInfo.InvariantCulture) : 0;
+            int weeks = match.Groups["weeks"].Success ? int.Parse(match.Groups["weeks"].Value, CultureInfo.InvariantCulture) : 0;
+            int days = match.Groups["days"].Success ? int.Parse(match.Groups["days"].Value, CultureInfo.InvariantCulture) : 0;
+            int hours = match.Groups["hours"].Success ? int.Parse(match.Groups["hours"].Value, CultureInfo.InvariantCulture) : 0;
+            int minutes = match.Groups["minutes"].Success ? int.Parse(match.Groups["minutes"].Value, CultureInfo.InvariantCulture) : 0;
+            int seconds = match.Groups["seconds"].Success ? int.Parse(match.Groups["seconds"].Value, CultureInfo.InvariantCulture) : 0;
+            int milliseconds = match.Groups["milliseconds"].Success ? int.Parse(match.Groups["milliseconds"].Value, CultureInfo.InvariantCulture) : 0;
+            int microseconds = match.Groups["microseconds"].Success ? int.Parse(match.Groups["microseconds"].Value, CultureInfo.InvariantCulture) : 0;
+            int nanoseconds = match.Groups["nanoseconds"].Success ? int.Parse(match.Groups["nanoseconds"].Value, CultureInfo.InvariantCulture) : 0;
             result = new TimeSpan(
                 ticks: (years * TimeSpan.TicksPerDay * 365)
                     + (months * TimeSpan.TicksPerDay * 30)

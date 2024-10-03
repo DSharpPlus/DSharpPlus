@@ -5,26 +5,19 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.Commands.Converters;
 
-public class DiscordEmojiConverter
-    : ISlashArgumentConverter<DiscordEmoji>,
-        ITextArgumentConverter<DiscordEmoji>
+public class DiscordEmojiConverter : ISlashArgumentConverter<DiscordEmoji>, ITextArgumentConverter<DiscordEmoji>
 {
-    public DiscordApplicationCommandOptionType ParameterType =>
-        DiscordApplicationCommandOptionType.String;
+    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.String;
     public string ReadableName => "Discord Emoji";
     public bool RequiresText => true;
 
     public Task<Optional<DiscordEmoji>> ConvertAsync(ConverterContext context)
     {
         string? value = context.Argument?.ToString();
-        return
-            !string.IsNullOrWhiteSpace(value)
+        return !string.IsNullOrWhiteSpace(value)
             // Unicode emoji's get priority
-            && (
-                DiscordEmoji.TryFromUnicode(context.Client, value, out DiscordEmoji? emoji)
-                || DiscordEmoji.TryFromName(context.Client, value, out emoji)
-            )
-            ? Task.FromResult(Optional.FromValue(emoji))
-            : Task.FromResult(Optional.FromNoValue<DiscordEmoji>());
+            && (DiscordEmoji.TryFromUnicode(context.Client, value, out DiscordEmoji? emoji) || DiscordEmoji.TryFromName(context.Client, value, out emoji))
+                ? Task.FromResult(Optional.FromValue(emoji))
+                : Task.FromResult(Optional.FromNoValue<DiscordEmoji>());
     }
 }

@@ -8,8 +8,7 @@ namespace DSharpPlus.Commands.Converters;
 
 public class FloatConverter : ISlashArgumentConverter<float>, ITextArgumentConverter<float>
 {
-    public DiscordApplicationCommandOptionType ParameterType =>
-        DiscordApplicationCommandOptionType.Number;
+    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Number;
     public string ReadableName => "Decimal Number";
     public bool RequiresText => true;
 

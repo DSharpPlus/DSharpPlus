@@ -65,8 +65,7 @@ public static class ExtensionMethods
     }
 
     /// <inheritdoc cref="Array.IndexOf{T}(T[], T)"/>
-    internal static int IndexOf<T>(this IEnumerable<T> array, T? value)
-        where T : IEquatable<T>
+    internal static int IndexOf<T>(this IEnumerable<T> array, T? value) where T : IEquatable<T>
     {
         int index = 0;
         foreach (T item in array)

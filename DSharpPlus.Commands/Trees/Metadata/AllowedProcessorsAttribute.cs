@@ -35,11 +35,8 @@ public class AllowedProcessorsAttribute : Attribute
             );
         }
 
-        this.Processors =
-            (
-                processors.Contains(typeof(MessageCommandProcessor))
-                || processors.Contains(typeof(UserCommandProcessor))
-            ) && !processors.Contains(typeof(SlashCommandProcessor))
+        this.Processors = (processors.Contains(typeof(MessageCommandProcessor))
+            || processors.Contains(typeof(UserCommandProcessor))) && !processors.Contains(typeof(SlashCommandProcessor))
                 ? [.. processors, typeof(SlashCommandProcessor)]
                 : processors;
     }
@@ -52,12 +49,10 @@ public class AllowedProcessorsAttribute : Attribute
 
 /// <inheritdoc />
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-public class AllowedProcessorsAttribute<T> : AllowedProcessorsAttribute
-    where T : ICommandProcessor
+public class AllowedProcessorsAttribute<T> : AllowedProcessorsAttribute where T : ICommandProcessor
 {
     /// <inheritdoc />
-    public AllowedProcessorsAttribute()
-        : base(typeof(T)) { }
+    public AllowedProcessorsAttribute() : base(typeof(T)) { }
 }
 
 /// <inheritdoc />
@@ -67,8 +62,7 @@ public class AllowedProcessorsAttribute<T1, T2> : AllowedProcessorsAttribute
     where T2 : ICommandProcessor
 {
     /// <inheritdoc />
-    public AllowedProcessorsAttribute()
-        : base(typeof(T1), typeof(T2)) { }
+    public AllowedProcessorsAttribute() : base(typeof(T1), typeof(T2)) { }
 }
 
 /// <inheritdoc />
@@ -79,8 +73,7 @@ public class AllowedProcessorsAttribute<T1, T2, T3> : AllowedProcessorsAttribute
     where T3 : ICommandProcessor
 {
     /// <inheritdoc />
-    public AllowedProcessorsAttribute()
-        : base(typeof(T1), typeof(T2), typeof(T3)) { }
+    public AllowedProcessorsAttribute() : base(typeof(T1), typeof(T2), typeof(T3)) { }
 }
 
 /// <inheritdoc />
@@ -92,8 +85,7 @@ public class AllowedProcessorsAttribute<T1, T2, T3, T4> : AllowedProcessorsAttri
     where T4 : ICommandProcessor
 {
     /// <inheritdoc />
-    public AllowedProcessorsAttribute()
-        : base(typeof(T1), typeof(T2), typeof(T3), typeof(T4)) { }
+    public AllowedProcessorsAttribute() : base(typeof(T1), typeof(T2), typeof(T3), typeof(T4)) { }
 }
 
 /// <inheritdoc />
@@ -106,6 +98,5 @@ public class AllowedProcessorsAttribute<T1, T2, T3, T4, T5> : AllowedProcessorsA
     where T5 : ICommandProcessor
 {
     /// <inheritdoc />
-    public AllowedProcessorsAttribute()
-        : base(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5)) { }
+    public AllowedProcessorsAttribute() : base(typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5)) { }
 }

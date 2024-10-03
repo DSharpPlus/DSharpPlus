@@ -19,10 +19,7 @@ public class SlashChoiceProviderAttribute : Attribute
         this.ProviderType = providerType;
     }
 
-    public async ValueTask<IEnumerable<DiscordApplicationCommandOptionChoice>> GrabChoicesAsync(
-        IServiceProvider serviceProvider,
-        CommandParameter parameter
-    )
+    public async ValueTask<IEnumerable<DiscordApplicationCommandOptionChoice>> GrabChoicesAsync(IServiceProvider serviceProvider, CommandParameter parameter)
     {
         IChoiceProvider choiceProvider;
         try
@@ -32,35 +29,29 @@ public class SlashChoiceProviderAttribute : Attribute
         }
         catch (Exception error)
         {
-            ILogger<SlashCommandProcessor> logger = serviceProvider.GetRequiredService<
-                ILogger<SlashCommandProcessor>
-            >();
+            ILogger<SlashCommandProcessor> logger = serviceProvider.GetRequiredService<ILogger<SlashCommandProcessor>>();
             logger.LogError(
                 error,
                 "ChoiceProvider '{Type}' for parameter '{ParameterName}' was not able to be constructed.",
                 this.ProviderType,
                 parameter.ToString()
             );
+
             return [];
         }
 
         List<DiscordApplicationCommandOptionChoice> choices = new(25);
-        foreach (
-            DiscordApplicationCommandOptionChoice choice in await choiceProvider.ProvideAsync(
-                parameter
-            )
-        )
+        foreach (DiscordApplicationCommandOptionChoice choice in await choiceProvider.ProvideAsync(parameter))
         {
             if (choices.Count == 25)
             {
-                ILogger<SlashCommandProcessor> logger = serviceProvider.GetRequiredService<
-                    ILogger<SlashCommandProcessor>
-                >();
+                ILogger<SlashCommandProcessor> logger = serviceProvider.GetRequiredService<ILogger<SlashCommandProcessor>>();
                 logger.LogWarning(
                     "ChoiceProvider '{Type}' for parameter '{ParameterName}' returned more than 25 choices, only the first 25 will be used.",
                     this.ProviderType,
                     parameter.ToString()
                 );
+
                 break;
             }
 
@@ -71,21 +62,13 @@ public class SlashChoiceProviderAttribute : Attribute
     }
 }
 
-[AttributeUsage(
-    AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter,
-    Inherited = false,
-    AllowMultiple = false
-)]
-public sealed class SlashChoiceProviderAttribute<T> : SlashChoiceProviderAttribute
-    where T : IChoiceProvider
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
+public sealed class SlashChoiceProviderAttribute<T> : SlashChoiceProviderAttribute where T : IChoiceProvider
 {
-    public SlashChoiceProviderAttribute()
-        : base(typeof(T)) { }
+    public SlashChoiceProviderAttribute() : base(typeof(T)) { }
 }
 
 public interface IChoiceProvider
 {
-    public ValueTask<IEnumerable<DiscordApplicationCommandOptionChoice>> ProvideAsync(
-        CommandParameter parameter
-    );
+    public ValueTask<IEnumerable<DiscordApplicationCommandOptionChoice>> ProvideAsync(CommandParameter parameter);
 }

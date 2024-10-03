@@ -17,18 +17,12 @@ internal sealed class DirectMessageUsageCheck : IContextCheck<DirectMessageUsage
         }
         else
         {
-            string dmStatus = context.Channel.IsPrivate
-                ? "inside a DM"
-                : "outside a DM";
-
+            string dmStatus = context.Channel.IsPrivate ? "inside a DM" : "outside a DM";
             string requirement = attribute.Usage switch
             {
                 DirectMessageUsage.DenyDMs => "denies DM usage",
                 DirectMessageUsage.RequireDMs => "requires DM usage",
-                _ => throw new UnreachableException
-                (
-                    $"DirectMessageUsageCheck reached an unreachable branch: {attribute.Usage}, IsPrivate was {context.Channel.IsPrivate}"
-                )
+                _ => throw new UnreachableException($"DirectMessageUsageCheck reached an unreachable branch: {attribute.Usage}, IsPrivate was {context.Channel.IsPrivate}")
             };
 
             return ValueTask.FromResult<string?>($"The executed command {requirement} but was executed {dmStatus}.");
