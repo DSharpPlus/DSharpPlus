@@ -12,8 +12,8 @@ All .NET primitive types have built-in support. Each primitive type is parsed th
 ### DateTime
 The `DateTime` converter does not exist and is not planned to be added. Instead, use `DateTimeOffset` for more accurate time handling.
 
-### Enum
-Each enum type that used in a command will have the generic version of `EnumConverter<T>` created at startup. The generic converter is as fast as 30ns per conversion, while the non-generic converter is 60ns per conversion. Enums with less than 25 members have built-in choice provider support. Enums with more than 25 members will have auto-complete support.
+### Enums
+Each enum type that used in a command will have the generic version of `EnumConverter<T>` created at startup. [The generic converter is roughly x2 faster than the non-generic converter](https://github.com/DSharpPlus/DSharpPlus/blob/5d334247afbf3c2895f2fa428d3b9ba0de890849/tools/DSharpPlus.Tools.Benchmarks/benchmark-results.md). Enums with less than 25 members have built-in choice provider support. Enums with more than 25 members will have auto-complete support.
 
 ### `long` and `ulong`
 `long` and `ulong` are supported, however they will not have the numeric validation that Discord supports with slash commands. This is because the largest number Discord supports is 9,007,199,254,740,992, also known as 2^53 - JavaScript's maximum safe integer. When using `long` or `ulong`, the parameter will appear as a string in the Discord Client, however the argument converters will still ensure that the value is a valid number.
