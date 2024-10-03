@@ -164,25 +164,15 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
     /// <summary>
     /// Finds all parameters that are enums and creates a generic enum converter for them.
     /// </summary>
-    protected virtual void AddEnumConverters()
+    protected virtual void AddEnumConverters(Type? genericEnumConverterType = null)
     {
         if (this.extension is null)
         {
             throw new InvalidOperationException("The processor has not been configured yet.");
         }
 
-        // Double check to make sure the enum converter can be casted to TConverter.
-        if (!typeof(TConverter).IsAssignableFrom(typeof(EnumConverter<>)))
-        {
-            BaseCommandLogging.invalidEnumConverterImplementation(
-                this.logger,
-                typeof(EnumConverter<>).FullName ?? typeof(EnumConverter<>).Name,
-                typeof(TConverter).FullName ?? typeof(TConverter).Name,
-                GetType().FullName ?? GetType().Name,
-                nameof(AddEnumConverters),
-                null
-            );
-        }
+        // If the generic enum converter type is not provided, use the default EnumConverter<>.
+        genericEnumConverterType ??= typeof(EnumConverter<>);
 
         // For every enum type found, add the enum converter to it directly.
         Dictionary<Type, TConverter> enumConverterCache = [];
@@ -199,7 +189,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
                 // Try to reuse any existing enum converters for this enum type.
                 if (!enumConverterCache.TryGetValue(baseType, out TConverter? enumConverter))
                 {
-                    Type genericConverter = typeof(EnumConverter<>).MakeGenericType(baseType);
+                    Type genericConverter = genericEnumConverterType.MakeGenericType(baseType);
                     ConstructorInfo? constructor = genericConverter.GetConstructor([])
                         ?? throw new UnreachableException($"The generic enum converter {genericConverter.FullName!} does not have a parameterless constructor.");
 
