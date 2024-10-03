@@ -1,9 +1,9 @@
 ---
-uid: articles.commands.multi_argument_parameters
-title: Multi-Argument Parameters
+uid: articles.commands.var_arg_parameters
+title: VarArg Parameters
 ---
 
-# Multi-Argument Parameters
+# VarArg Parameters
 
 When creating a command, you may want to have a parameter that can accept multiple arguments. This is useful for commands that require a list of items, such as a list of users or a list of numbers. This was previously supported in the `CommandsNext` and `SlashCommands` extensions through the `params` keyword.
 
@@ -20,7 +20,7 @@ Which could be used like this:
 !echo hello world 1 2 3
 ```
 
-This behavior is still supported, but what if you wanted to have multiple lists? For example, a command that takes in a list of users and a list of numbers. This is where multi-argument parameters come in.
+This behavior is still supported, but what if you wanted to have multiple lists? For example, a command that takes in a list of users and a list of numbers. This is where vararg parameters come in.
 
 ```csharp
 [Command("assign")]

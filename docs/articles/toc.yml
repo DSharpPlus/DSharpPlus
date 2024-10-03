@@ -34,7 +34,7 @@
   - name: Custom Error Handler
     topicUid: articles.commands.custom_error_handler
   - name: Multi-Argument Parameters
-    topicUid: articles.commands.multi_argument_parameters
+    topicUid: articles.commands.var_arg_parameters
   - name: Argument Converters
     items:
     - name: Built-In Converters
