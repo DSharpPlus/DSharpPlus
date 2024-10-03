@@ -21,7 +21,7 @@ namespace DSharpPlus.Internal.Models.Tests.Converters;
 // tests one-of deserialization on example payloads for actual models
 partial class OneOfConverterTests
 {
-    private readonly ISerializationService<AuditLogChangeTests> serializer;
+    private readonly SerializationService<SystemTextJsonFormatMarker> serializer;
 
     public OneOfConverterTests()
     {
@@ -37,10 +37,11 @@ partial class OneOfConverterTests
             builder => builder.ClearProviders().AddProvider(NullLoggerProvider.Instance)
         );
 
-        services.AddSingleton(typeof(ISerializationService<>), typeof(SerializationService<>));
+        services.AddSingleton(typeof(SerializationService<>));
+        services.AddSingleton<SystemTextJsonSerializationBackend>();
 
         IServiceProvider provider = services.BuildServiceProvider();
-        this.serializer = provider.GetRequiredService<ISerializationService<AuditLogChangeTests>>();
+        this.serializer = provider.GetRequiredService<SerializationService<SystemTextJsonFormatMarker>>();
     }
 
     [Fact]

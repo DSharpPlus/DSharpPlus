@@ -20,7 +20,7 @@ namespace DSharpPlus.Internal.Models.Tests.Converters;
 
 public class AuditLogChangeTests
 {
-    private readonly ISerializationService<AuditLogChangeTests> serializer;
+    private readonly SerializationService<SystemTextJsonFormatMarker> serializer;
 
     public AuditLogChangeTests()
     {
@@ -36,10 +36,11 @@ public class AuditLogChangeTests
             builder => builder.ClearProviders().AddProvider(NullLoggerProvider.Instance)
         );
 
-        services.AddSingleton(typeof(ISerializationService<>), typeof(SerializationService<>));
+        services.AddSingleton(typeof(SerializationService<>));
+        services.AddSingleton<SystemTextJsonSerializationBackend>();
 
         IServiceProvider provider = services.BuildServiceProvider();
-        this.serializer = provider.GetRequiredService<ISerializationService<AuditLogChangeTests>>();
+        this.serializer = provider.GetRequiredService<SerializationService<SystemTextJsonFormatMarker>>();
     }
 
     private static readonly byte[] IntPayload =

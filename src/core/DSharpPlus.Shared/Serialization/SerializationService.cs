@@ -3,13 +3,9 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using CommunityToolkit.HighPerformance.Buffers;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -19,66 +15,36 @@ namespace DSharpPlus.Serialization;
 /// <summary>
 /// Handles serializing and deserializing models between different formats as necessary.
 /// </summary>
-/// <typeparam name="T">The library component a given instance is associated with.</typeparam>
 [RequiresDynamicCode("Serialization in DSharpPlus presently depends on unreferenced and dynamic code.")]
 [RequiresUnreferencedCode("Serialization in DSharpPlus presently depends on unreferenced and dynamic code.")]
-public sealed partial class SerializationService<T> : ISerializationService<T>
+public sealed partial class SerializationService<T>
+(
+    IOptions<SerializationOptions> options,
+    IServiceProvider services,
+    ILogger<SerializationService<T>> logger
+)
 {
-    private readonly string format;
-
-    private readonly JsonSerializerOptions? jsonOptions;
-
-    public SerializationService
-    (
-        IOptions<SerializationOptions> formats,
-        ILogger<ISerializationService<T>> logger,
-        IServiceProvider provider
-    )
+    /// <inheritdoc/>
+    public TModel DeserializeModel<TModel>(ReadOnlySpan<byte> data)
+        where TModel : notnull
     {
-        if (formats.Value.Formats.TryGetValue(typeof(T), out string? format))
-        {
-            LogFormatSpecified(logger, format, typeof(T));
+        ISerializationBackend backendImpl;
 
-            this.format = format;
+        if
+        (
+            options.Value.Formats.TryGetValue(typeof(T), out string? name)
+            && options.Value.BackendImplementations.TryGetValue(name, out Type? backendType)
+        )
+        {
+            backendImpl = (ISerializationBackend)services.GetRequiredService(backendType);
         }
         else
         {
             LogFormatFallback(logger, typeof(T));
-
-            this.format = "json";
+            backendImpl = services.GetRequiredService<SystemTextJsonSerializationBackend>();
         }
 
-        if (this.format == "json")
-        {
-            this.jsonOptions = provider.GetRequiredService<IOptionsMonitor<JsonSerializerOptions>>().Get("dsharpplus");
-
-            foreach (KeyValuePair<Type, Type> map in formats.Value.InterfacesToConcrete)
-            {
-                this.jsonOptions.Converters.Add
-                (
-                    (JsonConverter)typeof(RedirectingConverter<,>)
-                        .MakeGenericType(map.Key, map.Value)
-                        .GetConstructor(Type.EmptyTypes)!
-                        .Invoke(null)!
-                );
-            }
-
-            this.jsonOptions.MakeReadOnly();
-        }
-    }
-
-    /// <inheritdoc/>
-    public TModel DeserializeModel<TModel>
-    (
-        ReadOnlySpan<byte> data
-    )
-        where TModel : notnull
-    {
-        return this.format switch
-        {
-            "json" => JsonSerializer.Deserialize<TModel>(data, this.jsonOptions)!,
-            _ => throw new InvalidOperationException($"The model could not be deserialized from {this.format}."),
-        };
+        return backendImpl.DeserializeModel<TModel>(data);
     }
 
     /// <inheritdoc/>
@@ -89,29 +55,24 @@ public sealed partial class SerializationService<T> : ISerializationService<T>
     )
         where TModel : notnull
     {
-        switch (this.format)
-        {
-            case "json":
-                {
-                    using Utf8JsonWriter writer = new(target);
-                    JsonSerializer.Serialize(writer, model, this.jsonOptions!);
-                    break;
-                }
-            default:
-                throw new InvalidOperationException($"The model could not be serialized to {this.format}.");
-        }
-    }
+        ISerializationBackend backendImpl;
 
-    [LoggerMessage(
-        Level = LogLevel.Information,
-        Message = "Setting serialization format {Format} for library component {Component}."
-    )]
-    private static partial void LogFormatSpecified
-    (
-        ILogger logger,
-        string format,
-        Type component
-    );
+        if
+        (
+            options.Value.Formats.TryGetValue(typeof(T), out string? name)
+            && options.Value.BackendImplementations.TryGetValue(name, out Type? backendType)
+        )
+        {
+            backendImpl = (ISerializationBackend)services.GetRequiredService(backendType);
+        }
+        else
+        {
+            LogFormatFallback(logger, typeof(T));
+            backendImpl = services.GetRequiredService<SystemTextJsonSerializationBackend>();
+        }
+
+        backendImpl.SerializeModel(model, target);
+    }
 
     [LoggerMessage(
         Level = LogLevel.Warning,

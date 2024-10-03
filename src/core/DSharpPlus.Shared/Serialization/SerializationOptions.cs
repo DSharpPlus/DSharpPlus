@@ -22,9 +22,21 @@ public sealed class SerializationOptions
     ///     <item>"etf", on top of ETFKit, not installed by default.</item>
     /// </list>
     /// </summary>
-    internal Dictionary<Type, string> Formats { get; } = new(2);
+    internal Dictionary<Type, string> Formats { get; } = new(4)
+    {
+        [typeof(SystemTextJsonFormatMarker)] = "json"
+    };
 
-    internal Dictionary<Type, Type> InterfacesToConcrete { get; } = new(256);
+    internal Dictionary<Type, Type> InterfacesToConcrete { get; } = new(512);
+
+    internal Dictionary<string, Type> BackendImplementations { get; } = new(2)
+    {
+        ["json"] = typeof(SystemTextJsonSerializationBackend)
+    };
+
+    public void RegisterBackendImplementation<T>()
+        where T : ISerializationBackend
+        => this.BackendImplementations[T.Id] = typeof(T);
 
     /// <summary>
     /// Specifies the concrete type used to deserialize an interface.

@@ -9,11 +9,15 @@ using CommunityToolkit.HighPerformance.Buffers;
 namespace DSharpPlus.Serialization;
 
 /// <summary>
-/// Represents an abstraction over model serialization.
+/// Represents a serialization backend managed by <see cref="SerializationService{T}"/>.
 /// </summary>
-/// <typeparam name="T">The library component a given instance is associated with.</typeparam>
-public interface ISerializationService<out T>
+public interface ISerializationBackend
 {
+    /// <summary>
+    /// A unique ID for this backend, used to distinguish if multiple different backends are in use at once.
+    /// </summary>
+    public static abstract string Id { get; }
+
     /// <summary>
     /// Serializes a given serialization model to the given writer.
     /// </summary>
@@ -21,11 +25,7 @@ public interface ISerializationService<out T>
     /// This method serializes the library data models specifically, and may not exhibit correct behaviour
     /// for other types.
     /// </remarks>
-    public void SerializeModel<TModel>
-    (
-        TModel model,
-        ArrayPoolBufferWriter<byte> target
-    )
+    public void SerializeModel<TModel>(TModel model, ArrayPoolBufferWriter<byte> target)
         where TModel : notnull;
 
     /// <summary>
