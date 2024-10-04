@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -135,12 +136,12 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         foreach (DiscordApplicationCommand discordCommand in applicationCommands)
         {
             bool commandFound = false;
-            string discordCommandName = this.Configuration.ParameterNamePolicy.TransformText(discordCommand.Name).ToString();
+            string discordCommandName = this.Configuration.ParameterNamePolicy.TransformText(discordCommand.Name, CultureInfo.InvariantCulture).ToString();
             if (discordCommand.Type is DiscordApplicationCommandType.MessageContextMenu or DiscordApplicationCommandType.UserContextMenu)
             {
                 foreach (Command command in flattenCommands)
                 {
-                    string commandName = this.Configuration.ParameterNamePolicy.GetCommandName(command);
+                    string commandName = this.Configuration.ParameterNamePolicy.GetCommandName(command, CultureInfo.InvariantCulture);
                     if (commandName == discordCommandName)
                     {
                         commandsDictionary.Add(discordCommand.Id, command);
@@ -153,7 +154,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             {
                 foreach (Command command in processorSpecificCommands)
                 {
-                    string commandName = this.Configuration.ParameterNamePolicy.GetCommandName(command);
+                    string commandName = this.Configuration.ParameterNamePolicy.GetCommandName(command, CultureInfo.InvariantCulture);
                     if (commandName == discordCommandName)
                     {
                         commandsDictionary.Add(discordCommand.Id, command);
@@ -228,7 +229,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
 
         // Create the top level application command.
         return new(
-            name: this.Configuration.ParameterNamePolicy.GetCommandName(command),
+            name: this.Configuration.ParameterNamePolicy.GetCommandName(command, CultureInfo.InvariantCulture),
             description: description,
             options: options,
             type: DiscordApplicationCommandType.SlashCommand,
@@ -276,7 +277,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         Dictionary<string, string> descriptionLocalizations = [];
         if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
         {
-            nameLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
+            foreach ((string ietfTag, string name) in await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name"))
+            {
+                nameLocalizations[ietfTag] = this.Configuration.ParameterNamePolicy.TransformText(name, CultureInfo.GetCultureInfo(ietfTag)).ToString();
+            }
+
             descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
         }
 
@@ -287,7 +292,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         }
 
         return new(
-            name: this.Configuration.ParameterNamePolicy.GetCommandName(command),
+            name: this.Configuration.ParameterNamePolicy.GetCommandName(command, CultureInfo.InvariantCulture),
             description: description,
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
@@ -322,7 +327,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
                 localeIdBuilder.Append($".{i}");
             }
 
-            nameLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".name");
+            foreach ((string ietfTag, string name) in await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".name"))
+            {
+                nameLocalizations[ietfTag] = this.Configuration.ParameterNamePolicy.TransformText(name, CultureInfo.GetCultureInfo(ietfTag)).ToString();
+            }
+
             descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".description");
         }
 
@@ -367,7 +376,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         };
 
         return new(
-            name: this.Configuration.ParameterNamePolicy.GetParameterName(parameter, i),
+            name: this.Configuration.ParameterNamePolicy.GetParameterName(parameter, CultureInfo.InvariantCulture, i),
             description: description,
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
@@ -597,5 +606,24 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         }
 
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Attempts to find the correct locale to use by searching the user's locale, falling back to the guild's locale, then to invariant.
+    /// </summary>
+    /// <param name="interaction">The interaction to resolve the locale from.</param>
+    /// <returns>Which culture to use.</returns>
+    internal static CultureInfo ResolveCulture(DiscordInteraction interaction)
+    {
+        if (!string.IsNullOrWhiteSpace(interaction.Locale))
+        {
+            return CultureInfo.GetCultureInfoByIetfLanguageTag(interaction.Locale);
+        }
+        else if (!string.IsNullOrWhiteSpace(interaction.GuildLocale))
+        {
+            return CultureInfo.GetCultureInfoByIetfLanguageTag(interaction.GuildLocale);
+        }
+
+        return CultureInfo.InvariantCulture;
     }
 }

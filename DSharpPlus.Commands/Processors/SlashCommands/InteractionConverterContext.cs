@@ -44,7 +44,7 @@ public record InteractionConverterContext : ConverterContext
         }
 
         // Convert the parameter into it's interaction-friendly name
-        string parameterPolicyName = this.ParameterNamePolicy.GetParameterName(this.Parameter, this.VariadicArgumentParameterIndex);
+        string parameterPolicyName = this.ParameterNamePolicy.GetParameterName(this.Parameter, SlashCommandProcessor.ResolveCulture(this.Interaction), this.VariadicArgumentParameterIndex);
         DiscordInteractionDataOption? argument = this.Options.SingleOrDefault(argument => argument.Name == parameterPolicyName);
         if (argument is null)
         {

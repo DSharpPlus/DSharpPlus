@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.Converters;
@@ -179,6 +180,9 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             return false;
         }
 
+        // Cache this for later use.
+        CultureInfo culture = ResolveCulture(interaction);
+
         // Resolve subcommands, which do not have subcommand id's.
         options = interaction.Data.Options ?? [];
         while (options.Any())
@@ -189,7 +193,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
                 break;
             }
 
-            command = command.Subcommands.First(subcommandName => this.Configuration.ParameterNamePolicy.GetCommandName(subcommandName) == option.Name);
+            command = command.Subcommands.First(subcommandName => this.Configuration.ParameterNamePolicy.GetCommandName(subcommandName, culture) == option.Name);
             options = option.Options ?? [];
         }
 
@@ -222,6 +226,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             return null;
         }
 
+        CultureInfo culture = ResolveCulture(converterContext.Interaction);
         Dictionary<CommandParameter, object?> parsedArguments = [];
         CommandParameter? autoCompleteParameter = null;
         DiscordInteractionDataOption? autoCompleteOption = null;
@@ -231,7 +236,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             while (converterContext.NextParameter())
             {
                 DiscordInteractionDataOption? option = converterContext.Options.FirstOrDefault(discordOption => discordOption.Name.Equals(
-                    converterContext.Extension.GetProcessor<SlashCommandProcessor>().Configuration.ParameterNamePolicy.GetParameterName(converterContext.Parameter, -1),
+                    converterContext.Extension.GetProcessor<SlashCommandProcessor>().Configuration.ParameterNamePolicy.GetParameterName(converterContext.Parameter, culture, -1),
                     StringComparison.OrdinalIgnoreCase)
                 );
 
