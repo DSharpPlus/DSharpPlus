@@ -32,7 +32,16 @@ public interface IArgumentConverter
     }
 }
 
+/// <summary>
+/// Converts an argument to a desired type.
+/// </summary>
+/// <typeparam name="TOutput">The type to convert the argument to.</typeparam>
 public interface IArgumentConverter<TOutput> : IArgumentConverter
 {
+    /// <summary>
+    /// Converts the argument to the desired type.
+    /// </summary>
+    /// <param name="context">The context for this conversion.</param>
+    /// <returns>An optional containing the converted value, or an empty optional if the conversion failed.</returns>
     public Task<Optional<TOutput>> ConvertAsync(ConverterContext context);
 }
