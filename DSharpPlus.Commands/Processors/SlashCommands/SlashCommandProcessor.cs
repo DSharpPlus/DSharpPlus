@@ -109,7 +109,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             Extension = this.extension,
             Interaction = eventArgs.Interaction,
             Options = options,
-            ParameterNamePolicy = this.Configuration.ParameterNamePolicy,
+            ParameterNamePolicy = this.Configuration.NamingPolicy,
             ServiceScope = serviceScope,
             User = eventArgs.Interaction.User,
         };
@@ -193,7 +193,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
                 break;
             }
 
-            command = command.Subcommands.First(subcommandName => this.Configuration.ParameterNamePolicy.GetCommandName(subcommandName, culture) == option.Name);
+            command = command.Subcommands.First(subcommandName => this.Configuration.NamingPolicy.GetCommandName(subcommandName, culture) == option.Name);
             options = option.Options ?? [];
         }
 
@@ -236,7 +236,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             while (converterContext.NextParameter())
             {
                 DiscordInteractionDataOption? option = converterContext.Options.FirstOrDefault(discordOption => discordOption.Name.Equals(
-                    converterContext.Extension.GetProcessor<SlashCommandProcessor>().Configuration.ParameterNamePolicy.GetParameterName(converterContext.Parameter, culture, -1),
+                    converterContext.Extension.GetProcessor<SlashCommandProcessor>().Configuration.NamingPolicy.GetParameterName(converterContext.Parameter, culture, -1),
                     StringComparison.OrdinalIgnoreCase)
                 );
 

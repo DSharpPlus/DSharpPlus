@@ -327,7 +327,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         }
         // If the parameter is a vararg parameter or params, we'll
         // parse all the arguments until we reach the maximum argument count.
-        else if (context.VariadicArgumentAttribute is not null)
+        else if (context.VariadicArgumentAttribute is null)
         {
             return await typedConverter.ConvertAsync(context);
         }

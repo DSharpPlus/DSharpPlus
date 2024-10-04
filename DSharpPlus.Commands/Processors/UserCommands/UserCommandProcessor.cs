@@ -176,12 +176,12 @@ public sealed class UserCommandProcessor : ICommandProcessor
         {
             foreach ((string ietfTag, string name) in await this.slashCommandProcessor.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name"))
             {
-                nameLocalizations[ietfTag] = this.slashCommandProcessor.Configuration.ParameterNamePolicy.TransformText(name, CultureInfo.GetCultureInfo(ietfTag)).ToString();
+                nameLocalizations[ietfTag] = this.slashCommandProcessor.Configuration.NamingPolicy.TransformText(name, CultureInfo.GetCultureInfo(ietfTag)).ToString();
             }
         }
 
         return new(
-            name: this.slashCommandProcessor.Configuration.ParameterNamePolicy.GetCommandName(command, CultureInfo.InvariantCulture),
+            name: this.slashCommandProcessor.Configuration.NamingPolicy.GetCommandName(command, CultureInfo.InvariantCulture),
             description: string.Empty,
             type: DiscordApplicationCommandType.UserContextMenu,
             name_localizations: nameLocalizations,

@@ -136,12 +136,12 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         foreach (DiscordApplicationCommand discordCommand in applicationCommands)
         {
             bool commandFound = false;
-            string discordCommandName = this.Configuration.ParameterNamePolicy.TransformText(discordCommand.Name, CultureInfo.InvariantCulture).ToString();
+            string discordCommandName = this.Configuration.NamingPolicy.TransformText(discordCommand.Name, CultureInfo.InvariantCulture).ToString();
             if (discordCommand.Type is DiscordApplicationCommandType.MessageContextMenu or DiscordApplicationCommandType.UserContextMenu)
             {
                 foreach (Command command in flattenCommands)
                 {
-                    string commandName = this.Configuration.ParameterNamePolicy.GetCommandName(command, CultureInfo.InvariantCulture);
+                    string commandName = this.Configuration.NamingPolicy.GetCommandName(command, CultureInfo.InvariantCulture);
                     if (commandName == discordCommandName)
                     {
                         commandsDictionary.Add(discordCommand.Id, command);
@@ -154,7 +154,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             {
                 foreach (Command command in processorSpecificCommands)
                 {
-                    string commandName = this.Configuration.ParameterNamePolicy.GetCommandName(command, CultureInfo.InvariantCulture);
+                    string commandName = this.Configuration.NamingPolicy.GetCommandName(command, CultureInfo.InvariantCulture);
                     if (commandName == discordCommandName)
                     {
                         commandsDictionary.Add(discordCommand.Id, command);
@@ -229,7 +229,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
 
         // Create the top level application command.
         return new(
-            name: this.Configuration.ParameterNamePolicy.GetCommandName(command, CultureInfo.InvariantCulture),
+            name: this.Configuration.NamingPolicy.GetCommandName(command, CultureInfo.InvariantCulture),
             description: description,
             options: options,
             type: DiscordApplicationCommandType.SlashCommand,
@@ -279,7 +279,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         {
             foreach ((string ietfTag, string name) in await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name"))
             {
-                nameLocalizations[ietfTag] = this.Configuration.ParameterNamePolicy.TransformText(name, CultureInfo.GetCultureInfo(ietfTag)).ToString();
+                nameLocalizations[ietfTag] = this.Configuration.NamingPolicy.TransformText(name, CultureInfo.GetCultureInfo(ietfTag)).ToString();
             }
 
             descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
@@ -292,7 +292,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         }
 
         return new(
-            name: this.Configuration.ParameterNamePolicy.GetCommandName(command, CultureInfo.InvariantCulture),
+            name: this.Configuration.NamingPolicy.GetCommandName(command, CultureInfo.InvariantCulture),
             description: description,
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
@@ -329,7 +329,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
 
             foreach ((string ietfTag, string name) in await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".name"))
             {
-                nameLocalizations[ietfTag] = this.Configuration.ParameterNamePolicy.TransformText(name, CultureInfo.GetCultureInfo(ietfTag)).ToString();
+                nameLocalizations[ietfTag] = this.Configuration.NamingPolicy.TransformText(name, CultureInfo.GetCultureInfo(ietfTag)).ToString();
             }
 
             descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".description");
@@ -376,7 +376,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         };
 
         return new(
-            name: this.Configuration.ParameterNamePolicy.GetParameterName(parameter, CultureInfo.InvariantCulture, i),
+            name: this.Configuration.NamingPolicy.GetParameterName(parameter, CultureInfo.InvariantCulture, i),
             description: description,
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
