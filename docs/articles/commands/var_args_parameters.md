@@ -1,9 +1,9 @@
 ---
-uid: articles.commands.var_arg_parameters
-title: VarArg Parameters
+uid: articles.commands.variadic_parameters
+title: Variadic Parameters
 ---
 
-# VarArg Parameters
+# Variadic Parameters
 
 When creating a command, you may want to have a parameter that can accept multiple arguments. This is useful for commands that require a list of items, such as a list of users or a list of numbers. This was previously supported in the `CommandsNext` extension through the `params` keyword.
 
@@ -20,15 +20,15 @@ Which could be used like this:
 !echo hello world 1 2 3
 ```
 
-This behavior is still supported, but what if you wanted to have multiple lists? For example, a command that takes in a list of users and a list of numbers. This is where vararg parameters come in.
+This behavior is still supported, but what if you wanted to have multiple lists? For example, a command that takes in a list of users and a list of numbers. This is where variadic parameters come in.
 
 ```csharp
 [Command("assign")]
 [Description("Assigns multiple roles to multiple users.")]
 public async ValueTask ExecuteAsync(
     CommandContext context,
-    [MultiArgument(1, 5)] IReadOnlyList<DiscordRole> roles,
-    [MultiArgument(1)] IReadOnlyList<DiscordMember> members
+    [VariadicArgument(1, 5)] IReadOnlyList<DiscordRole> roles,
+    [VariadicArgument(1)] IReadOnlyList<DiscordMember> members
 )
 {
     // We're making a lot of API calls here, so let the
