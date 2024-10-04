@@ -617,11 +617,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
     {
         if (!string.IsNullOrWhiteSpace(interaction.Locale))
         {
-            return CultureInfo.GetCultureInfoByIetfLanguageTag(interaction.Locale);
+            return CultureInfo.GetCultureInfo(interaction.Locale);
         }
         else if (!string.IsNullOrWhiteSpace(interaction.GuildLocale))
         {
-            return CultureInfo.GetCultureInfoByIetfLanguageTag(interaction.GuildLocale);
+            return CultureInfo.GetCultureInfo(interaction.GuildLocale);
         }
 
         return CultureInfo.InvariantCulture;
