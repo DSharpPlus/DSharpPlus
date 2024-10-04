@@ -28,8 +28,7 @@ using Humanizer;
 
 public class OrdinalSnakeCaseInteractionNamingPolicy : IInteractionNamingPolicy
 {
-    private static readonly SnakeCaseInteractionNamingPolicy _snakeCasePolicy =
-        new SnakeCaseInteractionNamingPolicy();
+    private static readonly SnakeCaseInteractionNamingPolicy _snakeCasePolicy = new SnakeCaseInteractionNamingPolicy();
 
     public string GetCommandName(Command command) => _snakeCasePolicy.GetCommandName(command);
 
@@ -51,8 +50,7 @@ public class OrdinalSnakeCaseInteractionNamingPolicy : IInteractionNamingPolicy
         return stringBuilder.ToString();
     }
 
-    public StringBuilder TransformText(ReadOnlySpan<char> text) =>
-        _snakeCasePolicy.TransformText(text);
+    public StringBuilder TransformText(ReadOnlySpan<char> text) => _snakeCasePolicy.TransformText(text);
 }
 ```
 
@@ -62,18 +60,14 @@ public class OrdinalSnakeCaseInteractionNamingPolicy : IInteractionNamingPolicy
 Now that you have your custom naming policy, you can use it when setting up the Commands extension:
 
 ```cs
-serviceCollection.UseCommands(
-    (IServiceProvider serviceProvider, CommandsExtension extension) =>
+serviceCollection.UseCommands((IServiceProvider serviceProvider, CommandsExtension extension) => {
+    SlashCommandProcessor slashCommandProcessor = new(new SlashCommandConfiguration()
     {
-        SlashCommandProcessor slashCommandProcessor =
-            new(
-                new SlashCommandConfiguration()
-                {
-                    NamingPolicy = new OrdinalSnakeCaseInteractionNamingPolicy(),
-                }
-            );
-    }
-);
+        NamingPolicy = new OrdinalSnakeCaseInteractionNamingPolicy(),
+    });
+
+    extension.AddProcessor(slashCommandProcessor);
+});
 ```
 
 And now your commands should be registered with the naming format you've chosen:

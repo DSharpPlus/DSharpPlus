@@ -17,48 +17,33 @@ public async Task Main(string[] args)
     string discordToken = Environment.GetEnvironmentVariable("DISCORD_TOKEN");
     if (string.IsNullOrWhiteSpace(discordToken))
     {
-        Console.WriteLine(
-            "Error: No discord token found. Please provide a token via the DISCORD_TOKEN environment variable."
-        );
+        Console.WriteLine("Error: No discord token found. Please provide a token via the DISCORD_TOKEN environment variable.");
         Environment.Exit(1);
     }
 
-    DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(
-        discordToken,
-        TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents
-    );
+    DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
 
     // Setup the commands extension
-    builder.UseCommands(
-        (IServiceProvider serviceProvider, CommandsExtension extension) =>
+    builder.UseCommands((IServiceProvider serviceProvider, CommandsExtension extension) =>
+    {
+        extension.AddCommands([typeof(MyCommand), typeof(MyOtherCommand)]);
+        TextCommandProcessor textCommandProcessor = new(new()
         {
-            extension.AddCommands([typeof(MyCommand), typeof(MyOtherCommand)]);
-            TextCommandProcessor textCommandProcessor =
-                new(
-                    new()
-                    {
-                        // The default behavior is that the bot reacts to direct
-                        // mentions and to the "!" prefix. If you want to change
-                        // it, you first set if the bot should react to mentions
-                        // and then you can provide as many prefixes as you want.
-                        PrefixResolver = new DefaultPrefixResolver(
-                            true,
-                            "?",
-                            "&"
-                        ).ResolvePrefixAsync,
-                    }
-                );
+            // The default behavior is that the bot reacts to direct
+            // mentions and to the "!" prefix. If you want to change
+            // it, you first set if the bot should react to mentions
+            // and then you can provide as many prefixes as you want.
+            PrefixResolver = new DefaultPrefixResolver(true, "?", "&").ResolvePrefixAsync,
+        });
 
-            // Add text commands with a custom prefix (?ping)
-            extension.AddProcessor(textCommandProcessor);
-        },
-        new CommandsConfiguration()
-        {
-            // The default value is true, however it's shown here for clarity
-            RegisterDefaultCommandProcessors = true,
-            DebugGuildId = Environment.GetEnvironmentVariable("DEBUG_GUILD_ID") ?? 0,
-        }
-    );
+        // Add text commands with a custom prefix (?ping)
+        extension.AddProcessor(textCommandProcessor);
+    }, new CommandsConfiguration()
+    {
+        // The default value is true, however it's shown here for clarity
+        RegisterDefaultCommandProcessors = true,
+        DebugGuildId = Environment.GetEnvironmentVariable("DEBUG_GUILD_ID") ?? 0,
+    });
 
     DiscordClient client = builder.Build();
 
@@ -80,49 +65,33 @@ In the main logic of your program, we're going to register the `DiscordClient` a
 string discordToken = Environment.GetEnvironmentVariable("DISCORD_TOKEN");
 if (string.IsNullOrWhiteSpace(discordToken))
 {
-    Console.WriteLine(
-        "Error: No discord token found. Please provide a token via the DISCORD_TOKEN environment variable."
-    );
+    Console.WriteLine("Error: No discord token found. Please provide a token via the DISCORD_TOKEN environment variable.");
     Environment.Exit(1);
 }
 
-serviceCollection.AddDiscordClient(
-    discordToken,
-    TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents
-);
+serviceCollection.AddDiscordClient(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
 
 // Setup the commands extension
-serviceCollection.AddCommandsExtension(
-    (IServiceProvider serviceProvider, CommandsExtension extension) =>
+serviceCollection.AddCommandsExtension((IServiceProvider serviceProvider, CommandsExtension extension) =>
+{
+    extension.AddCommands([typeof(MyCommand), typeof(MyOtherCommand)]);
+    TextCommandProcessor textCommandProcessor = new(new()
     {
-        extension.AddCommands([typeof(MyCommand), typeof(MyOtherCommand)]);
-        TextCommandProcessor textCommandProcessor =
-            new(
-                new()
-                {
-                    // The default behavior is that the bot reacts to direct
-                    // mentions and to the "!" prefix. If you want to change
-                    // it, you first set if the bot should react to mentions
-                    // and then you can provide as many prefixes as you want.
-                    PrefixResolver = new DefaultPrefixResolver(
-                        true,
-                        "?",
-                        "&"
-                    ).ResolvePrefixAsync,
-                }
-            );
+        // The default behavior is that the bot reacts to direct
+        // mentions and to the "!" prefix. If you want to change
+        // it, you first set if the bot should react to mentions
+        // and then you can provide as many prefixes as you want.
+        PrefixResolver = new DefaultPrefixResolver(true, "?", "&").ResolvePrefixAsync,
+    });
 
-        // Add text commands with a custom prefix (?ping)
-        extension.AddProcessor(textCommandProcessor);
-    },
-    new CommandsConfiguration()
-    {
-        // The default value is true, however it's shown here for clarity
-        RegisterDefaultCommandProcessors = true,
-        DebugGuildId = Environment.GetEnvironmentVariable("DEBUG_GUILD_ID") ?? 0,
-    }
-);
-
+    // Add text commands with a custom prefix (?ping)
+    extension.AddProcessor(textCommandProcessor);
+}, new CommandsConfiguration()
+{
+    // The default value is true, however it's shown here for clarity
+    RegisterDefaultCommandProcessors = true,
+    DebugGuildId = Environment.GetEnvironmentVariable("DEBUG_GUILD_ID") ?? 0,
+});
 ```
 
 And then, once you start your client, everything will work fine:
@@ -138,7 +107,6 @@ await discordClient.ConnectAsync(status, DiscordUserStatus.Online);
 
 // And now we wait infinitely so that our bot actually stays connected.
 await Task.Delay(-1);
-
 ```
 
 ---

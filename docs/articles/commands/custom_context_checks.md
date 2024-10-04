@@ -18,8 +18,7 @@ public class DirectMessageUsageAttribute : ContextCheckAttribute
 {
     public DirectMessageUsage Usage { get; init; }
 
-    public DirectMessageUsageAttribute(DirectMessageUsage usage = DirectMessageUsage.Allow) =>
-        Usage = usage;
+    public DirectMessageUsageAttribute(DirectMessageUsage usage = DirectMessageUsage.Allow) => Usage = usage;
 }
 ```
 
@@ -31,10 +30,7 @@ If the check was successful, the method should return `null`. If it was unsucces
 ```cs
 public class DirectMessageUsageCheck : IContextCheck<DirectMessageUsageAttribute>
 {
-    public ValueTask<string?> ExecuteCheckAsync(
-        DirectMessageUsageAttribute attribute,
-        CommandContext context
-    )
+    public ValueTask<string?> ExecuteCheckAsync(DirectMessageUsageAttribute attribute, CommandContext context)
     {
         // When the command is sent via DM and the attribute allows DMs, allow the command to be executed.
         if (context.Channel.IsPrivate && attribute.Usage is not DirectMessageUsage.DenyDMs)
@@ -55,14 +51,10 @@ public class DirectMessageUsageCheck : IContextCheck<DirectMessageUsageAttribute
             {
                 DirectMessageUsage.DenyDMs => "denies DM usage",
                 DirectMessageUsage.RequireDMs => "requires DM usage",
-                _ => throw new NotImplementedException(
-                    $"A new DirectMessageUsage value was added and not implemented in the {nameof(DirectMessageUsageCheck)}: {attribute.Usage}"
-                ),
+                _ => throw new NotImplementedException($"A new DirectMessageUsage value was added and not implemented in the {nameof(DirectMessageUsageCheck)}: {attribute.Usage}"),
             };
 
-            return ValueTask.FromResult<string?>(
-                $"The executed command {requirement} but was executed {dmStatus}."
-            );
+            return ValueTask.FromResult<string?>($"The executed command {requirement} but was executed {dmStatus}.");
         }
     }
 }
@@ -117,11 +109,7 @@ using DSharpPlus.Commands.ContextChecks.ParameterChecks;
 
 public sealed class MaximumStringLengthCheck : IParameterCheck<MaximumStringLengthAttribute>
 {
-    public ValueTask<string?> ExecuteCheckAsync(
-        MaximumStringLengthAttribute attribute,
-        ParameterCheckInfo info,
-        CommandContext context
-    )
+    public ValueTask<string?> ExecuteCheckAsync(MaximumStringLengthAttribute attribute, ParameterCheckInfo info, CommandContext context)
     {
         if (info.Value is not string str)
         {
@@ -147,10 +135,8 @@ And then apply it to our parameter:
 
 ```cs
 [Command("say")]
-public static async ValueTask SayAsync(
-    CommandContext commandContext,
-    [MaximumStringLength(2000)] string text
-) => await commandContext.RespondAsync(text);
+public static async ValueTask SayAsync(CommandContext commandContext, [MaximumStringLength(2000)] string text) =>
+    await commandContext.RespondAsync(text);
 ```
 
 ## Advanced Features

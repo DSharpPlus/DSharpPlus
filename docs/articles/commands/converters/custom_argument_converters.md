@@ -14,10 +14,9 @@ Argument converters are command processor specific. This means that if you want 
 ```cs
 public class UlidArgumentConverter : ITextArgumentConverter<Ulid>, ISlashArgumentConverter<Ulid>
 {
+    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.String;
     public string ReadableName => "Ulid";
     public bool RequiresText => true;
-    public DiscordApplicationCommandOptionType ParameterType =>
-        DiscordApplicationCommandOptionType.String;
 
     public Task<Optional<Ulid>> ConvertAsync(ConverterContext context)
 }
@@ -28,10 +27,9 @@ Now, a `ConverterContext` is very similar to a `CommandContext` - so much so tha
 ```cs
 public class UlidArgumentConverter : ITextArgumentConverter<Ulid>, ISlashArgumentConverter<Ulid>
 {
+    public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.String;
     public string ReadableName => "Ulid";
     public bool RequiresText => true;
-    public DiscordApplicationCommandOptionType ParameterType =>
-        DiscordApplicationCommandOptionType.String;
 
     private readonly ILogger<UlidArgumentConverter> logger;
 

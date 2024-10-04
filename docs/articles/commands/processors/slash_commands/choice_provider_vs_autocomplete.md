@@ -61,9 +61,8 @@ public class DaysOfTheWeekProvider : IChoiceProvider
         new DiscordApplicationCommandOptionChoice("Saturday", 6),
     ];
 
-    public ValueTask<IEnumerable<DiscordApplicationCommandOptionChoice>> ProvideAsync(
-        CommandParameter parameter
-    ) => ValueTask.FromResult(daysOfTheWeek);
+    public ValueTask<IEnumerable<DiscordApplicationCommandOptionChoice>> ProvideAsync(CommandParameter parameter) =>
+        ValueTask.FromResult(daysOfTheWeek);
 }
 ```
 
@@ -72,10 +71,7 @@ And now we apply this choice provider to a command parameter:
 ```cs
 public class ScheduleCommand
 {
-    public async ValueTask ExecuteAsync(
-        CommandContext context,
-        [SlashChoiceProvider<DaysOfTheWeekProvider>] int day
-    )
+    public async ValueTask ExecuteAsync(CommandContext context, [SlashChoiceProvider<DaysOfTheWeekProvider>] int day)
     {
         // ...
     }
@@ -93,9 +89,7 @@ public class TagNameAutoCompleteProvider : IAutoCompleteProvider
 
     public TagNameAutoCompleteProvider(ITagService tagService) => tagService = tagService;
 
-    public ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(
-        AutoCompleteContext context
-    );
+    public ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(AutoCompleteContext context);
     {
         var tags = tagService
             .GetTags()
@@ -112,10 +106,7 @@ And now we apply this auto-complete provider to a command parameter:
 ```cs
 public class TagCommand
 {
-    public async ValueTask ExecuteAsync(
-        CommandContext context,
-        [SlashAutoCompleteProvider<TagNameAutoCompleteProvider>] string tagName
-    )
+    public async ValueTask ExecuteAsync(CommandContext context, [SlashAutoCompleteProvider<TagNameAutoCompleteProvider>] string tagName)
     {
         // ...
     }
