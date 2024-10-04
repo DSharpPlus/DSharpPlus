@@ -15,6 +15,11 @@ public class SlashAutoCompleteProviderAttribute : Attribute
     public SlashAutoCompleteProviderAttribute(Type autoCompleteType)
     {
         ArgumentNullException.ThrowIfNull(autoCompleteType, nameof(autoCompleteType));
+        if (autoCompleteType.GetInterface(nameof(IAutoCompleteProvider)) is null)
+        {
+            throw new ArgumentException("The provided type must implement IAutoCompleteProvider.", nameof(autoCompleteType));
+        }
+
         this.AutoCompleteType = autoCompleteType;
     }
 

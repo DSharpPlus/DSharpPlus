@@ -16,6 +16,11 @@ public class SlashChoiceProviderAttribute : Attribute
     public SlashChoiceProviderAttribute(Type providerType)
     {
         ArgumentNullException.ThrowIfNull(providerType, nameof(providerType));
+        if (providerType.GetInterface(nameof(IChoiceProvider)) is null)
+        {
+            throw new ArgumentException("The provided type must implement IChoiceProvider.", nameof(providerType));
+        }
+
         this.ProviderType = providerType;
     }
 
