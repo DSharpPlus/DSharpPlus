@@ -49,16 +49,22 @@
       topicUid: articles.commands.command_processors.introduction
     - name: Text Commands
       items:
+      - name: Command Aliases
+        topicUid: articles.commands.command_processors.text_commands.command_aliases
       - name: Custom Prefix Handler
         topicUid: articles.commands.command_processors.text_commands.custom_prefix_handler
+      - name: Remaining Text
+        topicUid: articles.commands.command_processors.text_commands.remaining_text
     - name: Slash Commands
       items:
       - name: Choice Providers vs AutoComplete
         topicUid: articles.commands.command_processors.slash_commands.choice_provider_vs_autocomplete
-      - name: Naming Policies
-        topicUid: articles.commands.command_processors.slash_commands.naming_policies
       - name: Missing Commands
         topicUid: articles.commands.command_processors.slash_commands.missing_commands
+      - name: Naming Policies
+        topicUid: articles.commands.command_processors.slash_commands.naming_policies
+      - name: Translator Providers
+        topicUid: articles.commands.command_processors.slash_commands.translator_providers
 - name: CommandsNext
   items:
   - name: Introduction
