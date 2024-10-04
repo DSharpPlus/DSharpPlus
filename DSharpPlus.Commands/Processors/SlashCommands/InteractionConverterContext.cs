@@ -37,14 +37,14 @@ public record InteractionConverterContext : ConverterContext
     /// <inheritdoc/>
     public override bool NextArgument()
     {
-        // Support for multi-argument parameters
-        if (this.MultiArgumentAttribute is not null && !NextMultiArgument())
+        // Support for variadic-argument parameters
+        if (this.VariadicArgumentAttribute is not null && !NextVariadicArgument())
         {
             return false;
         }
 
         // Convert the parameter into it's interaction-friendly name
-        string parameterPolicyName = this.ParameterNamePolicy.GetParameterName(this.Parameter, this.MultiArgumentParameterIndex);
+        string parameterPolicyName = this.ParameterNamePolicy.GetParameterName(this.Parameter, this.VariadicArgumentParameterIndex);
         DiscordInteractionDataOption? argument = this.Options.SingleOrDefault(argument => argument.Name == parameterPolicyName);
         if (argument is null)
         {

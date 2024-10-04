@@ -57,10 +57,10 @@ public partial class CommandParameterBuilder
             {
                 WithDescription(descriptionAttribute.Description);
             }
-            else if (attribute is ParamArrayAttribute && !this.Attributes.Any(attribute => attribute is MultiArgumentAttribute))
+            else if (attribute is ParamArrayAttribute && !this.Attributes.Any(attribute => attribute is VariadicArgumentAttribute))
             {
-                // Transform the params into a MultiArgumentAttribute
-                listedAttributes.Add(new MultiArgumentAttribute(int.MaxValue));
+                // Transform the params into a VariadicArgumentAttribute
+                listedAttributes.Add(new VariadicArgumentAttribute(int.MaxValue));
             }
 
             listedAttributes.Add(attribute);

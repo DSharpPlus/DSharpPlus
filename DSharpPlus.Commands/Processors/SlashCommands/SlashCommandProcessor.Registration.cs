@@ -202,7 +202,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         List<DiscordApplicationCommandOption> options = [];
         if (command.Subcommands.Count == 0)
         {
-            await PopulateMultiArgumentParametersAsync(command, options);
+            await PopulateVariadicParametersAsync(command, options);
         }
         else
         {
@@ -255,7 +255,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         List<DiscordApplicationCommandOption> options = [];
         if (command.Subcommands.Count == 0)
         {
-            await PopulateMultiArgumentParametersAsync(command, options);
+            await PopulateVariadicParametersAsync(command, options);
         }
         else
         {
@@ -378,18 +378,18 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             maxValue: maxValue,
             minLength: minMaxLength?.MinLength,
             minValue: minValue,
-            required: !parameter.DefaultValue.HasValue && parameter.Attributes.Select(attribute => attribute is MultiArgumentAttribute multiArgumentAttribute
-                ? multiArgumentAttribute.MinimumArgumentCount : 0).Sum() > i,
+            required: !parameter.DefaultValue.HasValue && parameter.Attributes.Select(attribute => attribute is VariadicArgumentAttribute variadicArgumentAttribute
+                ? variadicArgumentAttribute.MinimumArgumentCount : 0).Sum() > i,
             type: slashArgumentConverter.ParameterType
         );
     }
 
-    private async ValueTask PopulateMultiArgumentParametersAsync(Command command, List<DiscordApplicationCommandOption> options)
+    private async ValueTask PopulateVariadicParametersAsync(Command command, List<DiscordApplicationCommandOption> options)
     {
-        int minimumMultiArgumentCount = 0;
+        int minimumArgumentCount = 0;
         foreach (Attribute attribute in command.Parameters.SelectMany(parameter => parameter.Attributes))
         {
-            if (attribute is not MultiArgumentAttribute multiArgumentAttribute)
+            if (attribute is not VariadicArgumentAttribute variadicArgumentAttribute)
             {
                 continue;
             }
@@ -399,32 +399,32 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
              *
              * public static async ValueTask ExecuteAsync(
              *     CommandContext context,
-             *     [MultiArgument(Max = 50, Minimum = 10)] DiscordMember[] members,
-             *     [MultiArgument(Max = 50, Minimum = 16)] DiscordRole[] roles
+             *     [VariadicArgument(Max = 50, Minimum = 10)] DiscordMember[] members,
+             *     [VariadicArgument(Max = 50, Minimum = 16)] DiscordRole[] roles
              * );
              *
              * The total minimum argument count would be 26. Discord only supports up to 25 parameters.
              * There is not a feasible workaround for this, so let's yell at the user.
              */
 
-            minimumMultiArgumentCount += multiArgumentAttribute.MinimumArgumentCount;
-            if (minimumMultiArgumentCount > 25)
+            minimumArgumentCount += variadicArgumentAttribute.MinimumArgumentCount;
+            if (minimumArgumentCount > 25)
             {
                 throw new InvalidOperationException(
-                    $"Slash command failed validation: Command '{command.Name}' has too many minimum arguments. Discord only supports up to 25 parameters, please lower the total minimum argument count that's set through {nameof(MultiArgumentAttribute)}."
+                    $"Slash command failed validation: Command '{command.Name}' has too many minimum arguments. Discord only supports up to 25 parameters, please lower the total minimum argument count that's set through {nameof(VariadicArgumentAttribute)}."
                 );
             }
         }
 
         foreach (CommandParameter parameter in command.Parameters)
         {
-            // Check if the parameter is using a multi-argument attribute.
+            // Check if the parameter is using a variadic argument attribute.
             // If it is we need to add the parameter multiple times.
-            MultiArgumentAttribute? multiArgumentAttribute = parameter.Attributes.FirstOrDefault(attribute => attribute is MultiArgumentAttribute) as MultiArgumentAttribute;
-            if (multiArgumentAttribute is not null)
+            VariadicArgumentAttribute? variadicArgumentAttribute = parameter.Attributes.FirstOrDefault(attribute => attribute is VariadicArgumentAttribute) as VariadicArgumentAttribute;
+            if (variadicArgumentAttribute is not null)
             {
-                // Add the multi-argument parameter multiple times until we reach the maximum argument count.
-                int maximumArgumentCount = Math.Min(multiArgumentAttribute.MaximumArgumentCount, 25 - options.Count);
+                // Add the variadic parameter multiple times until we reach the maximum argument count.
+                int maximumArgumentCount = Math.Min(variadicArgumentAttribute.MaximumArgumentCount, 25 - options.Count);
                 for (int i = 0; i < maximumArgumentCount; i++)
                 {
                     options.Add(await ToApplicationParameterAsync(command, parameter, i));

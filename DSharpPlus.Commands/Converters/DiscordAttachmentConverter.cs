@@ -30,17 +30,17 @@ public class AttachmentConverter : ISlashArgumentConverter<DiscordAttachment>, I
                 {
                     break;
                 }
-                else if (attachmentParameter.Attributes.FirstOrDefault(attribute => attribute is MultiArgumentAttribute) is MultiArgumentAttribute multiArgumentAttribute)
+                else if (attachmentParameter.Attributes.FirstOrDefault(attribute => attribute is VariadicArgumentAttribute) is VariadicArgumentAttribute variadicArgumentAttribute)
                 {
                     // Increase the index by however many attachments we've already parsed
                     // We add by maximum argument count because the attachment converter will never fail to parse
                     // the attachment when it's present.
-                    currentAttachmentArgumentIndex = multiArgumentAttribute.MaximumArgumentCount;
+                    currentAttachmentArgumentIndex = variadicArgumentAttribute.MaximumArgumentCount;
                 }
             }
 
             // Add the currently parsed attachment count to the index
-            currentAttachmentArgumentIndex += context.MultiArgumentParameterIndex;
+            currentAttachmentArgumentIndex += context.VariadicArgumentParameterIndex;
 
             // Return the attachment from the original message
             return textConverterContext.Message.Attachments.Count <= currentAttachmentArgumentIndex

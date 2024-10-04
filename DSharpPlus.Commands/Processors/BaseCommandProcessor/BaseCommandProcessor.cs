@@ -270,7 +270,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
     }
 
     /// <summary>
-    /// Parses a single parameter from the command context. This method will handle <see cref="MultiArgumentAttribute"/> annotated parameters.
+    /// Parses a single parameter from the command context. This method will handle <see cref="VariadicArgumentAttribute"/> annotated parameters.
     /// </summary>
     /// <param name="converterContext">The converter context containing all the relevant data for the argument parsing.</param>
     public virtual async ValueTask<object?> ParseParameterAsync(TConverterContext converterContext)
@@ -325,14 +325,14 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         {
             throw new InvalidOperationException($"The converter {converter.GetType().FullName} does not implement IArgumentConverter<{typeof(T).FullName}>.");
         }
-        // If the parameter is a multi-argument parameter or params, we'll
+        // If the parameter is a vararg parameter or params, we'll
         // parse all the arguments until we reach the maximum argument count.
-        else if (context.MultiArgumentAttribute is not null)
+        else if (context.VariadicArgumentAttribute is not null)
         {
             return await typedConverter.ConvertAsync(context);
         }
-        // Call next multi-argument to ensure that the context is ready to parse the next argument.
-        else if (!context.NextMultiArgument())
+        // Call next variadic-argument to ensure that the context is ready to parse the next argument.
+        else if (!context.NextVariadicArgument())
         {
             return Optional.FromValue<ArgumentFailedConversionResult>(new()
             {
@@ -343,12 +343,12 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         // int.MaxValue is used to indicate that there's no maximum argument count.
         // If there's a maximum argument count, we'll ensure that the list has enough
         // capacity to store all the arguments.
-        // `params` parameters are treated as multi-argument parameters with no maximum argument count.
+        // `params` parameters are treated as vararg parameters with no maximum argument count.
         // Due to `params` being semi-used, let's not allocate 2+ gigabytes of memory for a single parameter.
-        List<T> multiArgumentValues = [];
-        if (context.MultiArgumentAttribute.MaximumArgumentCount != int.MaxValue)
+        List<T> varArgValues = [];
+        if (context.VariadicArgumentAttribute.MaximumArgumentCount != int.MaxValue)
         {
-            multiArgumentValues.EnsureCapacity(context.MultiArgumentAttribute.MaximumArgumentCount);
+            varArgValues.EnsureCapacity(context.VariadicArgumentAttribute.MaximumArgumentCount);
         }
 
         // This is a do-while loop because we called NextArgument() at the top of the method.
@@ -369,24 +369,24 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
                 });
             }
 
-            multiArgumentValues.Add(parsedArgument.Value);
-        } while (context.NextArgument() && context.NextMultiArgument());
+            varArgValues.Add(parsedArgument.Value);
+        } while (context.NextArgument() && context.NextVariadicArgument());
 
-        if (multiArgumentValues.Count < context.MultiArgumentAttribute.MinimumArgumentCount)
+        if (varArgValues.Count < context.VariadicArgumentAttribute.MinimumArgumentCount)
         {
             // If the minimum argument count isn't met, we'll return an error.
             // The callee will choose how to handle the error.
             return Optional.FromValue<ArgumentFailedConversionResult>(new()
             {
-                Error = new ArgumentException($"The parameter {context.Parameter.Name} requires at least {context.MultiArgumentAttribute.MinimumArgumentCount:N0} arguments, but only {multiArgumentValues.Count:N0} were provided."),
-                Value = multiArgumentValues.ToArray(),
+                Error = new ArgumentException($"The parameter {context.Parameter.Name} requires at least {context.VariadicArgumentAttribute.MinimumArgumentCount:N0} arguments, but only {varArgValues.Count:N0} were provided."),
+                Value = varArgValues.ToArray(),
             });
         }
 
         // Oh my heart </3
         return context.Parameter.Type.IsArray
-            ? Optional.FromValue<T[]>(multiArgumentValues.ToArray())
-            : Optional.FromValue<List<T>>(multiArgumentValues);
+            ? Optional.FromValue<T[]>(varArgValues.ToArray())
+            : Optional.FromValue<List<T>>(varArgValues);
     }
 
     /// <summary>
