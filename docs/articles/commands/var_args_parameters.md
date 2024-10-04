@@ -5,7 +5,7 @@ title: VarArg Parameters
 
 # VarArg Parameters
 
-When creating a command, you may want to have a parameter that can accept multiple arguments. This is useful for commands that require a list of items, such as a list of users or a list of numbers. This was previously supported in the `CommandsNext` and `SlashCommands` extensions through the `params` keyword.
+When creating a command, you may want to have a parameter that can accept multiple arguments. This is useful for commands that require a list of items, such as a list of users or a list of numbers. This was previously supported in the `CommandsNext` extension through the `params` keyword.
 
 ```csharp
 [Command("echo")]
