@@ -56,6 +56,9 @@ public class OrdinalSnakeCaseInteractionNamingPolicy : IInteractionNamingPolicy
 }
 ```
 
+> [!NOTE]
+> Humanizer is not a dependency of DSharpPlus and is not affiliated with DSharpPlus. You can find more information about Humanizer [here](https://github.com/Humanizr/Humanizer).
+
 Now that you have your custom naming policy, you can use it when setting up the Commands extension:
 
 ```cs
