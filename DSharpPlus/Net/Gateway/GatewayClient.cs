@@ -528,12 +528,19 @@ public sealed class GatewayClient : IGatewayClient
         }
         else if (frame.TryGetErrorCode(out int errorCode))
         {
-            _ = errorCode switch
+            bool success = errorCode switch
             {
-                >= 4000 and <= 4003 => await TryResumeAsync(),
-                >= 4005 and <= 4009 => await TryResumeAsync(),
+                (>= 4000 and <= 4002) or 4005 or 4008 => await TryResumeAsync(),
+                4003 or 4007 or 4009 => this.options.AutoReconnect && await TryReconnectAsync(),
+                4004 or (>= 4010 and <= 4014) => false,
                 _ => this.options.AutoReconnect && await TryReconnectAsync()
             };
+
+            if (!success)
+            {
+                this.logger.LogError("An attempt to reconnect upon error code {Code} failed.", errorCode);
+                _ = this.controller.ReconnectFailedAsync(this);
+            }
         }
     }
 
