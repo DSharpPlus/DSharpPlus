@@ -4,7 +4,7 @@ title: Command Aliases
 ---
 
 # Command Aliases
-To add an alias to a command, simply add the `TextAlias` attribute to the method that defines the command. It should be noted that the aliases are applied *only*  to text commands.
+To add an alias to a command, simply add the `TextAlias` attribute to the method that defines the command. It should be noted that the aliases are applied *only* to text commands.
 
 ```cs
 public static class PingCommand
