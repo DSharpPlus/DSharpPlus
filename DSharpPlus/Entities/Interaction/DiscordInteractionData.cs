@@ -19,7 +19,7 @@ public sealed class DiscordInteractionData : SnowflakeObject
     /// Gets the parameters and values of the invoked interaction.
     /// </summary>
     [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<DiscordInteractionDataOption> Options { get; internal set; }
+    public IReadOnlyList<DiscordInteractionDataOption> Options { get; internal set; }
 
     /// <summary>
     /// Gets the Discord snowflake objects resolved from this interaction's arguments.

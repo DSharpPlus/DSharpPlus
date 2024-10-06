@@ -1,3 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.Trees;
 
 namespace DSharpPlus.Commands.Converters;
@@ -23,6 +26,16 @@ public abstract record ConverterContext : AbstractContext
     public CommandParameter Parameter => this.Command.Parameters[this.ParameterIndex];
 
     /// <summary>
+    /// The current index of the variadic-argument parameter.
+    /// </summary>
+    public int VariadicArgumentParameterIndex { get; protected set; } = -1;
+
+    /// <summary>
+    /// The current variadic-argument parameter.
+    /// </summary>
+    public VariadicArgumentAttribute? VariadicArgumentAttribute { get; protected set; }
+
+    /// <summary>
     /// Advances to the next parameter, returning a value indicating whether there was another parameter.
     /// </summary>
     public virtual bool NextParameter()
@@ -33,6 +46,33 @@ public abstract record ConverterContext : AbstractContext
         }
 
         this.ParameterIndex++;
+        this.VariadicArgumentParameterIndex = -1;
+        this.VariadicArgumentAttribute = this.Parameter.Attributes.FirstOrDefault(attribute => attribute is VariadicArgumentAttribute) as VariadicArgumentAttribute;
+        return true;
+    }
+
+    /// <summary>
+    /// Advances to the next argument, returning a value indicating whether there was another argument.
+    /// </summary>
+    public abstract bool NextArgument();
+
+    /// <summary>
+    /// Increments the variadic-argument parameter index.
+    /// </summary>
+    /// <returns>Whether the current parameter can accept another argument or not.</returns>
+    [MemberNotNullWhen(true, nameof(VariadicArgumentAttribute))]
+    public virtual bool NextVariadicArgument()
+    {
+        if (this.VariadicArgumentAttribute is null)
+        {
+            return false;
+        }
+        else if (this.VariadicArgumentParameterIndex++ >= this.VariadicArgumentAttribute.MaximumArgumentCount)
+        {
+            this.VariadicArgumentParameterIndex--;
+            return false;
+        }
+
         return true;
     }
 

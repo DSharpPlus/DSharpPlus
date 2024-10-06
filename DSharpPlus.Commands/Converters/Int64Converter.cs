@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.Commands.Converters;
 
@@ -16,11 +15,8 @@ public class Int64Converter : ISlashArgumentConverter<long>, ITextArgumentConver
     public string ReadableName => "Large Integer";
     public bool RequiresText => true;
 
-    public Task<Optional<long>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs) => long.TryParse(context.Argument, CultureInfo.InvariantCulture, out long result)
-        ? Task.FromResult(Optional.FromValue(result))
-        : Task.FromResult(Optional.FromNoValue<long>());
-
-    public Task<Optional<long>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs) => long.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out long result)
-        ? Task.FromResult(Optional.FromValue(result))
-        : Task.FromResult(Optional.FromNoValue<long>());
+    public Task<Optional<long>> ConvertAsync(ConverterContext context) =>
+        long.TryParse(context.Argument?.ToString(), CultureInfo.InvariantCulture, out long result)
+            ? Task.FromResult(Optional.FromValue(result))
+            : Task.FromResult(Optional.FromNoValue<long>());
 }

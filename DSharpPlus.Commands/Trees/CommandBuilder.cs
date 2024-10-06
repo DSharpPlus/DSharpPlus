@@ -1,23 +1,27 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace DSharpPlus.Commands.Trees;
 
+[DebuggerDisplay("{ToString()}")]
 public class CommandBuilder
 {
     public string? Name { get; set; }
     public string? Description { get; set; }
     public MethodInfo? Method { get; set; }
     public object? Target { get; set; }
-    public Command? Parent { get; set; }
+    public CommandBuilder? Parent { get; set; }
     public List<CommandBuilder> Subcommands { get; set; } = [];
     public List<CommandParameterBuilder> Parameters { get; set; } = [];
     public List<Attribute> Attributes { get; set; } = [];
     public List<ulong> GuildIds { get; set; } = [];
+    public string? FullName => this.Parent is not null ? $"{this.Parent.FullName}.{this.Name}" : this.Name;
 
     public CommandBuilder WithName(string name)
     {
@@ -53,7 +57,7 @@ public class CommandBuilder
         return this;
     }
 
-    public CommandBuilder WithParent(Command? parent)
+    public CommandBuilder WithParent(CommandBuilder? parent)
     {
         this.Parent = parent;
         return this;
@@ -68,6 +72,11 @@ public class CommandBuilder
     public CommandBuilder WithParameters(IEnumerable<CommandParameterBuilder> parameters)
     {
         this.Parameters = new(parameters);
+        foreach (CommandParameterBuilder parameter in parameters)
+        {
+            parameter.Parent ??= this;
+        }
+
         return this;
     }
 
@@ -84,6 +93,10 @@ public class CommandBuilder
             {
                 WithDescription(descriptionAttribute.Description);
             }
+            else if (attribute is RegisterToGuildsAttribute registerToGuildsAttribute)
+            {
+                WithGuildIds(registerToGuildsAttribute.GuildIds);
+            }
         }
 
         return this;
@@ -96,7 +109,7 @@ public class CommandBuilder
     }
 
     [MemberNotNull(nameof(Name), nameof(Subcommands), nameof(Parameters), nameof(Attributes))]
-    public Command Build()
+    public Command Build(Command? parent = null)
     {
         ArgumentNullException.ThrowIfNull(this.Name, nameof(this.Name));
         ArgumentNullException.ThrowIfNull(this.Subcommands, nameof(this.Subcommands));
@@ -107,24 +120,37 @@ public class CommandBuilder
         WithName(this.Name);
         WithDescription(this.Description);
         WithDelegate(this.Method, this.Target);
-        WithParent(this.Parent);
         WithSubcommands(this.Subcommands);
         WithParameters(this.Parameters);
         WithAttributes(this.Attributes);
         WithGuildIds(this.GuildIds);
 
-        return new(this.Subcommands)
+        return new(this.Subcommands, this.Parameters)
         {
             Name = this.Name,
             Description = this.Description,
             Method = this.Method,
             Id = Ulid.NewUlid(),
             Target = this.Target,
-            Parent = this.Parent,
-            Parameters = this.Parameters.Select(x => x.Build()).ToArray(),
+            Parent = parent,
             Attributes = this.Attributes,
-            GuildIds = this.GuildIds
+            GuildIds = this.GuildIds,
         };
+    }
+
+    /// <summary>
+    /// Traverses this command tree, returning this command builder and all subcommands recursively.
+    /// </summary>
+    /// <returns>A list of all command builders in this tree.</returns>
+    public IReadOnlyList<CommandBuilder> Flatten()
+    {
+        List<CommandBuilder> commands = [this];
+        foreach (CommandBuilder subcommand in this.Subcommands)
+        {
+            commands.AddRange(subcommand.Flatten());
+        }
+
+        return commands;
     }
 
     /// <inheritdoc cref="From(Type, ulong[])"/>
@@ -147,10 +173,9 @@ public class CommandBuilder
     {
         ArgumentNullException.ThrowIfNull(type, nameof(type));
 
-        RegisterToGuildsAttribute? registerToGuildsAttribute = type.GetCustomAttribute<RegisterToGuildsAttribute>();
-        ulong[] totalGuildIds = registerToGuildsAttribute is not null
-            ? guildIds.Concat(registerToGuildsAttribute.GuildIds).Distinct().ToArray()
-            : guildIds;
+        CommandBuilder commandBuilder = new();
+        commandBuilder.WithAttributes(type.GetCustomAttributes());
+        commandBuilder.GuildIds.AddRange(guildIds);
 
         // Add subcommands
         List<CommandBuilder> subCommandBuilders = [];
@@ -161,7 +186,7 @@ public class CommandBuilder
                 continue;
             }
 
-            subCommandBuilders.Add(From(subCommand, totalGuildIds));
+            subCommandBuilders.Add(From(subCommand, [.. commandBuilder.GuildIds]).WithParent(commandBuilder));
         }
 
         // Add methods
@@ -172,7 +197,7 @@ public class CommandBuilder
                 continue;
             }
 
-            subCommandBuilders.Add(From(method, guildIds: totalGuildIds));
+            subCommandBuilders.Add(From(method, guildIds: [.. commandBuilder.GuildIds]).WithParent(commandBuilder));
         }
 
         if (type.GetCustomAttribute<CommandAttribute>() is not null && subCommandBuilders.Count == 0)
@@ -180,10 +205,7 @@ public class CommandBuilder
             throw new ArgumentException($"The type \"{type.FullName ?? type.Name}\" does not have any subcommands or methods with a CommandAttribute.", nameof(type));
         }
 
-        CommandBuilder commandBuilder = new();
-        commandBuilder.WithAttributes(type.GetCustomAttributes());
         commandBuilder.WithSubcommands(subCommandBuilders);
-        commandBuilder.WithGuildIds(totalGuildIds);
 
         // Might be set through the `DescriptionAttribute`
         if (string.IsNullOrEmpty(commandBuilder.Description))
@@ -224,17 +246,25 @@ public class CommandBuilder
             throw new ArgumentException($"The command method \"{(method.DeclaringType is not null ? $"{method.DeclaringType.FullName}.{method.Name}" : method.Name)}\" must have a parameter and it must be a type of {nameof(CommandContext)}.", nameof(method));
         }
 
-        RegisterToGuildsAttribute? registerToGuildsAttribute = method.GetCustomAttribute<RegisterToGuildsAttribute>();
-        ulong[] totalGuildIds = registerToGuildsAttribute is not null
-            ? guildIds.Concat(registerToGuildsAttribute.GuildIds).Distinct().ToArray()
-            : guildIds;
-
         CommandBuilder commandBuilder = new();
         commandBuilder.WithAttributes(method.GetCustomAttributes());
         commandBuilder.WithDelegate(method, target);
-        commandBuilder.WithParameters(parameters[1..].Select(CommandParameterBuilder.From));
-        commandBuilder.WithGuildIds(totalGuildIds);
-
+        commandBuilder.WithParameters(parameters[1..].Select(parameterInfo => CommandParameterBuilder.From(parameterInfo).WithParent(commandBuilder)));
+        commandBuilder.GuildIds.AddRange(guildIds);
         return commandBuilder;
+    }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+        StringBuilder stringBuilder = new();
+        if (this.Parent is not null)
+        {
+            stringBuilder.Append(this.Parent.Name);
+            stringBuilder.Append('.');
+        }
+
+        stringBuilder.Append(this.Name ?? "Unnamed Command");
+        return stringBuilder.ToString();
     }
 }

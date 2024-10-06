@@ -1,11 +1,13 @@
+using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.TextCommands;
-using DSharpPlus.Commands.Processors.TextCommands.ContextChecks;
+using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.Commands.Converters;
 
@@ -15,54 +17,49 @@ public class AttachmentConverter : ISlashArgumentConverter<DiscordAttachment>, I
     public string ReadableName => "Discord File";
     public bool RequiresText => false;
 
-    public Task<Optional<DiscordAttachment>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs)
+    public Task<Optional<DiscordAttachment>> ConvertAsync(ConverterContext context)
     {
-        DiscordMessage message = eventArgs.Message;
-        int currentAttachmentArgumentIndex = context.Command.Parameters.Where(argument => argument.Type == typeof(DiscordAttachment)).IndexOf(context.Parameter);
-        if (context.Parameter.Attributes.FirstOrDefault(x => x is TextMessageReplyAttribute) is TextMessageReplyAttribute textMessageReplyAttribute)
+        IReadOnlyList<CommandParameter> attachmentParameters = context.Command.Parameters.Where(argument => argument.Type == typeof(DiscordAttachment)).ToList();
+        int currentAttachmentArgumentIndex = attachmentParameters.IndexOf(context.Parameter);
+        if (context is TextConverterContext textConverterContext)
         {
-            if (eventArgs.Message.ReferencedMessage is not null)
+            foreach (CommandParameter attachmentParameter in attachmentParameters)
             {
-                message = eventArgs.Message.ReferencedMessage;
+                // Don't increase past the current attachment parameter
+                if (attachmentParameter == context.Parameter)
+                {
+                    break;
+                }
+                else if (attachmentParameter.Attributes.FirstOrDefault(attribute => attribute is VariadicArgumentAttribute) is VariadicArgumentAttribute variadicArgumentAttribute)
+                {
+                    // Increase the index by however many attachments we've already parsed
+                    // We add by maximum argument count because the attachment converter will never fail to parse
+                    // the attachment when it's present.
+                    currentAttachmentArgumentIndex = variadicArgumentAttribute.MaximumArgumentCount;
+                }
             }
-            else if (textMessageReplyAttribute.RequireReplies)
-            {
-                // No referenced message, but the attribute requires it
-                return Task.FromResult(Optional.FromNoValue<DiscordAttachment>());
-            }
+
+            // Add the currently parsed attachment count to the index
+            currentAttachmentArgumentIndex += context.VariadicArgumentParameterIndex;
+
+            // Return the attachment from the original message
+            return textConverterContext.Message.Attachments.Count <= currentAttachmentArgumentIndex
+                ? Task.FromResult(Optional.FromNoValue<DiscordAttachment>())
+                : Task.FromResult(Optional.FromValue(textConverterContext.Message.Attachments[currentAttachmentArgumentIndex]));
         }
-
-        return message.Attachments.Count <= currentAttachmentArgumentIndex
-            ? Task.FromResult(Optional.FromNoValue<DiscordAttachment>())
-            : Task.FromResult(Optional.FromValue(message.Attachments[currentAttachmentArgumentIndex]));
-    }
-
-    public Task<Optional<DiscordAttachment>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs)
-    {
-        int currentAttachmentArgumentIndex = context.Command.Parameters.Where(argument => argument.Type == typeof(DiscordAttachment)).IndexOf(context.Parameter);
-        if (eventArgs.Interaction.Data.Resolved is null)
-        {
+        else if (context is InteractionConverterContext interactionConverterContext
             // Resolved can be null on autocomplete contexts
-            return Task.FromResult(Optional.FromNoValue<DiscordAttachment>());
-        }
-        else if (eventArgs.Interaction.Data.Options.Count(argument => argument.Type == DiscordApplicationCommandOptionType.Attachment) < currentAttachmentArgumentIndex)
-        {
-            // Too many parameters, not enough attachments
-            return Task.FromResult(Optional.FromNoValue<DiscordAttachment>());
-        }
-        else if (!ulong.TryParse(context.Argument.RawValue, CultureInfo.InvariantCulture, out ulong attachmentId))
-        {
-            // Invalid attachment ID
-            return Task.FromResult(Optional.FromNoValue<DiscordAttachment>());
-        }
-        else if (!eventArgs.Interaction.Data.Resolved.Attachments.TryGetValue(attachmentId, out DiscordAttachment? attachment))
-        {
-            // Attachment not found
-            return Task.FromResult(Optional.FromNoValue<DiscordAttachment>());
-        }
-        else
+            && interactionConverterContext.Interaction.Data.Resolved is not null
+            // Check if we have enough attachments to fetch the current attachment
+            && interactionConverterContext.Interaction.Data.Options.Count(argument => argument.Type == DiscordApplicationCommandOptionType.Attachment) >= currentAttachmentArgumentIndex
+            // Check if we can parse the attachment ID (this should be guaranteed by Discord)
+            && ulong.TryParse(interactionConverterContext.Argument?.RawValue, CultureInfo.InvariantCulture, out ulong attachmentId)
+            // Check if the attachment exists
+            && interactionConverterContext.Interaction.Data.Resolved.Attachments.TryGetValue(attachmentId, out DiscordAttachment? attachment))
         {
             return Task.FromResult(Optional.FromValue(attachment));
         }
+
+        return Task.FromResult(Optional.FromNoValue<DiscordAttachment>());
     }
 }

@@ -7,20 +7,10 @@ title: Missing Commands
 
 #### Help! I registered all my slash commands but they aren't showing up!
 
-When the Discord App (the client you use, not the bot) starts up, it fetches all the commands that are registered with the bot and caches them to a Discord channel.
-
->[!IMPORTANT]
-> This cache is only populated at startup, so updating commands requires reloading your app (`ctrl + r` on desktop, or re-launching the app on mobile)
+When the Discord App (the client you use, not the bot) starts up, it fetches all the commands that are registered with each bot and caches them to the current Discord channel. This means that if you register a command while the Discord App is running, you won't see the command until you restart the Discord App (`Ctrl + R`).
 
 #### Help! They're still not showing up!
 
-There are many ways a command can violate the given constraints (For SlashCommands discords naming constraints or a missing type converter for example).
-In this case the extensions throws an exception, does not register any commands and logs the exception with a descriptive message.
+Some slash commands may be missing if they don't follow the requirements that Discord has set. First and foremost, always check your logs for errors. If a command parameter doesn't have a type converter, has a name/description that's too long or other miscellaneous issues, the Commands framework will avoid registering that specific command and print an error into the console.
 
-
-If you have text commands enabled, try mentioning your bot with the command name and see if it responds. 
-If it doesn't, then the command is not registered. If it does you are likely missing the `MessageContent` intent.
-
-If you're still having issues, try checking the bot's logs. 
-The DSharpPlus library will log any errors that occur when registering commands.
-If you see any errors, try fixing them and re-registering the commands.
+There should never be a case when a command is silently skipped. If you're experiencing this issue, double check that the command is being registered correctly and that there are no errors in the logs. If you're still having trouble, feel free to open up a GitHub issue or a help post in the [Discord server](https://discord.gg/dsharpplus).

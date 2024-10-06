@@ -4,7 +4,7 @@ title: Custom Context Checks
 ---
 
 # Custom Context Checks
-Context checks are safeguards to a command that will help it to execute successfully. Context checks like `RequireGuild` or `RequirePermissions` will cause the command not to execute if the user executes the command in a DM or if the user/bot does not have the required permissions. Occasionally, you may want to create your own context checks to ensure that a command can only be executed under certain conditions.
+Context checks are safeguards to a command that will help it to execute successfully. Context checks like `RequireGuild` or `RequirePermissions` will cause the command not to execute if the user runs  the command in a DM or if the user/bot does not have the required permissions. Occasionally, you may want to create your own context checks to ensure that a command can only be executed under certain conditions.
 
 A context check contains two important pieces:
 - The attribute that will be applied to the command. This contains parameters that will be passed to the executing check.
@@ -17,15 +17,15 @@ Any context check needs an attribute associated with it. This attribute will be 
 public class DirectMessageUsageAttribute : ContextCheckAttribute
 {
     public DirectMessageUsage Usage { get; init; }
+
     public DirectMessageUsageAttribute(DirectMessageUsage usage = DirectMessageUsage.Allow) => Usage = usage;
 }
 ```
 
 ## Implementing the context check
-Now we're going to implement the logic which checks if the command is allowed to be executed. The `IContextCheck<T>` interface is used to define the check method. The `T` is the attribute that was applied to the command. In this case, it's the `DirectMessageUsageAttribute`, but it can be any check attribute - if desired, there can be multiple checks for attribute.
+Now we're going to implement the logic which checks if the command is allowed to be executed. The `IContextCheck<T>` interface is used to define the check method. The `T` in `IContextCheck<T>` is the attribute that was applied to the command. In this case, it's the `DirectMessageUsageAttribute`, but it can be any check attribute - if desired, the same attribute can invoke multiple different context checks at once by implementing multiple `IContextCheck<T>` interfaces.
 
-If the check was successful, the method should return `null`. If it was unsuccessful, the method should return a string that will then be provided
-to `CommandsExtension.CommandErrored`. 
+If the check was successful, the method should return `null`. If it was unsuccessful, the method should return a string that will then be provided to `CommandsExtension.CommandErrored`.
 
 ```cs
 public class DirectMessageUsageCheck : IContextCheck<DirectMessageUsageAttribute>
@@ -51,7 +51,7 @@ public class DirectMessageUsageCheck : IContextCheck<DirectMessageUsageAttribute
             {
                 DirectMessageUsage.DenyDMs => "denies DM usage",
                 DirectMessageUsage.RequireDMs => "requires DM usage",
-                _ => throw new NotImplementedException($"A new DirectMessageUsage value was added and not implemented in the {nameof(DirectMessageUsageCheck)}: {attribute.Usage}")
+                _ => throw new NotImplementedException($"A new DirectMessageUsage value was added and not implemented in the {nameof(DirectMessageUsageCheck)}: {attribute.Usage}"),
             };
 
             return ValueTask.FromResult<string?>($"The executed command {requirement} but was executed {dmStatus}.");
@@ -74,7 +74,8 @@ Then we use the check like such:
 ```cs
 [Command("dm")]
 [DirectMessageUsage(DirectMessageUsage.RequireDMs)]
-public async ValueTask RequireDMs(CommandContext commandContext) => await commandContext.RespondAsync("This command was executed in a DM!");
+public async ValueTask RequireDMs(CommandContext commandContext) =>
+    await commandContext.RespondAsync("This command was executed in a DM!");
 ```
 
 ## Parameter Checks
@@ -96,6 +97,7 @@ using DSharpPlus.Commands.ContextChecks.ParameterChecks;
 public sealed class MaximumStringLengthAttribute : ParameterCheckAttribute
 {
     public int MaximumLength { get; private set; }
+
     public MaximumStringLengthAttribute(int length) => MaximumLength = length;
 }
 ```
@@ -107,7 +109,7 @@ using DSharpPlus.Commands.ContextChecks.ParameterChecks;
 
 public sealed class MaximumStringLengthCheck : IParameterCheck<MaximumStringLengthAttribute>
 {
-    public ValueTask<string?> ExecuteCheckAsync(MaximumStringLengthAttribute attribute, ParameterInfo info, CommandContext context)
+    public ValueTask<string?> ExecuteCheckAsync(MaximumStringLengthAttribute attribute, ParameterCheckInfo info, CommandContext context)
     {
         if (info.Value is not string str)
         {
@@ -133,7 +135,8 @@ And then apply it to our parameter:
 
 ```cs
 [Command("say")]
-public static async ValueTask SayAsync(CommandContext commandContext, [MaximumStringLength(2000)] string text) => await commandContext.RespondAsync(text);
+public static async ValueTask SayAsync(CommandContext commandContext, [MaximumStringLength(2000)] string text) =>
+    await commandContext.RespondAsync(text);
 ```
 
 ## Advanced Features
