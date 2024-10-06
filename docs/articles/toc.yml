@@ -33,7 +33,7 @@
     topicUid: articles.commands.custom_context_checks
   - name: Custom Error Handler
     topicUid: articles.commands.custom_error_handler
-  - name: Multi-Argument Parameters
+  - name: Var Arg Parameters
     topicUid: articles.commands.var_arg_parameters
   - name: Argument Converters
     items:
@@ -63,8 +63,8 @@
         topicUid: articles.commands.command_processors.slash_commands.missing_commands
       - name: Naming Policies
         topicUid: articles.commands.command_processors.slash_commands.naming_policies
-      - name: Translator Providers
-        topicUid: articles.commands.command_processors.slash_commands.translator_providers
+      - name: Localizing Interactions
+        topicUid: articles.commands.command_processors.slash_commands.localizing_interactions
 - name: CommandsNext
   items:
   - name: Introduction

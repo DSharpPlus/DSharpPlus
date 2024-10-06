@@ -1,11 +1,11 @@
 ---
-uid: articles.commands.command_processors.slash_commands.translator_providers
-title: Translator Providers
+uid: articles.commands.command_processors.slash_commands.localizing_interactions
+title: Localizing Interactions
 ---
 
-# Translator Providers
+# Localizing Interactions
 
-In the event that you would like to provide translations for your commands, you can use the `ITranslatorProvider` interface. This interface allows you to provide translations for your commands and parameters. Here is the interface:
+In the event that you would like to provide translations for your commands, you can use the `IInteractionLocalizer` interface. This interface allows you to provide translations for your commands and parameters. Here is the interface:
 
 ```cs
 public interface IInteractionLocalizer
