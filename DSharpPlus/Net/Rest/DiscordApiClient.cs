@@ -67,9 +67,8 @@ public sealed class DiscordApiClient
             for(int i = 0; i < msgSnapshots.Count(); i++)
             {
                 JToken snapshot = msgSnapshots[i];
-                TransportUser snapshotAuthor = snapshot["message"]?["author"]?.ToDiscordObject<TransportUser>();
                 message.MessageSnapshots[i].Message.Discord = this.discord!;
-                PopulateMessage(snapshotAuthor, message.MessageSnapshots[i].Message);
+                PopulateMessage(null, message.MessageSnapshots[i].Message);
             }
         }
 
