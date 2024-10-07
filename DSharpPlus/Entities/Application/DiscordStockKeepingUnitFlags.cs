@@ -2,6 +2,9 @@ using System;
 
 namespace DSharpPlus.Entities;
 
+/// <summary>
+/// Represent additional information about the SKU
+/// </summary>
 [Flags]
 public enum DiscordStockKeepingUnitFlags
 {

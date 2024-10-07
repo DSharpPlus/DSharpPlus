@@ -6771,10 +6771,10 @@ public sealed class DiscordApiClient
     }
 
     /// <summary>
-    /// TODO
+    /// Internal method to get all SKUs belonging to a specific application
     /// </summary>
-    /// <param name="applicationId"></param>
-    /// <returns></returns>
+    /// <param name="applicationId">Id of the application of which SKUs should be returned</param>
+    /// <returns>Returns a list of SKUs</returns>
     internal async ValueTask<IReadOnlyList<DiscordStockKeepingUnit>> ListStockKeepingUnitsAsync(ulong applicationId)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.SKUS}";
@@ -6792,8 +6792,19 @@ public sealed class DiscordApiClient
 
         return stockKeepingUnits;
     }
-
-    // TODO: docs
+    
+    /// <summary>
+    /// Returns all entitlements for a given app.
+    /// </summary>
+    /// <param name="applicationId">Application ID to look up entitlements for</param>
+    /// <param name="userId">User ID to look up entitlements for</param>
+    /// <param name="skuIds">Optional list of SKU IDs to check entitlements for</param>
+    /// <param name="before">Retrieve entitlements before this entitlement ID</param>
+    /// <param name="after">Retrieve entitlements after this entitlement ID</param>
+    /// <param name="guildId">Guild ID to look up entitlements for</param>
+    /// <param name="excludeEnded">Whether or not ended entitlements should be omitted</param>
+    /// <param name="limit">Number of entitlements to return, 1-100, default 100</param>
+    /// <returns>Returns the list of entitlments. Sorted by id descending (depending on discord)</returns>
     internal async ValueTask<IReadOnlyList<DiscordEntitlement>> ListEntitlementsAsync
     (
         ulong applicationId,
@@ -6803,7 +6814,7 @@ public sealed class DiscordApiClient
         ulong? after = null,
         ulong? guildId = null,
         bool? excludeEnded = null,
-        int? limit = null
+        int? limit = 100
     )
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}";

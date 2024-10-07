@@ -1,7 +1,10 @@
 namespace DSharpPlus.Entities;
 
 /// <summary>
-/// 
+/// For subscriptions, SKUs will have a type of either SUBSCRIPTION represented by type: 5 or
+/// SUBSCRIPTION_GROUP represented by type:6. For any current implementations, you will want to use the SKU
+/// defined by type: 5. A SUBSCRIPTION_GROUP is automatically created for each SUBSCRIPTION SKU
+/// and are not used at this time.
 /// </summary>
 public enum DiscordStockKeepingUnitType
 {

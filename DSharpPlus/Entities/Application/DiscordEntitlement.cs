@@ -27,8 +27,14 @@ public class DiscordEntitlement
     /// </summary>
     public ulong? UserId { get; internal set; }
     
+    /// <summary>
+    /// Type of entitlement
+    /// </summary>
     public DiscordEntitlementType Type { get; internal set; }
     
+    /// <summary>
+    /// 	Entitlement was deleted
+    /// </summary>
     public bool Deleted { get; internal set; }
     
     /// <summary>

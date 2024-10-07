@@ -8,5 +8,8 @@ namespace DSharpPlus.EventArgs;
 /// </summary>
 public class EntitlementCreatedEventArgs : DiscordEventArgs
 {
+    /// <summary>
+    /// Entitlement which was created
+    /// </summary>
     public DiscordEntitlement Entitlement { get; internal set; }
 }

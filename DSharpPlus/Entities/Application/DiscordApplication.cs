@@ -427,7 +427,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     public async ValueTask<IReadOnlyList<DiscordStockKeepingUnit>> ListStockKeepingUnitsAsync() 
         => await this.Discord.ApiClient.ListStockKeepingUnitsAsync(this.Id);
 
-    // TODO: add pagination between before and after. currently its possible not possible due to lack of (my) time
+    // TODO: add pagination between before and after. currently its possible on discords end but not possible here due to lack of (my) time
     // -Plerx
     /// <summary>
     /// List all Entitlements belonging to this application.
