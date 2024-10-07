@@ -16,8 +16,8 @@ public partial class DiscordMessageConverter : ISlashArgumentConverter<DiscordMe
     public static partial Regex GetMessageRegex();
 
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.String;
+    public ConverterRequiresText RequiresText => ConverterRequiresText.WhenMissingReply;
     public string ReadableName => "Discord Message Link";
-    public bool RequiresText => true;
 
     public async Task<Optional<DiscordMessage>> ConvertAsync(ConverterContext context)
     {
@@ -36,7 +36,8 @@ public partial class DiscordMessageConverter : ISlashArgumentConverter<DiscordMe
                 return Optional.FromNoValue<DiscordMessage>();
             }
 
-            // It requested a reply and we don't have one, but it's not required.
+            // It requested for a reply but we don't have one.
+            // Now try to parse the argument as a message link.
         }
 
         string? value = context.Argument?.ToString();

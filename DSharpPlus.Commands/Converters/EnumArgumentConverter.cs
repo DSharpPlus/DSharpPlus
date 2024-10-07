@@ -10,8 +10,8 @@ namespace DSharpPlus.Commands.Converters;
 public class EnumConverter : ISlashArgumentConverter<Enum>, ITextArgumentConverter<Enum>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Integer;
+    public ConverterRequiresText RequiresText => ConverterRequiresText.Always;
     public string ReadableName => "Multiple Choice";
-    public bool RequiresText => true;
 
     public Task<Optional<Enum>> ConvertAsync(ConverterContext context)
     {

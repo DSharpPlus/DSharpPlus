@@ -8,8 +8,8 @@ namespace DSharpPlus.Commands.Converters;
 public class DiscordEmojiConverter : ISlashArgumentConverter<DiscordEmoji>, ITextArgumentConverter<DiscordEmoji>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.String;
+    public ConverterRequiresText RequiresText => ConverterRequiresText.Always;
     public string ReadableName => "Discord Emoji";
-    public bool RequiresText => true;
 
     public Task<Optional<DiscordEmoji>> ConvertAsync(ConverterContext context)
     {

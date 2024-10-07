@@ -16,8 +16,8 @@ public partial class DiscordChannelConverter : ISlashArgumentConverter<DiscordCh
     public static partial Regex GetChannelMatchingRegex();
 
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Channel;
+    public ConverterRequiresText RequiresText => ConverterRequiresText.Always;
     public string ReadableName => "Discord Channel";
-    public bool RequiresText => true;
 
     public async Task<Optional<DiscordChannel>> ConvertAsync(ConverterContext context)
     {

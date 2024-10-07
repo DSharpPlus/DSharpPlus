@@ -9,8 +9,8 @@ namespace DSharpPlus.Commands.Converters;
 public class ByteConverter : ISlashArgumentConverter<byte>, ITextArgumentConverter<byte>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Integer;
+    public ConverterRequiresText RequiresText => ConverterRequiresText.Always;
     public string ReadableName => "Positive Tiny Integer";
-    public bool RequiresText => true;
 
     public Task<Optional<byte>> ConvertAsync(ConverterContext context) =>
         byte.TryParse(context.Argument?.ToString(), CultureInfo.InvariantCulture, out byte result)

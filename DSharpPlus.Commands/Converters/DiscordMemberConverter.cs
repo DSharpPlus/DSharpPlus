@@ -16,8 +16,8 @@ public partial class DiscordMemberConverter : ISlashArgumentConverter<DiscordMem
     public static partial Regex GetMemberRegex();
 
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.User;
+    public ConverterRequiresText RequiresText => ConverterRequiresText.Always;
     public string ReadableName => "Discord Server Member";
-    public bool RequiresText => true;
 
     public async Task<Optional<DiscordMember>> ConvertAsync(ConverterContext context)
     {

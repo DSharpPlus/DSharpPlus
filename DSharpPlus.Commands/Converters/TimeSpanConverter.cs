@@ -8,9 +8,7 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.Commands.Converters;
 
-public partial class TimeSpanConverter
-    : ISlashArgumentConverter<TimeSpan>,
-        ITextArgumentConverter<TimeSpan>
+public partial class TimeSpanConverter : ISlashArgumentConverter<TimeSpan>, ITextArgumentConverter<TimeSpan>
 {
     [GeneratedRegex(
         @"^((?<years>\d+)y\s*)?((?<months>\d+)mo\s*)?((?<weeks>\d+)w\s*)?((?<days>\d+)d\s*)?((?<hours>\d+)h\s*)?((?<minutes>\d+)m\s*)?((?<seconds>\d+)s\s*)?((?<milliseconds>\d+)ms\s*)?((?<microseconds>\d+)(µs|us)\s*)?((?<nanoseconds>\d+)ns\s*)?$",
@@ -19,8 +17,8 @@ public partial class TimeSpanConverter
     private static partial Regex GetTimeSpanRegex();
 
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.String;
+    public ConverterRequiresText RequiresText => ConverterRequiresText.Always;
     public string ReadableName => "Duration";
-    public bool RequiresText => true;
 
     public Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context)
     {
