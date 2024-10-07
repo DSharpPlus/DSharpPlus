@@ -301,6 +301,12 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     public DiscordMessage? ReferencedMessage { get; internal set; }
 
     /// <summary>
+    /// Gets the message object for the referenced message
+    /// </summary>
+    [JsonProperty("message_snapshots", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordMessageSnapshot[]? MessageSnapshots { get; internal set; }
+
+    /// <summary>
     /// Gets the poll object for the message.
     /// </summary>
     [JsonProperty("poll", NullValueHandling = NullValueHandling.Ignore)]
@@ -339,6 +345,8 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         }
 
         DiscordChannel? channel = client.InternalGetCachedChannel(channelId!.Value, this.guildId);
+
+        reference.Type = this.internalReference?.Type;
 
         if (channel is null)
         {
@@ -385,6 +393,12 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         List<IMention> mentions = [];
 
         if (this.ReferencedMessage is not null && this.mentionedUsers.Any(r => r.Id == this.ReferencedMessage.Author?.Id))
+        {
+            mentions.Add(new RepliedUserMention()); // Return null to allow all mentions
+        }
+
+        // What does this actually do?
+        if (this.MessageSnapshots is not null && this.mentionedUsers.Any(r => this.MessageSnapshots.Any(m => r.Id == m.Message?.Author?.Id)))
         {
             mentions.Add(new RepliedUserMention()); // Return null to allow all mentions
         }
