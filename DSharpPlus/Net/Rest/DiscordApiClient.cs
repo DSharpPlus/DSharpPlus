@@ -62,7 +62,7 @@ public sealed class DiscordApiClient
         }
 
         JToken? msgSnapshots = msgRaw["message_snapshots"];
-        if (message.MessageType == DiscordMessageType.Default && msgSnapshots is not null && message.MessageSnapshots is not null)
+        if (msgSnapshots is not null && message.MessageSnapshots is not null)
         {
             for(int i = 0; i < msgSnapshots.Count(); i++)
             {
