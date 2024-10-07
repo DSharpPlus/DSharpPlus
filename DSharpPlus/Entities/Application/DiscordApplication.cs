@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
@@ -418,11 +420,86 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         _ => null
     };
     
-    //TODO: implement pagination and turn this into IAsyncEnumerable
     /// <summary>
     /// List all stock keeping units belonging to this application
     /// </summary>
     /// <returns></returns>
     public async ValueTask<IReadOnlyList<DiscordStockKeepingUnit>> ListStockKeepingUnitsAsync() 
         => await this.Discord.ApiClient.ListStockKeepingUnitsAsync(this.Id);
+
+    // TODO: add pagination between before and after. currently its possible not possible due to lack of (my) time
+    // -Plerx
+    /// <summary>
+    /// List all Entitlements belonging to this application.
+    /// </summary>
+    /// <param name="userId">Filters the entitlements by a user.</param>
+    /// <param name="skuIds">Filters the entitlements by specific SKUs.</param>
+    /// <param name="before">Filters the entitlements to be before a specific snowflake. Can be used to filter by time. Mutually exclusive with parameter "after"</param>
+    /// <param name="after">Filters the entitlements to be after a specific snowflake. Can be used to filter by time. Mutually exclusive with parameter "before"</param>
+    /// <param name="limit">Limits how many Entitlements should be returned. One API call per 100 entitlements</param>
+    /// <param name="guildId">Filters the entitlements by a specific Guild.</param>
+    /// <param name="excludeEnded">Wheter or not to return time limited entitlements which have ended</param>
+    /// <param name="cancellationToken">CT to cancel the method before the next api call</param>
+    /// <returns>Returns the list of entitlements fitting to the filters</returns>
+    /// <exception cref="ArgumentException">Thrown when both "before" and "after" is set</exception>
+    public async IAsyncEnumerable<DiscordEntitlement> ListEntitlementsAsync
+    (
+        ulong? userId = null,
+        IEnumerable<ulong>? skuIds = null,
+        ulong? before = null,
+        ulong? after = null,
+        int limit = 100,
+        ulong? guildId = null,
+        bool? excludeEnded = null,
+        [EnumeratorCancellation] 
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (before is not null && after is not null)
+        {
+            throw new ArgumentException("before and after are mutually exclusive.");
+        }
+        
+        bool isAscending = before is null;
+        
+        while (limit > 0 && !cancellationToken.IsCancellationRequested)
+        {
+            int entitlementsThisRequest = Math.Min(100, limit);
+            limit -= entitlementsThisRequest;
+            
+            
+            IReadOnlyList<DiscordEntitlement> entitlements 
+                = await this.Discord.ApiClient.ListEntitlementsAsync(this.Id, userId, skuIds, before, after, guildId, excludeEnded, limit);
+
+            if (entitlements.Count == 0)
+            {
+                yield break;
+            }
+            
+            if (isAscending)
+            {
+                foreach (DiscordEntitlement entitlement in entitlements)
+                {
+                    yield return entitlement;
+                }
+                
+                after = entitlements.Last().Id;
+            }
+            else
+            {
+                for (int i = entitlements.Count - 1; i >= 0; i--)
+                {
+                    yield return entitlements[i];
+                }
+                
+                before = entitlements.First().Id;
+            }
+
+            if (entitlements.Count != entitlementsThisRequest)
+            {
+                yield break;
+            } 
+        }
+        
+    }
 }
