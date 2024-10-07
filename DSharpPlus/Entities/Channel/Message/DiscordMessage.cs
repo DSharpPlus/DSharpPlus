@@ -397,7 +397,6 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
             mentions.Add(new RepliedUserMention()); // Return null to allow all mentions
         }
 
-        // What does this actually do?
         if (this.MessageSnapshots is not null && this.mentionedUsers.Any(r => this.MessageSnapshots.Any(m => r.Id == m.Message?.Author?.Id)))
         {
             mentions.Add(new RepliedUserMention()); // Return null to allow all mentions
