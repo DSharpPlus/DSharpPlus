@@ -827,12 +827,12 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleEntitlementCreated
     (
-        AsyncEventHandler<DiscordClient, EntitlementCreatedEventArgs> handler
+        Func<DiscordClient, EntitlementCreatedEventArgs, Task> handler
     )
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers.GetOrAdd(typeof(EntitlementCreatedEventArgs), _ => []).Add(handler)
+            c => c.Register(handler)
         );
 
         return this;
@@ -843,12 +843,12 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleEntitlementUpdated
     (
-        AsyncEventHandler<DiscordClient, EntitlementUpdatedEventArgs> handler
+        Func<DiscordClient, EntitlementUpdatedEventArgs, Task> handler
     )
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers.GetOrAdd(typeof(EntitlementUpdatedEventArgs), _ => []).Add(handler)
+            c => c.Register(handler)
         );
 
         return this;
@@ -859,12 +859,12 @@ public sealed class EventHandlingBuilder
     /// </summary>
     public EventHandlingBuilder HandleEntitlementDeleted
     (
-        AsyncEventHandler<DiscordClient, EntitlementDeletedEventArgs> handler
+        Func<DiscordClient, EntitlementDeletedEventArgs, Task> handler
     )
     {
         this.Services.Configure<EventHandlerCollection>
         (
-            c => c.DelegateHandlers.GetOrAdd(typeof(EntitlementDeletedEventArgs), _ => []).Add(handler)
+            c => c.Register(handler)
         );
 
         return this;
