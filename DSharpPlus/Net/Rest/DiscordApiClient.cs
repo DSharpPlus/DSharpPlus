@@ -8,7 +8,6 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-
 using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.Metrics;
@@ -6768,5 +6767,160 @@ public sealed class DiscordApiClient
         };
 
         await this.rest.ExecuteRequestAsync(request);
+    }
+
+    /// <summary>
+    /// Internal method to get all SKUs belonging to a specific application
+    /// </summary>
+    /// <param name="applicationId">Id of the application of which SKUs should be returned</param>
+    /// <returns>Returns a list of SKUs</returns>
+    internal async ValueTask<IReadOnlyList<DiscordStockKeepingUnit>> ListStockKeepingUnitsAsync(ulong applicationId)
+    {
+        string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.SKUS}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.SKUS}";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        IReadOnlyList<DiscordStockKeepingUnit> stockKeepingUnits = JsonConvert.DeserializeObject<IReadOnlyList<DiscordStockKeepingUnit>>(res.Response!)!;
+
+        return stockKeepingUnits;
+    }
+    
+    /// <summary>
+    /// Returns all entitlements for a given app.
+    /// </summary>
+    /// <param name="applicationId">Application ID to look up entitlements for</param>
+    /// <param name="userId">User ID to look up entitlements for</param>
+    /// <param name="skuIds">Optional list of SKU IDs to check entitlements for</param>
+    /// <param name="before">Retrieve entitlements before this entitlement ID</param>
+    /// <param name="after">Retrieve entitlements after this entitlement ID</param>
+    /// <param name="guildId">Guild ID to look up entitlements for</param>
+    /// <param name="excludeEnded">Whether or not ended entitlements should be omitted</param>
+    /// <param name="limit">Number of entitlements to return, 1-100, default 100</param>
+    /// <returns>Returns the list of entitlments. Sorted by id descending (depending on discord)</returns>
+    internal async ValueTask<IReadOnlyList<DiscordEntitlement>> ListEntitlementsAsync
+    (
+        ulong applicationId,
+        ulong? userId = null,
+        IEnumerable<ulong>? skuIds = null,
+        ulong? before = null,
+        ulong? after = null,
+        ulong? guildId = null,
+        bool? excludeEnded = null,
+        int? limit = 100
+    )
+    {
+        string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}";
+        
+        QueryUriBuilder builder = new(url);
+
+        if (userId is not null)
+        {
+            builder.AddParameter("user_id", userId.ToString());
+        }
+        
+        if (skuIds is not null)
+        {
+            builder.AddParameter("sku_ids", string.Join(",", skuIds.Select(x => x.ToString())));
+        }
+
+        if (before is not null)
+        {
+            builder.AddParameter("before", before.ToString());
+        }
+
+        if (after is not null)
+        {
+            builder.AddParameter("after", after.ToString());
+        }
+
+        if (limit is not null)
+        {
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(limit.Value, 100);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(limit.Value);
+            
+            builder.AddParameter("limit", limit.ToString());
+        }
+
+        if (guildId is not null)
+        {
+            builder.AddParameter("guild_id", guildId.ToString());
+        }
+
+        if (excludeEnded is not null)
+        {
+            builder.AddParameter("exclude_ended", excludeEnded.ToString());
+        }
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = builder.ToString(),
+            Method = HttpMethod.Get
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        IReadOnlyList<DiscordEntitlement> entitlements = JsonConvert.DeserializeObject<IReadOnlyList<DiscordEntitlement>>(res.Response!)!;
+
+        return entitlements;
+    }
+    
+    // Todo: docs
+    internal async ValueTask ConsumeEntitlementAsync(ulong applicationId, ulong entitlementId)
+    {
+        string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}/:entitlementId/{Endpoints.CONSUME}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}/{entitlementId}/{Endpoints.CONSUME}";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post
+        };
+
+        await this.rest.ExecuteRequestAsync(request);
+    }
+    
+    /// <summary>
+    /// TODO
+    /// </summary>
+    /// <param name="applicationId"></param>
+    /// <param name="skuId"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="ownerType"></param>
+    /// <returns>Returns a partial entitlment</returns>
+    internal async ValueTask<DiscordEntitlement> CreateTestEntitlementAsync
+    (
+        ulong applicationId,
+        ulong skuId,
+        ulong ownerId,
+        DiscordTestEntitlementOwnerType ownerType
+    )
+    {
+        string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}";
+
+        string payload = DiscordJson.SerializeObject(
+            new RestCreateTestEntitlementPayload() { SkuId = skuId, OwnerId = ownerId, OwnerType = ownerType });
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post,
+            Payload = payload
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        DiscordEntitlement entitlement = JsonConvert.DeserializeObject<DiscordEntitlement>(res.Response!)!;
+
+        return entitlement;
     }
 }

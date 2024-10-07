@@ -821,4 +821,52 @@ public sealed class EventHandlingBuilder
         this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
         return this;
     }
+    
+    /// <summary>
+    /// Fired when an entitlement was created.
+    /// </summary>
+    public EventHandlingBuilder HandleEntitlementCreated
+    (
+        Func<DiscordClient, EntitlementCreatedEventArgs, Task> handler
+    )
+    {
+        this.Services.Configure<EventHandlerCollection>
+        (
+            c => c.Register(handler)
+        );
+
+        return this;
+    }
+    
+    /// <summary>
+    /// Fired when an entitlement was updated.
+    /// </summary>
+    public EventHandlingBuilder HandleEntitlementUpdated
+    (
+        Func<DiscordClient, EntitlementUpdatedEventArgs, Task> handler
+    )
+    {
+        this.Services.Configure<EventHandlerCollection>
+        (
+            c => c.Register(handler)
+        );
+
+        return this;
+    }
+    
+    /// <summary>
+    /// Fired when an entitlement was deleted.
+    /// </summary>
+    public EventHandlingBuilder HandleEntitlementDeleted
+    (
+        Func<DiscordClient, EntitlementDeletedEventArgs, Task> handler
+    )
+    {
+        this.Services.Configure<EventHandlerCollection>
+        (
+            c => c.Register(handler)
+        );
+
+        return this;
+    }
 }
