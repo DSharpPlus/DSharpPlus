@@ -304,7 +304,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Gets the message object for the referenced message
     /// </summary>
     [JsonProperty("message_snapshots", NullValueHandling = NullValueHandling.Ignore)]
-    public DiscordMessageSnapshot[]? MessageSnapshots { get; internal set; }
+    public IReadOnlyList<DiscordMessageSnapshot>? MessageSnapshots { get; internal set; }
 
     /// <summary>
     /// Gets the poll object for the message.
@@ -393,11 +393,6 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         List<IMention> mentions = [];
 
         if (this.ReferencedMessage is not null && this.mentionedUsers.Any(r => r.Id == this.ReferencedMessage.Author?.Id))
-        {
-            mentions.Add(new RepliedUserMention()); // Return null to allow all mentions
-        }
-
-        if (this.MessageSnapshots is not null && this.mentionedUsers.Any(r => this.MessageSnapshots.Any(m => r.Id == m.Message?.Author?.Id)))
         {
             mentions.Add(new RepliedUserMention()); // Return null to allow all mentions
         }
