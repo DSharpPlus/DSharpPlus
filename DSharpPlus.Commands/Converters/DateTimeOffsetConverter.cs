@@ -14,7 +14,8 @@ public class DateTimeOffsetConverter : ISlashArgumentConverter<DateTimeOffset>, 
     public string ReadableName => "Date and Time";
     public bool RequiresText => true;
 
-    public Task<Optional<DateTimeOffset>> ConvertAsync(ConverterContext context) => DateTimeOffset.TryParse(context.Argument?.ToString(), CultureInfo.InvariantCulture, out DateTimeOffset result)
-        ? Task.FromResult(Optional.FromValue(result))
-        : Task.FromResult(Optional.FromNoValue<DateTimeOffset>());
+    public Task<Optional<DateTimeOffset>> ConvertAsync(ConverterContext context) =>
+        DateTimeOffset.TryParse(context.Argument?.ToString(), CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out DateTimeOffset result)
+            ? Task.FromResult(Optional.FromValue(result))
+            : Task.FromResult(Optional.FromNoValue<DateTimeOffset>());
 }
