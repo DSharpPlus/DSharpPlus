@@ -3,7 +3,7 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// SKUs (stock-keeping units) in Discord represent premium offerings that can be made available to your application's users or guilds.
 /// </summary>
-public class DiscordStockKeepingUnit
+public sealed class DiscordStockKeepingUnit
 {
     /// <summary>
     /// Id of this entity

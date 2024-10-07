@@ -5,7 +5,7 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Entitlement owned by a user or guild
 /// </summary>
-public class DiscordEntitlement
+public sealed class DiscordEntitlement
 {
     /// <summary>
     /// ID of the entitlement
