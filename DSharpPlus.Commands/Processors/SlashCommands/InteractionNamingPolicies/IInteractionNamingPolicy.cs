@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Globalization;
-using System.Text;
 using DSharpPlus.Commands.Trees;
 
 namespace DSharpPlus.Commands.Processors.SlashCommands.NamingPolicies;
@@ -12,14 +11,6 @@ namespace DSharpPlus.Commands.Processors.SlashCommands.NamingPolicies;
 /// </summary>
 public interface IInteractionNamingPolicy
 {
-    /// <summary>
-    /// Transforms the command name into the name that should be used for the interaction data.
-    /// </summary>
-    /// <param name="command">The command being transformed.</param>
-    /// <param name="culture">The culture to use for the transformation.</param>
-    /// <returns>The name that should be used for the interaction data.</returns>
-    string GetCommandName(Command command, CultureInfo culture);
-
     /// <summary>
     /// Transforms the parameter name into the name that should be used for the interaction data.
     /// </summary>
@@ -38,5 +29,5 @@ public interface IInteractionNamingPolicy
     /// <param name="text">The text to transform.</param>
     /// <param name="culture">The culture to use for the transformation.</param>
     /// <returns>The transformed text.</returns>
-    StringBuilder TransformText(ReadOnlySpan<char> text, CultureInfo culture);
+    string TransformText(ReadOnlySpan<char> text, CultureInfo culture);
 }

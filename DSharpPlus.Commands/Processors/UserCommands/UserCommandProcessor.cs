@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
-using System.Globalization;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -171,17 +171,14 @@ public sealed class UserCommandProcessor : ICommandProcessor
             throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
         }
 
-        Dictionary<string, string> nameLocalizations = [];
+        IReadOnlyDictionary<string, string> nameLocalizations = FrozenDictionary<string, string>.Empty;
         if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
         {
-            foreach ((string ietfTag, string name) in await this.slashCommandProcessor.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name"))
-            {
-                nameLocalizations[ietfTag] = this.slashCommandProcessor.Configuration.NamingPolicy.TransformText(name, CultureInfo.GetCultureInfo(ietfTag)).ToString();
-            }
+            nameLocalizations = await this.slashCommandProcessor.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
         }
 
         return new(
-            name: this.slashCommandProcessor.Configuration.NamingPolicy.GetCommandName(command, CultureInfo.InvariantCulture),
+            name: command.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName ?? command.FullName,
             description: string.Empty,
             type: DiscordApplicationCommandType.UserContextMenu,
             name_localizations: nameLocalizations,
