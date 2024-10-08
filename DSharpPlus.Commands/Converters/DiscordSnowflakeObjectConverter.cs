@@ -12,7 +12,7 @@ public partial class DiscordSnowflakeObjectConverter : ISlashArgumentConverter<S
     private static readonly DiscordRoleConverter discordRoleSlashArgumentConverter = new();
 
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Mentionable;
-    public ConverterRequiresText RequiresText => ConverterRequiresText.Always;
+    public ConverterInputType RequiresText => ConverterInputType.Always;
     public string ReadableName => "Discord User, Discord Member, or Discord Role";
 
     public async Task<Optional<SnowflakeObject>> ConvertAsync(ConverterContext context)

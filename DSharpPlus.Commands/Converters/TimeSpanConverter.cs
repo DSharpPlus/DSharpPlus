@@ -17,7 +17,7 @@ public partial class TimeSpanConverter : ISlashArgumentConverter<TimeSpan>, ITex
     private static partial Regex GetTimeSpanRegex();
 
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.String;
-    public ConverterRequiresText RequiresText => ConverterRequiresText.Always;
+    public ConverterInputType RequiresText => ConverterInputType.Always;
     public string ReadableName => "Duration";
 
     public Task<Optional<TimeSpan>> ConvertAsync(ConverterContext context)

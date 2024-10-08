@@ -9,7 +9,7 @@ namespace DSharpPlus.Commands.Converters;
 public class ByteConverter : ISlashArgumentConverter<byte>, ITextArgumentConverter<byte>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Integer;
-    public ConverterRequiresText RequiresText => ConverterRequiresText.Always;
+    public ConverterInputType RequiresText => ConverterInputType.Always;
     public string ReadableName => "Positive Tiny Integer";
 
     public Task<Optional<byte>> ConvertAsync(ConverterContext context) =>

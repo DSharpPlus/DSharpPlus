@@ -9,7 +9,7 @@ namespace DSharpPlus.Commands.Converters;
 public class UInt16Converter : ISlashArgumentConverter<ushort>, ITextArgumentConverter<ushort>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Integer;
-    public ConverterRequiresText RequiresText => ConverterRequiresText.Always;
+    public ConverterInputType RequiresText => ConverterInputType.Always;
     public string ReadableName => "Positive Small Integer";
 
     public Task<Optional<ushort>> ConvertAsync(ConverterContext context) =>

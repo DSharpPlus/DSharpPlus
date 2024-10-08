@@ -3,7 +3,7 @@ namespace DSharpPlus.Commands.Processors.TextCommands;
 /// <summary>
 /// The requirements for a converter to require a text argument.
 /// </summary>
-public enum ConverterRequiresText
+public enum ConverterInputType
 {
     /// <summary>
     /// The converter does not require a text argument.
@@ -18,10 +18,10 @@ public enum ConverterRequiresText
     /// <summary>
     /// The converter will require a text argument when a reply is missing.
     /// </summary>
-    WhenMissingReply,
+    IfReplyMissing,
 
     /// <summary>
     /// The converter will require a text argument when a reply is present.
     /// </summary>
-    WhenReplyPresent
+    IfReplyPresent
 }

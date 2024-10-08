@@ -14,7 +14,7 @@ namespace DSharpPlus.Commands.Converters;
 public class AttachmentConverter : ISlashArgumentConverter<DiscordAttachment>, ITextArgumentConverter<DiscordAttachment>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Attachment;
-    public ConverterRequiresText RequiresText => ConverterRequiresText.Never;
+    public ConverterInputType RequiresText => ConverterInputType.Never;
     public string ReadableName => "Discord File";
 
     public Task<Optional<DiscordAttachment>> ConvertAsync(ConverterContext context)

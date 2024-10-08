@@ -10,7 +10,7 @@ namespace DSharpPlus.Commands.Converters;
 public class DateTimeOffsetConverter : ISlashArgumentConverter<DateTimeOffset>, ITextArgumentConverter<DateTimeOffset>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.String;
-    public ConverterRequiresText RequiresText => ConverterRequiresText.Always;
+    public ConverterInputType RequiresText => ConverterInputType.Always;
     public string ReadableName => "Date and Time";
 
     public Task<Optional<DateTimeOffset>> ConvertAsync(ConverterContext context) =>

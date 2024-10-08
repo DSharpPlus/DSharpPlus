@@ -9,7 +9,7 @@ namespace DSharpPlus.Commands.Converters;
 public class FloatConverter : ISlashArgumentConverter<float>, ITextArgumentConverter<float>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Number;
-    public ConverterRequiresText RequiresText => ConverterRequiresText.Always;
+    public ConverterInputType RequiresText => ConverterInputType.Always;
     public string ReadableName => "Decimal Number";
 
     public Task<Optional<float>> ConvertAsync(ConverterContext context) =>

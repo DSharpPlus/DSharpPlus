@@ -12,7 +12,7 @@ public class Int64Converter : ISlashArgumentConverter<long>, ITextArgumentConver
     // Int64.MaxValue: 9,223,372,036,854,775,807
     // The input is defined as a string to allow for the use of the "long" type.
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.String;
-    public ConverterRequiresText RequiresText => ConverterRequiresText.Always;
+    public ConverterInputType RequiresText => ConverterInputType.Always;
     public string ReadableName => "Large Integer";
 
     public Task<Optional<long>> ConvertAsync(ConverterContext context) =>

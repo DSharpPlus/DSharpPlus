@@ -9,7 +9,7 @@ namespace DSharpPlus.Commands.Converters;
 public class UInt32Converter : ISlashArgumentConverter<uint>, ITextArgumentConverter<uint>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Integer;
-    public ConverterRequiresText RequiresText => ConverterRequiresText.Always;
+    public ConverterInputType RequiresText => ConverterInputType.Always;
     public string ReadableName => "Positive Integer";
 
     public Task<Optional<uint>> ConvertAsync(ConverterContext context) =>

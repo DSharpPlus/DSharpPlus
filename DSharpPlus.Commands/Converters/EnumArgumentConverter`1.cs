@@ -12,7 +12,7 @@ public class EnumConverter<T> : ISlashArgumentConverter<T>, ITextArgumentConvert
     private static readonly Type baseEnumType = Enum.GetUnderlyingType(typeof(T));
 
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Integer;
-    public ConverterRequiresText RequiresText => ConverterRequiresText.Always;
+    public ConverterInputType RequiresText => ConverterInputType.Always;
     public string ReadableName => "Multiple Choice";
 
     public Task<Optional<T>> ConvertAsync(ConverterContext context)

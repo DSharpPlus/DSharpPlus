@@ -11,7 +11,7 @@ namespace DSharpPlus.Commands.Converters;
 public class StringConverter : ISlashArgumentConverter<string>, ITextArgumentConverter<string>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.String;
-    public ConverterRequiresText RequiresText => ConverterRequiresText.Always;
+    public ConverterInputType RequiresText => ConverterInputType.Always;
     public string ReadableName => "Text";
 
     public Task<Optional<string>> ConvertAsync(ConverterContext context)

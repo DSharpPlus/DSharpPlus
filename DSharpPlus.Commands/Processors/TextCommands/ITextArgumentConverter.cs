@@ -4,7 +4,7 @@ namespace DSharpPlus.Commands.Processors.TextCommands;
 
 public interface ITextArgumentConverter : IArgumentConverter
 {
-    public ConverterRequiresText RequiresText { get; }
+    public ConverterInputType RequiresText { get; }
 }
 
 public interface ITextArgumentConverter<T> : ITextArgumentConverter, IArgumentConverter<T>;

@@ -222,9 +222,9 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
 
         // Switch to the original message before checking if it has a reply.
         context.SwitchToReply(false);
-        if (converter.RequiresText is ConverterRequiresText.Never
-            || (converter.RequiresText is ConverterRequiresText.WhenReplyPresent && context.Message.ReferencedMessage is null)
-            || (converter.RequiresText is ConverterRequiresText.WhenMissingReply && context.Message.ReferencedMessage is not null))
+        if (converter.RequiresText is ConverterInputType.Never
+            || (converter.RequiresText is ConverterInputType.IfReplyPresent && context.Message.ReferencedMessage is null)
+            || (converter.RequiresText is ConverterInputType.IfReplyMissing && context.Message.ReferencedMessage is not null))
         {
             // Go to the previous argument if the converter does not require text.
             context.CurrentArgumentIndex = -1;

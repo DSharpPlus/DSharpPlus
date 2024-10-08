@@ -8,7 +8,7 @@ namespace DSharpPlus.Commands.Converters;
 public class BooleanConverter : ISlashArgumentConverter<bool>, ITextArgumentConverter<bool>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Boolean;
-    public ConverterRequiresText RequiresText => ConverterRequiresText.Always;
+    public ConverterInputType RequiresText => ConverterInputType.Always;
     public string ReadableName => "Boolean (true/false)";
 
     /// <inheritdoc/>
