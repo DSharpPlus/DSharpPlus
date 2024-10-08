@@ -502,19 +502,19 @@ public sealed class CommandsExtension
         // Error message
         stringBuilder.Append(eventArgs.Exception switch
         {
-            CommandNotFoundException commandNotFoundException => $"Command {Formatter.InlineCode(Formatter.Sanitize(commandNotFoundException.CommandName))} was not found.",
+            CommandNotFoundException commandNotFoundException => $"Command ``{commandNotFoundException.CommandName}`` was not found.",
             ArgumentParseException argumentParseException when argumentParseException.ConversionResult?.Value is not null =>
-                $"Failed to parse argument {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.Parameter.Name))}: {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.ConversionResult.Value.ToString() ?? "<null>"))} is not a valid value. {argumentParseException.Message}",
+                $"Failed to parse argument ``{argumentParseException.Parameter.Name}``: ``{argumentParseException.ConversionResult.Value.ToString() ?? "<null>"}`` is not a valid value. {argumentParseException.Message}",
             ArgumentParseException argumentParseException =>
-                $"Failed to parse argument {Formatter.InlineCode(Formatter.Sanitize(argumentParseException.Parameter.Name))}: {argumentParseException.Message}",
+                $"Failed to parse argument ``{argumentParseException.Parameter.Name}``: {argumentParseException.Message}",
             ChecksFailedException checksFailedException when checksFailedException.Errors.Count == 1 =>
-                $"The following error occurred: {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.Errors[0].ErrorMessage))}",
+                $"The following error occurred: ``{checksFailedException.Errors[0].ErrorMessage}``",
             ChecksFailedException checksFailedException =>
-                $"The following context checks failed: {Formatter.InlineCode(Formatter.Sanitize(string.Join("\n\n", checksFailedException.Errors.Select(x => x.ErrorMessage))))}.",
+                $"The following context checks failed: ```\n{string.Join("\n- ", checksFailedException.Errors.Select(x => x.ErrorMessage)).Trim()}\n```.",
             ParameterChecksFailedException checksFailedException when checksFailedException.Errors.Count == 1 =>
-                $"The following error occurred: {Formatter.InlineCode(Formatter.Sanitize(checksFailedException.Errors[0].ErrorMessage))}",
+                $"The following error occurred: ``{checksFailedException.Errors[0].ErrorMessage}``",
             ParameterChecksFailedException checksFailedException =>
-                $"The following context checks failed: {Formatter.InlineCode(Formatter.Sanitize(string.Join("\n\n", checksFailedException.Errors.Select(x => x.ErrorMessage))))}.",
+                $"The following context checks failed: ```\n{string.Join("\n- ", checksFailedException.Errors.Select(x => x.ErrorMessage)).Trim()}\n```.",
             DiscordException discordException when discordException.Response is not null && (int)discordException.Response.StatusCode >= 500 && (int)discordException.Response.StatusCode < 600 =>
                 $"Discord API error {discordException.Response.StatusCode} occurred: {discordException.JsonMessage ?? "No further information was provided."}",
             DiscordException discordException when discordException.Response is not null =>
