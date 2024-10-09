@@ -32,9 +32,6 @@ public record InteractionConverterContext : ConverterContext
     public new DiscordInteractionDataOption? Argument { get; protected set; }
 
     /// <inheritdoc/>
-    public override bool NextParameter() => this.Interaction.Data.Options is not null && base.NextParameter();
-
-    /// <inheritdoc/>
     public override bool NextArgument()
     {
         // Support for variadic-argument parameters
