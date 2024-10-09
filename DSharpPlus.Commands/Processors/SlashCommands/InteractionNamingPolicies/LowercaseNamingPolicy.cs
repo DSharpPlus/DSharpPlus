@@ -1,7 +1,5 @@
 using System;
-using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using DSharpPlus.Commands.Trees;
 
@@ -13,21 +11,6 @@ namespace DSharpPlus.Commands.Processors.SlashCommands.NamingPolicies;
 public sealed class LowercaseNamingPolicy : IInteractionNamingPolicy
 {
     /// <summary>
-    /// Lowercases the command name.
-    /// </summary>
-    /// <inheritdoc />
-    public string GetCommandName(Command command, CultureInfo culture)
-    {
-        string commandName = command.Attributes.FirstOrDefault(attribute => attribute is DisplayNameAttribute) is DisplayNameAttribute displayNameAttribute
-            ? displayNameAttribute.DisplayName
-            : command.Name;
-
-        return string.IsNullOrWhiteSpace(commandName)
-            ? throw new InvalidOperationException("Command name cannot be null or empty.")
-            : TransformText(commandName, culture).ToString();
-    }
-
-    /// <summary>
     /// Transforms the parameter name into it's lowercase equivalent.
     /// </summary>
     /// <inheritdoc />
@@ -38,7 +21,7 @@ public sealed class LowercaseNamingPolicy : IInteractionNamingPolicy
             throw new InvalidOperationException("Parameter name cannot be null or empty.");
         }
 
-        StringBuilder stringBuilder = TransformText(parameter.Name, culture);
+        StringBuilder stringBuilder = new(TransformText(parameter.Name, culture));
         if (arrayIndex > -1)
         {
             stringBuilder.Append(arrayIndex.ToString(culture));
@@ -48,7 +31,7 @@ public sealed class LowercaseNamingPolicy : IInteractionNamingPolicy
     }
 
     /// <inheritdoc />
-    public StringBuilder TransformText(ReadOnlySpan<char> text, CultureInfo culture)
+    public string TransformText(ReadOnlySpan<char> text, CultureInfo culture)
     {
         StringBuilder stringBuilder = new();
         for (int i = 0; i < text.Length; i++)
@@ -69,6 +52,6 @@ public sealed class LowercaseNamingPolicy : IInteractionNamingPolicy
             stringBuilder.Append(char.ToLower(character, culture));
         }
 
-        return stringBuilder;
+        return stringBuilder.ToString();
     }
 }

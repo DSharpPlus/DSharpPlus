@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -136,13 +137,14 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         foreach (DiscordApplicationCommand discordCommand in applicationCommands)
         {
             bool commandFound = false;
-            string discordCommandName = this.Configuration.NamingPolicy.TransformText(discordCommand.Name, CultureInfo.InvariantCulture).ToString();
+            string discordCommandName;
             if (discordCommand.Type is DiscordApplicationCommandType.MessageContextMenu or DiscordApplicationCommandType.UserContextMenu)
             {
+                discordCommandName = discordCommand.Name;
                 foreach (Command command in flattenCommands)
                 {
-                    string commandName = this.Configuration.NamingPolicy.GetCommandName(command, CultureInfo.InvariantCulture);
-                    if (commandName == discordCommandName)
+                    string commandName = command.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName ?? command.FullName;
+                    if (commandName == discordCommand.Name)
                     {
                         commandsDictionary.Add(discordCommand.Id, command);
                         commandFound = true;
@@ -152,9 +154,10 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             }
             else
             {
+                discordCommandName = this.Configuration.NamingPolicy.TransformText(discordCommand.Name, CultureInfo.InvariantCulture);
                 foreach (Command command in processorSpecificCommands)
                 {
-                    string commandName = this.Configuration.NamingPolicy.GetCommandName(command, CultureInfo.InvariantCulture);
+                    string commandName = this.Configuration.NamingPolicy.TransformText(command.Name, CultureInfo.InvariantCulture);
                     if (commandName == discordCommandName)
                     {
                         commandsDictionary.Add(discordCommand.Id, command);
@@ -229,7 +232,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
 
         // Create the top level application command.
         return new(
-            name: this.Configuration.NamingPolicy.GetCommandName(command, CultureInfo.InvariantCulture),
+            name: this.Configuration.NamingPolicy.TransformText(command.Name, CultureInfo.InvariantCulture),
             description: description,
             options: options,
             type: DiscordApplicationCommandType.SlashCommand,
@@ -279,7 +282,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         {
             foreach ((string ietfTag, string name) in await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name"))
             {
-                nameLocalizations[ietfTag] = this.Configuration.NamingPolicy.TransformText(name, CultureInfo.GetCultureInfo(ietfTag)).ToString();
+                nameLocalizations[ietfTag] = this.Configuration.NamingPolicy.TransformText(name, CultureInfo.GetCultureInfo(ietfTag));
             }
 
             descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
@@ -292,7 +295,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         }
 
         return new(
-            name: this.Configuration.NamingPolicy.GetCommandName(command, CultureInfo.InvariantCulture),
+            name: this.Configuration.NamingPolicy.TransformText(command.Name, CultureInfo.InvariantCulture),
             description: description,
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
@@ -329,7 +332,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
 
             foreach ((string ietfTag, string name) in await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".name"))
             {
-                nameLocalizations[ietfTag] = this.Configuration.NamingPolicy.TransformText(name, CultureInfo.GetCultureInfo(ietfTag)).ToString();
+                nameLocalizations[ietfTag] = this.Configuration.NamingPolicy.TransformText(name, CultureInfo.GetCultureInfo(ietfTag));
             }
 
             descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".description");

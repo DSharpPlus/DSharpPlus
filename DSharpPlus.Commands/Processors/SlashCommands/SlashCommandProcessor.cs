@@ -193,7 +193,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
                 break;
             }
 
-            command = command.Subcommands.First(subcommandName => this.Configuration.NamingPolicy.GetCommandName(subcommandName, culture) == option.Name);
+            command = command.Subcommands.First(subcommandName => this.Configuration.NamingPolicy.TransformText(subcommandName.Name, culture) == option.Name);
             options = option.Options ?? [];
         }
 
