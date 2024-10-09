@@ -279,11 +279,6 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         {
             throw new InvalidOperationException("The processor has not been configured yet.");
         }
-        else if (!converterContext.NextArgument())
-        {
-            // Try to fill with it's default value
-            return converterContext.Parameter.DefaultValue.HasValue ? converterContext.Parameter.DefaultValue.Value : new ArgumentNotParsedResult();
-        }
 
         try
         {
@@ -321,6 +316,14 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
     /// </summary>
     protected virtual async ValueTask<IOptional> ExecuteConverterAsync<T>(TConverter converter, TConverterContext context)
     {
+        if (!context.NextArgument())
+        {
+            // Try to return the default value if it exists.
+            return context.Parameter.DefaultValue.HasValue
+                ? Optional.FromValue(context.Parameter.DefaultValue.Value)
+                : Optional.FromValue(new ArgumentNotParsedResult());
+        }
+
         if (converter is not IArgumentConverter<T> typedConverter)
         {
             throw new InvalidOperationException($"The converter {converter.GetType().FullName} does not implement IArgumentConverter<{typeof(T).FullName}>.");

@@ -9,8 +9,8 @@ namespace DSharpPlus.Commands.Converters;
 public class DoubleConverter : ISlashArgumentConverter<double>, ITextArgumentConverter<double>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Number;
+    public ConverterInputType RequiresText => ConverterInputType.Always;
     public string ReadableName => "Decimal Number";
-    public bool RequiresText => true;
 
     public Task<Optional<double>> ConvertAsync(ConverterContext context) =>
         double.TryParse(context.Argument?.ToString(), CultureInfo.InvariantCulture, out double result)

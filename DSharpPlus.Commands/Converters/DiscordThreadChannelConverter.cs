@@ -12,8 +12,8 @@ namespace DSharpPlus.Commands.Converters;
 public partial class DiscordThreadChannelConverter : ISlashArgumentConverter<DiscordThreadChannel>, ITextArgumentConverter<DiscordThreadChannel>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Channel;
+    public ConverterInputType RequiresText => ConverterInputType.Always;
     public string ReadableName => "Discord Thread";
-    public bool RequiresText => true;
 
     public Task<Optional<DiscordThreadChannel>> ConvertAsync(ConverterContext context)
     {

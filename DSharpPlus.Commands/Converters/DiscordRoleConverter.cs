@@ -16,8 +16,8 @@ public partial class DiscordRoleConverter : ISlashArgumentConverter<DiscordRole>
     public static partial Regex GetRoleRegex();
 
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Role;
+    public ConverterInputType RequiresText => ConverterInputType.Always;
     public string ReadableName => "Discord Role";
-    public bool RequiresText => true;
 
     public Task<Optional<DiscordRole>> ConvertAsync(ConverterContext context)
     {

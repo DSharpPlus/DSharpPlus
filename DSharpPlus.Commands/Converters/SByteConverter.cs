@@ -9,8 +9,8 @@ namespace DSharpPlus.Commands.Converters;
 public class SByteConverter : ISlashArgumentConverter<sbyte>, ITextArgumentConverter<sbyte>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Integer;
+    public ConverterInputType RequiresText => ConverterInputType.Always;
     public string ReadableName => "Tiny Integer";
-    public bool RequiresText => true;
 
     public Task<Optional<sbyte>> ConvertAsync(ConverterContext context) =>
         sbyte.TryParse(context.Argument?.ToString(), CultureInfo.InvariantCulture, out sbyte result)

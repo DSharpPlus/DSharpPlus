@@ -217,13 +217,27 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
     /// <inheritdoc/>
     protected override async ValueTask<IOptional> ExecuteConverterAsync<T>(ITextArgumentConverter converter, TextConverterContext context)
     {
-        if (!converter.RequiresText)
+        // Store the current argument index to restore it later.
+        int currentArgumentIndex = context.CurrentArgumentIndex;
+
+        // Switch to the original message before checking if it has a reply.
+        context.SwitchToReply(false);
+        if (converter.RequiresText is ConverterInputType.Never
+            || (converter.RequiresText is ConverterInputType.IfReplyPresent && context.Message.ReferencedMessage is null)
+            || (converter.RequiresText is ConverterInputType.IfReplyMissing && context.Message.ReferencedMessage is not null))
         {
             // Go to the previous argument if the converter does not require text.
-            context.NextArgumentIndex = context.CurrentArgumentIndex;
+            context.CurrentArgumentIndex = -1;
         }
 
-        return await base.ExecuteConverterAsync<T>(converter, context);
+        // Execute the converter
+        IOptional value = await base.ExecuteConverterAsync<T>(converter, context);
+
+        // Restore the current argument index
+        context.CurrentArgumentIndex = currentArgumentIndex;
+
+        // Return the result
+        return value;
     }
 
     /// <summary>

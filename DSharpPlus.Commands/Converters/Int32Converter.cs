@@ -9,8 +9,8 @@ namespace DSharpPlus.Commands.Converters;
 public class Int32Converter : ISlashArgumentConverter<int>, ITextArgumentConverter<int>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.Integer;
+    public ConverterInputType RequiresText => ConverterInputType.Always;
     public string ReadableName => "Integer";
-    public bool RequiresText => true;
 
     public Task<Optional<int>> ConvertAsync(ConverterContext context) =>
         int.TryParse(context.Argument?.ToString(), CultureInfo.InvariantCulture, out int result)
