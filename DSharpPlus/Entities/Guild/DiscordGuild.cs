@@ -825,7 +825,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets a list of users who are interested in this event.
     /// </summary>
     /// <param name="guildEventId">The id of the event to query users from</param>
-    /// <param name="limit">How many users to fetch.</param>
+    /// <param name="limit">How many users to fetch. The method performs one api call per 100 users</param>
     /// <param name="after">Fetch users after this id. Mutually exclusive with before</param>
     /// <param name="before">Fetch users before this id. Mutually exclusive with after</param>
     public async IAsyncEnumerable<DiscordUser> GetEventUsersAsync(ulong guildEventId, int limit = 100, ulong? after = null, ulong? before = null)
