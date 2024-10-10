@@ -837,23 +837,23 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
         int remaining = limit;
         ulong? last = null;
-        bool isAfter = after != null;
+        bool isBefore = before != null;
         int lastCount;
         do
         {
             int fetchSize = remaining > 100 ? 100 : remaining;
-            IReadOnlyList<DiscordUser> fetch = await this.Discord.ApiClient.GetScheduledGuildEventUsersAsync(this.Id, guildEventId, true, fetchSize, !isAfter ? last ?? before : null, isAfter ? last ?? after : null);
+            IReadOnlyList<DiscordUser> fetch = await this.Discord.ApiClient.GetScheduledGuildEventUsersAsync(this.Id, guildEventId, true, fetchSize, isBefore ? last ?? before : null, !isBefore ? last ?? after : null);
 
             lastCount = fetch.Count;
             remaining -= lastCount;
 
-            if (!isAfter)
+            if (isBefore)
             {
                 for (int i = lastCount - 1; i >= 0; i--)
                 {
                     yield return fetch[i];
                 }
-                last = fetch.LastOrDefault()?.Id;
+                last = fetch.FirstOrDefault()?.Id;
             }
             else
             {
@@ -861,7 +861,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 {
                     yield return fetch[i];
                 }
-                last = fetch.FirstOrDefault()?.Id;
+                last = fetch.LastOrDefault()?.Id;
             }
         }
         while (remaining > 0 && lastCount > 0);

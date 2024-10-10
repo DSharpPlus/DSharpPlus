@@ -1831,7 +1831,7 @@ public sealed class DiscordApiClient
         ulong guildId,
         ulong guildScheduledEventId,
         bool withMembers = false,
-        int limit = 1,
+        int limit = 100,
         ulong? before = null,
         ulong? after = null
     )
