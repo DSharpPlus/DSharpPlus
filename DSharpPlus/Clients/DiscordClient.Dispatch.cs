@@ -732,7 +732,6 @@ public sealed partial class DiscordClient
 
     internal async Task OnResumedAsync(int shardId)
     {
-        this.Logger.LogInformation(LoggerEvents.SessionUpdate, "Session resumed");
         await this.dispatcher.DispatchAsync<SessionResumedEventArgs>
         (
             this,
