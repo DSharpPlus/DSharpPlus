@@ -123,7 +123,7 @@ public sealed class GatewayClient : IGatewayClient
 
                 GatewayHello helloPayload = ((JObject)helloEvent.Data).ToDiscordObject<GatewayHello>();
 
-                this.logger.LogTrace
+                this.logger.LogDebug
                 (
                     "Received hello event, starting heartbeating with an interval of {interval} and identifying.",
                     TimeSpan.FromMilliseconds(helloPayload.HeartbeatInterval)
@@ -178,7 +178,7 @@ public sealed class GatewayClient : IGatewayClient
 
                 await WriteAsync(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(identify)));
 
-                this.logger.LogTrace("Identified with the Discord gateway");
+                this.logger.LogDebug("Identified with the Discord gateway");
                 break;
             }
             catch (Exception e)
@@ -307,11 +307,11 @@ public sealed class GatewayClient : IGatewayClient
 
                         this.IsConnected = true;
 
-                        this.logger.LogTrace("Received READY, the gateway is now operational.");
+                        this.logger.LogDebug("Received READY, the gateway is now operational.");
 
                         break;
 
-                    case GatewayOpCode.Resume:
+                    case GatewayOpCode.Dispatch when payload.EventName is "RESUMED":
 
                         payload = new ShardIdContainingGatewayPayload
                         {
@@ -321,6 +321,10 @@ public sealed class GatewayClient : IGatewayClient
                             Sequence = payload.Sequence,
                             ShardId = this.ShardId
                         };
+
+                        this.IsConnected = true;
+
+                        this.logger.LogDebug("A session was resumed successfully.");
 
                         break;
 
@@ -336,7 +340,7 @@ public sealed class GatewayClient : IGatewayClient
 
                     case GatewayOpCode.InvalidSession:
 
-                        this.logger.LogTrace("Received INVALID_SESSION, resumable: {Resumable}", (bool)payload.Data);
+                        this.logger.LogDebug("Received INVALID_SESSION, resumable: {Resumable}", (bool)payload.Data);
                         bool success = (bool)payload.Data ? await TryResumeAsync() : await TryReconnectAsync();
 
                         if (!success)
@@ -349,7 +353,7 @@ public sealed class GatewayClient : IGatewayClient
 
                     case GatewayOpCode.Reconnect:
 
-                        this.logger.LogTrace("Received RECONNECT");
+                        this.logger.LogDebug("Received RECONNECT");
                         _ = this.controller.ReconnectRequestedAsync(this);
 
                         if (!(this.options.AutoReconnect && await TryReconnectAsync()))
@@ -379,6 +383,8 @@ public sealed class GatewayClient : IGatewayClient
         {
             return this.options.AutoReconnect && await TryReconnectAsync();
         }
+
+        _ = this.controller.ResumeAttemptedAsync(this);
 
         try
         {
@@ -413,8 +419,7 @@ public sealed class GatewayClient : IGatewayClient
                         )
                     );
 
-                    this.logger.LogTrace("Resumed an existing gateway session.");
-                    this.IsConnected = true;
+                    this.logger.LogDebug("Attempted to resume an existing gateway session.");
                     break;
                 }
                 catch (WebSocketException e) when (e.InnerException is HttpRequestException)
@@ -487,7 +492,7 @@ public sealed class GatewayClient : IGatewayClient
 
                 GatewayHello helloPayload = ((JObject)helloEvent.Data).ToDiscordObject<GatewayHello>();
 
-                this.logger.LogTrace
+                this.logger.LogDebug
                 (
                     "Received hello event, starting heartbeating with an interval of {interval} and identifying.",
                     TimeSpan.FromMilliseconds(helloPayload.HeartbeatInterval)
@@ -499,7 +504,7 @@ public sealed class GatewayClient : IGatewayClient
 
                 await WriteAsync(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this.identify)));
 
-                this.logger.LogTrace("Identified with the Discord gateway");
+                this.logger.LogDebug("Identified with the Discord gateway");
                 return true;
             }
             catch (Exception e)

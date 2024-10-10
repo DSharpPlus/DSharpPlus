@@ -18,6 +18,9 @@ internal class DefaultGatewayController : IGatewayController
     public Task ReconnectRequestedAsync(IGatewayClient client) => Task.CompletedTask;
 
     /// <inheritdoc/>
+    public Task ResumeAttemptedAsync(IGatewayClient client) => Task.CompletedTask;
+
+    /// <inheritdoc/>
     public Task SessionInvalidatedAsync(IGatewayClient client) => Task.CompletedTask;
 
     /// <inheritdoc/>
