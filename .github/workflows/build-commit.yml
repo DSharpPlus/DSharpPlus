@@ -7,6 +7,7 @@ on:
       - ".github/workflows/build-commit.yml"
       - "DSharpPlus*/**"
       - "tools/**"
+      - "docs/**"
       - "*.sln"
       - "obsolete/DSharpPlus*/**"
   workflow_dispatch:
