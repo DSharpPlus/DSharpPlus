@@ -29,9 +29,18 @@ internal sealed class RestUserUpdateCurrentPayload
 
     [JsonIgnore]
     public bool AvatarSet { get; set; }
+    
+    [JsonProperty("banner", NullValueHandling = NullValueHandling.Include)]
+    public string? BannerBase64 { get; set; }
+
+    [JsonIgnore]
+    public bool BannerSet { get; set; }
 
     public bool ShouldSerializeAvatarBase64()
         => this.AvatarSet;
+    
+    public bool ShouldSerializeBannerBase64()
+        => this.BannerSet;
 }
 
 internal sealed class RestUserGuild
