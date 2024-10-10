@@ -35,10 +35,10 @@ public class DiscordRestClient : BaseDiscordClient
     public DiscordRestClient(RestClientOptions options, string token, TokenType tokenType, ILogger? logger = null) : base()
     {
         string headerTokenType = tokenType == TokenType.Bot ? "Bot" : "Bearer";
-        
+
         HttpClient httpClient = new();
         httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"{headerTokenType} {token}");
-        
+
         this.ApiClient = new(new
         (
             httpClient,
@@ -343,7 +343,7 @@ public class DiscordRestClient : BaseDiscordClient
 
         return await this.ApiClient.ModifyGuildAsync(guildId, mdl.Name, mdl.Region.IfPresent(x => x.Id), mdl.VerificationLevel, mdl.DefaultMessageNotifications,
             mdl.MfaLevel, mdl.ExplicitContentFilter, mdl.AfkChannel.IfPresent(x => x?.Id), mdl.AfkTimeout, iconb64, mdl.Owner.IfPresent(x => x.Id),
-            splashb64, mdl.SystemChannel.IfPresent(x => x?.Id), bannerb64, mdl.Description, mdl.DiscoverySplash, mdl.Features, mdl.PreferredLocale,
+            splashb64, mdl.SystemChannel.IfPresent(x => x?.Id), bannerb64, mdl.Description, mdl.DiscoverySplash, mdl.Features.Value, mdl.PreferredLocale,
             mdl.PublicUpdatesChannel.IfPresent(e => e?.Id), mdl.RulesChannel.IfPresent(e => e?.Id), mdl.SystemChannelFlags, mdl.AuditLogReason);
     }
 
@@ -574,7 +574,7 @@ public class DiscordRestClient : BaseDiscordClient
     {
         MembershipScreeningEditModel mdl = new();
         action(mdl);
-        return await this.ApiClient.ModifyGuildMembershipScreeningFormAsync(guildId, mdl.Enabled, mdl.Fields, mdl.Description);
+        return await this.ApiClient.ModifyGuildMembershipScreeningFormAsync(guildId, mdl.Enabled, mdl.Fields.Value, mdl.Description);
     }
 
     /// <summary>
@@ -1535,7 +1535,7 @@ public class DiscordRestClient : BaseDiscordClient
     {
         WelcomeScreenEditModel mdl = new();
         action(mdl);
-        return await this.ApiClient.ModifyGuildWelcomeScreenAsync(guildId, mdl.Enabled, mdl.WelcomeChannels, mdl.Description, reason);
+        return await this.ApiClient.ModifyGuildWelcomeScreenAsync(guildId, mdl.Enabled, mdl.WelcomeChannels.Value, mdl.Description, reason);
     }
 
     /// <summary>
@@ -1886,7 +1886,7 @@ public class DiscordRestClient : BaseDiscordClient
         ApplicationCommandEditModel mdl = new();
         action(mdl);
         ulong applicationId = this.CurrentApplication?.Id ?? (await GetCurrentApplicationAsync()).Id;
-        return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
+        return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options.Value, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
     }
 
     /// <summary>
@@ -1943,7 +1943,7 @@ public class DiscordRestClient : BaseDiscordClient
         ApplicationCommandEditModel mdl = new();
         action(mdl);
         ulong applicationId = this.CurrentApplication?.Id ?? (await GetCurrentApplicationAsync()).Id;
-        return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
+        return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options.Value, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
     }
 
     /// <summary>

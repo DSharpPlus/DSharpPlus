@@ -3,40 +3,46 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.Net.Models;
 
+/// <summary>
+/// Specifies the parameters for modifying an auto moderation rule.
+/// </summary>
+/// <remarks>
+/// If an <see cref="Optional{T}"/> parameter is not specified, it's state will be left unchanged.
+/// </remarks>
 public class AutoModerationRuleEditModel : BaseEditModel
 {
     /// <summary>
     /// The new rule name.
     /// </summary>
-    public Optional<string> Name { internal get; set; }
+    public Optional<string> Name { get; set; }
 
     /// <summary>
     /// The new rule event type.
     /// </summary>
-    public Optional<DiscordRuleEventType> EventType { internal get; set; }
+    public Optional<DiscordRuleEventType> EventType { get; set; }
 
     /// <summary>
     /// The new rule trigger metadata.
     /// </summary>
-    public Optional<DiscordRuleTriggerMetadata> TriggerMetadata { internal get; set; }
+    public Optional<DiscordRuleTriggerMetadata> TriggerMetadata { get; set; }
 
     /// <summary>
     /// The new rule actions.
     /// </summary>
-    public Optional<IReadOnlyList<DiscordAutoModerationAction>> Actions { internal get; set; }
+    public Optional<List<DiscordAutoModerationAction>> Actions { get; set; }
 
     /// <summary>
     /// The new rule status.
     /// </summary>
-    public Optional<bool> Enable { internal get; set; }
+    public Optional<bool> Enable { get; set; }
 
     /// <summary>
     /// The new rule exempt roles.
     /// </summary>
-    public Optional<IReadOnlyList<DiscordRole>> ExemptRoles { internal get; set; }
+    public Optional<List<DiscordRole>> ExemptRoles { get; set; }
 
     /// <summary>
     /// The new rule exempt channels.
     /// </summary>
-    public Optional<IReadOnlyList<DiscordChannel>> ExemptChannels { internal get; set; }
+    public Optional<List<DiscordChannel>> ExemptChannels { get; set; }
 }
