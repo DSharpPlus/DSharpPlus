@@ -69,7 +69,7 @@ public record SlashCommandContext : CommandContext
     {
         if (this.Interaction.ResponseState is not DiscordInteractionResponseState.Unacknowledged)
         {
-            throw new InvalidOperationException("Cannot respond to an interaction twice. Please use FollowupAsync instead.");
+            throw new InvalidOperationException("Modal must be the first response to the interaction.");
         }
         else if (string.IsNullOrWhiteSpace(builder.CustomId))
         {
