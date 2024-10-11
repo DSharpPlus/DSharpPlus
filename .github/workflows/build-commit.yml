@@ -51,14 +51,17 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8
+      - name: Get Nightly Version
+        id: nightly
+        run: printf "version=%0*d" 5 $(( 1195 + 691 + ${{ github.run_number }} )) >> "$GITHUB_OUTPUT"
       - name: Package Project
         run: |
           # We add 1195 since it's the last build number AppVeyor used.
           # We add 686 since it's the last build number GitHub Actions used before the workflow was renamed.
-          dotnet pack -c Release -o build -p:Nightly=$(( 1195 + 691 + ${{ github.run_number }} ))
+          dotnet pack -c Release -o build -p:Nightly=${{ steps.nightly.outputs.version }}
           dotnet nuget push "build/*" --skip-duplicate -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json
           echo LATEST_STABLE_VERSION=$(git describe --abbrev=0 --tags 2>/dev/null || echo '') >> $GITHUB_ENV
-          dotnet run --project ./tools/AutoUpdateChannelDescription -p:Nightly=$(( 1195 + 691 + ${{ github.run_number }} ))
+          dotnet run --project ./tools/AutoUpdateChannelDescription -p:Nightly=${{ steps.nightly.outputs.version }}
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
@@ -71,7 +74,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: DSharpPlus-Nightly-$(( 1195 + 691 + ${{ github.run_number }} )).zip
+          name: DSharpPlus-Nightly-${{ steps.nightly.outputs.version }}.zip
           path: ./build/*
   document-commit:
     name: Document Commit
