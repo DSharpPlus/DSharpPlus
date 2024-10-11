@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using DSharpPlus.Commands.ContextChecks;
 
 namespace DSharpPlus.Commands.Trees;
 
@@ -279,6 +280,7 @@ public class CommandBuilder
             return type is null 
                 ? []
                 : type.GetCustomAttributes(true)
+                    .Where(obj => obj is ContextCheckAttribute)
                     .Concat(AggregateCustomAttributesFromType(type.DeclaringType))
                     .Cast<Attribute>();
         }
