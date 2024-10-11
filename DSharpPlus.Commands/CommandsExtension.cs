@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+
 using DSharpPlus.AsyncEvents;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
@@ -24,15 +25,20 @@ using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using CheckFunc = System.Func<
+
+using CheckFunc = System.Func
+<
     object,
     DSharpPlus.Commands.ContextChecks.ContextCheckAttribute,
     DSharpPlus.Commands.CommandContext,
     System.Threading.Tasks.ValueTask<string?>
 >;
-using ParameterCheckFunc = System.Func<
+
+using ParameterCheckFunc = System.Func
+<
     object,
     DSharpPlus.Commands.ContextChecks.ParameterChecks.ParameterCheckAttribute,
     DSharpPlus.Commands.ContextChecks.ParameterChecks.ParameterCheckInfo,
@@ -193,8 +199,8 @@ public sealed class CommandsExtension
     public void AddCommands(params CommandBuilder[] commands) => this.commandBuilders.AddRange(commands);
     public void AddCommands(Type type, params ulong[] guildIds) => AddCommands([type], guildIds);
     public void AddCommands(Type type) => AddCommands([type]);
-    public void AddCommands<T>() => this.commandBuilders.Add(CommandBuilder.From<T>());
-    public void AddCommands<T>(params ulong[] guildIds) => this.commandBuilders.Add(CommandBuilder.From<T>(guildIds));
+    public void AddCommands<T>() => AddCommands([typeof(T)]);
+    public void AddCommands<T>(params ulong[] guildIds) => AddCommands([typeof(T)], guildIds);
     public void AddCommands(IEnumerable<Type> types, params ulong[] guildIds)
     {
         foreach (Type type in types)
