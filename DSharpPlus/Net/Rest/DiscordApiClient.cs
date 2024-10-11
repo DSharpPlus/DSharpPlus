@@ -61,17 +61,6 @@ public sealed class DiscordApiClient
             PopulateMessage(referencedAuthor, message.ReferencedMessage);
         }
 
-        JToken? msgSnapshots = msgRaw["message_snapshots"];
-        if (msgSnapshots is not null && message.MessageSnapshots is not null)
-        {
-            for(int i = 0; i < msgSnapshots.Count(); i++)
-            {
-                JToken snapshot = msgSnapshots[i];
-                message.MessageSnapshots[i].Message.Discord = this.discord!;
-                PopulateMessage(null, message.MessageSnapshots[i].Message);
-            }
-        }
-
         return message;
     }
 
@@ -106,46 +95,43 @@ public sealed class DiscordApiClient
             };
 
         //If this is a webhook, it shouldn't be in the user cache.
-        if (author != null)
+        if (author.IsBot && int.Parse(author.Discriminator) == 0)
         {
-            if (author.IsBot && int.Parse(author.Discriminator) == 0)
+            ret.Author = new(author)
             {
-                ret.Author = new(author)
+                Discord = this.discord!
+            };
+        }
+        else
+        {
+            // get and cache the user
+            if (!this.discord!.UserCache.TryGetValue(author.Id, out DiscordUser? user))
+            {
+                user = new DiscordUser(author)
                 {
-                    Discord = this.discord!
+                    Discord = this.discord
                 };
             }
-            else
+
+            this.discord.UserCache[author.Id] = user;
+
+            // get the member object if applicable, if not set the message author to an user
+            if (guild is not null)
             {
-                // get and cache the user
-                if (!this.discord!.UserCache.TryGetValue(author.Id, out DiscordUser? user))
+                if (!guild.Members.TryGetValue(author.Id, out DiscordMember? member))
                 {
-                    user = new DiscordUser(author)
+                    member = new(user)
                     {
-                        Discord = this.discord
+                        Discord = this.discord,
+                        guild_id = guild.Id
                     };
                 }
 
-                this.discord.UserCache[author.Id] = user;
-
-                // get the member object if applicable, if not set the message author to an user
-                if (guild is not null)
-                {
-                    if (!guild.Members.TryGetValue(author.Id, out DiscordMember? member))
-                    {
-                        member = new(user)
-                        {
-                            Discord = this.discord,
-                            guild_id = guild.Id
-                        };
-                    }
-
-                    ret.Author = member;
-                }
-                else
-                {
-                    ret.Author = user!;
-                }
+                ret.Author = member;
+            }
+            else
+            {
+                ret.Author = user!;
             }
         }
 
@@ -155,6 +141,14 @@ public sealed class DiscordApiClient
         foreach (DiscordReaction reaction in ret.reactions)
         {
             reaction.Emoji.Discord = this.discord!;
+        }
+
+        if(ret.MessageSnapshots != null)
+        {
+            foreach (DiscordMessageSnapshot snapshot in ret.MessageSnapshots)
+            {
+                snapshot.Message?.PopulateMentions();
+            }
         }
     }
 

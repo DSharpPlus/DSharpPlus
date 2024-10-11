@@ -1718,8 +1718,6 @@ public sealed partial class DiscordClient
             {
                 if (snapshot?.Message != null)
                 {
-                    snapshot.Message.Discord = this;
-                    PopulateMessageReactionsAndCache(snapshot.Message, null, member);
                     snapshot.Message.PopulateMentions();
                 }
             }
@@ -1767,8 +1765,6 @@ public sealed partial class DiscordClient
                 {
                     if (snapshot?.Message != null)
                     {
-                        snapshot.Message.Discord = this;
-                        PopulateMessageReactionsAndCache(snapshot.Message, null, member);
                         snapshot.Message.PopulateMentions();
                     }
                 }

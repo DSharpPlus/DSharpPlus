@@ -11,5 +11,5 @@ public class DiscordMessageSnapshot
     /// Gets the message object for the message snapshot.
     /// </summary>
     [JsonProperty("message", NullValueHandling = NullValueHandling.Ignore)]
-    public DiscordMessage Message { get; set; }
+    public DiscordMessageSnapshotContent Message { get; set; }
 }
