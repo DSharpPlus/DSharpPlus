@@ -83,6 +83,7 @@ public class CommandBuilder
     public CommandBuilder WithAttributes(IEnumerable<Attribute> attributes)
     {
         this.Attributes = new(attributes);
+
         foreach (Attribute attribute in attributes)
         {
             if (attribute is CommandAttribute commandAttribute)
@@ -247,7 +248,7 @@ public class CommandBuilder
         }
 
         CommandBuilder commandBuilder = new();
-        commandBuilder.WithAttributes(method.GetCustomAttributes());
+        commandBuilder.WithAttributes(AggregateCustomAttributes(method));
         commandBuilder.WithDelegate(method, target);
         commandBuilder.WithParameters(parameters[1..].Select(parameterInfo => CommandParameterBuilder.From(parameterInfo).WithParent(commandBuilder)));
         commandBuilder.GuildIds.AddRange(guildIds);
@@ -266,5 +267,20 @@ public class CommandBuilder
 
         stringBuilder.Append(this.Name ?? "Unnamed Command");
         return stringBuilder.ToString();
+    }
+
+    public static IEnumerable<Attribute> AggregateCustomAttributes(MethodInfo info)
+    {
+        IEnumerable<Attribute> methodAttributes = info.GetCustomAttributes();
+        return methodAttributes.Concat(AggregateCustomAttributesFromType(info.DeclaringType));
+
+        static IEnumerable<Attribute> AggregateCustomAttributesFromType(Type? type)
+        {
+            return type is null 
+                ? []
+                : type.GetCustomAttributes(true)
+                    .Concat(AggregateCustomAttributesFromType(type.DeclaringType))
+                    .Cast<Attribute>();
+        }
     }
 }
