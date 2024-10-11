@@ -11,6 +11,7 @@ using DSharpPlus.Logging;
 using DSharpPlus.Net.WebSocket;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace DSharpPlus.Net.Gateway;
 
@@ -24,15 +25,24 @@ internal sealed class TransportService : ITransportService
     private readonly PayloadDecompressor decompressor;
     private readonly ILoggerFactory factory;
 
+    private readonly bool streamingDeserialization;
+
     private bool isConnected = false;
     private bool isDisposed = false;
 
-    public TransportService(ILoggerFactory factory, PayloadDecompressor decompressor)
+    public TransportService
+    (
+        ILoggerFactory factory,
+        PayloadDecompressor decompressor,
+        IOptions<GatewayClientOptions> options
+    )
     {
         this.factory = factory;
         this.writer = new();
         this.decompressedWriter = new();
         this.decompressor = decompressor;
+
+        this.streamingDeserialization = options.Value.EnableStreamingDeserialization;
 
         this.logger = factory.CreateLogger("DSharpPlus.Net.Gateway.ITransportService - invalid shard");
     }
@@ -154,10 +164,9 @@ internal sealed class TransportService : ITransportService
             throw new InvalidDataException("Failed to decompress a gateway payload.");
         }
 
-        string result = Encoding.UTF8.GetString(this.decompressedWriter.WrittenSpan);
-
         if (this.logger.IsEnabled(LogLevel.Trace) && RuntimeFeatures.EnableInboundGatewayLogging)
         {
+            string result = Encoding.UTF8.GetString(this.decompressedWriter.WrittenSpan);
 
             this.logger.LogTrace
             (
@@ -178,9 +187,19 @@ internal sealed class TransportService : ITransportService
             }
 
             this.logger.LogTrace("Payload for the last inbound gateway event: {event}", anonymized);
-        }
 
-        return this.writer.WrittenCount == 0 ? new((int)this.socket.CloseStatus!) : new(result);
+            return this.writer.WrittenCount == 0 ? new((int)this.socket.CloseStatus!) : new(result);
+        }
+        else if (this.streamingDeserialization)
+        {
+            MemoryStream result = new(this.decompressedWriter.WrittenSpan.ToArray());
+            return this.writer.WrittenCount == 0 ? new((int)this.socket.CloseStatus!) : new(result);
+        }
+        else
+        {
+            string result = Encoding.UTF8.GetString(this.decompressedWriter.WrittenSpan);
+            return this.writer.WrittenCount == 0 ? new((int)this.socket.CloseStatus!) : new(result);
+        }
     }
 
     /// <inheritdoc/>

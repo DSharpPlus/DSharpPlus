@@ -107,17 +107,11 @@ public sealed class GatewayClient : IGatewayClient
                 await this.transportService.ConnectAsync(url, shardInfo?.ShardId);
 
                 TransportFrame initialFrame = await this.transportService.ReadAsync();
-
-                if (!initialFrame.TryGetMessage(out string? hello))
-                {
-                    await HandleErrorAndAttemptToReconnectAsync(initialFrame);
-                }
-
-                GatewayPayload? helloEvent = JsonConvert.DeserializeObject<GatewayPayload>(hello);
+                GatewayPayload? helloEvent = await ProcessAndDeserializeTransportFrameAsync(initialFrame);
 
                 if (helloEvent is not { OpCode: GatewayOpCode.Hello })
                 {
-                    this.logger.LogWarning("Expected HELLO payload from Discord, received {NotQuiteHello}", hello);
+                    this.logger.LogWarning("Expected HELLO payload from Discord");
                     continue;
                 }
 
@@ -269,19 +263,10 @@ public sealed class GatewayClient : IGatewayClient
             while (!ct.IsCancellationRequested)
             {
                 TransportFrame frame = await this.transportService.ReadAsync();
-                GatewayPayload? payload;
-
-                if (!frame.TryGetMessage(out string? data))
-                {
-                    await HandleErrorAndAttemptToReconnectAsync(frame);
-                    continue;
-                }
-
-                payload = JsonConvert.DeserializeObject<GatewayPayload>(data);
+                GatewayPayload? payload = await ProcessAndDeserializeTransportFrameAsync(frame);
 
                 if (payload is null)
                 {
-                    this.logger.LogError("Received invalid inbound event: {Data}", data);
                     continue;
                 }
 
@@ -477,17 +462,11 @@ public sealed class GatewayClient : IGatewayClient
                 await this.transportService.ConnectAsync(this.reconnectUrl!, this.shardInfo?.ShardId);
 
                 TransportFrame initialFrame = await this.transportService.ReadAsync();
-
-                if (!initialFrame.TryGetMessage(out string? hello))
-                {
-                    await HandleErrorAndAttemptToReconnectAsync(initialFrame);
-                }
-
-                GatewayPayload? helloEvent = JsonConvert.DeserializeObject<GatewayPayload>(hello);
+                GatewayPayload? helloEvent = await ProcessAndDeserializeTransportFrameAsync(initialFrame);
 
                 if (helloEvent is not { OpCode: GatewayOpCode.Hello })
                 {
-                    throw new InvalidDataException($"Expected HELLO payload from Discord, received {hello}");
+                    throw new InvalidDataException($"Expected HELLO payload from Discord");
                 }
 
                 GatewayHello helloPayload = ((JObject)helloEvent.Data).ToDiscordObject<GatewayHello>();
@@ -547,6 +526,54 @@ public sealed class GatewayClient : IGatewayClient
                 _ = this.controller.ReconnectFailedAsync(this);
             }
         }
+    }
+
+    private async ValueTask<GatewayPayload?> ProcessAndDeserializeTransportFrameAsync(TransportFrame frame)
+    {
+        GatewayPayload? payload;
+
+        if (!frame.IsSuccess)
+        {
+            await HandleErrorAndAttemptToReconnectAsync(frame);
+            return null;
+        }
+
+        if (frame.TryGetMessage(out string? stringMessage))
+        {
+            payload = JsonConvert.DeserializeObject<GatewayPayload>(stringMessage);
+
+            if (payload is null)
+            {
+                this.logger.LogError("Received invalid inbound event: {Data}", stringMessage);
+                return null;
+            }
+        }
+        else if (frame.TryGetStreamMessage(out MemoryStream? streamMessage))
+        {
+            using StreamReader reader = new(streamMessage);
+            using JsonReader jsonReader = new JsonTextReader(reader);
+
+            JsonSerializer serializer = new();
+            payload = serializer.Deserialize<GatewayPayload>(jsonReader);
+
+            if (payload is null)
+            {
+                this.logger.LogError
+                (
+                    "Received invalid inbound event: {Data}",
+                    Encoding.UTF8.GetString(streamMessage.ToArray())
+                );
+
+                return null;
+            }
+        }
+        else
+        {
+            this.logger.LogCritical("Unrecognized transport frame encountered: {Frame}", frame);
+            return null;
+        }
+
+        return payload;
     }
 
     /// <inheritdoc/>
