@@ -10,7 +10,7 @@ public class DiscordMessageReference
     /// <summary>
     /// Gets the type of the reference.
     /// </summary>
-    public DiscordMessagReferenceType? Type { get; set; }
+    public DiscordMessageReferenceType? Type { get; set; }
 
     /// <summary>
     /// Gets the original message.
@@ -36,7 +36,7 @@ public class DiscordMessageReference
 internal struct InternalDiscordMessageReference
 {
     [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-    internal DiscordMessagReferenceType? Type { get; set; }
+    internal DiscordMessageReferenceType? Type { get; set; }
 
     [JsonProperty("message_id", NullValueHandling = NullValueHandling.Ignore)]
     internal ulong? MessageId { get; set; }

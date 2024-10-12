@@ -4,7 +4,7 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents the type of a message reference.
 /// </summary>
-public enum DiscordMessagReferenceType : int
+public enum DiscordMessageReferenceType : int
 {
     /// <summary>
     /// A standard reference used by replies.

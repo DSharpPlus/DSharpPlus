@@ -5,7 +5,7 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents a Discord message snapshot.
 /// </summary>
-public class DiscordMessageSnapshot
+public sealed class DiscordMessageSnapshot
 {
     /// <summary>
     /// Gets the message object for the message snapshot.
