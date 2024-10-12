@@ -546,20 +546,6 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     public override string ToString() => $"Member {this.Id}; {this.Username}#{this.Discriminator} ({this.DisplayName})";
 
     /// <summary>
-    /// Checks whether this <see cref="DiscordMember"/> is equal to another object.
-    /// </summary>
-    /// <param name="obj">Object to compare to.</param>
-    /// <returns>Whether the object is equal to this <see cref="DiscordMember"/>.</returns>
-    public override bool Equals(object obj) => Equals(obj as DiscordMember);
-
-    /// <summary>
-    /// Checks whether this <see cref="DiscordMember"/> is equal to another <see cref="DiscordMember"/>.
-    /// </summary>
-    /// <param name="e"><see cref="DiscordMember"/> to compare to.</param>
-    /// <returns>Whether the <see cref="DiscordMember"/> is equal to this <see cref="DiscordMember"/>.</returns>
-    public bool Equals(DiscordMember e) => e is not null && (ReferenceEquals(this, e) || (this.Id == e.Id && this.guild_id == e.guild_id));
-
-    /// <summary>
     /// Gets the hash code for this <see cref="DiscordMember"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="DiscordMember"/>.</returns>
@@ -574,28 +560,34 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     }
 
     /// <summary>
+    /// Checks whether this <see cref="DiscordMember"/> is equal to another object.
+    /// </summary>
+    /// <param name="obj">Object to compare to.</param>
+    /// <returns>Whether the object is equal to this <see cref="DiscordMember"/>.</returns>
+    public override bool Equals(object? obj) => Equals(obj as DiscordMember);
+
+    /// <summary>
+    /// Checks whether this <see cref="DiscordMember"/> is equal to another <see cref="DiscordMember"/>.
+    /// </summary>
+    /// <param name="other"><see cref="DiscordMember"/> to compare to.</param>
+    /// <returns>Whether the <see cref="DiscordMember"/> is equal to this <see cref="DiscordMember"/>.</returns>
+    public bool Equals(DiscordMember? other) => base.Equals(other) && this.guild_id == other?.guild_id;
+
+    /// <summary>
     /// Gets whether the two <see cref="DiscordMember"/> objects are equal.
     /// </summary>
-    /// <param name="e1">First member to compare.</param>
-    /// <param name="e2">Second member to compare.</param>
+    /// <param name="obj">First member to compare.</param>
+    /// <param name="other">Second member to compare.</param>
     /// <returns>Whether the two members are equal.</returns>
-    public static bool operator ==(DiscordMember e1, DiscordMember e2)
-    {
-        object? o1 = e1;
-        object? o2 = e2;
-
-        return (o1 != null || o2 == null) && (o1 == null || o2 != null)
-&& ((o1 == null && o2 == null) || (e1.Id == e2.Id && e1.guild_id == e2.guild_id));
-    }
+    public static bool operator ==(DiscordMember obj, DiscordMember other) => obj?.Equals(other) ?? other is null;
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordMember"/> objects are not equal.
     /// </summary>
-    /// <param name="e1">First member to compare.</param>
-    /// <param name="e2">Second member to compare.</param>
+    /// <param name="obj">First member to compare.</param>
+    /// <param name="other">Second member to compare.</param>
     /// <returns>Whether the two members are not equal.</returns>
-    public static bool operator !=(DiscordMember e1, DiscordMember e2)
-        => !(e1 == e2);
+    public static bool operator !=(DiscordMember obj, DiscordMember other) => !(obj == other);
 
     /// <summary>
     /// Get's the current member's roles based on the sum of the permissions of their given roles.
