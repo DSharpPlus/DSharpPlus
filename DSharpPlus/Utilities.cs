@@ -124,10 +124,12 @@ public static partial class Utilities
         }
     }
 
-    internal static IEnumerable<ulong> GetChannelMentions(DiscordMessage message)
+    internal static IEnumerable<ulong> GetChannelMentions(DiscordMessage message) => GetChannelMentions(message.Content);
+
+    internal static IEnumerable<ulong> GetChannelMentions(string messageContent)
     {
         Regex regex = ChannelMentionRegex();
-        MatchCollection matches = regex.Matches(message.Content);
+        MatchCollection matches = regex.Matches(messageContent);
         foreach (Match match in matches.Cast<Match>())
         {
             yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);

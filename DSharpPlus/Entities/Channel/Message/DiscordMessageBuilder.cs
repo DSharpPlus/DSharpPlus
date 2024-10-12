@@ -123,6 +123,37 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
         }
     }
 
+
+    /// <summary>
+    /// Constructs a new discord message builder based on the passed message snapshot.
+    /// </summary>
+    /// <param name="baseSnapshotMessage">The message to copy.</param>
+    public DiscordMessageBuilder(DiscordMessageSnapshotContent baseSnapshotMessage)
+    {
+        this.components = [.. baseSnapshotMessage.Components?.OfType<DiscordActionRowComponent>()];
+        this.content = baseSnapshotMessage.Content;
+        this.embeds = [.. baseSnapshotMessage.Embeds];
+        this.stickers = [.. baseSnapshotMessage.Stickers];
+        this.mentions = [];
+
+        if (baseSnapshotMessage.mentionedUsers != null)
+        {
+            foreach (DiscordUser user in baseSnapshotMessage.mentionedUsers)
+            {
+                this.mentions.Add(new UserMention(user.Id));
+            }
+        }
+
+        // Unsure about mentionedRoleIds
+        if (baseSnapshotMessage.mentionedRoles != null)
+        {
+            foreach (DiscordRole role in baseSnapshotMessage.mentionedRoles)
+            {
+                this.mentions.Add(new RoleMention(role.Id));
+            }
+        }
+    }
+
     /// <summary>
     /// Adds a sticker to the message. Sticker must be from current guild.
     /// </summary>

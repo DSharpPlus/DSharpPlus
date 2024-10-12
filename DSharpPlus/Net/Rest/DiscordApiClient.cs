@@ -142,6 +142,14 @@ public sealed class DiscordApiClient
         {
             reaction.Emoji.Discord = this.discord!;
         }
+
+        if(ret.MessageSnapshots != null)
+        {
+            foreach (DiscordMessageSnapshot snapshot in ret.MessageSnapshots)
+            {
+                snapshot.Message?.PopulateMentions();
+            }
+        }
     }
 
     #region Guild

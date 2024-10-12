@@ -301,6 +301,12 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     public DiscordMessage? ReferencedMessage { get; internal set; }
 
     /// <summary>
+    /// Gets the message object for the referenced message
+    /// </summary>
+    [JsonProperty("message_snapshots", NullValueHandling = NullValueHandling.Ignore)]
+    public IReadOnlyList<DiscordMessageSnapshot>? MessageSnapshots { get; internal set; }
+
+    /// <summary>
     /// Gets the poll object for the message.
     /// </summary>
     [JsonProperty("poll", NullValueHandling = NullValueHandling.Ignore)]
@@ -339,6 +345,8 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         }
 
         DiscordChannel? channel = client.InternalGetCachedChannel(channelId!.Value, this.guildId);
+
+        reference.Type = this.internalReference?.Type;
 
         if (channel is null)
         {
