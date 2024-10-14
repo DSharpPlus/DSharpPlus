@@ -21,4 +21,16 @@ public sealed class SlashCommandConfiguration
     /// How to name parameters when registering or receiving interaction data.
     /// </summary>
     public IInteractionNamingPolicy NamingPolicy { get; init; } = new SnakeCaseNamingPolicy();
+
+    /// <summary>
+    /// Instructs DSharpPlus to always overwrite the command records Discord has of our bot on startup.
+    /// </summary>
+    /// <remarks>
+    /// This skips the startup procedure of fetching commands and overwriting only if additions are detected. While
+    /// this may save time on startup, it also makes the library less resistant to unrecognized command types or
+    /// structures it cannot correctly handle. <br/>
+    /// Currently, removals are <i>not</i> considered a reason to overwrite by default so as to work around an issue
+    /// where certain commands will cause bulk overwrites to fail.
+    /// </remarks>
+    public bool UnconditionallyOverwriteCommands { get; init; } = false;
 }
