@@ -133,6 +133,12 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     public bool? IsPending { get; internal set; }
 
     /// <summary>
+    /// Gets whether or not the member is timed out.
+    /// </summary>
+    [JsonIgnore]
+    public bool IsTimedOut => this.CommunicationDisabledUntil.HasValue && this.CommunicationDisabledUntil.Value > DateTimeOffset.UtcNow;
+
+    /// <summary>
     /// Gets this member's voice state.
     /// </summary>
     [JsonIgnore]
