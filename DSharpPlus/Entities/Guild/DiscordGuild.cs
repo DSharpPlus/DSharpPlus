@@ -441,11 +441,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the guild member for current user.
     /// </summary>
     [JsonIgnore]
-    public DiscordMember CurrentMember
-        => this.current_member_lazy.Value;
-
-    [JsonIgnore]
-    private readonly Lazy<DiscordMember> current_member_lazy;
+    public DiscordMember CurrentMember => this.members != null && this.members.TryGetValue(this.Discord.CurrentUser.Id, out DiscordMember? member) ? member : null;
 
     /// <summary>
     /// Gets the @everyone role for this guild.
@@ -546,11 +542,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     [JsonIgnore]
     internal bool isSynced { get; set; }
 
-    internal DiscordGuild()
-    {
-        this.current_member_lazy = new Lazy<DiscordMember>(() => this.members != null && this.members.TryGetValue(this.Discord.CurrentUser.Id, out DiscordMember? member) ? member : null);
-        this.invites = new ConcurrentDictionary<string, DiscordInvite>();
-    }
+    internal DiscordGuild() => this.invites = new ConcurrentDictionary<string, DiscordInvite>();
 
     #region Guild Methods
 
