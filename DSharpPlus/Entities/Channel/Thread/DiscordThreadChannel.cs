@@ -61,7 +61,7 @@ public class DiscordThreadChannel : DiscordChannel
     /// <summary>
     /// Gets the IDs of the tags applied to this forum post.
     /// </summary>
-    public IReadOnlyList<ulong> AppliedTagIds => appliedTagIds;
+    public IReadOnlyList<ulong> AppliedTagIds => this.appliedTagIds;
 
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value null
     // Justification: Used by JSON.NET
