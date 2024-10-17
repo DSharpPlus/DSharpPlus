@@ -342,7 +342,7 @@ internal class RestGuildMembershipScreeningFormModifyPayload
     public Optional<bool> Enabled { get; set; }
 
     [JsonProperty("form_fields", NullValueHandling = NullValueHandling.Ignore)]
-    public Optional<DiscordGuildMembershipScreeningField[]> Fields { get; set; }
+    public Optional<IReadOnlyList<DiscordGuildMembershipScreeningField>> Fields { get; set; }
 
     [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
     public Optional<string> Description { get; set; }

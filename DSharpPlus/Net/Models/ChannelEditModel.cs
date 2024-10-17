@@ -3,108 +3,114 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.Net.Models;
 
+/// <summary>
+/// Specifies the parameters for modifying a channel.
+/// </summary>
+/// <remarks>
+/// If an <see cref="Optional{T}"/> parameter is not specified, it's state will be left unchanged.
+/// </remarks>
 public class ChannelEditModel : BaseEditModel
 {
     /// <summary>
     /// Sets the channel's new name.
     /// </summary>
-    public string Name { internal get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Sets the channel's new position.
     /// </summary>
-    public int? Position { internal get; set; }
+    public int? Position { get; set; }
 
     /// <summary>
     /// Sets the channel's new topic.
     /// </summary>
-    public Optional<string> Topic { internal get; set; }
+    public Optional<string> Topic { get; set; }
 
     /// <summary>
     /// Sets whether the channel is to be marked as NSFW.
     /// </summary>
-    public bool? Nsfw { internal get; set; }
+    public bool? Nsfw { get; set; }
 
     /// <summary>
-    /// <para>Sets the parent of this channel.</para>
-    /// <para>This should be channel with <see cref="DiscordChannel.Type"/> set to <see cref="DiscordChannelType.Category"/>.</para>
+    /// Sets the parent of this channel.
+    /// This should be channel with <see cref="DiscordChannel.Type"/> set to <see cref="DiscordChannelType.Category"/>.
     /// </summary>
-    public Optional<DiscordChannel> Parent { internal get; set; }
+    public Optional<DiscordChannel> Parent { get; set; }
 
     /// <summary>
     /// Sets the voice channel's new bitrate.
     /// </summary>
-    public int? Bitrate { internal get; set; }
+    public int? Bitrate { get; set; }
 
     /// <summary>
-    /// <para>Sets the voice channel's new user limit.</para>
-    /// <para>Setting this to 0 will disable the user limit.</para>
+    /// Sets the voice channel's new user limit.
+    /// Setting this to 0 will disable the user limit.
     /// </summary>
-    public int? Userlimit { internal get; set; }
+    public int? Userlimit { get; set; }
 
     /// <summary>
-    /// <para>Sets the channel's new slow mode timeout.</para>
-    /// <para>Setting this to null or 0 will disable slow mode.</para>
+    /// Sets the channel's new slow mode timeout.
+    /// Setting this to null or 0 will disable slow mode.
     /// </summary>
-    public Optional<int?> PerUserRateLimit { internal get; set; }
+    public Optional<int?> PerUserRateLimit { get; set; }
 
     /// <summary>
-    /// <para>Sets the voice channel's region override.</para>
-    /// <para>Setting this to null will set it to automatic.</para>
+    /// Sets the voice channel's region override.
+    /// Setting this to null will set it to automatic.
     /// </summary>
-    public Optional<DiscordVoiceRegion> RtcRegion { internal get; set; }
+    public Optional<DiscordVoiceRegion> RtcRegion { get; set; }
 
     /// <summary>
-    /// <para>Sets the voice channel's video quality.</para>
+    /// Sets the voice channel's video quality.
     /// </summary>
-    public DiscordVideoQualityMode? QualityMode { internal get; set; }
+    public DiscordVideoQualityMode? QualityMode { get; set; }
 
     /// <summary>
-    /// <para>Sets the channel's type.</para>
-    /// <para>This can only be used to convert between text and news channels.</para>
+    /// Sets the channel's type.
+    /// This can only be used to convert between text and news channels.
     /// </summary>
-    public Optional<DiscordChannelType> Type { internal get; set; }
+    public Optional<DiscordChannelType> Type { get; set; }
 
     /// <summary>
-    /// <para>Sets the channel's permission overwrites.</para>
+    /// Sets the channel's permission overwrites.
     /// </summary>
-    public IEnumerable<DiscordOverwriteBuilder> PermissionOverwrites { internal get; set; }
+    public List<DiscordOverwriteBuilder> PermissionOverwrites { get; set; }
 
     /// <summary>
-    /// <para>Sets the channel's auto-archive duration.</para>
+    /// Sets the channel's auto-archive duration.
     /// </summary>
-    public Optional<DiscordAutoArchiveDuration?> DefaultAutoArchiveDuration { internal get; set; }
+    public Optional<DiscordAutoArchiveDuration?> DefaultAutoArchiveDuration { get; set; }
 
     /// <summary>
-    /// <para>Sets the channel's flags (forum channels and posts only).</para>
+    /// Sets the channel's flags (forum channels and posts only).
     /// </summary>
-    public Optional<DiscordChannelFlags> Flags { internal get; set; }
+    public Optional<DiscordChannelFlags> Flags { get; set; }
 
     /// <summary>
-    /// <para>Sets the channel's available tags.</para>
+    /// Sets the channel's available tags.
     /// </summary>
-    public IEnumerable<DiscordForumTagBuilder> AvailableTags { internal get; set; }
+    public List<DiscordForumTagBuilder> AvailableTags { get; set; }
 
     /// <summary>
-    /// <para>Sets the channel's default reaction, if any.</para>
+    /// Sets the channel's default reaction, if any.
     /// </summary>
-    public Optional<DefaultReaction?> DefaultReaction { internal get; set; }
+    public Optional<DefaultReaction?> DefaultReaction { get; set; }
 
     /// <summary>
-    /// <para>Sets the default slowmode of newly created threads, but does not retroactively update.</para>
+    /// Sets the default slowmode of newly created threads, but does not retroactively update.
     /// </summary>
     /// <remarks>https://discord.com/developers/docs/resources/channel#modify-channel-json-params-guild-channel</remarks>
-    public Optional<int> DefaultThreadRateLimit { internal get; set; }
+    public Optional<int> DefaultThreadRateLimit { get; set; }
 
     /// <summary>
     /// Sets the default sort order of posts in this channel.
     /// </summary>
-    public Optional<DiscordDefaultSortOrder?> DefaultSortOrder { internal get; set; }
+    public Optional<DiscordDefaultSortOrder?> DefaultSortOrder { get; set; }
 
     /// <summary>
     /// Sets the default layout of posts in this channel.
     /// </summary>
-    public Optional<DiscordDefaultForumLayout> DefaultForumLayout { internal get; set; }
+    public Optional<DiscordDefaultForumLayout> DefaultForumLayout { get; set; }
 
     internal ChannelEditModel() { }
 }

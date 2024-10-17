@@ -108,10 +108,10 @@ public class DiscordAutoModerationRule : SnowflakeObject
             model.Name,
             model.EventType,
             model.TriggerMetadata,
-            model.Actions,
+            model.Actions.Value,
             model.Enable,
-            model.ExemptRoles,
-            model.ExemptChannels,
+            model.ExemptRoles.Value,
+            model.ExemptChannels.Value,
             model.AuditLogReason
         );
     }
