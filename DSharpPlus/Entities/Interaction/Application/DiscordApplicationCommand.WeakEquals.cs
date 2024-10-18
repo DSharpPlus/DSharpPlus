@@ -20,7 +20,7 @@ partial class DiscordApplicationCommand
                 == (other.DefaultMemberPermissions ?? DiscordPermissions.None)
             && (this.NSFW ?? false) == (other.NSFW ?? false)
             && this.Type == other.Type
-            && EnumListsMatch(this.IntegrationTypes, other.IntegrationTypes)
+            && IntegrationTypesMatch(this.IntegrationTypes, other.IntegrationTypes)
             && EnumListsMatch(this.Contexts, other.Contexts)
             && LocalizationsMatch(this.NameLocalizations, other.NameLocalizations)
             && LocalizationsMatch(this.DescriptionLocalizations, other.DescriptionLocalizations)
@@ -174,7 +174,43 @@ partial class DiscordApplicationCommand
         };
     }
 
-    private static bool EnumListsMatch<TEnum> 
+    private static bool IntegrationTypesMatch
+    (
+        IReadOnlyList<DiscordApplicationIntegrationType>? a,
+        IReadOnlyList<DiscordApplicationIntegrationType>? b
+    )
+    {
+        if 
+        (
+            (a is null || a.Count == 0  || a is [DiscordApplicationIntegrationType.GuildInstall]) 
+            && (b is null || b.Count == 0 || b is [DiscordApplicationIntegrationType.GuildInstall])
+        )
+        {
+            return true;
+        }
+
+        if (a is null || b is null)
+        {
+            return false;
+        }
+
+        if (a.Count != b.Count)
+        {
+            return false;
+        }
+
+        foreach (DiscordApplicationIntegrationType type in a)
+        {
+            if (!b.Contains(type))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool EnumListsMatch<TEnum>
     (
         IReadOnlyList<TEnum>? a,
         IReadOnlyList<TEnum>? b
