@@ -110,8 +110,8 @@ public sealed partial class SlashCommandProcessor
     private static void CopyToEditModel(DiscordApplicationCommand command, ApplicationCommandEditModel editModel)
     {
         editModel.AllowDMUsage = command.AllowDMUsage.HasValue
-                    ? new(command.AllowDMUsage.Value)
-                    : Optional.FromNoValue<bool>();
+            ? new(command.AllowDMUsage.Value)
+            : Optional.FromNoValue<bool>();
         editModel.DefaultMemberPermissions = command.DefaultMemberPermissions;
         editModel.Description = command.Description;
         editModel.NameLocalizations = command.NameLocalizations;
