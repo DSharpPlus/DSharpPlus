@@ -1,4 +1,5 @@
 using DSharpPlus.Commands.Processors.SlashCommands.NamingPolicies;
+using DSharpPlus.Commands.Processors.SlashCommands.RemoteRecordRetentionPolicies;
 
 namespace DSharpPlus.Commands.Processors.SlashCommands;
 
@@ -33,4 +34,13 @@ public sealed class SlashCommandConfiguration
     /// where certain commands will cause bulk overwrites to fail.
     /// </remarks>
     public bool UnconditionallyOverwriteCommands { get; init; } = false;
+
+    /// <summary>
+    /// Controls when DSharpPlus deletes an application command that does not have a local equivalent.
+    /// </summary>
+    /// <remarks>
+    /// By default, this will delete all application commands except for activity entrypoints.
+    /// </remarks>
+    public IRemoteRecordRetentionPolicy RemoteRecordRetentionPolicy { get; init; }
+        = new DefaultRemoteRecordRetentionPolicy();
 }

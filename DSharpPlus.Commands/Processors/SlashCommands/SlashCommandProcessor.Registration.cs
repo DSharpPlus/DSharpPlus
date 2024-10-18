@@ -92,32 +92,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
 
         // we figured our structure out, fetch discord's records of the commands and match basic criteria
         // skip if we are instructed to disable this behaviour
-        bool match = false;
+
         List<DiscordApplicationCommand> discordCommands = [];
 
         if (this.Configuration.UnconditionallyOverwriteCommands)
         {
-            goto BulkOverwriteSection;
-        }
-
-        discordCommands.AddRange
-        (
-            this.extension.DebugGuildId == 0
-                ? await this.extension.Client.GetGlobalApplicationCommandsAsync()
-                : await this.extension.Client.GetGuildApplicationCommandsAsync(this.extension.DebugGuildId)
-        );
-
-        match = VerifyRemoteGlobalCommandsMatch(globalApplicationCommands, discordCommands);
-
-    BulkOverwriteSection:
-
-        // currently, we can always bulk overwrite for guild-specific commands, and we will for now do so
-        // first, though, if global commands don't match, bulk-overwrite
-
-        if (!match)
-        {
-            discordCommands = [];
-
             discordCommands.AddRange
             (
                 this.extension.DebugGuildId == 0
@@ -129,7 +108,16 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
                     )
             );
         }
+        else
+        {
+            IReadOnlyList<DiscordApplicationCommand> preexisting = this.extension.DebugGuildId == 0
+                ? await this.extension.Client.GetGlobalApplicationCommandsAsync()
+                : await this.extension.Client.GetGuildApplicationCommandsAsync(this.extension.DebugGuildId);
+            
+            discordCommands.AddRange(await VerifyAndUpdateRemoteCommandsAsync(globalApplicationCommands, preexisting));
+        }
 
+        // for the time being, we still overwrite guilds by force
         foreach (KeyValuePair<ulong, List<DiscordApplicationCommand>> kv in guildsApplicationCommands)
         {
             discordCommands.AddRange
@@ -146,136 +134,6 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             applicationCommandMapping.Values.SelectMany(command => command.Flatten()).Count(),
             null
         );
-    }
-
-    private bool VerifyRemoteGlobalCommandsMatch
-    (
-        IReadOnlyList<DiscordApplicationCommand> local,
-        IReadOnlyList<DiscordApplicationCommand> remoteCommands
-    )
-    {
-        // we currently explicitly do not track deletes, on a temporary basis
-        int added = 0, edited = 0;
-
-        foreach (DiscordApplicationCommand command in local)
-        {
-            DiscordApplicationCommand remote;
-
-            if ((remote = remoteCommands.SingleOrDefault(x => x.Name == command.Name)) is not null)
-            {
-                // we have a remote record, check whether its surface matches
-                bool match = command.Description == remote.Description
-                    && (command.DefaultMemberPermissions ?? DiscordPermissions.None) 
-                        == (remote.DefaultMemberPermissions ?? DiscordPermissions.None)
-                    && (command.NSFW ?? false) == (remote.NSFW ?? false)
-                    && command.Type == remote.Type
-                    && LocalizationsMatch(command.NameLocalizations, remote.NameLocalizations)
-                    && LocalizationsMatch(command.DescriptionLocalizations, remote.DescriptionLocalizations)
-                    && OptionsMatch(command.Options, remote.Options);
-
-                if (!match)
-                {
-                    edited++;
-                }
-            }
-            else
-            {
-                added++;
-            }
-        }
-
-        if (added != 0 || edited != 0)
-        {
-            SlashLogging.detectedCommandRecordChanges(this.logger, added, edited, null);
-            return false;
-        }
-
-        return true;
-
-        static bool LocalizationsMatch(IReadOnlyDictionary<string, string> local, IReadOnlyDictionary<string, string> remote)
-        {
-            // if both are null or empty, they are equivalent
-            if ((local is null || local.Count == 0) && (remote is null || remote.Count == 0))
-            {
-                return true;
-            }
-
-            // if one of the two is null, but not both (as per above), they are not equivalent
-            if (local is null || remote is null)
-            {
-                return false;
-            }
-
-            // they are both not-null, so let's go check
-            // if they aren't evenly long, they by necessity cannot be equivalent
-            if (local.Count != remote.Count)
-            {
-                return false;
-            }
-
-            foreach (KeyValuePair<string, string> val in local)
-            {
-                if (!remote.TryGetValue(val.Key, out string? remoteValue) || val.Value != remoteValue)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        bool OptionsMatch
-        (
-            IReadOnlyList<DiscordApplicationCommandOption>? local,
-            IReadOnlyList<DiscordApplicationCommandOption>? remote
-        )
-        {
-            // if both are null or empty, they are equivalent
-            if ((local is null || local.Count == 0) && (remote is null || remote.Count == 0))
-            {
-                return true;
-            }
-
-            // if one of the two is null, but not both (as per above), they are not equivalent
-            if (local is null || remote is null)
-            {
-                return false;
-            }
-
-            // they are both not-null, so let's go check
-            // if they aren't evenly long, they by necessity cannot be equivalent
-            if (local.Count != remote.Count)
-            {
-                return false;
-            }
-
-            foreach (DiscordApplicationCommandOption option in local)
-            {
-                DiscordApplicationCommandOption remoteOption;
-
-                if ((remoteOption = remote.SingleOrDefault(x => x.Name == option.Name)) is not null)
-                {
-                    // we have a remote record, check whether its surface matches
-                    bool match = option.Description == remoteOption.Description
-                        && option.Type == remoteOption.Type
-                        && (option.AutoComplete ?? false) == (remoteOption.AutoComplete ?? false)
-                        && LocalizationsMatch(option.NameLocalizations, remoteOption.NameLocalizations)
-                        && LocalizationsMatch(option.DescriptionLocalizations, remoteOption.DescriptionLocalizations)
-                        && OptionsMatch(option.Options, remoteOption.Options);
-
-                    if (!match)
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
     }
 
     /// <summary>
