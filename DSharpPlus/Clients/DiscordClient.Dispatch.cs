@@ -1711,6 +1711,17 @@ public sealed partial class DiscordClient
             message.ReferencedMessage.PopulateMentions();
         }
 
+        if (message.MessageSnapshots != null)
+        {
+            foreach (DiscordMessageSnapshot snapshot in message.MessageSnapshots)
+            {
+                if (snapshot?.Message != null)
+                {
+                    snapshot.Message.PopulateMentions();
+                }
+            }
+        }
+
         foreach (DiscordMessageSticker sticker in message.Stickers)
         {
             sticker.Discord = this;
@@ -1739,11 +1750,23 @@ public sealed partial class DiscordClient
         {
             message = event_message;
             PopulateMessageReactionsAndCache(message, author, member);
+
             if (message.ReferencedMessage != null)
             {
                 message.ReferencedMessage.Discord = this;
                 PopulateMessageReactionsAndCache(message.ReferencedMessage, referenceAuthor, referenceMember);
                 message.ReferencedMessage.PopulateMentions();
+            }
+
+            if (message.MessageSnapshots != null)
+            {
+                foreach (DiscordMessageSnapshot snapshot in message.MessageSnapshots)
+                {
+                    if (snapshot?.Message != null)
+                    {
+                        snapshot.Message.PopulateMentions();
+                    }
+                }
             }
         }
         else // previous message was fetched in cache

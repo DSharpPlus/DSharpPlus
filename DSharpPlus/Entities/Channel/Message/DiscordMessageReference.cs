@@ -8,6 +8,11 @@ namespace DSharpPlus.Entities;
 public class DiscordMessageReference
 {
     /// <summary>
+    /// Gets the type of the reference.
+    /// </summary>
+    public DiscordMessageReferenceType? Type { get; set; }
+
+    /// <summary>
     /// Gets the original message.
     /// </summary>
     public DiscordMessage Message { get; internal set; } = default!;
@@ -30,6 +35,9 @@ public class DiscordMessageReference
 
 internal struct InternalDiscordMessageReference
 {
+    [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+    internal DiscordMessageReferenceType? Type { get; set; }
+
     [JsonProperty("message_id", NullValueHandling = NullValueHandling.Ignore)]
     internal ulong? MessageId { get; set; }
 

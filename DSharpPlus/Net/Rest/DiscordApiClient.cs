@@ -142,6 +142,14 @@ public sealed class DiscordApiClient
         {
             reaction.Emoji.Discord = this.discord!;
         }
+
+        if(ret.MessageSnapshots != null)
+        {
+            foreach (DiscordMessageSnapshot snapshot in ret.MessageSnapshots)
+            {
+                snapshot.Message?.PopulateMentions();
+            }
+        }
     }
 
     #region Guild
@@ -3592,14 +3600,17 @@ public sealed class DiscordApiClient
     internal async ValueTask<TransportUser> ModifyCurrentUserAsync
     (
         string username,
-        Optional<string> base64Avatar = default
+        Optional<string> base64Avatar = default,
+        Optional<string> base64Banner = default
     )
     {
         RestUserUpdateCurrentPayload pld = new()
         {
             Username = username,
             AvatarBase64 = base64Avatar.HasValue ? base64Avatar.Value : null,
-            AvatarSet = base64Avatar.HasValue
+            AvatarSet = base64Avatar.HasValue,
+            BannerBase64 = base64Banner.HasValue ? base64Banner.Value : null,
+            BannerSet = base64Banner.HasValue
         };
 
         string route = $"{Endpoints.USERS}/{Endpoints.ME}";

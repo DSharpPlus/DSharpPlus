@@ -270,7 +270,7 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
                 if (aliasAttribute is not null && aliasAttribute.Aliases.Any(alias => this.Configuration.CommandNameComparer.Equals(alias, rootCommandText)))
                 {
                     command = officialCommand;
-                    return true;
+                    break;
                 }
             }
         }
