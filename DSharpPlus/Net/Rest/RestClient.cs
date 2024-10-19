@@ -92,7 +92,7 @@ public sealed partial class RestClient : IDisposable
                     return ValueTask.FromResult<TimeSpan?>(result.Outcome.Exception switch
                     {
                         PreemptiveRatelimitException preemptive => preemptive.ResetAfter,
-                        RateLimitException real => real.ResetAfter,
+                        RetryableRatelimitException real => real.ResetAfter,
                         _ => TimeSpan.FromMilliseconds(retryDelayFallback)
                     });
                 },
