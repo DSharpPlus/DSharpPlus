@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -2056,6 +2057,37 @@ public sealed class DiscordApiClient
             Route = route,
             Url = url,
             Method = HttpMethod.Get
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+
+        DiscordMessage ret = PrepareMessage(JObject.Parse(res.Response!));
+
+        return ret;
+    }
+
+    internal async ValueTask<DiscordMessage> ForwardMessageAsync(ulong channelId, ulong originChannelId, ulong messageId)
+    {
+        RestChannelMessageCreatePayload pld = new()
+        {
+            HasContent = false,
+            MessageReference = new InternalDiscordMessageReference
+            {
+                MessageId = messageId,
+                ChannelId = originChannelId,
+                Type = DiscordMessageReferenceType.Forward
+            }
+        };
+
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}";
+        string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post,
+            Payload = DiscordJson.SerializeObject(pld)
         };
 
         RestResponse res = await this.rest.ExecuteRequestAsync(request);

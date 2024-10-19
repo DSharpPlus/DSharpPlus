@@ -806,6 +806,20 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         => await this.Discord.ApiClient.DeleteReactionsEmojiAsync(this.ChannelId, this.Id, emoji.ToReactionString());
 
     /// <summary>
+    /// Forwards a message to the specified channel.
+    /// </summary>
+    /// <returns>The forwarded message belonging to the specified channel.</returns>
+    public async Task<DiscordMessage> ForwardAsync(DiscordChannel target)
+        => await ForwardAsync(target.Id);
+
+    /// <summary>
+    /// Forwards a message to the specified channel.
+    /// </summary>
+    /// <returns>The forwarded message belonging to the specified channel.</returns>
+    public async Task<DiscordMessage> ForwardAsync(ulong targetId) 
+        => await this.Discord.ApiClient.ForwardMessageAsync(targetId, this.ChannelId, this.Id);
+
+    /// <summary>
     /// Immediately ends the poll. You cannot end polls from other users.
     /// </summary>
     /// <returns></returns>
