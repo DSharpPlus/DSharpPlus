@@ -45,8 +45,8 @@ public class DiscordRestClient : BaseDiscordClient
             options.Timeout,
             logger ?? NullLogger.Instance,
             options.MaximumRatelimitRetries,
-            options.RatelimitRetryDelayFallback,
-            options.InitialRequestTimeout,
+            (int)options.RatelimitRetryDelayFallback.TotalMilliseconds,
+            (int)options.InitialRequestTimeout.TotalMilliseconds,
             options.MaximumConcurrentRestRequests
         ));
 
