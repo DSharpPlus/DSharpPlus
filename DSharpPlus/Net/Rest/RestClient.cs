@@ -46,8 +46,8 @@ public sealed partial class RestClient : IDisposable
             options.Value.Timeout,
             logger,
             options.Value.MaximumRatelimitRetries,
-            options.Value.RatelimitRetryDelayFallback,
-            options.Value.InitialRequestTimeout,
+            (int)options.Value.RatelimitRetryDelayFallback.TotalMilliseconds,
+            (int)options.Value.InitialRequestTimeout.TotalMilliseconds,
             options.Value.MaximumConcurrentRestRequests
         )
     {
@@ -64,7 +64,7 @@ public sealed partial class RestClient : IDisposable
         TimeSpan timeout,
         ILogger logger,
         int maxRetries = int.MaxValue,
-        double retryDelayFallback = 2.5,
+        int retryDelayFallback = 2500,
         int waitingForHashMilliseconds = 200,
         int maximumRequestsPerSecond = 15
     )
@@ -88,8 +88,14 @@ public sealed partial class RestClient : IDisposable
             new()
             {
                 DelayGenerator = result =>
-                    ValueTask.FromResult<TimeSpan?>((result.Outcome.Exception as PreemptiveRatelimitException)?.ResetAfter
-                        ?? TimeSpan.FromSeconds(retryDelayFallback)),
+                {
+                    return ValueTask.FromResult<TimeSpan?>(result.Outcome.Exception switch
+                    {
+                        PreemptiveRatelimitException preemptive => preemptive.ResetAfter,
+                        RetryableRatelimitException real => real.ResetAfter,
+                        _ => TimeSpan.FromMilliseconds(retryDelayFallback)
+                    });
+                },
                 MaxRetryAttempts = maxRetries
             }
         )
