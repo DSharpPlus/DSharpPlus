@@ -22,7 +22,7 @@ public enum DiscordApplicationCommandType
     MessageContextMenu = 3,
 
     /// <summary>
-    /// Inbound only: An auto-complete option is being interacted with.
+    /// This command serves as the primary entry point into the app's activity.
     /// </summary>
-    AutoCompleteRequest = 4,
+    ActivityEntryPoint = 4,
 }

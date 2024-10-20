@@ -5883,7 +5883,9 @@ public sealed class DiscordApiClient
         IReadOnlyDictionary<string, string>? nameLocalizations = null,
         IReadOnlyDictionary<string, string>? descriptionLocalizations = null,
         Optional<bool> allowDmUsage = default,
-        Optional<DiscordPermissions?> defaultMemberPermissions = default
+        Optional<DiscordPermissions?> defaultMemberPermissions = default,
+        Optional<IEnumerable<DiscordInteractionContextType>> allowedContexts = default,
+        Optional<IEnumerable<DiscordApplicationIntegrationType>> installTypes = default
     )
     {
         RestApplicationCommandEditPayload pld = new()
@@ -5896,7 +5898,9 @@ public sealed class DiscordApiClient
             DescriptionLocalizations = descriptionLocalizations,
             AllowDMUsage = allowDmUsage,
             DefaultMemberPermissions = defaultMemberPermissions,
-            NSFW = nsfw
+            NSFW = nsfw,
+            AllowedContexts = allowedContexts,
+            InstallTypes = installTypes
         };
 
         string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.GUILDS}/:guild_id/{Endpoints.COMMANDS}/:command_id";

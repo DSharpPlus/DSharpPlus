@@ -634,8 +634,25 @@ public sealed partial class DiscordClient : BaseDiscordClient
     {
         ApplicationCommandEditModel mdl = new();
         action(mdl);
+
         ulong applicationId = this.CurrentApplication?.Id ?? (await GetCurrentApplicationAsync()).Id;
-        return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
+
+        return await this.ApiClient.EditGlobalApplicationCommandAsync
+        (
+            applicationId,
+            commandId,
+            mdl.Name, 
+            mdl.Description,
+            mdl.Options,
+            mdl.DefaultPermission, 
+            mdl.NSFW,
+            mdl.NameLocalizations,
+            mdl.DescriptionLocalizations,
+            mdl.AllowDMUsage,
+            mdl.DefaultMemberPermissions,
+            mdl.AllowedContexts,
+            mdl.IntegrationTypes
+        );
     }
 
     /// <summary>
@@ -692,8 +709,26 @@ public sealed partial class DiscordClient : BaseDiscordClient
     {
         ApplicationCommandEditModel mdl = new();
         action(mdl);
+
         ulong applicationId = this.CurrentApplication?.Id ?? (await GetCurrentApplicationAsync()).Id;
-        return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
+
+        return await this.ApiClient.EditGuildApplicationCommandAsync
+        (
+            applicationId,
+            guildId,
+            commandId,
+            mdl.Name,
+            mdl.Description,
+            mdl.Options,
+            mdl.DefaultPermission,
+            mdl.NSFW,
+            mdl.NameLocalizations,
+            mdl.DescriptionLocalizations,
+            mdl.AllowDMUsage,
+            mdl.DefaultMemberPermissions,
+            mdl.AllowedContexts,
+            mdl.IntegrationTypes
+        );
     }
 
     /// <summary>
