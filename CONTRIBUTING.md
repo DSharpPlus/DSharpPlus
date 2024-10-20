@@ -98,7 +98,7 @@ In addition to these, we also have several preferences:
   };
 
   int[] c = [42, 69];
-```
+  ```
 
 * Inline `out` declarations when possible: `SomeOutMethod(42, out string stringified);`
 * Members in classes should be ordered as follows (with few exceptions):
