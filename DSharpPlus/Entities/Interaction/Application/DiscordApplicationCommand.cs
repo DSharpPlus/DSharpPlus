@@ -10,7 +10,7 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents a command that is registered to an application.
 /// </summary>
-public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<DiscordApplicationCommand>
+public sealed partial class DiscordApplicationCommand : SnowflakeObject, IEquatable<DiscordApplicationCommand>
 {
     /// <summary>
     /// Gets the unique ID of this command's application.

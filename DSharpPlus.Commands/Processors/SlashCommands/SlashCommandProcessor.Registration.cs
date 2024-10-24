@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
 using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.Converters;
@@ -17,6 +18,7 @@ using DSharpPlus.Commands.Processors.SlashCommands.Metadata;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -57,6 +59,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         List<DiscordApplicationCommand> globalApplicationCommands = [];
         Dictionary<ulong, List<DiscordApplicationCommand>> guildsApplicationCommands = [];
         globalApplicationCommands.AddRange(applicationCommands);
+
         foreach (Command command in processorSpecificCommands)
         {
             // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
@@ -87,30 +90,44 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             }
         }
 
+        // we figured our structure out, fetch discord's records of the commands and match basic criteria
+        // skip if we are instructed to disable this behaviour
+
         List<DiscordApplicationCommand> discordCommands = [];
-        if (extension.DebugGuildId == 0)
+
+        if (this.Configuration.UnconditionallyOverwriteCommands)
         {
-            discordCommands.AddRange(await extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(globalApplicationCommands));
-            foreach ((ulong guildId, List<DiscordApplicationCommand> guildCommands) in guildsApplicationCommands)
-            {
-                discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId, guildCommands));
-            }
+            discordCommands.AddRange
+            (
+                this.extension.DebugGuildId == 0
+                    ? await this.extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(globalApplicationCommands)
+                    : await this.extension.Client.BulkOverwriteGuildApplicationCommandsAsync
+                    (
+                        this.extension.DebugGuildId,
+                        globalApplicationCommands
+                    )
+            );
         }
         else
         {
-            // 1. Aggregate all guild specific and global commands
-            // 2. GroupBy name
-            // 3. Only take the first command per name
-            IEnumerable<DiscordApplicationCommand> distinctCommands = guildsApplicationCommands
-                .SelectMany(x => x.Value)
-                .Concat(globalApplicationCommands)
-                .GroupBy(x => x.Name)
-                .Select(x => x.First());
+            IReadOnlyList<DiscordApplicationCommand> preexisting = this.extension.DebugGuildId == 0
+                ? await this.extension.Client.GetGlobalApplicationCommandsAsync()
+                : await this.extension.Client.GetGuildApplicationCommandsAsync(this.extension.DebugGuildId);
+            
+            discordCommands.AddRange(await VerifyAndUpdateRemoteCommandsAsync(globalApplicationCommands, preexisting));
+        }
 
-            discordCommands.AddRange(await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId, distinctCommands));
+        // for the time being, we still overwrite guilds by force
+        foreach (KeyValuePair<ulong, List<DiscordApplicationCommand>> kv in guildsApplicationCommands)
+        {
+            discordCommands.AddRange
+            (
+                await this.extension.Client.BulkOverwriteGuildApplicationCommandsAsync(kv.Key, kv.Value)
+            );
         }
 
         applicationCommandMapping = MapApplicationCommands(discordCommands).ToFrozenDictionary();
+
         SlashLogging.registeredCommands(
             this.logger,
             applicationCommandMapping.Count,
@@ -134,6 +151,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         Dictionary<ulong, Command> commandsDictionary = [];
         IReadOnlyList<Command> processorSpecificCommands = this.extension!.GetCommandsForProcessor(this);
         IReadOnlyList<Command> flattenCommands = processorSpecificCommands.SelectMany(x => x.Flatten()).ToList();
+
         foreach (DiscordApplicationCommand discordCommand in applicationCommands)
         {
             bool commandFound = false;

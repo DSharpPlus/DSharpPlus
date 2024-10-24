@@ -60,6 +60,16 @@ public class ApplicationCommandEditModel
     public Optional<bool> AllowDMUsage { internal get; set; }
 
     /// <summary>
+    /// A dictionary of localized names mapped by locale.
+    /// </summary>
+    public IReadOnlyDictionary<string, string>? NameLocalizations { internal get; set; }
+
+    /// <summary>
+    /// A dictionary of localized descriptions mapped by locale.
+    /// </summary>
+    public IReadOnlyDictionary<string, string>? DescriptionLocalizations { internal get; set; }
+
+    /// <summary>
     /// Sets the requisite permissions for the command.
     /// </summary>
     public Optional<DiscordPermissions?> DefaultMemberPermissions { internal get; set; }
@@ -68,4 +78,14 @@ public class ApplicationCommandEditModel
     /// Sets whether this command is age restricted.
     /// </summary>
     public Optional<bool?> NSFW { internal get; set; }
+
+    /// <summary>
+    /// Interaction context(s) where the command can be used.
+    /// </summary>
+    public Optional<IEnumerable<DiscordInteractionContextType>> AllowedContexts { internal get; set; }
+
+    /// <summary>
+    /// Installation context(s) where the command is available.
+    /// </summary>
+    public Optional<IEnumerable<DiscordApplicationIntegrationType>> IntegrationTypes { internal get; set; }
 }
