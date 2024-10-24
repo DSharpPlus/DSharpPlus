@@ -34,7 +34,7 @@ partial class DiscordApplicationCommand
     )
     {
         // if both are null or empty, they are equivalent
-        if ((a is null || a.Count == 0) && (b is null || b.Count == 0))
+        if (a is null or { Count: 0 } && b is null or { Count: 0 })
         {
             return true;
         }
@@ -70,7 +70,7 @@ partial class DiscordApplicationCommand
     )
     {
         // if both are null or empty, they are equivalent
-        if ((a is null || a.Count == 0) && (b is null || b.Count == 0))
+        if (a is null or { Count: 0 } && b is null or { Count: 0 })
         {
             return true;
         }
@@ -130,7 +130,7 @@ partial class DiscordApplicationCommand
         IReadOnlyList<DiscordApplicationCommandOptionChoice>? b
     )
     {
-        if ((a is null || a.Count == 0) && (b is null || b.Count == 0))
+        if (a is null or { Count: 0 } && b is null or { Count: 0 })
         {
             return true;
         }
@@ -182,8 +182,8 @@ partial class DiscordApplicationCommand
     {
         if 
         (
-            (a is null || a.Count == 0  || a is [DiscordApplicationIntegrationType.GuildInstall]) 
-            && (b is null || b.Count == 0 || b is [DiscordApplicationIntegrationType.GuildInstall])
+            a is null or { Count: 0 } or [DiscordApplicationIntegrationType.GuildInstall]
+            && b is null or { Count: 0 } or [DiscordApplicationIntegrationType.GuildInstall]
         )
         {
             return true;
@@ -217,7 +217,7 @@ partial class DiscordApplicationCommand
     )
         where TEnum : Enum
     {
-        if ((a is null || a.Count == 0) && (b is null || b.Count == 0))
+        if (a is null or { Count: 0 } && b is null or { Count: 0 })
         {
             return true;
         }
