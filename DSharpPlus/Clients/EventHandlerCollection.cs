@@ -70,11 +70,14 @@ public sealed class EventHandlerCollection
     /// <summary>
     /// Registers all type-wise event handlers implemented by a specific type.
     /// </summary>
-    /// <typeparam name="T">The type whose handlers to register.</typeparam>
-    public void Register<T>()
-        where T : IEventHandler
+    public void Register(Type t)
     {
-        foreach ((Type args, Handler handler) in CanonicalizeTypeHandlerImplementations(typeof(T)))
+        if (!t.IsAssignableTo(typeof(IEventHandler)))
+        {
+            throw new InvalidOperationException($"The presented type {t} is not an event handler: it does not implement IEventHandler.");
+        }
+
+        foreach ((Type args, Handler handler) in CanonicalizeTypeHandlerImplementations(t))
         {
             if (this.handlers.TryGetValue(args, out List<object>? value))
             {
