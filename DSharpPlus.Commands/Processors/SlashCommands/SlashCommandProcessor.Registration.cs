@@ -300,7 +300,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         {
             foreach ((string ietfTag, string name) in await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name"))
             {
-                nameLocalizations[ietfTag] = this.Configuration.NamingPolicy.TransformText(name, CultureInfo.GetCultureInfo(ietfTag));
+                nameLocalizations[ietfTag] = this.Configuration.NamingPolicy.TransformText
+                (
+                    name, 
+                    ietfTag == "en-US" ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(ietfTag)
+                );
             }
 
             descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
@@ -350,7 +354,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
 
             foreach ((string ietfTag, string name) in await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".name"))
             {
-                nameLocalizations[ietfTag] = this.Configuration.NamingPolicy.TransformText(name, CultureInfo.GetCultureInfo(ietfTag));
+                nameLocalizations[ietfTag] = this.Configuration.NamingPolicy.TransformText
+                (
+                    name,
+                    ietfTag == "en-US" ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(ietfTag)
+                );
             }
 
             descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, localeIdBuilder.ToString() + ".description");
