@@ -28,7 +28,7 @@ public sealed partial class SlashCommandProcessor
                 if (command.WeakEquals(remote))
                 {
                     unchanged++;
-                    updated.Add(command);
+                    updated.Add(remote);
                     remoteTracking.Remove(remote);
                     continue;
                 }

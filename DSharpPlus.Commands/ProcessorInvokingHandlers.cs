@@ -34,9 +34,9 @@ internal sealed class ProcessorInvokingHandlers :
     // slash commands
     public async Task HandleEventAsync(DiscordClient sender, InteractionCreatedEventArgs eventArgs)
     {
-        if (this.extension.TryGetProcessor(out SlashCommandProcessor? userProcessor))
+        if (this.extension.TryGetProcessor(out SlashCommandProcessor? slashProcessor))
         {
-            await userProcessor.ExecuteInteractionAsync(sender, eventArgs);
+            await slashProcessor.ExecuteInteractionAsync(sender, eventArgs);
         }
     }
 
