@@ -1,4 +1,4 @@
-namespace DSharpPlus.Entities;
+namespace DSharpPlus.Net;
 
 /// <summary>
 /// A wrapper type for an incoming webhook event.

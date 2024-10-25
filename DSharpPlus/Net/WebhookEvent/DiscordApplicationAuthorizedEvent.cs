@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Entities;
+namespace DSharpPlus.Net;
 
 /// <summary>
 /// Contains data regarding an application being authorized to a guild or user.

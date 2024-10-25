@@ -1,4 +1,4 @@
-namespace DSharpPlus.Entities;
+namespace DSharpPlus.Net;
 
 /// <summary>
 /// Represents the type of the webhook event.
