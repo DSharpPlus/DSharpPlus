@@ -44,16 +44,28 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// Gets the member's avatar for the current guild.
     /// </summary>
     [JsonIgnore]
-    public string GuildAvatarHash => this.avatarHash;
+    public string? GuildAvatarHash => this.avatarHash;
 
     /// <summary>
     /// Gets the members avatar url for the current guild.
     /// </summary>
     [JsonIgnore]
-    public string GuildAvatarUrl => string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? null : $"https://cdn.discordapp.com/{Endpoints.GUILDS}/{this.guild_id}/{Endpoints.USERS}/{this.Id}/{Endpoints.AVATARS}/{this.GuildAvatarHash}.{(this.GuildAvatarHash.StartsWith("a_") ? "gif" : "png")}?size=1024";
+    public string? GuildAvatarUrl => string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? null : $"https://cdn.discordapp.com/{Endpoints.GUILDS}/{this.guild_id}/{Endpoints.USERS}/{this.Id}/{Endpoints.AVATARS}/{this.GuildAvatarHash}.{(this.GuildAvatarHash.StartsWith("a_") ? "gif" : "png")}?size=1024";
 
     [JsonIgnore]
-    internal string avatarHash;
+    internal string? avatarHash;
+
+    /// <summary>
+    /// Gets the member's avatar hash as displayed in the current guild.
+    /// </summary>
+    [JsonIgnore]
+    public string DisplayAvatarHash => this.GuildAvatarHash ?? this.User.AvatarHash;
+
+    /// <summary>
+    /// Gets the member's avatar url as displayed in the current guild.
+    /// </summary>
+    [JsonIgnore]
+    public string DisplayAvatarUrl => this.GuildAvatarUrl ?? this.User.AvatarUrl;
 
     /// <summary>
     /// Gets this member's nickname.
