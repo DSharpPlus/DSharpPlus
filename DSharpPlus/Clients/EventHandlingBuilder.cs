@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using DSharpPlus.EventArgs;
@@ -26,8 +27,26 @@ public sealed class EventHandlingBuilder
     public EventHandlingBuilder AddEventHandlers<T>(ServiceLifetime lifetime = ServiceLifetime.Transient)
         where T : IEventHandler
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.Register<T>());
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(typeof(T)));
         this.Services.Add(ServiceDescriptor.Describe(typeof(T), typeof(T), lifetime));
+        return this;
+    }
+
+    /// <summary>
+    /// Registers all event handlers implemented on the provided types.
+    /// </summary>
+    public EventHandlingBuilder AddEventHandlers
+    (
+        IReadOnlyList<Type> types,
+        ServiceLifetime lifetime = ServiceLifetime.Transient
+    )
+    {
+        foreach(Type t in types)
+        {
+            this.Services.Configure<EventHandlerCollection>(c => c.Register(t));
+            this.Services.Add(ServiceDescriptor.Describe(t, t, lifetime));
+        }
+
         return this;
     }
 
