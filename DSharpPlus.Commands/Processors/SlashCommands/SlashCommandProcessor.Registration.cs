@@ -111,8 +111,8 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         else
         {
             IReadOnlyList<DiscordApplicationCommand> preexisting = this.extension.DebugGuildId == 0
-                ? await this.extension.Client.GetGlobalApplicationCommandsAsync()
-                : await this.extension.Client.GetGuildApplicationCommandsAsync(this.extension.DebugGuildId);
+                ? await this.extension.Client.GetGlobalApplicationCommandsAsync(true)
+                : await this.extension.Client.GetGuildApplicationCommandsAsync(this.extension.DebugGuildId, true);
             
             discordCommands.AddRange(await VerifyAndUpdateRemoteCommandsAsync(globalApplicationCommands, preexisting));
         }
