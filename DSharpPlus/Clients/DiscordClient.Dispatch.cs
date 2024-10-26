@@ -13,10 +13,10 @@ using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.InboundWebhooks;
+using DSharpPlus.Net.InboundWebhooks.Payloads;
 using DSharpPlus.Net.Serialization;
 
 using Microsoft.Extensions.Logging;
-
 using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus;
@@ -649,6 +649,36 @@ public sealed partial class DiscordClient
 
             await OnInteractionCreateAsync(guildId, channelId, transportUser, transportMember, channel, interaction);
         }
+    }
+
+    private Task HandleWebhookDispatchAsync(DiscordWebhookEvent @event)
+    {
+        if (@event.ApplicationID != this.CurrentApplication.Id)
+        {
+            this.Logger.LogCritical
+            (
+                "The application event webhook received an event for application {OtherId}, which is different from the current application.",
+                @event.ApplicationID
+            );
+
+            return Task.CompletedTask;
+        }
+
+        if (@event.Type == DiscordWebhookEventType.Ping)
+        {
+            return Task.CompletedTask;
+        }
+
+        DiscordWebhookEventBody body = @event.Event;
+
+        _ = body.Type switch
+        {
+            DiscordWebhookEventBodyType.ApplicationAuthorized => OnApplicationAuthorizedAsync(body),
+            DiscordWebhookEventBodyType.EntitlementCreate => OnWebhookEntitlementCreateAsync(body),
+            _ => OnUnknownWebhookEventAsync(body)
+        };
+
+        return Task.CompletedTask;
     }
 
     #endregion
@@ -2681,6 +2711,41 @@ public sealed partial class DiscordClient
 
     #region Misc
 
+    internal async Task OnApplicationAuthorizedAsync(DiscordWebhookEventBody body)
+    {
+        ApplicationAuthorizedPayload payload = body.Data.ToDiscordObject<ApplicationAuthorizedPayload>();
+
+        DiscordGuild? guild = payload.Guild;
+        DiscordUser user = payload.User;
+
+        UpdateUserCache(user);
+
+        if (guild is not null)
+        {
+            guild.Discord = this;
+
+            if (guild.Members.TryGetValue(user.Id, out DiscordMember? member))
+            {
+                user = member;
+            }
+        }
+        else
+        {
+            user.Discord = this;
+        }
+
+        ApplicationAuthorizedEventArgs eventArgs = new()
+        {
+            Guild = guild,
+            IntegrationType = payload.IntegrationType,
+            Scopes = payload.Scopes,
+            User = user,
+            Timestamp = body.Timestamp
+        };
+
+        await this.dispatcher.DispatchAsync(this, eventArgs);
+    }
+
     internal async Task OnInteractionCreateAsync(ulong? guildId, ulong channelId, TransportUser user, TransportMember member, DiscordChannel? channel, DiscordInteraction interaction)
     {
         DiscordUser usr = new(user) { Discord = this };
@@ -2888,6 +2953,17 @@ public sealed partial class DiscordClient
         await this.dispatcher.DispatchAsync(this, ea);
     }
 
+    internal async Task OnUnknownWebhookEventAsync(DiscordWebhookEventBody body)
+    {
+        UnknownEventArgs eventArgs = new()
+        {
+            EventName = body.Type.ToString(),
+            Json = body.Data?.ToString()
+        };
+
+        await this.dispatcher.DispatchAsync(this, eventArgs);
+    }
+
     #endregion
 
     #region AutoModeration
@@ -2931,6 +3007,19 @@ public sealed partial class DiscordClient
     
     private async Task OnEntitlementCreatedAsync(DiscordEntitlement entitlement) 
         => await this.dispatcher.DispatchAsync(this, new EntitlementCreatedEventArgs { Entitlement = entitlement });
+
+    private async Task OnWebhookEntitlementCreateAsync(DiscordWebhookEventBody body)
+    {
+        await this.dispatcher.DispatchAsync
+        (
+            this,
+            new EntitlementCreatedEventArgs
+            {
+                Entitlement = body.Data.ToDiscordObject<DiscordEntitlement>(),
+                Timestamp = body.Timestamp
+            }
+        );
+    }
 
     private async Task OnEntitlementUpdatedAsync(DiscordEntitlement entitlement) 
         => await this.dispatcher.DispatchAsync(this, new EntitlementUpdatedEventArgs { Entitlement = entitlement });
