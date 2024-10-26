@@ -17,6 +17,7 @@ using DSharpPlus.Exceptions;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Gateway;
+using DSharpPlus.Net.InboundWebhooks;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.WebSocket;
@@ -42,6 +43,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     private readonly IClientErrorHandler errorHandler;
     private readonly IShardOrchestrator orchestrator;
     private readonly ChannelReader<GatewayPayload> eventReader;
+    private readonly ChannelReader<DiscordWebhookEvent> webhookEventReader;
+    private readonly ChannelReader<DiscordHttpInteractionPayload> interactionEventReader;
     private readonly IEventDispatcher dispatcher;
 
     private StatusUpdate? status = null;
@@ -104,7 +107,13 @@ public sealed partial class DiscordClient : BaseDiscordClient
         IOptions<GatewayClientOptions> gatewayOptions,
 
         [FromKeyedServices("DSharpPlus.Gateway.EventChannel")]
-        Channel<GatewayPayload> eventChannel
+        Channel<GatewayPayload> eventChannel,
+
+        [FromKeyedServices("DSharpPlus.Webhooks.EventChannel")]
+        Channel<DiscordWebhookEvent> webhookEventChannel,
+
+        [FromKeyedServices("DSharpPlus.Interactions.EventChannel")]
+        Channel<DiscordHttpInteractionPayload> interactionEventChannel
     )
         : base()
     {
@@ -118,6 +127,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.orchestrator = shardOrchestrator;
         this.eventReader = eventChannel.Reader;
         this.dispatcher = eventDispatcher;
+        this.webhookEventReader = webhookEventChannel.Reader;
+        this.interactionEventReader = interactionEventChannel.Reader;
 
         this.ApiClient.SetClient(this);
         this.Intents = gatewayOptions.Value.Intents;
@@ -167,7 +178,11 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus; version {Version}", this.VersionString);
 
         await this.dispatcher.DispatchAsync(this, new ClientStartedEventArgs());
+
         _ = ReceiveGatewayEventsAsync();
+        _ = ReceiveWebhookEventsAsync();
+        _ = ReceiveInteractionEventsAsync();
+
         await this.orchestrator.StartAsync(activity, status, idlesince);
     }
 
@@ -900,66 +915,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
         while (remaining > 0 && lastCount is > 0 and 100);
     }
     #endregion
-
-    /// <summary>
-    /// This method is used to inject interactions into the client which are coming from http webhooks.
-    /// </summary>
-    /// <param name="body">Body of the http request. Should be UTF8 encoded</param>
-    /// <param name="cancellationToken">Token to cancel the interaction when the http request was canceled</param>
-    /// <returns>Returns the body which should be returned to the http request</returns>
-    /// <exception cref="TaskCanceledException">Thrown when the passed cancellation token was canceled</exception>
-    public async Task<byte[]> HandleHttpInteractionAsync(ArraySegment<byte> body, CancellationToken cancellationToken = default)
-    {
-        string bodyString = Encoding.UTF8.GetString(body);
-
-        JObject data = JObject.Parse(bodyString);
-        
-        DiscordHttpInteraction? interaction = data.ToDiscordObject<DiscordHttpInteraction>();
-        
-        if (interaction is null)
-        {
-            throw new ArgumentException("Unable to parse provided request body to DiscordHttpInteraction");
-        }
-        
-        if (interaction.Type is DiscordInteractionType.Ping)
-        {
-            DiscordInteractionResponsePayload responsePayload = new() {Type = DiscordInteractionResponseType.Pong};
-            string responseString = DiscordJson.SerializeObject(responsePayload);
-            byte[] responseBytes = Encoding.UTF8.GetBytes(responseString);
-            
-            return responseBytes;
-        }
-
-        cancellationToken.Register(() => interaction.Cancel());
-        
-        ulong? guildId = (ulong?)data["guild_id"];
-        ulong channelId = (ulong)data["channel_id"];
-        
-        JToken rawMember = data["member"];
-        TransportMember? transportMember = null;
-        TransportUser transportUser;
-        if (rawMember != null)
-        {
-            transportMember = data["member"].ToDiscordObject<TransportMember>();
-            transportUser = transportMember.User;
-        }
-        else
-        {
-            transportUser = data["user"].ToDiscordObject<TransportUser>();
-        }
-
-        JToken? rawChannel = data["channel"];
-        DiscordChannel? channel = null;
-        if (rawChannel is not null)
-        {
-            channel = rawChannel.ToDiscordObject<DiscordChannel>();
-            channel.Discord = this;
-        }
-
-        await OnInteractionCreateAsync(guildId, channelId, transportUser, transportMember, channel, interaction);
-
-        return await interaction.GetResponseAsync();
-    }
 
     #region Internal Caching Methods
 

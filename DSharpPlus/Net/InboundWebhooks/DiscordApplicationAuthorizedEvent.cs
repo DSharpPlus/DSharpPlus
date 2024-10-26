@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+
 using DSharpPlus.Entities;
+
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Net;
+namespace DSharpPlus.Net.InboundWebhooks;
 
 /// <summary>
 /// Contains data regarding an application being authorized to a guild or user.
