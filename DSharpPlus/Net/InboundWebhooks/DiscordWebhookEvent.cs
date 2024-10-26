@@ -1,4 +1,4 @@
-namespace DSharpPlus.Net;
+namespace DSharpPlus.Net.InboundWebhooks;
 
 /// <summary>
 /// A wrapper type for an incoming webhook event.

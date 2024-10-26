@@ -12,6 +12,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.InboundWebhooks;
 using DSharpPlus.Net.Serialization;
 
 using Microsoft.Extensions.Logging;
@@ -596,6 +597,57 @@ public sealed partial class DiscordClient
                 await OnEntitlementDeletedAsync(dat.ToDiscordObject<DiscordEntitlement>());
                 break;
             #endregion
+        }
+    }
+
+    #endregion
+
+    #region Webhook Events
+
+    private async Task ReceiveWebhookEventsAsync()
+    {
+        while (!this.webhookEventReader.Completion.IsCompleted)
+        {
+            DiscordWebhookEvent payload = await this.webhookEventReader.ReadAsync();
+
+            try
+            {
+                await HandleWebhookDispatchAsync(payload);
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Dispatch threw an exception: ");
+            }
+        }
+    }
+
+    private async Task ReceiveInteractionEventsAsync()
+    {
+        while (!this.interactionEventReader.Completion.IsCompleted)
+        {
+            DiscordHttpInteractionPayload payload = await this.interactionEventReader.ReadAsync();
+            DiscordHttpInteraction interaction = payload.ProtoInteraction;
+
+            ulong? guildId = interaction.GuildId;
+            ulong channelId = interaction.ChannelId;
+
+            JToken rawMember = payload.Data["member"];
+            TransportMember? transportMember = null;
+            TransportUser transportUser;
+            if (rawMember != null)
+            {
+                transportMember = payload.Data["member"].ToDiscordObject<TransportMember>();
+                transportUser = transportMember.User;
+            }
+            else
+            {
+                transportUser = payload.Data["user"].ToDiscordObject<TransportUser>();
+            }
+
+            DiscordChannel channel = interaction.Channel;
+            channel.Discord = this;
+
+            await OnInteractionCreateAsync(guildId, channelId, transportUser, transportMember, channel, interaction);
         }
     }
 

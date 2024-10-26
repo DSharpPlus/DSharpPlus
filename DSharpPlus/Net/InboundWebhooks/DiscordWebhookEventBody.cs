@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 
-namespace DSharpPlus.Net;
+namespace DSharpPlus.Net.InboundWebhooks;
 
 /// <summary>
 /// Represents the outer data for a <see cref="DiscordWebhookEvent"/>.

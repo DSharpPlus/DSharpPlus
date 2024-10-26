@@ -2,7 +2,8 @@ using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
 
-using DSharpPlus.Net.HttpInteractions;
+using DSharpPlus.Net.InboundWebhooks;
+using DSharpPlus.Net.InboundWebhooks.Integration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
@@ -22,7 +23,17 @@ public static class EndpointRouteBuilderExtensions
     ) 
         => builder.MapPost(url, HandleDiscordInteractionAsync);
 
-    private static async Task HandleDiscordInteractionAsync(HttpContext httpContext, CancellationToken cancellationToken, [FromServices] DiscordClient client)
+    private static async Task HandleDiscordInteractionAsync
+    (
+        HttpContext httpContext,
+        CancellationToken cancellationToken,
+
+        [FromServices]
+        DiscordClient client,
+
+        [FromServices] 
+        IInteractionTransportService transportService
+    )
     {
         if (!httpContext.Request.Headers.TryGetValue(HeaderNames.ContentLength, out StringValues lengthString) 
             || !int.TryParse(lengthString, out int length))
@@ -48,7 +59,7 @@ public static class EndpointRouteBuilderExtensions
 
         ArraySegment<byte> body = new(bodyBuffer, 0, length);
 
-        byte[] result = await client.HandleHttpInteractionAsync(body, cancellationToken);
+        byte[] result = await transportService.HandleHttpInteractionAsync(body, cancellationToken);
 
         ArrayPool<byte>.Shared.Return(bodyBuffer);
 

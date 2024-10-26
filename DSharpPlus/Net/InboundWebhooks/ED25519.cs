@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
-namespace DSharpPlus.Net.HttpInteractions;
+namespace DSharpPlus.Net.InboundWebhooks;
 
 internal static partial class Ed25519
 {
