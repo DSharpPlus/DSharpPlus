@@ -2,12 +2,11 @@ using System.Net.Http;
 using System.Threading.Channels;
 
 using DSharpPlus.Clients;
-using DSharpPlus.Entities;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Gateway;
 using DSharpPlus.Net.InboundWebhooks;
-using DSharpPlus.Net.InboundWebhooks.Integration;
+using DSharpPlus.Net.InboundWebhooks.Transport;
 using DSharpPlus.Net.WebSocket;
 
 using Microsoft.Extensions.DependencyInjection;

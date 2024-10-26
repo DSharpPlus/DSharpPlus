@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DSharpPlus.Net.InboundWebhooks.Integration;
+namespace DSharpPlus.Net.InboundWebhooks.Transport;
 
 /// <summary>
 /// Handles communication with the bot through HTTP interactions.
