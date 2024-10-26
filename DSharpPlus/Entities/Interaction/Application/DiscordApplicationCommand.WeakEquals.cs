@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace DSharpPlus.Entities;
 
@@ -54,7 +55,24 @@ partial class DiscordApplicationCommand
 
         foreach (KeyValuePair<string, string> val in a)
         {
-            if (!b.TryGetValue(val.Key, out string? remoteValue) || val.Value != remoteValue)
+            if (b.TryGetValue(val.Key, out string? remoteValue))
+            {
+                // this looks really stupid, and that's because it is. discord sends non-ASCII escaped,
+                // and this is one way to unescape it - since this only happens at startup, the overhead
+                // isn't catastrophic, albeit annoying to have to do regardless.
+                //
+                // for example, "Wählen Sie Ihren Gameserver" might be sent by discord as
+                // "W\u00e4hlen Sie Ihren Gameserver", which fails direct value equality since "\\u00e4" is
+                // not the same as "ä", even though the escape code matches.
+                byte[] temp = Encoding.UTF8.GetBytes(remoteValue);
+                string canonicalizedRemoteValue = Encoding.UTF8.GetString(temp);
+
+                if (val.Value != canonicalizedRemoteValue)
+                {
+                    return false;
+                }
+            }
+            else
             {
                 return false;
             }
