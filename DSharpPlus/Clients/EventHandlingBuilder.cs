@@ -888,4 +888,20 @@ public sealed class EventHandlingBuilder
 
         return this;
     }
+
+    /// <summary>
+    /// Fired when the application was authorized. This is only available through webhook events.
+    /// </summary>
+    public EventHandlingBuilder HandleApplicationAuthorized
+    (
+        Func<DiscordClient, ApplicationAuthorizedEventArgs, Task> handler
+    )
+    {
+        this.Services.Configure<EventHandlerCollection>
+        (
+            c => c.Register(handler)
+        );
+
+        return this;
+    }
 }
