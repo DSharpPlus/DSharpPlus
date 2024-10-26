@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
 
 using DSharpPlus.Net.InboundWebhooks;
-using DSharpPlus.Net.InboundWebhooks.Integration;
+using DSharpPlus.Net.InboundWebhooks.Transport;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;

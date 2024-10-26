@@ -35,4 +35,23 @@ internal static partial class AnonymizationUtilities
         intermediate = GetUsernameRegex().Replace(intermediate, "\"username\":\"<redacted>\"");
         return intermediate;
     }
+
+    // --------------------------------------------------------------------------------------------------
+
+    public static string Anonymize(string input)
+    {
+        string anonymized = input;
+
+        if (RuntimeFeatures.AnonymizeTokens)
+        {
+            anonymized = AnonymizeTokens(anonymized);
+        }
+
+        if (RuntimeFeatures.AnonymizeContents)
+        {
+            anonymized = AnonymizeContents(anonymized);
+        }
+
+        return anonymized;
+    }
 }
