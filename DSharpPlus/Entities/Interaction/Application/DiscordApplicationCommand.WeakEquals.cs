@@ -119,7 +119,6 @@ partial class DiscordApplicationCommand
                     && (option.MaxLength ?? 4000) == (other.MaxLength ?? 4000)
                     && (option.MinLength ?? 0) == (other.MinLength ?? 0)
                     && (option.Required ?? false) == (other.Required ?? false)
-                    && (option.AutoComplete ?? false) == (other.AutoComplete ?? false)
                     && BoxedIntegersMatch(option.MinValue, other.MinValue)
                     && BoxedIntegersMatch(option.MaxValue, other.MaxValue)
                     && EnumListsMatch(option.ChannelTypes, other.ChannelTypes)
