@@ -118,8 +118,7 @@ partial class DiscordApplicationCommand
                     && (option.AutoComplete ?? false) == (other.AutoComplete ?? false)
                     && (option.MaxLength ?? 4000) == (other.MaxLength ?? 4000)
                     && (option.MinLength ?? 0) == (other.MinLength ?? 0)
-                    && (option.Required ?? true) == (other.Required ?? true)
-                    && (option.AutoComplete ?? false) == (other.AutoComplete ?? false)
+                    && (option.Required ?? false) == (other.Required ?? false)
                     && BoxedIntegersMatch(option.MinValue, other.MinValue)
                     && BoxedIntegersMatch(option.MaxValue, other.MaxValue)
                     && EnumListsMatch(option.ChannelTypes, other.ChannelTypes)
@@ -184,10 +183,11 @@ partial class DiscordApplicationCommand
     {
         return a switch
         {
-            int value => b is int other && value == other,
-            long value => b is long other && value == other,
-            double value => b is double other && value == other,
+            int value => int.TryParse(b.ToString(), out int other) && value == other,
+            long value => long.TryParse(b.ToString(), out long other) && value == other,
+            double value => double.TryParse(b.ToString(), out double other) && value == other,
             string value => b is string other && value == other,
+            DiscordApplicationCommandOptionChoice value => b is DiscordApplicationCommandOptionChoice other && ChoiceValuesMatch(value.Value, other.Value),
             _ => false
         };
     }
