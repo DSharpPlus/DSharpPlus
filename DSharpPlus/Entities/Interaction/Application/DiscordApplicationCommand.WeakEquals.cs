@@ -183,9 +183,9 @@ partial class DiscordApplicationCommand
     {
         return a switch
         {
-            int value => b is int other && value == other,
-            long value => b is long other && value == other,
-            double value => b is double other && value == other,
+            int value => int.TryParse(b.ToString(), out int other) && value == other,
+            long value => long.TryParse(b.ToString(), out long other) && value == other,
+            double value => double.TryParse(b.ToString(), out double other) && value == other,
             string value => b is string other && value == other,
             _ => false
         };
