@@ -118,7 +118,7 @@ partial class DiscordApplicationCommand
                     && (option.AutoComplete ?? false) == (other.AutoComplete ?? false)
                     && (option.MaxLength ?? 4000) == (other.MaxLength ?? 4000)
                     && (option.MinLength ?? 0) == (other.MinLength ?? 0)
-                    && (option.Required ?? true) == (other.Required ?? true)
+                    && (option.Required ?? false) == (other.Required ?? false)
                     && (option.AutoComplete ?? false) == (other.AutoComplete ?? false)
                     && BoxedIntegersMatch(option.MinValue, other.MinValue)
                     && BoxedIntegersMatch(option.MaxValue, other.MaxValue)
