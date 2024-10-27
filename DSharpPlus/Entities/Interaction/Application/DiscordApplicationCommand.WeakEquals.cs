@@ -187,6 +187,7 @@ partial class DiscordApplicationCommand
             long value => long.TryParse(b.ToString(), out long other) && value == other,
             double value => double.TryParse(b.ToString(), out double other) && value == other,
             string value => b is string other && value == other,
+            DiscordApplicationCommandOptionChoice value => b is DiscordApplicationCommandOptionChoice other && ChoiceValuesMatch(value.Value, other.Value),
             _ => false
         };
     }
