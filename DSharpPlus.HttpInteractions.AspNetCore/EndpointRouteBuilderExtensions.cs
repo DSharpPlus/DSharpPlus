@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Net.Mime;
 
 using DSharpPlus.Net.InboundWebhooks;
@@ -35,25 +36,10 @@ public static class EndpointRouteBuilderExtensions
         IInteractionTransportService transportService
     )
     {
-        if (!httpContext.Request.Headers.TryGetValue(HeaderNames.ContentLength, out StringValues lengthString) 
-            || !int.TryParse(lengthString, out int length))
-        {
-            httpContext.Response.StatusCode = 400;
-            return;
-        }
+        (int length, byte[]? bodyBuffer) = await ExtactAndValidateBodyAsync(httpContext, cancellationToken, client);
 
-        byte[] bodyBuffer = ArrayPool<byte>.Shared.Rent(length);
-        await httpContext.Request.Body.ReadExactlyAsync(bodyBuffer.AsMemory(..length), cancellationToken);
-
-        if (!TryExtractHeaders(httpContext.Request.Headers, out string? timestamp, out string? key))
+        if (length == -1 || bodyBuffer == null)
         {
-            httpContext.Response.StatusCode = 401;
-            return;
-        }
-
-        if (!DiscordHeaders.VerifySignature(bodyBuffer.AsSpan(..length), timestamp!, key!, client.CurrentApplication.VerifyKey))
-        {
-            httpContext.Response.StatusCode = 401;
             return;
         }
 
@@ -63,14 +49,79 @@ public static class EndpointRouteBuilderExtensions
 
         ArrayPool<byte>.Shared.Return(bodyBuffer);
 
-        httpContext.Response.StatusCode = 200;
+        httpContext.Response.StatusCode = (int) HttpStatusCode.OK;
         httpContext.Response.ContentLength = result.Length;
         httpContext.Response.ContentType = MediaTypeNames.Application.Json;
 
         await httpContext.Response.Body.WriteAsync(result, cancellationToken);
     }
+    
+    /// <summary>
+    /// Registers an endpoint to handle HTTP-based events from Discord
+    /// </summary>
+    /// <returns>A <see cref="RouteHandlerBuilder"/> that can be used to further customize the endpoint.</returns>
+    public static RouteHandlerBuilder AddDiscordWebhookEvents
+    (
+        this IEndpointRouteBuilder builder,
+        [StringSyntax("Route")] string url = "/webhook-events"
+    ) 
+        => builder.MapPost(url, HandleDiscordWebhookEventAsync);
+    
+    private static async Task HandleDiscordWebhookEventAsync
+    (
+        HttpContext httpContext,
+        CancellationToken cancellationToken,
 
-    public static bool TryExtractHeaders(IDictionary<string, StringValues> headers, out string? timestamp, out string? key)
+        [FromServices]
+        DiscordClient client,
+
+        [FromServices] 
+        IWebhookTransportService transportService
+    )
+    {
+        (int length, byte[]? bodyBuffer) = await ExtactAndValidateBodyAsync(httpContext, cancellationToken, client);
+
+        if (length == -1 || bodyBuffer == null)
+        {
+            return;
+        }
+
+        ArraySegment<byte> body = new(bodyBuffer, 0, length);
+
+        _ = transportService.HandleWebhookEventAsync(body);
+        
+        httpContext.Response.StatusCode = (int) HttpStatusCode.NoContent;
+    }
+
+    private static async Task<(int length, byte[]? bodyBuffer)> ExtactAndValidateBodyAsync(HttpContext httpContext, CancellationToken cancellationToken,
+    DiscordClient client)
+    {
+        if (!httpContext.Request.Headers.TryGetValue(HeaderNames.ContentLength, out StringValues lengthString) 
+            || !int.TryParse(lengthString, out int length))
+        {
+            httpContext.Response.StatusCode = 400;
+            return (-1, null);
+        }
+
+        byte[] bodyBuffer = ArrayPool<byte>.Shared.Rent(length);
+        await httpContext.Request.Body.ReadExactlyAsync(bodyBuffer.AsMemory(..length), cancellationToken);
+
+        if (!TryExtractHeaders(httpContext.Request.Headers, out string? timestamp, out string? key))
+        {
+            httpContext.Response.StatusCode = 401;
+            return (-1, null);
+        }
+
+        if (!DiscordHeaders.VerifySignature(bodyBuffer.AsSpan(..length), timestamp!, key!, client.CurrentApplication.VerifyKey))
+        {
+            httpContext.Response.StatusCode = 401;
+            return (-1, null);
+        }
+
+        return (length, bodyBuffer);
+    }
+    
+    internal static bool TryExtractHeaders(IDictionary<string, StringValues> headers, out string? timestamp, out string? key)
     {
         timestamp = null;
         key = null;
