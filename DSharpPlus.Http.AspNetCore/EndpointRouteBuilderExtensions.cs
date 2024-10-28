@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 
-namespace DSharpPlus.HttpInteractions.AspNetCore;
+namespace DSharpPlus.Http.AspNetCore;
 
 public static class EndpointRouteBuilderExtensions
 {

@@ -52,7 +52,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Lavalink", "obso
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.SlashCommands", "obsolete\DSharpPlus.SlashCommands\DSharpPlus.SlashCommands.csproj", "{C967DD7B-9CDE-47AF-B35A-875AF547DDDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.HttpInteractions.AspNetCore", "DSharpPlus.HttpInteractions.AspNetCore\DSharpPlus.HttpInteractions.AspNetCore.csproj", "{0A1C0426-650F-4DAD-84B0-2191B94FDE50}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Http.AspNetCore", "DSharpPlus.Http.AspNetCore\DSharpPlus.Http.AspNetCore.csproj", "{0A1C0426-650F-4DAD-84B0-2191B94FDE50}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
