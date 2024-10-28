@@ -36,7 +36,7 @@ public static class EndpointRouteBuilderExtensions
         IInteractionTransportService transportService
     )
     {
-        (int length, byte[]? bodyBuffer) = await ExtactAndValidateBodyAsync(httpContext, cancellationToken, client);
+        (int length, byte[]? bodyBuffer) = await ExtractAndValidateBodyAsync(httpContext, cancellationToken, client);
 
         if (length == -1 || bodyBuffer == null)
         {
@@ -79,7 +79,7 @@ public static class EndpointRouteBuilderExtensions
         IWebhookTransportService transportService
     )
     {
-        (int length, byte[]? bodyBuffer) = await ExtactAndValidateBodyAsync(httpContext, cancellationToken, client);
+        (int length, byte[]? bodyBuffer) = await ExtractAndValidateBodyAsync(httpContext, cancellationToken, client);
 
         if (length == -1 || bodyBuffer == null)
         {
@@ -93,7 +93,7 @@ public static class EndpointRouteBuilderExtensions
         httpContext.Response.StatusCode = (int) HttpStatusCode.NoContent;
     }
 
-    private static async Task<(int length, byte[]? bodyBuffer)> ExtactAndValidateBodyAsync(HttpContext httpContext, CancellationToken cancellationToken,
+    private static async Task<(int length, byte[]? bodyBuffer)> ExtractAndValidateBodyAsync(HttpContext httpContext, CancellationToken cancellationToken,
     DiscordClient client)
     {
         if (!httpContext.Request.Headers.TryGetValue(HeaderNames.ContentLength, out StringValues lengthString) 
