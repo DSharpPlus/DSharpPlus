@@ -93,16 +93,26 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
             SlidingExpiration = TimeSpan.FromSeconds(15)
         });
 
-        // Check to see if the flags are the same, excluding the flags that are not relevant to the message content.
-        DiscordMessageFlags notTheseFlags = DiscordMessageFlags.Crossposted | DiscordMessageFlags.IsCrosspost | DiscordMessageFlags.SuppressedEmbeds;
-
-        // Flags are null when 0. 0 is not equal to null.
-        DiscordMessageFlags relevantFlags = eventArgs.Message.Flags & ~notTheseFlags ?? 0;
-        DiscordMessageFlags relevantFlagsBefore = eventArgs.MessageBefore?.Flags & ~notTheseFlags ?? 0;
-        if (eventArgs.MessageBefore is not null && relevantFlags == relevantFlagsBefore)
+        if (eventArgs.MessageBefore is not null)
         {
-            // If the flags are the same, we can assume that the message content is the same.
-            return;
+            // Check to see if the content and attachments are the same
+            if (eventArgs.Message.Content == eventArgs.MessageBefore.Content && eventArgs.Message.Attachments.SequenceEqual(eventArgs.MessageBefore.Attachments))
+            {
+                // TODO: What about argument converters that don't rely on these properties?
+                return;
+            }
+
+            // Check to see if the flags are the same, excluding the flags that are not relevant to the message content.
+            DiscordMessageFlags notTheseFlags = DiscordMessageFlags.Crossposted | DiscordMessageFlags.IsCrosspost | DiscordMessageFlags.SuppressedEmbeds;
+
+            // Flags are null when 0. 0 is not equal to null.
+            DiscordMessageFlags relevantFlags = eventArgs.Message.Flags & ~notTheseFlags ?? 0;
+            DiscordMessageFlags relevantFlagsBefore = eventArgs.MessageBefore?.Flags & ~notTheseFlags ?? 0;
+            if (eventArgs.MessageBefore is not null && relevantFlags == relevantFlagsBefore)
+            {
+                // If the flags are the same, we can assume that the message content is the same.
+                return;
+            }
         }
 
         await ExecuteTextCommandAsync(eventArgs.Message);
