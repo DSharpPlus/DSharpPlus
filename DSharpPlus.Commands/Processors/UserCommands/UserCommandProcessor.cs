@@ -183,7 +183,7 @@ public sealed class UserCommandProcessor : ICommandProcessor
             type: DiscordApplicationCommandType.UserContextMenu,
             name_localizations: nameLocalizations,
             allowDMUsage: command.Attributes.Any(x => x is AllowDMUsageAttribute),
-            defaultMemberPermissions: command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? DiscordPermissions.None,
+            defaultMemberPermissions: command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? DiscordPermissions.UseApplicationCommands,
             nsfw: command.Attributes.Any(x => x is RequireNsfwAttribute),
             contexts: command.Attributes.OfType<InteractionAllowedContextsAttribute>().FirstOrDefault()?.AllowedContexts,
             integrationTypes: command.Attributes.OfType<InteractionInstallTypeAttribute>().FirstOrDefault()?.InstallTypes

@@ -113,7 +113,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             IReadOnlyList<DiscordApplicationCommand> preexisting = this.extension.DebugGuildId == 0
                 ? await this.extension.Client.GetGlobalApplicationCommandsAsync(true)
                 : await this.extension.Client.GetGuildApplicationCommandsAsync(this.extension.DebugGuildId, true);
-            
+
             discordCommands.AddRange(await VerifyAndUpdateRemoteCommandsAsync(globalApplicationCommands, preexisting));
         }
 
@@ -257,7 +257,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
             allowDMUsage: command.Attributes.Any(x => x is AllowDMUsageAttribute),
-            defaultMemberPermissions: command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? DiscordPermissions.None,
+            defaultMemberPermissions: command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? DiscordPermissions.UseApplicationCommands,
             nsfw: command.Attributes.Any(x => x is RequireNsfwAttribute),
             contexts: command.Attributes.OfType<InteractionAllowedContextsAttribute>().FirstOrDefault()?.AllowedContexts,
             integrationTypes: command.Attributes.OfType<InteractionInstallTypeAttribute>().FirstOrDefault()?.InstallTypes
@@ -302,7 +302,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             {
                 nameLocalizations[ietfTag] = this.Configuration.NamingPolicy.TransformText
                 (
-                    name, 
+                    name,
                     ietfTag == "en-US" ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(ietfTag)
                 );
             }
