@@ -67,7 +67,7 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
         await base.ConfigureAsync(extension);
     }
 
-    internal async Task ExecuteTextCommandAsync(DiscordClient client, MessageUpdatedEventArgs eventArgs)
+    internal async Task ExecuteTextCommandAsync(MessageUpdatedEventArgs eventArgs)
     {
         if (this.extension is null)
         {
@@ -118,7 +118,7 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
         await ExecuteTextCommandAsync(eventArgs.Message);
     }
 
-    internal async Task ExecuteTextCommandAsync(DiscordClient client, MessageCreatedEventArgs eventArgs) => await ExecuteTextCommandAsync(eventArgs.Message);
+    internal async Task ExecuteTextCommandAsync(MessageCreatedEventArgs eventArgs) => await ExecuteTextCommandAsync(eventArgs.Message);
 
     public async Task ExecuteTextCommandAsync(DiscordMessage message)
     {

@@ -45,7 +45,7 @@ internal sealed class ProcessorInvokingHandlers :
     {
         if (this.extension.TryGetProcessor(out TextCommandProcessor? processor))
         {
-            await processor.ExecuteTextCommandAsync(sender, eventArgs);
+            await processor.ExecuteTextCommandAsync(eventArgs);
         }
     }
 
@@ -53,7 +53,7 @@ internal sealed class ProcessorInvokingHandlers :
     {
         if (this.extension.TryGetProcessor(out TextCommandProcessor? processor))
         {
-            await processor.ExecuteTextCommandAsync(sender, eventArgs);
+            await processor.ExecuteTextCommandAsync(eventArgs);
         }
     }
 }
