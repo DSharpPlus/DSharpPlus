@@ -12,6 +12,7 @@ using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Commands.Processors.TextCommands;
@@ -26,6 +27,8 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
 
     public override IReadOnlyList<Command> Commands => this.commands.Values;
     private FrozenDictionary<string, Command> commands = FrozenDictionary<string, Command>.Empty;
+
+    private readonly MemoryCache messageUpdatedCache = new(new MemoryCacheOptions());
 
     /// <summary>
     /// Creates a new instance of <see cref="TextCommandProcessor"/> with the default configuration.
@@ -64,15 +67,64 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
         await base.ConfigureAsync(extension);
     }
 
-    public async Task ExecuteTextCommandAsync(DiscordClient client, MessageCreatedEventArgs eventArgs)
+    internal async Task ExecuteTextCommandAsync(DiscordClient client, MessageUpdatedEventArgs eventArgs)
     {
         if (this.extension is null)
         {
             throw new InvalidOperationException("TextCommandProcessor has not been configured.");
         }
-        else if (string.IsNullOrWhiteSpace(eventArgs.Message.Content)
-            || (eventArgs.Author.IsBot && this.Configuration.IgnoreBots)
-            || (this.extension.DebugGuildId != 0 && this.extension.DebugGuildId != eventArgs.Guild?.Id))
+        else if (!this.Configuration.EnableEditCommands)
+        {
+            return;
+        }
+        else if (this.messageUpdatedCache.TryGetValue(eventArgs.Message.Id, out DiscordMessage? cachedMessage) && cachedMessage is not null)
+        {
+            // Check to see if the edited at time is the same as the cached message's edited at time.
+            // This is important because when Discord scans messages for NSFW content, it will send a
+            // message updated event.
+            if (eventArgs.Message.EditedTimestamp == cachedMessage.EditedTimestamp)
+            {
+                return;
+            }
+        }
+
+        this.messageUpdatedCache.Set(eventArgs.Message.Id, eventArgs.Message, new MemoryCacheEntryOptions()
+        {
+            SlidingExpiration = TimeSpan.FromSeconds(15)
+        });
+
+        // Check to see if the flags are the same, excluding the flags that are not relevant to the message content.
+        DiscordMessageFlags notTheseFlags = DiscordMessageFlags.Crossposted | DiscordMessageFlags.IsCrosspost | DiscordMessageFlags.SuppressedEmbeds;
+
+        // Flags are null when 0. 0 is not equal to null.
+        DiscordMessageFlags relevantFlags = eventArgs.Message.Flags & ~notTheseFlags ?? 0;
+        DiscordMessageFlags relevantFlagsBefore = eventArgs.MessageBefore?.Flags & ~notTheseFlags ?? 0;
+        if (eventArgs.MessageBefore is not null && relevantFlags == relevantFlagsBefore)
+        {
+            // If the flags are the same, we can assume that the message content is the same.
+            return;
+        }
+
+        await ExecuteTextCommandAsync(eventArgs.Message);
+    }
+
+    internal async Task ExecuteTextCommandAsync(DiscordClient client, MessageCreatedEventArgs eventArgs) => await ExecuteTextCommandAsync(eventArgs.Message);
+
+    public async Task ExecuteTextCommandAsync(DiscordMessage message)
+    {
+        if (this.extension is null)
+        {
+            throw new InvalidOperationException("TextCommandProcessor has not been configured.");
+        }
+        else if (message.Author is null || message.Channel is null)
+        {
+            // TODO: Should we throw? Neither one of these should ever be null.
+            // When the author is a webhook, a pseudo-user is created.
+            return;
+        }
+        else if (string.IsNullOrWhiteSpace(message.Content)
+            || (message.Author.IsBot && this.Configuration.IgnoreBots)
+            || (this.extension.DebugGuildId != 0 && this.extension.DebugGuildId != message.Channel.GuildId))
         {
             return;
         }
@@ -82,17 +134,17 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
             ? prefixResolver.ResolvePrefixAsync
             : this.Configuration.PrefixResolver;
 
-        int prefixLength = await resolvePrefix(this.extension, eventArgs.Message);
+        int prefixLength = await resolvePrefix(this.extension, message);
         if (prefixLength < 0)
         {
             return;
         }
 
         // Remove the prefix
-        string commandText = eventArgs.Message.Content[prefixLength..].TrimStart();
+        string commandText = message.Content[prefixLength..].TrimStart();
 
         // Parse the full command name
-        if (!TryGetCommand(commandText, eventArgs.Guild?.Id ?? 0, out int index, out Command? command))
+        if (!TryGetCommand(commandText, message.Channel.GuildId ?? 0, out int index, out Command? command))
         {
             if (this.Configuration!.EnableCommandNotFoundException)
             {
@@ -103,12 +155,12 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
                         Context = new TextCommandContext()
                         {
                             Arguments = new Dictionary<CommandParameter, object?>(),
-                            Channel = eventArgs.Channel,
+                            Channel = message.Channel,
                             Command = null!,
                             Extension = this.extension,
-                            Message = eventArgs.Message,
+                            Message = message,
                             ServiceScope = serviceScope,
-                            User = eventArgs.Author,
+                            User = message.Author,
                         },
                         Exception = new CommandNotFoundException(commandText[..index]),
                         CommandObject = null,
@@ -133,12 +185,12 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
                         Context = new TextCommandContext()
                         {
                             Arguments = new Dictionary<CommandParameter, object?>(),
-                            Channel = eventArgs.Channel,
+                            Channel = message.Channel,
                             Command = command,
                             Extension = this.extension,
-                            Message = eventArgs.Message,
+                            Message = message,
                             ServiceScope = serviceScope,
-                            User = eventArgs.Author,
+                            User = message.Author,
                         },
                         Exception = new CommandNotExecutableException(command, "Unable to execute a command that has no method. Is this command a group command?"),
                         CommandObject = null,
@@ -155,14 +207,14 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
 
         TextConverterContext converterContext = new()
         {
-            Channel = eventArgs.Channel,
+            Channel = message.Channel,
             Command = command,
             Extension = this.extension,
-            Message = eventArgs.Message,
+            Message = message,
             RawArguments = commandText[index..],
             ServiceScope = serviceScope,
             Splicer = this.Configuration.TextArgumentSplicer,
-            User = eventArgs.Author,
+            User = message.Author,
         };
 
         IReadOnlyDictionary<CommandParameter, object?> parsedArguments = await ParseParametersAsync(converterContext);
