@@ -2722,6 +2722,11 @@ public sealed partial class DiscordClient
 
         if (guild is not null)
         {
+            if (this.guilds.TryGetValue(guild.Id, out DiscordGuild? cachedGuild))
+            {
+                guild = cachedGuild;
+            }
+
             guild.Discord = this;
 
             if (guild.Members.TryGetValue(user.Id, out DiscordMember? member))
