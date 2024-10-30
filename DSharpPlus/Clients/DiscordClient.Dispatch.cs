@@ -1151,7 +1151,7 @@ public sealed partial class DiscordClient
         }
 
         bool old = Volatile.Read(ref this.guildDownloadCompleted);
-        bool dcompl = this.guilds.Values.All(xg => !xg.IsUnavailable);
+        bool dcompl = this.guilds.Values.All(xg => !xg.IsUnavailable) && !this.guildDownloadCompleted;
 
         if (exists)
         {
@@ -1170,6 +1170,7 @@ public sealed partial class DiscordClient
 
         if (dcompl && !old && this.orchestrator.AllShardsConnected)
         {
+            this.guildDownloadCompleted = true;
             await this.dispatcher.DispatchAsync(this, new GuildDownloadCompletedEventArgs(this.Guilds));
         }
     }
