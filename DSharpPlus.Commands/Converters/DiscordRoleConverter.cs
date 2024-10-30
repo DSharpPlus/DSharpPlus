@@ -24,6 +24,7 @@ public partial class DiscordRoleConverter : ISlashArgumentConverter<DiscordRole>
         if (context is InteractionConverterContext interactionContext
             && interactionContext.Interaction.Data.Resolved is not null
             && ulong.TryParse(interactionContext.Argument?.RawValue, CultureInfo.InvariantCulture, out ulong roleId)
+            && interactionContext.Interaction.Data.Resolved.Roles is not null
             && interactionContext.Interaction.Data.Resolved.Roles.TryGetValue(roleId, out DiscordRole? role))
         {
             return Task.FromResult(Optional.FromValue(role));
