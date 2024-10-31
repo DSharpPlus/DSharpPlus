@@ -89,7 +89,7 @@ public sealed record DiscordOverwriteBuilder
     /// <returns>Use this object for creation of new overwrites.</returns>
     internal DiscordRestOverwrite Build()
     {
-        return this.Target == null ? throw new InvalidOperationException("Target must be set.") : new()
+        return this.Target is null ? throw new InvalidOperationException("Target must be set.") : new()
         {
             Allow = this.Allowed,
             Deny = this.Denied,
