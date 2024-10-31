@@ -171,19 +171,29 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
         // Iterate over all arguments and check if any of them failed to parse.
         foreach (KeyValuePair<CommandParameter, object?> argument in parsedArguments)
         {
-            if (argument.Value is ArgumentFailedConversionResult argumentFailedConversionResult)
+            if (argument.Value is ArgumentFailedConversionResult || argument.Value is Optional<ArgumentFailedConversionResult>)
             {
+                ArgumentFailedConversionResult argumentFailedConversionResultValue = null;
+                if (argument.Value is ArgumentFailedConversionResult argumentFailedConversionResult)
+                {
+                    argumentFailedConversionResultValue = argumentFailedConversionResult;
+                }
+                else if (argument.Value is Optional<ArgumentFailedConversionResult> optionalArgumentFailedConversionResult && optionalArgumentFailedConversionResult.HasValue)
+                {
+                    argumentFailedConversionResultValue = optionalArgumentFailedConversionResult.Value;
+                }
+
                 await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
                 {
                     Context = commandContext,
                     CommandObject = null,
-                    Exception = new ArgumentParseException(argument.Key, argumentFailedConversionResult),
+                    Exception = new ArgumentParseException(argument.Key, argumentFailedConversionResultValue),
                 });
 
                 await serviceScope.DisposeAsync();
                 return;
             }
-            else if (argument.Value is ArgumentNotParsedResult)
+            else if (argument.Value is ArgumentNotParsedResult || argument.Value is Optional<ArgumentNotParsedResult>)
             {
                 await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
                 {
