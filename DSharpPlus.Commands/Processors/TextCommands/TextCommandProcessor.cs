@@ -12,7 +12,6 @@ using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Commands.Processors.TextCommands;
@@ -27,8 +26,6 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
 
     public override IReadOnlyList<Command> Commands => this.commands.Values;
     private FrozenDictionary<string, Command> commands = FrozenDictionary<string, Command>.Empty;
-
-    private readonly MemoryCache messageUpdatedCache = new(new MemoryCacheOptions());
 
     /// <summary>
     /// Creates a new instance of <see cref="TextCommandProcessor"/> with the default configuration.
@@ -77,28 +74,20 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
         {
             return;
         }
-        else if (this.messageUpdatedCache.TryGetValue(eventArgs.Message.Id, out DiscordMessage? cachedMessage) && cachedMessage is not null)
+        else if (eventArgs.MessageBefore is not null)
         {
+            // Check to see if the content and attachments are the same
+            if (eventArgs.Message.Content == eventArgs.MessageBefore.Content
+                && eventArgs.Message.Attachments.SequenceEqual(eventArgs.MessageBefore.Attachments))
+            {
+                // TODO: What about argument converters that don't rely on these properties?
+                return;
+            }
             // Check to see if the edited at time is the same as the cached message's edited at time.
             // This is important because when Discord scans messages for NSFW content, it will send a
             // message updated event.
-            if (eventArgs.Message.EditedTimestamp == cachedMessage.EditedTimestamp)
+            else if (eventArgs.Message.EditedTimestamp == eventArgs.MessageBefore.EditedTimestamp)
             {
-                return;
-            }
-        }
-
-        this.messageUpdatedCache.Set(eventArgs.Message.Id, eventArgs.Message, new MemoryCacheEntryOptions()
-        {
-            SlidingExpiration = TimeSpan.FromSeconds(15)
-        });
-
-        if (eventArgs.MessageBefore is not null)
-        {
-            // Check to see if the content and attachments are the same
-            if (eventArgs.Message.Content == eventArgs.MessageBefore.Content && eventArgs.Message.Attachments.SequenceEqual(eventArgs.MessageBefore.Attachments))
-            {
-                // TODO: What about argument converters that don't rely on these properties?
                 return;
             }
 
