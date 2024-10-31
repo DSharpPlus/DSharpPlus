@@ -173,7 +173,7 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
         {
             if (argument.Value is ArgumentFailedConversionResult || argument.Value is Optional<ArgumentFailedConversionResult>)
             {
-                ArgumentFailedConversionResult argumentFailedConversionResultValue = null;
+                ArgumentFailedConversionResult? argumentFailedConversionResultValue = null;
                 if (argument.Value is ArgumentFailedConversionResult argumentFailedConversionResult)
                 {
                     argumentFailedConversionResultValue = argumentFailedConversionResult;
