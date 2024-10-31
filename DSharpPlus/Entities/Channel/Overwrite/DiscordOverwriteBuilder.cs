@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -20,14 +20,19 @@ public sealed record DiscordOverwriteBuilder
     public DiscordPermissions Denied { get; set; }
 
     /// <summary>
-    /// Gets the type of this overwrite's target.
-    /// </summary>
-    public required DiscordOverwriteType Type { get; init; }
-
-    /// <summary>
     /// Gets the target for this overwrite.
     /// </summary>
-    public required SnowflakeObject Target { get; init; }
+    public SnowflakeObject? Target { get; set; }
+
+    /// <summary>
+    /// Gets the type of this overwrite's target.
+    /// </summary>
+    public DiscordOverwriteType Type => this.Target switch
+    {
+        DiscordRole => DiscordOverwriteType.Role,
+        DiscordMember => DiscordOverwriteType.Member,
+        _ => DiscordOverwriteType.None
+    };
 
     /// <summary>
     /// Creates a new Discord permission overwrite builder. This class can be used to construct permission overwrites for guild channels, used when creating channels.
@@ -37,22 +42,12 @@ public sealed record DiscordOverwriteBuilder
     /// <summary>
     /// Creates a new Discord permission overwrite builder for a member. This class can be used to construct permission overwrites for guild channels, used when creating channels.
     /// </summary>
-    [SetsRequiredMembers]
-    public DiscordOverwriteBuilder(DiscordMember member)
-    {
-        this.Target = member;
-        this.Type = DiscordOverwriteType.Member;
-    }
+    public DiscordOverwriteBuilder(DiscordMember member) => this.Target = member;
 
     /// <summary>
     /// Creates a new Discord permission overwrite builder for a role. This class can be used to construct permission overwrites for guild channels, used when creating channels.
     /// </summary>
-    [SetsRequiredMembers]
-    public DiscordOverwriteBuilder(DiscordRole role)
-    {
-        this.Target = role;
-        this.Type = DiscordOverwriteType.Role;
-    }
+    public DiscordOverwriteBuilder(DiscordRole role) => this.Target = role;
 
     /// <summary>
     /// Allows a permission for this overwrite.
@@ -85,7 +80,6 @@ public sealed record DiscordOverwriteBuilder
     {
         Allowed = other.Allowed,
         Denied = other.Denied,
-        Type = other.Type,
         Target = other.Type == DiscordOverwriteType.Member ? await other.GetMemberAsync() : await other.GetRoleAsync()
     };
 
@@ -95,7 +89,7 @@ public sealed record DiscordOverwriteBuilder
     /// <returns>Use this object for creation of new overwrites.</returns>
     internal DiscordRestOverwrite Build()
     {
-        return new()
+        return this.Target == null ? throw new InvalidOperationException("Target must be set.") : new()
         {
             Allow = this.Allowed,
             Deny = this.Denied,
