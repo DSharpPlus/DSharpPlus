@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using DSharpPlus.EventArgs;
@@ -16,12 +15,14 @@ namespace DSharpPlus.Clients;
 /// The default DSharpPlus event dispatcher, dispatching events asynchronously and using a shared scope. Catch-all event
 /// handlers referencing <see cref="DiscordEventArgs"/> are supported.
 /// </summary>
-public sealed class DefaultEventDispatcher : IEventDispatcher
+public sealed class DefaultEventDispatcher : IEventDispatcher, IDisposable
 {
     private readonly IServiceProvider serviceProvider;
     private readonly EventHandlerCollection handlers;
     private readonly IClientErrorHandler errorHandler;
     private readonly ILogger<IEventDispatcher> logger;
+
+    private bool disposed = false;
 
     public DefaultEventDispatcher
     (
@@ -38,10 +39,14 @@ public sealed class DefaultEventDispatcher : IEventDispatcher
     }
 
     /// <inheritdoc/>
-    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
     public ValueTask DispatchAsync<T>(DiscordClient client, T eventArgs)
         where T : DiscordEventArgs
     {
+        if (this.disposed)
+        {
+            return ValueTask.CompletedTask;
+        }
+
         IReadOnlyList<object> general = this.handlers[typeof(DiscordEventArgs)];
         IReadOnlyList<object> specific = this.handlers[typeof(T)];
 
@@ -70,5 +75,12 @@ public sealed class DefaultEventDispatcher : IEventDispatcher
         .ContinueWith((_) => scope.Dispose());
 
         return ValueTask.CompletedTask;
+    }
+
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+        this.logger.LogInformation("Detecting shutdown. All further incoming or enqueued events will not dispatch.");
+        this.disposed = true;
     }
 }
