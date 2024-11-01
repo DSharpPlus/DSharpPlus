@@ -117,7 +117,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor
         {
             await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
             {
-                Context = new SlashCommandContext()
+                Context = new MessageCommandContext()
                 {
                     Arguments = new Dictionary<CommandParameter, object?>(),
                     Channel = eventArgs.Interaction.Channel,
@@ -149,7 +149,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor
             arguments.Add(command.Parameters[i], command.Parameters[i].DefaultValue.Value);
         }
 
-        SlashCommandContext commandContext = new()
+        MessageCommandContext commandContext = new()
         {
             Arguments = arguments,
             Channel = eventArgs.Interaction.Channel,
