@@ -336,7 +336,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <param name="mute">Whether the member is to be muted.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.MuteMembers"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.MuteMembers"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -349,7 +349,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <param name="deaf">Whether the member is to be deafened.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.DeafenMembers"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.DeafenMembers"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -361,7 +361,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// </summary>
     /// <param name="action">Action to perform on this member.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageNicknames"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageNicknames"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -398,7 +398,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <param name="role">Role to grant.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageRoles"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageRoles"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -411,7 +411,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <param name="role">Role to revoke.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageRoles"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageRoles"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -424,7 +424,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <param name="roles">Roles to set.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageRoles"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageRoles"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -449,14 +449,14 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <param name="deleteMessageDuration">The duration in which discord should delete messages from the banned user.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.BanMembers"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.BanMembers"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task BanAsync(TimeSpan deleteMessageDuration = default, string reason = null)
         => this.Guild.BanMemberAsync(this, deleteMessageDuration, reason);
 
-    /// <exception cref = "Exceptions.UnauthorizedException" > Thrown when the client does not have the<see cref="DiscordPermissions.BanMembers"/> permission.</exception>
+    /// <exception cref = "Exceptions.UnauthorizedException" > Thrown when the client does not have the<see cref="DiscordPermission.BanMembers"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -468,7 +468,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
     /// <remarks>[alias="KickAsync"]</remarks>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.KickMembers"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.KickMembers"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -480,7 +480,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// </summary>
     /// <param name="channel"></param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.MoveMembers"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.MoveMembers"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -627,6 +627,6 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         perms |= this.Roles.Aggregate(DiscordPermissions.None, (c, role) => c | role.Permissions);
 
         // Administrator grants all permissions and cannot be overridden
-        return (perms & DiscordPermissions.Administrator) == DiscordPermissions.Administrator ? DiscordPermissions.All : perms;
+        return perms.HasPermission(DiscordPermission.Administrator) ? DiscordPermissions.All : perms;
     }
 }

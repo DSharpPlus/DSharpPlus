@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
@@ -297,14 +296,14 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         return this.Assets;
     }
 
-    public string GenerateBotOAuth(DiscordPermissions permissions = DiscordPermissions.None)
+    public string GenerateBotOAuth(DiscordPermissions permissions = default)
     {
         permissions &= DiscordPermissions.All;
         // hey look, it's not all annoying and blue :P
         return new QueryUriBuilder("https://discord.com/oauth2/authorize")
             .AddParameter("client_id", this.Id.ToString(CultureInfo.InvariantCulture))
             .AddParameter("scope", "bot")
-            .AddParameter("permissions", ((long)permissions).ToString(CultureInfo.InvariantCulture))
+            .AddParameter("permissions", permissions.ToString())
             .ToString();
     }
 
@@ -318,8 +317,12 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// </param>
     /// <param name="permissions">Permissions for your bot. Only required if the <seealso cref="DiscordOAuthScope.Bot"/> scope is passed.</param>
     /// <param name="scopes">OAuth scopes for your application.</param>
-    public string GenerateOAuthUri(string? redirectUri = null, DiscordPermissions? permissions = null,
-        params DiscordOAuthScope[] scopes)
+    public string GenerateOAuthUri
+    (
+        string? redirectUri = null,
+        DiscordPermissions permissions = default,
+        params DiscordOAuthScope[] scopes
+    )
     {
         permissions &= DiscordPermissions.All;
 
@@ -334,9 +337,9 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
             .AddParameter("client_id", this.Id.ToString(CultureInfo.InvariantCulture))
             .AddParameter("scope", scopeBuilder.ToString().Trim());
 
-        if (permissions != null)
+        if (permissions != DiscordPermissions.None)
         {
-            queryBuilder.AddParameter("permissions", ((long)permissions).ToString(CultureInfo.InvariantCulture));
+            queryBuilder.AddParameter("permissions", permissions.ToString());
         }
 
         // response_type=code is always given for /authorize
@@ -497,6 +500,5 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
                 yield break;
             } 
         }
-        
     }
 }

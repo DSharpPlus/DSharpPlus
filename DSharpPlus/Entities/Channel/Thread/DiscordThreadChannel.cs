@@ -98,7 +98,7 @@ public class DiscordThreadChannel : DiscordChannel
     /// Adds the given DiscordMember to this thread. Requires an not archived thread and send message permissions.
     /// </summary>
     /// <param name="member">The member to add to the thread.</param>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.SendMessages"/>.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.SendMessages"/>.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task AddThreadMemberAsync(DiscordMember member)
     {
@@ -114,7 +114,7 @@ public class DiscordThreadChannel : DiscordChannel
     /// Removes the given DiscordMember from this thread. Requires an not archived thread and send message permissions.
     /// </summary>
     /// <param name="member">The member to remove from the thread.</param>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageThreads"/> permission, or is not the creator of the thread if it is private.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageThreads"/> permission, or is not the creator of the thread if it is private.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task RemoveThreadMemberAsync(DiscordMember member)
     {
@@ -130,7 +130,7 @@ public class DiscordThreadChannel : DiscordChannel
     /// Modifies the current thread.
     /// </summary>
     /// <param name="action">Action to perform on this thread</param>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageChannels"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageChannels"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
