@@ -20,19 +20,14 @@ public sealed record DiscordOverwriteBuilder
     public DiscordPermissions Denied { get; set; }
 
     /// <summary>
-    /// Gets the target for this overwrite.
+    /// The id of the target for this overwrite.
     /// </summary>
-    public SnowflakeObject? Target { get; set; }
+    public ulong TargetId { get; set; }
 
     /// <summary>
     /// Gets the type of this overwrite's target.
     /// </summary>
-    public DiscordOverwriteType Type => this.Target switch
-    {
-        DiscordRole => DiscordOverwriteType.Role,
-        DiscordMember => DiscordOverwriteType.Member,
-        _ => DiscordOverwriteType.None
-    };
+    public DiscordOverwriteType Type { get; set; }
 
     /// <summary>
     /// Creates a new Discord permission overwrite builder. This class can be used to construct permission overwrites for guild channels, used when creating channels.
@@ -42,12 +37,20 @@ public sealed record DiscordOverwriteBuilder
     /// <summary>
     /// Creates a new Discord permission overwrite builder for a member. This class can be used to construct permission overwrites for guild channels, used when creating channels.
     /// </summary>
-    public DiscordOverwriteBuilder(DiscordMember member) => this.Target = member;
+    public DiscordOverwriteBuilder(DiscordMember member)
+    {
+        this.TargetId = member.Id;
+        this.Type = DiscordOverwriteType.Member;
+    }
 
     /// <summary>
     /// Creates a new Discord permission overwrite builder for a role. This class can be used to construct permission overwrites for guild channels, used when creating channels.
     /// </summary>
-    public DiscordOverwriteBuilder(DiscordRole role) => this.Target = role;
+    public DiscordOverwriteBuilder(DiscordRole role)
+    {
+        this.TargetId = role.Id;
+        this.Type = DiscordOverwriteType.Role;
+    }
 
     /// <summary>
     /// Allows a permission for this overwrite.
@@ -72,15 +75,28 @@ public sealed record DiscordOverwriteBuilder
     }
 
     /// <summary>
+    /// Attempts to get the entity representing the target of this overwrite.
+    /// </summary>
+    /// <param name="guild">The server to which the target belongs.</param>
+    /// <returns>Entity representing the target of this overwrite, or null if the target id is not set.</returns>
+    public async ValueTask<SnowflakeObject?> GetTargetAsync(DiscordGuild guild) => this.Type switch
+    {
+        DiscordOverwriteType.Member => await guild.GetMemberAsync(this.TargetId),
+        DiscordOverwriteType.Role => await guild.GetRoleAsync(this.TargetId),
+        _ => null
+    };
+
+    /// <summary>
     /// Populates this builder with data from another overwrite object.
     /// </summary>
     /// <param name="other">Overwrite from which data will be used.</param>
     /// <returns>This builder.</returns>
-    public static async Task<DiscordOverwriteBuilder> FromAsync(DiscordOverwrite other) => new()
+    public static DiscordOverwriteBuilder From(DiscordOverwrite other) => new()
     {
         Allowed = other.Allowed,
         Denied = other.Denied,
-        Target = other.Type == DiscordOverwriteType.Member ? await other.GetMemberAsync() : await other.GetRoleAsync()
+        TargetId = other.Id,
+        Type = other.Type
     };
 
     /// <summary>
@@ -89,11 +105,11 @@ public sealed record DiscordOverwriteBuilder
     /// <returns>Use this object for creation of new overwrites.</returns>
     internal DiscordRestOverwrite Build()
     {
-        return this.Target is null ? throw new InvalidOperationException("Target must be set.") : new()
+        return this.TargetId is 0 ? throw new InvalidOperationException("The target id must be set.") : new()
         {
             Allow = this.Allowed,
             Deny = this.Denied,
-            Id = this.Target.Id,
+            Id = this.TargetId,
             Type = this.Type,
         };
     }
