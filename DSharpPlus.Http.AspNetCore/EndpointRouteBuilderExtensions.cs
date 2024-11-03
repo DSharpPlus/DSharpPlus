@@ -93,8 +93,12 @@ public static class EndpointRouteBuilderExtensions
         httpContext.Response.StatusCode = (int) HttpStatusCode.NoContent;
     }
 
-    private static async Task<(int length, byte[]? bodyBuffer)> ExtractAndValidateBodyAsync(HttpContext httpContext, CancellationToken cancellationToken,
-    DiscordClient client)
+    private static async Task<(int length, byte[]? bodyBuffer)> ExtractAndValidateBodyAsync
+    (
+        HttpContext httpContext,
+        CancellationToken cancellationToken,
+        DiscordClient client
+    )
     {
         if (!httpContext.Request.Headers.TryGetValue(HeaderNames.ContentLength, out StringValues lengthString) 
             || !int.TryParse(lengthString, out int length))
