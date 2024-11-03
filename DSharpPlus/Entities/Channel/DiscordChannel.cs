@@ -317,11 +317,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             throw new InvalidOperationException("Non-guild channels cannot be cloned.");
         }
 
-        List<DiscordOverwriteBuilder> ovrs = [];
-        foreach (DiscordOverwrite ovr in this.permissionOverwrites)
-        {
-            ovrs.Add(await DiscordOverwriteBuilder.FromAsync(ovr));
-        }
+        List<DiscordOverwriteBuilder> ovrs = [.. this.permissionOverwrites.Select(DiscordOverwriteBuilder.From)];
 
         int? bitrate = this.Bitrate;
         int? userLimit = this.UserLimit;
