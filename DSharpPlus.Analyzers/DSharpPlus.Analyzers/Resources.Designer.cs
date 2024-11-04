@@ -134,5 +134,23 @@ namespace DSharpPlus.Analyzers {
                 return ResourceManager.GetString("DSP1002MessageFormat", resourceCulture);
             }
         }
+        
+        internal static string DSP1003Title {
+            get {
+                return ResourceManager.GetString("DSP1003Title", resourceCulture);
+            }
+        }
+        
+        internal static string DSP1003Description {
+            get {
+                return ResourceManager.GetString("DSP1003Description", resourceCulture);
+            }
+        }
+        
+        internal static string DSP1003MessageFormat {
+            get {
+                return ResourceManager.GetString("DSP1003MessageFormat", resourceCulture);
+            }
+        }
     }
 }

@@ -68,4 +68,13 @@
   <data name="DSP1002MessageFormat" xml:space="preserve">
     <value>Don't register '{0}', register '{1}' instead</value>
   </data>
+  <data name="DSP1003Title" xml:space="preserve">
+    <value>Command processor doesn't support command context</value>
+  </data>
+  <data name="DSP1003Description" xml:space="preserve">
+    <value>The specified command processor doesn't support the specified command context.</value>
+  </data>
+  <data name="DSP1003MessageFormat" xml:space="preserve">
+    <value>Processor '{0}' doesn't support context '{1}'</value>
+  </data>
 </root>
