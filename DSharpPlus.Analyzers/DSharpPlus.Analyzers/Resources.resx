@@ -59,4 +59,13 @@
   <data name="DSP1001MessageFormat" xml:space="preserve">
     <value>Cannot register '{0}' to the specified guilds as its installable context does not contain 'GuildInstall'</value>
   </data>
+  <data name="DSP1002Title" xml:space="preserve">
+    <value>Don't register nested classes</value>
+  </data>
+  <data name="DSP1002Description" xml:space="preserve">
+    <value>Don't register nested classes, register its parent instead.</value>
+  </data>
+  <data name="DSP1002MessageFormat" xml:space="preserve">
+    <value>Don't register '{0}', register '{1}' instead</value>
+  </data>
 </root>

@@ -11,7 +11,7 @@ namespace DSharpPlus.Analyzers.Core;
 public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
 {
     public const string DiagnosticId = "DSP0006";
-    public const string Category = "Usage";
+    public const string Category = "Design";
 
     private static readonly LocalizableString title = new LocalizableResourceString(
         nameof(Resources.DSP0006Title),

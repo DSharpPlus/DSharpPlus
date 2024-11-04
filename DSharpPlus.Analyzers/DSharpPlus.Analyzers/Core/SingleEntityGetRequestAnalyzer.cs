@@ -11,7 +11,7 @@ namespace DSharpPlus.Analyzers.Core;
 public class SingleEntityGetRequestAnalyzer : DiagnosticAnalyzer
 {
     public const string DiagnosticId = "DSP0007";
-    public const string Category = "Usage";
+    public const string Category = "Design";
 
     private static readonly LocalizableString title = new LocalizableResourceString(
         nameof(Resources.DSP0007Title),
