@@ -75,6 +75,6 @@
     <value>The specified command processor doesn't support the specified command context.</value>
   </data>
   <data name="DSP1003MessageFormat" xml:space="preserve">
-    <value>Processor '{0}' doesn't support context '{1}'</value>
+    <value>All provided processors does not support context '{0}'</value>
   </data>
 </root>

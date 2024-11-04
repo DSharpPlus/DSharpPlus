@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.Testing;
 using NUnit.Framework;
 using Verifier =
     Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        DSharpPlus.Analyzers.Commands.RegisterNestedClassesAnalyzer,
+        DSharpPlus.Analyzers.Commands.ProcessorCheckAnalyzer,
         Microsoft.CodeAnalysis.Testing.DefaultVerifier
     >;
 
@@ -17,8 +17,8 @@ public static class ProcessorCheckTest
     [Test]
     public static async Task DiagnosticTestAsync()
     {
-        CSharpAnalyzerTest<RegisterNestedClassesAnalyzer, DefaultVerifier> test
-            = Utility.CreateAnalyzerTest<RegisterNestedClassesAnalyzer>();
+        CSharpAnalyzerTest<ProcessorCheckAnalyzer, DefaultVerifier> test
+            = Utility.CreateAnalyzerTest<ProcessorCheckAnalyzer>();
         test.TestState.AdditionalReferences.Add(typeof(DSharpPlus.Commands.CommandContext).Assembly);
 
         test.TestCode = """
@@ -42,7 +42,7 @@ public static class ProcessorCheckTest
             Verifier.Diagnostic()
                 .WithLocation(9, 30)
                 .WithSeverity(DiagnosticSeverity.Error)
-                .WithMessage("Processor 'SlashCommandProcessor' does not support context 'TextCommandContext'")
+                .WithMessage("All provided processors does not support context 'TextCommandContext'")
         );
 
         await test.RunAsync();

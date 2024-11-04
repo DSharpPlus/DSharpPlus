@@ -44,6 +44,21 @@ public class ProcessorCheckAnalyzer : DiagnosticAnalyzer
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);
 
+    private static readonly IReadOnlyDictionary<string, HashSet<string>> allowedContexts
+        = new Dictionary<string, HashSet<string>>()
+        {
+            {
+                "DSharpPlus.Commands.Processors.TextCommands.CommandContext",
+                ["UserCommandProcessor", "SlashCommandProcessor", "TextCommandProcessor"]
+            },
+            {
+                "DSharpPlus.Commands.Processors.SlashCommands.SlashCommandContext",
+                ["UserCommandProcessor", "SlashCommandProcessor"]
+            },
+            { "DSharpPlus.Commands.Processors.UserCommands.UserCommandContext", ["UserCommandProcessor"] },
+            { "DSharpPlus.Commands.Processors.TextCommands.TextCommandContext", ["TextCommandProcessor"] },
+        };
+
     public override void Initialize(AnalysisContext ctx)
     {
         ctx.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
@@ -59,10 +74,79 @@ public class ProcessorCheckAnalyzer : DiagnosticAnalyzer
         }
 
         IEnumerable<AttributeSyntax> attributes = methodDecl.AttributeLists.SelectMany(al => al.Attributes);
+
+        List<ITypeSymbol> types = [];
         foreach (AttributeSyntax attribute in attributes)
         {
             TypeInfo typeInfo = ctx.SemanticModel.GetTypeInfo(attribute);
-            typeInfo.ToString();
+
+            if (typeInfo.Type is not INamedTypeSymbol namedTypeSymbol)
+            {
+                continue;
+            }
+
+            if (namedTypeSymbol.Name != "AllowedProcessorsAttribute")
+            {
+                continue;
+            }
+
+            if (namedTypeSymbol.ContainingNamespace.ToDisplayString() != "DSharpPlus.Commands.Trees.Metadata")
+            {
+                continue;
+            }
+
+            foreach (ITypeSymbol typeArgument in namedTypeSymbol.TypeArguments)
+            {
+                types.Add(typeArgument);
+            }
+
+            break;
         }
+
+        if (types.Count <= 0)
+        {
+            return;
+        }
+
+        if (methodDecl.ParameterList.Parameters.Count <= 0)
+        {
+            return;
+        }
+
+        ParameterSyntax contextParam = methodDecl.ParameterList.Parameters.First();
+        TypeInfo contextType = ctx.SemanticModel.GetTypeInfo(contextParam.Type!);
+
+        if (contextType.Type is null)
+        {
+            return;
+        }
+
+        if (!allowedContexts.TryGetValue(
+                $"{contextType.Type.ContainingNamespace.ToDisplayString()}.{contextType.Type.MetadataName}",
+                out HashSet<string>? set))
+        {
+            return;
+        }
+
+        bool containsAnyProcessor = false;
+        foreach (ITypeSymbol? t in types)
+        {
+            if (set.Contains(t.Name))
+            {
+                containsAnyProcessor = true;
+                break;
+            }
+        }
+
+        if (containsAnyProcessor)
+        {
+            return;
+        }
+
+        Diagnostic diagnostic = Diagnostic.Create(rule,
+            contextParam.Type?.GetLocation(),
+            contextType.Type.Name
+        );
+        ctx.ReportDiagnostic(diagnostic);
     }
 }
