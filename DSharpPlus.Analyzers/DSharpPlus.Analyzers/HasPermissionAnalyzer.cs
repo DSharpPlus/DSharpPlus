@@ -9,24 +9,24 @@ using Microsoft.CodeAnalysis.Diagnostics;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class HasPermissionAnalyzer : DiagnosticAnalyzer
 {
-    public const string DiagnosticId = "DSP0001";
+    public const string DiagnosticId = "DSP0005";
 
     public const string Category = "Usage";
 
     private static readonly LocalizableString title = new LocalizableResourceString(
-        nameof(Resources.DSP0001Title),
+        nameof(Resources.DSP0005Title),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
     private static readonly LocalizableString description = new LocalizableResourceString(
-        nameof(Resources.DSP0001Description),
+        nameof(Resources.DSP0005Description),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
     private static readonly LocalizableString messageFormat = new LocalizableResourceString(
-        nameof(Resources.DSP0001MessageFormat),
+        nameof(Resources.DSP0005MessageFormat),
         Resources.ResourceManager,
         typeof(Resources)
     );

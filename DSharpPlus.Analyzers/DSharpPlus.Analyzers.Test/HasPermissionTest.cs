@@ -21,24 +21,25 @@ public class HasPermissionTest
     {
         CSharpAnalyzerTest<HasPermissionAnalyzer, DefaultVerifier> test =
             Utility.CreateAnalyzerTest<HasPermissionAnalyzer>();
-        test.TestCode = @"
-using DSharpPlus.Entities;
+        test.TestCode = """
+                        using DSharpPlus.Entities;
 
-public class DoesIt
-{
-    public static bool HaveAdmin(DiscordPermissions perm) 
-    {
-        if ((perm & DiscordPermissions.Administrator) != 0) 
-        {
-            return true;
-        }
-        return false;
-    }
-}
-";
+                        public class DoesIt
+                        {
+                            public static bool HaveAdmin(DiscordPermissions perm) 
+                            {
+                                if ((perm & DiscordPermissions.Administrator) != 0) 
+                                {
+                                    return true;
+                                }
+                                return false;
+                            }
+                        }
+
+                        """;
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic()
-                .WithLocation(8, 13)
+                .WithLocation(7, 13)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'perm.HasPermission(DiscordPermissions.Administrator)' instead")
         );

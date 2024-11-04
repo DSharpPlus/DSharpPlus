@@ -23,22 +23,31 @@
       PublicKeyToken=b77a5c561934e089
     </value>
   </resheader>
-  <data name="DSP0001Title" xml:space="preserve">
+  <data name="DSP0005Title" xml:space="preserve">
     <value>Use 'Permissions#HasPermission'</value>
   </data>
-  <data name="DSP0001Description" xml:space="preserve">
+  <data name="DSP0005Description" xml:space="preserve">
     <value>Use 'Permissions#HasPermission' instead of bitwise operations.</value>
   </data>
-  <data name="DSP0001MessageFormat" xml:space="preserve">
+  <data name="DSP0005MessageFormat" xml:space="preserve">
     <value>Use '{0}.HasPermission({1})' instead</value>
   </data>
-  <data name="DSP0002Title" xml:space="preserve">
+  <data name="DSP0006Title" xml:space="preserve">
     <value>Use 'DiscordChannel#ModifyAsync'</value>
   </data>
-  <data name="DSP0002Description" xml:space="preserve">
+  <data name="DSP0006Description" xml:space="preserve">
     <value>Use one 'DiscordChannel#ModifyAsync' instead of multiple 'DiscordChannel#OverwriteAsync' calls.</value>
   </data>
-  <data name="DSP0002MessageFormat" xml:space="preserve">
+  <data name="DSP0006MessageFormat" xml:space="preserve">
     <value>Use one '{0}.ModifyAsync(..)' instead of multiple '{0}.AddOverwriteAsync(..)'</value>
+  </data>
+  <data name="DSP0007Title" xml:space="preserve">
+    <value>Use list request</value>
+  </data>
+  <data name="DSP0007Description" xml:space="preserve">
+    <value>Use list request instead of requesting single entities in a loop.</value>
+  </data>
+  <data name="DSP0007MessageFormat" xml:space="preserve">
+    <value>Use '{0}' outside of the loop instead of '{1}' inside the loop</value>
   </data>
 </root>

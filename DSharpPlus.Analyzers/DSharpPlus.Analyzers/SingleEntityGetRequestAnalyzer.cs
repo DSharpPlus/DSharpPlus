@@ -1,5 +1,4 @@
-namespace DSharpPlus.Analyzers;
-
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
@@ -7,26 +6,28 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
+namespace DSharpPlus.Analyzers;
+
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
+public class SingleEntityGetRequestAnalyzer : DiagnosticAnalyzer
 {
-    public const string DiagnosticId = "DSP0006";
+    public const string DiagnosticId = "DSP0007";
     public const string Category = "Usage";
 
     private static readonly LocalizableString title = new LocalizableResourceString(
-        nameof(Resources.DSP0006Title),
+        nameof(Resources.DSP0007Title),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
     private static readonly LocalizableString description = new LocalizableResourceString(
-        nameof(Resources.DSP0006Description),
+        nameof(Resources.DSP0007Description),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
     private static readonly LocalizableString messageFormat = new LocalizableResourceString(
-        nameof(Resources.DSP0006MessageFormat),
+        nameof(Resources.DSP0007MessageFormat),
         Resources.ResourceManager,
         typeof(Resources)
     );
@@ -36,15 +37,22 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
         title,
         messageFormat,
         Category,
-        DiagnosticSeverity.Warning,
+        DiagnosticSeverity.Info,
         true,
         description
     );
-    
-    // This might need to be a concurrent dictionary cause of line 51
-    private readonly Dictionary<MethodDeclarationSyntax, HashSet<string>> invocations = new(); 
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);
+
+    private static readonly IReadOnlyDictionary<string, string> methods = new Dictionary<string, string>()
+    {
+        { "GetMessageAsync", "DSharpPlus.Entities.DiscordChannel" }
+    };
+
+    private static readonly IReadOnlyDictionary<string, string> preferedMethods = new Dictionary<string, string>()
+    {
+        { "GetMessageAsync", "GetMessagesAsync" }
+    };
 
     public override void Initialize(AnalysisContext ctx)
     {
@@ -53,7 +61,7 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
         ctx.RegisterSyntaxNodeAction(Analyze, SyntaxKind.InvocationExpression);
     }
 
-    private void Analyze(SyntaxNodeAnalysisContext ctx)
+    public void Analyze(SyntaxNodeAnalysisContext ctx)
     {
         if (ctx.Node is not InvocationExpressionSyntax invocation)
         {
@@ -65,31 +73,20 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
             return;
         }
         
-        if (memberAccess.Name.Identifier.ValueText != "AddOverwriteAsync")
+        string methodName = memberAccess.Name.Identifier.ValueText;
+        if (!methods.TryGetValue(methodName, out string? typeName))
         {
             return;
         }
 
         TypeInfo typeInfo = ctx.SemanticModel.GetTypeInfo(memberAccess.Expression);
-        if (!ctx.Compilation.CheckByName(typeInfo, "DSharpPlus.Entities.DiscordChannel"))
+        if (!ctx.Compilation.CheckByName(typeInfo, typeName))
         {
             return;
         }
 
-        MethodDeclarationSyntax? method = FindMethodDecl(invocation);
-        if (method is null)
-        {
-            return;
-        }
-
-        string memberText = memberAccess.GetText().ToString();
-        if (!this.invocations.TryGetValue(method, out HashSet<string> hashSet))
-        {
-            this.invocations.Add(method, [memberText]);
-            return;
-        }
-
-        if (hashSet.Add(memberText))
+        StatementSyntax? syntax = FindClosestLoopStatement(invocation);
+        if (syntax is null)
         {
             return;
         }
@@ -97,24 +94,30 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
         Diagnostic diagnostic = Diagnostic.Create(
             rule,
             invocation.GetLocation(),
-            memberAccess.Expression
+            $"{memberAccess.Expression}.{preferedMethods[methodName]}()",
+            invocation
         );
         
         ctx.ReportDiagnostic(diagnostic);
     }
 
-    private MethodDeclarationSyntax? FindMethodDecl(SyntaxNode? syntax)
+    private StatementSyntax? FindClosestLoopStatement(SyntaxNode? syntax)
     {
         if (syntax is null)
         {
             return null;
         }
 
-        if (syntax is MethodDeclarationSyntax method)
+        if (syntax is ForEachStatementSyntax forEachStatement)
         {
-            return method;
+            return forEachStatement.Statement;
         }
 
-        return FindMethodDecl(syntax.Parent);
+        if (syntax is ForStatementSyntax forStatement)
+        {
+            return forStatement.Statement;
+        }
+
+        return FindClosestLoopStatement(syntax.Parent);
     }
 }
