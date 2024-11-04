@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace DSharpPlus.Analyzers.Core;
 
+// This should get redesigned when #2152 gets merged
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class HasPermissionAnalyzer : DiagnosticAnalyzer
 {
