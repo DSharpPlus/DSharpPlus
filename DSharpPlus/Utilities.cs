@@ -71,18 +71,6 @@ public static partial class Utilities
     internal static QueryUriBuilder GetApiUriBuilderFor(string path)
         => new($"{GetApiBaseUri()}{path}");
 
-    internal static string GetFormattedToken(BaseDiscordClient client) => GetFormattedToken(client.Configuration);
-
-    internal static string GetFormattedToken(DiscordConfiguration config)
-    {
-        return config.TokenType switch
-        {
-            TokenType.Bearer => $"Bearer {config.Token}",
-            TokenType.Bot => $"Bot {config.Token}",
-            _ => throw new ArgumentException("Invalid token type specified.", nameof(config)),
-        };
-    }
-
     internal static string GetUserAgent()
         => VersionHeader;
 
@@ -136,10 +124,12 @@ public static partial class Utilities
         }
     }
 
-    internal static IEnumerable<ulong> GetChannelMentions(DiscordMessage message)
+    internal static IEnumerable<ulong> GetChannelMentions(DiscordMessage message) => GetChannelMentions(message.Content);
+
+    internal static IEnumerable<ulong> GetChannelMentions(string messageContent)
     {
         Regex regex = ChannelMentionRegex();
-        MatchCollection matches = regex.Matches(message.Content);
+        MatchCollection matches = regex.Matches(messageContent);
         foreach (Match match in matches.Cast<Match>())
         {
             yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
@@ -271,7 +261,7 @@ public static partial class Utilities
             return PermissionStrings[perm];
         }
 
-        perm &= PermissionMethods.FULL_PERMS;
+        perm &= DiscordPermissions.All;
 
         IEnumerable<string> strs = PermissionStrings
             .Where(xkvp => xkvp.Key != DiscordPermissions.None && (perm & xkvp.Key) == xkvp.Key)

@@ -1,8 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -13,15 +18,12 @@ namespace DSharpPlus.Entities;
 public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<DiscordApplication>
 {
     /// <summary>
-    /// Gets the application's summary.
-    /// </summary>
-    public string? Summary { get; internal set; }
-
-    /// <summary>
     /// Gets the application's icon.
     /// </summary>
     public override string? Icon
-        => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png?size=1024" : null;
+        => !string.IsNullOrWhiteSpace(this.IconHash)
+            ? $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png?size=1024"
+            : null;
 
     /// <summary>
     /// Gets the application's icon hash.
@@ -80,14 +82,159 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     public DiscordTeam? Team { get; internal set; }
 
     /// <summary>
+    /// Public key used to verify http interactions
+    /// </summary>
+    public string VerifyKey { get; internal set; }
+
+    /// <summary>
+    /// Partial user object for the bot user associated with the app.
+    /// </summary>
+    public DiscordUser? Bot { get; internal set; }
+
+    /// <summary>
     /// Default scopes and permissions for each supported installation context.
     /// </summary>
-    [JsonProperty("integration_types_config")]
-    public IReadOnlyDictionary<DiscordApplicationIntegrationType, DiscordApplicationIntegrationTypeConfiguration?> IntegrationTypeConfigurations { get; internal set; }
+    public IReadOnlyDictionary<DiscordApplicationIntegrationType, DiscordApplicationIntegrationTypeConfiguration>? IntegrationTypeConfigurations { get; internal set; }
+
+    /// <summary>
+    /// Guild associated with the app. For example, a developer support server.
+    /// </summary>
+    public ulong? GuildId { get; internal set; }
+
+    /// <summary>
+    /// Partial object of the associated guild
+    /// </summary>
+    public DiscordGuild? Guild { get; internal set; }
+
+    /// <summary>
+    /// If this app is a game sold on Discord, this field will be the id of the "Game SKU" that is created, if exists
+    /// </summary>
+    public ulong? PrimarySkuId { get; internal set; }
+
+    /// <summary>
+    /// If this app is a game sold on Discord, this field will be the URL slug that links to the store page
+    /// </summary>
+    public string? Slug { get; internal set; }
+
+    /// <summary>
+    /// Approximate count of guilds the app has been added to
+    /// </summary>
+    public int? ApproximateGuildCount { get; internal set; }
+
+    /// <summary>
+    /// Approximate count of users that have installed the app
+    /// </summary>
+    public int? ApproximateUserInstallCount { get; internal set; }
+
+    /// <summary>
+    /// Array of redirect URIs for the app
+    /// </summary>
+    public string[] RedirectUris { get; internal set; }
+
+    /// <summary>
+    /// Interactions endpoint URL for the app
+    /// </summary>
+    public string? InteractionsEndpointUrl { get; internal set; }
+
+    /// <summary>
+    /// Interactions endpoint URL for the app
+    /// </summary>
+    public string? RoleConnectionsVerificationEndpointUrl { get; internal set; }
+
+    /// <summary>
+    /// List of tags describing the content and functionality of the app. Max of 5 tags.
+    /// </summary>
+    public string[]? Tags { get; internal set; }
+
+    /// <summary>
+    /// Settings for the app's default in-app authorization link, if enabled
+    /// </summary>
+    public DiscordApplicationOAuth2InstallParams? InstallParams { get; internal set; }
+
+
+    /// <summary>
+    /// Default custom authorization URL for the app, if enabled
+    /// </summary>
+    public string? CustomInstallUrl { get; internal set; }
 
     private IReadOnlyList<DiscordApplicationAsset>? Assets { get; set; }
 
     internal DiscordApplication() { }
+
+    internal DiscordApplication(TransportApplication transportApplication)
+    {
+        this.Id = transportApplication.Id;
+        this.Name = transportApplication.Name;
+        this.IconHash = transportApplication.IconHash;
+        this.Description = transportApplication.Description;
+        this.IsPublic = transportApplication.IsPublicBot;
+        this.RequiresCodeGrant = transportApplication.BotRequiresCodeGrant;
+        this.TermsOfServiceUrl = transportApplication.TermsOfServiceUrl;
+        this.PrivacyPolicyUrl = transportApplication.PrivacyPolicyUrl;
+        this.RpcOrigins = transportApplication.RpcOrigins != null
+            ? new ReadOnlyCollection<string>(transportApplication.RpcOrigins)
+            : null;
+        this.Flags = transportApplication.Flags;
+        this.CoverImageHash = transportApplication.CoverImageHash;
+        this.VerifyKey = transportApplication.VerifyKey;
+
+        this.Bot = transportApplication.Bot is null
+            ? null
+            : new DiscordUser(transportApplication.Bot)
+            {
+                Discord = this.Discord
+            };
+
+        this.GuildId = transportApplication.GuildId;
+        this.Guild = transportApplication.Guild;
+        if (this.Guild is not null)
+        {
+            this.Guild.Discord = this.Discord;
+        }
+
+        this.PrimarySkuId = transportApplication.PrimarySkuId;
+        this.Slug = transportApplication.Slug;
+        this.ApproximateGuildCount = transportApplication.ApproximateGuildCount;
+        this.ApproximateUserInstallCount = transportApplication.ApproximateUserInstallCount;
+        this.RedirectUris = transportApplication.RedirectUris;
+        this.InteractionsEndpointUrl = transportApplication.InteractionEndpointUrl;
+        this.RoleConnectionsVerificationEndpointUrl = transportApplication.RoleConnectionsVerificationUrl;
+        this.Tags = transportApplication.Tags;
+        this.InstallParams = transportApplication.InstallParams;
+        this.IntegrationTypeConfigurations = transportApplication.IntegrationTypeConfigurations;
+        this.CustomInstallUrl = transportApplication.CustomInstallUrl;
+
+
+        // do team and owners
+        // tbh fuck doing this properly
+        if (transportApplication.Team == null)
+        {
+            // singular owner
+
+            this.Owners = new ReadOnlyCollection<DiscordUser>(new[] { new DiscordUser(transportApplication.Owner) });
+            this.Team = null;
+        }
+        else
+        {
+            // team owner
+
+            this.Team = new DiscordTeam(transportApplication.Team);
+
+            DiscordTeamMember[] members = transportApplication.Team.Members
+                .Select(x => new DiscordTeamMember(x) { Team = this.Team, User = new DiscordUser(x.User) })
+                .ToArray();
+
+            DiscordUser[] owners = members
+                .Where(x => x.MembershipStatus == DiscordTeamMembershipStatus.Accepted)
+                .Select(x => x.User)
+                .ToArray();
+
+            this.Owners = new ReadOnlyCollection<DiscordUser>(owners);
+            this.Team.Owner = owners.FirstOrDefault(x => x.Id == transportApplication.Team.OwnerId);
+            this.Team.Members = new ReadOnlyCollection<DiscordTeamMember>(members);
+        }
+    }
+
 
     /// <summary>
     /// Gets the application's cover image URL, in requested format and size.
@@ -152,7 +299,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
 
     public string GenerateBotOAuth(DiscordPermissions permissions = DiscordPermissions.None)
     {
-        permissions &= PermissionMethods.FULL_PERMS;
+        permissions &= DiscordPermissions.All;
         // hey look, it's not all annoying and blue :P
         return new QueryUriBuilder("https://discord.com/oauth2/authorize")
             .AddParameter("client_id", this.Id.ToString(CultureInfo.InvariantCulture))
@@ -171,9 +318,10 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// </param>
     /// <param name="permissions">Permissions for your bot. Only required if the <seealso cref="DiscordOAuthScope.Bot"/> scope is passed.</param>
     /// <param name="scopes">OAuth scopes for your application.</param>
-    public string GenerateOAuthUri(string? redirectUri = null, DiscordPermissions? permissions = null, params DiscordOAuthScope[] scopes)
+    public string GenerateOAuthUri(string? redirectUri = null, DiscordPermissions? permissions = null,
+        params DiscordOAuthScope[] scopes)
     {
-        permissions &= PermissionMethods.FULL_PERMS;
+        permissions &= DiscordPermissions.All;
 
         StringBuilder scopeBuilder = new();
 
@@ -230,9 +378,9 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     public static bool operator ==(DiscordApplication right, DiscordApplication left)
     {
         return (right is not null || left is null)
-            && (right is null || left is not null)
-            && ((right is null && left is null)
-                || right!.Id == left!.Id);
+               && (right is null || left is not null)
+               && ((right is null && left is null)
+                   || right!.Id == left!.Id);
     }
 
     /// <summary>
@@ -271,4 +419,84 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         DiscordOAuthScope.RelationshipsRead => "relationships.read",
         _ => null
     };
+    
+    /// <summary>
+    /// List all stock keeping units belonging to this application
+    /// </summary>
+    /// <returns></returns>
+    public async ValueTask<IReadOnlyList<DiscordStockKeepingUnit>> ListStockKeepingUnitsAsync() 
+        => await this.Discord.ApiClient.ListStockKeepingUnitsAsync(this.Id);
+
+    /// <summary>
+    /// List all Entitlements belonging to this application.
+    /// </summary>
+    /// <param name="userId">Filters the entitlements by a user.</param>
+    /// <param name="skuIds">Filters the entitlements by specific SKUs.</param>
+    /// <param name="before">Filters the entitlements to be before a specific snowflake. Can be used to filter by time. Mutually exclusive with parameter "after"</param>
+    /// <param name="after">Filters the entitlements to be after a specific snowflake. Can be used to filter by time. Mutually exclusive with parameter "before"</param>
+    /// <param name="limit">Limits how many Entitlements should be returned. One API call per 100 entitlements</param>
+    /// <param name="guildId">Filters the entitlements by a specific Guild.</param>
+    /// <param name="excludeEnded">Wheter or not to return time limited entitlements which have ended</param>
+    /// <param name="cancellationToken">CT to cancel the method before the next api call</param>
+    /// <returns>Returns the list of entitlements fitting to the filters</returns>
+    /// <exception cref="ArgumentException">Thrown when both "before" and "after" is set</exception>
+    public async IAsyncEnumerable<DiscordEntitlement> ListEntitlementsAsync
+    (
+        ulong? userId = null,
+        IEnumerable<ulong>? skuIds = null,
+        ulong? before = null,
+        ulong? after = null,
+        int limit = 100,
+        ulong? guildId = null,
+        bool? excludeEnded = null,
+        [EnumeratorCancellation] 
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (before is not null && after is not null)
+        {
+            throw new ArgumentException("before and after are mutually exclusive.");
+        }
+        
+        bool isAscending = before is null;
+        
+        while (limit > 0 && !cancellationToken.IsCancellationRequested)
+        {
+            int entitlementsThisRequest = Math.Min(100, limit);
+            limit -= entitlementsThisRequest;
+            
+            IReadOnlyList<DiscordEntitlement> entitlements 
+                = await this.Discord.ApiClient.ListEntitlementsAsync(this.Id, userId, skuIds, before, after, guildId, excludeEnded, limit);
+
+            if (entitlements.Count == 0)
+            {
+                yield break;
+            }
+            
+            if (isAscending)
+            {
+                foreach (DiscordEntitlement entitlement in entitlements)
+                {
+                    yield return entitlement;
+                }
+                
+                after = entitlements.Last().Id;
+            }
+            else
+            {
+                for (int i = entitlements.Count - 1; i >= 0; i--)
+                {
+                    yield return entitlements[i];
+                }
+                
+                before = entitlements.First().Id;
+            }
+
+            if (entitlements.Count != entitlementsThisRequest)
+            {
+                yield break;
+            } 
+        }
+        
+    }
 }

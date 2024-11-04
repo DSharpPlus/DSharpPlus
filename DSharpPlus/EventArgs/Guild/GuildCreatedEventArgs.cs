@@ -3,7 +3,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.GuildCreated"/> event.
+/// Represents arguments for the GuildCreated event.
 /// </summary>
 public class GuildCreatedEventArgs : DiscordEventArgs
 {

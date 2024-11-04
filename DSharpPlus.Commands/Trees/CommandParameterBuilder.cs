@@ -1,17 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-
-using DSharpPlus.Commands.Processors.SlashCommands;
-using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
-using DSharpPlus.Commands.Trees.Metadata;
+using System.Text;
+using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Commands.Trees;
 
+[DebuggerDisplay("{ToString()}")]
 public partial class CommandParameterBuilder
 {
     public string? Name { get; set; }
@@ -19,17 +19,13 @@ public partial class CommandParameterBuilder
     public Type? Type { get; set; }
     public List<Attribute> Attributes { get; set; } = [];
     public Optional<object?> DefaultValue { get; set; } = Optional.FromNoValue<object?>();
+    public CommandBuilder? Parent { get; set; }
 
     public CommandParameterBuilder WithName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
             throw new ArgumentNullException(nameof(name), "The name of the command cannot be null or whitespace.");
-        }
-
-        if (!this.Attributes.Any(x => x is SnakeCasedNameAttribute))
-        {
-            this.Attributes.Add(new SnakeCasedNameAttribute(SlashCommandProcessor.ToSnakeCase(name)));
         }
 
         this.Name = name;
@@ -45,15 +41,6 @@ public partial class CommandParameterBuilder
     public CommandParameterBuilder WithType(Type type)
     {
         this.Type = type;
-
-        if (type.IsEnum || (type is { Namespace: "System", Name: "Nullable`1" } && type.GetGenericArguments()[0].IsEnum))
-        {
-            if (this.Attributes.All(attribute => attribute is not SlashChoiceProviderAttribute and not SlashAutoCompleteProviderAttribute))
-            {
-                this.Attributes.Add(new SlashChoiceProviderAttribute<EnumOptionProvider>());
-            }
-        }
-
         return this;
     }
 
@@ -70,6 +57,11 @@ public partial class CommandParameterBuilder
             {
                 WithDescription(descriptionAttribute.Description);
             }
+            else if (attribute is ParamArrayAttribute && !this.Attributes.Any(attribute => attribute is VariadicArgumentAttribute))
+            {
+                // Transform the params into a VariadicArgumentAttribute
+                listedAttributes.Add(new VariadicArgumentAttribute(int.MaxValue));
+            }
 
             listedAttributes.Add(attribute);
         }
@@ -84,8 +76,14 @@ public partial class CommandParameterBuilder
         return this;
     }
 
+    public CommandParameterBuilder WithParent(CommandBuilder parent)
+    {
+        this.Parent = parent;
+        return this;
+    }
+
     [MemberNotNull(nameof(Name), nameof(Description), nameof(Type), nameof(Attributes))]
-    public CommandParameter Build()
+    public CommandParameter Build(Command command)
     {
         ArgumentNullException.ThrowIfNull(this.Name, nameof(this.Name));
         ArgumentNullException.ThrowIfNull(this.Description, nameof(this.Description));
@@ -106,7 +104,8 @@ public partial class CommandParameterBuilder
             Description = this.Description,
             Type = this.Type,
             Attributes = this.Attributes,
-            DefaultValue = this.DefaultValue
+            DefaultValue = this.DefaultValue,
+            Parent = command,
         };
     }
 
@@ -142,5 +141,19 @@ public partial class CommandParameterBuilder
         }
 
         return commandParameterBuilder;
+    }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        StringBuilder stringBuilder = new();
+        if (this.Parent is not null)
+        {
+            stringBuilder.Append(this.Parent.FullName);
+            stringBuilder.Append('.');
+        }
+
+        stringBuilder.Append(this.Name ?? "Unnamed Parameter");
+        return stringBuilder.ToString();
     }
 }

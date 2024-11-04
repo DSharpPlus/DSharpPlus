@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
@@ -25,7 +24,7 @@ namespace DSharpPlus.CommandsNext;
 /// <summary>
 /// This is the class which handles command registration, management, and execution.
 /// </summary>
-public class CommandsNextExtension : BaseExtension
+public class CommandsNextExtension : IDisposable
 {
     private CommandsNextConfiguration Config { get; }
     private HelpFormatterFactory HelpFormatter { get; }
@@ -46,7 +45,6 @@ public class CommandsNextExtension : BaseExtension
     {
         this.Config = new CommandsNextConfiguration(cfg);
         this.TopLevelCommands = [];
-        this.registeredCommandsLazy = new Lazy<IReadOnlyDictionary<string, Command>>(() => new ReadOnlyDictionary<string, Command>(this.TopLevelCommands));
         this.HelpFormatter = new HelpFormatterFactory();
         this.HelpFormatter.SetFormatterType<DefaultHelpFormatter>();
 
@@ -147,7 +145,7 @@ public class CommandsNextExtension : BaseExtension
     /// <summary>
     /// Disposes of this the resources used by CNext.
     /// </summary>
-    public override void Dispose()
+    public void Dispose()
     {
         this.Config.CommandExecutor.Dispose();
 
@@ -161,28 +159,24 @@ public class CommandsNextExtension : BaseExtension
     /// </summary>
     /// <param name="client">DO NOT USE THIS MANUALLY.</param>
     /// <exception cref="InvalidOperationException"/>
-    protected internal override void Setup(DiscordClient client)
+    public void Setup(DiscordClient client)
     {
-        if (this.Client != null)
+        this.Client = client;
+
+        if (!Utilities.HasMessageIntents(client.Intents))
         {
-            throw new InvalidOperationException("What did I tell you?");
+            client.Logger.LogCritical(CommandsNextEvents.Intents, "The CommandsNext extension is registered but there are no message intents enabled. It is highly recommended to enable them.");
         }
 
-        this.Client = client;
+        if (!client.Intents.HasIntent(DiscordIntents.Guilds))
+        {
+            client.Logger.LogCritical(CommandsNextEvents.Intents, "The CommandsNext extension is registered but the guilds intent is not enabled. It is highly recommended to enable it.");
+        }
 
         DefaultClientErrorHandler errorHandler = new(client.Logger);
 
         this.executed = new AsyncEvent<CommandsNextExtension, CommandExecutionEventArgs>(errorHandler);
         this.error = new AsyncEvent<CommandsNextExtension, CommandErrorEventArgs>(errorHandler);
-
-        if (this.Config.UseDefaultCommandHandler)
-        {
-            this.Client.MessageCreated += HandleCommandsAsync;
-        }
-        else
-        {
-            this.Client.Logger.LogWarning(CommandsNextEvents.Misc, "Not attaching default command handler - if this is intentional, you can ignore this message");
-        }
 
         if (this.Config.EnableDefaultHelp)
         {
@@ -215,7 +209,7 @@ public class CommandsNextExtension : BaseExtension
     #endregion
 
     #region Command Handling
-    private async Task HandleCommandsAsync(DiscordClient sender, MessageCreatedEventArgs e)
+    internal async Task HandleCommandsAsync(DiscordClient sender, MessageCreatedEventArgs e)
     {
         if (e.Author.IsBot) // bad bot
         {
@@ -431,10 +425,10 @@ public class CommandsNextExtension : BaseExtension
     /// Gets a dictionary of registered top-level commands.
     /// </summary>
     public IReadOnlyDictionary<string, Command> RegisteredCommands
-        => this.registeredCommandsLazy.Value;
+        => this.TopLevelCommands;
 
     private Dictionary<string, Command> TopLevelCommands { get; set; }
-    private readonly Lazy<IReadOnlyDictionary<string, Command>> registeredCommandsLazy;
+    public DiscordClient Client { get; private set; }
 
     /// <summary>
     /// Registers all commands from a given assembly. The command classes need to be public to be considered for registration.
@@ -987,7 +981,7 @@ public class CommandsNextExtension : BaseExtension
             if (msg.Channel.Guild != null)
             {
                 mentionedUsers = Utilities.GetUserMentions(msg).Select(xid => msg.Channel.Guild.members.TryGetValue(xid, out DiscordMember? member) ? member : null).Cast<DiscordUser>().ToList();
-                mentionedRoles = Utilities.GetRoleMentions(msg).Select(xid => msg.Channel.Guild.GetRole(xid)).ToList();
+                mentionedRoles = Utilities.GetRoleMentions(msg).Select(xid => msg.Channel.Guild.roles.GetValueOrDefault(xid)!).ToList();
                 mentionedChannels = Utilities.GetChannelMentions(msg).Select(xid => msg.Channel.Guild.GetChannel(xid)).ToList();
             }
             else

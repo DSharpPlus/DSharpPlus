@@ -2,9 +2,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using DSharpPlus.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
 
@@ -197,6 +199,28 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
             if (!exemptFromGlobalLimit)
             {
                 UpdateRateLimitBuckets(outcome.Result, hash, route, traceId);
+            }
+
+            if (outcome.Result?.StatusCode == HttpStatusCode.TooManyRequests)
+            {
+                string resetAfterRaw = outcome.Result.Headers.GetValues("X-RateLimit-Reset-After").Single();
+                TimeSpan resetAfter = TimeSpan.FromSeconds(double.Parse(resetAfterRaw));
+
+                string traceIdString = "";
+                if (this.logger.IsEnabled(LogLevel.Trace))
+                {
+                    traceIdString = $"Request ID:{traceId}: ";
+                }
+
+                this.logger.LogWarning
+                (
+                    "{TraceId}Hit Discord ratelimit on route {Route}, waiting for {ResetAfter}",
+                    traceIdString,
+                    route,
+                    resetAfter
+                );
+
+                return Outcome.FromException<HttpResponseMessage>(new RetryableRatelimitException(resetAfter));
             }
 
             return outcome;

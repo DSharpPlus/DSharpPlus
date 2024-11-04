@@ -72,7 +72,7 @@ public class DiscordOverwrite : SnowflakeObject
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordRole> GetRoleAsync() => this.Type != DiscordOverwriteType.Role
             ? throw new ArgumentException(nameof(this.Type), "This overwrite is for a member, not a role.")
-            : (await this.Discord.ApiClient.GetChannelAsync(this.channelId)).Guild.GetRole(this.Id);
+            : await (await this.Discord.ApiClient.GetChannelAsync(this.channelId)).Guild.GetRoleAsync(this.Id);
 
     internal DiscordOverwrite() { }
 

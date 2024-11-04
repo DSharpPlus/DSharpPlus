@@ -10,8 +10,7 @@ public interface IContextCheck;
 /// <summary>
 /// Represents a base interface for context checks to implement.
 /// </summary>
-public interface IContextCheck<TAttribute> : IContextCheck
-    where TAttribute : ContextCheckAttribute
+public interface IContextCheck<TAttribute> : IContextCheck where TAttribute : ContextCheckAttribute
 {
     /// <summary>
     /// Executes the check given the attribute.

@@ -20,29 +20,60 @@ public sealed class DiscordAutoCompleteChoice
     [JsonProperty("value")]
     public object Value { get; internal set; }
 
+    [JsonConstructor]
+    private DiscordAutoCompleteChoice()
+    {
+        this.Name = null!;
+        this.Value = null!;
+    }
+
     /// <summary>
     /// Creates a new instance of <see cref="DiscordAutoCompleteChoice"/>.
     /// </summary>
-    /// <param name="name">The name of this option, which will be presented to the user.</param>
-    /// <param name="value">The value of this option.</param>
-    public DiscordAutoCompleteChoice(string name, object value)
+    private DiscordAutoCompleteChoice(string name)
     {
-        if (value is not (string or int or long))
+        if (name.Length is < 1 or > 100)
         {
-            throw new ArgumentException($"Object type must be of {typeof(int)} or {typeof(string)} or {typeof(long)}", nameof(value));
-        }
-
-        if (name.Length > 100)
-        {
-            throw new ArgumentException("Application command choice name cannot exceed 100 characters.", nameof(name));
-        }
-
-        if (value is string val && val.Length > 100)
-        {
-            throw new ArgumentException("Application command choice value cannot exceed 100 characters.", nameof(value));
+            throw new ArgumentException(
+                "Application command choice name cannot be empty or exceed 100 characters.",
+                nameof(name)
+            );
         }
 
         this.Name = name;
+        this.Value = null!;
+    }
+
+    /// <inheritdoc cref="DiscordAutoCompleteChoice(string)"/>
+    /// <param name="name">The name of this option, which will be presented to the user.</param>
+    /// <param name="value">The value of this option.</param>
+    public DiscordAutoCompleteChoice(string name, string value)
+        : this(name)
+    {
+        if (value.Length > 100)
+        {
+            throw new ArgumentException(
+                "Application command choice value cannot exceed 100 characters.",
+                nameof(value)
+            );
+        }
+
         this.Value = value;
     }
+
+    /// <inheritdoc cref="DiscordAutoCompleteChoice(string, string)"/>
+    public DiscordAutoCompleteChoice(string name, int value)
+        : this(name) => this.Value = value;
+
+    /// <inheritdoc cref="DiscordAutoCompleteChoice(string, string)"/>
+    public DiscordAutoCompleteChoice(string name, long value)
+        : this(name) => this.Value = value;
+
+    /// <inheritdoc cref="DiscordAutoCompleteChoice(string, string)"/>
+    public DiscordAutoCompleteChoice(string name, double value)
+        : this(name) => this.Value = value;
+
+    /// <inheritdoc cref="DiscordAutoCompleteChoice(string, string)"/>
+    public DiscordAutoCompleteChoice(string name, float value)
+        : this(name) => this.Value = value;
 }

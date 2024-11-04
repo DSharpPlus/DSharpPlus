@@ -245,7 +245,7 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
             return $"https://cdn.discordapp.com/embed/{Endpoints.AVATARS}/{defaultAvatarType}.{stringImageFormat}?size={stringImageSize}";
         }
     }
-    
+
     /// <summary>
     /// Creates a direct message channel to this member.
     /// </summary>
@@ -258,13 +258,18 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async ValueTask<DiscordDmChannel> CreateDmChannelAsync()
+    public async ValueTask<DiscordDmChannel> CreateDmChannelAsync(bool skipCache = false)
     {
+        if (!skipCache)
+        {
+            return await this.Discord.ApiClient.CreateDmAsync(this.Id);
+        }
+
         DiscordDmChannel? dm = default;
 
         if (this.Discord is DiscordClient dc)
         {
-            dm = dc.privateChannels.Values.FirstOrDefault(x => x.Recipients.FirstOrDefault(y => y.Id == this.Id) is not null);
+            dm = dc.privateChannels.Values.FirstOrDefault(x => x.Recipients.FirstOrDefault(y => y is not null && y.Id == this.Id) is not null);
         }
 
         return dm ?? await this.Discord.ApiClient.CreateDmAsync(this.Id);
@@ -374,47 +379,40 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     public override string ToString() => $"User {this.Id}; {this.Username}#{this.Discriminator}";
 
     /// <summary>
-    /// Checks whether this <see cref="DiscordUser"/> is equal to another object.
-    /// </summary>
-    /// <param name="obj">Object to compare to.</param>
-    /// <returns>Whether the object is equal to this <see cref="DiscordUser"/>.</returns>
-    public override bool Equals(object obj) => Equals(obj as DiscordUser);
-
-    /// <summary>
-    /// Checks whether this <see cref="DiscordUser"/> is equal to another <see cref="DiscordUser"/>.
-    /// </summary>
-    /// <param name="e"><see cref="DiscordUser"/> to compare to.</param>
-    /// <returns>Whether the <see cref="DiscordUser"/> is equal to this <see cref="DiscordUser"/>.</returns>
-    public bool Equals(DiscordUser e) => e is not null && (ReferenceEquals(this, e) || this.Id == e.Id);
-
-    /// <summary>
     /// Gets the hash code for this <see cref="DiscordUser"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="DiscordUser"/>.</returns>
     public override int GetHashCode() => this.Id.GetHashCode();
 
     /// <summary>
+    /// Checks whether this <see cref="DiscordUser"/> is equal to another object.
+    /// </summary>
+    /// <param name="obj">Object to compare to.</param>
+    /// <returns>Whether the object is equal to this <see cref="DiscordUser"/>.</returns>
+    public override bool Equals(object? obj) => Equals(obj as DiscordUser);
+
+    /// <summary>
+    /// Checks whether this <see cref="DiscordUser"/> is equal to another <see cref="DiscordUser"/>.
+    /// </summary>
+    /// <param name="other"><see cref="DiscordUser"/> to compare to.</param>
+    /// <returns>Whether the <see cref="DiscordUser"/> is equal to this <see cref="DiscordUser"/>.</returns>
+    public bool Equals(DiscordUser? other) => this.Id == other?.Id;
+
+    /// <summary>
     /// Gets whether the two <see cref="DiscordUser"/> objects are equal.
     /// </summary>
-    /// <param name="e1">First user to compare.</param>
-    /// <param name="e2">Second user to compare.</param>
+    /// <param name="obj">First user to compare.</param>
+    /// <param name="other">Second user to compare.</param>
     /// <returns>Whether the two users are equal.</returns>
-    public static bool operator ==(DiscordUser e1, DiscordUser e2)
-    {
-        object? o1 = e1;
-        object? o2 = e2;
-
-        return (o1 != null || o2 == null) && (o1 == null || o2 != null) && ((o1 == null && o2 == null) || e1.Id == e2.Id);
-    }
+    public static bool operator ==(DiscordUser? obj, DiscordUser? other) => obj?.Equals(other) ?? other is null;
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordUser"/> objects are not equal.
     /// </summary>
-    /// <param name="e1">First user to compare.</param>
-    /// <param name="e2">Second user to compare.</param>
+    /// <param name="obj">First user to compare.</param>
+    /// <param name="other">Second user to compare.</param>
     /// <returns>Whether the two users are not equal.</returns>
-    public static bool operator !=(DiscordUser e1, DiscordUser e2)
-        => !(e1 == e2);
+    public static bool operator !=(DiscordUser? obj, DiscordUser? other) => !(obj == other);
 }
 
 internal class DiscordUserComparer : IEqualityComparer<DiscordUser>

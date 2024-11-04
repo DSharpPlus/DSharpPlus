@@ -13,7 +13,7 @@ internal sealed class ClientProperties
     /// <summary>
     /// Gets the client's operating system.
     /// </summary>
-    [JsonProperty("$os"), SuppressMessage("Quality Assurance", "CA1822:Mark members as static", Justification = "This is a JSON-serializable object.")]
+    [JsonProperty("os"), SuppressMessage("Quality Assurance", "CA1822:Mark members as static", Justification = "This is a JSON-serializable object.")]
     public string OperatingSystem
     {
         get
@@ -51,7 +51,7 @@ internal sealed class ClientProperties
     /// <summary>
     /// Gets the client's browser.
     /// </summary>
-    [JsonProperty("$browser"), SuppressMessage("Quality Assurance", "CA1822:Mark members as static", Justification = "This is a JSON-serializable object.")]
+    [JsonProperty("browser"), SuppressMessage("Quality Assurance", "CA1822:Mark members as static", Justification = "This is a JSON-serializable object.")]
     public string Browser
     {
         get
@@ -65,21 +65,7 @@ internal sealed class ClientProperties
     /// <summary>
     /// Gets the client's device.
     /// </summary>
-    [JsonProperty("$device")]
+    [JsonProperty("device")]
     public string Device
         => this.Browser;
-
-    /// <summary>
-    /// Gets the client's referrer.
-    /// </summary>
-    [JsonProperty("$referrer"), SuppressMessage("Quality Assurance", "CA1822:Mark members as static", Justification = "This is a JSON-serializable object.")]
-    public string Referrer
-        => "";
-
-    /// <summary>
-    /// Gets the client's referring domain.
-    /// </summary>
-    [JsonProperty("$referring_domain"), SuppressMessage("Quality Assurance", "CA1822:Mark members as static", Justification = "This is a JSON-serializable object.")]
-    public string ReferringDomain
-        => "";
 }

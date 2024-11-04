@@ -7,13 +7,13 @@ namespace DSharpPlus.Commands.Processors.TextCommands.Parsing;
 
 public delegate ValueTask<int> ResolvePrefixDelegateAsync(CommandsExtension extension, DiscordMessage message);
 
-public sealed class DefaultPrefixResolver
+public sealed class DefaultPrefixResolver : IPrefixResolver
 {
     /// <summary>
     /// Prefixes which will trigger command execution
     /// </summary>
     public string[] Prefixes { get; init; }
-    
+
     /// <summary>
     /// Setting if a mention will trigger command execution
     /// </summary>

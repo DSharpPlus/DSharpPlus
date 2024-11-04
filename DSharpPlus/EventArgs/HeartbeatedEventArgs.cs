@@ -3,8 +3,9 @@ using System;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.Heartbeated"/> event.
+/// Represents arguments for Heartbeated event.
 /// </summary>
+[Obsolete("This event is obsolete and wont be invoked. Use IGatewayController.HeartbeatedAsync instead")]
 public class HeartbeatedEventArgs : DiscordEventArgs
 {
     /// <summary>

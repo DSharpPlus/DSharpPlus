@@ -4,7 +4,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.MessageUpdated"/> event.
+/// Represents arguments for MessageUpdated event.
 /// </summary>
 public class MessageUpdatedEventArgs : DiscordEventArgs
 {
@@ -16,7 +16,7 @@ public class MessageUpdatedEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the message before it got updated. This property will be null if the message was not cached.
     /// </summary>
-    public DiscordMessage MessageBefore { get; internal set; }
+    public DiscordMessage? MessageBefore { get; internal set; }
 
     /// <summary>
     /// Gets the channel this message belongs to.
@@ -45,7 +45,7 @@ public class MessageUpdatedEventArgs : DiscordEventArgs
     /// Gets the collection of mentioned roles.
     /// </summary>
     /// <remarks>
-    /// Only shows the mentioned roles from <see cref="DiscordClient.MessageCreated" />. EDITS ARE NOT INCLUDED.
+    /// Only shows the mentioned roles from MessageCreated. EDITS ARE NOT INCLUDED.
     /// </remarks>
     public IReadOnlyList<DiscordRole> MentionedRoles { get; internal set; }
 

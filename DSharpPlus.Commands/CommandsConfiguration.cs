@@ -19,7 +19,7 @@ public sealed record CommandsConfiguration
     /// Whether to register default command processors when they're not found in the processor list.
     /// </summary>
     /// <remarks>
-    /// You may still provide your own custom processors via <see cref="CommandsExtension.AddProcessorsAsync(Processors.ICommandProcessor[])"/>,
+    /// You may still provide your own custom processors via <see cref="CommandsExtension.AddProcessors(Processors.ICommandProcessor[])"/>,
     /// as this configuration option will only add the default processors if they're not found in the list.
     /// </remarks>
     public bool RegisterDefaultCommandProcessors { get; set; } = true;

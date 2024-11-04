@@ -1,8 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
+
+using DSharpPlus.Extensions;
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.SlashCommands;
 
@@ -12,78 +14,31 @@ namespace DSharpPlus.SlashCommands;
 public static class ExtensionMethods
 {
     /// <summary>
-    /// Enables slash commands on this <see cref="DiscordClient"/>.
+    /// Adds the slash commands extension to the provided service collection.
     /// </summary>
-    /// <param name="client">Client to enable slash commands for.</param>
-    /// <param name="config">Configuration to use.</param>
-    /// <returns>Created <see cref="SlashCommandsExtension"/>.</returns>
+    /// <param name="services">The service collection to register into.</param>
+    /// <param name="setup">Any setup code you want to run on the extension, such as registering commands.</param>
+    /// <returns>The same service collection for chaining.</returns>
     [Obsolete("DSharpPlus.SlashCommands is obsolete. Please consider using the new DSharpPlus.Commands extension instead.")]
-    public static SlashCommandsExtension UseSlashCommands(this DiscordClient client, SlashCommandsConfiguration config = null)
+    public static IServiceCollection AddSlashCommandsExtension
+    (
+        this IServiceCollection services,
+        Action<SlashCommandsExtension> setup
+    )
     {
-        if (client.GetExtension<SlashCommandsExtension>() != null)
-        {
-            throw new InvalidOperationException("Slash commands are already enabled for that client.");
-        }
+        services.ConfigureEventHandlers(b => b.AddEventHandlers<SlashCommandsEventHandler>())
+            .AddSingleton(provider =>
+            {
+                DiscordClient client = provider.GetRequiredService<DiscordClient>();
 
-        SlashCommandsExtension scomm = new(config);
-        client.AddExtension(scomm);
-        return scomm;
-    }
+                SlashCommandsExtension extension = new(provider);
+                extension.Setup(client);
+                setup(extension);
 
-    /// <summary>
-    /// Gets the slash commands module for this client.
-    /// </summary>
-    /// <param name="client">Client to get slash commands for.</param>
-    /// <returns>The module, or null if not activated.</returns>
-    public static SlashCommandsExtension GetSlashCommands(this DiscordClient client)
-        => client.GetExtension<SlashCommandsExtension>();
+                return extension;
+            });
 
-    /// <summary>
-    /// Enables slash commands on this <see cref="DiscordShardedClient"/>.
-    /// </summary>
-    /// <param name="client">Client to enable slash commands on.</param>
-    /// <param name="config">Configuration to use.</param>
-    /// <returns>A dictionary of created <see cref="SlashCommandsExtension"/> with the key being the shard id.</returns>
-    [Obsolete("DSharpPlus.SlashCommands is obsolete. Please consider using the new DSharpPlus.Commands extension instead.")]
-    public static async Task<IReadOnlyDictionary<int, SlashCommandsExtension>> UseSlashCommandsAsync(this DiscordShardedClient client, SlashCommandsConfiguration config = null)
-    {
-        Dictionary<int, SlashCommandsExtension> modules = [];
-        await client.InitializeShardsAsync();
-        foreach (DiscordClient shard in client.ShardClients.Values)
-        {
-            SlashCommandsExtension? scomm = shard.GetSlashCommands() ?? shard.UseSlashCommands(config);
-            modules[shard.ShardId] = scomm;
-        }
-
-        return modules;
-    }
-
-    /// <summary>
-    /// Registers a commands class.
-    /// </summary>
-    /// <typeparam name="T">The command class to register.</typeparam>
-    /// <param name="modules">The modules to register it on.</param>
-    /// <param name="guildId">The guild id to register it on. If you want global commands, leave it null.</param>
-    public static void RegisterCommands<T>(this IReadOnlyDictionary<int, SlashCommandsExtension> modules, ulong? guildId = null) where T : ApplicationCommandModule
-    {
-        foreach (SlashCommandsExtension module in modules.Values)
-        {
-            module.RegisterCommands<T>(guildId);
-        }
-    }
-
-    /// <summary>
-    /// Registers a command class.
-    /// </summary>
-    /// <param name="modules">The modules to register it on.</param>
-    /// <param name="type">The <see cref="Type"/> of the command class to register.</param>
-    /// <param name="guildId">The guild id to register it on. If you want global commands, leave it null.</param>
-    public static void RegisterCommands(this IReadOnlyDictionary<int, SlashCommandsExtension> modules, Type type, ulong? guildId = null)
-    {
-        foreach (SlashCommandsExtension module in modules.Values)
-        {
-            module.RegisterCommands(type, guildId);
-        }
+        return services;
     }
 
     /// <summary>

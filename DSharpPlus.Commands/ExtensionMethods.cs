@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using DSharpPlus.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.Commands;
 
@@ -13,74 +11,57 @@ namespace DSharpPlus.Commands;
 public static class ExtensionMethods
 {
     /// <summary>
-    /// Registers the extension with the <see cref="DiscordClient"/>.
+    /// Registers the extension with the <see cref="DiscordClientBuilder"/>.
     /// </summary>
-    /// <param name="client">The client to register the extension with.</param>
+    /// <param name="builder">The client builder to register the extension with.</param>
+    /// <param name="setup">Any setup code you want to run on the extension, such as registering commands and converters.</param>
     /// <param name="configuration">The configuration to use for the extension.</param>
-    public static CommandsExtension UseCommands(this DiscordClient client, CommandsConfiguration? configuration = null)
-    {
-        if (client is null)
-        {
-            throw new ArgumentNullException(nameof(client));
-        }
-        else if (client.GetExtension<CommandsExtension>() is not null)
-        {
-            throw new InvalidOperationException("Commands extension is already initialized.");
-        }
+    public static DiscordClientBuilder UseCommands(
+        this DiscordClientBuilder builder,
+        Action<IServiceProvider, CommandsExtension> setup,
+        CommandsConfiguration? configuration = null
+    ) => builder.ConfigureServices(services => services.AddCommandsExtension(setup, configuration));
 
-        CommandsExtension extension = new(configuration ?? new());
-        client.AddExtension(extension);
-        return extension;
+    /// <summary>
+    /// Registers the commands extension with an <see cref="IServiceCollection"/>.
+    /// </summary>
+    /// <param name="services">The service collection to register the extension with.</param>
+    /// <param name="setup">Any setup code you want to run on the extension, such as registering commands and converters.</param>
+    /// <param name="configuration">The configuration to use for the extension.</param>
+    public static IServiceCollection AddCommandsExtension(
+        this IServiceCollection services,
+        Action<IServiceProvider, CommandsExtension> setup,
+        CommandsConfiguration? configuration = null
+    )
+    {
+        AddCommandsExtension(services, setup, _ => configuration ?? new CommandsConfiguration());
+        return services;
     }
 
-    /// <summary>
-    /// Registers the extension with all the shards on the <see cref="DiscordShardedClient"/>.
-    /// </summary>
-    /// <param name="shardedClient">The client to register the extension with.</param>
-    /// <param name="configuration">The configuration to use for the extension.</param>
-    public static async Task<IReadOnlyDictionary<int, CommandsExtension>> UseCommandsAsync(this DiscordShardedClient shardedClient, CommandsConfiguration? configuration = null)
+    /// <inheritdoc cref="AddCommandsExtension(IServiceCollection, Action{IServiceProvider, CommandsExtension}, CommandsConfiguration?)"/>
+    public static IServiceCollection AddCommandsExtension(
+        this IServiceCollection services,
+        Action<IServiceProvider, CommandsExtension> setup,
+        Func<IServiceProvider, CommandsConfiguration> configurationFactory
+    )
     {
-        ArgumentNullException.ThrowIfNull(shardedClient);
-
-        await shardedClient.InitializeShardsAsync();
-        configuration ??= new();
-
-        Dictionary<int, CommandsExtension> extensions = [];
-        foreach (DiscordClient shard in shardedClient.ShardClients.Values)
-        {
-            extensions[shard.ShardId] = shard.GetExtension<CommandsExtension>() ?? shard.UseCommands(configuration);
-        }
-
-        return extensions.AsReadOnly();
-    }
-
-    /// <summary>
-    /// Retrieves the <see cref="CommandsExtension"/> from the <see cref="DiscordClient"/>.
-    /// </summary>
-    /// <param name="client">The client to retrieve the extension from.</param>
-    public static CommandsExtension? GetCommandsExtension(this DiscordClient client) => client is null
-        ? throw new ArgumentNullException(nameof(client))
-        : client.GetExtension<CommandsExtension>();
-
-    /// <summary>
-    /// Retrieves the <see cref="CommandsExtension"/> from all of the shards on <see cref="DiscordShardedClient"/>.
-    /// </summary>
-    /// <param name="shardedClient">The client to retrieve the extension from.</param>
-    public static IReadOnlyDictionary<int, CommandsExtension> GetCommandsExtensions(this DiscordShardedClient shardedClient)
-    {
-        ArgumentNullException.ThrowIfNull(shardedClient);
-
-        Dictionary<int, CommandsExtension> extensions = [];
-        foreach (DiscordClient shard in shardedClient.ShardClients.Values)
-        {
-            CommandsExtension? extension = shard.GetExtension<CommandsExtension>();
-            if (extension is not null)
+        services
+            .ConfigureEventHandlers(eventHandlingBuilder =>
+                eventHandlingBuilder
+                    .AddEventHandlers<RefreshEventHandler>(ServiceLifetime.Singleton)
+                    .AddEventHandlers<ProcessorInvokingHandlers>(ServiceLifetime.Transient)
+            )
+            .AddSingleton(provider =>
             {
-                extensions[shard.ShardId] = extension;
-            }
-        }
+                DiscordClient client = provider.GetRequiredService<DiscordClient>();
+                CommandsConfiguration configuration = configurationFactory(provider);
+                CommandsExtension extension = new(configuration);
+                extension.Setup(client);
+                setup(provider, extension);
+                return extension;
+            });
 
-        return extensions.AsReadOnly();
+        return services;
     }
 
     /// <inheritdoc cref="Array.IndexOf{T}(T[], T)"/>

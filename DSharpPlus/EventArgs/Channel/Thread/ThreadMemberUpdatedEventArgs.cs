@@ -3,7 +3,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs;
 
 /// <summary>
-/// Represents arguments for <see cref="DiscordClient.ThreadMemberUpdated"/> event.
+/// Represents arguments for ThreadMemberUpdated event.
 /// </summary>
 public class ThreadMemberUpdatedEventArgs : DiscordEventArgs
 {

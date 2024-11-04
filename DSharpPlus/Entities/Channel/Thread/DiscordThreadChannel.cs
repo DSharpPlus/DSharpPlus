@@ -58,6 +58,11 @@ public class DiscordThreadChannel : DiscordChannel
             ? parent.AvailableTags.Where(pt => this.appliedTagIds.Contains(pt.Id)).ToArray()
             : [];
 
+    /// <summary>
+    /// Gets the IDs of the tags applied to this forum post.
+    /// </summary>
+    public IReadOnlyList<ulong> AppliedTagIds => this.appliedTagIds;
+
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value null
     // Justification: Used by JSON.NET
     [JsonProperty("applied_tags")]
@@ -82,7 +87,7 @@ public class DiscordThreadChannel : DiscordChannel
 
     /// <summary>
     /// Returns a full list of the thread members in this thread.
-    /// Requires the <see cref="DiscordIntents.GuildMembers"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+    /// Requires the <see cref="DiscordIntents.GuildMembers"/> intent specified in <see cref="BaseDiscordClient.Intents"/>
     /// </summary>
     /// <returns>A collection of all threads members in this thread.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -59,6 +58,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         this.Timestamp = other.Timestamp;
         this.WebhookId = other.WebhookId;
         this.ApplicationId = other.ApplicationId;
+        this.Components = other.Components;
     }
 
     /// <summary>
@@ -67,7 +67,13 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     [JsonIgnore]
     public DiscordChannel? Channel
     {
-        get => (this.Discord as DiscordClient)?.InternalGetCachedChannel(this.ChannelId) ?? (this.Discord as DiscordClient)?.InternalGetCachedThread(this.ChannelId) ?? this.channel;
+        get
+        {
+            DiscordClient? client = this.Discord as DiscordClient;
+
+            return client?.InternalGetCachedChannel(this.ChannelId, this.guildId) ??
+                   client?.InternalGetCachedThread(this.ChannelId, this.guildId) ?? this.channel;
+        }
         internal set => this.channel = value;
     }
 
@@ -83,7 +89,13 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Gets the components this message was sent with.
     /// </summary>
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyList<DiscordActionRowComponent>? Components { get; internal set; }
+    public IReadOnlyList<DiscordComponent>? Components { get; internal set; }
+
+    /// <summary>
+    /// Gets the action rows this message was sent with - components holding buttons, selects and the likes.
+    /// </summary>
+    public IReadOnlyList<DiscordActionRowComponent>? ComponentActionRows
+        => this.Components?.Where(x => x is DiscordActionRowComponent).Cast<DiscordActionRowComponent>().ToList();
 
     /// <summary>
     /// Gets the user or member that sent the message.
@@ -289,6 +301,12 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     public DiscordMessage? ReferencedMessage { get; internal set; }
 
     /// <summary>
+    /// Gets the message object for the referenced message
+    /// </summary>
+    [JsonProperty("message_snapshots", NullValueHandling = NullValueHandling.Ignore)]
+    public IReadOnlyList<DiscordMessageSnapshot>? MessageSnapshots { get; internal set; }
+
+    /// <summary>
     /// Gets the poll object for the message.
     /// </summary>
     [JsonProperty("poll", NullValueHandling = NullValueHandling.Ignore)]
@@ -326,7 +344,9 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
                 };
         }
 
-        DiscordChannel channel = client.InternalGetCachedChannel(channelId!.Value);
+        DiscordChannel? channel = client.InternalGetCachedChannel(channelId!.Value, this.guildId);
+
+        reference.Type = this.internalReference?.Type;
 
         if (channel is null)
         {
@@ -424,12 +444,41 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         if (guild is not null && !string.IsNullOrWhiteSpace(this.Content))
         {
             this.mentionedChannels = this.mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(guild.GetChannel)).ToList();
-            this.mentionedRoles = this.mentionedRoles.Union(this.mentionedRoleIds.Select(guild.GetRole)).ToList();
+            this.mentionedRoles = this.mentionedRoles.Union(this.mentionedRoleIds.Select(x => guild.roles.GetValueOrDefault(x)!)).ToList();
 
             //uncomment if this breaks
             //mentionedUsers.UnionWith(Utilities.GetUserMentions(this).Select(this.Discord.GetCachedOrEmptyUserInternal));
             //this.mentionedRoles = this.mentionedRoles.Union(Utilities.GetRoleMentions(this).Select(xid => guild.GetRole(xid))).ToList();
         }
+    }
+
+    /// <summary>
+    /// Searches the components on this message for an aggregate of all components of a certain type.
+    /// </summary>
+    public IReadOnlyList<T> FilterComponents<T>()
+        where T : DiscordComponent
+    {
+        List<T> components = [];
+
+        foreach (DiscordComponent component in this.Components)
+        {
+            if (component is DiscordActionRowComponent actionRowComponent)
+            {
+                foreach (DiscordComponent subComponent in actionRowComponent.Components)
+                {
+                    if (subComponent is T filteredComponent)
+                    {
+                        components.Add(filteredComponent);
+                    }
+                }
+            }
+            else if (component is T filteredComponent)
+            {
+                components.Add(filteredComponent);
+            }
+        }
+
+        return components;
     }
 
     /// <summary>
@@ -683,15 +732,54 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <summary>
     /// Gets users that reacted with this emoji.
     /// </summary>
-    /// <param name="emoji">Emoji to react with.</param>
-    /// <param name="limit">Limit of users to fetch.</param>
-    /// <param name="after">Fetch users after this user's id.</param>
+    /// <param name="emoji">The emoji those users reacted with.</param>
+    /// <param name="cancellationToken">Cancels enumeration before the next API request.</param>
     /// <returns></returns>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null)
-        => GetReactionsInternalAsync(emoji, limit, after);
+    public async IAsyncEnumerable<DiscordUser> GetReactionsAsync
+    (
+        DiscordEmoji emoji,
+
+        [EnumeratorCancellation]
+        CancellationToken cancellationToken = default
+    )
+    {
+        // the API request limit is 100, the default is 25
+        int receivedOnLastCall = 100;
+        ulong? last = null;
+
+        while (receivedOnLastCall == 100)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                yield break;
+            }
+
+            IReadOnlyList<DiscordUser> users = await this.Discord.ApiClient.GetReactionsAsync
+             (
+                channelId: this.ChannelId,
+                messageId: this.Id,
+                emoji: emoji.ToReactionString(),
+                afterId: last,
+                limit: 100
+             );
+
+            receivedOnLastCall = users.Count;
+
+            foreach (DiscordUser user in users)
+            {
+                user.Discord = this.Discord;
+
+                _ = this.Discord.UpdateUserCache(user);
+
+                yield return user;
+            }
+
+            last = users.LastOrDefault()?.Id;
+        }
+    }
 
     /// <summary>
     /// Deletes all reactions for this message.
@@ -716,6 +804,20 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task DeleteReactionsEmojiAsync(DiscordEmoji emoji)
         => await this.Discord.ApiClient.DeleteReactionsEmojiAsync(this.ChannelId, this.Id, emoji.ToReactionString());
+
+    /// <summary>
+    /// Forwards a message to the specified channel.
+    /// </summary>
+    /// <returns>The forwarded message belonging to the specified channel.</returns>
+    public async Task<DiscordMessage> ForwardAsync(DiscordChannel target)
+        => await ForwardAsync(target.Id);
+
+    /// <summary>
+    /// Forwards a message to the specified channel.
+    /// </summary>
+    /// <returns>The forwarded message belonging to the specified channel.</returns>
+    public async Task<DiscordMessage> ForwardAsync(ulong targetId) 
+        => await this.Discord.ApiClient.ForwardMessageAsync(targetId, this.ChannelId, this.Id);
 
     /// <summary>
     /// Immediately ends the poll. You cannot end polls from other users.
@@ -765,41 +867,6 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
 
             last = users.LastOrDefault()?.Id;
         }
-    }
-
-    private async Task<IReadOnlyList<DiscordUser>> GetReactionsInternalAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null)
-    {
-        if (limit < 0)
-        {
-            throw new ArgumentException("Cannot get a negative number of reactions' users.");
-        }
-
-        if (limit == 0)
-        {
-            return [];
-        }
-
-        List<DiscordUser> users = new(limit);
-        int remaining = limit;
-        ulong? last = after;
-
-        do
-        {
-            int fetchSize = remaining > 100 ? 100 : remaining;
-            IReadOnlyList<DiscordUser> fetch = await this.Discord.ApiClient.GetReactionsAsync(this.ChannelId, this.Id, emoji.ToReactionString(), last, fetchSize);
-
-            remaining -= fetch.Count;
-
-            if (fetch.Count == 0)
-            {
-                break;
-            }
-
-            users.AddRange(fetch);
-            last = fetch[^1]?.Id;
-        } while (remaining > 0);
-
-        return new ReadOnlyCollection<DiscordUser>(users);
     }
 
     /// <summary>

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -90,13 +89,10 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// </summary>
     [JsonIgnore]
     public IReadOnlyList<DiscordOverwrite> PermissionOverwrites
-        => this.permissionOverwritesLazy.Value;
+        => this.permissionOverwrites;
 
     [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
     internal List<DiscordOverwrite> permissionOverwrites = [];
-
-    [JsonIgnore]
-    private readonly Lazy<IReadOnlyList<DiscordOverwrite>> permissionOverwritesLazy;
 
     /// <summary>
     /// Gets the channel's topic. This is applicable to text channels only.
@@ -198,7 +194,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     [JsonProperty("permissions")]
     public DiscordPermissions? UserPermissions { get; internal set; }
 
-    internal DiscordChannel() => this.permissionOverwritesLazy = new Lazy<IReadOnlyList<DiscordOverwrite>>(() => new ReadOnlyCollection<DiscordOverwrite>(this.permissionOverwrites));
+    internal DiscordChannel() { }
 
     #region Methods
 
@@ -321,11 +317,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             throw new InvalidOperationException("Non-guild channels cannot be cloned.");
         }
 
-        List<DiscordOverwriteBuilder> ovrs = [];
-        foreach (DiscordOverwrite ovr in this.permissionOverwrites)
-        {
-            ovrs.Add(await new DiscordOverwriteBuilder(member: null).FromAsync(ovr));
-        }
+        List<DiscordOverwriteBuilder> ovrs = [.. this.permissionOverwrites.Select(DiscordOverwriteBuilder.From)];
 
         int? bitrate = this.Bitrate;
         int? userLimit = this.UserLimit;
@@ -355,9 +347,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    /// <remarks>Cached message objects will not be returned if <see cref="DiscordConfiguration.MessageCacheSize"/> is set to zero, if the client does not have the <see cref="DiscordIntents.GuildMessages"/> or <see cref="DiscordIntents.DirectMessages"/> intents, or if the discord client is a <see cref="DiscordShardedClient"/>.</remarks>
     public async Task<DiscordMessage> GetMessageAsync(ulong id, bool skipCache = false) => !skipCache
-            && this.Discord.Configuration.MessageCacheSize > 0
             && this.Discord is DiscordClient dc
             && dc.MessageCache != null
             && dc.MessageCache.TryGet(id, out DiscordMessage? msg)
@@ -1005,7 +995,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
 
         if (this.Guild.OwnerId == mbr.Id)
         {
-            return PermissionMethods.FULL_PERMS;
+            return DiscordPermissions.All;
         }
 
         DiscordPermissions perms;
@@ -1023,7 +1013,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         // Administrator grants all permissions and cannot be overridden
         if ((perms & DiscordPermissions.Administrator) == DiscordPermissions.Administrator)
         {
-            return PermissionMethods.FULL_PERMS;
+            return DiscordPermissions.All;
         }
 
         // channel overrides for roles that member is in
@@ -1093,7 +1083,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         // Administrator grants all permissions and cannot be overridden
         if ((perms & DiscordPermissions.Administrator) == DiscordPermissions.Administrator)
         {
-            return PermissionMethods.FULL_PERMS;
+            return DiscordPermissions.All;
         }
 
         // channel overrides for the @everyone role

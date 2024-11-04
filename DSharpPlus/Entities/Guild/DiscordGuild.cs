@@ -90,11 +90,12 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <summary>
     /// Gets the guild's owner.
     /// </summary>
-    [JsonIgnore]
-    public DiscordMember Owner
-        => this.Members.TryGetValue(this.OwnerId, out DiscordMember? owner)
+    public async Task<DiscordMember> GetGuildOwnerAsync()
+    {
+        return this.Members.TryGetValue(this.OwnerId, out DiscordMember? owner)
             ? owner
-            : this.Discord.ApiClient.GetGuildMemberAsync(this.Id, this.OwnerId).AsTask().GetAwaiter().GetResult();
+            : await this.Discord.ApiClient.GetGuildMemberAsync(this.Id, this.OwnerId);
+    }
 
     /// <summary>
     /// Gets the guild's voice region ID.
@@ -440,18 +441,14 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the guild member for current user.
     /// </summary>
     [JsonIgnore]
-    public DiscordMember CurrentMember
-        => this.current_member_lazy.Value;
-
-    [JsonIgnore]
-    private readonly Lazy<DiscordMember> current_member_lazy;
+    public DiscordMember CurrentMember => this.members != null && this.members.TryGetValue(this.Discord.CurrentUser.Id, out DiscordMember? member) ? member : null;
 
     /// <summary>
     /// Gets the @everyone role for this guild.
     /// </summary>
     [JsonIgnore]
     public DiscordRole EveryoneRole
-        => GetRole(this.Id);
+        => this.Roles.GetValueOrDefault(this.Id)!;
 
     [JsonIgnore]
     internal bool isOwner;
@@ -545,11 +542,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     [JsonIgnore]
     internal bool isSynced { get; set; }
 
-    internal DiscordGuild()
-    {
-        this.current_member_lazy = new Lazy<DiscordMember>(() => this.members != null && this.members.TryGetValue(this.Discord.CurrentUser.Id, out DiscordMember? member) ? member : null);
-        this.invites = new ConcurrentDictionary<string, DiscordInvite>();
-    }
+    internal DiscordGuild() => this.invites = new ConcurrentDictionary<string, DiscordInvite>();
 
     #region Guild Methods
 
@@ -824,7 +817,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets a list of users who are interested in this event.
     /// </summary>
     /// <param name="guildEventId">The id of the event to query users from</param>
-    /// <param name="limit">How many users to fetch.</param>
+    /// <param name="limit">How many users to fetch. The method performs one api call per 100 users</param>
     /// <param name="after">Fetch users after this id. Mutually exclusive with before</param>
     /// <param name="before">Fetch users before this id. Mutually exclusive with after</param>
     public async IAsyncEnumerable<DiscordUser> GetEventUsersAsync(ulong guildEventId, int limit = 100, ulong? after = null, ulong? before = null)
@@ -836,23 +829,23 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
         int remaining = limit;
         ulong? last = null;
-        bool isAfter = after != null;
+        bool isBefore = before != null;
         int lastCount;
         do
         {
             int fetchSize = remaining > 100 ? 100 : remaining;
-            IReadOnlyList<DiscordUser> fetch = await this.Discord.ApiClient.GetScheduledGuildEventUsersAsync(this.Id, guildEventId, true, fetchSize, !isAfter ? last ?? before : null, isAfter ? last ?? after : null);
+            IReadOnlyList<DiscordUser> fetch = await this.Discord.ApiClient.GetScheduledGuildEventUsersAsync(this.Id, guildEventId, true, fetchSize, isBefore ? last ?? before : null, !isBefore ? last ?? after : null);
 
             lastCount = fetch.Count;
             remaining -= lastCount;
 
-            if (!isAfter)
+            if (isBefore)
             {
                 for (int i = lastCount - 1; i >= 0; i--)
                 {
                     yield return fetch[i];
                 }
-                last = fetch.LastOrDefault()?.Id;
+                last = fetch.FirstOrDefault()?.Id;
             }
             else
             {
@@ -860,7 +853,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 {
                     yield return fetch[i];
                 }
-                last = fetch.FirstOrDefault()?.Id;
+                last = fetch.LastOrDefault()?.Id;
             }
         }
         while (remaining > 0 && lastCount > 0);
@@ -893,7 +886,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         DiscordUser user,
         string accessToken,
         string? nickname = null,
-        bool muted = false, 
+        bool muted = false,
         bool deaf = false
     )
         => await this.Discord.ApiClient.AddGuildMemberAsync(this.Id, user.Id, accessToken, muted, deaf, nickname, null);
@@ -920,7 +913,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         bool deaf = false
     )
         => await this.Discord.ApiClient.AddGuildMemberAsync(this.Id, userId, accessToken, muted, deaf, nickname, null);
-    
+
     /// <summary>
     /// Adds a new member to this guild
     /// </summary>
@@ -1020,7 +1013,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         bool deaf = false
     )
         => await this.Discord.ApiClient.AddGuildMemberAsync(this.Id, userId, accessToken, muted, deaf, nickname, roles?.Select(x => x.Id));
-    
+
     /// <summary>
     /// Deletes this guild. Requires the caller to be the owner of the guild.
     /// </summary>
@@ -1095,6 +1088,35 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             mdl.Description, mdl.DiscoverySplash, mdl.Features, mdl.PreferredLocale,
             mdl.PublicUpdatesChannel.IfPresent(e => e?.Id), mdl.RulesChannel.IfPresent(e => e?.Id),
             mdl.SystemChannelFlags, mdl.AuditLogReason);
+    }
+
+    /// <summary>
+    /// Gets the roles in this guild.
+    /// </summary>
+    /// <returns>All the roles in the guild.</returns>
+    public async Task<IReadOnlyList<DiscordRole>> GetRolesAsync()
+    {
+        IReadOnlyList<DiscordRole> roles = await this.Discord.ApiClient.GetGuildRolesAsync(this.Id);
+        this.roles = new ConcurrentDictionary<ulong, DiscordRole>(roles.ToDictionary(x => x.Id));
+        return roles;
+    }
+
+    /// <summary>
+    /// Gets a singular role from this guild by its ID.
+    /// </summary>
+    /// <param name="roleId">The ID of the role.</param>
+    /// <param name="skipCache">Whether to skip checking cache for the role.</param>
+    /// <returns>The role from the guild if it exists.</returns>
+    public async Task<DiscordRole> GetRoleAsync(ulong roleId, bool skipCache = false)
+    {
+        if (!skipCache && this.roles.TryGetValue(roleId, out DiscordRole? role))
+        {
+            return role;
+        }
+
+        role = await this.Discord.ApiClient.GetGuildRoleAsync(this.Id, roleId);
+        this.roles[role.Id] = role;
+        return role;
     }
 
     /// <summary>
@@ -1652,7 +1674,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     {
         IReadOnlyList<DiscordInvite> res = await this.Discord.ApiClient.GetGuildInvitesAsync(this.Id);
 
-        DiscordIntents intents = this.Discord.Configuration.Intents;
+        DiscordIntents intents = this.Discord.Intents;
 
         if (!intents.HasIntent(DiscordIntents.GuildInvites))
         {
@@ -1717,7 +1739,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
         mbr = await this.Discord.ApiClient.GetGuildMemberAsync(this.Id, userId);
 
-        DiscordIntents intents = this.Discord.Configuration.Intents;
+        DiscordIntents intents = this.Discord.Intents;
 
         if (intents.HasIntent(DiscordIntents.GuildMembers))
         {
@@ -1774,7 +1796,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     }
 
     /// <summary>
-    /// Requests that Discord send a list of guild members based on the specified arguments. This method will fire the <see cref="DiscordClient.GuildMembersChunked"/> event.
+    /// Requests that Discord send a list of guild members based on the specified arguments. This method will fire the GuildMembersChunked event.
     /// <para>If no arguments aside from <paramref name="presences"/> and <paramref name="nonce"/> are specified, this will request all guild members.</para>
     /// </summary>
     /// <param name="query">Filters the returned members based on what the username starts with. Either this or <paramref name="userIds"/> must not be null.
@@ -1815,8 +1837,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             Data = gatewayRequestGuildMembers
         };
 
-        string payloadStr = JsonConvert.SerializeObject(payload, Formatting.None);
-        await client.SendRawPayloadAsync(payloadStr);
+#pragma warning disable DSP0004
+        await client.SendPayloadAsync(GatewayOpCode.RequestGuildMembers, gatewayRequestGuildMembers, this.Id);
+#pragma warning restore DSP0004
     }
 
     /// <summary>
@@ -1843,14 +1866,6 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordRole> CreateRoleAsync(string? name = null, DiscordPermissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string? reason = null, Stream? icon = null, DiscordEmoji? emoji = null)
         => await this.Discord.ApiClient.CreateGuildRoleAsync(this.Id, name, permissions, color?.Value, hoist, mentionable, icon, emoji?.ToString(), reason);
-    /// <summary>
-    /// Gets a role from this guild by its ID.
-    /// </summary>
-    /// <param name="id">ID of the role to get.</param>
-    /// <returns>Requested role.</returns>
-    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public DiscordRole? GetRole(ulong id)
-        => this.roles.TryGetValue(id, out DiscordRole? role) ? role : null;
 
     /// <summary>
     /// Gets a channel from this guild by its ID.
@@ -1859,7 +1874,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>Requested channel.</returns>
     internal DiscordChannel? GetChannel(ulong id)
         => this.channels != null && this.channels.TryGetValue(id, out DiscordChannel? channel) ? channel : null;
-    
+
     /// <summary>
     /// Gets a channel from this guild by its ID.
     /// </summary>
@@ -1875,7 +1890,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         if (skipCache)
         {
             channel = await this.Discord.ApiClient.GetChannelAsync(id);
-            
+
             if (channel.GuildId is null || (channel.GuildId is not null && channel.GuildId.Value != this.Id))
             {
                 throw new InvalidOperationException("The channel exists but does not belong to this guild.");
@@ -1893,7 +1908,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         {
             return threadChannel;
         }
-        
+
         channel = await this.Discord.ApiClient.GetChannelAsync(id);
 
         if (channel.GuildId is null || (channel.GuildId is not null && channel.GuildId.Value != this.Id))
@@ -2284,9 +2299,10 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <summary>
     /// Gets all the application commands in this guild.
     /// </summary>
+    /// <param name="withLocalizations">Whether to include localizations in the response.</param>
     /// <returns>A list of application commands in this guild.</returns>
-    public async Task<IReadOnlyList<DiscordApplicationCommand>> GetApplicationCommandsAsync() =>
-        await this.Discord.ApiClient.GetGuildApplicationCommandsAsync(this.Discord.CurrentApplication.Id, this.Id);
+    public async Task<IReadOnlyList<DiscordApplicationCommand>> GetApplicationCommandsAsync(bool withLocalizations = false) =>
+        await this.Discord.ApiClient.GetGuildApplicationCommandsAsync(this.Discord.CurrentApplication.Id, this.Id, withLocalizations);
 
     /// <summary>
     /// Overwrites the existing application commands in this guild. New commands are automatically created and missing commands are automatically delete
@@ -2329,10 +2345,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets a application command in this guild by its name.
     /// </summary>
     /// <param name="commandName">The name of the command to get.</param>
+    /// <param name="withLocalizations">Whether to include localizations in the response.</param>
     /// <returns>The command with the name. This is null when the command is not found</returns>
-    public async Task<DiscordApplicationCommand?> GetApplicationCommandAsync(string commandName)
+    public async Task<DiscordApplicationCommand?> GetApplicationCommandAsync(string commandName, bool withLocalizations = false)
     {
-        foreach (DiscordApplicationCommand command in await this.Discord.ApiClient.GetGlobalApplicationCommandsAsync(this.Discord.CurrentApplication.Id))
+        foreach (DiscordApplicationCommand command in await this.Discord.ApiClient.GetGlobalApplicationCommandsAsync(this.Discord.CurrentApplication.Id, withLocalizations))
         {
             if (command.Name == commandName)
             {

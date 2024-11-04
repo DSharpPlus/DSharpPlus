@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-
 using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
 
@@ -10,12 +9,7 @@ namespace DSharpPlus.Commands.Processors.TextCommands.ContextChecks;
 /// </summary>
 internal sealed class TextMinMaxValueCheck : IParameterCheck<MinMaxValueAttribute>
 {
-    public ValueTask<string?> ExecuteCheckAsync
-    (
-        MinMaxValueAttribute attribute,
-        ParameterCheckInfo info,
-        CommandContext context
-    )
+    public ValueTask<string?> ExecuteCheckAsync(MinMaxValueAttribute attribute, ParameterCheckInfo info, CommandContext context)
     {
         if (info.Value is null)
         {
@@ -37,7 +31,7 @@ internal sealed class TextMinMaxValueCheck : IParameterCheck<MinMaxValueAttribut
                 ulong => (ulong)attribute.MinValue <= (ulong)info.Value,
                 float => (float)attribute.MinValue <= (float)info.Value,
                 double => (double)attribute.MinValue <= (double)info.Value,
-                _ => true
+                _ => true,
             };
 
             if (!correctlyOrdered)
@@ -60,7 +54,7 @@ internal sealed class TextMinMaxValueCheck : IParameterCheck<MinMaxValueAttribut
                 ulong => (ulong)attribute.MaxValue >= (ulong)info.Value,
                 float => (float)attribute.MaxValue >= (float)info.Value,
                 double => (double)attribute.MaxValue >= (double)info.Value,
-                _ => true
+                _ => true,
             };
 
             if (!correctlyOrdered)

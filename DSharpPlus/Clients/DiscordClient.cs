@@ -1,19 +1,22 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
-using DSharpPlus.AsyncEvents;
+using DSharpPlus.Clients;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Gateway;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.WebSocket;
@@ -34,25 +37,14 @@ public sealed partial class DiscordClient : BaseDiscordClient
     internal static readonly DateTimeOffset discordEpoch = new(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
     private static readonly ConcurrentDictionary<ulong, SocketLock> socketLocks = [];
 
-    private readonly ConcurrentDictionary<Type, AsyncEvent> events = [];
-
     internal bool isShard = false;
     internal IMessageCacheProvider? MessageCache { get; }
     private readonly IClientErrorHandler errorHandler;
+    private readonly IShardOrchestrator orchestrator;
+    private readonly ChannelReader<GatewayPayload> eventReader;
+    private readonly IEventDispatcher dispatcher;
 
-    private List<BaseExtension> extensions = [];
     private StatusUpdate? status = null;
-
-    private int heartbeatInterval;
-    private DateTimeOffset lastHeartbeat;
-    private int skippedHeartbeats;
-    private long lastSequence;
-
-    internal readonly IWebSocketClient webSocketClient;
-    private readonly PayloadDecompressor payloadDecompressor;
-    private CancellationTokenSource cancelTokenSource;
-    private CancellationToken cancelToken;
-    private readonly ManualResetEventSlim sessionLock = new(true);
     private readonly string token;
 
     private readonly ManualResetEventSlim connectionLock = new(true);
@@ -63,44 +55,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public IServiceProvider ServiceProvider { get; internal set; }
 
     /// <summary>
-    /// Gets the gateway protocol version.
-    /// </summary>
-    public int GatewayVersion { get; internal set; }
-
-    /// <summary>
-    /// Gets the gateway session information for this client.
-    /// </summary>
-    public GatewayInfo GatewayInfo { get; internal set; }
-
-    /// <summary>
-    /// Gets the gateway URL.
-    /// </summary>
-    public Uri GatewayUri { get; internal set; }
-
-    /// <summary>
-    /// Gets the total number of shards the bot is connected to.
-    /// </summary>
-    public int ShardCount => this.GatewayInfo != null
-        ? this.GatewayInfo.ShardCount
-        : this.Configuration.ShardCount;
-
-    /// <summary>
-    /// Gets the currently connected shard ID.
-    /// </summary>
-    public int ShardId
-        => this.Configuration.ShardId;
-
-    /// <summary>
-    /// Gets the intents configured for this client.
-    /// </summary>
-    public DiscordIntents Intents
-        => this.Configuration.Intents;
-
-    /// <summary>
     /// Gets whether this client is connected to the gateway.
     /// </summary>
-    public bool IsConnected
-        => this.webSocketClient is not null && this.webSocketClient.IsConnected;
+    public bool AllShardsConnected
+        => this.orchestrator.AllShardsConnected;
 
     /// <summary>
     /// Gets a dictionary of DM channels that have been cached by this client. The dictionary's key is the channel
@@ -112,27 +70,24 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <summary>
     /// Gets a dictionary of guilds that this client is in. The dictionary's key is the guild ID. Note that the
     /// guild objects in this dictionary will not be filled in if the specific guilds aren't available (the
-    /// <see cref="GuildAvailable"/> or <see cref="GuildDownloadCompleted"/> events haven't been fired yet)
+    /// <c>GuildAvailable</c> or <c>GuildDownloadCompleted</c> events haven't been fired yet)
     /// </summary>
     public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds => this.guilds;
     internal ConcurrentDictionary<ulong, DiscordGuild> guilds = new();
 
     /// <summary>
-    /// Gets the WS latency for this client.
+    /// Gets the latency in the connection to a specific guild.
     /// </summary>
-    public int Ping
-        => Volatile.Read(ref this.ping);
-
-    private int ping;
+    public TimeSpan GetConnectionLatency(ulong guildId)
+        => this.orchestrator.GetConnectionLatency(guildId);
 
     /// <summary>
     /// Gets the collection of presences held by this client.
     /// </summary>
     public IReadOnlyDictionary<ulong, DiscordPresence> Presences
-        => this.presencesLazy.Value;
+        => this.presences;
 
     internal Dictionary<ulong, DiscordPresence> presences = [];
-    private Lazy<IReadOnlyDictionary<ulong, DiscordPresence>> presencesLazy;
 
     [ActivatorUtilitiesConstructor]
     public DiscordClient
@@ -140,165 +95,35 @@ public sealed partial class DiscordClient : BaseDiscordClient
         ILogger<DiscordClient> logger,
         DiscordApiClient apiClient,
         IMessageCacheProvider messageCacheProvider,
-        IWebSocketClient webSocketClient,
         IServiceProvider serviceProvider,
-        IOptions<EventHandlerCollection> eventHandlers,
+        IEventDispatcher eventDispatcher,
         IClientErrorHandler errorHandler,
-        PayloadDecompressor decompressor,
         IOptions<DiscordConfiguration> configuration,
-        IOptions<TokenContainer> token
+        IOptions<TokenContainer> token,
+        IShardOrchestrator shardOrchestrator,
+        IOptions<GatewayClientOptions> gatewayOptions,
+
+        [FromKeyedServices("DSharpPlus.Gateway.EventChannel")]
+        Channel<GatewayPayload> eventChannel
     )
         : base()
     {
         this.Logger = logger;
         this.MessageCache = messageCacheProvider;
-        this.webSocketClient = webSocketClient;
         this.ServiceProvider = serviceProvider;
         this.ApiClient = apiClient;
-        this.payloadDecompressor = decompressor;
         this.errorHandler = errorHandler;
         this.Configuration = configuration.Value;
         this.token = token.Value.GetToken();
+        this.orchestrator = shardOrchestrator;
+        this.eventReader = eventChannel.Reader;
+        this.dispatcher = eventDispatcher;
 
         this.ApiClient.SetClient(this);
-
-        InternalSetup(errorHandler);
-
-        foreach (KeyValuePair<Type, ConcurrentBag<Delegate>> kvp in eventHandlers.Value.DelegateHandlers)
-        {
-            Type asyncEventType = typeof(AsyncEvent<,>).MakeGenericType
-            (
-                typeof(DiscordClient),
-                kvp.Key
-            );
-
-            AsyncEvent asyncEvent = this.events.GetOrAdd(kvp.Key, _ => (AsyncEvent)Activator.CreateInstance
-            (
-                type: asyncEventType,
-                args: [errorHandler]
-            )!);
-
-            foreach (Delegate d in kvp.Value)
-            {
-                asyncEvent.Register(d);
-            }
-        }
-
-        this.presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this.presences));
-        
-        //Register websocket managment event handlers
-        this.webSocketClient.Connected += SocketOnConnect;
-        this.webSocketClient.Disconnected += SocketOnDisconnect;
-        this.webSocketClient.MessageReceived += SocketOnMessage;
-        this.webSocketClient.ExceptionThrown += SocketOnException;
-    }
-
-    internal void InternalSetup(IClientErrorHandler error)
-    {
-        this.events[typeof(SocketOpenedEventArgs)] = new AsyncEvent<DiscordClient, SocketOpenedEventArgs>(error);
-        this.events[typeof(SocketClosedEventArgs)] = new AsyncEvent<DiscordClient, SocketClosedEventArgs>(error);
-        this.events[typeof(SessionCreatedEventArgs)] = new AsyncEvent<DiscordClient, SessionCreatedEventArgs>(error);
-        this.events[typeof(SessionResumedEventArgs)] = new AsyncEvent<DiscordClient, SessionResumedEventArgs>(error);
-        this.events[typeof(ChannelCreatedEventArgs)] = new AsyncEvent<DiscordClient, ChannelCreatedEventArgs>(error);
-        this.events[typeof(ChannelUpdatedEventArgs)] = new AsyncEvent<DiscordClient, ChannelUpdatedEventArgs>(error);
-        this.events[typeof(ChannelDeletedEventArgs)] = new AsyncEvent<DiscordClient, ChannelDeletedEventArgs>(error);
-        this.events[typeof(DmChannelDeletedEventArgs)] = new AsyncEvent<DiscordClient, DmChannelDeletedEventArgs>(error);
-        this.events[typeof(ChannelPinsUpdatedEventArgs)] = new AsyncEvent<DiscordClient, ChannelPinsUpdatedEventArgs>(error);
-        this.events[typeof(GuildCreatedEventArgs)] = new AsyncEvent<DiscordClient, GuildCreatedEventArgs>(error);
-        this.events[typeof(GuildAvailableEventArgs)] = new AsyncEvent<DiscordClient, GuildAvailableEventArgs>(error);
-        this.events[typeof(GuildUpdatedEventArgs)] = new AsyncEvent<DiscordClient, GuildUpdatedEventArgs>(error);
-        this.events[typeof(GuildDeletedEventArgs)] = new AsyncEvent<DiscordClient, GuildDeletedEventArgs>(error);
-        this.events[typeof(GuildUnavailableEventArgs)] = new AsyncEvent<DiscordClient, GuildUnavailableEventArgs>(error);
-        this.events[typeof(GuildDownloadCompletedEventArgs)] = new AsyncEvent<DiscordClient, GuildDownloadCompletedEventArgs>(error);
-        this.events[typeof(InviteCreatedEventArgs)] = new AsyncEvent<DiscordClient, InviteCreatedEventArgs>(error);
-        this.events[typeof(InviteDeletedEventArgs)] = new AsyncEvent<DiscordClient, InviteDeletedEventArgs>(error);
-        this.events[typeof(MessageCreatedEventArgs)] = new AsyncEvent<DiscordClient, MessageCreatedEventArgs>(error);
-        this.events[typeof(PresenceUpdatedEventArgs)] = new AsyncEvent<DiscordClient, PresenceUpdatedEventArgs>(error);
-        this.events[typeof(ScheduledGuildEventCreatedEventArgs)] = new AsyncEvent<DiscordClient, ScheduledGuildEventCreatedEventArgs>(error);
-        this.events[typeof(ScheduledGuildEventDeletedEventArgs)] = new AsyncEvent<DiscordClient, ScheduledGuildEventDeletedEventArgs>(error);
-        this.events[typeof(ScheduledGuildEventUpdatedEventArgs)] = new AsyncEvent<DiscordClient, ScheduledGuildEventUpdatedEventArgs>(error);
-        this.events[typeof(ScheduledGuildEventCompletedEventArgs)] = new AsyncEvent<DiscordClient, ScheduledGuildEventCompletedEventArgs>(error);
-        this.events[typeof(ScheduledGuildEventUserAddedEventArgs)] = new AsyncEvent<DiscordClient, ScheduledGuildEventUserAddedEventArgs>(error);
-        this.events[typeof(ScheduledGuildEventUserRemovedEventArgs)] = new AsyncEvent<DiscordClient, ScheduledGuildEventUserRemovedEventArgs>(error);
-        this.events[typeof(GuildBanAddedEventArgs)] = new AsyncEvent<DiscordClient, GuildBanAddedEventArgs>(error);
-        this.events[typeof(GuildBanRemovedEventArgs)] = new AsyncEvent<DiscordClient, GuildBanRemovedEventArgs>(error);
-        this.events[typeof(GuildEmojisUpdatedEventArgs)] = new AsyncEvent<DiscordClient, GuildEmojisUpdatedEventArgs>(error);
-        this.events[typeof(GuildStickersUpdatedEventArgs)] = new AsyncEvent<DiscordClient, GuildStickersUpdatedEventArgs>(error);
-        this.events[typeof(GuildIntegrationsUpdatedEventArgs)] = new AsyncEvent<DiscordClient, GuildIntegrationsUpdatedEventArgs>(error);
-        this.events[typeof(GuildMemberAddedEventArgs)] = new AsyncEvent<DiscordClient, GuildMemberAddedEventArgs>(error);
-        this.events[typeof(GuildMemberRemovedEventArgs)] = new AsyncEvent<DiscordClient, GuildMemberRemovedEventArgs>(error);
-        this.events[typeof(GuildMemberUpdatedEventArgs)] = new AsyncEvent<DiscordClient, GuildMemberUpdatedEventArgs>(error);
-        this.events[typeof(GuildRoleCreatedEventArgs)] = new AsyncEvent<DiscordClient, GuildRoleCreatedEventArgs>(error);
-        this.events[typeof(GuildRoleUpdatedEventArgs)] = new AsyncEvent<DiscordClient, GuildRoleUpdatedEventArgs>(error);
-        this.events[typeof(GuildRoleDeletedEventArgs)] = new AsyncEvent<DiscordClient, GuildRoleDeletedEventArgs>(error);
-        this.events[typeof(GuildAuditLogCreatedEventArgs)] = new AsyncEvent<DiscordClient, GuildAuditLogCreatedEventArgs>(error);
-        this.events[typeof(MessageUpdatedEventArgs)] = new AsyncEvent<DiscordClient, MessageUpdatedEventArgs>(error);
-        this.events[typeof(MessageDeletedEventArgs)] = new AsyncEvent<DiscordClient, MessageDeletedEventArgs>(error);
-        this.events[typeof(MessagesBulkDeletedEventArgs)] = new AsyncEvent<DiscordClient, MessagesBulkDeletedEventArgs>(error);
-        this.events[typeof(MessagePollVotedEventArgs)] = new AsyncEvent<DiscordClient, MessagePollVotedEventArgs>(error);
-        this.events[typeof(InteractionCreatedEventArgs)] = new AsyncEvent<DiscordClient, InteractionCreatedEventArgs>(error);
-        this.events[typeof(ComponentInteractionCreatedEventArgs)] = new AsyncEvent<DiscordClient, ComponentInteractionCreatedEventArgs>(error);
-        this.events[typeof(ModalSubmittedEventArgs)] = new AsyncEvent<DiscordClient, ModalSubmittedEventArgs>(error);
-        this.events[typeof(ContextMenuInteractionCreatedEventArgs)] = new AsyncEvent<DiscordClient, ContextMenuInteractionCreatedEventArgs>(error);
-        this.events[typeof(TypingStartedEventArgs)] = new AsyncEvent<DiscordClient, TypingStartedEventArgs>(error);
-        this.events[typeof(UserSettingsUpdatedEventArgs)] = new AsyncEvent<DiscordClient, UserSettingsUpdatedEventArgs>(error);
-        this.events[typeof(UserUpdatedEventArgs)] = new AsyncEvent<DiscordClient, UserUpdatedEventArgs>(error);
-        this.events[typeof(VoiceStateUpdatedEventArgs)] = new AsyncEvent<DiscordClient, VoiceStateUpdatedEventArgs>(error);
-        this.events[typeof(VoiceServerUpdatedEventArgs)] = new AsyncEvent<DiscordClient, VoiceServerUpdatedEventArgs>(error);
-        this.events[typeof(GuildMembersChunkedEventArgs)] = new AsyncEvent<DiscordClient, GuildMembersChunkedEventArgs>(error);
-        this.events[typeof(UnknownEventArgs)] = new AsyncEvent<DiscordClient, UnknownEventArgs>(error);
-        this.events[typeof(MessageReactionAddedEventArgs)] = new AsyncEvent<DiscordClient, MessageReactionAddedEventArgs>(error);
-        this.events[typeof(MessageReactionRemovedEventArgs)] = new AsyncEvent<DiscordClient, MessageReactionRemovedEventArgs>(error);
-        this.events[typeof(MessageReactionsClearedEventArgs)] = new AsyncEvent<DiscordClient, MessageReactionsClearedEventArgs>(error);
-        this.events[typeof(MessageReactionRemovedEmojiEventArgs)] = new AsyncEvent<DiscordClient, MessageReactionRemovedEmojiEventArgs>(error);
-        this.events[typeof(WebhooksUpdatedEventArgs)] = new AsyncEvent<DiscordClient, WebhooksUpdatedEventArgs>(error);
-        this.events[typeof(HeartbeatedEventArgs)] = new AsyncEvent<DiscordClient, HeartbeatedEventArgs>(error);
-        this.events[typeof(ZombiedEventArgs)] = new AsyncEvent<DiscordClient, ZombiedEventArgs>(error);
-        this.events[typeof(ApplicationCommandPermissionsUpdatedEventArgs)] = new AsyncEvent<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs>(error);
-        this.events[typeof(IntegrationCreatedEventArgs)] = new AsyncEvent<DiscordClient, IntegrationCreatedEventArgs>(error);
-        this.events[typeof(IntegrationUpdatedEventArgs)] = new AsyncEvent<DiscordClient, IntegrationUpdatedEventArgs>(error);
-        this.events[typeof(IntegrationDeletedEventArgs)] = new AsyncEvent<DiscordClient, IntegrationDeletedEventArgs>(error);
-        this.events[typeof(StageInstanceCreatedEventArgs)] = new AsyncEvent<DiscordClient, StageInstanceCreatedEventArgs>(error);
-        this.events[typeof(StageInstanceUpdatedEventArgs)] = new AsyncEvent<DiscordClient, StageInstanceUpdatedEventArgs>(error);
-        this.events[typeof(StageInstanceDeletedEventArgs)] = new AsyncEvent<DiscordClient, StageInstanceDeletedEventArgs>(error);
-        this.events[typeof(AutoModerationRuleCreatedEventArgs)] = new AsyncEvent<DiscordClient, AutoModerationRuleCreatedEventArgs>(error);
-        this.events[typeof(AutoModerationRuleUpdatedEventArgs)] = new AsyncEvent<DiscordClient, AutoModerationRuleUpdatedEventArgs>(error);
-        this.events[typeof(AutoModerationRuleDeletedEventArgs)] = new AsyncEvent<DiscordClient, AutoModerationRuleDeletedEventArgs>(error);
-        this.events[typeof(AutoModerationRuleExecutedEventArgs)] = new AsyncEvent<DiscordClient, AutoModerationRuleExecutedEventArgs>(error);
-        this.events[typeof(ThreadCreatedEventArgs)] = new AsyncEvent<DiscordClient, ThreadCreatedEventArgs>(error);
-        this.events[typeof(ThreadUpdatedEventArgs)] = new AsyncEvent<DiscordClient, ThreadUpdatedEventArgs>(error);
-        this.events[typeof(ThreadDeletedEventArgs)] = new AsyncEvent<DiscordClient, ThreadDeletedEventArgs>(error);
-        this.events[typeof(ThreadListSyncedEventArgs)] = new AsyncEvent<DiscordClient, ThreadListSyncedEventArgs>(error);
-        this.events[typeof(ThreadMemberUpdatedEventArgs)] = new AsyncEvent<DiscordClient, ThreadMemberUpdatedEventArgs>(error);
-        this.events[typeof(ThreadMembersUpdatedEventArgs)] = new AsyncEvent<DiscordClient, ThreadMembersUpdatedEventArgs>(error);
+        this.Intents = gatewayOptions.Value.Intents;
 
         this.guilds.Clear();
-
-        this.presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this.presences));
     }
-
-    #region Client Extension Methods
-
-    /// <summary>
-    /// Registers an extension with this client.
-    /// </summary>
-    /// <param name="ext">Extension to register.</param>
-    /// <returns></returns>
-    public void AddExtension(BaseExtension ext)
-    {
-        ext.Setup(this);
-        this.extensions.Add(ext);
-    }
-
-    /// <summary>
-    /// Retrieves a previously-registered extension from this client.
-    /// </summary>
-    /// <typeparam name="T">Type of extension to retrieve.</typeparam>
-    /// <returns>The requested extension.</returns>
-    public T GetExtension<T>() where T : BaseExtension
-        => this.extensions.FirstOrDefault(x => x.GetType() == typeof(T)) as T;
-
-    #endregion
 
     #region Public Connection Methods
 
@@ -311,6 +136,9 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task ConnectAsync(DiscordActivity activity = null, DiscordUserStatus? status = null, DateTimeOffset? idlesince = null)
     {
+        // method checks if its already initialized
+        await InitializeAsync();
+
         // Check if connection lock is already set, and set it if it isn't
         if (!this.connectionLock.Wait(0))
         {
@@ -318,11 +146,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
 
         this.connectionLock.Set();
-
-        int w = 7500;
-        int i = 5;
-        bool s = false;
-        Exception cex = null;
 
         if (activity == null && status == null && idlesince == null)
         {
@@ -341,76 +164,42 @@ public sealed partial class DiscordClient : BaseDiscordClient
             };
         }
 
-        if (!this.isShard)
-        {
-            if (this.Configuration.TokenType != TokenType.Bot)
-            {
-                this.Logger.LogError(LoggerEvents.Misc, "You are logging in with a token that is not a bot token.");
-                return;
-            }
+        this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus; version {Version}", this.VersionString);
 
-            this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus, version {Version}", this.VersionString);
-        }
-
-        while (i-- > 0 || this.Configuration.ReconnectIndefinitely)
-        {
-            try
-            {
-                await InternalConnectAsync();
-                s = true;
-                break;
-            }
-            catch (UnauthorizedException e)
-            {
-                FailConnection(this.connectionLock);
-                throw new Exception("Authentication failed. Check your token and try again.", e);
-            }
-            catch (PlatformNotSupportedException)
-            {
-                FailConnection(this.connectionLock);
-                throw;
-            }
-            catch (NotImplementedException)
-            {
-                FailConnection(this.connectionLock);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                FailConnection(null);
-
-                cex = ex;
-                if (i <= 0 && !this.Configuration.ReconnectIndefinitely)
-                {
-                    break;
-                }
-
-                this.Logger.LogError(LoggerEvents.ConnectionFailure, ex, "Connection attempt failed, retrying in {Seconds}s", w / 1000);
-                await Task.Delay(w);
-
-                if (i > 0)
-                {
-                    w *= 2;
-                }
-            }
-        }
-
-        if (!s && cex != null)
-        {
-            this.connectionLock.Set();
-            throw new Exception("Could not connect to Discord.", cex);
-        }
-
-        // non-closure, hence args
-        static void FailConnection(ManualResetEventSlim cl)
-        {
-            // unlock this (if applicable) so we can let others attempt to connect
-            cl?.Set();
-        }
+        await this.dispatcher.DispatchAsync(this, new ClientStartedEventArgs());
+        _ = ReceiveGatewayEventsAsync();
+        await this.orchestrator.StartAsync(activity, status, idlesince);
     }
 
-    public Task ReconnectAsync(bool startNewSession = false)
-        => InternalReconnectAsync(startNewSession, code: startNewSession ? 1000 : 4002);
+    /// <summary>
+    /// Sends a raw payload to the gateway. This method is not recommended for use unless you know what you're doing.
+    /// </summary>
+    /// <param name="opCode">The opcode to send to the Discord gateway.</param>
+    /// <param name="data">The data to serialize.</param>
+    /// <param name="guildId">The guild this payload originates from. Pass 0 for shard-independent payloads.</param>
+    /// <remarks>
+    /// This method should not be used unless you know what you're doing. Instead, look towards the other
+    /// explicitly implemented methods which come with client-side validation.
+    /// </remarks>
+    /// <returns>A task representing the payload being sent.</returns>
+    [Experimental("DSP0004")]
+    public async Task SendPayloadAsync(GatewayOpCode opCode, object? data, ulong guildId)
+    {
+        GatewayPayload payload = new()
+        {
+            OpCode = opCode,
+            Data = data
+        };
+
+        string payloadString = DiscordJson.SerializeObject(payload);
+        await this.orchestrator.SendOutboundEventAsync(Encoding.UTF8.GetBytes(payloadString), guildId);
+    }
+
+    /// <summary>
+    /// Reconnects all shards to the gateway.
+    /// </summary>
+    public async Task ReconnectAsync()
+        => await this.orchestrator.ReconnectAsync();
 
     /// <summary>
     /// Disconnects from the gateway
@@ -418,11 +207,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <returns></returns>
     public async Task DisconnectAsync()
     {
-        this.Configuration.AutoReconnect = false;
-        if (this.webSocketClient != null)
-        {
-            await this.webSocketClient.DisconnectAsync();
-        }
+        await this.orchestrator.StopAsync();
+        await this.dispatcher.DispatchAsync(this, new ClientStoppedEventArgs());
     }
 
     #endregion
@@ -702,33 +488,74 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="activity">Activity to set.</param>
     /// <param name="userStatus">Status of the user.</param>
     /// <param name="idleSince">Since when is the client performing the specified activity.</param>
-    /// <returns></returns>
-    public Task UpdateStatusAsync(DiscordActivity activity = null, DiscordUserStatus? userStatus = null, DateTimeOffset? idleSince = null)
-        => InternalUpdateStatusAsync(activity, userStatus, idleSince);
+    /// <param name="shardId">
+    /// The ID of the shard whose status should be updated. Defaults to null, which will update all shards controlled by
+    /// this DiscordClient.
+    /// </param>
+    public async Task UpdateStatusAsync(DiscordActivity activity = null, DiscordUserStatus? userStatus = null, DateTimeOffset? idleSince = null, int? shardId = null)
+    {
+        StatusUpdate update = new()
+        {
+            Activity = new(activity),
+            IdleSince = idleSince?.ToUnixTimeMilliseconds()
+        };
+
+        if (userStatus is not null)
+        {
+            update.Status = userStatus.Value;
+        }
+
+        GatewayPayload gatewayPayload = new() {OpCode = GatewayOpCode.StatusUpdate, Data = update};
+
+        string payload = DiscordJson.SerializeObject(gatewayPayload);
+
+        if (shardId is null)
+        {
+            await this.orchestrator.BroadcastOutboundEventAsync(Encoding.UTF8.GetBytes(payload));
+        }
+        else
+        {
+            // this is a bit of a hack. x % n, for any x < n, will always return x, so we can just pass the shard ID
+            // as guild ID. this won't be very graceful if you pass an invalid ID, though.
+            await this.orchestrator.SendOutboundEventAsync(Encoding.UTF8.GetBytes(payload), (ulong)shardId.Value);
+        }
+    }
 
     /// <summary>
     /// Edits current user.
     /// </summary>
     /// <param name="username">New username.</param>
     /// <param name="avatar">New avatar.</param>
+    /// <param name="banner">New banner.</param>
     /// <returns></returns>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the user does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordUser> UpdateCurrentUserAsync(string username = null, Optional<Stream> avatar = default)
+    public async Task<DiscordUser> ModifyCurrentUserAsync(string username = null, Optional<Stream> avatar = default, Optional<Stream> banner = default)
     {
-        Optional<string> av64 = Optional.FromNoValue<string>();
+        Optional<string> avatarBase64 = Optional.FromNoValue<string>();
         if (avatar.HasValue && avatar.Value != null)
         {
             using ImageTool imgtool = new(avatar.Value);
-            av64 = imgtool.GetBase64();
+            avatarBase64 = imgtool.GetBase64();
         }
         else if (avatar.HasValue)
         {
-            av64 = null;
+            avatarBase64 = null;
+        }
+        
+        Optional<string> bannerBase64 = Optional.FromNoValue<string>();
+        if (banner.HasValue && banner.Value != null)
+        {
+            using ImageTool imgtool = new(banner.Value);
+            bannerBase64 = imgtool.GetBase64();
+        }
+        else if (banner.HasValue)
+        {
+            bannerBase64 = null;
         }
 
-        TransportUser usr = await this.ApiClient.ModifyCurrentUserAsync(username, av64);
+        TransportUser usr = await this.ApiClient.ModifyCurrentUserAsync(username, avatarBase64, bannerBase64);
 
         this.CurrentUser.Username = usr.Username;
         this.CurrentUser.Discriminator = usr.Discriminator;
@@ -749,9 +576,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <summary>
     /// Gets all the global application commands for this application.
     /// </summary>
+    /// <param name="withLocalizations">Whether to include localizations in the response.</param>
     /// <returns>A list of global application commands.</returns>
-    public async Task<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync() =>
-        await this.ApiClient.GetGlobalApplicationCommandsAsync(this.CurrentApplication.Id);
+    public async Task<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync(bool withLocalizations = false) =>
+        await this.ApiClient.GetGlobalApplicationCommandsAsync(this.CurrentApplication.Id, withLocalizations);
 
     /// <summary>
     /// Overwrites the existing global application commands. New commands are automatically created and missing commands are automatically deleted.
@@ -781,10 +609,11 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// Gets a global application command by its name.
     /// </summary>
     /// <param name="commandName">The name of the command to get.</param>
+    /// <param name="withLocalizations">Whether to include localizations in the response.</param>
     /// <returns>The command with the name.</returns>
-    public async Task<DiscordApplicationCommand> GetGlobalApplicationCommandAsync(string commandName)
+    public async Task<DiscordApplicationCommand> GetGlobalApplicationCommandAsync(string commandName, bool withLocalizations = false)
     {
-        foreach (DiscordApplicationCommand command in await this.ApiClient.GetGlobalApplicationCommandsAsync(this.CurrentApplication.Id))
+        foreach (DiscordApplicationCommand command in await this.ApiClient.GetGlobalApplicationCommandsAsync(this.CurrentApplication.Id, withLocalizations))
         {
             if (command.Name == commandName)
             {
@@ -805,8 +634,25 @@ public sealed partial class DiscordClient : BaseDiscordClient
     {
         ApplicationCommandEditModel mdl = new();
         action(mdl);
+
         ulong applicationId = this.CurrentApplication?.Id ?? (await GetCurrentApplicationAsync()).Id;
-        return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
+
+        return await this.ApiClient.EditGlobalApplicationCommandAsync
+        (
+            applicationId,
+            commandId,
+            mdl.Name, 
+            mdl.Description,
+            mdl.Options,
+            mdl.DefaultPermission, 
+            mdl.NSFW,
+            mdl.NameLocalizations,
+            mdl.DescriptionLocalizations,
+            mdl.AllowDMUsage,
+            mdl.DefaultMemberPermissions,
+            mdl.AllowedContexts,
+            mdl.IntegrationTypes
+        );
     }
 
     /// <summary>
@@ -820,9 +666,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// Gets all the application commands for a guild.
     /// </summary>
     /// <param name="guildId">The ID of the guild to get application commands for.</param>
+    /// <param name="withLocalizations">Whether to include localizations in the response.</param>
     /// <returns>A list of application commands in the guild.</returns>
-    public async Task<IReadOnlyList<DiscordApplicationCommand>> GetGuildApplicationCommandsAsync(ulong guildId) =>
-        await this.ApiClient.GetGuildApplicationCommandsAsync(this.CurrentApplication.Id, guildId);
+    public async Task<IReadOnlyList<DiscordApplicationCommand>> GetGuildApplicationCommandsAsync(ulong guildId, bool withLocalizations = false) =>
+        await this.ApiClient.GetGuildApplicationCommandsAsync(this.CurrentApplication.Id, guildId, withLocalizations);
 
     /// <summary>
     /// Overwrites the existing application commands in a guild. New commands are automatically created and missing commands are automatically deleted.
@@ -862,8 +709,26 @@ public sealed partial class DiscordClient : BaseDiscordClient
     {
         ApplicationCommandEditModel mdl = new();
         action(mdl);
+
         ulong applicationId = this.CurrentApplication?.Id ?? (await GetCurrentApplicationAsync()).Id;
-        return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
+
+        return await this.ApiClient.EditGuildApplicationCommandAsync
+        (
+            applicationId,
+            guildId,
+            commandId,
+            mdl.Name,
+            mdl.Description,
+            mdl.Options,
+            mdl.DefaultPermission,
+            mdl.NSFW,
+            mdl.NameLocalizations,
+            mdl.DescriptionLocalizations,
+            mdl.AllowDMUsage,
+            mdl.DefaultMemberPermissions,
+            mdl.AllowedContexts,
+            mdl.IntegrationTypes
+        );
     }
 
     /// <summary>
@@ -908,6 +773,69 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public IAsyncEnumerable<DiscordGuild> GetGuildsAsync(int limit = 200, bool? withCount = null, CancellationToken cancellationToken = default) =>
         GetGuildsInternalAsync(limit, withCount: withCount, cancellationToken: cancellationToken);
+
+    /// <summary>
+    /// Creates a new emoji owned by the current application.
+    /// </summary>
+    /// <param name="name">The name of the emoji.</param>
+    /// <param name="image">The image of the emoji.</param>
+    /// <returns>The created emoji.</returns>
+    public async ValueTask<DiscordEmoji> CreateApplicationEmojiAsync(string name, Stream image)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentNullException(nameof(name));
+        }
+
+        name = name.Trim();
+        if (name.Length is < 2 or > 50)
+        {
+            throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.");
+        }
+
+        ArgumentNullException.ThrowIfNull(image);
+
+        string? image64 = null;
+
+        using (ImageTool imgtool = new(image))
+        {
+            image64 = imgtool.GetBase64();
+        }
+
+        return await this.ApiClient.CreateApplicationEmojiAsync(this.CurrentApplication.Id, name, image64);
+    }
+
+    /// <summary>
+    /// Gets an emoji owned by the current application.
+    /// </summary>
+    /// <param name="emojiId">The ID of the emoji</param>
+    /// <returns>The emoji.</returns>
+    public async ValueTask<DiscordEmoji> GetApplicationEmojiAsync(ulong emojiId)
+        => await this.ApiClient.GetApplicationEmojiAsync(this.CurrentApplication.Id, emojiId);
+
+    /// <summary>
+    /// Gets all emojis created or owned by the current application.
+    /// </summary>
+    /// <returns>All emojis associated with the current application.
+    /// This includes emojis uploaded by the owner or members of the team the application is on, if applicable.</returns>
+    public async ValueTask<IReadOnlyList<DiscordEmoji>> GetApplicationEmojisAsync()
+        => await this.ApiClient.GetApplicationEmojisAsync(this.CurrentApplication.Id);
+
+    /// <summary>
+    /// Modifies an existing application emoji.
+    /// </summary>
+    /// <param name="emojiId">The ID of the emoji.</param>
+    /// <param name="name">The new name of the emoji.</param>
+    /// <returns>The updated emoji.</returns>
+    public async ValueTask<DiscordEmoji> ModifyApplicationEmojiAsync(ulong emojiId, string name)
+        => await this.ApiClient.ModifyApplicationEmojiAsync(this.CurrentApplication.Id, emojiId, name);
+
+    /// <summary>
+    /// Deletes an emoji.
+    /// </summary>
+    /// <param name="emojiId">The ID of the emoji to delete.</param>
+    public async ValueTask DeleteApplicationEmojiAsync(ulong emojiId)
+        => await this.ApiClient.DeleteApplicationEmojiAsync(this.CurrentApplication.Id, emojiId);
 
     private async IAsyncEnumerable<DiscordGuild> GetGuildsInternalAsync
     (
@@ -971,8 +899,67 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
         while (remaining > 0 && lastCount is > 0 and 100);
     }
-
     #endregion
+
+    /// <summary>
+    /// This method is used to inject interactions into the client which are coming from http webhooks.
+    /// </summary>
+    /// <param name="body">Body of the http request. Should be UTF8 encoded</param>
+    /// <param name="cancellationToken">Token to cancel the interaction when the http request was canceled</param>
+    /// <returns>Returns the body which should be returned to the http request</returns>
+    /// <exception cref="TaskCanceledException">Thrown when the passed cancellation token was canceled</exception>
+    public async Task<byte[]> HandleHttpInteractionAsync(ArraySegment<byte> body, CancellationToken cancellationToken = default)
+    {
+        string bodyString = Encoding.UTF8.GetString(body);
+
+        JObject data = JObject.Parse(bodyString);
+        
+        DiscordHttpInteraction? interaction = data.ToDiscordObject<DiscordHttpInteraction>();
+        
+        if (interaction is null)
+        {
+            throw new ArgumentException("Unable to parse provided request body to DiscordHttpInteraction");
+        }
+        
+        if (interaction.Type is DiscordInteractionType.Ping)
+        {
+            DiscordInteractionResponsePayload responsePayload = new() {Type = DiscordInteractionResponseType.Pong};
+            string responseString = DiscordJson.SerializeObject(responsePayload);
+            byte[] responseBytes = Encoding.UTF8.GetBytes(responseString);
+            
+            return responseBytes;
+        }
+
+        cancellationToken.Register(() => interaction.Cancel());
+        
+        ulong? guildId = (ulong?)data["guild_id"];
+        ulong channelId = (ulong)data["channel_id"];
+        
+        JToken rawMember = data["member"];
+        TransportMember? transportMember = null;
+        TransportUser transportUser;
+        if (rawMember != null)
+        {
+            transportMember = data["member"].ToDiscordObject<TransportMember>();
+            transportUser = transportMember.User;
+        }
+        else
+        {
+            transportUser = data["user"].ToDiscordObject<TransportUser>();
+        }
+
+        JToken? rawChannel = data["channel"];
+        DiscordChannel? channel = null;
+        if (rawChannel is not null)
+        {
+            channel = rawChannel.ToDiscordObject<DiscordChannel>();
+            channel.Discord = this;
+        }
+
+        await OnInteractionCreateAsync(guildId, channelId, transportUser, transportMember, channel, interaction);
+
+        return await interaction.GetResponseAsync();
+    }
 
     #region Internal Caching Methods
 
@@ -984,6 +971,21 @@ public sealed partial class DiscordClient : BaseDiscordClient
             {
                 return foundThread;
             }
+        }
+
+        return null;
+    }
+
+    internal DiscordThreadChannel? InternalGetCachedThread(ulong threadId, ulong? guildId)
+    {
+        if (!guildId.HasValue)
+        {
+            return InternalGetCachedThread(threadId);
+        }
+
+        if (this.guilds.TryGetValue(guildId.Value, out DiscordGuild? guild))
+        {
+            return guild.Threads.GetValueOrDefault(threadId);
         }
 
         return null;
@@ -1005,6 +1007,21 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
 
         return null;
+    }
+
+    internal DiscordChannel? InternalGetCachedChannel(ulong channelId, ulong? guildId)
+    {
+        if (guildId is not ulong nonNullGuildID)
+        {
+            return this.privateChannels.GetValueOrDefault(channelId) ?? InternalGetCachedChannel(channelId);
+        }
+
+        if (this.guilds.TryGetValue(nonNullGuildID, out DiscordGuild? guild))
+        {
+            return guild.Channels.GetValueOrDefault(channelId);
+        }
+
+        return InternalGetCachedChannel(channelId);
     }
 
     internal DiscordGuild InternalGetCachedGuild(ulong? guildId)
@@ -1034,7 +1051,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             message.Author = UpdateUser(usr, guild?.Id, guild, member);
         }
 
-        DiscordChannel? channel = InternalGetCachedChannel(message.ChannelId) ?? InternalGetCachedThread(message.ChannelId);
+        DiscordChannel? channel = InternalGetCachedChannel(message.ChannelId, message.guildId) ?? InternalGetCachedThread(message.ChannelId, message.guildId);
 
         if (channel != null)
         {
@@ -1074,7 +1091,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 usr = new DiscordMember(mbr) { Discord = this, guild_id = guildId.Value };
             }
 
-            DiscordIntents intents = this.Configuration.Intents;
+            DiscordIntents intents = this.Intents;
 
             DiscordMember member = default;
 
@@ -1245,7 +1262,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             xr.Emoji.Discord = this;
         }
 
-        if (this.Configuration.MessageCacheSize > 0 && message.Channel != null)
+        if (message.Channel is not null)
         {
             this.MessageCache?.Add(message);
         }
@@ -1303,24 +1320,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
         DisconnectAsync().GetAwaiter().GetResult();
         this.ApiClient?.rest?.Dispose();
         this.CurrentUser = null!;
-
-        List<BaseExtension> extensions = this.extensions; // prevent extensions being modified during dispose
-        this.extensions = null!;
-
-        foreach (BaseExtension extension in extensions)
-        {
-            if (extension is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-        }
-
-        try
-        {
-            this.cancelTokenSource?.Cancel();
-            this.cancelTokenSource?.Dispose();
-        }
-        catch { }
 
         this.guilds = null!;
         this.privateChannels = null!;

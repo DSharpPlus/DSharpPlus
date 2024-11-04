@@ -28,7 +28,7 @@ public sealed class DiscordStageInstance : SnowflakeObject
     /// </summary>
     [JsonIgnore]
     public DiscordChannel Channel
-        => (this.Discord as DiscordClient)?.InternalGetCachedChannel(this.ChannelId) ?? null;
+        => (this.Discord as DiscordClient)?.InternalGetCachedChannel(this.ChannelId, this.GuildId) ?? null;
 
     /// <summary>
     /// Gets the id of the channel this stage instance is in.

@@ -11,6 +11,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Lavalink.Entities;
 using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net;
+using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.WebSocket;
 using Microsoft.Extensions.Logging;
@@ -206,8 +207,6 @@ public sealed class LavalinkNodeConnection
 
         this.VoiceServerUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdatedEventArgs>>();
         this.VoiceStateUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdatedEventArgs>>();
-        this.Discord.VoiceStateUpdated += Discord_VoiceStateUpdated;
-        this.Discord.VoiceServerUpdated += Discord_VoiceServerUpdated;
 
         this.Rest = new LavalinkRestClient(this.Configuration, this.Discord);
 
@@ -220,7 +219,7 @@ public sealed class LavalinkNodeConnection
     /// <returns></returns>
     internal async Task StartAsync()
     {
-        if (this.Discord?.CurrentUser?.Id == null || this.Discord?.ShardCount == null)
+        if (this.Discord?.CurrentUser?.Id == null)
         {
             throw new InvalidOperationException("This operation requires the Discord client to be fully initialized.");
         }
@@ -232,7 +231,7 @@ public sealed class LavalinkNodeConnection
         this.WebSocket.MessageReceived += WebSocket_OnMessageAsync;
 
         this.WebSocket.AddDefaultHeader("Authorization", this.Configuration.Password);
-        this.WebSocket.AddDefaultHeader("Num-Shards", this.Discord.ShardCount.ToString(CultureInfo.InvariantCulture));
+        this.WebSocket.AddDefaultHeader("Num-Shards", 1.ToString(CultureInfo.InvariantCulture));
         this.WebSocket.AddDefaultHeader("User-Id", this.Discord.CurrentUser.Id.ToString(CultureInfo.InvariantCulture));
         this.WebSocket.AddDefaultHeader("Client-Name", "DSharpPlus.Lavalink");
         if (this.Configuration.ResumeKey != null)
@@ -320,19 +319,17 @@ public sealed class LavalinkNodeConnection
         this.VoiceStateUpdates[channel.Guild.Id] = vstut;
         this.VoiceServerUpdates[channel.Guild.Id] = vsrut;
 
-        VoiceDispatch vsd = new()
+        VoiceStateUpdatePayload payload = new()
         {
-            OpCode = 4,
-            Payload = new VoiceStateUpdatePayload
-            {
-                GuildId = channel.Guild.Id,
-                ChannelId = channel.Id,
-                Deafened = false,
-                Muted = false
-            }
+            GuildId = channel.Guild.Id,
+            ChannelId = channel.Id,
+            Deafened = false,
+            Muted = false
         };
-        string vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-        await (channel.Discord as DiscordClient).SendRawPayloadAsync(vsj);
+
+#pragma warning disable DSP0004 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+        await (channel.Discord as DiscordClient).SendPayloadAsync(GatewayOpCode.VoiceStateUpdate, payload, channel.GuildId.Value);
+#pragma warning restore DSP0004 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         VoiceStateUpdatedEventArgs vstu = await vstut.Task;
         VoiceServerUpdatedEventArgs vsru = await vsrut.Task;
         await SendPayloadAsync(new LavalinkVoiceUpdate(vstu, vsru));

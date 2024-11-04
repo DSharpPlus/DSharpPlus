@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
+
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
+using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus;
@@ -24,20 +28,31 @@ public class DiscordRestClient : BaseDiscordClient
     internal Dictionary<ulong, DiscordGuild> guilds = [];
     private bool disposedValue;
 
-    public DiscordRestClient(DiscordConfiguration config) : base() 
+    public string Token { get; }
+
+    public TokenType TokenType { get; }
+
+    public DiscordRestClient(RestClientOptions options, string token, TokenType tokenType, ILogger? logger = null) : base()
     {
+        string headerTokenType = tokenType == TokenType.Bot ? "Bot" : "Bearer";
+        
+        HttpClient httpClient = new();
+        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"{headerTokenType} {token}");
+        
         this.ApiClient = new(new
         (
-            new(),
-            TimeSpan.FromSeconds(10),
-            NullLogger.Instance,
-            config.MaximumRatelimitRetries,
-            config.RatelimitRetryDelayFallback,
-            config.TimeoutForInitialApiRequest,
-            config.MaximumRestRequestsPerSecond
+            httpClient,
+            options.Timeout,
+            logger ?? NullLogger.Instance,
+            options.MaximumRatelimitRetries,
+            (int)options.RatelimitRetryDelayFallback.TotalMilliseconds,
+            (int)options.InitialRequestTimeout.TotalMilliseconds,
+            options.MaximumConcurrentRestRequests
         ));
 
         this.ApiClient.SetClient(this);
+        this.Token = token;
+        this.TokenType = tokenType;
     }
 
     /// <summary>
@@ -1015,7 +1030,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="nickname">DM nickname</param>
     /// <returns></returns>
     public async Task JoinGroupDmAsync(ulong channelId, string nickname)
-        => await this.ApiClient.AddGroupDmRecipientAsync(channelId, this.CurrentUser.Id, this.Configuration.Token, nickname);
+        => await this.ApiClient.AddGroupDmRecipientAsync(channelId, this.CurrentUser.Id, this.Token, nickname);
 
     /// <summary>
     /// Adds a member to a group DM
@@ -1063,7 +1078,7 @@ public class DiscordRestClient : BaseDiscordClient
     public async Task<DiscordDmChannel> CreateGroupDmWithCurrentUserAsync(IEnumerable<string> accessTokens, IDictionary<ulong, string> nicks)
     {
         List<string> a = accessTokens.ToList();
-        a.Add(this.Configuration.Token);
+        a.Add(this.Token);
         return await this.ApiClient.CreateGroupDmAsync(a, nicks);
     }
 
@@ -1185,26 +1200,35 @@ public class DiscordRestClient : BaseDiscordClient
     /// </summary>
     /// <param name="username">New username</param>
     /// <param name="base64Avatar">New avatar (base64)</param>
+    /// <param name="base64Banner">New banner (base64)</param>
     /// <returns></returns>
-    public async Task<DiscordUser> ModifyCurrentUserAsync(string username, string base64Avatar)
-        => new DiscordUser(await this.ApiClient.ModifyCurrentUserAsync(username, base64Avatar)) { Discord = this };
+    public async Task<DiscordUser> ModifyCurrentUserAsync(string username, string base64Avatar, string base64Banner)
+        => new DiscordUser(await this.ApiClient.ModifyCurrentUserAsync(username, base64Avatar, base64Banner)) { Discord = this };
 
     /// <summary>
     /// Modifies current user
     /// </summary>
     /// <param name="username">username</param>
     /// <param name="avatar">avatar</param>
+    /// <param name="banner">New banner</param>
     /// <returns></returns>
-    public async Task<DiscordUser> ModifyCurrentUserAsync(string username = null, Stream avatar = null)
+    public async Task<DiscordUser> ModifyCurrentUserAsync(string username = null, Stream? avatar = null, Stream? banner = null)
     {
-        string av64 = null;
+        string avatarBase64 = null;
         if (avatar is not null)
         {
             using ImageTool imgtool = new(avatar);
-            av64 = imgtool.GetBase64();
+            avatarBase64 = imgtool.GetBase64();
+        }
+        
+        string bannerBase64 = null;
+        if (banner is not null)
+        {
+            using ImageTool imgtool = new(banner);
+            bannerBase64 = imgtool.GetBase64();
         }
 
-        return new DiscordUser(await this.ApiClient.ModifyCurrentUserAsync(username, av64)) { Discord = this };
+        return new DiscordUser(await this.ApiClient.ModifyCurrentUserAsync(username, avatarBase64, bannerBase64)) { Discord = this };
     }
 
     /// <summary>
