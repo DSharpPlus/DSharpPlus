@@ -10,10 +10,16 @@ using Verifier =
 
 namespace DSharpPlus.Analyzers.Test;
 
+/// <summary>
+/// 
+/// </summary>
 public static class MultipleOverwriteTest
 {
+    /// <summary>
+    /// Single diagnostic report for multiple overwrite analyzer
+    /// </summary>
     [Test]
-    public static async Task MultipleOverwriteTest_DiagnosticAsync()
+    public static async Task MultipleOverwriteTest_1DiagnosticAsync()
     {
         CSharpAnalyzerTest<MultipleOverwriteAnalyzer, DefaultVerifier> test =
             Utility.CreateAnalyzerTest<MultipleOverwriteAnalyzer>();
@@ -33,7 +39,44 @@ public class OverwriteTest
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic()
                 .WithLocation(10, 15)
-                .WithMessage("Use  one 'channel.ModifyAsync(..)' instead of multiple 'channel.AddOverwriteAsync(..)'")
+                .WithMessage("Use one 'channel.ModifyAsync(..)' instead of multiple 'channel.AddOverwriteAsync(..)'")
+        );
+        await test.RunAsync();
+    }
+
+    /// <summary>
+    /// Checks if the multiple overwrite analyzer reports twice and not just once.
+    /// </summary>
+    [Test]
+    public static async Task MultipleOverwriteTest_2DiagnosticAsync()
+    {
+        CSharpAnalyzerTest<MultipleOverwriteAnalyzer, DefaultVerifier> test =
+            Utility.CreateAnalyzerTest<MultipleOverwriteAnalyzer>();
+
+        test.TestCode = @"
+using DSharpPlus.Entities;
+using System.Threading.Tasks;
+
+public class OverwriteTest
+{
+    public async Task AddOverwritesAsync(DiscordChannel channel, DiscordMember member, DiscordMember member2)
+    {
+        await channel.AddOverwriteAsync(member, DiscordPermissions.BanMembers);
+        await channel.AddOverwriteAsync(member2, DiscordPermissions.KickMembers);
+        await channel.AddOverwriteAsync(member2, DiscordPermissions.Administrator);
+
+    }
+}
+";
+        test.ExpectedDiagnostics.Add(
+            Verifier.Diagnostic()
+                .WithLocation(10, 15)
+                .WithMessage("Use one 'channel.ModifyAsync(..)' instead of multiple 'channel.AddOverwriteAsync(..)'")
+        );
+        test.ExpectedDiagnostics.Add(
+            Verifier.Diagnostic()
+                .WithLocation(11, 15)
+                .WithMessage("Use one 'channel.ModifyAsync(..)' instead of multiple 'channel.AddOverwriteAsync(..)'")
         );
         await test.RunAsync();
     }

@@ -39,6 +39,6 @@
     <value>Use one 'DiscordChannel#ModifyAsync' instead of multiple 'DiscordChannel#OverwriteAsync' calls.</value>
   </data>
   <data name="DSP0002MessageFormat" xml:space="preserve">
-    <value>Use  one '{0}.ModifyAsync(..)' instead of multiple '{0}.AddOverwriteAsync(..)'</value>
+    <value>Use one '{0}.ModifyAsync(..)' instead of multiple '{0}.AddOverwriteAsync(..)'</value>
   </data>
 </root>

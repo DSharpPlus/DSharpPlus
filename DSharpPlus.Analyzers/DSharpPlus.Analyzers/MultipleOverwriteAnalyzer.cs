@@ -76,7 +76,7 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if (!Utility.CheckIfSameTypeByNamespace(typeInfo, "DSharpPlus.Entities.DiscordChannel", ctx.Compilation))
+        if (!ctx.Compilation.CheckByName(typeInfo, "DSharpPlus.Entities.DiscordChannel"))
         {
             return;
         }
