@@ -50,4 +50,13 @@
   <data name="DSP0007MessageFormat" xml:space="preserve">
     <value>Use '{0}' outside of the loop instead of '{1}' inside the loop</value>
   </data>
+  <data name="DSP1001Title" xml:space="preserve">
+    <value>Cannot register to guilds for this installable context</value>
+  </data>
+  <data name="DSP1001Description" xml:space="preserve">
+    <value>Cannot register this slash command to the specified guilds as its context disallow that.</value>
+  </data>
+  <data name="DSP1001MessageFormat" xml:space="preserve">
+    <value>Cannot register '{0}' to the specified guilds as its installable context does not contain 'GuildInstall'</value>
+  </data>
 </root>

@@ -1,11 +1,12 @@
 using System.Threading.Tasks;
+using DSharpPlus.Analyzers.Core;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
 using NUnit.Framework;
 using Verifier =
     Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        DSharpPlus.Analyzers.SingleEntityGetRequestAnalyzer,
+        DSharpPlus.Analyzers.Core.SingleEntityGetRequestAnalyzer,
         Microsoft.CodeAnalysis.Testing.DefaultVerifier
     >;
 

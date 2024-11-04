@@ -1,11 +1,11 @@
-namespace DSharpPlus.Analyzers;
-
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+
+namespace DSharpPlus.Analyzers.Core;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer

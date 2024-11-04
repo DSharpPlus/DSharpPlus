@@ -7,6 +7,7 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\..\DSharpPlus.Commands\DSharpPlus.Commands.csproj" />
     <ProjectReference Include="..\DSharpPlus.Analyzers\DSharpPlus.Analyzers.csproj" />
     <ProjectReference Include="..\..\DSharpPlus\DSharpPlus.csproj" />
   </ItemGroup>
