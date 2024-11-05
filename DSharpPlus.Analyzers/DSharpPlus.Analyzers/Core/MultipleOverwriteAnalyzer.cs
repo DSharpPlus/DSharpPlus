@@ -40,9 +40,9 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
         true,
         description
     );
-    
+
     // This might need to be a concurrent dictionary cause of line 51
-    private readonly Dictionary<MethodDeclarationSyntax, HashSet<string>> invocations = new(); 
+    private readonly Dictionary<MethodDeclarationSyntax, HashSet<string>> invocations = new();
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);
 
@@ -53,7 +53,6 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
         ctx.RegisterSyntaxNodeAction(Analyze, SyntaxKind.InvocationExpression);
     }
 
-    // TODO: This does not check if a call is happening inside of a loop. Should report if it happens inside a loop
     private void Analyze(SyntaxNodeAnalysisContext ctx)
     {
         if (ctx.Node is not InvocationExpressionSyntax invocation)
@@ -65,7 +64,7 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
         {
             return;
         }
-        
+
         if (memberAccess.Name.Identifier.ValueText != "AddOverwriteAsync")
         {
             return;
@@ -84,14 +83,37 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
         }
 
         string memberText = memberAccess.GetText().ToString();
+        bool isInLoop = IsInLoop(invocation);
         if (!this.invocations.TryGetValue(method, out HashSet<string> hashSet))
         {
             this.invocations.Add(method, [memberText]);
+            if (isInLoop)
+            {
+                Diagnostic loopDiagnostic = Diagnostic.Create(
+                    rule,
+                    invocation.GetLocation(),
+                    memberAccess.Expression
+                );
+
+                ctx.ReportDiagnostic(loopDiagnostic);
+            }
+
             return;
         }
 
         if (hashSet.Add(memberText))
         {
+            if (isInLoop)
+            {
+                Diagnostic loopDiagnostic = Diagnostic.Create(
+                    rule,
+                    invocation.GetLocation(),
+                    memberAccess.Expression
+                );
+
+                ctx.ReportDiagnostic(loopDiagnostic);
+            }
+            
             return;
         }
 
@@ -100,7 +122,7 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
             invocation.GetLocation(),
             memberAccess.Expression
         );
-        
+
         ctx.ReportDiagnostic(diagnostic);
     }
 
@@ -117,5 +139,25 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
         }
 
         return FindMethodDecl(syntax.Parent);
+    }
+
+    private bool IsInLoop(SyntaxNode? syntax)
+    {
+        if (syntax is null)
+        {
+            return false;
+        }
+
+        if (syntax is ForEachStatementSyntax)
+        {
+            return true;
+        }
+
+        if (syntax is ForStatementSyntax)
+        {
+            return true;
+        }
+
+        return IsInLoop(syntax.Parent);
     }
 }
