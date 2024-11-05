@@ -22,6 +22,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>
+    <PackageReference Include="System.Formats.Asn1" Condition="'$(OS)' == 'WINDOWS_NT'" />
   </ItemGroup>
 
   <ItemGroup>
