@@ -65,6 +65,10 @@
         topicUid: articles.commands.command_processors.slash_commands.naming_policies
       - name: Localizing Interactions
         topicUid: articles.commands.command_processors.slash_commands.localizing_interactions
+- name: Analyzers
+  items:
+    - name: Setup DSharpPlus.Analyzers
+      topicUid: articles.analyzers.setup
 - name: CommandsNext
   items:
   - name: Introduction

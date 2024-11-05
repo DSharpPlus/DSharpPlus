@@ -53,6 +53,7 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
         ctx.RegisterSyntaxNodeAction(Analyze, SyntaxKind.InvocationExpression);
     }
 
+    // TODO: This does not check if a call is happening inside of a loop. Should report if it happens inside a loop
     private void Analyze(SyntaxNodeAnalysisContext ctx)
     {
         if (ctx.Node is not InvocationExpressionSyntax invocation)
