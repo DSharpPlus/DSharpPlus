@@ -39,7 +39,8 @@ public class ValidGuildInstallablesAnalyzer : DiagnosticAnalyzer
         Category,
         DiagnosticSeverity.Error,
         true,
-        description
+        description,
+        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/rules.html#usage-error-dsp1001"
     );
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);
@@ -50,8 +51,8 @@ public class ValidGuildInstallablesAnalyzer : DiagnosticAnalyzer
         ctx.EnableConcurrentExecution();
         ctx.RegisterSyntaxNodeAction(Analyze, SyntaxKind.MethodDeclaration);
     }
-
-    public void Analyze(SyntaxNodeAnalysisContext ctx)
+    
+    private void Analyze(SyntaxNodeAnalysisContext ctx)
     {
         if (ctx.Node is not MethodDeclarationSyntax methodDecl)
         {

@@ -1,9 +1,11 @@
-namespace DSharpPlus.Analyzers;
-
 using Microsoft.CodeAnalysis;
+
+namespace DSharpPlus.Analyzers;
 
 public static class Utility
 {
+    public const string BaseDocsUrl = "https://dsharpplus.github.io/DSharpPlus";
+    
     /// <summary>
     /// Checks if the type is equal to the name provided
     /// </summary>

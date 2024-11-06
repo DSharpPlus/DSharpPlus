@@ -9,4 +9,4 @@
  DSP0007 | Design   | Info     | Use a list request instead of fetching single entities inside of a loop                                                     
  DSP1001 | Usage    | Error    | A slash command explicitly registered to a guild should not specify DMs or user apps as installable context                 
  DSP1002 | Usage    | Warning  | Do not explicitly register nested classes of elsewhere-registered classes to DSharpPlus.Commands                            
- DSP1003 | Usage    | Error    | A command taking a specific context type should not be registerd as allowing processors whose contex typeit doesn't support 
+ DSP1003 | Usage    | Error    | A command taking a specific context type should not be registerd as allowing processors whose contex type it doesn't support 

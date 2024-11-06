@@ -39,13 +39,14 @@ public class ProcessorCheckAnalyzer : DiagnosticAnalyzer
         Category,
         DiagnosticSeverity.Error,
         true,
-        description
+        description,
+        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/rules.html#usage-error-dsp1003"
     );
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);
 
-    private static readonly IReadOnlyDictionary<string, HashSet<string>> allowedContexts
-        = new Dictionary<string, HashSet<string>>()
+    private static readonly Dictionary<string, string[]> allowedContexts
+        = new()
         {
             {
                 "DSharpPlus.Commands.Processors.TextCommands.CommandContext",
@@ -57,6 +58,7 @@ public class ProcessorCheckAnalyzer : DiagnosticAnalyzer
             },
             { "DSharpPlus.Commands.Processors.UserCommands.UserCommandContext", ["UserCommandProcessor"] },
             { "DSharpPlus.Commands.Processors.TextCommands.TextCommandContext", ["TextCommandProcessor"] },
+            { "DSharpPlus.Commands.Processors.UserCommands.MessageCommandContext", ["MessageCommandProcessor"] },
         };
 
     public override void Initialize(AnalysisContext ctx)
@@ -66,7 +68,7 @@ public class ProcessorCheckAnalyzer : DiagnosticAnalyzer
         ctx.RegisterSyntaxNodeAction(Analyze, SyntaxKind.MethodDeclaration);
     }
 
-    public void Analyze(SyntaxNodeAnalysisContext ctx)
+    private void Analyze(SyntaxNodeAnalysisContext ctx)
     {
         if (ctx.Node is not MethodDeclarationSyntax methodDecl)
         {
@@ -123,7 +125,7 @@ public class ProcessorCheckAnalyzer : DiagnosticAnalyzer
 
         if (!allowedContexts.TryGetValue(
                 $"{contextType.Type.ContainingNamespace.ToDisplayString()}.{contextType.Type.MetadataName}",
-                out HashSet<string>? set))
+                out string[]? arr))
         {
             return;
         }
@@ -131,7 +133,7 @@ public class ProcessorCheckAnalyzer : DiagnosticAnalyzer
         bool containsAnyProcessor = false;
         foreach (ITypeSymbol? t in types)
         {
-            if (set.Contains(t.Name))
+            if (arr.Contains(t.Name))
             {
                 containsAnyProcessor = true;
                 break;

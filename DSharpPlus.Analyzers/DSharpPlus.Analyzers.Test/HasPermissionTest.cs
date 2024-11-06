@@ -1,14 +1,13 @@
 using System.Threading.Tasks;
 using DSharpPlus.Analyzers.Core;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
 using NUnit.Framework;
-using Microsoft.CodeAnalysis.CSharp.Testing;
-using Verifier =
-    Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        DSharpPlus.Analyzers.Core.HasPermissionAnalyzer,
-        Microsoft.CodeAnalysis.Testing.DefaultVerifier
-    >;
+using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
+    DSharpPlus.Analyzers.Core.HasPermissionAnalyzer,
+    Microsoft.CodeAnalysis.Testing.DefaultVerifier
+>;
 
 namespace DSharpPlus.Analyzers.Test;
 
@@ -22,6 +21,7 @@ public class HasPermissionTest
     {
         CSharpAnalyzerTest<HasPermissionAnalyzer, DefaultVerifier> test =
             Utility.CreateAnalyzerTest<HasPermissionAnalyzer>();
+        
         test.TestCode = """
                         using DSharpPlus.Entities;
 
@@ -38,6 +38,7 @@ public class HasPermissionTest
                         }
 
                         """;
+        
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic()
                 .WithLocation(7, 13)

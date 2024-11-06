@@ -38,19 +38,24 @@ public class SingleEntityGetRequestAnalyzer : DiagnosticAnalyzer
         Category,
         DiagnosticSeverity.Info,
         true,
-        description
+        description,
+        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/rules.html#design-info-dsp0007"
     );
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);
 
     private static readonly IReadOnlyDictionary<string, string> methods = new Dictionary<string, string>()
     {
-        { "GetMessageAsync", "DSharpPlus.Entities.DiscordChannel" }
+        { "GetMessageAsync", "DSharpPlus.Entities.DiscordChannel" }, 
+        { "GetGuildAsync", "DSharpPlus.DiscordClient"},
+        { "GetMemberAsync", "DSharpPlus.Entities.Channel"}
     };
 
     private static readonly IReadOnlyDictionary<string, string> preferedMethods = new Dictionary<string, string>()
     {
-        { "GetMessageAsync", "GetMessagesAsync" }
+        { "GetMessageAsync", "GetMessagesAsync" },
+        {"GetGuildAsync", "GetGuildsAsync"},
+        { "GetMemberAsync", "GetAllMembersAsync"}
     };
 
     public override void Initialize(AnalysisContext ctx)
@@ -60,7 +65,7 @@ public class SingleEntityGetRequestAnalyzer : DiagnosticAnalyzer
         ctx.RegisterSyntaxNodeAction(Analyze, SyntaxKind.InvocationExpression);
     }
 
-    public void Analyze(SyntaxNodeAnalysisContext ctx)
+    private void Analyze(SyntaxNodeAnalysisContext ctx)
     {
         if (ctx.Node is not InvocationExpressionSyntax invocation)
         {
@@ -71,7 +76,7 @@ public class SingleEntityGetRequestAnalyzer : DiagnosticAnalyzer
         {
             return;
         }
-        
+
         string methodName = memberAccess.Name.Identifier.ValueText;
         if (!methods.TryGetValue(methodName, out string? typeName))
         {
@@ -96,7 +101,7 @@ public class SingleEntityGetRequestAnalyzer : DiagnosticAnalyzer
             $"{memberAccess.Expression}.{preferedMethods[methodName]}()",
             invocation
         );
-        
+
         ctx.ReportDiagnostic(diagnostic);
     }
 

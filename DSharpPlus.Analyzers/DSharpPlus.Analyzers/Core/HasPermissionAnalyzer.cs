@@ -39,7 +39,8 @@ public class HasPermissionAnalyzer : DiagnosticAnalyzer
         Category,
         DiagnosticSeverity.Warning,
         true,
-        description
+        description,
+        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/rules.html#usage-error-dsp1001"
     );
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);
@@ -58,7 +59,8 @@ public class HasPermissionAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if (binaryExpression.Kind() != SyntaxKind.NotEqualsExpression)
+        if (binaryExpression.Kind() != SyntaxKind.NotEqualsExpression || 
+            binaryExpression.Kind() != SyntaxKind.EqualsExpression)
         {
             return;
         }
@@ -74,19 +76,16 @@ public class HasPermissionAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        TypeInfo typeInfo = ctx.SemanticModel.GetTypeInfo(leftBinary.Left);
-        if (typeInfo.Type?.Name != "DiscordPermissions" ||
-            !ctx.Compilation.CheckByName(typeInfo, "DSharpPlus.Entities.DiscordPermissions"))
+        TypeInfo leftTypeInfo = ctx.SemanticModel.GetTypeInfo(leftBinary.Left);
+        if (leftTypeInfo.Type?.Name != "DiscordPermissions" ||
+            !ctx.Compilation.CheckByName(leftTypeInfo, "DSharpPlus.Entities.DiscordPermissions"))
         {
             return;
         }
 
-        if (binaryExpression.Right is not LiteralExpressionSyntax literal)
-        {
-            return;
-        }
-
-        if (literal.Kind() != SyntaxKind.NumericLiteralExpression)
+        TypeInfo rightTypeInfo = ctx.SemanticModel.GetTypeInfo(leftBinary.Right);
+        if (leftTypeInfo.Type?.Name != "DiscordPermissions" ||
+            !ctx.Compilation.CheckByName(rightTypeInfo, "DSharpPlus.Entities.DiscordPermissions"))
         {
             return;
         }

@@ -69,6 +69,8 @@
   items:
     - name: Setup DSharpPlus.Analyzers
       topicUid: articles.analyzers.setup
+    - name: DSharpPlus.Analyzers rules
+      topicUid: articles.analyzers.rules
 - name: CommandsNext
   items:
   - name: Introduction

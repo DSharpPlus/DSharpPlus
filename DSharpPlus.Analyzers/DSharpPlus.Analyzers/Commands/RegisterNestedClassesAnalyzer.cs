@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.SymbolStore;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -40,7 +39,8 @@ public class RegisterNestedClassesAnalyzer : DiagnosticAnalyzer
         Category,
         DiagnosticSeverity.Warning,
         true,
-        description
+        description,
+        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/rules.html#usage-warning-dsp1002"
     );
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);
@@ -85,6 +85,7 @@ public class RegisterNestedClassesAnalyzer : DiagnosticAnalyzer
             = ctx.Compilation.GetTypeByMetadataName("System.Collections.Generic.IEnumerable`1");
         INamedTypeSymbol? typeType = ctx.Compilation.GetTypeByMetadataName("System.Type");
         INamedTypeSymbol enumerableTypesType = enumerableType!.Construct(typeType!);
+        
         bool isEnumerableTypesType
             = SymbolEqualityComparer.Default.Equals(methodSymbol.Parameters.FirstOrDefault()?.Type,
                 enumerableTypesType);

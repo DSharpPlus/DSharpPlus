@@ -38,7 +38,8 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
         Category,
         DiagnosticSeverity.Warning,
         true,
-        description
+        description,
+        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/rules.html#usage-error-dsp1001"
     );
 
     // This might need to be a concurrent dictionary cause of line 51

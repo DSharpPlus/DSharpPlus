@@ -4,11 +4,10 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
 using NUnit.Framework;
-using Verifier =
-    Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        DSharpPlus.Analyzers.Core.MultipleOverwriteAnalyzer,
-        Microsoft.CodeAnalysis.Testing.DefaultVerifier
-    >;
+using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
+    DSharpPlus.Analyzers.Core.MultipleOverwriteAnalyzer,
+    Microsoft.CodeAnalysis.Testing.DefaultVerifier
+>;
 
 namespace DSharpPlus.Analyzers.Test;
 
@@ -21,10 +20,11 @@ public static class MultipleOverwriteTest
     /// Single diagnostic report for multiple overwrite analyzer
     /// </summary>
     [Test]
-    public static async Task MultipleOverwriteTest_1DiagnosticAsync()
+    public static async Task DiagnosticAsync()
     {
         CSharpAnalyzerTest<MultipleOverwriteAnalyzer, DefaultVerifier> test =
             Utility.CreateAnalyzerTest<MultipleOverwriteAnalyzer>();
+        
         test.TestCode = """
                         using DSharpPlus.Entities;
                         using System.Threading.Tasks;
@@ -38,6 +38,7 @@ public static class MultipleOverwriteTest
                             }
                         }
                         """;
+        
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic()
                 .WithLocation(9, 15)
@@ -47,11 +48,8 @@ public static class MultipleOverwriteTest
         await test.RunAsync();
     }
 
-    /// <summary>
-    /// Checks if the multiple overwrite analyzer reports twice and not just once.
-    /// </summary>
     [Test]
-    public static async Task MultipleOverwriteTest_2DiagnosticAsync()
+    public static async Task MultipleErrorsScenarioTestAsync()
     {
         CSharpAnalyzerTest<MultipleOverwriteAnalyzer, DefaultVerifier> test =
             Utility.CreateAnalyzerTest<MultipleOverwriteAnalyzer>();
@@ -70,12 +68,14 @@ public static class MultipleOverwriteTest
                             }
                         }
                         """;
+        
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic()
                 .WithLocation(9, 15)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use one 'channel.ModifyAsync(..)' instead of multiple 'channel.AddOverwriteAsync(..)'")
         );
+        
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic()
                 .WithLocation(10, 15)
@@ -87,7 +87,7 @@ public static class MultipleOverwriteTest
     }
 
     [Test]
-    public static async Task MultipleOverwriteTest_LoopDiagnosticAsync()
+    public static async Task LoopDiagnosticAsync()
     {
         CSharpAnalyzerTest<MultipleOverwriteAnalyzer, DefaultVerifier> test
             = Utility.CreateAnalyzerTest<MultipleOverwriteAnalyzer>();
