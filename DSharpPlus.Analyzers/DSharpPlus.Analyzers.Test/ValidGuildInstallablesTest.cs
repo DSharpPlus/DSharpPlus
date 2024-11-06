@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using DSharpPlus.Analyzers.Commands;
+using DSharpPlus.Commands;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
@@ -19,7 +20,7 @@ public static class ValidGuildInstallablesTest
     {
         CSharpAnalyzerTest<ValidGuildInstallablesAnalyzer, DefaultVerifier> test
             = Utility.CreateAnalyzerTest<ValidGuildInstallablesAnalyzer>();
-        test.TestState.AdditionalReferences.Add(typeof(DSharpPlus.Commands.CommandContext).Assembly);
+        test.TestState.AdditionalReferences.Add(typeof(CommandContext).Assembly);
 
         test.TestCode = """
                         using System.Threading.Tasks;
@@ -39,7 +40,8 @@ public static class ValidGuildInstallablesTest
                         }
                         """;
 
-        test.ExpectedDiagnostics.Add(
+        test.ExpectedDiagnostics.Add
+        (
             Verifier.Diagnostic()
                 .WithLocation(11, 35)
                 .WithSeverity(DiagnosticSeverity.Error)

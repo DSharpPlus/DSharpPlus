@@ -14,25 +14,29 @@ public class RegisterNestedClassesAnalyzer : DiagnosticAnalyzer
     public const string DiagnosticId = "DSP1002";
     public const string Category = "Usage";
 
-    private static readonly LocalizableString title = new LocalizableResourceString(
+    private static readonly LocalizableString title = new LocalizableResourceString
+    (
         nameof(Resources.DSP1002Title),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
-    private static readonly LocalizableString description = new LocalizableResourceString(
+    private static readonly LocalizableString description = new LocalizableResourceString
+    (
         nameof(Resources.DSP1002Description),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
-    private static readonly LocalizableString messageFormat = new LocalizableResourceString(
+    private static readonly LocalizableString messageFormat = new LocalizableResourceString
+    (
         nameof(Resources.DSP1002MessageFormat),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
-    private static readonly DiagnosticDescriptor rule = new(
+    private static readonly DiagnosticDescriptor rule = new
+    (
         DiagnosticId,
         title,
         messageFormat,

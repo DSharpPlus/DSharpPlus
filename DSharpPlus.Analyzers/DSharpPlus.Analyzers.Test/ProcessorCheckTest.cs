@@ -37,7 +37,8 @@ public static class ProcessorCheckTest
                         }
                         """;
 
-        test.ExpectedDiagnostics.Add(
+        test.ExpectedDiagnostics.Add
+        (
             Verifier.Diagnostic()
                 .WithLocation(9, 30)
                 .WithSeverity(DiagnosticSeverity.Error)

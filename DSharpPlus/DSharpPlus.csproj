@@ -15,4 +15,10 @@
     <PackageReference Include="Polly.Core" />
     <PackageReference Include="Ulid" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(ProjectRoot)\DSharpPlus.Analyzers\DSharpPlus.Analyzers\DSharpPlus.Analyzers.csproj" >
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <OutputItemType>Analyzer</OutputItemType>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

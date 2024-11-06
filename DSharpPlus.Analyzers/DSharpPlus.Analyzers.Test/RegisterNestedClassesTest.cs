@@ -1,14 +1,14 @@
 using System.Threading.Tasks;
 using DSharpPlus.Analyzers.Commands;
+using DSharpPlus.Commands;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
 using NUnit.Framework;
-using Verifier =
-    Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        DSharpPlus.Analyzers.Commands.RegisterNestedClassesAnalyzer,
-        Microsoft.CodeAnalysis.Testing.DefaultVerifier
-    >;
+using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
+    DSharpPlus.Analyzers.Commands.RegisterNestedClassesAnalyzer,
+    Microsoft.CodeAnalysis.Testing.DefaultVerifier
+>;
 
 namespace DSharpPlus.Analyzers.Test;
 
@@ -19,7 +19,7 @@ public static class RegisterNestedClassesTest
     {
         CSharpAnalyzerTest<RegisterNestedClassesAnalyzer, DefaultVerifier> test
             = Utility.CreateAnalyzerTest<RegisterNestedClassesAnalyzer>();
-        test.TestState.AdditionalReferences.Add(typeof(DSharpPlus.Commands.CommandContext).Assembly);
+        test.TestState.AdditionalReferences.Add(typeof(CommandContext).Assembly);
 
         test.TestCode = """
                         using System.Threading.Tasks;
@@ -48,7 +48,8 @@ public static class RegisterNestedClassesTest
                         }
                         """;
 
-        test.ExpectedDiagnostics.Add(
+        test.ExpectedDiagnostics.Add
+        (
             Verifier.Diagnostic()
                 .WithLocation(8, 39)
                 .WithSeverity(DiagnosticSeverity.Warning)
@@ -63,7 +64,7 @@ public static class RegisterNestedClassesTest
     {
         CSharpAnalyzerTest<RegisterNestedClassesAnalyzer, DefaultVerifier> test
             = Utility.CreateAnalyzerTest<RegisterNestedClassesAnalyzer>();
-        test.TestState.AdditionalReferences.Add(typeof(DSharpPlus.Commands.CommandContext).Assembly);
+        test.TestState.AdditionalReferences.Add(typeof(CommandContext).Assembly);
 
         test.TestCode = """
                         using System;
@@ -95,7 +96,8 @@ public static class RegisterNestedClassesTest
                         }
                         """;
 
-        test.ExpectedDiagnostics.Add(
+        test.ExpectedDiagnostics.Add
+        (
             Verifier.Diagnostic()
                 .WithLocation(10, 43)
                 .WithSeverity(DiagnosticSeverity.Warning)
@@ -110,7 +112,7 @@ public static class RegisterNestedClassesTest
     {
         CSharpAnalyzerTest<RegisterNestedClassesAnalyzer, DefaultVerifier> test
             = Utility.CreateAnalyzerTest<RegisterNestedClassesAnalyzer>();
-        test.TestState.AdditionalReferences.Add(typeof(DSharpPlus.Commands.CommandContext).Assembly);
+        test.TestState.AdditionalReferences.Add(typeof(CommandContext).Assembly);
 
         test.TestCode = """
                         using System;
@@ -141,7 +143,8 @@ public static class RegisterNestedClassesTest
                         }
                         """;
 
-        test.ExpectedDiagnostics.Add(
+        test.ExpectedDiagnostics.Add
+        (
             Verifier.Diagnostic()
                 .WithLocation(9, 39)
                 .WithSeverity(DiagnosticSeverity.Warning)

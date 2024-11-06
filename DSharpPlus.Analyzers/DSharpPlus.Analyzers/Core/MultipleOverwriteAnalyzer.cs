@@ -13,19 +13,22 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
     public const string DiagnosticId = "DSP0006";
     public const string Category = "Design";
 
-    private static readonly LocalizableString title = new LocalizableResourceString(
+    private static readonly LocalizableString title = new LocalizableResourceString
+    (
         nameof(Resources.DSP0006Title),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
-    private static readonly LocalizableString description = new LocalizableResourceString(
+    private static readonly LocalizableString description = new LocalizableResourceString
+    (
         nameof(Resources.DSP0006Description),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
-    private static readonly LocalizableString messageFormat = new LocalizableResourceString(
+    private static readonly LocalizableString messageFormat = new LocalizableResourceString
+    (
         nameof(Resources.DSP0006MessageFormat),
         Resources.ResourceManager,
         typeof(Resources)

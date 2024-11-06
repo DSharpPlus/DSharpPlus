@@ -39,7 +39,8 @@ public class HasPermissionTest
 
                         """;
         
-        test.ExpectedDiagnostics.Add(
+        test.ExpectedDiagnostics.Add
+        (
             Verifier.Diagnostic()
                 .WithLocation(7, 13)
                 .WithSeverity(DiagnosticSeverity.Warning)

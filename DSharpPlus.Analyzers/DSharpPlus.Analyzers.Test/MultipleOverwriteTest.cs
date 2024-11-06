@@ -39,7 +39,8 @@ public static class MultipleOverwriteTest
                         }
                         """;
         
-        test.ExpectedDiagnostics.Add(
+        test.ExpectedDiagnostics.Add
+        (
             Verifier.Diagnostic()
                 .WithLocation(9, 15)
                 .WithSeverity(DiagnosticSeverity.Warning)
@@ -69,14 +70,16 @@ public static class MultipleOverwriteTest
                         }
                         """;
         
-        test.ExpectedDiagnostics.Add(
+        test.ExpectedDiagnostics.Add
+        (
             Verifier.Diagnostic()
                 .WithLocation(9, 15)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use one 'channel.ModifyAsync(..)' instead of multiple 'channel.AddOverwriteAsync(..)'")
         );
         
-        test.ExpectedDiagnostics.Add(
+        test.ExpectedDiagnostics.Add
+        (
             Verifier.Diagnostic()
                 .WithLocation(10, 15)
                 .WithSeverity(DiagnosticSeverity.Warning)
@@ -109,7 +112,8 @@ public static class MultipleOverwriteTest
                         }
                         """;
 
-        test.ExpectedDiagnostics.Add(
+        test.ExpectedDiagnostics.Add
+        (
             Verifier.Diagnostic()
                 .WithLocation(11, 19)
                 .WithSeverity(DiagnosticSeverity.Warning)

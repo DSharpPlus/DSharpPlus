@@ -4,11 +4,10 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
 using NUnit.Framework;
-using Verifier =
-    Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        DSharpPlus.Analyzers.Core.SingleEntityGetRequestAnalyzer,
-        Microsoft.CodeAnalysis.Testing.DefaultVerifier
-    >;
+using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
+    DSharpPlus.Analyzers.Core.SingleEntityGetRequestAnalyzer,
+    Microsoft.CodeAnalysis.Testing.DefaultVerifier
+>;
 
 namespace DSharpPlus.Analyzers.Test;
 
@@ -42,7 +41,8 @@ public static class SingleEntityGetTest
                         }
                         """;
 
-        test.ExpectedDiagnostics.Add(
+        test.ExpectedDiagnostics.Add
+        (
             Verifier.Diagnostic()
                 .WithLocation(12, 44)
                 .WithSeverity(DiagnosticSeverity.Info)

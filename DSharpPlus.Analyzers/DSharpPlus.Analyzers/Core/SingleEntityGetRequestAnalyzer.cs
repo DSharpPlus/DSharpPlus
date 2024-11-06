@@ -13,19 +13,22 @@ public class SingleEntityGetRequestAnalyzer : DiagnosticAnalyzer
     public const string DiagnosticId = "DSP0007";
     public const string Category = "Design";
 
-    private static readonly LocalizableString title = new LocalizableResourceString(
+    private static readonly LocalizableString title = new LocalizableResourceString
+    (
         nameof(Resources.DSP0007Title),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
-    private static readonly LocalizableString description = new LocalizableResourceString(
+    private static readonly LocalizableString description = new LocalizableResourceString
+    (
         nameof(Resources.DSP0007Description),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
-    private static readonly LocalizableString messageFormat = new LocalizableResourceString(
+    private static readonly LocalizableString messageFormat = new LocalizableResourceString
+    (
         nameof(Resources.DSP0007MessageFormat),
         Resources.ResourceManager,
         typeof(Resources)
