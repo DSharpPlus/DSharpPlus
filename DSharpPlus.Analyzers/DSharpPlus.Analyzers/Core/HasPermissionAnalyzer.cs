@@ -53,7 +53,7 @@ public class HasPermissionAnalyzer : DiagnosticAnalyzer
     {
         ctx.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         ctx.EnableConcurrentExecution();
-        ctx.RegisterSyntaxNodeAction(Analyze, SyntaxKind.NotEqualsExpression);
+        ctx.RegisterSyntaxNodeAction(Analyze, SyntaxKind.NotEqualsExpression, SyntaxKind.EqualsExpression);
     }
 
     private static void Analyze(SyntaxNodeAnalysisContext ctx)

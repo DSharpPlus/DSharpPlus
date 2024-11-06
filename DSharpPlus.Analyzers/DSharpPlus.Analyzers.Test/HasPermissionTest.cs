@@ -17,7 +17,7 @@ public class HasPermissionTest
     /// Unit test to see if HasPermissionAnalyzer reports
     /// </summary>
     [Test]
-    public static async Task HasPermission_DiagnosticAsync()
+    public static async Task HasPermissionNotEquals_DiagnosticAsync()
     {
         CSharpAnalyzerTest<HasPermissionAnalyzer, DefaultVerifier> test =
             Utility.CreateAnalyzerTest<HasPermissionAnalyzer>();
@@ -34,6 +34,40 @@ public class HasPermissionTest
                                     return true;
                                 }
                                 return false;
+                            }
+                        }
+
+                        """;
+        
+        test.ExpectedDiagnostics.Add
+        (
+            Verifier.Diagnostic()
+                .WithLocation(7, 13)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessage("Use 'perm.HasPermission(DiscordPermissions.Administrator)' instead")
+        );
+
+        await test.RunAsync();
+    }
+
+    [Test]
+    public async Task HasPermissionEquals_DiagnosticAsync()
+    {
+        CSharpAnalyzerTest<HasPermissionAnalyzer, DefaultVerifier> test =
+            Utility.CreateAnalyzerTest<HasPermissionAnalyzer>();
+        
+        test.TestCode = """
+                        using DSharpPlus.Entities;
+
+                        public class DoesIt
+                        {
+                            public static bool HaveNoAdmin(DiscordPermissions perm) 
+                            {
+                                if ((perm & DiscordPermissions.Administrator) == 0) 
+                                {
+                                    return false;
+                                }
+                                return true;
                             }
                         }
 
