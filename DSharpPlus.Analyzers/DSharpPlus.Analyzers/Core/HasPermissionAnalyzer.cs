@@ -59,7 +59,7 @@ public class HasPermissionAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if (binaryExpression.Kind() != SyntaxKind.NotEqualsExpression || 
+        if (binaryExpression.Kind() != SyntaxKind.NotEqualsExpression &&
             binaryExpression.Kind() != SyntaxKind.EqualsExpression)
         {
             return;
