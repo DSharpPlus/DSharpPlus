@@ -248,8 +248,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             description = "No description provided.";
         }
 
+        DiscordPermission[]? userPermissions = command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions;
+
         // Create the top level application command.
-        return new(
+        return new
+        (
             name: this.Configuration.NamingPolicy.TransformText(command.Name, CultureInfo.InvariantCulture),
             description: description,
             options: options,
@@ -257,7 +260,9 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
             allowDMUsage: command.Attributes.Any(x => x is AllowDMUsageAttribute),
-            defaultMemberPermissions: command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? DiscordPermissions.UseApplicationCommands,
+            defaultMemberPermissions: userPermissions is not null
+                ? new(userPermissions)
+                : new DiscordPermissions(DiscordPermission.UseApplicationCommands), 
             nsfw: command.Attributes.Any(x => x is RequireNsfwAttribute),
             contexts: command.Attributes.OfType<InteractionAllowedContextsAttribute>().FirstOrDefault()?.AllowedContexts,
             integrationTypes: command.Attributes.OfType<InteractionInstallTypeAttribute>().FirstOrDefault()?.InstallTypes

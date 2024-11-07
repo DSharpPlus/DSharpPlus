@@ -70,7 +70,7 @@ internal class Poller
                     else
                     {
                         Entities.DiscordMember member = await eventargs.Channel.Guild.GetMemberAsync(client.CurrentUser.Id);
-                        if (eventargs.Channel.PermissionsFor(member).HasPermission(DiscordPermissions.ManageMessages))
+                        if (eventargs.Channel.PermissionsFor(member).HasPermission(DiscordPermission.ManageMessages))
                         {
                             await eventargs.Message.DeleteReactionAsync(eventargs.Emoji, eventargs.User);
                         }
