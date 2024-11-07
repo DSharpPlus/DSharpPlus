@@ -203,15 +203,26 @@ public readonly partial struct DiscordPermissions
         }
         else if (format == "name")
         {
-            StringBuilder builder = new();
+            int pop = 0;
 
-            foreach (DiscordPermission permission in EnumeratePermissions())
+            for (int i = 0; i < ContainerElementCount; i += 4)
             {
-                _ = builder.Append(permission.ToStringFast());
-                _ = builder.Append(", ");
+                pop += BitOperations.PopCount(this.data[i]);
+                pop += BitOperations.PopCount(this.data[i + 1]);
+                pop += BitOperations.PopCount(this.data[i + 2]);
+                pop += BitOperations.PopCount(this.data[i + 3]);
             }
 
-            return builder.ToString().TrimEnd(", ");
+            string[] names = new string[pop];
+            DiscordPermissionEnumerator enumerator = new(this.data);
+
+            for (int i = 0; i < pop; i++)
+            {
+                _ = enumerator.MoveNext();
+                names[i] = enumerator.Current.ToStringFast();
+            }
+
+            return string.Join(", ", names);
         }
         else
         {

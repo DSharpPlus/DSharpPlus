@@ -47,6 +47,7 @@ partial struct DiscordPermissions
 
         private int block = 0;
         private int bit = -1;
+        private bool hasEnteredBlock = false;
 
         public bool MoveNext()
         {
@@ -55,12 +56,18 @@ partial struct DiscordPermissions
                 this.bit++;
                 uint value = this.data[this.block];
 
-                if (BitOperations.PopCount(value) == 0)
+                if (value == 0)
                 {
                     continue;
                 }
 
-                for (; this.bit < 32; this.bit++)
+                if (!this.hasEnteredBlock)
+                {
+                    this.hasEnteredBlock = true;
+                    this.bit = BitOperations.TrailingZeroCount(value);
+                }
+
+                for (; this.bit < (32 - BitOperations.LeadingZeroCount(value)); this.bit++)
                 {
                     if (BitHelper.HasFlag(value, this.bit))
                     {
@@ -69,6 +76,7 @@ partial struct DiscordPermissions
                 }
 
                 this.bit = -1;
+                this.hasEnteredBlock = false;
             }
 
             return false;
