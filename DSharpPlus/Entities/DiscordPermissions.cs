@@ -13,6 +13,10 @@ using System.Text;
 
 using CommunityToolkit.HighPerformance.Helpers;
 
+using DSharpPlus.Net.Serialization;
+
+using Newtonsoft.Json;
+
 using HashCode = CommunityToolkit.HighPerformance.Helpers.HashCode<uint>;
 
 namespace DSharpPlus.Entities;
@@ -20,6 +24,7 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents a set of Discord permissions.
 /// </summary>
+[JsonConverter(typeof(DiscordPermissionsAsStringJsonConverter))]
 public readonly partial struct DiscordPermissions
     : IEquatable<DiscordPermissions>
 {
