@@ -162,6 +162,11 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
             return true;
         }
 
+        if (syntax is WhileStatementSyntax)
+        {
+            return true;
+        }
+        
         return IsInLoop(syntax.Parent);
     }
 }

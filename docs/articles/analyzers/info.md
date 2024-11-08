@@ -1,11 +1,7 @@
 ---
-uid: articles.analyzers.rules.core
+uid: articles.analyzers.core
 title: DSharpPlus.Analyzer core rules
 ---
-
-# DSharpPlus.Analyzer errors
-
-Here we will list out a detailed description for each error and when they will appear.
 
 # DSharplus core library
 
@@ -14,9 +10,9 @@ Any core rule will follow the format `DSP0xxx`
 
 ## Usage warning DSP0005
 
-`Permission.HasPermission` should always be prefered over bitwise operations.
+`DiscordPermissions.HasPermission` should always be preferred over bitwise operations.
 
-The analyzer detected that bitwise operations are used instead of the prefered `Permission.HasPermission` method.
+The analyzer detected that bitwise operations are used instead of the preferred `DiscordPermissions.HasPermission` method.
 
 The following sample will generate DSP0005:
 
@@ -32,11 +28,11 @@ public class PermissionExample
 
 ## Design warning DSP0006
 
-Use 'ModifyAsync' instead of 'AddOverwriteAsnyc'.
+Use `ModifyAsync` instead of `AddOverwriteAsync`.
 
-The analyzer detected that multiple 'AddOverwriteAsnyc' calls are happening in the same method body.
-This will/can cause multiple request to happen to the same channel.  
-Instead prefer using 'ModifyAsync' to minimise this to a single request.
+The analyzer detected that multiple `AddOverwriteAsync` calls are happening in the same method body.
+This will/can cause multiple requests to happen on the same channel.
+Instead, prefer using `ModifyAsync` to minimize this to a single request.
 
 The following sample will generate DSP0006:
 
@@ -55,13 +51,13 @@ public class PermissionOverwriting
 
 ## Design info DSP0007
 
-Use a list request instead of fetching single entities inside of a loop.
+Use a pagination method instead of fetching single entities inside of a loop.
 
-The analyzer detected that there is single entities being fetched in a loop.  
-Instead if there is only one entity being requested put it outside the loop.  
-If there is multiple entities, prefer pagination related methods.
+The analyzer detected that there are single entities being fetched in a loop.  
+Instead, if there is only one entity being requested, put it outside the loop.
+If there are multiple entities, prefer pagination-related methods.
 
-The folllowing sample will generate DSP0007:
+The following sample will generate DSP0007:
 
 ```csharp
 public class GetSpecificGuilds() 

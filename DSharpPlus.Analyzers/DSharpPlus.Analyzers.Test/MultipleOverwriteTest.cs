@@ -24,7 +24,7 @@ public static class MultipleOverwriteTest
     {
         CSharpAnalyzerTest<MultipleOverwriteAnalyzer, DefaultVerifier> test =
             Utility.CreateAnalyzerTest<MultipleOverwriteAnalyzer>();
-        
+
         test.TestCode = """
                         using DSharpPlus.Entities;
                         using System.Threading.Tasks;
@@ -38,7 +38,7 @@ public static class MultipleOverwriteTest
                             }
                         }
                         """;
-        
+
         test.ExpectedDiagnostics.Add
         (
             Verifier.Diagnostic()
@@ -69,7 +69,7 @@ public static class MultipleOverwriteTest
                             }
                         }
                         """;
-        
+
         test.ExpectedDiagnostics.Add
         (
             Verifier.Diagnostic()
@@ -77,7 +77,7 @@ public static class MultipleOverwriteTest
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use one 'channel.ModifyAsync(..)' instead of multiple 'channel.AddOverwriteAsync(..)'")
         );
-        
+
         test.ExpectedDiagnostics.Add
         (
             Verifier.Diagnostic()
@@ -85,12 +85,12 @@ public static class MultipleOverwriteTest
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use one 'channel.ModifyAsync(..)' instead of multiple 'channel.AddOverwriteAsync(..)'")
         );
-        
+
         await test.RunAsync();
     }
 
     [Test]
-    public static async Task LoopDiagnosticAsync()
+    public static async Task ForEachLoopDiagnosticAsync()
     {
         CSharpAnalyzerTest<MultipleOverwriteAnalyzer, DefaultVerifier> test
             = Utility.CreateAnalyzerTest<MultipleOverwriteAnalyzer>();
@@ -118,7 +118,77 @@ public static class MultipleOverwriteTest
                 .WithLocation(11, 19)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use one 'channel.ModifyAsync(..)' instead of multiple 'channel.AddOverwriteAsync(..)'")
-            );
+        );
+
+        await test.RunAsync();
+    }
+
+    [Test]
+    public static async Task ForLoopDiagnosticAsync()
+    {
+        CSharpAnalyzerTest<MultipleOverwriteAnalyzer, DefaultVerifier> test
+            = Utility.CreateAnalyzerTest<MultipleOverwriteAnalyzer>();
+
+        test.TestCode = """
+                        using DSharpPlus.Entities;
+                        using System.Threading.Tasks;
+                        using System.Collections.Generic;
+
+                        public class OverwriteTest
+                        {
+                            public async Task AddOverwritesAsync(DiscordChannel channel, List<DiscordMember> members)
+                            {
+                                for (int i = 0; i < members.Count; i++)
+                                {
+                                    await channel.AddOverwriteAsync(members[i], DiscordPermissions.BanMembers);
+                                }
+                            }
+                        }
+                        """;
+
+        test.ExpectedDiagnostics.Add
+        (
+            Verifier.Diagnostic()
+                .WithLocation(11, 19)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessage("Use one 'channel.ModifyAsync(..)' instead of multiple 'channel.AddOverwriteAsync(..)'")
+        );
+
+        await test.RunAsync();
+    }
+
+    [Test]
+    public static async Task WhileLoopDiagnosticAsync()
+    {
+        CSharpAnalyzerTest<MultipleOverwriteAnalyzer, DefaultVerifier> test
+            = Utility.CreateAnalyzerTest<MultipleOverwriteAnalyzer>();
+
+        test.TestCode = """
+                        using DSharpPlus.Entities;
+                        using System.Threading.Tasks;
+                        using System.Collections.Generic;
+
+                        public class OverwriteTest
+                        {
+                            public async Task AddOverwritesAsync(DiscordChannel channel, List<DiscordMember> members)
+                            {
+                                int i = 0;
+                                while (i < members.Count)
+                                {
+                                    await channel.AddOverwriteAsync(members[i], DiscordPermissions.BanMembers);
+                                    i++;
+                                }
+                            }
+                        }
+                        """;
+
+        test.ExpectedDiagnostics.Add
+        (
+            Verifier.Diagnostic()
+                .WithLocation(12, 19)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessage("Use one 'channel.ModifyAsync(..)' instead of multiple 'channel.AddOverwriteAsync(..)'")
+        );
 
         await test.RunAsync();
     }

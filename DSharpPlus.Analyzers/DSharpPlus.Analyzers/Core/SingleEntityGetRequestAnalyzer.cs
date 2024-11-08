@@ -54,7 +54,7 @@ public class SingleEntityGetRequestAnalyzer : DiagnosticAnalyzer
         { "GetMemberAsync", "DSharpPlus.Entities.Channel"}
     };
 
-    private static readonly IReadOnlyDictionary<string, string> preferedMethods = new Dictionary<string, string>()
+    private static readonly IReadOnlyDictionary<string, string> preferredMethods = new Dictionary<string, string>()
     {
         { "GetMessageAsync", "GetMessagesAsync" },
         {"GetGuildAsync", "GetGuildsAsync"},
@@ -101,7 +101,7 @@ public class SingleEntityGetRequestAnalyzer : DiagnosticAnalyzer
         Diagnostic diagnostic = Diagnostic.Create(
             rule,
             invocation.GetLocation(),
-            $"{memberAccess.Expression}.{preferedMethods[methodName]}()",
+            $"{memberAccess.Expression}.{preferredMethods[methodName]}()",
             invocation
         );
 
