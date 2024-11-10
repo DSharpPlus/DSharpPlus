@@ -44,7 +44,7 @@ public class RegisterNestedClassesAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Warning,
         true,
         description,
-        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/rules/commands.html#usage-warning-dsp1002"
+        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/commands.html#usage-warning-dsp1002"
     );
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);

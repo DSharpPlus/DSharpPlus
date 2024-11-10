@@ -7,18 +7,19 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.HighPerformance" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
-    <PackageReference Include="Microsoft.Extensions.Logging" />
-    <PackageReference Include="Newtonsoft.Json" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-    <PackageReference Include="Polly.Core" />
-    <PackageReference Include="Ulid" />
+    <PackageReference Include="CommunityToolkit.HighPerformance"/>
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory"/>
+    <PackageReference Include="Microsoft.Extensions.Logging"/>
+    <PackageReference Include="Newtonsoft.Json"/>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
+    <PackageReference Include="Polly.Core"/>
+    <PackageReference Include="Ulid"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(ProjectRoot)\DSharpPlus.Analyzers\DSharpPlus.Analyzers\DSharpPlus.Analyzers.csproj" >
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <OutputItemType>Analyzer</OutputItemType>
-    </ProjectReference>
+    <None Remove="..\DSharpPlus.Analyzers\DSharpPlus.Analyzers\bin\Release\netstandard2.0\DSharpPlus.Analyzers.dll"/>
+    <None Include="..\DSharpPlus.Analyzers\DSharpPlus.Analyzers\bin\Release\netstandard2.0\DSharpPlus.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DSharpPlus.Analyzers\DSharpPlus.Analyzers\DSharpPlus.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 </Project>

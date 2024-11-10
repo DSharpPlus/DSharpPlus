@@ -42,7 +42,7 @@ public class SingleEntityGetRequestAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Info,
         true,
         description,
-        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/rules/commands.html#design-info-dsp0007"
+        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/commands.html#design-info-dsp0007"
     );
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);

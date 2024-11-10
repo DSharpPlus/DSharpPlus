@@ -44,7 +44,7 @@ public class HasPermissionAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Warning,
         true,
         description,
-        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/rules/commands.html#usage-error-dsp1001"
+        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/commands.html#usage-error-dsp1001"
     );
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);

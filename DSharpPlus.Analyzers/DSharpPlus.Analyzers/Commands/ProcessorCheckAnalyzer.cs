@@ -44,7 +44,7 @@ public class ProcessorCheckAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Error,
         true,
         description,
-        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/rules/commands.html#usage-error-dsp1003"
+        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/commands.html#usage-error-dsp1003"
     );
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);
