@@ -19,7 +19,7 @@ internal sealed class DiscordPermissionsAsStringJsonConverter : JsonConverter<Di
         JsonSerializer serializer
     )
     {
-        string? value = reader.ReadAsString();
+        string? value = reader.Value as string;
 
         return value is not null ? new(BigInteger.Parse(value)) : existingValue;
     }
