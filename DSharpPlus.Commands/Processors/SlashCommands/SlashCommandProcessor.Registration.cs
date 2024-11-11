@@ -214,6 +214,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         Dictionary<string, string> descriptionLocalizations = [];
         if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
         {
+            if (!IsLocalizationSupported())
+            {
+                throw new InvalidOperationException("Localization is not supported because invariant mode is enabled. See https://aka.ms/GlobalizationInvariantMode for more information.");
+            }
+
             nameLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
             descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
         }
@@ -300,6 +305,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         {
             foreach ((string ietfTag, string name) in await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name"))
             {
+                if (!IsLocalizationSupported())
+                {
+                    throw new InvalidOperationException("Localization is not supported because invariant mode is enabled. See https://aka.ms/GlobalizationInvariantMode for more information.");
+                }
+
                 nameLocalizations[ietfTag] = this.Configuration.NamingPolicy.TransformText
                 (
                     name,
@@ -644,6 +654,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
     /// <returns>Which culture to use.</returns>
     internal static CultureInfo ResolveCulture(DiscordInteraction interaction)
     {
+        if (!IsLocalizationSupported())
+        {
+            return CultureInfo.InvariantCulture;
+        }
+
         if (!string.IsNullOrWhiteSpace(interaction.Locale))
         {
             return CultureInfo.GetCultureInfo(interaction.Locale);
@@ -654,5 +669,17 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         }
 
         return CultureInfo.InvariantCulture;
+    }
+
+    internal static bool IsLocalizationSupported()
+    {
+        bool specifiedInAssembly = AppContext.TryGetSwitch("System.Globalization.Invariant", out bool invariant);
+
+        if (specifiedInAssembly)
+        {
+            return !invariant;
+        }
+
+        return Environment.GetEnvironmentVariable("DOTNET_SYSTEM_GLOBALIZATION_INVARIANT") != "1";
     }
 }
