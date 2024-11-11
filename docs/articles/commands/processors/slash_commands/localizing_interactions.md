@@ -21,6 +21,11 @@ public interface IInteractionLocalizer
 - `command.parameter.name`: The name of the parameter.
 - `command.parameter.description`: The description of the parameter.
 
+> [!NOTE]
+> Localization relies on ICU libraries being installed on the system - if you are using a Docker container, you may need to install the `libicu` package.
+> Command names that possess non-ascii characters may fail to execute if invariant globalization is used.
+> To avoid this, ensure <InvariantGlobalization> is set to false in your project file.
+
 Here is an example of a simple translator provider:
 
 ```cs
