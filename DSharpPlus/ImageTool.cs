@@ -1,3 +1,5 @@
+#pragma warning disable CA2022
+
 using System;
 using System.Buffers;
 using System.Buffers.Text;

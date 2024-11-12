@@ -13,7 +13,7 @@ public sealed class RequireUserPermissionsAttribute : CheckBaseAttribute
     /// <summary>
     /// Gets the permissions required by this attribute.
     /// </summary>
-    public DiscordPermissions Permissions { get; }
+    public DiscordPermission[] Permissions { get; }
 
     /// <summary>
     /// Gets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.
@@ -25,7 +25,7 @@ public sealed class RequireUserPermissionsAttribute : CheckBaseAttribute
     /// </summary>
     /// <param name="permissions">Permissions required to execute this command.</param>
     /// <param name="ignoreDms">Sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.</param>
-    public RequireUserPermissionsAttribute(DiscordPermissions permissions, bool ignoreDms = true)
+    public RequireUserPermissionsAttribute(bool ignoreDms = true, params DiscordPermission[] permissions)
     {
         this.Permissions = permissions;
         this.IgnoreDms = ignoreDms;
@@ -51,8 +51,6 @@ public sealed class RequireUserPermissionsAttribute : CheckBaseAttribute
 
         DiscordPermissions pusr = ctx.Channel.PermissionsFor(usr);
 
-        return (pusr & DiscordPermissions.Administrator) != 0
-            ? Task.FromResult(true)
-            : (pusr & this.Permissions) == this.Permissions ? Task.FromResult(true) : Task.FromResult(false);
+        return Task.FromResult(pusr.HasAllPermissions(this.Permissions));
     }
 }

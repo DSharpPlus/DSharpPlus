@@ -1,3 +1,5 @@
+#pragma warning disable CA2264
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
