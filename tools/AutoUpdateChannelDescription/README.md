@@ -1,1 +1,0 @@
-This is the tool I use to update the channel description on my Discord server. It keeps track of the latest stable and pre-release version of the library and updates the channel description accordingly.
