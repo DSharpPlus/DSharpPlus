@@ -1,20 +1,18 @@
 ---
 uid: articles.analyzers.commands
-title: DSharpPlus.Analyzer commands rules
+title: DSharpPlus.Commands Analyzer Rules
 ---
 
-# DSharplus core library
+This page documents the analyzer rules defined for APIs defined in DSharpPlus.Commands and their associated usage patterns:
+- [DSP1001](#usage-error-dsp1001)
+- [DSP1002](#usage-warning-dsp1002)
+- [DSP1003](#usage-error-dsp1003)
 
-All the rules related to the `DSharpPlus.Commands` library.  
-Any `DSharpPlus.Commands` rule will follow the format `DSP1xxx`
+### Usage error DSP1001
 
-## Usage error DSP1001
+A slash command explicitly registered to a guild should not be installable to users.
 
-A slash command explicitly registered to a guild should not specify DMs or user apps as installable context.
-
-The analyzer found a command that tries to register to a guild but uses installable contexts that do not support
-guilds.
-Instead, either remove the specified install type or remove the `RegisterToGuilds` attribute.
+Slash commands registered to a guild are restricted to that guild and cannot be referenced outside of it, but a registered installation type requires it to be usable outside the guild. Either remove the specified installation type or remove the `RegisterToGuilds` attribute.
 
 The following sample will generate DSP1001:
 
@@ -31,12 +29,11 @@ public class PingCommand
 }
 ```
 
-## Usage warning DSP1002
+### Usage warning DSP1002
 
-Do not explicitly register nested classes of elsewhere-registered classes to DSharpPlus.Commands
+Do not explicitly register nested classes of elsewhere-registered classes to DSharpPlus.Commands.
 
-The analyzer detected a nested class that is trying to be registered manually.
-Instead, only register the parent class.
+Do not register nested classes. If their containing class gets registered as well, the commands inside the nested class get registered twice.
 
 The following sample will generate DSP1002:
 
@@ -64,11 +61,11 @@ public class ACommands
 }
 ```
 
-## Usage error DSP1003
-A command taking a specific context type should not be registered as allowing processors whose contex type it doesn't support.
+### Usage error DSP1003
 
-The analyzer detected a command registering itself to a processor and specifying a context type it doesn't support.
-Instead, change the context type to use something the processor does support.
+A command taking a specific context type should not restrict itself to other processors.
+
+Specifying a command context type acts as a form of filtering where the command will only be executable by processors capable of creating the demanded context. In a similar vein, `AllowedProcessorAttribute` acts as a form of filtering where the command will only be executable by one of the listed processors. Filtering to two sets of processors that are not compatible with one another will render your command partially or wholly unusable.
 
 The following sample will generate DSP1003:
 
@@ -80,7 +77,7 @@ using DSharpPlus.Commands.Processors.SlashCommands;
 
 public class Test
 {
-    [AllowedProcessors<SlashCommandProcessor>()]
+    [AllowedProcessors<SlashCommandProcessor>]
     public async Task Tester(TextCommandContext context)
     {
         await context.RespondAsync("Tester!");

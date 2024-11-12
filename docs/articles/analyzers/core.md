@@ -1,18 +1,18 @@
 ---
 uid: articles.analyzers.core
-title: DSharpPlus.Analyzer core rules
+title: DSharpPlus Core Library Analyzer Rules
 ---
 
-# DSharplus core library
+This page documents the analyzer rules defined for APIs defined in the DSharpPlus core library, `DSharpPlus.dll`, and their associated usage patterns:
+- [DSP0005](#usage-warning-dsp0005)
+- [DSP0006](#design-warning-dsp0006)
+- [DSP0007](#design-info-dsp0007)
 
-All the rules related to the core `DSharpPlus` library.  
-Any core rule will follow the format `DSP0xxx`
-
-## Usage warning DSP0005
+### Usage warning DSP0005
 
 `DiscordPermissions.HasPermission` should always be preferred over bitwise operations.
 
-The analyzer detected that bitwise operations are used instead of the preferred `DiscordPermissions.HasPermission` method.
+Bitwise operations risk missing Administrator permissions, making a direct bitwise check unreliable. Use `HasPermission`, `HasAnyPermission` or `HasAllPermissions` instead as appropriate.
 
 The following sample will generate DSP0005:
 
@@ -26,13 +26,11 @@ public class PermissionExample
 }
 ```
 
-## Design warning DSP0006
+### Design warning DSP0006
 
-Use `ModifyAsync` instead of `AddOverwriteAsync`.
+Use `ModifyAsync` instead of multiple calls to `AddOverwriteAsync`.
 
-The analyzer detected that multiple `AddOverwriteAsync` calls are happening in the same method body.
-This will/can cause multiple requests to happen on the same channel.
-Instead, prefer using `ModifyAsync` to minimize this to a single request.
+Multiple calls to `AddOverwriteAsync` on the same channel can cause multiple requests to happen on the same channel. Instead, prefer using `ModifyAsync` with the aggregated overwrites to minimize this to a single request.
 
 The following sample will generate DSP0006:
 
@@ -49,13 +47,11 @@ public class PermissionOverwriting
 }
 ```
 
-## Design info DSP0007
+### Design info DSP0007
 
-Use a pagination method instead of fetching single entities inside of a loop.
+Use a bulk-fetching method instead of fetching single entities inside of a loop.
 
-The analyzer detected that there are single entities being fetched in a loop.  
-Instead, if there is only one entity being requested, put it outside the loop.
-If there are multiple entities, prefer pagination-related methods.
+Fetching single entities individually incurs one request each. If there is only one entity being requested, put it outside the loop. If there are multiple entities, prefer bulk-fetching methods.
 
 The following sample will generate DSP0007:
 
