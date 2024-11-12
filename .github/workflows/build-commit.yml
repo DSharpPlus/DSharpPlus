@@ -103,3 +103,6 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
+      - name: Reload Discord documentation
+        run: |
+          curl -XPOST -H 'Authorization: Bot {{ secrets.DISCORD_TOKEN }}' -d '{"content":"<@341606460720939008> reload"}' 'https://discord.com/api/v10/channels/{{ secrets.DISCORD_BOT_USAGE_CHANNEL_ID }}/messages'
