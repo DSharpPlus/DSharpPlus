@@ -46,8 +46,6 @@ jobs:
           # We add 686 since it's the last build number GitHub Actions used before the workflow was renamed.
           dotnet pack -c Release -o build -p:Nightly=${{ steps.nightly.outputs.version }}
           dotnet nuget push "build/*" --skip-duplicate -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json
-          echo LATEST_STABLE_VERSION=$(git describe --abbrev=0 --tags 2>/dev/null || echo '') >> $GITHUB_ENV
-          dotnet run --project ./tools/AutoUpdateChannelDescription -p:Nightly=${{ steps.nightly.outputs.version }}
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
@@ -62,6 +60,16 @@ jobs:
         with:
           name: DSharpPlus-Nightly-${{ steps.nightly.outputs.version }}.zip
           path: ./build/*
+      - name: Discord Webhook
+        uses: tsickert/discord-webhook@v4.0.0
+        with:
+          webhook-url: ${{ secrets.BUILD_WEBHOOK }}
+          embed-title: DSharpPlus [5.0.0-nightly-${{ steps.nightly.outputs.version }}](https://www.nuget.org/packages/DSharpPlus/5.0.0-nightly-${{ steps.nightly.outputs.version }})
+          embed-description: |
+            Commit author: [${{ github.actor }}](https://github.com/${{ github.actor }})
+            Commit hash: [`${{ github.sha }}`](https://github.com/${{github.repository}}/commit/${{github.sha}})
+            Commit message: ``${{ github.event.head_commit.message }}``
+          embed-color: 7506394
   document-commit:
     name: Document Commit
     runs-on: ubuntu-latest
