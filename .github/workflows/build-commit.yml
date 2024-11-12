@@ -64,11 +64,12 @@ jobs:
         uses: tsickert/discord-webhook@v4.0.0
         with:
           webhook-url: ${{ secrets.BUILD_WEBHOOK }}
-          embed-title: DSharpPlus [5.0.0-nightly-${{ steps.nightly.outputs.version }}](https://www.nuget.org/packages/DSharpPlus/5.0.0-nightly-${{ steps.nightly.outputs.version }})
+          embed-title: DSharpPlus 5.0.0-nightly-${{ steps.nightly.outputs.version }}
           embed-description: |
             Commit author: [${{ github.actor }}](https://github.com/${{ github.actor }})
             Commit hash: [`${{ github.sha }}`](https://github.com/${{github.repository}}/commit/${{github.sha}})
             Commit message: ``${{ github.event.head_commit.message }}``
+            NuGet Link: [`5.0.0-nightly-${{ steps.nightly.outputs.version }}`](https://www.nuget.org/packages/DSharpPlus/5.0.0-nightly-${{ steps.nightly.outputs.version }})
           embed-color: 7506394
   document-commit:
     name: Document Commit
