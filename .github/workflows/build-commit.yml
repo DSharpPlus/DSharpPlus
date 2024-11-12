@@ -19,28 +19,10 @@ env:
   DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: 1
 
 jobs:
-  build-commit:
-    name: Build Commit
-    runs-on: ubuntu-latest
-    if: "!contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci-skip]')"
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 9
-      - name: Build Project
-        run: dotnet build
-      - name: Test Changes
-        run: dotnet test --blame-crash --blame-hang --blame-hang-timeout "30s"
   package-commit:
     name: Package Commit
     runs-on: ubuntu-latest
-    needs: build-commit
-    if: github.ref_name == 'master'
+    if: "!contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci-skip]')"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -51,6 +33,10 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9
+      - name: Build Project
+        run: dotnet build
+      - name: Test Changes
+        run: dotnet test --blame-crash --blame-hang --blame-hang-timeout "30s"
       - name: Get Nightly Version
         id: nightly
         run: printf "version=%0*d" 5 $(( 1195 + 691 + ${{ github.run_number }} )) >> "$GITHUB_OUTPUT"

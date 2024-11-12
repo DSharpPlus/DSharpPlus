@@ -5,6 +5,7 @@
     <PackageTags>$(PackageTags), webhooks</PackageTags>
     <IsPackable>true</IsPackable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>Preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.HighPerformance" />

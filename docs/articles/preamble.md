@@ -30,13 +30,13 @@ instead of DSharpPlus.
 
 If you use unsupported software, you are on your own with any arising issues.
 
-#### Latest Stable 4.4.9
+#### Latest Stable 4.5.0
 
-Version 4.4.9 *should* work on .NET and .NET Core versions after 3.1 and is supported from version 8.0 upwards.
+Version 4.5.0 *should* work on .NET and .NET Core versions after 3.1 and is supported from version 8.0 upwards.
 
 #### Nightly 5.0
 
-5.0 nightly builds target .NET 8.0, and will target the latest stable .NET version going forward.
+5.0 nightly builds target .NET 9.0, and will target the latest stable .NET version going forward.
 
 #### 6.0 early work
 
