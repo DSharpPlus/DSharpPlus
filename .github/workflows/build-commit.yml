@@ -60,16 +60,20 @@ jobs:
         with:
           name: DSharpPlus-Nightly-${{ steps.nightly.outputs.version }}.zip
           path: ./build/*
+      - name: Get commit message header
+        id: get_commit_message
+        run: |
+          commit_message_header=$(git log -1 --pretty=%B | head -n 1)
+          echo "message_header=${commit_message_header}" >> $GITHUB_OUTPUT
       - name: Discord Webhook
         uses: tsickert/discord-webhook@v4.0.0
         with:
           webhook-url: ${{ secrets.BUILD_WEBHOOK }}
           embed-title: DSharpPlus 5.0.0-nightly-${{ steps.nightly.outputs.version }}
           embed-description: |
-            Commit author: [${{ github.actor }}](https://github.com/${{ github.actor }})
-            Commit hash: [`${{ github.sha }}`](https://github.com/${{github.repository}}/commit/${{github.sha}})
-            Commit message: ``${{ github.event.head_commit.message }}``
             NuGet Link: [`5.0.0-nightly-${{ steps.nightly.outputs.version }}`](https://www.nuget.org/packages/DSharpPlus/5.0.0-nightly-${{ steps.nightly.outputs.version }})
+            Commit hash: [`${{ github.sha }}`](https://github.com/${{github.repository}}/commit/${{github.sha}})
+            Commit message: ``${{ steps.get_commit_message.outputs.message_header }}``
           embed-color: 7506394
   document-commit:
     name: Document Commit
@@ -105,4 +109,4 @@ jobs:
         uses: actions/deploy-pages@v1
       - name: Reload Discord documentation
         run: |
-          curl -X POST -H 'Authorization: Bot {{ secrets.DISCORD_TOKEN }}' -d '{"content":"<@341606460720939008> reload"}' 'https://discord.com/api/v10/channels/{{ secrets.DISCORD_BOT_USAGE_CHANNEL_ID }}/messages'
+          curl -X POST -H 'Authorization: Bot {{ secrets.DISCORD_TOKEN }}' -d '{"content":"<@341606460720939008> reload"}' 'https://discord.com/api/v10/channels/379379415475552276/messages'
