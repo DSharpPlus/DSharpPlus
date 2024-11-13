@@ -11,7 +11,6 @@ namespace DSharpPlus.Net.InboundWebhooks;
 /// </summary>
 public sealed class DiscordApplicationAuthorizedEvent
 {
-
     /// <summary>
     /// Gets the type of integration for the install.
     /// </summary>
