@@ -2,6 +2,7 @@
 
 using System;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -46,6 +47,17 @@ public readonly partial struct DiscordPermissions
     /// Creates a new instance of this type from the specified permissions.
     /// </summary>
     public DiscordPermissions(params ReadOnlySpan<DiscordPermission> permissions)
+    {
+        foreach (DiscordPermission permission in permissions)
+        {
+            this.data.SetFlag((int)permission, true);
+        }
+    }
+
+    /// <summary>
+    /// Creates a new instance of this type from the specified permissions.
+    /// </summary>
+    public DiscordPermissions(params IReadOnlyList<DiscordPermission> permissions)
     {
         foreach (DiscordPermission permission in permissions)
         {

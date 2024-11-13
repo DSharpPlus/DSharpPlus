@@ -210,9 +210,9 @@ public sealed partial class SlashCommandsExtension : IDisposable
 
                         bool allowDMs =
                             subclassinfo.GetCustomAttribute<GuildOnlyAttribute>() is null;
-                        DiscordPermissions? v2Permissions = subclassinfo
+                        DiscordPermissions? v2Permissions = new(subclassinfo
                             .GetCustomAttribute<SlashCommandPermissionsAttribute>()
-                            ?.Permissions;
+                            ?.Permissions ?? []);
 
                         SlashCommandGroupAttribute? groupAttribute =
                             subclassinfo.GetCustomAttribute<SlashCommandGroupAttribute>();
@@ -494,10 +494,10 @@ public sealed partial class SlashCommandsExtension : IDisposable
                                     ?? method.DeclaringType.GetCustomAttribute<GuildOnlyAttribute>()
                                 )
                                     is null;
-                            DiscordPermissions? v2Permissions = (
+                            DiscordPermissions? v2Permissions = new((
                                 method.GetCustomAttribute<SlashCommandPermissionsAttribute>()
                                 ?? method.DeclaringType.GetCustomAttribute<SlashCommandPermissionsAttribute>()
-                            )?.Permissions;
+                            )?.Permissions ?? []);
 
                             DiscordApplicationCommand payload =
                                 new(
@@ -545,10 +545,10 @@ public sealed partial class SlashCommandsExtension : IDisposable
                                     ?? contextMethod.DeclaringType.GetCustomAttribute<GuildOnlyAttribute>()
                                 )
                                     is null;
-                            DiscordPermissions? permissions = (
+                            DiscordPermissions? permissions = new((
                                 contextMethod.GetCustomAttribute<SlashCommandPermissionsAttribute>()
                                 ?? contextMethod.DeclaringType.GetCustomAttribute<SlashCommandPermissionsAttribute>()
-                            )?.Permissions;
+                            )?.Permissions ?? []);
                             IReadOnlyList<DiscordApplicationIntegrationType>? integrationTypes =
                                 GetInteractionCommandInstallTypes(contextMethod);
                             IReadOnlyList<DiscordInteractionContextType>? contexts =
