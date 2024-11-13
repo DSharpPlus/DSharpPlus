@@ -2639,7 +2639,7 @@ public sealed partial class DiscordClient
         interaction.Discord = this;
         interaction.Data.Discord = this;
 
-        if (member != null)
+        if (member is not null && guildId is not null)
         {
             usr = new DiscordMember(member) { guild_id = guildId.Value, Discord = this };
             UpdateUser(usr, guildId, interaction.Guild, member);
