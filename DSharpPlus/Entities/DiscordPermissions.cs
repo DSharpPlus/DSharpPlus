@@ -46,6 +46,7 @@ public readonly partial struct DiscordPermissions
     /// <summary>
     /// Creates a new instance of this type from the specified permissions.
     /// </summary>
+    [OverloadResolutionPriority(1)]
     public DiscordPermissions(params ReadOnlySpan<DiscordPermission> permissions)
     {
         foreach (DiscordPermission permission in permissions)
@@ -57,6 +58,7 @@ public readonly partial struct DiscordPermissions
     /// <summary>
     /// Creates a new instance of this type from the specified permissions.
     /// </summary>
+    [OverloadResolutionPriority(0)]
     public DiscordPermissions(params IReadOnlyList<DiscordPermission> permissions)
     {
         foreach (DiscordPermission permission in permissions)
