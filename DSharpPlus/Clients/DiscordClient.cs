@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -43,6 +44,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     private readonly IShardOrchestrator orchestrator;
     private readonly ChannelReader<GatewayPayload> eventReader;
     private readonly IEventDispatcher dispatcher;
+
+    private readonly Dictionary<Int128, Channel<GuildMembersChunkedEventArgs>> guildMembersChunkedEvents = [];
 
     private StatusUpdate? status = null;
     private readonly string token;
@@ -543,7 +546,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         {
             avatarBase64 = null;
         }
-        
+
         Optional<string> bannerBase64 = Optional.FromNoValue<string>();
         if (banner.HasValue && banner.Value != null)
         {
@@ -641,10 +644,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
         (
             applicationId,
             commandId,
-            mdl.Name, 
+            mdl.Name,
             mdl.Description,
             mdl.Options,
-            mdl.DefaultPermission, 
+            mdl.DefaultPermission,
             mdl.NSFW,
             mdl.NameLocalizations,
             mdl.DescriptionLocalizations,
@@ -913,28 +916,28 @@ public sealed partial class DiscordClient : BaseDiscordClient
         string bodyString = Encoding.UTF8.GetString(body);
 
         JObject data = JObject.Parse(bodyString);
-        
+
         DiscordHttpInteraction? interaction = data.ToDiscordObject<DiscordHttpInteraction>();
-        
+
         if (interaction is null)
         {
             throw new ArgumentException("Unable to parse provided request body to DiscordHttpInteraction");
         }
-        
+
         if (interaction.Type is DiscordInteractionType.Ping)
         {
             DiscordInteractionResponsePayload responsePayload = new() {Type = DiscordInteractionResponseType.Pong};
             string responseString = DiscordJson.SerializeObject(responsePayload);
             byte[] responseBytes = Encoding.UTF8.GetBytes(responseString);
-            
+
             return responseBytes;
         }
 
         cancellationToken.Register(() => interaction.Cancel());
-        
+
         ulong? guildId = (ulong?)data["guild_id"];
         ulong channelId = (ulong)data["channel_id"];
-        
+
         JToken rawMember = data["member"];
         TransportMember? transportMember = null;
         TransportUser transportUser;
@@ -959,6 +962,44 @@ public sealed partial class DiscordClient : BaseDiscordClient
         await OnInteractionCreateAsync(guildId, channelId, transportUser, transportMember, channel, interaction);
 
         return await interaction.GetResponseAsync();
+    }
+
+    [StackTraceHidden]
+    internal ChannelReader<GuildMembersChunkedEventArgs> RegisterGuildMemberChunksEnumerator(ulong guildId, string? nonce)
+    {
+        Int128 nonceKey = new(guildId, (ulong)(nonce?.GetHashCode() ?? 0));
+        Channel<GuildMembersChunkedEventArgs> channel = Channel.CreateUnbounded<GuildMembersChunkedEventArgs>(new UnboundedChannelOptions { SingleWriter = true, SingleReader = true });
+
+        if (!this.guildMembersChunkedEvents.TryAdd(nonceKey, channel))
+        {
+            throw new InvalidOperationException("A guild member chunk request for the given guild and nonce has already been registered.");
+        }
+
+        return channel.Reader;
+    }
+
+    private async ValueTask DispatchGuildMembersChunkForIteratorsAsync(GuildMembersChunkedEventArgs eventArgs)
+    {
+        if (this.guildMembersChunkedEvents.Count is 0)
+        {
+            return;
+        }
+
+        Int128 code = new(eventArgs.Guild.Id, (ulong)(eventArgs.Nonce?.GetHashCode() ?? 0));
+
+        if (!this.guildMembersChunkedEvents.TryGetValue(code, out Channel<GuildMembersChunkedEventArgs>? eventChannel))
+        {
+            return;
+        }
+
+        await eventChannel.Writer.WriteAsync(eventArgs);
+
+        // Discord docs state that 0 <= chunk_index < chunk_count, so add one
+        if (eventArgs.ChunkIndex + 1 == eventArgs.ChunkCount)
+        {
+            this.guildMembersChunkedEvents.Remove(code);
+            eventChannel.Writer.Complete();
+        }
     }
 
     #region Internal Caching Methods

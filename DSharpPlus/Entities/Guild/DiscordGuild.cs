@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.EventArgs;
@@ -1792,6 +1793,43 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
             TransportMember? lastMember = transportMembers.LastOrDefault();
             last = lastMember?.User.Id ?? 0;
+        }
+    }
+
+    /// <summary>
+    /// Requests that Discord send a list of guild members based on the specified arguments. This method will fire the GuildMembersChunked event.
+    /// <para>If no arguments aside from <paramref name="presences"/> and <paramref name="nonce"/> are specified, this will request all guild members.</para>
+    /// </summary>
+    /// <param name="query">Filters the returned members based on what the username starts with. Either this or <paramref name="userIds"/> must not be null.
+    /// The <paramref name="limit"/> must also be greater than 0 if this is specified.</param>
+    /// <param name="limit">Total number of members to request. This must be greater than 0 if <paramref name="query"/> is specified.</param>
+    /// <param name="presences">Whether to include the <see cref="GuildMembersChunkedEventArgs.Presences"/> associated with the fetched members.</param>
+    /// <param name="userIds">Whether to limit the request to the specified user ids. Either this or <paramref name="query"/> must not be null.</param>
+    /// <param name="nonce">The unique string to identify the response. This must be unique per-guild if multiple requests to the same guild are made.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the iterator with.</param>
+    /// <returns>An asynchronous iterator that will return all chunks.</returns>
+    public async IAsyncEnumerable<GuildMembersChunkedEventArgs> EnumerateRequestMembersAsync
+    (
+        string query = "",
+        int limit = 0,
+        bool? presences = null,
+        IEnumerable<ulong>? userIds = null,
+        string? nonce = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default
+    )
+    {
+        if (this.Discord is not DiscordClient client)
+        {
+            throw new InvalidOperationException("This operation is only valid for regular Discord clients.");
+        }
+
+        ChannelReader<GuildMembersChunkedEventArgs> reader = client.RegisterGuildMemberChunksEnumerator(this.Id, nonce);
+
+        await this.RequestMembersAsync(query, limit, presences, userIds, nonce);
+
+        await foreach (var evt in reader.ReadAllAsync(cancellationToken))
+        {
+            yield return evt;
         }
     }
 
