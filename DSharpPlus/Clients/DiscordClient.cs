@@ -995,6 +995,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         await eventChannel.Writer.WriteAsync(eventArgs);
 
         // Discord docs state that 0 <= chunk_index < chunk_count, so add one
+        // Basically, chunks are zero-based.
         if (eventArgs.ChunkIndex + 1 == eventArgs.ChunkCount)
         {
             this.guildMembersChunkedEvents.Remove(code, out _);

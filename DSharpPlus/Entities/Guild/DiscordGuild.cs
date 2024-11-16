@@ -1807,8 +1807,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="userIds">Whether to limit the request to the specified user ids. Either this or <paramref name="query"/> must not be null.</param>
     /// <param name="nonce">The unique string to identify the response. This must be unique per-guild if multiple requests to the same guild are made.</param>
     /// <param name="cancellationToken">A cancellation token to cancel the iterator with.</param>
-    /// <returns>An asynchronous iterator that will return all chunks.</returns>
-    public async IAsyncEnumerable<GuildMembersChunkedEventArgs> EnumerateRequestMembersAsync
+    /// <returns>An asynchronous iterator that will return all members.</returns>
+    public async IAsyncEnumerable<DiscordMember> EnumerateRequestMembersAsync
     (
         string query = "",
         int limit = 0,
@@ -1829,7 +1829,10 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
         await foreach (var evt in reader.ReadAllAsync(cancellationToken))
         {
-            yield return evt;
+            foreach (DiscordMember member in evt.Members)
+            {
+                yield return member;
+            }
         }
     }
 
