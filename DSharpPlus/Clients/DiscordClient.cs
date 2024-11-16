@@ -45,7 +45,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     private readonly ChannelReader<GatewayPayload> eventReader;
     private readonly IEventDispatcher dispatcher;
 
-    private readonly Dictionary<Int128, Channel<GuildMembersChunkedEventArgs>> guildMembersChunkedEvents = [];
+    private readonly ConcurrentDictionary<Int128, Channel<GuildMembersChunkedEventArgs>> guildMembersChunkedEvents = [];
 
     private StatusUpdate? status = null;
     private readonly string token;
@@ -997,7 +997,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         // Discord docs state that 0 <= chunk_index < chunk_count, so add one
         if (eventArgs.ChunkIndex + 1 == eventArgs.ChunkCount)
         {
-            this.guildMembersChunkedEvents.Remove(code);
+            this.guildMembersChunkedEvents.Remove(code, out _);
             eventChannel.Writer.Complete();
         }
     }
