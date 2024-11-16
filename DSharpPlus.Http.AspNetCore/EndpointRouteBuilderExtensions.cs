@@ -113,12 +113,14 @@ public static class EndpointRouteBuilderExtensions
         if (!TryExtractHeaders(httpContext.Request.Headers, out string? timestamp, out string? key))
         {
             httpContext.Response.StatusCode = 401;
+            ArrayPool<byte>.Shared.Return(bodyBuffer);
             return (-1, null);
         }
 
         if (!DiscordHeaders.VerifySignature(bodyBuffer.AsSpan(..length), timestamp!, key!, client.CurrentApplication.VerifyKey))
         {
             httpContext.Response.StatusCode = 401;
+            ArrayPool<byte>.Shared.Return(bodyBuffer);
             return (-1, null);
         }
 
