@@ -109,4 +109,4 @@ jobs:
         uses: actions/deploy-pages@v1
       - name: Reload Discord documentation
         run: |
-          curl -X POST -H 'Authorization: Bot ${{ secrets.DISCORD_TOKEN }}' -d '{"content":"<@341606460720939008> reload"}' 'https://discord.com/api/v10/channels/379379415475552276/messages'
+          curl -X POST -H 'Authorization: Bot ${{ secrets.DISCORD_TOKEN }}' -H 'Content-Type: application/json' -d '{"content":"<@341606460720939008> reload"}' 'https://discord.com/api/v10/channels/379379415475552276/messages'
