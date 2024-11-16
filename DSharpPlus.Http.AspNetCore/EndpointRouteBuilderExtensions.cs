@@ -88,7 +88,10 @@ public static class EndpointRouteBuilderExtensions
 
         ArraySegment<byte> body = new(bodyBuffer, 0, length);
 
-        _ = transportService.HandleWebhookEventAsync(body);
+        
+        // ReSharper disable MethodSupportsCancellation => we dont care if the request was canceld and always want to return the buffer
+        _ = transportService.HandleWebhookEventAsync(body).ContinueWith(x => ArrayPool<byte>.Shared.Return(bodyBuffer));
+        // ReSharper restore MethodSupportsCancellation
         
         httpContext.Response.StatusCode = (int) HttpStatusCode.NoContent;
     }
