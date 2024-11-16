@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -46,6 +47,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     private readonly ChannelReader<DiscordWebhookEvent> webhookEventReader;
     private readonly ChannelReader<DiscordHttpInteractionPayload> interactionEventReader;
     private readonly IEventDispatcher dispatcher;
+
+    private readonly ConcurrentDictionary<Int128, Channel<GuildMembersChunkedEventArgs>> guildMembersChunkedEvents = [];
 
     private StatusUpdate? status = null;
     private readonly string token;
@@ -558,7 +561,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         {
             avatarBase64 = null;
         }
-        
+
         Optional<string> bannerBase64 = Optional.FromNoValue<string>();
         if (banner.HasValue && banner.Value != null)
         {
@@ -656,10 +659,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
         (
             applicationId,
             commandId,
-            mdl.Name, 
+            mdl.Name,
             mdl.Description,
             mdl.Options,
-            mdl.DefaultPermission, 
+            mdl.DefaultPermission,
             mdl.NSFW,
             mdl.NameLocalizations,
             mdl.DescriptionLocalizations,
@@ -915,6 +918,45 @@ public sealed partial class DiscordClient : BaseDiscordClient
         while (remaining > 0 && lastCount is > 0 and 100);
     }
     #endregion
+
+    [StackTraceHidden]
+    internal ChannelReader<GuildMembersChunkedEventArgs> RegisterGuildMemberChunksEnumerator(ulong guildId, string? nonce)
+    {
+        Int128 nonceKey = new(guildId, (ulong)(nonce?.GetHashCode() ?? 0));
+        Channel<GuildMembersChunkedEventArgs> channel = Channel.CreateUnbounded<GuildMembersChunkedEventArgs>(new UnboundedChannelOptions { SingleWriter = true, SingleReader = true });
+
+        if (!this.guildMembersChunkedEvents.TryAdd(nonceKey, channel))
+        {
+            throw new InvalidOperationException("A guild member chunk request for the given guild and nonce has already been registered.");
+        }
+
+        return channel.Reader;
+    }
+
+    private async ValueTask DispatchGuildMembersChunkForIteratorsAsync(GuildMembersChunkedEventArgs eventArgs)
+    {
+        if (this.guildMembersChunkedEvents.Count is 0)
+        {
+            return;
+        }
+
+        Int128 code = new(eventArgs.Guild.Id, (ulong)(eventArgs.Nonce?.GetHashCode() ?? 0));
+
+        if (!this.guildMembersChunkedEvents.TryGetValue(code, out Channel<GuildMembersChunkedEventArgs>? eventChannel))
+        {
+            return;
+        }
+
+        await eventChannel.Writer.WriteAsync(eventArgs);
+
+        // Discord docs state that 0 <= chunk_index < chunk_count, so add one
+        // Basically, chunks are zero-based.
+        if (eventArgs.ChunkIndex + 1 == eventArgs.ChunkCount)
+        {
+            this.guildMembersChunkedEvents.Remove(code, out _);
+            eventChannel.Writer.Complete();
+        }
+    }
 
     #region Internal Caching Methods
 
