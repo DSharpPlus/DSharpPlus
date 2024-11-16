@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Text;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.Net.HttpInteractions;
+namespace DSharpPlus.Net.InboundWebhooks;
 
 public class DiscordHeaders
 {
@@ -11,7 +11,7 @@ public class DiscordHeaders
     /// Name of the HTTP header which contains the timestamp of the signature
     /// </summary>
     public const string TimestampHeaderName = "x-signature-timestamp";
-    
+
     /// <summary>
     /// Name of the HTTP header which contains the signature
     /// </summary>
