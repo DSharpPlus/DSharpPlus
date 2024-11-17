@@ -320,15 +320,7 @@ public sealed class VoiceNextConnection : IDisposable
         Span<byte> nonce = stackalloc byte[Sodium.NonceSize];
         switch (this.SelectedEncryptionMode)
         {
-            case EncryptionMode.XSalsa20_Poly1305:
-                Sodium.GenerateNonce(packet[..Rtp.HeaderSize], nonce);
-                break;
-
-            case EncryptionMode.XSalsa20_Poly1305_Suffix:
-                this.Sodium.GenerateNonce(nonce);
-                break;
-
-            case EncryptionMode.XSalsa20_Poly1305_Lite:
+            case EncryptionMode.AeadAes256GcmRtpSize:
                 Sodium.GenerateNonce(this.Nonce++, nonce);
                 break;
 
