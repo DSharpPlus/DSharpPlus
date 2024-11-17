@@ -282,6 +282,7 @@ public sealed class VoiceNextConnection : IDisposable
                 Token = this.ServerData.Token
             };
         }
+
         string vdj = JsonConvert.SerializeObject(vdp, Formatting.None);
         await WsSendAsync(vdj);
     }
@@ -335,7 +336,7 @@ public sealed class VoiceNextConnection : IDisposable
         packet = packet[..Rtp.CalculatePacketSize(encrypted.Length, this.SelectedEncryptionMode)];
         Sodium.AppendNonce(nonce, packet, this.SelectedEncryptionMode);
 
-        target = packetArray;
+        target = packet.ToArray();
         length = packet.Length;
         return true;
     }
@@ -834,7 +835,7 @@ public sealed class VoiceNextConnection : IDisposable
             ushort length = 70; // length of everything after this. should for this step always be 70.
 
             Span<byte> packetSpan = packet.AsSpan();
-            Helpers.ZeroFill(packetSpan); // fill with zeroes
+            packetSpan.Clear(); // fill with zeroes
 
             byte[] typeByte = BitConverter.GetBytes(type);
             byte[] lengthByte = BitConverter.GetBytes(length);

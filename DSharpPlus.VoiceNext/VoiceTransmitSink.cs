@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using DSharpPlus.VoiceNext.Codec;
 
 namespace DSharpPlus.VoiceNext;
 
@@ -126,7 +125,7 @@ public sealed class VoiceTransmitSink : IDisposable
     public async Task FlushAsync(CancellationToken cancellationToken = default)
     {
         Memory<byte> pcm = this.PcmMemory;
-        Helpers.ZeroFill(pcm[this.PcmBufferLength..].Span);
+        pcm[this.PcmBufferLength..].Span.Clear();
 
         ApplyFiltersSync(pcm);
 

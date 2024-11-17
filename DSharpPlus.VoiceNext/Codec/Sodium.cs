@@ -50,18 +50,7 @@ internal sealed class Sodium : IDisposable
         rtpHeader.CopyTo(target);
 
         // Zero rest of the span.
-        Helpers.ZeroFill(target[rtpHeader.Length..]);
-    }
-
-    public void GenerateNonce(Span<byte> target)
-    {
-        if (target.Length != Interop.SodiumNonceSize)
-        {
-            throw new ArgumentException($"Invalid nonce buffer size. Target buffer for the nonce needs to have a capacity of {Interop.SodiumNonceSize} bytes.", nameof(target));
-        }
-
-        this.CSPRNG.GetBytes(this.Buffer);
-        this.Buffer.AsSpan().CopyTo(target);
+        target[rtpHeader.Length..].Clear();
     }
 
     public static void GenerateNonce(uint nonce, Span<byte> target)
@@ -75,7 +64,7 @@ internal sealed class Sodium : IDisposable
         BinaryPrimitives.WriteUInt32BigEndian(target, nonce);
 
         // Zero rest of the buffer.
-        Helpers.ZeroFill(target[4..]);
+        target[4..].Clear();
     }
 
     public static void AppendNonce(ReadOnlySpan<byte> nonce, Span<byte> target, EncryptionMode encryptionMode)
@@ -84,6 +73,7 @@ internal sealed class Sodium : IDisposable
         {
             case EncryptionMode.AeadAes256GcmRtpSize:
                 nonce[..4].CopyTo(target[^12..]);
+                target[^8..].Clear();
                 return;
 
             default:
@@ -101,7 +91,7 @@ internal sealed class Sodium : IDisposable
         switch (encryptionMode)
         {
             case EncryptionMode.AeadAes256GcmRtpSize:
-                source[..12].CopyTo(target);
+                source[^12..].CopyTo(target);
                 return;
 
             default:
