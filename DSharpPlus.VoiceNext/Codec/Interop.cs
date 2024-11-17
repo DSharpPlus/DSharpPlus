@@ -15,17 +15,14 @@ internal static unsafe partial class Interop
     /// <summary>
     /// Gets the Sodium key size for xsalsa20_poly1305 algorithm.
     /// </summary>
-    public static int SodiumKeySize { get; } = (int)SodiumSecretBoxKeySize();
+    public static int SodiumKeySize { get; } = (int)crypto_aead_aes256gcm_keybytes();
 
     /// <summary>
     /// Gets the Sodium nonce size for xsalsa20_poly1305 algorithm.
     /// </summary>
-    public static int SodiumNonceSize { get; } = (int)SodiumSecretBoxNonceSize();
+    public static int SodiumNonceSize { get; } = (int)crypto_aead_aes256gcm_npubbytes();
 
-    /// <summary>
-    /// Gets the Sodium MAC size for xsalsa20_poly1305 algorithm.
-    /// </summary>
-    public static int SodiumMacSize { get; } = (int)SodiumSecretBoxMacSize();
+    public static int SodiumMacSize { get; } = (int)crypto_aead_aes256gcm_abytes();
 
     /// <summary>
     /// Indicates whether the current hardware is AEAD AES-256 GCM compatible.
@@ -38,10 +35,16 @@ internal static unsafe partial class Interop
     private static partial int crypto_aead_aes256gcm_is_available();
 
     [LibraryImport(SodiumLibraryName)]
+    private static partial nuint crypto_aead_aes256gcm_npubbytes();
+
+    [LibraryImport(SodiumLibraryName)]
+    private static partial nuint crypto_aead_aes256gcm_abytes();
+
+    [LibraryImport(SodiumLibraryName)]
     private static partial nuint crypto_aead_aes256gcm_keybytes();
 
     [LibraryImport(SodiumLibraryName)]
-    private static partial nuint crypto_aead_aes256gcm_encrypt
+    private static partial int crypto_aead_aes256gcm_encrypt
     (
         byte* encrypted,                                        // unsigned char *c
         ulong *encryptedLength,                                 // unsigned long long *clen_p
@@ -57,7 +60,7 @@ internal static unsafe partial class Interop
     );
 
     [LibraryImport(SodiumLibraryName)]
-    private static partial nuint crypto_aead_aes256gcm_decrypt
+    private static partial int crypto_aead_aes256gcm_decrypt
     (
         byte* message,                                          // unsigned char *m
         ulong* messageLength,                                   // unsigned long long *mlen_p
@@ -101,7 +104,7 @@ internal static unsafe partial class Interop
     /// <param name="key">Key to use for decryption.</param>
     /// <param name="nonce">Nonce to use for decryption.</param>
     /// <returns>Decryption status.</returns>
-    public static unsafe void Decrypt(ReadOnlySpan<byte> source, Span<byte> target, ReadOnlySpan<byte> key, ReadOnlySpan<byte> nonce)
+    public static unsafe int Decrypt(ReadOnlySpan<byte> source, Span<byte> target, ReadOnlySpan<byte> key, ReadOnlySpan<byte> nonce)
     {
         ulong targetLength = (ulong)target.Length;
 
@@ -110,7 +113,7 @@ internal static unsafe partial class Interop
         fixed (byte* pKey = key)
         fixed (byte* pNonce = nonce)
         {
-            crypto_aead_aes256gcm_decrypt(pTarget, &targetLength, null, pSource, (ulong)source.Length, null, 0, pNonce, pKey);
+            return crypto_aead_aes256gcm_decrypt(pTarget, &targetLength, null, pSource, (ulong)source.Length, null, 0, pNonce, pKey);
         }
     }
     #endregion
