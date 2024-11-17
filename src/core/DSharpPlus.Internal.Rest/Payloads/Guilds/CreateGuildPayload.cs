@@ -17,7 +17,7 @@ public sealed record CreateGuildPayload : ICreateGuildPayload
     public required string Name { get; init; }
 
     /// <inheritdoc/>
-    public Optional<ImageData> Icon { get; init; }
+    public Optional<InlineMediaData> Icon { get; init; }
 
     /// <inheritdoc/>
     public Optional<DiscordVerificationLevel> VerificationLevel { get; init; }

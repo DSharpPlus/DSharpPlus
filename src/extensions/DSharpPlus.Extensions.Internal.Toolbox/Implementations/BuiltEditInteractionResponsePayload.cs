@@ -29,4 +29,7 @@ internal sealed record BuiltEditInteractionResponsePayload : IEditInteractionRes
 
     /// <inheritdoc/>
     public IReadOnlyList<AttachmentData>? Files { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<ICreatePoll?> Poll { get; init; }
 }

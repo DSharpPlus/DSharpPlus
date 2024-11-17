@@ -46,7 +46,7 @@ public interface IModifyGuildPayload
     /// <summary>
     /// The new icon for this guild.
     /// </summary>
-    public Optional<ImageData?> Icon { get; }
+    public Optional<InlineMediaData?> Icon { get; }
 
     /// <summary>
     /// The snowflake identifier of this guild's new owner. Used to transfer guild ownership.
@@ -56,17 +56,17 @@ public interface IModifyGuildPayload
     /// <summary>
     /// The new splash for this guild.
     /// </summary>
-    public Optional<ImageData?> Splash { get; }
+    public Optional<InlineMediaData?> Splash { get; }
 
     /// <summary>
     /// The new guild discovery splash for this guild.
     /// </summary>
-    public Optional<ImageData?> DiscoverySplash { get; }
+    public Optional<InlineMediaData?> DiscoverySplash { get; }
 
     /// <summary>
     /// The new banner for this guild.
     /// </summary>
-    public Optional<ImageData?> Banner { get; }
+    public Optional<InlineMediaData?> Banner { get; }
 
     /// <summary>
     /// The snowflake identifier of the new system channel.

@@ -122,13 +122,13 @@ public interface IPartialApplication
     /// <summary>
     /// The interactions endpoint url for this app, if it uses HTTP interactions.
     /// </summary>
-    public Optional<string> InteractionsEndpointUrl { get; }
+    public Optional<string?> InteractionsEndpointUrl { get; }
 
     /// <summary>
     /// This application's role connection verification entry point; which, when configured, will render
     /// the application as a verification method in the guild role verification configuration.
     /// </summary>
-    public Optional<string> RoleConnectionsVerificationUrl { get; }
+    public Optional<string?> RoleConnectionsVerificationUrl { get; }
 
     /// <summary>
     /// Up to five tags describing content and functionality of the application.

@@ -19,7 +19,7 @@ public interface ICreateGuildEmojiPayload
     /// <summary>
     /// The 128x128 emoji image.
     /// </summary>
-    public ImageData Image { get; }
+    public InlineMediaData Image { get; }
 
     /// <summary>
     /// The snowflake identifiers of roles allowed to use this emoji.

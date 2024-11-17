@@ -139,6 +139,8 @@ partial class ServiceCollectionExtensions
                 options.AddModel<IScheduledEventRecurrenceRule, ScheduledEventRecurrenceRule>();
                 options.AddModel<IScheduledEventUser, ScheduledEventUser>();
                 options.AddModel<ISku, Sku>();
+                options.AddModel<IPartialSoundboardSound, PartialSoundboardSound>();
+                options.AddModel<ISoundboardSound, SoundboardSound>();
                 options.AddModel<IPartialStageInstance, PartialStageInstance>();
                 options.AddModel<IStageInstance, StageInstance>();
                 options.AddModel<IPartialSticker, PartialSticker>();

@@ -17,7 +17,7 @@ public interface IModifyWebhookPayload
     /// <summary>
     /// The new default webhook avatar image.
     /// </summary>
-    public Optional<ImageData?> Avatar { get; }
+    public Optional<InlineMediaData?> Avatar { get; }
 
     /// <summary>
     /// The snowflake identifier of the channel this webhook should be moved to.

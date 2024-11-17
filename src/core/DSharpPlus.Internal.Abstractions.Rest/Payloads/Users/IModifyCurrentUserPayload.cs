@@ -19,10 +19,10 @@ public interface IModifyCurrentUserPayload
     /// <summary>
     /// The new avatar for this user.
     /// </summary>
-    public Optional<ImageData?> Avatar { get; }
+    public Optional<InlineMediaData?> Avatar { get; }
 
     /// <summary>
     /// The new banner for this user.
     /// </summary>
-    public Optional<ImageData?> Banner { get; }
+    public Optional<InlineMediaData?> Banner { get; }
 }

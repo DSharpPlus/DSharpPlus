@@ -27,7 +27,7 @@ namespace DSharpPlus.Internal.Rest.API;
 public sealed class ApplicationCommandsRestAPI
 (
     IRestClient restClient,
-    ISerializationService<IRestClient> serializationService
+    SerializationService<IRestClient> serializationService
 )
     : IApplicationCommandsRestAPI
 {

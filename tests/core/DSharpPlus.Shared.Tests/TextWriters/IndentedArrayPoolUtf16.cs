@@ -28,7 +28,7 @@ public class IndentedArrayPoolUtf16
 
             }
             """,
-            writer.ToString().Trim(" \r\n")
+            writer.ToString().Trim(' ', '\r', 'n')
         );
     }
 
@@ -51,7 +51,7 @@ public class IndentedArrayPoolUtf16
                 1
             }
             """,
-            writer.ToString().Trim(" \r\n")
+            writer.ToString().Trim(' ', '\r', 'n')
         );
     }
 
@@ -74,7 +74,7 @@ public class IndentedArrayPoolUtf16
             1
             }
             """,
-            writer.ToString().Trim(" \r\n")
+            writer.ToString().Trim(' ', '\r', 'n')
         );
     }
 }

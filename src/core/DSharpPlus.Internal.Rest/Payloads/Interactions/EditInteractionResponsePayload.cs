@@ -29,4 +29,7 @@ public sealed record EditInteractionResponsePayload : IEditInteractionResponsePa
 
     /// <inheritdoc/>
     public IReadOnlyList<AttachmentData>? Files { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<ICreatePoll?> Poll { get; init; }
 }

@@ -52,6 +52,8 @@ public static partial class ServiceCollectionExtensions
 
                 options.TypeInfoResolverChain.Add(OptionalTypeInfoResolver.Default);
                 options.TypeInfoResolverChain.Add(NullBooleanTypeInfoResolver.Default);
+                // this needs to be below OptionalTypeInfoResolver so as to avoid the former overwriting this
+                options.TypeInfoResolverChain.Add(AttachmentDataTypeInfoResolver.Default);
             }
         );
 

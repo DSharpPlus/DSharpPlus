@@ -26,5 +26,5 @@ public interface ICreateWebhookPayload
     /// <summary>
     /// The default webhook avatar. This may be overridden by messages.
     /// </summary>
-    public Optional<ImageData?> Avatar { get; }
+    public Optional<InlineMediaData?> Avatar { get; }
 }

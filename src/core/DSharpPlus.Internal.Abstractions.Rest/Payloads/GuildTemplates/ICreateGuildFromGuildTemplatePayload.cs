@@ -17,5 +17,5 @@ public interface ICreateGuildFromGuildTemplatePayload
     /// <summary>
     /// The 128x128 icon for this guild.
     /// </summary>
-    public Optional<ImageData> Icon { get; }
+    public Optional<InlineMediaData> Icon { get; }
 }

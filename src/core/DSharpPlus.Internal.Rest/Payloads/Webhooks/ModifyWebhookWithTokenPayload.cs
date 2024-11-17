@@ -13,5 +13,5 @@ public sealed record ModifyWebhookWithTokenPayload : IModifyWebhookWithTokenPayl
     public Optional<string> Name { get; init; }
 
     /// <inheritdoc/>
-    public Optional<ImageData?> Avatar { get; init; }
+    public Optional<InlineMediaData?> Avatar { get; init; }
 }

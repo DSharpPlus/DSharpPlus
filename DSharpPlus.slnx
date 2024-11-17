@@ -18,6 +18,6 @@
     <Project Path="tests\core\DSharpPlus.Shared.Tests\DSharpPlus.Shared.Tests.csproj" />
   </Folder>
   <Properties Name="Visual Studio">
-    <Property Name="OpenWith" Value="17" />
+    <Property Name="OpenWith" Value="Visual Studio Version 17" />
   </Properties>
 </Solution>

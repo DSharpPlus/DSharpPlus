@@ -13,5 +13,5 @@ public sealed record CreateApplicationEmojiPayload : ICreateApplicationEmojiPayl
     public required string Name { get; init; }
 
     /// <inheritdoc/>
-    public required ImageData Image { get; init; }
+    public required InlineMediaData Image { get; init; }
 }

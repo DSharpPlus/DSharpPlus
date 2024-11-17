@@ -5,4 +5,5 @@
 *.yml text eol=crlf
 *.sln text eol=crlf
 *.csproj text eol=crlf
+*.sh text eol=lf
 .* text eol=crlf

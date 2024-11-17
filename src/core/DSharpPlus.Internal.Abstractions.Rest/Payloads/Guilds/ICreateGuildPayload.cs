@@ -22,7 +22,7 @@ public interface ICreateGuildPayload
     /// <summary>
     /// The 128x128 icon of this guild.
     /// </summary>
-    public Optional<ImageData> Icon { get; }
+    public Optional<InlineMediaData> Icon { get; }
 
     /// <summary>
     /// The verification level required by this guild.

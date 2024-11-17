@@ -29,10 +29,10 @@ public sealed record EditCurrentApplicationPayload : IEditCurrentApplicationPayl
     public Optional<DiscordApplicationFlags> Flags { get; init; }
 
     /// <inheritdoc/>
-    public Optional<ImageData?> Icon { get; init; }
+    public Optional<InlineMediaData?> Icon { get; init; }
 
     /// <inheritdoc/>
-    public Optional<ImageData?> CoverImage { get; init; }
+    public Optional<InlineMediaData?> CoverImage { get; init; }
 
     /// <inheritdoc/>
     public Optional<string> InteractionsEndpointUrl { get; init; }

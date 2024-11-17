@@ -62,7 +62,7 @@ public interface IModifyGuildScheduledEventPayload
     /// <summary>
     /// Image data representing the cover image of this scheduled event.
     /// </summary>
-    public Optional<ImageData> Image { get; }
+    public Optional<InlineMediaData> Image { get; }
 
     /// <summary>
     /// A definition for how often and at what dates this event should recur.

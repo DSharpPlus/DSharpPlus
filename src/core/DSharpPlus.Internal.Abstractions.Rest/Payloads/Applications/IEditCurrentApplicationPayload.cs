@@ -42,12 +42,12 @@ public interface IEditCurrentApplicationPayload
     /// <summary>
     /// The icon for this application.
     /// </summary>
-    public Optional<ImageData?> Icon { get; }
+    public Optional<InlineMediaData?> Icon { get; }
 
     /// <summary>
     /// The default rich presence invite cover image for this application.
     /// </summary>
-    public Optional<ImageData?> CoverImage { get; }
+    public Optional<InlineMediaData?> CoverImage { get; }
 
     /// <summary>
     /// The interactions endpoint url for this application.

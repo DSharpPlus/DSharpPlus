@@ -69,6 +69,8 @@ partial class ServiceCollectionExtensions
                 options.AddModel<IEditMessagePayload, EditMessagePayload>();
                 options.AddModel<ICreateGuildScheduledEventPayload, CreateGuildScheduledEventPayload>();
                 options.AddModel<IModifyGuildScheduledEventPayload, ModifyGuildScheduledEventPayload>();
+                options.AddModel<ICreateGuildSoundboardSoundPayload, CreateGuildSoundboardSoundPayload>();
+                options.AddModel<IModifyGuildSoundboardSoundPayload, ModifyGuildSoundboardSoundPayload>();
                 options.AddModel<ICreateStageInstancePayload, CreateStageInstancePayload>();
                 options.AddModel<IModifyStageInstancePayload, ModifyStageInstancePayload>();
                 options.AddModel<ICreateGuildStickerPayload, CreateGuildStickerPayload>();

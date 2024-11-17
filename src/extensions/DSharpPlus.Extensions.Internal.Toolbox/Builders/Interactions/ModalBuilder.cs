@@ -104,7 +104,7 @@ public static class ModalBuilderExtensions
             return new BuilderValidationError
             (
                 "Some modal fields were invalid. See the attached dictionary for further information.",
-                errors.ToArray()
+                [.. errors]
             );
         }
         else

@@ -394,6 +394,30 @@ public enum DiscordAuditLogEvent
     ApplicationCommandPermissionsUpdated = 121,
 
     /// <summary>
+    /// A soundboard sound was created.
+    /// </summary>
+    /// <remarks>
+    /// Metadata is provided for a soundboard sound object.
+    /// </remarks>
+    SoundboardSoundCreated = 130,
+
+    /// <summary>
+    /// A soundboard sound was updated.
+    /// </summary>
+    /// <remarks>
+    /// Metadata is provided for a soundboard sound object.
+    /// </remarks>
+    SoundboardSoundUpdated = 131,
+
+    /// <summary>
+    /// A soundboard sound was deleted.
+    /// </summary>
+    /// <remarks>
+    /// Metadata is provided for a soundboard sound object.
+    /// </remarks>
+    SoundboardSoundDeleted = 132,
+
+    /// <summary>
     /// An auto moderation rule was created.
     /// </summary>
     /// <remarks>

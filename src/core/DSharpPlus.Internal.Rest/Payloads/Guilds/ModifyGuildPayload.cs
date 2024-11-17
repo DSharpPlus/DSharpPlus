@@ -31,19 +31,19 @@ public sealed record ModifyGuildPayload : IModifyGuildPayload
     public Optional<int> AfkTimeout { get; init; }
 
     /// <inheritdoc/>
-    public Optional<ImageData?> Icon { get; init; }
+    public Optional<InlineMediaData?> Icon { get; init; }
 
     /// <inheritdoc/>
     public Optional<Snowflake> OwnerId { get; init; }
 
     /// <inheritdoc/>
-    public Optional<ImageData?> Splash { get; init; }
+    public Optional<InlineMediaData?> Splash { get; init; }
 
     /// <inheritdoc/>
-    public Optional<ImageData?> DiscoverySplash { get; init; }
+    public Optional<InlineMediaData?> DiscoverySplash { get; init; }
 
     /// <inheritdoc/>
-    public Optional<ImageData?> Banner { get; init; }
+    public Optional<InlineMediaData?> Banner { get; init; }
 
     /// <inheritdoc/>
     public Optional<Snowflake?> SystemChannelId { get; init; }

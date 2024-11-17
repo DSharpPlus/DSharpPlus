@@ -5,14 +5,16 @@
 namespace DSharpPlus;
 
 /// <summary>
-/// Represents formats recognized and handled by <see cref="ImageData"/>.
+/// Represents formats recognized and handled by <see cref="InlineMediaData"/>.
 /// </summary>
-public enum ImageFormat
+public enum MediaFormat
 {
     Png,
     Gif,
     Jpeg,
     WebP,
+    Ogg,
+    Mp3,
     Auto,
     Unknown,
 }

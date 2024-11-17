@@ -18,23 +18,25 @@ namespace DSharpPlus;
 /// <summary>
 /// Represents an image sent to Discord as part of JSON payloads.
 /// </summary>
-public readonly record struct ImageData
+public readonly record struct InlineMediaData
 {
     private static ReadOnlySpan<byte> PngString => "data:image/png;base64,"u8;
     private static ReadOnlySpan<byte> JpegString => "data:image/jpeg;base64,"u8;
     private static ReadOnlySpan<byte> GifString => "data:image/gif;base64,"u8;
     private static ReadOnlySpan<byte> WebpString => "data:image/webp;base64,"u8;
+    private static ReadOnlySpan<byte> OggString => "data:audio/ogg;base64,"u8;
+    private static ReadOnlySpan<byte> Mp3String => "data:audio/mpeg;base64,"u8;
     private static ReadOnlySpan<byte> AutoString => "data:image/auto;base64,"u8;
 
     private readonly Stream reader;
-    private readonly ImageFormat format;
+    private readonly MediaFormat format;
 
     /// <summary>
     /// Creates a new instance of this struct from the provided stream.
     /// </summary>
     /// <param name="reader">The Stream to convert to base64.</param>
     /// <param name="format">The format of this image.</param>
-    public ImageData(Stream reader, ImageFormat format)
+    public InlineMediaData(Stream reader, MediaFormat format)
     {
         this.reader = reader;
         this.format = format;
@@ -45,7 +47,7 @@ public readonly record struct ImageData
     /// </summary>
     /// <param name="reader">The pipe to conver to base64.</param>
     /// <param name="format">The format of this image.</param>
-    public ImageData(PipeReader reader, ImageFormat format) : this(reader.AsStream(), format)
+    public InlineMediaData(PipeReader reader, MediaFormat format) : this(reader.AsStream(), format)
     {
 
     }
@@ -55,7 +57,7 @@ public readonly record struct ImageData
     /// </summary>
     /// <param name="data">The buffer to convert to base64.</param>
     /// <param name="format">The format of this image.</param>
-    public ImageData(ReadOnlySequence<byte> data, ImageFormat format) : this(PipeReader.Create(data), format)
+    public InlineMediaData(ReadOnlySequence<byte> data, MediaFormat format) : this(PipeReader.Create(data), format)
     {
 
     }
@@ -73,10 +75,12 @@ public readonly record struct ImageData
         (
             this.format switch
             {
-                ImageFormat.Png => PngString,
-                ImageFormat.Gif => GifString,
-                ImageFormat.Jpeg => JpegString,
-                ImageFormat.WebP => WebpString,
+                MediaFormat.Png => PngString,
+                MediaFormat.Gif => GifString,
+                MediaFormat.Jpeg => JpegString,
+                MediaFormat.WebP => WebpString,
+                MediaFormat.Ogg => OggString,
+                MediaFormat.Mp3 => Mp3String,
                 _ => AutoString
             }
         );

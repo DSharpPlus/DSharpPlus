@@ -9,8 +9,8 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 using DSharpPlus.Entities;
-using DSharpPlus.Extensions.Internal.Builders.Errors;
-using DSharpPlus.Extensions.Internal.Builders.Implementations;
+using DSharpPlus.Extensions.Internal.Toolbox.Errors;
+using DSharpPlus.Extensions.Internal.Toolbox.Implementations;
 using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Results;
 
@@ -215,7 +215,7 @@ public static class TextInputComponentBuilderExtensions
             return new BuilderValidationError
             (
                 "Some component fields were invalid. See the attached dictionary for further information.",
-                errors.ToArray()
+                [.. errors]
             );
         }
         else

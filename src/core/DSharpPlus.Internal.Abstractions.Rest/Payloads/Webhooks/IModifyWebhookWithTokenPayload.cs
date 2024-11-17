@@ -17,5 +17,5 @@ public interface IModifyWebhookWithTokenPayload
     /// <summary>
     /// The new default webhook avatar image.
     /// </summary>
-    public Optional<ImageData?> Avatar { get; }
+    public Optional<InlineMediaData?> Avatar { get; }
 }

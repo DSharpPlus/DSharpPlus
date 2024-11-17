@@ -17,5 +17,5 @@ public interface IModifyGroupDMPayload
     /// <summary>
     /// The icon of this group DM channel.
     /// </summary>
-    public Optional<ImageData> Icon { get; }
+    public Optional<InlineMediaData> Icon { get; }
 }

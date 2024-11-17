@@ -111,8 +111,9 @@ public readonly record struct Optional<T> : IOptional
     [MemberNotNullWhen(true, nameof(value))]
     public readonly bool TryGetNonNullValue
     (
+        [MaybeNullWhen(false)]
         [NotNullWhen(true)]
-        out T? value
+        out T value
     )
     {
         value = this.value;

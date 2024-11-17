@@ -23,7 +23,7 @@ public sealed record ModifyGuildRolePayload : IModifyGuildRolePayload
     public Optional<bool?> Hoist { get; init; }
 
     /// <inheritdoc/>
-    public Optional<ImageData?> Icon { get; init; }
+    public Optional<InlineMediaData?> Icon { get; init; }
 
     /// <inheritdoc/>
     public Optional<string?> UnicodeEmoji { get; init; }

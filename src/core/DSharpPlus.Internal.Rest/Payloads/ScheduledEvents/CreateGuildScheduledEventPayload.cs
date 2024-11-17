@@ -38,7 +38,7 @@ public sealed record CreateGuildScheduledEventPayload : ICreateGuildScheduledEve
     public required DiscordScheduledEventType EntityType { get; init; }
 
     /// <inheritdoc/>
-    public Optional<ImageData> Image { get; init; }
+    public Optional<InlineMediaData> Image { get; init; }
 
     /// <inheritdoc/>
     public Optional<IScheduledEventRecurrenceRule> RecurrenceRule { get; init; }

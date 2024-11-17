@@ -34,7 +34,7 @@ public interface IModifyGuildRolePayload
     /// <summary>
     /// The role's icon image, if it is a custom icon.
     /// </summary>
-    public Optional<ImageData?> Icon { get; init; }
+    public Optional<InlineMediaData?> Icon { get; init; }
 
     /// <summary>
     /// The role's unicode emoji as role icon, if applicable.

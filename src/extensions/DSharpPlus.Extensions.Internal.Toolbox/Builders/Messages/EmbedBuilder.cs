@@ -226,7 +226,7 @@ public static class EmbedBuilderExtensions
             return new BuilderValidationError
             (
                 "The total length of the embed exceeded 6000 characters, and some embed fields were invalid.",
-                errors.ToArray()
+                [.. errors]
             );
         }
         else if (totalCount > 6000)
@@ -238,7 +238,7 @@ public static class EmbedBuilderExtensions
             return new BuilderValidationError
             (
                 "Some embed fields were invalid. See the attached dictionary for further information.",
-                errors.ToArray()
+                [.. errors]
             );
         }
         else

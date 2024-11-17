@@ -42,4 +42,9 @@ public interface IEditInteractionResponsePayload
     /// File contents to send or edit.
     /// </summary>
     public IReadOnlyList<AttachmentData>? Files { get; }
+
+    /// <summary>
+    /// A poll to add to this message.
+    /// </summary>
+    public Optional<ICreatePoll?> Poll { get; }
 }

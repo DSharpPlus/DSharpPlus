@@ -13,5 +13,5 @@ public sealed record CreateGuildFromGuildTemplatePayload : ICreateGuildFromGuild
     public required string Name { get; init; }
 
     /// <inheritdoc/>
-    public Optional<ImageData> Icon { get; init; }
+    public Optional<InlineMediaData> Icon { get; init; }
 }

@@ -76,10 +76,10 @@ public sealed record PartialApplication : IPartialApplication
     public Optional<IReadOnlyList<string>> RedirectUris { get; init; }
 
     /// <inheritdoc/>
-    public Optional<string> InteractionsEndpointUrl { get; init; }
+    public Optional<string?> InteractionsEndpointUrl { get; init; }
 
     /// <inheritdoc/>
-    public Optional<string> RoleConnectionsVerificationUrl { get; init; }
+    public Optional<string?> RoleConnectionsVerificationUrl { get; init; }
 
     /// <inheritdoc/>
     public Optional<IReadOnlyList<string>> Tags { get; init; }

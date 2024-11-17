@@ -13,8 +13,8 @@ public sealed record ModifyCurrentUserPayload : IModifyCurrentUserPayload
     public Optional<string> Username { get; init; }
 
     /// <inheritdoc/>
-    public Optional<ImageData?> Avatar { get; init; }
+    public Optional<InlineMediaData?> Avatar { get; init; }
 
     /// <inheritdoc/>
-    public Optional<ImageData?> Banner { get; init; }
+    public Optional<InlineMediaData?> Banner { get; init; }
 }

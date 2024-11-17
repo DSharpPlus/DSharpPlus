@@ -41,7 +41,7 @@ public sealed record ModifyGuildScheduledEventPayload : IModifyGuildScheduledEve
     public Optional<DiscordScheduledEventStatus> Status { get; init; }
 
     /// <inheritdoc/>
-    public Optional<ImageData> Image { get; init; }
+    public Optional<InlineMediaData> Image { get; init; }
 
     /// <inheritdoc/>
     public Optional<IScheduledEventRecurrenceRule?> RecurrenceRule { get; init; }

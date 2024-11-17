@@ -13,7 +13,7 @@ public sealed record ModifyWebhookPayload : IModifyWebhookPayload
     public Optional<string> Name { get; init; }
 
     /// <inheritdoc/>
-    public Optional<ImageData?> Avatar { get; init; }
+    public Optional<InlineMediaData?> Avatar { get; init; }
 
     /// <inheritdoc/>
     public Optional<Snowflake> ChannelId { get; init; }

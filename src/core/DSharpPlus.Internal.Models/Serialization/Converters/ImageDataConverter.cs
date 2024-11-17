@@ -10,17 +10,17 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace DSharpPlus.Serialization;
 
-public sealed class ImageDataConverter : JsonConverter<ImageData>
+public sealed class ImageDataConverter : JsonConverter<InlineMediaData>
 {
     /// <summary>
     /// Deserializing image data is unsupported.
     /// </summary>
-    public override ImageData Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotSupportedException();
+    public override InlineMediaData Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotSupportedException();
 
     public override void Write
     (
         Utf8JsonWriter writer,
-        ImageData value,
+        InlineMediaData value,
         JsonSerializerOptions options
     )
     {

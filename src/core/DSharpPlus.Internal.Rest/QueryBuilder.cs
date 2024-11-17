@@ -14,7 +14,7 @@ namespace DSharpPlus.Internal.Rest;
 /// </summary>
 internal record struct QueryBuilder(string RootUri)
 {
-    public DictionarySlim<string, string> Parameters { get; set; }
+    public DictionarySlim<string, string> Parameters { get; } = new();
 
     public readonly QueryBuilder AddParameter(string key, string value)
     {

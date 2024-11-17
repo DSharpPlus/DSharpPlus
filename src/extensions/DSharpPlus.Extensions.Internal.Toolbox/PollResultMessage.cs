@@ -135,7 +135,6 @@ public readonly record struct PollResultMessage
 
                 case "victor_answer_emoji_animated":
 
-
                     if (!bool.TryParse(field.Value, out bool isAnimated))
                     {
                         result = default;

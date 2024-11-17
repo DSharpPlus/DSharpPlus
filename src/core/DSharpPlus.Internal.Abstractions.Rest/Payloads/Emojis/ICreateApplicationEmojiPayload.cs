@@ -17,5 +17,5 @@ public interface ICreateApplicationEmojiPayload
     /// <summary>
     /// The 128x128 emoji image.
     /// </summary>
-    public ImageData Image { get; }
+    public InlineMediaData Image { get; }
 }

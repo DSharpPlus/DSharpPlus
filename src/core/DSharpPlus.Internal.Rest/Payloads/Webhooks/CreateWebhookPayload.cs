@@ -13,5 +13,5 @@ public sealed record CreateWebhookPayload : ICreateWebhookPayload
     public required string Name { get; init; }
 
     /// <inheritdoc/>
-    public Optional<ImageData?> Avatar { get; init; }
+    public Optional<InlineMediaData?> Avatar { get; init; }
 }
