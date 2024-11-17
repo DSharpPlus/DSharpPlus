@@ -29,7 +29,19 @@ internal static unsafe partial class Interop
     /// </summary>
     /// <returns></returns>
     public static bool IsAeadAes256GcmCompatible()
-        => crypto_aead_aes256gcm_is_available() == 0;
+        => crypto_aead_aes256gcm_is_available() == 1;
+
+    public static void InitializeLibsodium()
+    {
+        // sodium_init returns 1 if sodium was already initialized, but that doesn't ~really~ matter for us.
+        if (sodium_init() < 0)
+        {
+            throw new InvalidOperationException("Libsodium failed to initialize.");
+        }
+    }
+
+    [LibraryImport(SodiumLibraryName)]
+    private static partial int sodium_init();
 
     [LibraryImport(SodiumLibraryName)]
     private static partial int crypto_aead_aes256gcm_is_available();
