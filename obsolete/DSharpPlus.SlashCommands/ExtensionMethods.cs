@@ -42,6 +42,20 @@ public static class ExtensionMethods
     }
 
     /// <summary>
+    /// Adds the slash commands extension to the provided DiscordClientBuilder.
+    /// </summary>
+    /// <param name="builder">The client builder to register with.</param>
+    /// <param name="setup">Any setup code you want to run on the extension, such as registering commands.</param>
+    /// <returns>The same client builder for chaining.</returns>
+    [Obsolete("DSharpPlus.SlashCommands is obsolete. Please consider using the new DSharpPlus.Commands extension instead.")]
+    public static DiscordClientBuilder UseSlashCommands
+    (
+        this DiscordClientBuilder builder,
+        Action<SlashCommandsExtension> setup
+    )
+        => builder.ConfigureServices(s => s.AddSlashCommandsExtension(setup));
+
+    /// <summary>
     /// Gets the name from the <see cref="ChoiceNameAttribute"/> for this enum value.
     /// </summary>
     /// <returns>The name.</returns>
