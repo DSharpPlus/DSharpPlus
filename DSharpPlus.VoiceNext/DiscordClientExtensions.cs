@@ -22,6 +22,8 @@ public static class DiscordClientExtensions
         VoiceNextConfiguration configuration
     )
     {
+        Interop.InitializeLibsodium();
+
         if (!Interop.IsAeadAes256GcmCompatible())
         {
             throw new InvalidOperationException("The current hardware is not compatible with AEAD AES-256 GCM, a requirement for VoiceNext support.");
