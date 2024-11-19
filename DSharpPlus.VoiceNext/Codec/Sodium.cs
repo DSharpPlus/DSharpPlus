@@ -61,10 +61,10 @@ internal sealed class Sodium : IDisposable
         }
 
         // Write the uint to memory
-        BinaryPrimitives.WriteUInt32BigEndian(target, nonce);
+        BinaryPrimitives.WriteUInt32BigEndian(target[^4..], nonce);
 
         // Zero rest of the buffer.
-        target[4..].Clear();
+        target[..8].Clear();
     }
 
     public static void AppendNonce(ReadOnlySpan<byte> nonce, Span<byte> target, EncryptionMode encryptionMode)
@@ -72,8 +72,7 @@ internal sealed class Sodium : IDisposable
         switch (encryptionMode)
         {
             case EncryptionMode.AeadAes256GcmRtpSize:
-                nonce[..4].CopyTo(target[^12..]);
-                target[^8..].Clear();
+                nonce[^4..].CopyTo(target[^4..]);
                 return;
 
             default:
@@ -91,7 +90,7 @@ internal sealed class Sodium : IDisposable
         switch (encryptionMode)
         {
             case EncryptionMode.AeadAes256GcmRtpSize:
-                source[^12..].CopyTo(target);
+                source[^4..].CopyTo(target[^4..]);
                 return;
 
             default:

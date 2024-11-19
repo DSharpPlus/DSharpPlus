@@ -59,7 +59,7 @@ internal static unsafe partial class Interop
     private static partial int crypto_aead_aes256gcm_encrypt
     (
         byte* encrypted,                                        // unsigned char *c
-        ulong *encryptedLength,                                 // unsigned long long *clen_p
+        ulong* encryptedLength,                                 // unsigned long long *clen_p
         byte* message,                                          // const unsigned char *m
         ulong messageLength,                                    // unsigned long long mlen
         // non-confidential data appended to the message

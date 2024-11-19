@@ -54,7 +54,7 @@ internal sealed class Rtp : IDisposable
 
     public static int CalculatePacketSize(int encryptedLength, EncryptionMode encryptionMode) => encryptionMode switch
     {
-        EncryptionMode.AeadAes256GcmRtpSize => HeaderSize + encryptedLength + Interop.SodiumNonceSize,
+        EncryptionMode.AeadAes256GcmRtpSize => HeaderSize + encryptedLength + 4,
         _ => throw new ArgumentException("Unsupported encryption mode.", nameof(encryptionMode)),
     };
 
@@ -63,7 +63,7 @@ internal sealed class Rtp : IDisposable
         switch (encryptionMode)
         {
             case EncryptionMode.AeadAes256GcmRtpSize:
-                data = packet.Slice(HeaderSize, packet.Length - HeaderSize - Interop.SodiumNonceSize);
+                data = packet.Slice(HeaderSize, packet.Length - HeaderSize - 4);
                 return;
 
             default:
