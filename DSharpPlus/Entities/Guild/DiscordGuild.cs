@@ -1731,6 +1731,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="updateCache">Whether to always make a REST request and update the member cache.</param>
     /// <returns>The requested member.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <exception cref="NotFoundException">Thrown when the member does not exist in this guild.</exception>
     public async Task<DiscordMember> GetMemberAsync(ulong userId, bool updateCache = false)
     {
         if (!updateCache && this.members != null && this.members.TryGetValue(userId, out DiscordMember? mbr))
