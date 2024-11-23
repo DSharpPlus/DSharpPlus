@@ -1,4 +1,4 @@
-using DSharpPlus.Commands.Processors.SlashCommands.NamingPolicies;
+using DSharpPlus.Commands.Processors.SlashCommands.InteractionNamingPolicies;
 using DSharpPlus.Commands.Processors.SlashCommands.RemoteRecordRetentionPolicies;
 
 namespace DSharpPlus.Commands.Processors.SlashCommands;

@@ -1,9 +1,13 @@
 using System;
+using System.Buffers;
 using System.Globalization;
 using System.Text;
+
+using CommunityToolkit.HighPerformance.Buffers;
+
 using DSharpPlus.Commands.Trees;
 
-namespace DSharpPlus.Commands.Processors.SlashCommands.NamingPolicies;
+namespace DSharpPlus.Commands.Processors.SlashCommands.InteractionNamingPolicies;
 
 /// <summary>
 /// Transforms parameter names into kebab-case.
@@ -34,25 +38,11 @@ public sealed class KebabCaseNamingPolicy : IInteractionNamingPolicy
     /// <inheritdoc />
     public string TransformText(ReadOnlySpan<char> text, CultureInfo culture)
     {
-        StringBuilder stringBuilder = new();
-        for (int i = 0; i < text.Length; i++)
-        {
-            char character = text[i];
+        ArrayPoolBufferWriter<char> writer = new(32);
 
-            // camelCase, PascalCase
-            if (i != 0 && char.IsUpper(character))
-            {
-                stringBuilder.Append('-');
-            }
-            else if (character == '_')
-            {
-                stringBuilder.Append('-');
-                continue;
-            }
+        CaseImplHelpers.KebabCaseCore(text, writer, culture);
+        ((IMemoryOwner<char>)writer).Memory.Span.Replace('_', '-');
 
-            stringBuilder.Append(char.ToLower(character, culture));
-        }
-
-        return stringBuilder.ToString();
+        return new string(writer.WrittenSpan);
     }
 }
