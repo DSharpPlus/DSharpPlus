@@ -1,9 +1,13 @@
 using System;
+using System.Buffers;
 using System.Globalization;
 using System.Text;
+
+using CommunityToolkit.HighPerformance.Buffers;
+
 using DSharpPlus.Commands.Trees;
 
-namespace DSharpPlus.Commands.Processors.SlashCommands.NamingPolicies;
+namespace DSharpPlus.Commands.Processors.SlashCommands.InteractionNamingPolicies;
 
 /// <summary>
 /// Transforms parameter names into lowercase.
@@ -33,25 +37,11 @@ public sealed class LowercaseNamingPolicy : IInteractionNamingPolicy
     /// <inheritdoc />
     public string TransformText(ReadOnlySpan<char> text, CultureInfo culture)
     {
-        StringBuilder stringBuilder = new();
-        for (int i = 0; i < text.Length; i++)
-        {
-            char character = text[i];
+        ArrayPoolBufferWriter<char> writer = new(32);
 
-            // camelCase, PascalCase
-            if (i != 0 && char.IsUpper(character))
-            {
-                stringBuilder.Append('_');
-            }
-            else if (character == '-')
-            {
-                stringBuilder.Append('_');
-                continue;
-            }
+        CaseImplHelpers.LowercaseCore(text, writer, culture);
+        ((IMemoryOwner<char>)writer).Memory.Span.Replace('-', '_');
 
-            stringBuilder.Append(char.ToLower(character, culture));
-        }
-
-        return stringBuilder.ToString();
+        return new string(writer.WrittenSpan);
     }
 }

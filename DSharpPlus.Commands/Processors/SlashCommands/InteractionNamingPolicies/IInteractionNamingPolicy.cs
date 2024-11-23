@@ -3,7 +3,7 @@ using System.Collections;
 using System.Globalization;
 using DSharpPlus.Commands.Trees;
 
-namespace DSharpPlus.Commands.Processors.SlashCommands.NamingPolicies;
+namespace DSharpPlus.Commands.Processors.SlashCommands.InteractionNamingPolicies;
 
 /// <summary>
 /// Represents a policy for naming parameters. This is used to determine the
