@@ -64,7 +64,7 @@ public sealed class UserCommandProcessor : ICommandProcessor
                 UserCommandLogging.userCommandCannotHaveSubcommands(logger, command.FullName, null);
                 continue;
             }
-            else if (!command.Method!.GetParameters()[0].ParameterType.IsAssignableFrom(typeof(SlashCommandContext)))
+            else if (!command.Method!.GetParameters()[0].ParameterType.IsAssignableFrom(typeof(UserCommandContext)))
             {
                 UserCommandLogging.userCommandContextParameterType(logger, command.FullName, null);
                 continue;

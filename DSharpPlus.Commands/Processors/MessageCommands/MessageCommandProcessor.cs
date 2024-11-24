@@ -65,7 +65,7 @@ public sealed class MessageCommandProcessor : ICommandProcessor
                 MessageCommandLogging.messageCommandCannotHaveSubcommands(logger, command.FullName, null);
                 continue;
             }
-            else if (!command.Method!.GetParameters()[0].ParameterType.IsAssignableFrom(typeof(SlashCommandContext)))
+            else if (!command.Method!.GetParameters()[0].ParameterType.IsAssignableFrom(typeof(MessageCommandContext)))
             {
                 MessageCommandLogging.messageCommandContextParameterType(logger, command.FullName, null);
                 continue;
