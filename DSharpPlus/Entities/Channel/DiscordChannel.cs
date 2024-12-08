@@ -223,7 +223,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <param name="content">Content of the message to send.</param>
     /// <returns>The sent message.</returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the 
-    /// <see cref="DiscordPermission.SendMessages"/> permission if TTS is true and 
+    /// <see cref="DiscordPermission.SendMessages"/> permission if TTS is false and 
     /// <see cref="DiscordPermission.SendTtsMessages"/> if TTS is true.</exception>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
@@ -238,7 +238,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <param name="embed">Embed to attach to the message.</param>
     /// <returns>The sent message.</returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the 
-    /// <see cref="DiscordPermission.SendMessages"/> permission if TTS is true and 
+    /// <see cref="DiscordPermission.SendMessages"/> permission if TTS is false and 
     /// <see cref="DiscordPermission.SendTtsMessages"/> if TTS is true.</exception>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
@@ -254,7 +254,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <param name="content">Content of the message to send.</param>
     /// <returns>The sent message.</returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the 
-    /// <see cref="DiscordPermission.SendMessages"/> permission if TTS is true and 
+    /// <see cref="DiscordPermission.SendMessages"/> permission if TTS is false and 
     /// <see cref="DiscordPermission.SendTtsMessages"/> if TTS is true.</exception>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
@@ -269,7 +269,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <param name="builder">The builder with all the items to send.</param>
     /// <returns>The sent message.</returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the 
-    /// <see cref="DiscordPermission.SendMessages"/> permission TTS is true and 
+    /// <see cref="DiscordPermission.SendMessages"/> permission if TTS is false and 
     /// <see cref="DiscordPermission.SendTtsMessages"/> if TTS is true.</exception>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
@@ -284,7 +284,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// <param name="action">The builder with all the items to send.</param>
     /// <returns>The sent message.</returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the 
-    /// <see cref="DiscordPermission.SendMessages"/> permission TTS is true and 
+    /// <see cref="DiscordPermission.SendMessages"/> permission if TTS is false and 
     /// <see cref="DiscordPermission.SendTtsMessages"/> if TTS is true.</exception>
     /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
