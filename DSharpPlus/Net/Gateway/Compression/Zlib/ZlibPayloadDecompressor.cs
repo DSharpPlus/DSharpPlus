@@ -1,5 +1,8 @@
+#pragma warning disable IDE0046
+
 using System;
 using System.Buffers.Binary;
+using System.Runtime.InteropServices;
 
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
@@ -11,6 +14,8 @@ namespace DSharpPlus.Net.Gateway.Compression.Zlib;
 /// </summary>
 public sealed class ZlibPayloadDecompressor : IPayloadDecompressor
 {
+    private static readonly Action<ReadOnlySpan<byte>, ArrayPoolBufferWriter<byte>> decompress = DecideDecompressionStrategy();
+
     /// <inheritdoc/>
     public string? Name => null;
 
@@ -26,8 +31,7 @@ public sealed class ZlibPayloadDecompressor : IPayloadDecompressor
             return true;
         }
 
-        using RuntimeBundledZlibBackend wrapper = new();
-        wrapper.Inflate(compressed, decompressed);
+        decompress(compressed, decompressed);
 
         return true;
     }
@@ -36,5 +40,31 @@ public sealed class ZlibPayloadDecompressor : IPayloadDecompressor
     public void Dispose()
     {
 
+    }
+
+    private static Action<ReadOnlySpan<byte>, ArrayPoolBufferWriter<byte>> DecideDecompressionStrategy()
+    {
+        if 
+        (
+            NativeLibrary.TryLoad("System.IO.Compression.Native", out nint handle) 
+                && NativeLibrary.TryGetExport(handle, "CompressionNative_InflateInit2_", out _)
+                && NativeLibrary.TryGetExport(handle, "CompressionNative_Inflate", out _)
+                && NativeLibrary.TryGetExport(handle, "CompressionNative_InflateEnd", out _)
+        )
+        {
+            return static (ReadOnlySpan<byte> compressed, ArrayPoolBufferWriter<byte> decompressed) =>
+            {
+                using RuntimeBundledZlibBackend wrapper = new();
+                wrapper.Inflate(compressed, decompressed);
+            };
+        }
+        else
+        {
+            return static (ReadOnlySpan<byte> compressed, ArrayPoolBufferWriter<byte> decompressed) =>
+            {
+                using ManagedZlibBackend wrapper = new();
+                wrapper.Inflate(compressed, decompressed);
+            };
+        }
     }
 }

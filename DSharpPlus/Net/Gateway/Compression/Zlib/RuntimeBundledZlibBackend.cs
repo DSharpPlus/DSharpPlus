@@ -51,7 +51,7 @@ internal unsafe partial struct RuntimeBundledZlibBackend : IDisposable
 
                     ZlibErrorCode code = Bindings.CompressionNative_Inflate(pStream, ZlibFlushCode.SyncFlush);
                     decompressed.Advance(buffer.Length - (int)pStream->availableOutputBytes);
-                    compressed = compressed[..^(int)pStream->availableInputBytes];
+                    compressed = compressed[^(int)pStream->availableInputBytes..];
 
                     if (code == ZlibErrorCode.StreamEnd)
                     {
@@ -70,12 +70,6 @@ internal unsafe partial struct RuntimeBundledZlibBackend : IDisposable
                             break;
                         }
 
-                        // no need to do a second iteration if the buffer is empty
-                        if (pStream->availableOutputBytes == 0)
-                        {
-                            break;
-                        }
-
                         continue;
                     }
                     else
@@ -84,6 +78,8 @@ internal unsafe partial struct RuntimeBundledZlibBackend : IDisposable
                     }
                 }
             }
+
+            Debug.Assert(pStream->availableInputBytes == 0);
         }
 
         return isCompleted;
