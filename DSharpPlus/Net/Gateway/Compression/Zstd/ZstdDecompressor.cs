@@ -28,22 +28,7 @@ public sealed class ZstdDecompressor : IPayloadDecompressor
             return true;
         }
 
-        while (true)
-        {
-            bool complete = this.wrapper.Decompress
-            (
-                compressed,
-                decompressed.GetSpan(ZstdInterop.RecommendedBufferSize),
-                out int written
-            );
-
-            decompressed.Advance(written);
-
-            if (complete)
-            {
-                break;
-            }
-        }
+        this.wrapper.Decompress(compressed, decompressed);
 
         return true;
     }

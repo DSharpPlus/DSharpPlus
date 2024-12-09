@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace DSharpPlus.Net.Gateway.Compression.Zstd;
 
@@ -23,13 +24,11 @@ internal unsafe partial struct ZstdInterop : IDisposable
         Debug.Assert(Bindings.ZSTD_getErrorCode(code) == ZstdErrorCode.NoError);
     }
 
-    public bool Decompress(ReadOnlySpan<byte> compressed, Span<byte> decompressed, out int written)
+    public bool Decompress(ReadOnlySpan<byte> compressed, ArrayPoolBufferWriter<byte> decompressed)
     {
         this.isCompleted = false;
-        written = 0;
 
         fixed (byte* pCompressed = compressed)
-        fixed (byte* pDecompressed = decompressed)
         {
             while (true)
             {
@@ -40,44 +39,50 @@ internal unsafe partial struct ZstdInterop : IDisposable
                     size = (nuint)compressed.Length
                 };
 
-                ZstdOutputBuffer outputBuffer = new()
-                {
-                    destination = pDecompressed,
-                    position = (nuint)written,
-                    size = (nuint)decompressed.Length
-                };
+                Span<byte> buffer = decompressed.GetSpan();
 
-                nuint code = Bindings.ZSTD_decompressStream(this.stream, &outputBuffer, &inputBuffer);
-                ZstdErrorCode errorCode = Bindings.ZSTD_getErrorCode(code);
-
-                if (errorCode == ZstdErrorCode.NoError)
+                fixed (byte* pDecompressed = buffer)
                 {
-                    if (inputBuffer.position == inputBuffer.size)
+                    ZstdOutputBuffer outputBuffer = new()
                     {
-                        this.index = 0;
-                        this.isCompleted = true;
+                        destination = pDecompressed,
+                        position = 0,
+                        size = (nuint)buffer.Length
+                    };
+
+                    nuint code = Bindings.ZSTD_decompressStream(this.stream, &outputBuffer, &inputBuffer);
+                    ZstdErrorCode errorCode = Bindings.ZSTD_getErrorCode(code);
+
+                    if (errorCode == ZstdErrorCode.NoError)
+                    {
+                        if (inputBuffer.position == inputBuffer.size)
+                        {
+                            this.index = 0;
+                            this.isCompleted = true;
+                            break;
+                        }
+
+                        decompressed.Advance((int)outputBuffer.position);
+                        this.index = (int)inputBuffer.position;
+                    }
+                    else if (errorCode is ZstdErrorCode.DestinationSizeTooSmall or ZstdErrorCode.DestinationFull)
+                    {
+                        decompressed.Advance((int)outputBuffer.position);
+                        this.index = (int)inputBuffer.position;
                         break;
                     }
-
-                    written = (int)outputBuffer.position;
-                    this.index = (int)inputBuffer.position;
-                }
-                else if (errorCode is ZstdErrorCode.DestinationSizeTooSmall or ZstdErrorCode.DestinationFull)
-                {
-                    written = (int)outputBuffer.position;
-                    this.index = (int)inputBuffer.position;
-                    break;
-                }
-                else if 
-                (
-                    errorCode is ZstdErrorCode.Generic or ZstdErrorCode.VersionUnsupported or ZstdErrorCode.SourceEmpty
-                )
-                {
-                    ThrowHelper.ThrowZstdError(errorCode);
-                }
-                else
-                {
-                    Debug.Assert(true, $"Hit zstd error code {errorCode}");
+                    else if
+                    (
+                        errorCode is ZstdErrorCode.Generic or ZstdErrorCode.VersionUnsupported or ZstdErrorCode.SourceEmpty
+                    )
+                    {
+                        ThrowHelper.ThrowZstdError(errorCode);
+                    }
+                    else
+                    {
+                        Debug.Assert(true, $"Hit zstd error code {errorCode}");
+                        ThrowHelper.ThrowZstdError(errorCode);
+                    }
                 }
             }
         }

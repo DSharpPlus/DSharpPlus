@@ -11,7 +11,7 @@ namespace DSharpPlus.Net.Gateway.Compression.Zlib;
 /// </summary>
 public sealed class ZlibStreamDecompressor : IPayloadDecompressor
 {
-    private ZlibInterop wrapper = new();
+    private RuntimeBundledZlibBackend wrapper = new();
 
     /// <inheritdoc/>
     public string Name => "zlib-stream";
@@ -28,22 +28,7 @@ public sealed class ZlibStreamDecompressor : IPayloadDecompressor
             return true;
         }
 
-        while (true)
-        {
-            bool complete = this.wrapper.Inflate
-            (
-                compressed,
-                decompressed.GetSpan(),
-                out int written
-            );
-
-            decompressed.Advance(written);
-
-            if (complete)
-            {
-                break;
-            }
-        }
+        this.wrapper.Inflate(compressed, decompressed);
 
         return true;
     }

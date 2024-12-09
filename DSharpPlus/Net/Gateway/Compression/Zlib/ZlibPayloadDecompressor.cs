@@ -26,24 +26,8 @@ public sealed class ZlibPayloadDecompressor : IPayloadDecompressor
             return true;
         }
 
-        using ZlibInterop wrapper = new();
-
-        while (true)
-        {
-            bool complete = wrapper.Inflate
-            (
-                compressed,
-                decompressed.GetSpan(),
-                out int written
-            );
-
-            decompressed.Advance(written);
-
-            if (complete)
-            {
-                break;
-            }
-        }
+        using RuntimeBundledZlibBackend wrapper = new();
+        wrapper.Inflate(compressed, decompressed);
 
         return true;
     }

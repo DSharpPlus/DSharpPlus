@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace DSharpPlus.Net.Gateway.Compression.Zlib;
 
-internal unsafe partial struct ZlibInterop
+internal unsafe partial struct RuntimeBundledZlibBackend
 {
     // ZlibInterop.Bindings is a nested type to lazily load System.IO.Compression.Native. the native load is done by
     // the static constructor, which will not be executed unless this code actually gets used.
