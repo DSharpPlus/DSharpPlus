@@ -1,5 +1,7 @@
 using System;
+using System.IO;
 using System.IO.Compression;
+
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace DSharpPlus.Net.Gateway.Compression.Zlib;
@@ -7,23 +9,33 @@ namespace DSharpPlus.Net.Gateway.Compression.Zlib;
 internal readonly struct ManagedZlibBackend : IDisposable
 {
     private readonly DeflateStream stream;
+    private readonly MemoryStream memoryStream;
+
+    public ManagedZlibBackend()
+    {
+        this.memoryStream = new();
+        this.stream = new(this.memoryStream, CompressionMode.Decompress);
+    }
 
     public readonly void Dispose() 
         => this.stream.Dispose();
 
     public readonly bool Inflate(ReadOnlySpan<byte> compressed, ArrayPoolBufferWriter<byte> decompressed)
     {
+        this.memoryStream.Position = 0;
+        this.memoryStream.SetLength(0);
+
         if (compressed[0] == 0x78)
         {
-            this.stream.Write(compressed[2..]);
+            this.memoryStream.Write(compressed[2..]);
         }
         else
         {
-            this.stream.Write(compressed);
+            this.memoryStream.Write(compressed);
         }
 
-        this.stream.Flush();
-        this.stream.Position = 0;
+        this.memoryStream.Flush();
+        this.memoryStream.Position = 0;
 
         int readLength;
 
