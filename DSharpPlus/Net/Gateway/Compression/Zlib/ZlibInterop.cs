@@ -42,7 +42,7 @@ internal unsafe partial struct ZlibInterop : IDisposable
             {
                 uint inputBytes = pStream->availableInputBytes;
 
-                Span<byte> buffer = decompressed.GetSpan();
+                Span<byte> buffer = decompressed.GetSpan(compressed.Length);
 
                 fixed (byte* pDecompressed = buffer)
                 {
