@@ -9,11 +9,11 @@ namespace DSharpPlus.Net.Gateway.Compression.Zlib;
 /// <summary>
 /// A thin wrapper around zlib natives to provide decompression.
 /// </summary>
-internal unsafe partial struct RuntimeBundledZlibBackend : IDisposable
+internal unsafe partial struct ZlibInterop : IDisposable
 {
     private ZlibStream stream;
 
-    public RuntimeBundledZlibBackend()
+    public ZlibInterop()
     {
         fixed (ZlibStream* pStream = &this.stream)
         {

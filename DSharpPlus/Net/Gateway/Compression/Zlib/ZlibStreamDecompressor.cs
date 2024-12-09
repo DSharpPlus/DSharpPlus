@@ -2,7 +2,6 @@
 
 using System;
 using System.Buffers.Binary;
-using System.Runtime.InteropServices;
 
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
@@ -14,8 +13,7 @@ namespace DSharpPlus.Net.Gateway.Compression.Zlib;
 /// </summary>
 public sealed class ZlibStreamDecompressor : IPayloadDecompressor
 {
-    private RuntimeBundledZlibBackend wrapper = new();
-    private static readonly Action<ZlibStreamDecompressor, ReadOnlySpan<byte>, ArrayPoolBufferWriter<byte>> decompress = DecideDecompressionStrategy();
+    private ZlibInterop wrapper;
 
     /// <inheritdoc/>
     public string Name => "zlib-stream";
@@ -32,31 +30,11 @@ public sealed class ZlibStreamDecompressor : IPayloadDecompressor
             return true;
         }
 
-        decompress(this, compressed, decompressed);
+        this.wrapper.Inflate(compressed, decompressed);
 
         return true;
     }
 
     /// <inheritdoc/>
     public void Dispose() => this.wrapper.Dispose();
-
-    private static Action<ZlibStreamDecompressor, ReadOnlySpan<byte>, ArrayPoolBufferWriter<byte>> DecideDecompressionStrategy()
-    {
-        if
-        (
-            NativeLibrary.TryLoad("System.IO.Compression.Native", out nint handle)
-                && NativeLibrary.TryGetExport(handle, "CompressionNative_InflateInit2_", out _)
-                && NativeLibrary.TryGetExport(handle, "CompressionNative_Inflate", out _)
-                && NativeLibrary.TryGetExport(handle, "CompressionNative_InflateEnd", out _)
-        )
-        {
-            return static (ZlibStreamDecompressor decompressor, ReadOnlySpan<byte> compressed, ArrayPoolBufferWriter<byte> decompressed) 
-                => decompressor.wrapper.Inflate(compressed, decompressed);
-        }
-        else
-        {
-            return static (ZlibStreamDecompressor decompressor, ReadOnlySpan<byte> compressed, ArrayPoolBufferWriter<byte> decompressed) 
-                => decompressor.wrapper.Inflate(compressed, decompressed);
-        }
-    }
 }

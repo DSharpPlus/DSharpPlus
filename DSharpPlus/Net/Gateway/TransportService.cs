@@ -66,10 +66,10 @@ internal sealed class TransportService : ITransportService
 
         this.logger.LogTrace("Connecting to the Discord gateway.");
 
-        await this.socket.ConnectAsync(new($"{url}?v=10&encoding=json"), CancellationToken.None);
+        await this.socket.ConnectAsync(new(url), CancellationToken.None);
         this.isConnected = true;
 
-        this.logger.LogTrace("Connected to the Discord websocket.");
+        this.logger.LogTrace("Connected to the Discord websocket, using {compression} compression.", this.decompressor.Name);
     }
 
     /// <inheritdoc/>
