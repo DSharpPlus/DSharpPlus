@@ -159,7 +159,7 @@ internal sealed class TransportService : ITransportService
             return new(ex);
         }
 
-        this.logger.LogTrace("Compressed payload for the last inbound gateway event:\n{event}", Encoding.UTF8.GetString(this.writer.WrittenSpan));
+        string compressed = Encoding.UTF8.GetString(this.writer.WrittenSpan);
 
         if (!this.decompressor.TryDecompress(this.writer.WrittenSpan, this.decompressedWriter))
         {
@@ -169,6 +169,11 @@ internal sealed class TransportService : ITransportService
         if (this.logger.IsEnabled(LogLevel.Trace) && RuntimeFeatures.EnableInboundGatewayLogging)
         {
             string result = Encoding.UTF8.GetString(this.decompressedWriter.WrittenSpan);
+
+            if (compressed != result)
+            {
+                this.logger.LogTrace("Compressed payload detected: {compressed}", Convert.ToBase64String(this.writer.WrittenSpan));
+            }
 
             this.logger.LogTrace
             (
