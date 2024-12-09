@@ -54,9 +54,7 @@ internal sealed class Rtp : IDisposable
 
     public static int CalculatePacketSize(int encryptedLength, EncryptionMode encryptionMode) => encryptionMode switch
     {
-        EncryptionMode.XSalsa20_Poly1305 => HeaderSize + encryptedLength,
-        EncryptionMode.XSalsa20_Poly1305_Suffix => HeaderSize + encryptedLength + Interop.SodiumNonceSize,
-        EncryptionMode.XSalsa20_Poly1305_Lite => HeaderSize + encryptedLength + 4,
+        EncryptionMode.AeadAes256GcmRtpSize => HeaderSize + encryptedLength + Interop.SodiumNonceSize,
         _ => throw new ArgumentException("Unsupported encryption mode.", nameof(encryptionMode)),
     };
 
@@ -64,17 +62,9 @@ internal sealed class Rtp : IDisposable
     {
         switch (encryptionMode)
         {
-            case EncryptionMode.XSalsa20_Poly1305:
-                data = packet[HeaderSize..];
-                return;
-
-            case EncryptionMode.XSalsa20_Poly1305_Suffix:
+            case EncryptionMode.AeadAes256GcmRtpSize:
                 data = packet.Slice(HeaderSize, packet.Length - HeaderSize - Interop.SodiumNonceSize);
                 return;
-
-            case EncryptionMode.XSalsa20_Poly1305_Lite:
-                data = packet.Slice(HeaderSize, packet.Length - HeaderSize - 4);
-                break;
 
             default:
                 throw new ArgumentException("Unsupported encryption mode.", nameof(encryptionMode));

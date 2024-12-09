@@ -44,16 +44,28 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// Gets the member's avatar for the current guild.
     /// </summary>
     [JsonIgnore]
-    public string GuildAvatarHash => this.avatarHash;
+    public string? GuildAvatarHash => this.avatarHash;
 
     /// <summary>
     /// Gets the members avatar url for the current guild.
     /// </summary>
     [JsonIgnore]
-    public string GuildAvatarUrl => string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? null : $"https://cdn.discordapp.com/{Endpoints.GUILDS}/{this.guild_id}/{Endpoints.USERS}/{this.Id}/{Endpoints.AVATARS}/{this.GuildAvatarHash}.{(this.GuildAvatarHash.StartsWith("a_") ? "gif" : "png")}?size=1024";
+    public string? GuildAvatarUrl => string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? null : $"https://cdn.discordapp.com/{Endpoints.GUILDS}/{this.guild_id}/{Endpoints.USERS}/{this.Id}/{Endpoints.AVATARS}/{this.GuildAvatarHash}.{(this.GuildAvatarHash.StartsWith("a_") ? "gif" : "png")}?size=1024";
 
     [JsonIgnore]
-    internal string avatarHash;
+    internal string? avatarHash;
+
+    /// <summary>
+    /// Gets the member's avatar hash as displayed in the current guild.
+    /// </summary>
+    [JsonIgnore]
+    public string DisplayAvatarHash => this.GuildAvatarHash ?? this.User.AvatarHash;
+
+    /// <summary>
+    /// Gets the member's avatar url as displayed in the current guild.
+    /// </summary>
+    [JsonIgnore]
+    public string DisplayAvatarUrl => this.GuildAvatarUrl ?? this.User.AvatarUrl;
 
     /// <summary>
     /// Gets this member's nickname.
@@ -131,6 +143,12 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// </summary>
     [JsonProperty("pending", NullValueHandling = NullValueHandling.Ignore)]
     public bool? IsPending { get; internal set; }
+
+    /// <summary>
+    /// Gets whether or not the member is timed out.
+    /// </summary>
+    [JsonIgnore]
+    public bool IsTimedOut => this.CommunicationDisabledUntil.HasValue && this.CommunicationDisabledUntil.Value > DateTimeOffset.UtcNow;
 
     /// <summary>
     /// Gets this member's voice state.
@@ -318,7 +336,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <param name="mute">Whether the member is to be muted.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.MuteMembers"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.MuteMembers"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -331,7 +349,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <param name="deaf">Whether the member is to be deafened.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.DeafenMembers"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.DeafenMembers"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -343,7 +361,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// </summary>
     /// <param name="action">Action to perform on this member.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageNicknames"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageNicknames"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -380,7 +398,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <param name="role">Role to grant.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageRoles"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageRoles"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -393,7 +411,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <param name="role">Role to revoke.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageRoles"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageRoles"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -406,7 +424,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <param name="roles">Roles to set.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageRoles"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageRoles"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -431,14 +449,14 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <param name="deleteMessageDuration">The duration in which discord should delete messages from the banned user.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.BanMembers"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.BanMembers"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task BanAsync(TimeSpan deleteMessageDuration = default, string reason = null)
         => this.Guild.BanMemberAsync(this, deleteMessageDuration, reason);
 
-    /// <exception cref = "Exceptions.UnauthorizedException" > Thrown when the client does not have the<see cref="DiscordPermissions.BanMembers"/> permission.</exception>
+    /// <exception cref = "Exceptions.UnauthorizedException" > Thrown when the client does not have the<see cref="DiscordPermission.BanMembers"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -450,7 +468,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
     /// <remarks>[alias="KickAsync"]</remarks>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.KickMembers"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.KickMembers"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -462,7 +480,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// </summary>
     /// <param name="channel"></param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.MoveMembers"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.MoveMembers"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -546,20 +564,6 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     public override string ToString() => $"Member {this.Id}; {this.Username}#{this.Discriminator} ({this.DisplayName})";
 
     /// <summary>
-    /// Checks whether this <see cref="DiscordMember"/> is equal to another object.
-    /// </summary>
-    /// <param name="obj">Object to compare to.</param>
-    /// <returns>Whether the object is equal to this <see cref="DiscordMember"/>.</returns>
-    public override bool Equals(object obj) => Equals(obj as DiscordMember);
-
-    /// <summary>
-    /// Checks whether this <see cref="DiscordMember"/> is equal to another <see cref="DiscordMember"/>.
-    /// </summary>
-    /// <param name="e"><see cref="DiscordMember"/> to compare to.</param>
-    /// <returns>Whether the <see cref="DiscordMember"/> is equal to this <see cref="DiscordMember"/>.</returns>
-    public bool Equals(DiscordMember e) => e is not null && (ReferenceEquals(this, e) || (this.Id == e.Id && this.guild_id == e.guild_id));
-
-    /// <summary>
     /// Gets the hash code for this <see cref="DiscordMember"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="DiscordMember"/>.</returns>
@@ -574,28 +578,34 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     }
 
     /// <summary>
+    /// Checks whether this <see cref="DiscordMember"/> is equal to another object.
+    /// </summary>
+    /// <param name="obj">Object to compare to.</param>
+    /// <returns>Whether the object is equal to this <see cref="DiscordMember"/>.</returns>
+    public override bool Equals(object? obj) => Equals(obj as DiscordMember);
+
+    /// <summary>
+    /// Checks whether this <see cref="DiscordMember"/> is equal to another <see cref="DiscordMember"/>.
+    /// </summary>
+    /// <param name="other"><see cref="DiscordMember"/> to compare to.</param>
+    /// <returns>Whether the <see cref="DiscordMember"/> is equal to this <see cref="DiscordMember"/>.</returns>
+    public bool Equals(DiscordMember? other) => base.Equals(other) && this.guild_id == other?.guild_id;
+
+    /// <summary>
     /// Gets whether the two <see cref="DiscordMember"/> objects are equal.
     /// </summary>
-    /// <param name="e1">First member to compare.</param>
-    /// <param name="e2">Second member to compare.</param>
+    /// <param name="obj">First member to compare.</param>
+    /// <param name="other">Second member to compare.</param>
     /// <returns>Whether the two members are equal.</returns>
-    public static bool operator ==(DiscordMember e1, DiscordMember e2)
-    {
-        object? o1 = e1;
-        object? o2 = e2;
-
-        return (o1 != null || o2 == null) && (o1 == null || o2 != null)
-&& ((o1 == null && o2 == null) || (e1.Id == e2.Id && e1.guild_id == e2.guild_id));
-    }
+    public static bool operator ==(DiscordMember obj, DiscordMember other) => obj?.Equals(other) ?? other is null;
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordMember"/> objects are not equal.
     /// </summary>
-    /// <param name="e1">First member to compare.</param>
-    /// <param name="e2">Second member to compare.</param>
+    /// <param name="obj">First member to compare.</param>
+    /// <param name="other">Second member to compare.</param>
     /// <returns>Whether the two members are not equal.</returns>
-    public static bool operator !=(DiscordMember e1, DiscordMember e2)
-        => !(e1 == e2);
+    public static bool operator !=(DiscordMember obj, DiscordMember other) => !(obj == other);
 
     /// <summary>
     /// Get's the current member's roles based on the sum of the permissions of their given roles.
@@ -617,6 +627,6 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         perms |= this.Roles.Aggregate(DiscordPermissions.None, (c, role) => c | role.Permissions);
 
         // Administrator grants all permissions and cannot be overridden
-        return (perms & DiscordPermissions.Administrator) == DiscordPermissions.Administrator ? DiscordPermissions.All : perms;
+        return perms.HasPermission(DiscordPermission.Administrator) ? DiscordPermissions.All : perms;
     }
 }

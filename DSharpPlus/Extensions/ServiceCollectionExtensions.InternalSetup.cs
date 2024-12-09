@@ -5,6 +5,8 @@ using DSharpPlus.Clients;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Gateway;
+using DSharpPlus.Net.InboundWebhooks;
+using DSharpPlus.Net.InboundWebhooks.Transport;
 using DSharpPlus.Net.Gateway.Compression;
 using DSharpPlus.Net.Gateway.Compression.Zlib;
 
@@ -46,13 +48,37 @@ public static partial class ServiceCollectionExtensions
 
         // gateway setup
         serviceCollection.Configure<GatewayClientOptions>(c => c.Intents = intents)
-            .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>(new UnboundedChannelOptions { SingleReader = true }))
+            .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>
+            (
+                new UnboundedChannelOptions 
+                {
+                    SingleReader = true 
+                }
+            ))
             .AddTransient<ITransportService, TransportService>()
             .AddTransient<IGatewayClient, GatewayClient>()
             .AddTransient<IPayloadDecompressor, ZlibStreamDecompressor>()
             .AddSingleton<IShardOrchestrator, SingleShardOrchestrator>()
             .AddSingleton<IEventDispatcher, DefaultEventDispatcher>()
             .AddSingleton<DiscordClient>();
+
+        // http events/interactions, if we're using those - doesn't actually cause any overhead if we aren't
+        serviceCollection.AddKeyedSingleton("DSharpPlus.Webhooks.EventChannel", Channel.CreateUnbounded<DiscordWebhookEvent>
+            (
+                new UnboundedChannelOptions
+                {
+                    SingleReader = true
+                }
+            ))
+            .AddKeyedSingleton("DSharpPlus.Interactions.EventChannel", Channel.CreateUnbounded<DiscordHttpInteractionPayload>
+            (
+                new UnboundedChannelOptions
+                {
+                    SingleReader = true
+                }
+            ))
+            .AddSingleton<IInteractionTransportService, InteractionTransportService>()
+            .AddSingleton<IWebhookTransportService, WebhookEventTransportService>();
 
         return serviceCollection;
     }
@@ -94,6 +120,24 @@ public static partial class ServiceCollectionExtensions
             .AddSingleton<IShardOrchestrator, MultiShardOrchestrator>()
             .AddSingleton<IEventDispatcher, DefaultEventDispatcher>()
             .AddSingleton<DiscordClient>();
+
+        // http events/interactions, if we're using those - doesn't actually cause any overhead if we aren't
+        serviceCollection.AddKeyedSingleton("DSharpPlus.Webhooks.EventChannel", Channel.CreateUnbounded<DiscordWebhookEvent>
+            (
+                new UnboundedChannelOptions
+                {
+                    SingleReader = true
+                }
+            ))
+            .AddKeyedSingleton("DSharpPlus.Interactions.EventChannel", Channel.CreateUnbounded<DiscordHttpInteractionPayload>
+            (
+                new UnboundedChannelOptions
+                {
+                    SingleReader = true
+                }
+            ))
+            .AddSingleton<IInteractionTransportService, InteractionTransportService>()
+            .AddSingleton<IWebhookTransportService, WebhookEventTransportService>();
 
         return serviceCollection;
     }

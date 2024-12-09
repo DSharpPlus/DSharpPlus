@@ -99,7 +99,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
         this.IsTTS = baseMessage.IsTTS;
         this.Poll = baseMessage.Poll == null ? null : new DiscordPollBuilder(baseMessage.Poll);
         this.ReplyId = baseMessage.ReferencedMessage?.Id;
-        this.components = [.. baseMessage.Components];
+        this.components = [.. baseMessage.Components?.OfType<DiscordActionRowComponent>()];
         this.content = baseMessage.Content;
         this.embeds = [.. baseMessage.Embeds];
         this.stickers = [.. baseMessage.Stickers];
@@ -117,6 +117,37 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
         if (baseMessage.mentionedRoles != null)
         {
             foreach (DiscordRole role in baseMessage.mentionedRoles)
+            {
+                this.mentions.Add(new RoleMention(role.Id));
+            }
+        }
+    }
+
+
+    /// <summary>
+    /// Constructs a new discord message builder based on the passed message snapshot.
+    /// </summary>
+    /// <param name="baseSnapshotMessage">The message to copy.</param>
+    public DiscordMessageBuilder(DiscordMessageSnapshotContent baseSnapshotMessage)
+    {
+        this.components = [.. baseSnapshotMessage.Components?.OfType<DiscordActionRowComponent>()];
+        this.content = baseSnapshotMessage.Content;
+        this.embeds = [.. baseSnapshotMessage.Embeds];
+        this.stickers = [.. baseSnapshotMessage.Stickers];
+        this.mentions = [];
+
+        if (baseSnapshotMessage.mentionedUsers != null)
+        {
+            foreach (DiscordUser user in baseSnapshotMessage.mentionedUsers)
+            {
+                this.mentions.Add(new UserMention(user.Id));
+            }
+        }
+
+        // Unsure about mentionedRoleIds
+        if (baseSnapshotMessage.mentionedRoles != null)
+        {
+            foreach (DiscordRole role in baseSnapshotMessage.mentionedRoles)
             {
                 this.mentions.Add(new RoleMention(role.Id));
             }

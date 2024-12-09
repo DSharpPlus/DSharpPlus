@@ -12,26 +12,26 @@ namespace DSharpPlus.Commands.Processors.SlashCommands;
 public record SlashCommandContext : CommandContext
 {
     public required DiscordInteraction Interaction { get; init; }
-    public required IEnumerable<DiscordInteractionDataOption> Options { get; init; }
+    public required IReadOnlyList<DiscordInteractionDataOption> Options { get; init; }
 
     /// <inheritdoc cref="CommandContext.RespondAsync(string)" />
     /// <param name="content">Content to send in the response.</param>
     /// <param name="ephemeral">Specifies whether this response should be ephemeral.</param>
-    public virtual ValueTask RespondAsync(string content, bool ephemeral)
-        => RespondAsync(new DiscordInteractionResponseBuilder().WithContent(content).AsEphemeral(ephemeral));
+    public virtual ValueTask RespondAsync(string content, bool ephemeral) => RespondAsync(new DiscordInteractionResponseBuilder().WithContent(content).AsEphemeral(ephemeral));
 
     /// <inheritdoc cref="CommandContext.RespondAsync(DiscordEmbed)" />
     /// <param name="embed">Embed to send in the response.</param>
     /// <param name="ephemeral">Specifies whether this response should be ephemeral.</param>
-    public virtual ValueTask RespondAsync(DiscordEmbed embed, bool ephemeral)
-        => RespondAsync(new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral(ephemeral));
+    public virtual ValueTask RespondAsync(DiscordEmbed embed, bool ephemeral) => RespondAsync(new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral(ephemeral));
 
     /// <inheritdoc cref="CommandContext.RespondAsync(string, DiscordEmbed)" />
     /// <param name="content">Content to send in the response.</param>
     /// <param name="embed">Embed to send in the response.</param>
     /// <param name="ephemeral">Specifies whether this response should be ephemeral.</param>
-    public virtual ValueTask RespondAsync(string content, DiscordEmbed embed, bool ephemeral)
-        => RespondAsync(new DiscordInteractionResponseBuilder().WithContent(content).AddEmbed(embed).AsEphemeral(ephemeral));
+    public virtual ValueTask RespondAsync(string content, DiscordEmbed embed, bool ephemeral) => RespondAsync(new DiscordInteractionResponseBuilder()
+        .WithContent(content)
+        .AddEmbed(embed)
+        .AsEphemeral(ephemeral));
 
     /// <inheritdoc />
     public override async ValueTask RespondAsync(IDiscordMessageBuilder builder)
@@ -69,19 +69,17 @@ public record SlashCommandContext : CommandContext
     {
         if (this.Interaction.ResponseState is not DiscordInteractionResponseState.Unacknowledged)
         {
-            throw new InvalidOperationException("Cannot respond to an interaction twice. Please use FollowupAsync instead.");
+            throw new InvalidOperationException("Modal must be the first response to the interaction.");
         }
-
-        if (string.IsNullOrWhiteSpace(builder.CustomId))
+        else if (string.IsNullOrWhiteSpace(builder.CustomId))
         {
             throw new ArgumentException("Modal response has to have a custom id");
         }
-
-        if (builder.Components.Any(x => x.Components.Any(y => y is not DiscordTextInputComponent)))
+        else if (builder.Components.Any(x => x.Components.Any(y => y is not DiscordTextInputComponent)))
         {
             throw new ArgumentException("Modals currently only support TextInputComponents");
         }
-        
+
         await this.Interaction.CreateResponseAsync(DiscordInteractionResponseType.Modal, builder);
     }
 
@@ -93,33 +91,37 @@ public record SlashCommandContext : CommandContext
     public async ValueTask DeferResponseAsync(bool ephemeral) => await this.Interaction.DeferAsync(ephemeral);
 
     /// <inheritdoc />
-    public override async ValueTask<DiscordMessage> EditResponseAsync(IDiscordMessageBuilder builder)
-        => await this.Interaction.EditOriginalResponseAsync(builder as DiscordWebhookBuilder ?? new(builder));
+    public override async ValueTask<DiscordMessage> EditResponseAsync(IDiscordMessageBuilder builder) =>
+        await this.Interaction.EditOriginalResponseAsync(builder as DiscordWebhookBuilder ?? new(builder));
 
     /// <inheritdoc />
-    public override async ValueTask DeleteResponseAsync() => await this.Interaction.DeleteOriginalResponseAsync();
+    public override async ValueTask DeleteResponseAsync() =>
+        await this.Interaction.DeleteOriginalResponseAsync();
 
     /// <inheritdoc />
-    public override async ValueTask<DiscordMessage?> GetResponseAsync() => await this.Interaction.GetOriginalResponseAsync();
+    public override async ValueTask<DiscordMessage?> GetResponseAsync() =>
+        await this.Interaction.GetOriginalResponseAsync();
 
     /// <inheritdoc cref="CommandContext.FollowupAsync(string)" />
     /// <param name="content">Content to send in the response.</param>
     /// <param name="ephemeral">Specifies whether this response should be ephemeral.</param>
-    public virtual ValueTask<DiscordMessage> FollowupAsync(string content, bool ephemeral)
-        => FollowupAsync(new DiscordFollowupMessageBuilder().WithContent(content).AsEphemeral(ephemeral));
+    public virtual ValueTask<DiscordMessage> FollowupAsync(string content, bool ephemeral) =>
+        FollowupAsync(new DiscordFollowupMessageBuilder().WithContent(content).AsEphemeral(ephemeral));
 
     /// <inheritdoc cref="CommandContext.FollowupAsync(DiscordEmbed)" />
     /// <param name="embed">Embed to send in the response.</param>
     /// <param name="ephemeral">Specifies whether this response should be ephemeral.</param>
-    public virtual ValueTask<DiscordMessage> FollowupAsync(DiscordEmbed embed, bool ephemeral)
-        => FollowupAsync(new DiscordFollowupMessageBuilder().AddEmbed(embed).AsEphemeral(ephemeral));
+    public virtual ValueTask<DiscordMessage> FollowupAsync(DiscordEmbed embed, bool ephemeral) =>
+        FollowupAsync(new DiscordFollowupMessageBuilder().AddEmbed(embed).AsEphemeral(ephemeral));
 
     /// <inheritdoc cref="CommandContext.FollowupAsync(string, DiscordEmbed)" />
     /// <param name="content">Content to send in the response.</param>
     /// <param name="embed">Embed to send in the response.</param>
     /// <param name="ephemeral">Specifies whether this response should be ephemeral.</param>
-    public virtual ValueTask<DiscordMessage> FollowupAsync(string content, DiscordEmbed embed, bool ephemeral)
-        => FollowupAsync(new DiscordFollowupMessageBuilder().WithContent(content).AddEmbed(embed).AsEphemeral(ephemeral));
+    public virtual ValueTask<DiscordMessage> FollowupAsync(string content, DiscordEmbed embed, bool ephemeral) => FollowupAsync(new DiscordFollowupMessageBuilder()
+        .WithContent(content)
+        .AddEmbed(embed)
+        .AsEphemeral(ephemeral));
 
     /// <inheritdoc />
     public override async ValueTask<DiscordMessage> FollowupAsync(IDiscordMessageBuilder builder)
@@ -137,7 +139,6 @@ public record SlashCommandContext : CommandContext
     public override async ValueTask<DiscordMessage> EditFollowupAsync(ulong messageId, IDiscordMessageBuilder builder)
     {
         DiscordWebhookBuilder editedBuilder = builder as DiscordWebhookBuilder ?? new DiscordWebhookBuilder(builder);
-        
         this.followupMessages[messageId] = await this.Interaction.EditFollowupMessageAsync(messageId, editedBuilder);
         return this.followupMessages[messageId];
     }

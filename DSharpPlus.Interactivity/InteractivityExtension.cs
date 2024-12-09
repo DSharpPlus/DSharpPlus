@@ -94,7 +94,7 @@ public class InteractivityExtension : IDisposable
         PollBehaviour pollbehaviour = behaviour ?? this.Config.PollBehaviour;
         DiscordMember thismember = await m.Channel.Guild.GetMemberAsync(this.Client.CurrentUser.Id);
 
-        if (pollbehaviour == PollBehaviour.DeleteEmojis && m.Channel.PermissionsFor(thismember).HasPermission(DiscordPermissions.ManageMessages))
+        if (pollbehaviour == PollBehaviour.DeleteEmojis && m.Channel.PermissionsFor(thismember).HasPermission(DiscordPermission.ManageMessages))
         {
             await m.DeleteAllReactionsAsync();
         }
@@ -201,7 +201,7 @@ public class InteractivityExtension : IDisposable
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is DiscordComponentType.Button))
+        if (message.FilterComponents<DiscordButtonComponent>().Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any button components.");
         }
@@ -246,12 +246,12 @@ public class InteractivityExtension : IDisposable
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is DiscordComponentType.Button))
+        if (message.FilterComponents<DiscordButtonComponent>().Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any button components.");
         }
 
-        IEnumerable<string> ids = message.Components.SelectMany(m => m.Components).Select(c => c.CustomId);
+        IEnumerable<string> ids = message.FilterComponents<DiscordComponent>().Select(c => c.CustomId);
 
         ComponentInteractionCreatedEventArgs? result =
             await
@@ -295,7 +295,7 @@ public class InteractivityExtension : IDisposable
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is DiscordComponentType.Button))
+        if (message.FilterComponents<DiscordButtonComponent>().Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any button components.");
         }
@@ -342,12 +342,12 @@ public class InteractivityExtension : IDisposable
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is DiscordComponentType.Button))
+        if (message.FilterComponents<DiscordButtonComponent>().Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any button components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).OfType<DiscordButtonComponent>().Any(c => c.CustomId == id))
+        if (!message.FilterComponents<DiscordButtonComponent>().Any(c => c.CustomId == id))
         {
             throw new ArgumentException($"Provided message does not contain button with Id of '{id}'.");
         }
@@ -387,7 +387,7 @@ public class InteractivityExtension : IDisposable
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is DiscordComponentType.Button))
+        if (message.FilterComponents<DiscordButtonComponent>().Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any button components.");
         }
@@ -429,7 +429,7 @@ public class InteractivityExtension : IDisposable
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(IsSelect))
+        if (!message.FilterComponents<DiscordComponent>().Any(IsSelect))
         {
             throw new ArgumentException("Provided message does not contain any select components.");
         }
@@ -472,12 +472,12 @@ public class InteractivityExtension : IDisposable
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(IsSelect))
+        if (!message.FilterComponents<DiscordComponent>().Any(IsSelect))
         {
             throw new ArgumentException("Provided message does not contain any select components.");
         }
 
-        if (message.Components.SelectMany(c => c.Components).Where(IsSelect).All(c => c.CustomId != id))
+        if (message.FilterComponents<DiscordComponent>().Where(IsSelect).All(c => c.CustomId != id))
         {
             throw new ArgumentException($"Provided message does not contain select component with Id of '{id}'.");
         }
@@ -532,12 +532,12 @@ public class InteractivityExtension : IDisposable
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(IsSelect))
+        if (!message.FilterComponents<DiscordComponent>().Any(IsSelect))
         {
             throw new ArgumentException("Provided message does not contain any select components.");
         }
 
-        if (message.Components.SelectMany(c => c.Components).Where(IsSelect).All(c => c.CustomId != id))
+        if (message.FilterComponents<DiscordComponent>().Where(IsSelect).All(c => c.CustomId != id))
         {
             throw new ArgumentException($"Provided message does not contain button with Id of '{id}'.");
         }

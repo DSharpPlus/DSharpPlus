@@ -6,9 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
-
 using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.Metrics;
@@ -41,7 +41,7 @@ public sealed class DiscordApiClient
         => this.rest = new(new(), timeout, logger);
 
     /// <inheritdoc cref="RestClient.GetRequestMetrics(bool)"/>
-    public RequestMetricsCollection GetRequestMetrics(bool sinceLastCall = false)
+    internal RequestMetricsCollection GetRequestMetrics(bool sinceLastCall = false)
         => this.rest.GetRequestMetrics(sinceLastCall);
 
     internal void SetClient(BaseDiscordClient client)
@@ -142,6 +142,14 @@ public sealed class DiscordApiClient
         foreach (DiscordReaction reaction in ret.reactions)
         {
             reaction.Emoji.Discord = this.discord!;
+        }
+
+        if(ret.MessageSnapshots != null)
+        {
+            foreach (DiscordMessageSnapshot snapshot in ret.MessageSnapshots)
+            {
+                snapshot.Message?.PopulateMentions();
+            }
         }
     }
 
@@ -1832,7 +1840,7 @@ public sealed class DiscordApiClient
         ulong guildId,
         ulong guildScheduledEventId,
         bool withMembers = false,
-        int limit = 1,
+        int limit = 100,
         ulong? before = null,
         ulong? after = null
     )
@@ -2049,6 +2057,37 @@ public sealed class DiscordApiClient
             Route = route,
             Url = url,
             Method = HttpMethod.Get
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+
+        DiscordMessage ret = PrepareMessage(JObject.Parse(res.Response!));
+
+        return ret;
+    }
+
+    internal async ValueTask<DiscordMessage> ForwardMessageAsync(ulong channelId, ulong originChannelId, ulong messageId)
+    {
+        RestChannelMessageCreatePayload pld = new()
+        {
+            HasContent = false,
+            MessageReference = new InternalDiscordMessageReference
+            {
+                MessageId = messageId,
+                ChannelId = originChannelId,
+                Type = DiscordMessageReferenceType.Forward
+            }
+        };
+
+        string route = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}";
+        string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.MESSAGES}";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post,
+            Payload = DiscordJson.SerializeObject(pld)
         };
 
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
@@ -3593,14 +3632,17 @@ public sealed class DiscordApiClient
     internal async ValueTask<TransportUser> ModifyCurrentUserAsync
     (
         string username,
-        Optional<string> base64Avatar = default
+        Optional<string> base64Avatar = default,
+        Optional<string> base64Banner = default
     )
     {
         RestUserUpdateCurrentPayload pld = new()
         {
             Username = username,
             AvatarBase64 = base64Avatar.HasValue ? base64Avatar.Value : null,
-            AvatarSet = base64Avatar.HasValue
+            AvatarSet = base64Avatar.HasValue,
+            BannerBase64 = base64Banner.HasValue ? base64Banner.Value : null,
+            BannerSet = base64Banner.HasValue
         };
 
         string route = $"{Endpoints.USERS}/{Endpoints.ME}";
@@ -5470,16 +5512,22 @@ public sealed class DiscordApiClient
     #region Application Commands
     internal async ValueTask<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync
     (
-        ulong applicationId
+        ulong applicationId,
+        bool withLocalizations = false
     )
     {
         string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.COMMANDS}";
-        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.COMMANDS}";
+        QueryUriBuilder builder = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.COMMANDS}");
+
+        if (withLocalizations)
+        {
+            builder.AddParameter("with_localizations", "true");
+        }
 
         RestRequest request = new()
         {
             Route = route,
-            Url = url,
+            Url = builder.Build(),
             Method = HttpMethod.Get
         };
 
@@ -5680,16 +5728,22 @@ public sealed class DiscordApiClient
     internal async ValueTask<IReadOnlyList<DiscordApplicationCommand>> GetGuildApplicationCommandsAsync
     (
         ulong applicationId,
-        ulong guildId
+        ulong guildId,
+        bool withLocalizations = false
     )
     {
         string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.GUILDS}/:guild_id/{Endpoints.COMMANDS}";
-        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.GUILDS}/{guildId}/{Endpoints.COMMANDS}";
+        QueryUriBuilder builder = new($"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.GUILDS}/{guildId}/{Endpoints.COMMANDS}");
+
+        if (withLocalizations)
+        {
+            builder.AddParameter("with_localizations", "true");
+        }
 
         RestRequest request = new()
         {
             Route = route,
-            Url = url,
+            Url = builder.Build(),
             Method = HttpMethod.Get
         };
 
@@ -5829,7 +5883,9 @@ public sealed class DiscordApiClient
         IReadOnlyDictionary<string, string>? nameLocalizations = null,
         IReadOnlyDictionary<string, string>? descriptionLocalizations = null,
         Optional<bool> allowDmUsage = default,
-        Optional<DiscordPermissions?> defaultMemberPermissions = default
+        Optional<DiscordPermissions?> defaultMemberPermissions = default,
+        Optional<IEnumerable<DiscordInteractionContextType>> allowedContexts = default,
+        Optional<IEnumerable<DiscordApplicationIntegrationType>> installTypes = default
     )
     {
         RestApplicationCommandEditPayload pld = new()
@@ -5842,7 +5898,9 @@ public sealed class DiscordApiClient
             DescriptionLocalizations = descriptionLocalizations,
             AllowDMUsage = allowDmUsage,
             DefaultMemberPermissions = defaultMemberPermissions,
-            NSFW = nsfw
+            NSFW = nsfw,
+            AllowedContexts = allowedContexts,
+            InstallTypes = installTypes
         };
 
         string route = $"{Endpoints.APPLICATIONS}/:application_id/{Endpoints.GUILDS}/:guild_id/{Endpoints.COMMANDS}/:command_id";
@@ -5992,7 +6050,9 @@ public sealed class DiscordApiClient
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
         DiscordMessage ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
 
+        ret.Channel = (this.discord as DiscordClient).InternalGetCachedChannel(ret.ChannelId);
         ret.Discord = this.discord!;
+
         return ret;
     }
 
@@ -6353,7 +6413,7 @@ public sealed class DiscordApiClient
     }
     #endregion
 
-    public async ValueTask<DiscordEmoji> CreateApplicationEmojiAsync(ulong applicationId, string name, string image)
+    internal async ValueTask<DiscordEmoji> CreateApplicationEmojiAsync(ulong applicationId, string name, string image)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}";
@@ -6380,7 +6440,7 @@ public sealed class DiscordApiClient
         return emoji;
     }
 
-    public async ValueTask<DiscordEmoji> ModifyApplicationEmojiAsync(ulong applicationId, ulong emojiId, string name)
+    internal async ValueTask<DiscordEmoji> ModifyApplicationEmojiAsync(ulong applicationId, ulong emojiId, string name)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
@@ -6406,7 +6466,7 @@ public sealed class DiscordApiClient
         return emoji;
     }
 
-    public async ValueTask DeleteApplicationEmojiAsync(ulong applicationId, ulong emojiId)
+    internal async ValueTask DeleteApplicationEmojiAsync(ulong applicationId, ulong emojiId)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
@@ -6421,7 +6481,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    public async ValueTask<DiscordEmoji> GetApplicationEmojiAsync(ulong applicationId, ulong emojiId)
+    internal async ValueTask<DiscordEmoji> GetApplicationEmojiAsync(ulong applicationId, ulong emojiId)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
@@ -6440,7 +6500,7 @@ public sealed class DiscordApiClient
         return emoji;
     }
 
-    public async ValueTask<IReadOnlyList<DiscordEmoji>> GetApplicationEmojisAsync(ulong applicationId)
+    internal async ValueTask<IReadOnlyList<DiscordEmoji>> GetApplicationEmojisAsync(ulong applicationId)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}";
@@ -6464,7 +6524,7 @@ public sealed class DiscordApiClient
         return emojis.ToList();
     }
 
-    public async ValueTask<DiscordForumPostStarter> CreateForumPostAsync
+    internal async ValueTask<DiscordForumPostStarter> CreateForumPostAsync
     (
         ulong channelId,
         string name,
@@ -6754,5 +6814,160 @@ public sealed class DiscordApiClient
         };
 
         await this.rest.ExecuteRequestAsync(request);
+    }
+
+    /// <summary>
+    /// Internal method to get all SKUs belonging to a specific application
+    /// </summary>
+    /// <param name="applicationId">Id of the application of which SKUs should be returned</param>
+    /// <returns>Returns a list of SKUs</returns>
+    internal async ValueTask<IReadOnlyList<DiscordStockKeepingUnit>> ListStockKeepingUnitsAsync(ulong applicationId)
+    {
+        string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.SKUS}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.SKUS}";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        IReadOnlyList<DiscordStockKeepingUnit> stockKeepingUnits = JsonConvert.DeserializeObject<IReadOnlyList<DiscordStockKeepingUnit>>(res.Response!)!;
+
+        return stockKeepingUnits;
+    }
+    
+    /// <summary>
+    /// Returns all entitlements for a given app.
+    /// </summary>
+    /// <param name="applicationId">Application ID to look up entitlements for</param>
+    /// <param name="userId">User ID to look up entitlements for</param>
+    /// <param name="skuIds">Optional list of SKU IDs to check entitlements for</param>
+    /// <param name="before">Retrieve entitlements before this entitlement ID</param>
+    /// <param name="after">Retrieve entitlements after this entitlement ID</param>
+    /// <param name="guildId">Guild ID to look up entitlements for</param>
+    /// <param name="excludeEnded">Whether or not ended entitlements should be omitted</param>
+    /// <param name="limit">Number of entitlements to return, 1-100, default 100</param>
+    /// <returns>Returns the list of entitlments. Sorted by id descending (depending on discord)</returns>
+    internal async ValueTask<IReadOnlyList<DiscordEntitlement>> ListEntitlementsAsync
+    (
+        ulong applicationId,
+        ulong? userId = null,
+        IEnumerable<ulong>? skuIds = null,
+        ulong? before = null,
+        ulong? after = null,
+        ulong? guildId = null,
+        bool? excludeEnded = null,
+        int? limit = 100
+    )
+    {
+        string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}";
+        
+        QueryUriBuilder builder = new(url);
+
+        if (userId is not null)
+        {
+            builder.AddParameter("user_id", userId.ToString());
+        }
+        
+        if (skuIds is not null)
+        {
+            builder.AddParameter("sku_ids", string.Join(",", skuIds.Select(x => x.ToString())));
+        }
+
+        if (before is not null)
+        {
+            builder.AddParameter("before", before.ToString());
+        }
+
+        if (after is not null)
+        {
+            builder.AddParameter("after", after.ToString());
+        }
+
+        if (limit is not null)
+        {
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(limit.Value, 100);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(limit.Value);
+            
+            builder.AddParameter("limit", limit.ToString());
+        }
+
+        if (guildId is not null)
+        {
+            builder.AddParameter("guild_id", guildId.ToString());
+        }
+
+        if (excludeEnded is not null)
+        {
+            builder.AddParameter("exclude_ended", excludeEnded.ToString());
+        }
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = builder.ToString(),
+            Method = HttpMethod.Get
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        IReadOnlyList<DiscordEntitlement> entitlements = JsonConvert.DeserializeObject<IReadOnlyList<DiscordEntitlement>>(res.Response!)!;
+
+        return entitlements;
+    }
+    
+    // Todo: docs
+    internal async ValueTask ConsumeEntitlementAsync(ulong applicationId, ulong entitlementId)
+    {
+        string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}/:entitlementId/{Endpoints.CONSUME}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}/{entitlementId}/{Endpoints.CONSUME}";
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post
+        };
+
+        await this.rest.ExecuteRequestAsync(request);
+    }
+    
+    /// <summary>
+    /// TODO
+    /// </summary>
+    /// <param name="applicationId"></param>
+    /// <param name="skuId"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="ownerType"></param>
+    /// <returns>Returns a partial entitlment</returns>
+    internal async ValueTask<DiscordEntitlement> CreateTestEntitlementAsync
+    (
+        ulong applicationId,
+        ulong skuId,
+        ulong ownerId,
+        DiscordTestEntitlementOwnerType ownerType
+    )
+    {
+        string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}";
+
+        string payload = DiscordJson.SerializeObject(
+            new RestCreateTestEntitlementPayload() { SkuId = skuId, OwnerId = ownerId, OwnerType = ownerType });
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post,
+            Payload = payload
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        DiscordEntitlement entitlement = JsonConvert.DeserializeObject<DiscordEntitlement>(res.Response!)!;
+
+        return entitlement;
     }
 }

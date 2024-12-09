@@ -65,7 +65,10 @@ internal sealed class TransportApplication
     
     [JsonProperty("approximate_guild_count")]
     public int? ApproximateGuildCount { get; set; }
-    
+
+    [JsonProperty("approximate_user_install_count")]
+    public int? ApproximateUserInstallCount { get; set; }
+
     [JsonProperty("redirect_uris")]
     public string[] RedirectUris { get; set; }
     

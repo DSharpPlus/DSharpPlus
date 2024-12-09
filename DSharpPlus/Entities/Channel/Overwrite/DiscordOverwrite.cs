@@ -44,7 +44,7 @@ public class DiscordOverwrite : SnowflakeObject
     /// <param name="deny">Permissions that are denied.</param>
     /// <param name="reason">Reason as to why you made this change.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageRoles"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageRoles"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the overwrite does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -55,7 +55,7 @@ public class DiscordOverwrite : SnowflakeObject
     /// Gets the DiscordMember that is affected by this overwrite.
     /// </summary>
     /// <returns>The DiscordMember that is affected by this overwrite</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.AccessChannels"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ViewChannel"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the overwrite does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -79,9 +79,12 @@ public class DiscordOverwrite : SnowflakeObject
     /// <summary>
     /// Checks whether given permissions are allowed, denied, or not set.
     /// </summary>
-    /// <param name="permission">Permissions to check.</param>
+    /// <param name="permissions">Permissions to check.</param>
     /// <returns>Whether given permissions are allowed, denied, or not set.</returns>
-    public DiscordPermissionLevel CheckPermission(DiscordPermissions permission) => (this.Allowed & permission) != 0
+    public DiscordPermissionLevel CheckPermission(DiscordPermissions permissions)
+    {
+        return this.Allowed.HasAllPermissions(permissions)
             ? DiscordPermissionLevel.Allowed
-            : (this.Denied & permission) != 0 ? DiscordPermissionLevel.Denied : DiscordPermissionLevel.Unset;
+            : this.Denied.HasAllPermissions(permissions) ? DiscordPermissionLevel.Denied : DiscordPermissionLevel.Unset;
+    }
 }

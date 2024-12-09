@@ -1,5 +1,4 @@
 using System;
-
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
 using DSharpPlus.Entities;
 

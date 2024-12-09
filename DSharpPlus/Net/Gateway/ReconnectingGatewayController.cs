@@ -17,6 +17,9 @@ public sealed class ReconnectingGatewayController : IGatewayController
     public Task ReconnectRequestedAsync(IGatewayClient client) => Task.CompletedTask;
 
     /// <inheritdoc/>
+    public Task ResumeAttemptedAsync(IGatewayClient client) => Task.CompletedTask;
+
+    /// <inheritdoc/>
     public async Task SessionInvalidatedAsync(IGatewayClient client) => await client.ReconnectAsync();
 
     /// <inheritdoc/>

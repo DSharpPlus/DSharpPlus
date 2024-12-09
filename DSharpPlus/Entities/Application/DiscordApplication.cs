@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
@@ -120,6 +121,11 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     public int? ApproximateGuildCount { get; internal set; }
 
     /// <summary>
+    /// Approximate count of users that have installed the app
+    /// </summary>
+    public int? ApproximateUserInstallCount { get; internal set; }
+
+    /// <summary>
     /// Array of redirect URIs for the app
     /// </summary>
     public string[] RedirectUris { get; internal set; }
@@ -188,6 +194,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         this.PrimarySkuId = transportApplication.PrimarySkuId;
         this.Slug = transportApplication.Slug;
         this.ApproximateGuildCount = transportApplication.ApproximateGuildCount;
+        this.ApproximateUserInstallCount = transportApplication.ApproximateUserInstallCount;
         this.RedirectUris = transportApplication.RedirectUris;
         this.InteractionsEndpointUrl = transportApplication.InteractionEndpointUrl;
         this.RoleConnectionsVerificationEndpointUrl = transportApplication.RoleConnectionsVerificationUrl;
@@ -289,14 +296,14 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         return this.Assets;
     }
 
-    public string GenerateBotOAuth(DiscordPermissions permissions = DiscordPermissions.None)
+    public string GenerateBotOAuth(DiscordPermissions permissions = default)
     {
         permissions &= DiscordPermissions.All;
         // hey look, it's not all annoying and blue :P
         return new QueryUriBuilder("https://discord.com/oauth2/authorize")
             .AddParameter("client_id", this.Id.ToString(CultureInfo.InvariantCulture))
             .AddParameter("scope", "bot")
-            .AddParameter("permissions", ((long)permissions).ToString(CultureInfo.InvariantCulture))
+            .AddParameter("permissions", permissions.ToString())
             .ToString();
     }
 
@@ -310,8 +317,12 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// </param>
     /// <param name="permissions">Permissions for your bot. Only required if the <seealso cref="DiscordOAuthScope.Bot"/> scope is passed.</param>
     /// <param name="scopes">OAuth scopes for your application.</param>
-    public string GenerateOAuthUri(string? redirectUri = null, DiscordPermissions? permissions = null,
-        params DiscordOAuthScope[] scopes)
+    public string GenerateOAuthUri
+    (
+        string? redirectUri = null,
+        DiscordPermissions permissions = default,
+        params DiscordOAuthScope[] scopes
+    )
     {
         permissions &= DiscordPermissions.All;
 
@@ -326,9 +337,9 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
             .AddParameter("client_id", this.Id.ToString(CultureInfo.InvariantCulture))
             .AddParameter("scope", scopeBuilder.ToString().Trim());
 
-        if (permissions != null)
+        if (permissions != DiscordPermissions.None)
         {
-            queryBuilder.AddParameter("permissions", ((long)permissions).ToString(CultureInfo.InvariantCulture));
+            queryBuilder.AddParameter("permissions", permissions.ToString());
         }
 
         // response_type=code is always given for /authorize
@@ -411,4 +422,83 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         DiscordOAuthScope.RelationshipsRead => "relationships.read",
         _ => null
     };
+    
+    /// <summary>
+    /// List all stock keeping units belonging to this application
+    /// </summary>
+    /// <returns></returns>
+    public async ValueTask<IReadOnlyList<DiscordStockKeepingUnit>> ListStockKeepingUnitsAsync() 
+        => await this.Discord.ApiClient.ListStockKeepingUnitsAsync(this.Id);
+
+    /// <summary>
+    /// List all Entitlements belonging to this application.
+    /// </summary>
+    /// <param name="userId">Filters the entitlements by a user.</param>
+    /// <param name="skuIds">Filters the entitlements by specific SKUs.</param>
+    /// <param name="before">Filters the entitlements to be before a specific snowflake. Can be used to filter by time. Mutually exclusive with parameter "after"</param>
+    /// <param name="after">Filters the entitlements to be after a specific snowflake. Can be used to filter by time. Mutually exclusive with parameter "before"</param>
+    /// <param name="limit">Limits how many Entitlements should be returned. One API call per 100 entitlements</param>
+    /// <param name="guildId">Filters the entitlements by a specific Guild.</param>
+    /// <param name="excludeEnded">Wheter or not to return time limited entitlements which have ended</param>
+    /// <param name="cancellationToken">CT to cancel the method before the next api call</param>
+    /// <returns>Returns the list of entitlements fitting to the filters</returns>
+    /// <exception cref="ArgumentException">Thrown when both "before" and "after" is set</exception>
+    public async IAsyncEnumerable<DiscordEntitlement> ListEntitlementsAsync
+    (
+        ulong? userId = null,
+        IEnumerable<ulong>? skuIds = null,
+        ulong? before = null,
+        ulong? after = null,
+        int limit = 100,
+        ulong? guildId = null,
+        bool? excludeEnded = null,
+        [EnumeratorCancellation] 
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (before is not null && after is not null)
+        {
+            throw new ArgumentException("before and after are mutually exclusive.");
+        }
+        
+        bool isAscending = before is null;
+        
+        while (limit > 0 && !cancellationToken.IsCancellationRequested)
+        {
+            int entitlementsThisRequest = Math.Min(100, limit);
+            limit -= entitlementsThisRequest;
+            
+            IReadOnlyList<DiscordEntitlement> entitlements 
+                = await this.Discord.ApiClient.ListEntitlementsAsync(this.Id, userId, skuIds, before, after, guildId, excludeEnded, limit);
+
+            if (entitlements.Count == 0)
+            {
+                yield break;
+            }
+            
+            if (isAscending)
+            {
+                foreach (DiscordEntitlement entitlement in entitlements)
+                {
+                    yield return entitlement;
+                }
+                
+                after = entitlements.Last().Id;
+            }
+            else
+            {
+                for (int i = entitlements.Count - 1; i >= 0; i--)
+                {
+                    yield return entitlements[i];
+                }
+                
+                before = entitlements.First().Id;
+            }
+
+            if (entitlements.Count != entitlementsThisRequest)
+            {
+                yield break;
+            } 
+        }
+    }
 }

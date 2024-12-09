@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+
 using DSharpPlus.Entities;
+
 using Newtonsoft.Json;
 
 namespace DSharpPlus.EventArgs;
@@ -14,6 +16,12 @@ public class ModalSubmittedEventArgs : InteractionCreatedEventArgs
     /// </summary>
     [JsonIgnore]
     public IReadOnlyDictionary<string, string> Values { get; }
+
+    /// <summary>
+    /// The custom ID this modal was sent with.
+    /// </summary>
+    [JsonIgnore]
+    public string Id => this.Interaction.Data.CustomId;
 
     internal ModalSubmittedEventArgs(DiscordInteraction interaction)
     {

@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
+using DSharpPlus.Logging;
 using DSharpPlus.Metrics;
 
 using Microsoft.Extensions.Logging;
@@ -45,8 +46,8 @@ public sealed partial class RestClient : IDisposable
             options.Value.Timeout,
             logger,
             options.Value.MaximumRatelimitRetries,
-            options.Value.RatelimitRetryDelayFallback,
-            options.Value.InitialRequestTimeout,
+            (int)options.Value.RatelimitRetryDelayFallback.TotalMilliseconds,
+            (int)options.Value.InitialRequestTimeout.TotalMilliseconds,
             options.Value.MaximumConcurrentRestRequests
         )
     {
@@ -63,7 +64,7 @@ public sealed partial class RestClient : IDisposable
         TimeSpan timeout,
         ILogger logger,
         int maxRetries = int.MaxValue,
-        double retryDelayFallback = 2.5,
+        int retryDelayFallback = 2500,
         int waitingForHashMilliseconds = 200,
         int maximumRequestsPerSecond = 15
     )
@@ -87,8 +88,14 @@ public sealed partial class RestClient : IDisposable
             new()
             {
                 DelayGenerator = result =>
-                    ValueTask.FromResult<TimeSpan?>((result.Outcome.Exception as PreemptiveRatelimitException)?.ResetAfter
-                        ?? TimeSpan.FromSeconds(retryDelayFallback)),
+                {
+                    return ValueTask.FromResult<TimeSpan?>(result.Outcome.Exception switch
+                    {
+                        PreemptiveRatelimitException preemptive => preemptive.ResetAfter,
+                        RetryableRatelimitException real => real.ResetAfter,
+                        _ => TimeSpan.FromMilliseconds(retryDelayFallback)
+                    });
+                },
                 MaxRetryAttempts = maxRetries
             }
         )
@@ -145,7 +152,22 @@ public sealed partial class RestClient : IDisposable
             string content = await response.Content.ReadAsStringAsync();
 
             // consider logging headers too
-            this.logger.LogTrace(LoggerEvents.RestRx, "Request {TraceId}: {Content}", traceId, content);
+            if (this.logger.IsEnabled(LogLevel.Trace) && RuntimeFeatures.EnableRestRequestLogging)
+            {
+                string anonymized = content;
+
+                if (RuntimeFeatures.AnonymizeTokens)
+                {
+                    anonymized = AnonymizationUtilities.AnonymizeTokens(anonymized);
+                }
+
+                if (RuntimeFeatures.AnonymizeContents)
+                {
+                    anonymized = AnonymizationUtilities.AnonymizeContents(anonymized);
+                }
+
+                this.logger.LogTrace("Request {TraceId}: {Content}", traceId, anonymized);
+            }
 
             switch (response.StatusCode)
             {

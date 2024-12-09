@@ -1,5 +1,7 @@
 using System;
 
+using DSharpPlus.Logging;
+
 namespace DSharpPlus.Net.Gateway;
 
 /// <summary>
@@ -40,4 +42,17 @@ public sealed class GatewayClientOptions
     /// intents for. Defaults to <see cref="DiscordIntents.AllUnprivileged"/>.
     /// </summary>
     public DiscordIntents Intents { get; set; } = DiscordIntents.AllUnprivileged;
+
+    /// <summary>
+    /// Toggles the use of streams for deserializing inbound gateway events. Enabling this will increase the total
+    /// allocation volume of the gateway, but decrease the maximum size of allocations and may reduce object
+    /// longevity.
+    /// </summary>
+    /// <remarks>
+    /// This option will be automatically disabled if trace logs are enabled and 
+    /// <see cref="RuntimeFeatures.EnableInboundGatewayLogging"/> is enabled (as it is by default). Please refer to
+    /// <see href="https://dsharpplus.github.io/DSharpPlus/articles/advanced_topics/trace_logs.html">our article
+    /// on trace logging</see> to learn how to modify this option.
+    /// </remarks>
+    public bool EnableStreamingDeserialization { get; set; } = true;
 }

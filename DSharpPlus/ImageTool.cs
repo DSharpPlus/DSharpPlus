@@ -131,7 +131,7 @@ public sealed class ImageTool : IDisposable
 
         while (processed < this.SourceStream.Length - readLength)
         {
-            this.SourceStream.Read(readBuffer);
+            this.SourceStream.ReadExactly(readBuffer);
 
             Base64.EncodeToUtf8(readBuffer, b64Buffer.AsSpan().Slice(totalWritten, writeLength), out int _, out int written, false);
 
@@ -141,7 +141,7 @@ public sealed class ImageTool : IDisposable
 
         int remainingLength = (int)this.SourceStream.Length - processed;
 
-        this.SourceStream.Read(readBufferBacking, 0, remainingLength);
+        this.SourceStream.ReadExactly(readBufferBacking, 0, remainingLength);
 
         Base64.EncodeToUtf8(readBufferBacking.AsSpan()[..remainingLength], b64Buffer.AsSpan()[totalWritten..], out int _, out int lastWritten);
 

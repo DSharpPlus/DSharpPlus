@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -18,7 +19,7 @@ public sealed class DiscordInteractionData : SnowflakeObject
     /// Gets the parameters and values of the invoked interaction.
     /// </summary>
     [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<DiscordInteractionDataOption> Options { get; internal set; }
+    public IReadOnlyList<DiscordInteractionDataOption> Options { get; internal set; }
 
     /// <summary>
     /// Gets the Discord snowflake objects resolved from this interaction's arguments.
@@ -41,11 +42,47 @@ public sealed class DiscordInteractionData : SnowflakeObject
     /// <summary>
     /// Components on this interaction. Only applies to modal interactions.
     /// </summary>
-    public IReadOnlyList<DiscordActionRowComponent> Components => this.components;
+    public IReadOnlyList<DiscordComponent>? Components => this.components;
 
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-    internal List<DiscordActionRowComponent> components;
+    internal List<DiscordComponent>? components;
 
+    /// <summary>
+    /// Gets all text input components on this interaction.
+    /// </summary>
+    public IReadOnlyList<DiscordTextInputComponent>? TextInputComponents
+    {
+        get
+        {
+            if (this.Components is null)
+            {
+                return null;
+            }
+
+            List<DiscordTextInputComponent> components = [];
+
+            foreach (DiscordComponent component in this.Components)
+            {
+                if (component is DiscordActionRowComponent actionRowComponent)
+                {
+                    foreach (DiscordComponent subComponent in actionRowComponent.Components)
+                    {
+                        if (subComponent is DiscordTextInputComponent filteredComponent)
+                        {
+                            components.Add(filteredComponent);
+                        }
+                    }
+                }
+                else if (component is DiscordTextInputComponent filteredComponent)
+                {
+                    components.Add(filteredComponent);
+                }
+            }
+
+            return components;
+        }
+    }
+    
     /// <summary>
     /// The Id of the target. Applicable for context menus.
     /// </summary>

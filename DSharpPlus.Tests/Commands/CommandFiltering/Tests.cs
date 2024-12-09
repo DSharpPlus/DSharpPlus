@@ -1,25 +1,20 @@
 using System.Collections.Generic;
 using System.Linq;
-
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.MessageCommands;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Processors.UserCommands;
 using DSharpPlus.Commands.Trees;
-
 using Microsoft.Extensions.DependencyInjection;
-
 using NUnit.Framework;
 
 namespace DSharpPlus.Tests.Commands.CommandFiltering;
 
 public class Tests
 {
-    private static readonly SlashCommandProcessor slashCommandProcessor = new(new()
-    {
-        RegisterCommands = false
-    });
+    private static readonly SlashCommandProcessor slashCommandProcessor =
+        new(new() { RegisterCommands = false });
 
     private static CommandsExtension extension = null!;
     private static readonly TextCommandProcessor textCommandProcessor = new();
@@ -29,26 +24,31 @@ public class Tests
     [OneTimeSetUp]
     public static void CreateExtension()
     {
-        DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault("faketoken", DiscordIntents.None);
+        DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(
+            "faketoken",
+            DiscordIntents.None
+        );
 
-        builder.UseCommands
-        (
-            async extension =>
+        builder.UseCommands(
+            async (serviceProvider, extension) =>
             {
                 extension.AddProcessor(textCommandProcessor);
                 extension.AddProcessor(slashCommandProcessor);
                 extension.AddProcessor(userCommandProcessor);
                 extension.AddProcessor(messageCommandProcessor);
 
-                extension.AddCommands([typeof(TestMultiLevelSubCommandsFiltered.RootCommand), typeof(TestMultiLevelSubCommandsFiltered.ContextMenues), typeof(TestMultiLevelSubCommandsFiltered.ContextMenuesInGroup)]);
-                extension.BuildCommands();
+                extension.AddCommands(
+                    [
+                        typeof(TestMultiLevelSubCommandsFiltered.RootCommand),
+                        typeof(TestMultiLevelSubCommandsFiltered.ContextMenues),
+                        typeof(TestMultiLevelSubCommandsFiltered.ContextMenuesInGroup),
+                    ]
+                );
+                await extension.BuildCommandsAsync();
                 await userCommandProcessor.ConfigureAsync(extension);
                 await messageCommandProcessor.ConfigureAsync(extension);
             },
-            new CommandsConfiguration()
-            {
-                RegisterDefaultCommandProcessors = false
-            }
+            new CommandsConfiguration() { RegisterDefaultCommandProcessors = false }
         );
 
         DiscordClient client = builder.Build();
@@ -109,13 +109,19 @@ public class Tests
     {
         IReadOnlyList<Command> userContextCommands = userCommandProcessor.Commands;
 
-        Command? contextOnlyCommand = userContextCommands.FirstOrDefault(x => x.Name == "UserContextOnly");
+        Command? contextOnlyCommand = userContextCommands.FirstOrDefault(x =>
+            x.Name == "UserContextOnly"
+        );
         Assert.That(contextOnlyCommand, Is.Not.Null);
 
-        Command? bothCommand = userContextCommands.FirstOrDefault(x => x.Name == "SlashUserContext");
+        Command? bothCommand = userContextCommands.FirstOrDefault(x =>
+            x.Name == "SlashUserContext"
+        );
         Assert.That(bothCommand, Is.Not.Null);
 
-        IReadOnlyList<Command> slashCommands = extension.GetCommandsForProcessor(slashCommandProcessor);
+        IReadOnlyList<Command> slashCommands = extension.GetCommandsForProcessor(
+            slashCommandProcessor
+        );
         Assert.That(slashCommands.FirstOrDefault(x => x.Name == "SlashUserContext"), Is.Not.Null);
     }
 
@@ -124,14 +130,23 @@ public class Tests
     {
         IReadOnlyList<Command> messageContextCommands = messageCommandProcessor.Commands;
 
-        Command? contextOnlyCommand = messageContextCommands.FirstOrDefault(x => x.Name == "MessageContextOnly");
+        Command? contextOnlyCommand = messageContextCommands.FirstOrDefault(x =>
+            x.Name == "MessageContextOnly"
+        );
         Assert.That(contextOnlyCommand, Is.Not.Null);
 
-        Command? bothCommand = messageContextCommands.FirstOrDefault(x => x.Name == "SlashMessageContext");
+        Command? bothCommand = messageContextCommands.FirstOrDefault(x =>
+            x.Name == "SlashMessageContext"
+        );
         Assert.That(bothCommand, Is.Not.Null);
 
-        IReadOnlyList<Command> slashCommands = extension.GetCommandsForProcessor(slashCommandProcessor);
-        Assert.That(slashCommands.FirstOrDefault(x => x.Name == "SlashMessageContext"), Is.Not.Null);
+        IReadOnlyList<Command> slashCommands = extension.GetCommandsForProcessor(
+            slashCommandProcessor
+        );
+        Assert.That(
+            slashCommands.FirstOrDefault(x => x.Name == "SlashMessageContext"),
+            Is.Not.Null
+        );
     }
 
     [Test]
@@ -139,17 +154,22 @@ public class Tests
     {
         IReadOnlyList<Command> userContextCommands = userCommandProcessor.Commands;
 
-        Command? contextOnlyCommand = userContextCommands.FirstOrDefault(x => x.FullName == "group UserContextOnly");
+        Command? contextOnlyCommand = userContextCommands.FirstOrDefault(x =>
+            x.FullName == "group UserContextOnly"
+        );
         Assert.That(contextOnlyCommand, Is.Not.Null);
 
-        Command? bothCommand = userContextCommands.FirstOrDefault(x => x.FullName == "group SlashUserContext");
+        Command? bothCommand = userContextCommands.FirstOrDefault(x =>
+            x.FullName == "group SlashUserContext"
+        );
         Assert.That(bothCommand, Is.Not.Null);
 
-        IReadOnlyList<Command> slashCommands = extension.GetCommandsForProcessor(slashCommandProcessor);
+        IReadOnlyList<Command> slashCommands = extension.GetCommandsForProcessor(
+            slashCommandProcessor
+        );
         Command? group = slashCommands.FirstOrDefault(x => x.Name == "group");
         Assert.That(group, Is.Not.Null);
         Assert.That(group.Subcommands.Any(x => x.Name == "SlashUserContext"));
-
     }
 
     [Test]
@@ -157,13 +177,19 @@ public class Tests
     {
         IReadOnlyList<Command> messageContextCommands = messageCommandProcessor.Commands;
 
-        Command? contextOnlyCommand = messageContextCommands.FirstOrDefault(x => x.FullName == "group MessageContextOnly");
+        Command? contextOnlyCommand = messageContextCommands.FirstOrDefault(x =>
+            x.FullName == "group MessageContextOnly"
+        );
         Assert.That(contextOnlyCommand, Is.Not.Null);
 
-        Command? bothCommand = messageContextCommands.FirstOrDefault(x => x.FullName == "group SlashMessageContext");
+        Command? bothCommand = messageContextCommands.FirstOrDefault(x =>
+            x.FullName == "group SlashMessageContext"
+        );
         Assert.That(bothCommand, Is.Not.Null);
 
-        IReadOnlyList<Command> slashCommands = extension.GetCommandsForProcessor(slashCommandProcessor);
+        IReadOnlyList<Command> slashCommands = extension.GetCommandsForProcessor(
+            slashCommandProcessor
+        );
         Command? group = slashCommands.FirstOrDefault(x => x.Name == "group");
         Assert.That(group, Is.Not.Null);
         Assert.That(group.Subcommands.Any(x => x.Name == "SlashMessageContext"));

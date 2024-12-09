@@ -13,7 +13,7 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
     /// <summary>
     /// Gets the permissions required by this attribute.
     /// </summary>
-    public DiscordPermissions Permissions { get; }
+    public DiscordPermission[] Permissions { get; }
 
     /// <summary>
     /// Gets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.
@@ -25,7 +25,7 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
     /// </summary>
     /// <param name="permissions">Permissions required to execute this command.</param>
     /// <param name="ignoreDms">Sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.</param>
-    public RequirePermissionsAttribute(DiscordPermissions permissions, bool ignoreDms = true)
+    public RequirePermissionsAttribute(bool ignoreDms = true, params DiscordPermission[] permissions)
     {
         this.Permissions = permissions;
         this.IgnoreDms = ignoreDms;
@@ -59,12 +59,12 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
 
         if (!usrok)
         {
-            usrok = (pusr & DiscordPermissions.Administrator) != 0 || (pusr & this.Permissions) == this.Permissions;
+            usrok = pusr.HasAllPermissions(this.Permissions);
         }
 
         if (!botok)
         {
-            botok = (pbot & DiscordPermissions.Administrator) != 0 || (pbot & this.Permissions) == this.Permissions;
+            botok = pusr.HasAllPermissions(this.Permissions);
         }
 
         return usrok && botok;

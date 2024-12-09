@@ -45,8 +45,8 @@ public class DiscordRestClient : BaseDiscordClient
             options.Timeout,
             logger ?? NullLogger.Instance,
             options.MaximumRatelimitRetries,
-            options.RatelimitRetryDelayFallback,
-            options.InitialRequestTimeout,
+            (int)options.RatelimitRetryDelayFallback.TotalMilliseconds,
+            (int)options.InitialRequestTimeout.TotalMilliseconds,
             options.MaximumConcurrentRestRequests
         ));
 
@@ -1095,7 +1095,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// </summary>
     /// <param name="channelId">ID of the channel to follow</param>
     /// <param name="webhookChannelId">ID of the channel to crosspost messages to</param>
-    /// <exception cref="UnauthorizedException">Thrown when the current user doesn't have <see cref="DiscordPermissions.ManageWebhooks"/> on the target channel</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the current user doesn't have <see cref="DiscordPermission.ManageWebhooks"/> on the target channel</exception>
     public async Task<DiscordFollowedChannel> FollowChannelAsync(ulong channelId, ulong webhookChannelId)
         => await this.ApiClient.FollowChannelAsync(channelId, webhookChannelId);
 
@@ -1105,7 +1105,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="channelId">ID of the news channel the message to crosspost belongs to</param>
     /// <param name="messageId">ID of the message to crosspost</param>
     /// <exception cref="UnauthorizedException">
-    ///     Thrown when the current user doesn't have <see cref="DiscordPermissions.ManageWebhooks"/> and/or <see cref="DiscordPermissions.SendMessages"/>
+    ///     Thrown when the current user doesn't have <see cref="DiscordPermission.ManageWebhooks"/> and/or <see cref="DiscordPermission.SendMessages"/>
     /// </exception>
     public async Task<DiscordMessage> CrosspostMessageAsync(ulong channelId, ulong messageId)
         => await this.ApiClient.CrosspostMessageAsync(channelId, messageId);
@@ -1200,26 +1200,35 @@ public class DiscordRestClient : BaseDiscordClient
     /// </summary>
     /// <param name="username">New username</param>
     /// <param name="base64Avatar">New avatar (base64)</param>
+    /// <param name="base64Banner">New banner (base64)</param>
     /// <returns></returns>
-    public async Task<DiscordUser> ModifyCurrentUserAsync(string username, string base64Avatar)
-        => new DiscordUser(await this.ApiClient.ModifyCurrentUserAsync(username, base64Avatar)) { Discord = this };
+    public async Task<DiscordUser> ModifyCurrentUserAsync(string username, string base64Avatar, string base64Banner)
+        => new DiscordUser(await this.ApiClient.ModifyCurrentUserAsync(username, base64Avatar, base64Banner)) { Discord = this };
 
     /// <summary>
     /// Modifies current user
     /// </summary>
     /// <param name="username">username</param>
     /// <param name="avatar">avatar</param>
+    /// <param name="banner">New banner</param>
     /// <returns></returns>
-    public async Task<DiscordUser> ModifyCurrentUserAsync(string username = null, Stream avatar = null)
+    public async Task<DiscordUser> ModifyCurrentUserAsync(string username = null, Stream? avatar = null, Stream? banner = null)
     {
-        string av64 = null;
+        string avatarBase64 = null;
         if (avatar is not null)
         {
             using ImageTool imgtool = new(avatar);
-            av64 = imgtool.GetBase64();
+            avatarBase64 = imgtool.GetBase64();
+        }
+        
+        string bannerBase64 = null;
+        if (banner is not null)
+        {
+            using ImageTool imgtool = new(banner);
+            bannerBase64 = imgtool.GetBase64();
         }
 
-        return new DiscordUser(await this.ApiClient.ModifyCurrentUserAsync(username, av64)) { Discord = this };
+        return new DiscordUser(await this.ApiClient.ModifyCurrentUserAsync(username, avatarBase64, bannerBase64)) { Discord = this };
     }
 
     /// <summary>

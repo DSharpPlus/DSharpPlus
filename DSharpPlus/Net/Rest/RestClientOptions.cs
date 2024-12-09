@@ -24,12 +24,12 @@ public sealed class RestClientOptions
     /// <summary>
     /// Specifies the delay to use when there was no delay information passed to the rest client. Defaults to 2.5 seconds.
     /// </summary>
-    public double RatelimitRetryDelayFallback { get; set; } = 2.5;
+    public TimeSpan RatelimitRetryDelayFallback { get; set; } = TimeSpan.FromMilliseconds(2500);
 
     /// <summary>
-    /// Specifies the amount of milliseconds we should be waiting for a ratelimit bucket hash to initialize.
+    /// Specifies the time we should be waiting for a ratelimit bucket hash to initialize.
     /// </summary>
-    public int InitialRequestTimeout { get; set; } = 200;
+    public TimeSpan InitialRequestTimeout { get; set; } = TimeSpan.FromMilliseconds(200);
 
     /// <summary>
     /// Specifies the maximum rest requests to attempt concurrently. Defaults to 15.

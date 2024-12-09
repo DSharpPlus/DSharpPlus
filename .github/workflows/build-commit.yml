@@ -7,6 +7,7 @@ on:
       - ".github/workflows/build-commit.yml"
       - "DSharpPlus*/**"
       - "tools/**"
+      - "docs/**"
       - "*.sln"
       - "obsolete/DSharpPlus*/**"
   workflow_dispatch:
@@ -18,28 +19,10 @@ env:
   DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: 1
 
 jobs:
-  build-commit:
-    name: Build Commit
-    runs-on: ubuntu-latest
-    if: "!contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci-skip]')"
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8
-      - name: Build Project
-        run: dotnet build
-      - name: Test Changes
-        run: dotnet test --blame-crash --blame-hang --blame-hang-timeout "30s"
   package-commit:
     name: Package Commit
     runs-on: ubuntu-latest
-    needs: build-commit
-    if: github.ref_name == 'master'
+    if: "!contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci-skip]')"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,7 +32,11 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8
+          dotnet-version: 9
+      - name: Build Project
+        run: dotnet build
+      - name: Test Changes
+        run: dotnet test --blame-crash --blame-hang --blame-hang-timeout "30s"
       - name: Get Nightly Version
         id: nightly
         run: printf "version=%0*d" 5 $(( 1195 + 691 + ${{ github.run_number }} )) >> "$GITHUB_OUTPUT"
@@ -59,8 +46,6 @@ jobs:
           # We add 686 since it's the last build number GitHub Actions used before the workflow was renamed.
           dotnet pack -c Release -o build -p:Nightly=${{ steps.nightly.outputs.version }}
           dotnet nuget push "build/*" --skip-duplicate -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json
-          echo LATEST_STABLE_VERSION=$(git describe --abbrev=0 --tags 2>/dev/null || echo '') >> $GITHUB_ENV
-          dotnet run --project ./tools/AutoUpdateChannelDescription -p:Nightly=${{ steps.nightly.outputs.version }}
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
@@ -75,6 +60,21 @@ jobs:
         with:
           name: DSharpPlus-Nightly-${{ steps.nightly.outputs.version }}.zip
           path: ./build/*
+      - name: Get commit message header
+        id: get_commit_message
+        run: |
+          commit_message_header=$(git log -1 --pretty=%B | head -n 1)
+          echo "message_header=${commit_message_header}" >> $GITHUB_OUTPUT
+      - name: Discord Webhook
+        uses: tsickert/discord-webhook@v4.0.0
+        with:
+          webhook-url: ${{ secrets.BUILD_WEBHOOK }}
+          embed-title: DSharpPlus 5.0.0-nightly-${{ steps.nightly.outputs.version }}
+          embed-description: |
+            NuGet Link: [`5.0.0-nightly-${{ steps.nightly.outputs.version }}`](https://www.nuget.org/packages/DSharpPlus/5.0.0-nightly-${{ steps.nightly.outputs.version }})
+            Commit hash: [`${{ github.sha }}`](https://github.com/${{github.repository}}/commit/${{github.sha}})
+            Commit message: ``${{ steps.get_commit_message.outputs.message_header }}``
+          embed-color: 7506394
   document-commit:
     name: Document Commit
     runs-on: ubuntu-latest
@@ -94,7 +94,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8
+          dotnet-version: 9
       - name: Build Project
         run: |
           dotnet build
@@ -107,3 +107,6 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
+      - name: Reload Discord documentation
+        run: |
+          curl -X POST -H 'Authorization: Bot ${{ secrets.DISCORD_TOKEN }}' -H 'Content-Type: application/json' -d '{"content":"<@341606460720939008> reload"}' 'https://discord.com/api/v10/channels/379379415475552276/messages'

@@ -22,26 +22,11 @@ public static partial class Utilities
     /// Gets the version of the library
     /// </summary>
     private static string VersionHeader { get; set; }
-    private static Dictionary<DiscordPermissions, string> PermissionStrings { get; set; }
 
     internal static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
 
     static Utilities()
     {
-        PermissionStrings = [];
-        Type t = typeof(DiscordPermissions);
-        TypeInfo ti = t.GetTypeInfo();
-        IEnumerable<DiscordPermissions> vals = Enum.GetValues(t).Cast<DiscordPermissions>();
-
-        foreach (DiscordPermissions xv in vals)
-        {
-            string xsv = xv.ToString();
-            MemberInfo? xmv = ti.DeclaredMembers.FirstOrDefault(xm => xm.Name == xsv);
-            PermissionStringAttribute? xav = xmv.GetCustomAttribute<PermissionStringAttribute>();
-
-            PermissionStrings[xv] = xav.String;
-        }
-
         Assembly a = typeof(DiscordClient).GetTypeInfo().Assembly;
 
         string vs = "";
@@ -124,10 +109,12 @@ public static partial class Utilities
         }
     }
 
-    internal static IEnumerable<ulong> GetChannelMentions(DiscordMessage message)
+    internal static IEnumerable<ulong> GetChannelMentions(DiscordMessage message) => GetChannelMentions(message.Content);
+
+    internal static IEnumerable<ulong> GetChannelMentions(string messageContent)
     {
         Regex regex = ChannelMentionRegex();
-        MatchCollection matches = regex.Matches(message.Content);
+        MatchCollection matches = regex.Matches(messageContent);
         foreach (Match match in matches.Cast<Match>())
         {
             yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
@@ -246,27 +233,6 @@ public static partial class Utilities
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateTimeOffset GetSnowflakeTime(this ulong snowflake)
         => DiscordClient.discordEpoch.AddMilliseconds(snowflake >> 22);
-
-    /// <summary>
-    /// Converts this <see cref="DiscordPermissions"/> into human-readable format.
-    /// </summary>
-    /// <param name="perm">Permissions enumeration to convert.</param>
-    /// <returns>Human-readable permissions.</returns>
-    public static string ToPermissionString(this DiscordPermissions perm)
-    {
-        if (perm == DiscordPermissions.None)
-        {
-            return PermissionStrings[perm];
-        }
-
-        perm &= DiscordPermissions.All;
-
-        IEnumerable<string> strs = PermissionStrings
-            .Where(xkvp => xkvp.Key != DiscordPermissions.None && (perm & xkvp.Key) == xkvp.Key)
-            .Select(xkvp => xkvp.Value);
-
-        return string.Join(", ", strs.OrderBy(xs => xs));
-    }
 
     /// <summary>
     /// Checks whether this string contains given characters.

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+
 using DSharpPlus.Entities;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Gateway.Compression;
@@ -107,23 +108,17 @@ public sealed class GatewayClient : IGatewayClient
                 await this.transportService.ConnectAsync(url, shardInfo?.ShardId);
 
                 TransportFrame initialFrame = await this.transportService.ReadAsync();
-
-                if (!initialFrame.TryGetMessage(out string? hello))
-                {
-                    await HandleErrorAndAttemptToReconnectAsync(initialFrame);
-                }
-
-                GatewayPayload? helloEvent = JsonConvert.DeserializeObject<GatewayPayload>(hello);
+                GatewayPayload? helloEvent = await ProcessAndDeserializeTransportFrameAsync(initialFrame);
 
                 if (helloEvent is not { OpCode: GatewayOpCode.Hello })
                 {
-                    this.logger.LogWarning("Expected HELLO payload from Discord, received {NotQuiteHello}", hello);
+                    this.logger.LogWarning("Expected HELLO payload from Discord");
                     continue;
                 }
 
                 GatewayHello helloPayload = ((JObject)helloEvent.Data).ToDiscordObject<GatewayHello>();
 
-                this.logger.LogTrace
+                this.logger.LogDebug
                 (
                     "Received hello event, starting heartbeating with an interval of {interval} and identifying.",
                     TimeSpan.FromMilliseconds(helloPayload.HeartbeatInterval)
@@ -178,7 +173,7 @@ public sealed class GatewayClient : IGatewayClient
 
                 await WriteAsync(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(identify)));
 
-                this.logger.LogTrace("Identified with the Discord gateway");
+                this.logger.LogDebug("Identified with the Discord gateway");
                 break;
             }
             catch (Exception e)
@@ -269,19 +264,10 @@ public sealed class GatewayClient : IGatewayClient
             while (!ct.IsCancellationRequested)
             {
                 TransportFrame frame = await this.transportService.ReadAsync();
-                GatewayPayload? payload;
-
-                if (!frame.TryGetMessage(out string? data))
-                {
-                    await HandleErrorAndAttemptToReconnectAsync(frame);
-                    continue;
-                }
-
-                payload = JsonConvert.DeserializeObject<GatewayPayload>(data);
+                GatewayPayload? payload = await ProcessAndDeserializeTransportFrameAsync(frame);
 
                 if (payload is null)
                 {
-                    this.logger.LogError("Received invalid inbound event: {Data}", data);
                     continue;
                 }
 
@@ -307,11 +293,11 @@ public sealed class GatewayClient : IGatewayClient
 
                         this.IsConnected = true;
 
-                        this.logger.LogTrace("Received READY, the gateway is now operational.");
+                        this.logger.LogDebug("Received READY, the gateway is now operational.");
 
                         break;
 
-                    case GatewayOpCode.Resume:
+                    case GatewayOpCode.Dispatch when payload.EventName is "RESUMED":
 
                         payload = new ShardIdContainingGatewayPayload
                         {
@@ -321,6 +307,10 @@ public sealed class GatewayClient : IGatewayClient
                             Sequence = payload.Sequence,
                             ShardId = this.ShardId
                         };
+
+                        this.IsConnected = true;
+
+                        this.logger.LogDebug("A session was resumed successfully.");
 
                         break;
 
@@ -336,7 +326,7 @@ public sealed class GatewayClient : IGatewayClient
 
                     case GatewayOpCode.InvalidSession:
 
-                        this.logger.LogTrace("Received INVALID_SESSION, resumable: {Resumable}", (bool)payload.Data);
+                        this.logger.LogDebug("Received INVALID_SESSION, resumable: {Resumable}", (bool)payload.Data);
                         bool success = (bool)payload.Data ? await TryResumeAsync() : await TryReconnectAsync();
 
                         if (!success)
@@ -349,7 +339,7 @@ public sealed class GatewayClient : IGatewayClient
 
                     case GatewayOpCode.Reconnect:
 
-                        this.logger.LogTrace("Received RECONNECT");
+                        this.logger.LogDebug("Received RECONNECT");
                         _ = this.controller.ReconnectRequestedAsync(this);
 
                         if (!(this.options.AutoReconnect && await TryReconnectAsync()))
@@ -379,6 +369,8 @@ public sealed class GatewayClient : IGatewayClient
         {
             return this.options.AutoReconnect && await TryReconnectAsync();
         }
+
+        _ = this.controller.ResumeAttemptedAsync(this);
 
         try
         {
@@ -413,8 +405,7 @@ public sealed class GatewayClient : IGatewayClient
                         )
                     );
 
-                    this.logger.LogTrace("Resumed an existing gateway session.");
-                    this.IsConnected = true;
+                    this.logger.LogDebug("Attempted to resume an existing gateway session.");
                     break;
                 }
                 catch (WebSocketException e) when (e.InnerException is HttpRequestException)
@@ -472,22 +463,16 @@ public sealed class GatewayClient : IGatewayClient
                 await this.transportService.ConnectAsync(this.reconnectUrl!, this.shardInfo?.ShardId);
 
                 TransportFrame initialFrame = await this.transportService.ReadAsync();
-
-                if (!initialFrame.TryGetMessage(out string? hello))
-                {
-                    await HandleErrorAndAttemptToReconnectAsync(initialFrame);
-                }
-
-                GatewayPayload? helloEvent = JsonConvert.DeserializeObject<GatewayPayload>(hello);
+                GatewayPayload? helloEvent = await ProcessAndDeserializeTransportFrameAsync(initialFrame);
 
                 if (helloEvent is not { OpCode: GatewayOpCode.Hello })
                 {
-                    throw new InvalidDataException($"Expected HELLO payload from Discord, received {hello}");
+                    throw new InvalidDataException($"Expected HELLO payload from Discord");
                 }
 
                 GatewayHello helloPayload = ((JObject)helloEvent.Data).ToDiscordObject<GatewayHello>();
 
-                this.logger.LogTrace
+                this.logger.LogDebug
                 (
                     "Received hello event, starting heartbeating with an interval of {interval} and identifying.",
                     TimeSpan.FromMilliseconds(helloPayload.HeartbeatInterval)
@@ -499,7 +484,7 @@ public sealed class GatewayClient : IGatewayClient
 
                 await WriteAsync(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this.identify)));
 
-                this.logger.LogTrace("Identified with the Discord gateway");
+                this.logger.LogDebug("Identified with the Discord gateway");
                 return true;
             }
             catch (Exception e)
@@ -528,13 +513,68 @@ public sealed class GatewayClient : IGatewayClient
         }
         else if (frame.TryGetErrorCode(out int errorCode))
         {
-            _ = errorCode switch
+            bool success = errorCode switch
             {
-                >= 4000 and <= 4003 => await TryResumeAsync(),
-                >= 4005 and <= 4009 => await TryResumeAsync(),
+                (>= 4000 and <= 4002) or 4005 or 4008 => await TryResumeAsync(),
+                4003 or 4007 or 4009 => this.options.AutoReconnect && await TryReconnectAsync(),
+                4004 or (>= 4010 and <= 4014) => false,
                 _ => this.options.AutoReconnect && await TryReconnectAsync()
             };
+
+            if (!success)
+            {
+                this.logger.LogError("An attempt to reconnect upon error code {Code} failed.", errorCode);
+                _ = this.controller.ReconnectFailedAsync(this);
+            }
         }
+    }
+
+    private async ValueTask<GatewayPayload?> ProcessAndDeserializeTransportFrameAsync(TransportFrame frame)
+    {
+        GatewayPayload? payload;
+
+        if (!frame.IsSuccess)
+        {
+            await HandleErrorAndAttemptToReconnectAsync(frame);
+            return null;
+        }
+
+        if (frame.TryGetMessage(out string? stringMessage))
+        {
+            payload = JsonConvert.DeserializeObject<GatewayPayload>(stringMessage);
+
+            if (payload is null)
+            {
+                this.logger.LogError("Received invalid inbound event: {Data}", stringMessage);
+                return null;
+            }
+        }
+        else if (frame.TryGetStreamMessage(out MemoryStream? streamMessage))
+        {
+            using StreamReader reader = new(streamMessage);
+            using JsonReader jsonReader = new JsonTextReader(reader);
+
+            JsonSerializer serializer = new();
+            payload = serializer.Deserialize<GatewayPayload>(jsonReader);
+
+            if (payload is null)
+            {
+                this.logger.LogError
+                (
+                    "Received invalid inbound event: {Data}",
+                    Encoding.UTF8.GetString(streamMessage.ToArray())
+                );
+
+                return null;
+            }
+        }
+        else
+        {
+            this.logger.LogCritical("Unrecognized transport frame encountered: {Frame}", frame);
+            return null;
+        }
+
+        return payload;
     }
 
     /// <inheritdoc/>
