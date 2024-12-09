@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance.Buffers;
 
 using DSharpPlus.Logging;
-using DSharpPlus.Net.WebSocket;
+using DSharpPlus.Net.Gateway.Compression;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -22,7 +22,7 @@ internal sealed class TransportService : ITransportService
     private ClientWebSocket socket;
     private readonly ArrayPoolBufferWriter<byte> writer;
     private readonly ArrayPoolBufferWriter<byte> decompressedWriter;
-    private readonly PayloadDecompressor decompressor;
+    private readonly IPayloadDecompressor decompressor;
     private readonly ILoggerFactory factory;
 
     private readonly bool streamingDeserialization;
@@ -33,7 +33,7 @@ internal sealed class TransportService : ITransportService
     public TransportService
     (
         ILoggerFactory factory,
-        PayloadDecompressor decompressor,
+        IPayloadDecompressor decompressor,
         IOptions<GatewayClientOptions> options
     )
     {
@@ -66,10 +66,10 @@ internal sealed class TransportService : ITransportService
 
         this.logger.LogTrace("Connecting to the Discord gateway.");
 
-        await this.socket.ConnectAsync(new($"{url}?v=10&encoding=json"), CancellationToken.None);
+        await this.socket.ConnectAsync(new(url), CancellationToken.None);
         this.isConnected = true;
 
-        this.logger.LogTrace("Connected to the Discord websocket.");
+        this.logger.LogTrace("Connected to the Discord websocket, using {compression} compression.", this.decompressor.Name);
     }
 
     /// <inheritdoc/>
@@ -159,6 +159,8 @@ internal sealed class TransportService : ITransportService
             return new(ex);
         }
 
+        string compressed = Encoding.UTF8.GetString(this.writer.WrittenSpan);
+
         if (!this.decompressor.TryDecompress(this.writer.WrittenSpan, this.decompressedWriter))
         {
             throw new InvalidDataException("Failed to decompress a gateway payload.");
@@ -167,6 +169,11 @@ internal sealed class TransportService : ITransportService
         if (this.logger.IsEnabled(LogLevel.Trace) && RuntimeFeatures.EnableInboundGatewayLogging)
         {
             string result = Encoding.UTF8.GetString(this.decompressedWriter.WrittenSpan);
+
+            if (compressed != result)
+            {
+                this.logger.LogTrace("Compressed payload detected: {compressed}", Convert.ToBase64String(this.writer.WrittenSpan));
+            }
 
             this.logger.LogTrace
             (
