@@ -22,12 +22,12 @@ public sealed class ZstdDecompressor : IPayloadDecompressor
     public bool TryDecompress(ReadOnlySpan<byte> compressed, ArrayPoolBufferWriter<byte> decompressed)
     {
         // the magic header goes missing, we have to try it anyway - all explodes if we fix the magic header up :ioa:
-        if (this.wrapper.TryDecompress(compressed, decompressed))
+        if (!this.wrapper.TryDecompress(compressed, decompressed))
         {
-            return true;
+            decompressed.Clear();
+            decompressed.Write(compressed);
         }
 
-        decompressed.Write(compressed);
         return true;
     }
 
