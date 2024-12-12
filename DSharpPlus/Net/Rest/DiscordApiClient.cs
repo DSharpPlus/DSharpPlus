@@ -2702,7 +2702,12 @@ public sealed class DiscordApiClient
     {
         RestChannelPermissionEditPayload pld = new()
         {
-            Type = type,
+            Type = type switch
+            {
+                "role" => 0,
+                "member" => 1,
+                _ => throw new InvalidOperationException("Unrecognized permission overwrite target type.")
+            },
             Allow = allow & DiscordPermissions.All,
             Deny = deny & DiscordPermissions.All
         };
