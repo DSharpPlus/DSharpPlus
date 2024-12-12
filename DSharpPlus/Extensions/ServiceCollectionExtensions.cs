@@ -61,7 +61,7 @@ public static partial class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The service collection to configure this for.</param>
     /// <returns>The current instance for chaining.</returns>
-    public static IServiceCollection UseZlibDecompression(this IServiceCollection services)
+    public static IServiceCollection UseZlibCompression(this IServiceCollection services)
         => services.Replace<IPayloadDecompressor, ZlibStreamDecompressor>();
 
     /// <summary>
@@ -69,7 +69,7 @@ public static partial class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The service collection to configure this for.</param>
     /// <returns>The current instance for chaining.</returns>
-    public static IServiceCollection UseZstdDecompression(this IServiceCollection services)
+    public static IServiceCollection UseZstdCompression(this IServiceCollection services)
         => services.Replace<IPayloadDecompressor, ZstdDecompressor>();
 
     /// <summary>
@@ -77,7 +77,7 @@ public static partial class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The service collection to configure this for.</param>
     /// <returns>The current instance for chaining.</returns>
-    public static IServiceCollection DisableDiscordGatewayCompression(this IServiceCollection services)
+    public static IServiceCollection DisableGatewayCompression(this IServiceCollection services)
         => services.Replace<IPayloadDecompressor, NullDecompressor>();
 
     /// <summary>
