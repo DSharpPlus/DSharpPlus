@@ -6,7 +6,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Gateway;
-using DSharpPlus.Net.WebSocket;
+using DSharpPlus.Net.Gateway.Compression;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -22,7 +22,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     private readonly DiscordApiClient apiClient;
     private readonly ShardingOptions options;
     private readonly IServiceProvider serviceProvider;
-    private readonly PayloadDecompressor decompressor;
+    private readonly IPayloadDecompressor decompressor;
 
     private uint shardCount;
     private uint stride;
@@ -54,7 +54,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
         IServiceProvider serviceProvider, 
         IOptions<ShardingOptions> options,
         DiscordApiClient apiClient,
-        PayloadDecompressor decompressor
+        IPayloadDecompressor decompressor
     )
     {
         this.apiClient = apiClient;
@@ -99,9 +99,9 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
         gwuri.AddParameter("v", "10")
              .AddParameter("encoding", "json");
 
-        if (this.decompressor.CompressionLevel == GatewayCompressionLevel.Stream)
+        if (this.decompressor.IsTransportCompression)
         {
-            gwuri.AddParameter("compress", "zlib-stream");
+            gwuri.AddParameter("compress", this.decompressor.Name);
         }
 
         this.shards = new IGatewayClient[startShards];

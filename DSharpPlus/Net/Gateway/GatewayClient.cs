@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
 using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Gateway.Compression;
 using DSharpPlus.Net.Serialization;
-using DSharpPlus.Net.WebSocket;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -65,7 +65,7 @@ public sealed class GatewayClient : IGatewayClient
         
         ITransportService transportService,
         IOptions<TokenContainer> tokenContainer,
-        PayloadDecompressor decompressor,
+        IPayloadDecompressor decompressor,
         IOptions<GatewayClientOptions> options,
         IGatewayController controller,
         ILoggerFactory factory
@@ -76,7 +76,7 @@ public sealed class GatewayClient : IGatewayClient
         this.factory = factory;
         this.token = tokenContainer.Value.GetToken();
         this.gatewayTokenSource = null!;
-        this.compress = decompressor.CompressionLevel == GatewayCompressionLevel.Payload;
+        this.compress = !decompressor.IsTransportCompression;
         this.options = options.Value;
         this.controller = controller;
 
