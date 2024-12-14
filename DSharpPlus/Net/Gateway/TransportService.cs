@@ -159,8 +159,6 @@ internal sealed class TransportService : ITransportService
             return new(ex);
         }
 
-        string compressed = Encoding.UTF8.GetString(this.writer.WrittenSpan);
-
         if (!this.decompressor.TryDecompress(this.writer.WrittenSpan, this.decompressedWriter))
         {
             throw new InvalidDataException("Failed to decompress a gateway payload.");
@@ -169,11 +167,6 @@ internal sealed class TransportService : ITransportService
         if (this.logger.IsEnabled(LogLevel.Trace) && RuntimeFeatures.EnableInboundGatewayLogging)
         {
             string result = Encoding.UTF8.GetString(this.decompressedWriter.WrittenSpan);
-
-            if (compressed != result)
-            {
-                this.logger.LogTrace("Compressed payload detected: {compressed}", Convert.ToBase64String(this.writer.WrittenSpan));
-            }
 
             this.logger.LogTrace
             (
