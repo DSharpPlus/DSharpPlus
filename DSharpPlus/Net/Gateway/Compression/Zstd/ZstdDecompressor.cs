@@ -33,4 +33,11 @@ public sealed class ZstdDecompressor : IPayloadDecompressor
 
     /// <inheritdoc/>
     public void Dispose() => this.wrapper.Dispose();
+
+    /// <inheritdoc/>
+    public void Reset()
+    {
+        this.wrapper.Dispose();
+        this.wrapper = new();
+    }
 }

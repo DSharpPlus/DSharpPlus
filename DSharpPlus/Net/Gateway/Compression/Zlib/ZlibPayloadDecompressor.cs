@@ -37,4 +37,10 @@ public sealed class ZlibPayloadDecompressor : IPayloadDecompressor
     {
 
     }
+
+    /// <inheritdoc/>
+    public void Reset()
+    {
+
+    }
 }

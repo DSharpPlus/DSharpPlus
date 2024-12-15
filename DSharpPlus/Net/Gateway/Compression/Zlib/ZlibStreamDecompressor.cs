@@ -12,7 +12,7 @@ namespace DSharpPlus.Net.Gateway.Compression.Zlib;
 /// </summary>
 public sealed class ZlibStreamDecompressor : IPayloadDecompressor
 {
-    private readonly ZlibWrapper wrapper = new();
+    private ZlibWrapper wrapper = new();
 
     /// <inheritdoc/>
     public string Name => "zlib-stream";
@@ -34,4 +34,11 @@ public sealed class ZlibStreamDecompressor : IPayloadDecompressor
 
     /// <inheritdoc/>
     public void Dispose() => this.wrapper.Dispose();
+
+    /// <inheritdoc/>
+    public void Reset()
+    {
+        this.wrapper.Dispose();
+        this.wrapper = new();
+    }
 }

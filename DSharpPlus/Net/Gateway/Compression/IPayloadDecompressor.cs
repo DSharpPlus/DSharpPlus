@@ -26,4 +26,9 @@ public interface IPayloadDecompressor : IDisposable
     /// <param name="decompressed">A buffer writer for writing decompressed data.</param>
     /// <returns>A value indicating whether the operation was successful.</returns>
     public bool TryDecompress(ReadOnlySpan<byte> compressed, ArrayPoolBufferWriter<byte> decompressed);
+
+    /// <summary>
+    /// Resets all internal state to prepare the decompressor for a new connection.
+    /// </summary>
+    public void Reset();
 }
