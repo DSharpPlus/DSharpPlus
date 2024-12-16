@@ -11,7 +11,8 @@ namespace DSharpPlus.Commands;
 internal sealed class ProcessorInvokingHandlers :
     IEventHandler<ContextMenuInteractionCreatedEventArgs>,
     IEventHandler<InteractionCreatedEventArgs>,
-    IEventHandler<MessageCreatedEventArgs>
+    IEventHandler<MessageCreatedEventArgs>,
+    IEventHandler<MessageUpdatedEventArgs>
 {
     private readonly CommandsExtension extension;
 
@@ -44,7 +45,15 @@ internal sealed class ProcessorInvokingHandlers :
     {
         if (this.extension.TryGetProcessor(out TextCommandProcessor? processor))
         {
-            await processor.ExecuteTextCommandAsync(sender, eventArgs);
+            await processor.ExecuteTextCommandAsync(eventArgs);
+        }
+    }
+
+    public async Task HandleEventAsync(DiscordClient sender, MessageUpdatedEventArgs eventArgs)
+    {
+        if (this.extension.TryGetProcessor(out TextCommandProcessor? processor))
+        {
+            await processor.ExecuteTextCommandAsync(eventArgs);
         }
     }
 }
