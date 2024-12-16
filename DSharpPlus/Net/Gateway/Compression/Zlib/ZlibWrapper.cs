@@ -48,7 +48,7 @@ internal readonly struct ZlibWrapper : IDisposable
 
             return true;
         }
-        catch (AccessViolationException)
+        catch // not valid zlib, treat as uncompressed
         {
             return false;
         }

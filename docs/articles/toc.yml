@@ -115,6 +115,8 @@
     topicUid: articles.advanced_topics.metrics_profiling
   - name: Trace Logging
     topicUid: articles.advanced_topics.trace
+  - name: Gateway Compression
+    topicUid: articles.advanced_topics.compression
 - name: Hosting
   topicUid: articles.hosting
 - name: Version Migration
