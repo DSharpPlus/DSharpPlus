@@ -509,6 +509,7 @@ public sealed class CommandsExtension
         stringBuilder.Append(eventArgs.Exception switch
         {
             CommandNotFoundException commandNotFoundException => $"Command ``{commandNotFoundException.CommandName}`` was not found.",
+            CommandRegistrationFailedException => $"Application commands failed to register.",
             ArgumentParseException argumentParseException when argumentParseException.ConversionResult?.Value is not null =>
                 $"Failed to parse argument ``{argumentParseException.Parameter.Name}``: ``{argumentParseException.ConversionResult.Value.ToString() ?? "<null>"}`` is not a valid value. {argumentParseException.Message}",
             ArgumentParseException argumentParseException =>

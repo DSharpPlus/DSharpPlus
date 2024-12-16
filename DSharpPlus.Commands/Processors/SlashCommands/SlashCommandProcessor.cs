@@ -79,6 +79,30 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         }
 
         AsyncServiceScope serviceScope = this.extension.ServiceProvider.CreateAsyncScope();
+
+        if (this.registrationFailed)
+        {
+            await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
+            {
+                Context = new SlashCommandContext()
+                {
+                    Arguments = new Dictionary<CommandParameter, object?>(),
+                    Channel = eventArgs.Interaction.Channel,
+                    Command = null!,
+                    Extension = this.extension,
+                    ServiceScope = serviceScope,
+                    User = eventArgs.Interaction.User,
+                    Interaction = eventArgs.Interaction,
+                    Options = eventArgs.Interaction.Data.Options ?? [],
+                },
+                CommandObject = null,
+                Exception = new CommandRegistrationFailedException(),
+            });
+
+            await serviceScope.DisposeAsync();
+            return;
+        }
+
         if (!TryFindCommand(eventArgs.Interaction, out Command? command, out IReadOnlyList<DiscordInteractionDataOption>? options))
         {
             await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
