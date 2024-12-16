@@ -4,7 +4,7 @@ namespace DSharpPlus.Logging;
 
 internal static partial class AnonymizationUtilities
 {
-    [GeneratedRegex(@"""token"":""[a-zA-Z0-9\-\. ]+""")]
+    [GeneratedRegex(@"""token"":""[a-zA-Z0-9_\-\. ]+""")]
     private static partial Regex GetJsonEncodedTokenRegex();
 
     [GeneratedRegex(@"\/webhooks\/[0-9]+\/[a-zA-Z0-9\-\. ]+\/")]
