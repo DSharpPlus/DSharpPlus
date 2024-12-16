@@ -33,6 +33,9 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
     private static FrozenDictionary<ulong, Command> applicationCommandMapping = FrozenDictionary<ulong, Command>.Empty;
     private static readonly List<DiscordApplicationCommand> applicationCommands = [];
 
+    // if registration failed, this is set to true and will trigger better error messages
+    private bool registrationFailed = false;
+
     /// <summary>
     /// The mapping of application command ids to <see cref="Command"/> objects.
     /// </summary>
@@ -60,34 +63,44 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         Dictionary<ulong, List<DiscordApplicationCommand>> guildsApplicationCommands = [];
         globalApplicationCommands.AddRange(applicationCommands);
 
-        foreach (Command command in processorSpecificCommands)
+        try
         {
-            // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
-            // If there isn't, default to SlashCommands
-            if (command.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute
-                && !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.SlashCommand)
-            )
-            {
-                continue;
-            }
 
-            DiscordApplicationCommand applicationCommand = await ToApplicationCommandAsync(command);
-            if (command.GuildIds.Count == 0)
+            foreach (Command command in processorSpecificCommands)
             {
-                globalApplicationCommands.Add(applicationCommand);
-                continue;
-            }
-
-            foreach (ulong guildId in command.GuildIds)
-            {
-                if (!guildsApplicationCommands.TryGetValue(guildId, out List<DiscordApplicationCommand>? guildCommands))
+                // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
+                // If there isn't, default to SlashCommands
+                if (command.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute
+                    && !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.SlashCommand)
+                )
                 {
-                    guildCommands = [];
-                    guildsApplicationCommands.Add(guildId, guildCommands);
+                    continue;
                 }
 
-                guildCommands.Add(applicationCommand);
+                DiscordApplicationCommand applicationCommand = await ToApplicationCommandAsync(command);
+                if (command.GuildIds.Count == 0)
+                {
+                    globalApplicationCommands.Add(applicationCommand);
+                    continue;
+                }
+
+                foreach (ulong guildId in command.GuildIds)
+                {
+                    if (!guildsApplicationCommands.TryGetValue(guildId, out List<DiscordApplicationCommand>? guildCommands))
+                    {
+                        guildCommands = [];
+                        guildsApplicationCommands.Add(guildId, guildCommands);
+                    }
+
+                    guildCommands.Add(applicationCommand);
+                }
             }
+        }
+        catch (Exception e)
+        {
+            this.logger.LogError(e, "Could not build valid application commands, cancelling application command registration.");
+            this.registrationFailed = true;
+            return;
         }
 
         // we figured our structure out, fetch discord's records of the commands and match basic criteria
