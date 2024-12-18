@@ -1,3 +1,5 @@
+#pragma warning disable CS0659, CS0661
+
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -7,12 +9,11 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace DSharpPlus.Net.Gateway.Compression.Zstd;
 
-internal unsafe partial struct ZstdInterop : IDisposable
+internal readonly unsafe partial struct ZstdInterop : IDisposable, IEquatable<ZstdInterop>
 {
     // must be stored as a pointer. we don't enlighten managed code about the exact layout of this, and we don't
     // really want to.
     private readonly ZstdStream* stream;
-    private bool isCompleted = true;
 
     internal static int RecommendedBufferSize { get; } = (int)Bindings.ZSTD_DStreamOutSize();
 
@@ -26,7 +27,7 @@ internal unsafe partial struct ZstdInterop : IDisposable
 
     public bool TryDecompress(ReadOnlySpan<byte> compressed, ArrayPoolBufferWriter<byte> decompressed)
     {
-        this.isCompleted = false;
+        bool isCompleted = false;
 
         while (true)
         {
@@ -60,7 +61,7 @@ internal unsafe partial struct ZstdInterop : IDisposable
                     {
                         if (outputBuffer.position < outputBuffer.size)
                         {
-                            this.isCompleted = true;
+                            isCompleted = true;
                             break;
                         }
 
@@ -79,7 +80,7 @@ internal unsafe partial struct ZstdInterop : IDisposable
             }
         }
 
-        return this.isCompleted;
+        return isCompleted;
     }
 
     public void Dispose()
@@ -87,6 +88,12 @@ internal unsafe partial struct ZstdInterop : IDisposable
         nuint code = Bindings.ZSTD_freeDStream(this.stream);
         Debug.Assert(Bindings.ZSTD_getErrorCode(code) == ZstdErrorCode.NoError);
     }
+
+    public override readonly bool Equals(object? obj) => obj is ZstdInterop interop && Equals(interop);
+    public readonly bool Equals(ZstdInterop other) => this.stream == other.stream;
+
+    public static bool operator ==(ZstdInterop left, ZstdInterop right) => left.Equals(right);
+    public static bool operator !=(ZstdInterop left, ZstdInterop right) => !(left == right);
 }
 
 static file class ThrowHelper

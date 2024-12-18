@@ -39,6 +39,17 @@ public sealed class ZlibStreamDecompressor : IPayloadDecompressor
     public void Reset()
     {
         this.wrapper.Dispose();
+        this.wrapper = default;
+    }
+
+    /// <inheritdoc/>
+    public void Initialize()
+    {
+        if (this.wrapper != default)
+        {
+            Reset();
+        }
+
         this.wrapper = new();
     }
 }

@@ -1,3 +1,5 @@
+#pragma warning disable CS0659, CS0661, IDE0040
+
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -5,7 +7,7 @@ using ZstdErrorCodeConvertible = nuint;
 
 namespace DSharpPlus.Net.Gateway.Compression.Zstd;
 
-internal unsafe partial struct ZstdInterop
+partial struct ZstdInterop
 {
     // ZstdInterop.Bindings is a nested type to lazily load zstd. the native load is done by the static constructor,
     // which will not be executed unless this code actually gets used. since we cannot rely on zstd being present at all

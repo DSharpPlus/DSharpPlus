@@ -1,3 +1,5 @@
+#pragma warning disable CS0659, CS0661
+
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -9,7 +11,7 @@ namespace DSharpPlus.Net.Gateway.Compression.Zlib;
 /// <summary>
 /// A thin wrapper around zlib natives to provide decompression.
 /// </summary>
-internal readonly struct ZlibWrapper : IDisposable
+internal readonly struct ZlibWrapper : IDisposable, IEquatable<ZlibWrapper>
 {
     private readonly ZLibStream stream;
     private readonly MemoryStream underlying;
@@ -63,4 +65,10 @@ internal readonly struct ZlibWrapper : IDisposable
         this.stream.Dispose();
         this.underlying.Dispose();
     }
+
+    public override bool Equals(object? obj) => obj is ZlibWrapper wrapper && Equals(wrapper);
+    public bool Equals(ZlibWrapper other) => this.stream == other.stream && this.underlying == other.underlying;
+
+    public static bool operator ==(ZlibWrapper left, ZlibWrapper right) => left.Equals(right);
+    public static bool operator !=(ZlibWrapper left, ZlibWrapper right) => !(left == right);
 }

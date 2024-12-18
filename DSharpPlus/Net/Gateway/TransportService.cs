@@ -55,7 +55,7 @@ internal sealed class TransportService : ITransportService
             : this.factory.CreateLogger($"DSharpPlus.Net.Gateway.ITransportService - Shard {shardId}");
 
         this.socket = new();
-        this.decompressor.Reset();
+        this.decompressor.Initialize();
 
         ObjectDisposedException.ThrowIf(this.isDisposed, this);
 
@@ -126,6 +126,7 @@ internal sealed class TransportService : ITransportService
                 break;
         }
 
+        this.decompressor.Reset();
         this.socket.Dispose();
     }
 

@@ -28,7 +28,12 @@ public interface IPayloadDecompressor : IDisposable
     public bool TryDecompress(ReadOnlySpan<byte> compressed, ArrayPoolBufferWriter<byte> decompressed);
 
     /// <summary>
-    /// Resets all internal state to prepare the decompressor for a new connection.
+    /// Initializes the decompressor for a new connection.
+    /// </summary>
+    public void Initialize();
+
+    /// <summary>
+    /// Frees and destroys all internal state when a connection has terminated.
     /// </summary>
     public void Reset();
 }

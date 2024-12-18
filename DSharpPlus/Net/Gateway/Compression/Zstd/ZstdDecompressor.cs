@@ -10,7 +10,7 @@ namespace DSharpPlus.Net.Gateway.Compression.Zstd;
 /// </summary>
 public sealed class ZstdDecompressor : IPayloadDecompressor
 {
-    private ZstdInterop wrapper = new();
+    private ZstdInterop wrapper;
 
     /// <inheritdoc/>
     public string Name => "zstd-stream";
@@ -32,12 +32,35 @@ public sealed class ZstdDecompressor : IPayloadDecompressor
     }
 
     /// <inheritdoc/>
-    public void Dispose() => this.wrapper.Dispose();
+    public void Dispose()
+    {
+        this.wrapper.Dispose();
+        GC.SuppressFinalize(this);
+    }
 
     /// <inheritdoc/>
     public void Reset()
     {
         this.wrapper.Dispose();
+        this.wrapper = default;
+    }
+
+    /// <inheritdoc/>
+    public void Initialize()
+    {
+        if (this.wrapper != default)
+        {
+            Reset();
+        }
+
         this.wrapper = new();
+    }
+
+    /// <summary>
+    /// Frees the unmanaged zstd stream.
+    /// </summary>
+    ~ZstdDecompressor()
+    {
+        this.wrapper.Dispose();
     }
 }

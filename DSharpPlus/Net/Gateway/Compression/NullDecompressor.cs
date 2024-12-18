@@ -35,4 +35,10 @@ public sealed class NullDecompressor : IPayloadDecompressor
     {
 
     }
+
+    /// <inheritdoc/>
+    public void Initialize()
+    {
+
+    }
 }
