@@ -30,7 +30,7 @@ Then, migrate your configuration options. Rest-related settings from your old Di
 
 `LogLevel` has been migrated to `DiscordClientBuilder.SetLogLevel`, and configuring the gateway client is now done through either overriding or decorating the default client via `DiscordClientBuilder.ConfigureServices`. It is comprised of two parts, `ITransportService` and `IGatewayClient`
 
-Then, we will need to update event handling. For more information, see [the dedicated article](../beyond_basics/events), but in short, events have also been migrated to DiscordClientBuilder: events are now handled through `DiscordClientBuilder.ConfigureEventHandlers`. You can register handlers on the configuration delegate as follows:
+Then, we will need to update event handling. For more information, see [the dedicated article](../beyond_basics/events.md), but in short, events have also been migrated to DiscordClientBuilder: events are now handled through `DiscordClientBuilder.ConfigureEventHandlers`. You can register handlers on the configuration delegate as follows:
 
 ```cs
 builder.ConfigureEventHandlers

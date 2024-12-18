@@ -21,7 +21,7 @@ Discord provides a special feature to slash command options called "choices." Ch
 ## Auto-complete
 Auto-complete, on the other hand, is a feature that allows the user to type in a value and Discord will return a list of suggestions retrieved from your bot. The user can select from the list of suggestions or continue typing. This is useful when you have a large number of options or when the options are dynamic and can change at runtime.
 
-![A Discord screenshot of the `tag get` command. As the user types, the list of tags changes.](../../../../images/commands_auto-complete_example.png)
+![A Discord screenshot of the `tag get` command. As the user types, the list of tags changes.](../../../../images/commands_autocomplete_example.png)
 
 As the user types in the text, Discord will send a request to your bot to get the list of auto-complete suggestions. The user can then select from the list of suggestions or continue typing whatever they want.
 

@@ -72,4 +72,4 @@ serviceCollection.UseCommands((IServiceProvider serviceProvider, CommandsExtensi
 
 And now your commands should be registered with the naming format you've chosen:
 
-[!A screenshot of the `/quote` command, listing several messages with the following parameter names: `first_message_link`, `second_message_link`, `third_message_link`, `fourth_message_link` and `fifth_message_link`.](../../images/commands/processors/slash_commands/naming_policies/ordinal_snake_case.png)
+[!A screenshot of the `/quote` command, listing several messages with the following parameter names: `first_message_link`, `second_message_link`, `third_message_link`, `fourth_message_link` and `fifth_message_link`.](../../../../images/ordinal_snake_case.png)
