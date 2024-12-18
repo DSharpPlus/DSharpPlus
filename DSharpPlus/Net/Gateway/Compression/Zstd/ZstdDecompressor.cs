@@ -11,6 +11,7 @@ namespace DSharpPlus.Net.Gateway.Compression.Zstd;
 public sealed class ZstdDecompressor : IPayloadDecompressor
 {
     private ZstdInterop wrapper;
+    private bool isInitialized = false;
 
     /// <inheritdoc/>
     public string Name => "zstd-stream";
@@ -21,6 +22,11 @@ public sealed class ZstdDecompressor : IPayloadDecompressor
     /// <inheritdoc/>
     public bool TryDecompress(ReadOnlySpan<byte> compressed, ArrayPoolBufferWriter<byte> decompressed)
     {
+        if (!this.isInitialized)
+        {
+            return false;
+        }
+
         // the magic header goes missing, we have to try it anyway - all explodes if we fix the magic header up :ioa:
         if (!this.wrapper.TryDecompress(compressed, decompressed))
         {
@@ -34,7 +40,11 @@ public sealed class ZstdDecompressor : IPayloadDecompressor
     /// <inheritdoc/>
     public void Dispose()
     {
-        this.wrapper.Dispose();
+        if (this.isInitialized)
+        {
+            this.wrapper.Dispose();
+        }
+
         GC.SuppressFinalize(this);
     }
 
@@ -42,18 +52,19 @@ public sealed class ZstdDecompressor : IPayloadDecompressor
     public void Reset()
     {
         this.wrapper.Dispose();
-        this.wrapper = default;
+        this.isInitialized = false;
     }
 
     /// <inheritdoc/>
     public void Initialize()
     {
-        if (this.wrapper != default)
+        if (this.isInitialized)
         {
             Reset();
         }
 
         this.wrapper = new();
+        this.isInitialized = true;
     }
 
     /// <summary>
@@ -61,6 +72,9 @@ public sealed class ZstdDecompressor : IPayloadDecompressor
     /// </summary>
     ~ZstdDecompressor()
     {
-        this.wrapper.Dispose();
+        if (this.isInitialized)
+        {
+            this.wrapper.Dispose();
+        }
     }
 }
