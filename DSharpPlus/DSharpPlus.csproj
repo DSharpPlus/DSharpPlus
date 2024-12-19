@@ -3,6 +3,7 @@
     <PackageId>DSharpPlus</PackageId>
     <Description>A C# API for Discord based off DiscordSharp, but rewritten to fit the API standards.</Description>
     <PackageTags>$(PackageTags), webhooks</PackageTags>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IsPackable>true</IsPackable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>Preview</LangVersion>
