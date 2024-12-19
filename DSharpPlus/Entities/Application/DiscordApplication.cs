@@ -209,8 +209,8 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         if (transportApplication.Team == null)
         {
             // singular owner
-
-            this.Owners = new ReadOnlyCollection<DiscordUser>(new[] { new DiscordUser(transportApplication.Owner) });
+            DiscordUser owner = new(transportApplication.Owner ?? throw new InvalidOperationException() ) {Discord = this.Discord};
+            this.Owners = new ReadOnlyCollection<DiscordUser>([owner]);
             this.Team = null;
         }
         else
@@ -220,7 +220,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
             this.Team = new DiscordTeam(transportApplication.Team);
 
             DiscordTeamMember[] members = transportApplication.Team.Members
-                .Select(x => new DiscordTeamMember(x) { Team = this.Team, User = new DiscordUser(x.User) })
+                .Select(x => new DiscordTeamMember(x) { Team = this.Team, User = new DiscordUser(x.User){Discord = this.Discord} })
                 .ToArray();
 
             DiscordUser[] owners = members
@@ -229,7 +229,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
                 .ToArray();
 
             this.Owners = new ReadOnlyCollection<DiscordUser>(owners);
-            this.Team.Owner = owners.FirstOrDefault(x => x.Id == transportApplication.Team.OwnerId);
+            this.Team.Owner = owners.First(x => x.Id == transportApplication.Team.OwnerId);
             this.Team.Members = new ReadOnlyCollection<DiscordTeamMember>(members);
         }
     }
