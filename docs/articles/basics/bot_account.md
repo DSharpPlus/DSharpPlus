@@ -31,6 +31,11 @@ Before you move on, you may want to upload an icon for your application and prov
 will do. As with the name of your application, the application icon and description will be displayed to users when
 adding your bot.
 
+If you want your bot to be private so that only you can add it to servers, make sure to set `Install Link` to `None` on the
+installation page. Otherwise, you will get an error when turning off `Public Bot` on the bot page.
+
+![Installation Page][5]
+
 # Using Your Bot Account
 
 ## Invite Your Bot
@@ -41,19 +46,19 @@ A bot account joins a server through a special invite link that'll take users th
 be familiar with this if you've ever added a public Discord bot to a server. To get the invite link for your bot, head
 on over to the OAuth2 page of your application.
 
-![OAuth2][5]
+![OAuth2][6]
 
 <br/>
 We'll be using the *OAuth2 URL Generator* on this page. Simply tick `bot` under the *scopes* panel; your bot invite link
 will be generated directly below.
 
-![OAuth2 Scopes][6]
+![OAuth2 Scopes][7]
 
 <br/>
 By default, the generated link will not grant any permissions to your bot when it joins a new server. If your bot
 requires specific permissions to function, you'd select them in the *bot permissions* panel.
 
-![Permissions][7]
+![Permissions][8]
 
 The invite link in the *scopes* panel will update each time you change the permissions. Be sure to copy it again after
 any changes!
@@ -65,15 +70,15 @@ authenticate. You'll want to retrieve the token for your bot account so you can 
 
 Head back to the bot page and click on `Reset Token`.
 
-![Token Reset][8]
+![Token Reset][9]
 
 Confirm that you want to reset the token and enter your 2FA code when prompted.
 
-![Token Confirmation][9]
+![Token Confirmation][10]
 
 Go ahead and copy your bot token and save it somewhere. You'll be using it soon!
 
-![Token Copy][10]
+![Token Copy][11]
 
 >[!IMPORTANT]
 > Handle your bot token with care! Anyone who has your token will have access to your bot account.
@@ -92,10 +97,11 @@ You've got a bot account set up and a token ready for use. Sounds like it's time
 [2]: ../../images/basics_bot_account_01.png "Creating an Application"
 [3]: ../../images/basics_bot_account_02.png "Naming our new Application"
 [4]: ../../images/basics_bot_account_03.png "Opening the Bot Page"
-[5]: ../../images/basics_bot_account_04.png "The OAuth2 Page"
-[6]: ../../images/basics_bot_account_05.png "Scopes Panel"
-[7]: ../../images/basics_bot_account_06.png "Permissions Panel"
-[8]: ../../images/basics_bot_account_07.png "Resetting the Token"
-[9]: ../../images/basics_bot_account_08.png "Confirming the Reset"
-[10]: ../../images/basics_bot_account_09.png "Copying the new Token"
-[11]: xref:articles.basics.first_bot
+[5]: ../../images/basics_bot_account_04.png "Making the Bot Private"
+[6]: ../../images/basics_bot_account_05.png "The OAuth2 Page"
+[7]: ../../images/basics_bot_account_06.png "Scopes Panel"
+[8]: ../../images/basics_bot_account_07.png "Permissions Panel"
+[9]: ../../images/basics_bot_account_08.png "Resetting the Token"
+[10]: ../../images/basics_bot_account_09.png "Confirming the Reset"
+[11]: ../../images/basics_bot_account_10.png "Copying the new Token"
+[12]: xref:articles.basics.first_bot
