@@ -89,7 +89,7 @@ Go ahead and copy your bot token and save it somewhere. You'll be using it soon!
 
 ## Write Some Code
 
-You've got a bot account set up and a token ready for use. Sounds like it's time for you to [write your first bot][11]!
+You've got a bot account set up and a token ready for use. Sounds like it's time for you to [write your first bot][12]!
 
 <!-- LINKS -->
 [0]: https://discord.com/developers/docs/topics/oauth2#bot-users
