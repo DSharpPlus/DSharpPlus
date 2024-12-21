@@ -27,12 +27,12 @@ See the table below for supported [.NET implementations][16]:
 | DSharpPlus Branch | .NET | .NET Core | .NET Framework |
 | :---------- | :-----: | :-----: | :-----: | 
 | [Stable][17], `v4.5.X` | `v8.0` - `v9.0`</br>✔️ |  `v3.1`</br>⚠️ | `v4.6.1` - `v4.8.1`</br>⚠️ |
-| [Nightly][18], `v5.0` | `v9.0`</br>✔️ | `v3.1`</br>⚠️ | ❌ |
-| [Future][19], `v6.0` | `v9.0`</br>✔️ | ❌ | ❌ |
+| [Nightly][18], `v5.0` | `v9.0`</br>✔️ | ❌ | ❌ |
+| [Future][19], `v6.0` | `v10.0`</br>✔️ | ❌ | ❌ |
 
 <sub> ✔️ `Recommended and supported`  &nbsp;●&nbsp; ⚠️ `Unsupported, might still work` &nbsp;●&nbsp; ❌ `Unsupported, do not use`</sub>
 
-Generally, you should be targeting the latest LTS version of .NET.
+Generally, you should be targeting the latest version of .NET.
 
 .NET Core and [.NET Framework][5] are not directly targeted by DSharpPlus, but may work in some senarios because of the [.NET Standard][20].
 
