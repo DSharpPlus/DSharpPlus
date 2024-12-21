@@ -162,7 +162,7 @@ public static partial class ServiceCollectionExtensions
 
         static bool DeriveCurrentRidAndTestZstd()
         {
-            string dsharpplusPath = Assembly.GetCallingAssembly().Location.TrimEnd("DSharpPlus.dll");
+            string dsharpplusPath = Assembly.GetCallingAssembly().Location[..^14];
 
             if (OperatingSystem.IsWindows())
             {
