@@ -48,6 +48,7 @@ public sealed class GatewayClient : IGatewayClient
 
     private GatewayPayload? identify;
     private CancellationTokenSource gatewayTokenSource;
+    private bool closureRequested = false;
 
     /// <inheritdoc/>
     public bool IsConnected { get; private set; }
@@ -93,6 +94,8 @@ public sealed class GatewayClient : IGatewayClient
         ShardInfo? shardInfo = null
     )
     {
+        this.closureRequested = false;
+
         this.logger = shardInfo is null
             ? this.factory.CreateLogger("DSharpPlus.Net.Gateway.IGatewayClient")
             : this.factory.CreateLogger($"DSharpPlus.Net.Gateway.IGatewayClient - Shard {shardInfo.ShardId}");
@@ -188,6 +191,7 @@ public sealed class GatewayClient : IGatewayClient
     /// <inheritdoc/>
     public async ValueTask DisconnectAsync()
     {
+        this.closureRequested = true;
         this.IsConnected = false;
         this.gatewayTokenSource.Cancel();
         await this.transportService.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
@@ -503,6 +507,12 @@ public sealed class GatewayClient : IGatewayClient
 
     private async Task HandleErrorAndAttemptToReconnectAsync(TransportFrame frame)
     {
+        if(this.closureRequested)
+        {
+            this.logger.LogDebug("Connection was requested to be closed, ignoring any errors.");
+            return;
+        }
+
         if (frame.TryGetException<WebSocketException>(out _))
         {
             await TryResumeAsync();
@@ -578,6 +588,9 @@ public sealed class GatewayClient : IGatewayClient
     }
 
     /// <inheritdoc/>
-    public async ValueTask ReconnectAsync() 
-        => _ = await TryReconnectAsync();
+    public async ValueTask ReconnectAsync()
+    {
+        this.closureRequested = false; // Manual reconnect, so we're not closing
+        _ = await TryReconnectAsync();
+    }
 }
