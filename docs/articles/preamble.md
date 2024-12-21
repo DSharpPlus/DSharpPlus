@@ -4,7 +4,7 @@ title: Article Preamble
 ---
 
 >[!NOTE]
-> This documentation is built from the newest nightly (prerelease) DSharpPlus version.
+> These articles and the [API documentation][11] are built for the latest [nightly][18] version (`v5.0`)
 
 ## Knowledge Prerequisites
 
