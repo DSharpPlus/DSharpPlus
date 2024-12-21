@@ -3,7 +3,7 @@ uid: articles.preamble
 title: Article Preamble
 ---
 
-> [!IMPORTANT]
+>[!NOTE]
 > This documentation is built from the newest nightly (prerelease) DSharpPlus version.
 
 ## Knowledge Prerequisites
@@ -20,28 +20,25 @@ you're not sure what to do first, Bob's tutorial series should be your starting 
 
 ## Supported .NET Implementations
 
-There are multiple different development and maintenance branches of DSharpPlus targeting different [.NET][4] versions and supported
-on different .NET versions.
+There are multiple different branches of DSharpPlus targeting different [.NET][4] versions.
 
-IF you are using [Unity][7], [Mono][6] or [the .NET Framework][5], no support will be provided, and your project might break at any given
-moment. .NET Framework 4.6.1 through 4.8.1 *should* work, but we will not provide support or fixes for any issues arising there.
-Additionally, if you are using a game engine with C# support (such as Unity), you should consider using the [Discord GameSDK][8]
-instead of DSharpPlus.
+See the table below for supported [.NET implementations][16]:
 
-If you use unsupported software, you are on your own with any arising issues.
+| DSharpPlus Branch | .NET | .NET Core | .NET Framework |
+| :---------- | :-----: | :-----: | :-----: | 
+| [Stable][17], `v4.5.X` | `v8.0` - `v9.0`</br>✔️ |  `v3.1`</br>⚠️ | `v4.6.1` - `v4.8.1`</br>⚠️ |
+| [Nightly][18], `v5.0` | `v9.0`</br>✔️ | `v3.1`</br>⚠️ | ❌ |
+| [Future][19], `v6.0` | `v9.0`</br>✔️ | ❌ | ❌ |
 
-#### Latest Stable 4.5.0
+<sub> ✔️ `Recommended and supported`  &nbsp;●&nbsp; ⚠️ `Unsupported, might still work` &nbsp;●&nbsp; ❌ `Unsupported, do not use`</sub>
 
-Version 4.5.0 *should* work on .NET and .NET Core versions after 3.1 and is supported from version 8.0 upwards.
+Generally, you should be targeting the latest LTS version of .NET.
 
-#### Nightly 5.0
+.NET Core and [.NET Framework][5] are not directly targeted by DSharpPlus, but may work in some senarios because of the [.NET Standard][20].
 
-5.0 nightly builds target .NET 9.0, and will target the latest stable .NET version going forward.
+Using [Unity][7], [Mono][6], [.NET Framework][5], or any other .NET implementation other than the ones listed with a `✔️` above are _not_ supported by DSharpPlus, and you will be on your own regarding any arising issues.
 
-#### 6.0 early work
-
-6.0 work targets the latest available bleeding edge of .NET, and will target the latest stable .NET version once there is a semblance
-of completion and stability on the v6 branch.
+If you are using a game engine with C# support (such as [Unity][7]), you should consider using the [Discord GameSDK][8] instead of DSharpPlus. 
 
 ## Getting Started
 
@@ -78,3 +75,8 @@ You can get in contact with us on Discord through one of the following guilds:
 [13]: https://discord.gg/dsharpplus
 [14]: https://discordapp.com/api/guilds/81384788765712384/embed.png?style=banner2
 [15]: https://discord.gg/discord-api
+[16]: https://learn.microsoft.com/en-us/dotnet/fundamentals/implementations
+[17]: https://github.com/DSharpPlus/DSharpPlus/tree/release/4.5
+[18]: https://github.com/DSharpPlus/DSharpPlus/tree/master
+[19]: https://github.com/DSharpPlus/DSharpPlus/tree/v6
+[20]: https://learn.microsoft.com/en-us/dotnet/standard/net-standard
