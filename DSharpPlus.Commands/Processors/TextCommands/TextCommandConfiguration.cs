@@ -25,5 +25,10 @@ public record TextCommandConfiguration
     /// </summary>
     public bool SuppressMissingMessageContentIntentWarning { get; set; }
 
+    /// <summary>
+    /// Whether commands should rerun whenever a message is edited/updated.
+    /// </summary>
+    public bool EnableEditCommands { get; set; }
+
     public IEqualityComparer<string> CommandNameComparer { get; init; } = StringComparer.OrdinalIgnoreCase;
 }
