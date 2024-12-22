@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Channels;
 
@@ -146,7 +147,7 @@ public static partial class ServiceCollectionExtensions
 
     private static IServiceCollection RegisterBestDecompressor(this IServiceCollection services)
     {
-        if (NativeLibrary.TryLoad("libzstd", out _))
+        if (NativeLibrary.TryLoad("libzstd", Assembly.GetEntryAssembly(), default, out _))
         {
             services.AddTransient<IPayloadDecompressor, ZstdDecompressor>();
         }
