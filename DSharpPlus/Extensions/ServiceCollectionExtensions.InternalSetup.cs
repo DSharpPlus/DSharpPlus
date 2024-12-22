@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Channels;
 
@@ -15,9 +16,6 @@ using DSharpPlus.Net.Gateway.Compression.Zstd;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Reflection;
-using System.IO;
 
 namespace DSharpPlus.Extensions;
 
@@ -149,7 +147,7 @@ public static partial class ServiceCollectionExtensions
 
     private static IServiceCollection RegisterBestDecompressor(this IServiceCollection services)
     {
-        if (NativeLibrary.TryLoad("libzstd", out _) || DeriveCurrentRidAndTestZstd())
+        if (NativeLibrary.TryLoad("libzstd", Assembly.GetEntryAssembly(), default, out _))
         {
             services.AddTransient<IPayloadDecompressor, ZstdDecompressor>();
         }
@@ -159,50 +157,5 @@ public static partial class ServiceCollectionExtensions
         }
 
         return services;
-
-        static bool DeriveCurrentRidAndTestZstd()
-        {
-            string dsharpplusPath = Assembly.GetCallingAssembly().Location[..^14];
-
-            if (OperatingSystem.IsWindows())
-            {
-                // zstd is supported on win-x64 and win-arm64
-                string? path = RuntimeInformation.ProcessArchitecture switch
-                {
-                    Architecture.X64 => Path.Join(dsharpplusPath, "runtimes/win-x64/native/libzstd.dll"),
-                    Architecture.Arm64 => Path.Join(dsharpplusPath, "runtimes/win-arm64/native/libzstd.dll"),
-                    _ => null
-                };
-
-                return path is not null && NativeLibrary.TryLoad(path, out _);
-            }
-
-            if (OperatingSystem.IsLinux())
-            {
-                // zstd is supported on linux-x64 and linux-arm64
-                string? path = RuntimeInformation.ProcessArchitecture switch
-                {
-                    Architecture.X64 => Path.Join(dsharpplusPath, "runtimes/linux-x64/native/libzstd.so"),
-                    Architecture.Arm64 => Path.Join(dsharpplusPath, "runtimes/linux-arm64/native/libzstd.so"),
-                    _ => null
-                };
-
-                return path is not null && NativeLibrary.TryLoad(path, out _);
-            }
-
-            if (OperatingSystem.IsMacOS())
-            {
-                // zstd is supported on osx, either x64 or arm64 - we have one "fat" dylib for both targets, so
-                string? path = RuntimeInformation.ProcessArchitecture switch
-                {
-                    Architecture.X64 or Architecture.Arm64 => Path.Join(dsharpplusPath, "runtimes/osx/native/libzstd.dylib"),
-                    _ => null
-                };
-
-                return path is not null && NativeLibrary.TryLoad(path, out _);
-            }
-
-            return false;
-        }
     }
 }
