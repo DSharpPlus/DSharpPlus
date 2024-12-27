@@ -23,8 +23,8 @@
 
   <!-- Nuget -->
   <PropertyGroup>
-    <Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, IDoEverything, Velvet, OoLunar, akiraveliara, DSharpPlus contributors</Authors>
-    <Company>DSharpPlus developers</Company>
+    <Authors>DSharpPlus</Authors>
+    <Company>DSharpPlus contributors</Company>
     <PackageIcon>dsharpplus.png</PackageIcon>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/DSharpPlus/DSharpPlus</PackageProjectUrl>
