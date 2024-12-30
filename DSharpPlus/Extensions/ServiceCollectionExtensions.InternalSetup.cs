@@ -55,7 +55,7 @@ public static partial class ServiceCollectionExtensions
             (
                 new UnboundedChannelOptions 
                 {
-                    SingleReader = true 
+                    SingleReader = false 
                 }
             ))
             .AddTransient<ITransportService, TransportService>()

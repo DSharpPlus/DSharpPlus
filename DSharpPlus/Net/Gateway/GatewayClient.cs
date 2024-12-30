@@ -2,12 +2,14 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Net.WebSockets;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Gateway.Compression;
 using DSharpPlus.Net.Serialization;
@@ -30,6 +32,7 @@ public sealed class GatewayClient : IGatewayClient
     private readonly ChannelWriter<GatewayPayload> eventWriter;
     private readonly GatewayClientOptions options;
     private readonly ILoggerFactory factory;
+    private readonly EventHandlerCollection handlers;
     private readonly string token;
     private readonly bool compress;
 
@@ -69,7 +72,8 @@ public sealed class GatewayClient : IGatewayClient
         IPayloadDecompressor decompressor,
         IOptions<GatewayClientOptions> options,
         IGatewayController controller,
-        ILoggerFactory factory
+        ILoggerFactory factory,
+        IOptions<EventHandlerCollection> handlers
     )
     {
         this.transportService = transportService;
@@ -80,6 +84,7 @@ public sealed class GatewayClient : IGatewayClient
         this.compress = !decompressor.IsTransportCompression;
         this.options = options.Value;
         this.controller = controller;
+        this.handlers = handlers.Value;
 
         this.logger = factory.CreateLogger("DSharpPlus.Net.Gateway.IGatewayClient - invalid shard");
     }
@@ -355,13 +360,46 @@ public sealed class GatewayClient : IGatewayClient
                         continue;
                 }
 
-                await this.eventWriter.WriteAsync(payload, ct);
+                if (CheckShouldBeEnqueued(payload))
+                {
+                    await this.eventWriter.WriteAsync(payload, ct);
+                }
             }
         }
         catch (Exception e)
         {
             this.logger.LogError(e, "An exception occurred in event handling.");
         }
+
+#pragma warning disable IDE0046
+        bool CheckShouldBeEnqueued(GatewayPayload payload)
+        {
+            if (!this.options.EnableEventQueuePruning)
+            {
+                return true;
+            }
+
+            // similarly, if the user has an unconditional handler enabled, don't bother checking
+            if (this.handlers[typeof(DiscordEventArgs)] is not [])
+            {
+                return true;
+            }
+
+            if (payload.OpCode != GatewayOpCode.Dispatch)
+            {
+                return true;
+            }
+
+            // these events are always enqueued
+            if (payload.EventName is "GUILD_CREATE" or "GUILD_DELETE" or "CHANNEL_CREATE" or "CHANNEL_DELETE" or "INTERACTION_CREATE"
+                or "GUILD_MEMBERS_CHUNK" or "READY" or "RESUMED")
+            {
+                return true;
+            }
+
+            return this.handlers[GetEventArgsType(payload.EventName)] is not [];
+        }
+#pragma warning restore IDE0046
     }
 
     /// <summary>
@@ -592,5 +630,78 @@ public sealed class GatewayClient : IGatewayClient
     {
         this.closureRequested = false; // Manual reconnect, so we're not closing
         _ = await TryReconnectAsync();
+    }
+
+    private Type GetEventArgsType(string eventName)
+    {
+        // since we have nothing to sync Dispatch.cs and this, the event queue pruning option may... not work optimally
+        return eventName switch
+        {
+            "APPLICATION_COMMAND_PERMISSIONS_UPDATE" => typeof(ApplicationCommandPermissionsUpdatedEventArgs),
+            "AUTO_MODERATION_RULE_CREATE" => typeof(AutoModerationRuleCreatedEventArgs),
+            "AUTO_MODERATION_RULE_UPDATE" => typeof(AutoModerationRuleUpdatedEventArgs),
+            "AUTO_MODERATION_RULE_DELETE" => typeof(AutoModerationRuleDeletedEventArgs),
+            "AUTO_MODERATION_ACTION_EXECUTION" => typeof(AutoModerationRuleExecutedEventArgs),
+            "CHANNEL_CREATE" => typeof(ChannelCreatedEventArgs),
+            "CHANNEL_UPDATE" => typeof(ChannelUpdatedEventArgs),
+            "CHANNEL_DELETE" => typeof(ChannelDeletedEventArgs),
+            "CHANNEL_PINS_UPDATE" => typeof(ChannelPinsUpdatedEventArgs),
+            "THREAD_CREATE" => typeof(ThreadCreatedEventArgs),
+            "THREAD_UPDATE" => typeof(ThreadUpdatedEventArgs),
+            "THREAD_DELETE" => typeof(ThreadDeletedEventArgs),
+            "THREAD_LIST_SYNC" => typeof(ThreadListSyncedEventArgs),
+            "THREAD_MEMBER_UPDATE" => typeof(ThreadMemberUpdatedEventArgs),
+            "THREAD_MEMBERS_UPDATE" => typeof(ThreadMembersUpdatedEventArgs),
+            "ENTITLEMENT_CREATE" => typeof(EntitlementCreatedEventArgs),
+            "ENTITLEMENT_UPDATE" => typeof(EntitlementUpdatedEventArgs),
+            "ENTITLEMENT_DELETE" => typeof(EntitlementDeletedEventArgs),
+            "GUILD_CREATE" => typeof(GuildCreatedEventArgs),
+            "GUILD_UPDATE" => typeof(GuildUpdatedEventArgs),
+            "GUILD_DELETE" => typeof(GuildDeletedEventArgs),
+            "GUILD_AUDIT_LOG_ENTRY_CREATE" => typeof(GuildAuditLogCreatedEventArgs),
+            "GUILD_BAN_ADD" => typeof(GuildBanAddedEventArgs),
+            "GUILD_BAN_REMOVE" => typeof(GuildBanRemovedEventArgs),
+            "GUILD_EMOJIS_UPDATE" => typeof(GuildEmojisUpdatedEventArgs),
+            "GUILD_STICKERS_UPDATE" => typeof(GuildStickersUpdatedEventArgs),
+            "GUILD_INTEGRATIONS_UPDATE" => typeof(GuildIntegrationsUpdatedEventArgs),
+            "GUILD_MEMBER_ADD" => typeof(GuildMemberAddedEventArgs),
+            "GUILD_MEMBER_REMOVE" => typeof(GuildMemberRemovedEventArgs),
+            "GUILD_MEMBER_UPDATE" => typeof(GuildMemberUpdatedEventArgs),
+            "GUILD_MEMBERS_CHUNK" => typeof(GuildMembersChunkedEventArgs),
+            "GUILD_ROLE_CREATE" => typeof(GuildRoleCreatedEventArgs),
+            "GUILD_ROLE_UPDATE" => typeof(GuildRoleUpdatedEventArgs),
+            "GUILD_ROLE_DELETE" => typeof(GuildRoleDeletedEventArgs),
+            "GUILD_SCHEDULED_EVENT_CREATE" => typeof(ScheduledGuildEventCreatedEventArgs),
+            "GUILD_SCHEDULED_EVENT_UPDATE" => typeof(ScheduledGuildEventUpdatedEventArgs),
+            "GUILD_SCHEDULED_EVENT_DELETE" => typeof(ScheduledGuildEventDeletedEventArgs),
+            "GUILD_SCHEDULED_EVENT_USER_ADD" => typeof(ScheduledGuildEventUserAddedEventArgs),
+            "GUILD_SCHEDULED_EVENT_USER_REMOVE" => typeof(ScheduledGuildEventUserRemovedEventArgs),
+            "INTEGRATION_CREATE" => typeof(IntegrationCreatedEventArgs),
+            "INTEGRATION_UPDATE" => typeof(IntegrationUpdatedEventArgs),
+            "INTEGRATION_DELETE" => typeof(IntegrationDeletedEventArgs),
+            "INTERACTION_CREATE" => typeof(InteractionCreatedEventArgs),
+            "INVITE_CREATE" => typeof(InviteCreatedEventArgs),
+            "INVITE_DELETE" => typeof(InviteDeletedEventArgs),
+            "MESSAGE_CREATE" => typeof(MessageCreatedEventArgs),
+            "MESSAGE_UPDATE" => typeof(MessageUpdatedEventArgs),
+            "MESSAGE_DELETE" => typeof(MessageDeletedEventArgs),
+            "MESSAGE_DELETE_BULK" => typeof(MessagesBulkDeletedEventArgs),
+            "MESSAGE_REACTION_ADD" => typeof(MessageReactionAddedEventArgs),
+            "MESSAGE_REACTION_REMOVE" => typeof(MessageReactionRemovedEventArgs),
+            "MESSAGE_REACTION_REMOVE_ALL" => typeof(MessageReactionsClearedEventArgs),
+            "MESSAGE_REACTION_REMOVE_EMOJI" => typeof(MessageReactionRemovedEmojiEventArgs),
+            "PRESENCE_UPDATE" => typeof(PresenceUpdatedEventArgs),
+            "STAGE_INSTANCE_CREATE" => typeof(StageInstanceCreatedEventArgs),
+            "STAGE_INSTANCE_UPDATE" => typeof(StageInstanceUpdatedEventArgs),
+            "STAGE_INSTANCE_DELETE" => typeof(StageInstanceDeletedEventArgs),
+            "TYPING_START" => typeof(TypingStartedEventArgs),
+            "USER_UPDATE" => typeof(UserUpdatedEventArgs),
+            "VOICE_STATE_UPDATE" => typeof(VoiceStateUpdatedEventArgs),
+            "VOICE_SERVER_UPDATE" => typeof(VoiceServerUpdatedEventArgs),
+            "WEBHOOKS_UPDATE" => typeof(WebhooksUpdatedEventArgs),
+            "MESSAGE_POLL_VOTE_ADD" => typeof(MessagePollVotedEventArgs),
+            "MESSAGE_POLL_VOTE_REMOVE" => typeof(MessagePollVotedEventArgs),
+            _ => typeof(UnknownEventArgs)
+        };
     }
 }
