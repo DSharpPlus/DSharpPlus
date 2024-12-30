@@ -63,8 +63,6 @@ public sealed partial class DiscordClient
             return;
         }
 
-        this.Logger.LogDebug("Current event queue length: {length}", this.eventReader.Count);
-
         DiscordChannel chn;
         DiscordThreadChannel thread;
         ulong gid;
