@@ -406,16 +406,30 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// For One-Time Purchase consumable SKUs, marks a given entitlement for the user as consumed. 
     /// </summary>
     /// <param name="entitlementId">The id of the entitlement which will be marked as consumed</param>
-    internal async ValueTask ConsumeEntitlementAsync(ulong entitlementId)
+    public async ValueTask ConsumeEntitlementAsync(ulong entitlementId)
         => await this.Discord.ApiClient.ConsumeEntitlementAsync(this.Id, entitlementId);
 
     /// <summary>
     /// For One-Time Purchase consumable SKUs, marks a given entitlement for the user as consumed. 
     /// </summary>
     /// <param name="entitlement">The entitlement which will be marked as consumed</param>
-    internal async ValueTask ConsumeEntitlementAsync(DiscordEntitlement entitlement)
+    public async ValueTask ConsumeEntitlementAsync(DiscordEntitlement entitlement)
         => await this.Discord.ApiClient.ConsumeEntitlementAsync(this.Id, entitlement.Id);
-    
+
+    /// <summary>
+    /// Deletes a test entitlement
+    /// </summary>
+    /// <param name="entitlementId">The id of the test entitlement which should be deleted</param>
+    public async ValueTask DeleteTestEntitlementAsync(ulong entitlementId)
+        => await this.Discord.ApiClient.DeleteTestEntitlementAsync(this.Id, entitlementId);
+
+    /// <summary>
+    /// Deletes a test entitlement
+    /// </summary>
+    /// <param name="entitlement">The test entitlement which should be deleted</param>
+    public async ValueTask DeleteTestEntitlementAsync(DiscordEntitlement entitlement)
+        => await this.Discord.ApiClient.DeleteTestEntitlementAsync(this.Id, entitlement.Id);
+
     public string GenerateBotOAuth(DiscordPermissions permissions = default)
     {
         permissions &= DiscordPermissions.All;
