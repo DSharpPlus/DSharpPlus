@@ -6979,4 +6979,28 @@ public sealed class DiscordApiClient
 
         return entitlement;
     }
+    
+    /// <summary>
+    /// Deletes a test entitlement
+    /// </summary>
+    /// <param name="applicationId">The id of the application the entitlement belongs to</param>
+    /// <param name="entitlementId">The id of the test entitlement which should be removed</param>
+    internal async ValueTask DeleteTestEntitlementAsync
+    (
+        ulong applicationId,
+        ulong entitlementId
+    )
+    {
+        string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}/:entitlementId";
+        string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}/{entitlementId}";
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Delete
+        };
+
+        await this.rest.ExecuteRequestAsync(request);
+    }
 }
