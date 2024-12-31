@@ -296,6 +296,126 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         return this.Assets;
     }
 
+    /// <summary>
+    /// Creates a test entitlement for a user or guild
+    /// </summary>
+    /// <param name="skuId">The id of the sku the entitlement belongs to</param>
+    /// <param name="ownerId">The id of the entity which should recieve this entitlement</param>
+    /// <param name="ownerType">The type of the entity which should recieve this entitlement</param>
+    /// <returns>The created entitlement</returns>
+    /// <remarks>
+    /// This endpoint returns a partial entitlement object. It will not contain <c>subscription_id</c>, <c>starts_at</c>, or <c>ends_at</c>, as it's valid in perpetuity.
+    /// After creating a test entitlement, you'll need to reload your Discord client. After doing so, you'll see that your server or user now has premium access.
+    /// </remarks>
+    public async ValueTask<DiscordEntitlement> CreateTestEntitlementAsync
+    (
+        ulong skuId,
+        ulong ownerId,
+        DiscordTestEntitlementOwnerType ownerType
+    )
+        => await this.Discord.ApiClient.CreateTestEntitlementAsync(this.Id, skuId, ownerId, ownerType);
+    
+    /// <summary>
+    /// Creates a test entitlement for a user or guild
+    /// </summary>
+    /// <param name="sku">The sku the entitlement belongs to</param>
+    /// <param name="ownerId">The id of the entity which should recieve this entitlement</param>
+    /// <param name="ownerType">The type of the entity which should recieve this entitlement</param>
+    /// <returns>The created entitlement</returns>
+    /// <remarks>
+    /// This endpoint returns a partial entitlement object. It will not contain <c>subscription_id</c>, <c>starts_at</c>, or <c>ends_at</c>, as it's valid in perpetuity.
+    /// After creating a test entitlement, you'll need to reload your Discord client. After doing so, you'll see that your server or user now has premium access.
+    /// </remarks>
+    public async ValueTask<DiscordEntitlement> CreateTestEntitlementAsync
+    (
+        DiscordStockKeepingUnit sku,
+        ulong ownerId,
+        DiscordTestEntitlementOwnerType ownerType
+    )
+        => await this.Discord.ApiClient.CreateTestEntitlementAsync(this.Id, sku.Id, ownerId, ownerType);
+
+    /// <summary>
+    /// Creates a test entitlement for a user or guild
+    /// </summary>
+    /// <param name="skuId">The id of the sku the entitlement belongs to</param>
+    /// <param name="user">The user which should recieve this entitlement</param>
+    /// <returns>The created entitlement</returns>
+    /// <remarks>
+    /// This endpoint returns a partial entitlement object. It will not contain <c>subscription_id</c>, <c>starts_at</c>, or <c>ends_at</c>, as it's valid in perpetuity.
+    /// After creating a test entitlement, you'll need to reload your Discord client. After doing so, you'll see that your server or user now has premium access.
+    /// </remarks>
+    public async ValueTask<DiscordEntitlement> CreateTestEntitlementAsync
+    (
+        ulong skuId,
+        DiscordUser user
+    )
+        => await this.Discord.ApiClient.CreateTestEntitlementAsync(this.Id, skuId, user.Id, DiscordTestEntitlementOwnerType.User);
+
+    /// <summary>
+    /// Creates a test entitlement for a user or guild
+    /// </summary>
+    /// <param name="skuId">The id of the sku the entitlement belongs to</param>
+    /// <param name="guild">The guild which should recieve this entitlement</param>
+    /// <returns>The created entitlement</returns>
+    /// <remarks>
+    /// This endpoint returns a partial entitlement object. It will not contain <c>subscription_id</c>, <c>starts_at</c>, or <c>ends_at</c>, as it's valid in perpetuity.
+    /// After creating a test entitlement, you'll need to reload your Discord client. After doing so, you'll see that your server or user now has premium access.
+    /// </remarks>
+    public async ValueTask<DiscordEntitlement> CreateTestEntitlementAsync
+    (
+        ulong skuId,
+        DiscordGuild guild    
+    )
+        => await this.Discord.ApiClient.CreateTestEntitlementAsync(this.Id, skuId, guild.Id, DiscordTestEntitlementOwnerType.Guild);
+    
+    /// <summary>
+    /// Creates a test entitlement for a user or guild
+    /// </summary>
+    /// <param name="sku">The sku the entitlement belongs to</param>
+    /// <param name="user">The user which should recieve this entitlement</param>
+    /// <returns>The created entitlement</returns>
+    /// <remarks>
+    /// This endpoint returns a partial entitlement object. It will not contain <c>subscription_id</c>, <c>starts_at</c>, or <c>ends_at</c>, as it's valid in perpetuity.
+    /// After creating a test entitlement, you'll need to reload your Discord client. After doing so, you'll see that your server or user now has premium access.
+    /// </remarks>
+    public async ValueTask<DiscordEntitlement> CreateTestEntitlementAsync
+    (
+        DiscordStockKeepingUnit sku,
+        DiscordUser user
+    )
+        => await this.Discord.ApiClient.CreateTestEntitlementAsync(this.Id, sku.Id, user.Id, DiscordTestEntitlementOwnerType.User);
+
+    /// <summary>
+    /// Creates a test entitlement for a user or guild
+    /// </summary>
+    /// <param name="sku">The sku the entitlement belongs to</param>
+    /// <param name="guild">The guild which should recieve this entitlement</param>
+    /// <returns>The created entitlement</returns>
+    /// <remarks>
+    /// This endpoint returns a partial entitlement object. It will not contain <c>subscription_id</c>, <c>starts_at</c>, or <c>ends_at</c>, as it's valid in perpetuity.
+    /// After creating a test entitlement, you'll need to reload your Discord client. After doing so, you'll see that your server or user now has premium access.
+    /// </remarks>
+    public async ValueTask<DiscordEntitlement> CreateTestEntitlementAsync
+    (
+        DiscordStockKeepingUnit sku,
+        DiscordGuild guild    
+    )
+        => await this.Discord.ApiClient.CreateTestEntitlementAsync(this.Id, sku.Id, guild.Id, DiscordTestEntitlementOwnerType.Guild);
+
+    /// <summary>
+    /// For One-Time Purchase consumable SKUs, marks a given entitlement for the user as consumed. 
+    /// </summary>
+    /// <param name="entitlementId">The id of the entitlement which will be marked as consumed</param>
+    internal async ValueTask ConsumeEntitlementAsync(ulong entitlementId)
+        => await this.Discord.ApiClient.ConsumeEntitlementAsync(this.Id, entitlementId);
+
+    /// <summary>
+    /// For One-Time Purchase consumable SKUs, marks a given entitlement for the user as consumed. 
+    /// </summary>
+    /// <param name="entitlement">The entitlement which will be marked as consumed</param>
+    internal async ValueTask ConsumeEntitlementAsync(DiscordEntitlement entitlement)
+        => await this.Discord.ApiClient.ConsumeEntitlementAsync(this.Id, entitlement.Id);
+    
     public string GenerateBotOAuth(DiscordPermissions permissions = default)
     {
         permissions &= DiscordPermissions.All;

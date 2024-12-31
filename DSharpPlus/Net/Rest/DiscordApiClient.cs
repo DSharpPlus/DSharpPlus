@@ -6924,7 +6924,11 @@ public sealed class DiscordApiClient
         return entitlements;
     }
     
-    // Todo: docs
+    /// <summary>
+    /// For One-Time Purchase consumable SKUs, marks a given entitlement for the user as consumed. 
+    /// </summary>
+    /// <param name="applicationId">The id of the application the entitlement belongs to</param>
+    /// <param name="entitlementId">The id of the entitlement which will be marked as consumed</param>
     internal async ValueTask ConsumeEntitlementAsync(ulong applicationId, ulong entitlementId)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}/:entitlementId/{Endpoints.CONSUME}";
@@ -6941,12 +6945,12 @@ public sealed class DiscordApiClient
     }
     
     /// <summary>
-    /// TODO
+    /// Create a test entitlement which can be granted to a user or a guild
     /// </summary>
-    /// <param name="applicationId"></param>
-    /// <param name="skuId"></param>
-    /// <param name="ownerId"></param>
-    /// <param name="ownerType"></param>
+    /// <param name="applicationId">The id of the application the SKU belongs to</param>
+    /// <param name="skuId">The id of the SKU the entitlement belongs to</param>
+    /// <param name="ownerId">The id of the entity which should recieve the entitlement</param>
+    /// <param name="ownerType">The type of the entity which should recieve the entitlement</param>
     /// <returns>Returns a partial entitlment</returns>
     internal async ValueTask<DiscordEntitlement> CreateTestEntitlementAsync
     (
