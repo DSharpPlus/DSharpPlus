@@ -563,7 +563,7 @@ public sealed class GatewayClient : IGatewayClient
         {
             bool success = errorCode switch
             {
-                > 4000 => await HandleSystemErrorAsync(errorCode),
+                < 4000 => await HandleSystemErrorAsync(errorCode),
                 (>= 4000 and <= 4002) or 4005 or 4008 => await TryResumeAsync(),
                 4003 or 4007 or 4009 => this.options.AutoReconnect && await TryReconnectAsync(),
                 4004 or (>= 4010 and <= 4014) => false,
@@ -635,7 +635,7 @@ public sealed class GatewayClient : IGatewayClient
         }
 
         // else, try to reconnect if so requested
-        if (this.AutoReconnect && !this.closureRequested)
+        if (this.options.AutoReconnect && !this.closureRequested)
         {
             return await TryReconnectAsync();
         }
