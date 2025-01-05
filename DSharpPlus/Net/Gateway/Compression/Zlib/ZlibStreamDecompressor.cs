@@ -33,7 +33,13 @@ public sealed class ZlibStreamDecompressor : IPayloadDecompressor
     }
 
     /// <inheritdoc/>
-    public void Dispose() => this.wrapper.Dispose();
+    public void Dispose()
+    {
+        if (this.wrapper != default)
+        {
+            this.wrapper.Dispose();    
+        }
+    }
 
     /// <inheritdoc/>
     public void Reset()
