@@ -81,11 +81,8 @@ public sealed partial class DiscordClient
             #region Gateway Status
 
             case "ready":
-                JArray? glds = (JArray)dat["guilds"];
-                JArray? dmcs = (JArray)dat["private_channels"];
-
-                dat.Remove("guilds");
-                dat.Remove("private_channels");
+                JArray? glds = (JArray?)dat["guilds"];
+                JArray? dmcs = (JArray?)dat["private_channels"];
 
                 int readyShardId = payload is ShardIdContainingGatewayPayload { ShardId: { } id } ? id : 0;
 
@@ -3029,7 +3026,7 @@ public sealed partial class DiscordClient
         );
     }
 
-    private async Task OnEntitlementUpdatedAsync(DiscordEntitlement entitlement) 
+    private async Task OnEntitlementUpdatedAsync(DiscordEntitlement entitlement)
         => await this.dispatcher.DispatchAsync(this, new EntitlementUpdatedEventArgs { Entitlement = entitlement });
 
     private async Task OnEntitlementDeletedAsync(DiscordEntitlement entitlement)
