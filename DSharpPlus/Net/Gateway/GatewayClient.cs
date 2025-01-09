@@ -563,6 +563,7 @@ public sealed class GatewayClient : IGatewayClient
         {
             bool success = errorCode switch
             {
+                < 4000 => await HandleSystemErrorAsync(errorCode),
                 (>= 4000 and <= 4002) or 4005 or 4008 => await TryResumeAsync(),
                 4003 or 4007 or 4009 => this.options.AutoReconnect && await TryReconnectAsync(),
                 4004 or (>= 4010 and <= 4014) => false,
@@ -623,6 +624,24 @@ public sealed class GatewayClient : IGatewayClient
         }
 
         return payload;
+    }
+
+    private async Task<bool> HandleSystemErrorAsync(int errorCode)
+    {
+        // 3000 Unauthorized and 3003 Forbidden are a problem we can't fix, error and return to the user
+        if (errorCode is 3000 or 3003)
+        {
+            this.logger.LogError("Encountered irrecoverable gateway close code {CloseCode}", errorCode);
+        }
+
+        // else, try to reconnect if so requested
+        if (this.options.AutoReconnect && !this.closureRequested)
+        {
+            return await TryReconnectAsync();
+        }
+
+        this.logger.LogDebug("Gateway shutdown in progress, not reconnecting on recoverable close code {CloseCode}", errorCode);
+        return false;
     }
 
     /// <inheritdoc/>
