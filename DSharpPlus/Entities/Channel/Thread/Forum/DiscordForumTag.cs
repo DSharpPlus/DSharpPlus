@@ -12,7 +12,7 @@ public sealed class DiscordForumTag : SnowflakeObject
     public string Name { get; internal set; }
 
     /// <summary>
-    /// Gets whether this tag is moderated. Moderated tags can only be applied by users with the <see cref="DiscordPermissions.ManageThreads"/> permission.
+    /// Gets whether this tag is moderated. Moderated tags can only be applied by users with the <see cref="DiscordPermission.ManageThreads"/> permission.
     /// </summary>
     [JsonProperty("moderated")]
     public bool Moderated { get; internal set; }
@@ -68,7 +68,7 @@ public class DiscordForumTagBuilder
     }
 
     /// <summary>
-    /// Sets this tag to be moderated (as in, it can only be set by users with the <see cref="DiscordPermissions.ManageThreads"/> permission).
+    /// Sets this tag to be moderated (as in, it can only be set by users with the <see cref="DiscordPermission.ManageThreads"/> permission).
     /// </summary>
     /// <param name="moderated">Whether the tag is moderated.</param>
     /// <returns>The builder to chain calls with.</returns>

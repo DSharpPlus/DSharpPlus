@@ -10,20 +10,16 @@ namespace DSharpPlus.VoiceNext.Codec;
 
 internal sealed class Sodium : IDisposable
 {
-    public static IReadOnlyDictionary<string, EncryptionMode> SupportedModes { get; }
+    public static IReadOnlyDictionary<string, EncryptionMode> SupportedModes { get; } = new ReadOnlyDictionary<string, EncryptionMode>(new Dictionary<string, EncryptionMode>()
+    {
+        ["aead_aes256_gcm_rtpsize"] = EncryptionMode.AeadAes256GcmRtpSize,
+    });
 
     public static int NonceSize => Interop.SodiumNonceSize;
 
     private RandomNumberGenerator CSPRNG { get; }
     private byte[] Buffer { get; }
     private ReadOnlyMemory<byte> Key { get; }
-
-    static Sodium() => SupportedModes = new ReadOnlyDictionary<string, EncryptionMode>(new Dictionary<string, EncryptionMode>()
-    {
-        ["xsalsa20_poly1305_lite"] = EncryptionMode.XSalsa20_Poly1305_Lite,
-        ["xsalsa20_poly1305_suffix"] = EncryptionMode.XSalsa20_Poly1305_Suffix,
-        ["xsalsa20_poly1305"] = EncryptionMode.XSalsa20_Poly1305
-    });
 
     public Sodium(ReadOnlyMemory<byte> key)
     {
@@ -86,15 +82,8 @@ internal sealed class Sodium : IDisposable
     {
         switch (encryptionMode)
         {
-            case EncryptionMode.XSalsa20_Poly1305:
-                return;
-
-            case EncryptionMode.XSalsa20_Poly1305_Suffix:
-                nonce.CopyTo(target[^12..]);
-                return;
-
-            case EncryptionMode.XSalsa20_Poly1305_Lite:
-                nonce[..4].CopyTo(target[^4..]);
+            case EncryptionMode.AeadAes256GcmRtpSize:
+                nonce[..4].CopyTo(target[^12..]);
                 return;
 
             default:
@@ -111,16 +100,8 @@ internal sealed class Sodium : IDisposable
 
         switch (encryptionMode)
         {
-            case EncryptionMode.XSalsa20_Poly1305:
+            case EncryptionMode.AeadAes256GcmRtpSize:
                 source[..12].CopyTo(target);
-                return;
-
-            case EncryptionMode.XSalsa20_Poly1305_Suffix:
-                source[^Interop.SodiumNonceSize..].CopyTo(target);
-                return;
-
-            case EncryptionMode.XSalsa20_Poly1305_Lite:
-                source[^4..].CopyTo(target);
                 return;
 
             default:
@@ -140,11 +121,7 @@ internal sealed class Sodium : IDisposable
             throw new ArgumentException($"Invalid target buffer size. Target buffer needs to have a length that is a sum of input buffer length and Sodium MAC size ({Interop.SodiumMacSize} bytes).", nameof(target));
         }
 
-        int result;
-        if ((result = Interop.Encrypt(source, target, this.Key.Span, nonce)) != 0)
-        {
-            throw new CryptographicException($"Could not encrypt the buffer. Sodium returned code {result}.");
-        }
+        Interop.Encrypt(source, target, this.Key.Span, nonce);
     }
 
     public void Decrypt(ReadOnlySpan<byte> source, Span<byte> target, ReadOnlySpan<byte> nonce)
@@ -197,17 +174,7 @@ internal sealed class Sodium : IDisposable
 public enum EncryptionMode
 {
     /// <summary>
-    /// The nonce is an incrementing uint32 value. It is encoded as big endian value at the beginning of the nonce buffer. The 4 bytes are also appended at the end of the packet.
+    /// The only currently supported encryption mode. Uses a 32-bit incremental nonce.
     /// </summary>
-    XSalsa20_Poly1305_Lite,
-
-    /// <summary>
-    /// The nonce consists of random bytes. It is appended at the end of a packet.
-    /// </summary>
-    XSalsa20_Poly1305_Suffix,
-
-    /// <summary>
-    /// The nonce consists of the RTP header. Nothing is appended to the packet.
-    /// </summary>
-    XSalsa20_Poly1305
+    AeadAes256GcmRtpSize
 }

@@ -22,7 +22,7 @@ internal sealed class GatewayIdentify
     /// <summary>
     /// Gets or sets whether to encrypt websocket traffic.
     /// </summary>
-    [JsonProperty("compress")]
+    [JsonProperty("compress", DefaultValueHandling = DefaultValueHandling.Ignore)]
     public bool Compress { get; set; }
 
     /// <summary>

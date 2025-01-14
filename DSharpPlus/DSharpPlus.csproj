@@ -3,23 +3,19 @@
     <PackageId>DSharpPlus</PackageId>
     <Description>A C# API for Discord based off DiscordSharp, but rewritten to fit the API standards.</Description>
     <PackageTags>$(PackageTags), webhooks</PackageTags>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IsPackable>true</IsPackable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>Preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.HighPerformance"/>
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory"/>
-    <PackageReference Include="Microsoft.Extensions.Logging"/>
-    <PackageReference Include="Newtonsoft.Json"/>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
-    <PackageReference Include="Polly.Core"/>
-    <PackageReference Include="Ulid"/>
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="..\DSharpPlus.Analyzers\DSharpPlus.Analyzers\bin\Release\netstandard2.0\DSharpPlus.Analyzers.dll"/>
-    <None Include="..\DSharpPlus.Analyzers\DSharpPlus.Analyzers\bin\Release\netstandard2.0\DSharpPlus.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DSharpPlus.Analyzers\DSharpPlus.Analyzers\DSharpPlus.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <PackageReference Include="CommunityToolkit.HighPerformance" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="NetEscapades.EnumGenerators" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Polly.Core" />
+    <PackageReference Include="Ulid" />
   </ItemGroup>
 </Project>

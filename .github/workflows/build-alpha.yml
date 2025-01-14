@@ -24,7 +24,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8
+          dotnet-version: 9
       - name: Package Project
         run: |
           dotnet pack -c Release -o build -p:Alpha=${{ github.run_number }}

@@ -33,8 +33,8 @@ public static class MultipleOverwriteTest
                         {
                             public async Task AddOverwritesAsync(DiscordChannel channel, DiscordMember member, DiscordMember member2)
                             {
-                                await channel.AddOverwriteAsync(member, DiscordPermissions.BanMembers);
-                                await channel.AddOverwriteAsync(member2, DiscordPermissions.KickMembers);
+                                await channel.AddOverwriteAsync(member, DiscordPermission.BanMembers);
+                                await channel.AddOverwriteAsync(member2, DiscordPermission.KickMembers);
                             }
                         }
                         """;
@@ -63,9 +63,9 @@ public static class MultipleOverwriteTest
                         {
                             public async Task AddOverwritesAsync(DiscordChannel channel, DiscordMember member, DiscordMember member2)
                             {
-                                await channel.AddOverwriteAsync(member, DiscordPermissions.BanMembers);
-                                await channel.AddOverwriteAsync(member2, DiscordPermissions.KickMembers);
-                                await channel.AddOverwriteAsync(member2, DiscordPermissions.Administrator);
+                                await channel.AddOverwriteAsync(member, DiscordPermission.BanMembers);
+                                await channel.AddOverwriteAsync(member2, DiscordPermission.KickMembers);
+                                await channel.AddOverwriteAsync(member2, DiscordPermission.Administrator);
                             }
                         }
                         """;
@@ -106,7 +106,7 @@ public static class MultipleOverwriteTest
                             {
                                 foreach (DiscordMember member in members) 
                                 {
-                                    await channel.AddOverwriteAsync(member, DiscordPermissions.BanMembers);
+                                    await channel.AddOverwriteAsync(member, DiscordPermission.BanMembers);
                                 }
                             }
                         }
@@ -140,7 +140,7 @@ public static class MultipleOverwriteTest
                             {
                                 for (int i = 0; i < members.Count; i++)
                                 {
-                                    await channel.AddOverwriteAsync(members[i], DiscordPermissions.BanMembers);
+                                    await channel.AddOverwriteAsync(members[i], DiscordPermission.BanMembers);
                                 }
                             }
                         }
@@ -175,7 +175,7 @@ public static class MultipleOverwriteTest
                                 int i = 0;
                                 while (i < members.Count)
                                 {
-                                    await channel.AddOverwriteAsync(members[i], DiscordPermissions.BanMembers);
+                                    await channel.AddOverwriteAsync(members[i], DiscordPermission.BanMembers);
                                     i++;
                                 }
                             }

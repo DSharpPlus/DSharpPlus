@@ -281,7 +281,7 @@ internal sealed class RestChannelPermissionEditPayload
     public DiscordPermissions Deny { get; set; }
 
     [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-    public string Type { get; set; }
+    public int Type { get; set; }
 }
 
 internal sealed class RestChannelGroupDmRecipientAddPayload : IOAuth2Payload

@@ -11,7 +11,7 @@ public static class Utility
     {
         CSharpAnalyzerTest<T, DefaultVerifier> test = new()
         {
-            ReferenceAssemblies = ReferenceAssemblies.Net.Net80
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90
         };
         test.TestState.AdditionalReferences.Add(typeof(DiscordClient).Assembly);
         return test;

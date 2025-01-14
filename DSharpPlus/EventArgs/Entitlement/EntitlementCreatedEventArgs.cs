@@ -1,4 +1,5 @@
-﻿using DSharpPlus.AsyncEvents;
+using System;
+
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs;
@@ -12,4 +13,9 @@ public class EntitlementCreatedEventArgs : DiscordEventArgs
     /// Entitlement which was created
     /// </summary>
     public DiscordEntitlement Entitlement { get; internal set; }
+
+    /// <summary>
+    /// The timestamp at which this event was invoked. Unset for gateway events.
+    /// </summary>
+    public DateTimeOffset? Timestamp { get; internal set; }
 }

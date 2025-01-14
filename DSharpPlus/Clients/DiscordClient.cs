@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -17,6 +18,7 @@ using DSharpPlus.Exceptions;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Gateway;
+using DSharpPlus.Net.InboundWebhooks;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.WebSocket;
@@ -42,7 +44,11 @@ public sealed partial class DiscordClient : BaseDiscordClient
     private readonly IClientErrorHandler errorHandler;
     private readonly IShardOrchestrator orchestrator;
     private readonly ChannelReader<GatewayPayload> eventReader;
+    private readonly ChannelReader<DiscordWebhookEvent> webhookEventReader;
+    private readonly ChannelReader<DiscordHttpInteractionPayload> interactionEventReader;
     private readonly IEventDispatcher dispatcher;
+
+    private readonly ConcurrentDictionary<Int128, Channel<GuildMembersChunkedEventArgs>> guildMembersChunkedEvents = [];
 
     private StatusUpdate? status = null;
     private readonly string token;
@@ -104,7 +110,13 @@ public sealed partial class DiscordClient : BaseDiscordClient
         IOptions<GatewayClientOptions> gatewayOptions,
 
         [FromKeyedServices("DSharpPlus.Gateway.EventChannel")]
-        Channel<GatewayPayload> eventChannel
+        Channel<GatewayPayload> eventChannel,
+
+        [FromKeyedServices("DSharpPlus.Webhooks.EventChannel")]
+        Channel<DiscordWebhookEvent> webhookEventChannel,
+
+        [FromKeyedServices("DSharpPlus.Interactions.EventChannel")]
+        Channel<DiscordHttpInteractionPayload> interactionEventChannel
     )
         : base()
     {
@@ -118,6 +130,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.orchestrator = shardOrchestrator;
         this.eventReader = eventChannel.Reader;
         this.dispatcher = eventDispatcher;
+        this.webhookEventReader = webhookEventChannel.Reader;
+        this.interactionEventReader = interactionEventChannel.Reader;
 
         this.ApiClient.SetClient(this);
         this.Intents = gatewayOptions.Value.Intents;
@@ -167,7 +181,11 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus; version {Version}", this.VersionString);
 
         await this.dispatcher.DispatchAsync(this, new ClientStartedEventArgs());
+
         _ = ReceiveGatewayEventsAsync();
+        _ = ReceiveWebhookEventsAsync();
+        _ = ReceiveInteractionEventsAsync();
+
         await this.orchestrator.StartAsync(activity, status, idlesince);
     }
 
@@ -270,7 +288,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="channel">Channel to send to.</param>
     /// <param name="content">Message content to send.</param>
     /// <returns>The Discord Message that was sent.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.SendMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.SendMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -283,7 +301,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="channel">Channel to send to.</param>
     /// <param name="embed">Embed to attach to the message.</param>
     /// <returns>The Discord Message that was sent.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.SendMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.SendMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -297,7 +315,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="content">Message content to send.</param>
     /// <param name="embed">Embed to attach to the message.</param>
     /// <returns>The Discord Message that was sent.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.SendMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.SendMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -310,7 +328,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="channel">Channel to send to.</param>
     /// <param name="builder">The Discord Message builder.</param>
     /// <returns>The Discord Message that was sent.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.SendMessages"/> permission if TTS is false and <see cref="DiscordPermissions.SendTtsMessages"/> if TTS is true.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.SendMessages"/> permission if TTS is false and <see cref="DiscordPermission.SendTtsMessages"/> if TTS is true.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -323,7 +341,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="channel">Channel to send to.</param>
     /// <param name="action">The Discord Message builder.</param>
     /// <returns>The Discord Message that was sent.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.SendMessages"/> permission if TTS is false and <see cref="DiscordPermissions.SendTtsMessages"/> if TTS is true.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.SendMessages"/> permission if TTS is false and <see cref="DiscordPermission.SendTtsMessages"/> if TTS is true.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -543,7 +561,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         {
             avatarBase64 = null;
         }
-        
+
         Optional<string> bannerBase64 = Optional.FromNoValue<string>();
         if (banner.HasValue && banner.Value != null)
         {
@@ -641,10 +659,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
         (
             applicationId,
             commandId,
-            mdl.Name, 
+            mdl.Name,
             mdl.Description,
             mdl.Options,
-            mdl.DefaultPermission, 
+            mdl.DefaultPermission,
             mdl.NSFW,
             mdl.NameLocalizations,
             mdl.DescriptionLocalizations,
@@ -901,64 +919,43 @@ public sealed partial class DiscordClient : BaseDiscordClient
     }
     #endregion
 
-    /// <summary>
-    /// This method is used to inject interactions into the client which are coming from http webhooks.
-    /// </summary>
-    /// <param name="body">Body of the http request. Should be UTF8 encoded</param>
-    /// <param name="cancellationToken">Token to cancel the interaction when the http request was canceled</param>
-    /// <returns>Returns the body which should be returned to the http request</returns>
-    /// <exception cref="TaskCanceledException">Thrown when the passed cancellation token was canceled</exception>
-    public async Task<byte[]> HandleHttpInteractionAsync(ArraySegment<byte> body, CancellationToken cancellationToken = default)
+    [StackTraceHidden]
+    internal ChannelReader<GuildMembersChunkedEventArgs> RegisterGuildMemberChunksEnumerator(ulong guildId, string? nonce)
     {
-        string bodyString = Encoding.UTF8.GetString(body);
+        Int128 nonceKey = new(guildId, (ulong)(nonce?.GetHashCode() ?? 0));
+        Channel<GuildMembersChunkedEventArgs> channel = Channel.CreateUnbounded<GuildMembersChunkedEventArgs>(new UnboundedChannelOptions { SingleWriter = true, SingleReader = true });
 
-        JObject data = JObject.Parse(bodyString);
-        
-        DiscordHttpInteraction? interaction = data.ToDiscordObject<DiscordHttpInteraction>();
-        
-        if (interaction is null)
+        if (!this.guildMembersChunkedEvents.TryAdd(nonceKey, channel))
         {
-            throw new ArgumentException("Unable to parse provided request body to DiscordHttpInteraction");
-        }
-        
-        if (interaction.Type is DiscordInteractionType.Ping)
-        {
-            DiscordInteractionResponsePayload responsePayload = new() {Type = DiscordInteractionResponseType.Pong};
-            string responseString = DiscordJson.SerializeObject(responsePayload);
-            byte[] responseBytes = Encoding.UTF8.GetBytes(responseString);
-            
-            return responseBytes;
+            throw new InvalidOperationException("A guild member chunk request for the given guild and nonce has already been registered.");
         }
 
-        cancellationToken.Register(() => interaction.Cancel());
-        
-        ulong? guildId = (ulong?)data["guild_id"];
-        ulong channelId = (ulong)data["channel_id"];
-        
-        JToken rawMember = data["member"];
-        TransportMember? transportMember = null;
-        TransportUser transportUser;
-        if (rawMember != null)
+        return channel.Reader;
+    }
+
+    private async ValueTask DispatchGuildMembersChunkForIteratorsAsync(GuildMembersChunkedEventArgs eventArgs)
+    {
+        if (this.guildMembersChunkedEvents.Count is 0)
         {
-            transportMember = data["member"].ToDiscordObject<TransportMember>();
-            transportUser = transportMember.User;
-        }
-        else
-        {
-            transportUser = data["user"].ToDiscordObject<TransportUser>();
+            return;
         }
 
-        JToken? rawChannel = data["channel"];
-        DiscordChannel? channel = null;
-        if (rawChannel is not null)
+        Int128 code = new(eventArgs.Guild.Id, (ulong)(eventArgs.Nonce?.GetHashCode() ?? 0));
+
+        if (!this.guildMembersChunkedEvents.TryGetValue(code, out Channel<GuildMembersChunkedEventArgs>? eventChannel))
         {
-            channel = rawChannel.ToDiscordObject<DiscordChannel>();
-            channel.Discord = this;
+            return;
         }
 
-        await OnInteractionCreateAsync(guildId, channelId, transportUser, transportMember, channel, interaction);
+        await eventChannel.Writer.WriteAsync(eventArgs);
 
-        return await interaction.GetResponseAsync();
+        // Discord docs state that 0 <= chunk_index < chunk_count, so add one
+        // Basically, chunks are zero-based.
+        if (eventArgs.ChunkIndex + 1 == eventArgs.ChunkCount)
+        {
+            this.guildMembersChunkedEvents.Remove(code, out _);
+            eventChannel.Writer.Complete();
+        }
     }
 
     #region Internal Caching Methods

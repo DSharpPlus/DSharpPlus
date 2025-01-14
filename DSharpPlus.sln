@@ -38,8 +38,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{430C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{1092E215-3968-4EB5-998F-93F0F0809728}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Tools.AutoUpdateChannelDescription", "tools\AutoUpdateChannelDescription\DSharpPlus.Tools.AutoUpdateChannelDescription.csproj", "{DE29AE1F-012F-45C1-96D9-AADC037CCA51}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Commands", "DSharpPlus.Commands\DSharpPlus.Commands.csproj", "{0CAFE4E5-4742-417B-9279-BEE069D9C0D4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Tests", "DSharpPlus.Tests\DSharpPlus.Tests.csproj", "{78C5B232-AA4A-4DA0-868E-B5F090929469}"
@@ -52,7 +50,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Lavalink", "obso
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.SlashCommands", "obsolete\DSharpPlus.SlashCommands\DSharpPlus.SlashCommands.csproj", "{C967DD7B-9CDE-47AF-B35A-875AF547DDDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.HttpInteractions.AspNetCore", "DSharpPlus.HttpInteractions.AspNetCore\DSharpPlus.HttpInteractions.AspNetCore.csproj", "{0A1C0426-650F-4DAD-84B0-2191B94FDE50}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Http.AspNetCore", "DSharpPlus.Http.AspNetCore\DSharpPlus.Http.AspNetCore.csproj", "{0A1C0426-650F-4DAD-84B0-2191B94FDE50}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DSharpPlus.Analyzers", "DSharpPlus.Analyzers", "{2C45C0B6-2D6F-4025-A783-B6B823306F4A}"
 EndProject
@@ -86,10 +84,6 @@ Global
 		{E5E0EBFA-06CD-4F28-B60E-4B65860344F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5E0EBFA-06CD-4F28-B60E-4B65860344F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5E0EBFA-06CD-4F28-B60E-4B65860344F9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DE29AE1F-012F-45C1-96D9-AADC037CCA51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DE29AE1F-012F-45C1-96D9-AADC037CCA51}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DE29AE1F-012F-45C1-96D9-AADC037CCA51}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DE29AE1F-012F-45C1-96D9-AADC037CCA51}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0CAFE4E5-4742-417B-9279-BEE069D9C0D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0CAFE4E5-4742-417B-9279-BEE069D9C0D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0CAFE4E5-4742-417B-9279-BEE069D9C0D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -128,7 +122,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{430C28D8-5F85-4D6E-AA68-211549435245} = {4255B64D-92EC-46B3-BC3B-ED2C3A8073EE}
-		{DE29AE1F-012F-45C1-96D9-AADC037CCA51} = {1092E215-3968-4EB5-998F-93F0F0809728}
 		{CE500A4B-06D0-48B8-ABD8-E021A12AFFA8} = {1092E215-3968-4EB5-998F-93F0F0809728}
 		{1628DF13-85A2-424B-BE7B-7E4712154857} = {E4A1A178-BEBD-4FDE-9629-B445E6CF975E}
 		{C967DD7B-9CDE-47AF-B35A-875AF547DDDA} = {E4A1A178-BEBD-4FDE-9629-B445E6CF975E}

@@ -81,15 +81,13 @@ public class HasPermissionAnalyzer : DiagnosticAnalyzer
         }
 
         TypeInfo leftTypeInfo = ctx.SemanticModel.GetTypeInfo(leftBinary.Left);
-        if (leftTypeInfo.Type?.Name != "DiscordPermissions" ||
-            !ctx.Compilation.CheckByName(leftTypeInfo, "DSharpPlus.Entities.DiscordPermissions"))
+        if (!ctx.Compilation.CheckByName(leftTypeInfo, "DSharpPlus.Entities.DiscordPermission"))
         {
             return;
         }
 
         TypeInfo rightTypeInfo = ctx.SemanticModel.GetTypeInfo(leftBinary.Right);
-        if (leftTypeInfo.Type?.Name != "DiscordPermissions" ||
-            !ctx.Compilation.CheckByName(rightTypeInfo, "DSharpPlus.Entities.DiscordPermissions"))
+        if (!ctx.Compilation.CheckByName(rightTypeInfo, "DSharpPlus.Entities.DiscordPermission"))
         {
             return;
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,7 +47,18 @@ public class SlashChoiceProviderAttribute : Attribute
         }
 
         List<DiscordApplicationCommandOptionChoice> choices = new(25);
-        foreach (DiscordApplicationCommandOptionChoice choice in await choiceProvider.ProvideAsync(parameter))
+        IEnumerable<DiscordApplicationCommandOptionChoice> userProvidedChoices;
+
+        try
+        {
+            userProvidedChoices = await choiceProvider.ProvideAsync(parameter);
+        }
+        catch(Exception e)
+        {
+            throw new ChoiceProviderFailedException(this.ProviderType, e);
+        }
+
+        foreach (DiscordApplicationCommandOptionChoice choice in userProvidedChoices)
         {
             if (choices.Count == 25)
             {

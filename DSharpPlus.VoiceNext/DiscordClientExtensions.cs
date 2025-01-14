@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
 using DSharpPlus.Extensions;
-
+using DSharpPlus.VoiceNext.Codec;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.VoiceNext;
@@ -22,6 +22,13 @@ public static class DiscordClientExtensions
         VoiceNextConfiguration configuration
     )
     {
+        Interop.InitializeLibsodium();
+
+        if (!Interop.IsAeadAes256GcmCompatible())
+        {
+            throw new InvalidOperationException("The current hardware is not compatible with AEAD AES-256 GCM, a requirement for VoiceNext support.");
+        }
+
         services.ConfigureEventHandlers(b => b.AddEventHandlers<VoiceNextEventHandler>())
             .AddSingleton(provider =>
             {

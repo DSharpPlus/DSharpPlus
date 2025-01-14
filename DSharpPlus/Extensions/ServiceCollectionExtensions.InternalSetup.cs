@@ -1,11 +1,17 @@
 using System.Net.Http;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading.Channels;
 
 using DSharpPlus.Clients;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Gateway;
-using DSharpPlus.Net.WebSocket;
+using DSharpPlus.Net.InboundWebhooks;
+using DSharpPlus.Net.InboundWebhooks.Transport;
+using DSharpPlus.Net.Gateway.Compression;
+using DSharpPlus.Net.Gateway.Compression.Zlib;
+using DSharpPlus.Net.Gateway.Compression.Zstd;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -45,13 +51,37 @@ public static partial class ServiceCollectionExtensions
 
         // gateway setup
         serviceCollection.Configure<GatewayClientOptions>(c => c.Intents = intents)
-            .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>(new UnboundedChannelOptions { SingleReader = true }))
+            .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>
+            (
+                new UnboundedChannelOptions 
+                {
+                    SingleReader = true 
+                }
+            ))
             .AddTransient<ITransportService, TransportService>()
             .AddTransient<IGatewayClient, GatewayClient>()
-            .AddTransient<PayloadDecompressor>()
+            .RegisterBestDecompressor()
             .AddSingleton<IShardOrchestrator, SingleShardOrchestrator>()
             .AddSingleton<IEventDispatcher, DefaultEventDispatcher>()
             .AddSingleton<DiscordClient>();
+
+        // http events/interactions, if we're using those - doesn't actually cause any overhead if we aren't
+        serviceCollection.AddKeyedSingleton("DSharpPlus.Webhooks.EventChannel", Channel.CreateUnbounded<DiscordWebhookEvent>
+            (
+                new UnboundedChannelOptions
+                {
+                    SingleReader = true
+                }
+            ))
+            .AddKeyedSingleton("DSharpPlus.Interactions.EventChannel", Channel.CreateUnbounded<DiscordHttpInteractionPayload>
+            (
+                new UnboundedChannelOptions
+                {
+                    SingleReader = true
+                }
+            ))
+            .AddSingleton<IInteractionTransportService, InteractionTransportService>()
+            .AddSingleton<IWebhookTransportService, WebhookEventTransportService>();
 
         return serviceCollection;
     }
@@ -89,11 +119,43 @@ public static partial class ServiceCollectionExtensions
             .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>(new UnboundedChannelOptions { SingleReader = true }))
             .AddTransient<ITransportService, TransportService>()
             .AddTransient<IGatewayClient, GatewayClient>()
-            .AddTransient<PayloadDecompressor>()
+            .RegisterBestDecompressor()
             .AddSingleton<IShardOrchestrator, MultiShardOrchestrator>()
             .AddSingleton<IEventDispatcher, DefaultEventDispatcher>()
             .AddSingleton<DiscordClient>();
 
+        // http events/interactions, if we're using those - doesn't actually cause any overhead if we aren't
+        serviceCollection.AddKeyedSingleton("DSharpPlus.Webhooks.EventChannel", Channel.CreateUnbounded<DiscordWebhookEvent>
+            (
+                new UnboundedChannelOptions
+                {
+                    SingleReader = true
+                }
+            ))
+            .AddKeyedSingleton("DSharpPlus.Interactions.EventChannel", Channel.CreateUnbounded<DiscordHttpInteractionPayload>
+            (
+                new UnboundedChannelOptions
+                {
+                    SingleReader = true
+                }
+            ))
+            .AddSingleton<IInteractionTransportService, InteractionTransportService>()
+            .AddSingleton<IWebhookTransportService, WebhookEventTransportService>();
+
         return serviceCollection;
+    }
+
+    private static IServiceCollection RegisterBestDecompressor(this IServiceCollection services)
+    {
+        if (NativeLibrary.TryLoad("libzstd", Assembly.GetEntryAssembly(), default, out _))
+        {
+            services.AddTransient<IPayloadDecompressor, ZstdDecompressor>();
+        }
+        else
+        {
+            services.AddTransient<IPayloadDecompressor, ZlibStreamDecompressor>();
+        }
+
+        return services;
     }
 }

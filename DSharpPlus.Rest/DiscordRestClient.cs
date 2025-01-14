@@ -1095,7 +1095,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// </summary>
     /// <param name="channelId">ID of the channel to follow</param>
     /// <param name="webhookChannelId">ID of the channel to crosspost messages to</param>
-    /// <exception cref="UnauthorizedException">Thrown when the current user doesn't have <see cref="DiscordPermissions.ManageWebhooks"/> on the target channel</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the current user doesn't have <see cref="DiscordPermission.ManageWebhooks"/> on the target channel</exception>
     public async Task<DiscordFollowedChannel> FollowChannelAsync(ulong channelId, ulong webhookChannelId)
         => await this.ApiClient.FollowChannelAsync(channelId, webhookChannelId);
 
@@ -1105,7 +1105,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="channelId">ID of the news channel the message to crosspost belongs to</param>
     /// <param name="messageId">ID of the message to crosspost</param>
     /// <exception cref="UnauthorizedException">
-    ///     Thrown when the current user doesn't have <see cref="DiscordPermissions.ManageWebhooks"/> and/or <see cref="DiscordPermissions.SendMessages"/>
+    ///     Thrown when the current user doesn't have <see cref="DiscordPermission.ManageWebhooks"/> and/or <see cref="DiscordPermission.SendMessages"/>
     /// </exception>
     public async Task<DiscordMessage> CrosspostMessageAsync(ulong channelId, ulong messageId)
         => await this.ApiClient.CrosspostMessageAsync(channelId, messageId);

@@ -7,7 +7,7 @@ namespace DSharpPlus.VoiceNext.Codec;
 /// <summary>
 /// This is an interop class. It contains wrapper methods for Opus and Sodium.
 /// </summary>
-internal static partial class Interop
+internal static unsafe partial class Interop
 {
     #region Sodium wrapper
     private const string SodiumLibraryName = "libsodium";
@@ -15,35 +15,77 @@ internal static partial class Interop
     /// <summary>
     /// Gets the Sodium key size for xsalsa20_poly1305 algorithm.
     /// </summary>
-    public static int SodiumKeySize { get; } = (int)SodiumSecretBoxKeySize();
+    public static int SodiumKeySize { get; } = (int)crypto_aead_aes256gcm_keybytes();
 
     /// <summary>
     /// Gets the Sodium nonce size for xsalsa20_poly1305 algorithm.
     /// </summary>
-    public static int SodiumNonceSize { get; } = (int)SodiumSecretBoxNonceSize();
+    public static int SodiumNonceSize { get; } = (int)crypto_aead_aes256gcm_npubbytes();
+
+    public static int SodiumMacSize { get; } = (int)crypto_aead_aes256gcm_abytes();
 
     /// <summary>
-    /// Gets the Sodium MAC size for xsalsa20_poly1305 algorithm.
+    /// Indicates whether the current hardware is AEAD AES-256 GCM compatible.
     /// </summary>
-    public static int SodiumMacSize { get; } = (int)SodiumSecretBoxMacSize();
+    /// <returns></returns>
+    public static bool IsAeadAes256GcmCompatible()
+        => crypto_aead_aes256gcm_is_available() == 1;
 
-    [LibraryImport(SodiumLibraryName, EntryPoint = "crypto_secretbox_xsalsa20poly1305_keybytes")]
-    [return: MarshalAs(UnmanagedType.SysUInt)]
-    private static partial UIntPtr SodiumSecretBoxKeySize();
+    public static void InitializeLibsodium()
+    {
+        // sodium_init returns 1 if sodium was already initialized, but that doesn't ~really~ matter for us.
+        if (sodium_init() < 0)
+        {
+            throw new InvalidOperationException("Libsodium failed to initialize.");
+        }
+    }
 
-    [LibraryImport(SodiumLibraryName, EntryPoint = "crypto_secretbox_xsalsa20poly1305_noncebytes")]
-    [return: MarshalAs(UnmanagedType.SysUInt)]
-    private static partial UIntPtr SodiumSecretBoxNonceSize();
+    [LibraryImport(SodiumLibraryName)]
+    private static partial int sodium_init();
 
-    [LibraryImport(SodiumLibraryName, EntryPoint = "crypto_secretbox_xsalsa20poly1305_macbytes")]
-    [return: MarshalAs(UnmanagedType.SysUInt)]
-    private static partial UIntPtr SodiumSecretBoxMacSize();
+    [LibraryImport(SodiumLibraryName)]
+    private static partial int crypto_aead_aes256gcm_is_available();
 
-    [LibraryImport(SodiumLibraryName, EntryPoint = "crypto_secretbox_easy")]
-    private static unsafe partial int SodiumSecretBoxCreate(byte* buffer, byte* message, ulong messageLength, byte* nonce, byte* key);
+    [LibraryImport(SodiumLibraryName)]
+    private static partial nuint crypto_aead_aes256gcm_npubbytes();
 
-    [LibraryImport(SodiumLibraryName, EntryPoint = "crypto_secretbox_open_easy")]
-    private static unsafe partial int SodiumSecretBoxOpen(byte* buffer, byte* encryptedMessage, ulong encryptedLength, byte* nonce, byte* key);
+    [LibraryImport(SodiumLibraryName)]
+    private static partial nuint crypto_aead_aes256gcm_abytes();
+
+    [LibraryImport(SodiumLibraryName)]
+    private static partial nuint crypto_aead_aes256gcm_keybytes();
+
+    [LibraryImport(SodiumLibraryName)]
+    private static partial int crypto_aead_aes256gcm_encrypt
+    (
+        byte* encrypted,                                        // unsigned char *c
+        ulong *encryptedLength,                                 // unsigned long long *clen_p
+        byte* message,                                          // const unsigned char *m
+        ulong messageLength,                                    // unsigned long long mlen
+        // non-confidential data appended to the message
+        byte* ad,                                               // const unsigned char *ad
+        ulong adLength,                                         // unsigned long long adlen
+        // unused, should be null
+        byte* nonceSecret,                                      // const unsigned char *nsec
+        byte* noncePublic,                                      // const unsigned char *npub
+        byte* key                                               // const unsigned char *k
+    );
+
+    [LibraryImport(SodiumLibraryName)]
+    private static partial int crypto_aead_aes256gcm_decrypt
+    (
+        byte* message,                                          // unsigned char *m
+        ulong* messageLength,                                   // unsigned long long *mlen_p
+        // unused, should be null
+        byte* nonceSecret,                                      // unsigned char *nsec
+        byte* encrypted,                                        // const unsigned char *c
+        ulong encryptedLength,                                  // unsigned long long clen
+        // non-confidential data appended to the message
+        byte* ad,                                               // const unsigned char *ad
+        ulong adLength,                                         // unsigned long long adlen
+        byte* noncePublic,                                      // const unsigned char *npub
+        byte* key                                               // const unsigned char *p
+    );
 
     /// <summary>
     /// Encrypts supplied buffer using xsalsa20_poly1305 algorithm, using supplied key and nonce to perform encryption.
@@ -53,18 +95,17 @@ internal static partial class Interop
     /// <param name="key">Key to use for encryption.</param>
     /// <param name="nonce">Nonce to use for encryption.</param>
     /// <returns>Encryption status.</returns>
-    public static unsafe int Encrypt(ReadOnlySpan<byte> source, Span<byte> target, ReadOnlySpan<byte> key, ReadOnlySpan<byte> nonce)
+    public static unsafe void Encrypt(ReadOnlySpan<byte> source, Span<byte> target, ReadOnlySpan<byte> key, ReadOnlySpan<byte> nonce)
     {
-        int status = 0;
-        fixed (byte* sourcePtr = &source.GetPinnableReference())
-        fixed (byte* targetPtr = &target.GetPinnableReference())
-        fixed (byte* keyPtr = &key.GetPinnableReference())
-        fixed (byte* noncePtr = &nonce.GetPinnableReference())
-        {
-            status = SodiumSecretBoxCreate(targetPtr, sourcePtr, (ulong)source.Length, noncePtr, keyPtr);
-        }
+        ulong targetLength = (ulong)target.Length;
 
-        return status;
+        fixed (byte* pSource = source)
+        fixed (byte* pTarget = target)
+        fixed (byte* pKey = key)
+        fixed (byte* pNonce = nonce)
+        {
+            crypto_aead_aes256gcm_encrypt(pTarget, &targetLength, pSource, (ulong)source.Length, null, 0, null, pNonce, pKey); 
+        }
     }
 
     /// <summary>
@@ -77,16 +118,15 @@ internal static partial class Interop
     /// <returns>Decryption status.</returns>
     public static unsafe int Decrypt(ReadOnlySpan<byte> source, Span<byte> target, ReadOnlySpan<byte> key, ReadOnlySpan<byte> nonce)
     {
-        int status = 0;
-        fixed (byte* sourcePtr = &source.GetPinnableReference())
-        fixed (byte* targetPtr = &target.GetPinnableReference())
-        fixed (byte* keyPtr = &key.GetPinnableReference())
-        fixed (byte* noncePtr = &nonce.GetPinnableReference())
-        {
-            status = SodiumSecretBoxOpen(targetPtr, sourcePtr, (ulong)source.Length, noncePtr, keyPtr);
-        }
+        ulong targetLength = (ulong)target.Length;
 
-        return status;
+        fixed (byte* pSource = source)
+        fixed (byte* pTarget = target)
+        fixed (byte* pKey = key)
+        fixed (byte* pNonce = nonce)
+        {
+            return crypto_aead_aes256gcm_decrypt(pTarget, &targetLength, null, pSource, (ulong)source.Length, null, 0, pNonce, pKey);
+        }
     }
     #endregion
 

@@ -188,7 +188,7 @@ internal class Paginator : IPaginator
         DiscordGuild? gld = chn?.Guild;
         DiscordMember? mbr = gld?.CurrentMember;
 
-        if (mbr != null /* == is guild and cache is valid */ && (chn.PermissionsFor(mbr) & DiscordPermissions.ManageChannels) != 0) /* == has permissions */
+        if (mbr != null /* == is guild and cache is valid */ && chn.PermissionsFor(mbr).HasPermission(DiscordPermission.ManageChannels)) /* == has permissions */
         {
             await msg.DeleteAllReactionsAsync("Pagination");
         }

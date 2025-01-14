@@ -33,6 +33,9 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
     private static FrozenDictionary<ulong, Command> applicationCommandMapping = FrozenDictionary<ulong, Command>.Empty;
     private static readonly List<DiscordApplicationCommand> applicationCommands = [];
 
+    // if registration failed, this is set to true and will trigger better error messages
+    private bool registrationFailed = false;
+
     /// <summary>
     /// The mapping of application command ids to <see cref="Command"/> objects.
     /// </summary>
@@ -60,34 +63,44 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         Dictionary<ulong, List<DiscordApplicationCommand>> guildsApplicationCommands = [];
         globalApplicationCommands.AddRange(applicationCommands);
 
-        foreach (Command command in processorSpecificCommands)
+        try
         {
-            // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
-            // If there isn't, default to SlashCommands
-            if (command.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute
-                && !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.SlashCommand)
-            )
-            {
-                continue;
-            }
 
-            DiscordApplicationCommand applicationCommand = await ToApplicationCommandAsync(command);
-            if (command.GuildIds.Count == 0)
+            foreach (Command command in processorSpecificCommands)
             {
-                globalApplicationCommands.Add(applicationCommand);
-                continue;
-            }
-
-            foreach (ulong guildId in command.GuildIds)
-            {
-                if (!guildsApplicationCommands.TryGetValue(guildId, out List<DiscordApplicationCommand>? guildCommands))
+                // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
+                // If there isn't, default to SlashCommands
+                if (command.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute
+                    && !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.SlashCommand)
+                )
                 {
-                    guildCommands = [];
-                    guildsApplicationCommands.Add(guildId, guildCommands);
+                    continue;
                 }
 
-                guildCommands.Add(applicationCommand);
+                DiscordApplicationCommand applicationCommand = await ToApplicationCommandAsync(command);
+                if (command.GuildIds.Count == 0)
+                {
+                    globalApplicationCommands.Add(applicationCommand);
+                    continue;
+                }
+
+                foreach (ulong guildId in command.GuildIds)
+                {
+                    if (!guildsApplicationCommands.TryGetValue(guildId, out List<DiscordApplicationCommand>? guildCommands))
+                    {
+                        guildCommands = [];
+                        guildsApplicationCommands.Add(guildId, guildCommands);
+                    }
+
+                    guildCommands.Add(applicationCommand);
+                }
             }
+        }
+        catch (Exception e)
+        {
+            this.logger.LogError(e, "Could not build valid application commands, cancelling application command registration.");
+            this.registrationFailed = true;
+            return;
         }
 
         // we figured our structure out, fetch discord's records of the commands and match basic criteria
@@ -214,6 +227,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         Dictionary<string, string> descriptionLocalizations = [];
         if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
         {
+            if (!IsLocalizationSupported())
+            {
+                throw new InvalidOperationException("Localization is not supported because invariant mode is enabled. See https://aka.ms/GlobalizationInvariantMode for more information.");
+            }
+
             nameLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
             descriptionLocalizations = await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.description");
         }
@@ -248,8 +266,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             description = "No description provided.";
         }
 
+        DiscordPermission[]? userPermissions = command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions;
+
         // Create the top level application command.
-        return new(
+        return new
+        (
             name: this.Configuration.NamingPolicy.TransformText(command.Name, CultureInfo.InvariantCulture),
             description: description,
             options: options,
@@ -257,7 +278,9 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             name_localizations: nameLocalizations,
             description_localizations: descriptionLocalizations,
             allowDMUsage: command.Attributes.Any(x => x is AllowDMUsageAttribute),
-            defaultMemberPermissions: command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? DiscordPermissions.UseApplicationCommands,
+            defaultMemberPermissions: userPermissions is not null
+                ? new(userPermissions)
+                : new DiscordPermissions(DiscordPermission.UseApplicationCommands), 
             nsfw: command.Attributes.Any(x => x is RequireNsfwAttribute),
             contexts: command.Attributes.OfType<InteractionAllowedContextsAttribute>().FirstOrDefault()?.AllowedContexts,
             integrationTypes: command.Attributes.OfType<InteractionInstallTypeAttribute>().FirstOrDefault()?.InstallTypes
@@ -300,6 +323,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         {
             foreach ((string ietfTag, string name) in await ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name"))
             {
+                if (!IsLocalizationSupported())
+                {
+                    throw new InvalidOperationException("Localization is not supported because invariant mode is enabled. See https://aka.ms/GlobalizationInvariantMode for more information.");
+                }
+
                 nameLocalizations[ietfTag] = this.Configuration.NamingPolicy.TransformText
                 (
                     name,
@@ -644,6 +672,11 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
     /// <returns>Which culture to use.</returns>
     internal static CultureInfo ResolveCulture(DiscordInteraction interaction)
     {
+        if (!IsLocalizationSupported())
+        {
+            return CultureInfo.InvariantCulture;
+        }
+
         if (!string.IsNullOrWhiteSpace(interaction.Locale))
         {
             return CultureInfo.GetCultureInfo(interaction.Locale);
@@ -654,5 +687,17 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         }
 
         return CultureInfo.InvariantCulture;
+    }
+
+    internal static bool IsLocalizationSupported()
+    {
+        bool specifiedInAssembly = AppContext.TryGetSwitch("System.Globalization.Invariant", out bool invariant);
+
+        if (specifiedInAssembly)
+        {
+            return !invariant;
+        }
+
+        return Environment.GetEnvironmentVariable("DOTNET_SYSTEM_GLOBALIZATION_INVARIANT") != "1";
     }
 }

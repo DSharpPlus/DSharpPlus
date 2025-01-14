@@ -4,7 +4,7 @@ namespace DSharpPlus.Logging;
 
 internal static partial class AnonymizationUtilities
 {
-    [GeneratedRegex(@"""token"":""[a-zA-Z0-9\-\. ]+""")]
+    [GeneratedRegex(@"""token"":""[a-zA-Z0-9_\-\. ]+""")]
     private static partial Regex GetJsonEncodedTokenRegex();
 
     [GeneratedRegex(@"\/webhooks\/[0-9]+\/[a-zA-Z0-9\-\. ]+\/")]
@@ -34,5 +34,24 @@ internal static partial class AnonymizationUtilities
         intermediate = GetMessageContentRegex().Replace(intermediate, "\"content\":\"<redacted>\"");
         intermediate = GetUsernameRegex().Replace(intermediate, "\"username\":\"<redacted>\"");
         return intermediate;
+    }
+
+    // --------------------------------------------------------------------------------------------------
+
+    public static string Anonymize(string input)
+    {
+        string anonymized = input;
+
+        if (RuntimeFeatures.AnonymizeTokens)
+        {
+            anonymized = AnonymizeTokens(anonymized);
+        }
+
+        if (RuntimeFeatures.AnonymizeContents)
+        {
+            anonymized = AnonymizeContents(anonymized);
+        }
+
+        return anonymized;
     }
 }

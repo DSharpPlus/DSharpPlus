@@ -94,7 +94,7 @@ public class InteractivityExtension : IDisposable
         PollBehaviour pollbehaviour = behaviour ?? this.Config.PollBehaviour;
         DiscordMember thismember = await m.Channel.Guild.GetMemberAsync(this.Client.CurrentUser.Id);
 
-        if (pollbehaviour == PollBehaviour.DeleteEmojis && m.Channel.PermissionsFor(thismember).HasPermission(DiscordPermissions.ManageMessages))
+        if (pollbehaviour == PollBehaviour.DeleteEmojis && m.Channel.PermissionsFor(thismember).HasPermission(DiscordPermission.ManageMessages))
         {
             await m.DeleteAllReactionsAsync();
         }

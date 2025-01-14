@@ -27,9 +27,9 @@ public class HasPermissionTest
 
                         public class DoesIt
                         {
-                            public static bool HaveAdmin(DiscordPermissions perm) 
+                            public static bool HaveAdmin(DiscordPermission perm) 
                             {
-                                if ((perm & DiscordPermissions.Administrator) != 0) 
+                                if ((perm & DiscordPermission.Administrator) != 0) 
                                 {
                                     return true;
                                 }
@@ -44,7 +44,7 @@ public class HasPermissionTest
             Verifier.Diagnostic()
                 .WithLocation(7, 13)
                 .WithSeverity(DiagnosticSeverity.Warning)
-                .WithMessage("Use 'perm.HasPermission(DiscordPermissions.Administrator)' instead")
+                .WithMessage("Use 'perm.HasPermission(DiscordPermission.Administrator)' instead")
         );
 
         await test.RunAsync();
@@ -61,9 +61,9 @@ public class HasPermissionTest
 
                         public class DoesIt
                         {
-                            public static bool HaveNoAdmin(DiscordPermissions perm) 
+                            public static bool HaveNoAdmin(DiscordPermission perm) 
                             {
-                                if ((perm & DiscordPermissions.Administrator) == 0) 
+                                if ((perm & DiscordPermission.Administrator) == 0) 
                                 {
                                     return false;
                                 }
@@ -78,7 +78,7 @@ public class HasPermissionTest
             Verifier.Diagnostic()
                 .WithLocation(7, 13)
                 .WithSeverity(DiagnosticSeverity.Warning)
-                .WithMessage("Use 'perm.HasPermission(DiscordPermissions.Administrator)' instead")
+                .WithMessage("Use 'perm.HasPermission(DiscordPermission.Administrator)' instead")
         );
 
         await test.RunAsync();
