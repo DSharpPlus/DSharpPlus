@@ -266,7 +266,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             description = "No description provided.";
         }
 
-        DiscordPermission[]? userPermissions = command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions;
+        DiscordPermissions? userPermissions = command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions;
 
         // Create the top level application command.
         return new
@@ -279,8 +279,8 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             description_localizations: descriptionLocalizations,
             allowDMUsage: command.Attributes.Any(x => x is AllowDMUsageAttribute),
             defaultMemberPermissions: userPermissions is not null
-                ? new(userPermissions)
-                : new DiscordPermissions(DiscordPermission.UseApplicationCommands), 
+                ? userPermissions
+                : new DiscordPermissions(DiscordPermission.UseApplicationCommands),
             nsfw: command.Attributes.Any(x => x is RequireNsfwAttribute),
             contexts: command.Attributes.OfType<InteractionAllowedContextsAttribute>().FirstOrDefault()?.AllowedContexts,
             integrationTypes: command.Attributes.OfType<InteractionInstallTypeAttribute>().FirstOrDefault()?.InstallTypes
@@ -695,11 +695,13 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
 
         if (invariantEnvValue is not null)
         {
-            if (invariantEnvValue == "1" || invariantEnvValue.Equals("true", StringComparison.InvariantCultureIgnoreCase)) {
+            if (invariantEnvValue == "1" || invariantEnvValue.Equals("true", StringComparison.InvariantCultureIgnoreCase))
+            {
                 return false;
             }
-            
-            if (invariantEnvValue == "0" || invariantEnvValue.Equals("false", StringComparison.InvariantCultureIgnoreCase)) {
+
+            if (invariantEnvValue == "0" || invariantEnvValue.Equals("false", StringComparison.InvariantCultureIgnoreCase))
+            {
                 return true;
             }
         }
