@@ -105,7 +105,7 @@ public abstract class BaseDiscordClient : IDisposable
     public async Task<DiscordApplication> GetCurrentApplicationAsync()
     {
         Net.Abstractions.TransportApplication tapp = await this.ApiClient.GetCurrentApplicationInfoAsync();
-        return new DiscordApplication(tapp);
+        return new DiscordApplication(tapp, this);
     }
 
     /// <summary>
