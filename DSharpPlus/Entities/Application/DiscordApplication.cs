@@ -160,8 +160,9 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
 
     internal DiscordApplication() { }
 
-    internal DiscordApplication(TransportApplication transportApplication)
+    internal DiscordApplication(TransportApplication transportApplication, BaseDiscordClient baseDiscordClient)
     {
+        this.Discord = baseDiscordClient;
         this.Id = transportApplication.Id;
         this.Name = transportApplication.Name;
         this.IconHash = transportApplication.IconHash;
