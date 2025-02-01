@@ -40,7 +40,10 @@ public class AttachmentConverter : ISlashArgumentConverter<DiscordAttachment>, I
             }
 
             // Add the currently parsed attachment count to the index
-            currentAttachmentArgumentIndex += context.VariadicArgumentParameterIndex;
+            if (context.VariadicArgumentParameterIndex != -1)
+            {
+                currentAttachmentArgumentIndex += context.VariadicArgumentParameterIndex;
+            }
 
             // Return the attachment from the original message
             return textConverterContext.Message.Attachments.Count <= currentAttachmentArgumentIndex
