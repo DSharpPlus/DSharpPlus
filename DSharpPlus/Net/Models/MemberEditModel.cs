@@ -32,6 +32,11 @@ public class MemberEditModel : BaseEditModel
     /// </summary>
     public Optional<DateTimeOffset?> CommunicationDisabledUntil { internal get; set; }
 
+    /// <summary>
+    /// Which flags this member should have
+    /// </summary>
+    public Optional<DiscordMemberFlags> MemberFlags { internal get; set; }
+
     internal MemberEditModel()
     {
 

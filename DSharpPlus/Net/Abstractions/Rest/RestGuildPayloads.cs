@@ -236,6 +236,9 @@ internal sealed class RestGuildMemberModifyPayload
 
     [JsonProperty("communication_disabled_until", NullValueHandling = NullValueHandling.Include)]
     public Optional<DateTimeOffset?> CommunicationDisabledUntil { get; set; }
+
+    [JsonProperty("flags")]
+    public Optional<DiscordMemberFlags> MemberFlags { get; set; }
 }
 
 internal sealed class RestGuildRolePayload
