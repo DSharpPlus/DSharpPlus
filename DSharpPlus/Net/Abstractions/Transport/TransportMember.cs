@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions;
@@ -35,4 +36,7 @@ internal class TransportMember
 
     [JsonProperty("pending", NullValueHandling = NullValueHandling.Ignore)]
     public bool? IsPending { get; internal set; }
+    
+    [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordMemberFlags? Flags { get; internal set; }
 }

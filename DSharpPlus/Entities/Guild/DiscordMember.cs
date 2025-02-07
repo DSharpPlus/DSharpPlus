@@ -38,6 +38,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         this.avatarHash = member.AvatarHash;
         this.role_ids = member.Roles ?? [];
         this.CommunicationDisabledUntil = member.CommunicationDisabledUntil;
+        this.MemberFlags = member.Flags;
     }
 
     /// <summary>
