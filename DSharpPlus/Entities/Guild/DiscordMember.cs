@@ -187,6 +187,11 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     [JsonIgnore]
     public DiscordPermissions Permissions => GetPermissions();
 
+    /// <summary>
+    /// Gets the member's guild flags.
+    /// </summary>
+    [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordMemberFlags? MemberFlags { get; internal set; }
 
     #region Overridden user properties
     [JsonIgnore]
