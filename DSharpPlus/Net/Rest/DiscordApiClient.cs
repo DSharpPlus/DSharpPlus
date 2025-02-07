@@ -3752,17 +3752,16 @@ public sealed class DiscordApiClient
     }
 
     internal async ValueTask ModifyGuildMemberAsync
-    (
-        ulong guildId,
-        ulong userId,
-        Optional<string> nick = default,
-        Optional<IEnumerable<ulong>> roleIds = default,
-        Optional<bool> mute = default,
-        Optional<bool> deaf = default,
-        Optional<ulong?> voiceChannelId = default,
-        Optional<DateTimeOffset?> communicationDisabledUntil = default,
-        string? reason = null
-    )
+    (ulong guildId,
+    ulong userId,
+    Optional<string> nick = default,
+    Optional<IEnumerable<ulong>> roleIds = default,
+    Optional<bool> mute = default,
+    Optional<bool> deaf = default,
+    Optional<ulong?> voiceChannelId = default,
+    Optional<DateTimeOffset?> communicationDisabledUntil = default,
+    Optional<DiscordMemberFlags> memberFlags = default,
+    string? reason = null)
     {
         Dictionary<string, string> headers = [];
         if (!string.IsNullOrWhiteSpace(reason))
@@ -3777,7 +3776,8 @@ public sealed class DiscordApiClient
             Deafen = deaf,
             Mute = mute,
             VoiceChannelId = voiceChannelId,
-            CommunicationDisabledUntil = communicationDisabledUntil
+            CommunicationDisabledUntil = communicationDisabledUntil,
+            MemberFlags = memberFlags
         };
 
         string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/:user_id";

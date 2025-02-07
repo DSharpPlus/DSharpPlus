@@ -38,6 +38,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         this.avatarHash = member.AvatarHash;
         this.role_ids = member.Roles ?? [];
         this.CommunicationDisabledUntil = member.CommunicationDisabledUntil;
+        this.MemberFlags = member.Flags;
     }
 
     /// <summary>
@@ -187,6 +188,11 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     [JsonIgnore]
     public DiscordPermissions Permissions => GetPermissions();
 
+    /// <summary>
+    /// Gets the member's guild flags.
+    /// </summary>
+    [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordMemberFlags? MemberFlags { get; internal set; }
 
     #region Overridden user properties
     [JsonIgnore]
@@ -328,7 +334,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <param name="until">How long the timeout should last. Set to <see langword="null"/> or a time in the past to remove the timeout.</param>
     /// <param name="reason">Why this member is being restricted.</param>
     public async Task TimeoutAsync(DateTimeOffset? until, string reason = default)
-        => await this.Discord.ApiClient.ModifyGuildMemberAsync(this.guild_id, this.Id, default, default, default, default, default, until, reason);
+        => await this.Discord.ApiClient.ModifyGuildMemberAsync(this.guild_id, this.Id, communicationDisabledUntil: until, reason: reason);
 
     /// <summary>
     /// Sets this member's voice mute status.
@@ -341,7 +347,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task SetMuteAsync(bool mute, string reason = null)
-        => await this.Discord.ApiClient.ModifyGuildMemberAsync(this.guild_id, this.Id, default, default, mute, default, default, default, reason);
+        => await this.Discord.ApiClient.ModifyGuildMemberAsync(this.guild_id, this.Id, mute: mute, reason: reason);
 
     /// <summary>
     /// Sets this member's voice deaf status.
@@ -354,7 +360,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task SetDeafAsync(bool deaf, string reason = null)
-        => await this.Discord.ApiClient.ModifyGuildMemberAsync(this.guild_id, this.Id, default, default, default, deaf, default, default, reason);
+        => await this.Discord.ApiClient.ModifyGuildMemberAsync(this.guild_id, this.Id, deaf: deaf, reason: reason);
 
     /// <summary>
     /// Modifies this member.
@@ -382,13 +388,13 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
 
             await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, Optional.FromNoValue<string>(),
                 mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
-                mdl.VoiceChannel.IfPresent(e => e?.Id), default, mdl.AuditLogReason);
+                mdl.VoiceChannel.IfPresent(e => e?.Id), default, mdl.MemberFlags, mdl.AuditLogReason);
         }
         else
         {
             await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, mdl.Nickname,
                 mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
-                mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.CommunicationDisabledUntil, mdl.AuditLogReason);
+                mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.CommunicationDisabledUntil, mdl.MemberFlags, mdl.AuditLogReason);
         }
     }
 
@@ -440,7 +446,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         IEnumerable<DiscordRole> newRoles = managedRoles.Concat(roles);
 
         await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, default,
-            new Optional<IEnumerable<ulong>>(newRoles.Select(xr => xr.Id)), default, default, default, default, reason);
+            new Optional<IEnumerable<ulong>>(newRoles.Select(xr => xr.Id)), reason: reason);
     }
 
     /// <summary>
