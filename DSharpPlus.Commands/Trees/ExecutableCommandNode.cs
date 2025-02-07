@@ -16,6 +16,9 @@ public class ExecutableCommandNode : ICommandNode
     public IReadOnlyList<string> Aliases { get; internal set; }
 
     /// <inheritdoc/>
+    public string LowercasedName { get; internal set; }
+
+    /// <inheritdoc/>
     public string Description { get; internal set; }
 
     /// <inheritdoc/>

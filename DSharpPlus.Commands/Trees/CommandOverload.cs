@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Threading.Tasks;
 
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.Trees.Predicates;
@@ -18,6 +18,9 @@ public class CommandOverload : ICommandNode
 
     /// <inheritdoc/>
     public IReadOnlyList<string> Aliases { get; internal set; }
+
+    /// <inheritdoc/>
+    public string LowercasedName { get; internal set; }
 
     /// <inheritdoc/>
     public string Description { get; internal set; }
@@ -40,19 +43,9 @@ public class CommandOverload : ICommandNode
     public IReadOnlyList<CommandParameter> Parameters { get; internal set; }
 
     /// <summary>
-    /// The method this command points to.
+    /// The executing function for this command.
     /// </summary>
-    public MethodInfo Method { get; internal set; }
-
-    /// <summary>
-    /// A function to get the target object of this command. May return null for static commands.
-    /// </summary>
-    public Func<IServiceProvider, object?> GetExecutionTarget { get; internal set; }
-
-    /// <summary>
-    /// An internally-used identifier for this command.
-    /// </summary>
-    public Ulid Id { get; internal set; }
+    public Func<CommandContext, object?[], IServiceProvider, ValueTask> Execute { get; internal set; }
 
     /// <summary>
     /// The check attributes applicable to this command. This does not necessarily correlate to the list of executed checks,

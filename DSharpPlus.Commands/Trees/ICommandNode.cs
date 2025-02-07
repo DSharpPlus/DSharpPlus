@@ -20,6 +20,11 @@ public interface ICommandNode
     public IReadOnlyList<string> Aliases { get; }
 
     /// <summary>
+    /// The lowercased primary name according to the current naming policy.
+    /// </summary>
+    public string LowercasedName { get; }
+
+    /// <summary>
     /// A description of this node. For overload nodes, this is a human-readable representation of its parameters.
     /// </summary>
     public string Description { get; }
