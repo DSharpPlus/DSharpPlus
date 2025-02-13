@@ -40,7 +40,7 @@ public class CommandOverload : ICommandNode
     /// <summary>
     /// The parameters of this command, excluding the command context.
     /// </summary>
-    public IReadOnlyList<CommandParameter> Parameters { get; internal set; }
+    public IReadOnlyList<ParameterNode> Parameters { get; internal set; }
 
     /// <summary>
     /// The executing function for this command.
@@ -54,5 +54,5 @@ public class CommandOverload : ICommandNode
     public IReadOnlyList<ContextCheckAttribute> CheckAttributes { get; internal set; }
 
     /// <inheritdoc/>
-    public IReadOnlyDictionary<string, object> CustomMetadata { get; }
+    public NodeMetadataCollection Metadata { get; }
 }

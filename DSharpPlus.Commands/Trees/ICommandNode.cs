@@ -45,7 +45,7 @@ public interface ICommandNode
     public IReadOnlyList<ICommandExecutionPredicate> Predicates { get; }
 
     /// <summary>
-    /// A collection of custom metadata for this command. Key names and contents are not extension-defined.
+    /// A collection of custom metadata for this command.
     /// </summary>
-    public IReadOnlyDictionary<string, object> CustomMetadata { get; }
+    public NodeMetadataCollection Metadata { get; }
 }

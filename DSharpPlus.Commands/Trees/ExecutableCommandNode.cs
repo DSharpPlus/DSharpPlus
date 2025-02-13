@@ -52,5 +52,5 @@ public class ExecutableCommandNode : ICommandNode
     public CommandOverload? CanonicalApplicationCommandOverload { get; internal set; }
 
     /// <inheritdoc/>
-    public IReadOnlyDictionary<string, object> CustomMetadata { get; }
+    public NodeMetadataCollection Metadata { get; }
 }
