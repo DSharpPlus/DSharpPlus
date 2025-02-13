@@ -56,29 +56,19 @@ internal static class AuditLogParser
         //update event cache and create a dictionary for it
         foreach (DiscordScheduledGuildEvent discordEvent in uniqueScheduledEvents)
         {
-            if (guild.scheduledEvents.ContainsKey(discordEvent.Id))
-            {
-                continue;
-            }
-
-            guild.scheduledEvents[discordEvent.Id] = discordEvent;
+            guild.scheduledEvents.TryAdd(discordEvent.Id, discordEvent);
         }
 
         IDictionary<ulong, DiscordScheduledGuildEvent> events = guild.scheduledEvents;
 
         foreach (DiscordThreadChannel thread in uniqueThreads)
         {
-            if (guild.threads.ContainsKey(thread.Id))
-            {
-                continue;
-            }
-
-            guild.threads[thread.Id] = thread;
+            guild.threads.TryAdd(thread.Id, thread);
         }
 
         IDictionary<ulong, DiscordThreadChannel> threads = guild.threads;
 
-        IEnumerable<DiscordMember>? discordMembers = users.Select
+        IEnumerable<DiscordMember> discordMembers = users.Select
         (
             user => guild.members is not null && guild.members.TryGetValue(user.Id, out DiscordMember? member)
                     ? member
@@ -279,12 +269,12 @@ internal static class AuditLogParser
                         messageEntry.MessageCount = auditLogAction.Options.Count;
                     }
 
-                    if (messageEntry.Channel is not null)
+                    if (messageEntry.Channel is not null && auditLogAction.UserId is not null)
                     {
-                        guild.Discord.UserCache.TryGetValue(auditLogAction.UserId, out DiscordUser? user);
+                        guild.Discord.UserCache.TryGetValue(auditLogAction.UserId.Value, out DiscordUser? user);
                         messageEntry.Target = user ?? new DiscordUser
                         {
-                            Id = auditLogAction.UserId,
+                            Id = auditLogAction.UserId.Value,
                             Discord = guild.Discord
                         };
                     }
@@ -507,11 +497,14 @@ internal static class AuditLogParser
         entry.Reason = auditLogAction.Reason;
         entry.Discord = guild.Discord;
 
-        entry.UserResponsible = members.TryGetValue(auditLogAction.UserId, out DiscordMember? member)
-            ? member
-            : guild.Discord.UserCache.TryGetValue(auditLogAction.UserId, out DiscordUser? discordUser)
-                ? discordUser
-                : new DiscordUser { Id = auditLogAction.UserId, Discord = guild.Discord };
+        if (auditLogAction.UserId is not null)
+        {
+            entry.UserResponsible = members.TryGetValue(auditLogAction.UserId.Value, out DiscordMember? member)
+                ? member
+                : guild.Discord.UserCache.TryGetValue(auditLogAction.UserId.Value, out DiscordUser? discordUser)
+                    ? discordUser
+                    : new DiscordUser { Id = auditLogAction.UserId.Value, Discord = guild.Discord };
+        }
 
         return entry;
     }

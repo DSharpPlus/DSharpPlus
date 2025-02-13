@@ -104,7 +104,7 @@ internal sealed class AuditLogAction
     public ulong? TargetId { get; set; }
 
     [JsonProperty("user_id")]
-    public ulong UserId { get; set; }
+    public ulong? UserId { get; set; }
 
     [JsonProperty("id")]
     public ulong Id { get; set; }
@@ -113,38 +113,38 @@ internal sealed class AuditLogAction
     public DiscordAuditLogActionType ActionType { get; set; }
 
     [JsonProperty("changes")]
-    public IEnumerable<AuditLogActionChange> Changes { get; set; }
+    public IEnumerable<AuditLogActionChange>? Changes { get; set; }
 
     [JsonProperty("options")]
-    public AuditLogActionOptions Options { get; set; }
+    public AuditLogActionOptions? Options { get; set; }
 
     [JsonProperty("reason")]
-    public string Reason { get; set; }
+    public string? Reason { get; set; }
 }
 
 internal sealed class AuditLog
 {
     [JsonProperty("application_commands"), SuppressMessage("CodeQuality", "IDE0051:Remove unread private members", Justification = "This is used by JSON.NET")]
-    private IEnumerable<DiscordApplicationCommand> SlashCommands { get; set; }
+    private List<DiscordApplicationCommand> SlashCommands { get; set; }
 
     [JsonProperty("audit_log_entries")]
-    public IEnumerable<AuditLogAction> Entries { get; set; }
+    public List<AuditLogAction> Entries { get; set; }
 
     [JsonProperty("auto_moderation_rules"), SuppressMessage("CodeQuality", "IDE0051:Remove unread private members", Justification = "This is used by JSON.NET")]
-    private IEnumerable<DiscordAutoModerationRule> AutoModerationRules { get; set; }
+    private List<DiscordAutoModerationRule> AutoModerationRules { get; set; }
 
     [JsonProperty("guild_scheduled_events")]
-    public IEnumerable<DiscordScheduledGuildEvent> Events { get; set; }
+    public List<DiscordScheduledGuildEvent> Events { get; set; }
 
     [JsonProperty("integrations")]
-    public IEnumerable<DiscordIntegration> Integrations { get; set; }
+    public List<DiscordIntegration> Integrations { get; set; }
 
     [JsonProperty("threads")]
-    public IEnumerable<DiscordThreadChannel> Threads { get; set; }
+    public List<DiscordThreadChannel> Threads { get; set; }
 
     [JsonProperty("users")]
-    public IEnumerable<DiscordUser> Users { get; set; }
+    public List<DiscordUser> Users { get; set; }
 
     [JsonProperty("webhooks")]
-    public IEnumerable<DiscordWebhook> Webhooks { get; set; }
+    public List<DiscordWebhook> Webhooks { get; set; }
 }

@@ -1,6 +1,9 @@
 namespace DSharpPlus.Entities.AuditLogs;
 
-
+/// <summary>
+/// Represents a auditlog entry for one of the following action types:
+/// RoleCreate, RoleDelete, RoleUpdate
+/// </summary>
 public sealed class DiscordAuditLogRoleUpdateEntry : DiscordAuditLogEntry
 {
     /// <summary>
