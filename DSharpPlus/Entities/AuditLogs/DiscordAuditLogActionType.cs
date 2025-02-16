@@ -206,7 +206,6 @@ public enum DiscordAuditLogActionType
     /// </summary>
     IntegrationDelete = 82,
 
-    // TODO
     /// <summary>
     /// Stage instance was created (stage channel becomes live)
     /// </summary>

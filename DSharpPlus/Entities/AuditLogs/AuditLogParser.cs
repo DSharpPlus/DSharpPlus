@@ -374,6 +374,12 @@ internal static class AuditLogParser
             case DiscordAuditLogActionType.IntegrationUpdate:
                 entry = ParseIntegrationUpdateEntry(guild, auditLogAction);
                 break;
+            
+            case DiscordAuditLogActionType.StageInstanceCreate:
+            case DiscordAuditLogActionType.StageInstanceDelete:
+            case DiscordAuditLogActionType.StageInstanceUpdate:
+                entry = ParseStageInstanceEntry(guild, auditLogAction);
+                break;
 
             case DiscordAuditLogActionType.GuildScheduledEventCreate:
             case DiscordAuditLogActionType.GuildScheduledEventDelete:
@@ -469,29 +475,52 @@ internal static class AuditLogParser
             return null;
         }
 
+#pragma warning disable CS8524 // The switch expression does not handle some values of its input type (it is not exhaustive) involving an unnamed enum value.
         entry.ActionCategory = auditLogAction.ActionType switch
         {
-            DiscordAuditLogActionType.ChannelCreate or DiscordAuditLogActionType.EmojiCreate or DiscordAuditLogActionType.InviteCreate
+            DiscordAuditLogActionType.ChannelCreate or DiscordAuditLogActionType.EmojiCreate 
                 or DiscordAuditLogActionType.OverwriteCreate or DiscordAuditLogActionType.RoleCreate
                 or DiscordAuditLogActionType.WebhookCreate or DiscordAuditLogActionType.IntegrationCreate
-                or DiscordAuditLogActionType.StickerCreate
-                or DiscordAuditLogActionType.AutoModerationRuleCreate => DiscordAuditLogActionCategory.Create,
+                or DiscordAuditLogActionType.StickerCreate or DiscordAuditLogActionType.StageInstanceCreate
+                or DiscordAuditLogActionType.AutoModerationRuleCreate or DiscordAuditLogActionType.BotAdd
+                or DiscordAuditLogActionType.MessagePin or DiscordAuditLogActionType.InviteCreate 
+                or DiscordAuditLogActionType.GuildScheduledEventCreate or DiscordAuditLogActionType.ThreadCreate
+                or DiscordAuditLogActionType.SoundboardSoundCreate or DiscordAuditLogActionType.CreatorMonetizationRequestCreated
+                or DiscordAuditLogActionType.OnboardingPromptCreate or DiscordAuditLogActionType.OnboardingCreate
+                or DiscordAuditLogActionType.HomeSettingsCreate
+                => DiscordAuditLogActionCategory.Create,
 
-            DiscordAuditLogActionType.ChannelDelete or DiscordAuditLogActionType.EmojiDelete or DiscordAuditLogActionType.InviteDelete
+            DiscordAuditLogActionType.ChannelDelete or DiscordAuditLogActionType.EmojiDelete 
+                or DiscordAuditLogActionType.InviteDelete or DiscordAuditLogActionType.MessageUnpin
                 or DiscordAuditLogActionType.MessageDelete or DiscordAuditLogActionType.MessageBulkDelete
                 or DiscordAuditLogActionType.OverwriteDelete or DiscordAuditLogActionType.RoleDelete
                 or DiscordAuditLogActionType.WebhookDelete or DiscordAuditLogActionType.IntegrationDelete
-                or DiscordAuditLogActionType.StickerDelete
-                or DiscordAuditLogActionType.AutoModerationRuleDelete => DiscordAuditLogActionCategory.Delete,
+                or DiscordAuditLogActionType.StickerDelete or DiscordAuditLogActionType.StageInstanceDelete
+                or DiscordAuditLogActionType.AutoModerationRuleDelete or DiscordAuditLogActionType.GuildScheduledEventDelete
+                or DiscordAuditLogActionType.ThreadDelete or DiscordAuditLogActionType.SoundboardSoundDelete
+                or DiscordAuditLogActionType.OnboardingPromptDelete or DiscordAuditLogActionType.OnboardingUpdate
+                or DiscordAuditLogActionType.HomeSettingsUpdate
+                => DiscordAuditLogActionCategory.Delete,
 
-            DiscordAuditLogActionType.ChannelUpdate or DiscordAuditLogActionType.EmojiUpdate or DiscordAuditLogActionType.InviteUpdate
+            DiscordAuditLogActionType.ChannelUpdate or DiscordAuditLogActionType.EmojiUpdate 
                 or DiscordAuditLogActionType.MemberRoleUpdate or DiscordAuditLogActionType.MemberUpdate
                 or DiscordAuditLogActionType.OverwriteUpdate or DiscordAuditLogActionType.RoleUpdate
                 or DiscordAuditLogActionType.WebhookUpdate or DiscordAuditLogActionType.IntegrationUpdate
-                or DiscordAuditLogActionType.StickerUpdate
-                or DiscordAuditLogActionType.AutoModerationRuleUpdate => DiscordAuditLogActionCategory.Update,
-            _ => DiscordAuditLogActionCategory.Other,
+                or DiscordAuditLogActionType.StickerUpdate or DiscordAuditLogActionType.StageInstanceUpdate
+                or DiscordAuditLogActionType.AutoModerationRuleUpdate or DiscordAuditLogActionType.GuildUpdate
+                or DiscordAuditLogActionType.InviteUpdate or DiscordAuditLogActionType.GuildScheduledEventUpdate
+                or DiscordAuditLogActionType.ThreadUpdate or DiscordAuditLogActionType.ApplicationCommandPermissionUpdate
+                or DiscordAuditLogActionType.SoundboardSoundUpdate or DiscordAuditLogActionType.AutoModerationUserCommunicationDisabled
+                or DiscordAuditLogActionType.CreatorMonetizationTermsAccepted or DiscordAuditLogActionType.OnboardingPromptUpdate
+                => DiscordAuditLogActionCategory.Update,
+            
+            DiscordAuditLogActionType.Kick or DiscordAuditLogActionType.Prune 
+                or DiscordAuditLogActionType.Ban or DiscordAuditLogActionType.Unban
+                or DiscordAuditLogActionType.MemberMove or DiscordAuditLogActionType.MemberDisconnect
+                or DiscordAuditLogActionType.AutoModerationBlockMessage or DiscordAuditLogActionType.AutoModerationFlagToChannel
+                 => DiscordAuditLogActionCategory.Other
         };
+#pragma warning restore CS8524 // The switch expression does not handle some values of its input type (it is not exhaustive) involving an unnamed enum value.
         entry.ActionType = auditLogAction.ActionType;
         entry.Id = auditLogAction.Id;
         entry.Reason = auditLogAction.Reason;
@@ -506,6 +535,38 @@ internal static class AuditLogParser
                     : new DiscordUser { Id = auditLogAction.UserId.Value, Discord = guild.Discord };
         }
 
+        return entry;
+    }
+
+    private static DiscordAuditLogEntry ParseStageInstanceEntry(DiscordGuild guild, AuditLogAction auditLogAction)
+    {
+        DiscordAuditLogStageInstanceEntry entry = new();
+        
+        if (auditLogAction.TargetId is not null)
+        {
+            entry.Target = guild.StageInstances.GetValueOrDefault(auditLogAction.TargetId.Value);
+        }
+        
+        foreach (AuditLogActionChange change in auditLogAction.Changes)
+        {
+            switch (change.Key.ToLowerInvariant())
+            {
+                case "topic":
+                    entry.Topic = PropertyChange<string>.From(change); 
+                    break;
+                
+                case "privacy_level":
+                    entry.PrivacyLevel = PropertyChange<DiscordStagePrivacyLevel>.From(change);
+                    break;
+
+                default:
+                    guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                        "Unknown key in stage instance entry: {Key} - Please take a look at GitHub issue #1580",
+                        change.Key); 
+                    break;
+            }
+        }
+        
         return entry;
     }
 
@@ -581,11 +642,15 @@ internal static class AuditLogParser
 
                     IEnumerable<DiscordChannel>? oldChannels = oldChannelIds?
                         .Select(x => x.ToObject<ulong>())
-                        .Select(guild.GetChannel);
+                        .Select(guild.GetChannel)
+                        .Where(x => x is not null)
+                        .Select(x =>x!);
 
                     IEnumerable<DiscordChannel>? newChannels = newChanelIds?
                         .Select(x => x.ToObject<ulong>())
-                        .Select(guild.GetChannel);
+                        .Select(guild.GetChannel)
+                        .Where(x => x is not null)
+                        .Select(x =>x!);
 
                     ruleEntry.ExemptChannels =
                         PropertyChange<IEnumerable<DiscordChannel>?>.From(oldChannels, newChannels);
