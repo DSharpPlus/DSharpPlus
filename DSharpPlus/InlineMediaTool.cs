@@ -136,12 +136,7 @@ public sealed class InlineMediaTool : IDisposable
 
         int contentLength = Base64.GetMaxEncodedToUtf8Length((int)this.SourceStream.Length);
 
-        int formatLength = (int)fmt switch
-        {
-            < 2 => 3,
-            < 5 => 4,
-            _ => 7
-        };
+        int formatLength = fmt.ToString().Length;
 
         byte[] b64Buffer = ArrayPool<byte>.Shared.Rent(formatLength + contentLength + 19);
         byte[] readBufferBacking = ArrayPool<byte>.Shared.Rent(readLength);
@@ -151,9 +146,17 @@ public sealed class InlineMediaTool : IDisposable
         int processed = 0;
         int totalWritten = 0;
 
-        "data:image/"u8.CopyTo(b64Buffer);
-        Encoding.UTF8.GetBytes(fmt.ToString().ToLowerInvariant()).CopyTo(b64Buffer, 11);
-        ";base64,"u8.CopyTo(b64Buffer.AsSpan()[(11 + formatLength)..]);
+        (fmt switch
+        {
+            MediaFormat.Png => "data:image/png;base64,"u8,
+            MediaFormat.Jpeg => "data:image/jpeg;base64,"u8,
+            MediaFormat.Gif => "data:image/gif;base64,"u8,
+            MediaFormat.WebP => "data:image/webp;base64,"u8,
+            MediaFormat.Ogg => "data:audio/ogg;base64,"u8,
+            MediaFormat.Mp3 => "data:audio/mp3;base64,"u8,
+            MediaFormat.Auto => "data:image/auto;base64,"u8,
+            _ => "data:image/unknown;base64"u8
+        }).CopyTo(b64Buffer);
 
         totalWritten += 19;
         totalWritten += formatLength;
