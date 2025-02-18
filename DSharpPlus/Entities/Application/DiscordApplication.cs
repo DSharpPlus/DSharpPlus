@@ -242,9 +242,9 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// <param name="fmt">Format of the image to get.</param>
     /// <param name="size">Maximum size of the cover image. Must be a power of two, minimum 16, maximum 2048.</param>
     /// <returns>URL of the application's cover image.</returns>
-    public string? GetAvatarUrl(ImageFormat fmt, ushort size = 1024)
+    public string? GetAvatarUrl(MediaFormat fmt, ushort size = 1024)
     {
-        if (fmt == ImageFormat.Unknown)
+        if (fmt == MediaFormat.Unknown)
         {
             throw new ArgumentException("You must specify valid image format.", nameof(fmt));
         }
@@ -262,10 +262,10 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
 
         string formatString = fmt switch
         {
-            ImageFormat.Gif => "gif",
-            ImageFormat.Jpeg => "jpg",
-            ImageFormat.Auto or ImageFormat.Png => "png",
-            ImageFormat.WebP => "webp",
+            MediaFormat.Gif => "gif",
+            MediaFormat.Jpeg => "jpg",
+            MediaFormat.Auto or MediaFormat.Png => "png",
+            MediaFormat.WebP => "webp",
             _ => throw new ArgumentOutOfRangeException(nameof(fmt)),
         };
 

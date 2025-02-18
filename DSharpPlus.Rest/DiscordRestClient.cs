@@ -310,7 +310,7 @@ public class DiscordRestClient : BaseDiscordClient
         Optional<string> iconb64 = Optional.FromNoValue<string>();
         if (mdl.Icon.HasValue && mdl.Icon.Value is not null)
         {
-            using ImageTool imgtool = new(mdl.Icon.Value);
+            using InlineMediaTool imgtool = new(mdl.Icon.Value);
             iconb64 = imgtool.GetBase64();
         }
         else if (mdl.Icon.HasValue)
@@ -321,7 +321,7 @@ public class DiscordRestClient : BaseDiscordClient
         Optional<string> splashb64 = Optional.FromNoValue<string>();
         if (mdl.Splash.HasValue && mdl.Splash.Value is not null)
         {
-            using ImageTool imgtool = new(mdl.Splash.Value);
+            using InlineMediaTool imgtool = new(mdl.Splash.Value);
             splashb64 = imgtool.GetBase64();
         }
         else if (mdl.Splash.HasValue)
@@ -333,7 +333,7 @@ public class DiscordRestClient : BaseDiscordClient
 
         if (mdl.Banner.HasValue && mdl.Banner.Value is not null)
         {
-            using ImageTool imgtool = new(mdl.Banner.Value);
+            using InlineMediaTool imgtool = new(mdl.Banner.Value);
             bannerb64 = imgtool.GetBase64();
         }
         else if (mdl.Banner.HasValue)
@@ -1217,14 +1217,14 @@ public class DiscordRestClient : BaseDiscordClient
         string avatarBase64 = null;
         if (avatar is not null)
         {
-            using ImageTool imgtool = new(avatar);
+            using InlineMediaTool imgtool = new(avatar);
             avatarBase64 = imgtool.GetBase64();
         }
         
         string bannerBase64 = null;
         if (banner is not null)
         {
-            using ImageTool imgtool = new(banner);
+            using InlineMediaTool imgtool = new(banner);
             bannerBase64 = imgtool.GetBase64();
         }
 
@@ -1260,7 +1260,7 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="deaf">Whether this user should be deafened</param>
     /// <param name="voiceChannelId">Voice channel to move this user to</param>
     /// <param name="communicationDisabledUntil">How long this member should be timed out for. Requires MODERATE_MEMBERS permission.</param>
-    /// <param name="memberFlags">The flags of the guild member</param>
+    /// <param name="memberFlags">Flags for this guild member.</param>
     /// <param name="reason">Reason this user was modified</param>
     /// <returns></returns>
     public async Task ModifyGuildMemberAsync(ulong guildId, ulong userId, Optional<string> nick,
@@ -1612,7 +1612,7 @@ public class DiscordRestClient : BaseDiscordClient
         string av64 = null;
         if (avatar is not null)
         {
-            using ImageTool imgtool = new(avatar);
+            using InlineMediaTool imgtool = new(avatar);
             av64 = imgtool.GetBase64();
         }
 
@@ -1678,7 +1678,7 @@ public class DiscordRestClient : BaseDiscordClient
         string av64 = null;
         if (avatar is not null)
         {
-            using ImageTool imgtool = new(avatar);
+            using InlineMediaTool imgtool = new(avatar);
             av64 = imgtool.GetBase64();
         }
 
@@ -1711,7 +1711,7 @@ public class DiscordRestClient : BaseDiscordClient
         string av64 = null;
         if (avatar is not null)
         {
-            using ImageTool imgtool = new(avatar);
+            using InlineMediaTool imgtool = new(avatar);
             av64 = imgtool.GetBase64();
         }
 
@@ -2305,7 +2305,7 @@ public class DiscordRestClient : BaseDiscordClient
 
         ArgumentNullException.ThrowIfNull(image);
         string image64;
-        using ImageTool imgtool = new(image);
+        using InlineMediaTool imgtool = new(image);
         image64 = imgtool.GetBase64();
 
         return await this.ApiClient.CreateGuildEmojiAsync(guildId, name, image64, roles, reason);
