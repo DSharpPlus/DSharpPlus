@@ -41,7 +41,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public string IconUrl
-        => GetIconUrl(ImageFormat.Auto, 1024);
+        => GetIconUrl(MediaFormat.Auto, 1024);
 
     /// <summary>
     /// Gets the guild splash's hash.
@@ -553,7 +553,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="imageFormat">The image format of the icon to get.</param>
     /// <param name="imageSize">The maximum size of the icon. Must be a power of two, minimum 16, maximum 4096.</param>
     /// <returns>The URL of the guild's icon.</returns>
-    public string? GetIconUrl(ImageFormat imageFormat, ushort imageSize = 1024)
+    public string? GetIconUrl(MediaFormat imageFormat, ushort imageSize = 1024)
     {
 
         if (string.IsNullOrWhiteSpace(this.IconHash))
@@ -561,7 +561,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             return null;
         }
 
-        if (imageFormat == ImageFormat.Unknown)
+        if (imageFormat == MediaFormat.Unknown)
         {
             throw new ArgumentException("You must specify valid image format.", nameof(imageFormat));
         }
@@ -581,11 +581,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         // Get the string variants of the method parameters to use in the urls.
         string stringImageFormat = imageFormat switch
         {
-            ImageFormat.Gif => "gif",
-            ImageFormat.Jpeg => "jpg",
-            ImageFormat.Png => "png",
-            ImageFormat.WebP => "webp",
-            ImageFormat.Auto => !string.IsNullOrWhiteSpace(this.IconHash) ? this.IconHash.StartsWith("a_") ? "gif" : "png" : "png",
+            MediaFormat.Gif => "gif",
+            MediaFormat.Jpeg => "jpg",
+            MediaFormat.Png => "png",
+            MediaFormat.WebP => "webp",
+            MediaFormat.Auto => !string.IsNullOrWhiteSpace(this.IconHash) ? this.IconHash.StartsWith("a_") ? "gif" : "png" : "png",
             _ => throw new ArgumentOutOfRangeException(nameof(imageFormat)),
         };
         string stringImageSize = imageSize.ToString(CultureInfo.InvariantCulture);
@@ -1047,7 +1047,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
         if (mdl.Icon.HasValue && mdl.Icon.Value != null)
         {
-            using ImageTool imgtool = new(mdl.Icon.Value);
+            using InlineMediaTool imgtool = new(mdl.Icon.Value);
             iconb64 = imgtool.GetBase64();
         }
         else if (mdl.Icon.HasValue)
@@ -1059,7 +1059,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
         if (mdl.Splash.HasValue && mdl.Splash.Value != null)
         {
-            using ImageTool imgtool = new(mdl.Splash.Value);
+            using InlineMediaTool imgtool = new(mdl.Splash.Value);
             splashb64 = imgtool.GetBase64();
         }
         else if (mdl.Splash.HasValue)
@@ -1077,7 +1077,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             }
             else
             {
-                using ImageTool imgtool = new(mdl.Banner.Value);
+                using InlineMediaTool imgtool = new(mdl.Banner.Value);
                 bannerb64 = imgtool.GetBase64();
             }
         }
@@ -2062,7 +2062,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         ArgumentNullException.ThrowIfNull(image);
 
         string? image64 = null;
-        using (ImageTool imgtool = new(image))
+        using (InlineMediaTool imgtool = new(image))
         {
             image64 = imgtool.GetBase64();
         }

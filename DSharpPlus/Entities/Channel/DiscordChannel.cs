@@ -880,7 +880,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         Optional<string> av64 = Optional.FromNoValue<string>();
         if (avatar.HasValue && avatar.Value != null)
         {
-            using ImageTool imgtool = new(avatar.Value);
+            using InlineMediaTool imgtool = new(avatar.Value);
             av64 = imgtool.GetBase64();
         }
         else if (avatar.HasValue)
@@ -917,7 +917,8 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             throw new ArgumentException("Cannot place a member in a non-voice channel!"); // be a little more angry, let em learn!!1
         }
 
-        await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, member.Id, voiceChannelId: this.Id);
+        await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, member.Id, default, default, default,
+            default, this.Id, default, null);
     }
 
     /// <summary>
