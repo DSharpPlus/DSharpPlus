@@ -22,6 +22,7 @@ public sealed class InlineMediaTool : IDisposable
     private const ushort MP3_MAGIC_1 = 0xFBFF;
     private const ushort MP3_MAGIC_2 = 0xF3FF;
     private const ushort MP3_MAGIC_3 = 0xF2FF;
+
     // this one is stupid and only 24 bits are assigned.
     private const uint MP3_MAGIC_4 = 0x0033_4499;
 
