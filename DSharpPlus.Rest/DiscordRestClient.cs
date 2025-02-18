@@ -1260,12 +1260,13 @@ public class DiscordRestClient : BaseDiscordClient
     /// <param name="deaf">Whether this user should be deafened</param>
     /// <param name="voiceChannelId">Voice channel to move this user to</param>
     /// <param name="communicationDisabledUntil">How long this member should be timed out for. Requires MODERATE_MEMBERS permission.</param>
+    /// <param name="memberFlags">Flags for this guild member.</param>
     /// <param name="reason">Reason this user was modified</param>
     /// <returns></returns>
     public async Task ModifyGuildMemberAsync(ulong guildId, ulong userId, Optional<string> nick,
         Optional<IEnumerable<ulong>> roleIds, Optional<bool> mute, Optional<bool> deaf,
-        Optional<ulong?> voiceChannelId, Optional<DateTimeOffset?> communicationDisabledUntil, string reason)
-        => await this.ApiClient.ModifyGuildMemberAsync(guildId, userId, nick, roleIds, mute, deaf, voiceChannelId, communicationDisabledUntil, reason);
+        Optional<ulong?> voiceChannelId, Optional<DateTimeOffset?> communicationDisabledUntil, Optional<DiscordMemberFlags> memberFlags, string reason)
+        => await this.ApiClient.ModifyGuildMemberAsync(guildId, userId, nick, roleIds, mute, deaf, voiceChannelId, communicationDisabledUntil, memberFlags, reason);
 
     /// <summary>
     /// Modifies a member
@@ -1290,13 +1291,13 @@ public class DiscordRestClient : BaseDiscordClient
                 mdl.AuditLogReason);
             await this.ApiClient.ModifyGuildMemberAsync(guildId, memberId, Optional.FromNoValue<string>(),
                 mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
-                mdl.VoiceChannel.IfPresent(e => e?.Id), default, mdl.AuditLogReason);
+                mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.CommunicationDisabledUntil, mdl.MemberFlags, mdl.AuditLogReason);
         }
         else
         {
             await this.ApiClient.ModifyGuildMemberAsync(guildId, memberId, mdl.Nickname,
                 mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
-                mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.CommunicationDisabledUntil, mdl.AuditLogReason);
+                mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.CommunicationDisabledUntil, mdl.MemberFlags, mdl.AuditLogReason);
         }
     }
 

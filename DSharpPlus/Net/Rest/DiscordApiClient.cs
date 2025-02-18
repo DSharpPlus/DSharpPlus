@@ -3761,6 +3761,7 @@ public sealed class DiscordApiClient
         Optional<bool> deaf = default,
         Optional<ulong?> voiceChannelId = default,
         Optional<DateTimeOffset?> communicationDisabledUntil = default,
+        Optional<DiscordMemberFlags> memberFlags = default,
         string? reason = null
     )
     {
