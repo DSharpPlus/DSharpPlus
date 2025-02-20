@@ -38,6 +38,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         this.avatarHash = member.AvatarHash;
         this.role_ids = member.Roles ?? [];
         this.CommunicationDisabledUntil = member.CommunicationDisabledUntil;
+        this.MemberFlags = member.Flags;
     }
 
     /// <summary>
@@ -187,6 +188,12 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     [JsonIgnore]
     public DiscordPermissions Permissions => GetPermissions();
 
+    /// <summary>
+    /// Gets the member's guild flags.
+    /// </summary>
+    [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordMemberFlags? MemberFlags { get; internal set; }
+
 
     #region Overridden user properties
     [JsonIgnore]
@@ -328,7 +335,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <param name="until">How long the timeout should last. Set to <see langword="null"/> or a time in the past to remove the timeout.</param>
     /// <param name="reason">Why this member is being restricted.</param>
     public async Task TimeoutAsync(DateTimeOffset? until, string reason = default)
-        => await this.Discord.ApiClient.ModifyGuildMemberAsync(this.guild_id, this.Id, default, default, default, default, default, until, reason);
+        => await this.Discord.ApiClient.ModifyGuildMemberAsync(this.guild_id, this.Id, communicationDisabledUntil: until, reason: reason);
 
     /// <summary>
     /// Sets this member's voice mute status.
@@ -341,7 +348,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task SetMuteAsync(bool mute, string reason = null)
-        => await this.Discord.ApiClient.ModifyGuildMemberAsync(this.guild_id, this.Id, default, default, mute, default, default, default, reason);
+        => await this.Discord.ApiClient.ModifyGuildMemberAsync(this.guild_id, this.Id, mute: mute, reason: reason);
 
     /// <summary>
     /// Sets this member's voice deaf status.
@@ -354,7 +361,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task SetDeafAsync(bool deaf, string reason = null)
-        => await this.Discord.ApiClient.ModifyGuildMemberAsync(this.guild_id, this.Id, default, default, default, deaf, default, default, reason);
+        => await this.Discord.ApiClient.ModifyGuildMemberAsync(this.guild_id, this.Id, deaf: deaf, reason: reason);
 
     /// <summary>
     /// Modifies this member.
@@ -382,13 +389,13 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
 
             await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, Optional.FromNoValue<string>(),
                 mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
-                mdl.VoiceChannel.IfPresent(e => e?.Id), default, mdl.AuditLogReason);
+                mdl.VoiceChannel.IfPresent(e => e?.Id), default, mdl.MemberFlags, mdl.AuditLogReason);
         }
         else
         {
             await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, mdl.Nickname,
                 mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
-                mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.CommunicationDisabledUntil, mdl.AuditLogReason);
+                mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.CommunicationDisabledUntil, mdl.MemberFlags, mdl.AuditLogReason);
         }
     }
 
@@ -440,7 +447,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         IEnumerable<DiscordRole> newRoles = managedRoles.Concat(roles);
 
         await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, default,
-            new Optional<IEnumerable<ulong>>(newRoles.Select(xr => xr.Id)), default, default, default, default, reason);
+            new Optional<IEnumerable<ulong>>(newRoles.Select(xr => xr.Id)), reason: reason);
     }
 
     /// <summary>
@@ -517,7 +524,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <param name="imageFormat">The image format of the avatar to get.</param>
     /// <param name="imageSize">The maximum size of the avatar. Must be a power of two, minimum 16, maximum 4096.</param>
     /// <returns>The URL of the user's avatar.</returns>
-    public string GetGuildAvatarUrl(ImageFormat imageFormat, ushort imageSize = 1024)
+    public string GetGuildAvatarUrl(MediaFormat imageFormat, ushort imageSize = 1024)
     {
         // Run this if statement before any others to prevent running the if statements twice.
         if (string.IsNullOrWhiteSpace(this.GuildAvatarHash))
@@ -525,7 +532,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
             return GetAvatarUrl(imageFormat, imageSize);
         }
 
-        if (imageFormat == ImageFormat.Unknown)
+        if (imageFormat == MediaFormat.Unknown)
         {
             throw new ArgumentException("You must specify valid image format.", nameof(imageFormat));
         }
@@ -545,11 +552,11 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         // Get the string variants of the method parameters to use in the urls.
         string stringImageFormat = imageFormat switch
         {
-            ImageFormat.Gif => "gif",
-            ImageFormat.Jpeg => "jpg",
-            ImageFormat.Png => "png",
-            ImageFormat.WebP => "webp",
-            ImageFormat.Auto => !string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? (this.GuildAvatarHash.StartsWith("a_") ? "gif" : "png") : "png",
+            MediaFormat.Gif => "gif",
+            MediaFormat.Jpeg => "jpg",
+            MediaFormat.Png => "png",
+            MediaFormat.WebP => "webp",
+            MediaFormat.Auto => !string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? (this.GuildAvatarHash.StartsWith("a_") ? "gif" : "png") : "png",
             _ => throw new ArgumentOutOfRangeException(nameof(imageFormat)),
         };
         string stringImageSize = imageSize.ToString(CultureInfo.InvariantCulture);

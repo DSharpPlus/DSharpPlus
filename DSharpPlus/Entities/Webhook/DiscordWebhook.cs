@@ -93,7 +93,7 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
         Optional<string> avatarb64 = Optional.FromNoValue<string>();
         if (avatar.HasValue && avatar.Value != null)
         {
-            using ImageTool imgtool = new(avatar.Value);
+            using InlineMediaTool imgtool = new(avatar.Value);
             avatarb64 = imgtool.GetBase64();
         }
         else if (avatar.HasValue)

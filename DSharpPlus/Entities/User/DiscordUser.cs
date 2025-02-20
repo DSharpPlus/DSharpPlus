@@ -201,9 +201,9 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// <param name="imageFormat">The image format of the avatar to get.</param>
     /// <param name="imageSize">The maximum size of the avatar. Must be a power of two, minimum 16, maximum 4096.</param>
     /// <returns>The URL of the user's avatar.</returns>
-    public string GetAvatarUrl(ImageFormat imageFormat, ushort imageSize = 1024)
+    public string GetAvatarUrl(MediaFormat imageFormat, ushort imageSize = 1024)
     {
-        if (imageFormat == ImageFormat.Unknown)
+        if (imageFormat == MediaFormat.Unknown)
         {
             throw new ArgumentException("You must specify valid image format.", nameof(imageFormat));
         }
@@ -223,11 +223,11 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
         // Get the string variants of the method parameters to use in the urls.
         string stringImageFormat = imageFormat switch
         {
-            ImageFormat.Gif => "gif",
-            ImageFormat.Jpeg => "jpg",
-            ImageFormat.Png => "png",
-            ImageFormat.WebP => "webp",
-            ImageFormat.Auto => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (this.AvatarHash.StartsWith("a_") ? "gif" : "png") : "png",
+            MediaFormat.Gif => "gif",
+            MediaFormat.Jpeg => "jpg",
+            MediaFormat.Png => "png",
+            MediaFormat.WebP => "webp",
+            MediaFormat.Auto => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (this.AvatarHash.StartsWith("a_") ? "gif" : "png") : "png",
             _ => throw new ArgumentOutOfRangeException(nameof(imageFormat)),
         };
         string stringImageSize = imageSize.ToString(CultureInfo.InvariantCulture);
@@ -260,7 +260,7 @@ public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async ValueTask<DiscordDmChannel> CreateDmChannelAsync(bool skipCache = false)
     {
-        if (!skipCache)
+        if (skipCache)
         {
             return await this.Discord.ApiClient.CreateDmAsync(this.Id);
         }

@@ -344,7 +344,7 @@ public sealed class GatewayClient : IGatewayClient
                             _ = this.controller.SessionInvalidatedAsync(this);
                         }
 
-                        break;
+                        continue;
 
                     case GatewayOpCode.Reconnect:
 
@@ -362,7 +362,7 @@ public sealed class GatewayClient : IGatewayClient
 
                 if (CheckShouldBeEnqueued(payload))
                 {
-                    await this.eventWriter.WriteAsync(payload, ct);
+                    await this.eventWriter.WriteAsync(payload, CancellationToken.None);
                 }
             }
         }

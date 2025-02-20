@@ -1786,7 +1786,7 @@ public sealed class DiscordApiClient
 
         if (image is not null)
         {
-            using ImageTool imageTool = new(image);
+            using InlineMediaTool imageTool = new(image);
 
             pld.CoverImage = imageTool.GetBase64();
         }
@@ -1957,7 +1957,7 @@ public sealed class DiscordApiClient
 
         if (coverImage.HasValue)
         {
-            using ImageTool imageTool = new(coverImage.Value);
+            using InlineMediaTool imageTool = new(coverImage.Value);
 
             pld.CoverImage = imageTool.GetBase64();
         }
@@ -3761,6 +3761,7 @@ public sealed class DiscordApiClient
         Optional<bool> deaf = default,
         Optional<ulong?> voiceChannelId = default,
         Optional<DateTimeOffset?> communicationDisabledUntil = default,
+        Optional<DiscordMemberFlags> memberFlags = default,
         string? reason = null
     )
     {
@@ -3947,7 +3948,7 @@ public sealed class DiscordApiClient
 
         if (icon != null)
         {
-            using ImageTool it = new(icon);
+            using InlineMediaTool it = new(icon);
             image = it.GetBase64();
         }
 
@@ -4033,7 +4034,7 @@ public sealed class DiscordApiClient
 
         if (icon != null)
         {
-            using ImageTool it = new(icon);
+            using InlineMediaTool it = new(icon);
             image = it.GetBase64();
         }
 

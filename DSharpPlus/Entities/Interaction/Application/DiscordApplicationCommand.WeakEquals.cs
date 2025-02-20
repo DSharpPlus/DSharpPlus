@@ -19,6 +19,7 @@ partial class DiscordApplicationCommand
             && this.Description == other.Description
             && (this.DefaultMemberPermissions ?? DiscordPermissions.None) 
                 == (other.DefaultMemberPermissions ?? DiscordPermissions.None)
+            && (this.AllowDMUsage ?? true) == (other.AllowDMUsage ?? true)
             && (this.NSFW ?? false) == (other.NSFW ?? false)
             && this.Type == other.Type
             && IntegrationTypesMatch(this.IntegrationTypes, other.IntegrationTypes)

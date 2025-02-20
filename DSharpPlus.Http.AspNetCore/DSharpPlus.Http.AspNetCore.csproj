@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <PackageId>DSharpPlus.Http.AspNetCore</PackageId>
-    <Description>A package to easily use http based discord interactions with DSharpPlus in a Asp.Net project</Description>
+    <Description>A package to easily use HTTP-based Discord interactions with DSharpPlus in an ASP.NET Core project.</Description>
     <PackageTags>$(PackageTags), interactions, slash-commands, http-interactions</PackageTags>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>

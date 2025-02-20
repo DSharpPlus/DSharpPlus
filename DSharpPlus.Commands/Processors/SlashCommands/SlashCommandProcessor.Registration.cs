@@ -691,13 +691,19 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
 
     internal static bool IsLocalizationSupported()
     {
-        bool specifiedInAssembly = AppContext.TryGetSwitch("System.Globalization.Invariant", out bool invariant);
+        string? invariantEnvValue = Environment.GetEnvironmentVariable("DOTNET_SYSTEM_GLOBALIZATION_INVARIANT");
 
-        if (specifiedInAssembly)
+        if (invariantEnvValue is not null)
         {
-            return !invariant;
+            if (invariantEnvValue == "1" || invariantEnvValue.Equals("true", StringComparison.InvariantCultureIgnoreCase)) {
+                return false;
+            }
+            
+            if (invariantEnvValue == "0" || invariantEnvValue.Equals("false", StringComparison.InvariantCultureIgnoreCase)) {
+                return true;
+            }
         }
 
-        return Environment.GetEnvironmentVariable("DOTNET_SYSTEM_GLOBALIZATION_INVARIANT") != "1";
+        return !AppContext.TryGetSwitch("System.Globalization.Invariant", out bool value) || !value;
     }
 }
