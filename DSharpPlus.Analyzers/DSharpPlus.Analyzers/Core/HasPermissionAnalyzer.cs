@@ -41,10 +41,10 @@ public class HasPermissionAnalyzer : DiagnosticAnalyzer
         title,
         messageFormat,
         Category,
-        DiagnosticSeverity.Warning,
+        DiagnosticSeverity.Hidden,
         true,
         description,
-        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/commands.html#usage-error-dsp1001"
+        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/core.html#usage-hidden-dsp0005"
     );
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);

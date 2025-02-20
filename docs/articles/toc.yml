@@ -67,9 +67,9 @@
         topicUid: articles.commands.command_processors.slash_commands.localizing_interactions
 - name: Analyzers
   items:
-    - name: DSharpPlus core rules
+    - name: DSharpPlus Core Rules
       topicUid: articles.analyzers.core
-    - name: DSharpPlus.Commands rules
+    - name: DSharpPlus.Commands Rules
       topicUid: articles.analyzers.commands
 - name: CommandsNext
   items:

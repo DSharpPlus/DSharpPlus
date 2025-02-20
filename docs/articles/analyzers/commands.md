@@ -3,16 +3,22 @@ uid: articles.analyzers.commands
 title: DSharpPlus.Commands Analyzer Rules
 ---
 
-This page documents the analyzer rules defined for APIs defined in DSharpPlus.Commands and their associated usage patterns:
+# DSharpPlus.Commands Rules
+
+This page documents the analyzer rules defined for APIs defined in DSharpPlus.Commands and their associated usage
+patterns:
+
 - [DSP1001](#usage-error-dsp1001)
 - [DSP1002](#usage-warning-dsp1002)
 - [DSP1003](#usage-error-dsp1003)
 
-### Usage error DSP1001
+## Usage Error DSP1001
 
 A slash command explicitly registered to a guild should not be installable to users.
 
-Slash commands registered to a guild are restricted to that guild and cannot be referenced outside of it, but a registered installation type requires it to be usable outside the guild. Either remove the specified installation type or remove the `RegisterToGuilds` attribute.
+Slash commands registered to a guild are restricted to that guild and cannot be referenced outside of it, but a
+registered installation type requires it to be usable outside the guild. Either remove the specified installation type
+or remove the `RegisterToGuilds` attribute.
 
 The following sample will generate DSP1001:
 
@@ -29,11 +35,12 @@ public class PingCommand
 }
 ```
 
-### Usage warning DSP1002
+## Usage Warning DSP1002
 
 Do not explicitly register nested classes of elsewhere-registered classes to DSharpPlus.Commands.
 
-Do not register nested classes. If their containing class gets registered as well, the commands inside the nested class get registered twice.
+Do not register nested classes. If their containing class gets registered as well, the commands inside the nested class
+get registered twice.
 
 The following sample will generate DSP1002:
 
@@ -61,11 +68,14 @@ public class ACommands
 }
 ```
 
-### Usage error DSP1003
+## Usage Error DSP1003
 
 A command taking a specific context type should not restrict itself to other processors.
 
-Specifying a command context type acts as a form of filtering where the command will only be executable by processors capable of creating the demanded context. In a similar vein, `AllowedProcessorAttribute` acts as a form of filtering where the command will only be executable by one of the listed processors. Filtering to two sets of processors that are not compatible with one another will render your command partially or wholly unusable.
+Specifying a command context type acts as a form of filtering where the command will only be executable by processors
+capable of creating the demanded context. In a similar vein, `AllowedProcessorAttribute` acts as a form of filtering
+where the command will only be executable by one of the listed processors. Filtering to two sets of processors that are
+not compatible with one another will render your command partially or wholly unusable.
 
 The following sample will generate DSP1003:
 

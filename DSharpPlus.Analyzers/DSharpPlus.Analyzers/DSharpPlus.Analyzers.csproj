@@ -14,6 +14,7 @@
     <PackageId>DSharpPlus.Analyzers</PackageId>
     <PackageTags>$(PackageTags)</PackageTags>
     <Description>A package for analyzer designed for the DSharpPlus libraries</Description>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

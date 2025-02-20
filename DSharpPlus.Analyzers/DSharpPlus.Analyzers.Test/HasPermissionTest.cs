@@ -36,14 +36,13 @@ public class HasPermissionTest
                                 return false;
                             }
                         }
-
                         """;
         
         test.ExpectedDiagnostics.Add
         (
             Verifier.Diagnostic()
                 .WithLocation(7, 13)
-                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithSeverity(DiagnosticSeverity.Hidden)
                 .WithMessage("Use 'perm.HasPermission(DiscordPermission.Administrator)' instead")
         );
 
@@ -65,9 +64,9 @@ public class HasPermissionTest
                             {
                                 if ((perm & DiscordPermission.Administrator) == 0) 
                                 {
-                                    return false;
+                                    return true;
                                 }
-                                return true;
+                                return false;
                             }
                         }
 
@@ -77,7 +76,7 @@ public class HasPermissionTest
         (
             Verifier.Diagnostic()
                 .WithLocation(7, 13)
-                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithSeverity(DiagnosticSeverity.Hidden)
                 .WithMessage("Use 'perm.HasPermission(DiscordPermission.Administrator)' instead")
         );
 

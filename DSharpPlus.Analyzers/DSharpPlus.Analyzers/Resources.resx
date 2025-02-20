@@ -77,4 +77,13 @@
   <data name="DSP1003MessageFormat" xml:space="preserve">
     <value>All provided processors does not support context '{0}'</value>
   </data>
+  <data name="DSP0008Description" xml:space="preserve">
+    <value>Use 'DiscordPermissions' and its operators isntead of doing raw operations on 'DiscordPermission'.</value>
+  </data>
+  <data name="DSP0008Title" xml:space="preserve">
+    <value>Use 'DiscordPermissions' instead of 'DiscordPermission'</value>
+  </data>
+  <data name="DSP0008MessageFormat" xml:space="preserve">
+    <value>Use '{0}' instead</value>
+  </data>
 </root>
