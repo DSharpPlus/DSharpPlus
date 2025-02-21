@@ -1721,7 +1721,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             DiscordWidgetType.Banner4 => "banner4",
             _ => "shield",
         };
-        return $"{Net.Endpoints.BASE_URI}/{Net.Endpoints.GUILDS}/{this.Id}/{Net.Endpoints.WIDGET_PNG}?style={param}";
+        return $"{Endpoints.BASE_URI}/{Endpoints.GUILDS}/{this.Id}/{Endpoints.WIDGET_PNG}?style={param}";
     }
 
     /// <summary>
@@ -1826,7 +1826,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
         ChannelReader<GuildMembersChunkedEventArgs> reader = client.RegisterGuildMemberChunksEnumerator(this.Id, nonce);
 
-        await this.RequestMembersAsync(query, limit, presences, userIds, nonce);
+        await RequestMembersAsync(query, limit, presences, userIds, nonce);
 
         await foreach (var evt in reader.ReadAllAsync(cancellationToken))
         {

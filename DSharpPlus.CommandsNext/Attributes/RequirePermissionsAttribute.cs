@@ -38,7 +38,7 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
             return this.IgnoreDms;
         }
 
-        DSharpPlus.Entities.DiscordMember? usr = ctx.Member;
+        DiscordMember? usr = ctx.Member;
         if (usr == null)
         {
             return false;
@@ -46,7 +46,7 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
 
         DiscordPermissions pusr = ctx.Channel.PermissionsFor(usr);
 
-        DSharpPlus.Entities.DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
+        DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
         if (bot == null)
         {
             return false;

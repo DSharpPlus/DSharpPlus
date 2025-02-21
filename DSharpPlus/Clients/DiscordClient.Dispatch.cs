@@ -1648,7 +1648,7 @@ public sealed partial class DiscordClient
             ea.NotFound = new ReadOnlySet<ulong>(nf);
         }
 
-        _ = this.DispatchGuildMembersChunkForIteratorsAsync(ea);
+        _ = DispatchGuildMembersChunkForIteratorsAsync(ea);
 
         await this.dispatcher.DispatchAsync(this, ea);
     }
