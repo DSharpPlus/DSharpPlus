@@ -230,8 +230,6 @@ public class DefaultCommandExecutor : ICommandExecutor
                             ContextCheckAttribute = checkAttribute,
                             ErrorMessage = result
                         });
-
-                        continue;
                     }
                 }
                 // try/catch blocks are free until they catch
@@ -285,8 +283,6 @@ public class DefaultCommandExecutor : ICommandExecutor
                                 ParameterCheckAttribute = checkAttribute,
                                 ErrorMessage = result
                             });
-
-                            continue;
                         }
                     }
                     // if an error occurred, add it to the list and continue, making sure to set the error message.

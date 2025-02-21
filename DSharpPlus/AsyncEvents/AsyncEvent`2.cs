@@ -99,7 +99,5 @@ public sealed class AsyncEvent<TSender, TArgs> : AsyncEvent
                 await this.errorHandler.HandleEventHandlerError(this.Name, ex, handler, sender, args);
             }
         }));
-
-        return;
     }
 }

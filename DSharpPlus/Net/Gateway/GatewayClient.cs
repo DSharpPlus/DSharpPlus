@@ -187,7 +187,6 @@ public sealed class GatewayClient : IGatewayClient
             {
                 this.logger.LogError(exception: e, "Encountered an error while connecting.");
                 await Task.Delay(this.options.GetReconnectionDelay(i));
-                continue;
             }
         }
     }
@@ -457,7 +456,6 @@ public sealed class GatewayClient : IGatewayClient
                     this.logger.LogWarning("Internet connection interrupted, waiting for {Delay}", delay);
 
                     await Task.Delay(delay);
-                    continue;
                 }
                 catch
                 {
@@ -535,7 +533,6 @@ public sealed class GatewayClient : IGatewayClient
                 this.logger.LogError(e, "Reconnecting failed, waiting for {Delay}", delay);
 
                 await Task.Delay(delay);
-                continue;
             }
         }
 

@@ -83,7 +83,6 @@ public sealed class MessageCommandProcessor : ICommandProcessor
                 if (!command.Parameters[i].DefaultValue.HasValue)
                 {
                     MessageCommandLogging.invalidParameterMissingDefaultValue(logger, i, command.FullName, null);
-                    continue;
                 }
             }
 

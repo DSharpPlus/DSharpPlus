@@ -79,7 +79,6 @@ internal class PaginationRequest : IPaginationRequest
             case PaginationBehaviour.Ignore:
                 if (this.index == this.pages.Count - 1)
                 {
-                    break;
                 }
                 else
                 {
@@ -111,7 +110,6 @@ internal class PaginationRequest : IPaginationRequest
             case PaginationBehaviour.Ignore:
                 if (this.index == 0)
                 {
-                    break;
                 }
                 else
                 {

@@ -19,7 +19,6 @@ public class EnumOptionChoiceProvider : IChoiceProvider
         {
             if (fieldInfo.IsSpecialName || !fieldInfo.IsStatic)
             {
-                continue;
             }
             else if (fieldInfo.GetCustomAttribute<ChoiceDisplayNameAttribute>() is ChoiceDisplayNameAttribute displayNameAttribute)
             {

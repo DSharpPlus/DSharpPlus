@@ -30,14 +30,12 @@ public sealed partial class SlashCommandProcessor
                     unchanged++;
                     updated.Add(remote);
                     remoteTracking.Remove(remote);
-                    continue;
                 }
                 else
                 {
                     edited++;
                     updated.Add(await ModifyGlobalCommandAsync(remote.Id, command));
                     remoteTracking.Remove(remote);
-                    continue;
                 }
             }
             else
