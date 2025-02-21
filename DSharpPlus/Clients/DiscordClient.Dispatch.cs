@@ -2122,7 +2122,7 @@ public sealed partial class DiscordClient
 
     internal async Task OnMessageReactionRemoveAllAsync(ulong messageId, ulong channelId, ulong? guildId)
     {
-        DiscordChannel? channel = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId, guildId);
+        _ = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId, guildId);
 
         if (!this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
         {

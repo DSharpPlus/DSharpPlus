@@ -437,7 +437,7 @@ public sealed class VoiceNextConnection : IDisposable
             return false;
         }
 
-        Rtp.DecodeHeader(data, out ushort shortSequence, out uint timestamp, out uint ssrc, out bool hasExtension);
+        Rtp.DecodeHeader(data, out ushort shortSequence, out uint _, out uint ssrc, out bool hasExtension);
 
         if (!this.TransmittingSSRCs.TryGetValue(ssrc, out AudioSender? vtx))
         {

@@ -41,7 +41,6 @@ public static class LavalinkUtilities
             // https://github.com/sedmelluq/lavaplayer/blob/b0c536098c4f92e6d03b00f19221021f8f50b19b/main/src/main/java/com/sedmelluq/discord/lavaplayer/tools/io/MessageInput.java#L37-L39
             int messageHeader = br.ReadInt32();
             int messageFlags = (int)((messageHeader & 0xC0000000L) >> 30);
-            int messageSize = messageHeader & 0x3FFFFFFF;
             //if (messageSize != raw.Length)
             //    Warn($"Size conflict: {messageSize} but was {raw.Length}");
 

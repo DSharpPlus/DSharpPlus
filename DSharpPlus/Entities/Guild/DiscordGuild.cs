@@ -1873,12 +1873,6 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             Nonce = nonce
         };
 
-        GatewayPayload payload = new()
-        {
-            OpCode = GatewayOpCode.RequestGuildMembers,
-            Data = gatewayRequestGuildMembers
-        };
-
 #pragma warning disable DSP0004
         await client.SendPayloadAsync(GatewayOpCode.RequestGuildMembers, gatewayRequestGuildMembers, this.Id);
 #pragma warning restore DSP0004

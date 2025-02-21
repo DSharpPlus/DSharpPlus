@@ -52,7 +52,7 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
             return false;
         }
 
-        DiscordPermissions pbot = ctx.Channel.PermissionsFor(bot);
+        ctx.Channel.PermissionsFor(bot);
 
         bool usrok = ctx.Guild.OwnerId == usr.Id;
         bool botok = ctx.Guild.OwnerId == bot.Id;
