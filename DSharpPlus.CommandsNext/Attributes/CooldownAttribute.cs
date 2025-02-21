@@ -118,7 +118,7 @@ public sealed class CooldownAttribute : CheckBaseAttribute
         if (!buckets.TryGetValue(bucketId, out CommandCooldownBucket? bucket))
         {
             bucket = new CommandCooldownBucket(ctx.Command!.QualifiedName, ctx.Client.CurrentUser.Id, this.MaxUses, this.Reset, userId, channelId, guildId);
-            buckets.AddOrUpdate(bucketId, bucket, (key, value) => bucket);
+            buckets.AddOrUpdate(bucketId, bucket, (_, _) => bucket);
         }
 
         return await bucket.DecrementUseAsync();

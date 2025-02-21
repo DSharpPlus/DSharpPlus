@@ -113,7 +113,7 @@ public sealed class SlashCooldownAttribute : SlashCheckBaseAttribute
         if (!buckets.TryGetValue(bucketId, out SlashCommandCooldownBucket? bucket))
         {
             bucket = new SlashCommandCooldownBucket(ctx.QualifiedName, ctx.Client.CurrentUser.Id, this.MaxUses, this.Reset, userId, channelId, guildId);
-            buckets.AddOrUpdate(bucketId, bucket, (key, value) => bucket);
+            buckets.AddOrUpdate(bucketId, bucket, (_, _) => bucket);
         }
 
         return await bucket.DecrementUseAsync();
