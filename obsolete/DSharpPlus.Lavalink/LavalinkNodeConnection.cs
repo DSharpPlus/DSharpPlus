@@ -289,7 +289,7 @@ public sealed class LavalinkNodeConnection
             await kvp.Value.DisconnectAsync();
         }
 
-        NodeDisconnected?.Invoke(this);
+        this.NodeDisconnected?.Invoke(this);
 
         Volatile.Write(ref this.isDisposed, true);
         await this.WebSocket.DisconnectAsync();
@@ -474,7 +474,7 @@ public sealed class LavalinkNodeConnection
         else if (e.CloseCode is not 1001 and not (-1))
         {
             this.Discord.Logger.LogInformation(LavalinkEvents.LavalinkConnectionClosed, "Connection closed ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
-            NodeDisconnected?.Invoke(this);
+            this.NodeDisconnected?.Invoke(this);
             await this.disconnected.InvokeAsync(this, new NodeDisconnectedEventArgs(this, true));
         }
         else
@@ -487,7 +487,8 @@ public sealed class LavalinkNodeConnection
                 _ = this.connectedGuilds.TryRemove(kvp.Key, out LavalinkGuildConnection? con);
                 await this.guildConnectionRemoved.InvokeAsync(con, new GuildConnectionRemovedEventArgs());
             }
-            NodeDisconnected?.Invoke(this);
+
+            this.NodeDisconnected?.Invoke(this);
             await this.disconnected.InvokeAsync(this, new NodeDisconnectedEventArgs(this, false));
 
             if (this.Configuration.SocketAutoReconnect)

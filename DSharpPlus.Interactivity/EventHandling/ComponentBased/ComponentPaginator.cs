@@ -130,7 +130,7 @@ internal class ComponentPaginator : IPaginator
 
         foreach (DiscordActionRowComponent actionRow in page.Components)
         {
-            builder.AddComponents(actionRow);
+            this.builder.AddComponents(actionRow);
         }
 
         await this.builder.ModifyAsync(msg);

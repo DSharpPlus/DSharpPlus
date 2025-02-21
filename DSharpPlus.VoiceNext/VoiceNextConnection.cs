@@ -750,7 +750,7 @@ public sealed class VoiceNextConnection : IDisposable
         this.Rtp?.Dispose();
         this.Rtp = null!;
 
-        VoiceDisconnected?.Invoke(this.Guild);
+        this.VoiceDisconnected?.Invoke(this.Guild);
     }
 
     private async Task HeartbeatAsync()

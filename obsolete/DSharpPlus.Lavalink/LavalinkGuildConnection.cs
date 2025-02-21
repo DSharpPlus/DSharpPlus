@@ -158,7 +158,7 @@ public sealed class LavalinkGuildConnection
         if (!isManualDisconnection)
         {
             await SendVoiceUpdateAsync();
-            ChannelDisconnected?.Invoke(this);
+            this.ChannelDisconnected?.Invoke(this);
         }
     }
 
