@@ -11,8 +11,6 @@ using DSharpPlus.Lavalink.Entities;
 using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net.Abstractions;
 
-using Newtonsoft.Json;
-
 namespace DSharpPlus.Lavalink;
 
 [Obsolete("DSharpPlus.Lavalink is deprecated for removal.", true)]

@@ -6,7 +6,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using DSharpPlus.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
 
