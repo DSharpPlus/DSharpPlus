@@ -543,7 +543,6 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             throw new InvalidOperationException("Cannot get more than 100 messages around the specified ID.");
         }
 
-        List<DiscordMessage> msgs = new(limit);
         int remaining = limit;
         ulong? last = null;
         bool isbefore = before != null;
