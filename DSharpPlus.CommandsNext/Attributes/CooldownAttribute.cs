@@ -65,7 +65,7 @@ public sealed class CooldownAttribute : CheckBaseAttribute
     public TimeSpan GetRemainingCooldown(CommandContext ctx)
     {
         CommandCooldownBucket? bucket = GetBucket(ctx);
-        return (bucket is null || bucket.RemainingUses > 0) ? TimeSpan.Zero : bucket.ResetsAt - DateTimeOffset.UtcNow;
+        return bucket is null || bucket.RemainingUses > 0 ? TimeSpan.Zero : bucket.ResetsAt - DateTimeOffset.UtcNow;
     }
 
     /// <summary>

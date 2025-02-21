@@ -32,7 +32,7 @@ public sealed class EventHandlerCollection
         {
             return this.Handlers.TryGetValue(type, out IReadOnlyList<object>? handlers)
                 ? handlers
-                : ([]);
+                : [];
         }
     }
 

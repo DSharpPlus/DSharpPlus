@@ -555,7 +555,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
             ImageFormat.Jpeg => "jpg",
             ImageFormat.Png => "png",
             ImageFormat.WebP => "webp",
-            ImageFormat.Auto => !string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? (this.GuildAvatarHash.StartsWith("a_") ? "gif" : "png") : "png",
+            ImageFormat.Auto => !string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? this.GuildAvatarHash.StartsWith("a_") ? "gif" : "png" : "png",
             _ => throw new ArgumentOutOfRangeException(nameof(imageFormat)),
         };
         string stringImageSize = imageSize.ToString(CultureInfo.InvariantCulture);

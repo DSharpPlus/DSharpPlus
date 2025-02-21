@@ -48,7 +48,7 @@ public static class LavalinkUtilities
 
             // java bytes are signed
             // https://docs.oracle.com/javase/7/docs/api/java/io/DataInput.html#readByte()
-            int version = (messageFlags & TRACK_INFO_VERSIONED) != 0 ? (br.ReadSByte() & 0xFF) : 1;
+            int version = (messageFlags & TRACK_INFO_VERSIONED) != 0 ? br.ReadSByte() & 0xFF : 1;
             //if (version != TRACK_INFO_VERSION)
             //    Warn($"Version conflict: Expected {TRACK_INFO_VERSION} but got {version}");
 
