@@ -7,7 +7,7 @@ using ZstdErrorCodeConvertible = nuint;
 
 namespace DSharpPlus.Net.Gateway.Compression.Zstd;
 
-partial struct ZstdInterop
+internal partial struct ZstdInterop
 {
     // ZstdInterop.Bindings is a nested type to lazily load zstd. the native load is done by the static constructor,
     // which will not be executed unless this code actually gets used. since we cannot rely on zstd being present at all
