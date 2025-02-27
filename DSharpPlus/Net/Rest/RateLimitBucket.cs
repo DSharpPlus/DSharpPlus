@@ -132,6 +132,17 @@ internal sealed class RateLimitBucket
 
     internal void UpdateBucket(int maximum, int remaining, DateTime reset)
     {
+        if (reset == this.Reset && this.remaining <= remaining)
+        {
+            // we're out of sync, just decrement the reservation - we trust the most pessimistic data.
+            if (this.reserved > 0)
+            {
+                Interlocked.Decrement(ref this.reserved);
+            }
+
+            return;
+        }
+
         Interlocked.Exchange(ref this.maximum, maximum);
         Interlocked.Exchange(ref this.remaining, remaining);
 

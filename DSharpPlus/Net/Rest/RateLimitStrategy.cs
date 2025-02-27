@@ -6,8 +6,9 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using DSharpPlus.Exceptions;
+
 using Microsoft.Extensions.Logging;
+
 using Polly;
 
 namespace DSharpPlus.Net;
@@ -20,6 +21,8 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
 
     private readonly ILogger logger;
     private readonly int waitingForHashMilliseconds;
+
+    private readonly Lock bucketCheckingLock = new();
 
     private bool cancel = false;
 
@@ -75,13 +78,28 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
         // check against ratelimits now
         DateTime instant = DateTime.UtcNow;
 
-        if (!exemptFromGlobalLimit && !this.globalBucket.CheckNextRequest())
+        lock (this.bucketCheckingLock)
         {
-            return SynthesizeInternalResponse(route, this.globalBucket.Reset, "global", traceId);
+            if (!exemptFromGlobalLimit && !this.globalBucket.CheckNextRequest())
+            {
+                return SynthesizeInternalResponse(route, this.globalBucket.Reset, "global", traceId);
+            }
         }
 
         if (!this.routeHashes.TryGetValue(route, out string? hash))
         {
+            if (!this.routeHashes.TryAdd(route, "pending"))
+            {
+                // two different async requests entered this at the same time, requeue this one
+                return SynthesizeInternalResponse
+                (
+                    route,
+                    instant + TimeSpan.FromMilliseconds(this.waitingForHashMilliseconds),
+                    "route",
+                    traceId
+                );
+            }
+
             this.logger.LogTrace
             (
                 LoggerEvents.RatelimitDiag,
@@ -89,8 +107,6 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
                 traceId,
                 route
             );
-
-            this.routeHashes.AddOrUpdate(route, "pending", (_, _) => "pending");
 
             Outcome<HttpResponseMessage> outcome = await action(context, state);
 
@@ -144,14 +160,17 @@ internal class RateLimitStrategy : ResilienceStrategy<HttpResponseMessage>, IDis
                 bucket.reserved
             );
 
-            if (!bucket.CheckNextRequest())
+            lock (this.bucketCheckingLock)
             {
-                if (!exemptFromGlobalLimit)
+                if (!bucket.CheckNextRequest())
                 {
-                    this.globalBucket.CancelReservation();
-                }
+                    if (!exemptFromGlobalLimit)
+                    {
+                        this.globalBucket.CancelReservation();
+                    }
 
-                return SynthesizeInternalResponse(route, bucket.Reset, "bucket", traceId);
+                    return SynthesizeInternalResponse(route, bucket.Reset, "bucket", traceId);
+                }
             }
 
             this.logger.LogTrace
