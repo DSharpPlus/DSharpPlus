@@ -721,7 +721,7 @@ public sealed partial class DiscordClient
             this.privateChannels[channel.Id] = channel;
         }
 
-        IEnumerable<DiscordGuild> guilds = rawGuilds.ToDiscordObject<IEnumerable<DiscordGuild>>();
+        List<DiscordGuild> guilds = rawGuilds.ToDiscordObject<IEnumerable<DiscordGuild>>().ToList();
         foreach (DiscordGuild guild in guilds)
         {
             guild.Discord = this;

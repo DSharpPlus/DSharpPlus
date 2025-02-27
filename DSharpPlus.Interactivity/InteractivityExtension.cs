@@ -833,9 +833,11 @@ public class InteractivityExtension : IDisposable
     public async Task SendPaginatedMessageAsync(DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationEmojis emojis,
         PaginationBehaviour? behaviour = default, PaginationDeletion? deletion = default, TimeSpan? timeoutoverride = null)
     {
+        Page[] pageArray = pages.ToArray();
+        Page firstPage = pageArray.First();
         DiscordMessageBuilder builder = new DiscordMessageBuilder()
-            .WithContent(pages.First().Content)
-            .AddEmbed(pages.First().Embed);
+            .WithContent(firstPage.Content)
+            .AddEmbed(firstPage.Embed);
         DiscordMessage m = await builder.SendAsync(channel);
 
         TimeSpan timeout = timeoutoverride ?? this.Config.Timeout;
@@ -844,7 +846,7 @@ public class InteractivityExtension : IDisposable
         PaginationDeletion del = deletion ?? this.Config.PaginationDeletion;
         PaginationEmojis ems = emojis ?? this.Config.PaginationEmojis;
 
-        PaginationRequest prequest = new(m, user, bhv, del, ems, timeout, pages.ToArray());
+        PaginationRequest prequest = new(m, user, bhv, del, ems, timeout, pageArray);
 
         await this.Paginator.DoPaginationAsync(prequest);
     }
@@ -872,10 +874,11 @@ public class InteractivityExtension : IDisposable
         ButtonPaginationBehavior del = deletion ?? this.Config.ButtonBehavior;
         PaginationButtons bts = buttons ?? this.Config.PaginationButtons;
         disabledButtons ??= [];
+        Page[] pageArray = pages.ToArray();
 
-        bts = new(bts); // Copy //
+        bts = new PaginationButtons(bts); // Copy //
 
-        if (pages.Count() == 1)
+        if (pageArray.Length == 1)
         {
             if (disableBehavior == ButtonDisableBehavior.Disable)
             {
@@ -903,7 +906,7 @@ public class InteractivityExtension : IDisposable
                 disabledButtons.AddRange(new[] { PaginationButtonType.SkipLeft, PaginationButtonType.Left });
             }
 
-            if (pages.Count() == 2)
+            if (pageArray.Length == 2)
             {
                 if (disableBehavior == ButtonDisableBehavior.Disable)
                 {
@@ -947,7 +950,7 @@ public class InteractivityExtension : IDisposable
             buttonArray = [.. buttonList];
         }
 
-        Page[] pageArray = pages.ToArray();
+        
 
         if (asEditResponse)
         {
@@ -980,7 +983,7 @@ public class InteractivityExtension : IDisposable
             message = await interaction.GetOriginalResponseAsync();
         }
 
-        InteractionPaginationRequest req = new(interaction, message, user, bhv, del, bts, pages, token);
+        InteractionPaginationRequest req = new(interaction, message, user, bhv, del, bts, pageArray, token);
 
         await this.compPaginator.DoPaginationAsync(req);
     }

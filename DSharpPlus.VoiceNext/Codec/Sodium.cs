@@ -148,9 +148,10 @@ internal sealed class Sodium : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static KeyValuePair<string, EncryptionMode> SelectMode(IEnumerable<string> availableModes)
     {
+        string[] availableModesArray = availableModes.ToArray();
         foreach (KeyValuePair<string, EncryptionMode> kvMode in SupportedModes)
         {
-            if (availableModes.Contains(kvMode.Key))
+            if (availableModesArray.Contains(kvMode.Key))
             {
                 return kvMode;
             }
