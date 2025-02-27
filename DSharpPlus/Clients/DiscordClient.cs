@@ -380,7 +380,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
         if (icon.HasValue && icon.Value != null)
         {
-            using ImageTool imgtool = new(icon.Value);
+            using InlineMediaTool imgtool = new(icon.Value);
             iconb64 = imgtool.GetBase64();
         }
         else if (icon.HasValue)
@@ -406,7 +406,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
         if (icon.HasValue && icon.Value != null)
         {
-            using ImageTool imgtool = new(icon.Value);
+            using InlineMediaTool imgtool = new(icon.Value);
             iconb64 = imgtool.GetBase64();
         }
         else if (icon.HasValue)
@@ -554,7 +554,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         Optional<string> avatarBase64 = Optional.FromNoValue<string>();
         if (avatar.HasValue && avatar.Value != null)
         {
-            using ImageTool imgtool = new(avatar.Value);
+            using InlineMediaTool imgtool = new(avatar.Value);
             avatarBase64 = imgtool.GetBase64();
         }
         else if (avatar.HasValue)
@@ -565,7 +565,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         Optional<string> bannerBase64 = Optional.FromNoValue<string>();
         if (banner.HasValue && banner.Value != null)
         {
-            using ImageTool imgtool = new(banner.Value);
+            using InlineMediaTool imgtool = new(banner.Value);
             bannerBase64 = imgtool.GetBase64();
         }
         else if (banner.HasValue)
@@ -815,7 +815,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
         string? image64 = null;
 
-        using (ImageTool imgtool = new(image))
+        using (InlineMediaTool imgtool = new(image))
         {
             image64 = imgtool.GetBase64();
         }

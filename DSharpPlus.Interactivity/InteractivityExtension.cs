@@ -539,7 +539,7 @@ public class InteractivityExtension : IDisposable
 
         if (message.FilterComponents<DiscordComponent>().Where(IsSelect).All(c => c.CustomId != id))
         {
-            throw new ArgumentException($"Provided message does not contain button with Id of '{id}'.");
+            throw new ArgumentException($"Provided message does not contain select component with Id of '{id}'.");
         }
 
         ComponentInteractionCreatedEventArgs? result = await
@@ -864,11 +864,22 @@ public class InteractivityExtension : IDisposable
     /// <param name="buttons">Optional: custom buttons</param>
     /// <param name="behaviour">Pagination behaviour.</param>
     /// <param name="deletion">Deletion behaviour</param>
-    /// <param name="asEditResponse">If the response as edit of previous response.</param>
     /// <param name="disableBehavior">Whether to disable or remove the buttons if there is only one page</param>
     /// <param name="disabledButtons">Disabled buttons</param>
     /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
-    public async Task SendPaginatedResponseAsync(DiscordInteraction interaction, bool ephemeral, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, bool asEditResponse = false, ButtonDisableBehavior disableBehavior = ButtonDisableBehavior.Disable, List<PaginationButtonType> disabledButtons = null, CancellationToken token = default)
+    public async Task SendPaginatedResponseAsync
+    (
+        DiscordInteraction interaction,
+        bool ephemeral,
+        DiscordUser user,
+        IEnumerable<Page> pages,
+        PaginationButtons buttons = null,
+        PaginationBehaviour? behaviour = default,
+        ButtonPaginationBehavior? deletion = default,
+        ButtonDisableBehavior disableBehavior = ButtonDisableBehavior.Disable,
+        List<PaginationButtonType> disabledButtons = null,
+        CancellationToken token = default
+    )
     {
         PaginationBehaviour bhv = behaviour ?? this.Config.PaginationBehaviour;
         ButtonPaginationBehavior del = deletion ?? this.Config.ButtonBehavior;
@@ -952,7 +963,7 @@ public class InteractivityExtension : IDisposable
 
         
 
-        if (asEditResponse)
+        if (interaction.ResponseState != DiscordInteractionResponseState.Unacknowledged)
         {
             DiscordWebhookBuilder builder = new DiscordWebhookBuilder()
                 .WithContent(pageArray[0].Content)
