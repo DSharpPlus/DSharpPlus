@@ -33,40 +33,40 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
 
     public override async Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
     {
-        if (ctx.Guild == null)
+        if (ctx.Guild is null)
         {
             return this.IgnoreDms;
         }
 
-        DiscordMember? usr = ctx.Member;
-        if (usr == null)
+        DiscordMember? user = ctx.Member;
+        if (user is null)
         {
             return false;
         }
 
-        DiscordPermissions pusr = ctx.Channel.PermissionsFor(usr);
+        DiscordPermissions userPermissions = ctx.Channel.PermissionsFor(user);
 
         DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
-        if (bot == null)
+        if (bot is null)
         {
             return false;
         }
 
-        ctx.Channel.PermissionsFor(bot);
+        DiscordPermissions botPermissions = ctx.Channel.PermissionsFor(bot);
 
-        bool usrok = ctx.Guild.OwnerId == usr.Id;
-        bool botok = ctx.Guild.OwnerId == bot.Id;
+        bool userIsOwner = ctx.Guild.OwnerId == user.Id;
+        bool botIsOwner = ctx.Guild.OwnerId == bot.Id;
 
-        if (!usrok)
+        if (!userIsOwner)
         {
-            usrok = pusr.HasAllPermissions(this.Permissions);
+            userIsOwner = userPermissions.HasAllPermissions(this.Permissions);
         }
 
-        if (!botok)
+        if (!botIsOwner)
         {
-            botok = pusr.HasAllPermissions(this.Permissions);
+            botIsOwner = botPermissions.HasAllPermissions(this.Permissions);
         }
 
-        return usrok && botok;
+        return userIsOwner && botIsOwner;
     }
 }
