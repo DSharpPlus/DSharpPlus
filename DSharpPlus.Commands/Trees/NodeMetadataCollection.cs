@@ -23,7 +23,7 @@ public sealed class NodeMetadataCollection : IReadOnlyList<INodeMetadataItem>
 
     private readonly ImmutableArray<INodeMetadataItem> values;
 
-    private NodeMetadataCollection(ImmutableArray<INodeMetadataItem> values)
+    internal NodeMetadataCollection(ImmutableArray<INodeMetadataItem> values)
     {
         Debug.Assert(!values.IsEmpty);
 

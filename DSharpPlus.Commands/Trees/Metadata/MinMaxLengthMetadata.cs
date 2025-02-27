@@ -1,6 +1,6 @@
 namespace DSharpPlus.Commands.Trees.Metadata;
 
-public sealed class MinMaxLengthMetadata
+public sealed class MinMaxLengthMetadata : INodeMetadataItem
 {
     public int? MaxLength { get; init; }
 
