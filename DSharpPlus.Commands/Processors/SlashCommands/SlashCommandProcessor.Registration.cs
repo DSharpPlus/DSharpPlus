@@ -501,6 +501,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
 
             // This is just a normal parameter.
             options.Add(await ToApplicationParameterAsync(command, parameter));
+            continue;
         }
     }
 

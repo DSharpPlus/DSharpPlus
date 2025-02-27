@@ -84,6 +84,7 @@ public sealed class UserCommandProcessor : ICommandProcessor
                 if (!command.Parameters[i].DefaultValue.HasValue)
                 {
                     UserCommandLogging.invalidParameterMissingDefaultValue(logger, i, command.FullName, null);
+                    continue;
                 }
             }
 

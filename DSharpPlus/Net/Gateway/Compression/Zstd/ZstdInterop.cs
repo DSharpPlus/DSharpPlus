@@ -64,9 +64,12 @@ internal readonly unsafe partial struct ZstdInterop : IDisposable, IEquatable<Zs
                             isCompleted = true;
                             break;
                         }
+
+                        continue;
                     }
                     else if (errorCode is ZstdErrorCode.DestinationSizeTooSmall or ZstdErrorCode.DestinationFull)
                     {
+                        continue;
                     }
                     else
                     {

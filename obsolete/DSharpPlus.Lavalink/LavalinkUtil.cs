@@ -134,6 +134,7 @@ internal class JavaBinaryReader : BinaryReader
                 int value2Chop = (value2 & 0b00111111) << 6;
                 int value3Chop = value3 & 0b00111111;
                 output[strlen++] = (char)(value1Chop | value2Chop | value3Chop);
+                continue;
             }
         }
 
