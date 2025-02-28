@@ -437,7 +437,7 @@ public sealed class VoiceNextConnection : IDisposable
             return false;
         }
 
-        Rtp.DecodeHeader(data, out ushort shortSequence, out uint timestamp, out uint ssrc, out bool hasExtension);
+        Rtp.DecodeHeader(data, out ushort shortSequence, out uint _, out uint ssrc, out bool hasExtension);
 
         if (!this.TransmittingSSRCs.TryGetValue(ssrc, out AudioSender? vtx))
         {
@@ -750,7 +750,7 @@ public sealed class VoiceNextConnection : IDisposable
         this.Rtp?.Dispose();
         this.Rtp = null!;
 
-        VoiceDisconnected?.Invoke(this.Guild);
+        this.VoiceDisconnected?.Invoke(this.Guild);
     }
 
     private async Task HeartbeatAsync()

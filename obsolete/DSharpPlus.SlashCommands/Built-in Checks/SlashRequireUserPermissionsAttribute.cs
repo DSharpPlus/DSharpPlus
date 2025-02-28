@@ -41,7 +41,7 @@ public sealed class SlashRequireUserPermissionsAttribute : SlashCheckBaseAttribu
             return Task.FromResult(this.IgnoreDms);
         }
 
-        Entities.DiscordMember usr = ctx.Member;
+        DiscordMember usr = ctx.Member;
         if (usr == null)
         {
             return Task.FromResult(false);

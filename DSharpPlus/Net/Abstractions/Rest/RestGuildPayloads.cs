@@ -7,7 +7,7 @@ namespace DSharpPlus.Net.Abstractions;
 
 internal interface IReasonAction
 {
-    string Reason { get; set; }
+    public string Reason { get; set; }
 
     //[JsonProperty("reason", NullValueHandling = NullValueHandling.Ignore)]
     //public string Reason { get; set; }

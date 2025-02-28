@@ -21,7 +21,7 @@ public sealed class DefaultTextArgumentSplicerTests
         );
 
         builder.UseCommands(
-            (serviceProvider, extension) => extension.AddProcessor(new TextCommandProcessor()),
+            (_, extension) => extension.AddProcessor(new TextCommandProcessor()),
             new() { RegisterDefaultCommandProcessors = false }
         );
 

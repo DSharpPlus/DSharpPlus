@@ -131,7 +131,7 @@ public partial class DiscordEmoji : SnowflakeObject, IEquatable<DiscordEmoji>
         object? o1 = e1;
         object? o2 = e2;
 
-        return (o1 != null ^ o2 == null)
+        return o1 != null ^ o2 == null
             && ((o1 == null && o2 == null) || (e1.Id == e2.Id && (e1.Id != 0 || e1.Name == e2.Name)));
     }
 

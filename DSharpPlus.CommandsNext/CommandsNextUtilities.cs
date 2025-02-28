@@ -190,7 +190,6 @@ public static partial class CommandsNextUtilities
 
     internal static async Task<ArgumentBindingResult> BindArgumentsAsync(CommandContext ctx, bool ignoreSurplus)
     {
-        Command? command = ctx.Command;
         CommandOverload overload = ctx.Overload;
 
         object?[] args = new object?[overload.Arguments.Count + 2];

@@ -38,7 +38,7 @@ public sealed class RequireBotPermissionsAttribute : CheckBaseAttribute
             return this.IgnoreDms;
         }
 
-        DSharpPlus.Entities.DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
+        DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
         if (bot == null)
         {
             return false;

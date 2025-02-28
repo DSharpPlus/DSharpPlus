@@ -13,5 +13,5 @@ public interface IVoiceFilter
     /// <param name="pcmData">PCM data to transform. The transformation happens in-place.</param>
     /// <param name="pcmFormat">Format of the supplied PCM data.</param>
     /// <param name="duration">Millisecond duration of the supplied PCM data.</param>
-    void Transform(Span<short> pcmData, AudioFormat pcmFormat, int duration);
+    public void Transform(Span<short> pcmData, AudioFormat pcmFormat, int duration);
 }

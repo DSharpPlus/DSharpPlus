@@ -18,7 +18,7 @@ internal sealed class DiscordComponentJsonConverter : JsonConverter
         }
 
         JObject job = JObject.Load(reader);
-        DiscordComponentType? type = (job["type"]?.ToDiscordObject<DiscordComponentType>()) ?? throw new ArgumentException($"Value {reader} does not have a component type specifier");
+        DiscordComponentType? type = job["type"]?.ToDiscordObject<DiscordComponentType>() ?? throw new ArgumentException($"Value {reader} does not have a component type specifier");
         DiscordComponent cmp = type switch
         {
             DiscordComponentType.ActionRow => new DiscordActionRowComponent(),

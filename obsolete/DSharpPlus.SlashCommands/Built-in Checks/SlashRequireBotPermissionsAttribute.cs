@@ -41,7 +41,7 @@ public sealed class SlashRequireBotPermissionsAttribute : SlashCheckBaseAttribut
             return this.IgnoreDms;
         }
 
-        Entities.DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
+        DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
         if (bot == null)
         {
             return false;

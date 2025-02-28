@@ -875,7 +875,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
             yield break;
         }
 
-        List<DiscordGuild> guilds = new(limit);
         int remaining = limit;
         ulong? last = null;
         bool isbefore = before != null;

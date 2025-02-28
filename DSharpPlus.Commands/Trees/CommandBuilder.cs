@@ -73,7 +73,7 @@ public class CommandBuilder
     public CommandBuilder WithParameters(IEnumerable<CommandParameterBuilder> parameters)
     {
         this.Parameters = new(parameters);
-        foreach (CommandParameterBuilder parameter in parameters)
+        foreach (CommandParameterBuilder parameter in this.Parameters)
         {
             parameter.Parent ??= this;
         }
@@ -85,7 +85,7 @@ public class CommandBuilder
     {
         this.Attributes = new(attributes);
 
-        foreach (Attribute attribute in attributes)
+        foreach (Attribute attribute in this.Attributes)
         {
             if (attribute is CommandAttribute commandAttribute)
             {

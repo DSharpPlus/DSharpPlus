@@ -142,7 +142,7 @@ public static partial class Formatter
     /// <param name="text">Text to strip of formatting.</param>
     /// <returns>Formatting-stripped text.</returns>
     public static string Strip(string text)
-        => GetMarkdownStripRegex().Replace(text, m => string.Empty);
+        => GetMarkdownStripRegex().Replace(text, _ => string.Empty);
 
     /// <summary>
     /// Creates a mention for specified user or member. Can optionally specify to resolve nicknames.

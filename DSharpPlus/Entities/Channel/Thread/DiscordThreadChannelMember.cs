@@ -31,14 +31,14 @@ public class DiscordThreadChannelMember
     /// </summary>
     [JsonIgnore]
     public DiscordMember Member
-        => this.Guild != null ? (this.Guild.members.TryGetValue(this.Id, out DiscordMember? member) ? member : new DiscordMember { Id = this.Id, guild_id = this.guild_id, Discord = this.Discord }) : null;
+        => this.Guild != null ? this.Guild.members.TryGetValue(this.Id, out DiscordMember? member) ? member : new DiscordMember { Id = this.Id, guild_id = this.guild_id, Discord = this.Discord } : null;
 
     /// <summary>
     /// Gets the category that contains this channel. For threads, gets the channel this thread was created in.
     /// </summary>
     [JsonIgnore]
     public DiscordChannel Thread
-        => this.Guild != null ? (this.Guild.threads.TryGetValue(this.ThreadId, out DiscordThreadChannel? thread) ? thread : null) : null;
+        => this.Guild != null ? this.Guild.threads.TryGetValue(this.ThreadId, out DiscordThreadChannel? thread) ? thread : null : null;
 
     /// <summary>
     /// Gets the guild to which this channel belongs.

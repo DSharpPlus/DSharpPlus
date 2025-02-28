@@ -30,7 +30,7 @@ public class Tests
         );
 
         builder.UseCommands(
-            async (serviceProvider, extension) =>
+            async (_, extension) =>
             {
                 extension.AddProcessor(textCommandProcessor);
                 extension.AddProcessor(slashCommandProcessor);

@@ -1,6 +1,4 @@
-using DSharpPlus.Entities;
 using DSharpPlus.Logging;
-using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -8,7 +6,6 @@ using Newtonsoft.Json.Linq;
 using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using System.Threading;
 using System;
 
 namespace DSharpPlus.Net.InboundWebhooks.Transport;

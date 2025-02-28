@@ -12,5 +12,5 @@ public interface IChoiceProvider
     /// <summary>
     /// Sets the choices for the slash command.
     /// </summary>
-    Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider();
+    public Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider();
 }

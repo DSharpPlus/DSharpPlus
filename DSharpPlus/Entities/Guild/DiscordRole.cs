@@ -212,7 +212,7 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     /// <param name="e2">Second role to compare.</param>
     /// <returns>Whether the two roles are equal.</returns>
     public static bool operator ==(DiscordRole e1, DiscordRole e2)
-        => (e1 is null) == (e2 is null)
+        => e1 is null == e2 is null
         && ((e1 is null && e2 is null) || e1.Id == e2.Id);
 
     /// <summary>
