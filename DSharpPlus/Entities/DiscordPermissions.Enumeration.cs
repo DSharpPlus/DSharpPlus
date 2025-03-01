@@ -67,7 +67,7 @@ partial struct DiscordPermissions
                     this.bit = BitOperations.TrailingZeroCount(value);
                 }
 
-                for (; this.bit < (32 - BitOperations.LeadingZeroCount(value)); this.bit++)
+                for (; this.bit < 32 - BitOperations.LeadingZeroCount(value); this.bit++)
                 {
                     if (BitHelper.HasFlag(value, this.bit))
                     {

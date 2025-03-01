@@ -52,7 +52,7 @@ public sealed class CommandModuleBuilder
     }
 
     internal ICommandModule Build(IServiceProvider services) => this.Type is null
-            ? throw new InvalidOperationException($"A command module cannot be built without a module type, please use the {nameof(this.WithType)} method to set a type.")
+            ? throw new InvalidOperationException($"A command module cannot be built without a module type, please use the {nameof(WithType)} method to set a type.")
             : this.Lifespan switch
             {
                 ModuleLifespan.Singleton => new SingletonCommandModule(this.Type, services),

@@ -7,7 +7,6 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Executors;
 using DSharpPlus.Entities;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.CommandsNext;
 

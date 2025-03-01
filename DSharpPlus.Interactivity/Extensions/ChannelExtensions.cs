@@ -31,7 +31,7 @@ public static class ChannelExtensions
     /// <param name="timeoutOverride">Overrides the timeout set in <see cref="InteractivityConfiguration.Timeout"/></param>
     /// <exception cref="InvalidOperationException">Thrown if interactivity is not enabled for the client associated with the channel.</exception>
     public static Task<InteractivityResult<DiscordMessage>> GetNextMessageAsync(this DiscordChannel channel, TimeSpan? timeoutOverride = null)
-        => channel.GetNextMessageAsync(msg => true, timeoutOverride);
+        => channel.GetNextMessageAsync(_ => true, timeoutOverride);
 
     /// <summary>
     /// Waits for the next message sent in this channel from a specific user.

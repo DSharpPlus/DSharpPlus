@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
@@ -722,7 +721,7 @@ public sealed partial class DiscordClient
             this.privateChannels[channel.Id] = channel;
         }
 
-        IEnumerable<DiscordGuild> guilds = rawGuilds.ToDiscordObject<IEnumerable<DiscordGuild>>();
+        List<DiscordGuild> guilds = rawGuilds.ToDiscordObject<IEnumerable<DiscordGuild>>().ToList();
         foreach (DiscordGuild guild in guilds)
         {
             guild.Discord = this;
@@ -1649,7 +1648,7 @@ public sealed partial class DiscordClient
             ea.NotFound = new ReadOnlySet<ulong>(nf);
         }
 
-        _ = this.DispatchGuildMembersChunkForIteratorsAsync(ea);
+        _ = DispatchGuildMembersChunkForIteratorsAsync(ea);
 
         await this.dispatcher.DispatchAsync(this, ea);
     }
@@ -2122,7 +2121,7 @@ public sealed partial class DiscordClient
 
     internal async Task OnMessageReactionRemoveAllAsync(ulong messageId, ulong channelId, ulong? guildId)
     {
-        DiscordChannel? channel = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId, guildId);
+        _ = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId, guildId);
 
         if (!this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
         {

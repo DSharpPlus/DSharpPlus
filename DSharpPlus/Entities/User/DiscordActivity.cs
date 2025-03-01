@@ -73,7 +73,7 @@ internal sealed class UserStatusConverter : JsonConverter
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) =>
         // Active sessions are indicated with an "online", "idle", or "dnd" string per platform. If a user is
         // offline or invisible, the corresponding field is not present.
-        (reader.Value?.ToString().ToLowerInvariant()) switch // reader.Value can be a string, DateTime or DateTimeOffset (yes, it's weird)
+        reader.Value?.ToString().ToLowerInvariant() switch // reader.Value can be a string, DateTime or DateTimeOffset (yes, it's weird)
         {
             "online" => DiscordUserStatus.Online,
             "idle" => DiscordUserStatus.Idle,

@@ -13,6 +13,6 @@ internal class HelpFormatterFactory
 
     public BaseHelpFormatter Create(CommandContext ctx)
         => this.Factory is null
-            ? throw new InvalidOperationException($"A formatter type must be set with the {nameof(this.SetFormatterType)} method.")
+            ? throw new InvalidOperationException($"A formatter type must be set with the {nameof(SetFormatterType)} method.")
             : (BaseHelpFormatter)this.Factory(ctx.Services, [ctx]);
 }

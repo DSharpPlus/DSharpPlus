@@ -10,14 +10,14 @@ public interface ICommandModule
     /// <summary>
     /// Gets the type of this module.
     /// </summary>
-    Type ModuleType { get; }
+    public Type ModuleType { get; }
 
     /// <summary>
     /// Returns an instance of this module.
     /// </summary>
     /// <param name="services">Services to instantiate the module with.</param>
     /// <returns>A created instance of this module.</returns>
-    BaseCommandModule GetInstance(IServiceProvider services);
+    public BaseCommandModule GetInstance(IServiceProvider services);
 }
 
 /// <summary>

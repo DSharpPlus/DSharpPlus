@@ -65,7 +65,7 @@ public sealed class SlashCooldownAttribute : SlashCheckBaseAttribute
     public TimeSpan GetRemainingCooldown(InteractionContext ctx)
     {
         SlashCommandCooldownBucket? bucket = GetBucket(ctx);
-        return (bucket is null || bucket.RemainingUses > 0) ? TimeSpan.Zero : bucket.ResetsAt - DateTimeOffset.UtcNow;
+        return bucket is null || bucket.RemainingUses > 0 ? TimeSpan.Zero : bucket.ResetsAt - DateTimeOffset.UtcNow;
     }
 
     /// <summary>
@@ -113,7 +113,7 @@ public sealed class SlashCooldownAttribute : SlashCheckBaseAttribute
         if (!buckets.TryGetValue(bucketId, out SlashCommandCooldownBucket? bucket))
         {
             bucket = new SlashCommandCooldownBucket(ctx.QualifiedName, ctx.Client.CurrentUser.Id, this.MaxUses, this.Reset, userId, channelId, guildId);
-            buckets.AddOrUpdate(bucketId, bucket, (key, value) => bucket);
+            buckets.AddOrUpdate(bucketId, bucket, (_, _) => bucket);
         }
 
         return await bucket.DecrementUseAsync();

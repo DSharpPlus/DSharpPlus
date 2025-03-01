@@ -13,5 +13,5 @@ public interface ICommandExecutor : IDisposable
     /// </summary>
     /// <param name="ctx">Context to execute in.</param>
     /// <returns>Task encapsulating the async operation.</returns>
-    Task ExecuteAsync(CommandContext ctx);
+    public Task ExecuteAsync(CommandContext ctx);
 }
