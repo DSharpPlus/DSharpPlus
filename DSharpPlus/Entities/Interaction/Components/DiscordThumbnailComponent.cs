@@ -22,7 +22,7 @@ public class DiscordThumbnailComponent : DiscordComponent
     /// <summary>
     /// Gets whether this thumbnail is spoilered.
     /// </summary>
-    [JsonProperty("spoilered", NullValueHandling = NullValueHandling.Ignore)]
+    [JsonProperty("spoiler", NullValueHandling = NullValueHandling.Ignore)]
     public bool Spoiler { get; internal set; }
 
     public DiscordThumbnailComponent(DiscordUnfurledMediaItem media, string? description = null, bool spoiler = false)

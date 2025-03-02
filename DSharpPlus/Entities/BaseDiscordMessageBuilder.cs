@@ -40,29 +40,32 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     }
 
     /// <summary>
-    /// Enables or disables support for V2 components; MESSAGES WITH V2 COMPONENTS CANNOT BE DOWNGRADED.
+    /// Enables support for V2 components; messages with the V2 flag cannot be downgraded.
     /// </summary>
-    /// <param name="enable"></param>
     /// <returns></returns>
-    public T EnableV2Components(bool enable = true)
+    public T EnableV2Components()
     {
-        if (enable)
+        this.Flags |= DiscordMessageFlags.IsComponentsV2;
+        return (T)this;
+    }
+    
+    /// <summary>
+    /// Disables V2 components IF this builder does not currently contain illegal components.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The builder contains V2 components and cannot be downgraded.</exception>
+    /// <remarks>This method only disables the V2 components flag; the message originally associated with this builder cannot be downgraded, and this method only exists for convenience.</remarks>
+    public T DisableV2Components()
+    {
+        if (this.components.Any(c => c is not DiscordActionRowComponent))
         {
-            this.Flags |= DiscordMessageFlags.IsComponentsV2;
-        }
-        else
-        {
-            if (this.components.Any(c => c is not DiscordActionRowComponent))
-            {
-                throw new InvalidOperationException
-                (
-                    "This builder cannot contain V2 components when disabling V2 component support. Call ClearComponents() first."
-                );
-            }
-
-            this.Flags &= ~DiscordMessageFlags.IsComponentsV2;
+            throw new InvalidOperationException
+            (
+                "This builder cannot contain V2 components when disabling V2 component support. Call ClearComponents() first."
+            );
         }
 
+        this.Flags &= ~DiscordMessageFlags.IsComponentsV2;
+        
         return (T)this;
     }
 

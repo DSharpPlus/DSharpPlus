@@ -10,7 +10,7 @@ public sealed class DiscordFileComponent : DiscordComponent
     [JsonProperty("file", NullValueHandling = NullValueHandling.Ignore)]    
     public DiscordUnfurledMediaItem File { get; internal set; }
 
-    [JsonProperty("spoilered")]
+    [JsonProperty("spoiler")]
     public bool IsSpoilered { get; internal set; }
 
     public DiscordFileComponent(string url, bool isSpoilered)

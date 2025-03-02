@@ -22,7 +22,7 @@ public sealed class DiscordMediaGalleryItem
     /// <summary>
     /// Gets whether the media item is spoilered.
     /// </summary>
-    [JsonProperty("spoilered")]
+    [JsonProperty("spoiler")]
     public bool IsSpoilered { get; internal set; }
 
     /// <summary>

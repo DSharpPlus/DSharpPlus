@@ -275,7 +275,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
         {
             throw new InvalidOperationException
             (
-                "This builder does support V2 components. Call EnableV2Components(), or remove V2 components from this builder."
+                "V2 Components can only be added to a builder with the V2 components flag set."
             );
         }
 
