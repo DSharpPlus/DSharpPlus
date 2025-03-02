@@ -28,7 +28,6 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
             }
 
             SetIfV2Disabled(ref field, value, nameof(Content));
-            field = value;
         }
     }
 

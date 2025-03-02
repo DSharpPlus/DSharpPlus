@@ -9,10 +9,11 @@ public class DiscordSectionComponent : DiscordComponent
     
     /// <summary>
     /// Gets the accessory for this section.
-    ///
+    ///</summary>
+    /// <remarks>
     /// Accessories take the place of a thumbnail (that is, are positioned as a thumbnail would be) regardless of component.
     /// At this time, only <see cref="DiscordButtonComponent"/> and <see cref="DiscordThumbnailComponent"/> are supported.
-    /// </summary>
+    /// </remarks>
     [JsonProperty("accessory", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordComponent? Accessory { get; internal set; }
     
@@ -21,11 +22,8 @@ public class DiscordSectionComponent : DiscordComponent
     /// As of now, this is only text components, but may allow for more components in the future.
     /// </summary>
     /// <remarks>This is a Discord limitation.</remarks>
-    // To the chagrin of Dv8, we're hard-coding this to be text components
-    // Because I honestly have no idea what he expects us to do otherwise;
-    // runtime validation has the same issue (unchangeable without updating) but worse (needs to be validated everywhere).
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyList<DiscordTextDisplayComponent> Components { get; internal set; }
+    public IReadOnlyList<DiscordComponent> Components { get; internal set; }
     
     /// <summary>
     /// Constructs a new section component.

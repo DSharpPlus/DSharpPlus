@@ -7,7 +7,7 @@ namespace DSharpPlus.Entities;
 /// </summary>
 public sealed class DiscordFileComponent : DiscordComponent
 {
-        
+    [JsonProperty("file", NullValueHandling = NullValueHandling.Ignore)]    
     public DiscordUnfurledMediaItem File { get; internal set; }
 
     [JsonProperty("spoilered")]

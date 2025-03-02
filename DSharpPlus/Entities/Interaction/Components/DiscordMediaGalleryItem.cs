@@ -10,11 +10,13 @@ public sealed class DiscordMediaGalleryItem
     /// <summary>
     /// Gets the media item in the gallery.
     /// </summary>
+    [JsonProperty("media", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordUnfurledMediaItem Media { get; internal set; }
 
     /// <summary>
     /// Gets the description (alt text) of the media item.
     /// </summary>
+    [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
     public string Description { get; internal set; }
 
     /// <summary>

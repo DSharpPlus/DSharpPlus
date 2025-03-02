@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
@@ -12,6 +13,7 @@ public sealed class DiscordMediaGalleryComponent : DiscordComponent
     /// <summary>
     /// Gets the items in the gallery.
     /// </summary>
+    [JsonProperty("items", NullValueHandling = NullValueHandling.Ignore)]
     public IReadOnlyList<DiscordMediaGalleryItem> Items { get; internal set; }
 
     /// <summary>
