@@ -6,8 +6,10 @@ namespace DSharpPlus.Entities.Interaction.Components;
 /// <summary>
 /// Represents a gallery of various media.
 /// </summary>
-public sealed class DiscordMediaGalleryComponent
+public sealed class DiscordMediaGalleryComponent : DiscordComponent
 {
+    public new DiscordComponentType Type => DiscordComponentType.MediaGallery;
+    
     /// <summary>
     /// Gets the items in the gallery.
     /// </summary>
@@ -23,4 +25,6 @@ public sealed class DiscordMediaGalleryComponent
         this.Items = items.ToArray();
         this.Id = id;
     }
+    
+    internal DiscordMediaGalleryComponent() => this.Type = DiscordComponentType.MediaGallery;
 }

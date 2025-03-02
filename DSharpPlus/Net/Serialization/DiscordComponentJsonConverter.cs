@@ -1,5 +1,6 @@
 using System;
 using DSharpPlus.Entities;
+using DSharpPlus.Entities.Interaction.Components;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -30,6 +31,12 @@ internal sealed class DiscordComponentJsonConverter : JsonConverter
             DiscordComponentType.RoleSelect => new DiscordRoleSelectComponent(),
             DiscordComponentType.MentionableSelect => new DiscordMentionableSelectComponent(),
             DiscordComponentType.ChannelSelect => new DiscordChannelSelectComponent(),
+            DiscordComponentType.Section => new DiscordSectionComponent(),
+            DiscordComponentType.TextDisplay => new DiscordTextDisplayComponent(),
+            DiscordComponentType.Thumbnail => new DiscordThumbnailComponent(),
+            DiscordComponentType.MediaGallery => new DiscordMediaGalleryComponent(),
+            DiscordComponentType.Separator => new DiscordSeparatorComponent(),
+            DiscordComponentType.Container => new DiscordContainerComponent(),
             _ => new DiscordComponent() { Type = type.Value }
         };
 

@@ -1,5 +1,8 @@
 namespace DSharpPlus.Entities.Interaction.Components;
 
+/// <summary>
+/// Represents an unfurled url; can be arbitrary URL or attachment:// schema. 
+/// </summary>
 public sealed class DiscordUnfurledMediaItem
 {
     /// <summary>

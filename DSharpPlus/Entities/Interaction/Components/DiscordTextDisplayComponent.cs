@@ -18,4 +18,6 @@ public sealed class DiscordTextDisplayComponent : DiscordComponent
         this.Content = content;
         this.Id = id;
     }
+    
+    internal DiscordTextDisplayComponent() => this.Type = DiscordComponentType.TextDisplay;
 }
