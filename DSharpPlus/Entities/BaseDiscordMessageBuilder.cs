@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DSharpPlus.Net;
 
@@ -18,7 +19,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// </summary>
     public string? Content
     {
-        get => this.content;
+        get;
         set
         {
             if (value != null && value.Length > 2000)
@@ -26,10 +27,10 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
                 throw new ArgumentException("Content length cannot exceed 2000 characters.", nameof(value));
             }
 
-            this.content = value;
+            SetIfV2Disabled(ref field, value, nameof(Content));
+            field = value;
         }
     }
-    internal string? content;
 
     public DiscordMessageFlags Flags { get; internal set; }
 
@@ -39,12 +40,39 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         return (T)this;
     }
 
+    /// <summary>
+    /// Enables or disables support for V2 components; MESSAGES WITH V2 COMPONENTS CANNOT BE DOWNGRADED.
+    /// </summary>
+    /// <param name="enable"></param>
+    /// <returns></returns>
+    public T EnableV2Components(bool enable = true)
+    {
+        if (enable)
+        {
+            this.Flags |= DiscordMessageFlags.IsComponentsV2;
+        }
+        else
+        {
+            if (this.components.Any(c => c is not DiscordActionRowComponent))
+            {
+                throw new InvalidOperationException
+                (
+                    "This builder cannot contain V2 components when disabling V2 component support. Call ClearComponents() first."
+                );
+            }
+
+            this.Flags &= ~DiscordMessageFlags.IsComponentsV2;
+        }
+
+        return (T)this;
+    }
+
     public bool IsTTS { get; set; }
 
     /// <summary>
     /// Gets or sets a poll for this message.
     /// </summary>
-    public DiscordPollBuilder? Poll { get; set; }
+    public DiscordPollBuilder? Poll { get; set => SetIfV2Disabled(ref field, value, nameof(Poll)); }
 
     /// <summary>
     /// Embeds to send on this webhook request.
@@ -65,10 +93,16 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     internal List<IMention> mentions = [];
 
     /// <summary>
-    /// Components to send on this followup message.
+    /// Components to send on this message.
     /// </summary>
-    public IReadOnlyList<DiscordActionRowComponent> Components => this.components;
-    internal List<DiscordActionRowComponent> components = [];
+    public IReadOnlyList<DiscordComponent> Components => this.components;
+    internal List<DiscordComponent> components = [];
+    
+    /// <summary>
+    /// Components, filtered for only action rows.
+    /// </summary>
+    public IReadOnlyList<DiscordActionRowComponent>? ComponentActionRows
+        => this.Components?.Where(x => x is DiscordActionRowComponent).Cast<DiscordActionRowComponent>().ToList();
 
     /// <summary>
     /// Thou shalt NOT PASS! ⚡
@@ -83,13 +117,14 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <param name="builder">The builder to copy.</param>
     protected BaseDiscordMessageBuilder(IDiscordMessageBuilder builder)
     {
-        this.content = builder.Content;
+        this.Content = builder.Content;
         this.mentions.AddRange([.. builder.Mentions]);
         this.embeds.AddRange(builder.Embeds);
         this.components.AddRange(builder.Components);
         this.files.AddRange(builder.Files);
         this.IsTTS = builder.IsTTS;
         this.Poll = builder.Poll;
+        this.Flags = builder.Flags;
     }
 
     /// <summary>
@@ -99,6 +134,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <returns>The current builder to be chained.</returns>
     public T WithContent(string content)
     {
+        ThrowIfV2Enabled();
         this.Content = content;
         return (T)this;
     }
@@ -121,9 +157,14 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     {
         int count = components.TryGetNonEnumeratedCount(out int nonEnumerated) ? nonEnumerated : components.Count();
 
-        if (count + this.components.Count > 5)
+        
+        if (!this.Flags.HasMessageFlag(DiscordMessageFlags.IsComponentsV2) && count + this.components.Count > 5)
         {
             throw new ArgumentOutOfRangeException(nameof(components), "The amount of action rows provided exceeds the maximum of five.");
+        }
+        else if (count + this.components.Count > 10)
+        {
+            throw new ArgumentOutOfRangeException(nameof(components), "The amount of action rows provided exceeds the maximum of 10.");
         }
 
         foreach (DiscordActionRowComponent? ar in components)
@@ -131,6 +172,30 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
             this.components.Add(ar);
         }
 
+        return (T)this;
+    }
+
+    /// <summary>
+    /// Appends several components of arbitrary type without wrapping them in action rows.
+    /// </summary>
+    /// <param name="components">The components to add, up to 5, or 10 with V2 components.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if the provided components would exceed the maximum allowable amount.</exception>
+    public T AddRawComponents(params IEnumerable<DiscordComponent> components)
+    {
+        int count = components.TryGetNonEnumeratedCount(out int nonEnumerated) ? nonEnumerated : components.Count();
+        
+        if (!this.Flags.HasMessageFlag(DiscordMessageFlags.IsComponentsV2) && count + this.components.Count > 5)
+        {
+            throw new ArgumentOutOfRangeException(nameof(components), "The amount of components provided exceeds the maximum of five.");
+        }
+        else if (count + this.components.Count > 10)
+        {
+            throw new ArgumentOutOfRangeException(nameof(components), "The amount of components provided exceeds the maximum of 10.");
+        }
+        
+        this.components.AddRange(components);
+        
         return (T)this;
     }
 
@@ -173,6 +238,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 
     public T WithPoll(DiscordPollBuilder poll)
     {
+        ThrowIfV2Enabled();
         this.Poll = poll;
         return (T)this;
     }
@@ -184,6 +250,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <returns>The current builder to be chained.</returns>
     public T AddEmbed(DiscordEmbed embed)
     {
+        ThrowIfV2Enabled();
         if (embed is null)
         {
             return (T)this; //Providing null embeds will produce a 400 response from Discord.//
@@ -200,6 +267,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <returns>The current builder to be chained.</returns>
     public T AddEmbeds(IEnumerable<DiscordEmbed> embeds)
     {
+        ThrowIfV2Enabled();
         this.embeds.AddRange(embeds);
         return (T)this;
     }
@@ -366,6 +434,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         this.mentions.Clear();
         this.files.Clear();
         this.components.Clear();
+        this.Flags = default;
     }
 
     /// <inheritdoc/>
@@ -447,6 +516,24 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         }
 
         return newStream;
+    }
+
+    private void SetIfV2Disabled<TField>(ref TField field, TField value, string fieldName)
+    {
+        if (this.Flags.HasMessageFlag(DiscordMessageFlags.IsComponentsV2))
+        {
+            throw new ArgumentException("This field cannot be set when V2 components is enabled.", fieldName);
+        }
+
+        field = value;
+    }
+
+    private void ThrowIfV2Enabled([CallerMemberName] string caller = "")
+    {
+        if (this.Flags.HasMessageFlag(DiscordMessageFlags.IsComponentsV2))
+        {
+            throw new InvalidOperationException($"{caller} cannot be called when V2 components is enabled.");
+        }
     }
 
     IDiscordMessageBuilder IDiscordMessageBuilder.SuppressNotifications() => SuppressNotifications();
@@ -539,7 +626,7 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <summary>
     /// All components on this message.
     /// </summary>
-    IReadOnlyList<DiscordActionRowComponent> Components { get; }
+    IReadOnlyList<DiscordComponent> Components { get; }
 
     /// <summary>
     /// All allowed mentions on this message.
@@ -575,6 +662,13 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <param name="components">Action row to add to this message. Should contain child components.</param>
     /// <returns></returns>
     IDiscordMessageBuilder AddComponents(IEnumerable<DiscordActionRowComponent> components);
+    
+    /// <summary>
+    /// Adds components to this message, but does not create an action row for the components.
+    /// </summary>
+    /// <param name="components">The components to add.</param>
+    /// <returns>The updated builder to chain calls with.</returns>
+    IDiscordMessageBuilder AddRawComponents(params IReadOnlyList<DiscordComponent> components);
 
     /// <summary>
     /// Sets whether this message should play as a text-to-speech message.

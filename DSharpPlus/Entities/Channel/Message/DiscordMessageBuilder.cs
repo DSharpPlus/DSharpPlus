@@ -262,12 +262,24 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
             throw new ArgumentException("You must specify content, an embed, a sticker, a poll, or at least one file.");
         }
 
-        if (this.Components.Count > 5)
+        if (!this.Flags.HasMessageFlag(DiscordMessageFlags.IsComponentsV2) && this.Components.Count > 5)
         {
             throw new InvalidOperationException("You can only have 5 action rows per message.");
         }
+        else if (this.Components.Count > 10)
+        {
+            throw new InvalidOperationException("You can only have 10 surface-level components per message.");
+        }
 
-        if (this.Components.Any(c => c.Components.Count > 5))
+        if (!this.Flags.HasMessageFlag(DiscordMessageFlags.IsComponentsV2) && this.Components.Any(c => c is not DiscordActionRowComponent))
+        {
+            throw new InvalidOperationException
+            (
+                "This builder does support V2 components. Call EnableV2Components(), or remove V2 components from this builder."
+            );
+        }
+
+        if (this.Components.OfType<DiscordActionRowComponent>().Any(c => c.Components.Count > 5))
         {
             throw new InvalidOperationException("Action rows can only have 5 components");
         }
