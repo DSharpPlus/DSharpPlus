@@ -1,4 +1,4 @@
-namespace DSharpPlus.Entities.Interaction.Components;
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents an unfurled url; can be arbitrary URL or attachment:// schema. 

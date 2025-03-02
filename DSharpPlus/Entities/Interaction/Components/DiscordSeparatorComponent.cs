@@ -1,4 +1,4 @@
-namespace DSharpPlus.Entities.Interaction.Components;
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a division between components. Can optionally be rendered as a dividing line.

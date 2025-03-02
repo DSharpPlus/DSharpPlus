@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Entities.Interaction.Components;
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents an item in a media gallery.

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DSharpPlus.Entities.Interaction.Components;
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a gallery of various media.

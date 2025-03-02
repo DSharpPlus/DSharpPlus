@@ -1,4 +1,4 @@
-namespace DSharpPlus.Entities.Interaction.Components;
+namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents the spacing for a separator.
