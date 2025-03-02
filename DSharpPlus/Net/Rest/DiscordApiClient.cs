@@ -2439,7 +2439,7 @@ public sealed class DiscordApiClient
         Optional<string> content = default,
         Optional<IEnumerable<DiscordEmbed>> embeds = default,
         Optional<IEnumerable<IMention>> mentions = default,
-        IReadOnlyList<DiscordActionRowComponent>? components = null,
+        IReadOnlyList<DiscordComponent>? components = null,
         IReadOnlyList<DiscordMessageFile>? files = null,
         DiscordMessageFlags? flags = null,
         IEnumerable<DiscordAttachment>? attachments = null
@@ -6162,7 +6162,7 @@ public sealed class DiscordApiClient
             Content = builder.Content,
             IsTTS = builder.IsTTS,
             Embeds = builder.Embeds,
-            Flags = builder.flags,
+            Flags = builder.Flags,
             Components = builder.Components
         };
 
