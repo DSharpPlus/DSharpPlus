@@ -33,7 +33,7 @@ public partial class DiscordUserConverter : IArgumentConverter<DiscordUser>
         string un = di != -1 ? value[..di] : value;
         string? dv = di != -1 ? value[(di + 1)..] : null;
 
-        System.Collections.Generic.IEnumerable<DiscordMember> us = ctx.Client.Guilds.Values
+        IEnumerable<DiscordMember> us = ctx.Client.Guilds.Values
             .SelectMany(xkvp => xkvp.Members.Values).Where(xm =>
                 xm.Username.Equals(un, cs ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase) &&
                 ((dv != null && xm.Discriminator == dv) || dv == null));
@@ -70,7 +70,7 @@ public partial class DiscordMemberConverter : IArgumentConverter<DiscordMember>
             return ret;
         }
 
-        System.Collections.Generic.IReadOnlyList<DiscordMember> searchResult = await ctx.Guild.SearchMembersAsync(value);
+        IReadOnlyList<DiscordMember> searchResult = await ctx.Guild.SearchMembersAsync(value);
         if (searchResult.Any())
         {
             return Optional.FromValue(searchResult[0]);
@@ -83,7 +83,7 @@ public partial class DiscordMemberConverter : IArgumentConverter<DiscordMember>
         string? dv = di != -1 ? value[(di + 1)..] : null;
 
         StringComparison comparison = cs ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase;
-        System.Collections.Generic.IEnumerable<DiscordMember> us = ctx.Guild.Members.Values.Where(xm =>
+        IEnumerable<DiscordMember> us = ctx.Guild.Members.Values.Where(xm =>
             (xm.Username.Equals(un, comparison) &&
              ((dv != null && xm.Discriminator == dv) || dv == null)) || value.Equals(xm.Nickname, comparison));
 

@@ -95,11 +95,11 @@ public sealed class CommandOverloadBuilder
                         ca.Description = d.Description;
                         break;
 
-                    case RemainingTextAttribute r:
+                    case RemainingTextAttribute:
                         ca.IsCatchAll = true;
                         break;
 
-                    case ParamArrayAttribute p:
+                    case ParamArrayAttribute:
                         ca.IsCatchAll = true;
                         ca.Type = arg.ParameterType.GetElementType();
                         ca.isArray = true;

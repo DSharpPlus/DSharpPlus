@@ -601,95 +601,88 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <summary>
     /// Getter / setter for message content.
     /// </summary>
-    string? Content { get; set; }
+    public string? Content { get; set; }
 
     /// <summary>
     /// Whether this message will play as a text-to-speech message.
     /// </summary>
-    bool IsTTS { get; set; }
+    public bool IsTTS { get; set; }
 
     /// <summary>
     /// Gets or sets a poll for this message.
     /// </summary>
-    DiscordPollBuilder? Poll { get; set; }
+    public DiscordPollBuilder? Poll { get; set; }
 
     /// <summary>
     /// All embeds on this message.
     /// </summary>
-    IReadOnlyList<DiscordEmbed> Embeds { get; }
+    public IReadOnlyList<DiscordEmbed> Embeds { get; }
 
     /// <summary>
     /// All files on this message.
     /// </summary>
-    IReadOnlyList<DiscordMessageFile> Files { get; }
+    public IReadOnlyList<DiscordMessageFile> Files { get; }
 
     /// <summary>
     /// All components on this message.
     /// </summary>
-    IReadOnlyList<DiscordComponent> Components { get; }
+    public IReadOnlyList<DiscordComponent> Components { get; }
 
     /// <summary>
     /// All allowed mentions on this message.
     /// </summary>
-    IReadOnlyList<IMention> Mentions { get; }
+    public IReadOnlyList<IMention> Mentions { get; }
 
-    DiscordMessageFlags Flags { get; }
+    public DiscordMessageFlags Flags { get; }
 
     /// <summary>
     /// Adds content to this message
     /// </summary>
     /// <param name="content">Message content to use</param>
     /// <returns></returns>
-    IDiscordMessageBuilder WithContent(string content);
+    public IDiscordMessageBuilder WithContent(string content);
 
     /// <summary>
     /// Adds components to this message. Each call should append to a new row.
     /// </summary>
     /// <param name="components">Components to add.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddComponents(params DiscordComponent[] components);
+    public IDiscordMessageBuilder AddComponents(params DiscordComponent[] components);
 
     /// <summary>
     /// Adds components to this message. Each call should append to a new row.
     /// </summary>
     /// <param name="components">Components to add.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddComponents(IEnumerable<DiscordComponent> components);
+    public IDiscordMessageBuilder AddComponents(IEnumerable<DiscordComponent> components);
 
     /// <summary>
     /// Adds an action row component to this message.
     /// </summary>
     /// <param name="components">Action row to add to this message. Should contain child components.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddComponents(IEnumerable<DiscordActionRowComponent> components);
-    
-    /// <summary>
-    /// Adds components to this message, but does not create an action row for the components.
-    /// </summary>
-    /// <param name="components">The components to add.</param>
-    /// <returns>The updated builder to chain calls with.</returns>
-    IDiscordMessageBuilder AddRawComponents(params IReadOnlyList<DiscordComponent> components);
+    public IDiscordMessageBuilder AddComponents(IEnumerable<DiscordActionRowComponent> components);
 
     /// <summary>
     /// Sets whether this message should play as a text-to-speech message.
     /// </summary>
     /// <param name="isTTS"></param>
     /// <returns></returns>
-    IDiscordMessageBuilder WithTTS(bool isTTS);
+    public IDiscordMessageBuilder WithTTS(bool isTTS);
 
     /// <summary>
     /// Adds an embed to this message.
     /// </summary>
     /// <param name="embed">Embed to add.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddEmbed(DiscordEmbed embed);
+    public IDiscordMessageBuilder AddEmbed(DiscordEmbed embed);
 
     /// <summary>
     /// Adds multiple embeds to this message.
     /// </summary>
     /// <param name="embeds">Collection of embeds to add.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddEmbeds(IEnumerable<DiscordEmbed> embeds);
+    public IDiscordMessageBuilder AddEmbeds(IEnumerable<DiscordEmbed> embeds);
 
     /// <summary>
     /// Attaches a file to this message.
@@ -698,7 +691,7 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <param name="stream">Stream containing said file's contents.</param>
     /// <param name="resetStream">Whether to reset the stream to position 0 after sending.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddFile(string fileName, Stream stream, bool resetStream = false);
+    public IDiscordMessageBuilder AddFile(string fileName, Stream stream, bool resetStream = false);
 
     /// <summary>
     /// Attaches a file to this message.
@@ -706,7 +699,7 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <param name="stream">FileStream pointing to the file to attach.</param>
     /// <param name="resetStream">Whether to reset the stream position to 0 after sending.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddFile(FileStream stream, bool resetStream = false);
+    public IDiscordMessageBuilder AddFile(FileStream stream, bool resetStream = false);
 
     /// <summary>
     /// Attaches multiple files to this message.
@@ -714,7 +707,7 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <param name="files">Dictionary of files to add, where <see cref="string"/> is a file name and <see cref="Stream"/> is a stream containing the file's contents.</param>
     /// <param name="resetStreams">Whether to reset all stream positions to 0 after sending.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddFiles(IDictionary<string, Stream> files, bool resetStreams = false);
+    public IDiscordMessageBuilder AddFiles(IDictionary<string, Stream> files, bool resetStreams = false);
 
     /// <summary>
     /// Attaches a file to this message.
@@ -723,7 +716,7 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <param name="stream">Stream containing said file's contents.</param>
     /// <param name="fileOptions">Additional flags for the handling of the file stream.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddFile(string fileName, Stream stream, AddFileOptions fileOptions);
+    public IDiscordMessageBuilder AddFile(string fileName, Stream stream, AddFileOptions fileOptions);
 
     /// <summary>
     /// Attaches a file to this message.
@@ -731,7 +724,7 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <param name="stream">FileStream pointing to the file to attach.</param>
     /// <param name="fileOptions">Additional flags for the handling of the file stream.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddFile(FileStream stream, AddFileOptions fileOptions);
+    public IDiscordMessageBuilder AddFile(FileStream stream, AddFileOptions fileOptions);
 
     /// <summary>
     /// Attaches multiple files to this message.
@@ -739,28 +732,28 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <param name="files">Dictionary of files to add, where <see cref="string"/> is a file name and <see cref="Stream"/> is a stream containing the file's contents.</param>
     /// <param name="fileOptions">Additional flags for the handling of the file streams.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddFiles(IDictionary<string, Stream> files, AddFileOptions fileOptions);
+    public IDiscordMessageBuilder AddFiles(IDictionary<string, Stream> files, AddFileOptions fileOptions);
 
     /// <summary>
     /// Attaches previously used files to this file stream.
     /// </summary>
     /// <param name="files">Previously attached files to reattach</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddFiles(IEnumerable<DiscordMessageFile> files);
+    public IDiscordMessageBuilder AddFiles(IEnumerable<DiscordMessageFile> files);
 
     /// <summary>
     /// Adds an allowed mention to this message.
     /// </summary>
     /// <param name="mention">Mention to allow in this message.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddMention(IMention mention);
+    public IDiscordMessageBuilder AddMention(IMention mention);
 
     /// <summary>
     /// Adds multiple allowed mentions to this message.
     /// </summary>
     /// <param name="mentions">Collection of mentions to allow in this message.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddMentions(IEnumerable<IMention> mentions);
+    public IDiscordMessageBuilder AddMentions(IEnumerable<IMention> mentions);
 
     /// <summary>
     /// Applies <see cref="DiscordMessageFlags.SuppressNotifications"/> to the message.
@@ -770,17 +763,17 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// As per <see cref="DiscordMessageFlags.SuppressNotifications"/>, this does not change the message's allowed mentions
     /// (controlled by <see cref="AddMentions"/>), but instead prevents a mention from triggering a push notification.
     /// </remarks>
-    IDiscordMessageBuilder SuppressNotifications();
+    public IDiscordMessageBuilder SuppressNotifications();
 
     /// <summary>
     /// Clears all components attached to this builder.
     /// </summary>
-    void ClearComponents();
+    public void ClearComponents();
 
     /// <summary>
     /// Clears this builder.
     /// </summary>
-    void Clear();
+    public void Clear();
 }
 
 /*

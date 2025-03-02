@@ -33,7 +33,7 @@ public class EnumAutoCompleteProvider<T> : IAutoCompleteProvider where T : struc
                 : fieldInfo.Name;
 
             object? obj = fieldInfo.GetValue(null);
-            if (obj is not T enumValue)
+            if (obj is not T)
             {
                 // Hey what the fuck
                 continue;

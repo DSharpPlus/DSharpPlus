@@ -101,7 +101,7 @@ public class DefaultTextArgumentSplicer
         if (state == TextState.InQuote)
         {
             // Prepend the quoted character
-            result = new StringBuilder(quotedCharacter).Append(result);
+            result.Insert(0, quotedCharacter);
         }
 
         if (result.Length == 0)

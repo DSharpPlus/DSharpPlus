@@ -41,7 +41,7 @@ public sealed class SlashRequirePermissionsAttribute : SlashCheckBaseAttribute
             return this.IgnoreDms;
         }
 
-        Entities.DiscordMember usr = ctx.Member;
+        DiscordMember usr = ctx.Member;
         if (usr == null)
         {
             return false;
@@ -49,7 +49,7 @@ public sealed class SlashRequirePermissionsAttribute : SlashCheckBaseAttribute
 
         DiscordPermissions pusr = ctx.Channel.PermissionsFor(usr);
 
-        Entities.DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
+        DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
         if (bot == null)
         {
             return false;

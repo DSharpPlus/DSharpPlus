@@ -38,7 +38,7 @@ public sealed class RequireUserPermissionsAttribute : CheckBaseAttribute
             return Task.FromResult(this.IgnoreDms);
         }
 
-        DSharpPlus.Entities.DiscordMember? usr = ctx.Member;
+        DiscordMember? usr = ctx.Member;
         if (usr == null)
         {
             return Task.FromResult(false);

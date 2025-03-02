@@ -41,7 +41,6 @@ public static class LavalinkUtilities
             // https://github.com/sedmelluq/lavaplayer/blob/b0c536098c4f92e6d03b00f19221021f8f50b19b/main/src/main/java/com/sedmelluq/discord/lavaplayer/tools/io/MessageInput.java#L37-L39
             int messageHeader = br.ReadInt32();
             int messageFlags = (int)((messageHeader & 0xC0000000L) >> 30);
-            int messageSize = messageHeader & 0x3FFFFFFF;
             //if (messageSize != raw.Length)
             //    Warn($"Size conflict: {messageSize} but was {raw.Length}");
 
@@ -49,7 +48,7 @@ public static class LavalinkUtilities
 
             // java bytes are signed
             // https://docs.oracle.com/javase/7/docs/api/java/io/DataInput.html#readByte()
-            int version = (messageFlags & TRACK_INFO_VERSIONED) != 0 ? (br.ReadSByte() & 0xFF) : 1;
+            int version = (messageFlags & TRACK_INFO_VERSIONED) != 0 ? br.ReadSByte() & 0xFF : 1;
             //if (version != TRACK_INFO_VERSION)
             //    Warn($"Version conflict: Expected {TRACK_INFO_VERSION} but got {version}");
 

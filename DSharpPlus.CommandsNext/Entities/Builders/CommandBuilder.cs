@@ -278,7 +278,7 @@ public class CommandBuilder
         Command cmd = new()
         {
             Name = string.IsNullOrWhiteSpace(this.Name)
-                ? throw new InvalidOperationException($"Cannot build a command with an invalid name. Use the method {nameof(this.WithName)} to set a valid name.")
+                ? throw new InvalidOperationException($"Cannot build a command with an invalid name. Use the method {nameof(WithName)} to set a valid name.")
                 : this.Name,
 
             Category = this.Category,
