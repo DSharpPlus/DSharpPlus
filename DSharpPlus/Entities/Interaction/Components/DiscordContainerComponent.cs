@@ -37,6 +37,7 @@ public class DiscordContainerComponent : DiscordComponent
     /// <see cref="DiscordMediaGalleryComponent"/>
     /// <see cref="DiscordSeparatorComponent"/>
     /// <see cref="DiscordFileComponent"/>
+    /// <see cref="DiscordSectionComponent"/>
     /// </list>
     /// </remarks>
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
