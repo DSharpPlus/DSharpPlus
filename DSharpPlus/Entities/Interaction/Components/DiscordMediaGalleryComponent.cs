@@ -8,8 +8,7 @@ namespace DSharpPlus.Entities;
 /// </summary>
 public sealed class DiscordMediaGalleryComponent : DiscordComponent
 {
-    public new DiscordComponentType Type => DiscordComponentType.MediaGallery;
-    
+        
     /// <summary>
     /// Gets the items in the gallery.
     /// </summary>
@@ -20,7 +19,7 @@ public sealed class DiscordMediaGalleryComponent : DiscordComponent
     /// </summary>
     /// <param name="items">The items of the gallery.</param>
     /// <param name="id">The optional ID of the component.</param>
-    public DiscordMediaGalleryComponent(IEnumerable<DiscordMediaGalleryItem> items, uint id=0)
+    public DiscordMediaGalleryComponent(IEnumerable<DiscordMediaGalleryItem> items, int id=0)
     {
         this.Items = items.ToArray();
         this.Id = id;

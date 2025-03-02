@@ -6,8 +6,7 @@ namespace DSharpPlus.Entities;
 
 public class DiscordSectionComponent : DiscordComponent
 {
-    public new DiscordComponentType Type => DiscordComponentType.Section;
-
+    
     /// <summary>
     /// Gets the accessory for this section.
     ///

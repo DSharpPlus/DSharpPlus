@@ -8,8 +8,7 @@ namespace DSharpPlus.Entities;
 /// </summary>
 public class DiscordContainerComponent : DiscordComponent
 {
-    public new DiscordComponentType Type => DiscordComponentType.Container;
-    
+        
     /// <summary>
     /// The accent color for this container, similar to an embed.
     /// </summary>
@@ -56,6 +55,5 @@ public class DiscordContainerComponent : DiscordComponent
     }
     
     internal DiscordContainerComponent() => this.Type = DiscordComponentType.Container;
-    
 
 }

@@ -75,7 +75,7 @@ public record SlashCommandContext : CommandContext
         {
             throw new ArgumentException("Modal response has to have a custom id");
         }
-        else if (builder.Components.Any(x => x.Components.Any(y => y is not DiscordTextInputComponent)))
+        else if (builder.ComponentActionRows?.Any(x => x.Components.Any(y => y is not DiscordTextInputComponent)) ?? false)
         {
             throw new ArgumentException("Modals currently only support TextInputComponents");
         }

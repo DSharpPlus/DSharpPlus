@@ -7,13 +7,13 @@ namespace DSharpPlus.Entities;
 /// </summary>
 public sealed class DiscordTextDisplayComponent : DiscordComponent
 {
+    
     [JsonProperty("content")]
     public string Content { get; internal set; }
 
     /// <inheritdoc cref="DiscordComponent.Type"/>
-    public new DiscordComponentType Type => DiscordComponentType.TextDisplay;
-
-    public DiscordTextDisplayComponent(string content, uint id = default)
+    
+    public DiscordTextDisplayComponent(string content, int id = default)
     {
         this.Content = content;
         this.Id = id;

@@ -100,7 +100,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
         this.Poll = baseMessage.Poll == null ? null : new DiscordPollBuilder(baseMessage.Poll);
         this.ReplyId = baseMessage.ReferencedMessage?.Id;
         this.components = [.. baseMessage.Components?.OfType<DiscordActionRowComponent>()];
-        this.content = baseMessage.Content;
+        this.Content = baseMessage.Content;
         this.embeds = [.. baseMessage.Embeds];
         this.stickers = [.. baseMessage.Stickers];
         this.mentions = [];
@@ -131,7 +131,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
     public DiscordMessageBuilder(DiscordMessageSnapshotContent baseSnapshotMessage)
     {
         this.components = [.. baseSnapshotMessage.Components?.OfType<DiscordActionRowComponent>()];
-        this.content = baseSnapshotMessage.Content;
+        this.Content = baseSnapshotMessage.Content;
         this.embeds = [.. baseSnapshotMessage.Embeds];
         this.stickers = [.. baseSnapshotMessage.Stickers];
         this.mentions = [];

@@ -1,6 +1,5 @@
 using System;
 using DSharpPlus.Entities;
-using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
