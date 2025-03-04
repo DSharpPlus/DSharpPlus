@@ -39,16 +39,26 @@ public sealed class DiscordAutoCompleteChoice
     /// <inheritdoc cref="DiscordAutoCompleteChoice(string)"/>
     /// <param name="name">The name of this option, which will be presented to the user.</param>
     /// <param name="value">The value of this option.</param>
-    public DiscordAutoCompleteChoice(string name, object? value) : this(name) => this.Value = value switch
+    public DiscordAutoCompleteChoice(string name, object? value) : this(name)
     {
-        string s => CheckStringValue(s),
-        int i => this.Value = i,
-        long l => this.Value = l,
-        double d => this.Value = d,
-        float f => this.Value = f,
-        null => null,
-        _ => throw new ArgumentException("Invalid value type.", nameof(value))
-    };
+        this.Value = value switch
+        {
+            string s => CheckStringValue(s),
+            byte b => b,
+            sbyte sb => sb,
+            short s => s,
+            ushort us => us,
+            int i => this.Value = i,
+            uint ui => this.Value = ui,
+            long l => this.Value = l,
+            ulong ul => this.Value = ul,
+            double d => this.Value = d,
+            float f => this.Value = f,
+            decimal dec => this.Value = dec,
+            null => null,
+            _ => throw new ArgumentException("Invalid value type.", nameof(value))
+        };
+    }
 
     private string CheckStringValue(string value)
     {
