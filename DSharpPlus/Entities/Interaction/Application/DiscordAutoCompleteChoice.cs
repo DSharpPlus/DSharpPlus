@@ -60,7 +60,7 @@ public sealed class DiscordAutoCompleteChoice
         };
     }
 
-    private string CheckStringValue(string value)
+    private static string CheckStringValue(string value)
     {
         return value.Length > 100
             ? throw new ArgumentException("Application command choice value cannot exceed 100 characters.", nameof(value))
