@@ -7,7 +7,7 @@ namespace DSharpPlus.Entities;
 /// </summary>
 public class DiscordThumbnailComponent : DiscordComponent
 {
-        /// <summary>
+    /// <summary>
     /// The image for this thumbnail.
     /// </summary>
     [JsonProperty("media", NullValueHandling = NullValueHandling.Ignore)]
