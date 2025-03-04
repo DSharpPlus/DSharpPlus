@@ -112,3 +112,34 @@ public class TagCommand
     }
 }
 ```
+
+### Simple Auto-Complete
+For simple lists of options, the `SimpleAutoCompleteProvder` class can be derived. This simplifies the process by just asking the developer to have a list of all the choices instead of creating the filtered results list directly.
+
+As an example, you could read a list of supported voice languages from a file and use that to auto-complete the language option of a voice list command.
+
+First the auto-complete provider:
+
+```cs
+public class LanguageAutoCompleteProvider : SimpleAutoCompleteProvider
+{
+    static DiscordAutoCompleteChoice[] LanguageList = [ .. File.ReadAllLines("data/languages.txt").Select(l => l.Split(' ', 2)).Select(p => new DiscordAutoCompleteChoice(p[1], p[0])) ];
+    protected override IEnumerable<DiscordAutoCompleteChoice> Choices => LanguageList;
+    protected override bool AllowDuplicateValues => false;
+}
+```
+
+And then tag the command parameter in the same way as before:
+
+```cs
+public static class ListCommands
+{
+    public static async Task VoiceListCommand(SlashCommandContext ctx, [SlashAutoCompleteProvider<LanguageAutoCompleteProvider>] string language)
+    {
+        // ...
+    }
+}
+```
+
+> [!NOTE]
+> For performance reasons, consider making `Choices` read from a static array, as in the example above. If `Choices` reads the file directly, that will happen on every auto-complete request.
