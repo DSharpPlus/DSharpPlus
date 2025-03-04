@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using Raffinert.FuzzySharp;
 
 namespace DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 
@@ -55,13 +56,25 @@ public class SimpleAutoCompleteProvider : IAutoCompleteProvider
                 results = this.Choices
                     .Where(c => c.Name.StartsWith(context.UserInput ?? "", this.Comparison));
                 break;
-            // case MatchingMethod.Fuzzy:
-            //     results = this.Choices
-            //         .Select(c => Choice: c, Score: FuzzyMatch(c.Name, context.UserInput, this.Comparison))
-            //         .Where(cs => cs.Score > 0)
-            //         .OrderByDescending(cs => cs.Score)
-            //         .Select(c => c.Choice);
-            //     break;
+            case SimpleAutoCompleteStringMatchingMethod.Fuzzy:
+                if (context.UserInput == null || context.UserInput == "")
+                    results = this.Choices;
+                else
+                {
+                    Func<string, string> caseMatching = Comparison switch
+                    {
+                        StringComparison.CurrentCultureIgnoreCase => s => s.ToLower(),
+                        StringComparison.InvariantCultureIgnoreCase or StringComparison.OrdinalIgnoreCase => s => s.ToLowerInvariant(),
+                        _ => s => s
+                    };
+                    string userInput = caseMatching(context.UserInput ?? "");
+                    results = this.Choices
+                        .Select(c => (Choice: c, Score: Fuzz.PartialRatio(userInput, caseMatching(c.Name))))
+                        .Where(cs => cs.Score >= 50)
+                        .OrderByDescending(cs => cs.Score)
+                        .Select(c => c.Choice);
+                }
+                break;
             default:
                 throw new InvalidOperationException($"The value {this.MatchingMethod} is not valid.");
         }

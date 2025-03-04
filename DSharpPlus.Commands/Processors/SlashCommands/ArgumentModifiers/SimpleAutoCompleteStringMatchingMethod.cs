@@ -18,5 +18,11 @@ public enum SimpleAutoCompleteStringMatchingMethod
     ///   The <see cref="DiscordAutoCompleteChoice.Name"/> contains the
     ///   user input.
     /// </summary>
-    Contains
+    Contains,
+
+    /// <summary>
+    ///   The <see cref="DiscordAutoCompleteChoice.Name"/> fuzzy matches
+    ///   the user input.
+    /// </summary>
+    Fuzzy
 }
