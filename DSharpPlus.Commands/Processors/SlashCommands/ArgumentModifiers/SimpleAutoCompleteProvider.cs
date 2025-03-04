@@ -33,30 +33,37 @@ public class SimpleAutoCompleteProvider : IAutoCompleteProvider
     protected virtual bool AllowDuplicateValues { get; } = true;
 
     /// <summary>
-    ///   If <see langword="true"/>, user input can be found anywhere in a
-    ///   matched choice's <see cref="DiscordAutoCompleteChoice.Name">Name</see>.
-    ///   Otherwise (if <see langword="false"/>), the Name must start with
-    ///   the user input.
+    ///   The method by which choices are matched to the user input.
     /// </summary>
-    protected virtual bool AllowInternalMatches { get; } = true;
+    protected virtual MatchingMethod MatchingMethod { get; } = MatchingMethod.Contains;
 
     /// <inheritdoc/>
     public ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(AutoCompleteContext context)
     {
         IEnumerable<DiscordAutoCompleteChoice> results;
 
-        if (this.AllowInternalMatches)
+        switch (this.MatchingMethod)
         {
-            results = this.Choices
-                .Select(c => (Choice: c, Index: c.Name.IndexOf(context.UserInput ?? "", this.Comparison)))
-                .Where(ci => ci.Index != -1)
-                .OrderBy(ci => ci.Index)
-                .Select(c => c.Choice);
-        }
-        else
-        {
-            results = this.Choices
-                .Where(c => c.Name.StartsWith(context.UserInput ?? "", this.Comparison));
+            case MatchingMethod.Contains:
+                results = this.Choices
+                    .Select(c => (Choice: c, Index: c.Name.IndexOf(context.UserInput ?? "", this.Comparison)))
+                    .Where(ci => ci.Index != -1)
+                    .OrderBy(ci => ci.Index)
+                    .Select(c => c.Choice);
+                break;
+            case MatchingMethod.StartsWith:
+                results = this.Choices
+                    .Where(c => c.Name.StartsWith(context.UserInput ?? "", this.Comparison));
+                break;
+            // case MatchingMethod.Fuzzy:
+            //     results = this.Choices
+            //         .Select(c => Choice: c, Score: FuzzyMatch(c.Name, context.UserInput, this.Comparison))
+            //         .Where(cs => cs.Score > 0)
+            //         .OrderByDescending(cs => cs.Score)
+            //         .Select(c => c.Choice);
+            //     break;
+            default:
+                throw new InvalidOperationException($"The value {this.MatchingMethod} is not valid.");
         }
 
         if (!this.AllowDuplicateValues)
@@ -87,4 +94,23 @@ public class SimpleAutoCompleteProvider : IAutoCompleteProvider
           KeyValuePair<string, long> kvp => new DiscordAutoCompleteChoice(kvp.Key, kvp.Value),
           _ => throw new InvalidCastException($"Cannot use {o?.GetType()?.Name ?? "null"} as the value of a DiscordAutoCompleteChoice.")
       });
+}
+
+/// <summary>
+///   Represents the string matching method for a
+///   <see cref="SimpleAutoCompleteProvider"/>.
+/// </summary>
+public enum MatchingMethod
+{
+    /// <summary>
+    ///   The <see cref="DiscordAutoCompleteChoice.Name"/> starts with the
+    ///   user input.
+    /// </summary>
+    StartsWith,
+
+    /// <summary>
+    ///   The <see cref="DiscordAutoCompleteChoice.Name"/> contains the
+    ///   user input.
+    /// </summary>
+    Contains
 }
