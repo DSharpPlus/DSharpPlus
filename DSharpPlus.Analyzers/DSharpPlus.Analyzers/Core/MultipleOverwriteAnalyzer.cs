@@ -10,26 +10,26 @@ namespace DSharpPlus.Analyzers.Core;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
 {
-    public const string DiagnosticId = "DSP0006";
+    public const string DiagnosticId = "DSP0007";
     public const string Category = "Design";
 
     private static readonly LocalizableString title = new LocalizableResourceString
     (
-        nameof(Resources.DSP0006Title),
+        nameof(Resources.DSP0007Title),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
     private static readonly LocalizableString description = new LocalizableResourceString
     (
-        nameof(Resources.DSP0006Description),
+        nameof(Resources.DSP0007Description),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
     private static readonly LocalizableString messageFormat = new LocalizableResourceString
     (
-        nameof(Resources.DSP0006MessageFormat),
+        nameof(Resources.DSP0007MessageFormat),
         Resources.ResourceManager,
         typeof(Resources)
     );
@@ -42,7 +42,7 @@ public class MultipleOverwriteAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Warning,
         true,
         description,
-        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/core.html#usage-error-dsp1001"
+        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/core.html#usage-error-dsp0007"
     );
 
     // This might need to be a concurrent dictionary cause of line 51

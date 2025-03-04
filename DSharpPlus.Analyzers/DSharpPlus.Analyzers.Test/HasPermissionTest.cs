@@ -42,7 +42,7 @@ public class HasPermissionTest
         (
             Verifier.Diagnostic()
                 .WithLocation(7, 13)
-                .WithSeverity(DiagnosticSeverity.Hidden)
+                .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'perm.HasPermission(DiscordPermission.Administrator)' instead")
         );
 
@@ -76,7 +76,7 @@ public class HasPermissionTest
         (
             Verifier.Diagnostic()
                 .WithLocation(7, 13)
-                .WithSeverity(DiagnosticSeverity.Hidden)
+                .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'perm.HasPermission(DiscordPermission.Administrator)' instead")
         );
 

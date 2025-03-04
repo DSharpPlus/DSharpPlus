@@ -8,12 +8,12 @@ title: DSharpPlus Core Library Analyzer Rules
 This page documents the analyzer rules defined for APIs defined in the DSharpPlus core library, `DSharpPlus.dll`, and
 their associated usage patterns:
 
-- [DSP0005](#usage-warning-dsp0005)
-- [DSP0006](#design-warning-dsp0006)
-- [DSP0007](#design-info-dsp0007)
-- [DSP0008](#usage-warning-dsp0008)
+- [DSP0006](#usage-warning-dsp0006)
+- [DSP0007](#design-warning-dsp0007)
+- [DSP0008](#design-info-dsp0008)
+- [DSP0009](#usage-warning-dsp0009)
 
-## Usage warning DSP0005
+## Usage warning DSP0006
 
 `DiscordPermissions.HasPermission` should always be preferred over bitwise operations.
 
@@ -32,7 +32,7 @@ public class PermissionExample
 }
 ```
 
-## Design Warning DSP0006
+## Design Warning DSP0007
 
 Use `ModifyAsync` instead of multiple calls to `AddOverwriteAsync`.
 
@@ -54,7 +54,7 @@ public class PermissionOverwriting
 }
 ```
 
-## Design Info DSP0007
+## Design Info DSP0008
 
 Use a bulk-fetching method instead of fetching single entities inside of a loop.
 
@@ -80,14 +80,12 @@ public class GetSpecificGuilds
 }
 ```
 
-## Usage Warning DSP0008
+## Usage Warning DSP0009
 
-Use `DiscordPermissions` and its operators isntead of doing raw operations on `DiscordPermission`.
+Use `DiscordPermissions` and its operators isntead of doing operations on `DiscordPermission`.
 
-DiscordPermission relies on using `long`. Discord can have permissions that is bigger than what a long can store.  
-`DiscordPermission` can overflow in these scenarios, `DiscordPermissions` is a class that does not overflow and can
-handle these scenarios.
-Prefer using `DiscordPermissions` to prevent issues with integer overflowing.
+@DSharpPlus.Entities.DiscordPermission only contains the bit offset for each permission. It does not represent a collection of permissions.  
+@DSharpPlus.Entities.DiscordPermissions represent a collection of permissions and should be used instead.
 
 The following sample will generate DSP0008
 

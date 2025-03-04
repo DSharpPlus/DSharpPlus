@@ -34,8 +34,8 @@ public class UseDiscordPermissionsTest
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic()
                 .WithLocation(7, 9)
-                .WithSeverity(DiagnosticSeverity.Error)
-                .WithMessage("Use 'perm = perm + DiscordPermission.Administrator' instead"));
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
         
         await test.RunAsync();
     }
@@ -61,14 +61,14 @@ public class UseDiscordPermissionsTest
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic()
                 .WithLocation(7, 9)
-                .WithSeverity(DiagnosticSeverity.Error)
-                .WithMessage("Use 'perm = perm.Toggle(DiscordPermission.Administrator)' instead"));
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
         
         await test.RunAsync();
     }
     
     [Test]
-    public static async Task AndOperationTestAsync()
+    public static async Task AndNotOperationTestAsync()
     {
         CSharpAnalyzerTest<UseDiscordPermissionsAnalyzer, DefaultVerifier> test =
             Utility.CreateAnalyzerTest<UseDiscordPermissionsAnalyzer>();
@@ -80,7 +80,7 @@ public class UseDiscordPermissionsTest
                         {
                             public static void AddAdmin(DiscordPermission perm) 
                             {
-                                perm = perm & DiscordPermission.Administrator;
+                                perm = perm & ~DiscordPermission.Administrator;
                             }
                         }
                         """;
@@ -88,8 +88,35 @@ public class UseDiscordPermissionsTest
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic()
                 .WithLocation(7, 9)
-                .WithSeverity(DiagnosticSeverity.Error)
-                .WithMessage("Use 'perm = perm - DiscordPermission.Administrator' instead"));
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
+        
+        await test.RunAsync();
+    }
+    
+    [Test]
+    public static async Task AndNotParenthesizedOperationTestAsync()
+    {
+        CSharpAnalyzerTest<UseDiscordPermissionsAnalyzer, DefaultVerifier> test =
+            Utility.CreateAnalyzerTest<UseDiscordPermissionsAnalyzer>();
+
+        test.TestCode = """
+                        using DSharpPlus.Entities;
+
+                        public class PermissionsUtil
+                        {
+                            public static void AddAdmin(DiscordPermission perm) 
+                            {
+                                perm = perm & (~DiscordPermission.Administrator);
+                            }
+                        }
+                        """;
+        
+        test.ExpectedDiagnostics.Add(
+            Verifier.Diagnostic()
+                .WithLocation(7, 9)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
         
         await test.RunAsync();
     }
@@ -115,8 +142,8 @@ public class UseDiscordPermissionsTest
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic()
                 .WithLocation(7, 9)
-                .WithSeverity(DiagnosticSeverity.Error)
-                .WithMessage("Use 'perm += DiscordPermission.Administrator' instead"));
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
         
         await test.RunAsync();
     }
@@ -142,14 +169,14 @@ public class UseDiscordPermissionsTest
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic()
                 .WithLocation(7, 9)
-                .WithSeverity(DiagnosticSeverity.Error)
-                .WithMessage("Use 'perm = perm.Toggle(DiscordPermission.Administrator)' instead"));
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
         
         await test.RunAsync();
     }
     
     [Test]
-    public static async Task AndAssignmentTestAsync()
+    public static async Task AndNotAssignmentTestAsync()
     {
         CSharpAnalyzerTest<UseDiscordPermissionsAnalyzer, DefaultVerifier> test =
             Utility.CreateAnalyzerTest<UseDiscordPermissionsAnalyzer>();
@@ -161,7 +188,7 @@ public class UseDiscordPermissionsTest
                         {
                             public static void AddAdmin(DiscordPermission perm) 
                             {
-                                perm &= DiscordPermission.Administrator;
+                                perm &= ~DiscordPermission.Administrator;
                             }
                         }
                         """;
@@ -169,8 +196,35 @@ public class UseDiscordPermissionsTest
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic()
                 .WithLocation(7, 9)
-                .WithSeverity(DiagnosticSeverity.Error)
-                .WithMessage("Use 'perm -= DiscordPermission.Administrator' instead"));
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
+        
+        await test.RunAsync();
+    }
+    
+    [Test]
+    public static async Task AndNotParenthesizedAssignmentTestAsync()
+    {
+        CSharpAnalyzerTest<UseDiscordPermissionsAnalyzer, DefaultVerifier> test =
+            Utility.CreateAnalyzerTest<UseDiscordPermissionsAnalyzer>();
+
+        test.TestCode = """
+                        using DSharpPlus.Entities;
+
+                        public class PermissionsUtil
+                        {
+                            public static void AddAdmin(DiscordPermission perm) 
+                            {
+                                perm &= (~DiscordPermission.Administrator);
+                            }
+                        }
+                        """;
+        
+        test.ExpectedDiagnostics.Add(
+            Verifier.Diagnostic()
+                .WithLocation(7, 9)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
         
         await test.RunAsync();
     }
@@ -196,8 +250,8 @@ public class UseDiscordPermissionsTest
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic()
                 .WithLocation(7, 9)
-                .WithSeverity(DiagnosticSeverity.Error)
-                .WithMessage("Use 'perm = perm + DiscordPermission.Administrator' instead"));
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
         
         await test.RunAsync();
     }
@@ -223,8 +277,8 @@ public class UseDiscordPermissionsTest
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic()
                 .WithLocation(7, 16)
-                .WithSeverity(DiagnosticSeverity.Error)
-                .WithMessage("Use 'perm + DiscordPermission.Administrator' instead"));
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
         
         await test.RunAsync();
     }

@@ -10,27 +10,27 @@ namespace DSharpPlus.Analyzers.Core;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class HasPermissionAnalyzer : DiagnosticAnalyzer
 {
-    public const string DiagnosticId = "DSP0005";
+    public const string DiagnosticId = "DSP0006";
 
     public const string Category = "Usage";
 
     private static readonly LocalizableString title = new LocalizableResourceString
     (
-        nameof(Resources.DSP0005Title),
+        nameof(Resources.DSP0006Title),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
     private static readonly LocalizableString description = new LocalizableResourceString
     (
-        nameof(Resources.DSP0005Description),
+        nameof(Resources.DSP0006Description),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
     private static readonly LocalizableString messageFormat = new LocalizableResourceString
     (
-        nameof(Resources.DSP0005MessageFormat),
+        nameof(Resources.DSP0006MessageFormat),
         Resources.ResourceManager,
         typeof(Resources)
     );
@@ -41,10 +41,10 @@ public class HasPermissionAnalyzer : DiagnosticAnalyzer
         title,
         messageFormat,
         Category,
-        DiagnosticSeverity.Hidden,
+        DiagnosticSeverity.Warning,
         true,
         description,
-        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/core.html#usage-hidden-dsp0005"
+        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/core.html#usage-warning-dsp0006"
     );
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);

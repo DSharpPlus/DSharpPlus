@@ -45,24 +45,6 @@ namespace DSharpPlus.Analyzers {
             }
         }
         
-        internal static string DSP0005Title {
-            get {
-                return ResourceManager.GetString("DSP0005Title", resourceCulture);
-            }
-        }
-        
-        internal static string DSP0005Description {
-            get {
-                return ResourceManager.GetString("DSP0005Description", resourceCulture);
-            }
-        }
-        
-        internal static string DSP0005MessageFormat {
-            get {
-                return ResourceManager.GetString("DSP0005MessageFormat", resourceCulture);
-            }
-        }
-        
         internal static string DSP0006Title {
             get {
                 return ResourceManager.GetString("DSP0006Title", resourceCulture);
@@ -96,6 +78,24 @@ namespace DSharpPlus.Analyzers {
         internal static string DSP0007MessageFormat {
             get {
                 return ResourceManager.GetString("DSP0007MessageFormat", resourceCulture);
+            }
+        }
+        
+        internal static string DSP0008Title {
+            get {
+                return ResourceManager.GetString("DSP0008Title", resourceCulture);
+            }
+        }
+        
+        internal static string DSP0008Description {
+            get {
+                return ResourceManager.GetString("DSP0008Description", resourceCulture);
+            }
+        }
+        
+        internal static string DSP0008MessageFormat {
+            get {
+                return ResourceManager.GetString("DSP0008MessageFormat", resourceCulture);
             }
         }
         
@@ -153,21 +153,21 @@ namespace DSharpPlus.Analyzers {
             }
         }
         
-        internal static string DSP0008Description {
+        internal static string DSP0009Description {
             get {
-                return ResourceManager.GetString("DSP0008Description", resourceCulture);
+                return ResourceManager.GetString("DSP0009Description", resourceCulture);
             }
         }
         
-        internal static string DSP0008Title {
+        internal static string DSP0009Title {
             get {
-                return ResourceManager.GetString("DSP0008Title", resourceCulture);
+                return ResourceManager.GetString("DSP0009Title", resourceCulture);
             }
         }
         
-        internal static string DSP0008MessageFormat {
+        internal static string DSP0009MessageFormat {
             get {
-                return ResourceManager.GetString("DSP0008MessageFormat", resourceCulture);
+                return ResourceManager.GetString("DSP0009MessageFormat", resourceCulture);
             }
         }
     }

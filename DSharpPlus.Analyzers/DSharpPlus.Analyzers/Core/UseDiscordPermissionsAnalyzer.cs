@@ -9,26 +9,26 @@ namespace DSharpPlus.Analyzers.Core;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class UseDiscordPermissionsAnalyzer : DiagnosticAnalyzer
 {
-    public const string DiagnosticId = "DSP0008";
+    public const string DiagnosticId = "DSP0009";
     public const string Category = "Usage";
 
     private static readonly LocalizableString title = new LocalizableResourceString
     (
-        nameof(Resources.DSP0008Title),
+        nameof(Resources.DSP0009Title),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
     private static readonly LocalizableString description = new LocalizableResourceString
     (
-        nameof(Resources.DSP0008Description),
+        nameof(Resources.DSP0009Description),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
     private static readonly LocalizableString messageFormat = new LocalizableResourceString
     (
-        nameof(Resources.DSP0008MessageFormat),
+        nameof(Resources.DSP0009MessageFormat),
         Resources.ResourceManager,
         typeof(Resources)
     );
@@ -38,10 +38,10 @@ public class UseDiscordPermissionsAnalyzer : DiagnosticAnalyzer
         title,
         messageFormat,
         Category,
-        DiagnosticSeverity.Error,
+        DiagnosticSeverity.Warning,
         true,
         description,
-        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/core.html#usage-warning-dsp0008"
+        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/core.html#usage-warning-dsp0009"
     );
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);
@@ -76,16 +76,13 @@ public class UseDiscordPermissionsAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        string initialMessage;
         Location location;
         if (binaryExpression.Parent is AssignmentExpressionSyntax assignment)
         {
-            initialMessage = $"{assignment.Left} = ";
             location = assignment.GetLocation();
         }
         else
         {
-            initialMessage = "";
             location = binaryExpression.GetLocation();
         }
 
@@ -97,16 +94,8 @@ public class UseDiscordPermissionsAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        string message = binaryExpression.Kind() switch
-        {
-            SyntaxKind.BitwiseOrExpression => $"{binaryExpression.Left} + {binaryExpression.Right}",
-            SyntaxKind.BitwiseAndExpression => $"{binaryExpression.Left} - {binaryExpression.Right}",
-            SyntaxKind.ExclusiveOrExpression => $"{binaryExpression.Left}.Toggle({binaryExpression.Right})",
-            _ => ""
-        };
-
         Diagnostic diagnostic
-            = Diagnostic.Create(rule, location, initialMessage + message);
+            = Diagnostic.Create(rule, location);
         ctx.ReportDiagnostic(diagnostic);
     }
 
@@ -124,6 +113,13 @@ public class UseDiscordPermissionsAnalyzer : DiagnosticAnalyzer
             return;
         }
 
+        if (assignmentExpression.Kind() == SyntaxKind.AndAssignmentExpression &&
+            !GetNotOperation(assignmentExpression.Right))
+        {
+            return;
+        }
+
+
         TypeInfo leftTypeInfo = ctx.SemanticModel.GetTypeInfo(assignmentExpression.Left);
         TypeInfo rightTypeInfo = ctx.SemanticModel.GetTypeInfo(assignmentExpression.Right);
         if (!ctx.Compilation.CheckByName(leftTypeInfo, "DSharpPlus.Entities.DiscordPermission") &&
@@ -132,16 +128,31 @@ public class UseDiscordPermissionsAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        string message = assignmentExpression.Kind() switch
-        {
-            SyntaxKind.OrAssignmentExpression => $"{assignmentExpression.Left} += {assignmentExpression.Right}",
-            SyntaxKind.AndAssignmentExpression => $"{assignmentExpression.Left} -= {assignmentExpression.Right}",
-            SyntaxKind.ExclusiveOrAssignmentExpression =>
-                $"{assignmentExpression.Left} = {assignmentExpression.Left}.Toggle({assignmentExpression.Right})",
-            _ => ""
-        };
-
-        Diagnostic diagnostic = Diagnostic.Create(rule, assignmentExpression.GetLocation(), message);
+        Diagnostic diagnostic = Diagnostic.Create(rule, assignmentExpression.GetLocation());
         ctx.ReportDiagnostic(diagnostic);
+    }
+
+    private static bool GetNotOperation(ExpressionSyntax expression)
+    {
+        if (expression is ParenthesizedExpressionSyntax { Expression: PrefixUnaryExpressionSyntax unaryExpression })
+        {
+            if (unaryExpression.Kind() == SyntaxKind.BitwiseNotExpression)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        else if (expression is PrefixUnaryExpressionSyntax unaryExpression2)
+        {
+            if (unaryExpression2.Kind() == SyntaxKind.BitwiseNotExpression)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        return false;
     }
 }

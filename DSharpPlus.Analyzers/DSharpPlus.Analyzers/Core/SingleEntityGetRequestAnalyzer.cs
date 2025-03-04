@@ -10,26 +10,26 @@ namespace DSharpPlus.Analyzers.Core;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class SingleEntityGetRequestAnalyzer : DiagnosticAnalyzer
 {
-    public const string DiagnosticId = "DSP0007";
+    public const string DiagnosticId = "DSP0008";
     public const string Category = "Design";
 
     private static readonly LocalizableString title = new LocalizableResourceString
     (
-        nameof(Resources.DSP0007Title),
+        nameof(Resources.DSP0008Title),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
     private static readonly LocalizableString description = new LocalizableResourceString
     (
-        nameof(Resources.DSP0007Description),
+        nameof(Resources.DSP0008Description),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
     private static readonly LocalizableString messageFormat = new LocalizableResourceString
     (
-        nameof(Resources.DSP0007MessageFormat),
+        nameof(Resources.DSP0008MessageFormat),
         Resources.ResourceManager,
         typeof(Resources)
     );
@@ -42,7 +42,7 @@ public class SingleEntityGetRequestAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Info,
         true,
         description,
-        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/core.html#design-info-dsp0007"
+        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/core.html#design-info-dsp0008"
     );
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);
