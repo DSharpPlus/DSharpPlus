@@ -92,7 +92,7 @@ public class SimpleAutoCompleteProvider : IAutoCompleteProvider
     /// </summary>
     /// <param name="options">The input sequence.</param>
     /// <returns>The sequence of autocomplete choices.</returns>
-    public static IEnumerable<DiscordAutoCompleteChoice> Convert<T>(IEnumerable<T> options)
+    public static IEnumerable<DiscordAutoCompleteChoice> Convert<T>(params IEnumerable<T> options)
     {
         return options.Select(o => new DiscordAutoCompleteChoice(o?.ToString() ?? "", o));
     }
@@ -102,7 +102,7 @@ public class SimpleAutoCompleteProvider : IAutoCompleteProvider
     /// </summary>
     /// <param name="options">The input sequence.</param>
     /// <returns>The sequence of autocomplete choices.</returns>
-    public static IEnumerable<DiscordAutoCompleteChoice> Convert<T>(IEnumerable<KeyValuePair<string, T>> options)
+    public static IEnumerable<DiscordAutoCompleteChoice> Convert<T>(params IEnumerable<KeyValuePair<string, T>> options)
     {
         return options.Select(kvp => new DiscordAutoCompleteChoice(kvp.Key, kvp.Value));
     }
@@ -112,7 +112,7 @@ public class SimpleAutoCompleteProvider : IAutoCompleteProvider
     /// </summary>
     /// <param name="options">The input sequence.</param>
     /// <returns>The sequence of autocomplete choices.</returns>
-    public static IEnumerable<DiscordAutoCompleteChoice> Convert<T>(IEnumerable<(string Key, object Value)> options)
+    public static IEnumerable<DiscordAutoCompleteChoice> Convert<T>(params IEnumerable<(string Key, object Value)> options)
     {
         return options.Select(t => new DiscordAutoCompleteChoice(t.Key, t.Value));
     }
