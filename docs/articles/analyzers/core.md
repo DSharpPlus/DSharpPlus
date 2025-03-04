@@ -85,7 +85,7 @@ public class GetSpecificGuilds
 Use `DiscordPermissions` and its operators isntead of doing operations on `DiscordPermission`.
 
 @DSharpPlus.Entities.DiscordPermission is only an enum containing each permission flag. It does not take care of multiple permissions.
-@DSharpPlus.Entities.DiscordPermissionsrepresents multiple permissions and has utilities for managing this, use it over @DSharpPlus.Entities.DiscordPermission when representing multiple permissions. 
+@DSharpPlus.Entities.DiscordPermissions represents multiple permissions and has utilities for managing this, use it over @DSharpPlus.Entities.DiscordPermission when representing multiple permissions. 
 
 The following sample will generate DSP0008
 
