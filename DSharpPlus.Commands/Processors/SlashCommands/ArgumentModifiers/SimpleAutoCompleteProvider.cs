@@ -75,25 +75,32 @@ public class SimpleAutoCompleteProvider : IAutoCompleteProvider
     }
 
     /// <summary>
-    ///   Converts a sequence into autocomplete choices.
+    ///   Converts a sequence of objects into autocomplete choices.
     /// </summary>
     /// <param name="options">The input sequence.</param>
     /// <returns>The sequence of autocomplete choices.</returns>
     public static IEnumerable<DiscordAutoCompleteChoice> Convert<T>(IEnumerable<T> options)
     {
-        return options.Select(o => o switch
-            {
-                string s => new DiscordAutoCompleteChoice(s, s),
-                float f => new DiscordAutoCompleteChoice(f.ToString(), f),
-                double d => new DiscordAutoCompleteChoice(d.ToString(), d),
-                int i => new DiscordAutoCompleteChoice(i.ToString(), i),
-                long l => new DiscordAutoCompleteChoice(l.ToString(), l),
-                KeyValuePair<string, string> kvp => new DiscordAutoCompleteChoice(kvp.Key, kvp.Value),
-                KeyValuePair<string, float> kvp => new DiscordAutoCompleteChoice(kvp.Key, kvp.Value),
-                KeyValuePair<string, double> kvp => new DiscordAutoCompleteChoice(kvp.Key, kvp.Value),
-                KeyValuePair<string, int> kvp => new DiscordAutoCompleteChoice(kvp.Key, kvp.Value),
-                KeyValuePair<string, long> kvp => new DiscordAutoCompleteChoice(kvp.Key, kvp.Value),
-                _ => throw new InvalidCastException($"Cannot use {o?.GetType()?.Name ?? "null"} as the value of a DiscordAutoCompleteChoice.")
-            });
+        return options.Select(o => new DiscordAutoCompleteChoice(o?.ToString() ?? "", o));
+    }
+
+    /// <summary>
+    ///   Converts a sequence of objects into autocomplete choices.
+    /// </summary>
+    /// <param name="options">The input sequence.</param>
+    /// <returns>The sequence of autocomplete choices.</returns>
+    public static IEnumerable<DiscordAutoCompleteChoice> Convert<T>(IEnumerable<KeyValuePair<string, T>> options)
+    {
+        return options.Select(kvp => new DiscordAutoCompleteChoice(kvp.Key, kvp.Value));
+    }
+
+    /// <summary>
+    ///   Converts a sequence of objects into autocomplete choices.
+    /// </summary>
+    /// <param name="options">The input sequence.</param>
+    /// <returns>The sequence of autocomplete choices.</returns>
+    public static IEnumerable<DiscordAutoCompleteChoice> Convert<T>(IEnumerable<(string Key, object Value)> options)
+    {
+        return options.Select(t => new DiscordAutoCompleteChoice(t.Key, t.Value));
     }
 }
