@@ -35,7 +35,7 @@ public class SimpleAutoCompleteProvider : IAutoCompleteProvider
     /// <summary>
     ///   The method by which choices are matched to the user input.
     /// </summary>
-    protected virtual MatchingMethod MatchingMethod { get; } = MatchingMethod.Contains;
+    protected virtual SimpleAutoCompleteStringMatchingMethod MatchingMethod { get; } = SimpleAutoCompleteStringMatchingMethod.Contains;
 
     /// <inheritdoc/>
     public ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(AutoCompleteContext context)
@@ -44,14 +44,14 @@ public class SimpleAutoCompleteProvider : IAutoCompleteProvider
 
         switch (this.MatchingMethod)
         {
-            case MatchingMethod.Contains:
+            case SimpleAutoCompleteStringMatchingMethod.Contains:
                 results = this.Choices
                     .Select(c => (Choice: c, Index: c.Name.IndexOf(context.UserInput ?? "", this.Comparison)))
                     .Where(ci => ci.Index != -1)
                     .OrderBy(ci => ci.Index)
                     .Select(c => c.Choice);
                 break;
-            case MatchingMethod.StartsWith:
+            case SimpleAutoCompleteStringMatchingMethod.StartsWith:
                 results = this.Choices
                     .Where(c => c.Name.StartsWith(context.UserInput ?? "", this.Comparison));
                 break;
@@ -80,37 +80,20 @@ public class SimpleAutoCompleteProvider : IAutoCompleteProvider
     /// <param name="options">The input sequence.</param>
     /// <returns>The sequence of autocomplete choices.</returns>
     public static IEnumerable<DiscordAutoCompleteChoice> Convert<T>(IEnumerable<T> options)
-      => options.Select(o => o switch
-      {
-          string s => new DiscordAutoCompleteChoice(s, s),
-          float f => new DiscordAutoCompleteChoice(f.ToString(), f),
-          double d => new DiscordAutoCompleteChoice(d.ToString(), d),
-          int i => new DiscordAutoCompleteChoice(i.ToString(), i),
-          long l => new DiscordAutoCompleteChoice(l.ToString(), l),
-          KeyValuePair<string, string> kvp => new DiscordAutoCompleteChoice(kvp.Key, kvp.Value),
-          KeyValuePair<string, float> kvp => new DiscordAutoCompleteChoice(kvp.Key, kvp.Value),
-          KeyValuePair<string, double> kvp => new DiscordAutoCompleteChoice(kvp.Key, kvp.Value),
-          KeyValuePair<string, int> kvp => new DiscordAutoCompleteChoice(kvp.Key, kvp.Value),
-          KeyValuePair<string, long> kvp => new DiscordAutoCompleteChoice(kvp.Key, kvp.Value),
-          _ => throw new InvalidCastException($"Cannot use {o?.GetType()?.Name ?? "null"} as the value of a DiscordAutoCompleteChoice.")
-      });
-}
-
-/// <summary>
-///   Represents the string matching method for a
-///   <see cref="SimpleAutoCompleteProvider"/>.
-/// </summary>
-public enum MatchingMethod
-{
-    /// <summary>
-    ///   The <see cref="DiscordAutoCompleteChoice.Name"/> starts with the
-    ///   user input.
-    /// </summary>
-    StartsWith,
-
-    /// <summary>
-    ///   The <see cref="DiscordAutoCompleteChoice.Name"/> contains the
-    ///   user input.
-    /// </summary>
-    Contains
+    {
+        return options.Select(o => o switch
+            {
+                string s => new DiscordAutoCompleteChoice(s, s),
+                float f => new DiscordAutoCompleteChoice(f.ToString(), f),
+                double d => new DiscordAutoCompleteChoice(d.ToString(), d),
+                int i => new DiscordAutoCompleteChoice(i.ToString(), i),
+                long l => new DiscordAutoCompleteChoice(l.ToString(), l),
+                KeyValuePair<string, string> kvp => new DiscordAutoCompleteChoice(kvp.Key, kvp.Value),
+                KeyValuePair<string, float> kvp => new DiscordAutoCompleteChoice(kvp.Key, kvp.Value),
+                KeyValuePair<string, double> kvp => new DiscordAutoCompleteChoice(kvp.Key, kvp.Value),
+                KeyValuePair<string, int> kvp => new DiscordAutoCompleteChoice(kvp.Key, kvp.Value),
+                KeyValuePair<string, long> kvp => new DiscordAutoCompleteChoice(kvp.Key, kvp.Value),
+                _ => throw new InvalidCastException($"Cannot use {o?.GetType()?.Name ?? "null"} as the value of a DiscordAutoCompleteChoice.")
+            });
+    }
 }
