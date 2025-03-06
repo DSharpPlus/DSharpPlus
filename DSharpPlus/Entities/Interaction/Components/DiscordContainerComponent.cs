@@ -48,6 +48,7 @@ public class DiscordContainerComponent : DiscordComponent
         bool isSpoilered = false,
         DiscordColor? color = null
     )
+        : this()
     {
         this.Components = components;
         this.IsSpoilered = isSpoilered;

@@ -16,6 +16,7 @@ public sealed class DiscordTextDisplayComponent : DiscordComponent
     public string Content { get; internal set; }
     
     public DiscordTextDisplayComponent(string content, int id = default)
+        : this()
     {
         this.Content = content;
         this.Id = id;
