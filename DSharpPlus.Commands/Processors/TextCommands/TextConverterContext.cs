@@ -12,6 +12,8 @@ public record TextConverterContext : ConverterContext
     public required string RawArguments { get => this.rawArguments; init => this.rawArguments = value; }
     public required DiscordMessage Message { get => this.message; init => this.message = value; }
     public required TextArgumentSplicer Splicer { get; init; }
+    public required int PrefixLength { internal get; init; }
+    public string? Prefix => this.Message.Content?[..this.PrefixLength];
     public new string Argument => base.Argument as string ?? string.Empty;
     public int CurrentArgumentIndex { get; internal set; }
     public int NextArgumentIndex { get; internal set; }
