@@ -28,7 +28,7 @@ internal class DiscordInteractionApplicationCommandCallbackData
     public DiscordMessageFlags? Flags { get; internal set; }
 
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyList<DiscordActionRowComponent> Components { get; internal set; }
+    public IReadOnlyList<DiscordComponent> Components { get; internal set; }
 
     [JsonProperty("choices")]
     public IReadOnlyList<DiscordAutoCompleteChoice> Choices { get; internal set; }
