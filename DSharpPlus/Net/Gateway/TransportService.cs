@@ -229,13 +229,16 @@ internal sealed class TransportService : ITransportService
             this.logger.LogTrace("Payload for the last outbound gateway event: {event}", anonymized);
         }
 
-        await this.socket.SendAsync
-        (
-            buffer: payload,
-            messageType: WebSocketMessageType.Text,
-            endOfMessage: true,
-            cancellationToken: CancellationToken.None
-        );
+        if (!this.isDisposed)
+        {
+            await this.socket.SendAsync
+            (
+                buffer: payload,
+                messageType: WebSocketMessageType.Text,
+                endOfMessage: true,
+                cancellationToken: CancellationToken.None
+            );
+        }
     }
 
     /// <inheritdoc/>
