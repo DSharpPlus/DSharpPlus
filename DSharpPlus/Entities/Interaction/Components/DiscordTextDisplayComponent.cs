@@ -15,11 +15,7 @@ public sealed class DiscordTextDisplayComponent : DiscordComponent
     [JsonProperty("content")]
     public string Content { get; internal set; }
     
-    public DiscordTextDisplayComponent(string content, int id = default)
-    {
-        this.Content = content;
-        this.Id = id;
-    }
-    
+    public DiscordTextDisplayComponent(string content) => this.Content = content;
+
     internal DiscordTextDisplayComponent() => this.Type = DiscordComponentType.TextDisplay;
 }
