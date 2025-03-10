@@ -16,12 +16,20 @@ public sealed class DiscordMediaGalleryComponent : DiscordComponent
     [JsonProperty("items", NullValueHandling = NullValueHandling.Ignore)]
     public IReadOnlyList<DiscordMediaGalleryItem> Items { get; internal set; }
 
+    /// <inheritdoc cref="DiscordMediaGalleryComponent(IEnumerable{DiscordMediaGalleryItem}, int)"/>
+    public DiscordMediaGalleryComponent(params IEnumerable<DiscordMediaGalleryItem> items)
+        : this(items, 0)
+    {
+
+    }
+
     /// <summary>
     /// Constructs a new media gallery component.
     /// </summary>
     /// <param name="items">The items of the gallery.</param>
     /// <param name="id">The optional ID of the component.</param>
-    public DiscordMediaGalleryComponent(IEnumerable<DiscordMediaGalleryItem> items, int id=0)
+    public DiscordMediaGalleryComponent(IEnumerable<DiscordMediaGalleryItem> items, int id = 0)
+        : this()
     {
         this.Items = items.ToArray();
         this.Id = id;

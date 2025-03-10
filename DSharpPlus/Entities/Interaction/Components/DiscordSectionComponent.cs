@@ -1,6 +1,5 @@
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
+
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -29,7 +28,7 @@ public class DiscordSectionComponent : DiscordComponent
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
     public IReadOnlyList<DiscordComponent> Components { get; internal set; }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="DiscordSectionComponent(IReadOnlyList{DiscordComponent}, DiscordComponent)"/>
     public DiscordSectionComponent(DiscordComponent textDisplayComponent, DiscordComponent accessory)
         : this([textDisplayComponent], accessory)
     {
@@ -41,6 +40,7 @@ public class DiscordSectionComponent : DiscordComponent
     /// <param name="sections">The sections (generally text) that this section contains.</param>
     /// <param name="accessory">The accessory to this section. At this time, this must either be a <see cref="DiscordThumbnailComponent"/> or a <see cref="DiscordButtonComponent"/>.</param>
     public DiscordSectionComponent(IReadOnlyList<DiscordComponent> sections, DiscordComponent accessory)
+        : this()
     {
         this.Accessory = accessory;
         this.Components = sections;

@@ -21,6 +21,7 @@ public class DiscordSeparatorComponent : DiscordComponent
     public DiscordSeparatorSpacing Spacing { get; internal set; }
 
     public DiscordSeparatorComponent(bool divider = false, DiscordSeparatorSpacing spacing = DiscordSeparatorSpacing.Small)
+        : this()
     {
         this.Divider = divider;
         this.Spacing = spacing;

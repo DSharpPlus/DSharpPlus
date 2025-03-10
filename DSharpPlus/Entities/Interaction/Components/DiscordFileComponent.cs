@@ -20,6 +20,7 @@ public sealed class DiscordFileComponent : DiscordComponent
     public bool IsSpoilered { get; internal set; }
 
     public DiscordFileComponent(string url, bool isSpoilered)
+        : this()
     {
         this.File = new(url);
         this.IsSpoilered = isSpoilered;

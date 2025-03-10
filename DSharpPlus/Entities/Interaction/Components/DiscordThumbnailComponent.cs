@@ -25,11 +25,18 @@ public class DiscordThumbnailComponent : DiscordComponent
     [JsonProperty("spoiler", NullValueHandling = NullValueHandling.Ignore)]
     public bool Spoiler { get; internal set; }
 
-    public DiscordThumbnailComponent(DiscordUnfurledMediaItem media, string? description = null, bool spoiler = false)
+    public DiscordThumbnailComponent(string url, string? description = null, bool spoiler = false)
+        : this(new DiscordUnfurledMediaItem(url), description, spoiler)
     {
-        Media = media;
-        Description = description;
-        Spoiler = spoiler;
+
+    }
+
+    public DiscordThumbnailComponent(DiscordUnfurledMediaItem media, string? description = null, bool spoiler = false)
+        : this()
+    {
+        this.Media = media;
+        this.Description = description;
+        this.Spoiler = spoiler;
     }
 
     internal DiscordThumbnailComponent() => this.Type = DiscordComponentType.Thumbnail;
