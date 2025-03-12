@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 
-using DSharpPlus.Commands.Trees.Predicates;
-
 namespace DSharpPlus.Commands.Trees;
 
 /// <summary>
@@ -26,9 +24,6 @@ public class CommandBranchNode : ICommandNode
 
     /// <inheritdoc/>
     public IReadOnlyList<ICommandNode> Children { get; internal set; }
-
-    /// <inheritdoc/>
-    public IReadOnlyList<ICommandExecutionPredicate> Predicates { get; internal set; }
 
     /// <inheritdoc/>
     public NodeMetadataCollection Metadata { get; }

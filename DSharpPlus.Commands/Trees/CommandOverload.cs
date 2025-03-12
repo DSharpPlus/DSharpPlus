@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using DSharpPlus.Commands.ContextChecks;
-using DSharpPlus.Commands.Trees.Predicates;
 
 namespace DSharpPlus.Commands.Trees;
 
@@ -33,9 +32,6 @@ public class CommandOverload : ICommandNode
 
     /// <inheritdoc/>
     IReadOnlyList<ICommandNode> ICommandNode.Children => [];
-
-    /// <inheritdoc/>
-    public IReadOnlyList<ICommandExecutionPredicate> Predicates { get; internal set; }
 
     /// <summary>
     /// The parameters of this command, excluding the command context.

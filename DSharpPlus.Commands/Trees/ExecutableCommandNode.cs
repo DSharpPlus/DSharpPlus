@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 
-using DSharpPlus.Commands.Trees.Predicates;
-
 namespace DSharpPlus.Commands.Trees;
 
 /// <summary>
@@ -26,9 +24,6 @@ public class ExecutableCommandNode : ICommandNode
 
     /// <inheritdoc/>
     IReadOnlyList<ICommandNode> ICommandNode.Children => [.. this.Children, .. this.Overloads];
-
-    /// <inheritdoc/>
-    public IReadOnlyList<ICommandExecutionPredicate> Predicates { get; internal set; }
 
     /// <summary>
     /// Child branches and themselves-executable nodes of this command. This is unavailable for application commands.

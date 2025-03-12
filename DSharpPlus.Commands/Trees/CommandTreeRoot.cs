@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 
-using DSharpPlus.Commands.Trees.Predicates;
-
 namespace DSharpPlus.Commands.Trees;
 
 /// <summary>
@@ -24,8 +22,5 @@ public class CommandTreeRoot
     /// </summary>
     public IReadOnlyList<ICommandNode> TopLevelCommands { get; internal set; }
 
-    /// <summary>
-    /// A collection of predicates for this tree being considerable at all.
-    /// </summary>
-    public IReadOnlyList<ICommandExecutionPredicate> Predicates { get; internal set; }
+    public NodeMetadataCollection Metadata { get; internal set; }
 }

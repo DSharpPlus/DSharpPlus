@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 
-using DSharpPlus.Commands.Trees.Predicates;
-
 namespace DSharpPlus.Commands.Trees;
 
 /// <summary>
@@ -38,11 +36,6 @@ public interface ICommandNode
     /// The child nodes of this node. For overload nodes, this is empty.
     /// </summary>
     public IReadOnlyList<ICommandNode> Children { get; }
-
-    /// <summary>
-    /// Predicates for this node being walkable. This is additive, meaning that all parents' predicates must be fulfilled in addition to the current ones.
-    /// </summary>
-    public IReadOnlyList<ICommandExecutionPredicate> Predicates { get; }
 
     /// <summary>
     /// A collection of custom metadata for this command.
