@@ -49,6 +49,12 @@ public class ParameterNode
     public required object? DefaultValue { get; init; }
 
     /// <summary>
+    /// Indicates whether this parameter will greedily match, that is, consume as much text as possible rather than as little as possible. If this is the final
+    /// parameter, all remaining text will be considered either part of this parameter or treated as excess.
+    /// </summary>
+    public required bool IsGreedy { get; init; }
+
+    /// <summary>
     /// Additional metadata associated with this command.
     /// </summary>
     public required NodeMetadataCollection Metadata { get; init; }
