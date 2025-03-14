@@ -444,7 +444,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             maxValue: maxValue,
             minLength: minMaxLength?.MinLength,
             minValue: minValue,
-            required: !parameter.DefaultValue.HasValue && parameter.Attributes.Select(attribute => attribute is VariadicArgumentAttribute variadicArgumentAttribute
+            required: !parameter.DefaultValue.HasValue && parameter.Attributes.Select(attribute => attribute is VariadicParameterAttribute variadicArgumentAttribute
                 ? variadicArgumentAttribute.MinimumArgumentCount : 0).Sum() > i,
             type: slashArgumentConverter.ParameterType
         );
@@ -455,7 +455,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         int minimumArgumentCount = 0;
         foreach (Attribute attribute in command.Parameters.SelectMany(parameter => parameter.Attributes))
         {
-            if (attribute is not VariadicArgumentAttribute variadicArgumentAttribute)
+            if (attribute is not VariadicParameterAttribute variadicArgumentAttribute)
             {
                 continue;
             }
@@ -477,7 +477,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             if (minimumArgumentCount > 25)
             {
                 throw new InvalidOperationException(
-                    $"Slash command failed validation: Command '{command.Name}' has too many minimum arguments. Discord only supports up to 25 parameters, please lower the total minimum argument count that's set through {nameof(VariadicArgumentAttribute)}."
+                    $"Slash command failed validation: Command '{command.Name}' has too many minimum arguments. Discord only supports up to 25 parameters, please lower the total minimum argument count that's set through {nameof(VariadicParameterAttribute)}."
                 );
             }
         }
@@ -486,7 +486,7 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         {
             // Check if the parameter is using a variadic argument attribute.
             // If it is we need to add the parameter multiple times.
-            VariadicArgumentAttribute? variadicArgumentAttribute = parameter.Attributes.FirstOrDefault(attribute => attribute is VariadicArgumentAttribute) as VariadicArgumentAttribute;
+            VariadicParameterAttribute? variadicArgumentAttribute = parameter.Attributes.FirstOrDefault(attribute => attribute is VariadicParameterAttribute) as VariadicParameterAttribute;
             if (variadicArgumentAttribute is not null)
             {
                 // Add the variadic parameter multiple times until we reach the maximum argument count.

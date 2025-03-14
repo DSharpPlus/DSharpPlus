@@ -8,7 +8,7 @@ namespace DSharpPlus.Commands.ArgumentModifiers;
 /// This attribute is only valid on parameters of type <see cref="IEnumerable"/>.
 /// </summary>
 [AttributeUsage(AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
-public sealed class VariadicArgumentAttribute : Attribute
+public sealed class VariadicParameterAttribute : Attribute
 {
     /// <summary>
     /// The maximum number of arguments that this parameter can accept.
@@ -25,7 +25,7 @@ public sealed class VariadicArgumentAttribute : Attribute
     /// </summary>
     /// <param name="maximumArgumentCount">The maximum number of arguments that this parameter can accept.</param>
     /// <param name="minimumArgumentCount">The minimum number of arguments that this parameter can accept.</param>
-    public VariadicArgumentAttribute(int maximumArgumentCount, int minimumArgumentCount = 1)
+    public VariadicParameterAttribute(int maximumArgumentCount, int minimumArgumentCount = 1)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(minimumArgumentCount, 1, nameof(minimumArgumentCount));
         ArgumentOutOfRangeException.ThrowIfLessThan(maximumArgumentCount, 1, nameof(maximumArgumentCount));

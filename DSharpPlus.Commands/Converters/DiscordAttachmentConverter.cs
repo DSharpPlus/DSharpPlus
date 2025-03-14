@@ -29,7 +29,7 @@ public class AttachmentConverter : ISlashArgumentConverter<DiscordAttachment>, I
                 {
                     break;
                 }
-                else if (attachmentParameter.Attributes.FirstOrDefault(attribute => attribute is VariadicArgumentAttribute) is VariadicArgumentAttribute variadicArgumentAttribute)
+                else if (attachmentParameter.Attributes.FirstOrDefault(attribute => attribute is VariadicParameterAttribute) is VariadicParameterAttribute variadicArgumentAttribute)
                 {
                     // Increase the index by however many attachments we've already parsed
                     // We add by maximum argument count because the attachment converter will never fail to parse

@@ -270,7 +270,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
     }
 
     /// <summary>
-    /// Parses a single parameter from the command context. This method will handle <see cref="VariadicArgumentAttribute"/> annotated parameters.
+    /// Parses a single parameter from the command context. This method will handle <see cref="VariadicParameterAttribute"/> annotated parameters.
     /// </summary>
     /// <param name="converterContext">The converter context containing all the relevant data for the argument parsing.</param>
     public virtual async ValueTask<object?> ParseParameterAsync(TConverterContext converterContext)

@@ -33,7 +33,7 @@ public abstract record ConverterContext : AbstractContext
     /// <summary>
     /// The current variadic-argument parameter.
     /// </summary>
-    public VariadicArgumentAttribute? VariadicArgumentAttribute { get; protected set; }
+    public VariadicParameterAttribute? VariadicArgumentAttribute { get; protected set; }
 
     /// <summary>
     /// Advances to the next parameter, returning a value indicating whether there was another parameter.
@@ -47,7 +47,7 @@ public abstract record ConverterContext : AbstractContext
 
         this.ParameterIndex++;
         this.VariadicArgumentParameterIndex = -1;
-        this.VariadicArgumentAttribute = this.Parameter.Attributes.FirstOrDefault(attribute => attribute is VariadicArgumentAttribute) as VariadicArgumentAttribute;
+        this.VariadicArgumentAttribute = this.Parameter.Attributes.FirstOrDefault(attribute => attribute is VariadicParameterAttribute) as VariadicParameterAttribute;
         return true;
     }
 
