@@ -9,6 +9,7 @@ using System.Text;
 
 using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
+using DSharpPlus.Commands.Extensions;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Commands.Processors.SlashCommands.InteractionNamingPolicies;
 using DSharpPlus.Commands.Trees.Metadata;
@@ -316,6 +317,16 @@ public sealed class ParameterNodeBuilder
             WithLowercasedName(namingPolicy.TransformText(this.Name, CultureInfo.InvariantCulture));
         }
 
+        VariadicParameterMetadata? vpData = this.Metadata.Get<VariadicParameterMetadata>();
+
+        if (vpData is not null)
+        {
+            for (int i = 0; i < vpData.MaxVariadicArguments; i++)
+            {
+                vpData.lowercasedNames.Add(namingPolicy.GetParameterName(this, CultureInfo.InvariantCulture, i));
+            }
+        }
+
         if (this.Description is null)
         {
             WithDescription("No description provided.");
@@ -350,7 +361,7 @@ public sealed class ParameterNodeBuilder
 
         IEnumerable<Attribute> attributes = info.GetCustomAttributes();
 
-        ParameterAttribute? parameterNameAttribute = (ParameterAttribute?)attributes.SingleOrDefault(x => x.GetType() == typeof(ParameterAttribute));
+        ParameterAttribute? parameterNameAttribute = attributes.SingleOrDefaultOfType<ParameterAttribute, Attribute>();
 
         if (parameterNameAttribute is null)
         {
@@ -362,8 +373,8 @@ public sealed class ParameterNodeBuilder
         }
 
         // these attributes are order-sensitive and can't be handled in the loop below
-        DspDescriptionAttribute? dspDescriptionAttribute = (DspDescriptionAttribute?)attributes.SingleOrDefault(x => x.GetType() == typeof(DspDescriptionAttribute));
-        BclDescriptionAttribute? bclDescriptionAttribute = (BclDescriptionAttribute?)attributes.SingleOrDefault(x => x.GetType() == typeof(BclDescriptionAttribute));
+        DspDescriptionAttribute? dspDescriptionAttribute = attributes.SingleOrDefaultOfType<DspDescriptionAttribute, Attribute>();
+        BclDescriptionAttribute? bclDescriptionAttribute = attributes.SingleOrDefaultOfType<BclDescriptionAttribute, Attribute>();
 
         if (dspDescriptionAttribute is not null)
         {
@@ -400,6 +411,16 @@ public sealed class ParameterNodeBuilder
                     break;
 
                 case VariadicParameterAttribute variadic:
+
+                    if (!info.ParameterType.IsValidVariadicParameterType())
+                    {
+                        throw new InvalidOperationException
+                        (
+                            $"Encountered the following error attempting to convert {info.Member.DeclaringType.FullName}#{info.Member.Name}; parameter {info.Name}: " +
+                            "Only single-dimensional arrays and IEnumerable<T>-deriving types can be used as variadic parameter types."
+                        );
+                    }
+
                     builder.AsVariadicParameter(variadic.MinimumArgumentCount, variadic.MaximumArgumentCount);
                     break;
 
