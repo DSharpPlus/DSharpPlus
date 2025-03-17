@@ -422,26 +422,9 @@ public sealed class GatewayClient : IGatewayClient
                 try
                 {
                     this.IsConnected = false;
-                    
-                    // Ensure we cancel the heartbeat task, as well as anything else relying on this token.
-                    this.gatewayTokenSource.Cancel();
-                    this.gatewayTokenSource = new CancellationTokenSource();
 
                     await this.transportService.DisconnectAsync(WebSocketCloseStatus.NormalClosure);
                     await this.transportService.ConnectAsync(this.resumeUrl, this.shardInfo?.ShardId);
-                    
-                    TransportFrame initialFrame = await this.transportService.ReadAsync();
-                    GatewayPayload? helloEvent = await ProcessAndDeserializeTransportFrameAsync(initialFrame);
-
-                    if (helloEvent is not { OpCode: GatewayOpCode.Hello })
-                    {
-                        throw new InvalidDataException($"Expected HELLO payload from Discord");
-                    }
-
-                    GatewayHello helloPayload = ((JObject)helloEvent.Data).ToDiscordObject<GatewayHello>();
-                    
-                    // Restart the heartbeat task, synced to the new token
-                    _ = HeartbeatAsync(helloPayload.HeartbeatInterval, this.gatewayTokenSource.Token);
 
                     await WriteAsync
                     (
