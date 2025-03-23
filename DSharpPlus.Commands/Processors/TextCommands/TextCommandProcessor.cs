@@ -312,7 +312,7 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
             }
 
             // If there was no space found after the subcommand, break
-            nextIndex = commandText.IndexOf(' ', nextIndex);
+            nextIndex = commandText.IndexOf(' ', nextIndex + 1);
             if (nextIndex == -1)
             {
                 // No more spaces. Search the rest of the string to see if there is a subcommand that matches.
@@ -320,11 +320,11 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
             }
 
             // Resolve subcommands
-            string subcommandName = commandText[index..nextIndex];
+            string subCommandName = commandText[index..nextIndex];
 
             // Try searching for the subcommand by name, then by alias
             // We prioritize the name over the aliases to avoid a poor dev debugging experience
-            Command? foundCommand = command.Subcommands.FirstOrDefault(subCommand => subCommand.Name.Equals(subcommandName, StringComparison.OrdinalIgnoreCase));
+            Command? foundCommand = command.Subcommands.FirstOrDefault(subCommand => this.Configuration.CommandNameComparer.Equals(subCommand.Name, subCommandName.Trim()));
             if (foundCommand is null)
             {
                 // Search for any aliases that the subcommand may have
@@ -339,12 +339,22 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
 
                         foreach (string alias in aliasAttribute.Aliases)
                         {
-                            if (this.Configuration.CommandNameComparer.Equals(alias, subcommandName))
+                            if (this.Configuration.CommandNameComparer.Equals(alias, subCommandName))
                             {
                                 foundCommand = subcommand;
                                 break;
                             }
                         }
+
+                        if (foundCommand is not null)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (foundCommand is not null)
+                    {
+                        break;
                     }
                 }
 
