@@ -262,11 +262,11 @@ public class CommandBuilder
         StringBuilder stringBuilder = new();
         if (this.Parent is not null)
         {
-            stringBuilder.Append(this.Parent.Name);
+            stringBuilder.Append(this.Parent.FullName);
             stringBuilder.Append('.');
         }
 
-        stringBuilder.Append(this.Name ?? "Unnamed Command");
+        stringBuilder.Append(this.Name ?? "<Unnamed Command>");
         return stringBuilder.ToString();
     }
 
