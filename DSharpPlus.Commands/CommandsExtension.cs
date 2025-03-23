@@ -192,8 +192,8 @@ public sealed class CommandsExtension
     public void AddCommand(Delegate commandDelegate) => this.commandBuilders.Add(CommandBuilder.From(commandDelegate));
     public void AddCommand(Type type, params ulong[] guildIds) => this.commandBuilders.Add(CommandBuilder.From(type, guildIds));
     public void AddCommand(Type type) => this.commandBuilders.Add(CommandBuilder.From(type));
-    public void AddCommands(Assembly assembly, params ulong[] guildIds) => AddCommands(assembly.GetTypes(), guildIds);
-    public void AddCommands(Assembly assembly) => AddCommands(assembly.GetTypes());
+    public void AddCommands(Assembly assembly, params ulong[] guildIds) => AddCommands(assembly.GetTypes().Where(type => !type.IsNested), guildIds);
+    public void AddCommands(Assembly assembly) => AddCommands(assembly.GetTypes().Where(type => !type.IsNested));
     public void AddCommands(IEnumerable<CommandBuilder> commands) => this.commandBuilders.AddRange(commands);
     public void AddCommands(IEnumerable<Type> types) => AddCommands(types, []);
     public void AddCommands(params CommandBuilder[] commands) => this.commandBuilders.AddRange(commands);
@@ -207,6 +207,7 @@ public sealed class CommandsExtension
         {
             if (type.GetCustomAttribute<CommandAttribute>() is not null)
             {
+                this.Client.Logger.LogInformation("Adding command from type {Type}", type.FullName ?? type.Name);
                 this.commandBuilders.Add(CommandBuilder.From(type, guildIds));
                 continue;
             }
@@ -215,6 +216,7 @@ public sealed class CommandsExtension
             {
                 if (method.GetCustomAttribute<CommandAttribute>() is not null)
                 {
+                    this.Client.Logger.LogInformation("Adding command from type {Type}", type.FullName ?? type.Name);
                     this.commandBuilders.Add(CommandBuilder.From(method, guildIds: guildIds));
                 }
             }
