@@ -47,9 +47,13 @@ public record Command
     {
         StringBuilder stringBuilder = new();
         stringBuilder.Append(this.FullName);
-        stringBuilder.Append('(');
-        stringBuilder.AppendJoin(", ", this.Parameters.Select(x => $"{x.Type.Name} {x.Name}"));
-        stringBuilder.Append(')');
+        if (this.Subcommands.Count == 0)
+        {
+            stringBuilder.Append('(');
+            stringBuilder.AppendJoin(", ", this.Parameters.Select(x => $"{x.Type.Name} {x.Name}"));
+            stringBuilder.Append(')');
+        }
+
         return stringBuilder.ToString();
     }
 }
