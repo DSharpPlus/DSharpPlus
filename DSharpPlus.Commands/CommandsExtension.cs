@@ -490,7 +490,7 @@ public sealed class CommandsExtension
             }
             catch (Exception error)
             {
-                this.logger.LogError(error, "Failed to build command '{CommandBuilder}'", commandBuilder.Name);
+                this.logger.LogError(error, "Failed to build command '{CommandBuilder}'", commandBuilder.FullName);
             }
         }
 
