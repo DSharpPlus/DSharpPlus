@@ -156,7 +156,7 @@ public class CommandBuilder
     }
 
     /// <inheritdoc cref="From(Type, ulong[])"/>
-    public static CommandBuilder From<T>() => From(typeof(T), []);
+    public static CommandBuilder From<T>() => From<T>([]);
 
     /// <inheritdoc cref="From(Type, ulong[])"/>
     /// <typeparam name="T">The type that'll be searched for subcommands.</typeparam>
@@ -181,7 +181,7 @@ public class CommandBuilder
 
         // Add subcommands
         List<CommandBuilder> subCommandBuilders = [];
-        foreach (Type subCommand in type.GetNestedTypes(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
+        foreach (Type subCommand in type.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
         {
             if (subCommand.GetCustomAttribute<CommandAttribute>() is null)
             {
@@ -192,7 +192,7 @@ public class CommandBuilder
         }
 
         // Add methods
-        foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
+        foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
         {
             if (method.GetCustomAttribute<CommandAttribute>() is null)
             {
@@ -262,11 +262,11 @@ public class CommandBuilder
         StringBuilder stringBuilder = new();
         if (this.Parent is not null)
         {
-            stringBuilder.Append(this.Parent.Name);
+            stringBuilder.Append(this.Parent.FullName);
             stringBuilder.Append('.');
         }
 
-        stringBuilder.Append(this.Name ?? "Unnamed Command");
+        stringBuilder.Append(this.Name ?? "<Unnamed Command>");
         return stringBuilder.ToString();
     }
 
@@ -277,7 +277,7 @@ public class CommandBuilder
 
         static IEnumerable<Attribute> AggregateCustomAttributesFromType(Type? type)
         {
-            return type is null 
+            return type is null
                 ? []
                 : type.GetCustomAttributes(true)
                     .Where(obj => obj is ContextCheckAttribute)
