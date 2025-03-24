@@ -275,19 +275,19 @@ public sealed class CommandsExtension
             }
         }
 
-        List<Command> subCommands = new(command.Subcommands.Count);
+        List<Command> subcommands = new(command.Subcommands.Count);
         foreach (Command subcommand in command.Subcommands)
         {
-            Command? filteredSubCommand = FilterCommand(subcommand, processorType, contextType);
-            if (filteredSubCommand is not null)
+            Command? filteredSubcommand = FilterCommand(subcommand, processorType, contextType);
+            if (filteredSubcommand is not null)
             {
-                subCommands.Add(filteredSubCommand);
+                subcommands.Add(filteredSubcommand);
             }
         }
 
         return command with
         {
-            Subcommands = subCommands,
+            Subcommands = subcommands,
         };
     }
 

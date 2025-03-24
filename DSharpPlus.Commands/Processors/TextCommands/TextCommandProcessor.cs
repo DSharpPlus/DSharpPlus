@@ -320,11 +320,11 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
             }
 
             // Resolve subcommands
-            string subCommandName = commandText[index..nextIndex];
+            string subcommandName = commandText[index..nextIndex];
 
             // Try searching for the subcommand by name, then by alias
             // We prioritize the name over the aliases to avoid a poor dev debugging experience
-            Command? foundCommand = command.Subcommands.FirstOrDefault(subCommand => this.Configuration.CommandNameComparer.Equals(subCommand.Name, subCommandName.Trim()));
+            Command? foundCommand = command.Subcommands.FirstOrDefault(subcommand => this.Configuration.CommandNameComparer.Equals(subcommand.Name, subcommandName.Trim()));
             if (foundCommand is null)
             {
                 // Search for any aliases that the subcommand may have
@@ -339,7 +339,7 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
 
                         foreach (string alias in aliasAttribute.Aliases)
                         {
-                            if (this.Configuration.CommandNameComparer.Equals(alias, subCommandName))
+                            if (this.Configuration.CommandNameComparer.Equals(alias, subcommandName))
                             {
                                 foundCommand = subcommand;
                                 break;
