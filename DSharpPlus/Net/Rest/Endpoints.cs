@@ -60,6 +60,7 @@ internal static class Endpoints
     public const string SEARCH = "search";
     public const string SKUS = "skus";
     public const string SLACK = "slack";
+    public const string SOUNDBOARD_SOUNDS = "soundboard-sounds";
     public const string STAGE_INSTANCES = "stage-instances";
     public const string STICKERPACKS = "sticker-packs";
     public const string STICKERS = "stickers";
