@@ -180,15 +180,15 @@ public class CommandBuilder
         commandBuilder.GuildIds.AddRange(guildIds);
 
         // Add subcommands
-        List<CommandBuilder> subCommandBuilders = [];
-        foreach (Type subCommand in type.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+        List<CommandBuilder> subcommandBuilders = [];
+        foreach (Type subcommand in type.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
         {
-            if (subCommand.GetCustomAttribute<CommandAttribute>() is null)
+            if (subcommand.GetCustomAttribute<CommandAttribute>() is null)
             {
                 continue;
             }
 
-            subCommandBuilders.Add(From(subCommand, [.. commandBuilder.GuildIds]).WithParent(commandBuilder));
+            subcommandBuilders.Add(From(subcommand, [.. commandBuilder.GuildIds]).WithParent(commandBuilder));
         }
 
         // Add methods
@@ -199,15 +199,15 @@ public class CommandBuilder
                 continue;
             }
 
-            subCommandBuilders.Add(From(method, guildIds: [.. commandBuilder.GuildIds]).WithParent(commandBuilder));
+            subcommandBuilders.Add(From(method, guildIds: [.. commandBuilder.GuildIds]).WithParent(commandBuilder));
         }
 
-        if (type.GetCustomAttribute<CommandAttribute>() is not null && subCommandBuilders.Count == 0)
+        if (type.GetCustomAttribute<CommandAttribute>() is not null && subcommandBuilders.Count == 0)
         {
             throw new ArgumentException($"The type \"{type.FullName ?? type.Name}\" does not have any subcommands or methods with a CommandAttribute.", nameof(type));
         }
 
-        commandBuilder.WithSubcommands(subCommandBuilders);
+        commandBuilder.WithSubcommands(subcommandBuilders);
 
         // Might be set through the `DescriptionAttribute`
         if (string.IsNullOrEmpty(commandBuilder.Description))

@@ -246,17 +246,17 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         }
         else
         {
-            foreach (Command subCommand in command.Subcommands)
+            foreach (Command subcommand in command.Subcommands)
             {
                 // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
                 // If there isn't, default to SlashCommands
-                if (subCommand.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute
+                if (subcommand.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute
                     && !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.SlashCommand))
                 {
                     continue;
                 }
 
-                options.Add(await ToApplicationParameterAsync(subCommand));
+                options.Add(await ToApplicationParameterAsync(subcommand));
             }
         }
 
@@ -310,9 +310,9 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
             }
 
             depth++;
-            foreach (Command subCommand in command.Subcommands)
+            foreach (Command subcommand in command.Subcommands)
             {
-                options.Add(await ToApplicationParameterAsync(subCommand, depth));
+                options.Add(await ToApplicationParameterAsync(subcommand, depth));
             }
         }
 
@@ -517,17 +517,17 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
     {
         if (command.Subcommands.Count > 0)
         {
-            foreach (Command subCommand in command.Subcommands)
+            foreach (Command subcommand in command.Subcommands)
             {
                 // If there is a SlashCommandTypesAttribute, check if it contains SlashCommandTypes.ApplicationCommand
                 // If there isn't, default to SlashCommands
-                if (subCommand.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute
+                if (subcommand.Attributes.OfType<SlashCommandTypesAttribute>().FirstOrDefault() is SlashCommandTypesAttribute slashCommandTypesAttribute
                     && !slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.SlashCommand))
                 {
                     continue;
                 }
 
-                ValidateSlashCommand(subCommand, nameLocalizations, descriptionLocalizations);
+                ValidateSlashCommand(subcommand, nameLocalizations, descriptionLocalizations);
             }
         }
 
