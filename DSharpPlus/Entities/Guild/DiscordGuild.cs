@@ -2603,7 +2603,14 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             return null;
         }
     }
-    
+
+    /// <summary>
+    /// Retrieves the soundboard sound from the guild.
+    /// </summary>
+    /// <param name="id">The id of the sound that should be retrieved</param>
+    public async Task<DiscordGuildSoundboardSound> GetSoundboardSoundAsync(ulong id) 
+        => await this.Discord.ApiClient.GetGuildSoundboardSoundAsync(this.Id, id);
+
     #endregion
 
     /// <summary>

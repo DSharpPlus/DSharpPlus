@@ -7100,4 +7100,24 @@ public sealed class DiscordRestApiClient
 
         await this.rest.ExecuteRequestAsync(request);
     }
+
+    internal async ValueTask<DiscordGuildSoundboardSound> GetGuildSoundboardSoundAsync(ulong guildId, ulong soundId)
+    {
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.SOUNDBOARD_SOUNDS}/:soundId";
+        string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.SOUNDBOARD_SOUNDS}/{soundId}";
+        
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Get,
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        TransportSoundboardSound transportSoundboardSound = JsonConvert.DeserializeObject<TransportSoundboardSound>(res.Response!)!;
+
+        DiscordGuildSoundboardSound sound = new(transportSoundboardSound, this.discord!);
+        
+        return sound;
+    }
 }
