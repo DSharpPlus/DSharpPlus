@@ -207,7 +207,7 @@ public sealed class CommandsExtension
         {
             if (type.GetCustomAttribute<CommandAttribute>() is not null)
             {
-                this.Client.Logger.LogInformation("Adding command from type {Type}", type.FullName ?? type.Name);
+                this.Client.Logger.LogDebug("Adding command from type {Type}", type.FullName ?? type.Name);
                 this.commandBuilders.Add(CommandBuilder.From(type, guildIds));
                 continue;
             }
@@ -216,7 +216,7 @@ public sealed class CommandsExtension
             {
                 if (method.GetCustomAttribute<CommandAttribute>() is not null)
                 {
-                    this.Client.Logger.LogInformation("Adding command from type {Type}", type.FullName ?? type.Name);
+                    this.Client.Logger.LogDebug("Adding command from type {Type}", type.FullName ?? type.Name);
                     this.commandBuilders.Add(CommandBuilder.From(method, guildIds: guildIds));
                 }
             }
