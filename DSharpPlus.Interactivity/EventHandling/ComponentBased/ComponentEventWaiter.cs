@@ -88,7 +88,12 @@ internal class ComponentEventWaiter : IDisposable
             }
             else if (this.config.ResponseBehavior is InteractionResponseBehavior.Respond)
             {
-                await args.Interaction.CreateFollowupMessageAsync(this.message);
+                try
+                {
+                    string responseMessage = this.config.ResponseMessage ?? this.config.ResponseMessageFactory(args, client.ServiceProvider);
+                    await args.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder { Content = responseMessage, IsEphemeral = true }).ConfigureAwait(false);
+                }
+                catch { /* Ignore */ }
             }
         }
 
@@ -104,7 +109,12 @@ internal class ComponentEventWaiter : IDisposable
                 }
                 else if (this.config.ResponseBehavior is InteractionResponseBehavior.Respond)
                 {
-                    await args.Interaction.CreateFollowupMessageAsync(this.message);
+                    try
+                    {
+                        string responseMessage = this.config.ResponseMessage ?? this.config.ResponseMessageFactory(args, client.ServiceProvider);
+                        await args.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder { Content = responseMessage, IsEphemeral = true }).ConfigureAwait(false);
+                    }
+                    catch { /* Ignore */ }
                 }
             }
         }
