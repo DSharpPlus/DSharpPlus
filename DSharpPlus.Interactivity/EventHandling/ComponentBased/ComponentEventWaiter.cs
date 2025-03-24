@@ -91,9 +91,12 @@ internal class ComponentEventWaiter : IDisposable
                 try
                 {
                     string responseMessage = this.config.ResponseMessage ?? this.config.ResponseMessageFactory(args, client.ServiceProvider);
-                    await args.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder { Content = responseMessage, IsEphemeral = true }).ConfigureAwait(false);
+                    await args.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder { Content = responseMessage, IsEphemeral = true });
                 }
-                catch { /* Ignore */ }
+                catch (Exception e) 
+                {
+                    client.Logger.LogWarning(e, "An exception was thrown during an interactivity response.");
+                }
             }
         }
 
@@ -112,9 +115,12 @@ internal class ComponentEventWaiter : IDisposable
                     try
                     {
                         string responseMessage = this.config.ResponseMessage ?? this.config.ResponseMessageFactory(args, client.ServiceProvider);
-                        await args.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder { Content = responseMessage, IsEphemeral = true }).ConfigureAwait(false);
+                        await args.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder { Content = responseMessage, IsEphemeral = true });
                     }
-                    catch { /* Ignore */ }
+                    catch (Exception e) 
+                    {
+                        client.Logger.LogWarning(e, "An exception was thrown during an interactivity response.");
+                    }
                 }
             }
         }
