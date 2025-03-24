@@ -90,8 +90,13 @@ internal class ComponentEventWaiter : IDisposable
             {
                 try
                 {
-                    string responseMessage = this.config.ResponseMessage ?? this.config.ResponseMessageFactory(args, client.ServiceProvider);
-                    await args.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder { Content = responseMessage, IsEphemeral = true });
+                    string responseMessage = this.config.ResponseMessage ?? 
+                                             this.config.ResponseMessageFactory(args, client.ServiceProvider);
+                    
+                    await args.Interaction.CreateFollowupMessageAsync
+                    (
+                        new DiscordFollowupMessageBuilder { Content = responseMessage, IsEphemeral = true }
+                    );
                 }
                 catch (Exception e) 
                 {
@@ -114,8 +119,13 @@ internal class ComponentEventWaiter : IDisposable
                 {
                     try
                     {
-                        string responseMessage = this.config.ResponseMessage ?? this.config.ResponseMessageFactory(args, client.ServiceProvider);
-                        await args.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder { Content = responseMessage, IsEphemeral = true });
+                        string responseMessage = this.config.ResponseMessage ?? 
+                                                 this.config.ResponseMessageFactory(args, client.ServiceProvider);
+                    
+                        await args.Interaction.CreateFollowupMessageAsync
+                        (
+                            new DiscordFollowupMessageBuilder { Content = responseMessage, IsEphemeral = true }
+                        );
                     }
                     catch (Exception e) 
                     {
