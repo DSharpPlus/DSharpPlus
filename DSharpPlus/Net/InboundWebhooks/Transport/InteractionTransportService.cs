@@ -18,17 +18,20 @@ namespace DSharpPlus.Net.InboundWebhooks.Transport;
 /// <inheritdoc/>
 public sealed class InteractionTransportService : IInteractionTransportService
 {
+    private readonly DiscordClient client;
     private readonly ILogger<IInteractionTransportService> logger;
     private readonly ChannelWriter<DiscordHttpInteractionPayload> writer;
 
     public InteractionTransportService
     (
+        DiscordClient client,
         ILogger<IInteractionTransportService> logger,
 
         [FromKeyedServices("DSharpPlus.Interactions.EventChannel")]
         Channel<DiscordHttpInteractionPayload> channel
     )
     {
+        this.client = client;
         this.logger = logger;
         this.writer = channel.Writer;
     }
@@ -46,14 +49,14 @@ public sealed class InteractionTransportService : IInteractionTransportService
 
         JObject data = JObject.Parse(bodyString);
 
-        DiscordHttpInteraction? interaction = data.ToDiscordObject<DiscordHttpInteraction>() 
+        DiscordHttpInteraction? interaction = data.ToDiscordObject<DiscordHttpInteraction>()
             ?? throw new ArgumentException("Unable to parse provided request body to DiscordHttpInteraction");
 
         if (interaction.Type is DiscordInteractionType.Ping)
         {
-            DiscordInteractionResponsePayload responsePayload = new() 
-            { 
-                Type = DiscordInteractionResponseType.Pong 
+            DiscordInteractionResponsePayload responsePayload = new()
+            {
+                Type = DiscordInteractionResponseType.Pong
             };
 
             string responseString = DiscordJson.SerializeObject(responsePayload);
@@ -64,6 +67,7 @@ public sealed class InteractionTransportService : IInteractionTransportService
 
         token.Register(() => interaction.Cancel());
 
+        interaction.Discord = this.client;
         await this.writer.WriteAsync(new(interaction, data), token);
 
         return await interaction.GetResponseAsync();
