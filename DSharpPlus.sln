@@ -52,6 +52,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.SlashCommands", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Http.AspNetCore", "DSharpPlus.Http.AspNetCore\DSharpPlus.Http.AspNetCore.csproj", "{0A1C0426-650F-4DAD-84B0-2191B94FDE50}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Tools.Benchmarks", "tools\DSharpPlus.Tools.Benchmarks\DSharpPlus.Tools.Benchmarks.csproj", "{A536E553-6F09-4BA6-9B0B-9C81FD51995D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -102,6 +104,10 @@ Global
 		{0A1C0426-650F-4DAD-84B0-2191B94FDE50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A1C0426-650F-4DAD-84B0-2191B94FDE50}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A1C0426-650F-4DAD-84B0-2191B94FDE50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A536E553-6F09-4BA6-9B0B-9C81FD51995D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A536E553-6F09-4BA6-9B0B-9C81FD51995D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A536E553-6F09-4BA6-9B0B-9C81FD51995D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A536E553-6F09-4BA6-9B0B-9C81FD51995D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -111,6 +117,7 @@ Global
 		{CE500A4B-06D0-48B8-ABD8-E021A12AFFA8} = {1092E215-3968-4EB5-998F-93F0F0809728}
 		{1628DF13-85A2-424B-BE7B-7E4712154857} = {E4A1A178-BEBD-4FDE-9629-B445E6CF975E}
 		{C967DD7B-9CDE-47AF-B35A-875AF547DDDA} = {E4A1A178-BEBD-4FDE-9629-B445E6CF975E}
+		{A536E553-6F09-4BA6-9B0B-9C81FD51995D} = {1092E215-3968-4EB5-998F-93F0F0809728}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {23F3A981-51B8-4285-A38C-3267F1D25FE7}
