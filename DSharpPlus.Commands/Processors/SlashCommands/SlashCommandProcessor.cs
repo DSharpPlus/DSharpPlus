@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -53,9 +54,16 @@ public sealed partial class SlashCommandProcessor : BaseCommandProcessor<ISlashA
         await base.ConfigureAsync(extension);
 
         // Register the commands if the user wants to.
-        if (!this.isApplicationCommandsRegistered && this.Configuration.RegisterCommands)
+        if (!this.isApplicationCommandsRegistered)
         {
-            await RegisterSlashCommandsAsync(extension);
+            if (this.Configuration.RegisterCommands)
+            {
+                await RegisterSlashCommandsAsync(extension);
+            }
+            else
+            {
+                applicationCommandMapping = MapApplicationCommands(applicationCommands).ToFrozenDictionary();
+            }
         }
     }
 
