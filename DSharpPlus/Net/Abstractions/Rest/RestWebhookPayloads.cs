@@ -40,7 +40,7 @@ internal sealed class RestWebhookExecutePayload
     public IEnumerable<DiscordEmbed>? Embeds { get; set; }
 
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<DiscordActionRowComponent>? Components { get; set; }
+    public IEnumerable<DiscordComponent>? Components { get; set; }
 
     [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordMentions? Mentions { get; set; }
@@ -61,7 +61,7 @@ internal sealed class RestWebhookMessageEditPayload
     public DiscordMentions? Mentions { get; set; }
 
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<DiscordActionRowComponent>? Components { get; set; }
+    public IEnumerable<DiscordComponent>? Components { get; set; }
 
     [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
     public IEnumerable<DiscordAttachment>? Attachments { get; set; }
