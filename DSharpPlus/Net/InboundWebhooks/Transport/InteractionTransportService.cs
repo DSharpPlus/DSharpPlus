@@ -46,14 +46,14 @@ public sealed class InteractionTransportService : IInteractionTransportService
 
         JObject data = JObject.Parse(bodyString);
 
-        DiscordHttpInteraction? interaction = data.ToDiscordObject<DiscordHttpInteraction>() 
+        DiscordHttpInteraction? interaction = data.ToDiscordObject<DiscordHttpInteraction>()
             ?? throw new ArgumentException("Unable to parse provided request body to DiscordHttpInteraction");
 
         if (interaction.Type is DiscordInteractionType.Ping)
         {
-            DiscordInteractionResponsePayload responsePayload = new() 
-            { 
-                Type = DiscordInteractionResponseType.Pong 
+            DiscordInteractionResponsePayload responsePayload = new()
+            {
+                Type = DiscordInteractionResponseType.Pong
             };
 
             string responseString = DiscordJson.SerializeObject(responsePayload);
@@ -62,10 +62,10 @@ public sealed class InteractionTransportService : IInteractionTransportService
             return responseBytes;
         }
 
-        token.Register(() => interaction.Cancel());
+        token.Register(() => interaction.CancelHttpInteractionResponse());
 
         await this.writer.WriteAsync(new(interaction, data), token);
 
-        return await interaction.GetResponseAsync();
+        return await interaction.GetHttpResponseAsync();
     }
 }
