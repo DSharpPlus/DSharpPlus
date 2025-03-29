@@ -19,15 +19,12 @@ internal class ComponentEventWaiter : IDisposable
     private readonly ConcurrentHashSet<ComponentMatchRequest> matchRequests = [];
     private readonly ConcurrentHashSet<ComponentCollectRequest> collectRequests = [];
 
-    private readonly DiscordFollowupMessageBuilder message;
     private readonly InteractivityConfiguration config;
 
     public ComponentEventWaiter(DiscordClient client, InteractivityConfiguration config)
     {
         this.client = client;
         this.config = config;
-
-        this.message = new() { Content = config.ResponseMessage ?? "This message was not meant for you.", IsEphemeral = true };
     }
 
     /// <summary>
@@ -90,17 +87,27 @@ internal class ComponentEventWaiter : IDisposable
             {
                 try
                 {
-                    string responseMessage = this.config.ResponseMessage ?? 
-                                             this.config.ResponseMessageFactory(args, client.ServiceProvider);
-                    
-                    await args.Interaction.CreateFollowupMessageAsync
-                    (
-                        new DiscordFollowupMessageBuilder { Content = responseMessage, IsEphemeral = true }
-                    );
+                    string responseMessage = this.config.ResponseMessage ?? this.config.ResponseMessageFactory(args, this.client.ServiceProvider);
+
+                    if (args.Interaction.ResponseState is DiscordInteractionResponseState.Unacknowledged)
+                    {
+                        await args.Interaction.CreateResponseAsync
+                        (
+                            DiscordInteractionResponseType.ChannelMessageWithSource,
+                            new() { Content = responseMessage, IsEphemeral = true }
+                        );
+                    }
+                    else
+                    {
+                        await args.Interaction.CreateFollowupMessageAsync
+                        (
+                            new() { Content = responseMessage, IsEphemeral = true }
+                        );
+                    }
                 }
                 catch (Exception e) 
                 {
-                    client.Logger.LogWarning(e, "An exception was thrown during an interactivity response.");
+                    this.client.Logger.LogWarning(e, "An exception was thrown during an interactivity response.");
                 }
             }
         }
@@ -119,17 +126,27 @@ internal class ComponentEventWaiter : IDisposable
                 {
                     try
                     {
-                        string responseMessage = this.config.ResponseMessage ?? 
-                                                 this.config.ResponseMessageFactory(args, client.ServiceProvider);
-                    
-                        await args.Interaction.CreateFollowupMessageAsync
-                        (
-                            new DiscordFollowupMessageBuilder { Content = responseMessage, IsEphemeral = true }
-                        );
+                        string responseMessage = this.config.ResponseMessage ?? this.config.ResponseMessageFactory(args, this.client.ServiceProvider);
+
+                        if (args.Interaction.ResponseState is DiscordInteractionResponseState.Unacknowledged)
+                        {
+                            await args.Interaction.CreateResponseAsync
+                            (
+                                DiscordInteractionResponseType.ChannelMessageWithSource,
+                                new() { Content = responseMessage, IsEphemeral = true }
+                            );
+                        }
+                        else
+                        {
+                            await args.Interaction.CreateFollowupMessageAsync
+                            (
+                                new() { Content = responseMessage, IsEphemeral = true }
+                            );
+                        }
                     }
                     catch (Exception e) 
                     {
-                        client.Logger.LogWarning(e, "An exception was thrown during an interactivity response.");
+                        this.client.Logger.LogWarning(e, "An exception was thrown during an interactivity response.");
                     }
                 }
             }
