@@ -72,7 +72,7 @@ public sealed class ParameterNodeBuilder
     public bool IsGreedy { get; private set; }
 
     /// <summary>
-    /// Additional metadata associated with this command.
+    /// Additional metadata associated with this command parameter.
     /// </summary>
     public NodeMetadataCollection Metadata => new([.. this.metadataItems.DistinctBy(x => x.GetType())]);
 

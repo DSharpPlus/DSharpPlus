@@ -8,19 +8,19 @@ namespace DSharpPlus.Commands.Trees;
 public class ExecutableCommandNode : ICommandNode
 {
     /// <inheritdoc/>
-    public string Name { get; internal set; }
+    public required string Name { get; init; }
 
     /// <inheritdoc/>
-    public IReadOnlyList<string> Aliases { get; internal set; }
+    public required IReadOnlyList<string> Aliases { get; init; }
 
     /// <inheritdoc/>
-    public string LowercasedName { get; internal set; }
+    public required string LowercasedName { get; init; }
 
     /// <inheritdoc/>
-    public string Description { get; internal set; }
+    public required string Description { get; init; }
 
     /// <inheritdoc/>
-    public ICommandNode? Parent { get; internal set; }
+    public ICommandNode? Parent { get; init; }
 
     /// <inheritdoc/>
     IReadOnlyList<ICommandNode> ICommandNode.Children => [.. this.Children, .. this.Overloads];
@@ -28,12 +28,12 @@ public class ExecutableCommandNode : ICommandNode
     /// <summary>
     /// Child branches and themselves-executable nodes of this command. This is unavailable for application commands.
     /// </summary>
-    public IReadOnlyList<ICommandNode> Children { get; internal set; }
+    public required IReadOnlyList<ICommandNode> Children { get; init; }
 
     /// <summary>
     /// Overloads of this command. Overloads may be distinguished by predicates or parameter list.
     /// </summary>
-    public IReadOnlyList<CommandOverload> Overloads { get; internal set; }
+    public required IReadOnlyList<CommandOverload> Overloads { get; init; }
 
     /// <summary>
     /// If there is a valid overload to use as an application command, this will be it. Null if this node is too deep into a tree
@@ -44,8 +44,8 @@ public class ExecutableCommandNode : ICommandNode
     /// may, in fact, be reachable as application commands, and the tree must be walked up to the maximum permissible depth to
     /// conclusively determine whether an executable node can be executed as an application command.
     /// </remarks>
-    public CommandOverload? CanonicalApplicationCommandOverload { get; internal set; }
+    public CommandOverload? CanonicalApplicationCommandOverload { get; init; }
 
     /// <inheritdoc/>
-    public NodeMetadataCollection Metadata { get; }
+    public required NodeMetadataCollection Metadata { get; init; }
 }

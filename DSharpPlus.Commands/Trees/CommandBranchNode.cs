@@ -5,26 +5,26 @@ namespace DSharpPlus.Commands.Trees;
 /// <summary>
 /// Represents an itself not executable branch node.
 /// </summary>
-public class CommandBranchNode : ICommandNode
+public sealed class CommandBranchNode : ICommandNode
 {
     /// <inheritdoc/>
-    public string Name { get; internal set; }
+    public required string Name { get; init; }
 
     /// <inheritdoc/>
-    public IReadOnlyList<string> Aliases { get; internal set; }
+    public required IReadOnlyList<string> Aliases { get; init; }
 
     /// <inheritdoc/>
-    public string LowercasedName { get; internal set; }
+    public required string LowercasedName { get; init; }
 
     /// <inheritdoc/>
-    public string Description { get; internal set; }
+    public required string Description { get; init; }
 
     /// <inheritdoc/>
-    public ICommandNode? Parent { get; internal set; }
+    public required ICommandNode? Parent { get; init; }
 
     /// <inheritdoc/>
-    public IReadOnlyList<ICommandNode> Children { get; internal set; }
+    public required IReadOnlyList<ICommandNode> Children { get; init; }
 
     /// <inheritdoc/>
-    public NodeMetadataCollection Metadata { get; }
+    public required NodeMetadataCollection Metadata { get; init; }
 }
