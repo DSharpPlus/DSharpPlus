@@ -91,10 +91,5 @@ public sealed class InteractivityConfiguration
         this.ResponseMessage = other.ResponseMessage;
         this.PollBehaviour = other.PollBehaviour;
         this.Timeout = other.Timeout;
-
-        if (this.ResponseBehavior is InteractionResponseBehavior.Respond && string.IsNullOrWhiteSpace(this.ResponseMessage))
-        {
-            throw new ArgumentException($"{nameof(this.ResponseMessage)} cannot be null, empty, or whitespace when {nameof(this.ResponseBehavior)} is set to respond.");
-        }
     }
 }
