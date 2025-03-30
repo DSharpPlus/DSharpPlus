@@ -22,7 +22,6 @@ using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Processors.TextCommands.ContextChecks;
 using DSharpPlus.Commands.Processors.UserCommands;
 using DSharpPlus.Commands.Trees;
-using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 
@@ -251,7 +250,7 @@ public sealed class CommandsExtension
 
     private Command? FilterCommand(Command command, Type processorType, Type contextType)
     {
-        AllowedProcessorsAttribute? allowedProcessorsAttribute = command.Attributes.OfType<AllowedProcessorsAttribute>().FirstOrDefault();
+        AllowedCommandHandlersAttribute? allowedProcessorsAttribute = command.Attributes.OfType<AllowedCommandHandlersAttribute>().FirstOrDefault();
         if (allowedProcessorsAttribute is not null && !allowedProcessorsAttribute.Processors.Contains(processorType))
         {
             return null;

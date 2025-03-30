@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 using DSharpPlus.Commands.ContextChecks;
@@ -30,7 +31,9 @@ public sealed class CommandOverload : ICommandNode
     /// <remarks>
     /// This is guaranteed to be an <see cref="ExecutableCommandNode"/>.
     /// </remarks>
-    public required ICommandNode Parent { get; init; }
+    // this must be populated during command building. can't be required because otherwise the building process is in a cyclical dependency
+    [NotNull]
+    public ICommandNode? Parent { get; internal set; }
 
     /// <inheritdoc/>
     IReadOnlyList<ICommandNode> ICommandNode.Children => [];
@@ -44,6 +47,11 @@ public sealed class CommandOverload : ICommandNode
     /// The context type of this command. This is a valid overloading distinction.
     /// </summary>
     public required Type ContextType { get; init; }
+
+    /// <summary>
+    /// A list of types of handlers allowed to handle this command. If this list is empty, any handler may decide on its own.
+    /// </summary>
+    public required IReadOnlyList<Type> AllowedHandlers { get; init; }
 
     /// <summary>
     /// The executing function for this command.

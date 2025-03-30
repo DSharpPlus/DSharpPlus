@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus.Commands.ContextChecks;
 
-internal sealed class DirectMessageUsageCheck : IContextCheck<DirectMessageUsageAttribute>
+internal sealed class DirectMessageUsageCheck : IContextCheck<AllowDmsAttribute>
 {
-    public ValueTask<string?> ExecuteCheckAsync(DirectMessageUsageAttribute attribute, CommandContext context)
+    public ValueTask<string?> ExecuteCheckAsync(AllowDmsAttribute attribute, CommandContext context)
     {
         if (context.Channel.IsPrivate && attribute.Usage is not DirectMessageUsage.DenyDMs)
         {

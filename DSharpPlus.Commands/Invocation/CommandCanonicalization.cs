@@ -106,13 +106,13 @@ internal static class CommandCanonicalization
             // | valuetype System.RuntimeTypeHandle                                                                                         |
             // | class System.IServiceProvider                                                                                              |
             // |----------------------------------------------------------------------------------------------------------------------------|
-            // | call System.Type::GetTypeFromHandle(...) *consumes* the RuntimeTypeHandle as an argument and instead pushes the Type       |
+            // | call System.Type:GetTypeFromHandle(...) *consumes* the RuntimeTypeHandle as an argument and instead pushes the Type        |
             // | object from its return value onto the stack, so our stack is now, top to bottom:                                           |
             // |                                                                                                                            |
             // | class System.Type                                                                                                          |
             // | class System.IServiceProvider                                                                                              |
             // |----------------------------------------------------------------------------------------------------------------------------|
-            // | call Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions::GetRequiredService(...) consumes both      |
+            // | call Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions:GetRequiredService(...) consumes both       |
             // | locals on the stack as arguments and pushes the returned instance from its return value onto the stack, so our stack is    |
             // | now, top to bottom:                                                                                                        |
             // |                                                                                                                            |
@@ -134,7 +134,7 @@ internal static class CommandCanonicalization
         // to make another one here, so that this effort doesn't all go to waste:
         // |----------------------------------------------------------------------------------------------------------------------------|
         // | start: from here on out we may or may not have a class System.Object at the bottom of the stack to invoke the command on.  |
-        // | the documentation assumes we do, but just pretend it's not there for static commands. our stack is, top to bottom:         |
+        // | this explanation assumes we do, but just pretend it's not there for static commands. our stack is, top to bottom:          |
         // |                                                                                                                            |
         // | class DSharpPlus.Commands.CommandContext                                                                                   |
         // | class System.Object                                                                                                        |

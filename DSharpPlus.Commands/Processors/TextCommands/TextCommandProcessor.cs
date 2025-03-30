@@ -4,14 +4,15 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+
 using DSharpPlus.Commands.Converters.Results;
 using DSharpPlus.Commands.EventArgs;
 using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Processors.TextCommands.Parsing;
 using DSharpPlus.Commands.Trees;
-using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Commands.Processors.TextCommands;
