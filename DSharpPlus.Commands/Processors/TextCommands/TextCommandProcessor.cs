@@ -313,7 +313,7 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
             }
 
             // If there was no space found after the subcommand, break
-            nextIndex = commandText.IndexOf(' ', nextIndex);
+            nextIndex = commandText.IndexOf(' ', nextIndex + 1);
             if (nextIndex == -1)
             {
                 // No more spaces. Search the rest of the string to see if there is a subcommand that matches.
@@ -325,7 +325,7 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
 
             // Try searching for the subcommand by name, then by alias
             // We prioritize the name over the aliases to avoid a poor dev debugging experience
-            Command? foundCommand = command.Subcommands.FirstOrDefault(subCommand => subCommand.Name.Equals(subcommandName, StringComparison.OrdinalIgnoreCase));
+            Command? foundCommand = command.Subcommands.FirstOrDefault(subcommand => this.Configuration.CommandNameComparer.Equals(subcommand.Name, subcommandName.Trim()));
             if (foundCommand is null)
             {
                 // Search for any aliases that the subcommand may have
@@ -346,6 +346,16 @@ public sealed class TextCommandProcessor : BaseCommandProcessor<ITextArgumentCon
                                 break;
                             }
                         }
+
+                        if (foundCommand is not null)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (foundCommand is not null)
+                    {
+                        break;
                     }
                 }
 

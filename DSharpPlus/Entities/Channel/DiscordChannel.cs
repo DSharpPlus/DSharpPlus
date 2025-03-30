@@ -545,7 +545,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
 
         int remaining = limit;
         ulong? last = null;
-        bool isbefore = before != null;
+        bool isbefore = before != null || (before is null && after is null && around is null);
 
         int lastCount;
         do
