@@ -41,6 +41,11 @@ public sealed class CommandOverloadBuilder
     public Type? ContextType { get; private set; }
 
     /// <summary>
+    /// Specifies this overload as the canonical overload. Only one overload is allowed to be designated as such.
+    /// </summary>
+    public bool IsCanonicalOverload { get; private set; }
+
+    /// <summary>
     /// The executing function for this command.
     /// </summary>
     public Func<CommandContext, object?[], IServiceProvider, ValueTask>? Execute { get; private set; }
@@ -217,6 +222,15 @@ public sealed class CommandOverloadBuilder
     }
 
     /// <summary>
+    /// Sets this overload as the overload which takes precedence if an overload could not be resolved or if only one overload is permitted.
+    /// </summary>
+    public CommandOverloadBuilder SetAsCanonicalOverload()
+    {
+        this.IsCanonicalOverload = true;
+        return this;
+    }
+
+    /// <summary>
     /// Adds the check attribute to this parameter.
     /// </summary>
     public CommandOverloadBuilder AddCheckAttribute(ContextCheckAttribute attribute)
@@ -313,6 +327,7 @@ public sealed class CommandOverloadBuilder
             Metadata = this.Metadata,
             Name = this.name,
             Parameters = [..this.Parameters.Select(x => x.Build(namingPolicy))],
+            IsCanonicalOverload = this.IsCanonicalOverload
         };
     }
 

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 using DSharpPlus.Commands.ContextChecks;
@@ -28,14 +27,6 @@ public sealed class CommandOverload : ICommandNode
     string ICommandNode.Description => "Overload";
 
     /// <inheritdoc/>
-    /// <remarks>
-    /// This is guaranteed to be an <see cref="ExecutableCommandNode"/>.
-    /// </remarks>
-    // this must be populated during command building. can't be required because otherwise the building process is in a cyclical dependency
-    [NotNull]
-    public ICommandNode? Parent { get; internal set; }
-
-    /// <inheritdoc/>
     IReadOnlyList<ICommandNode> ICommandNode.Children => [];
 
     /// <summary>
@@ -52,6 +43,11 @@ public sealed class CommandOverload : ICommandNode
     /// A list of types of handlers allowed to handle this command. If this list is empty, any handler may decide on its own.
     /// </summary>
     public required IReadOnlyList<Type> AllowedHandlers { get; init; }
+
+    /// <summary>
+    /// Specifies this overload as the canonical overload in cases where there is no true overloading support.
+    /// </summary>
+    public required bool IsCanonicalOverload { get; init; }
 
     /// <summary>
     /// The executing function for this command.

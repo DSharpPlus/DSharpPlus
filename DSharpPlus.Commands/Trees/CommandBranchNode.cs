@@ -20,9 +20,6 @@ public sealed class CommandBranchNode : ICommandNode
     public required string Description { get; init; }
 
     /// <inheritdoc/>
-    public required ICommandNode? Parent { get; init; }
-
-    /// <inheritdoc/>
     public required IReadOnlyList<ICommandNode> Children { get; init; }
 
     /// <inheritdoc/>

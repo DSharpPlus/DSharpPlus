@@ -28,11 +28,6 @@ public interface ICommandNode
     public string Description { get; }
 
     /// <summary>
-    /// The parent node of this node. Null if this is a top-level node.
-    /// </summary>
-    public ICommandNode? Parent { get; }
-
-    /// <summary>
     /// The child nodes of this node. For overload nodes, this is empty.
     /// </summary>
     public IReadOnlyList<ICommandNode> Children { get; }

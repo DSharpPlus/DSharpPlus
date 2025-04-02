@@ -20,9 +20,6 @@ public class ExecutableCommandNode : ICommandNode
     public required string Description { get; init; }
 
     /// <inheritdoc/>
-    public ICommandNode? Parent { get; init; }
-
-    /// <inheritdoc/>
     IReadOnlyList<ICommandNode> ICommandNode.Children => [.. this.Children, .. this.Overloads];
 
     /// <summary>
