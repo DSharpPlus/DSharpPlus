@@ -287,6 +287,21 @@ public enum DiscordPermission
     UseExternalSounds = 45,
 
     /// <summary>
+    /// Allows for creating emojis, stickers, and soundboard sounds, and editing and deleting those created by the current user.
+    /// Not yet available to developers,
+    /// <see href="https://discord.com/developers/docs/change-log#clarification-on-permission-splits-for-expressions-and-events">see changelog</see>.
+    /// </summary>
+    [Display(Name = "Create Guild Expressions" )]
+    CreateGuildExpressions = 43,
+    
+    /// <summary>
+    /// Allows for creating scheduled events, and editing and deleting those created by the current user. Not yet available to developers,
+    /// <see href="https://discord.com/developers/docs/change-log#clarification-on-permission-splits-for-expressions-and-events">see changelog</see>.
+    /// </summary>
+    [Display(Name = "Create Events")]
+    CreateEvents = 44,
+
+    /// <summary>
     /// Allows members to send voice messages.
     /// </summary>
     [Display(Name = "Send Voice Messages")]

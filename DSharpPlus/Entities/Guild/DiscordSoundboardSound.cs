@@ -3,11 +3,11 @@ using DSharpPlus.Net.Abstractions;
 
 namespace DSharpPlus.Entities;
 
-public class DiscordGuildSoundboardSound : SnowflakeObject
+public class DiscordSoundboardSound : SnowflakeObject
 {
-    internal DiscordGuildSoundboardSound() { }
+    internal DiscordSoundboardSound() { }
 
-    internal DiscordGuildSoundboardSound(TransportSoundboardSound transportSoundboardSound, BaseDiscordClient client)
+    internal DiscordSoundboardSound(TransportSoundboardSound transportSoundboardSound, BaseDiscordClient client)
     {
         this.Id = transportSoundboardSound.Id;
         this.Name = transportSoundboardSound.Name;
@@ -36,7 +36,7 @@ public class DiscordGuildSoundboardSound : SnowflakeObject
     /// <summary>
     /// The id of the guild the sound belongs 
     /// </summary>
-    public ulong GuildId { get; internal set; }
+    public ulong? GuildId { get; internal set; }
 
     /// <summary>
     /// Volume of the sound between 1 and 0
@@ -49,7 +49,8 @@ public class DiscordGuildSoundboardSound : SnowflakeObject
     public DiscordEmoji? Emoji { get; internal set; }
 
     /// <summary>
-    /// The id of the user who created the soundboard
+    /// The id of the user who created the soundboard.
+    /// This is null if the bot does not have the <see cref="DiscordPermission.CreateGuildExpressions"/> or <see cref="DiscordPermission.ManageGuildExpressions"/> permission.
     /// </summary>
     public ulong? UserId { get; internal set; }
 
@@ -72,7 +73,8 @@ public class DiscordGuildSoundboardSound : SnowflakeObject
     /// </summary>
     /// <param name="skipCache">If the user should be fetched and cache skiped</param>
     /// <returns>
-    /// Returns the user who created the sound if the user is known. If the user is in cache it can be a DiscordMember
+    /// Returns the user who created the sound if the user is known. If the user is in cache it can be a DiscordMember.
+    /// This is null if the bot does not have the <see cref="DiscordPermission.CreateGuildExpressions"/> or <see cref="DiscordPermission.ManageGuildExpressions"/> permission.
     /// </returns>
     public async ValueTask<DiscordUser?> GetUserAsync(bool skipCache = false)
     {
