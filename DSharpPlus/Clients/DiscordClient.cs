@@ -937,6 +937,13 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
         while (remaining > 0 && lastCount is > 0 and 100);
     }
+    
+    /// <summary>
+    /// Returns the soundboard sounds that can be used by all users.
+    /// </summary>
+    /// <returns></returns>
+    public async Task<IReadOnlyList<DiscordSoundboardSound>> ListDefaultSoundboardSoundsAsync()
+        => await this.ApiClient.ListDefaultSoundboardSoundsAsync();
     #endregion
 
     [StackTraceHidden]

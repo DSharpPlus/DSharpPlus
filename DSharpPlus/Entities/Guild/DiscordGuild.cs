@@ -2605,10 +2605,19 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     }
 
     /// <summary>
+    /// Gets the soundboard sounds from the guild.
+    /// </summary>
+    /// <returns>Returns a list of the guild's soundboard sounds.</returns>
+    public async Task<IReadOnlyList<DiscordSoundboardSound>> ListSoundboardSoundsAsync()
+        => await this.Discord.ApiClient.ListGuildSoundboardSoundsAsync(this.Id);
+
+
+    /// <summary>
     /// Retrieves the soundboard sound from the guild.
     /// </summary>
     /// <param name="id">The id of the sound that should be retrieved</param>
-    public async Task<DiscordGuildSoundboardSound> GetSoundboardSoundAsync(ulong id) 
+    /// <returns>Returns the soundboard sound from the guild.</returns>
+    public async Task<DiscordSoundboardSound> GetSoundboardSoundAsync(ulong id) 
         => await this.Discord.ApiClient.GetGuildSoundboardSoundAsync(this.Id, id);
 
     #endregion

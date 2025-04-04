@@ -71,65 +71,63 @@ public sealed class InlineMediaTool : IDisposable
             return this.format;
         }
 
-        using (BinaryReader br = new(this.SourceStream, Utilities.UTF8, true))
+        using BinaryReader br = new(this.SourceStream, Utilities.UTF8, true);
+        ulong bgn64 = br.ReadUInt64();
+
+        if (bgn64 == PNG_MAGIC)
         {
-            ulong bgn64 = br.ReadUInt64();
+            return this.format = MediaFormat.Png;
+        }
 
-            if (bgn64 == PNG_MAGIC)
+        if ((bgn64 & MASK32_LESSER) == AVIF_MAGIC_PART_1 && br.ReadUInt32() == AVIF_MAGIC_PART_2)
+        {
+            return this.format = MediaFormat.Avif;
+        }
+
+        bgn64 &= GIF_MASK;
+
+        if (bgn64 is GIF_MAGIC_1 or GIF_MAGIC_2)
+        {
+            return this.format = MediaFormat.Gif;
+        }
+
+        uint bgn32 = (uint)(bgn64 & MASK32);
+
+        if (bgn32 == WEBP_MAGIC_1 && br.ReadUInt32() == WEBP_MAGIC_2)
+        {
+            return this.format = MediaFormat.WebP;
+        }
+
+        if (bgn32 == OGG_MAGIC)
+        {
+            return this.format = MediaFormat.Ogg;
+        }
+
+        uint bgn24 = bgn32 & MASK24;
+
+        if (bgn24 == MP3_MAGIC_4)
+        {
+            return this.format = MediaFormat.Mp3;
+        }
+
+        ushort bgn16 = (ushort)(bgn32 & MASK16);
+
+        if (bgn16 == JPEG_MAGIC_1)
+        {
+            this.SourceStream.Seek(-2, SeekOrigin.End);
+
+            if (br.ReadUInt16() == JPEG_MAGIC_2)
             {
-                return this.format = MediaFormat.Png;
-            }
-
-            if ((bgn64 & MASK32_LESSER) == AVIF_MAGIC_PART_1 && br.ReadUInt32() == AVIF_MAGIC_PART_2)
-            {
-                return this.format = MediaFormat.Avif;
-            }
-
-            bgn64 &= GIF_MASK;
-
-            if (bgn64 is GIF_MAGIC_1 or GIF_MAGIC_2)
-            {
-                return this.format = MediaFormat.Gif;
-            }
-
-            uint bgn32 = (uint)(bgn64 & MASK32);
-
-            if (bgn32 == WEBP_MAGIC_1 && br.ReadUInt32() == WEBP_MAGIC_2)
-            {
-                return this.format = MediaFormat.WebP;
-            }
-
-            if (bgn32 == OGG_MAGIC)
-            {
-                return this.format = MediaFormat.Ogg;
-            }
-
-            uint bgn24 = bgn32 & MASK24;
-
-            if (bgn24 == MP3_MAGIC_4)
-            {
-                return this.format = MediaFormat.Mp3;
-            }
-
-            ushort bgn16 = (ushort)(bgn32 & MASK16);
-
-            if (bgn16 == JPEG_MAGIC_1)
-            {
-                this.SourceStream.Seek(-2, SeekOrigin.End);
-
-                if (br.ReadUInt16() == JPEG_MAGIC_2)
-                {
-                    return this.format = MediaFormat.Jpeg;
-                }
-            }
-
-            if (bgn16 is MP3_MAGIC_1 or MP3_MAGIC_2 or MP3_MAGIC_3)
-            {
-                return this.format = MediaFormat.Mp3;
+                return this.format = MediaFormat.Jpeg;
             }
         }
 
-        throw new InvalidDataException("The data within the stream was not valid image data.");
+        if (bgn16 is MP3_MAGIC_1 or MP3_MAGIC_2 or MP3_MAGIC_3)
+        {
+            return this.format = MediaFormat.Mp3;
+        }
+
+        throw new InvalidDataException("The data within the stream was not valid image data or sound data.");
     }
 
     /// <summary>

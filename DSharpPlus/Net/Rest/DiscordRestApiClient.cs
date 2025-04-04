@@ -7101,7 +7101,7 @@ public sealed class DiscordRestApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<DiscordGuildSoundboardSound> GetGuildSoundboardSoundAsync(ulong guildId, ulong soundId)
+    internal async ValueTask<DiscordSoundboardSound> GetGuildSoundboardSoundAsync(ulong guildId, ulong soundId)
     {
         string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.SOUNDBOARD_SOUNDS}/:soundId";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.SOUNDBOARD_SOUNDS}/{soundId}";
@@ -7116,8 +7116,148 @@ public sealed class DiscordRestApiClient
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
         TransportSoundboardSound transportSoundboardSound = JsonConvert.DeserializeObject<TransportSoundboardSound>(res.Response!)!;
 
-        DiscordGuildSoundboardSound sound = new(transportSoundboardSound, this.discord!);
+        DiscordSoundboardSound sound = new(transportSoundboardSound, this.discord!);
         
         return sound;
     }
+
+    internal async ValueTask<IReadOnlyList<DiscordSoundboardSound>> ListGuildSoundboardSoundsAsync(ulong guildId)
+    {
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.SOUNDBOARD_SOUNDS}";
+        string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.SOUNDBOARD_SOUNDS}";
+
+        RestRequest request = new() {Route = route, Url = url, Method = HttpMethod.Get,};
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        IReadOnlyList<TransportSoundboardSound> transportSoundboardSounds =
+            JsonConvert.DeserializeObject<IReadOnlyList<TransportSoundboardSound>>(res.Response!)!;
+
+        List<DiscordSoundboardSound> sounds = new(transportSoundboardSounds.Count);
+        foreach (TransportSoundboardSound transportSoundboardSound in transportSoundboardSounds)
+        {
+            DiscordSoundboardSound sound = new(transportSoundboardSound, this.discord!);
+            sounds.Add(sound);
+        }
+
+        return sounds;
+    }
+
+    internal async ValueTask<IReadOnlyList<DiscordSoundboardSound>> ListDefaultSoundboardSoundsAsync()
+    {
+        string route = $"{Endpoints.SOUNDBOARD_DEFAULT_SOUNDS}";
+        string url = $"{Endpoints.SOUNDBOARD_DEFAULT_SOUNDS}";
+
+        RestRequest request = new() {Route = route, Url = url, Method = HttpMethod.Get,};
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        IReadOnlyList<TransportSoundboardSound> transportSoundboardSounds =
+            JsonConvert.DeserializeObject<IReadOnlyList<TransportSoundboardSound>>(res.Response!)!;
+
+        List<DiscordSoundboardSound> sounds = new(transportSoundboardSounds.Count);
+        foreach (TransportSoundboardSound transportSoundboardSound in transportSoundboardSounds)
+        {
+            DiscordSoundboardSound sound = new(transportSoundboardSound, this.discord!);
+            sounds.Add(sound);
+        }
+
+        return sounds;
+    }
+
+    internal async ValueTask<DiscordSoundboardSound> CreateGuildSoundboardSoundAsync
+    (
+        ulong guildId,
+        string name,
+        string soundBase64,
+        double? volume,
+        ulong? emojiId,
+        string? emojiName,
+        string? reason = null
+    )
+    {
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.SOUNDBOARD_SOUNDS}";
+        string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.SOUNDBOARD_SOUNDS}";
+
+        RestCreateSoundboardSoundPayload payload = new()
+        {
+            Name = name,
+            Sound = soundBase64,
+            Volume = volume,
+            EmojiId = emojiId,
+            EmojiName = emojiName
+        };
+
+        Dictionary<string, string>? headers = null;
+        if (!string.IsNullOrWhiteSpace(reason))
+        {
+            headers = new Dictionary<string, string> {{REASON_HEADER_NAME, reason}};
+        }
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post,
+            Payload = DiscordJson.SerializeObject(payload),
+            Headers = headers
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        TransportSoundboardSound transportSoundboardSound =
+            JsonConvert.DeserializeObject<TransportSoundboardSound>(res.Response!)!;
+
+        DiscordSoundboardSound sound = new(transportSoundboardSound, this.discord!);
+
+        return sound;
+    }
+
+    internal async ValueTask<DiscordSoundboardSound> ModifyGuildSoundboardSoundAsync
+    (
+        ulong guildId,
+        ulong soundId,
+        string name,
+        Optional<double>? volume = null,
+        Optional<ulong>? emojiId = null,
+        Optional<string>? emojiName = null
+    )
+    {
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.SOUNDBOARD_SOUNDS}/:soundId";
+        string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.SOUNDBOARD_SOUNDS}/{soundId}";
+
+        RestModifySoundboardSoundPayload payload = new()
+        {
+            Name = name,
+            Volume = volume,
+            EmojiId = emojiId,
+            EmojiName = emojiName
+        };
+
+        RestRequest request = new()
+        {
+            Route = route, Url = url, Method = HttpMethod.Patch, Payload = DiscordJson.SerializeObject(payload)
+        };
+
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        TransportSoundboardSound transportSoundboardSound =
+            JsonConvert.DeserializeObject<TransportSoundboardSound>(res.Response!)!;
+
+        DiscordSoundboardSound sound = new(transportSoundboardSound, this.discord!);
+
+        return sound;
+    }
+    
+}
+
+internal sealed record RestModifySoundboardSoundPayload
+{
+    [JsonProperty("name")]
+    public required string Name { get; init; }
+
+    [JsonProperty("volume")]
+    public Optional<double>? Volume { get; init; }
+
+    [JsonProperty("emoji_id")]
+    public Optional<ulong>? EmojiId { get; init; }
+
+    [JsonProperty("emoji_name")]
+    public Optional<string>? EmojiName { get; init; }
 }
