@@ -161,6 +161,15 @@ public class DiscordInteraction : SnowflakeObject
     /// </summary>
     [JsonProperty("context", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordInteractionContextType? Context { get; internal set; }
+    
+    /// <summary>
+    /// Represents the maximum allowed size per-attachment for the given interaction context.
+    /// </summary>
+    /// <remarks>
+    /// For guilds, this is MAX(guild_boost_limit, user_nitro_limit, standard_limit), and in all other contexts it is simply MAX(user_nitro_limit, standard_upload_limit)
+    /// </remarks>
+    [JsonProperty("attachment_size_limit", NullValueHandling = NullValueHandling.Ignore)]
+    public int AttachmentSizeLimit { get; internal set; }
 
     /// <summary>
     /// Creates a response to this interaction.
