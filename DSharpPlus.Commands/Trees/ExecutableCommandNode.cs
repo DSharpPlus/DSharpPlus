@@ -28,7 +28,7 @@ public class ExecutableCommandNode : ICommandNode
     public required IReadOnlyList<ICommandNode> Children { get; init; }
 
     /// <summary>
-    /// Overloads of this command. Overloads may be distinguished by predicates or parameter list.
+    /// Overloads of this command. Overloads may be distinguished by context type or parameter list.
     /// </summary>
     public required IReadOnlyList<CommandOverload> Overloads { get; init; }
 

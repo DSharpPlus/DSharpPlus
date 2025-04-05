@@ -309,6 +309,16 @@ public sealed class CommandNodeBuilder
             WithDescription("No description provided.");
         }
 
+        foreach (CommandOverloadBuilder overloadBuilder in this.Overloads)
+        {
+            overloadBuilder.AddCheckAttributes(this.checkAttributes);
+        }
+
+        foreach (CommandNodeBuilder nodeBuilder in this.Children)
+        {
+            nodeBuilder.AddCheckAttributes(this.checkAttributes);
+        }
+
         int canonicalOverloads = this.overloads.Count(x => x.IsCanonicalOverload);
 
         // TODO: once we add overload resolution support, update this to choose the most applicable overload and/or by attribute
@@ -351,6 +361,11 @@ public sealed class CommandNodeBuilder
         if (this.Description is null)
         {
             WithDescription("No description provided.");
+        }
+
+        foreach (CommandNodeBuilder nodeBuilder in this.Children)
+        {
+            nodeBuilder.AddCheckAttributes(this.checkAttributes);
         }
 
         return new CommandBranchNode
