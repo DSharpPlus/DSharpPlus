@@ -37,7 +37,7 @@ partial struct DiscordPermissions
     /// </summary>
     public struct DiscordPermissionEnumerator : IEnumerator<DiscordPermission>
     {
-        private readonly DiscordPermissionContainer data;
+        private DiscordPermissionContainer data;
 
         internal DiscordPermissionEnumerator(DiscordPermissionContainer data)
             => this.data = data;
