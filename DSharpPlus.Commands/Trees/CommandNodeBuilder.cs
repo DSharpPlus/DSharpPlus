@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 using DSharpPlus.Commands.ContextChecks;
+using DSharpPlus.Commands.Extensions;
 using DSharpPlus.Commands.Processors.SlashCommands.InteractionNamingPolicies;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
+
+using DspDescriptionAttribute = DSharpPlus.Commands.DescriptionAttribute;
+using BclDescriptionAttribute = System.ComponentModel.DescriptionAttribute;
 
 namespace DSharpPlus.Commands.Trees;
 
@@ -17,9 +22,9 @@ namespace DSharpPlus.Commands.Trees;
 /// </summary>
 public sealed class CommandNodeBuilder
 {
-    private readonly List<string> aliases;
-    private readonly List<CommandNodeBuilder> children;
-    private readonly List<CommandOverloadBuilder> overloads;
+    private readonly List<string> aliases = [];
+    private readonly List<CommandNodeBuilder> children = [];
+    private readonly List<CommandOverloadBuilder> overloads = [];
     private readonly List<INodeMetadataItem> metadataItems = [];
     private readonly List<ContextCheckAttribute> checkAttributes = [];
     private readonly List<Type> allowedHandlers = [];
@@ -377,5 +382,125 @@ public sealed class CommandNodeBuilder
             Metadata = this.Metadata,
             Name = this.Name
         };
+    }
+
+    /// <summary>
+    /// Creates a new command node builder from a Type.
+    /// </summary>
+    /// <exception cref="ArgumentException">Thrown if the type was not a valid command and/or did not contain any commands.</exception>
+    public static CommandNodeBuilder FromType(Type type)
+    {
+        CommandNodeBuilder root = new();
+        CommandNodeBuilder builder = root;
+        IEnumerable<Attribute> attributes = type.GetCustomAttributes();
+
+        CommandAttribute commandAttribute = attributes.SingleOrDefaultOfType<CommandAttribute, Attribute>()
+            ?? throw new ArgumentException($"The type {type} does not have a CommandAttribute applied to it.", nameof(type));
+
+        NestCommandGroups(ref builder, commandAttribute.Names);
+        ApplyAttributesToNode(builder, attributes);
+
+        foreach (Type nested in type.GetNestedTypes())
+        {
+            if (nested.GetCustomAttribute<CommandAttribute>() is not null)
+            {
+                builder.AddChild(FromType(nested));
+            }
+        }
+
+        foreach (MethodInfo method in type.GetMethods())
+        {
+            if (method.GetCustomAttribute<CommandAttribute>() is not null)
+            {
+                builder.AddChild(FromMethodInfo(method));
+            }
+        }
+
+        return root;
+    }
+
+    /// <summary>
+    /// Creates a new command node builder from a MethodInfo.
+    /// </summary>
+    /// <exception cref="ArgumentException">Thrown if the method was not a valid command.</exception>
+    public static CommandNodeBuilder FromMethodInfo(MethodInfo method)
+    {
+        CommandNodeBuilder builder = new();
+        IEnumerable<Attribute> attributes = method.GetCustomAttributes();
+
+        CommandAttribute commandAttribute = attributes.SingleOrDefaultOfType<CommandAttribute, Attribute>()
+            ?? throw new ArgumentException($"The method {method} does not have a CommandAttribute applied to it.", nameof(method));
+
+        NestCommandGroups(ref builder, commandAttribute.Names);
+        ApplyAttributesToNode(builder, attributes);
+        builder.AddOverload(CommandOverloadBuilder.FromMethodInfo(method));        
+
+        return builder;
+    }
+
+    private static void ApplyAttributesToNode(CommandNodeBuilder builder, IEnumerable<Attribute> attributes)
+    {
+        builder.AddCheckAttributes(attributes.Where(x => x.GetType().IsAssignableTo(typeof(ContextCheckAttribute))).Cast<ContextCheckAttribute>());
+
+        DspDescriptionAttribute? dspDescriptionAttribute = attributes.SingleOrDefaultOfType<DspDescriptionAttribute, Attribute>();
+        BclDescriptionAttribute? bclDescriptionAttribute = attributes.SingleOrDefaultOfType<BclDescriptionAttribute, Attribute>();
+
+        if (dspDescriptionAttribute is not null)
+        {
+            builder.WithDescription(dspDescriptionAttribute.Description);
+        }
+        else if (bclDescriptionAttribute is not null)
+        {
+            builder.WithDescription(bclDescriptionAttribute.Description);
+        }
+
+        foreach (Attribute attribute in attributes)
+        {
+            switch (attribute)
+            {
+                case AllowedCommandHandlersAttribute allowedHandlers:
+                    builder.AddAllowedHandlers(allowedHandlers.Handlers);
+                    break;
+
+                case RequireNsfwAttribute:
+                    builder.RequireNsfwChannel();
+                    break;
+
+                case RequirePermissionsAttribute requiredPermissions:
+                    builder.WithRequiredPermissions(requiredPermissions.UserPermissions, requiredPermissions.BotPermissions);
+                    break;
+
+                case AllowDmsAttribute allowDms:
+                    builder.allowBotDms = allowDms.Usage.HasFlag(DmUsageRule.AllowBotDms);
+                    builder.allowUserDms = allowDms.Usage.HasFlag(DmUsageRule.AllowUserDms);
+                    break;
+
+                case DenyGuildsAttribute denyGuilds:
+                    builder.allowGuilds = false;
+                    break;
+            }
+        }
+    }
+
+    private static void NestCommandGroups(ref CommandNodeBuilder builder, string[] attributeData)
+    {
+        if (attributeData is [string soleName])
+        {
+            builder.WithName(soleName);
+        }
+        else
+        {
+            builder.WithName(attributeData[0]);
+
+            for (int i = 1; i < attributeData.Length; i++)
+            {
+                CommandNodeBuilder tempBuilder = new();
+
+                tempBuilder.WithName(attributeData[i]);
+
+                builder.AddChild(tempBuilder);
+                builder = tempBuilder;
+            }
+        }
     }
 }

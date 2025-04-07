@@ -335,9 +335,8 @@ public sealed class CommandOverloadBuilder
     /// Parses an overload builder from the specified method and returns it for further customization.
     /// </summary>
     /// <param name="info">The method to construct this overload from.</param>
-    /// <param name="parentName">The name of this overload's parents.</param>
     /// <exception cref="ArgumentException">Thrown if the method does not take a CommandContext as first arguments.</exception>
-    public static CommandOverloadBuilder FromMethodInfo(MethodInfo info, string parentName)
+    public static CommandOverloadBuilder FromMethodInfo(MethodInfo info)
     {
         if (info.GetParameters()[0].ParameterType.IsAssignableTo(typeof(CommandContext)))
         {
@@ -346,7 +345,7 @@ public sealed class CommandOverloadBuilder
 
         CommandOverloadBuilder builder = new();
 
-        builder.WithMethod(info, parentName);
+        builder.WithMethod(info, $"{info.DeclaringType?.FullName ?? "<unknown type>"}#{info.Name}");
 
         IEnumerable<Attribute> attributes = info.GetCustomAttributes();
 

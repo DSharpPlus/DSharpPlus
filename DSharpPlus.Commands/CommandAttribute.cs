@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace DSharpPlus.Commands;
 
@@ -6,25 +7,21 @@ namespace DSharpPlus.Commands;
 public sealed class CommandAttribute : Attribute
 {
     /// <summary>
-    /// The name of the command.
+    /// The name of the command. This may be multiple names, in which case the containing type is set to represent a nested command.
     /// </summary>
-    public string Name { get; init; }
+    public string[] Names { get; init; }
 
     /// <summary>
     /// Creates a new instance of the <see cref="CommandAttribute"/> class.
     /// </summary>
     /// <param name="name">The name of the command.</param>
-    public CommandAttribute(string name)
+    public CommandAttribute(params string[] name)
     {
-        if (string.IsNullOrWhiteSpace(name))
+        if (name.Any(string.IsNullOrWhiteSpace))
         {
             throw new ArgumentNullException(nameof(name), "The name of the command cannot be null or whitespace.");
         }
-        else if (name.Length is < 1 or > 32)
-        {
-            throw new ArgumentOutOfRangeException(nameof(name), "The name of the command must be between 1 and 32 characters.");
-        }
 
-        this.Name = name;
+        this.Names = name;
     }
 }
