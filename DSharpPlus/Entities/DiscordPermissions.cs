@@ -35,6 +35,9 @@ public readonly partial struct DiscordPermissions
     private const int ContainerElementCount = ContainerWidth * 4;
     private const int ContainerByteCount = ContainerWidth * 16;
 
+    private static readonly string[] permissionNames = CreatePermissionNameArray();
+    private static readonly int highestDefinedValue = (int)DiscordPermissionExtensions.GetValues()[^1];
+
     private readonly DiscordPermissionContainer data;
 
     /// <summary>
@@ -177,20 +180,7 @@ public readonly partial struct DiscordPermissions
     /// Determines whether this Discord permission set is equal to the provided Discord permission set.
     /// </summary>
     public bool Equals(DiscordPermissions other)
-    {
-        for (int i = 0; i < ContainerElementCount; i += 4)
-        {
-            Vector128<uint> current = Vector128.LoadUnsafe(in this.data[i]);
-            Vector128<uint> comparison = Vector128.LoadUnsafe(in other.data[i]);
-
-            if (current != comparison)
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
+        => ((ReadOnlySpan<uint>)this.data).SequenceEqual(other.data);
 
     /// <summary>
     /// Returns a string representation of this permission set.
@@ -232,16 +222,43 @@ public readonly partial struct DiscordPermissions
                 pop += BitOperations.PopCount(this.data[i + 3]);
             }
 
-            string[] names = new string[pop];
+            if (pop == 0)
+            {
+                return "None";
+            }
+
+            Span<string> names = new string[pop];
             DiscordPermissionEnumerator enumerator = new(this.data);
 
             for (int i = 0; i < pop; i++)
             {
                 _ = enumerator.MoveNext();
-                names[i] = enumerator.Current.ToStringFast();
+                int flag = (int)enumerator.Current;
+                names[i] = flag <= highestDefinedValue ? permissionNames[flag] : flag.ToString(CultureInfo.InvariantCulture);
             }
 
             return string.Join(", ", names);
+        }
+        else if (format.StartsWith("name:"))
+        {
+            string trimmedFormat = format[5..];
+
+            if (string.IsNullOrWhiteSpace(trimmedFormat) || !trimmedFormat.Contains("{permission}"))
+            {
+                ThrowFormatException(format);
+            }
+
+            StringBuilder builder = new();
+
+            foreach (DiscordPermission permission in EnumeratePermissions())
+            {
+                int flag = (int)permission;
+                string permissionName = flag <= highestDefinedValue ? permissionNames[flag] : flag.ToString(CultureInfo.InvariantCulture);
+
+                _ = builder.Append(trimmedFormat.Replace("{permission}", permissionName));
+            }
+
+            return builder.ToString();
         }
         else
         {
@@ -273,6 +290,25 @@ public readonly partial struct DiscordPermissions
 
     public static bool operator ==(DiscordPermissions left, DiscordPermissions right) => left.Equals(right);
     public static bool operator !=(DiscordPermissions left, DiscordPermissions right) => !(left == right);
+
+    private static string[] CreatePermissionNameArray()
+    {
+        int highest = (int)DiscordPermissionExtensions.GetValues()[^1];
+        string[] names = new string[highest + 1];
+    
+        for (int i = 0; i <= highest; i++)
+        {
+            names[i] = ((DiscordPermission)i).ToStringFast(true);
+        }
+    
+        return names;
+    }
+
+    [DoesNotReturn]
+    [DebuggerHidden]
+    [StackTraceHidden]
+    private static void ThrowFormatException(string format)
+        => throw new FormatException($"The format string \"{format}\" was empty or malformed: it must contain an instruction to print a permission.");
 
     // we will be using an inline array from the start here so that further increases in the bit width
     // only require increasing this number instead of switching to a new backing implementation strategy.

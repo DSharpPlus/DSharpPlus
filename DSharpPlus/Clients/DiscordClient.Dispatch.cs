@@ -2818,6 +2818,10 @@ public sealed partial class DiscordClient
                     if (guildId.HasValue)
                     {
                         c.Value.guild_id = guildId.Value;
+                        if (this.guilds.TryGetValue(guildId.Value, out DiscordGuild? guild))
+                        {
+                            guild.roles.TryAdd(c.Value.Id, c.Value);
+                        }
                     }
                 }
             }
@@ -2832,6 +2836,8 @@ public sealed partial class DiscordClient
                     {
                         m.Value.guildId = guildId.Value;
                     }
+
+                    this.MessageCache?.Add(m.Value);
                 }
             }
         }

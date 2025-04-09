@@ -3,6 +3,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 using CommunityToolkit.HighPerformance.Helpers;
 
@@ -36,7 +37,7 @@ partial struct DiscordPermissions
     /// </summary>
     public struct DiscordPermissionEnumerator : IEnumerator<DiscordPermission>
     {
-        private readonly DiscordPermissionContainer data;
+        private DiscordPermissionContainer data;
 
         internal DiscordPermissionEnumerator(DiscordPermissionContainer data)
             => this.data = data;
@@ -54,7 +55,7 @@ partial struct DiscordPermissions
             for (; this.block < ContainerElementCount; this.block++)
             {
                 this.bit++;
-                uint value = this.data[this.block];
+                uint value = Unsafe.Add(ref Unsafe.As<DiscordPermissionContainer, uint>(ref this.data), this.block);
 
                 if (value == 0)
                 {
