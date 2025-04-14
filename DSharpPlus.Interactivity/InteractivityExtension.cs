@@ -132,7 +132,7 @@ public class InteractivityExtension : IDisposable
     }
 
     /// <summary>
-    /// Waits for a modal with the specificed custom id to be submitted by the given user.
+    /// Waits for a modal with the specified custom id to be submitted by the given user.
     /// </summary>
     /// <param name="modal_id">The id of the modal to wait for. Should be unique to avoid issues.</param>
     /// <param name="user">The user to wait for the modal from.</param>
@@ -142,7 +142,7 @@ public class InteractivityExtension : IDisposable
         => WaitForModalAsync(modal_id, user, GetCancellationToken(timeoutOverride));
 
     /// <summary>
-    /// Waits for a modal with the specificed custom id to be submitted by the given user.
+    /// Waits for a modal with the specified custom id to be submitted by the given user.
     /// </summary>
     /// <param name="modal_id">The id of the modal to wait for. Should be unique to avoid issues.</param>
     /// <param name="user">The user to wait for the modal from.</param>
