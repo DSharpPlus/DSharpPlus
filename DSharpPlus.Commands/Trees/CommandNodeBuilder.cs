@@ -29,6 +29,9 @@ public sealed class CommandNodeBuilder
     private readonly List<ContextCheckAttribute> checkAttributes = [];
     private readonly List<Type> allowedHandlers = [];
 
+    private DiscordPermissions permissions;
+    private DiscordPermissions botPermissions;
+
     private bool allowGuilds = true;
     private bool allowBotDms = false;
     private bool allowUserDms = false;
@@ -149,13 +152,20 @@ public sealed class CommandNodeBuilder
     /// </summary>
     public CommandNodeBuilder WithRequiredPermissions(DiscordPermissions userPermissions, DiscordPermissions botPermissions)
     {
-        CommandPermissionsMetadata metadataItem = new()
-        {
-            BotPermissions = botPermissions,
-            UserPermissions = userPermissions
-        };
+        this.permissions = userPermissions;
+        this.botPermissions = botPermissions;
 
-        AddMetadataItem(metadataItem);
+        return this;
+    }
+
+    /// <summary>
+    /// Adds permissions to the set of requirements for this node.
+    /// </summary>
+    public CommandNodeBuilder AddPermissions(DiscordPermissions userPermissions, DiscordPermissions botPermissions)
+    {
+        this.permissions |= userPermissions;
+        this.botPermissions |= botPermissions;
+
         return this;
     }
 
@@ -317,11 +327,13 @@ public sealed class CommandNodeBuilder
         foreach (CommandOverloadBuilder overloadBuilder in this.Overloads)
         {
             overloadBuilder.AddCheckAttributes(this.checkAttributes);
+            overloadBuilder.AddPermissions(this.permissions, this.botPermissions);
         }
 
         foreach (CommandNodeBuilder nodeBuilder in this.Children)
         {
             nodeBuilder.AddCheckAttributes(this.checkAttributes);
+            nodeBuilder.AddPermissions(this.permissions, this.botPermissions);
         }
 
         int canonicalOverloads = this.overloads.Count(x => x.IsCanonicalOverload);
@@ -336,6 +348,15 @@ public sealed class CommandNodeBuilder
         {
             throw new ArgumentOutOfRangeException(nameof(this.overloads), $"Building command {this.Name}: encountered two marked canonical overloads, only one is permitted.");
         }
+
+        LocationMetadata location = new()
+        {
+            IsAllowedInBotDms = this.allowBotDms,
+            IsAllowedInOtherDms = this.allowUserDms,
+            IsAllowedInGuilds = this.allowGuilds
+        };
+
+        AddMetadataItem(location);
 
         CommandOverload[] builtOverloads = [.. this.Overloads.Select(x => x.Build(namingPolicy))];
 
@@ -368,9 +389,26 @@ public sealed class CommandNodeBuilder
             WithDescription("No description provided.");
         }
 
+        LocationMetadata location = new()
+        {
+            IsAllowedInBotDms = this.allowBotDms,
+            IsAllowedInOtherDms = this.allowUserDms,
+            IsAllowedInGuilds = this.allowGuilds
+        };
+
+        CommandPermissionsMetadata permissions = new()
+        {
+            UserPermissions = this.permissions,
+            BotPermissions = this.botPermissions
+        };
+
+        AddMetadataItem(location);
+        AddMetadataItem(permissions);
+
         foreach (CommandNodeBuilder nodeBuilder in this.Children)
         {
             nodeBuilder.AddCheckAttributes(this.checkAttributes);
+            nodeBuilder.AddPermissions(this.permissions, this.botPermissions);
         }
 
         return new CommandBranchNode

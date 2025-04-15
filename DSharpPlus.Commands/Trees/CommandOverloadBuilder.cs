@@ -26,6 +26,9 @@ public sealed class CommandOverloadBuilder
     private readonly List<ContextCheckAttribute> checkAttributes = [];
     private readonly List<Type> allowedHandlers = [];
 
+    private DiscordPermissions permissions;
+    private DiscordPermissions botPermissions;
+
     private bool allowGuilds = true;
     private bool allowBotDms = false;
     private bool allowUserDms = false;
@@ -184,13 +187,20 @@ public sealed class CommandOverloadBuilder
     /// </summary>
     public CommandOverloadBuilder WithRequiredPermissions(DiscordPermissions userPermissions, DiscordPermissions botPermissions)
     {
-        CommandPermissionsMetadata metadataItem = new()
-        {
-            BotPermissions = botPermissions,
-            UserPermissions = userPermissions
-        };
+        this.permissions = userPermissions;
+        this.botPermissions = botPermissions;
 
-        AddMetadataItem(metadataItem);
+        return this;
+    }
+
+    /// <summary>
+    /// Adds permissions to the set of requirements for this node.
+    /// </summary>
+    public CommandOverloadBuilder AddPermissions(DiscordPermissions userPermissions, DiscordPermissions botPermissions)
+    {
+        this.permissions |= userPermissions;
+        this.botPermissions |= botPermissions;
+
         return this;
     }
 
@@ -316,7 +326,14 @@ public sealed class CommandOverloadBuilder
             IsAllowedInGuilds = this.allowGuilds
         };
 
+        CommandPermissionsMetadata permissions = new()
+        {
+            UserPermissions = this.permissions,
+            BotPermissions = this.botPermissions
+        };
+
         AddMetadataItem(location);
+        AddMetadataItem(permissions);
 
         return new CommandOverload
         {
