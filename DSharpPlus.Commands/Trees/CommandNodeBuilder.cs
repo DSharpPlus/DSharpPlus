@@ -452,6 +452,11 @@ public sealed class CommandNodeBuilder
             {
                 builder.AddChild(FromMethodInfo(method));
             }
+
+            if (method.GetCustomAttribute<DefaultGroupCommandAttribute>() is not null)
+            {
+                builder.AddOverload(CommandOverloadBuilder.FromMethodInfo(method));
+            }
         }
 
         return root;
