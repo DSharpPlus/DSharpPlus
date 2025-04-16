@@ -28,7 +28,7 @@ jobs:
       - name: Publish NuGet packages
         run: "dotnet nuget push \"build/*\" -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json"
       - name: Upload NuGet packages to GitHub Actions
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: PR NuGet Packages
           path: build/*
