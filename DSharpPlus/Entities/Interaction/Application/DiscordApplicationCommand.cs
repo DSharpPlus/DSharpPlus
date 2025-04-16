@@ -128,11 +128,8 @@ namespace DSharpPlus.Entities
                 if (description.Length > 100)
                     throw new ArgumentException("Slash command description cannot exceed 100 characters.", nameof(description));
             }
-            else
+            else if (type == ApplicationCommandType.UserContextMenu || type == ApplicationCommandType.MessageContextMenu)
             {
-                if (!string.IsNullOrWhiteSpace(description))
-                    throw new ArgumentException("Context menus do not support descriptions.");
-
                 if (options?.Any() ?? false)
                     throw new ArgumentException("Context menus do not support options.");
             }
