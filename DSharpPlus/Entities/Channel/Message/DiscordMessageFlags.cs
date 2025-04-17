@@ -77,5 +77,11 @@ public enum DiscordMessageFlags
     /// Indicates that this message will supress push notifications.
     /// Mentions in the message will still have a mention indicator, however.
     /// </summary>
-    SuppressNotifications = 1 << 12
+    SuppressNotifications = 1 << 12,
+    
+    /// <summary>
+    /// Indicates that this message is/will support Components V2.
+    /// Messages that are upgraded to components V2 cannot be downgraded.
+    /// </summary>
+    IsComponentsV2 = 1 << 15,
 }
