@@ -846,12 +846,10 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <summary>
     /// Gets all emojis created or owned by the current application.
     /// </summary>
-    /// <param name="skipCache">Whether to skip the cache.</param>
     /// <returns>All emojis associated with the current application.
     /// This includes emojis uploaded by the owner or members of the team the application is on, if applicable.</returns>
-    public async ValueTask<IReadOnlyList<DiscordEmoji>> GetApplicationEmojisAsync(bool skipCache = false)
+    public async ValueTask<IReadOnlyList<DiscordEmoji>> GetApplicationEmojisAsync()
     {
-        
         IReadOnlyList<DiscordEmoji> result = await this.ApiClient.GetApplicationEmojisAsync(this.CurrentApplication.Id);
         
         foreach (DiscordEmoji emoji in result)
