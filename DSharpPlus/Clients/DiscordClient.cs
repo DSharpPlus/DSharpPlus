@@ -851,10 +851,6 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// This includes emojis uploaded by the owner or members of the team the application is on, if applicable.</returns>
     public async ValueTask<IReadOnlyList<DiscordEmoji>> GetApplicationEmojisAsync(bool skipCache = false)
     {
-        if (this.CurrentApplication.ApplicationEmojis.Count > 0 && !skipCache)
-        {
-            return this.CurrentApplication.ApplicationEmojis.Values.ToArray();
-        }
         
         IReadOnlyList<DiscordEmoji> result = await this.ApiClient.GetApplicationEmojisAsync(this.CurrentApplication.Id);
         
