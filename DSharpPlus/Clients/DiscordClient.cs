@@ -827,17 +827,44 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// Gets an emoji owned by the current application.
     /// </summary>
     /// <param name="emojiId">The ID of the emoji</param>
+    /// <param name="skipCache">Whether to skip the cache.</param>
     /// <returns>The emoji.</returns>
-    public async ValueTask<DiscordEmoji> GetApplicationEmojiAsync(ulong emojiId)
-        => await this.ApiClient.GetApplicationEmojiAsync(this.CurrentApplication.Id, emojiId);
+    public async ValueTask<DiscordEmoji> GetApplicationEmojiAsync(ulong emojiId, bool skipCache = false)
+    {
+        if (!skipCache && this.CurrentApplication.ApplicationEmojis.TryGetValue(emojiId, out DiscordEmoji? emoji))
+        {
+            return emoji;
+        }
+        
+        DiscordEmoji result = await this.ApiClient.GetApplicationEmojiAsync(this.CurrentApplication.Id, emojiId);
+        
+        this.CurrentApplication.ApplicationEmojis[emojiId] = result;
+        
+        return result;
+    }
 
     /// <summary>
     /// Gets all emojis created or owned by the current application.
     /// </summary>
+    /// <param name="skipCache">Whether to skip the cache.</param>
     /// <returns>All emojis associated with the current application.
     /// This includes emojis uploaded by the owner or members of the team the application is on, if applicable.</returns>
-    public async ValueTask<IReadOnlyList<DiscordEmoji>> GetApplicationEmojisAsync()
-        => await this.ApiClient.GetApplicationEmojisAsync(this.CurrentApplication.Id);
+    public async ValueTask<IReadOnlyList<DiscordEmoji>> GetApplicationEmojisAsync(bool skipCache = false)
+    {
+        if (this.CurrentApplication.ApplicationEmojis.Count > 0 && !skipCache)
+        {
+            return this.CurrentApplication.ApplicationEmojis.Values.ToArray();
+        }
+        
+        IReadOnlyList<DiscordEmoji> result = await this.ApiClient.GetApplicationEmojisAsync(this.CurrentApplication.Id);
+        
+        foreach (DiscordEmoji emoji in result)
+        {
+            this.CurrentApplication.ApplicationEmojis[emoji.Id] = emoji;
+        }
+        
+        return result;
+    }
 
     /// <summary>
     /// Modifies an existing application emoji.
