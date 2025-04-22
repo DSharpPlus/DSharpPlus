@@ -40,5 +40,4 @@ public class DiscordThumbnailComponent : DiscordComponent
     }
 
     internal DiscordThumbnailComponent() => this.Type = DiscordComponentType.Thumbnail;
-
 }
