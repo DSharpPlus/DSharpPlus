@@ -63,7 +63,7 @@ public sealed class DiscordFollowupMessageBuilder : BaseDiscordMessageBuilder<Di
 
     internal void Validate()
     {
-        if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && !this.Embeds.Any())
+        if (!this.Flags.HasMessageFlag(DiscordMessageFlags.IsComponentsV2) && this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && !this.Embeds.Any())
         {
             throw new ArgumentException("You must specify content, an embed, or at least one file.");
         }
