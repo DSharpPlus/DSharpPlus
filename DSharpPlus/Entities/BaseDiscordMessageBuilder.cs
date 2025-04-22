@@ -42,9 +42,16 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <summary>
     /// Enables support for V2 components; messages with the V2 flag cannot be downgraded.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The builder to chain calls with.</returns>
     public T EnableV2Components()
     {
+        bool isAnyContentSet = this.Content is not null || this.Embeds is not [];
+
+        if (isAnyContentSet)
+        {
+            throw new InvalidOperationException("Content and embeds are not supported with Components V2. Please call .Clear first.");
+        }
+        
         this.Flags |= DiscordMessageFlags.IsComponentsV2;
         return (T)this;
     }

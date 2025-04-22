@@ -12,9 +12,15 @@ public class DiscordContainerComponent : DiscordComponent
     /// <summary>
     /// The accent color for this container, similar to an embed.
     /// </summary>
-    public DiscordColor? Color => this.color.HasValue
-        ? (DiscordColor)this.color.Value
-        : null;
+    public DiscordColor? Color
+    {
+        get
+        {
+            return this.color.HasValue
+                ? (DiscordColor)this.color.Value
+                : null;
+        }
+    }
 
     [JsonProperty("accent_color", NullValueHandling = NullValueHandling.Include)]
     internal Optional<int> color;

@@ -7,7 +7,6 @@ namespace DSharpPlus.Entities;
 /// </summary>
 public class DiscordSeparatorComponent : DiscordComponent
 {
-    
     /// <summary>
     /// Whether the separator renders as a dividing line.
     /// </summary>
@@ -26,8 +25,6 @@ public class DiscordSeparatorComponent : DiscordComponent
         this.Divider = divider;
         this.Spacing = spacing;
     }
-    
-    
-    internal DiscordSeparatorComponent() => this.Type = DiscordComponentType.Separator;
 
+    internal DiscordSeparatorComponent() => this.Type = DiscordComponentType.Separator;
 }

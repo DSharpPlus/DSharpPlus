@@ -38,7 +38,8 @@ public class DiscordSectionComponent : DiscordComponent
     /// Constructs a new section component.
     /// </summary>
     /// <param name="sections">The sections (generally text) that this section contains.</param>
-    /// <param name="accessory">The accessory to this section. At this time, this must either be a <see cref="DiscordThumbnailComponent"/> or a <see cref="DiscordButtonComponent"/>.</param>
+    /// <param name="accessory"> The accessory to this section.
+    /// At this time, this must either be a <see cref="DiscordThumbnailComponent"/> or a <see cref="DiscordButtonComponent"/>.</param>
     public DiscordSectionComponent(IReadOnlyList<DiscordComponent> sections, DiscordComponent accessory)
         : this()
     {
@@ -47,5 +48,4 @@ public class DiscordSectionComponent : DiscordComponent
     }
     
     internal DiscordSectionComponent() => this.Type = DiscordComponentType.Section;
-
 }
