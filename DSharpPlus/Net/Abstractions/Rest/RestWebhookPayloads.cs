@@ -47,6 +47,9 @@ internal sealed class RestWebhookExecutePayload
 
     [JsonProperty("poll", NullValueHandling = NullValueHandling.Ignore)]
     public PollCreatePayload? Poll { get; set; }
+    
+    [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordMessageFlags? Flags { get; set; }
 }
 
 internal sealed class RestWebhookMessageEditPayload
@@ -65,4 +68,7 @@ internal sealed class RestWebhookMessageEditPayload
 
     [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
     public IEnumerable<DiscordAttachment>? Attachments { get; set; }
+    
+    [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordMessageFlags? Flags { get; set; }
 }

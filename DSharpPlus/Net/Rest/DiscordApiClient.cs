@@ -5007,6 +5007,7 @@ public sealed class DiscordApiClient
             Content = builder.Content,
             Embeds = builder.Embeds,
             Mentions = mentions,
+            Flags = builder.Flags,
             Components = builder.Components,
             Attachments = attachments
         };
@@ -6079,6 +6080,7 @@ public sealed class DiscordApiClient
                 Content = builder.Content,
                 Embeds = builder.Embeds,
                 Mentions = mentions,
+                Flags = builder.Flags,
                 Components = builder.Components,
                 Attachments = attachments
             };
