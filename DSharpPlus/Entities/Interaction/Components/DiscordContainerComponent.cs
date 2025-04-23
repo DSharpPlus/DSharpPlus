@@ -16,14 +16,14 @@ public class DiscordContainerComponent : DiscordComponent
     {
         get
         {
-            return this.color.HasValue
-                ? (DiscordColor)this.color.Value
+            return this.color.IsDefined(out int? colorValue)
+                ? (DiscordColor)colorValue
                 : null;
         }
     }
 
     [JsonProperty("accent_color", NullValueHandling = NullValueHandling.Include)]
-    internal Optional<int> color;
+    internal Optional<int?> color;
 
     /// <summary>
     /// Gets whether this container is spoilered.
@@ -58,7 +58,7 @@ public class DiscordContainerComponent : DiscordComponent
     {
         this.Components = components;
         this.IsSpoilered = isSpoilered;
-        this.color = color?.Value ?? default;
+        this.color = color?.Value;
     }
     
     internal DiscordContainerComponent() => this.Type = DiscordComponentType.Container;
