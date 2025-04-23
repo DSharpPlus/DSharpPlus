@@ -44,5 +44,10 @@ public sealed class DiscordAuditLogAutoModerationExecutedEntry : DiscordAuditLog
     /// <summary>
     /// Channel where the rule was executed
     /// </summary>
-    public DiscordChannel Channel { get; internal set; } = default!;
+    public DiscordChannel? Channel { get; internal set; }
+    
+    /// <summary>
+    /// Id of the channel where the rule was executed
+    /// </summary>
+    public ulong ChannelId { get; internal set; }
 }
