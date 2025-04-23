@@ -4889,6 +4889,7 @@ public sealed class DiscordApiClient
             AvatarUrl = builder.AvatarUrl.HasValue ? builder.AvatarUrl.Value : null,
             IsTTS = builder.IsTTS,
             Embeds = builder.Embeds,
+            Flags = builder.Flags,
             Components = builder.Components,
             Poll = builder.Poll?.BuildInternal(),
         };
@@ -4906,6 +4907,7 @@ public sealed class DiscordApiClient
         string route = $"{Endpoints.WEBHOOKS}/{webhookId}/:webhook_token";
         QueryUriBuilder url = new($"{Endpoints.WEBHOOKS}/{webhookId}/{webhookToken}");
         url.AddParameter("wait", "true");
+        url.AddParameter("with_components", "true");
 
         if (builder.ThreadId.HasValue)
         {
