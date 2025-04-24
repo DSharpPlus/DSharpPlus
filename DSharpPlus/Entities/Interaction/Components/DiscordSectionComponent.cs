@@ -35,6 +35,19 @@ public class DiscordSectionComponent : DiscordComponent
     }
 
     /// <summary>
+    /// Constructs a new <see cref="DiscordSectionComponent"/>
+    /// </summary>
+    /// <param name="text">The text for this section.</param>
+    /// <param name="accessory">The accessory for this section.</param>
+    public DiscordSectionComponent
+    (
+        string text,
+        DiscordComponent accessory
+    ) : this(new DiscordTextDisplayComponent(text), accessory)
+    {
+    }
+
+    /// <summary>
     /// Constructs a new section component.
     /// </summary>
     /// <param name="sections">The sections (generally text) that this section contains.</param>
