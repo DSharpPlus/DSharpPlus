@@ -5,7 +5,8 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents a link button. Clicking a link button does not send an interaction.
 /// </summary>
-public class DiscordLinkButtonComponent : DiscordComponent
+
+public sealed class DiscordLinkButtonComponent : DiscordButtonComponent
 {
     /// <summary>
     /// The url to open when pressing this button.
@@ -17,22 +18,22 @@ public class DiscordLinkButtonComponent : DiscordComponent
     /// The text to add to this button. If this is not specified, <see cref="Emoji"/> must be.
     /// </summary>
     [JsonProperty("label", NullValueHandling = NullValueHandling.Ignore)]
-    public string Label { get; set; }
+    public new string Label { get; set; }
 
     /// <summary>
     /// Whether this button can be pressed.
     /// </summary>
     [JsonProperty("disabled", NullValueHandling = NullValueHandling.Ignore)]
-    public bool Disabled { get; set; }
+    public new bool Disabled { get; set; }
 
     /// <summary>
     /// The emoji to add to the button. Can be used in conjunction with a label, or as standalone. Must be added if label is not specified.
     /// </summary>
     [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
-    public DiscordComponentEmoji Emoji { get; set; }
+    public new DiscordComponentEmoji Emoji { get; set; }
 
     [JsonProperty("style", NullValueHandling = NullValueHandling.Ignore)]
-    internal int Style { get; } = 5; // Link = 5; Discord throws 400 otherwise //
+    internal new int Style { get; } = 5; // Link = 5; Discord throws 400 otherwise //
 
     internal DiscordLinkButtonComponent() => this.Type = DiscordComponentType.Button;
 

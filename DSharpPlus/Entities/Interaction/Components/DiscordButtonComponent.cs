@@ -6,7 +6,7 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents a button that can be pressed. Fires <see cref="ComponentInteractionCreatedEventArgs"/> when pressed.
 /// </summary>
-public sealed class DiscordButtonComponent : DiscordComponent
+public class DiscordButtonComponent : DiscordComponent
 {
     /// <summary>
     /// The style of the button.
