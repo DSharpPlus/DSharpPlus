@@ -257,12 +257,12 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
             throw new ArgumentException("A message can only have up to 10 embeds.");
         }
 
-        if (!this.Flags.HasMessageFlag(DiscordMessageFlags.IsComponentsV2) && this.Poll == null && this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && (!this.Embeds?.Any() ?? true) && (!this.Stickers?.Any() ?? true))
+        if (!this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) && this.Poll == null && this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && (!this.Embeds?.Any() ?? true) && (!this.Stickers?.Any() ?? true))
         {
             throw new ArgumentException("You must specify content, an embed, a sticker, a poll, or at least one file.");
         }
 
-        if (!this.Flags.HasMessageFlag(DiscordMessageFlags.IsComponentsV2) && this.Components.Count > 5)
+        if (!this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) && this.Components.Count > 5)
         {
             throw new InvalidOperationException("You can only have 5 action rows per message.");
         }
@@ -271,7 +271,7 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
             throw new InvalidOperationException("You can only have 10 surface-level components per message.");
         }
 
-        if (!this.Flags.HasMessageFlag(DiscordMessageFlags.IsComponentsV2) && this.Components.Any(c => c is not DiscordActionRowComponent))
+        if (!this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) && this.Components.Any(c => c is not DiscordActionRowComponent))
         {
             throw new InvalidOperationException
             (

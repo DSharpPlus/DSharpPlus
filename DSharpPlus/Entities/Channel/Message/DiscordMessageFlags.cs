@@ -2,17 +2,6 @@ using System;
 
 namespace DSharpPlus.Entities;
 
-public static class MessageFlagExtensions
-{
-    /// <summary>
-    /// Calculates whether these message flags contain a specific flag.
-    /// </summary>
-    /// <param name="baseFlags">The existing flags.</param>
-    /// <param name="flag">The flags to search for.</param>
-    /// <returns></returns>
-    public static bool HasMessageFlag(this DiscordMessageFlags baseFlags, DiscordMessageFlags flag) => (baseFlags & flag) == flag;
-}
-
 /// <summary>
 /// Represents additional features of a message.
 /// </summary>

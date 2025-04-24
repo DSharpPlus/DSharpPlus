@@ -13,7 +13,7 @@ public sealed class DiscordFollowupMessageBuilder : BaseDiscordMessageBuilder<Di
     /// </summary>
     public bool IsEphemeral
     {
-        get => this.Flags.HasMessageFlag(DiscordMessageFlags.Ephemeral);
+        get => this.Flags.HasFlag(DiscordMessageFlags.Ephemeral);
         set
         {
             if (value)
@@ -63,7 +63,7 @@ public sealed class DiscordFollowupMessageBuilder : BaseDiscordMessageBuilder<Di
 
     internal void Validate()
     {
-        if (!this.Flags.HasMessageFlag(DiscordMessageFlags.IsComponentsV2) && this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && !this.Embeds.Any())
+        if (!this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) && this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && !this.Embeds.Any())
         {
             throw new ArgumentException("You must specify content, an embed, or at least one file.");
         }

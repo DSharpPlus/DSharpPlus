@@ -634,8 +634,8 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         DiscordComponent component
     )
     {
-        int maxTopComponents = this.Flags.HasMessageFlag(DiscordMessageFlags.IsComponentsV2) ? 10 : 5;
-        int maxAllComponents = this.Flags.HasMessageFlag(DiscordMessageFlags.IsComponentsV2) ? 30 : 25;
+        int maxTopComponents = this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) ? 10 : 5;
+        int maxAllComponents = this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) ? 30 : 25;
         
         int allComponentCount = this.Components.Sum
         (
@@ -688,7 +688,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 
     private void SetIfV2Disabled<TField>(ref TField field, TField value, string fieldName)
     {
-        if (this.Flags.HasMessageFlag(DiscordMessageFlags.IsComponentsV2))
+        if (this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2))
         {
             throw new ArgumentException("This field cannot be set when V2 components is enabled.", fieldName);
         }
@@ -698,7 +698,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 
     private void ThrowIfV2Enabled([CallerMemberName] string caller = "")
     {
-        if (this.Flags.HasMessageFlag(DiscordMessageFlags.IsComponentsV2))
+        if (this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2))
         {
             throw new InvalidOperationException($"{caller} cannot be called when V2 components is enabled.");
         }
