@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -193,10 +194,10 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 
         foreach (IEnumerable<DiscordButtonComponent> component in components)
         {
-            DiscordActionRowComponent componentComponent = new(component);
+            DiscordActionRowComponent currentComponent = new(component);
             
-            EnsureSufficientSpaceForComponent(componentComponent);
-            this.components.Add(componentComponent);
+            EnsureSufficientSpaceForComponent(currentComponent);
+            this.components.Add(currentComponent);
         }
         
         return (T)this;
@@ -264,6 +265,26 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         
         return (T)this;
     }
+    
+    /// <summary>
+    /// Adds a text input to this builder.
+    /// </summary>
+    /// <param name="component">The component to add.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public T AddTextInputComponent
+    (
+        DiscordTextInputComponent component
+    )
+    {
+        var actionRow = new DiscordActionRowComponent([component]);
+        EnsureSufficientSpaceForComponent(actionRow);
+        this.components.Add(actionRow);
+        
+        return (T)this;
+    }
+    
+
 
     /// <summary>
     /// Adds a text display to this builder.
@@ -629,6 +650,9 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         return newStream;
     }
 
+    
+    [StackTraceHidden]
+    [DebuggerStepThrough]
     private void EnsureSufficientSpaceForComponent
     (
         DiscordComponent component
@@ -696,6 +720,8 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         field = value;
     }
 
+    [StackTraceHidden]
+    [DebuggerStepThrough]
     private void ThrowIfV2Enabled([CallerMemberName] string caller = "")
     {
         if (this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2))
@@ -711,6 +737,9 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     IDiscordMessageBuilder IDiscordMessageBuilder.AddSectionComponent(DiscordSectionComponent section) => this.AddSectionComponent(section);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddTextDisplayComponent(DiscordTextDisplayComponent component) => this.AddTextDisplayComponent(component);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddTextDisplayComponent(string content) => this.AddTextDisplayComponent(content);
+    
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddTextInputComponent(DiscordTextInputComponent component) => this.AddTextInputComponent(component);
+    
     IDiscordMessageBuilder IDiscordMessageBuilder.AddSeparatorComponent(DiscordSeparatorComponent component) => this.AddSeparatorComponent(component);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddFileComponent(DiscordFileComponent component) => this.AddFileComponent(component);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddContainerComponent(DiscordContainerComponent component) => this.AddContainerComponent(component);
@@ -871,6 +900,15 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <returns>The builder to chain calls with.</returns>
     /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
     public IDiscordMessageBuilder AddTextDisplayComponent(string content);
+    
+    /// <summary>
+    /// Adds a text input to this builder.
+    /// </summary>
+    /// <param name="component">The component to add.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public IDiscordMessageBuilder AddTextInputComponent(DiscordTextInputComponent component);
+
 
     /// <summary>
     /// Adds a separator component to this builder.
