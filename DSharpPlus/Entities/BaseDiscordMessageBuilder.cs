@@ -283,8 +283,6 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         
         return (T)this;
     }
-    
-
 
     /// <summary>
     /// Adds a text display to this builder.
@@ -649,7 +647,6 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 
         return newStream;
     }
-
     
     [StackTraceHidden]
     [DebuggerStepThrough]
@@ -737,13 +734,10 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     IDiscordMessageBuilder IDiscordMessageBuilder.AddSectionComponent(DiscordSectionComponent section) => this.AddSectionComponent(section);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddTextDisplayComponent(DiscordTextDisplayComponent component) => this.AddTextDisplayComponent(component);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddTextDisplayComponent(string content) => this.AddTextDisplayComponent(content);
-    
     IDiscordMessageBuilder IDiscordMessageBuilder.AddTextInputComponent(DiscordTextInputComponent component) => this.AddTextInputComponent(component);
-    
     IDiscordMessageBuilder IDiscordMessageBuilder.AddSeparatorComponent(DiscordSeparatorComponent component) => this.AddSeparatorComponent(component);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddFileComponent(DiscordFileComponent component) => this.AddFileComponent(component);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddContainerComponent(DiscordContainerComponent component) => this.AddContainerComponent(component);
-    
     IDiscordMessageBuilder IDiscordMessageBuilder.SuppressNotifications() => SuppressNotifications();
     IDiscordMessageBuilder IDiscordMessageBuilder.WithContent(string content) => WithContent(content);
     IDiscordMessageBuilder IDiscordMessageBuilder.WithTTS(bool isTTS) => WithTTS(isTTS);
@@ -908,7 +902,6 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <returns>The builder to chain calls with.</returns>
     /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
     public IDiscordMessageBuilder AddTextInputComponent(DiscordTextInputComponent component);
-
 
     /// <summary>
     /// Adds a separator component to this builder.
