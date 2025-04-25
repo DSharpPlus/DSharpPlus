@@ -20,6 +20,14 @@ public class DiscordComponent
     /// </summary>
     [JsonProperty("custom_id", NullValueHandling = NullValueHandling.Ignore)]
     public string CustomId { get; internal set; }
+    
+    /// <summary>
+    /// The ID of the component - not to be confused with <see cref="CustomId"/>; this is a numeric ID only used for identifying the component within an array.
+    ///
+    /// If this field is not set, it is generated in an auto-incrementing manner server-side.
+    /// </summary>
+    [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+    public int Id { get; set; }
 
     internal DiscordComponent() { }
 }

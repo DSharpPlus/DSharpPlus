@@ -132,7 +132,7 @@ public class InteractivityExtension : IDisposable
     }
 
     /// <summary>
-    /// Waits for a modal with the specificed custom id to be submitted by the given user.
+    /// Waits for a modal with the specified custom id to be submitted by the given user.
     /// </summary>
     /// <param name="modal_id">The id of the modal to wait for. Should be unique to avoid issues.</param>
     /// <param name="user">The user to wait for the modal from.</param>
@@ -142,7 +142,7 @@ public class InteractivityExtension : IDisposable
         => WaitForModalAsync(modal_id, user, GetCancellationToken(timeoutOverride));
 
     /// <summary>
-    /// Waits for a modal with the specificed custom id to be submitted by the given user.
+    /// Waits for a modal with the specified custom id to be submitted by the given user.
     /// </summary>
     /// <param name="modal_id">The id of the modal to wait for. Should be unique to avoid issues.</param>
     /// <param name="user">The user to wait for the modal from.</param>
@@ -780,11 +780,14 @@ public class InteractivityExtension : IDisposable
         DiscordMessageBuilder builder = new DiscordMessageBuilder()
             .WithContent(pageArray[0].Content)
             .AddEmbed(pageArray[0].Embed)
-            .AddComponents(bts.ButtonArray);
+            .AddActionRowComponent(bts.ButtonArray);
 
         if (pageArray[0].Components is [..] pac)
         {
-            builder.AddComponents(pac);
+            foreach (DiscordActionRowComponent actionRow in pac)
+            {
+                builder.AddActionRowComponent(actionRow);
+            }
         }
 
         DiscordMessage message = await builder.SendAsync(channel);
@@ -968,11 +971,14 @@ public class InteractivityExtension : IDisposable
             DiscordWebhookBuilder builder = new DiscordWebhookBuilder()
                 .WithContent(pageArray[0].Content)
                 .AddEmbed(pageArray[0].Embed)
-                .AddComponents(buttonArray);
+                .AddActionRowComponent(buttonArray);
 
             if (pageArray[0].Components is [..] pageArrayComponents)
             {
-                builder.AddComponents(pageArrayComponents);
+                foreach (DiscordActionRowComponent actionRow in pageArrayComponents)
+                {
+                    builder.AddActionRowComponent(actionRow);
+                }
             }
 
             message = await interaction.EditOriginalResponseAsync(builder);
@@ -983,11 +989,14 @@ public class InteractivityExtension : IDisposable
                 .WithContent(pageArray[0].Content)
                 .AddEmbed(pageArray[0].Embed)
                 .AsEphemeral(ephemeral)
-                .AddComponents(buttonArray);
+                .AddActionRowComponent(buttonArray);
 
             if (pageArray[0].Components is [..] pageArrayComponents)
             {
-                builder.AddComponents(pageArrayComponents);
+                foreach (DiscordActionRowComponent actionRow in pageArrayComponents)
+                {
+                    builder.AddActionRowComponent(actionRow);
+                }
             }
 
             await interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, builder);

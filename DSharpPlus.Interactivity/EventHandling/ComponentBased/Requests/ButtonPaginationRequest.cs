@@ -157,7 +157,7 @@ internal class ButtonPaginationRequest : IPaginationRequest
                 DiscordMessageBuilder builder = new DiscordMessageBuilder()
                     .WithContent(this.pages[this.index].Content)
                     .AddEmbed(this.pages[this.index].Embed)
-                    .AddComponents(buttons);
+                    .AddActionRowComponent(buttons);
 
                 await builder.ModifyAsync(this.message);
                 break;

@@ -117,10 +117,10 @@ internal class RestFollowupMessageCreatePayload
     public DiscordMentions? Mentions { get; set; }
 
     [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
-    public int? Flags { get; set; }
+    public DiscordMessageFlags Flags { get; set; }
 
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyList<DiscordActionRowComponent> Components { get; set; }
+    public IReadOnlyList<DiscordComponent> Components { get; set; }
 }
 
 internal class RestEditApplicationCommandPermissionsPayload

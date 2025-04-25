@@ -218,13 +218,32 @@ public sealed partial class RestClient : IDisposable
         }
         catch (Exception ex)
         {
-            this.logger.LogError
-            (
-                LoggerEvents.RestError,
-                ex,
-                "Request to {url} triggered an exception",
-                $"{Endpoints.BASE_URI}/{request.Url}"
-            );
+            if (ex is BadRequestException badRequest)
+            {
+                this.logger.LogError
+                (
+                    "Request to {url} was rejected by the Discord API:\n" +
+                    "  Error Code: {Code}\n" +
+                    "  Errors: {Errors}\n" +
+                    "  Message: {JsonMessage}\n" +
+                    "  Stack trace: {Stacktrace}",
+                    $"{Endpoints.BASE_URI}/{request.Url}",
+                    badRequest.Code,
+                    badRequest.Errors,
+                    badRequest.JsonMessage,
+                    badRequest.StackTrace
+                );
+            }
+            else
+            {
+                this.logger.LogError
+                (
+                    LoggerEvents.RestError,
+                    ex,
+                    "Request to {url} triggered an exception",
+                    $"{Endpoints.BASE_URI}/{request.Url}"
+                );
+            }
 
             throw;
         }
