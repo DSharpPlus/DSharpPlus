@@ -99,7 +99,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public DiscordClient
     (
         ILogger<DiscordClient> logger,
-        DiscordApiClient apiClient,
+        DiscordRestApiClient apiClient,
         IMessageCacheProvider messageCacheProvider,
         IServiceProvider serviceProvider,
         IEventDispatcher eventDispatcher,

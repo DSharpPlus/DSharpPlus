@@ -35,7 +35,7 @@ public static partial class ServiceCollectionExtensions
 
         // rest setup
         serviceCollection.AddKeyedSingleton<HttpClient>("DSharpPlus.Rest.HttpClient")
-            .AddSingleton<DiscordApiClient>()
+            .AddSingleton<DiscordRestApiClient>()
             .AddSingleton<RestClient>
             (
                 serviceProvider =>
@@ -100,7 +100,7 @@ public static partial class ServiceCollectionExtensions
 
         // rest setup
         serviceCollection.AddKeyedSingleton<HttpClient>("DSharpPlus.Rest.HttpClient")
-            .AddSingleton<DiscordApiClient>()
+            .AddSingleton<DiscordRestApiClient>()
             .AddSingleton<RestClient>
             (
                 serviceProvider =>

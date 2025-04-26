@@ -13,6 +13,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Abstractions.Rest;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
@@ -1134,7 +1135,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         }
 
         // Sort the roles by position and create skeleton roles for the payload.
-        IReadOnlyList<DiscordRole> returnedRoles = await this.Discord.ApiClient.ModifyGuildRolePositionsAsync(this.Id, roles.Select(x => new RestGuildRoleReorderPayload() { RoleId = x.Value.Id, Position = x.Key }), reason);
+        IReadOnlyList<DiscordRole> returnedRoles = await this.Discord.ApiClient.ModifyGuildRolePositionsAsync(this.Id, roles.Select(x => new DiscordRolePosition() { RoleId = x.Value.Id, Position = x.Key }), reason);
 
         // Update the cache as the endpoint returns all roles in the order they were sent.
         this.roles = new(returnedRoles.Select(x => new KeyValuePair<ulong, DiscordRole>(x.Id, x)));
@@ -1775,24 +1776,17 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 yield break;
             }
 
-            IReadOnlyList<TransportMember> transportMembers = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : last);
-            recievedLastCall = transportMembers.Count;
+            IReadOnlyList<DiscordMember> members = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : last);
+            recievedLastCall = members.Count;
 
-            foreach (TransportMember transportMember in transportMembers)
+            foreach (DiscordMember member in members)
             {
-                this.Discord.UpdateUserCache(new(transportMember.User)
-                {
-                    Discord = this.Discord
-                });
+                this.Discord.UpdateUserCache(member.User);
 
-                yield return new(transportMember)
-                {
-                    Discord = this.Discord,
-                    guild_id = this.Id
-                };
+                yield return member;
             }
 
-            TransportMember? lastMember = transportMembers.LastOrDefault();
+            DiscordMember? lastMember = members.LastOrDefault();
             last = lastMember?.User.Id ?? 0;
         }
     }
@@ -1828,7 +1822,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
         await RequestMembersAsync(query, limit, presences, userIds, nonce);
 
-        await foreach (var evt in reader.ReadAllAsync(cancellationToken))
+        await foreach (GuildMembersChunkedEventArgs evt in reader.ReadAllAsync(cancellationToken))
         {
             foreach (DiscordMember member in evt.Members)
             {

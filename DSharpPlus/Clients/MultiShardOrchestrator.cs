@@ -19,7 +19,7 @@ namespace DSharpPlus.Clients;
 public sealed class MultiShardOrchestrator : IShardOrchestrator
 {
     private IGatewayClient[]? shards;
-    private readonly DiscordApiClient apiClient;
+    private readonly DiscordRestApiClient apiClient;
     private readonly ShardingOptions options;
     private readonly IServiceProvider serviceProvider;
     private readonly IPayloadDecompressor decompressor;
@@ -53,7 +53,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     (
         IServiceProvider serviceProvider, 
         IOptions<ShardingOptions> options,
-        DiscordApiClient apiClient,
+        DiscordRestApiClient apiClient,
         IPayloadDecompressor decompressor
     )
     {

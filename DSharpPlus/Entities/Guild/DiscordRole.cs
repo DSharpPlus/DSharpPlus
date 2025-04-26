@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Abstractions.Rest;
 using DSharpPlus.Net.Models;
 using Newtonsoft.Json;
 
@@ -107,10 +107,10 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     public async Task ModifyPositionAsync(int position, string reason = null)
     {
         DiscordRole[] roles = [.. this.Discord.Guilds[this.guild_id].Roles.Values.OrderByDescending(xr => xr.Position)];
-        RestGuildRoleReorderPayload[] pmds = new RestGuildRoleReorderPayload[roles.Length];
+        DiscordRolePosition[] pmds = new DiscordRolePosition[roles.Length];
         for (int i = 0; i < roles.Length; i++)
         {
-            pmds[i] = new RestGuildRoleReorderPayload
+            pmds[i] = new DiscordRolePosition
             {
                 RoleId = roles[i].Id,
                 Position = roles[i].Id == this.Id ? position : roles[i].Position <= position ? roles[i].Position - 1 : roles[i].Position
