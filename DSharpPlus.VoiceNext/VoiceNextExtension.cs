@@ -101,7 +101,7 @@ public sealed class VoiceNextExtension : IDisposable
         VoiceStateUpdatePayload vstup = new()
         {
             SessionId = vstu.SessionId,
-            UserId = vstu.User.Id
+            UserId = vstu.After.UserId
         };
         VoiceServerUpdatedEventArgs vsru = await vsrut.Task;
         VoiceServerUpdatePayload vsrup = new()
@@ -145,38 +145,37 @@ public sealed class VoiceNextExtension : IDisposable
 #pragma warning restore DSP0004 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
     }
 
-    internal Task Client_VoiceStateUpdate(DiscordClient client, VoiceStateUpdatedEventArgs e)
+    internal async Task Client_VoiceStateUpdate(DiscordClient client, VoiceStateUpdatedEventArgs e)
     {
-        DiscordGuild gld = e.Guild;
-        if (gld == null)
+        DiscordGuild? gld = await e.After.GetGuildAsync();
+        if (gld is null)
         {
-            return Task.CompletedTask;
+            return;
         }
 
-        if (e.User == null)
+        if (e.After.UserId == this.Client.CurrentUser.Id)
         {
-            return Task.CompletedTask;
-        }
-
-        if (e.User.Id == this.Client.CurrentUser.Id)
-        {
-            if (e.After.Channel == null && this.ActiveConnections.TryRemove(gld.Id, out VoiceNextConnection? ac))
+            if (e.After.ChannelId == null && this.ActiveConnections.TryRemove(gld.Id, out VoiceNextConnection? ac))
             {
                 ac.Disconnect();
             }
 
-            if (this.ActiveConnections.TryGetValue(e.Guild.Id, out VoiceNextConnection? vnc))
+            DiscordChannel? channel = await e.After.GetChannelAsync();
+            
+            if (e.After.GuildId is not null && 
+                e.After.ChannelId is not null &&
+                this.ActiveConnections.TryGetValue(e.After.GuildId.Value, out VoiceNextConnection? vnc))
             {
-                vnc.TargetChannel = e.Channel;
+                vnc.TargetChannel = channel!;
             }
 
-            if (!string.IsNullOrWhiteSpace(e.SessionId) && e.Channel != null && this.VoiceStateUpdates.TryRemove(gld.Id, out TaskCompletionSource<VoiceStateUpdatedEventArgs>? xe))
+            if (!string.IsNullOrWhiteSpace(e.SessionId) &&
+                channel is not null &&
+                this.VoiceStateUpdates.TryRemove(gld.Id, out TaskCompletionSource<VoiceStateUpdatedEventArgs>? xe))
             {
                 xe.SetResult(e);
             }
         }
-
-        return Task.CompletedTask;
     }
 
     internal async Task Client_VoiceServerUpdateAsync(DiscordClient client, VoiceServerUpdatedEventArgs e)
