@@ -727,6 +727,8 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         }
     }
     
+    IDiscordMessageBuilder IDiscordMessageBuilder.EnableV2Components() => this.EnableV2Components();
+    IDiscordMessageBuilder IDiscordMessageBuilder.DisableV2Components() => this.DisableV2Components();
     IDiscordMessageBuilder IDiscordMessageBuilder.AddActionRowComponent(DiscordActionRowComponent component) => this.AddActionRowComponent(component);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddActionRowComponent(DiscordSelectComponent selectMenu) => this.AddActionRowComponent(selectMenu);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddActionRowComponent(params IEnumerable<DiscordButtonComponent> buttons) => this.AddActionRowComponent(buttons);
@@ -840,7 +842,21 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <param name="content">Message content to use</param>
     /// <returns></returns>
     public IDiscordMessageBuilder WithContent(string content);
-    
+
+    /// <summary>
+    /// Enables support for V2 components; messages with the V2 flag cannot be downgraded.
+    /// </summary>
+    /// <returns>The builder to chain calls with.</returns>
+    public IDiscordMessageBuilder EnableV2Components();
+
+    /// <summary>
+    /// Disables V2 components IF this builder does not currently contain illegal components.
+    /// </summary>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">The builder contains V2 components and cannot be downgraded.</exception>
+    /// <remarks>This method only disables the V2 components flag; the message originally associated with this builder cannot be downgraded, and this method only exists for convenience.</remarks>
+    public IDiscordMessageBuilder DisableV2Components();
+
     /// <summary>
     /// Adds a raw action row.
     /// </summary>
