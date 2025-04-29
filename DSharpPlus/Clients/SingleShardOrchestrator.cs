@@ -23,12 +23,12 @@ public sealed class SingleShardOrchestrator : IShardOrchestrator
     public SingleShardOrchestrator
     (
         IGatewayClient gatewayClient,
-        DiscordRestApiClient apiClient,
+        DiscordRestApiClientFactory apiClientFactory,
         IPayloadDecompressor decompressor
     )
     {
         this.gatewayClient = gatewayClient;
-        this.apiClient = apiClient;
+        this.apiClient = apiClientFactory.GetCurrentApplicationClient();
         this.decompressor = decompressor;
     }
 

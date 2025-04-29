@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
 using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.Metrics;
@@ -47,6 +48,9 @@ public sealed class DiscordRestApiClient
 
     internal void SetClient(BaseDiscordClient client)
         => this.discord = client;
+
+    internal void SetToken(TokenType type, string token)
+        => this.rest.SetToken(type, token);
 
     private DiscordMessage PrepareMessage(JToken msgRaw)
     {

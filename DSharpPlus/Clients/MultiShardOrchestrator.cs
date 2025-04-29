@@ -53,11 +53,11 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     (
         IServiceProvider serviceProvider, 
         IOptions<ShardingOptions> options,
-        DiscordRestApiClient apiClient,
+        DiscordRestApiClientFactory apiClientFactory,
         IPayloadDecompressor decompressor
     )
     {
-        this.apiClient = apiClient;
+        this.apiClient = apiClientFactory.GetCurrentApplicationClient();
         this.options = options.Value;
         this.serviceProvider = serviceProvider;
         this.decompressor = decompressor;
