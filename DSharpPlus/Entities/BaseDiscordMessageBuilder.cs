@@ -696,7 +696,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
             _ => 1,
         };
 
-        if (this.Components.Count + 1 >= maxTopComponents)
+        if (this.Components.Count + 1 > maxTopComponents)
         {
             throw new InvalidOperationException($"Too many top-level components! Maximum allowed is {maxTopComponents}.");
         }
