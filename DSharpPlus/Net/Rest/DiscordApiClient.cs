@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
+using DSharpPlus.Exceptions;
 using DSharpPlus.Metrics;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
@@ -1204,16 +1205,50 @@ public sealed class DiscordApiClient
         return JsonConvert.DeserializeObject<DiscordGuildWelcomeScreen>(res.Response!)!;
     }
 
-    internal async ValueTask<DiscordVoiceState> GetCurrentUserVoiceStateAsync(ulong guildId)
+    internal async ValueTask<DiscordVoiceState?> GetCurrentUserVoiceStateAsync(ulong guildId)
     {
         RestRequest request = new()
         {
-            Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.VOICE_STATES}/{Endpoints.ME}",
+            Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.VOICE_STATES}/:user_id",
             Url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.VOICE_STATES}/{Endpoints.ME}",
             Method = HttpMethod.Get
         };
 
-        RestResponse res = await this.rest.ExecuteRequestAsync(request);
+        RestResponse res;
+        try
+        {
+            res = await this.rest.ExecuteRequestAsync(request);
+        }
+        catch (NotFoundException)
+        {
+            return null;
+        }
+
+        DiscordVoiceState result = JsonConvert.DeserializeObject<DiscordVoiceState>(res.Response!)!;
+
+        result.Discord = this.discord!;
+
+        return result;
+    }
+    
+    internal async ValueTask<DiscordVoiceState?> GetUserVoiceStateAsync(ulong guildId, ulong userId)
+    {
+        RestRequest request = new()
+        {
+            Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.VOICE_STATES}/:user_id",
+            Url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.VOICE_STATES}/{userId}",
+            Method = HttpMethod.Get
+        };
+
+        RestResponse res;
+        try
+        {
+            res = await this.rest.ExecuteRequestAsync(request);
+        }
+        catch (NotFoundException)
+        {
+            return null;
+        }
 
         DiscordVoiceState result = JsonConvert.DeserializeObject<DiscordVoiceState>(res.Response!)!;
 
