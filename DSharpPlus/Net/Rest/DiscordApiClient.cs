@@ -1205,7 +1205,7 @@ public sealed class DiscordApiClient
         return JsonConvert.DeserializeObject<DiscordGuildWelcomeScreen>(res.Response!)!;
     }
 
-    internal async ValueTask<DiscordVoiceState?> GetCurrentUserVoiceStateAsync(ulong guildId)
+    internal async ValueTask<DiscordVoiceState> GetCurrentUserVoiceStateAsync(ulong guildId)
     {
         RestRequest request = new()
         {
@@ -1214,15 +1214,7 @@ public sealed class DiscordApiClient
             Method = HttpMethod.Get
         };
 
-        RestResponse res;
-        try
-        {
-            res = await this.rest.ExecuteRequestAsync(request);
-        }
-        catch (NotFoundException)
-        {
-            return null;
-        }
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
 
         DiscordVoiceState result = JsonConvert.DeserializeObject<DiscordVoiceState>(res.Response!)!;
 
@@ -1231,7 +1223,7 @@ public sealed class DiscordApiClient
         return result;
     }
     
-    internal async ValueTask<DiscordVoiceState?> GetUserVoiceStateAsync(ulong guildId, ulong userId)
+    internal async ValueTask<DiscordVoiceState> GetUserVoiceStateAsync(ulong guildId, ulong userId)
     {
         RestRequest request = new()
         {
@@ -1240,15 +1232,7 @@ public sealed class DiscordApiClient
             Method = HttpMethod.Get
         };
 
-        RestResponse res;
-        try
-        {
-            res = await this.rest.ExecuteRequestAsync(request);
-        }
-        catch (NotFoundException)
-        {
-            return null;
-        }
+        RestResponse res = await this.rest.ExecuteRequestAsync(request);
 
         DiscordVoiceState result = JsonConvert.DeserializeObject<DiscordVoiceState>(res.Response!)!;
 

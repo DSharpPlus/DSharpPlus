@@ -2556,7 +2556,14 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             return voiceState;
         }
 
-        return await this.Discord.ApiClient.GetCurrentUserVoiceStateAsync(this.Id);
+        try
+        {
+            return await this.Discord.ApiClient.GetCurrentUserVoiceStateAsync(this.Id);
+        }
+        catch (NotFoundException)
+        {
+            return null;
+        }
     }
 
     /// <summary>
@@ -2581,7 +2588,14 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             return voiceState;
         }
 
-        return await this.Discord.ApiClient.GetUserVoiceStateAsync(this.Id, memberId);
+        try
+        {
+            return await this.Discord.ApiClient.GetUserVoiceStateAsync(this.Id, memberId);
+        }
+        catch (NotFoundException)
+        {
+            return null;
+        }
     }
     
     #endregion
