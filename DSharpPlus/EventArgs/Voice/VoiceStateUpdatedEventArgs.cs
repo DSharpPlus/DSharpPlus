@@ -8,21 +8,6 @@ namespace DSharpPlus.EventArgs;
 public class VoiceStateUpdatedEventArgs : DiscordEventArgs
 {
     /// <summary>
-    /// Gets the user whose voice state was updated.
-    /// </summary>
-    public DiscordUser User { get; internal set; }
-
-    /// <summary>
-    /// Gets the guild in which the update occurred.
-    /// </summary>
-    public DiscordGuild Guild { get; internal set; }
-
-    /// <summary>
-    /// Gets the related voice channel.
-    /// </summary>
-    public DiscordChannel Channel { get; internal set; }
-
-    /// <summary>
     /// Gets the voice state pre-update.
     /// </summary>
     public DiscordVoiceState Before { get; internal set; }

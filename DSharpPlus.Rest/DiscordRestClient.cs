@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -25,7 +26,7 @@ public class DiscordRestClient : BaseDiscordClient
     public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds
         => this.guilds;
 
-    internal Dictionary<ulong, DiscordGuild> guilds = [];
+    internal ConcurrentDictionary<ulong, DiscordGuild> guilds = [];
     private bool disposedValue;
 
     public string Token { get; }
