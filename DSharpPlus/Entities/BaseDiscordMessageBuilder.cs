@@ -168,7 +168,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
     public T AddActionRowComponent
     (
-        DiscordSelectComponent selectMenu
+        BaseDiscordSelectComponent selectMenu
     )
     {
         DiscordActionRowComponent component = new DiscordActionRowComponent([selectMenu]);
