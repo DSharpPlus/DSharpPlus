@@ -623,6 +623,7 @@ public sealed partial class DiscordClient
         {
             DiscordHttpInteractionPayload payload = await this.interactionEventReader.ReadAsync();
             DiscordHttpInteraction interaction = payload.ProtoInteraction;
+            interaction.Discord = this;
 
             ulong? guildId = interaction.GuildId;
             ulong channelId = interaction.ChannelId;
