@@ -5,7 +5,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.Clients;
 
 /// <summary>
-/// Orchestrates a single "shard".
+/// Dummy orchestrator that does nothing. Useful for http interaction only clients.
 /// </summary>
 public sealed class NullShardOrchestrator : IShardOrchestrator
 {
