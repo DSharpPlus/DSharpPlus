@@ -93,8 +93,7 @@ public class DiscordVoiceState
     /// <summary>
     /// Gets the guild associated with this voice state.
     /// </summary>
-    /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <returns>Returns the guild associated with this voicestate</returns>
     public async ValueTask<DiscordGuild?> GetGuildAsync(bool skipCache = false)
     {
         if (this.GuildId is null)
