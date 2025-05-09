@@ -45,6 +45,17 @@ public class VoiceStateUpdatedEventArgs : DiscordEventArgs
     /// Gets the ID of voice session.
     /// </summary>
     public string SessionId { get; internal set; }
+    
+    /// <summary>
+    /// Gets the ID of the user.
+    /// </summary>
+    
+    public ulong UserId { get; internal set; }
+    
+    /// <summary>
+    /// Gets the ID of the guild.
+    /// </summary>
+    public ulong GuildId { get; internal set; }
 
     internal VoiceStateUpdatedEventArgs() : base() { }
 }

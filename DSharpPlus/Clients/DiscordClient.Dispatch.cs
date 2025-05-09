@@ -2350,7 +2350,8 @@ public sealed partial class DiscordClient
         VoiceStateUpdatedEventArgs ea = new()
         {
             SessionId = vstateNew.SessionId,
-
+            UserId = uid,
+            GuildId = gid,
             Before = vstateOld,
             After = vstateNew
         };
