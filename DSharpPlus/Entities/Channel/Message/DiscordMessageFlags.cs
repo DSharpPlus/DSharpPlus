@@ -2,17 +2,6 @@ using System;
 
 namespace DSharpPlus.Entities;
 
-public static class MessageFlagExtensions
-{
-    /// <summary>
-    /// Calculates whether these message flags contain a specific flag.
-    /// </summary>
-    /// <param name="baseFlags">The existing flags.</param>
-    /// <param name="flag">The flags to search for.</param>
-    /// <returns></returns>
-    public static bool HasMessageFlag(this DiscordMessageFlags baseFlags, DiscordMessageFlags flag) => (baseFlags & flag) == flag;
-}
-
 /// <summary>
 /// Represents additional features of a message.
 /// </summary>
@@ -77,5 +66,11 @@ public enum DiscordMessageFlags
     /// Indicates that this message will supress push notifications.
     /// Mentions in the message will still have a mention indicator, however.
     /// </summary>
-    SuppressNotifications = 1 << 12
+    SuppressNotifications = 1 << 12,
+    
+    /// <summary>
+    /// Indicates that this message is/will support Components V2.
+    /// Messages that are upgraded to components V2 cannot be downgraded.
+    /// </summary>
+    IsComponentsV2 = 1 << 15,
 }

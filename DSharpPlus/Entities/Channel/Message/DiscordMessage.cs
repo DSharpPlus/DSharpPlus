@@ -705,6 +705,19 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         => await this.Discord.ApiClient.CreateReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
 
     /// <summary>
+    /// Creates a reaction to this message.
+    /// </summary>
+    /// <param name="emojiId">The id of the emoji you want to react with</param>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.AddReactions"/> permission.</exception>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <remarks>This overload only works with guild or application emoji</remarks>
+    public async Task CreateReactionAsync(ulong emojiId)
+        => await this.Discord.ApiClient.CreateReactionAsync(this.ChannelId, this.Id, $"_:{emojiId}");
+    
+    /// <summary>
     /// Deletes your own reaction
     /// </summary>
     /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id</param>
@@ -715,6 +728,18 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     public async Task DeleteOwnReactionAsync(DiscordEmoji emoji)
         => await this.Discord.ApiClient.DeleteOwnReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
 
+    /// <summary>
+    /// Deletes your own reaction
+    /// </summary>
+    /// <param name="emojiId">Emoji id for the reaction you want to remove</param>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <remarks>This overload only works with guild or application emoji</remarks>
+    public async Task DeleteOwnReactionAsync(ulong emojiId)
+        => await this.Discord.ApiClient.DeleteOwnReactionAsync(this.ChannelId, this.Id, $"_:{emojiId}");
+    
     /// <summary>
     /// Deletes another user's reaction.
     /// </summary>
@@ -728,6 +753,21 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task DeleteReactionAsync(DiscordEmoji emoji, DiscordUser user, string? reason = null)
         => await this.Discord.ApiClient.DeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, emoji.ToReactionString(), reason);
+    
+    /// <summary>
+    /// Deletes another user's reaction.
+    /// </summary>
+    /// <param name="emojiId">Emoji id for the reaction you want to remove</param>
+    /// <param name="user">Member you want to remove the reaction for</param>
+    /// <param name="reason">Reason for audit logs.</param>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <remarks>This overload only works with guild or application emoji</remarks>
+    public async Task DeleteReactionAsync(ulong emojiId, DiscordUser user, string? reason = null)
+        => await this.Discord.ApiClient.DeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, $"_:{emojiId}" , reason);
 
     /// <summary>
     /// Gets users that reacted with this emoji.
@@ -738,9 +778,42 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async IAsyncEnumerable<DiscordUser> GetReactionsAsync
+    public IAsyncEnumerable<DiscordUser> GetReactionsAsync
     (
         DiscordEmoji emoji,
+        
+        CancellationToken cancellationToken = default
+    ) => InternalGetReactionsAsync(emoji.ToReactionString(), cancellationToken);
+
+    /// <summary>
+    /// Gets users that reacted with this emoji.
+    /// </summary>
+    /// <param name="emojiId">Emoji id for the reaction you want to remove</param>
+    /// <param name="cancellationToken">Cancels enumeration before the next API request.</param>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <remarks>This overload only works with guild or application emoji</remarks>
+    public IAsyncEnumerable<DiscordUser> GetReactionsAsync
+    (
+        ulong emojiId,
+        
+        CancellationToken cancellationToken = default
+    ) => InternalGetReactionsAsync($"_:{emojiId}", cancellationToken);
+
+    /// <summary>
+    /// Gets users that reacted with this emoji.
+    /// </summary>
+    /// <param name="emoji">The emoji those users reacted with.</param>
+    /// <param name="cancellationToken">Cancels enumeration before the next API request.</param>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    private async IAsyncEnumerable<DiscordUser> InternalGetReactionsAsync
+    (
+        string emoji,
 
         [EnumeratorCancellation]
         CancellationToken cancellationToken = default
@@ -761,7 +834,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
              (
                 channelId: this.ChannelId,
                 messageId: this.Id,
-                emoji: emoji.ToReactionString(),
+                emoji: emoji,
                 afterId: last,
                 limit: 100
              );
@@ -804,6 +877,19 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task DeleteReactionsEmojiAsync(DiscordEmoji emoji)
         => await this.Discord.ApiClient.DeleteReactionsEmojiAsync(this.ChannelId, this.Id, emoji.ToReactionString());
+
+    /// <summary>
+    /// Deletes all reactions of a specific reaction for this message.
+    /// </summary>
+    /// <param name="emojiId">The id of the emoji to clear</param>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <remarks>This overload only works with guild or application emoji</remarks>
+    public async Task DeleteReactionsEmojiAsync(ulong emojiId)
+        => await this.Discord.ApiClient.DeleteReactionsEmojiAsync(this.ChannelId, this.Id, $"_:{emojiId}");
 
     /// <summary>
     /// Forwards a message to the specified channel.

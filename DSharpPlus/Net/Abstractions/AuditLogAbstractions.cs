@@ -104,7 +104,7 @@ internal sealed class AuditLogAction
     public ulong? TargetId { get; set; }
 
     [JsonProperty("user_id")]
-    public ulong UserId { get; set; }
+    public ulong? UserId { get; set; }
 
     [JsonProperty("id")]
     public ulong Id { get; set; }
@@ -113,13 +113,13 @@ internal sealed class AuditLogAction
     public DiscordAuditLogActionType ActionType { get; set; }
 
     [JsonProperty("changes")]
-    public IEnumerable<AuditLogActionChange> Changes { get; set; }
+    public IEnumerable<AuditLogActionChange>? Changes { get; set; }
 
     [JsonProperty("options")]
-    public AuditLogActionOptions Options { get; set; }
+    public AuditLogActionOptions? Options { get; set; }
 
     [JsonProperty("reason")]
-    public string Reason { get; set; }
+    public string? Reason { get; set; }
 }
 
 internal sealed class AuditLog

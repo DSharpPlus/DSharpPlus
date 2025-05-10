@@ -150,13 +150,14 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// </summary>
     public DiscordApplicationOAuth2InstallParams? InstallParams { get; internal set; }
 
-
     /// <summary>
     /// Default custom authorization URL for the app, if enabled
     /// </summary>
     public string? CustomInstallUrl { get; internal set; }
 
     private IReadOnlyList<DiscordApplicationAsset>? Assets { get; set; }
+    
+    internal Dictionary<ulong, DiscordEmoji> ApplicationEmojis { get; set; } = new();
 
     internal DiscordApplication() { }
 

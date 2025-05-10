@@ -14,7 +14,7 @@ internal sealed class DefaultLogger : ILogger
     private readonly object @lock = new();
     private readonly string timestampFormat;
 
-    public DefaultLogger(string name,LogLevel minimumLogLevel,string timestampFormat)
+    public DefaultLogger(string name, LogLevel minimumLogLevel, string timestampFormat)
     {
         this.name = name;
         this.minimumLogLevel = minimumLogLevel;
@@ -38,6 +38,11 @@ internal sealed class DefaultLogger : ILogger
     )
     {
         if (!IsEnabled(logLevel))
+        {
+            return;
+        }
+
+        if (this.name.StartsWith("System.Net.Http"))
         {
             return;
         }

@@ -41,7 +41,7 @@ public partial class DiscordWebhookClient
     public string AvatarUrl { get; set; }
 
     internal List<DiscordWebhook> hooks;
-    internal DiscordApiClient apiclient;
+    internal DiscordRestApiClient apiclient;
 
     internal LogLevel minimumLogLevel;
     internal string logTimestampFormat;
@@ -77,7 +77,7 @@ public partial class DiscordWebhookClient
 
         TimeSpan parsedTimeout = timeout ?? TimeSpan.FromSeconds(10);
 
-        this.apiclient = new DiscordApiClient(parsedTimeout, this.Logger);
+        this.apiclient = new DiscordRestApiClient(parsedTimeout, this.Logger);
         this.hooks = [];
         this.Webhooks = new ReadOnlyCollection<DiscordWebhook>(this.hooks);
     }

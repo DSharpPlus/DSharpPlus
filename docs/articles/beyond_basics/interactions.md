@@ -43,3 +43,63 @@ When responding to a modal you can not respond with another Modal.
 When responding to an Autocomplete request you have to respond with `DiscordInteractionResponseType.AutoCompleteResult` and zero to 25 results within the 3 second window.
 
 
+### Components V2
+
+> [!Important]
+> The following content cannot be edited on a message with the components V2 flag: `content`, `embeds`, `stickers`. Furthermore, messages cannot be "downgraded" from Components V2, only *upgraded*.
+
+Components V2 is a relatively new addition to existing components, with 7 new component types, new APIs, and entirely new ways of visualizing content.
+Enabling components V2 is as simple as calling `EnableComponentsV2` on a builder, such as `InteractionResponseBuilder`.
+
+There are some things to take in mind with components V2 however; the biggest one is that once a message is V2, it is *always* V2.
+This is a deliberate decision by Discord. Furthermore, messages with the V2 components flag (hereon referred to as Components V2/V2 Messages) only support using components (don't worry, you can still display text!) and setting attachments. However, these attachments *must* be referenced by a component (and for good reason!)
+
+V2 Messages have some unique advantages however:
+- Max top-level components doubled! **5 ➜ 10**
+- Max total components increased from **25 ➜ 30**
+
+Components V2 (specifically, components introduced by Components V2) do not go in action rows! Freedom alas.
+Because of this, **we've also introduced a new API** `BaseDiscordMessageBuilder#AddRawComponents`; this method does *not* create an action row for you, so it is important to mind your usage of it.
+
+> [!Note]
+> Components V2 is not limited to interactions. This section may be moved in the future.
+
+What are these new components?
+
+- `Section Component`
+  - Several sections (3) of text with an accessory (either a thumbnail or button 👀).
+  - May support more components than just text in the future
+
+
+- `Text Display Component`
+  - A simple display of text, up to 4000 characters (summed across all text in the message)
+  - Sections also count toward this, and also have the 4000-character limit.
+
+
+- `Thumbnail Component`
+  - A simple thumbnail, usable in sections
+
+
+- `Media Gallery Component`
+  - A collection of arbitrary media items (`DiscordMediaGalleryItem`)
+  - Can be a remote url or a local file referenced via `attachment://my_file.png`
+
+
+- `File Component`
+  - A singular, arbitrary file
+  - Also supports urls or `attachment://` attachments
+  - Does not support native previews for text files
+  - Can be spoilered
+
+
+- `Separator Component`
+  - Acts as a vertical spacer between components
+  - Has two sizes, which are equivalent to 1 and 2 lines of text respectively.
+  - Invisible by default, but can be set to render as a line (`divider = true`)
+
+- `Container Component`
+  - Arguably the coolest component-
+  - Acts as a "container" for other components; can be colored like an embed
+  - Can also be spoilered, blurring the entire container and components within
+  - Holds action rows, and all new V2 components except containers
+  - Holds up to 10 components
