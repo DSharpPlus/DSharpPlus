@@ -91,7 +91,7 @@ public sealed class DiscordClientBuilder
         DiscordClientBuilder builder = new(serviceCollection);
         builder.serviceCollection.Configure<ShardingOptions>(x => x.ShardCount = shardCount);
         builder.serviceCollection.Configure<TokenContainer>(x => x.GetToken = () => token);
-        builder.serviceCollection.AddDSharpPlusDefaultsSharded(intents);
+        builder.serviceCollection.AddDSharpPlusDefaultsMultiShard(intents);
 
         builder.sharding = true;
 

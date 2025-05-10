@@ -7,12 +7,15 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+
 using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Metrics;
 using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Abstractions.Rest;
 using DSharpPlus.Net.Serialization;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -26,7 +29,7 @@ namespace DSharpPlus.Net;
 // huge credits to dvoraks 8th symphony for being a source of sanity in the trying times of
 // fixing this absolute catastrophy up at least somewhat
 
-public sealed class DiscordApiClient
+public sealed class DiscordRestApiClient
 {
     private const string REASON_HEADER_NAME = "X-Audit-Log-Reason";
 
@@ -34,10 +37,10 @@ public sealed class DiscordApiClient
     internal RestClient rest;
 
     [ActivatorUtilitiesConstructor]
-    public DiscordApiClient(RestClient rest) => this.rest = rest;
+    public DiscordRestApiClient(RestClient rest) => this.rest = rest;
 
     // This is for meta-clients, such as the webhook client
-    internal DiscordApiClient(TimeSpan timeout, ILogger logger)
+    internal DiscordRestApiClient(TimeSpan timeout, ILogger logger)
         => this.rest = new(new(), timeout, logger);
 
     /// <inheritdoc cref="RestClient.GetRequestMetrics(bool)"/>
@@ -46,6 +49,9 @@ public sealed class DiscordApiClient
 
     internal void SetClient(BaseDiscordClient client)
         => this.discord = client;
+
+    internal void SetToken(TokenType type, string token)
+        => this.rest.SetToken(type, token);
 
     private DiscordMessage PrepareMessage(JToken msgRaw)
     {
@@ -155,7 +161,7 @@ public sealed class DiscordApiClient
 
     #region Guild
 
-    internal async ValueTask<IReadOnlyList<DiscordGuild>> GetGuildsAsync
+    public async ValueTask<IReadOnlyList<DiscordGuild>> GetGuildsAsync
     (
         int? limit = null,
         ulong? before = null,
@@ -222,7 +228,7 @@ public sealed class DiscordApiClient
         return guilds;
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordMember>> SearchMembersAsync
+    public async ValueTask<IReadOnlyList<DiscordMember>> SearchMembersAsync
     (
         ulong guildId,
         string name,
@@ -263,7 +269,7 @@ public sealed class DiscordApiClient
         return members;
     }
 
-    internal async ValueTask<DiscordBan> GetGuildBanAsync
+    public async ValueTask<DiscordBan> GetGuildBanAsync
     (
         ulong guildId,
         ulong userId
@@ -293,7 +299,7 @@ public sealed class DiscordApiClient
         return ban;
     }
 
-    internal async ValueTask<DiscordGuild> CreateGuildAsync
+    public async ValueTask<DiscordGuild> CreateGuildAsync
     (
         string name,
         string regionId,
@@ -336,7 +342,7 @@ public sealed class DiscordApiClient
         return guild;
     }
 
-    internal async ValueTask<DiscordGuild> CreateGuildFromTemplateAsync
+    public async ValueTask<DiscordGuild> CreateGuildFromTemplateAsync
     (
         string templateCode,
         string name,
@@ -371,7 +377,7 @@ public sealed class DiscordApiClient
         return guild;
     }
 
-    internal async ValueTask DeleteGuildAsync
+    public async ValueTask DeleteGuildAsync
     (
         ulong guildId
     )
@@ -386,7 +392,7 @@ public sealed class DiscordApiClient
         _ = await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<DiscordGuild> ModifyGuildAsync
+    public async ValueTask<DiscordGuild> ModifyGuildAsync
     (
         ulong guildId,
         Optional<string> name = default,
@@ -468,7 +474,7 @@ public sealed class DiscordApiClient
         return guild;
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordBan>> GetGuildBansAsync
+    public async ValueTask<IReadOnlyList<DiscordBan>> GetGuildBansAsync
     (
         ulong guildId,
         int? limit = null,
@@ -520,7 +526,7 @@ public sealed class DiscordApiClient
         return bans;
     }
 
-    internal async ValueTask CreateGuildBanAsync
+    public async ValueTask CreateGuildBanAsync
     (
         ulong guildId,
         ulong userId,
@@ -553,7 +559,7 @@ public sealed class DiscordApiClient
         _ = await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask RemoveGuildBanAsync
+    public async ValueTask RemoveGuildBanAsync
     (
         ulong guildId,
         ulong userId,
@@ -576,7 +582,7 @@ public sealed class DiscordApiClient
         _ = await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<DiscordBulkBan> CreateGuildBulkBanAsync(ulong guildId, IEnumerable<ulong> userIds, int? deleteMessagesSeconds = null, string? reason = null)
+    public async ValueTask<DiscordBulkBan> CreateGuildBulkBanAsync(ulong guildId, IEnumerable<ulong> userIds, int? deleteMessagesSeconds = null, string? reason = null)
     {
         if (userIds.TryGetNonEnumeratedCount(out int count) && count > 200)
         {
@@ -643,7 +649,7 @@ public sealed class DiscordApiClient
         return bulkBan;
     }
 
-    internal async ValueTask LeaveGuildAsync
+    public async ValueTask LeaveGuildAsync
     (
         ulong guildId
     )
@@ -658,7 +664,7 @@ public sealed class DiscordApiClient
         _ = await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<DiscordMember?> AddGuildMemberAsync
+    public async ValueTask<DiscordMember?> AddGuildMemberAsync
     (
         ulong guildId,
         ulong userId,
@@ -703,7 +709,7 @@ public sealed class DiscordApiClient
         return new DiscordMember(transport) { Discord = this.discord!, guild_id = guildId };
     }
 
-    internal async ValueTask<IReadOnlyList<TransportMember>> ListGuildMembersAsync
+    public async ValueTask<IReadOnlyList<DiscordMember>> ListGuildMembersAsync
     (
         ulong guildId,
         int? limit = null,
@@ -732,10 +738,28 @@ public sealed class DiscordApiClient
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
 
         List<TransportMember> rawMembers = JsonConvert.DeserializeObject<List<TransportMember>>(res.Response!)!;
-        return new ReadOnlyCollection<TransportMember>(rawMembers);
+        List<DiscordMember> members = new(rawMembers.Count);
+
+        foreach (TransportMember tm in rawMembers)
+        {
+            this.discord.UpdateUserCache(new(tm.User)
+            {
+                Discord = this.discord
+            });
+
+            DiscordMember member = new(tm)
+            {
+                Discord = this.discord,
+                guild_id = guildId
+            };
+
+            members.Add(member);
+        }
+
+        return members;
     }
 
-    internal async ValueTask AddGuildMemberRoleAsync
+    public async ValueTask AddGuildMemberRoleAsync
     (
         ulong guildId,
         ulong userId,
@@ -759,7 +783,7 @@ public sealed class DiscordApiClient
         _ = await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask RemoveGuildMemberRoleAsync
+    public async ValueTask RemoveGuildMemberRoleAsync
     (
         ulong guildId,
         ulong userId,
@@ -783,10 +807,10 @@ public sealed class DiscordApiClient
         _ = await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask ModifyGuildChannelPositionAsync
+    public async ValueTask ModifyGuildChannelPositionAsync
     (
         ulong guildId,
-        IEnumerable<RestGuildChannelReorderPayload> payload,
+        IEnumerable<DiscordChannelPosition> payload,
         string? reason = null
     )
     {
@@ -808,10 +832,10 @@ public sealed class DiscordApiClient
     }
 
     // TODO: should probably return an IReadOnlyList here, unsure as to the extent of the breaking change
-    internal async ValueTask<DiscordRole[]> ModifyGuildRolePositionsAsync
+    public async ValueTask<DiscordRole[]> ModifyGuildRolePositionsAsync
     (
         ulong guildId,
-        IEnumerable<RestGuildRoleReorderPayload> newRolePositions,
+        IEnumerable<DiscordRolePosition> newRolePositions,
         string? reason = null
     )
     {
@@ -839,6 +863,21 @@ public sealed class DiscordApiClient
         }
 
         return ret;
+    }
+
+    public async Task<IAsyncEnumerable<DiscordAuditLogEntry>> GetAuditLogsAsync
+    (
+        DiscordGuild guild,
+        int limit,
+        ulong? after = null,
+        ulong? before = null,
+        ulong? userId = null,
+        DiscordAuditLogActionType? actionType = null,
+        CancellationToken ct = default
+    )
+    {
+        AuditLog auditLog = await GetAuditLogsAsync(guild.Id, limit, after, before, userId, actionType);
+        return AuditLogParser.ParseAuditLogToEntriesAsync(guild, auditLog, ct);
     }
 
     internal async ValueTask<AuditLog> GetAuditLogsAsync
@@ -887,7 +926,7 @@ public sealed class DiscordApiClient
         return JsonConvert.DeserializeObject<AuditLog>(res.Response!)!;
     }
 
-    internal async ValueTask<DiscordInvite> GetGuildVanityUrlAsync
+    public async ValueTask<DiscordInvite> GetGuildVanityUrlAsync
     (
         ulong guildId
     )
@@ -904,7 +943,7 @@ public sealed class DiscordApiClient
         return JsonConvert.DeserializeObject<DiscordInvite>(res.Response!)!;
     }
 
-    internal async ValueTask<DiscordWidget> GetGuildWidgetAsync
+    public async ValueTask<DiscordWidget> GetGuildWidgetAsync
     (
         ulong guildId
     )
@@ -943,7 +982,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordWidgetSettings> GetGuildWidgetSettingsAsync
+    public async ValueTask<DiscordWidgetSettings> GetGuildWidgetSettingsAsync
     (
         ulong guildId
     )
@@ -963,7 +1002,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordWidgetSettings> ModifyGuildWidgetSettingsAsync
+    public async ValueTask<DiscordWidgetSettings> ModifyGuildWidgetSettingsAsync
     (
         ulong guildId,
         bool? isEnabled = null,
@@ -999,7 +1038,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordGuildTemplate>> GetGuildTemplatesAsync
+    public async ValueTask<IReadOnlyList<DiscordGuildTemplate>> GetGuildTemplatesAsync
     (
         ulong guildId
     )
@@ -1019,7 +1058,7 @@ public sealed class DiscordApiClient
         return new ReadOnlyCollection<DiscordGuildTemplate>(new List<DiscordGuildTemplate>(templates));
     }
 
-    internal async ValueTask<DiscordGuildTemplate> CreateGuildTemplateAsync
+    public async ValueTask<DiscordGuildTemplate> CreateGuildTemplateAsync
     (
         ulong guildId,
         string name,
@@ -1045,7 +1084,7 @@ public sealed class DiscordApiClient
         return JsonConvert.DeserializeObject<DiscordGuildTemplate>(res.Response!)!;
     }
 
-    internal async ValueTask<DiscordGuildTemplate> SyncGuildTemplateAsync
+    public async ValueTask<DiscordGuildTemplate> SyncGuildTemplateAsync
     (
         ulong guildId,
         string templateCode
@@ -1063,7 +1102,7 @@ public sealed class DiscordApiClient
         return JsonConvert.DeserializeObject<DiscordGuildTemplate>(res.Response!)!;
     }
 
-    internal async ValueTask<DiscordGuildTemplate> ModifyGuildTemplateAsync
+    public async ValueTask<DiscordGuildTemplate> ModifyGuildTemplateAsync
     (
         ulong guildId,
         string templateCode,
@@ -1090,7 +1129,7 @@ public sealed class DiscordApiClient
         return JsonConvert.DeserializeObject<DiscordGuildTemplate>(res.Response!)!;
     }
 
-    internal async ValueTask<DiscordGuildTemplate> DeleteGuildTemplateAsync
+    public async ValueTask<DiscordGuildTemplate> DeleteGuildTemplateAsync
     (
         ulong guildId,
         string templateCode
@@ -1108,7 +1147,7 @@ public sealed class DiscordApiClient
         return JsonConvert.DeserializeObject<DiscordGuildTemplate>(res.Response!)!;
     }
 
-    internal async ValueTask<DiscordGuildMembershipScreening> GetGuildMembershipScreeningFormAsync
+    public async ValueTask<DiscordGuildMembershipScreening> GetGuildMembershipScreeningFormAsync
     (
         ulong guildId
     )
@@ -1125,7 +1164,7 @@ public sealed class DiscordApiClient
         return JsonConvert.DeserializeObject<DiscordGuildMembershipScreening>(res.Response!)!;
     }
 
-    internal async ValueTask<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync
+    public async ValueTask<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync
     (
         ulong guildId,
         Optional<bool> enabled = default,
@@ -1153,7 +1192,7 @@ public sealed class DiscordApiClient
         return JsonConvert.DeserializeObject<DiscordGuildMembershipScreening>(res.Response!)!;
     }
 
-    internal async ValueTask<DiscordGuildWelcomeScreen> GetGuildWelcomeScreenAsync
+    public async ValueTask<DiscordGuildWelcomeScreen> GetGuildWelcomeScreenAsync
     (
         ulong guildId
     )
@@ -1170,7 +1209,7 @@ public sealed class DiscordApiClient
         return JsonConvert.DeserializeObject<DiscordGuildWelcomeScreen>(res.Response!)!;
     }
 
-    internal async ValueTask<DiscordGuildWelcomeScreen> ModifyGuildWelcomeScreenAsync
+    public async ValueTask<DiscordGuildWelcomeScreen> ModifyGuildWelcomeScreenAsync
     (
         ulong guildId,
         Optional<bool> enabled = default,
@@ -1205,7 +1244,7 @@ public sealed class DiscordApiClient
         return JsonConvert.DeserializeObject<DiscordGuildWelcomeScreen>(res.Response!)!;
     }
 
-    internal async ValueTask<DiscordVoiceState> GetCurrentUserVoiceStateAsync(ulong guildId)
+    public async ValueTask<DiscordVoiceState> GetCurrentUserVoiceStateAsync(ulong guildId)
     {
         RestRequest request = new()
         {
@@ -1223,7 +1262,7 @@ public sealed class DiscordApiClient
         return result;
     }
     
-    internal async ValueTask<DiscordVoiceState> GetUserVoiceStateAsync(ulong guildId, ulong userId)
+    public async ValueTask<DiscordVoiceState> GetUserVoiceStateAsync(ulong guildId, ulong userId)
     {
         RestRequest request = new()
         {
@@ -1267,7 +1306,7 @@ public sealed class DiscordApiClient
         _ = await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask UpdateUserVoiceStateAsync
+    public async ValueTask UpdateUserVoiceStateAsync
     (
         ulong guildId,
         ulong userId,
@@ -1295,7 +1334,7 @@ public sealed class DiscordApiClient
 
     #region Stickers
 
-    internal async ValueTask<DiscordMessageSticker> GetGuildStickerAsync
+    public async ValueTask<DiscordMessageSticker> GetGuildStickerAsync
     (
         ulong guildId,
         ulong stickerId
@@ -1324,7 +1363,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordMessageSticker> GetStickerAsync
+    public async ValueTask<DiscordMessageSticker> GetStickerAsync
     (
         ulong stickerId
     )
@@ -1352,7 +1391,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordMessageStickerPack>> GetStickerPacksAsync()
+    public async ValueTask<IReadOnlyList<DiscordMessageStickerPack>> GetStickerPacksAsync()
     {
         RestRequest request = new()
         {
@@ -1369,7 +1408,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordMessageSticker>> GetGuildStickersAsync
+    public async ValueTask<IReadOnlyList<DiscordMessageSticker>> GetGuildStickersAsync
     (
         ulong guildId
     )
@@ -1407,7 +1446,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordMessageSticker> CreateGuildStickerAsync
+    public async ValueTask<DiscordMessageSticker> CreateGuildStickerAsync
     (
         ulong guildId,
         string name,
@@ -1462,7 +1501,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordMessageSticker> ModifyStickerAsync
+    public async ValueTask<DiscordMessageSticker> ModifyStickerAsync
     (
         ulong guildId,
         ulong stickerId,
@@ -1500,7 +1539,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask DeleteStickerAsync
+    public async ValueTask DeleteStickerAsync
     (
         ulong guildId,
         ulong stickerId,
@@ -1526,7 +1565,7 @@ public sealed class DiscordApiClient
     #endregion
 
     #region Channel
-    internal async ValueTask<DiscordChannel> CreateGuildChannelAsync
+    public async ValueTask<DiscordChannel> CreateGuildChannelAsync
     (
         ulong guildId,
         string name,
@@ -1605,7 +1644,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask ModifyChannelAsync
+    public async ValueTask ModifyChannelAsync
     (
         ulong channelId,
         string name,
@@ -1681,7 +1720,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask ModifyThreadChannelAsync
+    public async ValueTask ModifyThreadChannelAsync
     (
         ulong channelId,
         string name,
@@ -1753,7 +1792,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordScheduledGuildEvent>> GetScheduledGuildEventsAsync
+    public async ValueTask<IReadOnlyList<DiscordScheduledGuildEvent>> GetScheduledGuildEventsAsync
     (
         ulong guildId,
         bool withUserCounts = false
@@ -1786,7 +1825,7 @@ public sealed class DiscordApiClient
         return ret.AsReadOnly();
     }
 
-    internal async ValueTask<DiscordScheduledGuildEvent> CreateScheduledGuildEventAsync
+    public async ValueTask<DiscordScheduledGuildEvent> CreateScheduledGuildEventAsync
     (
         ulong guildId,
         string name,
@@ -1850,7 +1889,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask DeleteScheduledGuildEventAsync
+    public async ValueTask DeleteScheduledGuildEventAsync
     (
         ulong guildId,
         ulong guildScheduledEventId,
@@ -1871,7 +1910,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordUser>> GetScheduledGuildEventUsersAsync
+    public async ValueTask<IReadOnlyList<DiscordUser>> GetScheduledGuildEventUsersAsync
     (
         ulong guildId,
         ulong guildScheduledEventId,
@@ -1922,7 +1961,7 @@ public sealed class DiscordApiClient
             .ToArray();
     }
 
-    internal async ValueTask<DiscordScheduledGuildEvent> GetScheduledGuildEventAsync
+    public async ValueTask<DiscordScheduledGuildEvent> GetScheduledGuildEventAsync
     (
         ulong guildId,
         ulong guildScheduledEventId
@@ -1952,7 +1991,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordScheduledGuildEvent> ModifyScheduledGuildEventAsync
+    public async ValueTask<DiscordScheduledGuildEvent> ModifyScheduledGuildEventAsync
     (
         ulong guildId,
         ulong guildScheduledEventId,
@@ -2021,7 +2060,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordChannel> GetChannelAsync
+    public async ValueTask<DiscordChannel> GetChannelAsync
     (
         ulong channelId
     )
@@ -2056,7 +2095,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask DeleteChannelAsync
+    public async ValueTask DeleteChannelAsync
     (
         ulong channelId,
         string reason
@@ -2079,7 +2118,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<DiscordMessage> GetMessageAsync
+    public async ValueTask<DiscordMessage> GetMessageAsync
     (
         ulong channelId,
         ulong messageId
@@ -2102,7 +2141,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordMessage> ForwardMessageAsync(ulong channelId, ulong originChannelId, ulong messageId)
+    public async ValueTask<DiscordMessage> ForwardMessageAsync(ulong channelId, ulong originChannelId, ulong messageId)
     {
         RestChannelMessageCreatePayload pld = new()
         {
@@ -2133,7 +2172,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordMessage> CreateMessageAsync
+    public async ValueTask<DiscordMessage> CreateMessageAsync
     (
         ulong channelId,
         string? content,
@@ -2267,7 +2306,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordMessage> CreateMessageAsync
+    public async ValueTask<DiscordMessage> CreateMessageAsync
     (
         ulong channelId,
         DiscordMessageBuilder builder
@@ -2358,7 +2397,7 @@ public sealed class DiscordApiClient
         }
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordChannel>> GetGuildChannelsAsync(ulong guildId)
+    public async ValueTask<IReadOnlyList<DiscordChannel>> GetGuildChannelsAsync(ulong guildId)
     {
         string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.CHANNELS}";
         string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.CHANNELS}";
@@ -2394,7 +2433,7 @@ public sealed class DiscordApiClient
         return new ReadOnlyCollection<DiscordChannel>(new List<DiscordChannel>(channelsRaw));
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordMessage>> GetChannelMessagesAsync
+    public async ValueTask<IReadOnlyList<DiscordMessage>> GetChannelMessagesAsync
     (
         ulong channelId,
         int limit,
@@ -2445,7 +2484,7 @@ public sealed class DiscordApiClient
         return new ReadOnlyCollection<DiscordMessage>(new List<DiscordMessage>(msgs));
     }
 
-    internal async ValueTask<DiscordMessage> GetChannelMessageAsync
+    public async ValueTask<DiscordMessage> GetChannelMessageAsync
     (
         ulong channelId,
         ulong messageId
@@ -2468,7 +2507,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordMessage> EditMessageAsync
+    public async ValueTask<DiscordMessage> EditMessageAsync
     (
         ulong channelId,
         ulong messageId,
@@ -2559,7 +2598,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask DeleteMessageAsync
+    public async ValueTask DeleteMessageAsync
     (
         ulong channelId,
         ulong messageId,
@@ -2586,7 +2625,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask DeleteMessagesAsync
+    public async ValueTask DeleteMessagesAsync
     (
         ulong channelId,
         IEnumerable<ulong> messageIds,
@@ -2619,7 +2658,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordInvite>> GetChannelInvitesAsync
+    public async ValueTask<IReadOnlyList<DiscordInvite>> GetChannelInvitesAsync
     (
         ulong channelId
     )
@@ -2649,7 +2688,7 @@ public sealed class DiscordApiClient
         return new ReadOnlyCollection<DiscordInvite>(new List<DiscordInvite>(invitesRaw));
     }
 
-    internal async ValueTask<DiscordInvite> CreateChannelInviteAsync
+    public async ValueTask<DiscordInvite> CreateChannelInviteAsync
     (
         ulong channelId,
         int maxAge,
@@ -2699,7 +2738,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask DeleteChannelPermissionAsync
+    public async ValueTask DeleteChannelPermissionAsync
     (
         ulong channelId,
         ulong overwriteId,
@@ -2726,7 +2765,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask EditChannelPermissionsAsync
+    public async ValueTask EditChannelPermissionsAsync
     (
         ulong channelId,
         ulong overwriteId,
@@ -2769,7 +2808,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask TriggerTypingAsync
+    public async ValueTask TriggerTypingAsync
     (
         ulong channelId
     )
@@ -2786,7 +2825,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordMessage>> GetPinnedMessagesAsync
+    public async ValueTask<IReadOnlyList<DiscordMessage>> GetPinnedMessagesAsync
     (
         ulong channelId
     )
@@ -2813,7 +2852,7 @@ public sealed class DiscordApiClient
         return new ReadOnlyCollection<DiscordMessage>(new List<DiscordMessage>(msgs));
     }
 
-    internal async ValueTask PinMessageAsync
+    public async ValueTask PinMessageAsync
     (
         ulong channelId,
         ulong messageId
@@ -2832,7 +2871,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask UnpinMessageAsync
+    public async ValueTask UnpinMessageAsync
     (
         ulong channelId,
         ulong messageId
@@ -2850,7 +2889,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask AddGroupDmRecipientAsync
+    public async ValueTask AddGroupDmRecipientAsync
     (
         ulong channelId,
         ulong userId,
@@ -2878,7 +2917,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask RemoveGroupDmRecipientAsync
+    public async ValueTask RemoveGroupDmRecipientAsync
     (
         ulong channelId,
         ulong userId
@@ -2896,7 +2935,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<DiscordDmChannel> CreateGroupDmAsync
+    public async ValueTask<DiscordDmChannel> CreateGroupDmAsync
     (
         IEnumerable<string> accessTokens,
         IDictionary<ulong, string> nicks
@@ -2927,7 +2966,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordDmChannel> CreateDmAsync
+    public async ValueTask<DiscordDmChannel> CreateDmAsync
     (
         ulong recipientId
     )
@@ -2960,7 +2999,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordFollowedChannel> FollowChannelAsync
+    public async ValueTask<DiscordFollowedChannel> FollowChannelAsync
     (
         ulong channelId,
         ulong webhookChannelId
@@ -2987,7 +3026,7 @@ public sealed class DiscordApiClient
         return JsonConvert.DeserializeObject<DiscordFollowedChannel>(res.Response!)!;
     }
 
-    internal async ValueTask<DiscordMessage> CrosspostMessageAsync
+    public async ValueTask<DiscordMessage> CrosspostMessageAsync
     (
         ulong channelId,
         ulong messageId
@@ -3008,7 +3047,7 @@ public sealed class DiscordApiClient
         return JsonConvert.DeserializeObject<DiscordMessage>(res.Response!)!;
     }
 
-    internal async ValueTask<DiscordStageInstance> CreateStageInstanceAsync
+    public async ValueTask<DiscordStageInstance> CreateStageInstanceAsync
     (
         ulong channelId,
         string topic,
@@ -3050,7 +3089,7 @@ public sealed class DiscordApiClient
         return stage;
     }
 
-    internal async ValueTask<DiscordStageInstance> GetStageInstanceAsync
+    public async ValueTask<DiscordStageInstance> GetStageInstanceAsync
     (
         ulong channelId
     )
@@ -3073,7 +3112,7 @@ public sealed class DiscordApiClient
         return stage;
     }
 
-    internal async ValueTask<DiscordStageInstance> ModifyStageInstanceAsync
+    public async ValueTask<DiscordStageInstance> ModifyStageInstanceAsync
     (
         ulong channelId,
         Optional<string> topic = default,
@@ -3113,7 +3152,7 @@ public sealed class DiscordApiClient
         return stage;
     }
 
-    internal async ValueTask BecomeStageInstanceSpeakerAsync
+    public async ValueTask BecomeStageInstanceSpeakerAsync
     (
         ulong guildId,
         ulong id,
@@ -3147,7 +3186,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask DeleteStageInstanceAsync
+    public async ValueTask DeleteStageInstanceAsync
     (
         ulong channelId,
         string? reason = null
@@ -3177,7 +3216,7 @@ public sealed class DiscordApiClient
 
     #region Threads
 
-    internal async ValueTask<DiscordThreadChannel> CreateThreadFromMessageAsync
+    public async ValueTask<DiscordThreadChannel> CreateThreadFromMessageAsync
     (
         ulong channelId,
         ulong messageId,
@@ -3218,7 +3257,7 @@ public sealed class DiscordApiClient
         return thread;
     }
 
-    internal async ValueTask<DiscordThreadChannel> CreateThreadAsync
+    public async ValueTask<DiscordThreadChannel> CreateThreadAsync
     (
         ulong channelId,
         string name,
@@ -3260,7 +3299,7 @@ public sealed class DiscordApiClient
         return thread;
     }
 
-    internal async ValueTask JoinThreadAsync
+    public async ValueTask JoinThreadAsync
     (
         ulong channelId
     )
@@ -3278,7 +3317,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask LeaveThreadAsync
+    public async ValueTask LeaveThreadAsync
     (
         ulong channelId
     )
@@ -3296,7 +3335,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<DiscordThreadChannelMember> GetThreadMemberAsync
+    public async ValueTask<DiscordThreadChannelMember> GetThreadMemberAsync
     (
         ulong channelId,
         ulong userId
@@ -3321,7 +3360,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask AddThreadMemberAsync
+    public async ValueTask AddThreadMemberAsync
     (
         ulong channelId,
         ulong userId
@@ -3340,7 +3379,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask RemoveThreadMemberAsync
+    public async ValueTask RemoveThreadMemberAsync
     (
         ulong channelId,
         ulong userId
@@ -3359,7 +3398,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordThreadChannelMember>> ListThreadMembersAsync
+    public async ValueTask<IReadOnlyList<DiscordThreadChannelMember>> ListThreadMembersAsync
     (
         ulong channelId
     )
@@ -3386,7 +3425,7 @@ public sealed class DiscordApiClient
         return new ReadOnlyCollection<DiscordThreadChannelMember>(threadMembers);
     }
 
-    internal async ValueTask<ThreadQueryResult> ListActiveThreadsAsync
+    public async ValueTask<ThreadQueryResult> ListActiveThreadsAsync
     (
         ulong guildId
     )
@@ -3425,7 +3464,7 @@ public sealed class DiscordApiClient
         return result;
     }
 
-    internal async ValueTask<ThreadQueryResult> ListPublicArchivedThreadsAsync
+    public async ValueTask<ThreadQueryResult> ListPublicArchivedThreadsAsync
     (
         ulong guildId,
         ulong channelId,
@@ -3477,7 +3516,7 @@ public sealed class DiscordApiClient
         return result;
     }
 
-    internal async ValueTask<ThreadQueryResult> ListPrivateArchivedThreadsAsync
+    public async ValueTask<ThreadQueryResult> ListPrivateArchivedThreadsAsync
     (
         ulong guildId,
         ulong channelId,
@@ -3528,7 +3567,7 @@ public sealed class DiscordApiClient
         return result;
     }
 
-    internal async ValueTask<ThreadQueryResult> ListJoinedPrivateArchivedThreadsAsync
+    public async ValueTask<ThreadQueryResult> ListJoinedPrivateArchivedThreadsAsync
     (
         ulong guildId,
         ulong channelId,
@@ -3588,7 +3627,7 @@ public sealed class DiscordApiClient
     internal ValueTask<DiscordUser> GetUserAsync(ulong userId)
         => GetUserAsync(userId.ToString(CultureInfo.InvariantCulture));
 
-    internal async ValueTask<DiscordUser> GetUserAsync(string userId)
+    public async ValueTask<DiscordUser> GetUserAsync(string userId)
     {
         string route = $"{Endpoints.USERS}/:user_id";
         string url = $"{Endpoints.USERS}/{userId}";
@@ -3611,7 +3650,7 @@ public sealed class DiscordApiClient
         return user;
     }
 
-    internal async ValueTask<DiscordMember> GetGuildMemberAsync
+    public async ValueTask<DiscordMember> GetGuildMemberAsync
     (
         ulong guildId,
         ulong userId
@@ -3644,7 +3683,7 @@ public sealed class DiscordApiClient
         };
     }
 
-    internal async ValueTask RemoveGuildMemberAsync
+    public async ValueTask RemoveGuildMemberAsync
     (
         ulong guildId,
         ulong userId,
@@ -3670,7 +3709,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<TransportUser> ModifyCurrentUserAsync
+    public async ValueTask<DiscordUser> ModifyCurrentUserAsync
     (
         string username,
         Optional<string> base64Avatar = default,
@@ -3701,10 +3740,13 @@ public sealed class DiscordApiClient
 
         TransportUser userRaw = JsonConvert.DeserializeObject<TransportUser>(res.Response!)!;
 
-        return userRaw;
+        return new DiscordUser(userRaw)
+        {
+            Discord = this.discord
+        };
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordGuild>> GetCurrentUserGuildsAsync
+    public async ValueTask<IReadOnlyList<DiscordGuild>> GetCurrentUserGuildsAsync
     (
         int limit = 100,
         ulong? before = null,
@@ -3756,7 +3798,7 @@ public sealed class DiscordApiClient
         }
     }
 
-    internal async ValueTask<DiscordMember> GetCurrentUserGuildMemberAsync
+    public async ValueTask<DiscordMember> GetCurrentUserGuildMemberAsync
     (
         ulong guildId
     )
@@ -3787,7 +3829,7 @@ public sealed class DiscordApiClient
         };
     }
 
-    internal async ValueTask ModifyGuildMemberAsync
+    public async ValueTask ModifyGuildMemberAsync
     (
         ulong guildId,
         ulong userId,
@@ -3832,7 +3874,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask ModifyCurrentMemberAsync
+    public async ValueTask ModifyCurrentMemberAsync
     (
         ulong guildId,
         string nick,
@@ -3867,7 +3909,7 @@ public sealed class DiscordApiClient
     #endregion
 
     #region Roles
-    internal async ValueTask<DiscordRole> GetGuildRoleAsync
+    public async ValueTask<DiscordRole> GetGuildRoleAsync
     (
         ulong guildId,
         ulong roleId
@@ -3892,7 +3934,7 @@ public sealed class DiscordApiClient
         return role;
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordRole>> GetGuildRolesAsync
+    public async ValueTask<IReadOnlyList<DiscordRole>> GetGuildRolesAsync
     (
         ulong guildId
     )
@@ -3923,7 +3965,7 @@ public sealed class DiscordApiClient
         return new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(rolesRaw));
     }
 
-    internal async ValueTask<DiscordGuild> GetGuildAsync
+    public async ValueTask<DiscordGuild> GetGuildAsync
     (
         ulong guildId,
         bool? withCounts
@@ -3966,7 +4008,7 @@ public sealed class DiscordApiClient
         }
     }
 
-    internal async ValueTask<DiscordRole> ModifyGuildRoleAsync
+    public async ValueTask<DiscordRole> ModifyGuildRoleAsync
     (
         ulong guildId,
         ulong roleId,
@@ -4026,7 +4068,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask DeleteRoleAsync
+    public async ValueTask DeleteRoleAsync
     (
         ulong guildId,
         ulong roleId,
@@ -4053,7 +4095,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<DiscordRole> CreateGuildRoleAsync
+    public async ValueTask<DiscordRole> CreateGuildRoleAsync
     (
         ulong guildId,
         string name,
@@ -4114,7 +4156,7 @@ public sealed class DiscordApiClient
     #endregion
 
     #region Prune
-    internal async ValueTask<int> GetGuildPruneCountAsync
+    public async ValueTask<int> GetGuildPruneCountAsync
     (
         ulong guildId,
         int days,
@@ -4158,7 +4200,7 @@ public sealed class DiscordApiClient
         return pruned.Pruned!.Value;
     }
 
-    internal async ValueTask<int?> BeginGuildPruneAsync
+    public async ValueTask<int?> BeginGuildPruneAsync
     (
         ulong guildId,
         int days,
@@ -4211,7 +4253,7 @@ public sealed class DiscordApiClient
     #endregion
 
     #region GuildVarious
-    internal async ValueTask<DiscordGuildTemplate> GetTemplateAsync
+    public async ValueTask<DiscordGuildTemplate> GetTemplateAsync
     (
         string code
     )
@@ -4233,7 +4275,7 @@ public sealed class DiscordApiClient
         return templatesRaw;
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordIntegration>> GetGuildIntegrationsAsync
+    public async ValueTask<IReadOnlyList<DiscordIntegration>> GetGuildIntegrationsAsync
     (
         ulong guildId
     )
@@ -4264,7 +4306,7 @@ public sealed class DiscordApiClient
         return new ReadOnlyCollection<DiscordIntegration>(new List<DiscordIntegration>(integrationsRaw));
     }
 
-    internal async ValueTask<DiscordGuildPreview> GetGuildPreviewAsync
+    public async ValueTask<DiscordGuildPreview> GetGuildPreviewAsync
     (
         ulong guildId
     )
@@ -4287,7 +4329,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordIntegration> CreateGuildIntegrationAsync
+    public async ValueTask<DiscordIntegration> CreateGuildIntegrationAsync
     (
         ulong guildId,
         string type,
@@ -4319,7 +4361,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordIntegration> ModifyGuildIntegrationAsync
+    public async ValueTask<DiscordIntegration> ModifyGuildIntegrationAsync
     (
         ulong guildId,
         ulong integrationId,
@@ -4353,7 +4395,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask DeleteGuildIntegrationAsync
+    public async ValueTask DeleteGuildIntegrationAsync
     (
         ulong guildId,
         ulong integrationId,
@@ -4380,7 +4422,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask SyncGuildIntegrationAsync
+    public async ValueTask SyncGuildIntegrationAsync
     (
         ulong guildId,
         ulong integrationId
@@ -4399,7 +4441,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordVoiceRegion>> GetGuildVoiceRegionsAsync
+    public async ValueTask<IReadOnlyList<DiscordVoiceRegion>> GetGuildVoiceRegionsAsync
     (
         ulong guildId
     )
@@ -4421,7 +4463,7 @@ public sealed class DiscordApiClient
         return new ReadOnlyCollection<DiscordVoiceRegion>(new List<DiscordVoiceRegion>(regionsRaw));
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordInvite>> GetGuildInvitesAsync
+    public async ValueTask<IReadOnlyList<DiscordInvite>> GetGuildInvitesAsync
     (
         ulong guildId
     )
@@ -4454,7 +4496,7 @@ public sealed class DiscordApiClient
     #endregion
 
     #region Invite
-    internal async ValueTask<DiscordInvite> GetInviteAsync
+    public async ValueTask<DiscordInvite> GetInviteAsync
     (
         string inviteCode,
         bool? withCounts = null,
@@ -4486,7 +4528,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordInvite> DeleteInviteAsync
+    public async ValueTask<DiscordInvite> DeleteInviteAsync
     (
         string inviteCode,
         string? reason = null
@@ -4519,7 +4561,7 @@ public sealed class DiscordApiClient
     #endregion
 
     #region Connections
-    internal async ValueTask<IReadOnlyList<DiscordConnection>> GetUsersConnectionsAsync()
+    public async ValueTask<IReadOnlyList<DiscordConnection>> GetUsersConnectionsAsync()
     {
         string route = $"{Endpoints.USERS}/{Endpoints.ME}/{Endpoints.CONNECTIONS}";
         string url = $"{Endpoints.USERS}/{Endpoints.ME}/{Endpoints.CONNECTIONS}";
@@ -4549,7 +4591,7 @@ public sealed class DiscordApiClient
     #endregion
 
     #region Voice
-    internal async ValueTask<IReadOnlyList<DiscordVoiceRegion>> ListVoiceRegionsAsync()
+    public async ValueTask<IReadOnlyList<DiscordVoiceRegion>> ListVoiceRegionsAsync()
     {
         string route = $"{Endpoints.VOICE}/{Endpoints.REGIONS}";
         string url = $"{Endpoints.VOICE}/{Endpoints.REGIONS}";
@@ -4571,7 +4613,7 @@ public sealed class DiscordApiClient
     #endregion
 
     #region Webhooks
-    internal async ValueTask<DiscordWebhook> CreateWebhookAsync
+    public async ValueTask<DiscordWebhook> CreateWebhookAsync
     (
         ulong channelId,
         string name,
@@ -4613,7 +4655,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordWebhook>> GetChannelWebhooksAsync
+    public async ValueTask<IReadOnlyList<DiscordWebhook>> GetChannelWebhooksAsync
     (
         ulong channelId
     )
@@ -4646,7 +4688,7 @@ public sealed class DiscordApiClient
         return new ReadOnlyCollection<DiscordWebhook>(new List<DiscordWebhook>(webhooksRaw));
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordWebhook>> GetGuildWebhooksAsync
+    public async ValueTask<IReadOnlyList<DiscordWebhook>> GetGuildWebhooksAsync
     (
         ulong guildId
     )
@@ -4679,7 +4721,7 @@ public sealed class DiscordApiClient
         return new ReadOnlyCollection<DiscordWebhook>(new List<DiscordWebhook>(webhooksRaw));
     }
 
-    internal async ValueTask<DiscordWebhook> GetWebhookAsync
+    public async ValueTask<DiscordWebhook> GetWebhookAsync
     (
         ulong webhookId
     )
@@ -4704,7 +4746,7 @@ public sealed class DiscordApiClient
     }
 
     // Auth header not required
-    internal async ValueTask<DiscordWebhook> GetWebhookWithTokenAsync
+    public async ValueTask<DiscordWebhook> GetWebhookWithTokenAsync
     (
         ulong webhookId,
         string webhookToken
@@ -4732,7 +4774,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordMessage> GetWebhookMessageAsync
+    public async ValueTask<DiscordMessage> GetWebhookMessageAsync
     (
         ulong webhookId,
         string webhookToken,
@@ -4757,7 +4799,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordWebhook> ModifyWebhookAsync
+    public async ValueTask<DiscordWebhook> ModifyWebhookAsync
     (
         ulong webhookId,
         ulong channelId,
@@ -4801,7 +4843,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordWebhook> ModifyWebhookAsync
+    public async ValueTask<DiscordWebhook> ModifyWebhookAsync
     (
         ulong webhookId,
         string webhookToken,
@@ -4844,7 +4886,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask DeleteWebhookAsync
+    public async ValueTask DeleteWebhookAsync
     (
         ulong webhookId,
         string? reason = null
@@ -4870,7 +4912,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask DeleteWebhookAsync
+    public async ValueTask DeleteWebhookAsync
     (
         ulong webhookId,
         string webhookToken,
@@ -4898,7 +4940,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<DiscordMessage> ExecuteWebhookAsync
+    public async ValueTask<DiscordMessage> ExecuteWebhookAsync
     (
         ulong webhookId,
         string webhookToken,
@@ -4976,7 +5018,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordMessage> ExecuteWebhookSlackAsync
+    public async ValueTask<DiscordMessage> ExecuteWebhookSlackAsync
     (
         ulong webhookId,
         string webhookToken,
@@ -5002,7 +5044,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordMessage> ExecuteWebhookGithubAsync
+    public async ValueTask<DiscordMessage> ExecuteWebhookGithubAsync
     (
         ulong webhookId,
         string webhookToken,
@@ -5028,7 +5070,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordMessage> EditWebhookMessageAsync
+    public async ValueTask<DiscordMessage> EditWebhookMessageAsync
     (
         ulong webhookId,
         string webhookToken,
@@ -5082,7 +5124,7 @@ public sealed class DiscordApiClient
         return PrepareMessage(JObject.Parse(res.Response!));
     }
 
-    internal async ValueTask DeleteWebhookMessageAsync
+    public async ValueTask DeleteWebhookMessageAsync
     (
         ulong webhookId,
         string webhookToken,
@@ -5105,7 +5147,7 @@ public sealed class DiscordApiClient
     #endregion
 
     #region Reactions
-    internal async ValueTask CreateReactionAsync
+    public async ValueTask CreateReactionAsync
     (
         ulong channelId,
         ulong messageId,
@@ -5125,7 +5167,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask DeleteOwnReactionAsync
+    public async ValueTask DeleteOwnReactionAsync
     (
         ulong channelId,
         ulong messageId,
@@ -5145,7 +5187,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask DeleteUserReactionAsync
+    public async ValueTask DeleteUserReactionAsync
     (
         ulong channelId,
         ulong messageId,
@@ -5174,7 +5216,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordUser>> GetReactionsAsync
+    public async ValueTask<IReadOnlyList<DiscordUser>> GetReactionsAsync
     (
         ulong channelId,
         ulong messageId,
@@ -5218,7 +5260,7 @@ public sealed class DiscordApiClient
         return new ReadOnlyCollection<DiscordUser>(new List<DiscordUser>(users));
     }
 
-    internal async ValueTask DeleteAllReactionsAsync
+    public async ValueTask DeleteAllReactionsAsync
     (
         ulong channelId,
         ulong messageId,
@@ -5245,7 +5287,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask DeleteReactionsEmojiAsync
+    public async ValueTask DeleteReactionsEmojiAsync
     (
         ulong channelId,
         ulong messageId,
@@ -5268,7 +5310,7 @@ public sealed class DiscordApiClient
 
     #region Polls
 
-    internal async ValueTask<IReadOnlyList<DiscordUser>> GetPollAnswerVotersAsync
+    public async ValueTask<IReadOnlyList<DiscordUser>> GetPollAnswerVotersAsync
     (
         ulong channelId,
         ulong messageId,
@@ -5306,7 +5348,7 @@ public sealed class DiscordApiClient
             .ToList();
     }
 
-    internal async ValueTask<DiscordMessage> EndPollAsync
+    public async ValueTask<DiscordMessage> EndPollAsync
     (
         ulong channelId,
         ulong messageId
@@ -5332,7 +5374,7 @@ public sealed class DiscordApiClient
     #endregion
 
     #region Emoji
-    internal async ValueTask<IReadOnlyList<DiscordGuildEmoji>> GetGuildEmojisAsync
+    public async ValueTask<IReadOnlyList<DiscordGuildEmoji>> GetGuildEmojisAsync
     (
         ulong guildId
     )
@@ -5381,7 +5423,7 @@ public sealed class DiscordApiClient
         return new ReadOnlyCollection<DiscordGuildEmoji>(emojis);
     }
 
-    internal async ValueTask<DiscordGuildEmoji> GetGuildEmojiAsync
+    public async ValueTask<DiscordGuildEmoji> GetGuildEmojiAsync
     (
         ulong guildId,
         ulong emojiId
@@ -5418,7 +5460,7 @@ public sealed class DiscordApiClient
         return emoji;
     }
 
-    internal async ValueTask<DiscordGuildEmoji> CreateGuildEmojiAsync
+    public async ValueTask<DiscordGuildEmoji> CreateGuildEmojiAsync
     (
         ulong guildId,
         string name,
@@ -5472,7 +5514,7 @@ public sealed class DiscordApiClient
         return emoji;
     }
 
-    internal async ValueTask<DiscordGuildEmoji> ModifyGuildEmojiAsync
+    public async ValueTask<DiscordGuildEmoji> ModifyGuildEmojiAsync
     (
         ulong guildId,
         ulong emojiId,
@@ -5526,7 +5568,7 @@ public sealed class DiscordApiClient
         return emoji;
     }
 
-    internal async ValueTask DeleteGuildEmojiAsync
+    public async ValueTask DeleteGuildEmojiAsync
     (
         ulong guildId,
         ulong emojiId,
@@ -5555,7 +5597,7 @@ public sealed class DiscordApiClient
     #endregion
 
     #region Application Commands
-    internal async ValueTask<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync
+    public async ValueTask<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync
     (
         ulong applicationId,
         bool withLocalizations = false
@@ -5587,7 +5629,7 @@ public sealed class DiscordApiClient
         return ret.ToList();
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGlobalApplicationCommandsAsync
+    public async ValueTask<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGlobalApplicationCommandsAsync
     (
         ulong applicationId,
         IEnumerable<DiscordApplicationCommand> commands
@@ -5635,7 +5677,7 @@ public sealed class DiscordApiClient
         return ret.ToList();
     }
 
-    internal async ValueTask<DiscordApplicationCommand> CreateGlobalApplicationCommandAsync
+    public async ValueTask<DiscordApplicationCommand> CreateGlobalApplicationCommandAsync
     (
         ulong applicationId,
         DiscordApplicationCommand command
@@ -5676,7 +5718,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordApplicationCommand> GetGlobalApplicationCommandAsync
+    public async ValueTask<DiscordApplicationCommand> GetGlobalApplicationCommandAsync
     (
         ulong applicationId,
         ulong commandId
@@ -5700,7 +5742,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordApplicationCommand> EditGlobalApplicationCommandAsync
+    public async ValueTask<DiscordApplicationCommand> EditGlobalApplicationCommandAsync
     (
         ulong applicationId,
         ulong commandId,
@@ -5751,7 +5793,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask DeleteGlobalApplicationCommandAsync
+    public async ValueTask DeleteGlobalApplicationCommandAsync
     (
         ulong applicationId,
         ulong commandId
@@ -5770,7 +5812,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordApplicationCommand>> GetGuildApplicationCommandsAsync
+    public async ValueTask<IReadOnlyList<DiscordApplicationCommand>> GetGuildApplicationCommandsAsync
     (
         ulong applicationId,
         ulong guildId,
@@ -5803,7 +5845,7 @@ public sealed class DiscordApiClient
         return ret.ToList();
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGuildApplicationCommandsAsync
+    public async ValueTask<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGuildApplicationCommandsAsync
     (
         ulong applicationId,
         ulong guildId,
@@ -5850,7 +5892,7 @@ public sealed class DiscordApiClient
         return ret.ToList();
     }
 
-    internal async ValueTask<DiscordApplicationCommand> CreateGuildApplicationCommandAsync
+    public async ValueTask<DiscordApplicationCommand> CreateGuildApplicationCommandAsync
     (
         ulong applicationId,
         ulong guildId,
@@ -5890,7 +5932,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordApplicationCommand> GetGuildApplicationCommandAsync
+    public async ValueTask<DiscordApplicationCommand> GetGuildApplicationCommandAsync
     (
         ulong applicationId,
         ulong guildId,
@@ -5915,7 +5957,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordApplicationCommand> EditGuildApplicationCommandAsync
+    public async ValueTask<DiscordApplicationCommand> EditGuildApplicationCommandAsync
     (
         ulong applicationId,
         ulong guildId,
@@ -5967,7 +6009,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask DeleteGuildApplicationCommandAsync
+    public async ValueTask DeleteGuildApplicationCommandAsync
     (
         ulong applicationId,
         ulong guildId,
@@ -5987,7 +6029,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask CreateInteractionResponseAsync
+    public async ValueTask CreateInteractionResponseAsync
     (
         ulong interactionId,
         string interactionToken,
@@ -6075,7 +6117,7 @@ public sealed class DiscordApiClient
         }
     }
 
-    internal async ValueTask<DiscordMessage> GetOriginalInteractionResponseAsync
+    public async ValueTask<DiscordMessage> GetOriginalInteractionResponseAsync
     (
         ulong applicationId,
         string interactionToken
@@ -6101,7 +6143,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordMessage> EditOriginalInteractionResponseAsync
+    public async ValueTask<DiscordMessage> EditOriginalInteractionResponseAsync
     (
         ulong applicationId,
         string interactionToken,
@@ -6156,7 +6198,7 @@ public sealed class DiscordApiClient
         }
     }
 
-    internal async ValueTask DeleteOriginalInteractionResponseAsync
+    public async ValueTask DeleteOriginalInteractionResponseAsync
     (
         ulong applicationId,
         string interactionToken
@@ -6176,7 +6218,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<DiscordMessage> CreateFollowupMessageAsync
+    public async ValueTask<DiscordMessage> CreateFollowupMessageAsync
     (
         ulong applicationId,
         string interactionToken,
@@ -6265,7 +6307,7 @@ public sealed class DiscordApiClient
     internal ValueTask DeleteFollowupMessageAsync(ulong applicationId, string interactionToken, ulong messageId)
         => DeleteWebhookMessageAsync(applicationId, interactionToken, messageId);
 
-    internal async ValueTask<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> GetGuildApplicationCommandPermissionsAsync
+    public async ValueTask<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> GetGuildApplicationCommandPermissionsAsync
     (
         ulong applicationId,
         ulong guildId
@@ -6292,7 +6334,7 @@ public sealed class DiscordApiClient
         return ret.ToList();
     }
 
-    internal async ValueTask<DiscordGuildApplicationCommandPermissions> GetApplicationCommandPermissionsAsync
+    public async ValueTask<DiscordGuildApplicationCommandPermissions> GetApplicationCommandPermissionsAsync
     (
         ulong applicationId,
         ulong guildId,
@@ -6316,7 +6358,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<DiscordGuildApplicationCommandPermissions> EditApplicationCommandPermissionsAsync
+    public async ValueTask<DiscordGuildApplicationCommandPermissions> EditApplicationCommandPermissionsAsync
     (
         ulong applicationId,
         ulong guildId,
@@ -6349,7 +6391,7 @@ public sealed class DiscordApiClient
         return ret;
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> BatchEditApplicationCommandPermissionsAsync
+    public async ValueTask<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> BatchEditApplicationCommandPermissionsAsync
     (
         ulong applicationId,
         ulong guildId,
@@ -6410,7 +6452,7 @@ public sealed class DiscordApiClient
         return JsonConvert.DeserializeObject<TransportApplication>(res.Response!)!;
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordApplicationAsset>> GetApplicationAssetsAsync
+    public async ValueTask<IReadOnlyList<DiscordApplicationAsset>> GetApplicationAssetsAsync
     (
         DiscordApplication application
      )
@@ -6437,7 +6479,7 @@ public sealed class DiscordApiClient
         return new ReadOnlyCollection<DiscordApplicationAsset>(new List<DiscordApplicationAsset>(assets));
     }
 
-    internal async ValueTask<GatewayInfo> GetGatewayInfoAsync()
+    public async ValueTask<GatewayInfo> GetGatewayInfoAsync()
     {
         Dictionary<string, string> headers = [];
         string route = $"{Endpoints.GATEWAY}/{Endpoints.BOT}";
@@ -6459,7 +6501,7 @@ public sealed class DiscordApiClient
     }
     #endregion
 
-    internal async ValueTask<DiscordEmoji> CreateApplicationEmojiAsync(ulong applicationId, string name, string image)
+    public async ValueTask<DiscordEmoji> CreateApplicationEmojiAsync(ulong applicationId, string name, string image)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}";
@@ -6486,7 +6528,7 @@ public sealed class DiscordApiClient
         return emoji;
     }
 
-    internal async ValueTask<DiscordEmoji> ModifyApplicationEmojiAsync(ulong applicationId, ulong emojiId, string name)
+    public async ValueTask<DiscordEmoji> ModifyApplicationEmojiAsync(ulong applicationId, ulong emojiId, string name)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
@@ -6512,7 +6554,7 @@ public sealed class DiscordApiClient
         return emoji;
     }
 
-    internal async ValueTask DeleteApplicationEmojiAsync(ulong applicationId, ulong emojiId)
+    public async ValueTask DeleteApplicationEmojiAsync(ulong applicationId, ulong emojiId)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
@@ -6527,7 +6569,7 @@ public sealed class DiscordApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    internal async ValueTask<DiscordEmoji> GetApplicationEmojiAsync(ulong applicationId, ulong emojiId)
+    public async ValueTask<DiscordEmoji> GetApplicationEmojiAsync(ulong applicationId, ulong emojiId)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}/{emojiId}";
@@ -6546,7 +6588,7 @@ public sealed class DiscordApiClient
         return emoji;
     }
 
-    internal async ValueTask<IReadOnlyList<DiscordEmoji>> GetApplicationEmojisAsync(ulong applicationId)
+    public async ValueTask<IReadOnlyList<DiscordEmoji>> GetApplicationEmojisAsync(ulong applicationId)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.EMOJIS}";
@@ -6570,7 +6612,7 @@ public sealed class DiscordApiClient
         return emojis.ToList();
     }
 
-    internal async ValueTask<DiscordForumPostStarter> CreateForumPostAsync
+    public async ValueTask<DiscordForumPostStarter> CreateForumPostAsync
     (
         ulong channelId,
         string name,
@@ -6661,7 +6703,7 @@ public sealed class DiscordApiClient
     /// <param name="exemptChannels">The exempted channels that will not trigger the rule.</param>
     /// <param name="reason">The reason for audits logs.</param>
     /// <returns>The created rule.</returns>
-    internal async ValueTask<DiscordAutoModerationRule> CreateGuildAutoModerationRuleAsync
+    public async ValueTask<DiscordAutoModerationRule> CreateGuildAutoModerationRuleAsync
     (
         ulong guildId,
         string name,
@@ -6718,7 +6760,7 @@ public sealed class DiscordApiClient
     /// <param name="guildId">The guild id where the rule is in.</param>
     /// <param name="ruleId">The rule id.</param>
     /// <returns>The rule found.</returns>
-    internal async ValueTask<DiscordAutoModerationRule> GetGuildAutoModerationRuleAsync
+    public async ValueTask<DiscordAutoModerationRule> GetGuildAutoModerationRuleAsync
     (
         ulong guildId,
         ulong ruleId
@@ -6745,7 +6787,7 @@ public sealed class DiscordApiClient
     /// </summary>
     /// <param name="guildId">The guild id where rules are in.</param>
     /// <returns>The rules found.</returns>
-    internal async ValueTask<IReadOnlyList<DiscordAutoModerationRule>> GetGuildAutoModerationRulesAsync
+    public async ValueTask<IReadOnlyList<DiscordAutoModerationRule>> GetGuildAutoModerationRulesAsync
     (
         ulong guildId
     )
@@ -6780,7 +6822,7 @@ public sealed class DiscordApiClient
     /// <param name="exemptChannels">The exempted channels that will not trigger the rule.</param>
     /// <param name="reason">The reason for audits logs.</param>
     /// <returns>The modified rule.</returns>
-    internal async ValueTask<DiscordAutoModerationRule> ModifyGuildAutoModerationRuleAsync
+    public async ValueTask<DiscordAutoModerationRule> ModifyGuildAutoModerationRuleAsync
     (
         ulong guildId,
         ulong ruleId,
@@ -6835,7 +6877,7 @@ public sealed class DiscordApiClient
     /// <param name="guildId">The id of the guild where the rule is in.</param>
     /// <param name="ruleId">The rule id that will be deleted.</param>
     /// <param name="reason">The reason for audits logs.</param>
-    internal async ValueTask DeleteGuildAutoModerationRuleAsync
+    public async ValueTask DeleteGuildAutoModerationRuleAsync
     (
         ulong guildId,
         ulong ruleId,
@@ -6867,7 +6909,7 @@ public sealed class DiscordApiClient
     /// </summary>
     /// <param name="applicationId">Id of the application of which SKUs should be returned</param>
     /// <returns>Returns a list of SKUs</returns>
-    internal async ValueTask<IReadOnlyList<DiscordStockKeepingUnit>> ListStockKeepingUnitsAsync(ulong applicationId)
+    public async ValueTask<IReadOnlyList<DiscordStockKeepingUnit>> ListStockKeepingUnitsAsync(ulong applicationId)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.SKUS}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.SKUS}";
@@ -6897,7 +6939,7 @@ public sealed class DiscordApiClient
     /// <param name="excludeEnded">Whether or not ended entitlements should be omitted</param>
     /// <param name="limit">Number of entitlements to return, 1-100, default 100</param>
     /// <returns>Returns the list of entitlments. Sorted by id descending (depending on discord)</returns>
-    internal async ValueTask<IReadOnlyList<DiscordEntitlement>> ListEntitlementsAsync
+    public async ValueTask<IReadOnlyList<DiscordEntitlement>> ListEntitlementsAsync
     (
         ulong applicationId,
         ulong? userId = null,
@@ -6970,7 +7012,7 @@ public sealed class DiscordApiClient
     /// </summary>
     /// <param name="applicationId">The id of the application the entitlement belongs to</param>
     /// <param name="entitlementId">The id of the entitlement which will be marked as consumed</param>
-    internal async ValueTask ConsumeEntitlementAsync(ulong applicationId, ulong entitlementId)
+    public async ValueTask ConsumeEntitlementAsync(ulong applicationId, ulong entitlementId)
     {
         string route = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}/:entitlementId/{Endpoints.CONSUME}";
         string url = $"{Endpoints.APPLICATIONS}/{applicationId}/{Endpoints.ENTITLEMENTS}/{entitlementId}/{Endpoints.CONSUME}";
@@ -6993,7 +7035,7 @@ public sealed class DiscordApiClient
     /// <param name="ownerId">The id of the entity which should recieve the entitlement</param>
     /// <param name="ownerType">The type of the entity which should recieve the entitlement</param>
     /// <returns>Returns a partial entitlment</returns>
-    internal async ValueTask<DiscordEntitlement> CreateTestEntitlementAsync
+    public async ValueTask<DiscordEntitlement> CreateTestEntitlementAsync
     (
         ulong applicationId,
         ulong skuId,
@@ -7026,7 +7068,7 @@ public sealed class DiscordApiClient
     /// </summary>
     /// <param name="applicationId">The id of the application the entitlement belongs to</param>
     /// <param name="entitlementId">The id of the test entitlement which should be removed</param>
-    internal async ValueTask DeleteTestEntitlementAsync
+    public async ValueTask DeleteTestEntitlementAsync
     (
         ulong applicationId,
         ulong entitlementId

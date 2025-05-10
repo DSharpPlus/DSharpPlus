@@ -14,7 +14,7 @@ namespace DSharpPlus.Clients;
 public sealed class SingleShardOrchestrator : IShardOrchestrator
 {
     private readonly IGatewayClient gatewayClient;
-    private readonly DiscordApiClient apiClient;
+    private readonly DiscordRestApiClient apiClient;
     private readonly IPayloadDecompressor decompressor;
 
     /// <summary>
@@ -23,12 +23,12 @@ public sealed class SingleShardOrchestrator : IShardOrchestrator
     public SingleShardOrchestrator
     (
         IGatewayClient gatewayClient,
-        DiscordApiClient apiClient,
+        DiscordRestApiClientFactory apiClientFactory,
         IPayloadDecompressor decompressor
     )
     {
         this.gatewayClient = gatewayClient;
-        this.apiClient = apiClient;
+        this.apiClient = apiClientFactory.GetCurrentApplicationClient();
         this.decompressor = decompressor;
     }
 

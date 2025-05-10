@@ -52,7 +52,7 @@ public static partial class ServiceCollectionExtensions
     )
     {
         services.Configure<TokenContainer>(c => c.GetToken = () => token);
-        services.AddDSharpPlusDefaultsSharded(intents);
+        services.AddDSharpPlusDefaultsMultiShard(intents);
         return services;
     }
 
