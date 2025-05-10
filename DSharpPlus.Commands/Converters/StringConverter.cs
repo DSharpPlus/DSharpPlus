@@ -34,7 +34,7 @@ public class StringConverter : ISlashArgumentConverter<string>, ITextArgumentCon
         return Task.FromResult(Optional.FromValue(argument));
     }
 
-    private static bool TryGetCodeBlock(string input, CodeType expectedCodeType, [NotNullWhen(true)] out string? code)
+    public static bool TryGetCodeBlock(string input, CodeType expectedCodeType, [NotNullWhen(true)] out string? code)
     {
         code = null;
         ReadOnlySpan<char> inputSpan = input.AsSpan();
