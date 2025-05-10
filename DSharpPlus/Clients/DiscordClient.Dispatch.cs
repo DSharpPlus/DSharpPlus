@@ -623,6 +623,7 @@ public sealed partial class DiscordClient
         {
             DiscordHttpInteractionPayload payload = await this.interactionEventReader.ReadAsync();
             DiscordHttpInteraction interaction = payload.ProtoInteraction;
+            interaction.Discord = this;
 
             ulong? guildId = interaction.GuildId;
             ulong channelId = interaction.ChannelId;
@@ -2330,7 +2331,7 @@ public sealed partial class DiscordClient
 
         gld.voiceStates.TryRemove(uid, out DiscordVoiceState? vstateOld);
 
-        if (vstateNew.Channel != null)
+        if (vstateNew.ChannelId != null)
         {
             gld.voiceStates[vstateNew.UserId] = vstateNew;
         }
@@ -2348,9 +2349,6 @@ public sealed partial class DiscordClient
 
         VoiceStateUpdatedEventArgs ea = new()
         {
-            Guild = vstateNew.Guild,
-            Channel = vstateNew.Channel,
-            User = vstateNew.User,
             SessionId = vstateNew.SessionId,
 
             Before = vstateOld,

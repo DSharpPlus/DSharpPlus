@@ -99,7 +99,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public DiscordClient
     (
         ILogger<DiscordClient> logger,
-        DiscordApiClient apiClient,
+        DiscordRestApiClientFactory apiClient,
         IMessageCacheProvider messageCacheProvider,
         IServiceProvider serviceProvider,
         IEventDispatcher eventDispatcher,
@@ -123,7 +123,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         this.Logger = logger;
         this.MessageCache = messageCacheProvider;
         this.ServiceProvider = serviceProvider;
-        this.ApiClient = apiClient;
+        this.ApiClient = apiClient.GetCurrentApplicationClient();
         this.errorHandler = errorHandler;
         this.Configuration = configuration.Value;
         this.token = token.Value.GetToken();
@@ -573,7 +573,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             bannerBase64 = null;
         }
 
-        TransportUser usr = await this.ApiClient.ModifyCurrentUserAsync(username, avatarBase64, bannerBase64);
+        DiscordUser usr = await this.ApiClient.ModifyCurrentUserAsync(username, avatarBase64, bannerBase64);
 
         this.CurrentUser.Username = usr.Username;
         this.CurrentUser.Discriminator = usr.Discriminator;

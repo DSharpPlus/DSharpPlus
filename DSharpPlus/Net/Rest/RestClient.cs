@@ -1,13 +1,14 @@
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+
 using DSharpPlus.Exceptions;
 using DSharpPlus.Logging;
 using DSharpPlus.Metrics;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -20,29 +21,28 @@ namespace DSharpPlus.Net;
 /// </summary>
 public sealed partial class RestClient : IDisposable
 {
-    [GeneratedRegex(":([a-z_]+)")]
-    private static partial Regex GenerateRouteArgumentRegex();
-
-    private static readonly Regex routeArgumentRegex = GenerateRouteArgumentRegex();
     private readonly HttpClient httpClient;
     private readonly ILogger logger;
     private readonly AsyncManualResetEvent globalRateLimitEvent;
     private readonly ResiliencePipeline<HttpResponseMessage> pipeline;
     private readonly RateLimitStrategy rateLimitStrategy;
     private readonly RequestMetricsContainer metrics = new();
+    private readonly TimeSpan timeout;
+
+    private string token;
 
     private volatile bool disposed;
 
+    [ActivatorUtilitiesConstructor]
     public RestClient
     (
         ILogger<RestClient> logger,
-        HttpClient client,
-        IOptions<RestClientOptions> options,
-        IOptions<TokenContainer> tokenContainer
+        IHttpClientFactory clientFactory,
+        IOptions<RestClientOptions> options
     )
         : this
         (
-            client,
+            clientFactory.CreateClient("DSharpPlus.Rest.HttpClient"),
             options.Value.Timeout,
             logger,
             options.Value.MaximumRatelimitRetries,
@@ -51,10 +51,7 @@ public sealed partial class RestClient : IDisposable
             options.Value.MaximumConcurrentRestRequests
         )
     {
-        string token = tokenContainer.Value.GetToken();
 
-        this.httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bot {token}");
-        this.httpClient.BaseAddress = new(Endpoints.BASE_URI);
     }
 
     // This is for meta-clients, such as the webhook client
@@ -71,11 +68,7 @@ public sealed partial class RestClient : IDisposable
     {
         this.logger = logger;
         this.httpClient = client;
-
-        this.httpClient.BaseAddress = new Uri(Utilities.GetApiBaseUri());
-        this.httpClient.Timeout = timeout;
-        this.httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
-        this.httpClient.BaseAddress = new(Endpoints.BASE_URI);
+        this.timeout = timeout;
 
         this.globalRateLimitEvent = new AsyncManualResetEvent(true);
 
@@ -103,6 +96,9 @@ public sealed partial class RestClient : IDisposable
 
         this.pipeline = builder.Build();
     }
+
+    internal void SetToken(TokenType type, string token) 
+        => this.token = type == TokenType.Bot ? $"Bot {token}" : $"Bearer {token}";
 
     internal async ValueTask<RestResponse> ExecuteRequestAsync<TRequest>
     (
@@ -132,16 +128,20 @@ public sealed partial class RestClient : IDisposable
             context.Properties.Set(new("trace-id"), traceId);
             context.Properties.Set(new("exempt-from-all-limits"), request.IsExemptFromAllLimits);
 
+            CancellationTokenSource cts = new(this.timeout);
+
             using HttpResponseMessage response = await this.pipeline.ExecuteAsync
             (
                 async (_) =>
                 {
                     using HttpRequestMessage req = request.Build();
+                    req.Headers.TryAddWithoutValidation("Authorization", this.token);
+
                     return await this.httpClient.SendAsync
                     (
                         req,
                         HttpCompletionOption.ResponseContentRead,
-                        CancellationToken.None
+                        cts.Token
                     );
                 },
                 context

@@ -12,7 +12,7 @@ namespace DSharpPlus.Entities;
 /// </summary>
 public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
 {
-    internal DiscordApiClient ApiClient { get; set; }
+    internal DiscordRestApiClient ApiClient { get; set; }
 
     /// <summary>
     /// Gets the ID of the guild this webhook belongs to.

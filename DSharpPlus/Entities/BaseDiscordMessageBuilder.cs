@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -167,7 +168,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
     public T AddActionRowComponent
     (
-        DiscordSelectComponent selectMenu
+        BaseDiscordSelectComponent selectMenu
     )
     {
         DiscordActionRowComponent component = new DiscordActionRowComponent([selectMenu]);
@@ -193,10 +194,10 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 
         foreach (IEnumerable<DiscordButtonComponent> component in components)
         {
-            DiscordActionRowComponent componentComponent = new(component);
+            DiscordActionRowComponent currentComponent = new(component);
             
-            EnsureSufficientSpaceForComponent(componentComponent);
-            this.components.Add(componentComponent);
+            EnsureSufficientSpaceForComponent(currentComponent);
+            this.components.Add(currentComponent);
         }
         
         return (T)this;
@@ -261,6 +262,24 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     {
         EnsureSufficientSpaceForComponent(component);
         this.components.Add(component);
+        
+        return (T)this;
+    }
+    
+    /// <summary>
+    /// Adds a text input to this builder.
+    /// </summary>
+    /// <param name="component">The component to add.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public T AddTextInputComponent
+    (
+        DiscordTextInputComponent component
+    )
+    {
+        var actionRow = new DiscordActionRowComponent([component]);
+        EnsureSufficientSpaceForComponent(actionRow);
+        this.components.Add(actionRow);
         
         return (T)this;
     }
@@ -628,14 +647,17 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 
         return newStream;
     }
-
+    
+    [StackTraceHidden]
+    [DebuggerStepThrough]
     private void EnsureSufficientSpaceForComponent
     (
         DiscordComponent component
     )
     {
-        int maxTopComponents = this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) ? 10 : 5;
-        int maxAllComponents = this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) ? 30 : 25;
+        const int CV2_MAX_TOTAL_COMPONENTS = 40;
+        int maxTopComponents = this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) ? CV2_MAX_TOTAL_COMPONENTS : 5;
+        int maxAllComponents = this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) ? CV2_MAX_TOTAL_COMPONENTS : 25;
         
         int allComponentCount = this.Components.Sum
         (
@@ -675,7 +697,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
             _ => 1,
         };
 
-        if (this.Components.Count + 1 >= maxTopComponents)
+        if (this.Components.Count + 1 > maxTopComponents)
         {
             throw new InvalidOperationException($"Too many top-level components! Maximum allowed is {maxTopComponents}.");
         }
@@ -696,6 +718,8 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         field = value;
     }
 
+    [StackTraceHidden]
+    [DebuggerStepThrough]
     private void ThrowIfV2Enabled([CallerMemberName] string caller = "")
     {
         if (this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2))
@@ -704,6 +728,8 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         }
     }
     
+    IDiscordMessageBuilder IDiscordMessageBuilder.EnableV2Components() => this.EnableV2Components();
+    IDiscordMessageBuilder IDiscordMessageBuilder.DisableV2Components() => this.DisableV2Components();
     IDiscordMessageBuilder IDiscordMessageBuilder.AddActionRowComponent(DiscordActionRowComponent component) => this.AddActionRowComponent(component);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddActionRowComponent(DiscordSelectComponent selectMenu) => this.AddActionRowComponent(selectMenu);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddActionRowComponent(params IEnumerable<DiscordButtonComponent> buttons) => this.AddActionRowComponent(buttons);
@@ -711,10 +737,10 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     IDiscordMessageBuilder IDiscordMessageBuilder.AddSectionComponent(DiscordSectionComponent section) => this.AddSectionComponent(section);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddTextDisplayComponent(DiscordTextDisplayComponent component) => this.AddTextDisplayComponent(component);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddTextDisplayComponent(string content) => this.AddTextDisplayComponent(content);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddTextInputComponent(DiscordTextInputComponent component) => this.AddTextInputComponent(component);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddSeparatorComponent(DiscordSeparatorComponent component) => this.AddSeparatorComponent(component);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddFileComponent(DiscordFileComponent component) => this.AddFileComponent(component);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddContainerComponent(DiscordContainerComponent component) => this.AddContainerComponent(component);
-    
     IDiscordMessageBuilder IDiscordMessageBuilder.SuppressNotifications() => SuppressNotifications();
     IDiscordMessageBuilder IDiscordMessageBuilder.WithContent(string content) => WithContent(content);
     IDiscordMessageBuilder IDiscordMessageBuilder.WithTTS(bool isTTS) => WithTTS(isTTS);
@@ -817,7 +843,21 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <param name="content">Message content to use</param>
     /// <returns></returns>
     public IDiscordMessageBuilder WithContent(string content);
-    
+
+    /// <summary>
+    /// Enables support for V2 components; messages with the V2 flag cannot be downgraded.
+    /// </summary>
+    /// <returns>The builder to chain calls with.</returns>
+    public IDiscordMessageBuilder EnableV2Components();
+
+    /// <summary>
+    /// Disables V2 components IF this builder does not currently contain illegal components.
+    /// </summary>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">The builder contains V2 components and cannot be downgraded.</exception>
+    /// <remarks>This method only disables the V2 components flag; the message originally associated with this builder cannot be downgraded, and this method only exists for convenience.</remarks>
+    public IDiscordMessageBuilder DisableV2Components();
+
     /// <summary>
     /// Adds a raw action row.
     /// </summary>
@@ -871,6 +911,14 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <returns>The builder to chain calls with.</returns>
     /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
     public IDiscordMessageBuilder AddTextDisplayComponent(string content);
+    
+    /// <summary>
+    /// Adds a text input to this builder.
+    /// </summary>
+    /// <param name="component">The component to add.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public IDiscordMessageBuilder AddTextInputComponent(DiscordTextInputComponent component);
 
     /// <summary>
     /// Adds a separator component to this builder.
