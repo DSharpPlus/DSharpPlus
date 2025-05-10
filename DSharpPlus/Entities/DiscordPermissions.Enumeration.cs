@@ -12,25 +12,11 @@ namespace DSharpPlus.Entities;
 // contains the implementation details for EnumeratePermissions
 partial struct DiscordPermissions
 {
-    /// <summary>
-    /// Presents a slim enumerable wrapper around a set of permissions.
-    /// </summary>
-    public readonly struct DiscordPermissionEnumerable : IEnumerable<DiscordPermission>
-    {
-        private readonly DiscordPermissionContainer data;
+    public readonly DiscordPermissionEnumerator GetEnumerator() => new(this.data);
 
-        internal DiscordPermissionEnumerable(DiscordPermissionContainer data)
-            => this.data = data;
-
-        /// <summary>
-        /// Gets an enumerator for the present permission set.
-        /// </summary>
-        public readonly DiscordPermissionEnumerator GetEnumerator() => new(this.data);
-
-        // implementations for IEnumerable<T>, we'd like to not box by default
-        IEnumerator<DiscordPermission> IEnumerable<DiscordPermission>.GetEnumerator() => GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
+    // implementations for IEnumerable<T>, we'd like to not box by default
+    IEnumerator<DiscordPermission> IEnumerable<DiscordPermission>.GetEnumerator() => GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <summary>
     /// Represents an enumerator for permission fields within a permission set.

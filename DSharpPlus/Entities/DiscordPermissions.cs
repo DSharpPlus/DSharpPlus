@@ -27,7 +27,7 @@ namespace DSharpPlus.Entities;
 /// </summary>
 [JsonConverter(typeof(DiscordPermissionsAsStringJsonConverter))]
 public readonly partial struct DiscordPermissions
-    : IEquatable<DiscordPermissions>
+    : IEquatable<DiscordPermissions>, IEnumerable<DiscordPermission>
 {
     // only change ContainerWidth here, the other two constants are automatically updated for internal uses
     // for ContainerWidth, 1 width == 128 bits.
@@ -103,28 +103,6 @@ public readonly partial struct DiscordPermissions
     }
 
     /// <summary>
-    /// A copy constructor that sets an arbitrary amount of flags to their respective values.
-    /// </summary>
-    private DiscordPermissions
-    (
-        scoped ReadOnlySpan<byte> raw,
-        ReadOnlySpan<DiscordPermission> setPermissions,
-        ReadOnlySpan<DiscordPermission> removePermissions
-    )
-        : this(raw)
-    {
-        foreach (DiscordPermission permission in setPermissions)
-        {
-            this.data.SetFlag((int)permission, true);
-        }
-
-        foreach (DiscordPermission permission in removePermissions)
-        {
-            this.data.SetFlag((int)permission, false);
-        }
-    }
-
-    /// <summary>
     /// A copy constructor that sets one specific flag to the specified value.
     /// </summary>
     private DiscordPermissions(DiscordPermissions original, int index, bool flag)
@@ -132,8 +110,6 @@ public readonly partial struct DiscordPermissions
         this.data = original.data;
         this.data.SetFlag(index, flag);
     }
-
-    public static implicit operator DiscordPermissions(DiscordPermission initial) => new(initial);
 
     /// <summary>
     /// Returns an empty Discord permission set.
@@ -250,7 +226,7 @@ public readonly partial struct DiscordPermissions
 
             StringBuilder builder = new();
 
-            foreach (DiscordPermission permission in EnumeratePermissions())
+            foreach (DiscordPermission permission in this)
             {
                 int flag = (int)permission;
                 string permissionName = flag <= highestDefinedValue ? permissionNames[flag] : flag.ToString(CultureInfo.InvariantCulture);
@@ -281,12 +257,6 @@ public readonly partial struct DiscordPermissions
     /// </summary>
     public override int GetHashCode()
         => HashCode.Combine(this.data);
-
-    /// <summary>
-    /// Provides an enumeration of all permissions specified by this set.
-    /// </summary>
-    public DiscordPermissionEnumerable EnumeratePermissions()
-        => new(this.data);
 
     public static bool operator ==(DiscordPermissions left, DiscordPermissions right) => left.Equals(right);
     public static bool operator !=(DiscordPermissions left, DiscordPermissions right) => !(left == right);
