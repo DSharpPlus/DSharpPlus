@@ -168,7 +168,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
     public T AddActionRowComponent
     (
-        DiscordSelectComponent selectMenu
+        BaseDiscordSelectComponent selectMenu
     )
     {
         DiscordActionRowComponent component = new DiscordActionRowComponent([selectMenu]);
@@ -655,8 +655,9 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         DiscordComponent component
     )
     {
-        int maxTopComponents = this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) ? 10 : 5;
-        int maxAllComponents = this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) ? 30 : 25;
+        const int CV2_MAX_TOTAL_COMPONENTS = 40;
+        int maxTopComponents = this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) ? CV2_MAX_TOTAL_COMPONENTS : 5;
+        int maxAllComponents = this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) ? CV2_MAX_TOTAL_COMPONENTS : 25;
         
         int allComponentCount = this.Components.Sum
         (
@@ -696,7 +697,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
             _ => 1,
         };
 
-        if (this.Components.Count + 1 >= maxTopComponents)
+        if (this.Components.Count + 1 > maxTopComponents)
         {
             throw new InvalidOperationException($"Too many top-level components! Maximum allowed is {maxTopComponents}.");
         }

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
@@ -59,8 +61,27 @@ public class DiscordContainerComponent : DiscordComponent
         this.Components = components;
         this.IsSpoilered = isSpoilered;
         this.color = color?.Value;
+        
+        ThrowIfUnwrappedComponentsDetected();
     }
     
     internal DiscordContainerComponent() => this.Type = DiscordComponentType.Container;
 
+    [StackTraceHidden]
+    [DebuggerStepThrough]
+    private void ThrowIfUnwrappedComponentsDetected()
+    {
+        for (int i = 0; i < this.Components.Count; i++)
+        {
+            DiscordComponent comp = this.Components[i];
+
+            if (comp is not (DiscordButtonComponent or DiscordSelectComponent))
+            {
+                continue;
+            }
+
+            string compType = comp is DiscordButtonComponent ? "Buttons" : "Selects";
+            throw new ArgumentException($"{compType} must be wrapped in an action row. Index: {i}");
+        }
+    }
 }
