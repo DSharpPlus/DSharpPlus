@@ -1,9 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using DSharpPlus.Net;
-
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -16,21 +15,28 @@ public sealed class DiscordRestApiClientFactory
 {
     private readonly DiscordRestApiClient primaryClient;
     private readonly IServiceProvider services;
-    private readonly Dictionary<string, WeakReference<OAuth2DiscordClient>> clientCache;
+    private readonly IMemoryCache clientCache;
+
+    private readonly MemoryCacheEntryOptions options;
 
     public DiscordRestApiClientFactory
     (
         DiscordRestApiClient primaryClient,
         IOptions<TokenContainer> tokenContainer,
+        IMemoryCache cache,
         IServiceProvider services
     )
     {
         this.services = services;
         this.primaryClient = primaryClient;
+        this.clientCache = cache;
 
         this.primaryClient.SetToken(TokenType.Bot, tokenContainer.Value.GetToken());
 
-        this.clientCache = [];
+        this.options = new()
+        {
+            SlidingExpiration = TimeSpan.FromMinutes(5)
+        };
     }
 
     /// <summary>
@@ -44,16 +50,9 @@ public sealed class DiscordRestApiClientFactory
     /// </summary>
     public async Task<DiscordRestApiClient> GetOAuth2ClientAsync(string token)
     {
-        if (this.clientCache.TryGetValue(token, out WeakReference<OAuth2DiscordClient>? value))
+        if (this.clientCache.TryGetValue($"dsharpplus.oauth-2-client:bearer-{token}", out OAuth2DiscordClient? cachedClient))
         {
-            if (value.TryGetTarget(out OAuth2DiscordClient? cachedClient))
-            {
-                return cachedClient.ApiClient;
-            }
-            else
-            {
-                this.clientCache.Remove(token);
-            }
+            return cachedClient.ApiClient;
         }
 
         OAuth2DiscordClient client = new();
@@ -64,7 +63,7 @@ public sealed class DiscordRestApiClientFactory
         apiClient.SetClient(client);
         client.ApiClient = apiClient;
 
-        this.clientCache.Add(token, new(client));
+        this.clientCache.Set($"dsharpplus.oauth-2-client:bearer-{token}", client, this.options);
 
         await client.InitializeAsync();
 
