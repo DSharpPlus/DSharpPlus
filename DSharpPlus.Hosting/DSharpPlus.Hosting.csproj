@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>DSharpPlus.Hosting</PackageId>
+    <Description>A convenience/quick-start package for setting your bot up for hosting.</Description>
+    <PackageTags>$(PackageTags), hosting, generic-host</PackageTags>
+    <IsPackable>true</IsPackable>  
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DSharpPlus.Natives.Zstd" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DSharpPlus.Commands\DSharpPlus.Commands.csproj" />
+    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
+  </ItemGroup>
+
+</Project>

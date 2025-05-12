@@ -48,6 +48,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.SlashCommands", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Http.AspNetCore", "DSharpPlus.Http.AspNetCore\DSharpPlus.Http.AspNetCore.csproj", "{0A1C0426-650F-4DAD-84B0-2191B94FDE50}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Hosting", "DSharpPlus.Hosting\DSharpPlus.Hosting.csproj", "{F9E528E9-CEB1-40E0-99B5-22891A661433}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,6 +92,10 @@ Global
 		{0A1C0426-650F-4DAD-84B0-2191B94FDE50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A1C0426-650F-4DAD-84B0-2191B94FDE50}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A1C0426-650F-4DAD-84B0-2191B94FDE50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9E528E9-CEB1-40E0-99B5-22891A661433}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9E528E9-CEB1-40E0-99B5-22891A661433}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9E528E9-CEB1-40E0-99B5-22891A661433}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9E528E9-CEB1-40E0-99B5-22891A661433}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
