@@ -9,6 +9,9 @@
     <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj"/>
+    <PackageReference Include="DSharpPlus.Natives.Sodium" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
   </ItemGroup>
 </Project>
