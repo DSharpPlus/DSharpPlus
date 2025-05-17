@@ -27,13 +27,13 @@ You can install the library from following sources:
     git clone https://github.com/DSharpPlus/DSharpPlus.git DSharpPlus-Repo
     ```
 
-    Edit MyProject.csproj and add the following line:
+   Edit MyProject.csproj and add the following line:
 
     ```xml
     <ProjectReference Include="../DSharpPlus-Repo/DSharpPlus/DSharpPlus.csproj" />
     ```
 
-    This belongs in the ItemGroup tag with the rest of your dependencies. The library should not be in the same directory or subdirectory as your project. This method should only be used if you're making local changes to the library.
+   This belongs in the ItemGroup tag with the rest of your dependencies. The library should not be in the same directory or subdirectory as your project. This method should only be used if you're making local changes to the library.
 
 # Documentation
 
@@ -56,11 +56,11 @@ The following resources apply only for the latest stable version of the library.
 If you want to give us some money as a thank you gesture, you can do so using one of these links:
 
 * Naamloos
-  * [Ko-Fi](https://ko-fi.com/naamloos)
+    * [Ko-Fi](https://ko-fi.com/naamloos)
 * Emzi0767
-  * [Ko-Fi](https://ko-fi.com/emzi0767)
-  * [PayPal](https://paypal.me/Emzi0767/5USD)
-  * [Patreon](https://patreon.com/emzi0767)
+    * [Ko-Fi](https://ko-fi.com/emzi0767)
+    * [PayPal](https://paypal.me/Emzi0767/5USD)
+    * [Patreon](https://patreon.com/emzi0767)
 
 # Questions?
 
