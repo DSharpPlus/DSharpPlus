@@ -48,6 +48,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.SlashCommands", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Http.AspNetCore", "DSharpPlus.Http.AspNetCore\DSharpPlus.Http.AspNetCore.csproj", "{0A1C0426-650F-4DAD-84B0-2191B94FDE50}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DSharpPlus.Analyzers", "DSharpPlus.Analyzers", "{CE0C6773-6CC8-46C4-A94F-4FD7FBA86E6A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Analyzers.Test", "DSharpPlus.Analyzers\DSharpPlus.Analyzers.Test\DSharpPlus.Analyzers.Test.csproj", "{05CF9998-372D-47CD-A795-7DA1D7CEA979}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Analyzers", "DSharpPlus.Analyzers\DSharpPlus.Analyzers\DSharpPlus.Analyzers.csproj", "{9445FF9A-5575-47A8-8BAF-09471E9B6157}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,6 +96,14 @@ Global
 		{0A1C0426-650F-4DAD-84B0-2191B94FDE50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A1C0426-650F-4DAD-84B0-2191B94FDE50}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A1C0426-650F-4DAD-84B0-2191B94FDE50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05CF9998-372D-47CD-A795-7DA1D7CEA979}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05CF9998-372D-47CD-A795-7DA1D7CEA979}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05CF9998-372D-47CD-A795-7DA1D7CEA979}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05CF9998-372D-47CD-A795-7DA1D7CEA979}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9445FF9A-5575-47A8-8BAF-09471E9B6157}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9445FF9A-5575-47A8-8BAF-09471E9B6157}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9445FF9A-5575-47A8-8BAF-09471E9B6157}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9445FF9A-5575-47A8-8BAF-09471E9B6157}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -98,6 +112,8 @@ Global
 		{430C28D8-5F85-4D6E-AA68-211549435245} = {4255B64D-92EC-46B3-BC3B-ED2C3A8073EE}
 		{CE500A4B-06D0-48B8-ABD8-E021A12AFFA8} = {1092E215-3968-4EB5-998F-93F0F0809728}
 		{C967DD7B-9CDE-47AF-B35A-875AF547DDDA} = {E4A1A178-BEBD-4FDE-9629-B445E6CF975E}
+		{05CF9998-372D-47CD-A795-7DA1D7CEA979} = {CE0C6773-6CC8-46C4-A94F-4FD7FBA86E6A}
+		{9445FF9A-5575-47A8-8BAF-09471E9B6157} = {CE0C6773-6CC8-46C4-A94F-4FD7FBA86E6A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {23F3A981-51B8-4285-A38C-3267F1D25FE7}
