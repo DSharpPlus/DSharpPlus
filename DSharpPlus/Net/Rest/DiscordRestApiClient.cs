@@ -6308,9 +6308,9 @@ public sealed class DiscordRestApiClient
         string interactionToken,
         ulong messageId,
         DiscordWebhookBuilder builder,
-        IEnumerable<DiscordAttachment> attachments
+        IEnumerable<DiscordAttachment>? attachments
     )
-        => EditWebhookMessageAsync(applicationId, interactionToken, messageId, builder, attachments);
+        => EditWebhookMessageAsync(applicationId, interactionToken, messageId, builder, attachments ?? []);
 
     internal ValueTask DeleteFollowupMessageAsync(ulong applicationId, string interactionToken, ulong messageId)
         => DeleteWebhookMessageAsync(applicationId, interactionToken, messageId);
