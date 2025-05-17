@@ -82,7 +82,7 @@ public class GetSpecificGuilds
 
 ## Usage Warning DSP0009
 
-Use `DiscordPermissions` and its operators isntead of doing operations on `DiscordPermission`.
+Use `DiscordPermissions` and its operators instead of doing operations on `DiscordPermission`.
 
 @DSharpPlus.Entities.DiscordPermission is only an enum containing each permission flag. It does not take care of multiple permissions.
 @DSharpPlus.Entities.DiscordPermissions represents multiple permissions and has utilities for managing this, use it over @DSharpPlus.Entities.DiscordPermission when representing multiple permissions. 

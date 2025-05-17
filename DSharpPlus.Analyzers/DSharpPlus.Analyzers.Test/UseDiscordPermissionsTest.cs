@@ -32,7 +32,7 @@ public class UseDiscordPermissionsTest
                         """;
         
         test.ExpectedDiagnostics.Add(
-            Verifier.Diagnostic()
+            Verifier.Diagnostic("DSP0009")
                 .WithLocation(7, 9)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
@@ -59,7 +59,7 @@ public class UseDiscordPermissionsTest
                         """;
         
         test.ExpectedDiagnostics.Add(
-            Verifier.Diagnostic()
+            Verifier.Diagnostic("DSP0009")
                 .WithLocation(7, 9)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
@@ -86,7 +86,7 @@ public class UseDiscordPermissionsTest
                         """;
         
         test.ExpectedDiagnostics.Add(
-            Verifier.Diagnostic()
+            Verifier.Diagnostic("DSP0009")
                 .WithLocation(7, 9)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
@@ -113,7 +113,7 @@ public class UseDiscordPermissionsTest
                         """;
         
         test.ExpectedDiagnostics.Add(
-            Verifier.Diagnostic()
+            Verifier.Diagnostic("DSP0009")
                 .WithLocation(7, 9)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
@@ -140,7 +140,7 @@ public class UseDiscordPermissionsTest
                         """;
         
         test.ExpectedDiagnostics.Add(
-            Verifier.Diagnostic()
+            Verifier.Diagnostic("DSP0009")
                 .WithLocation(7, 9)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
@@ -167,7 +167,7 @@ public class UseDiscordPermissionsTest
                         """;
         
         test.ExpectedDiagnostics.Add(
-            Verifier.Diagnostic()
+            Verifier.Diagnostic("DSP0009")
                 .WithLocation(7, 9)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
@@ -194,7 +194,7 @@ public class UseDiscordPermissionsTest
                         """;
         
         test.ExpectedDiagnostics.Add(
-            Verifier.Diagnostic()
+            Verifier.Diagnostic("DSP0009")
                 .WithLocation(7, 9)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
@@ -221,7 +221,7 @@ public class UseDiscordPermissionsTest
                         """;
         
         test.ExpectedDiagnostics.Add(
-            Verifier.Diagnostic()
+            Verifier.Diagnostic("DSP0009")
                 .WithLocation(7, 9)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
@@ -248,9 +248,9 @@ public class UseDiscordPermissionsTest
                         """;
         
         test.ExpectedDiagnostics.Add(
-            Verifier.Diagnostic()
+            Verifier.Diagnostic("DSP0010")
                 .WithLocation(7, 9)
-                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithSeverity(DiagnosticSeverity.Info)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
         
         await test.RunAsync();
@@ -275,7 +275,7 @@ public class UseDiscordPermissionsTest
                         """;
         
         test.ExpectedDiagnostics.Add(
-            Verifier.Diagnostic()
+            Verifier.Diagnostic("DSP0009")
                 .WithLocation(7, 16)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));

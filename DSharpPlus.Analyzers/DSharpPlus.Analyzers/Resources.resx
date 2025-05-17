@@ -81,9 +81,18 @@
     <value>Use 'DiscordPermissions' and its operators instead of doing raw operations on 'DiscordPermission'.</value>
   </data>
   <data name="DSP0009Title" xml:space="preserve">
-    <value>Use 'DiscordPermissions' instead of operating on 'DiscordPermission'</value>
+    <value>Use 'DiscordPermissions' over operations on 'DiscordPermission'</value>
   </data>
   <data name="DSP0009MessageFormat" xml:space="preserve">
     <value>Use 'DiscordPermissions' instead of operating on 'DiscordPermission'</value>
+  </data>
+  <data name="DSP0010Title" xml:space="preserve">
+    <value>Prefer named method 'Name' over bitwise operations</value>
+  </data>
+  <data name="DSP0010Description" xml:space="preserve">
+    <value>Prefer named method 'Name' over bitwise operations.</value>
+  </data>
+  <data name="DSP0010MessageFormat" xml:space="preserve">
+    <value>Prefer using '{0}' instead of '{1}'</value>
   </data>
 </root>

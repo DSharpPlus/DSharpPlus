@@ -9,42 +9,72 @@ namespace DSharpPlus.Analyzers.Core;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class UseDiscordPermissionsAnalyzer : DiagnosticAnalyzer
 {
-    public const string DiagnosticId = "DSP0009";
-    public const string Category = "Usage";
-
-    private static readonly LocalizableString title = new LocalizableResourceString
+    private static readonly LocalizableString titleDsp0009 = new LocalizableResourceString
     (
         nameof(Resources.DSP0009Title),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
-    private static readonly LocalizableString description = new LocalizableResourceString
+    private static readonly LocalizableString descriptionDsp0009 = new LocalizableResourceString
     (
         nameof(Resources.DSP0009Description),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
-    private static readonly LocalizableString messageFormat = new LocalizableResourceString
+    private static readonly LocalizableString messageFormatDsp0009 = new LocalizableResourceString
     (
         nameof(Resources.DSP0009MessageFormat),
         Resources.ResourceManager,
         typeof(Resources)
     );
 
-    private static readonly DiagnosticDescriptor rule = new(
-        DiagnosticId,
-        title,
-        messageFormat,
-        Category,
+    private static readonly LocalizableString titleDsp0010 = new LocalizableResourceString
+    (
+        nameof(Resources.DSP0010Title),
+        Resources.ResourceManager,
+        typeof(Resources)
+    );
+
+    private static readonly LocalizableString descriptionDsp0010 = new LocalizableResourceString
+    (
+        nameof(Resources.DSP0010Description),
+        Resources.ResourceManager,
+        typeof(Resources)
+    );
+
+    private static readonly LocalizableString messageFormatDsp0010 = new LocalizableResourceString
+    (
+        nameof(Resources.DSP0010MessageFormat),
+        Resources.ResourceManager,
+        typeof(Resources)
+    );
+
+    private static readonly DiagnosticDescriptor ruleDsp0009 = new(
+        "DSP0009",
+        titleDsp0009,
+        messageFormatDsp0009,
+        "Usage",
         DiagnosticSeverity.Warning,
         true,
-        description,
+        descriptionDsp0009,
         helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/core.html#usage-warning-dsp0009"
     );
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(rule);
+    private static readonly DiagnosticDescriptor ruleDsp0010 = new(
+        "DSP0010",
+        titleDsp0010,
+        messageFormatDsp0010,
+        "Usage",
+        DiagnosticSeverity.Info,
+        true,
+        descriptionDsp0010,
+        helpLinkUri: $"{Utility.BaseDocsUrl}/articles/analyzers/core.html#usage-warning-dsp0010"
+    );
+
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+        = ImmutableArray.Create(ruleDsp0009, ruleDsp0010);
 
     public override void Initialize(AnalysisContext ctx)
     {
@@ -76,6 +106,12 @@ public class UseDiscordPermissionsAnalyzer : DiagnosticAnalyzer
             return;
         }
 
+        if (binaryExpression.Kind() == SyntaxKind.AndAssignmentExpression &&
+            !GetNotOperation(binaryExpression.Right))
+        {
+            return;
+        }
+
         Location location;
         if (binaryExpression.Parent is AssignmentExpressionSyntax assignment)
         {
@@ -88,14 +124,34 @@ public class UseDiscordPermissionsAnalyzer : DiagnosticAnalyzer
 
         TypeInfo leftTypeInfo = ctx.SemanticModel.GetTypeInfo(binaryExpression.Left);
         TypeInfo rightTypeInfo = ctx.SemanticModel.GetTypeInfo(binaryExpression.Right);
-        if (!ctx.Compilation.CheckByName(leftTypeInfo, "DSharpPlus.Entities.DiscordPermission") &&
-            !ctx.Compilation.CheckByName(rightTypeInfo, "DSharpPlus.Entities.DiscordPermission"))
+        bool leftTypeIsDiscordPermission
+            = ctx.Compilation.CheckByName(leftTypeInfo, "DSharpPlus.Entities.DiscordPermission");
+        bool rightTypeIsDiscordPermission
+            = ctx.Compilation.CheckByName(rightTypeInfo, "DSharpPlus.Entities.DiscordPermission");
+        bool leftTypeIsDiscordPermissions
+            = ctx.Compilation.CheckByName(leftTypeInfo, "DSharpPlus.Entities.DiscordPermissions");
+        bool rightTypeIsDiscordPermissions
+            = ctx.Compilation.CheckByName(rightTypeInfo, "DSharpPlus.Entities.DiscordPermissions");
+
+        if (!leftTypeIsDiscordPermission && !rightTypeIsDiscordPermission)
         {
             return;
         }
 
-        Diagnostic diagnostic
-            = Diagnostic.Create(rule, location);
+        Diagnostic diagnostic;
+        if ((leftTypeIsDiscordPermissions && rightTypeIsDiscordPermission) ||
+            (rightTypeIsDiscordPermissions && leftTypeIsDiscordPermission))
+        {
+            // TODO: Add messages
+            diagnostic = Diagnostic.Create(ruleDsp0010, location);
+        }
+        else
+        {
+            diagnostic
+                = Diagnostic.Create(ruleDsp0009, location);
+        }
+
+
         ctx.ReportDiagnostic(diagnostic);
     }
 
@@ -128,31 +184,18 @@ public class UseDiscordPermissionsAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        Diagnostic diagnostic = Diagnostic.Create(rule, assignmentExpression.GetLocation());
+        Diagnostic diagnostic = Diagnostic.Create(ruleDsp0009, assignmentExpression.GetLocation());
         ctx.ReportDiagnostic(diagnostic);
     }
 
     private static bool GetNotOperation(ExpressionSyntax expression)
     {
-        if (expression is ParenthesizedExpressionSyntax { Expression: PrefixUnaryExpressionSyntax unaryExpression })
+        return expression switch
         {
-            if (unaryExpression.Kind() == SyntaxKind.BitwiseNotExpression)
-            {
-                return true;
-            }
-
-            return false;
-        }
-        else if (expression is PrefixUnaryExpressionSyntax unaryExpression2)
-        {
-            if (unaryExpression2.Kind() == SyntaxKind.BitwiseNotExpression)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        return false;
+            ParenthesizedExpressionSyntax { Expression: PrefixUnaryExpressionSyntax unaryExpression } =>
+                unaryExpression.Kind() == SyntaxKind.BitwiseNotExpression,
+            PrefixUnaryExpressionSyntax unaryExpression2 => unaryExpression2.Kind() == SyntaxKind.BitwiseNotExpression,
+            _ => false
+        };
     }
 }
