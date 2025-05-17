@@ -1,4 +1,5 @@
 using System;
+using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
 
@@ -46,10 +47,22 @@ public sealed class InteractivityConfiguration
     public PaginationDeletion PaginationDeletion { internal get; set; } = PaginationDeletion.DeleteEmojis;
 
     /// <summary>
-    /// How to handle invalid interactions. Defaults to Ignore.
+    /// How to handle invalid [component] interactions. Defaults to <see cref="InteractionResponseBehavior.Ignore"/>
     /// </summary>
     public InteractionResponseBehavior ResponseBehavior { internal get; set; } = InteractionResponseBehavior.Ignore;
 
+    /// <summary>
+    /// Provides a string factory to generate a response when processing invalid interactions. This is ignored if <see cref="ResponseBehavior"/> is not <see cref="InteractionResponseBehavior.Respond"/>
+    /// </summary>
+    /// <remarks>
+    /// An invalid interaction in this case is considered as an interaction on a component where the invoking user does not match the specified user to wait for.
+    /// </remarks>
+    public Func<ComponentInteractionCreatedEventArgs, IServiceProvider, string> ResponseMessageFactory
+    {
+        internal get;
+        set;
+    } = (_, _) => "This message is not meant for you!";
+    
     /// <summary>
     /// The message to send to the user when processing invalid interactions. Ignored if <see cref="ResponseBehavior"/> is not set to <see cref="InteractionResponseBehavior.Respond"/>.
     /// </summary>
@@ -74,13 +87,9 @@ public sealed class InteractivityConfiguration
         this.PaginationDeletion = other.PaginationDeletion;
         this.ResponseBehavior = other.ResponseBehavior;
         this.PaginationEmojis = other.PaginationEmojis;
+        this.ResponseMessageFactory = other.ResponseMessageFactory;
         this.ResponseMessage = other.ResponseMessage;
         this.PollBehaviour = other.PollBehaviour;
         this.Timeout = other.Timeout;
-
-        if (this.ResponseBehavior is InteractionResponseBehavior.Respond && string.IsNullOrWhiteSpace(this.ResponseMessage))
-        {
-            throw new ArgumentException($"{nameof(this.ResponseMessage)} cannot be null, empty, or whitespace when {nameof(this.ResponseBehavior)} is set to respond.");
-        }
     }
 }

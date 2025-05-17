@@ -179,8 +179,8 @@ internal static class AuditLogParser
             case DiscordAuditLogActionType.Prune:
                 entry = new DiscordAuditLogPruneEntry
                 {
-                    Days = auditLogAction.Options.DeleteMemberDays,
-                    Toll = auditLogAction.Options.MembersRemoved
+                    Days = auditLogAction.Options!.DeleteMemberDays,
+                    Toll = auditLogAction.Options!.MembersRemoved
                 };
                 break;
 
@@ -281,10 +281,10 @@ internal static class AuditLogParser
 
                     if (messageEntry.Channel is not null)
                     {
-                        guild.Discord.UserCache.TryGetValue(auditLogAction.UserId, out DiscordUser? user);
+                        guild.Discord.UserCache.TryGetValue(auditLogAction.UserId.Value, out DiscordUser? user);
                         messageEntry.Target = user ?? new DiscordUser
                         {
-                            Id = auditLogAction.UserId,
+                            Id = auditLogAction.UserId.Value,
                             Discord = guild.Discord
                         };
                     }
@@ -451,10 +451,10 @@ internal static class AuditLogParser
                             };
                 }
 
-                autoModerationEntry.ResponsibleRule = auditLogAction.Options.RoleName;
+                autoModerationEntry.ResponsibleRule = auditLogAction.Options!.AutoModerationRuleName;
                 autoModerationEntry.Channel = guild.GetChannel(auditLogAction.Options.ChannelId);
                 autoModerationEntry.RuleTriggerType =
-                    (DiscordRuleTriggerType)int.Parse(auditLogAction.Options.AutoModerationRuleTriggerType);
+                    (DiscordRuleTriggerType)int.Parse(auditLogAction.Options!.AutoModerationRuleTriggerType);
                 break;
 
             case DiscordAuditLogActionType.AutoModerationRuleCreate:
@@ -507,11 +507,11 @@ internal static class AuditLogParser
         entry.Reason = auditLogAction.Reason;
         entry.Discord = guild.Discord;
 
-        entry.UserResponsible = members.TryGetValue(auditLogAction.UserId, out DiscordMember? member)
+        entry.UserResponsible = members.TryGetValue(auditLogAction.UserId!.Value, out DiscordMember? member)
             ? member
-            : guild.Discord.UserCache.TryGetValue(auditLogAction.UserId, out DiscordUser? discordUser)
+            : guild.Discord.UserCache.TryGetValue(auditLogAction.UserId!.Value, out DiscordUser? discordUser)
                 ? discordUser
-                : new DiscordUser { Id = auditLogAction.UserId, Discord = guild.Discord };
+                : new DiscordUser { Id = auditLogAction.UserId!.Value, Discord = guild.Discord };
 
         return entry;
     }

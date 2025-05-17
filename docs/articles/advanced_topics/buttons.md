@@ -38,7 +38,7 @@ How does one construct a button? It's simple, buttons support constructor and ob
 
 ```cs
 var myButton = new DiscordButtonComponent(
-    ButtonStyle.Primary,
+    DiscordButtonStyle.Primary,
     "my_very_cool_button",
     "Very cool button!",
     false,
@@ -74,7 +74,7 @@ and call AddComponents on the
 message builder.
 
 ```cs
-var myButton = new DiscordButtonComponent(ButtonStyle.Primary, "my_custom_id", "This is a button!");
+var myButton = new DiscordButtonComponent(DiscordButtonStyle.Primary, "my_custom_id", "This is a button!");
 
 var builder = new DiscordMessageBuilder()
     .WithContent("This message has buttons! Pretty neat innit?")
@@ -92,10 +92,10 @@ var builder = new DiscordMessageBuilder()
     .WithContent("This message has buttons! Pretty neat innit?")
     .AddComponents(new DiscordComponent[]
     {
-        new DiscordButtonComponent(ButtonStyle.Primary, "1_top", "Blurple!"),
-        new DiscordButtonComponent(ButtonStyle.Secondary, "2_top", "Grey!"),
-        new DiscordButtonComponent(ButtonStyle.Success, "3_top", "Green!"),
-        new DiscordButtonComponent(ButtonStyle.Danger, "4_top", "Red!"),
+        new DiscordButtonComponent(DiscordButtonStyle.Primary, "1_top", "Blurple!"),
+        new DiscordButtonComponent(DiscordButtonStyle.Secondary, "2_top", "Grey!"),
+        new DiscordButtonComponent(DiscordButtonStyle.Success, "3_top", "Green!"),
+        new DiscordButtonComponent(DiscordButtonStyle.Danger, "4_top", "Red!"),
         new DiscordLinkButtonComponent("https://some-super-cool.site", "Link!")
     });
 ```
@@ -108,10 +108,10 @@ Lets also add a second row of buttons, but disable them, so the user can't push 
 ```cs
 builder.AddComponents(new DiscordComponent[]
 {
-    new DiscordButtonComponent(ButtonStyle.Primary, "1_top_d", "Blurple!", true),
-    new DiscordButtonComponent(ButtonStyle.Secondary, "2_top_d", "Grey!", true),
-    new DiscordButtonComponent(ButtonStyle.Success, "3_top_d", "Green!", true),
-    new DiscordButtonComponent(ButtonStyle.Danger, "4_top_d", "Red!", true),
+    new DiscordButtonComponent(DiscordButtonStyle.Primary, "1_top_d", "Blurple!", true),
+    new DiscordButtonComponent(DiscordButtonStyle.Secondary, "2_top_d", "Grey!", true),
+    new DiscordButtonComponent(DiscordButtonStyle.Success, "3_top_d", "Green!", true),
+    new DiscordButtonComponent(DiscordButtonStyle.Danger, "4_top_d", "Red!", true),
     new DiscordLinkButtonComponent("https://some-super-cool.site", "Link!", true)
 });
 ```
@@ -128,7 +128,7 @@ That's also very simple!
 
 ```cs
 var myButton = new DiscordButtonComponent(
-    ButtonStyle.Primary,
+    DiscordButtonStyle.Primary,
     "emoji_button",
     null,
     false,

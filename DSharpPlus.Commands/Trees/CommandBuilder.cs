@@ -156,7 +156,7 @@ public class CommandBuilder
     }
 
     /// <inheritdoc cref="From(Type, ulong[])"/>
-    public static CommandBuilder From<T>() => From(typeof(T), []);
+    public static CommandBuilder From<T>() => From<T>([]);
 
     /// <inheritdoc cref="From(Type, ulong[])"/>
     /// <typeparam name="T">The type that'll be searched for subcommands.</typeparam>
@@ -180,34 +180,34 @@ public class CommandBuilder
         commandBuilder.GuildIds.AddRange(guildIds);
 
         // Add subcommands
-        List<CommandBuilder> subCommandBuilders = [];
-        foreach (Type subCommand in type.GetNestedTypes(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
+        List<CommandBuilder> subcommandBuilders = [];
+        foreach (Type subcommand in type.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
         {
-            if (subCommand.GetCustomAttribute<CommandAttribute>() is null)
+            if (subcommand.GetCustomAttribute<CommandAttribute>() is null)
             {
                 continue;
             }
 
-            subCommandBuilders.Add(From(subCommand, [.. commandBuilder.GuildIds]).WithParent(commandBuilder));
+            subcommandBuilders.Add(From(subcommand, [.. commandBuilder.GuildIds]).WithParent(commandBuilder));
         }
 
         // Add methods
-        foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
+        foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
         {
             if (method.GetCustomAttribute<CommandAttribute>() is null)
             {
                 continue;
             }
 
-            subCommandBuilders.Add(From(method, guildIds: [.. commandBuilder.GuildIds]).WithParent(commandBuilder));
+            subcommandBuilders.Add(From(method, guildIds: [.. commandBuilder.GuildIds]).WithParent(commandBuilder));
         }
 
-        if (type.GetCustomAttribute<CommandAttribute>() is not null && subCommandBuilders.Count == 0)
+        if (type.GetCustomAttribute<CommandAttribute>() is not null && subcommandBuilders.Count == 0)
         {
             throw new ArgumentException($"The type \"{type.FullName ?? type.Name}\" does not have any subcommands or methods with a CommandAttribute.", nameof(type));
         }
 
-        commandBuilder.WithSubcommands(subCommandBuilders);
+        commandBuilder.WithSubcommands(subcommandBuilders);
 
         // Might be set through the `DescriptionAttribute`
         if (string.IsNullOrEmpty(commandBuilder.Description))
@@ -262,11 +262,11 @@ public class CommandBuilder
         StringBuilder stringBuilder = new();
         if (this.Parent is not null)
         {
-            stringBuilder.Append(this.Parent.Name);
+            stringBuilder.Append(this.Parent.FullName);
             stringBuilder.Append('.');
         }
 
-        stringBuilder.Append(this.Name ?? "Unnamed Command");
+        stringBuilder.Append(this.Name ?? "<Unnamed Command>");
         return stringBuilder.ToString();
     }
 
@@ -277,7 +277,7 @@ public class CommandBuilder
 
         static IEnumerable<Attribute> AggregateCustomAttributesFromType(Type? type)
         {
-            return type is null 
+            return type is null
                 ? []
                 : type.GetCustomAttributes(true)
                     .Where(obj => obj is ContextCheckAttribute)

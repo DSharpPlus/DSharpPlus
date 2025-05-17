@@ -25,6 +25,8 @@
     topicUid: articles.beyond_basics.messagebuilder
   - name: Interactions
     topicUid: articles.beyond_basics.interactions
+  - name: Permissions
+    topicUid: articles.beyond_basics.permissions
 - name: Commands
   items:
   - name: Introduction

@@ -177,7 +177,7 @@ public sealed class UserCommandProcessor : ICommandProcessor
             nameLocalizations = await this.slashCommandProcessor.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
         }
 
-        DiscordPermission[]? userPermissions = command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions;
+        DiscordPermissions? userPermissions = command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions;
 
         return new
         (
@@ -187,7 +187,7 @@ public sealed class UserCommandProcessor : ICommandProcessor
             name_localizations: nameLocalizations,
             allowDMUsage: command.Attributes.Any(x => x is AllowDMUsageAttribute),
             defaultMemberPermissions: userPermissions is not null
-                ? new(userPermissions)
+                ? userPermissions
                 : new DiscordPermissions(DiscordPermission.UseApplicationCommands),
             nsfw: command.Attributes.Any(x => x is RequireNsfwAttribute),
             contexts: command.Attributes.OfType<InteractionAllowedContextsAttribute>().FirstOrDefault()?.AllowedContexts,

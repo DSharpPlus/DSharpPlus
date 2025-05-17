@@ -7,6 +7,8 @@ namespace DSharpPlus.Commands.Processors.TextCommands;
 public sealed record TextCommandContext : CommandContext
 {
     public required DiscordMessage Message { get; init; }
+    public required int PrefixLength { internal get; init; }
+    public string? Prefix => this.Message.Content?[..this.PrefixLength];
     public DiscordMessage? Response { get; private set; }
     public bool Delayed { get; private set; }
 

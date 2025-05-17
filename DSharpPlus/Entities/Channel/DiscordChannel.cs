@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
-using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Abstractions.Rest;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
@@ -442,7 +442,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
         }
 
         DiscordChannel[] chns = [.. this.Guild.channels.Values.Where(xc => xc.Type == this.Type).OrderBy(xc => xc.Position)];
-        RestGuildChannelReorderPayload[] pmds = new RestGuildChannelReorderPayload[chns.Length];
+        DiscordChannelPosition[] pmds = new DiscordChannelPosition[chns.Length];
         for (int i = 0; i < chns.Length; i++)
         {
             pmds[i] = new()
@@ -545,7 +545,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
 
         int remaining = limit;
         ulong? last = null;
-        bool isbefore = before != null;
+        bool isbefore = before != null || (before is null && after is null && around is null);
 
         int lastCount;
         do

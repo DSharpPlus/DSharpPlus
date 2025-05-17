@@ -53,10 +53,23 @@ public class DiscordThreadChannel : DiscordChannel
     /// Gets the tags applied to this forum post.
     /// </summary>
     // Performant? No. Ideally, you're not using this property often.
-    public IReadOnlyList<DiscordForumTag> AppliedTags =>
-        this.Parent is DiscordForumChannel parent
-            ? parent.AvailableTags.Where(pt => this.appliedTagIds.Contains(pt.Id)).ToArray()
-            : [];
+#pragma warning disable IDE0046 // we don't want doubly nested ternaries here
+    public IReadOnlyList<DiscordForumTag> AppliedTags
+    {
+        get
+        {
+            // discord sends null if this thread never had tags applied, which means it has no tags. return empty.
+            if (this.appliedTagIds is null)
+            {
+                return [];
+            }
+
+            return this.Parent is DiscordForumChannel parent
+                ? parent.AvailableTags.Where(pt => this.appliedTagIds.Contains(pt.Id)).ToArray()
+                : [];
+        }
+    }
+#pragma warning restore IDE0046
 
     /// <summary>
     /// Gets the IDs of the tags applied to this forum post.
