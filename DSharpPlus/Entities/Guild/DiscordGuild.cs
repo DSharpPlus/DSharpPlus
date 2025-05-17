@@ -102,14 +102,14 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the guild's voice region ID.
     /// </summary>
     [JsonProperty("region", NullValueHandling = NullValueHandling.Ignore)]
-    internal string voiceRegionId { get; set; }
+    public string VoiceRegionId { get; set; }
 
     /// <summary>
     /// Gets the guild's voice region.
     /// </summary>
     [JsonIgnore]
     public DiscordVoiceRegion VoiceRegion
-        => this.Discord.VoiceRegions[this.voiceRegionId];
+        => this.Discord.VoiceRegions[this.VoiceRegionId];
 
     /// <summary>
     /// Gets the guild's AFK voice channel ID.
