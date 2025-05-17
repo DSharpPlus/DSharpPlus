@@ -5094,8 +5094,16 @@ public sealed class DiscordRestApiClient
         };
 
         string route = $"{Endpoints.WEBHOOKS}/{webhookId}/:webhook_token/{Endpoints.MESSAGES}/:message_id";
-        string url = $"{Endpoints.WEBHOOKS}/{webhookId}/{webhookToken}/{Endpoints.MESSAGES}/{messageId}";
+        QueryUriBuilder uriBuilder = new($"{Endpoints.WEBHOOKS}/{webhookId}/{webhookToken}/{Endpoints.MESSAGES}/{messageId}");
 
+        uriBuilder.AddParameter("wait", "true");
+        uriBuilder.AddParameter("with_components", "true");
+
+        if (builder.ThreadId.HasValue)
+        {
+            uriBuilder.AddParameter("thread_id", builder.ThreadId.Value.ToString());
+        }
+        
         Dictionary<string, string> values = new()
         {
             ["payload_json"] = DiscordJson.SerializeObject(pld)
@@ -5104,7 +5112,7 @@ public sealed class DiscordRestApiClient
         MultipartRestRequest request = new()
         {
             Route = route,
-            Url = url,
+            Url = uriBuilder.Build(),
             Method = HttpMethod.Patch,
             Values = values,
             Files = builder.Files,
