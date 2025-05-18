@@ -309,7 +309,7 @@ public class UseDiscordPermissionsTest
 
         await test.RunAsync();
     }
-    
+
     [Test]
     public static async Task UsingOnlyDiscordPermissionsTestAsync()
     {
@@ -333,6 +333,48 @@ public class UseDiscordPermissionsTest
                 .WithLocation(7, 9)
                 .WithSeverity(DiagnosticSeverity.Info)
                 .WithMessage("Prefer using '+=' instead of '|='"));
+
+        await test.RunAsync();
+    }
+
+    [Test]
+    public static async Task PlusAssignmentDiscordPermissionsTestAsync()
+    {
+        CSharpAnalyzerTest<UseDiscordPermissionsAnalyzer, DefaultVerifier> test =
+            Utility.CreateAnalyzerTest<UseDiscordPermissionsAnalyzer>();
+
+        test.TestCode = """
+                        using DSharpPlus.Entities;
+
+                        public class PermissionsUtil
+                        {
+                            public static void AddAdmin(DiscordPermissions perm) 
+                            {
+                                perm += DiscordPermission.Administrator;
+                            }
+                        }
+                        """;
+
+        await test.RunAsync();
+    }
+
+    [Test]
+    public static async Task PlusExpressionDiscordPermissionsTestAsync()
+    {
+        CSharpAnalyzerTest<UseDiscordPermissionsAnalyzer, DefaultVerifier> test =
+            Utility.CreateAnalyzerTest<UseDiscordPermissionsAnalyzer>();
+
+        test.TestCode = """
+                        using DSharpPlus.Entities;
+
+                        public class PermissionsUtil
+                        {
+                            public static void AddAdmin(DiscordPermissions perm) 
+                            {
+                                perm = perm + DiscordPermission.Administrator;
+                            }
+                        }
+                        """;
 
         await test.RunAsync();
     }

@@ -85,30 +85,33 @@ public class UseDiscordPermissionsAnalyzer : DiagnosticAnalyzer
             AnalyzeBitOp,
             SyntaxKind.BitwiseAndExpression,
             SyntaxKind.BitwiseOrExpression,
-            SyntaxKind.ExclusiveOrExpression);
+            SyntaxKind.ExclusiveOrExpression,
+            SyntaxKind.AddExpression,
+            SyntaxKind.SubtractExpression,
+            SyntaxKind.MultiplyExpression,
+            SyntaxKind.DivideExpression,
+            SyntaxKind.ModuloExpression,
+            SyntaxKind.LeftShiftExpression,
+            SyntaxKind.RightShiftAssignmentExpression,
+            SyntaxKind.UnsignedRightShiftExpression);
         ctx.RegisterSyntaxNodeAction(
             AnalyzeAssignment,
             SyntaxKind.AndAssignmentExpression,
             SyntaxKind.OrAssignmentExpression,
-            SyntaxKind.ExclusiveOrAssignmentExpression);
+            SyntaxKind.ExclusiveOrAssignmentExpression,
+            SyntaxKind.AddAssignmentExpression,
+            SyntaxKind.SubtractAssignmentExpression,
+            SyntaxKind.MultiplyAssignmentExpression,
+            SyntaxKind.DivideAssignmentExpression,
+            SyntaxKind.ModuloAssignmentExpression,
+            SyntaxKind.LeftShiftAssignmentExpression,
+            SyntaxKind.RightShiftAssignmentExpression,
+            SyntaxKind.UnsignedRightShiftAssignmentExpression);
     }
 
     private static void AnalyzeBitOp(SyntaxNodeAnalysisContext ctx)
     {
         if (ctx.Node is not BinaryExpressionSyntax binaryExpression)
-        {
-            return;
-        }
-
-        if (binaryExpression.Kind() != SyntaxKind.BitwiseAndExpression &&
-            binaryExpression.Kind() != SyntaxKind.BitwiseOrExpression &&
-            binaryExpression.Kind() != SyntaxKind.ExclusiveOrExpression)
-        {
-            return;
-        }
-
-        if (binaryExpression.Kind() == SyntaxKind.AndAssignmentExpression &&
-            !GetNotOperation(binaryExpression.Right))
         {
             return;
         }
@@ -138,6 +141,19 @@ public class UseDiscordPermissionsAnalyzer : DiagnosticAnalyzer
         Diagnostic diagnostic;
         if (leftTypeIsDiscordPermissions || rightTypeIsDiscordPermissions)
         {
+            if (binaryExpression.Kind() != SyntaxKind.BitwiseAndExpression &&
+                binaryExpression.Kind() != SyntaxKind.BitwiseOrExpression &&
+                binaryExpression.Kind() != SyntaxKind.ExclusiveOrExpression)
+            {
+                return;
+            }
+
+            if (binaryExpression.Kind() == SyntaxKind.AndAssignmentExpression &&
+                !GetNotOperation(binaryExpression.Right))
+            {
+                return;
+            }
+
             string equivalence = GetDiscordPermissionsEquivalence(binaryExpression.Kind());
             diagnostic = Diagnostic.Create(ruleDsp0010, location, equivalence,
                 binaryExpression.OperatorToken.ToString());
@@ -162,20 +178,6 @@ public class UseDiscordPermissionsAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if (assignmentExpression.Kind() != SyntaxKind.AndAssignmentExpression &&
-            assignmentExpression.Kind() != SyntaxKind.OrAssignmentExpression &&
-            assignmentExpression.Kind() != SyntaxKind.ExclusiveOrAssignmentExpression)
-        {
-            return;
-        }
-
-        if (assignmentExpression.Kind() == SyntaxKind.AndAssignmentExpression &&
-            !GetNotOperation(assignmentExpression.Right))
-        {
-            return;
-        }
-
-
         TypeInfo leftTypeInfo = ctx.SemanticModel.GetTypeInfo(assignmentExpression.Left);
         TypeInfo rightTypeInfo = ctx.SemanticModel.GetTypeInfo(assignmentExpression.Right);
 
@@ -191,13 +193,26 @@ public class UseDiscordPermissionsAnalyzer : DiagnosticAnalyzer
         Diagnostic diagnostic;
         if (leftTypeIsDiscordPermissions || rightTypeIsDiscordPermissions)
         {
+            if (assignmentExpression.Kind() != SyntaxKind.AndAssignmentExpression &&
+                assignmentExpression.Kind() != SyntaxKind.OrAssignmentExpression &&
+                assignmentExpression.Kind() != SyntaxKind.ExclusiveOrAssignmentExpression)
+            {
+                return;
+            }
+
+            if (assignmentExpression.Kind() == SyntaxKind.AndAssignmentExpression &&
+                !GetNotOperation(assignmentExpression.Right))
+            {
+                return;
+            }
+
             string equivalence = GetDiscordPermissionsEquivalence(assignmentExpression.Kind());
             diagnostic = Diagnostic.Create(ruleDsp0010, assignmentExpression.GetLocation(), equivalence,
                 assignmentExpression.OperatorToken.ToString());
             ctx.ReportDiagnostic(diagnostic);
             return;
         }
-        
+
         if (!leftTypeIsDiscordPermission &&
             !rightTypeIsDiscordPermission)
         {
