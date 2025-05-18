@@ -4,10 +4,9 @@
 
 using System;
 using System.Numerics;
+using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
-
-using Xunit;
 
 namespace DSharpPlus.Shared.Tests.Permissions;
 
@@ -31,88 +30,89 @@ public class ConstructionTests
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     ];
 
-    [Fact]
-    public void FirstBitSetCorrectly_Constructor()
+    [Test]
+    public async Task FirstBitSetCorrectly_Constructor()
     {
         DiscordPermissions permissions = new(DiscordPermission.CreateInvite);
         DiscordPermissions expected = new(FirstBit);
 
-        Assert.Equal(expected, permissions);
+        await Assert.That(expected).IsEqualTo(permissions);
     }
 
-    [Fact]
-    public void FirstBitSetCorrectly_Add()
+    [Test]
+    public async Task FirstBitSetCorrectly_Add()
     {
-        DiscordPermissions permissions = DiscordPermissions.None.Add(DiscordPermission.CreateInvite);
+        DiscordPermissions permissions = DiscordPermissions.None;
+        permissions.Add(DiscordPermission.CreateInvite);
         DiscordPermissions expected = new(FirstBit);
 
-        Assert.Equal(expected, permissions);
+        await Assert.That(expected).IsEqualTo(permissions);
     }
 
-    [Fact]
-    public void FirstTwoBitsSetCorrectly_Constructor()
+    [Test]
+    public async Task FirstTwoBitsSetCorrectly_Constructor()
     {
         DiscordPermissions permissions = new(DiscordPermission.CreateInvite, DiscordPermission.KickMembers);
         DiscordPermissions expected = new(FirstTwoBits);
 
-        Assert.Equal(expected, permissions);
+        await Assert.That(expected).IsEqualTo(permissions);
     }
 
-    [Fact]
-    public void FirstTwoBitsSetCorrectly_Add()
+    [Test]
+    public async Task FirstTwoBitsSetCorrectly_Add()
     {
-        DiscordPermissions permissions = DiscordPermissions.None
-            .Add(DiscordPermission.CreateInvite)
-            .Add(DiscordPermission.KickMembers);
+        DiscordPermissions permissions = DiscordPermissions.None;
+        permissions.Add(DiscordPermission.CreateInvite);
+        permissions.Add(DiscordPermission.KickMembers);
         DiscordPermissions expected = new(FirstTwoBits);
 
-        Assert.Equal(expected, permissions);
+        await Assert.That(expected).IsEqualTo(permissions);
     }
 
-    [Fact]
-    public void FirstTwoBitsSetCorrectly_AddMultiple()
+    [Test]
+    public async Task FirstTwoBitsSetCorrectly_AddMultiple()
     {
-        DiscordPermissions permissions = DiscordPermissions.None
-            .Add(DiscordPermission.CreateInvite, DiscordPermission.KickMembers);
+        DiscordPermissions permissions = DiscordPermissions.None;
+        permissions.Add(DiscordPermission.CreateInvite, DiscordPermission.KickMembers);
         DiscordPermissions expected = new(FirstTwoBits);
 
-        Assert.Equal(expected, permissions);
+        await Assert.That(expected).IsEqualTo(permissions);
     }
 
-    [Fact]
-    public void TestUnderlyingUInt32Rollover()
+    [Test]
+    public async Task TestUnderlyingUInt32Rollover()
     {
         DiscordPermissions permissions = new(DiscordPermission.RequestToSpeak, DiscordPermission.CreateInvite);
         DiscordPermissions expected = new(ThirtyThirdBit);
 
-        Assert.Equal(expected, permissions);
+        await Assert.That(expected).IsEqualTo(permissions);
     }
 
-    [Fact]
-    public void FirstBitSetCorrectly_BigInteger()
+    [Test]
+    public async Task FirstBitSetCorrectly_BigInteger()
     {
         BigInteger bigint = new(1);
         DiscordPermissions permissions = new(bigint);
         DiscordPermissions expected = new(FirstBit);
 
-        Assert.Equal(expected, permissions);
+        await Assert.That(expected).IsEqualTo(permissions);
     }
 
-    [Fact]
-    public void ThirtyThirdBitSetCorrectly_BigInteger()
+    [Test]
+    public async Task ThirtyThirdBitSetCorrectly_BigInteger()
     {
         BigInteger bigint = new(4294967297);
         DiscordPermissions permissions = new(bigint);
         DiscordPermissions expected = new(ThirtyThirdBit);
 
-        Assert.Equal(expected, permissions);
+        await Assert.That(expected).IsEqualTo(permissions);
     }
 
-    [Fact]
-    public void OpImplicit()
+    [Test]
+    public async Task OpImplicit()
     {
         DiscordPermissions expected = new(FirstBit);
 
-        Assert.Equal(expected, DiscordPermission.CreateInvite);
+        await Assert.That(expected).IsEqualTo(DiscordPermission.CreateInvite);
     }
 }

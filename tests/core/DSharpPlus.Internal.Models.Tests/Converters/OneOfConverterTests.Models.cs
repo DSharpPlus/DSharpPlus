@@ -5,6 +5,7 @@
 #pragma warning disable IDE0058
 
 using System;
+using System.Threading.Tasks;
 
 using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Models.Extensions;
@@ -13,8 +14,6 @@ using DSharpPlus.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-
-using Xunit;
 
 namespace DSharpPlus.Internal.Models.Tests.Converters;
 
@@ -44,8 +43,8 @@ partial class OneOfConverterTests
         this.serializer = provider.GetRequiredService<SerializationService<SystemTextJsonFormatMarker>>();
     }
 
-    [Fact]
-    public void TestApplicationCommandInteractionDataOptionUnion()
+    [Test]
+    public async Task TestApplicationCommandInteractionDataOptionUnion()
     {
         IApplicationCommandInteractionDataOption value = this.serializer.DeserializeModel<IApplicationCommandInteractionDataOption>
         (
@@ -64,11 +63,11 @@ partial class OneOfConverterTests
             """u8
         );
 
-        Assert.Equal(17, value.Options.Value![0].Value.Value);
+        await Assert.That(value.Options.Value![0].Value.Value).IsEqualTo(17);
     }
 
-    [Fact]
-    public void TestInteractionResponseUnion()
+    [Test]
+    public async Task TestInteractionResponseUnion()
     {
         IInteractionResponse response = this.serializer.DeserializeModel<IInteractionResponse>
         (
@@ -87,6 +86,6 @@ partial class OneOfConverterTests
             """u8
         );
 
-        Assert.Equal("thingie", response.Data.Value.AsT0.Choices[0].Value);
+        await Assert.That(response.Data.Value.AsT0.Choices[0].Value).IsEqualTo("thingie");
     }
 }

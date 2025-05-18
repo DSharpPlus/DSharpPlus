@@ -5,6 +5,8 @@
 #pragma warning disable IDE0058
 
 using System;
+using System.Threading.Tasks;
+
 using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Models.Extensions;
 using DSharpPlus.Serialization;
@@ -12,7 +14,6 @@ using DSharpPlus.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Xunit;
 
 namespace DSharpPlus.Internal.Models.Tests.Converters;
 
@@ -87,23 +88,29 @@ public class ComponentTests
     }
     """u8;
 
-    [Fact]
-    public void TestCorrectActionRowDeserialization()
+    [Test]
+    public async Task TestCorrectActionRowDeserialization()
     {
         IPartialMessage message = this.serializer.DeserializeModel<IPartialMessage>(ActionRowTestPayload);
 
-        Assert.Single(message.Components.Value);
-        Assert.IsAssignableFrom<IActionRowComponent>(message.Components.Value[0]);
-        Assert.Single(((IActionRowComponent)message.Components.Value[0]).Components);
+        using (Assert.Multiple())
+        {
+            await Assert.That(message.Components.Value).HasSingleItem();
+            await Assert.That(message.Components.Value[0]).IsAssignableTo<IActionRowComponent>();
+            await Assert.That(((IActionRowComponent)message.Components.Value[0]).Components).HasSingleItem();
+        }
     }
 
-    [Fact]
-    public void TestCorrectUnknownComponentDeserialization()
+    [Test]
+    public async Task TestCorrectUnknownComponentDeserialization()
     {
         IPartialMessage message = this.serializer.DeserializeModel<IPartialMessage>(OtherTopLevelComponentTestPayload);
 
-        Assert.Equal(2, message.Components.Value.Count);
-        Assert.IsAssignableFrom<IActionRowComponent>(message.Components.Value[0]);
-        Assert.IsAssignableFrom<IUnknownComponent>(message.Components.Value[1]);
+        using (Assert.Multiple())
+        {
+            await Assert.That(message.Components.Value.Count).IsEqualTo(2);
+            await Assert.That(message.Components.Value[0]).IsAssignableTo<IActionRowComponent>();
+            await Assert.That(message.Components.Value[1]).IsAssignableTo<IUnknownComponent>();
+        }
     }
 }

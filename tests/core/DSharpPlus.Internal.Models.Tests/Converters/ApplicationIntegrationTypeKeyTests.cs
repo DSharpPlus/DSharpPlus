@@ -5,11 +5,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
 using DSharpPlus.Internal.Models.Serialization.Converters;
-
-using Xunit;
 
 namespace DSharpPlus.Internal.Models.Tests.Converters;
 
@@ -47,18 +46,22 @@ public class ApplicationIntegrationTypeKeyTests
         this.options.Converters.Add(new ApplicationIntegrationTypeKeyConverter());
     }
 
-    [Fact]
-    public void TestSuccess()
+    [Test]
+    public async Task TestSuccess()
     {
         Dictionary<DiscordApplicationIntegrationType, int> value =
             JsonSerializer.Deserialize<Dictionary<DiscordApplicationIntegrationType, int>>(ValidPayload, this.options)!;
 
-        Assert.Equal(2, value.Count);
-        Assert.Equal(28, value[DiscordApplicationIntegrationType.UserInstall]);
+        using (Assert.Multiple())
+        {
+
+            await Assert.That(value.Count).IsEqualTo(2);
+            await Assert.That(value[DiscordApplicationIntegrationType.UserInstall]).IsEqualTo(28);
+        }
     }
 
-    [Fact]
-    public void TestFloatFailure()
+    [Test]
+    public async Task TestFloatFailure()
     {
         try
         {
@@ -67,7 +70,7 @@ public class ApplicationIntegrationTypeKeyTests
         }
         catch (JsonException exception)
         {
-            Assert.Equal("Expected an integer key.", exception.Message);
+            await Assert.That(exception.Message).IsEqualTo("Expected an integer key.");
         }
         catch
         {
@@ -76,8 +79,8 @@ public class ApplicationIntegrationTypeKeyTests
         }
     }
 
-    [Fact]
-    public void TestStringFailure()
+    [Test]
+    public async Task TestStringFailure()
     {
         try
         {
@@ -86,7 +89,7 @@ public class ApplicationIntegrationTypeKeyTests
         }
         catch (JsonException exception)
         {
-            Assert.Equal("Expected an integer key.", exception.Message);
+            await Assert.That(exception.Message).IsEqualTo("Expected an integer key.");
         }
         catch
         {

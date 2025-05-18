@@ -2,72 +2,115 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-using DSharpPlus.Entities;
+using System;
+using System.Threading.Tasks;
 
-using Xunit;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.Shared.Tests.Permissions;
 
 public class ToStringTests
 {
-    [Fact]
-    public void TestFirstBit()
+    [Test]
+    public async Task TestFirstBit()
     {
         DiscordPermissions permissions = new(DiscordPermission.CreateInvite);
-        Assert.Equal("1", permissions.ToString());
+        await Assert.That(permissions.ToString()).IsEqualTo("1");
     }
 
-    [Fact]
-    public void TestByteOrder_SecondByte()
+    [Test]
+    public async Task TestByteOrder_SecondByte()
     {
         DiscordPermissions permissions = new(DiscordPermission.PrioritySpeaker);
-        Assert.Equal("256", permissions.ToString());
+        await Assert.That(permissions.ToString()).IsEqualTo("256");
     }
 
-    [Fact]
-    public void TestInternalElementOrder_SecondElement()
+    [Test]
+    public async Task TestInternalElementOrder_SecondElement()
     {
         DiscordPermissions permissions = new(DiscordPermission.RequestToSpeak);
-        Assert.Equal("4294967296", permissions.ToString());
+        await Assert.That(permissions.ToString()).IsEqualTo("4294967296");
     }
 
-    [Fact]
-    public void TestRawFirstBit()
+    [Test]
+    public async Task TestRawFirstBit()
     {
         DiscordPermissions permissions = new(DiscordPermission.CreateInvite);
 
-        Assert.Equal
+        await Assert.That(permissions.ToString("raw")).IsEqualTo
         (
-            "DiscordPermissions - raw value: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
-            permissions.ToString("raw")
+            "DiscordPermissions - raw value: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"
         );
     }
 
-    [Fact]
-    public void TestRawSecondElement()
+    [Test]
+    public async Task TestRawSecondElement()
     {
         DiscordPermissions permissions = new(DiscordPermission.RequestToSpeak);
 
-        Assert.Equal
+        await Assert.That(permissions.ToString("raw")).IsEqualTo
         (
-            "DiscordPermissions - raw value: 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00",
-            permissions.ToString("raw")
+            "DiscordPermissions - raw value: 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00"
         );
     }
 
-    [Fact]
-    public void TestNameFirstElement()
+    [Test]
+    public async Task TestNameFirstElement()
     {
         DiscordPermissions permissions = new(DiscordPermission.CreateInvite);
 
-        Assert.Equal("Create Invites", permissions.ToString("name"));
+        await Assert.That(permissions.ToString("name")).IsEqualTo("Create Invites");
     }
 
-    [Fact]
-    public void TestNameOrder()
+    [Test]
+    public async Task TestNameOrder()
     {
         DiscordPermissions permissions = new(DiscordPermission.RequestToSpeak, DiscordPermission.CreateInvite);
 
-        Assert.Equal("Create Invites, Request to Speak", permissions.ToString("name"));
+        await Assert.That(permissions.ToString("name")).IsEqualTo("Create Invites, Request to Speak");
+    }
+
+    [Test]
+    public async Task TestUndefinedFlags()
+    {
+        DiscordPermissions permissions = new((DiscordPermission)48, (DiscordPermission)65, (DiscordPermission)97, (DiscordPermission)127);
+
+        await Assert.That(permissions.ToString("name")).IsEqualTo("48, 65, 97, 127");
+    }
+
+    // when updating this test, try to find holes to use for this
+    [Test]
+    public async Task TestNameOrderUndefinedFlags()
+    {
+        DiscordPermissions permissions = new(DiscordPermission.ReadMessageHistory, (DiscordPermission)48, DiscordPermission.UseExternalApps);
+
+        await Assert.That(permissions.ToString("name")).IsEqualTo("Read Message History, 48, Use External Apps");
+    }
+
+    [Test]
+    public async Task TestCustomFormatThrowsIfMalformed()
+    {
+        DiscordPermissions permissions = new(DiscordPermission.ReadMessageHistory, DiscordPermission.UseExternalApps);
+
+        await Assert.ThrowsAsync<FormatException>(() =>
+        {
+            _ = permissions.ToString("name:");
+            return Task.CompletedTask;
+        });
+
+        await Assert.ThrowsAsync<FormatException>(() =>
+        {
+            _ = permissions.ToString("name:with a format but without the permission marker");
+            return Task.CompletedTask;
+        });
+    }
+
+    [Test]
+    public async Task TestCustomFormat()
+    {
+        DiscordPermissions permissions = new(DiscordPermission.ReadMessageHistory, DiscordPermission.UseExternalApps);
+        string expected = " - Read Message History\r\n - Use External Apps\r\n";
+
+        await Assert.That(permissions.ToString("name: - {permission}\r\n")).IsEqualTo(expected);
     }
 }

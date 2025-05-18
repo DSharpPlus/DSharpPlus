@@ -2,28 +2,30 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-using System;
+using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
-
-using Xunit;
 
 namespace DSharpPlus.Shared.Tests.Permissions;
 
 public class EqualityTests
 {
-    private static ReadOnlySpan<byte> FirstBit =>
-    [
-        0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-    ];
-
-    [Fact]
-    public void EqualsCorrect_OneBit()
+    [Test]
+    public async Task EqualsCorrect_OneBit()
     {
-        DiscordPermissions permissions = new(DiscordPermission.CreateInvite);
-        DiscordPermissions expected = new(FirstBit);
+        DiscordPermissions a = new(DiscordPermission.CreateInvite);
+        DiscordPermissions b = new(DiscordPermission.CreateInvite);
 
-        Assert.True(expected.Equals(permissions));
+        // we explicitly don't want the default equals assertion here
+        await Assert.That(a.Equals(b)).IsTrue();
+    }
+
+    [Test]
+    public async Task EqualsCorrect_ThirtyThirdBit()
+    {
+        DiscordPermissions a = new(DiscordPermission.RequestToSpeak);
+        DiscordPermissions b = new(DiscordPermission.RequestToSpeak);
+
+        await Assert.That(a.Equals(b)).IsTrue();
     }
 }

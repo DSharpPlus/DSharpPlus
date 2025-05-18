@@ -5,6 +5,7 @@
 #pragma warning disable IDE0058
 
 using System;
+using System.Threading.Tasks;
 
 using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Models.Extensions;
@@ -13,8 +14,6 @@ using DSharpPlus.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-
-using Xunit;
 
 namespace DSharpPlus.Internal.Models.Tests.Converters;
 
@@ -77,47 +76,59 @@ public class AuditLogChangeTests
     }
     """u8.ToArray();
 
-    [Fact]
-    public void TestIntegerPayload()
+    [Test]
+    public async Task TestIntegerPayload()
     {
         IAuditLogChange change = this.serializer.DeserializeModel<IAuditLogChange>(IntPayload);
 
-        Assert.True(change.NewValue.HasValue);
-        Assert.True(change.OldValue.HasValue);
+        using (Assert.Multiple())
+        {
+            await Assert.That(change.NewValue.HasValue).IsTrue();
+            await Assert.That(change.OldValue.HasValue).IsTrue();
 
-        Assert.Equal("17", change.NewValue.Value);
+            await Assert.That(change.NewValue.Value).IsEqualTo("17");
+        }
     }
 
-    [Fact]
-    public void TestStringPayload()
+    [Test]
+    public async Task TestStringPayload()
     {
         IAuditLogChange change = this.serializer.DeserializeModel<IAuditLogChange>(StringPayload);
 
-        Assert.True(change.NewValue.HasValue);
-        Assert.True(change.OldValue.HasValue);
+        using (Assert.Multiple())
+        {
+            await Assert.That(change.NewValue.HasValue).IsTrue();
+            await Assert.That(change.OldValue.HasValue).IsTrue();
 
-        Assert.Equal("\"this was the old value\"", change.OldValue.Value);
+            await Assert.That(change.OldValue.Value).IsEqualTo("\"this was the old value\"");
+        }
     }
 
-    [Fact]
-    public void TestNewValueMissing()
+    [Test]
+    public async Task TestNewValueMissing()
     {
         IAuditLogChange change = this.serializer.DeserializeModel<IAuditLogChange>(NewValueMissingPayload);
 
-        Assert.False(change.NewValue.HasValue);
-        Assert.True(change.OldValue.HasValue);
+        using (Assert.Multiple())
+        {
+            await Assert.That(change.NewValue.HasValue).IsFalse();
+            await Assert.That(change.OldValue.HasValue).IsTrue();
 
-        Assert.Equal("\"this was the old value\"", change.OldValue.Value);
+            await Assert.That(change.OldValue.Value).IsEqualTo("\"this was the old value\"");
+        }
     }
 
-    [Fact]
-    public void TestOldValueMissing()
+    [Test]
+    public async Task TestOldValueMissing()
     {
         IAuditLogChange change = this.serializer.DeserializeModel<IAuditLogChange>(OldValueMissingPayload);
 
-        Assert.True(change.NewValue.HasValue);
-        Assert.False(change.OldValue.HasValue);
+        using (Assert.Multiple())
+        {
+            await Assert.That(change.NewValue.HasValue).IsTrue();
+            await Assert.That(change.OldValue.HasValue).IsFalse();
 
-        Assert.Equal("\"this is the new value\"", change.NewValue.Value);
+            await Assert.That(change.NewValue.Value).IsEqualTo("\"this is the new value\"");
+        }
     }
 }

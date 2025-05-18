@@ -19,9 +19,7 @@
 
   <!-- nuget -->
   <PropertyGroup>
-    <Authors>
-      Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, IDoEverything, Velvet, OoLunar, akiraveliara, DSharpPlus contributors
-    </Authors>
+    <Authors>DSharpPlus</Authors>
     <Description>A C# API for Discord based off DiscordSharp.</Description>
     <Company>DSharpPlus Contributors</Company>
     <PackageProjectUrl>https://github.com/DSharpPlus/DSharpPlus</PackageProjectUrl>
@@ -36,7 +34,7 @@
   <PropertyGroup>
     <!-- CORE PACKAGE VERSIONS -->
 
-    <!-- this is inserted as the version prefix for all libraries declaring themselves as public-facing -->
+    <!-- this is used as the version prefix for all "main" libraries -->
     <_DSharpPlusReleaseVersion>6.0.0</_DSharpPlusReleaseVersion>
 
     <!-- DSharpPlus.Internal.Abstractions.Models -->
@@ -55,6 +53,9 @@
 
     <!-- DSharpPlus.Extensions.Internal.Toolbox -->
     <_DSharpPlusExtensionsInternalToolboxVersion>0.1.0</_DSharpPlusExtensionsInternalToolboxVersion>
+
+    <!-- DSharpPlus.Extensions.Internal.BadRequestHelper -->
+    <_DSharpPlusExtensionsInternalBadRequestHelperVersion>0.1.0</_DSharpPlusExtensionsInternalBadRequestHelperVersion>
   </PropertyGroup>
 
 </Project>

@@ -5,10 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.IO.Pipelines" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\DSharpPlus.Internal.Abstractions.Models\DSharpPlus.Internal.Abstractions.Models.csproj" Version="$(_DSharpPlusInternalAbstractionsModelsVersion)" />
   </ItemGroup>
 

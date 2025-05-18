@@ -15,11 +15,8 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
 
 using DSharpPlus.Entities;
-using DSharpPlus.Shared.Tests.Util;
 
 using TerraFX.Interop.Windows;
-
-using Xunit;
 
 namespace DSharpPlus.Shared.Tests.Permissions;
 
@@ -80,7 +77,8 @@ public sealed unsafe class BoundTests
         );
     }
 
-    [FactExceptOnlyOnWindows]
+    [Test]
+    [Explicit]
     public void VectorOpsInBounds_MemoryRegionStart()
     {
         try
@@ -107,7 +105,8 @@ public sealed unsafe class BoundTests
         }
     }
 
-    [FactExceptOnlyOnWindows]
+    [Test]
+    [Explicit]
     public void VectorOpsInBounds_MemoryRegionEnd()
     {
         try

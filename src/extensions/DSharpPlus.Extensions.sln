@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Extensions.Internal.Toolbox", "DSharpPlus.Extensions.Internal.Toolbox\DSharpPlus.Extensions.Internal.Toolbox.csproj", "{40CC040B-F757-42AA-8BC8-44F6EA6DCE7E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Extensions.Internal.BadRequestHelper", "DSharpPlus.Extensions.Internal.BadRequestHelper\DSharpPlus.Extensions.Internal.BadRequestHelper.csproj", "{F513621F-3E05-4028-96EF-D62F63736614}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{40CC040B-F757-42AA-8BC8-44F6EA6DCE7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40CC040B-F757-42AA-8BC8-44F6EA6DCE7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40CC040B-F757-42AA-8BC8-44F6EA6DCE7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F513621F-3E05-4028-96EF-D62F63736614}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F513621F-3E05-4028-96EF-D62F63736614}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F513621F-3E05-4028-96EF-D62F63736614}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F513621F-3E05-4028-96EF-D62F63736614}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

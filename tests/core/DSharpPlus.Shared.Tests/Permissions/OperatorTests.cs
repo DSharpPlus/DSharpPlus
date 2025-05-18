@@ -3,10 +3,9 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 using System;
+using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
-
-using Xunit;
 
 namespace DSharpPlus.Shared.Tests.Permissions;
 
@@ -18,65 +17,65 @@ public class OperatorTests
         0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
     ];
 
-    [Fact]
-    public void TestRemove_SingleBit()
+    [Test]
+    public async Task TestRemove_SingleBit()
     {
         DiscordPermissions permissions = new(DiscordPermission.CreateInvite);
-        permissions = permissions.Remove(DiscordPermission.CreateInvite);
+        permissions.Remove(DiscordPermission.CreateInvite);
 
-        Assert.Equal(DiscordPermissions.None, permissions);
+        await Assert.That(permissions).IsEqualTo(DiscordPermissions.None);
 
         permissions = new(DiscordPermission.CreateInvite);
-        Assert.Equal(DiscordPermissions.None, permissions - DiscordPermission.CreateInvite);
+        await Assert.That(permissions - DiscordPermission.CreateInvite).IsEqualTo(DiscordPermissions.None);
     }
 
-    [Fact]
-    public void TestRemove_Bulk()
+    [Test]
+    public async Task TestRemove_Bulk()
     {
         DiscordPermissions permissions = new(DiscordPermission.CreateInvite, DiscordPermission.BanMembers);
-        permissions = permissions.Remove(DiscordPermission.CreateInvite, DiscordPermission.BanMembers);
+        permissions.Remove([DiscordPermission.CreateInvite, DiscordPermission.BanMembers]);
 
-        Assert.Equal(DiscordPermissions.None, permissions);
+        await Assert.That(permissions).IsEqualTo(DiscordPermissions.None);
     }
 
-    [Fact]
-    public void TestRemove_Set()
+    [Test]
+    public async Task TestRemove_Set()
     {
         DiscordPermissions permissions = new(DiscordPermission.CreateInvite, DiscordPermission.BanMembers);
         DiscordPermissions remove = new(DiscordPermission.CreateInvite);
 
-        Assert.Equal(DiscordPermission.BanMembers, permissions - remove);
+        await Assert.That(permissions - remove).IsEqualTo(DiscordPermission.BanMembers);
     }
 
-    [Fact]
-    public void TestOr_Flag()
+    [Test]
+    public async Task TestOr_Flag()
     {
         DiscordPermissions permissions = new(DiscordPermission.CreateInvite);
         DiscordPermissions two = permissions | DiscordPermission.BanMembers;
 
-        Assert.Equal(new(DiscordPermission.CreateInvite, DiscordPermission.BanMembers), two);
+        await Assert.That(two).IsEqualTo(new(DiscordPermission.CreateInvite, DiscordPermission.BanMembers));
     }
 
-    [Fact]
-    public void TestOr_Set()
+    [Test]
+    public async Task TestOr_Set()
     {
         DiscordPermissions one = new(DiscordPermission.AddReactions);
         DiscordPermissions two = new(DiscordPermission.Administrator);
 
         DiscordPermissions actual = one | two;
 
-        Assert.Equal(new(DiscordPermission.AddReactions, DiscordPermission.Administrator), actual);
+        await Assert.That(actual).IsEqualTo(new(DiscordPermission.AddReactions, DiscordPermission.Administrator));
     }
 
-    [Fact]
-    public void TestAnd_Flag()
+    [Test]
+    public async Task TestAnd_Flag()
     {
         DiscordPermissions permissions = new(DiscordPermission.Administrator, DiscordPermission.Connect);
-        Assert.Equal(DiscordPermission.Administrator, permissions & DiscordPermission.Administrator);
+        await Assert.That(permissions & DiscordPermission.Administrator).IsEqualTo(DiscordPermission.Administrator);
     }
 
-    [Fact]
-    public void TestAnd_Set()
+    [Test]
+    public async Task TestAnd_Set()
     {
         DiscordPermissions permissions = new
         (
@@ -92,18 +91,18 @@ public class OperatorTests
             DiscordPermission.CreateInvite
         );
 
-        Assert.Equal(DiscordPermission.Administrator, permissions & mask);
+        await Assert.That(permissions & mask).IsEqualTo(DiscordPermission.Administrator);
     }
 
-    [Fact]
-    public void TestXor_Flag()
+    [Test]
+    public async Task TestXor_Flag()
     {
         DiscordPermissions permissions = new(DiscordPermission.Administrator, DiscordPermission.Connect);
-        Assert.Equal(DiscordPermission.Connect, permissions ^ DiscordPermission.Administrator);
+        await Assert.That(permissions ^ DiscordPermission.Administrator).IsEqualTo(DiscordPermission.Connect);
     }
 
-    [Fact]
-    public void TestXor_Set()
+    [Test]
+    public async Task TestXor_Set()
     {
         DiscordPermissions permissions = new
         (
@@ -127,15 +126,35 @@ public class OperatorTests
             DiscordPermission.CreateInvite
         );
 
-        Assert.Equal(expected, permissions ^ mask);
+        await Assert.That(permissions ^ mask).IsEqualTo(expected);
     }
 
-    [Fact]
-    public void TestNot()
+    [Test]
+    public async Task TestNot()
     {
         DiscordPermissions permissions = new(DiscordPermission.CreateInvite);
         DiscordPermissions expected = new(AllButFirstBit);
 
-        Assert.Equal(expected, ~permissions);
+        await Assert.That(~permissions).IsEqualTo(expected);
+    }
+
+    [Test]
+    public async Task TestCombine_NonOverlapping()
+    {
+        DiscordPermissions set1 = new(DiscordPermission.CreateInvite);
+        DiscordPermissions set2 = new(DiscordPermission.Connect);
+        DiscordPermissions expected = new(DiscordPermission.CreateInvite, DiscordPermission.Connect);
+
+        await Assert.That(DiscordPermissions.Combine(set1, set2)).IsEqualTo(expected);
+    }
+
+    [Test]
+    public async Task TestCombine_Overlapping()
+    {
+        DiscordPermissions set1 = new(DiscordPermission.CreateInvite, DiscordPermission.Connect);
+        DiscordPermissions set2 = new(DiscordPermission.Connect);
+        DiscordPermissions expected = new(DiscordPermission.CreateInvite, DiscordPermission.Connect);
+
+        await Assert.That(DiscordPermissions.Combine(set1, set2)).IsEqualTo(expected);
     }
 }

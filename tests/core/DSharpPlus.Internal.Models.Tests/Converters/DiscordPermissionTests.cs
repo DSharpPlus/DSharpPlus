@@ -5,11 +5,10 @@
 #pragma warning disable IDE0058
 
 using System.Text.Json;
+using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
 using DSharpPlus.Internal.Models.Serialization.Converters;
-
-using Xunit;
 
 namespace DSharpPlus.Internal.Models.Tests.Converters;
 
@@ -23,12 +22,12 @@ public class DiscordPermissionTests
         this.options.Converters.Add(new DiscordPermissionConverter());
     }
 
-    [Fact]
-    public void DeserializePermissions()
+    [Test]
+    public async Task DeserializePermissions()
     {
         DiscordPermissions expected = new(DiscordPermission.PrioritySpeaker);
         DiscordPermissions actual = JsonSerializer.Deserialize<DiscordPermissions>("256", this.options);
 
-        Assert.Equal(expected, actual);
+        await Assert.That(actual).IsEqualTo(expected);
     }
 }

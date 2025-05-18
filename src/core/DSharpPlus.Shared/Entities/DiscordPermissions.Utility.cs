@@ -11,19 +11,19 @@ partial struct DiscordPermissions
     /// <summary>
     /// Toggles the specified permission between states.
     /// </summary>
-    public DiscordPermissions Toggle(DiscordPermission permission)
+    public readonly DiscordPermissions Toggle(DiscordPermission permission)
         => this ^ permission;
 
     /// <summary>
     /// Toggles all of the specified permissions between states.   
     /// </summary>
-    public DiscordPermissions Toggle(params ReadOnlySpan<DiscordPermission> permissions)
+    public readonly DiscordPermissions Toggle(params ReadOnlySpan<DiscordPermission> permissions)
         => this ^ new DiscordPermissions(permissions);
 
     /// <summary>
     /// Returns whether the specified permission is set explicitly.
     /// </summary>
-    public bool HasFlag(DiscordPermission flag)
+    public readonly bool HasFlag(DiscordPermission flag)
         => GetFlag((int)flag);
 
     /// <summary>
@@ -35,20 +35,12 @@ partial struct DiscordPermissions
     /// <summary>
     /// Returns whether any of the specified permissions are granted, either directly or through Administrator permissions.
     /// </summary>
-    public bool HasAnyPermission(params ReadOnlySpan<DiscordPermission> permissions)
-        => this.HasFlag(DiscordPermission.Administrator) || (this & new DiscordPermissions(permissions)) != None;
+    public bool HasAnyPermission(DiscordPermissions permissions)
+        => this.HasFlag(DiscordPermission.Administrator) || (this & permissions) != None;
 
     /// <summary>
-    /// Returns whether all of the specified permissions are gratned, either directly or through Administrator permissions.
+    /// Returns whether all of the specified permissions are granted, either directly or through Administrator permissions.
     /// </summary>
-    public bool HasAllPermissions(params ReadOnlySpan<DiscordPermission> permissions)
-    {
-        if (this.HasFlag(DiscordPermission.Administrator))
-        {
-            return true;
-        }
-
-        DiscordPermissions expected = new(permissions);
-        return (this & expected) == expected;
-    }
+    public bool HasAllPermissions(DiscordPermissions expected)
+        => this.HasFlag(DiscordPermission.Administrator) || (this & expected) == expected;
 }

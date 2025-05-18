@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <VersionPrefix>$(_DSharpPlusExtensionsInternalBadRequestHelperVersion)</VersionPrefix>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\core\DSharpPlus.Internal.Abstractions.Rest\DSharpPlus.Internal.Abstractions.Rest.csproj" />
+    <ProjectReference Include="..\..\core\DSharpPlus.Shared\DSharpPlus.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,10 @@
+<Project>
+
+  <!-- whenever we explicitly build the full solution, we want the generators to run -->
+  <Target Name="RunDSharpPlusStaticCodeGenerators" BeforeTargets="BeforeBuild">
+    <ItemGroup>
+        <Exec Command="dotnet script dsharpplus.csx -- run generators" />
+    </ItemGroup>
+  </Target>
+  
+</Project>

@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+#pragma warning disable SYSLIB5001
+
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -26,14 +28,18 @@ namespace DSharpPlus.Entities;
 /// <remarks>
 /// This type expects to be zero-initialized. Using this type in <c>[SkipLocalsInit]</c> contexts may be dangerous.
 /// </remarks>
-public readonly partial struct DiscordPermissions
-    : IEquatable<DiscordPermissions>
+[DebuggerDisplay("{ToString(\"name\")}")]
+public partial struct DiscordPermissions
+    : IEquatable<DiscordPermissions>, IEnumerable<DiscordPermission>
 {
     // only change ContainerWidth here, the other two constants are automatically updated for internal uses
     // for ContainerWidth, 1 width == 128 bits.
     private const int ContainerWidth = 1;
     private const int ContainerElementCount = ContainerWidth * 4;
     private const int ContainerByteCount = ContainerWidth * 16;
+
+    private static readonly string[] permissionNames = CreatePermissionNameArray();
+    private static readonly int highestDefinedValue = (int)DiscordPermissionExtensions.GetValues()[^1];
 
     private readonly DiscordPermissionContainer data;
 
@@ -100,28 +106,6 @@ public readonly partial struct DiscordPermissions
     }
 
     /// <summary>
-    /// A copy constructor that sets an arbitrary amount of flags to their respective values.
-    /// </summary>
-    private DiscordPermissions
-    (
-        scoped ReadOnlySpan<byte> raw,
-        ReadOnlySpan<DiscordPermission> setPermissions,
-        ReadOnlySpan<DiscordPermission> removePermissions
-    )
-        : this(raw)
-    {
-        foreach (DiscordPermission permission in setPermissions)
-        {
-            this.data.SetFlag((int)permission, true);
-        }
-
-        foreach (DiscordPermission permission in removePermissions)
-        {
-            this.data.SetFlag((int)permission, false);
-        }
-    }
-
-    /// <summary>
     /// A copy constructor that sets one specific flag to the specified value.
     /// </summary>
     private DiscordPermissions(DiscordPermissions original, int index, bool flag)
@@ -161,41 +145,28 @@ public readonly partial struct DiscordPermissions
     public static DiscordPermissions All { get; } = new(DiscordPermissionExtensions.GetValues());
 
     [UnscopedRef]
-    private ReadOnlySpan<byte> AsSpan
-        => MemoryMarshal.Cast<uint, byte>((ReadOnlySpan<uint>)this.data);
+    private readonly ReadOnlySpan<byte> AsSpan
+        => MemoryMarshal.Cast<uint, byte>(this.data);
 
-    private bool GetFlag(int index)
+    private readonly bool GetFlag(int index)
         => this.data.HasFlag(index);
 
     /// <summary>
     /// Determines whether this Discord permission set is equal to the provided object.
     /// </summary>
-    public override bool Equals([NotNullWhen(true)] object? obj)
+    public override readonly bool Equals([NotNullWhen(true)] object? obj)
         => obj is DiscordPermissions permissions && this.Equals(permissions);
 
     /// <summary>
     /// Determines whether this Discord permission set is equal to the provided Discord permission set.
     /// </summary>
-    public bool Equals(DiscordPermissions other)
-    {
-        for (int i = 0; i < ContainerElementCount; i += 4)
-        {
-            Vector128<uint> current = Vector128.LoadUnsafe(in this.data[i]);
-            Vector128<uint> comparison = Vector128.LoadUnsafe(in other.data[i]);
-
-            if (current != comparison)
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
+    public readonly bool Equals(DiscordPermissions other)
+        => ((ReadOnlySpan<uint>)this.data).SequenceEqual(other.data);
 
     /// <summary>
     /// Returns a string representation of this permission set.
     /// </summary>
-    public override string ToString() => this.ToString("a placeholder format string that doesn't do anything");
+    public override readonly string ToString() => this.ToString("a placeholder format string that doesn't do anything");
 
     /// <summary>
     /// Returns a string representation of this permission set, according to the provided format string.
@@ -204,9 +175,10 @@ public readonly partial struct DiscordPermissions
     /// Specifies the format in which the string should be created. Currently supported formats are: <br/>
     /// - <c>raw</c>: This prints the raw, byte-wise backing data of this instance. <br/>
     /// - <c>name</c>: This prints each flag by name, separated by commas. <br/>
+    /// - <c>name:format</c>: This prints each flag by name according to the specified format. The string <c>{permission}</c> must be contained to mark the position of the flag. <br/>
     /// - anything else will print the integer value contained in this <see cref="DiscordPermissions"/> instance.
     /// </param>
-    public string ToString(string format)
+    public readonly string ToString(string format)
     {
         if (format == "raw")
         {
@@ -232,16 +204,43 @@ public readonly partial struct DiscordPermissions
                 pop += BitOperations.PopCount(this.data[i + 3]);
             }
 
-            string[] names = new string[pop];
+            if (pop == 0)
+            {
+                return "None";
+            }
+
+            Span<string> names = new string[pop];
             DiscordPermissionEnumerator enumerator = new(this.data);
 
             for (int i = 0; i < pop; i++)
             {
                 _ = enumerator.MoveNext();
-                names[i] = enumerator.Current.ToStringFast();
+                int flag = (int)enumerator.Current;
+                names[i] = flag <= highestDefinedValue ? permissionNames[flag] : flag.ToString(CultureInfo.InvariantCulture);
             }
 
             return string.Join(", ", names);
+        }
+        else if (format.StartsWith("name:"))
+        {
+            string trimmedFormat = format[5..];
+
+            if (string.IsNullOrWhiteSpace(trimmedFormat) || !trimmedFormat.Contains("{permission}"))
+            {
+                ThrowFormatException(format);
+            }
+
+            StringBuilder builder = new();
+
+            foreach (DiscordPermission permission in this)
+            {
+                int flag = (int)permission;
+                string permissionName = flag <= highestDefinedValue ? permissionNames[flag] : flag.ToString(CultureInfo.InvariantCulture);
+
+                _ = builder.Append(trimmedFormat.Replace("{permission}", permissionName));
+            }
+
+            return builder.ToString();
         }
         else
         {
@@ -262,17 +261,30 @@ public readonly partial struct DiscordPermissions
     /// Calculates a hash code for this Discord permission set. The hash code is only guaranteed to be consistent
     /// within a process, and sharing this data across process boundaries is dangerous.
     /// </summary>
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
         => HashCode.Combine(this.data);
-
-    /// <summary>
-    /// Provides an enumeration of all permissions specified by this set.
-    /// </summary>
-    public DiscordPermissionEnumerable EnumeratePermissions()
-        => new(this.data);
 
     public static bool operator ==(DiscordPermissions left, DiscordPermissions right) => left.Equals(right);
     public static bool operator !=(DiscordPermissions left, DiscordPermissions right) => !(left == right);
+
+    private static string[] CreatePermissionNameArray()
+    {
+        int highest = (int)DiscordPermissionExtensions.GetValues()[^1];
+        string[] names = new string[highest + 1];
+
+        for (int i = 0; i <= highest; i++)
+        {
+            names[i] = ((DiscordPermission)i).ToStringFast(true);
+        }
+
+        return names;
+    }
+
+    [DoesNotReturn]
+    [DebuggerHidden]
+    [StackTraceHidden]
+    private static void ThrowFormatException(string format)
+        => throw new FormatException($"The format string \"{format}\" was empty or malformed: it must contain an instruction to print a permission.");
 
     // we will be using an inline array from the start here so that further increases in the bit width
     // only require increasing this number instead of switching to a new backing implementation strategy.

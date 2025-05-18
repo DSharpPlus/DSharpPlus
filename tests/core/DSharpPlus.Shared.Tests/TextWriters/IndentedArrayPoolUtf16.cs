@@ -2,16 +2,16 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-using DSharpPlus.RuntimeServices.TextWriters;
+using System.Threading.Tasks;
 
-using Xunit;
+using DSharpPlus.RuntimeServices.TextWriters;
 
 namespace DSharpPlus.Shared.Tests.TextWriters;
 
 public class IndentedArrayPoolUtf16
 {
-    [Fact]
-    public void TestIndentationIncrementDecrement()
+    [Test]
+    public async Task TestIndentationIncrementDecrement()
     {
         using IndentedArrayPoolUtf16TextWriter writer = new();
 
@@ -21,19 +21,18 @@ public class IndentedArrayPoolUtf16
         writer.DecreaseIndentation();
         writer.WriteLine("}");
 
-        Assert.Equal
+        await Assert.That(writer.ToString().Trim(' ', '\r', '\n')).IsEqualTo
         (
             """
             {
 
             }
-            """,
-            writer.ToString().Trim(' ', '\r', 'n')
+            """
         );
     }
 
-    [Fact]
-    public void TestIndentingWrite()
+    [Test]
+    public async Task TestIndentingWrite()
     {
         using IndentedArrayPoolUtf16TextWriter writer = new();
 
@@ -43,20 +42,19 @@ public class IndentedArrayPoolUtf16
         writer.DecreaseIndentation();
         writer.WriteLine("}");
 
-        Assert.Equal
+        await Assert.That(writer.ToString().Trim(' ', '\r', '\n')).IsEqualTo
         (
             """
             {
                 "stuff":
                 1
             }
-            """,
-            writer.ToString().Trim(' ', '\r', 'n')
+            """
         );
     }
 
-    [Fact]
-    public void TestLiteralPreservingWrite()
+    [Test]
+    public async Task TestLiteralPreservingWrite()
     {
         using IndentedArrayPoolUtf16TextWriter writer = new();
 
@@ -66,15 +64,14 @@ public class IndentedArrayPoolUtf16
         writer.DecreaseIndentation();
         writer.WriteLine("}");
 
-        Assert.Equal
+        await Assert.That(writer.ToString().Trim(' ', '\r', '\n')).IsEqualTo
         (
             """
             {
                 "stuff":
             1
             }
-            """,
-            writer.ToString().Trim(' ', '\r', 'n')
+            """
         );
     }
 }

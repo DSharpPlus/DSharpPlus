@@ -2,53 +2,62 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-using DSharpPlus.Entities;
+using System.Threading.Tasks;
 
-using Xunit;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.Shared.Tests.Permissions;
 
 public class UtilityTests
 {
-    [Fact]
-    public void HasPermissionRespectsAdministrator()
+    [Test]
+    public async Task HasPermissionRespectsAdministrator()
     {
         DiscordPermissions permissions = new(DiscordPermission.Administrator, DiscordPermission.AddReactions);
-        Assert.True(permissions.HasPermission(DiscordPermission.BanMembers));
+        await Assert.That(permissions.HasPermission(DiscordPermission.BanMembers)).IsTrue();
 
         permissions = new(DiscordPermission.AddReactions);
-        Assert.False(permissions.HasPermission(DiscordPermission.BanMembers));
+        await Assert.That(permissions.HasPermission(DiscordPermission.BanMembers)).IsFalse();
     }
 
-    [Fact]
-    public void HasAnyPermissionAlwaysSucceedsWithAdministrator()
+    [Test]
+    public async Task HasAnyPermissionAlwaysSucceedsWithAdministrator()
     {
         DiscordPermissions permissions = new(DiscordPermission.Administrator, DiscordPermission.AddReactions);
-        Assert.True(permissions.HasAnyPermission(DiscordPermission.BanMembers, DiscordPermission.CreateInvite));
+        await Assert.That(permissions.HasAnyPermission([DiscordPermission.BanMembers, DiscordPermission.CreateInvite])).IsTrue();
     }
 
-    [Fact]
-    public void HasAnyPermissionWithoutAdministrator()
+    [Test]
+    public async Task HasAnyPermissionWithoutAdministrator()
     {
         DiscordPermissions permissions = new(DiscordPermission.CreateInvite, DiscordPermission.AddReactions);
-        Assert.True(permissions.HasAnyPermission(DiscordPermission.BanMembers, DiscordPermission.CreateInvite));
-        Assert.False(permissions.HasAnyPermission(DiscordPermission.AttachFiles, DiscordPermission.Connect));
+
+        using (Assert.Multiple())
+        {
+            await Assert.That(permissions.HasAnyPermission([DiscordPermission.BanMembers, DiscordPermission.CreateInvite])).IsTrue();
+            await Assert.That(permissions.HasAnyPermission([DiscordPermission.AttachFiles, DiscordPermission.Connect])).IsFalse();
+        }
     }
 
-    [Fact]
-    public void HasAllPermissionsAlwaysSucceedsWithAdministrator()
+    [Test]
+    public async Task HasAllPermissionsAlwaysSucceedsWithAdministrator()
     {
         DiscordPermissions permissions = new(DiscordPermission.Administrator);
-        Assert.True(permissions.HasAllPermissions(DiscordPermission.CreatePrivateThreads, DiscordPermission.KickMembers));
+        await Assert.That(permissions.HasAllPermissions([DiscordPermission.CreatePrivateThreads, DiscordPermission.KickMembers])).IsTrue();
     }
 
-    [Fact]
-    public void HasAllPermissionsWithoutAdministrator()
+    [Test]
+    public async Task HasAllPermissionsWithoutAdministrator()
     {
         DiscordPermissions permissions = new(DiscordPermission.CreateInvite, DiscordPermission.AddReactions);
+        DiscordPermissions testificate = [DiscordPermission.CreateInvite, DiscordPermission.Connect];
         permissions += DiscordPermission.ManageGuild;
 
-        Assert.True(permissions.HasAllPermissions(DiscordPermission.ManageGuild, DiscordPermission.CreateInvite));
-        Assert.False(permissions.HasAllPermissions(DiscordPermission.CreateInvite, DiscordPermission.Connect));
+        using (Assert.Multiple())
+        {
+            await Assert.That(permissions.HasAllPermissions([DiscordPermission.ManageGuild, DiscordPermission.CreateInvite])).IsTrue();
+            await Assert.That(permissions.HasAllPermissions([DiscordPermission.CreateInvite, DiscordPermission.Connect])).IsFalse();
+            await Assert.That(testificate.HasPermission(DiscordPermission.Connect)).IsTrue();
+        }
     }
 }

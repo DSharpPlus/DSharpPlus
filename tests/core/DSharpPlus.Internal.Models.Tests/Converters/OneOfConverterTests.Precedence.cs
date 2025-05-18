@@ -4,12 +4,11 @@
 
 using System;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 using DSharpPlus.Internal.Models.Serialization.Converters;
 
 using OneOf;
-
-using Xunit;
 
 namespace DSharpPlus.Internal.Models.Tests.Converters;
 
@@ -20,8 +19,8 @@ public partial class OneOfConverterTests
     private static ReadOnlySpan<byte> SnowflakeStringPayload => "\"737837872\""u8;
     private static ReadOnlySpan<byte> IntegerFloatPayload => "887673"u8;
 
-    [Fact]
-    public void TestSnowflakeLongPrecedence()
+    [Test]
+    public async Task TestSnowflakeLongPrecedence()
     {
         JsonSerializerOptions options = new();
         options.Converters.Add(new OneOfConverterFactory());
@@ -33,7 +32,7 @@ public partial class OneOfConverterTests
             options
         );
 
-        Assert.True(union.IsT0);
+        await Assert.That(union.IsT0).IsTrue();
 
         OneOf<ulong, Snowflake> otherUnion = JsonSerializer.Deserialize<OneOf<ulong, Snowflake>>
         (
@@ -41,11 +40,11 @@ public partial class OneOfConverterTests
             options
         );
 
-        Assert.True(otherUnion.IsT1);
+        await Assert.That(otherUnion.IsT1).IsTrue();
     }
 
-    [Fact]
-    public void TestSnowflakeStringPrecedence()
+    [Test]
+    public async Task TestSnowflakeStringPrecedence()
     {
         JsonSerializerOptions options = new();
         options.Converters.Add(new OneOfConverterFactory());
@@ -57,7 +56,7 @@ public partial class OneOfConverterTests
             options
         );
 
-        Assert.True(union.IsT0);
+        await Assert.That(union.IsT0).IsTrue();
 
         OneOf<string, Snowflake> otherUnion = JsonSerializer.Deserialize<OneOf<string, Snowflake>>
         (
@@ -65,11 +64,11 @@ public partial class OneOfConverterTests
             options
         );
 
-        Assert.True(otherUnion.IsT1);
+        await Assert.That(otherUnion.IsT1).IsTrue();
     }
 
-    [Fact]
-    public void TestIntegerFloatPrecedence()
+    [Test]
+    public async Task TestIntegerFloatPrecedence()
     {
         JsonSerializerOptions options = new();
         options.Converters.Add(new OneOfConverterFactory());
@@ -80,7 +79,7 @@ public partial class OneOfConverterTests
             options
         );
 
-        Assert.True(union.IsT0);
+        await Assert.That(union.IsT0).IsTrue();
 
         OneOf<double, ulong> otherUnion = JsonSerializer.Deserialize<OneOf<double, ulong>>
         (
@@ -88,6 +87,6 @@ public partial class OneOfConverterTests
             options
         );
 
-        Assert.True(otherUnion.IsT1);
+        await Assert.That(otherUnion.IsT1).IsTrue();
     }
 }

@@ -7,20 +7,14 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <NoWarn>$(NoWarn);CA1515;CA1707</NoWarn>
+    <NoWarn>$(NoWarn);CA1515;CA1707;CA1822;IDE0058;IDE1006</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="TerraFX.Interop.Windows" />
-    <PackageReference Include="xunit" />
-    <PackageReference Include="xunit.runner.visualstudio">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="TUnit" />
     
     <ProjectReference Include="..\..\..\src\core\DSharpPlus.Shared\DSharpPlus.Shared.csproj" />
   </ItemGroup>
-
 
 </Project>

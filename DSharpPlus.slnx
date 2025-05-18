@@ -8,6 +8,7 @@
   </Folder>
   <Folder Name="/Extensions/">
     <Project Path="src\extensions\DSharpPlus.Extensions.Internal.Toolbox\DSharpPlus.Extensions.Internal.Toolbox.csproj" />
+    <Project Path="src\extensions\DSharpPlus.Extensions.Internal.BadRequestHelper\DSharpPlus.Extensions.Internal.BadRequestHelper.csproj" />
   </Folder>
   <Folder Name="/Generators/">
     <Project Path="gen\common\DSharpPlus.SourceGenerators.Common.csproj" />
