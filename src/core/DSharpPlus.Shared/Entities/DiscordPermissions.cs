@@ -41,7 +41,7 @@ public partial struct DiscordPermissions
     private static readonly string[] permissionNames = CreatePermissionNameArray();
     private static readonly int highestDefinedValue = (int)DiscordPermissionExtensions.GetValues()[^1];
 
-    private readonly DiscordPermissionContainer data;
+    private DiscordPermissionContainer data;
 
     /// <summary>
     /// Creates a new instance of this type from exactly the specified permission.
