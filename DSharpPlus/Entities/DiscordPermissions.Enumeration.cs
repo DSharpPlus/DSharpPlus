@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-
 using CommunityToolkit.HighPerformance.Helpers;
 
 namespace DSharpPlus.Entities;
@@ -42,7 +41,9 @@ partial struct DiscordPermissions
         internal DiscordPermissionEnumerator(DiscordPermissionContainer data)
             => this.data = data;
 
+#pragma warning disable DSP0009
         public readonly DiscordPermission Current => (DiscordPermission)(this.block << 5) + this.bit;
+#pragma warning restore DSP0009
 
         readonly object IEnumerator.Current => this.Current;
 
