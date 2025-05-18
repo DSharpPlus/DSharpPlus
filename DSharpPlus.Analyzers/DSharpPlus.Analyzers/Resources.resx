@@ -54,10 +54,10 @@
     <value>Cannot register to guilds for this installable context</value>
   </data>
   <data name="DSP1001Description" xml:space="preserve">
-    <value>Cannot register this slash command to the specified guilds as its context disallow that.</value>
+    <value>Cannot register this slash command to the specified guilds because its context disallows that.</value>
   </data>
   <data name="DSP1001MessageFormat" xml:space="preserve">
-    <value>Cannot register '{0}' to the specified guilds as its installable context does not contain 'GuildInstall'</value>
+    <value>Cannot register '{0}' to the specified guilds because its installable context does not contain 'GuildInstall'</value>
   </data>
   <data name="DSP1002Title" xml:space="preserve">
     <value>Don't register nested classes</value>
