@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -124,6 +125,7 @@ public class UseDiscordPermissionsAnalyzer : DiagnosticAnalyzer
 
         TypeInfo leftTypeInfo = ctx.SemanticModel.GetTypeInfo(binaryExpression.Left);
         TypeInfo rightTypeInfo = ctx.SemanticModel.GetTypeInfo(binaryExpression.Right);
+
         bool leftTypeIsDiscordPermission
             = ctx.Compilation.CheckByName(leftTypeInfo, "DSharpPlus.Entities.DiscordPermission");
         bool rightTypeIsDiscordPermission
@@ -133,25 +135,23 @@ public class UseDiscordPermissionsAnalyzer : DiagnosticAnalyzer
         bool rightTypeIsDiscordPermissions
             = ctx.Compilation.CheckByName(rightTypeInfo, "DSharpPlus.Entities.DiscordPermissions");
 
+        Diagnostic diagnostic;
+        if (leftTypeIsDiscordPermissions || rightTypeIsDiscordPermissions)
+        {
+            string equivalence = GetDiscordPermissionsEquivalence(binaryExpression.Kind());
+            diagnostic = Diagnostic.Create(ruleDsp0010, location, equivalence,
+                binaryExpression.OperatorToken.ToString());
+            ctx.ReportDiagnostic(diagnostic);
+            return;
+        }
+
         if (!leftTypeIsDiscordPermission && !rightTypeIsDiscordPermission)
         {
             return;
         }
 
-        Diagnostic diagnostic;
-        if ((leftTypeIsDiscordPermissions && rightTypeIsDiscordPermission) ||
-            (rightTypeIsDiscordPermissions && leftTypeIsDiscordPermission))
-        {
-            // TODO: Add messages
-            diagnostic = Diagnostic.Create(ruleDsp0010, location);
-        }
-        else
-        {
-            diagnostic
-                = Diagnostic.Create(ruleDsp0009, location);
-        }
-
-
+        diagnostic
+            = Diagnostic.Create(ruleDsp0009, location);
         ctx.ReportDiagnostic(diagnostic);
     }
 
@@ -178,13 +178,33 @@ public class UseDiscordPermissionsAnalyzer : DiagnosticAnalyzer
 
         TypeInfo leftTypeInfo = ctx.SemanticModel.GetTypeInfo(assignmentExpression.Left);
         TypeInfo rightTypeInfo = ctx.SemanticModel.GetTypeInfo(assignmentExpression.Right);
-        if (!ctx.Compilation.CheckByName(leftTypeInfo, "DSharpPlus.Entities.DiscordPermission") &&
-            !ctx.Compilation.CheckByName(rightTypeInfo, "DSharpPlus.Entities.DiscordPermission"))
+
+        bool leftTypeIsDiscordPermission
+            = ctx.Compilation.CheckByName(leftTypeInfo, "DSharpPlus.Entities.DiscordPermission");
+        bool rightTypeIsDiscordPermission
+            = ctx.Compilation.CheckByName(rightTypeInfo, "DSharpPlus.Entities.DiscordPermission");
+        bool leftTypeIsDiscordPermissions
+            = ctx.Compilation.CheckByName(leftTypeInfo, "DSharpPlus.Entities.DiscordPermissions");
+        bool rightTypeIsDiscordPermissions
+            = ctx.Compilation.CheckByName(rightTypeInfo, "DSharpPlus.Entities.DiscordPermissions");
+
+        Diagnostic diagnostic;
+        if (leftTypeIsDiscordPermissions || rightTypeIsDiscordPermissions)
+        {
+            string equivalence = GetDiscordPermissionsEquivalence(assignmentExpression.Kind());
+            diagnostic = Diagnostic.Create(ruleDsp0010, assignmentExpression.GetLocation(), equivalence,
+                assignmentExpression.OperatorToken.ToString());
+            ctx.ReportDiagnostic(diagnostic);
+            return;
+        }
+        
+        if (!leftTypeIsDiscordPermission &&
+            !rightTypeIsDiscordPermission)
         {
             return;
         }
 
-        Diagnostic diagnostic = Diagnostic.Create(ruleDsp0009, assignmentExpression.GetLocation());
+        diagnostic = Diagnostic.Create(ruleDsp0009, assignmentExpression.GetLocation());
         ctx.ReportDiagnostic(diagnostic);
     }
 
@@ -196,6 +216,20 @@ public class UseDiscordPermissionsAnalyzer : DiagnosticAnalyzer
                 unaryExpression.Kind() == SyntaxKind.BitwiseNotExpression,
             PrefixUnaryExpressionSyntax unaryExpression2 => unaryExpression2.Kind() == SyntaxKind.BitwiseNotExpression,
             _ => false
+        };
+    }
+
+    private static string GetDiscordPermissionsEquivalence(SyntaxKind syntaxKind)
+    {
+        return syntaxKind switch
+        {
+            SyntaxKind.BitwiseAndExpression => "-",
+            SyntaxKind.BitwiseOrExpression => "+",
+            SyntaxKind.ExclusiveOrExpression => "DiscordPermissions#Toggle",
+            SyntaxKind.AndAssignmentExpression => "-=",
+            SyntaxKind.OrAssignmentExpression => "+=",
+            SyntaxKind.ExclusiveOrAssignmentExpression => "DiscordPermissions#Toggle",
+            _ => throw new ArgumentException("Syntax kind does not have a DiscordPermissions equivalence")
         };
     }
 }

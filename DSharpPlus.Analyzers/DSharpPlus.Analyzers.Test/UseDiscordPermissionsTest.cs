@@ -21,7 +21,7 @@ public class UseDiscordPermissionsTest
 
         test.TestCode = """
                         using DSharpPlus.Entities;
-                        
+
                         public class PermissionsUtil
                         {
                             public static void AddAdmin(DiscordPermission perm) 
@@ -30,13 +30,13 @@ public class UseDiscordPermissionsTest
                             }
                         }
                         """;
-        
+
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic("DSP0009")
                 .WithLocation(7, 9)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
-        
+
         await test.RunAsync();
     }
 
@@ -57,16 +57,16 @@ public class UseDiscordPermissionsTest
                             }
                         }
                         """;
-        
+
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic("DSP0009")
                 .WithLocation(7, 9)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
-        
+
         await test.RunAsync();
     }
-    
+
     [Test]
     public static async Task AndNotOperationTestAsync()
     {
@@ -84,16 +84,16 @@ public class UseDiscordPermissionsTest
                             }
                         }
                         """;
-        
+
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic("DSP0009")
                 .WithLocation(7, 9)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
-        
+
         await test.RunAsync();
     }
-    
+
     [Test]
     public static async Task AndNotParenthesizedOperationTestAsync()
     {
@@ -111,17 +111,17 @@ public class UseDiscordPermissionsTest
                             }
                         }
                         """;
-        
+
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic("DSP0009")
                 .WithLocation(7, 9)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
-        
+
         await test.RunAsync();
     }
-    
-        [Test]
+
+    [Test]
     public static async Task OrAssignmentTestAsync()
     {
         CSharpAnalyzerTest<UseDiscordPermissionsAnalyzer, DefaultVerifier> test =
@@ -129,7 +129,7 @@ public class UseDiscordPermissionsTest
 
         test.TestCode = """
                         using DSharpPlus.Entities;
-                        
+
                         public class PermissionsUtil
                         {
                             public static void AddAdmin(DiscordPermission perm) 
@@ -138,13 +138,13 @@ public class UseDiscordPermissionsTest
                             }
                         }
                         """;
-        
+
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic("DSP0009")
                 .WithLocation(7, 9)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
-        
+
         await test.RunAsync();
     }
 
@@ -165,16 +165,16 @@ public class UseDiscordPermissionsTest
                             }
                         }
                         """;
-        
+
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic("DSP0009")
                 .WithLocation(7, 9)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
-        
+
         await test.RunAsync();
     }
-    
+
     [Test]
     public static async Task AndNotAssignmentTestAsync()
     {
@@ -192,16 +192,16 @@ public class UseDiscordPermissionsTest
                             }
                         }
                         """;
-        
+
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic("DSP0009")
                 .WithLocation(7, 9)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
-        
+
         await test.RunAsync();
     }
-    
+
     [Test]
     public static async Task AndNotParenthesizedAssignmentTestAsync()
     {
@@ -219,40 +219,13 @@ public class UseDiscordPermissionsTest
                             }
                         }
                         """;
-        
+
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic("DSP0009")
                 .WithLocation(7, 9)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
-        
-        await test.RunAsync();
-    }
 
-    [Test]
-    public static async Task UsingBothTestAsync()
-    {
-        CSharpAnalyzerTest<UseDiscordPermissionsAnalyzer, DefaultVerifier> test =
-            Utility.CreateAnalyzerTest<UseDiscordPermissionsAnalyzer>();
-
-        test.TestCode = """
-                        using DSharpPlus.Entities;
-
-                        public class PermissionsUtil
-                        {
-                            public static void AddAdmin(DiscordPermissions perm) 
-                            {
-                                perm = perm | DiscordPermission.Administrator;
-                            }
-                        }
-                        """;
-        
-        test.ExpectedDiagnostics.Add(
-            Verifier.Diagnostic("DSP0010")
-                .WithLocation(7, 9)
-                .WithSeverity(DiagnosticSeverity.Info)
-                .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
-        
         await test.RunAsync();
     }
 
@@ -273,13 +246,94 @@ public class UseDiscordPermissionsTest
                             }
                         }
                         """;
-        
+
         test.ExpectedDiagnostics.Add(
             Verifier.Diagnostic("DSP0009")
                 .WithLocation(7, 16)
                 .WithSeverity(DiagnosticSeverity.Warning)
                 .WithMessage("Use 'DiscordPermissions' instead of operating on 'DiscordPermission'"));
-        
+
+        await test.RunAsync();
+    }
+
+    [Test]
+    public static async Task UsingBothTestAsync()
+    {
+        CSharpAnalyzerTest<UseDiscordPermissionsAnalyzer, DefaultVerifier> test =
+            Utility.CreateAnalyzerTest<UseDiscordPermissionsAnalyzer>();
+
+        test.TestCode = """
+                        using DSharpPlus.Entities;
+
+                        public class PermissionsUtil
+                        {
+                            public static void AddAdmin(DiscordPermissions perm) 
+                            {
+                                perm = perm | DiscordPermission.Administrator;
+                            }
+                        }
+                        """;
+
+        test.ExpectedDiagnostics.Add(
+            Verifier.Diagnostic("DSP0010")
+                .WithLocation(7, 9)
+                .WithSeverity(DiagnosticSeverity.Info)
+                .WithMessage("Prefer using '+' instead of '|'"));
+
+        await test.RunAsync();
+    }
+
+    [Test]
+    public static async Task UsingBothAssignmentTestAsync()
+    {
+        CSharpAnalyzerTest<UseDiscordPermissionsAnalyzer, DefaultVerifier> test =
+            Utility.CreateAnalyzerTest<UseDiscordPermissionsAnalyzer>();
+
+        test.TestCode = """
+                        using DSharpPlus.Entities;
+
+                        public class PermissionsUtil
+                        {
+                            public static void AddAdmin(DiscordPermissions perm) 
+                            {
+                                perm |= DiscordPermission.Administrator;
+                            }
+                        }
+                        """;
+
+        test.ExpectedDiagnostics.Add(
+            Verifier.Diagnostic("DSP0010")
+                .WithLocation(7, 9)
+                .WithSeverity(DiagnosticSeverity.Info)
+                .WithMessage("Prefer using '+=' instead of '|='"));
+
+        await test.RunAsync();
+    }
+    
+    [Test]
+    public static async Task UsingOnlyDiscordPermissionsTestAsync()
+    {
+        CSharpAnalyzerTest<UseDiscordPermissionsAnalyzer, DefaultVerifier> test =
+            Utility.CreateAnalyzerTest<UseDiscordPermissionsAnalyzer>();
+
+        test.TestCode = """
+                        using DSharpPlus.Entities;
+
+                        public class PermissionsUtil
+                        {
+                            public static void AddAdmin(DiscordPermissions perm1, DiscordPermissions perm2) 
+                            {
+                                perm1 |= perm2;
+                            }
+                        }
+                        """;
+
+        test.ExpectedDiagnostics.Add(
+            Verifier.Diagnostic("DSP0010")
+                .WithLocation(7, 9)
+                .WithSeverity(DiagnosticSeverity.Info)
+                .WithMessage("Prefer using '+=' instead of '|='"));
+
         await test.RunAsync();
     }
 }
