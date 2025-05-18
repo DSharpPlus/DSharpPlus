@@ -46,7 +46,7 @@ public static class ValidGuildInstallablesTest
                 .WithLocation(11, 35)
                 .WithSeverity(DiagnosticSeverity.Error)
                 .WithMessage(
-                    "Cannot register 'ExecuteAsync' to the specified guilds as its installable context does not contain 'GuildInstall'"
+                    "Cannot register 'ExecuteAsync' to the specified guilds because its installable context does not contain 'GuildInstall'"
                 )
         );
 
