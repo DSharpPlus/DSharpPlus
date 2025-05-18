@@ -29,18 +29,18 @@ partial struct DiscordPermissions
     /// <summary>
     /// Returns whether the specified permission is granted, either directly or through Administrator permissions.
     /// </summary>
-    public bool HasPermission(DiscordPermission permission)
+    public readonly bool HasPermission(DiscordPermission permission)
         => this.HasFlag(DiscordPermission.Administrator) || this.HasFlag(permission);
 
     /// <summary>
     /// Returns whether any of the specified permissions are granted, either directly or through Administrator permissions.
     /// </summary>
-    public bool HasAnyPermission(DiscordPermissions permissions)
+    public readonly bool HasAnyPermission(DiscordPermissions permissions)
         => this.HasFlag(DiscordPermission.Administrator) || (this & permissions) != None;
 
     /// <summary>
     /// Returns whether all of the specified permissions are granted, either directly or through Administrator permissions.
     /// </summary>
-    public bool HasAllPermissions(DiscordPermissions expected)
+    public readonly bool HasAllPermissions(DiscordPermissions expected)
         => this.HasFlag(DiscordPermission.Administrator) || (this & expected) == expected;
 }

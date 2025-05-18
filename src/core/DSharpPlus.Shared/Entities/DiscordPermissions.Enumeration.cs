@@ -13,10 +13,9 @@ using CommunityToolkit.HighPerformance.Helpers;
 
 namespace DSharpPlus.Entities;
 
-// contains the implementation details for EnumeratePermissions
+// contains the implementation details for enumerating permissions
 partial struct DiscordPermissions
 {
-
     /// <summary>
     /// Gets an enumerator for the present permission set.
     /// </summary>
