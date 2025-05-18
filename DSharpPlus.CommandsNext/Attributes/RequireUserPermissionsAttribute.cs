@@ -51,6 +51,6 @@ public sealed class RequireUserPermissionsAttribute : CheckBaseAttribute
 
         DiscordPermissions pusr = ctx.Channel.PermissionsFor(usr);
 
-        return Task.FromResult(pusr.HasAllPermissions(this.Permissions));
+        return Task.FromResult(pusr.HasAllPermissions([..this.Permissions]));
     }
 }

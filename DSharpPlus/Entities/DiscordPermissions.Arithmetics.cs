@@ -17,42 +17,57 @@ partial struct DiscordPermissions
     /// </summary>
     /// <param name="permission">The permission field to add.</param>
     /// <returns>A new permission set containing all previous permissions along with the new permission.</returns>
-    public DiscordPermissions Add(DiscordPermission permission)
-        => new(this.AsSpan, [permission], []);
+    public void Add(DiscordPermission permission)
+        => Add([permission]);
 
     /// <summary>
     /// Adds multiple permissions to this permission set.
     /// </summary>
     /// <param name="permissions">The permission fields to add.</param>
     /// <returns>A new permission set containing all previous permissions along with the new permissions.</returns>
-    public DiscordPermissions Add(params ReadOnlySpan<DiscordPermission> permissions)
-        => new(this.AsSpan, permissions, []);
+    public void Add(params ReadOnlySpan<DiscordPermission> permissions)
+    {
+        foreach (DiscordPermission permission in permissions)
+        {
+            this.data.SetFlag((int)permission, true);
+        }
+    }
 
     /// <summary>
     /// Adds the specified permission to the permission set.
     /// </summary>
-    public static DiscordPermissions operator +(DiscordPermissions value, DiscordPermission add) => value.Add(add);
+    public static DiscordPermissions operator +(DiscordPermissions value, DiscordPermission add)
+        => value | add;
+
+    public static DiscordPermissions operator +(DiscordPermissions value, DiscordPermissions add)
+        => value | add;
 
     /// <summary>
     /// Removes a permission from this permission set.
     /// </summary>
     /// <param name="permission">The permission field to remove.</param>
     /// <returns>A new permission set containing all previous permissions except the specified permission.</returns>
-    public DiscordPermissions Remove(DiscordPermission permission)
-        => new(this.AsSpan, [], [permission]);
+    public void Remove(DiscordPermission permission)
+        => Remove([permission]);
 
     /// <summary>
     /// Removes multiple permission from this permission set.
     /// </summary>
     /// <param name="permissions">The permission fields to remove.</param>
     /// <returns>A new permission set containing all previous permissions except the specified permissions.</returns>
-    public DiscordPermissions Remove(params ReadOnlySpan<DiscordPermission> permissions)
-        => new(this.AsSpan, [], permissions);
+    public void Remove(params ReadOnlySpan<DiscordPermission> permissions)
+    {
+        foreach (DiscordPermission permission in permissions)
+        {
+            this.data.SetFlag((int)permission, false);
+        }
+    }
 
     /// <summary>
     /// Removes the specified permission from a permission set.
     /// </summary>
-    public static DiscordPermissions operator -(DiscordPermissions value, DiscordPermission remove) => value.Remove(remove);
+    public static DiscordPermissions operator -(DiscordPermissions value, DiscordPermission remove)
+        => value - [remove];
 
     /// <summary>
     /// Removes all permissions specified in the right-hand set from the left-hand set and returns the new permission set.
@@ -81,7 +96,8 @@ partial struct DiscordPermissions
     /// <summary>
     /// Adds the specified permission to the permission set.
     /// </summary>
-    public static DiscordPermissions operator |(DiscordPermissions value, DiscordPermission flag) => value.Add(flag);
+    public static DiscordPermissions operator |(DiscordPermissions value, DiscordPermission flag)
+        => value | [flag];
 
     /// <summary>
     /// Merges both permission sets into one, taking all set permissions from both.
@@ -192,4 +208,3 @@ partial struct DiscordPermissions
         return new(result);
     }
 }
-

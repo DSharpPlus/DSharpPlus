@@ -54,6 +54,6 @@ public sealed class SlashRequireBotPermissionsAttribute : SlashCheckBaseAttribut
 
         DiscordPermissions pbot = ctx.Channel.PermissionsFor(bot);
 
-        return pbot.HasAllPermissions(this.Permissions);
+        return pbot.HasAllPermissions([..this.Permissions]);
     }
 }

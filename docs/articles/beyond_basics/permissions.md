@@ -16,6 +16,8 @@ DSharpPlus implements permissions with two types, `enum DiscordPermission` and `
 
 `DiscordPermissions`, on the other hand, expresses a set of permissions wherein each permission is either granted or not granted. It is possible, safe, and encouraged to perform math on this type and this type only. It exposes a number of methods that account for all special behaviour involved with permissions: `HasPermission` will not only check for the specified permission, but also for Administrator.
 
+`DiscordPermissions` objects can be created and modified using collection expression syntax and in that capacity works functionally like any collection.
+
 ## Querying and Manipulating Permissions
 
 `DiscordPermissions` exposes three methods to query whether a permission is set: `HasPermission` if you want to find out about a single permission, `HasAnyPermission` and `HasAllPermissions` for querying groups. All of these methods will account for special permissions. If you wish to merely find out whether a specific flag is set, `HasFlag` is provided for advanced purposes.
@@ -23,6 +25,9 @@ DSharpPlus implements permissions with two types, `enum DiscordPermission` and `
 For editing what permissions are set, `Add`, `Remove` and `Toggle` are provided. Both of them provide overloads for both single permissions and groups of permissions, and additionally `Add` and `Remove` are also provided as operators `+` and `-`. These methods do not account for special behaviour, and as such, revoking a permission may not revoke an administrator's permissions to perform the associated action.
 
 While `Add` and `Remove` merely ensure that at the end of the operation, the specified permissions are added or removed from the set, `Toggle` will always modify the set by flipping the permission. If a permission was previously not granted, this operation will grant it and vice versa.
+
+> [!INFO]
+> `Add` and `Remove` edit the current set, while `+` and `-` create a new object.
 
 Furthermore, DSharpPlus provides the bitwise operators `AND`, `OR`, `XOR` and `NOT` on permission sets. For the intents and purposes of these operators, each permission is a bit whose position is not guaranteed. It is not advisable to manually handle these operations instead of the above named, well-defined methods outside of advanced scenarios.
 
@@ -45,7 +50,7 @@ permissions.ToString("name: - {permission}\n");
 
 Note that `{permission}` must be contained as a literal in the string and cannot be interpolated. 
 
-If that does not suffice for your intents, you may also wish to build your own pretty-printer, or do something else entirely. To that end, the method `EnumeratePermissions` is provided, which provides an `IEnumerable<DiscordPermission>` containing all set permissions for the given input set. You can use this as a building block for anything further.
+If that does not suffice for your intents, you may also wish to build your own pretty-printer, or do something else entirely. To that end, the permission set can be treated as an `IEnumerable<DiscordPermission>` containing all set permissions for the given input set. You can use this as a building block for anything further.
 
 ## Other Utilities
 
