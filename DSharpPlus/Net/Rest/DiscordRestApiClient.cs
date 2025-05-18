@@ -6164,6 +6164,11 @@ public sealed class DiscordRestApiClient
 
             DiscordMentions? mentions = builder.Mentions != null ? new DiscordMentions(builder.Mentions, builder.Mentions.Any()) : null;
 
+            if (builder.Files.Any())
+            {
+                attachments ??= [];
+            }
+
             RestWebhookMessageEditPayload pld = new()
             {
                 Content = builder.Content,
