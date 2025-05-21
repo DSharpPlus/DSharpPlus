@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+  <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root"
+              xmlns="">
+    <xsd:element name="root" msdata:IsDataSet="true">
+
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+      PublicKeyToken=b77a5c561934e089
+    </value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+      PublicKeyToken=b77a5c561934e089
+    </value>
+  </resheader>
+  <data name="DSP0006Title" xml:space="preserve">
+    <value>Use 'Permissions#HasPermission'</value>
+  </data>
+  <data name="DSP0006Description" xml:space="preserve">
+    <value>Use 'Permissions#HasPermission' instead of bitwise operations.</value>
+  </data>
+  <data name="DSP0006MessageFormat" xml:space="preserve">
+    <value>Use '{0}.HasPermission({1})' instead</value>
+  </data>
+  <data name="DSP0007Title" xml:space="preserve">
+    <value>Use 'DiscordChannel#ModifyAsync'</value>
+  </data>
+  <data name="DSP0007Description" xml:space="preserve">
+    <value>Use one 'DiscordChannel#ModifyAsync' instead of multiple 'DiscordChannel#OverwriteAsync' calls.</value>
+  </data>
+  <data name="DSP0007MessageFormat" xml:space="preserve">
+    <value>Use one '{0}.ModifyAsync(..)' instead of multiple '{0}.AddOverwriteAsync(..)'</value>
+  </data>
+  <data name="DSP0008Title" xml:space="preserve">
+    <value>Use list request</value>
+  </data>
+  <data name="DSP0008Description" xml:space="preserve">
+    <value>Use list request instead of requesting single entities in a loop.</value>
+  </data>
+  <data name="DSP0008MessageFormat" xml:space="preserve">
+    <value>Use '{0}' outside of the loop instead of '{1}' inside the loop</value>
+  </data>
+  <data name="DSP1001Title" xml:space="preserve">
+    <value>Cannot register to guilds for this installable context</value>
+  </data>
+  <data name="DSP1001Description" xml:space="preserve">
+    <value>Cannot register this slash command to the specified guilds because its context disallows that.</value>
+  </data>
+  <data name="DSP1001MessageFormat" xml:space="preserve">
+    <value>Cannot register '{0}' to the specified guilds because its installable context does not contain 'GuildInstall'</value>
+  </data>
+  <data name="DSP1002Title" xml:space="preserve">
+    <value>Don't register nested classes</value>
+  </data>
+  <data name="DSP1002Description" xml:space="preserve">
+    <value>Don't register nested classes, register its parent instead.</value>
+  </data>
+  <data name="DSP1002MessageFormat" xml:space="preserve">
+    <value>Don't register '{0}', register '{1}' instead</value>
+  </data>
+  <data name="DSP1003Title" xml:space="preserve">
+    <value>Command processor doesn't support command context</value>
+  </data>
+  <data name="DSP1003Description" xml:space="preserve">
+    <value>The specified command processor doesn't support the specified command context.</value>
+  </data>
+  <data name="DSP1003MessageFormat" xml:space="preserve">
+    <value>All provided processors does not support context '{0}'</value>
+  </data>
+  <data name="DSP0009Description" xml:space="preserve">
+    <value>Use 'DiscordPermissions' and its operators instead of doing raw operations on 'DiscordPermission'.</value>
+  </data>
+  <data name="DSP0009Title" xml:space="preserve">
+    <value>Use 'DiscordPermissions' over operations on 'DiscordPermission'</value>
+  </data>
+  <data name="DSP0009MessageFormat" xml:space="preserve">
+    <value>Use 'DiscordPermissions' instead of operating on 'DiscordPermission'</value>
+  </data>
+  <data name="DSP0010Title" xml:space="preserve">
+    <value>Prefer named method 'Name' over bitwise operations</value>
+  </data>
+  <data name="DSP0010Description" xml:space="preserve">
+    <value>Prefer named method 'Name' over bitwise operations.</value>
+  </data>
+  <data name="DSP0010MessageFormat" xml:space="preserve">
+    <value>Prefer using '{0}' instead of '{1}'</value>
+  </data>
+</root>
