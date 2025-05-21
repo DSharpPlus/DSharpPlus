@@ -89,7 +89,7 @@ public class TagNameAutoCompleteProvider : IAutoCompleteProvider
 
     public TagNameAutoCompleteProvider(ITagService tagService) => tagService = tagService;
 
-    public ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(AutoCompleteContext context);
+    public ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(AutoCompleteContext context)
     {
         var tags = tagService
             .GetTags()
