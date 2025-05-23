@@ -69,7 +69,7 @@ public sealed class VoiceNextExtension : IDisposable
             throw new ArgumentException("Invalid channel specified; needs to be guild channel", nameof(channel));
         }
 
-        if (!channel.PermissionsFor(channel.Guild.CurrentMember).HasAllPermissions(DiscordPermission.ViewChannel, DiscordPermission.Connect))
+        if (!channel.PermissionsFor(channel.Guild.CurrentMember).HasAllPermissions([DiscordPermission.ViewChannel, DiscordPermission.Connect]))
         {
             throw new InvalidOperationException("You need AccessChannels and UseVoice permission to connect to this voice channel");
         }

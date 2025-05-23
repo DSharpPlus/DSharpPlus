@@ -26,8 +26,9 @@ namespace DSharpPlus.Entities;
 /// Represents a set of Discord permissions.
 /// </summary>
 [JsonConverter(typeof(DiscordPermissionsAsStringJsonConverter))]
-public readonly partial struct DiscordPermissions
-    : IEquatable<DiscordPermissions>
+[DebuggerDisplay("{ToString(\"name\")}")]
+public partial struct DiscordPermissions
+    : IEquatable<DiscordPermissions>, IEnumerable<DiscordPermission>
 {
     // only change ContainerWidth here, the other two constants are automatically updated for internal uses
     // for ContainerWidth, 1 width == 128 bits.
@@ -38,7 +39,7 @@ public readonly partial struct DiscordPermissions
     private static readonly string[] permissionNames = CreatePermissionNameArray();
     private static readonly int highestDefinedValue = (int)DiscordPermissionExtensions.GetValues()[^1];
 
-    private readonly DiscordPermissionContainer data;
+    private DiscordPermissionContainer data;
 
     /// <summary>
     /// Creates a new instance of this type from exactly the specified permission.
@@ -62,7 +63,7 @@ public readonly partial struct DiscordPermissions
     /// Creates a new instance of this type from the specified permissions.
     /// </summary>
     [OverloadResolutionPriority(0)]
-    public DiscordPermissions(params IReadOnlyList<DiscordPermission> permissions)
+    public DiscordPermissions(IReadOnlyList<DiscordPermission> permissions)
     {
         foreach (DiscordPermission permission in permissions)
         {
@@ -99,28 +100,6 @@ public readonly partial struct DiscordPermissions
             // hasn't been updated to support a new permission or because Discord is testing in prod again.
             // seeing this assertion in dev should be an indication to expand this type.
             Debug.Assert(false, "The amount of permissions DSharpPlus can represent has been exceeded.");
-        }
-    }
-
-    /// <summary>
-    /// A copy constructor that sets an arbitrary amount of flags to their respective values.
-    /// </summary>
-    private DiscordPermissions
-    (
-        scoped ReadOnlySpan<byte> raw,
-        ReadOnlySpan<DiscordPermission> setPermissions,
-        ReadOnlySpan<DiscordPermission> removePermissions
-    )
-        : this(raw)
-    {
-        foreach (DiscordPermission permission in setPermissions)
-        {
-            this.data.SetFlag((int)permission, true);
-        }
-
-        foreach (DiscordPermission permission in removePermissions)
-        {
-            this.data.SetFlag((int)permission, false);
         }
     }
 
@@ -164,28 +143,28 @@ public readonly partial struct DiscordPermissions
     public static DiscordPermissions All { get; } = new(DiscordPermissionExtensions.GetValues());
 
     [UnscopedRef]
-    private ReadOnlySpan<byte> AsSpan
-        => MemoryMarshal.Cast<uint, byte>((ReadOnlySpan<uint>)this.data);
+    private readonly ReadOnlySpan<byte> AsSpan
+        => MemoryMarshal.Cast<uint, byte>(this.data);
 
-    private bool GetFlag(int index)
+    private readonly bool GetFlag(int index)
         => this.data.HasFlag(index);
 
     /// <summary>
     /// Determines whether this Discord permission set is equal to the provided object.
     /// </summary>
-    public override bool Equals([NotNullWhen(true)] object? obj)
+    public override readonly bool Equals([NotNullWhen(true)] object? obj)
         => obj is DiscordPermissions permissions && Equals(permissions);
 
     /// <summary>
     /// Determines whether this Discord permission set is equal to the provided Discord permission set.
     /// </summary>
-    public bool Equals(DiscordPermissions other)
+    public readonly bool Equals(DiscordPermissions other)
         => ((ReadOnlySpan<uint>)this.data).SequenceEqual(other.data);
 
     /// <summary>
     /// Returns a string representation of this permission set.
     /// </summary>
-    public override string ToString() => ToString("a placeholder format string that doesn't do anything");
+    public override readonly string ToString() => ToString("a placeholder format string that doesn't do anything");
 
     /// <summary>
     /// Returns a string representation of this permission set, according to the provided format string.
@@ -194,9 +173,10 @@ public readonly partial struct DiscordPermissions
     /// Specifies the format in which the string should be created. Currently supported formats are: <br/>
     /// - <c>raw</c>: This prints the raw, byte-wise backing data of this instance. <br/>
     /// - <c>name</c>: This prints each flag by name, separated by commas. <br/>
+    /// - <c>name:format</c>: This prints each flag by name according to the specified format. The string <c>{permission}</c> must be contained to mark the position of the flag. <br/>
     /// - anything else will print the integer value contained in this <see cref="DiscordPermissions"/> instance.
     /// </param>
-    public string ToString(string format)
+    public readonly string ToString(string format)
     {
         if (format == "raw")
         {
@@ -250,7 +230,7 @@ public readonly partial struct DiscordPermissions
 
             StringBuilder builder = new();
 
-            foreach (DiscordPermission permission in EnumeratePermissions())
+            foreach (DiscordPermission permission in this)
             {
                 int flag = (int)permission;
                 string permissionName = flag <= highestDefinedValue ? permissionNames[flag] : flag.ToString(CultureInfo.InvariantCulture);
@@ -279,14 +259,8 @@ public readonly partial struct DiscordPermissions
     /// Calculates a hash code for this Discord permission set. The hash code is only guaranteed to be consistent
     /// within a process, and sharing this data across process boundaries is dangerous.
     /// </summary>
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
         => HashCode.Combine(this.data);
-
-    /// <summary>
-    /// Provides an enumeration of all permissions specified by this set.
-    /// </summary>
-    public DiscordPermissionEnumerable EnumeratePermissions()
-        => new(this.data);
 
     public static bool operator ==(DiscordPermissions left, DiscordPermissions right) => left.Equals(right);
     public static bool operator !=(DiscordPermissions left, DiscordPermissions right) => !(left == right);
@@ -295,12 +269,12 @@ public readonly partial struct DiscordPermissions
     {
         int highest = (int)DiscordPermissionExtensions.GetValues()[^1];
         string[] names = new string[highest + 1];
-    
+
         for (int i = 0; i <= highest; i++)
         {
             names[i] = ((DiscordPermission)i).ToStringFast(true);
         }
-    
+
         return names;
     }
 
@@ -353,4 +327,3 @@ public readonly partial struct DiscordPermissions
         }
     }
 }
-

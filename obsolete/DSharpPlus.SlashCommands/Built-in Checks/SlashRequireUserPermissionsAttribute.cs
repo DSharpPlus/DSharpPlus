@@ -54,6 +54,6 @@ public sealed class SlashRequireUserPermissionsAttribute : SlashCheckBaseAttribu
 
         DiscordPermissions pusr = ctx.Channel.PermissionsFor(usr);
 
-        return Task.FromResult(pusr.HasAllPermissions(this.Permissions));
+        return Task.FromResult(pusr.HasAllPermissions([..this.Permissions]));
     }
 }

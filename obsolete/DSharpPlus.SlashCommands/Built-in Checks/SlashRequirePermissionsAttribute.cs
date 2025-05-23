@@ -62,12 +62,12 @@ public sealed class SlashRequirePermissionsAttribute : SlashCheckBaseAttribute
 
         if (!usrok)
         {
-            usrok = pusr.HasAllPermissions(this.Permissions);
+            usrok = pusr.HasAllPermissions([..this.Permissions]);
         }
 
         if (!botok)
         {
-            botok = pbot.HasAllPermissions(this.Permissions);
+            botok = pbot.HasAllPermissions([..this.Permissions]);
         }
 
         return usrok && botok;

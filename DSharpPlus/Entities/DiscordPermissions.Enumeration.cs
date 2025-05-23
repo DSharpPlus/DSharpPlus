@@ -8,28 +8,17 @@ using CommunityToolkit.HighPerformance.Helpers;
 
 namespace DSharpPlus.Entities;
 
-// contains the implementation details for EnumeratePermissions
+// contains the implementation details for enumerating permissions
 partial struct DiscordPermissions
 {
     /// <summary>
-    /// Presents a slim enumerable wrapper around a set of permissions.
+    /// Gets an enumerator for the present permission set.
     /// </summary>
-    public readonly struct DiscordPermissionEnumerable : IEnumerable<DiscordPermission>
-    {
-        private readonly DiscordPermissionContainer data;
+    public readonly DiscordPermissionEnumerator GetEnumerator() => new(this.data);
 
-        internal DiscordPermissionEnumerable(DiscordPermissionContainer data)
-            => this.data = data;
-
-        /// <summary>
-        /// Gets an enumerator for the present permission set.
-        /// </summary>
-        public readonly DiscordPermissionEnumerator GetEnumerator() => new(this.data);
-
-        // implementations for IEnumerable<T>, we'd like to not box by default
-        IEnumerator<DiscordPermission> IEnumerable<DiscordPermission>.GetEnumerator() => GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
+    // implementations for IEnumerable<T>, we'd like to not box by default
+    readonly IEnumerator<DiscordPermission> IEnumerable<DiscordPermission>.GetEnumerator() => GetEnumerator();
+    readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <summary>
     /// Represents an enumerator for permission fields within a permission set.
@@ -47,9 +36,9 @@ partial struct DiscordPermissions
 
         readonly object IEnumerator.Current => this.Current;
 
-        private int block = 0;
-        private int bit = -1;
         private bool hasEnteredBlock = false;
+        private short block = 0;
+        private int bit = -1;
 
         public bool MoveNext()
         {
@@ -69,7 +58,7 @@ partial struct DiscordPermissions
                     this.bit = BitOperations.TrailingZeroCount(value);
                 }
 
-                for (; this.bit < 32 - BitOperations.LeadingZeroCount(value); this.bit++)
+                for (; this.bit < (32 - BitOperations.LeadingZeroCount(value)); this.bit++)
                 {
                     if (BitHelper.HasFlag(value, this.bit))
                     {

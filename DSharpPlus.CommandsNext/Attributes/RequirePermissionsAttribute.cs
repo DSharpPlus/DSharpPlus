@@ -59,12 +59,12 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
 
         if (!userIsOwner)
         {
-            userIsOwner = userPermissions.HasAllPermissions(this.Permissions);
+            userIsOwner = userPermissions.HasAllPermissions([..this.Permissions]);
         }
 
         if (!botIsOwner)
         {
-            botIsOwner = botPermissions.HasAllPermissions(this.Permissions);
+            botIsOwner = botPermissions.HasAllPermissions([..this.Permissions]);
         }
 
         return userIsOwner && botIsOwner;

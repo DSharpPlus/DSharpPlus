@@ -191,7 +191,7 @@ public enum DiscordPermission
     ManageWebhooks = 29,
 
     /// <summary>
-    /// Allows members to manage guild emojis and stickers.
+    /// Allows members to manage guild emojis, stickers and soundboard sounds.
     /// </summary>
     [Display(Name = "Manage Guild Expressions")]
     ManageGuildExpressions = 30,
@@ -267,6 +267,24 @@ public enum DiscordPermission
     /// </summary>
     [Display(Name = "Use Soundboard")]
     UseSoundboard = 42,
+
+    /// <summary>
+    /// Allows members to create emojis, stickers and soundboard sounds, as well as editing and deleting those they created.
+    /// </summary>
+    [Display(Name = "Create Guild Expressions")]
+    CreateGuildExpressions = 43,
+
+    /// <summary>
+    /// Allows members to create scheduled events, as well as editing and deleting those they created.
+    /// </summary>
+    [Display(Name = "Create Scheduled Events")]
+    CreateEvents = 44,
+
+    /// <summary>
+    /// Allows members to play soundboard sounds from other guilds.
+    /// </summary>
+    [Display(Name = "Use External Soundboard Sounds")]
+    UseExternalSounds = 45,
 
     /// <summary>
     /// Allows members to send voice messages.
