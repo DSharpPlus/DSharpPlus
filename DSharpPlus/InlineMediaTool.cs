@@ -18,6 +18,8 @@ public sealed class InlineMediaTool : IDisposable
     private const ulong GIF_MAGIC_2 = 0x0000_6137_3846_4947;
     private const uint WEBP_MAGIC_1 = 0x4646_4952;
     private const uint WEBP_MAGIC_2 = 0x5042_4557;
+    private const ulong AVIF_MAGIC_PART_1 = 0x7079_7466_0000_0000;
+    private const uint AVIF_MAGIC_PART_2 = 0x6669_7661;
     private const uint OGG_MAGIC = 0x5367_674F;
     private const ushort MP3_MAGIC_1 = 0xFBFF;
     private const ushort MP3_MAGIC_2 = 0xF3FF;
@@ -28,6 +30,7 @@ public sealed class InlineMediaTool : IDisposable
 
     private const ulong GIF_MASK = 0x0000_FFFF_FFFF_FFFF;
     private const ulong MASK32 = 0x0000_0000_FFFF_FFFF;
+    private const ulong MASK32_LESSER = 0xFFFF_FFFF_0000_0000;
     private const uint MASK16 = 0x0000_FFFF;
     private const uint MASK24 = 0x00FF_FFFF;
 
@@ -75,6 +78,11 @@ public sealed class InlineMediaTool : IDisposable
             if (bgn64 == PNG_MAGIC)
             {
                 return this.format = MediaFormat.Png;
+            }
+
+            if ((bgn64 & MASK32_LESSER) == AVIF_MAGIC_PART_1 && br.ReadUInt32() == AVIF_MAGIC_PART_2)
+            {
+                return this.format = MediaFormat.Avif;
             }
 
             bgn64 &= GIF_MASK;
@@ -153,6 +161,7 @@ public sealed class InlineMediaTool : IDisposable
             MediaFormat.Jpeg => "data:image/jpeg;base64,"u8,
             MediaFormat.Gif => "data:image/gif;base64,"u8,
             MediaFormat.WebP => "data:image/webp;base64,"u8,
+            MediaFormat.Avif => "data:image/avif;base64,"u8,
             MediaFormat.Ogg => "data:audio/ogg;base64,"u8,
             MediaFormat.Mp3 => "data:audio/mp3;base64,"u8,
             MediaFormat.Auto => "data:image/auto;base64,"u8,
@@ -201,6 +210,7 @@ public enum MediaFormat : int
     Gif,
     Jpeg,
     WebP,
+    Avif,
     Ogg,
     Mp3,
     Auto,
