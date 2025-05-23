@@ -22,21 +22,6 @@ namespace DSharpPlus.Internal.Abstractions.Rest.API;
 public interface IGuildRestAPI
 {
     /// <summary>
-    /// Creates a new guild with the bot user as its owner. This endpoint can only be used by bots in less than
-    /// 10 guilds.
-    /// </summary>
-    /// <param name="payload">The information to create this guild with.</param>
-    /// <param name="info">Additional instructions regarding this request.</param>
-    /// <param name="ct">A cancellation token for this operation.</param>
-    /// <returns>The newly created guild.</returns>
-    public ValueTask<Result<IGuild>> CreateGuildAsync
-    (
-        ICreateGuildPayload payload,
-        RequestInfo info = default,
-        CancellationToken ct = default
-    );
-
-    /// <summary>
     /// Fetches a guild from its snowflake identifier.
     /// </summary>
     /// <param name="guildId">The snowflake identifier of the guild in question.</param>
@@ -746,6 +731,22 @@ public interface IGuildRestAPI
         Snowflake guildId,
         IModifyGuildOnboardingPayload payload,
         string? reason = null,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
+    /// Modifies the actions taken in response to a raid or spam incident in the given guild.
+    /// </summary>
+    /// <param name="guildId">The snowflake identifier of the guild in question.</param>
+    /// <param name="payload">The new action data to modify the guild with.</param>
+    /// <param name="info">Additional instructions regarding this request.</param>
+    /// <param name="ct">A cancellation token for this operation.</param>
+    /// <returns>The newly updated actions taken and, if applicable, ongoing incidents.</returns>
+    public ValueTask<Result<IIncidentsData>> ModifyGuildIncidentActionsAsync
+    (
+        Snowflake guildId,
+        IModifyGuildIncidentActionsPayload payload,
         RequestInfo info = default,
         CancellationToken ct = default
     );

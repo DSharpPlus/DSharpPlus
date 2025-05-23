@@ -19,7 +19,7 @@ public interface IAllowedMentions
     /// "roles" for parsing role mentions, "users" for parsing user mentions and 
     /// "everyone" for parsing @everyone and @here mentions.
     /// </summary>
-    public IReadOnlyList<string> Parse { get; }
+    public Optional<IReadOnlyList<string>> Parse { get; }
 
     /// <summary>
     /// An array of role IDs to mention, up to 100.

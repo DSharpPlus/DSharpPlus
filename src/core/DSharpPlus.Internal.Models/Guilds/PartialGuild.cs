@@ -137,4 +137,7 @@ public sealed record PartialGuild : IPartialGuild
 
     /// <inheritdoc/>
     public Optional<Snowflake?> SafetyAlertsChannelId { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<IIncidentsData?> IncidentsData { get; init; }
 }

@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 
+using DSharpPlus.Entities;
 using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Internal.Abstractions.Rest.Payloads;
@@ -22,6 +23,12 @@ public interface IEditWebhookMessagePayload
     /// Up to 10 embeds attached to the message.
     /// </summary>
     public Optional<IReadOnlyList<IEmbed>?> Embeds { get; }
+
+    /// <summary>
+    /// The flags to edit this message with. <see cref="DiscordMessageFlags.EnableLayoutComponents"/> may be set but not removed,
+    /// <see cref="DiscordMessageFlags.SuppressEmbeds"/> may be set and removed, and all other flags cannot be set or removed.
+    /// </summary>
+    public Optional<DiscordMessageFlags> Flags { get; }
 
     /// <summary>
     /// The new allowed mentions object for this message.

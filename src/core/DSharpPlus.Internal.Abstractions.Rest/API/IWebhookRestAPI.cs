@@ -241,7 +241,7 @@ public interface IWebhookRestAPI
         string webhookToken,
         Snowflake messageId,
         IEditWebhookMessagePayload payload,
-        ThreadIdQuery query = default,
+        EditWebhookMessageQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     );

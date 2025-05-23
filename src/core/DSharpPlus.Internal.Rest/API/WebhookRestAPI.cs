@@ -147,7 +147,7 @@ public sealed class WebhookRestAPI(IRestClient restClient)
         string webhookToken,
         Snowflake messageId,
         IEditWebhookMessagePayload payload,
-        ThreadIdQuery query = default,
+        EditWebhookMessageQuery query = default,
         RequestInfo info = default,
         CancellationToken ct = default
     )
@@ -172,6 +172,11 @@ public sealed class WebhookRestAPI(IRestClient restClient)
         if (query.ThreadId is not null)
         {
             _ = builder.AddParameter("thread_id", query.ThreadId.Value.ToString());
+        }
+
+        if (query.WithComponents is not null)
+        {
+            _ = builder.AddParameter("with_components", query.WithComponents.Value.ToString().ToLowerInvariant());
         }
 
         return await restClient.ExecuteRequestAsync<IMessage>
@@ -236,6 +241,11 @@ public sealed class WebhookRestAPI(IRestClient restClient)
         if (query.Wait is not null)
         {
             _ = builder.AddParameter("wait", query.Wait.Value.ToString().ToLowerInvariant());
+        }
+
+        if (query.WithComponents is not null)
+        {
+            _ = builder.AddParameter("with_components", query.WithComponents.Value.ToString().ToLowerInvariant());
         }
 
         if (query.Wait == true)

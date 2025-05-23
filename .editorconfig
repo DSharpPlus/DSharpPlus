@@ -27,6 +27,7 @@ end_of_line = crlf
 indent_size = 4
 insert_final_newline = true
 charset = utf-8
+end_of_line = crlf
 
 ###############################
 # .NET Coding Conventions     #
@@ -38,7 +39,7 @@ file_header_template = This Source Code form is subject to the terms of the Mozi
 
 # Organize usings
 dotnet_sort_system_directives_first = true:error
-dotnet_separate_import_directive_groups = true:error
+dotnet_separate_import_directive_groups = true
 csharp_qualified_using_at_nested_scope = true:error
 # usings before namespace
 csharp_using_directive_placement = outside_namespace:error

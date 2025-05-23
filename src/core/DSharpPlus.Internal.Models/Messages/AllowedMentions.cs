@@ -12,7 +12,7 @@ namespace DSharpPlus.Internal.Models;
 public sealed record AllowedMentions : IAllowedMentions
 {
     /// <inheritdoc/>
-    public required IReadOnlyList<string> Parse { get; init; }
+    public Optional<IReadOnlyList<string>> Parse { get; init; }
 
     /// <inheritdoc/>
     public Optional<IReadOnlyList<Snowflake>> Roles { get; init; }

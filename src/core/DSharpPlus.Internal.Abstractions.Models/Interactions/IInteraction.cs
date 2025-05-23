@@ -114,4 +114,9 @@ public interface IInteraction
     /// The context the interaction was triggered in.
     /// </summary>
     public Optional<DiscordInteractionContextType> Context { get; }
+
+    /// <summary>
+    /// The size limit for attachments this interaction can be responded to with, in bytes.
+    /// </summary>
+    public int AttachmentSizeLimit { get; }
 }

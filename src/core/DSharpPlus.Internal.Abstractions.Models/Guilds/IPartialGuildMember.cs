@@ -30,6 +30,11 @@ public interface IPartialGuildMember
     public Optional<string?> Avatar { get; }
 
     /// <summary>
+    /// The user's guild banner hash.
+    /// </summary>
+    public Optional<string?> Banner { get; }
+
+    /// <summary>
     /// This user's list of roles.
     /// </summary>
     public Optional<IReadOnlyList<Snowflake>> Roles { get; }

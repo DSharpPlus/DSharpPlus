@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 
+using DSharpPlus.Entities;
 using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Abstractions.Rest.Payloads;
 
@@ -17,6 +18,9 @@ public sealed record EditWebhookMessagePayload : IEditWebhookMessagePayload
 
     /// <inheritdoc/>
     public Optional<IReadOnlyList<IEmbed>?> Embeds { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<DiscordMessageFlags> Flags { get; init; }
 
     /// <inheritdoc/>
     public Optional<IAllowedMentions?> AllowedMentions { get; init; }

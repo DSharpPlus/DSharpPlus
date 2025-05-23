@@ -70,4 +70,7 @@ public sealed record Interaction : IInteraction
 
     /// <inheritdoc/>
     public Optional<DiscordInteractionContextType> Context { get; init; }
+
+    /// <inheritdoc/>
+    public required int AttachmentSizeLimit { get; init; }
 }

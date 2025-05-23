@@ -38,29 +38,21 @@ public class ComponentConverter : JsonConverter<IComponent>
 
         IComponent? component = (DiscordMessageComponentType)type switch
         {
-            DiscordMessageComponentType.ActionRow
-                => document.Deserialize<IActionRowComponent>(options),
-
-            DiscordMessageComponentType.Button
-                => document.Deserialize<IButtonComponent>(options),
-
-            DiscordMessageComponentType.StringSelect
-                => document.Deserialize<IStringSelectComponent>(options),
-
-            DiscordMessageComponentType.TextInput
-                => document.Deserialize<ITextInputComponent>(options),
-
-            DiscordMessageComponentType.UserSelect
-                => document.Deserialize<IUserSelectComponent>(options),
-
-            DiscordMessageComponentType.RoleSelect
-                => document.Deserialize<IRoleSelectComponent>(options),
-
-            DiscordMessageComponentType.MentionableSelect
-                => document.Deserialize<IMentionableSelectComponent>(options),
-
-            DiscordMessageComponentType.ChannelSelect
-                => document.Deserialize<IChannelSelectComponent>(options),
+            DiscordMessageComponentType.ActionRow => document.Deserialize<IActionRowComponent>(options),
+            DiscordMessageComponentType.Button => document.Deserialize<IButtonComponent>(options),
+            DiscordMessageComponentType.StringSelect => document.Deserialize<IStringSelectComponent>(options),
+            DiscordMessageComponentType.TextInput => document.Deserialize<ITextInputComponent>(options),
+            DiscordMessageComponentType.UserSelect => document.Deserialize<IUserSelectComponent>(options),
+            DiscordMessageComponentType.RoleSelect => document.Deserialize<IRoleSelectComponent>(options),
+            DiscordMessageComponentType.MentionableSelect => document.Deserialize<IMentionableSelectComponent>(options),
+            DiscordMessageComponentType.ChannelSelect => document.Deserialize<IChannelSelectComponent>(options),
+            DiscordMessageComponentType.Section => document.Deserialize<ISectionComponent>(options),
+            DiscordMessageComponentType.TextDisplay => document.Deserialize<ITextDisplayComponent>(options),
+            DiscordMessageComponentType.Thumbnail => document.Deserialize<IThumbnailComponent>(options),
+            DiscordMessageComponentType.MediaGallery => document.Deserialize<IMediaGalleryComponent>(options),
+            DiscordMessageComponentType.File => document.Deserialize<IFileComponent>(options),
+            DiscordMessageComponentType.Separator => document.Deserialize<ISeparatorComponent>(options),
+            DiscordMessageComponentType.Container => document.Deserialize<IContainerComponent>(options),
 
             _ => new UnknownComponent
             {

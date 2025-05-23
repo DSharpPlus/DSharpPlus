@@ -67,5 +67,15 @@ public enum DiscordMessageFlags
     /// <summary>
     /// This message is a voice message.
     /// </summary>
-    IsVoiceMessage = 1 << 13
+    IsVoiceMessage = 1 << 13,
+
+    /// <summary>
+    /// This message contains a message snapshot, via forwarding.
+    /// </summary>
+    HasSnapshot = 1 << 14,
+
+    /// <summary>
+    /// This message contains layout components and does not contain content, embeds, polls or stickers.
+    /// </summary>
+    EnableLayoutComponents = 1 << 15,
 }

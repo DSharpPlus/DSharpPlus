@@ -7,18 +7,28 @@
     <Project Path="src\core\DSharpPlus.Shared\DSharpPlus.Shared.csproj" />
   </Folder>
   <Folder Name="/Extensions/">
-    <Project Path="src\extensions\DSharpPlus.Extensions.Internal.Toolbox\DSharpPlus.Extensions.Internal.Toolbox.csproj" />
     <Project Path="src\extensions\DSharpPlus.Extensions.Internal.BadRequestHelper\DSharpPlus.Extensions.Internal.BadRequestHelper.csproj" />
+    <Project Path="src\extensions\DSharpPlus.Extensions.Internal.Toolbox\DSharpPlus.Extensions.Internal.Toolbox.csproj" />
   </Folder>
   <Folder Name="/Generators/">
     <Project Path="gen\common\DSharpPlus.SourceGenerators.Common.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
   </Folder>
   <Folder Name="/Tests/" />
   <Folder Name="/Tests/Core/">
     <Project Path="tests\core\DSharpPlus.Internal.Models.Tests\DSharpPlus.Internal.Models.Tests.csproj" />
     <Project Path="tests\core\DSharpPlus.Shared.Tests\DSharpPlus.Shared.Tests.csproj" />
   </Folder>
-  <Properties Name="Visual Studio">
-    <Property Name="OpenWith" Value="Visual Studio Version 17" />
-  </Properties>
+  <Folder Name="/Tools/">
+    <File Path="tools/incremental-utility.csx" />
+  </Folder>
+  <Folder Name="/Tools/Generators/">
+    <File Path="tools/generators/copy-concrete-implementations.csx" />
+    <File Path="tools/generators/generate-concrete-objects.csx" />
+    <File Path="tools/generators/generate-rest-payloads.csx" />
+    <File Path="tools/generators/generate-serialization-registration.csx" />
+    <File Path="tools/generators/parse-interface.csx" />
+  </Folder>
 </Solution>

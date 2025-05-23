@@ -11,7 +11,6 @@ using System.Diagnostics.CodeAnalysis;
 using DSharpPlus.Entities;
 using DSharpPlus.Extensions.Internal.Toolbox.Errors;
 using DSharpPlus.Extensions.Internal.Toolbox.Implementations;
-using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Results;
 
 namespace DSharpPlus.Extensions.Internal.Builders.Interactions;

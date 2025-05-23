@@ -21,4 +21,8 @@
     <ProjectReference Include="..\..\..\lib\bundles\src\Bundles\Bundles.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Entities\ModalComponents\" />
+  </ItemGroup>
+
 </Project>

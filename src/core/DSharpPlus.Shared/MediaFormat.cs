@@ -13,6 +13,7 @@ public enum MediaFormat
     Gif,
     Jpeg,
     WebP,
+    Avif,
     Ogg,
     Mp3,
     Auto,

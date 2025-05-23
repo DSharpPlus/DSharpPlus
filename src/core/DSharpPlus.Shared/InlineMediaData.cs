@@ -24,6 +24,7 @@ public readonly record struct InlineMediaData
     private static ReadOnlySpan<byte> JpegString => "data:image/jpeg;base64,"u8;
     private static ReadOnlySpan<byte> GifString => "data:image/gif;base64,"u8;
     private static ReadOnlySpan<byte> WebpString => "data:image/webp;base64,"u8;
+    private static ReadOnlySpan<byte> AvifString => "data:image/avif;base64,"u8;
     private static ReadOnlySpan<byte> OggString => "data:audio/ogg;base64,"u8;
     private static ReadOnlySpan<byte> Mp3String => "data:audio/mpeg;base64,"u8;
     private static ReadOnlySpan<byte> AutoString => "data:image/auto;base64,"u8;
@@ -79,6 +80,7 @@ public readonly record struct InlineMediaData
                 MediaFormat.Gif => GifString,
                 MediaFormat.Jpeg => JpegString,
                 MediaFormat.WebP => WebpString,
+                MediaFormat.Avif => AvifString,
                 MediaFormat.Ogg => OggString,
                 MediaFormat.Mp3 => Mp3String,
                 _ => AutoString

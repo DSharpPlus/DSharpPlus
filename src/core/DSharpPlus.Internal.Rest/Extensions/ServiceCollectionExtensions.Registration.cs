@@ -51,6 +51,7 @@ partial class ServiceCollectionExtensions
                 options.AddModel<ICreateGuildRolePayload, CreateGuildRolePayload>();
                 options.AddModel<IModifyCurrentMemberPayload, ModifyCurrentMemberPayload>();
                 options.AddModel<IModifyGuildChannelPositionsPayload, ModifyGuildChannelPositionsPayload>();
+                options.AddModel<IModifyGuildIncidentActionsPayload, ModifyGuildIncidentActionsPayload>();
                 options.AddModel<IModifyGuildMemberPayload, ModifyGuildMemberPayload>();
                 options.AddModel<IModifyGuildMfaLevelPayload, ModifyGuildMfaLevelPayload>();
                 options.AddModel<IModifyGuildOnboardingPayload, ModifyGuildOnboardingPayload>();
@@ -71,6 +72,7 @@ partial class ServiceCollectionExtensions
                 options.AddModel<IModifyGuildScheduledEventPayload, ModifyGuildScheduledEventPayload>();
                 options.AddModel<ICreateGuildSoundboardSoundPayload, CreateGuildSoundboardSoundPayload>();
                 options.AddModel<IModifyGuildSoundboardSoundPayload, ModifyGuildSoundboardSoundPayload>();
+                options.AddModel<ISendSoundboardSoundPayload, SendSoundboardSoundPayload>();
                 options.AddModel<ICreateStageInstancePayload, CreateStageInstancePayload>();
                 options.AddModel<IModifyStageInstancePayload, ModifyStageInstancePayload>();
                 options.AddModel<ICreateGuildStickerPayload, CreateGuildStickerPayload>();

@@ -23,6 +23,9 @@ public sealed record PartialGuildMember : IPartialGuildMember
     public Optional<string?> Avatar { get; init; }
 
     /// <inheritdoc/>
+    public Optional<string?> Banner { get; init; }
+
+    /// <inheritdoc/>
     public Optional<IReadOnlyList<Snowflake>> Roles { get; init; }
 
     /// <inheritdoc/>

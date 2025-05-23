@@ -34,10 +34,10 @@ public sealed record PartialEntitlement : IPartialEntitlement
     public Optional<bool> Deleted { get; init; }
 
     /// <inheritdoc/>
-    public Optional<DateTimeOffset> StartsAt { get; init; }
+    public Optional<DateTimeOffset?> StartsAt { get; init; }
 
     /// <inheritdoc/>
-    public Optional<DateTimeOffset> EndsAt { get; init; }
+    public Optional<DateTimeOffset?> EndsAt { get; init; }
 
     /// <inheritdoc/>
     public Optional<bool> Consumed { get; init; }

@@ -97,6 +97,9 @@ public interface IGuild : IPartialGuild
     /// <inheritdoc cref="IPartialGuild.SafetyAlertsChannelId"/>
     public new Snowflake? SafetyAlertsChannelId { get; }
 
+    /// <inheritdoc cref="IPartialGuild.IncidentsData"/>
+    public new IIncidentsData? IncidentsData { get; }
+
     // routes for partial access
 
     /// <inheritdoc/>
@@ -182,4 +185,6 @@ public interface IGuild : IPartialGuild
 
     /// <inheritdoc/>
     Optional<Snowflake?> IPartialGuild.SafetyAlertsChannelId => this.SafetyAlertsChannelId;
+
+    Optional<IIncidentsData?> IPartialGuild.IncidentsData => new(this.IncidentsData);
 }

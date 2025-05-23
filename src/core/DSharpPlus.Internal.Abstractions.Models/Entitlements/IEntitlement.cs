@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+using System;
+
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Internal.Abstractions.Models;
@@ -23,6 +25,12 @@ public interface IEntitlement : IPartialEntitlement
     /// <inheritdoc cref="IPartialEntitlement.Deleted"/>
     public new bool Deleted { get; }
 
+    /// <inheritdoc cref="IPartialEntitlement.StartsAt"/>
+    public new DateTimeOffset? StartsAt { get; }
+
+    /// <inheritdoc cref="IPartialEntitlement.EndsAt"/>
+    public new DateTimeOffset? EndsAt { get; }
+
     // partial access
 
     Optional<Snowflake> IPartialEntitlement.SkuId => this.SkuId;
@@ -32,4 +40,8 @@ public interface IEntitlement : IPartialEntitlement
     Optional<DiscordEntitlementType> IPartialEntitlement.Type => this.Type;
 
     Optional<bool> IPartialEntitlement.Deleted => this.Deleted;
+
+    Optional<DateTimeOffset?> IPartialEntitlement.StartsAt => this.StartsAt;
+
+    Optional<DateTimeOffset?> IPartialEntitlement.EndsAt => this.EndsAt;
 }

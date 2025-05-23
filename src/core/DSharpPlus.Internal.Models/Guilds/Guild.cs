@@ -137,4 +137,7 @@ public sealed record Guild : IGuild
 
     /// <inheritdoc/>
     public Snowflake? SafetyAlertsChannelId { get; init; }
+
+    /// <inheritdoc/>
+    public IIncidentsData? IncidentsData { get; init; }
 }

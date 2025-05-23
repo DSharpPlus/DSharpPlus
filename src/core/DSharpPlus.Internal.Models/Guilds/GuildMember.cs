@@ -23,6 +23,9 @@ public sealed record GuildMember : IGuildMember
     public Optional<string?> Avatar { get; init; }
 
     /// <inheritdoc/>
+    public Optional<string?> Banner { get; init; }
+
+    /// <inheritdoc/>
     public required IReadOnlyList<Snowflake> Roles { get; init; }
 
     /// <inheritdoc/>

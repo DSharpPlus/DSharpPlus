@@ -26,6 +26,9 @@ public sealed record Subscription : ISubscription
     public required IReadOnlyList<Snowflake> EntitlementIds { get; init; }
 
     /// <inheritdoc/>
+    public IReadOnlyList<Snowflake>? RenewalSkuIds { get; init; }
+
+    /// <inheritdoc/>
     public required DateTimeOffset CurrentPeriodStart { get; init; }
 
     /// <inheritdoc/>

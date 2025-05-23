@@ -6,7 +6,6 @@
 
 using System.Text.Json;
 
-using DSharpPlus.Internal.Abstractions.Models;
 using DSharpPlus.Internal.Models.Serialization.Converters;
 using DSharpPlus.Internal.Models.Serialization.Resolvers;
 using DSharpPlus.Serialization;

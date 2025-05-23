@@ -3,7 +3,6 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 using DSharpPlus.Entities;
-using DSharpPlus.Internal.Abstractions.Models;
 
 namespace DSharpPlus.Extensions.Internal.Toolbox.Implementations;
 

@@ -134,34 +134,6 @@ public sealed class GuildRestAPI(IRestClient restClient)
     }
 
     /// <inheritdoc/>
-    public async ValueTask<Result<IGuild>> CreateGuildAsync
-    (
-        ICreateGuildPayload payload,
-        RequestInfo info = default,
-        CancellationToken ct = default
-    )
-    {
-        if (payload.Name.Length is < 2 or > 100)
-        {
-            return new ValidationError("The name of a guild must be between 2 and 100 characters long.");
-        }
-
-        if (payload.AfkTimeout.HasValue && payload.AfkTimeout.Value is not (60 or 300 or 900 or 1800 or 3600))
-        {
-            return new ValidationError("The AFK timeout of a guild must be either 60, 300, 900, 1800 or 3600 seconds.");
-        }
-
-        return await restClient.ExecuteRequestAsync<IGuild>
-        (
-            HttpMethod.Post,
-            $"guilds",
-            b => b.WithPayload(payload),
-            info,
-            ct
-        );
-    }
-
-    /// <inheritdoc/>
     public async ValueTask<Result<IChannel>> CreateGuildChannelAsync
     (
         Snowflake guildId,
@@ -1126,6 +1098,26 @@ public sealed class GuildRestAPI(IRestClient restClient)
             $"guilds/{guildId}/roles/{roleId}",
             b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
                   .WithRoute($"GET guilds/{guildId}/roles/:role-id"),
+            info,
+            ct
+        );
+    }
+
+    /// <inheritdoc/>
+    public async ValueTask<Result<IIncidentsData>> ModifyGuildIncidentActionsAsync
+    (
+        Snowflake guildId,
+        IModifyGuildIncidentActionsPayload payload,
+        RequestInfo info = default,
+        CancellationToken ct = default
+    )
+    {
+        return await restClient.ExecuteRequestAsync<IIncidentsData>
+        (
+            HttpMethod.Put,
+            $"guilds/{guildId}/incident-actions",
+            b => b.WithSimpleRoute(TopLevelResource.Guild, guildId)
+                  .WithPayload(payload),
             info,
             ct
         );

@@ -51,12 +51,12 @@ public interface IPartialEntitlement
     /// <summary>
     /// The starting date at which this entitlement is valid. Not present when using test entitlements.
     /// </summary>
-    public Optional<DateTimeOffset> StartsAt { get; }
+    public Optional<DateTimeOffset?> StartsAt { get; }
 
     /// <summary>
     /// The date at which this entitlement is no longer valid. Not present when using test entitlements.
     /// </summary>
-    public Optional<DateTimeOffset> EndsAt { get; }
+    public Optional<DateTimeOffset?> EndsAt { get; }
 
     /// <summary>
     /// Indicates whether this entitlement has been consumed.

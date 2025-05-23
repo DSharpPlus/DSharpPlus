@@ -225,4 +225,9 @@ public interface IPartialGuild
     /// The snowflake identifier of the channel where community servers receive safety alerts.
     /// </summary>
     public Optional<Snowflake?> SafetyAlertsChannelId { get; }
+
+    /// <summary>
+    /// Guild metadata pertaining to raids and spam incidents and actions taken to resolve them.
+    /// </summary>
+    public Optional<IIncidentsData?> IncidentsData { get; }
 }

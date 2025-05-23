@@ -24,4 +24,10 @@ public readonly record struct ExecuteWebhookQuery
     /// webhook can be passed.
     /// </summary>
     public Snowflake? ThreadId { get; init; }
+
+    /// <summary>
+    /// Specifies whether this request will allow sending non-interactive components for non-application-owned webhooks.
+    /// Defaults to <see langword="false"/>
+    /// </summary>
+    public bool? WithComponents { get; init; }
 }

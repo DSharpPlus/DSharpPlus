@@ -35,6 +35,11 @@ public interface ISubscription
     public IReadOnlyList<Snowflake> EntitlementIds { get; }
 
     /// <summary>
+    /// The list of SKUs this user will be subscribed to at renewal.
+    /// </summary>
+    public IReadOnlyList<Snowflake>? RenewalSkuIds { get; }
+
+    /// <summary>
     /// The starting timestamp of the current subscription period.
     /// </summary>
     public DateTimeOffset CurrentPeriodStart { get; }
