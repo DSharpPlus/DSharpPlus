@@ -9,6 +9,21 @@ namespace DSharpPlus.EventArgs;
 public class VoiceStateUpdatedEventArgs : DiscordEventArgs
 {
     /// <summary>
+    /// Gets the ID of the user whose voice state was updated.
+    /// </summary>
+    public ulong UserId => this.After.UserId;
+
+    /// <summary>
+    /// Gets the ID of the channel this user is now connected to.
+    /// </summary>
+    public ulong? ChannelId => this.After.ChannelId;
+
+    /// <summary>
+    /// Gets the ID of the guild this voice state update is associated with.
+    /// </summary>
+    public ulong? GuildId => this.After.GuildId;
+
+    /// <summary>
     /// Gets the member associated with this voice state.
     /// </summary>
     /// <param name="skipCache">Whether to skip the cache and always fetch the member from the API.</param>
@@ -46,5 +61,5 @@ public class VoiceStateUpdatedEventArgs : DiscordEventArgs
     /// </summary>
     public string SessionId { get; internal set; }
 
-    internal VoiceStateUpdatedEventArgs() : base() { }
+    internal VoiceStateUpdatedEventArgs() { }
 }
