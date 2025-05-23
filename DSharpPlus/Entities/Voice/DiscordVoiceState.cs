@@ -31,7 +31,7 @@ public class DiscordVoiceState
     /// Gets ID of the user to which this voice state belongs.
     /// </summary>
     [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
-    internal ulong UserId { get; init; }
+    public ulong UserId { get; init; }
 
     /// <summary>
     /// Gets ID of the session of this voice state.
