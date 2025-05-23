@@ -1298,7 +1298,7 @@ public sealed partial class DiscordClient
                 VerificationLevel = gld.VerificationLevel,
                 RulesChannelId = gld.RulesChannelId,
                 PublicUpdatesChannelId = gld.PublicUpdatesChannelId,
-                voiceRegionId = gld.voiceRegionId,
+                VoiceRegionId = gld.VoiceRegionId,
                 PremiumProgressBarEnabled = gld.PremiumProgressBarEnabled,
                 IsNSFW = gld.IsNSFW,
                 channels = new ConcurrentDictionary<ulong, DiscordChannel>(),

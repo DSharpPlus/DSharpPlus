@@ -1234,7 +1234,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
         guild.IconHash = newGuild.IconHash;
         guild.MfaLevel = newGuild.MfaLevel;
         guild.OwnerId = newGuild.OwnerId;
-        guild.voiceRegionId = newGuild.voiceRegionId;
+        guild.VoiceRegionId = newGuild.VoiceRegionId;
         guild.SplashHash = newGuild.SplashHash;
         guild.VerificationLevel = newGuild.VerificationLevel;
         guild.WidgetEnabled = newGuild.WidgetEnabled;
