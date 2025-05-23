@@ -1,0 +1,36 @@
+﻿<Solution>
+  <Folder Name="/Build Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path=".github\workflows\publish_nightly_v5.yml" />
+    <File Path=".github\workflows\publish_release_v5.yml" />
+  </Folder>
+  <Folder Name="/DSharpPlus.Analyzers/">
+    <Project Path="DSharpPlus.Analyzers\DSharpPlus.Analyzers.Test\DSharpPlus.Analyzers.Test.csproj" Type="Classic C#" />
+    <Project Path="DSharpPlus.Analyzers\DSharpPlus.Analyzers\DSharpPlus.Analyzers.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/obsolete/">
+    <Project Path="obsolete\DSharpPlus.SlashCommands\DSharpPlus.SlashCommands.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="CONTRIBUTING.md" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Solution Items/.github/">
+    <File Path=".github\FUNDING.yml" />
+    <File Path=".github\ISSUE_TEMPLATE.md" />
+    <File Path=".github\PULL_REQUEST_TEMPLATE.md" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools\DSharpPlus.Tools.CodeBlockLanguageListGen\DSharpPlus.Tools.CodeBlockLanguageListGen.csproj" />
+  </Folder>
+  <Project Path="DSharpPlus.CommandsNext\DSharpPlus.CommandsNext.csproj" />
+  <Project Path="DSharpPlus.Commands\DSharpPlus.Commands.csproj" />
+  <Project Path="DSharpPlus.Http.AspNetCore\DSharpPlus.Http.AspNetCore.csproj" Type="Classic C#" />
+  <Project Path="DSharpPlus.Interactivity\DSharpPlus.Interactivity.csproj" />
+  <Project Path="DSharpPlus.Tests\DSharpPlus.Tests.csproj" />
+  <Project Path="DSharpPlus.VoiceNext\DSharpPlus.VoiceNext.csproj" />
+  <Project Path="DSharpPlus\DSharpPlus.csproj" />
+</Solution>
