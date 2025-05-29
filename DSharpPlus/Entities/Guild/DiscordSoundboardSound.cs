@@ -60,12 +60,17 @@ public class DiscordSoundboardSound : SnowflakeObject
     /// <param name="skipCache">If the guild should be fetched and the cache skiped </param>
     public async ValueTask<DiscordGuild?> GetGuildAsync(bool skipCache = false)
     {
-        if (!skipCache && this.Discord.Guilds.TryGetValue(this.GuildId, out DiscordGuild? guild))
+        if (this.GuildId is null)
+        {
+            return null;
+        }
+        
+        if (!skipCache && this.Discord.Guilds.TryGetValue(this.GuildId.Value, out DiscordGuild? guild))
         {
             return guild;
         }
 
-        return await this.Discord.ApiClient.GetGuildAsync(this.GuildId, null);
+        return await this.Discord.ApiClient.GetGuildAsync(this.GuildId.Value, null);
     }
 
     /// <summary>
@@ -83,7 +88,7 @@ public class DiscordSoundboardSound : SnowflakeObject
             return null;
         }
 
-        if (!skipCache && this.Discord.Guilds.TryGetValue(this.GuildId, out DiscordGuild? guild))
+        if (!skipCache && this.GuildId is not null && this.Discord.Guilds.TryGetValue(this.GuildId.Value, out DiscordGuild? guild))
         {
             if (guild.members.TryGetValue(this.UserId.Value, out DiscordMember? member))
             {
@@ -91,7 +96,7 @@ public class DiscordSoundboardSound : SnowflakeObject
             }
         }
 
-        if (!skipCache && this.Discord.UserCache.TryGetValue(this.GuildId, out DiscordUser? user))
+        if (!skipCache && this.Discord.UserCache.TryGetValue(this.UserId.Value, out DiscordUser? user))
         {
             return user;
         }
