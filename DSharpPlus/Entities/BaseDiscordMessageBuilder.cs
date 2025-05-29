@@ -656,8 +656,9 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     )
     {
         const int CV2_MAX_TOTAL_COMPONENTS = 40;
-        int maxTopComponents = this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) ? CV2_MAX_TOTAL_COMPONENTS : 5;
-        int maxAllComponents = this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) ? CV2_MAX_TOTAL_COMPONENTS : 25;
+        bool isCV2 = this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2);
+        int maxTopComponents = isCV2 ? CV2_MAX_TOTAL_COMPONENTS : 5;
+        int maxAllComponents = isCV2 ? CV2_MAX_TOTAL_COMPONENTS : 25;
         
         int allComponentCount = this.Components.Sum
         (
@@ -665,7 +666,8 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
             {
                 return c switch
                 {
-                    DiscordActionRowComponent arc => 1 + arc.Components.Count,
+                    DiscordActionRowComponent arc when isCV2 => 1 + arc.Components.Count,
+                    DiscordActionRowComponent arc => arc.Components.Count,
                     DiscordSectionComponent section => 2 + section.Components.Count,
                     DiscordContainerComponent container => 1 + container.Components.Sum
                     (
@@ -683,7 +685,8 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 
         int requiredSpaceForComponent = component switch
         {
-            DiscordActionRowComponent arc => arc.Components.Count + 1, // Action row + components
+            DiscordActionRowComponent arc when isCV2 => arc.Components.Count + 1, // Action row + components
+            DiscordActionRowComponent arc => arc.Components.Count, // CV1 doesn't count the action row as a real component
             DiscordSectionComponent section => section.Components.Count + 2, // Section + Accessory
             DiscordContainerComponent container => container.Components.Sum
             (
