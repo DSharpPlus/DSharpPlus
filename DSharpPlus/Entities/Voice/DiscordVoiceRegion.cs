@@ -20,24 +20,6 @@ public class DiscordVoiceRegion
     public string Name { get; internal set; }
 
     /// <summary>
-    /// Gets an example server hostname for this region.
-    /// </summary>
-    [JsonProperty("sample_hostname", NullValueHandling = NullValueHandling.Ignore)]
-    public string SampleHostname { get; internal set; }
-
-    /// <summary>
-    /// Gets an example server port for this region.
-    /// </summary>
-    [JsonProperty("sample_port", NullValueHandling = NullValueHandling.Ignore)]
-    public int SamplePort { get; internal set; }
-
-    /// <summary>
-    /// Gets whether this is a VIP-only region.
-    /// </summary>
-    [JsonProperty("vip", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsVIP { get; internal set; }
-
-    /// <summary>
     /// Gets whether this region is the most optimal for the current user.
     /// </summary>
     [JsonProperty("optimal", NullValueHandling = NullValueHandling.Ignore)]
@@ -63,8 +45,10 @@ public class DiscordVoiceRegion
     public bool Equals(DiscordVoiceRegion region)
         => this == region;
 
+    /// <inheritdoc />
     public override bool Equals(object obj) => Equals(obj as DiscordVoiceRegion);
 
+    /// <inheritdoc />
     public override int GetHashCode() => this.Id.GetHashCode();
 
     /// <summary>
@@ -74,12 +58,7 @@ public class DiscordVoiceRegion
     /// <param name="right">Second voice region to compare.</param>
     /// <returns>Whether the two voice regions are equal.</returns>
     public static bool operator ==(DiscordVoiceRegion left, DiscordVoiceRegion right)
-    {
-        object? o1 = left;
-        object? o2 = right;
-
-        return (o1 != null || o2 == null) && (o1 == null || o2 != null) && ((o1 == null && o2 == null) || left.Id == right.Id);
-    }
+        => left.Equals(right);
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordVoiceRegion"/> objects are not equal.

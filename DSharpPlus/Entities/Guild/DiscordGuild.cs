@@ -103,14 +103,26 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the guild's voice region ID.
     /// </summary>
     [JsonProperty("region", NullValueHandling = NullValueHandling.Ignore)]
-    internal string voiceRegionId { get; set; }
+    public string VoiceRegionId { get; internal set; }
 
     /// <summary>
     /// Gets the guild's voice region.
     /// </summary>
-    [JsonIgnore]
-    public DiscordVoiceRegion VoiceRegion
-        => this.Discord.VoiceRegions[this.voiceRegionId];
+    public async ValueTask<DiscordVoiceRegion> GetVoiceRegionAsync()
+    {
+        if (this.Discord.VoiceRegions.TryGetValue(this.VoiceRegionId, out DiscordVoiceRegion? currentRegion))
+        {
+            return currentRegion;
+        }
+
+        IReadOnlyList<DiscordVoiceRegion> regions = await this.Discord.ApiClient.ListVoiceRegionsAsync();
+        foreach (DiscordVoiceRegion region in regions)
+        {
+            this.Discord.InternalVoiceRegions.TryAdd(region.Id, region);
+        }
+
+        return this.Discord.InternalVoiceRegions[this.VoiceRegionId];
+    }
 
     /// <summary>
     /// Gets the guild's AFK voice channel ID.
