@@ -1,0 +1,40 @@
+name: Install build prerequisites
+
+inputs:
+  runner:
+    description: The runner on which the action is being run
+    required: true
+  crypto:
+    description: The crypto library being used
+    required: true
+  cache-dir:
+    description: Where to put vcpkg cache
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Capture vcpkg revision for use in cache key
+      shell: bash
+      run: |
+        git -C cpp/vcpkg rev-parse HEAD > cpp/vcpkg_commit.txt
+
+    - name: Restore cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ inputs.cache-dir }}
+        key: v01-vcpkg-${{ inputs.runner }}-${{ inputs.crypto }}-${{ hashFiles('vcpkg_commit', 'cpp/vcpkg-alts/*') }}
+        restore-keys: |
+          v01-vcpkg-${{ inputs.runner }}-${{ inputs.crypto }}
+
+    - name: Install dependencies (macOS)
+      if: ${{ runner.os == 'macOS' }}
+      shell: bash
+      run: |
+        brew install ninja go nasm
+
+    - name: Install dependencies (Ubuntu)
+      if: ${{ runner.os == 'Linux' }}
+      shell: bash
+      run: |
+        sudo apt-get install -y nasm

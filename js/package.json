@@ -1,0 +1,21 @@
+{
+  "name": "@discordapp/libdave",
+  "license": "MIT",
+  "version": "1.0.0",
+  "main": "libdave.tsx",
+  "scripts": {
+    "test": "jest",
+    "build:watch": "tsc --watch",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.6.2"
+  },
+  "dependencies": {
+    "@noble/hashes": "1.5.0",
+    "base64-js": "1.5.1"
+  }
+}
