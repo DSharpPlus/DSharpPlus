@@ -32,6 +32,5 @@
   <Project Path="DSharpPlus.Interactivity\DSharpPlus.Interactivity.csproj" />
   <Project Path="DSharpPlus.Tests\DSharpPlus.Tests.csproj" />
   <Project Path="DSharpPlus.Voice/DSharpPlus.Voice.csproj" />
-  <Project Path="DSharpPlus.VoiceNext\DSharpPlus.VoiceNext.csproj" />
   <Project Path="DSharpPlus\DSharpPlus.csproj" />
 </Solution>
