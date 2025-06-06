@@ -1,0 +1,64 @@
+name: Build and Test
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["**"]
+
+env:
+  CMAKE_BUILD_PARALLEL_LEVEL: 3
+  CMAKE_TOOLCHAIN_FILE: ${{ github.workspace }}/cpp/vcpkg/scripts/buildsystems/vcpkg.cmake
+  VCPKG_BINARY_SOURCES: files,${{ github.workspace }}/vcpkg_cache,readwrite
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, macos-latest]
+        crypto: [boringssl]
+        persistent_keys: [ON, OFF]
+      fail-fast: false
+
+    env:
+      CRYPTO_ALT_DIR: "./vcpkg-alts/${{ matrix.crypto }}"
+
+    runs-on: ${{matrix.runner}}
+
+    defaults:
+      run:
+        working-directory: ./cpp
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+          fetch-depth: 0
+
+      - uses: ./.github/actions/prepare-build
+        with:
+          runner: ${{ matrix.runner }}
+          crypto: ${{ matrix.crypto }}
+          cache-dir: ${{ github.workspace }}/vcpkg_cache
+
+      - name: configure
+        run: >-
+          cmake -B "${{ runner.temp }}/build_${{ matrix.crypto }}" 
+          -DVCPKG_MANIFEST_DIR="${{ env.CRYPTO_ALT_DIR }}" 
+          -DPERSISTENT_KEYS=${{ matrix.persistent_keys }} 
+          -DTESTING=ON
+
+      - name: build
+        run: cmake --build "${{ runner.temp }}/build_${{ matrix.crypto }}"
+
+      - name: test
+        run: |
+          ${{ runner.temp }}/build_${{ matrix.crypto }}/test/libdave_test
+
+      - name: Archive mlspp
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mlspp-${{ matrix.runner }}-${{ matrix.crypto }}-${{ matrix.persistent_keys }}
+          path: |
+            ${{ github.workspace }}/cpp/vcpkg/buildtrees/mlspp
