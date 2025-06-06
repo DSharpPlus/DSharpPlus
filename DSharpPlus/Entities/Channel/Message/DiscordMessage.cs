@@ -89,7 +89,13 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Gets the components this message was sent with.
     /// </summary>
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyList<DiscordActionRowComponent>? Components { get; internal set; }
+    public IReadOnlyList<DiscordComponent>? Components { get; internal set; }
+
+    /// <summary>
+    /// Gets the action rows this message was sent with - components holding buttons, selects and the likes.
+    /// </summary>
+    public IReadOnlyList<DiscordActionRowComponent>? ComponentActionRows
+        => this.Components?.Where(x => x is DiscordActionRowComponent).Cast<DiscordActionRowComponent>().ToList();
 
     /// <summary>
     /// Gets the user or member that sent the message.
@@ -295,6 +301,12 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     public DiscordMessage? ReferencedMessage { get; internal set; }
 
     /// <summary>
+    /// Gets the message object for the referenced message
+    /// </summary>
+    [JsonProperty("message_snapshots", NullValueHandling = NullValueHandling.Ignore)]
+    public IReadOnlyList<DiscordMessageSnapshot>? MessageSnapshots { get; internal set; }
+
+    /// <summary>
     /// Gets the poll object for the message.
     /// </summary>
     [JsonProperty("poll", NullValueHandling = NullValueHandling.Ignore)]
@@ -333,6 +345,8 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         }
 
         DiscordChannel? channel = client.InternalGetCachedChannel(channelId!.Value, this.guildId);
+
+        reference.Type = this.internalReference?.Type;
 
         if (channel is null)
         {
@@ -439,6 +453,35 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     }
 
     /// <summary>
+    /// Searches the components on this message for an aggregate of all components of a certain type.
+    /// </summary>
+    public IReadOnlyList<T> FilterComponents<T>()
+        where T : DiscordComponent
+    {
+        List<T> components = [];
+
+        foreach (DiscordComponent component in this.Components)
+        {
+            if (component is DiscordActionRowComponent actionRowComponent)
+            {
+                foreach (DiscordComponent subComponent in actionRowComponent.Components)
+                {
+                    if (subComponent is T filteredComponent)
+                    {
+                        components.Add(filteredComponent);
+                    }
+                }
+            }
+            else if (component is T filteredComponent)
+            {
+                components.Add(filteredComponent);
+            }
+        }
+
+        return components;
+    }
+
+    /// <summary>
     /// Edits the message.
     /// </summary>
     /// <param name="content">New content.</param>
@@ -529,7 +572,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// </summary>
     /// <param name="hideEmbeds">Whether to hide all embeds.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -540,7 +583,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Deletes the message.
     /// </summary>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -551,7 +594,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Pins the message in its channel.
     /// </summary>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -562,7 +605,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// Unpins the message in its channel.
     /// </summary>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -574,7 +617,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// </summary>
     /// <param name="content">Message content to respond with.</param>
     /// <returns>The sent message.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.SendMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.SendMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -586,7 +629,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// </summary>
     /// <param name="embed">Embed to attach to the message.</param>
     /// <returns>The sent message.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.SendMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.SendMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -599,7 +642,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <param name="content">Message content to respond with.</param>
     /// <param name="embed">Embed to attach to the message.</param>
     /// <returns>The sent message.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.SendMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.SendMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -611,7 +654,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// </summary>
     /// <param name="builder">The Discord message builder.</param>
     /// <returns>The sent message.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.SendMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.SendMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -623,7 +666,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// </summary>
     /// <param name="action">The Discord message builder.</param>
     /// <returns>The sent message.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.SendMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.SendMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -641,7 +684,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <param name="archiveAfter">The auto archive duration of the thread. Three and seven day archive options are locked behind level 2 and level 3 server boosts respectively.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns>The created thread.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.SendMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.SendMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -654,13 +697,26 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// </summary>
     /// <param name="emoji">The emoji you want to react with, either an emoji or name:id</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.AddReactions"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.AddReactions"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task CreateReactionAsync(DiscordEmoji emoji)
         => await this.Discord.ApiClient.CreateReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
 
+    /// <summary>
+    /// Creates a reaction to this message.
+    /// </summary>
+    /// <param name="emojiId">The id of the emoji you want to react with</param>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.AddReactions"/> permission.</exception>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <remarks>This overload only works with guild or application emoji</remarks>
+    public async Task CreateReactionAsync(ulong emojiId)
+        => await this.Discord.ApiClient.CreateReactionAsync(this.ChannelId, this.Id, $"_:{emojiId}");
+    
     /// <summary>
     /// Deletes your own reaction
     /// </summary>
@@ -673,18 +729,45 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         => await this.Discord.ApiClient.DeleteOwnReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
 
     /// <summary>
+    /// Deletes your own reaction
+    /// </summary>
+    /// <param name="emojiId">Emoji id for the reaction you want to remove</param>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <remarks>This overload only works with guild or application emoji</remarks>
+    public async Task DeleteOwnReactionAsync(ulong emojiId)
+        => await this.Discord.ApiClient.DeleteOwnReactionAsync(this.ChannelId, this.Id, $"_:{emojiId}");
+    
+    /// <summary>
     /// Deletes another user's reaction.
     /// </summary>
     /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id.</param>
     /// <param name="user">Member you want to remove the reaction for</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task DeleteReactionAsync(DiscordEmoji emoji, DiscordUser user, string? reason = null)
         => await this.Discord.ApiClient.DeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, emoji.ToReactionString(), reason);
+    
+    /// <summary>
+    /// Deletes another user's reaction.
+    /// </summary>
+    /// <param name="emojiId">Emoji id for the reaction you want to remove</param>
+    /// <param name="user">Member you want to remove the reaction for</param>
+    /// <param name="reason">Reason for audit logs.</param>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <remarks>This overload only works with guild or application emoji</remarks>
+    public async Task DeleteReactionAsync(ulong emojiId, DiscordUser user, string? reason = null)
+        => await this.Discord.ApiClient.DeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, $"_:{emojiId}" , reason);
 
     /// <summary>
     /// Gets users that reacted with this emoji.
@@ -695,9 +778,42 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async IAsyncEnumerable<DiscordUser> GetReactionsAsync
+    public IAsyncEnumerable<DiscordUser> GetReactionsAsync
     (
         DiscordEmoji emoji,
+        
+        CancellationToken cancellationToken = default
+    ) => InternalGetReactionsAsync(emoji.ToReactionString(), cancellationToken);
+
+    /// <summary>
+    /// Gets users that reacted with this emoji.
+    /// </summary>
+    /// <param name="emojiId">Emoji id for the reaction you want to remove</param>
+    /// <param name="cancellationToken">Cancels enumeration before the next API request.</param>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <remarks>This overload only works with guild or application emoji</remarks>
+    public IAsyncEnumerable<DiscordUser> GetReactionsAsync
+    (
+        ulong emojiId,
+        
+        CancellationToken cancellationToken = default
+    ) => InternalGetReactionsAsync($"_:{emojiId}", cancellationToken);
+
+    /// <summary>
+    /// Gets users that reacted with this emoji.
+    /// </summary>
+    /// <param name="emoji">The emoji those users reacted with.</param>
+    /// <param name="cancellationToken">Cancels enumeration before the next API request.</param>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    private async IAsyncEnumerable<DiscordUser> InternalGetReactionsAsync
+    (
+        string emoji,
 
         [EnumeratorCancellation]
         CancellationToken cancellationToken = default
@@ -718,7 +834,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
              (
                 channelId: this.ChannelId,
                 messageId: this.Id,
-                emoji: emoji.ToReactionString(),
+                emoji: emoji,
                 afterId: last,
                 limit: 100
              );
@@ -743,7 +859,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// </summary>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -755,7 +871,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// </summary>
     /// <param name="emoji">The emoji to clear, either an emoji or name:id.</param>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageMessages"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -763,10 +879,37 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         => await this.Discord.ApiClient.DeleteReactionsEmojiAsync(this.ChannelId, this.Id, emoji.ToReactionString());
 
     /// <summary>
+    /// Deletes all reactions of a specific reaction for this message.
+    /// </summary>
+    /// <param name="emojiId">The id of the emoji to clear</param>
+    /// <returns></returns>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageMessages"/> permission.</exception>
+    /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
+    /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <remarks>This overload only works with guild or application emoji</remarks>
+    public async Task DeleteReactionsEmojiAsync(ulong emojiId)
+        => await this.Discord.ApiClient.DeleteReactionsEmojiAsync(this.ChannelId, this.Id, $"_:{emojiId}");
+
+    /// <summary>
+    /// Forwards a message to the specified channel.
+    /// </summary>
+    /// <returns>The forwarded message belonging to the specified channel.</returns>
+    public async Task<DiscordMessage> ForwardAsync(DiscordChannel target)
+        => await ForwardAsync(target.Id);
+
+    /// <summary>
+    /// Forwards a message to the specified channel.
+    /// </summary>
+    /// <returns>The forwarded message belonging to the specified channel.</returns>
+    public async Task<DiscordMessage> ForwardAsync(ulong targetId) 
+        => await this.Discord.ApiClient.ForwardMessageAsync(targetId, this.ChannelId, this.Id);
+
+    /// <summary>
     /// Immediately ends the poll. You cannot end polls from other users.
     /// </summary>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageMessages"/> permission or if the poll is not owned by the client.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageMessages"/> permission or if the poll is not owned by the client.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the message does not have a poll.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>

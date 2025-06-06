@@ -1,0 +1,36 @@
+name: Build Alpha Version
+
+on:
+  push:
+    branches:
+      - alpha
+
+env:
+  DOTNET_NOLOGO: 1
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: 1
+
+jobs:
+  package-commit:
+    name: Package Alpha
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9
+      - name: Package Project
+        run: |
+          dotnet pack -c Release -o build -p:Alpha=${{ github.run_number }}
+          dotnet nuget push "build/*" --skip-duplicate -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DSharpPlus-Alpha-${{ github.run_number }}.zip
+          path: ./build/*

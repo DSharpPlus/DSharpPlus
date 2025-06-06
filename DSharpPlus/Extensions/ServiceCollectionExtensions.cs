@@ -1,5 +1,9 @@
 using System;
 using System.Linq;
+using DSharpPlus.Clients;
+using DSharpPlus.Net.Gateway.Compression;
+using DSharpPlus.Net.Gateway.Compression.Zlib;
+using DSharpPlus.Net.Gateway.Compression.Zstd;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -48,9 +52,42 @@ public static partial class ServiceCollectionExtensions
     )
     {
         services.Configure<TokenContainer>(c => c.GetToken = () => token);
-        services.AddDSharpPlusDefaultsSharded(intents);
+        services.AddDSharpPlusDefaultsMultiShard(intents);
         return services;
     }
+
+    /// <summary>
+    /// Forces DSharpPlus to use zlib compression for the gateway.
+    /// </summary>
+    /// <param name="services">The service collection to configure this for.</param>
+    /// <returns>The current instance for chaining.</returns>
+    public static IServiceCollection UseZlibCompression(this IServiceCollection services)
+        => services.Replace<IPayloadDecompressor, ZlibStreamDecompressor>();
+
+    /// <summary>
+    /// Forces DSharpPlus to use zstd compression for the gateway.
+    /// </summary>
+    /// <param name="services">The service collection to configure this for.</param>
+    /// <returns>The current instance for chaining.</returns>
+    public static IServiceCollection UseZstdCompression(this IServiceCollection services)
+        => services.Replace<IPayloadDecompressor, ZstdDecompressor>();
+
+    /// <summary>
+    /// Forces DSharpPlus to disable gateway compression entirely.
+    /// </summary>
+    /// <param name="services">The service collection to configure this for.</param>
+    /// <returns>The current instance for chaining.</returns>
+    public static IServiceCollection DisableGatewayCompression(this IServiceCollection services)
+        => services.Replace<IPayloadDecompressor, NullDecompressor>();
+
+    /// <summary>
+    /// Disables connecting to the gateway. This is useful for Http
+    /// Interaction only bots, or bot that only make REST requests.
+    /// </summary>
+    /// <param name="services">The service collection to configure this for.</param>
+    /// <returns>The current instance for chaining.</returns>
+    public static IServiceCollection DisableGateway(this IServiceCollection services)
+        => services.Replace<IShardOrchestrator, NullShardOrchestrator>();
 
     /// <summary>
 	/// Decorates a given <typeparamref name="TInterface"/> with a decorator of type <typeparamref name="TDecorator"/>.

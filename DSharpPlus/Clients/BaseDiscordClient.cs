@@ -18,7 +18,7 @@ namespace DSharpPlus;
 /// </summary>
 public abstract class BaseDiscordClient : IDisposable
 {
-    protected internal DiscordApiClient ApiClient { get; internal init; }
+    protected internal DiscordRestApiClient ApiClient { get; internal set; }
     protected internal DiscordConfiguration Configuration { get; internal init; }
 
     /// <summary>
@@ -105,7 +105,7 @@ public abstract class BaseDiscordClient : IDisposable
     public async Task<DiscordApplication> GetCurrentApplicationAsync()
     {
         Net.Abstractions.TransportApplication tapp = await this.ApiClient.GetCurrentApplicationInfoAsync();
-        return new DiscordApplication(tapp);
+        return new DiscordApplication(tapp, this);
     }
 
     /// <summary>

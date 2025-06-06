@@ -110,11 +110,11 @@ internal class ComponentPaginator : IPaginator
             DiscordWebhookBuilder builder = new DiscordWebhookBuilder()
                 .WithContent(page.Content)
                 .AddEmbed(page.Embed)
-                .AddComponents(bts);
+                .AddActionRowComponent(bts);
 
             foreach (DiscordActionRowComponent actionRow in page.Components)
             {
-                builder.AddComponents(actionRow);
+                builder.AddActionRowComponent(actionRow);
             }
 
             await args.Interaction.EditOriginalResponseAsync(builder);
@@ -126,11 +126,11 @@ internal class ComponentPaginator : IPaginator
         this.builder
             .WithContent(page.Content)
             .AddEmbed(page.Embed)
-            .AddComponents(bts);
+            .AddActionRowComponent(bts);
 
         foreach (DiscordActionRowComponent actionRow in page.Components)
         {
-            builder.AddComponents(actionRow);
+            this.builder.AddActionRowComponent(actionRow);
         }
 
         await this.builder.ModifyAsync(msg);

@@ -1,12 +1,9 @@
 using System.Collections.Generic;
-
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Processors.TextCommands.Parsing;
 using DSharpPlus.Tests.Commands.Cases;
-
 using Microsoft.Extensions.DependencyInjection;
-
 using NUnit.Framework;
 
 namespace DSharpPlus.Tests.Commands.Processors.TextCommands.Parsing;
@@ -18,15 +15,14 @@ public sealed class DefaultTextArgumentSplicerTests
     [OneTimeSetUp]
     public static void CreateExtension()
     {
-        DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault("faketoken", DiscordIntents.None);
+        DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(
+            "faketoken",
+            DiscordIntents.None
+        );
 
-        builder.UseCommands
-        (
-            extension => extension.AddProcessor(new TextCommandProcessor()),
-            new()
-            {
-                RegisterDefaultCommandProcessors = false
-            }
+        builder.UseCommands(
+            (_, extension) => extension.AddProcessor(new TextCommandProcessor()),
+            new() { RegisterDefaultCommandProcessors = false }
         );
 
         DiscordClient client = builder.Build();

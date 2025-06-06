@@ -1,4 +1,4 @@
-# Contributing to DSharpPlus
+﻿# Contributing to DSharpPlus
 
 We're really happy to accept contributions. However we also ask that you follow several rules when doing so.
 
@@ -49,12 +49,12 @@ Examples of bad commit messages:
 * `Fixed.`
 * `Oops.`
 
-## C# code style
+## Code style
 
 We use [Microsoft C# Coding Conventions](https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions) throughout the repository, with a series of exceptions:
 
-* Preference of `this`.
-* In the same vein, we prefer you not use underscores for private fields in conjunction to using `this`. It is, ill-advised to go out of your way to change existing code.
+* Preference of `this`. While this one is not required, it's ill-advised to remove the existing instances thereof.
+* In the same vein, we prefer you not use underscores for private fields in conjunction to using `this`. It is, again, ill-advised to go out of your way to change existing code.
 * Do not use `var`. Always specify the type name.
 * Do not use `ConfigureAwait(false)`. Other ConfigureAwait overloads may be warranted.
 * Use the LINQ methods as opposed to the keyword constructs.
@@ -79,6 +79,8 @@ We use [Microsoft C# Coding Conventions](https://learn.microsoft.com/en-us/dotne
           await SuperAwesomeMethodAsync();
   }
   ```
+
+In addition to these, we also have several preferences:
 
 * Use initializer syntax or collection expressions when possible:
 
@@ -109,15 +111,6 @@ We use [Microsoft C# Coding Conventions](https://learn.microsoft.com/en-us/dotne
   * `Dispose()`, `DisposeAsync()`, `~TypeName()`
 
 Use your own best judgement with regards to this ordering, and prefer intuitiveness over strict adherence.
-
-## Rust code style
-
-DSharpPlus contains minor amounts of rust code to make the voice gateway work. Since DSharpPlus is still primarily a C# project, please be mindful of the fact that your rust contribution will be reviewed and maintained by C# developers. As such, write your code to be as explicit as possible, and write as much as possible in C#. The following guidelines specifically should be adhered to:
-
-* Do not rely on type inference if at all feasible, specify types wherever possible.
-* Always explicitly use the `return` keyword.
-* Stick to using rust primitives instead of `std::ffi::c_*` types; they can be more cleanly mapped to C# types (use `*const/mut c_void` to represent C# `void*`, though).
-* If possible, export signatures consisting of primitives only, and document structs designed for export accordingly.
 
 ## Code changes
 

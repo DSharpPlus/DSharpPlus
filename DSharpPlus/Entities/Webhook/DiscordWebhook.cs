@@ -12,7 +12,7 @@ namespace DSharpPlus.Entities;
 /// </summary>
 public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
 {
-    internal DiscordApiClient ApiClient { get; set; }
+    internal DiscordRestApiClient ApiClient { get; set; }
 
     /// <summary>
     /// Gets the ID of the guild this webhook belongs to.
@@ -84,7 +84,7 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
     /// <param name="channelId">The new channel id to move the webhook to.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns>The modified webhook.</returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageWebhooks"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageWebhooks"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -93,7 +93,7 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
         Optional<string> avatarb64 = Optional.FromNoValue<string>();
         if (avatar.HasValue && avatar.Value != null)
         {
-            using ImageTool imgtool = new(avatar.Value);
+            using InlineMediaTool imgtool = new(avatar.Value);
             avatarb64 = imgtool.GetBase64();
         }
         else if (avatar.HasValue)
@@ -110,7 +110,7 @@ public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
     /// Permanently deletes this webhook.
     /// </summary>
     /// <returns></returns>
-    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageWebhooks"/> permission.</exception>
+    /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageWebhooks"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>

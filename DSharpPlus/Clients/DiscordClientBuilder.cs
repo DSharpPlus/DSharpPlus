@@ -6,6 +6,9 @@ using DSharpPlus.Extensions;
 using DSharpPlus.Logging;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Gateway;
+using DSharpPlus.Net.Gateway.Compression;
+using DSharpPlus.Net.Gateway.Compression.Zlib;
+using DSharpPlus.Net.Gateway.Compression.Zstd;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -88,11 +91,41 @@ public sealed class DiscordClientBuilder
         DiscordClientBuilder builder = new(serviceCollection);
         builder.serviceCollection.Configure<ShardingOptions>(x => x.ShardCount = shardCount);
         builder.serviceCollection.Configure<TokenContainer>(x => x.GetToken = () => token);
-        builder.serviceCollection.AddDSharpPlusDefaultsSharded(intents);
+        builder.serviceCollection.AddDSharpPlusDefaultsMultiShard(intents);
 
         builder.sharding = true;
 
         return builder;
+    }
+
+    /// <summary>
+    /// Sets the gateway compression used to zstd. This requires zstd natives to be available to the application.
+    /// </summary>
+    /// <returns>The current instance for chaining.</returns>
+    public DiscordClientBuilder UseZstdCompression()
+    {
+        this.serviceCollection.Replace<IPayloadDecompressor, ZstdDecompressor>();
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the gateway compression used to zlib. This is the default compression mode.
+    /// </summary>
+    /// <returns>The current instance for chaining.</returns>
+    public DiscordClientBuilder UseZlibCompression()
+    {
+        this.serviceCollection.Replace<IPayloadDecompressor, ZlibStreamDecompressor>();
+        return this;
+    }
+
+    /// <summary>
+    /// Disables gateway compression entirely.
+    /// </summary>
+    /// <returns>The current instance for chaining.</returns>
+    public DiscordClientBuilder DisableGatewayCompression()
+    {
+        this.serviceCollection.Replace<IPayloadDecompressor, NullDecompressor>();
+        return this;
     }
 
     /// <summary>

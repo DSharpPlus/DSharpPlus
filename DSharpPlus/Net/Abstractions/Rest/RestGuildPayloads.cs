@@ -7,7 +7,7 @@ namespace DSharpPlus.Net.Abstractions;
 
 internal interface IReasonAction
 {
-    string Reason { get; set; }
+    public string Reason { get; set; }
 
     //[JsonProperty("reason", NullValueHandling = NullValueHandling.Ignore)]
     //public string Reason { get; set; }
@@ -193,30 +193,6 @@ internal sealed class RestScheduledGuildEventModifyPayload
     public Optional<string> CoverImage { get; set; }
 }
 
-internal sealed class RestGuildChannelReorderPayload
-{
-    [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-    public ulong ChannelId { get; set; }
-
-    [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
-    public int Position { get; set; }
-
-    [JsonProperty("lock_permissions", NullValueHandling = NullValueHandling.Ignore)]
-    public bool? LockPermissions { get; set; }
-
-    [JsonProperty("parent_id", NullValueHandling = NullValueHandling.Ignore)]
-    public ulong? ParentId { get; set; }
-}
-
-internal sealed class RestGuildRoleReorderPayload
-{
-    [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-    public ulong RoleId { get; set; }
-
-    [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
-    public int Position { get; set; }
-}
-
 internal sealed class RestGuildMemberModifyPayload
 {
     [JsonProperty("nick")]
@@ -236,6 +212,9 @@ internal sealed class RestGuildMemberModifyPayload
 
     [JsonProperty("communication_disabled_until", NullValueHandling = NullValueHandling.Include)]
     public Optional<DateTimeOffset?> CommunicationDisabledUntil { get; set; }
+
+    [JsonProperty("flags")]
+    public Optional<DiscordMemberFlags> MemberFlags { get; set; }
 }
 
 internal sealed class RestGuildRolePayload

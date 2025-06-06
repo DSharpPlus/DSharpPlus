@@ -25,28 +25,54 @@
     topicUid: articles.beyond_basics.messagebuilder
   - name: Interactions
     topicUid: articles.beyond_basics.interactions
+  - name: Permissions
+    topicUid: articles.beyond_basics.permissions
 - name: Commands
   items:
   - name: Introduction
     topicUid: articles.commands.introduction
-  - name: Custom Argument Converters
-    topicUid: articles.commands.custom_argument_converters
   - name: Custom Context Checks
     topicUid: articles.commands.custom_context_checks
   - name: Custom Error Handler
     topicUid: articles.commands.custom_error_handler
-  - name: Custom Prefix Handler
-    topicUid: articles.commands.text.custom_prefix_handler
+  - name: Variadic Parameters
+    topicUid: articles.commands.variadic_parameters
+  - name: Argument Converters
+    items:
+    - name: Built-In Converters
+      topicUid: articles.commands.converters.built_in_converters
+    - name: Manually Invoking Converters
+      topicUid: articles.commands.converters.manually_invoking_converters
+    - name: Custom Argument Converters
+      topicUid: articles.commands.converters.custom_argument_converters
   - name: Command Processors
     items:
     - name: Introduction
       topicUid: articles.commands.command_processors.introduction
+    - name: Text Commands
+      items:
+      - name: Command Aliases
+        topicUid: articles.commands.command_processors.text_commands.command_aliases
+      - name: Custom Prefix Handler
+        topicUid: articles.commands.command_processors.text_commands.custom_prefix_handler
+      - name: Remaining Text
+        topicUid: articles.commands.command_processors.text_commands.remaining_text
     - name: Slash Commands
       items:
       - name: Choice Providers vs AutoComplete
         topicUid: articles.commands.command_processors.slash_commands.choice_provider_vs_autocomplete
       - name: Missing Commands
         topicUid: articles.commands.command_processors.slash_commands.missing_commands
+      - name: Naming Policies
+        topicUid: articles.commands.command_processors.slash_commands.naming_policies
+      - name: Localizing Interactions
+        topicUid: articles.commands.command_processors.slash_commands.localizing_interactions
+- name: Analyzers
+  items:
+    - name: DSharpPlus Core Rules
+      topicUid: articles.analyzers.core
+    - name: DSharpPlus.Commands Rules
+      topicUid: articles.analyzers.commands
 - name: CommandsNext
   items:
   - name: Introduction
@@ -95,6 +121,10 @@
     topicUid: articles.advanced_topics.generic_host
   - name: Metrics and Profiling
     topicUid: articles.advanced_topics.metrics_profiling
+  - name: Trace Logging
+    topicUid: articles.advanced_topics.trace
+  - name: Gateway Compression
+    topicUid: articles.advanced_topics.compression
 - name: Hosting
   topicUid: articles.hosting
 - name: Version Migration

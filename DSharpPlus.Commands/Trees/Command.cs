@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace DSharpPlus.Commands.Trees;
 
+[DebuggerDisplay("{ToString()}")]
 public record Command
 {
     public required string Name { get; init; }
@@ -15,13 +17,17 @@ public record Command
     public object? Target { get; init; }
     public Command? Parent { get; init; }
     public IReadOnlyList<Command> Subcommands { get; init; }
-    public required IReadOnlyList<CommandParameter> Parameters { get; init; }
+    public IReadOnlyList<CommandParameter> Parameters { get; init; }
     public required IReadOnlyList<Attribute> Attributes { get; init; }
     public IReadOnlyList<ulong> GuildIds { get; init; } = [];
     public string FullName => this.Parent is null ? this.Name : $"{this.Parent.FullName} {this.Name}";
 
-    public Command(IEnumerable<CommandBuilder> subCommandBuilders) => this.Subcommands = subCommandBuilders.Select(x => x.WithParent(this).Build()).ToArray();
-    
+    public Command(IEnumerable<CommandBuilder> subcommandBuilders, IEnumerable<CommandParameterBuilder> parameterBuilders)
+    {
+        this.Subcommands = subcommandBuilders.Select(x => x.Build(this)).ToArray();
+        this.Parameters = parameterBuilders.Select(x => x.Build(this)).ToArray();
+    }
+
     /// <summary>
     /// Traverses this command tree, returning this command and all subcommands recursively.
     /// </summary>
@@ -35,5 +41,19 @@ public record Command
         }
 
         return commands;
+    }
+
+    public override string ToString()
+    {
+        StringBuilder stringBuilder = new();
+        stringBuilder.Append(this.FullName);
+        if (this.Subcommands.Count == 0)
+        {
+            stringBuilder.Append('(');
+            stringBuilder.AppendJoin(", ", this.Parameters.Select(x => $"{x.Type.Name} {x.Name}"));
+            stringBuilder.Append(')');
+        }
+
+        return stringBuilder.ToString();
     }
 }

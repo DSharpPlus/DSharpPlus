@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
@@ -12,10 +11,11 @@ using DSharpPlus.Entities;
 using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.InboundWebhooks;
+using DSharpPlus.Net.InboundWebhooks.Payloads;
 using DSharpPlus.Net.Serialization;
 
 using Microsoft.Extensions.Logging;
-
 using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus;
@@ -80,11 +80,8 @@ public sealed partial class DiscordClient
             #region Gateway Status
 
             case "ready":
-                JArray? glds = (JArray)dat["guilds"];
-                JArray? dmcs = (JArray)dat["private_channels"];
-
-                dat.Remove("guilds");
-                dat.Remove("private_channels");
+                JArray? glds = (JArray?)dat["guilds"];
+                JArray? dmcs = (JArray?)dat["private_channels"];
 
                 int readyShardId = payload is ShardIdContainingGatewayPayload { ShardId: { } id } ? id : 0;
 
@@ -582,7 +579,103 @@ public sealed partial class DiscordClient
                 await OnAutoModerationRuleExecutedAsync(dat.ToDiscordObject<DiscordAutoModerationActionExecution>());
                 break;
                 #endregion
+
+            #region Entitlements
+            case "entitlement_create":
+                await OnEntitlementCreatedAsync(dat.ToDiscordObject<DiscordEntitlement>());
+                break;
+
+            case "entitlement_update":
+                await OnEntitlementUpdatedAsync(dat.ToDiscordObject<DiscordEntitlement>());
+                break;
+
+            case "entitlement_delete":
+                await OnEntitlementDeletedAsync(dat.ToDiscordObject<DiscordEntitlement>());
+                break;
+            #endregion
         }
+    }
+
+    #endregion
+
+    #region Webhook Events
+
+    private async Task ReceiveWebhookEventsAsync()
+    {
+        while (!this.webhookEventReader.Completion.IsCompleted)
+        {
+            DiscordWebhookEvent payload = await this.webhookEventReader.ReadAsync();
+
+            try
+            {
+                await HandleWebhookDispatchAsync(payload);
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Dispatch threw an exception: ");
+            }
+        }
+    }
+
+    private async Task ReceiveInteractionEventsAsync()
+    {
+        while (!this.interactionEventReader.Completion.IsCompleted)
+        {
+            DiscordHttpInteractionPayload payload = await this.interactionEventReader.ReadAsync();
+            DiscordHttpInteraction interaction = payload.ProtoInteraction;
+            interaction.Discord = this;
+
+            ulong? guildId = interaction.GuildId;
+            ulong channelId = interaction.ChannelId;
+
+            JToken rawMember = payload.Data["member"];
+            TransportMember? transportMember = null;
+            TransportUser transportUser;
+            if (rawMember != null)
+            {
+                transportMember = payload.Data["member"].ToDiscordObject<TransportMember>();
+                transportUser = transportMember.User;
+            }
+            else
+            {
+                transportUser = payload.Data["user"].ToDiscordObject<TransportUser>();
+            }
+
+            DiscordChannel channel = interaction.Channel;
+            channel.Discord = this;
+
+            await OnInteractionCreateAsync(guildId, channelId, transportUser, transportMember, channel, interaction);
+        }
+    }
+
+    private Task HandleWebhookDispatchAsync(DiscordWebhookEvent @event)
+    {
+        if (@event.ApplicationID != this.CurrentApplication.Id)
+        {
+            this.Logger.LogCritical
+            (
+                "The application event webhook received an event for application {OtherId}, which is different from the current application.",
+                @event.ApplicationID
+            );
+
+            return Task.CompletedTask;
+        }
+
+        if (@event.Type == DiscordWebhookEventType.Ping)
+        {
+            return Task.CompletedTask;
+        }
+
+        DiscordWebhookEventBody body = @event.Event;
+
+        _ = body.Type switch
+        {
+            DiscordWebhookEventBodyType.ApplicationAuthorized => OnApplicationAuthorizedAsync(body),
+            DiscordWebhookEventBodyType.EntitlementCreate => OnWebhookEntitlementCreateAsync(body),
+            _ => OnUnknownWebhookEventAsync(body)
+        };
+
+        return Task.CompletedTask;
     }
 
     #endregion
@@ -629,7 +722,7 @@ public sealed partial class DiscordClient
             this.privateChannels[channel.Id] = channel;
         }
 
-        IEnumerable<DiscordGuild> guilds = rawGuilds.ToDiscordObject<IEnumerable<DiscordGuild>>();
+        List<DiscordGuild> guilds = rawGuilds.ToDiscordObject<IEnumerable<DiscordGuild>>().ToList();
         foreach (DiscordGuild guild in guilds)
         {
             guild.Discord = this;
@@ -718,7 +811,6 @@ public sealed partial class DiscordClient
 
     internal async Task OnResumedAsync(int shardId)
     {
-        this.Logger.LogInformation(LoggerEvents.SessionUpdate, "Session resumed");
         await this.dispatcher.DispatchAsync<SessionResumedEventArgs>
         (
             this,
@@ -1138,7 +1230,7 @@ public sealed partial class DiscordClient
         }
 
         bool old = Volatile.Read(ref this.guildDownloadCompleted);
-        bool dcompl = this.guilds.Values.All(xg => !xg.IsUnavailable);
+        bool dcompl = this.guilds.Values.All(xg => !xg.IsUnavailable) && !this.guildDownloadCompleted;
 
         if (exists)
         {
@@ -1157,6 +1249,7 @@ public sealed partial class DiscordClient
 
         if (dcompl && !old && this.orchestrator.AllShardsConnected)
         {
+            this.guildDownloadCompleted = true;
             await this.dispatcher.DispatchAsync(this, new GuildDownloadCompletedEventArgs(this.Guilds));
         }
     }
@@ -1556,6 +1649,8 @@ public sealed partial class DiscordClient
             ea.NotFound = new ReadOnlySet<ulong>(nf);
         }
 
+        _ = DispatchGuildMembersChunkForIteratorsAsync(ea);
+
         await this.dispatcher.DispatchAsync(this, ea);
     }
 
@@ -1698,6 +1793,17 @@ public sealed partial class DiscordClient
             message.ReferencedMessage.PopulateMentions();
         }
 
+        if (message.MessageSnapshots != null)
+        {
+            foreach (DiscordMessageSnapshot snapshot in message.MessageSnapshots)
+            {
+                if (snapshot?.Message != null)
+                {
+                    snapshot.Message.PopulateMentions();
+                }
+            }
+        }
+
         foreach (DiscordMessageSticker sticker in message.Stickers)
         {
             sticker.Discord = this;
@@ -1726,11 +1832,23 @@ public sealed partial class DiscordClient
         {
             message = event_message;
             PopulateMessageReactionsAndCache(message, author, member);
+
             if (message.ReferencedMessage != null)
             {
                 message.ReferencedMessage.Discord = this;
                 PopulateMessageReactionsAndCache(message.ReferencedMessage, referenceAuthor, referenceMember);
                 message.ReferencedMessage.PopulateMentions();
+            }
+
+            if (message.MessageSnapshots != null)
+            {
+                foreach (DiscordMessageSnapshot snapshot in message.MessageSnapshots)
+                {
+                    if (snapshot?.Message != null)
+                    {
+                        snapshot.Message.PopulateMentions();
+                    }
+                }
             }
         }
         else // previous message was fetched in cache
@@ -2004,7 +2122,7 @@ public sealed partial class DiscordClient
 
     internal async Task OnMessageReactionRemoveAllAsync(ulong messageId, ulong channelId, ulong? guildId)
     {
-        DiscordChannel? channel = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId, guildId);
+        _ = InternalGetCachedChannel(channelId, guildId) ?? InternalGetCachedThread(channelId, guildId);
 
         if (!this.MessageCache.TryGet(messageId, out DiscordMessage? msg))
         {
@@ -2213,7 +2331,7 @@ public sealed partial class DiscordClient
 
         gld.voiceStates.TryRemove(uid, out DiscordVoiceState? vstateOld);
 
-        if (vstateNew.Channel != null)
+        if (vstateNew.ChannelId != null)
         {
             gld.voiceStates[vstateNew.UserId] = vstateNew;
         }
@@ -2231,9 +2349,6 @@ public sealed partial class DiscordClient
 
         VoiceStateUpdatedEventArgs ea = new()
         {
-            Guild = vstateNew.Guild,
-            Channel = vstateNew.Channel,
-            User = vstateNew.User,
             SessionId = vstateNew.SessionId,
 
             Before = vstateOld,
@@ -2593,6 +2708,46 @@ public sealed partial class DiscordClient
 
     #region Misc
 
+    internal async Task OnApplicationAuthorizedAsync(DiscordWebhookEventBody body)
+    {
+        ApplicationAuthorizedPayload payload = body.Data.ToDiscordObject<ApplicationAuthorizedPayload>();
+
+        DiscordGuild? guild = payload.Guild;
+        DiscordUser user = payload.User;
+
+        UpdateUserCache(user);
+
+        if (guild is not null)
+        {
+            if (this.guilds.TryGetValue(guild.Id, out DiscordGuild? cachedGuild))
+            {
+                guild = cachedGuild;
+            }
+
+            guild.Discord = this;
+
+            if (guild.Members.TryGetValue(user.Id, out DiscordMember? member))
+            {
+                user = member;
+            }
+        }
+        else
+        {
+            user.Discord = this;
+        }
+
+        ApplicationAuthorizedEventArgs eventArgs = new()
+        {
+            Guild = guild,
+            IntegrationType = payload.IntegrationType,
+            Scopes = payload.Scopes,
+            User = user,
+            Timestamp = body.Timestamp
+        };
+
+        await this.dispatcher.DispatchAsync(this, eventArgs);
+    }
+
     internal async Task OnInteractionCreateAsync(ulong? guildId, ulong channelId, TransportUser user, TransportMember member, DiscordChannel? channel, DiscordInteraction interaction)
     {
         DiscordUser usr = new(user) { Discord = this };
@@ -2602,7 +2757,7 @@ public sealed partial class DiscordClient
         interaction.Discord = this;
         interaction.Data.Discord = this;
 
-        if (member != null)
+        if (member is not null && guildId is not null && interaction.Guild is not null)
         {
             usr = new DiscordMember(member) { guild_id = guildId.Value, Discord = this };
             UpdateUser(usr, guildId, interaction.Guild, member);
@@ -2661,6 +2816,10 @@ public sealed partial class DiscordClient
                     if (guildId.HasValue)
                     {
                         c.Value.guild_id = guildId.Value;
+                        if (this.guilds.TryGetValue(guildId.Value, out DiscordGuild? guild))
+                        {
+                            guild.roles.TryAdd(c.Value.Id, c.Value);
+                        }
                     }
                 }
             }
@@ -2675,6 +2834,8 @@ public sealed partial class DiscordClient
                     {
                         m.Value.guildId = guildId.Value;
                     }
+
+                    this.MessageCache?.Add(m.Value);
                 }
             }
         }
@@ -2800,6 +2961,17 @@ public sealed partial class DiscordClient
         await this.dispatcher.DispatchAsync(this, ea);
     }
 
+    internal async Task OnUnknownWebhookEventAsync(DiscordWebhookEventBody body)
+    {
+        UnknownEventArgs eventArgs = new()
+        {
+            EventName = body.Type.ToString(),
+            Json = body.Data?.ToString()
+        };
+
+        await this.dispatcher.DispatchAsync(this, eventArgs);
+    }
+
     #endregion
 
     #region AutoModeration
@@ -2837,6 +3009,32 @@ public sealed partial class DiscordClient
             Rule = ruleExecuted
         });
     }
+    #endregion
+
+    #region Entitlements
+
+    private async Task OnEntitlementCreatedAsync(DiscordEntitlement entitlement)
+        => await this.dispatcher.DispatchAsync(this, new EntitlementCreatedEventArgs { Entitlement = entitlement });
+
+    private async Task OnWebhookEntitlementCreateAsync(DiscordWebhookEventBody body)
+    {
+        await this.dispatcher.DispatchAsync
+        (
+            this,
+            new EntitlementCreatedEventArgs
+            {
+                Entitlement = body.Data.ToDiscordObject<DiscordEntitlement>(),
+                Timestamp = body.Timestamp
+            }
+        );
+    }
+
+    private async Task OnEntitlementUpdatedAsync(DiscordEntitlement entitlement)
+        => await this.dispatcher.DispatchAsync(this, new EntitlementUpdatedEventArgs { Entitlement = entitlement });
+
+    private async Task OnEntitlementDeletedAsync(DiscordEntitlement entitlement)
+        => await this.dispatcher.DispatchAsync(this,  new EntitlementDeletedEventArgs { Entitlement = entitlement });
+
     #endregion
 
     #endregion

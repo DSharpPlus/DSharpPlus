@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
 namespace DSharpPlus.Net.Gateway;
 
@@ -13,7 +14,7 @@ public readonly record struct TransportFrame
     /// <summary>
     /// Indicates whether reading this gateway frame was successful.
     /// </summary>
-    public readonly bool IsSuccess => this.value is string;
+    public readonly bool IsSuccess => this.value is string or MemoryStream;
 
     /// <summary>
     /// Attempts to retrieve the string message received.
@@ -23,6 +24,23 @@ public readonly record struct TransportFrame
         message = null;
 
         if (this.value is string str)
+        {
+            message = str;
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Attempts to retrieve a message wrapped in a MemoryStream. This is only permissible if the log level
+    /// is higher than Trace or if inbound gateway logging is disabled.
+    /// </summary>
+    public readonly bool TryGetStreamMessage([NotNullWhen(true)] out MemoryStream? message)
+    {
+        message = null;
+
+        if (this.value is MemoryStream str)
         {
             message = str;
             return true;

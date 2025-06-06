@@ -83,7 +83,7 @@ public class DiscordPartialChannel
 
     /// <summary>
     /// <para>Gets the slow mode delay configured for this channel.</para>
-    /// <para>All bots, as well as users with <see cref="DiscordPermissions.ManageChannels"/> or <see cref="DiscordPermissions.ManageMessages"/> permissions in the channel are exempt from slow mode.</para>
+    /// <para>All bots, as well as users with <see cref="DiscordPermission.ManageChannels"/> or <see cref="DiscordPermission.ManageMessages"/> permissions in the channel are exempt from slow mode.</para>
     /// </summary>
     [JsonProperty("rate_limit_per_user", NullValueHandling = NullValueHandling.Ignore)]
     public int? PerUserRateLimit { get; internal set; }

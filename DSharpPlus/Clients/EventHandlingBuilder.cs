@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using DSharpPlus.EventArgs;
@@ -26,8 +27,26 @@ public sealed class EventHandlingBuilder
     public EventHandlingBuilder AddEventHandlers<T>(ServiceLifetime lifetime = ServiceLifetime.Transient)
         where T : IEventHandler
     {
-        this.Services.Configure<EventHandlerCollection>(c => c.Register<T>());
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(typeof(T)));
         this.Services.Add(ServiceDescriptor.Describe(typeof(T), typeof(T), lifetime));
+        return this;
+    }
+
+    /// <summary>
+    /// Registers all event handlers implemented on the provided types.
+    /// </summary>
+    public EventHandlingBuilder AddEventHandlers
+    (
+        IReadOnlyList<Type> types,
+        ServiceLifetime lifetime = ServiceLifetime.Transient
+    )
+    {
+        foreach(Type t in types)
+        {
+            this.Services.Configure<EventHandlerCollection>(c => c.Register(t));
+            this.Services.Add(ServiceDescriptor.Describe(t, t, lifetime));
+        }
+
         return this;
     }
 
@@ -819,6 +838,70 @@ public sealed class EventHandlingBuilder
     )
     {
         this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
+        return this;
+    }
+    
+    /// <summary>
+    /// Fired when an entitlement was created.
+    /// </summary>
+    public EventHandlingBuilder HandleEntitlementCreated
+    (
+        Func<DiscordClient, EntitlementCreatedEventArgs, Task> handler
+    )
+    {
+        this.Services.Configure<EventHandlerCollection>
+        (
+            c => c.Register(handler)
+        );
+
+        return this;
+    }
+    
+    /// <summary>
+    /// Fired when an entitlement was updated.
+    /// </summary>
+    public EventHandlingBuilder HandleEntitlementUpdated
+    (
+        Func<DiscordClient, EntitlementUpdatedEventArgs, Task> handler
+    )
+    {
+        this.Services.Configure<EventHandlerCollection>
+        (
+            c => c.Register(handler)
+        );
+
+        return this;
+    }
+    
+    /// <summary>
+    /// Fired when an entitlement was deleted.
+    /// </summary>
+    public EventHandlingBuilder HandleEntitlementDeleted
+    (
+        Func<DiscordClient, EntitlementDeletedEventArgs, Task> handler
+    )
+    {
+        this.Services.Configure<EventHandlerCollection>
+        (
+            c => c.Register(handler)
+        );
+
+        return this;
+    }
+
+    /// <summary>
+    /// Fired when the application was authorized. This is only available through webhook events.
+    /// </summary>
+    public EventHandlingBuilder HandleApplicationAuthorized
+    (
+        Func<DiscordClient, ApplicationAuthorizedEventArgs, Task> handler
+    )
+    {
+        this.Services.Configure<EventHandlerCollection>
+        (
+            c => c.Register(handler)
+        );
+
         return this;
     }
 }

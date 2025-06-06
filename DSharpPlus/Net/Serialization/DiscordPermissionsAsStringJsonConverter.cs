@@ -1,5 +1,5 @@
 using System;
-using System.Globalization;
+using System.Numerics;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
@@ -19,20 +19,20 @@ internal sealed class DiscordPermissionsAsStringJsonConverter : JsonConverter<Di
         JsonSerializer serializer
     )
     {
-        string? value = reader.ReadAsString();
+        string? value = reader.Value as string;
 
-        return value is not null ? (DiscordPermissions)ulong.Parse(value) : existingValue;
+        return value is not null ? new(BigInteger.Parse(value)) : existingValue;
     }
 
     public override void WriteJson(JsonWriter writer, DiscordPermissions value, JsonSerializer serializer)
     {
-        if ((ulong)value == 0)
+        if (value == DiscordPermissions.None)
         {
             writer.WriteNull();
         }
         else
         {
-            writer.WriteValue(((ulong)value).ToString(CultureInfo.InvariantCulture));
+            writer.WriteValue(value.ToString());
         }
     }
 }

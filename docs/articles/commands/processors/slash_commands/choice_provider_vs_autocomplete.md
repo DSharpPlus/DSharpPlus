@@ -1,14 +1,14 @@
 ---
 uid: articles.commands.command_processors.slash_commands.choice_provider_vs_autocomplete
-title: Choice Provider vs Autocomplete
+title: Choice Provider vs Auto-complete
 ---
 
-# Choice Provider vs Autocomplete
+# Choice Provider vs Auto-complete
 
 What's a choice provider? How is it different from auto-complete? When should you use one over the other?
 
 ## Choice Providers
-Discord provides a special feature to slash command options called "choices." Choices are a list of options that the user can select from. The user can select **only** from these choices - as in only those choices are valid - which differs from auto-complete. Unfortunately, the choices must be known and provided on startup as they're used when registering the slash command. This means that you can't dynamically change the choices at runtime.
+Discord provides a special feature to slash command options called "choices." Choices are a list of options that the user can select from. The user can select **only** from these choices - as in only those choices are valid - which differs from auto-complete. These choices must be known and provided on startup as they're used when registering the slash command. This means that you can't dynamically change the choices at runtime.
 
 ![A Discord screenshot of the `lock` command providing only two choices. The first choice is `Send Messages`, while the second choice is `View Channel`.](../../../../images/commands_choice_provider_example.png)
 
@@ -18,12 +18,12 @@ Discord provides a special feature to slash command options called "choices." Ch
 > [!WARNING]
 > A choice provider may only provide 25 choices. If you have more than 25 choices, you should use auto-complete.
 
-## Autocomplete
+## Auto-complete
 Auto-complete, on the other hand, is a feature that allows the user to type in a value and Discord will return a list of suggestions retrieved from your bot. The user can select from the list of suggestions or continue typing. This is useful when you have a large number of options or when the options are dynamic and can change at runtime.
 
 ![A Discord screenshot of the `tag get` command. As the user types, the list of tags changes.](../../../../images/commands_autocomplete_example.png)
 
-The user can type in any text they type. As they type in the text, Discord will send a request to your bot to get the list of suggestions. The user can then select from the list of suggestions or continue typing.
+As the user types in the text, Discord will send a request to your bot to get the list of auto-complete suggestions. The user can then select from the list of suggestions or continue typing whatever they want.
 
 > [!WARNING]
 > The user **is not required** to choose from the the suggestions provided. They can send any value they want, and it's up to your bot to handle the value.
@@ -36,32 +36,33 @@ Some valid use-cases for choice providers include:
 - Media types (e.g. `image`, `video`, `audio`)
 - The day of the week
 
-Some valid use-cases for autocomplete include:
+Some valid use-cases for auto-complete include:
 - Tag names
 - A Google search
-- Very large enums (e.g. all the countries in the world)
+- Very large enums (e.g. all the countries in the world. Also built-in support!)
 
 Both choice providers and auto-complete support dependency injection through the constructor.
 
 ## Implementing a Choice Provider
 
-Our class will implement from the `IChoiceProvider` interface. This interface has a single method: `ValueTask<IReadOnlyDictionary<string, object>> ProvideAsync(CommandParameter parameter)`. This method is only called once per command parameter on startup.
+Our class will implement from the `IChoiceProvider` interface. This interface has a single method: `ValueTask<IEnumerable<DiscordApplicationCommandOptionChoice>> ProvideAsync(CommandParameter parameter)`. This method is only called once per command parameter on startup.
 
 ```cs
 public class DaysOfTheWeekProvider : IChoiceProvider
 {
-    private static readonly IReadOnlyDictionary<string, object> daysOfTheWeek = new Dictionary<string, object>
-    {
-        ["Monday"] = 1,
-        ["Tuesday"] = 2,
-        ["Wednesday"] = 3,
-        ["Thursday"] = 4,
-        ["Friday"] = 5,
-        ["Saturday"] = 6,
-        ["Sunday"] = 7
-    };
+    private static readonly IReadOnlyList<DiscordApplicationCommandOptionChoice> daysOfTheWeek =
+    [
+        new DiscordApplicationCommandOptionChoice("Sunday", 0),
+        new DiscordApplicationCommandOptionChoice("Monday", 1),
+        new DiscordApplicationCommandOptionChoice("Tuesday", 2),
+        new DiscordApplicationCommandOptionChoice("Wednesday", 3),
+        new DiscordApplicationCommandOptionChoice("Thursday", 4),
+        new DiscordApplicationCommandOptionChoice("Friday", 5),
+        new DiscordApplicationCommandOptionChoice("Saturday", 6),
+    ];
 
-    public ValueTask<IReadOnlyDictionary<string, object>> ProvideAsync(CommandParameter parameter) => ValueTask.FromResult(_daysOfTheWeek);
+    public ValueTask<IEnumerable<DiscordApplicationCommandOptionChoice>> ProvideAsync(CommandParameter parameter) =>
+        ValueTask.FromResult(daysOfTheWeek);
 }
 ```
 
@@ -77,19 +78,21 @@ public class ScheduleCommand
 }
 ```
 
-## Implementing AutoComplete
+## Implementing Auto-Complete
 
-Autocomplete is very similar in design to choice providers. Our class will implement the `IAutoCompleteProvider` interface. This interface has a single method: `ValueTask<IReadOnlyDictionary<string, object>> AutoCompleteAsync(AutoCompleteContext context)`. This method will be called everytime the `DiscordClient.InteractionCreated` is invoked with a `ApplicationCommandType` of `AutoCompleteRequest`.
+Auto-complete is very similar in design to choice providers. Our class will implement the `IAutoCompleteProvider` interface. This interface has a single method: `ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(AutoCompleteContext context)`. This method will be called everytime the `DiscordClient.InteractionCreated` is invoked with a `ApplicationCommandType` of `AutoCompleteRequest`.
 
 ```cs
 public class TagNameAutoCompleteProvider : IAutoCompleteProvider
 {
     private readonly ITagService tagService;
+
     public TagNameAutoCompleteProvider(ITagService tagService) => tagService = tagService;
 
-    public ValueTask<IReadOnlyDictionary<string, object>> AutoCompleteAsync(AutoCompleteContext context)
+    public ValueTask<IEnumerable<DiscordAutoCompleteChoice>> AutoCompleteAsync(AutoCompleteContext context)
     {
-        var tags = tagService.GetTags()
+        var tags = tagService
+            .GetTags()
             .Where(x => x.Name.StartsWith(context.UserInput, StringComparison.OrdinalIgnoreCase))
             .ToDictionary(x => x.Name, x => x.Id);
 
@@ -109,3 +112,34 @@ public class TagCommand
     }
 }
 ```
+
+### Simple Auto-Complete
+For simple lists of options, the `SimpleAutoCompleteProvder` class can be derived. This simplifies the process by just asking the developer to have a list of all the choices instead of creating the filtered results list directly.
+
+As an example, you could read a list of supported voice languages from a file and use that to auto-complete the language option of a voice list command.
+
+First the auto-complete provider:
+
+```cs
+public class LanguageAutoCompleteProvider : SimpleAutoCompleteProvider
+{
+    static DiscordAutoCompleteChoice[] LanguageList = [ .. File.ReadAllLines("data/languages.txt").Select(l => l.Split(' ', 2)).Select(p => new DiscordAutoCompleteChoice(p[1], p[0])) ];
+    protected override IEnumerable<DiscordAutoCompleteChoice> Choices => LanguageList;
+    protected override bool AllowDuplicateValues => false;
+}
+```
+
+And then tag the command parameter in the same way as before:
+
+```cs
+public static class ListCommands
+{
+    public static async Task VoiceListCommand(SlashCommandContext ctx, [SlashAutoCompleteProvider<LanguageAutoCompleteProvider>] string language)
+    {
+        // ...
+    }
+}
+```
+
+> [!NOTE]
+> For performance reasons, consider making `Choices` read from a static array, as in the example above. If `Choices` reads the file directly, that will happen on every auto-complete request.

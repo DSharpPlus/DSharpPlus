@@ -10,7 +10,7 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents a command that is registered to an application.
 /// </summary>
-public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<DiscordApplicationCommand>
+public sealed partial class DiscordApplicationCommand : SnowflakeObject, IEquatable<DiscordApplicationCommand>
 {
     /// <summary>
     /// Gets the unique ID of this command's application.
@@ -151,13 +151,8 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
                 throw new ArgumentException("Slash command description cannot exceed 100 characters.", nameof(description));
             }
         }
-        else
+        else if (type is DiscordApplicationCommandType.UserContextMenu or DiscordApplicationCommandType.MessageContextMenu)
         {
-            if (!string.IsNullOrWhiteSpace(description))
-            {
-                throw new ArgumentException("Context menus do not support descriptions.");
-            }
-
             if (options?.Any() ?? false)
             {
                 throw new ArgumentException("Context menus do not support options.");

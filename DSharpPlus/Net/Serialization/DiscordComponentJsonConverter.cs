@@ -18,7 +18,7 @@ internal sealed class DiscordComponentJsonConverter : JsonConverter
         }
 
         JObject job = JObject.Load(reader);
-        DiscordComponentType? type = (job["type"]?.ToDiscordObject<DiscordComponentType>()) ?? throw new ArgumentException($"Value {reader} does not have a component type specifier");
+        DiscordComponentType? type = job["type"]?.ToDiscordObject<DiscordComponentType>() ?? throw new ArgumentException($"Value {reader} does not have a component type specifier");
         DiscordComponent cmp = type switch
         {
             DiscordComponentType.ActionRow => new DiscordActionRowComponent(),
@@ -30,6 +30,12 @@ internal sealed class DiscordComponentJsonConverter : JsonConverter
             DiscordComponentType.RoleSelect => new DiscordRoleSelectComponent(),
             DiscordComponentType.MentionableSelect => new DiscordMentionableSelectComponent(),
             DiscordComponentType.ChannelSelect => new DiscordChannelSelectComponent(),
+            DiscordComponentType.Section => new DiscordSectionComponent(),
+            DiscordComponentType.TextDisplay => new DiscordTextDisplayComponent(),
+            DiscordComponentType.Thumbnail => new DiscordThumbnailComponent(),
+            DiscordComponentType.MediaGallery => new DiscordMediaGalleryComponent(),
+            DiscordComponentType.Separator => new DiscordSeparatorComponent(),
+            DiscordComponentType.Container => new DiscordContainerComponent(),
             _ => new DiscordComponent() { Type = type.Value }
         };
 

@@ -94,7 +94,7 @@ public class InteractivityExtension : IDisposable
         PollBehaviour pollbehaviour = behaviour ?? this.Config.PollBehaviour;
         DiscordMember thismember = await m.Channel.Guild.GetMemberAsync(this.Client.CurrentUser.Id);
 
-        if (pollbehaviour == PollBehaviour.DeleteEmojis && m.Channel.PermissionsFor(thismember).HasPermission(DiscordPermissions.ManageMessages))
+        if (pollbehaviour == PollBehaviour.DeleteEmojis && m.Channel.PermissionsFor(thismember).HasPermission(DiscordPermission.ManageMessages))
         {
             await m.DeleteAllReactionsAsync();
         }
@@ -132,7 +132,7 @@ public class InteractivityExtension : IDisposable
     }
 
     /// <summary>
-    /// Waits for a modal with the specificed custom id to be submitted by the given user.
+    /// Waits for a modal with the specified custom id to be submitted by the given user.
     /// </summary>
     /// <param name="modal_id">The id of the modal to wait for. Should be unique to avoid issues.</param>
     /// <param name="user">The user to wait for the modal from.</param>
@@ -142,7 +142,7 @@ public class InteractivityExtension : IDisposable
         => WaitForModalAsync(modal_id, user, GetCancellationToken(timeoutOverride));
 
     /// <summary>
-    /// Waits for a modal with the specificed custom id to be submitted by the given user.
+    /// Waits for a modal with the specified custom id to be submitted by the given user.
     /// </summary>
     /// <param name="modal_id">The id of the modal to wait for. Should be unique to avoid issues.</param>
     /// <param name="user">The user to wait for the modal from.</param>
@@ -201,7 +201,7 @@ public class InteractivityExtension : IDisposable
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is DiscordComponentType.Button))
+        if (message.FilterComponents<DiscordButtonComponent>().Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any button components.");
         }
@@ -246,12 +246,12 @@ public class InteractivityExtension : IDisposable
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is DiscordComponentType.Button))
+        if (message.FilterComponents<DiscordButtonComponent>().Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any button components.");
         }
 
-        IEnumerable<string> ids = message.Components.SelectMany(m => m.Components).Select(c => c.CustomId);
+        IEnumerable<string> ids = message.FilterComponents<DiscordComponent>().Select(c => c.CustomId);
 
         ComponentInteractionCreatedEventArgs? result =
             await
@@ -295,7 +295,7 @@ public class InteractivityExtension : IDisposable
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is DiscordComponentType.Button))
+        if (message.FilterComponents<DiscordButtonComponent>().Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any button components.");
         }
@@ -342,12 +342,12 @@ public class InteractivityExtension : IDisposable
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is DiscordComponentType.Button))
+        if (message.FilterComponents<DiscordButtonComponent>().Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any button components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).OfType<DiscordButtonComponent>().Any(c => c.CustomId == id))
+        if (!message.FilterComponents<DiscordButtonComponent>().Any(c => c.CustomId == id))
         {
             throw new ArgumentException($"Provided message does not contain button with Id of '{id}'.");
         }
@@ -387,7 +387,7 @@ public class InteractivityExtension : IDisposable
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is DiscordComponentType.Button))
+        if (message.FilterComponents<DiscordButtonComponent>().Count == 0)
         {
             throw new ArgumentException("Provided message does not contain any button components.");
         }
@@ -429,7 +429,7 @@ public class InteractivityExtension : IDisposable
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(IsSelect))
+        if (!message.FilterComponents<DiscordComponent>().Any(IsSelect))
         {
             throw new ArgumentException("Provided message does not contain any select components.");
         }
@@ -472,12 +472,12 @@ public class InteractivityExtension : IDisposable
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(IsSelect))
+        if (!message.FilterComponents<DiscordComponent>().Any(IsSelect))
         {
             throw new ArgumentException("Provided message does not contain any select components.");
         }
 
-        if (message.Components.SelectMany(c => c.Components).Where(IsSelect).All(c => c.CustomId != id))
+        if (message.FilterComponents<DiscordComponent>().Where(IsSelect).All(c => c.CustomId != id))
         {
             throw new ArgumentException($"Provided message does not contain select component with Id of '{id}'.");
         }
@@ -532,14 +532,14 @@ public class InteractivityExtension : IDisposable
             throw new ArgumentException("Provided message does not contain any components.");
         }
 
-        if (!message.Components.SelectMany(c => c.Components).Any(IsSelect))
+        if (!message.FilterComponents<DiscordComponent>().Any(IsSelect))
         {
             throw new ArgumentException("Provided message does not contain any select components.");
         }
 
-        if (message.Components.SelectMany(c => c.Components).Where(IsSelect).All(c => c.CustomId != id))
+        if (message.FilterComponents<DiscordComponent>().Where(IsSelect).All(c => c.CustomId != id))
         {
-            throw new ArgumentException($"Provided message does not contain button with Id of '{id}'.");
+            throw new ArgumentException($"Provided message does not contain select component with Id of '{id}'.");
         }
 
         ComponentInteractionCreatedEventArgs? result = await
@@ -780,11 +780,14 @@ public class InteractivityExtension : IDisposable
         DiscordMessageBuilder builder = new DiscordMessageBuilder()
             .WithContent(pageArray[0].Content)
             .AddEmbed(pageArray[0].Embed)
-            .AddComponents(bts.ButtonArray);
+            .AddActionRowComponent(bts.ButtonArray);
 
         if (pageArray[0].Components is [..] pac)
         {
-            builder.AddComponents(pac);
+            foreach (DiscordActionRowComponent actionRow in pac)
+            {
+                builder.AddActionRowComponent(actionRow);
+            }
         }
 
         DiscordMessage message = await builder.SendAsync(channel);
@@ -833,9 +836,11 @@ public class InteractivityExtension : IDisposable
     public async Task SendPaginatedMessageAsync(DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationEmojis emojis,
         PaginationBehaviour? behaviour = default, PaginationDeletion? deletion = default, TimeSpan? timeoutoverride = null)
     {
+        Page[] pageArray = pages.ToArray();
+        Page firstPage = pageArray.First();
         DiscordMessageBuilder builder = new DiscordMessageBuilder()
-            .WithContent(pages.First().Content)
-            .AddEmbed(pages.First().Embed);
+            .WithContent(firstPage.Content)
+            .AddEmbed(firstPage.Embed);
         DiscordMessage m = await builder.SendAsync(channel);
 
         TimeSpan timeout = timeoutoverride ?? this.Config.Timeout;
@@ -844,7 +849,7 @@ public class InteractivityExtension : IDisposable
         PaginationDeletion del = deletion ?? this.Config.PaginationDeletion;
         PaginationEmojis ems = emojis ?? this.Config.PaginationEmojis;
 
-        PaginationRequest prequest = new(m, user, bhv, del, ems, timeout, pages.ToArray());
+        PaginationRequest prequest = new(m, user, bhv, del, ems, timeout, pageArray);
 
         await this.Paginator.DoPaginationAsync(prequest);
     }
@@ -862,20 +867,32 @@ public class InteractivityExtension : IDisposable
     /// <param name="buttons">Optional: custom buttons</param>
     /// <param name="behaviour">Pagination behaviour.</param>
     /// <param name="deletion">Deletion behaviour</param>
-    /// <param name="asEditResponse">If the response as edit of previous response.</param>
     /// <param name="disableBehavior">Whether to disable or remove the buttons if there is only one page</param>
     /// <param name="disabledButtons">Disabled buttons</param>
     /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
-    public async Task SendPaginatedResponseAsync(DiscordInteraction interaction, bool ephemeral, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, bool asEditResponse = false, ButtonDisableBehavior disableBehavior = ButtonDisableBehavior.Disable, List<PaginationButtonType> disabledButtons = null, CancellationToken token = default)
+    public async Task SendPaginatedResponseAsync
+    (
+        DiscordInteraction interaction,
+        bool ephemeral,
+        DiscordUser user,
+        IEnumerable<Page> pages,
+        PaginationButtons buttons = null,
+        PaginationBehaviour? behaviour = default,
+        ButtonPaginationBehavior? deletion = default,
+        ButtonDisableBehavior disableBehavior = ButtonDisableBehavior.Disable,
+        List<PaginationButtonType> disabledButtons = null,
+        CancellationToken token = default
+    )
     {
         PaginationBehaviour bhv = behaviour ?? this.Config.PaginationBehaviour;
         ButtonPaginationBehavior del = deletion ?? this.Config.ButtonBehavior;
         PaginationButtons bts = buttons ?? this.Config.PaginationButtons;
         disabledButtons ??= [];
+        Page[] pageArray = pages.ToArray();
 
-        bts = new(bts); // Copy //
+        bts = new PaginationButtons(bts); // Copy //
 
-        if (pages.Count() == 1)
+        if (pageArray.Length == 1)
         {
             if (disableBehavior == ButtonDisableBehavior.Disable)
             {
@@ -903,7 +920,7 @@ public class InteractivityExtension : IDisposable
                 disabledButtons.AddRange(new[] { PaginationButtonType.SkipLeft, PaginationButtonType.Left });
             }
 
-            if (pages.Count() == 2)
+            if (pageArray.Length == 2)
             {
                 if (disableBehavior == ButtonDisableBehavior.Disable)
                 {
@@ -947,18 +964,21 @@ public class InteractivityExtension : IDisposable
             buttonArray = [.. buttonList];
         }
 
-        Page[] pageArray = pages.ToArray();
+        
 
-        if (asEditResponse)
+        if (interaction.ResponseState != DiscordInteractionResponseState.Unacknowledged)
         {
             DiscordWebhookBuilder builder = new DiscordWebhookBuilder()
                 .WithContent(pageArray[0].Content)
                 .AddEmbed(pageArray[0].Embed)
-                .AddComponents(buttonArray);
+                .AddActionRowComponent(buttonArray);
 
             if (pageArray[0].Components is [..] pageArrayComponents)
             {
-                builder.AddComponents(pageArrayComponents);
+                foreach (DiscordActionRowComponent actionRow in pageArrayComponents)
+                {
+                    builder.AddActionRowComponent(actionRow);
+                }
             }
 
             message = await interaction.EditOriginalResponseAsync(builder);
@@ -969,18 +989,21 @@ public class InteractivityExtension : IDisposable
                 .WithContent(pageArray[0].Content)
                 .AddEmbed(pageArray[0].Embed)
                 .AsEphemeral(ephemeral)
-                .AddComponents(buttonArray);
+                .AddActionRowComponent(buttonArray);
 
             if (pageArray[0].Components is [..] pageArrayComponents)
             {
-                builder.AddComponents(pageArrayComponents);
+                foreach (DiscordActionRowComponent actionRow in pageArrayComponents)
+                {
+                    builder.AddActionRowComponent(actionRow);
+                }
             }
 
             await interaction.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, builder);
             message = await interaction.GetOriginalResponseAsync();
         }
 
-        InteractionPaginationRequest req = new(interaction, message, user, bhv, del, bts, pages, token);
+        InteractionPaginationRequest req = new(interaction, message, user, bhv, del, bts, pageArray, token);
 
         await this.compPaginator.DoPaginationAsync(req);
     }

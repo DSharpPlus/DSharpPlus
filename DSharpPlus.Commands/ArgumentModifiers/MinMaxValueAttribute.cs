@@ -1,5 +1,4 @@
 using System;
-
 using DSharpPlus.Commands.ContextChecks.ParameterChecks;
 
 namespace DSharpPlus.Commands.ArgumentModifiers;
@@ -50,7 +49,7 @@ public sealed class MinMaxValueAttribute : ParameterCheckAttribute
             ulong => (ulong)minValue <= (ulong)maxValue,
             float => (float)minValue <= (float)maxValue,
             double => (double)minValue <= (double)maxValue,
-            _ => throw new ArgumentException("The type of the minimum/maximum values is not supported.")
+            _ => throw new ArgumentException("The type of the minimum/maximum values is not supported."),
         };
 
         if (!correctlyOrdered)

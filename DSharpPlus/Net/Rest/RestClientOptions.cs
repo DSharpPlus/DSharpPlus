@@ -24,20 +24,15 @@ public sealed class RestClientOptions
     /// <summary>
     /// Specifies the delay to use when there was no delay information passed to the rest client. Defaults to 2.5 seconds.
     /// </summary>
-    public double RatelimitRetryDelayFallback { get; set; } = 2.5;
+    public TimeSpan RatelimitRetryDelayFallback { get; set; } = TimeSpan.FromMilliseconds(2500);
 
     /// <summary>
-    /// Specifies the amount of milliseconds we should be waiting for a ratelimit bucket hash to initialize.
+    /// Specifies the time we should be waiting for a ratelimit bucket hash to initialize.
     /// </summary>
-    public int InitialRequestTimeout { get; set; } = 200;
+    public TimeSpan InitialRequestTimeout { get; set; } = TimeSpan.FromMilliseconds(200);
 
     /// <summary>
-    /// Specifies the maximum rest requests to attempt concurrently. Defaults to 15.
+    /// Specifies the maximum rest requests to attempt concurrently. Defaults to 50. Only increase this if Discord has approved you to do so.
     /// </summary>
-    /// <remarks>
-    /// This is a band-aid for large bots and will be removed in a future version. Do not set this value above 50 unless Discord has
-    /// approved you for an increase, and only increase it if your bot is flooding many different endpoints on different guilds and
-    /// channels. If your bot is heavily flooding very few endpoints, you may even reduce this limit.
-    /// </remarks>
-    public int MaximumConcurrentRestRequests { get; set; } = 15;
+    public int MaximumConcurrentRestRequests { get; set; } = 50;
 }

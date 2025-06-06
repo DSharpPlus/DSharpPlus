@@ -15,7 +15,7 @@ public class PollRequest
     internal TimeSpan timeout;
     internal ConcurrentHashSet<PollEmoji> collected;
     internal DiscordMessage message;
-    internal IEnumerable<DiscordEmoji> emojis;
+    internal List<DiscordEmoji> emojis;
 
     /// <summary>
     ///
@@ -29,11 +29,11 @@ public class PollRequest
         this.ct = new CancellationTokenSource(timeout);
         this.ct.Token.Register(() => this.tcs.TrySetResult(true));
         this.timeout = timeout;
-        this.emojis = emojis;
+        this.emojis = [..emojis];
         this.collected = [];
         this.message = message;
 
-        foreach (DiscordEmoji e in emojis)
+        foreach (DiscordEmoji e in this.emojis)
         {
             this.collected.Add(new PollEmoji(e));
         }

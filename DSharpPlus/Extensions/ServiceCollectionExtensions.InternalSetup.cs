@@ -1,15 +1,20 @@
-using System.Net.Http;
+using System;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Channels;
 
 using DSharpPlus.Clients;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Gateway;
-using DSharpPlus.Net.WebSocket;
+using DSharpPlus.Net.InboundWebhooks;
+using DSharpPlus.Net.InboundWebhooks.Transport;
+using DSharpPlus.Net.Gateway.Compression;
+using DSharpPlus.Net.Gateway.Compression.Zlib;
+using DSharpPlus.Net.Gateway.Compression.Zstd;
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace DSharpPlus.Extensions;
 
@@ -21,42 +26,25 @@ public static partial class ServiceCollectionExtensions
         DiscordIntents intents
     )
     {
-        // peripheral setup
-        serviceCollection.AddMemoryCache()
-            .AddSingleton<IMessageCacheProvider, MessageCache>()
-            .AddSingleton<IClientErrorHandler, DefaultClientErrorHandler>()
-            .AddSingleton<IGatewayController, DefaultGatewayController>();
-
-        // rest setup
-        serviceCollection.AddKeyedSingleton<HttpClient>("DSharpPlus.Rest.HttpClient")
-            .AddSingleton<DiscordApiClient>()
-            .AddSingleton<RestClient>
-            (
-                serviceProvider =>
-                {
-                    HttpClient client = serviceProvider.GetRequiredKeyedService<HttpClient>("DSharpPlus.Rest.HttpClient");
-                    ILogger<RestClient> logger = serviceProvider.GetRequiredService<ILogger<RestClient>>();
-                    IOptions<RestClientOptions> options = serviceProvider.GetRequiredService<IOptions<RestClientOptions>>();
-                    IOptions<TokenContainer> token = serviceProvider.GetRequiredService<IOptions<TokenContainer>>();
-
-                    return new(logger, client, options, token);
-                }
-            );
-
-        // gateway setup
-        serviceCollection.Configure<GatewayClientOptions>(c => c.Intents = intents)
-            .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>(new UnboundedChannelOptions { SingleReader = true }))
-            .AddTransient<ITransportService, TransportService>()
-            .AddTransient<IGatewayClient, GatewayClient>()
-            .AddTransient<PayloadDecompressor>()
-            .AddSingleton<IShardOrchestrator, SingleShardOrchestrator>()
-            .AddSingleton<IEventDispatcher, DefaultEventDispatcher>()
-            .AddSingleton<DiscordClient>();
+        serviceCollection.AddDSharpPlusServices(intents)
+            .AddSingleton<IShardOrchestrator, SingleShardOrchestrator>();
 
         return serviceCollection;
     }
 
-    internal static IServiceCollection AddDSharpPlusDefaultsSharded
+    internal static IServiceCollection AddDSharpPlusDefaultsMultiShard
+    (
+        this IServiceCollection serviceCollection,
+        DiscordIntents intents
+    )
+    {
+        serviceCollection.AddDSharpPlusServices(intents)
+            .AddSingleton<IShardOrchestrator, MultiShardOrchestrator>();
+
+        return serviceCollection;
+    }
+
+    internal static IServiceCollection AddDSharpPlusServices
     (
         this IServiceCollection serviceCollection,
         DiscordIntents intents
@@ -69,31 +57,62 @@ public static partial class ServiceCollectionExtensions
             .AddSingleton<IGatewayController, DefaultGatewayController>();
 
         // rest setup
-        serviceCollection.AddKeyedSingleton<HttpClient>("DSharpPlus.Rest.HttpClient")
-            .AddSingleton<DiscordApiClient>()
-            .AddSingleton<RestClient>
-            (
-                serviceProvider =>
-                {
-                    HttpClient client = serviceProvider.GetRequiredKeyedService<HttpClient>("DSharpPlus.Rest.HttpClient");
-                    ILogger<RestClient> logger = serviceProvider.GetRequiredService<ILogger<RestClient>>();
-                    IOptions<RestClientOptions> options = serviceProvider.GetRequiredService<IOptions<RestClientOptions>>();
-                    IOptions<TokenContainer> token = serviceProvider.GetRequiredService<IOptions<TokenContainer>>();
+        serviceCollection.AddHttpClient("DSharpPlus.Rest.HttpClient")
+            .UseSocketsHttpHandler((handler, _) => handler.PooledConnectionLifetime = TimeSpan.FromMinutes(30))
+            .SetHandlerLifetime(Timeout.InfiniteTimeSpan)
+            .ConfigureHttpClient(client =>
+            {
+                client.BaseAddress = new Uri(Utilities.GetApiBaseUri());
+                client.Timeout = Timeout.InfiniteTimeSpan;
+                client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
+                client.BaseAddress = new(Endpoints.BASE_URI);
+            });
 
-                    return new(logger, client, options, token);
-                }
-            );
+        serviceCollection.AddTransient<DiscordRestApiClient>()
+            .AddSingleton<DiscordRestApiClientFactory>()
+            .AddTransient<RestClient>();
 
         // gateway setup
         serviceCollection.Configure<GatewayClientOptions>(c => c.Intents = intents)
             .AddKeyedSingleton("DSharpPlus.Gateway.EventChannel", Channel.CreateUnbounded<GatewayPayload>(new UnboundedChannelOptions { SingleReader = true }))
             .AddTransient<ITransportService, TransportService>()
             .AddTransient<IGatewayClient, GatewayClient>()
-            .AddTransient<PayloadDecompressor>()
-            .AddSingleton<IShardOrchestrator, MultiShardOrchestrator>()
+            .RegisterBestDecompressor()
             .AddSingleton<IEventDispatcher, DefaultEventDispatcher>()
             .AddSingleton<DiscordClient>();
 
+        // http events/interactions, if we're using those - doesn't actually cause any overhead if we aren't
+        serviceCollection.AddKeyedSingleton("DSharpPlus.Webhooks.EventChannel", Channel.CreateUnbounded<DiscordWebhookEvent>
+            (
+                new UnboundedChannelOptions
+                {
+                    SingleReader = true
+                }
+            ))
+            .AddKeyedSingleton("DSharpPlus.Interactions.EventChannel", Channel.CreateUnbounded<DiscordHttpInteractionPayload>
+            (
+                new UnboundedChannelOptions
+                {
+                    SingleReader = true
+                }
+            ))
+            .AddSingleton<IInteractionTransportService, InteractionTransportService>()
+            .AddSingleton<IWebhookTransportService, WebhookEventTransportService>();
+
         return serviceCollection;
+    }
+
+    private static IServiceCollection RegisterBestDecompressor(this IServiceCollection services)
+    {
+        if (NativeLibrary.TryLoad("libzstd", Assembly.GetEntryAssembly(), default, out _))
+        {
+            services.AddTransient<IPayloadDecompressor, ZstdDecompressor>();
+        }
+        else
+        {
+            services.AddTransient<IPayloadDecompressor, ZlibStreamDecompressor>();
+        }
+
+        return services;
     }
 }

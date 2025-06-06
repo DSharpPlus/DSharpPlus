@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DSharpPlus.Commands.Exceptions;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,28 +10,69 @@ using Microsoft.Extensions.Logging;
 namespace DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 
 [AttributeUsage(AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
-public class SlashChoiceProviderAttribute(Type providerType) : Attribute
+public class SlashChoiceProviderAttribute : Attribute
 {
-    public Type ProviderType { get; init; } = providerType ?? throw new ArgumentNullException(nameof(providerType));
+    public Type ProviderType { get; init; }
+
+    public SlashChoiceProviderAttribute(Type providerType)
+    {
+        ArgumentNullException.ThrowIfNull(providerType, nameof(providerType));
+        if (providerType.GetInterface(nameof(IChoiceProvider)) is null)
+        {
+            throw new ArgumentException("The provided type must implement IChoiceProvider.", nameof(providerType));
+        }
+
+        this.ProviderType = providerType;
+    }
 
     public async ValueTask<IEnumerable<DiscordApplicationCommandOptionChoice>> GrabChoicesAsync(IServiceProvider serviceProvider, CommandParameter parameter)
     {
         IChoiceProvider choiceProvider;
         try
         {
-            choiceProvider = (IChoiceProvider)ActivatorUtilities.CreateInstance(serviceProvider, this.ProviderType);
+            choiceProvider = (IChoiceProvider)
+                ActivatorUtilities.CreateInstance(serviceProvider, this.ProviderType);
         }
-        catch (Exception e)
+        catch (Exception error)
         {
             ILogger<SlashCommandProcessor> logger = serviceProvider.GetRequiredService<ILogger<SlashCommandProcessor>>();
-            logger.LogWarning("""ChoiceProvider for parameter "{ParameterName}" was not able to be constructed: {ExceptionType}""", parameter.Name, e.Message);
+            logger.LogError(
+                error,
+                "ChoiceProvider '{Type}' for parameter '{ParameterName}' was not able to be constructed.",
+                this.ProviderType,
+                parameter.ToString()
+            );
+
             return [];
         }
 
-        List<DiscordApplicationCommandOptionChoice> choices = [];
-        foreach ((string name, object value) in await choiceProvider.ProvideAsync(parameter))
+        List<DiscordApplicationCommandOptionChoice> choices = new(25);
+        IEnumerable<DiscordApplicationCommandOptionChoice> userProvidedChoices;
+
+        try
         {
-            choices.Add(new(name, value));
+            userProvidedChoices = await choiceProvider.ProvideAsync(parameter);
+        }
+        catch(Exception e)
+        {
+            throw new ChoiceProviderFailedException(this.ProviderType, e);
+        }
+
+        foreach (DiscordApplicationCommandOptionChoice choice in userProvidedChoices)
+        {
+            if (choices.Count == 25)
+            {
+                ILogger<SlashCommandProcessor> logger = serviceProvider.GetRequiredService<ILogger<SlashCommandProcessor>>();
+                logger.LogWarning(
+                    "ChoiceProvider '{Type}' for parameter '{ParameterName}' returned more than 25 choices, only the first 25 will be used.",
+                    this.ProviderType,
+                    parameter.ToString()
+                );
+
+                break;
+            }
+
+            choices.Add(choice);
         }
 
         return choices;
@@ -45,5 +87,5 @@ public sealed class SlashChoiceProviderAttribute<T> : SlashChoiceProviderAttribu
 
 public interface IChoiceProvider
 {
-    public ValueTask<IReadOnlyDictionary<string, object>> ProvideAsync(CommandParameter parameter);
+    public ValueTask<IEnumerable<DiscordApplicationCommandOptionChoice>> ProvideAsync(CommandParameter parameter);
 }

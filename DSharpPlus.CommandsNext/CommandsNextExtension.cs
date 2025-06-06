@@ -563,7 +563,7 @@ public class CommandsNextExtension : IDisposable
 
                     break;
 
-                case HiddenAttribute h:
+                case HiddenAttribute:
                     groupBuilder.WithHiddenStatus(true);
                     moduleHidden = true;
                     break;
@@ -677,7 +677,7 @@ public class CommandsNextExtension : IDisposable
                         commandBuilder.WithDescription(d.Description);
                         break;
 
-                    case HiddenAttribute h:
+                    case HiddenAttribute:
                         commandBuilder.WithHiddenStatus(true);
                         break;
 

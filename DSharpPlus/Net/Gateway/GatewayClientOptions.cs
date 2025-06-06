@@ -1,5 +1,7 @@
 using System;
 
+using DSharpPlus.Logging;
+
 namespace DSharpPlus.Net.Gateway;
 
 /// <summary>
@@ -40,4 +42,28 @@ public sealed class GatewayClientOptions
     /// intents for. Defaults to <see cref="DiscordIntents.AllUnprivileged"/>.
     /// </summary>
     public DiscordIntents Intents { get; set; } = DiscordIntents.AllUnprivileged;
+
+    /// <summary>
+    /// Toggles the use of streams for deserializing inbound gateway events. Enabling this will increase the total
+    /// allocation volume of the gateway, but decrease the maximum size of allocations and may reduce object
+    /// longevity.
+    /// </summary>
+    /// <remarks>
+    /// This option will be automatically disabled if trace logs are enabled and 
+    /// <see cref="RuntimeFeatures.EnableInboundGatewayLogging"/> is enabled (as it is by default). Please refer to
+    /// <see href="https://dsharpplus.github.io/DSharpPlus/articles/advanced_topics/trace_logs.html">our article
+    /// on trace logging</see> to learn how to modify this option.
+    /// </remarks>
+    public bool EnableStreamingDeserialization { get; set; } = true;
+
+    /// <summary>
+    /// Toggles pruning the gateway event queue of user-unused events. This may reduce gateway back-pressure and memory
+    /// costs, but may cause library cache to go stale quicker as only directly consumed events are processed.
+    /// </summary>
+    /// <remarks>
+    /// The following event types are entirely immune to pruning: <c>GUILD_CREATE</c>, <c>GUILD_DELETE</c>, <c>CHANNEL_CREATE</c>,
+    /// <c>CHANNEL_DELETE</c>, <c>INTERACTION_CREATE</c>, <c>GUILD_MEMBERS_CHUNK</c> <c>READY</c>, <c>RESUMED</c>. All other events
+    /// may be pruned if there is no user code handling them. Exercise caution with this option.
+    /// </remarks>
+    public bool EnableEventQueuePruning { get; set; } = false;
 }

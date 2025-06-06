@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Gateway;
-using DSharpPlus.Net.WebSocket;
+using DSharpPlus.Net.Gateway.Compression;
 
 namespace DSharpPlus.Clients;
 
@@ -14,8 +14,8 @@ namespace DSharpPlus.Clients;
 public sealed class SingleShardOrchestrator : IShardOrchestrator
 {
     private readonly IGatewayClient gatewayClient;
-    private readonly DiscordApiClient apiClient;
-    private readonly PayloadDecompressor decompressor;
+    private readonly DiscordRestApiClient apiClient;
+    private readonly IPayloadDecompressor decompressor;
 
     /// <summary>
     /// Creates a new instance of this type.
@@ -23,12 +23,12 @@ public sealed class SingleShardOrchestrator : IShardOrchestrator
     public SingleShardOrchestrator
     (
         IGatewayClient gatewayClient,
-        DiscordApiClient apiClient,
-        PayloadDecompressor decompressor
+        DiscordRestApiClientFactory apiClientFactory,
+        IPayloadDecompressor decompressor
     )
     {
         this.gatewayClient = gatewayClient;
-        this.apiClient = apiClient;
+        this.apiClient = apiClientFactory.GetCurrentApplicationClient();
         this.decompressor = decompressor;
     }
 
@@ -77,9 +77,9 @@ public sealed class SingleShardOrchestrator : IShardOrchestrator
         gwuri.AddParameter("v", "10")
              .AddParameter("encoding", "json");
 
-        if (this.decompressor.CompressionLevel == GatewayCompressionLevel.Stream)
+        if (this.decompressor.IsTransportCompression)
         {
-            gwuri.AddParameter("compress", "zlib-stream");
+            gwuri.AddParameter("compress", this.decompressor.Name);
         }
 
         await this.gatewayClient.ConnectAsync(gwuri.Build(), activity, status, idleSince);

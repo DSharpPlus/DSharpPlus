@@ -6,12 +6,14 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using DSharpPlus.Entities.AuditLogs;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Abstractions.Rest;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
@@ -40,7 +42,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public string IconUrl
-        => GetIconUrl(ImageFormat.Auto, 1024);
+        => GetIconUrl(MediaFormat.Auto, 1024);
 
     /// <summary>
     /// Gets the guild splash's hash.
@@ -290,7 +292,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Scheduled events for this guild.
     /// </summary>
     public IReadOnlyDictionary<ulong, DiscordScheduledGuildEvent> ScheduledEvents
-        => new ReadOnlyConcurrentDictionary<ulong, DiscordScheduledGuildEvent>(this.scheduledEvents);
+        => this.scheduledEvents;
 
     [JsonProperty("guild_scheduled_events")]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -300,7 +302,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets a collection of this guild's roles.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<ulong, DiscordRole> Roles => new ReadOnlyConcurrentDictionary<ulong, DiscordRole>(this.roles);
+    public IReadOnlyDictionary<ulong, DiscordRole> Roles => this.roles;
 
     [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -310,7 +312,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets a collection of this guild's stickers.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<ulong, DiscordMessageSticker> Stickers => new ReadOnlyConcurrentDictionary<ulong, DiscordMessageSticker>(this.stickers);
+    public IReadOnlyDictionary<ulong, DiscordMessageSticker> Stickers => this.stickers;
 
     [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -320,7 +322,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets a collection of this guild's emojis.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<ulong, DiscordEmoji> Emojis => new ReadOnlyConcurrentDictionary<ulong, DiscordEmoji>(this.emojis);
+    public IReadOnlyDictionary<ulong, DiscordEmoji> Emojis => this.emojis;
 
     [JsonProperty("emojis", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -395,21 +397,21 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public int? MaxVideoChannelUsers { get; internal set; }
 
     /// <summary>
-    /// Gets a dictionary of all the voice states for this guilds. The key for this dictionary is the ID of the user
+    /// Gets a dictionary of all the voice states for this guild. The key for this dictionary is the ID of the user
     /// the voice state corresponds to.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<ulong, DiscordVoiceState> VoiceStates => new ReadOnlyConcurrentDictionary<ulong, DiscordVoiceState>(this.voiceStates);
+    public IReadOnlyDictionary<ulong, DiscordVoiceState> VoiceStates => this.voiceStates;
 
     [JsonProperty("voice_states", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-    internal ConcurrentDictionary<ulong, DiscordVoiceState> voiceStates;
+    internal ConcurrentDictionary<ulong, DiscordVoiceState> voiceStates = new();
 
     /// <summary>
     /// Gets a dictionary of all the members that belong to this guild. The dictionary's key is the member ID.
     /// </summary>
-    [JsonIgnore] // TODO overhead of => vs Lazy? it's a struct
-    public IReadOnlyDictionary<ulong, DiscordMember> Members => new ReadOnlyConcurrentDictionary<ulong, DiscordMember>(this.members);
+    [JsonIgnore]
+    public IReadOnlyDictionary<ulong, DiscordMember> Members => this.members;
 
     [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -419,7 +421,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets a dictionary of all the channels associated with this guild. The dictionary's key is the channel ID.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<ulong, DiscordChannel> Channels => new ReadOnlyConcurrentDictionary<ulong, DiscordChannel>(this.channels);
+    public IReadOnlyDictionary<ulong, DiscordChannel> Channels => this.channels;
 
     [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -429,7 +431,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets a dictionary of all the active threads associated with this guild the user has permission to view. The dictionary's key is the channel ID.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<ulong, DiscordThreadChannel> Threads => new ReadOnlyConcurrentDictionary<ulong, DiscordThreadChannel>(this.threads);
+    public IReadOnlyDictionary<ulong, DiscordThreadChannel> Threads => this.threads;
 
     [JsonProperty("threads", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -441,11 +443,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the guild member for current user.
     /// </summary>
     [JsonIgnore]
-    public DiscordMember CurrentMember
-        => this.current_member_lazy.Value;
-
-    [JsonIgnore]
-    private readonly Lazy<DiscordMember> current_member_lazy;
+    public DiscordMember CurrentMember => this.members != null && this.members.TryGetValue(this.Discord.CurrentUser.Id, out DiscordMember? member) ? member : null;
 
     /// <summary>
     /// Gets the @everyone role for this guild.
@@ -520,7 +518,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the stage instances in this guild.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<ulong, DiscordStageInstance> StageInstances => new ReadOnlyConcurrentDictionary<ulong, DiscordStageInstance>(this.stageInstances);
+    public IReadOnlyDictionary<ulong, DiscordStageInstance> StageInstances => this.stageInstances;
 
     [JsonProperty("stage_instances", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -546,11 +544,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     [JsonIgnore]
     internal bool isSynced { get; set; }
 
-    internal DiscordGuild()
-    {
-        this.current_member_lazy = new Lazy<DiscordMember>(() => this.members != null && this.members.TryGetValue(this.Discord.CurrentUser.Id, out DiscordMember? member) ? member : null);
-        this.invites = new ConcurrentDictionary<string, DiscordInvite>();
-    }
+    internal DiscordGuild() => this.invites = new ConcurrentDictionary<string, DiscordInvite>();
 
     #region Guild Methods
 
@@ -560,7 +554,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="imageFormat">The image format of the icon to get.</param>
     /// <param name="imageSize">The maximum size of the icon. Must be a power of two, minimum 16, maximum 4096.</param>
     /// <returns>The URL of the guild's icon.</returns>
-    public string? GetIconUrl(ImageFormat imageFormat, ushort imageSize = 1024)
+    public string? GetIconUrl(MediaFormat imageFormat, ushort imageSize = 1024)
     {
 
         if (string.IsNullOrWhiteSpace(this.IconHash))
@@ -568,7 +562,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             return null;
         }
 
-        if (imageFormat == ImageFormat.Unknown)
+        if (imageFormat == MediaFormat.Unknown)
         {
             throw new ArgumentException("You must specify valid image format.", nameof(imageFormat));
         }
@@ -588,11 +582,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         // Get the string variants of the method parameters to use in the urls.
         string stringImageFormat = imageFormat switch
         {
-            ImageFormat.Gif => "gif",
-            ImageFormat.Jpeg => "jpg",
-            ImageFormat.Png => "png",
-            ImageFormat.WebP => "webp",
-            ImageFormat.Auto => !string.IsNullOrWhiteSpace(this.IconHash) ? this.IconHash.StartsWith("a_") ? "gif" : "png" : "png",
+            MediaFormat.Gif => "gif",
+            MediaFormat.Jpeg => "jpg",
+            MediaFormat.Png => "png",
+            MediaFormat.WebP => "webp",
+            MediaFormat.Auto => !string.IsNullOrWhiteSpace(this.IconHash) ? this.IconHash.StartsWith("a_") ? "gif" : "png" : "png",
             _ => throw new ArgumentOutOfRangeException(nameof(imageFormat)),
         };
         string stringImageSize = imageSize.ToString(CultureInfo.InvariantCulture);
@@ -825,7 +819,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets a list of users who are interested in this event.
     /// </summary>
     /// <param name="guildEventId">The id of the event to query users from</param>
-    /// <param name="limit">How many users to fetch.</param>
+    /// <param name="limit">How many users to fetch. The method performs one api call per 100 users</param>
     /// <param name="after">Fetch users after this id. Mutually exclusive with before</param>
     /// <param name="before">Fetch users before this id. Mutually exclusive with after</param>
     public async IAsyncEnumerable<DiscordUser> GetEventUsersAsync(ulong guildEventId, int limit = 100, ulong? after = null, ulong? before = null)
@@ -837,23 +831,23 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
         int remaining = limit;
         ulong? last = null;
-        bool isAfter = after != null;
+        bool isBefore = before != null;
         int lastCount;
         do
         {
             int fetchSize = remaining > 100 ? 100 : remaining;
-            IReadOnlyList<DiscordUser> fetch = await this.Discord.ApiClient.GetScheduledGuildEventUsersAsync(this.Id, guildEventId, true, fetchSize, !isAfter ? last ?? before : null, isAfter ? last ?? after : null);
+            IReadOnlyList<DiscordUser> fetch = await this.Discord.ApiClient.GetScheduledGuildEventUsersAsync(this.Id, guildEventId, true, fetchSize, isBefore ? last ?? before : null, !isBefore ? last ?? after : null);
 
             lastCount = fetch.Count;
             remaining -= lastCount;
 
-            if (!isAfter)
+            if (isBefore)
             {
                 for (int i = lastCount - 1; i >= 0; i--)
                 {
                     yield return fetch[i];
                 }
-                last = fetch.LastOrDefault()?.Id;
+                last = fetch.FirstOrDefault()?.Id;
             }
             else
             {
@@ -861,7 +855,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 {
                     yield return fetch[i];
                 }
-                last = fetch.FirstOrDefault()?.Id;
+                last = fetch.LastOrDefault()?.Id;
             }
         }
         while (remaining > 0 && lastCount > 0);
@@ -885,7 +879,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="muted">whether this user has to be muted</param>
     /// <param name="deaf">whether this user has to be deafened</param>
     /// <returns>Only returns the member if they were not already in the guild</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.CreateInstantInvite" /> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.CreateInvite" /> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the <paramref name="user"/> or <paramref name="accessToken"/> is not found.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -908,7 +902,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="muted">whether this user has to be muted</param>
     /// <param name="deaf">whether this user has to be deafened</param>
     /// <returns>Only returns the member if they were not already in the guild</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.CreateInstantInvite" /> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.CreateInvite" /> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the <paramref name="userId"/> or <paramref name="accessToken"/> is not found.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -932,7 +926,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="muted">whether this user has to be muted</param>
     /// <param name="deaf">whether this user has to be deafened</param>
     /// <returns>Only returns the member if they were not already in the guild</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.CreateInstantInvite" /> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.CreateInvite" /> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the <paramref name="user"/> or <paramref name="accessToken"/> is not found.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -957,7 +951,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="muted">whether this user has to be muted</param>
     /// <param name="deaf">whether this user has to be deafened</param>
     /// <returns>Only returns the member if they were not already in the guild</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.CreateInstantInvite" /> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.CreateInvite" /> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the <paramref name="userId"/> or <paramref name="accessToken"/> is not found.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -982,7 +976,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="muted">whether this user has to be muted</param>
     /// <param name="deaf">whether this user has to be deafened</param>
     /// <returns>Only returns the member if they were not already in the guild</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.CreateInstantInvite" /> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.CreateInvite" /> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the <paramref name="user"/> or <paramref name="accessToken"/> is not found.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1007,7 +1001,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="muted">whether this user has to be muted</param>
     /// <param name="deaf">whether this user has to be deafened</param>
     /// <returns>Only returns the member if they were not already in the guild</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.CreateInstantInvite" /> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.CreateInvite" /> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the <paramref name="userId"/> or <paramref name="accessToken"/> is not found.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1036,7 +1030,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="action">Action to perform on this guild..</param>
     /// <returns>The modified guild object.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageGuild"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1054,7 +1048,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
         if (mdl.Icon.HasValue && mdl.Icon.Value != null)
         {
-            using ImageTool imgtool = new(mdl.Icon.Value);
+            using InlineMediaTool imgtool = new(mdl.Icon.Value);
             iconb64 = imgtool.GetBase64();
         }
         else if (mdl.Icon.HasValue)
@@ -1066,7 +1060,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
         if (mdl.Splash.HasValue && mdl.Splash.Value != null)
         {
-            using ImageTool imgtool = new(mdl.Splash.Value);
+            using InlineMediaTool imgtool = new(mdl.Splash.Value);
             splashb64 = imgtool.GetBase64();
         }
         else if (mdl.Splash.HasValue)
@@ -1084,7 +1078,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             }
             else
             {
-                using ImageTool imgtool = new(mdl.Banner.Value);
+                using InlineMediaTool imgtool = new(mdl.Banner.Value);
                 bannerb64 = imgtool.GetBase64();
             }
         }
@@ -1141,7 +1135,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         }
 
         // Sort the roles by position and create skeleton roles for the payload.
-        IReadOnlyList<DiscordRole> returnedRoles = await this.Discord.ApiClient.ModifyGuildRolePositionsAsync(this.Id, roles.Select(x => new RestGuildRoleReorderPayload() { RoleId = x.Value.Id, Position = x.Key }), reason);
+        IReadOnlyList<DiscordRole> returnedRoles = await this.Discord.ApiClient.ModifyGuildRolePositionsAsync(this.Id, roles.Select(x => new DiscordRolePosition() { RoleId = x.Value.Id, Position = x.Key }), reason);
 
         // Update the cache as the endpoint returns all roles in the order they were sent.
         this.roles = new(returnedRoles.Select(x => new KeyValuePair<ulong, DiscordRole>(x.Id, x)));
@@ -1171,7 +1165,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="messageDeleteDuration">The duration in which discord should delete messages from the banned user.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.BanMembers"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.BanMembers"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1185,7 +1179,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="messageDeleteDuration">The duration in which discord should delete messages from the banned user.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.BanMembers"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.BanMembers"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the member does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1221,7 +1215,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="user">User to unban.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.BanMembers"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.BanMembers"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the user does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1234,7 +1228,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="userId">ID of the user to unban.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.BanMembers"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.BanMembers"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the user does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1256,7 +1250,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="before">Consider only users before the given user id.</param>
     /// <param name="after">Consider only users after the given user id.</param>
     /// <returns>Collection of bans in this guild.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.BanMembers"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.BanMembers"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<IReadOnlyList<DiscordBan>> GetBansAsync(int? limit = null, ulong? before = null, ulong? after = null)
         => await this.Discord.ApiClient.GetGuildBansAsync(this.Id, limit, before, after);
@@ -1291,7 +1285,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="reason">Reason for audit logs.</param>
     /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
     /// <returns>The newly-created channel.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageChannels"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageChannels"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1306,7 +1300,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="position">Sorting position of the channel.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns>The newly-created channel category.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageChannels"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageChannels"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1325,7 +1319,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="position">Sorting position of the channel.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns>The newly-created channel.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageChannels"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageChannels"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1375,7 +1369,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="availableTags">The tags available for a post in this channel.</param>
     /// <param name="defaultSortOrder">The default sorting order.</param>
     /// <returns>The newly-created channel.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageChannels"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageChannels"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1442,7 +1436,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="days">Minimum number of inactivity days required for users to be pruned. Defaults to 7.</param>
     /// <param name="includedRoles">The roles to be included in the prune.</param>
     /// <returns>Number of users that will be pruned.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.KickMembers"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.KickMembers"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1475,7 +1469,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="days">Minimum number of inactivity days required for users to be pruned. Defaults to 7.</param>
     /// <param name="includedRoleIds">The ids of roles to be included in the prune.</param>
     /// <returns>Number of users that will be pruned.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.KickMembers"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.KickMembers"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1490,7 +1484,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="includedRoles">The roles to be included in the prune.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns>Number of users pruned.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageChannels"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageChannels"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1525,7 +1519,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="includedRoleIds">The ids of roles to be included in the prune.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns>Number of users pruned.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageChannels"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageChannels"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1536,7 +1530,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets integrations attached to this guild.
     /// </summary>
     /// <returns>Collection of integrations attached to this guild.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageGuild"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1548,7 +1542,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="integration">Integration to attach.</param>
     /// <returns>The integration after being attached to the guild.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageGuild"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1563,7 +1557,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="expireGracePeriod">Length of grace period which allows for renewing the integration.</param>
     /// <param name="enableEmoticons">Whether emotes should be synced from this integration.</param>
     /// <returns>The modified integration.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageGuild"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1578,7 +1572,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="expireGracePeriod">Length of grace period which allows for renewing the integration.</param>
     /// <param name="enableEmoticons">Whether emotes should be synced from this integration.</param>
     /// <returns>The modified integration.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageGuild"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1591,7 +1585,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="integration">Integration to remove.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageGuild"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1604,7 +1598,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="integrationId">The id of the Integration to remove.</param>
     /// <param name="reason">Reason for audit logs.</param>
     /// <returns></returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageGuild"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1616,7 +1610,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="integration">Integration to synchronize.</param>
     /// <returns></returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageGuild"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1628,7 +1622,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="integrationId">The id of the Integration to synchronize.</param>
     /// <returns></returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageGuild"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
     /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1699,7 +1693,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the vanity invite for this guild.
     /// </summary>
     /// <returns>A partial vanity invite.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageGuild"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordInvite> GetVanityInviteAsync()
         => await this.Discord.ApiClient.GetGuildVanityUrlAsync(this.Id);
@@ -1708,7 +1702,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets all the webhooks created for all the channels in this guild.
     /// </summary>
     /// <returns>A collection of webhooks this guild has.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageWebhooks"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageWebhooks"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<IReadOnlyList<DiscordWebhook>> GetWebhooksAsync()
         => await this.Discord.ApiClient.GetGuildWebhooksAsync(this.Id);
@@ -1728,7 +1722,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             DiscordWidgetType.Banner4 => "banner4",
             _ => "shield",
         };
-        return $"{Net.Endpoints.BASE_URI}/{Net.Endpoints.GUILDS}/{this.Id}/{Net.Endpoints.WIDGET_PNG}?style={param}";
+        return $"{Endpoints.BASE_URI}/{Endpoints.GUILDS}/{this.Id}/{Endpoints.WIDGET_PNG}?style={param}";
     }
 
     /// <summary>
@@ -1738,6 +1732,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="updateCache">Whether to always make a REST request and update the member cache.</param>
     /// <returns>The requested member.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    /// <exception cref="NotFoundException">Thrown when the member does not exist in this guild.</exception>
     public async Task<DiscordMember> GetMemberAsync(ulong userId, bool updateCache = false)
     {
         if (!updateCache && this.members != null && this.members.TryGetValue(userId, out DiscordMember? mbr))
@@ -1781,25 +1776,58 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 yield break;
             }
 
-            IReadOnlyList<TransportMember> transportMembers = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : last);
-            recievedLastCall = transportMembers.Count;
+            IReadOnlyList<DiscordMember> members = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : last);
+            recievedLastCall = members.Count;
 
-            foreach (TransportMember transportMember in transportMembers)
+            foreach (DiscordMember member in members)
             {
-                this.Discord.UpdateUserCache(new(transportMember.User)
-                {
-                    Discord = this.Discord
-                });
+                this.Discord.UpdateUserCache(member.User);
 
-                yield return new(transportMember)
-                {
-                    Discord = this.Discord,
-                    guild_id = this.Id
-                };
+                yield return member;
             }
 
-            TransportMember? lastMember = transportMembers.LastOrDefault();
+            DiscordMember? lastMember = members.LastOrDefault();
             last = lastMember?.User.Id ?? 0;
+        }
+    }
+
+    /// <summary>
+    /// Requests that Discord send a list of guild members based on the specified arguments. This method will fire the GuildMembersChunked event.
+    /// <para>If no arguments aside from <paramref name="presences"/> and <paramref name="nonce"/> are specified, this will request all guild members.</para>
+    /// </summary>
+    /// <param name="query">Filters the returned members based on what the username starts with. Either this or <paramref name="userIds"/> must not be null.
+    /// The <paramref name="limit"/> must also be greater than 0 if this is specified.</param>
+    /// <param name="limit">Total number of members to request. This must be greater than 0 if <paramref name="query"/> is specified.</param>
+    /// <param name="presences">Whether to include the <see cref="GuildMembersChunkedEventArgs.Presences"/> associated with the fetched members.</param>
+    /// <param name="userIds">Whether to limit the request to the specified user ids. Either this or <paramref name="query"/> must not be null.</param>
+    /// <param name="nonce">The unique string to identify the response. This must be unique per-guild if multiple requests to the same guild are made.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the iterator with.</param>
+    /// <returns>An asynchronous iterator that will return all members.</returns>
+    public async IAsyncEnumerable<DiscordMember> EnumerateRequestMembersAsync
+    (
+        string query = "",
+        int limit = 0,
+        bool? presences = null,
+        IEnumerable<ulong>? userIds = null,
+        string? nonce = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default
+    )
+    {
+        if (this.Discord is not DiscordClient client)
+        {
+            throw new InvalidOperationException("This operation is only valid for regular Discord clients.");
+        }
+
+        ChannelReader<GuildMembersChunkedEventArgs> reader = client.RegisterGuildMemberChunksEnumerator(this.Id, nonce);
+
+        await RequestMembersAsync(query, limit, presences, userIds, nonce);
+
+        await foreach (GuildMembersChunkedEventArgs evt in reader.ReadAllAsync(cancellationToken))
+        {
+            foreach (DiscordMember member in evt.Members)
+            {
+                yield return member;
+            }
         }
     }
 
@@ -1839,12 +1867,6 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             Nonce = nonce
         };
 
-        GatewayPayload payload = new()
-        {
-            OpCode = GatewayOpCode.RequestGuildMembers,
-            Data = gatewayRequestGuildMembers
-        };
-
 #pragma warning disable DSP0004
         await client.SendPayloadAsync(GatewayOpCode.RequestGuildMembers, gatewayRequestGuildMembers, this.Id);
 #pragma warning restore DSP0004
@@ -1870,7 +1892,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="icon">The icon to add to this role</param>
     /// <param name="emoji">The emoji to add to this role. Must be unicode.</param>
     /// <returns>The newly-created role.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageRoles"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageRoles"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordRole> CreateRoleAsync(string? name = null, DiscordPermissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string? reason = null, Stream? icon = null, DiscordEmoji? emoji = null)
         => await this.Discord.ApiClient.CreateGuildRoleAsync(this.Id, name, permissions, color?.Value, hoist, mentionable, icon, emoji?.ToString(), reason);
@@ -1934,7 +1956,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="byMember">Filter by member responsible.</param>
     /// <param name="actionType">Filter by action type.</param>
     /// <returns>A collection of requested audit log entries.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ViewAuditLog"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ViewAuditLog"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     /// <remarks>If you set <paramref name="limit"/> to null, it will fetch all entries. This may take a while as it will result in multiple api calls</remarks>
     public async IAsyncEnumerable<DiscordAuditLogEntry> GetAuditLogsAsync
@@ -2010,7 +2032,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="roles">Roles for which the emoji will be available. This works only if your application is whitelisted as integration.</param>
     /// <param name="reason">Reason for audit log.</param>
     /// <returns>The newly-created emoji.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageEmojis"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageGuildExpressions"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordGuildEmoji> CreateEmojiAsync(string name, Stream image, IEnumerable<DiscordRole>? roles = null, string? reason = null)
     {
@@ -2028,7 +2050,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         ArgumentNullException.ThrowIfNull(image);
 
         string? image64 = null;
-        using (ImageTool imgtool = new(image))
+        using (InlineMediaTool imgtool = new(image))
         {
             image64 = imgtool.GetBase64();
         }
@@ -2044,7 +2066,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="roles">Roles for which the emoji will be available. This works only if your application is whitelisted as integration.</param>
     /// <param name="reason">Reason for audit log.</param>
     /// <returns>The modified emoji.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageEmojis"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageGuildExpressions"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordGuildEmoji> ModifyEmojiAsync(DiscordGuildEmoji emoji, string name, IEnumerable<DiscordRole>? roles = null, string? reason = null)
     {
@@ -2071,7 +2093,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="emoji">Emoji to delete.</param>
     /// <param name="reason">Reason for audit log.</param>
     /// <returns></returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageEmojis"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageGuildExpressions"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     /// <exception cref="NotFoundException">Thrown when the emoji does not exist on this guild</exception>
     public async Task DeleteEmojiAsync(DiscordGuildEmoji emoji, string? reason = null)
@@ -2094,7 +2116,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="emojiId">Emoji to delete.</param>
     /// <param name="reason">Reason for audit log.</param>
     /// <returns></returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermissions.ManageEmojis"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageGuildExpressions"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     /// <exception cref="NotFoundException">Thrown when the emoji does not exist on this guild</exception>
     public async Task DeleteEmojiAsync(ulong emojiId, string? reason = null)
@@ -2110,7 +2132,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     {
         return this.channels?.Values.Where(xc => xc.Type == DiscordChannelType.Text)
             .OrderBy(xc => xc.Position)
-            .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & DiscordPermissions.AccessChannels) == DiscordPermissions.AccessChannels);
+            .FirstOrDefault(xc => xc.PermissionsFor(this.CurrentMember).HasPermission(DiscordPermission.ViewChannel));
     }
 
     /// <summary>
@@ -2141,7 +2163,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets all of this guild's templates.
     /// </summary>
     /// <returns>All of the guild's templates.</returns>
-    /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="DiscordPermissions.ManageGuild"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<IReadOnlyList<DiscordGuildTemplate>> GetTemplatesAsync()
         => await this.Discord.ApiClient.GetGuildTemplatesAsync(this.Id);
@@ -2153,7 +2175,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="description">Description of the template.</param>
     /// <returns>The template created.</returns>
     /// <exception cref="BadRequestException">Throws when a template already exists for the guild or a null parameter is provided for the name.</exception>
-    /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="DiscordPermissions.ManageGuild"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordGuildTemplate> CreateTemplateAsync(string name, string? description = null)
         => await this.Discord.ApiClient.CreateGuildTemplateAsync(this.Id, name, description);
@@ -2164,7 +2186,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="code">The code of the template to sync.</param>
     /// <returns>The template synced.</returns>
     /// <exception cref="NotFoundException">Throws when the template for the code cannot be found</exception>
-    /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="DiscordPermissions.ManageGuild"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordGuildTemplate> SyncTemplateAsync(string code)
         => await this.Discord.ApiClient.SyncGuildTemplateAsync(this.Id, code);
@@ -2177,7 +2199,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="description">Description of the template.</param>
     /// <returns>The template modified.</returns>
     /// <exception cref="NotFoundException">Throws when the template for the code cannot be found</exception>
-    /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="DiscordPermissions.ManageGuild"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordGuildTemplate> ModifyTemplateAsync(string code, string? name = null, string? description = null)
         => await this.Discord.ApiClient.ModifyGuildTemplateAsync(this.Id, code, name, description);
@@ -2188,7 +2210,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="code">The code of the template to delete.</param>
     /// <returns>The deleted template.</returns>
     /// <exception cref="NotFoundException">Throws when the template for the code cannot be found</exception>
-    /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="DiscordPermissions.ManageGuild"/> permission.</exception>
+    /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="DiscordPermission.ManageGuild"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordGuildTemplate> DeleteTemplateAsync(string code)
         => await this.Discord.ApiClient.DeleteGuildTemplateAsync(this.Id, code);
@@ -2206,7 +2228,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <param name="action">Action to perform</param>
     /// <returns>The modified screening form.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client doesn't have the <see cref="DiscordPermissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client doesn't have the <see cref="DiscordPermission.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(Action<MembershipScreeningEditModel> action)
     {
@@ -2382,7 +2404,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="action">Action to perform.</param>
     /// <param name="reason">Reason for audit log.</param>
     /// <returns>The modified welcome screen.</returns>
-    /// <exception cref="UnauthorizedException">Thrown when the client doesn't have the <see cref="DiscordPermissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
+    /// <exception cref="UnauthorizedException">Thrown when the client doesn't have the <see cref="DiscordPermission.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordGuildWelcomeScreen> ModifyWelcomeScreenAsync(Action<WelcomeScreenEditModel> action, string? reason = null)
     {
@@ -2516,6 +2538,60 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public async Task DeleteAutoModerationRuleAsync(ulong ruleId, string? reason = null)
         => await this.Discord.ApiClient.DeleteGuildAutoModerationRuleAsync(this.Id, ruleId, reason);
 
+    /// <summary>
+    /// Gets the current user's voice state in this guild.
+    /// </summary>
+    /// <param name="skipCache">Whether to skip the cache or not.</param>
+    /// <returns>Returns the users voicestate. This is null if the user is in no voice channel</returns>
+    public async Task<DiscordVoiceState?> GetCurrentUserVoiceStateAsync(bool skipCache = false)
+    {
+        if (!skipCache && this.VoiceStates.TryGetValue(this.Discord.CurrentUser.Id, out DiscordVoiceState? voiceState))
+        {
+            return voiceState;
+        }
+
+        try
+        {
+            return await this.Discord.ApiClient.GetCurrentUserVoiceStateAsync(this.Id);
+        }
+        catch (NotFoundException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Gets user's voice state in this guild.
+    /// </summary>
+    /// <param name="member">The member to get the voice state for.</param>
+    /// <param name="skipCache">Whether to skip the cache or not.</param>
+    /// <returns>Returns the users voicestate. This is null if the user is in no voice channel</returns>
+    public Task<DiscordVoiceState?> GetMemberVoiceStateAsync(DiscordUser member, bool skipCache = false)
+        => GetMemberVoiceStateAsync(member.Id, skipCache);
+
+    /// <summary>
+    /// Gets user's voice state in this guild.
+    /// </summary>
+    /// <param name="memberId">The member ID to get the voice state for.</param>
+    /// <param name="skipCache">Whether to skip the cache or not.</param>
+    /// <returns>Returns the users voicestate. This is null if the user is in no voice channel</returns>
+    public async Task<DiscordVoiceState?> GetMemberVoiceStateAsync(ulong memberId, bool skipCache = false)
+    {
+        if (!skipCache && this.VoiceStates.TryGetValue(memberId, out DiscordVoiceState? voiceState))
+        {
+            return voiceState;
+        }
+
+        try
+        {
+            return await this.Discord.ApiClient.GetUserVoiceStateAsync(this.Id, memberId);
+        }
+        catch (NotFoundException)
+        {
+            return null;
+        }
+    }
+    
     #endregion
 
     /// <summary>

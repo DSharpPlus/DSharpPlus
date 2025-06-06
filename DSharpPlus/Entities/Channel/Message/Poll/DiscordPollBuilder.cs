@@ -82,7 +82,7 @@ public class DiscordPollBuilder
             throw new InvalidOperationException("Duration must be at least 1 hour.");
         }
 
-        if (hours > (24 * 7))
+        if (hours > 24 * 7)
         {
             throw new InvalidOperationException("Duration must be less then 7 days/168 hours.");
         }

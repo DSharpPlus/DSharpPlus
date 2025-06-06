@@ -99,8 +99,8 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
         this.IsTTS = baseMessage.IsTTS;
         this.Poll = baseMessage.Poll == null ? null : new DiscordPollBuilder(baseMessage.Poll);
         this.ReplyId = baseMessage.ReferencedMessage?.Id;
-        this.components = [.. baseMessage.Components];
-        this.content = baseMessage.Content;
+        this.components = [.. baseMessage.Components?.OfType<DiscordActionRowComponent>()];
+        this.Content = baseMessage.Content;
         this.embeds = [.. baseMessage.Embeds];
         this.stickers = [.. baseMessage.Stickers];
         this.mentions = [];
@@ -117,6 +117,37 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
         if (baseMessage.mentionedRoles != null)
         {
             foreach (DiscordRole role in baseMessage.mentionedRoles)
+            {
+                this.mentions.Add(new RoleMention(role.Id));
+            }
+        }
+    }
+
+
+    /// <summary>
+    /// Constructs a new discord message builder based on the passed message snapshot.
+    /// </summary>
+    /// <param name="baseSnapshotMessage">The message to copy.</param>
+    public DiscordMessageBuilder(DiscordMessageSnapshotContent baseSnapshotMessage)
+    {
+        this.components = [.. baseSnapshotMessage.Components?.OfType<DiscordActionRowComponent>()];
+        this.Content = baseSnapshotMessage.Content;
+        this.embeds = [.. baseSnapshotMessage.Embeds];
+        this.stickers = [.. baseSnapshotMessage.Stickers];
+        this.mentions = [];
+
+        if (baseSnapshotMessage.mentionedUsers != null)
+        {
+            foreach (DiscordUser user in baseSnapshotMessage.mentionedUsers)
+            {
+                this.mentions.Add(new UserMention(user.Id));
+            }
+        }
+
+        // Unsure about mentionedRoleIds
+        if (baseSnapshotMessage.mentionedRoles != null)
+        {
+            foreach (DiscordRole role in baseSnapshotMessage.mentionedRoles)
             {
                 this.mentions.Add(new RoleMention(role.Id));
             }
@@ -226,17 +257,29 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
             throw new ArgumentException("A message can only have up to 10 embeds.");
         }
 
-        if (this.Poll == null && this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && (!this.Embeds?.Any() ?? true) && (!this.Stickers?.Any() ?? true))
+        if (!this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) && this.Poll == null && this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && (!this.Embeds?.Any() ?? true) && (!this.Stickers?.Any() ?? true))
         {
             throw new ArgumentException("You must specify content, an embed, a sticker, a poll, or at least one file.");
         }
 
-        if (this.Components.Count > 5)
+        if (!this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) && this.Components.Count > 5)
         {
             throw new InvalidOperationException("You can only have 5 action rows per message.");
         }
+        else if (this.Components.Count > 10)
+        {
+            throw new InvalidOperationException("You can only have 10 surface-level components per message.");
+        }
 
-        if (this.Components.Any(c => c.Components.Count > 5))
+        if (!this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) && this.Components.Any(c => c is not DiscordActionRowComponent))
+        {
+            throw new InvalidOperationException
+            (
+                "V2 Components can only be added to a builder with the V2 components flag set."
+            );
+        }
+
+        if (this.Components.OfType<DiscordActionRowComponent>().Any(c => c.Components.Count > 5))
         {
             throw new InvalidOperationException("Action rows can only have 5 components");
         }

@@ -18,31 +18,52 @@ public sealed class DiscordAutoCompleteChoice
     /// Gets the value of this option. This may be a string or an integer.
     /// </summary>
     [JsonProperty("value")]
-    public object Value { get; internal set; }
+    public object? Value { get; internal set; }
+
+    [JsonConstructor]
+    private DiscordAutoCompleteChoice() => this.Name = null!;
 
     /// <summary>
     /// Creates a new instance of <see cref="DiscordAutoCompleteChoice"/>.
     /// </summary>
-    /// <param name="name">The name of this option, which will be presented to the user.</param>
-    /// <param name="value">The value of this option.</param>
-    public DiscordAutoCompleteChoice(string name, object value)
+    private DiscordAutoCompleteChoice(string name)
     {
-        if (value is not (string or int or long))
+        if (name.Length is < 1 or > 100)
         {
-            throw new ArgumentException($"Object type must be of {typeof(int)} or {typeof(string)} or {typeof(long)}", nameof(value));
-        }
-
-        if (name.Length > 100)
-        {
-            throw new ArgumentException("Application command choice name cannot exceed 100 characters.", nameof(name));
-        }
-
-        if (value is string val && val.Length > 100)
-        {
-            throw new ArgumentException("Application command choice value cannot exceed 100 characters.", nameof(value));
+            throw new ArgumentOutOfRangeException(nameof(name), "Application command choice name cannot be empty or exceed 100 characters.");
         }
 
         this.Name = name;
-        this.Value = value;
+    }
+
+    /// <inheritdoc cref="DiscordAutoCompleteChoice(string)"/>
+    /// <param name="name">The name of this option, which will be presented to the user.</param>
+    /// <param name="value">The value of this option.</param>
+    public DiscordAutoCompleteChoice(string name, object? value) : this(name)
+    {
+        this.Value = value switch
+        {
+            string s => CheckStringValue(s),
+            byte b => b,
+            sbyte sb => sb,
+            short s => s,
+            ushort us => us,
+            int i => this.Value = i,
+            uint ui => this.Value = ui,
+            long l => this.Value = l,
+            ulong ul => this.Value = ul,
+            double d => this.Value = d,
+            float f => this.Value = f,
+            decimal dec => this.Value = dec,
+            null => null,
+            _ => throw new ArgumentException("Invalid value type.", nameof(value))
+        };
+    }
+
+    private static string CheckStringValue(string value)
+    {
+        return value.Length > 100
+            ? throw new ArgumentException("Application command choice value cannot exceed 100 characters.", nameof(value))
+            : value;
     }
 }

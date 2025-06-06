@@ -6,10 +6,10 @@ namespace DSharpPlus.Commands.Processors.SlashCommands.Localization;
 
 public static class LocalesHelper
 {
-    public static readonly FrozenDictionary<string, DiscordLocale> EnglishToLocale;
-    public static readonly FrozenDictionary<string, DiscordLocale> NativeToLocale;
-    public static readonly FrozenDictionary<DiscordLocale, string> LocaleToEnglish;
-    public static readonly FrozenDictionary<DiscordLocale, string> LocaleToNative;
+    public static IReadOnlyDictionary<string, DiscordLocale> EnglishToLocale { get; }
+    public static IReadOnlyDictionary<string, DiscordLocale> NativeToLocale { get; }
+    public static IReadOnlyDictionary<DiscordLocale, string> LocaleToEnglish { get; }
+    public static IReadOnlyDictionary<DiscordLocale, string> LocaleToNative { get; }
 
     static LocalesHelper()
     {
@@ -45,7 +45,7 @@ public static class LocalesHelper
             ["Chinese, China"] = DiscordLocale.zh_CN,
             ["Japanese"] = DiscordLocale.ja,
             ["Chinese"] = DiscordLocale.zh_TW,
-            ["Korean"] = DiscordLocale.ko
+            ["Korean"] = DiscordLocale.ko,
         };
 
         Dictionary<string, DiscordLocale> nativeToLocale = new()
@@ -80,7 +80,7 @@ public static class LocalesHelper
             ["中文"] = DiscordLocale.zh_CN,
             ["日本語"] = DiscordLocale.ja,
             ["繁體中文"] = DiscordLocale.zh_TW,
-            ["한국어"] = DiscordLocale.ko
+            ["한국어"] = DiscordLocale.ko,
         };
 
         Dictionary<DiscordLocale, string> localeToEnglish = englishToLocale.ToDictionary(x => x.Value, x => x.Key);

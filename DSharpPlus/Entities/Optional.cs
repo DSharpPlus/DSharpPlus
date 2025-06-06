@@ -39,8 +39,8 @@ public static class Optional
 // used internally to make serialization more convenient, do NOT change this, do NOT implement this yourself
 public interface IOptional
 {
-    bool HasValue { get; }
-    object RawValue { get; } // must NOT throw InvalidOperationException
+    public bool HasValue { get; }
+    public object RawValue { get; } // must NOT throw InvalidOperationException
 }
 
 /// <summary>

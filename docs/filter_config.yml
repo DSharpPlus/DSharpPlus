@@ -13,3 +13,5 @@ apiRules:
     uidRegex: ^DSharpPlus\.VoiceNext\.Codec.*$
 - exclude:
     uidRegex: ^DSharpPlus\.Tools.*$
+- exclude:
+    uidRegex: ^DSharpPlus\.Analyzers.*$

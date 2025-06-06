@@ -13,7 +13,7 @@ public sealed class RequireBotPermissionsAttribute : CheckBaseAttribute
     /// <summary>
     /// Gets the permissions required by this attribute.
     /// </summary>
-    public DiscordPermissions Permissions { get; }
+    public DiscordPermission[] Permissions { get; }
 
     /// <summary>
     /// Gets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.
@@ -25,7 +25,7 @@ public sealed class RequireBotPermissionsAttribute : CheckBaseAttribute
     /// </summary>
     /// <param name="permissions">Permissions required to execute this command.</param>
     /// <param name="ignoreDms">Sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.</param>
-    public RequireBotPermissionsAttribute(DiscordPermissions permissions, bool ignoreDms = true)
+    public RequireBotPermissionsAttribute(bool ignoreDms = true, params DiscordPermission[] permissions)
     {
         this.Permissions = permissions;
         this.IgnoreDms = ignoreDms;
@@ -38,7 +38,7 @@ public sealed class RequireBotPermissionsAttribute : CheckBaseAttribute
             return this.IgnoreDms;
         }
 
-        DSharpPlus.Entities.DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
+        DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
         if (bot == null)
         {
             return false;
@@ -51,6 +51,6 @@ public sealed class RequireBotPermissionsAttribute : CheckBaseAttribute
 
         DiscordPermissions pbot = ctx.Channel.PermissionsFor(bot);
 
-        return (pbot & DiscordPermissions.Administrator) != 0 || (pbot & this.Permissions) == this.Permissions;
+        return pbot.HasAllPermissions([..this.Permissions]);
     }
 }

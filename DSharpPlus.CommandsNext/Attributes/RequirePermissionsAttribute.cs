@@ -13,7 +13,7 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
     /// <summary>
     /// Gets the permissions required by this attribute.
     /// </summary>
-    public DiscordPermissions Permissions { get; }
+    public DiscordPermission[] Permissions { get; }
 
     /// <summary>
     /// Gets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.
@@ -25,7 +25,7 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
     /// </summary>
     /// <param name="permissions">Permissions required to execute this command.</param>
     /// <param name="ignoreDms">Sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.</param>
-    public RequirePermissionsAttribute(DiscordPermissions permissions, bool ignoreDms = true)
+    public RequirePermissionsAttribute(bool ignoreDms = true, params DiscordPermission[] permissions)
     {
         this.Permissions = permissions;
         this.IgnoreDms = ignoreDms;
@@ -33,40 +33,40 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
 
     public override async Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
     {
-        if (ctx.Guild == null)
+        if (ctx.Guild is null)
         {
             return this.IgnoreDms;
         }
 
-        DSharpPlus.Entities.DiscordMember? usr = ctx.Member;
-        if (usr == null)
+        DiscordMember? user = ctx.Member;
+        if (user is null)
         {
             return false;
         }
 
-        DiscordPermissions pusr = ctx.Channel.PermissionsFor(usr);
+        DiscordPermissions userPermissions = ctx.Channel.PermissionsFor(user);
 
-        DSharpPlus.Entities.DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
-        if (bot == null)
+        DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
+        if (bot is null)
         {
             return false;
         }
 
-        DiscordPermissions pbot = ctx.Channel.PermissionsFor(bot);
+        DiscordPermissions botPermissions = ctx.Channel.PermissionsFor(bot);
 
-        bool usrok = ctx.Guild.OwnerId == usr.Id;
-        bool botok = ctx.Guild.OwnerId == bot.Id;
+        bool userIsOwner = ctx.Guild.OwnerId == user.Id;
+        bool botIsOwner = ctx.Guild.OwnerId == bot.Id;
 
-        if (!usrok)
+        if (!userIsOwner)
         {
-            usrok = (pusr & DiscordPermissions.Administrator) != 0 || (pusr & this.Permissions) == this.Permissions;
+            userIsOwner = userPermissions.HasAllPermissions([..this.Permissions]);
         }
 
-        if (!botok)
+        if (!botIsOwner)
         {
-            botok = (pbot & DiscordPermissions.Administrator) != 0 || (pbot & this.Permissions) == this.Permissions;
+            botIsOwner = botPermissions.HasAllPermissions([..this.Permissions]);
         }
 
-        return usrok && botok;
+        return userIsOwner && botIsOwner;
     }
 }

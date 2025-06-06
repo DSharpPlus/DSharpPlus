@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DSharpPlus.Net;
 
@@ -18,7 +20,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// </summary>
     public string? Content
     {
-        get => this.content;
+        get;
         set
         {
             if (value != null && value.Length > 2000)
@@ -26,10 +28,9 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
                 throw new ArgumentException("Content length cannot exceed 2000 characters.", nameof(value));
             }
 
-            this.content = value;
+            SetIfV2Disabled(ref field, value, nameof(Content));
         }
     }
-    internal string? content;
 
     public DiscordMessageFlags Flags { get; internal set; }
 
@@ -39,12 +40,49 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         return (T)this;
     }
 
+    /// <summary>
+    /// Enables support for V2 components; messages with the V2 flag cannot be downgraded.
+    /// </summary>
+    /// <returns>The builder to chain calls with.</returns>
+    public T EnableV2Components()
+    {
+        bool isAnyContentSet = this.Content is not null || this.Embeds is not [];
+
+        if (isAnyContentSet)
+        {
+            throw new InvalidOperationException("Content and embeds are not supported with Components V2. Please call .Clear first.");
+        }
+        
+        this.Flags |= DiscordMessageFlags.IsComponentsV2;
+        return (T)this;
+    }
+    
+    /// <summary>
+    /// Disables V2 components IF this builder does not currently contain illegal components.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The builder contains V2 components and cannot be downgraded.</exception>
+    /// <remarks>This method only disables the V2 components flag; the message originally associated with this builder cannot be downgraded, and this method only exists for convenience.</remarks>
+    public T DisableV2Components()
+    {
+        if (this.components.Any(c => c is not DiscordActionRowComponent))
+        {
+            throw new InvalidOperationException
+            (
+                "This builder cannot contain V2 components when disabling V2 component support. Call ClearComponents() first."
+            );
+        }
+
+        this.Flags &= ~DiscordMessageFlags.IsComponentsV2;
+        
+        return (T)this;
+    }
+
     public bool IsTTS { get; set; }
 
     /// <summary>
     /// Gets or sets a poll for this message.
     /// </summary>
-    public DiscordPollBuilder? Poll { get; set; }
+    public DiscordPollBuilder? Poll { get; set => SetIfV2Disabled(ref field, value, nameof(Poll)); }
 
     /// <summary>
     /// Embeds to send on this webhook request.
@@ -65,10 +103,16 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     internal List<IMention> mentions = [];
 
     /// <summary>
-    /// Components to send on this followup message.
+    /// Components to send on this message.
     /// </summary>
-    public IReadOnlyList<DiscordActionRowComponent> Components => this.components;
-    internal List<DiscordActionRowComponent> components = [];
+    public IReadOnlyList<DiscordComponent> Components => this.components;
+    internal List<DiscordComponent> components = [];
+    
+    /// <summary>
+    /// Components, filtered for only action rows.
+    /// </summary>
+    public IReadOnlyList<DiscordActionRowComponent>? ComponentActionRows
+        => this.Components?.Where(x => x is DiscordActionRowComponent).Cast<DiscordActionRowComponent>().ToList();
 
     /// <summary>
     /// Thou shalt NOT PASS! ⚡
@@ -83,13 +127,14 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <param name="builder">The builder to copy.</param>
     protected BaseDiscordMessageBuilder(IDiscordMessageBuilder builder)
     {
-        this.content = builder.Content;
+        this.Content = builder.Content;
         this.mentions.AddRange([.. builder.Mentions]);
         this.embeds.AddRange(builder.Embeds);
         this.components.AddRange(builder.Components);
         this.files.AddRange(builder.Files);
         this.IsTTS = builder.IsTTS;
         this.Poll = builder.Poll;
+        this.Flags = builder.Flags;
     }
 
     /// <summary>
@@ -99,64 +144,214 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <returns>The current builder to be chained.</returns>
     public T WithContent(string content)
     {
+        ThrowIfV2Enabled();
         this.Content = content;
         return (T)this;
     }
 
-    /// <summary>
-    /// Adds a row of components to a message, up to 5 components per row, and up to 5 rows per message.
-    /// </summary>
-    /// <param name="components">The components to add to the message.</param>
-    /// <returns>The current builder to be chained.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
-    public T AddComponents(params DiscordComponent[] components)
-        => AddComponents((IEnumerable<DiscordComponent>)components);
-
-    /// <summary>
-    /// Appends several rows of components to the message
-    /// </summary>
-    /// <param name="components">The rows of components to add, holding up to five each.</param>
-    /// <returns></returns>
-    public T AddComponents(IEnumerable<DiscordActionRowComponent> components)
+    public T AddActionRowComponent
+    (
+        DiscordActionRowComponent component
+    )
     {
-        int count = components.TryGetNonEnumeratedCount(out int nonEnumerated) ? nonEnumerated : components.Count();
-
-        if (count + this.components.Count > 5)
-        {
-            throw new ArgumentOutOfRangeException(nameof(components), "The amount of action rows provided exceeds the maximum of five.");
-        }
-
-        foreach (DiscordActionRowComponent? ar in components)
-        {
-            this.components.Add(ar);
-        }
+        EnsureSufficientSpaceForComponent(component);
+        this.components.Add(component);
 
         return (T)this;
     }
 
     /// <summary>
-    /// Adds a row of components to a message, up to 5 components per row, and up to 5 rows per message.
+    /// Adds a new action row with the given component.
     /// </summary>
-    /// <param name="components">The components to add to the message.</param>
-    /// <returns>The current builder to be chained.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
-    public T AddComponents(IEnumerable<DiscordComponent> components)
+    /// <param name="selectMenu">The select menu to add, if possible.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public T AddActionRowComponent
+    (
+        BaseDiscordSelectComponent selectMenu
+    )
     {
-        int count = components.TryGetNonEnumeratedCount(out int nonEnumerated) ? nonEnumerated : components.Count();
+        DiscordActionRowComponent component = new DiscordActionRowComponent([selectMenu]);
+        
+        EnsureSufficientSpaceForComponent(component);
+        
+        this.components.Add(component);
+        return (T)this;
+    }
 
-        if (count == 0)
+    /// <summary>
+    /// Adds buttons to the builder.
+    /// </summary>
+    /// <param name="buttons">The buttons to add to the message. They will automatically be chunked into separate action rows as necessary.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public T AddActionRowComponent
+    (
+        params IEnumerable<DiscordButtonComponent> buttons
+    )
+    {
+        IEnumerable<IEnumerable<DiscordButtonComponent>> components = buttons.Chunk(5);
+
+        foreach (IEnumerable<DiscordButtonComponent> component in components)
         {
-            throw new ArgumentOutOfRangeException(nameof(components), "You must provide at least one component");
+            DiscordActionRowComponent currentComponent = new(component);
+            
+            EnsureSufficientSpaceForComponent(currentComponent);
+            this.components.Add(currentComponent);
+        }
+        
+        return (T)this;
+    }
+
+    /// <summary>
+    /// Adds a media gallery to this builder.
+    /// </summary>
+    /// <param name="galleryItems">The items to add.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public T AddMediaGalleryComponent
+    (
+        params IEnumerable<DiscordMediaGalleryItem> galleryItems
+    )
+    {
+        int itemCount = galleryItems.TryGetNonEnumeratedCount(out int fastCount) ? fastCount : galleryItems.Count();
+
+        if (itemCount is 0)
+        {
+            throw new InvalidOperationException("At least one item must be added to the media gallery.");
         }
 
-        if (count > 5)
+        if (itemCount > 10)
         {
-            throw new ArgumentOutOfRangeException(nameof(components), "You cannot add more than 5 components per action row!");
+            throw new InvalidOperationException("At most 10 items can be added to the media gallery.");
         }
+        
+        DiscordMediaGalleryComponent component = new(galleryItems);
+        
+        EnsureSufficientSpaceForComponent(component);
+        this.components.Add(component);
+        
+        return (T)this;
+    }
 
-        DiscordActionRowComponent comp = new(components);
-        this.components.Add(comp);
+    /// <summary>
+    /// Adds a section component to the builder.
+    /// </summary>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public T AddSectionComponent
+    (
+        DiscordSectionComponent section
+    )
+    {
+        EnsureSufficientSpaceForComponent(section);
+        this.components.Add(section);
+        
+        return (T)this;
+    }
 
+    /// <summary>
+    /// Adds a text display to this builder.
+    /// </summary>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public T AddTextDisplayComponent
+    (
+        DiscordTextDisplayComponent component
+    )
+    {
+        EnsureSufficientSpaceForComponent(component);
+        this.components.Add(component);
+        
+        return (T)this;
+    }
+    
+    /// <summary>
+    /// Adds a text input to this builder.
+    /// </summary>
+    /// <param name="component">The component to add.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public T AddTextInputComponent
+    (
+        DiscordTextInputComponent component
+    )
+    {
+        var actionRow = new DiscordActionRowComponent([component]);
+        EnsureSufficientSpaceForComponent(actionRow);
+        this.components.Add(actionRow);
+        
+        return (T)this;
+    }
+
+    /// <summary>
+    /// Adds a text display to this builder.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public T AddTextDisplayComponent
+    (
+        string content
+    )
+    {
+        DiscordTextDisplayComponent component = new(content);
+        
+        EnsureSufficientSpaceForComponent(component);
+        this.components.Add(component);
+        
+        return (T)this;
+    }
+
+    /// <summary>
+    /// Adds a separator component to this builder.
+    /// </summary>
+    /// <param name="component">The component to add.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public T AddSeparatorComponent
+    (
+        DiscordSeparatorComponent component
+    )
+    {
+        EnsureSufficientSpaceForComponent(component);
+        this.components.Add(component);
+        
+        return (T)this;
+    }
+
+    /// <summary>
+    /// Adds a file component to this builder.
+    /// </summary>
+    /// <param name="component">The component to add.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public T AddFileComponent
+    (
+        DiscordFileComponent component
+    )
+    {
+        EnsureSufficientSpaceForComponent(component);
+        this.components.Add(component);
+        
+        return (T)this;
+    }
+
+    
+    /// <summary>
+    /// Adds a container component to this builder.
+    /// </summary>
+    /// <param name="component">The component to add.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public T AddContainerComponent
+    (
+        DiscordContainerComponent component
+    )
+    {
+        EnsureSufficientSpaceForComponent(component);
+        this.components.Add(component);
+        
         return (T)this;
     }
 
@@ -173,6 +368,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 
     public T WithPoll(DiscordPollBuilder poll)
     {
+        ThrowIfV2Enabled();
         this.Poll = poll;
         return (T)this;
     }
@@ -184,6 +380,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <returns>The current builder to be chained.</returns>
     public T AddEmbed(DiscordEmbed embed)
     {
+        ThrowIfV2Enabled();
         if (embed is null)
         {
             return (T)this; //Providing null embeds will produce a 400 response from Discord.//
@@ -200,6 +397,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <returns>The current builder to be chained.</returns>
     public T AddEmbeds(IEnumerable<DiscordEmbed> embeds)
     {
+        ThrowIfV2Enabled();
         this.embeds.AddRange(embeds);
         return (T)this;
     }
@@ -366,6 +564,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         this.mentions.Clear();
         this.files.Clear();
         this.components.Clear();
+        this.Flags = default;
     }
 
     /// <inheritdoc/>
@@ -448,12 +647,105 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 
         return newStream;
     }
+    
+    [StackTraceHidden]
+    [DebuggerStepThrough]
+    private void EnsureSufficientSpaceForComponent
+    (
+        DiscordComponent component
+    )
+    {
+        const int CV2_MAX_TOTAL_COMPONENTS = 40;
+        bool isCV2 = this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2);
+        int maxTopComponents = isCV2 ? CV2_MAX_TOTAL_COMPONENTS : 5;
+        int maxAllComponents = isCV2 ? CV2_MAX_TOTAL_COMPONENTS : 25;
+        
+        int allComponentCount = this.Components.Sum
+        (
+            c =>
+            {
+                return c switch
+                {
+                    DiscordActionRowComponent arc when isCV2 => 1 + arc.Components.Count,
+                    DiscordActionRowComponent arc => arc.Components.Count,
+                    DiscordSectionComponent section => 2 + section.Components.Count,
+                    DiscordContainerComponent container => 1 + container.Components.Sum
+                    (
+                      nc => nc switch
+                        {
+                            DiscordActionRowComponent narc => narc.Components.Count + 1,
+                            DiscordSectionComponent narc => narc.Components.Count + 2,
+                            _ => 1,
+                        }
+                    ),
+                   _ => 1
+                };
+            }
+        );
 
+        int requiredSpaceForComponent = component switch
+        {
+            DiscordActionRowComponent arc when isCV2 => arc.Components.Count + 1, // Action row + components
+            DiscordActionRowComponent arc => arc.Components.Count, // CV1 doesn't count the action row as a real component
+            DiscordSectionComponent section => section.Components.Count + 2, // Section + Accessory
+            DiscordContainerComponent container => container.Components.Sum
+            (
+                nc => nc switch
+                {
+                    DiscordActionRowComponent narc => narc.Components.Count + 1,
+                    DiscordSectionComponent narc => narc.Components.Count + 2,
+                    _ => 1,
+                }
+            ),
+            _ => 1,
+        };
+
+        if (this.Components.Count + 1 > maxTopComponents)
+        {
+            throw new InvalidOperationException($"Too many top-level components! Maximum allowed is {maxTopComponents}.");
+        }
+
+        if (allComponentCount + requiredSpaceForComponent > maxAllComponents)
+        {
+            throw new InvalidOperationException($"Too many components! Maximum allowed is {maxAllComponents}; {component.GetType().Name} requires {requiredSpaceForComponent} slots.");
+        }
+    }
+
+    private void SetIfV2Disabled<TField>(ref TField field, TField value, string fieldName)
+    {
+        if (this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2))
+        {
+            throw new ArgumentException("This field cannot be set when V2 components is enabled.", fieldName);
+        }
+
+        field = value;
+    }
+
+    [StackTraceHidden]
+    [DebuggerStepThrough]
+    private void ThrowIfV2Enabled([CallerMemberName] string caller = "")
+    {
+        if (this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2))
+        {
+            throw new InvalidOperationException($"{caller} cannot be called when V2 components is enabled.");
+        }
+    }
+    
+    IDiscordMessageBuilder IDiscordMessageBuilder.EnableV2Components() => this.EnableV2Components();
+    IDiscordMessageBuilder IDiscordMessageBuilder.DisableV2Components() => this.DisableV2Components();
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddActionRowComponent(DiscordActionRowComponent component) => this.AddActionRowComponent(component);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddActionRowComponent(DiscordSelectComponent selectMenu) => this.AddActionRowComponent(selectMenu);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddActionRowComponent(params IEnumerable<DiscordButtonComponent> buttons) => this.AddActionRowComponent(buttons);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddMediaGalleryComponent(params IEnumerable<DiscordMediaGalleryItem> galleryItems) => this.AddMediaGalleryComponent(galleryItems);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddSectionComponent(DiscordSectionComponent section) => this.AddSectionComponent(section);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddTextDisplayComponent(DiscordTextDisplayComponent component) => this.AddTextDisplayComponent(component);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddTextDisplayComponent(string content) => this.AddTextDisplayComponent(content);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddTextInputComponent(DiscordTextInputComponent component) => this.AddTextInputComponent(component);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddSeparatorComponent(DiscordSeparatorComponent component) => this.AddSeparatorComponent(component);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddFileComponent(DiscordFileComponent component) => this.AddFileComponent(component);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddContainerComponent(DiscordContainerComponent component) => this.AddContainerComponent(component);
     IDiscordMessageBuilder IDiscordMessageBuilder.SuppressNotifications() => SuppressNotifications();
     IDiscordMessageBuilder IDiscordMessageBuilder.WithContent(string content) => WithContent(content);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddComponents(params DiscordComponent[] components) => AddComponents(components);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddComponents(IEnumerable<DiscordComponent> components) => AddComponents(components);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddComponents(IEnumerable<DiscordActionRowComponent> components) => AddComponents(components);
     IDiscordMessageBuilder IDiscordMessageBuilder.WithTTS(bool isTTS) => WithTTS(isTTS);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddEmbed(DiscordEmbed embed) => AddEmbed(embed);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddEmbeds(IEnumerable<DiscordEmbed> embeds) => AddEmbeds(embeds);
@@ -514,88 +806,167 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <summary>
     /// Getter / setter for message content.
     /// </summary>
-    string? Content { get; set; }
+    public string? Content { get; set; }
 
     /// <summary>
     /// Whether this message will play as a text-to-speech message.
     /// </summary>
-    bool IsTTS { get; set; }
+    public bool IsTTS { get; set; }
 
     /// <summary>
     /// Gets or sets a poll for this message.
     /// </summary>
-    DiscordPollBuilder? Poll { get; set; }
+    public DiscordPollBuilder? Poll { get; set; }
 
     /// <summary>
     /// All embeds on this message.
     /// </summary>
-    IReadOnlyList<DiscordEmbed> Embeds { get; }
+    public IReadOnlyList<DiscordEmbed> Embeds { get; }
 
     /// <summary>
     /// All files on this message.
     /// </summary>
-    IReadOnlyList<DiscordMessageFile> Files { get; }
+    public IReadOnlyList<DiscordMessageFile> Files { get; }
 
     /// <summary>
     /// All components on this message.
     /// </summary>
-    IReadOnlyList<DiscordActionRowComponent> Components { get; }
+    public IReadOnlyList<DiscordComponent> Components { get; }
 
     /// <summary>
     /// All allowed mentions on this message.
     /// </summary>
-    IReadOnlyList<IMention> Mentions { get; }
+    public IReadOnlyList<IMention> Mentions { get; }
 
-    DiscordMessageFlags Flags { get; }
+    public DiscordMessageFlags Flags { get; }
 
     /// <summary>
     /// Adds content to this message
     /// </summary>
     /// <param name="content">Message content to use</param>
     /// <returns></returns>
-    IDiscordMessageBuilder WithContent(string content);
+    public IDiscordMessageBuilder WithContent(string content);
 
     /// <summary>
-    /// Adds components to this message. Each call should append to a new row.
+    /// Enables support for V2 components; messages with the V2 flag cannot be downgraded.
     /// </summary>
-    /// <param name="components">Components to add.</param>
-    /// <returns></returns>
-    IDiscordMessageBuilder AddComponents(params DiscordComponent[] components);
+    /// <returns>The builder to chain calls with.</returns>
+    public IDiscordMessageBuilder EnableV2Components();
 
     /// <summary>
-    /// Adds components to this message. Each call should append to a new row.
+    /// Disables V2 components IF this builder does not currently contain illegal components.
     /// </summary>
-    /// <param name="components">Components to add.</param>
-    /// <returns></returns>
-    IDiscordMessageBuilder AddComponents(IEnumerable<DiscordComponent> components);
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">The builder contains V2 components and cannot be downgraded.</exception>
+    /// <remarks>This method only disables the V2 components flag; the message originally associated with this builder cannot be downgraded, and this method only exists for convenience.</remarks>
+    public IDiscordMessageBuilder DisableV2Components();
 
     /// <summary>
-    /// Adds an action row component to this message.
+    /// Adds a raw action row.
     /// </summary>
-    /// <param name="components">Action row to add to this message. Should contain child components.</param>
-    /// <returns></returns>
-    IDiscordMessageBuilder AddComponents(IEnumerable<DiscordActionRowComponent> components);
+    /// <param name="component">The select menu to add, if possible.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public IDiscordMessageBuilder AddActionRowComponent(DiscordActionRowComponent component);
+
+    /// <summary>
+    /// Adds a new action row with the given component.
+    /// </summary>
+    /// <param name="selectMenu">The select menu to add, if possible.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public IDiscordMessageBuilder AddActionRowComponent(DiscordSelectComponent selectMenu);
+
+    /// <summary>
+    /// Adds buttons to the builder.
+    /// </summary>
+    /// <param name="buttons">The buttons to add to the message. They will automatically be chunked into separate action rows as necessary.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public IDiscordMessageBuilder AddActionRowComponent(params IEnumerable<DiscordButtonComponent> buttons);
+
+    /// <summary>
+    /// Adds a media gallery to this builder.
+    /// </summary>
+    /// <param name="galleryItems">The items to add.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public IDiscordMessageBuilder AddMediaGalleryComponent(params IEnumerable<DiscordMediaGalleryItem> galleryItems);
+
+    /// <summary>
+    /// Adds a section component to the builder.
+    /// </summary>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public IDiscordMessageBuilder AddSectionComponent(DiscordSectionComponent section);
+
+    /// <summary>
+    /// Adds a text display to this builder.
+    /// </summary>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public IDiscordMessageBuilder AddTextDisplayComponent(DiscordTextDisplayComponent component);
+
+    /// <summary>
+    /// Adds a text display to this builder.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public IDiscordMessageBuilder AddTextDisplayComponent(string content);
+    
+    /// <summary>
+    /// Adds a text input to this builder.
+    /// </summary>
+    /// <param name="component">The component to add.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public IDiscordMessageBuilder AddTextInputComponent(DiscordTextInputComponent component);
+
+    /// <summary>
+    /// Adds a separator component to this builder.
+    /// </summary>
+    /// <param name="component">The component to add.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public IDiscordMessageBuilder AddSeparatorComponent(DiscordSeparatorComponent component);
+
+    /// <summary>
+    /// Adds a file component to this builder.
+    /// </summary>
+    /// <param name="component">The component to add.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public IDiscordMessageBuilder AddFileComponent(DiscordFileComponent component);
+    
+    /// <summary>
+    /// Adds a container component to this builder.
+    /// </summary>
+    /// <param name="component">The component to add.</param>
+    /// <returns>The builder to chain calls with.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is insufficient slots to support the component.</exception>
+    public IDiscordMessageBuilder AddContainerComponent(DiscordContainerComponent component);
 
     /// <summary>
     /// Sets whether this message should play as a text-to-speech message.
     /// </summary>
     /// <param name="isTTS"></param>
     /// <returns></returns>
-    IDiscordMessageBuilder WithTTS(bool isTTS);
+    public IDiscordMessageBuilder WithTTS(bool isTTS);
 
     /// <summary>
     /// Adds an embed to this message.
     /// </summary>
     /// <param name="embed">Embed to add.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddEmbed(DiscordEmbed embed);
+    public IDiscordMessageBuilder AddEmbed(DiscordEmbed embed);
 
     /// <summary>
     /// Adds multiple embeds to this message.
     /// </summary>
     /// <param name="embeds">Collection of embeds to add.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddEmbeds(IEnumerable<DiscordEmbed> embeds);
+    public IDiscordMessageBuilder AddEmbeds(IEnumerable<DiscordEmbed> embeds);
 
     /// <summary>
     /// Attaches a file to this message.
@@ -604,7 +975,7 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <param name="stream">Stream containing said file's contents.</param>
     /// <param name="resetStream">Whether to reset the stream to position 0 after sending.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddFile(string fileName, Stream stream, bool resetStream = false);
+    public IDiscordMessageBuilder AddFile(string fileName, Stream stream, bool resetStream = false);
 
     /// <summary>
     /// Attaches a file to this message.
@@ -612,7 +983,7 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <param name="stream">FileStream pointing to the file to attach.</param>
     /// <param name="resetStream">Whether to reset the stream position to 0 after sending.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddFile(FileStream stream, bool resetStream = false);
+    public IDiscordMessageBuilder AddFile(FileStream stream, bool resetStream = false);
 
     /// <summary>
     /// Attaches multiple files to this message.
@@ -620,7 +991,7 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <param name="files">Dictionary of files to add, where <see cref="string"/> is a file name and <see cref="Stream"/> is a stream containing the file's contents.</param>
     /// <param name="resetStreams">Whether to reset all stream positions to 0 after sending.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddFiles(IDictionary<string, Stream> files, bool resetStreams = false);
+    public IDiscordMessageBuilder AddFiles(IDictionary<string, Stream> files, bool resetStreams = false);
 
     /// <summary>
     /// Attaches a file to this message.
@@ -629,7 +1000,7 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <param name="stream">Stream containing said file's contents.</param>
     /// <param name="fileOptions">Additional flags for the handling of the file stream.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddFile(string fileName, Stream stream, AddFileOptions fileOptions);
+    public IDiscordMessageBuilder AddFile(string fileName, Stream stream, AddFileOptions fileOptions);
 
     /// <summary>
     /// Attaches a file to this message.
@@ -637,7 +1008,7 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <param name="stream">FileStream pointing to the file to attach.</param>
     /// <param name="fileOptions">Additional flags for the handling of the file stream.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddFile(FileStream stream, AddFileOptions fileOptions);
+    public IDiscordMessageBuilder AddFile(FileStream stream, AddFileOptions fileOptions);
 
     /// <summary>
     /// Attaches multiple files to this message.
@@ -645,28 +1016,28 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// <param name="files">Dictionary of files to add, where <see cref="string"/> is a file name and <see cref="Stream"/> is a stream containing the file's contents.</param>
     /// <param name="fileOptions">Additional flags for the handling of the file streams.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddFiles(IDictionary<string, Stream> files, AddFileOptions fileOptions);
+    public IDiscordMessageBuilder AddFiles(IDictionary<string, Stream> files, AddFileOptions fileOptions);
 
     /// <summary>
     /// Attaches previously used files to this file stream.
     /// </summary>
     /// <param name="files">Previously attached files to reattach</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddFiles(IEnumerable<DiscordMessageFile> files);
+    public IDiscordMessageBuilder AddFiles(IEnumerable<DiscordMessageFile> files);
 
     /// <summary>
     /// Adds an allowed mention to this message.
     /// </summary>
     /// <param name="mention">Mention to allow in this message.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddMention(IMention mention);
+    public IDiscordMessageBuilder AddMention(IMention mention);
 
     /// <summary>
     /// Adds multiple allowed mentions to this message.
     /// </summary>
     /// <param name="mentions">Collection of mentions to allow in this message.</param>
     /// <returns></returns>
-    IDiscordMessageBuilder AddMentions(IEnumerable<IMention> mentions);
+    public IDiscordMessageBuilder AddMentions(IEnumerable<IMention> mentions);
 
     /// <summary>
     /// Applies <see cref="DiscordMessageFlags.SuppressNotifications"/> to the message.
@@ -676,17 +1047,17 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// As per <see cref="DiscordMessageFlags.SuppressNotifications"/>, this does not change the message's allowed mentions
     /// (controlled by <see cref="AddMentions"/>), but instead prevents a mention from triggering a push notification.
     /// </remarks>
-    IDiscordMessageBuilder SuppressNotifications();
+    public IDiscordMessageBuilder SuppressNotifications();
 
     /// <summary>
     /// Clears all components attached to this builder.
     /// </summary>
-    void ClearComponents();
+    public void ClearComponents();
 
     /// <summary>
     /// Clears this builder.
     /// </summary>
-    void Clear();
+    public void Clear();
 }
 
 /*

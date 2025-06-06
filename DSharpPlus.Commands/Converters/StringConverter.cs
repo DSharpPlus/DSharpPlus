@@ -1,56 +1,37 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.ArgumentModifiers;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.Commands.Converters;
 
 public class StringConverter : ISlashArgumentConverter<string>, ITextArgumentConverter<string>
 {
     public DiscordApplicationCommandOptionType ParameterType => DiscordApplicationCommandOptionType.String;
+    public ConverterInputType RequiresText => ConverterInputType.Always;
     public string ReadableName => "Text";
-    public bool RequiresText => true;
 
-    public Task<Optional<string>> ConvertAsync(TextConverterContext context, MessageCreatedEventArgs eventArgs)
+    public Task<Optional<string>> ConvertAsync(ConverterContext context)
     {
+        string argument = context.Argument?.ToString() ?? "";
         foreach (Attribute attribute in context.Parameter.Attributes)
         {
-            if (attribute is RemainingTextAttribute)
+            if (attribute is RemainingTextAttribute && context is TextConverterContext textConverterContext)
             {
-                return Task.FromResult(Optional.FromValue(context.RawArguments[context.CurrentArgumentIndex..].TrimStart()));
+                return Task.FromResult(Optional.FromValue(textConverterContext.RawArguments[textConverterContext.CurrentArgumentIndex..].TrimStart()));
             }
             else if (attribute is FromCodeAttribute codeAttribute)
             {
-                return TryGetCodeBlock(context.Argument, codeAttribute.CodeType, out string? code)
+                return TryGetCodeBlock(argument, codeAttribute.CodeType, out string? code)
                     ? Task.FromResult(Optional.FromValue(code))
                     : Task.FromResult(Optional.FromNoValue<string>());
             }
         }
 
-        return Task.FromResult(Optional.FromValue(context.Argument));
-    }
-
-    [SuppressMessage("Roslyn", "IDE0046", Justification = "Ternary rabbit hole.")]
-    public Task<Optional<string>> ConvertAsync(InteractionConverterContext context, InteractionCreatedEventArgs eventArgs)
-    {
-        string value = (string)context.Argument.Value;
-        if (context.Parameter.Attributes.FirstOrDefault(x => x is FromCodeAttribute) is not FromCodeAttribute codeAttribute)
-        {
-            return Task.FromResult(Optional.FromValue(context.As<InteractionConverterContext>().Argument.RawValue));
-        }
-        else if (TryGetCodeBlock(value, codeAttribute.CodeType, out string? code))
-        {
-            return Task.FromResult(Optional.FromValue(code));
-        }
-        else
-        {
-            return Task.FromResult(Optional.FromNoValue<string>());
-        }
+        return Task.FromResult(Optional.FromValue(argument));
     }
 
     private static bool TryGetCodeBlock(string input, CodeType expectedCodeType, [NotNullWhen(true)] out string? code)

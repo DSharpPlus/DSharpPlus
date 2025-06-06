@@ -3,6 +3,7 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.Converters;
@@ -21,17 +22,22 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.Commands.Processors.UserCommands;
 
-public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedEventArgs>
+public sealed class UserCommandProcessor : ICommandProcessor
 {
-    public IReadOnlyDictionary<Type, ConverterDelegate<InteractionCreatedEventArgs>> Converters => this.slashCommandProcessor?.ConverterDelegates ?? new Dictionary<Type, ConverterDelegate<InteractionCreatedEventArgs>>();
-    private CommandsExtension? extension;
-    private SlashCommandProcessor? slashCommandProcessor;
-
-    public IReadOnlyList<Command> Commands => this.commands;
-    private List<Command> commands = [];
-
     /// <inheritdoc />
     public Type ContextType => typeof(SlashCommandContext);
+
+    /// <inheritdoc />
+    public IReadOnlyDictionary<Type, IArgumentConverter> Converters => this.slashCommandProcessor is not null
+        ? Unsafe.As<IReadOnlyDictionary<Type, IArgumentConverter>>(this.slashCommandProcessor.Converters)
+        : FrozenDictionary<Type, IArgumentConverter>.Empty;
+
+    /// <inheritdoc />
+    public IReadOnlyList<Command> Commands => this.commands;
+    private readonly List<Command> commands = [];
+
+    private CommandsExtension? extension;
+    private SlashCommandProcessor? slashCommandProcessor;
 
     /// <inheritdoc />
     public async ValueTask ConfigureAsync(CommandsExtension extension)
@@ -44,35 +50,42 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
 
         IReadOnlyList<Command> commands = this.extension.GetCommandsForProcessor(this);
         IEnumerable<Command> flattenCommands = commands.SelectMany(x => x.Flatten());
-
         foreach (Command command in flattenCommands)
         {
-            // User commands must be explicitly defined as such, otherwise they are ignored.
-            if (!command.Attributes.Any(x => x is SlashCommandTypesAttribute slashCommandTypesAttribute && slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.UserContextMenu)))
+            // Message commands must be explicitly defined as such, otherwise they are ignored.
+            if (!command.Attributes.Any(x => x is SlashCommandTypesAttribute slashCommandTypesAttribute
+                && slashCommandTypesAttribute.ApplicationCommandTypes.Contains(DiscordApplicationCommandType.UserContextMenu)))
             {
                 continue;
             }
             // Ensure there are no subcommands.
             else if (command.Subcommands.Count != 0)
             {
-                logger.LogError("User command '{CommandName}' cannot have subcommands.", command.Name);
+                UserCommandLogging.userCommandCannotHaveSubcommands(logger, command.FullName, null);
                 continue;
             }
+            else if (!command.Method!.GetParameters()[0].ParameterType.IsAssignableFrom(typeof(UserCommandContext)))
+            {
+                UserCommandLogging.userCommandContextParameterType(logger, command.FullName, null);
+                continue;
+            }
+
             // Check to see if the method signature is valid.
-            else if (command.Parameters.Count < 1 || (command.Parameters[0].Type != typeof(DiscordUser) && command.Parameters[0].Type != typeof(DiscordMember)))
+            Type firstParameterType = IArgumentConverter.GetConverterFriendlyBaseType(command.Parameters[0].Type);
+            if (command.Parameters.Count < 1 || !firstParameterType.IsAssignableTo(typeof(DiscordUser)))
             {
-                logger.LogError("User command '{CommandName}' must have the signature (CommandContext, DiscordUser). Any additional parameter must have a default value.", command.Name);
+                UserCommandLogging.invalidParameterType(logger, command.FullName, null);
                 continue;
             }
-            else if (!command.Parameters.Skip(1).All(parameter => parameter.DefaultValue.HasValue))
+
+            // Iterate over all parameters and ensure they have default values.
+            for (int i = 1; i < command.Parameters.Count; i++)
             {
-                logger.LogError("User command '{CommandName}' must have the signature (CommandContext, DiscordUser). Any additional parameter must have a default value.", command.Name);
-                continue;
-            }
-            else if (!command.Method!.GetParameters()[0].ParameterType.IsAssignableFrom(typeof(SlashCommandContext)))
-            {
-                logger.LogError("User command '{CommandName}' has an incompatible CommandContext.", command.Name);
-                continue;
+                if (!command.Parameters[i].DefaultValue.HasValue)
+                {
+                    UserCommandLogging.invalidParameterMissingDefaultValue(logger, i, command.FullName, null);
+                    continue;
+                }
             }
 
             this.commands.Add(command);
@@ -94,8 +107,7 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
         }
 
         AsyncServiceScope scope = this.extension.ServiceProvider.CreateAsyncScope();
-
-        if (this.slashCommandProcessor.ApplicationCommandMapping == FrozenDictionary<ulong, Command>.Empty)
+        if (this.slashCommandProcessor.ApplicationCommandMapping.Count == 0)
         {
             ILogger<UserCommandProcessor> logger = this.extension.ServiceProvider.GetService<ILogger<UserCommandProcessor>>() ?? NullLogger<UserCommandProcessor>.Instance;
             logger.LogWarning("Received an interaction for a user command, but commands have not been registered yet. Ignoring interaction");
@@ -105,7 +117,7 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
         {
             await this.extension.commandErrored.InvokeAsync(this.extension, new CommandErroredEventArgs()
             {
-                Context = new SlashCommandContext()
+                Context = new UserCommandContext()
                 {
                     Arguments = new Dictionary<CommandParameter, object?>(),
                     Channel = eventArgs.Interaction.Channel,
@@ -114,7 +126,7 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
                     Interaction = eventArgs.Interaction,
                     Options = eventArgs.Interaction.Data.Options ?? [],
                     ServiceScope = scope,
-                    User = eventArgs.Interaction.User
+                    User = eventArgs.Interaction.User,
                 },
                 CommandObject = null,
                 Exception = new CommandNotFoundException(eventArgs.Interaction.Data.Name),
@@ -124,18 +136,20 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
             return;
         }
 
-        Dictionary<CommandParameter, object?> arguments = new()
-        {
-            { command.Parameters[0], eventArgs.TargetUser }
-        };
+        // The first parameter for MessageContextMenu commands is always the DiscordMessage.
+        Dictionary<CommandParameter, object?> arguments = new() { { command.Parameters[0], eventArgs.TargetUser } };
 
+        // Because methods can have multiple interaction invocation types,
+        // there has been a demand to be able to register methods with multiple
+        // parameters, even for MessageContextMenu commands.
+        // The condition is that all the parameters on the method must have default values.
         for (int i = 1; i < command.Parameters.Count; i++)
         {
             // We verify at startup that all parameters have default values.
             arguments.Add(command.Parameters[i], command.Parameters[i].DefaultValue.Value);
         }
 
-        SlashCommandContext commandContext = new()
+        UserCommandContext commandContext = new()
         {
             Arguments = arguments,
             Channel = eventArgs.Interaction.Channel,
@@ -144,7 +158,7 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
             Interaction = eventArgs.Interaction,
             Options = [],
             ServiceScope = scope,
-            User = eventArgs.Interaction.User
+            User = eventArgs.Interaction.User,
         };
 
         await this.extension.CommandExecutor.ExecuteAsync(commandContext);
@@ -152,19 +166,29 @@ public sealed class UserCommandProcessor : ICommandProcessor<InteractionCreatedE
 
     public async Task<DiscordApplicationCommand> ToApplicationCommandAsync(Command command)
     {
-        IReadOnlyDictionary<string, string> nameLocalizations = new Dictionary<string, string>();
-        if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
+        if (this.slashCommandProcessor is null)
         {
-            nameLocalizations = await this.slashCommandProcessor!.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
+            throw new InvalidOperationException("SlashCommandProcessor has not been configured.");
         }
 
-        return new(
+        IReadOnlyDictionary<string, string> nameLocalizations = FrozenDictionary<string, string>.Empty;
+        if (command.Attributes.OfType<InteractionLocalizerAttribute>().FirstOrDefault() is InteractionLocalizerAttribute localizerAttribute)
+        {
+            nameLocalizations = await this.slashCommandProcessor.ExecuteLocalizerAsync(localizerAttribute.LocalizerType, $"{command.FullName}.name");
+        }
+
+        DiscordPermissions? userPermissions = command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions;
+
+        return new
+        (
             name: command.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName ?? command.FullName,
             description: string.Empty,
             type: DiscordApplicationCommandType.UserContextMenu,
             name_localizations: nameLocalizations,
             allowDMUsage: command.Attributes.Any(x => x is AllowDMUsageAttribute),
-            defaultMemberPermissions: command.Attributes.OfType<RequirePermissionsAttribute>().FirstOrDefault()?.UserPermissions ?? DiscordPermissions.None,
+            defaultMemberPermissions: userPermissions is not null
+                ? userPermissions
+                : new DiscordPermissions(DiscordPermission.UseApplicationCommands),
             nsfw: command.Attributes.Any(x => x is RequireNsfwAttribute),
             contexts: command.Attributes.OfType<InteractionAllowedContextsAttribute>().FirstOrDefault()?.AllowedContexts,
             integrationTypes: command.Attributes.OfType<InteractionInstallTypeAttribute>().FirstOrDefault()?.InstallTypes

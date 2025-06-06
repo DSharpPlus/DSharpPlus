@@ -9,21 +9,22 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <Nullable>enable</Nullable>
     <OutputType>Library</OutputType>
-    <ProjectRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), "DSharpPlus.sln"))</ProjectRoot>
+    <ProjectRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), "DSharpPlus.slnx"))</ProjectRoot>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>$(NoWarn);DSP0001;DSP0002;DSP0005</NoWarn>
     <WarningsNotAsErrors>CS8597;CS8600;CS8601;CS8602;CS8603;CS8604;CS8605;CS8618;CS8619;CS8620;CS8625;CS8629;CS8633;CS8714;CS8764;CS8765;CS8767;NETSDK1188</WarningsNotAsErrors>
     <Version>5.0.0</Version>
     <Version Condition="'$(Nightly)' != ''">$(Version)-nightly-$(Nightly)</Version>
-    <Version Condition="'$(PR)' != ''">$(Version)-pr-$(PR)</Version>
+    <Version Condition="'$(PR)' != ''">$(Version)-pr.$(PR)</Version>
+    <Version Condition="'$(Alpha)' != ''">$(Version)-alpha.$(Alpha)</Version>
   </PropertyGroup>
 
   <!-- Nuget -->
   <PropertyGroup>
-    <Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, IDoEverything, Velvet, OoLunar, akiraveliara, DSharpPlus contributors</Authors>
-    <Company>DSharpPlus developers</Company>
+    <Authors>DSharpPlus</Authors>
+    <Company>DSharpPlus contributors</Company>
     <PackageIcon>dsharpplus.png</PackageIcon>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/DSharpPlus/DSharpPlus</PackageProjectUrl>
@@ -31,6 +32,8 @@
     <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp</PackageTags>
     <RepositoryType>Git</RepositoryType>
     <RepositoryUrl>https://github.com/DSharpPlus/DSharpPlus</RepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <!-- Resource Files -->

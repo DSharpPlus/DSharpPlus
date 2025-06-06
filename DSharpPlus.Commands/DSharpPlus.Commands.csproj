@@ -11,5 +11,6 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Logging" />
         <PackageReference Include="Ulid" />
+        <PackageReference Include="Raffinert.FuzzySharp" />
     </ItemGroup>
 </Project>

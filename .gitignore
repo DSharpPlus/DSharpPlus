@@ -492,3 +492,4 @@ $RECYCLE.BIN/
 docs/_site
 DSharpPlus.Test/config.json
 /DSharpPlus.HttpInteractions.AspNetCore/Properties/launchSettings.json
+/DSharpPlus.Http.AspNetCore/Properties/launchSettings.json

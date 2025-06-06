@@ -61,6 +61,12 @@ public sealed class DiscordScheduledGuildEvent : SnowflakeObject
     /// </summary>
     [JsonProperty("creator")]
     public DiscordUser? Creator { get; internal set; }
+    
+    /// <summary>
+    /// The id of the user that created this event.
+    /// </summary>
+    [JsonProperty("creator_id")]
+    public ulong? CreatorId { get; internal set; }
 
     /// <summary>
     /// The privacy of this event.

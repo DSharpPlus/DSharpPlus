@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 
 using CommunityToolkit.HighPerformance.Buffers;
 
-using DSharpPlus.Net.WebSocket;
+using DSharpPlus.Logging;
+using DSharpPlus.Net.Gateway.Compression;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace DSharpPlus.Net.Gateway;
 
@@ -20,18 +22,27 @@ internal sealed class TransportService : ITransportService
     private ClientWebSocket socket;
     private readonly ArrayPoolBufferWriter<byte> writer;
     private readonly ArrayPoolBufferWriter<byte> decompressedWriter;
-    private readonly PayloadDecompressor decompressor;
+    private readonly IPayloadDecompressor decompressor;
     private readonly ILoggerFactory factory;
+
+    private readonly bool streamingDeserialization;
 
     private bool isConnected = false;
     private bool isDisposed = false;
 
-    public TransportService(ILoggerFactory factory, PayloadDecompressor decompressor)
+    public TransportService
+    (
+        ILoggerFactory factory,
+        IPayloadDecompressor decompressor,
+        IOptions<GatewayClientOptions> options
+    )
     {
         this.factory = factory;
         this.writer = new();
         this.decompressedWriter = new();
         this.decompressor = decompressor;
+
+        this.streamingDeserialization = options.Value.EnableStreamingDeserialization;
 
         this.logger = factory.CreateLogger("DSharpPlus.Net.Gateway.ITransportService - invalid shard");
     }
@@ -44,6 +55,7 @@ internal sealed class TransportService : ITransportService
             : this.factory.CreateLogger($"DSharpPlus.Net.Gateway.ITransportService - Shard {shardId}");
 
         this.socket = new();
+        this.decompressor.Initialize();
 
         ObjectDisposedException.ThrowIf(this.isDisposed, this);
 
@@ -55,10 +67,10 @@ internal sealed class TransportService : ITransportService
 
         this.logger.LogTrace("Connecting to the Discord gateway.");
 
-        await this.socket.ConnectAsync(new($"{url}?v=10&encoding=json"), CancellationToken.None);
+        await this.socket.ConnectAsync(new(url), CancellationToken.None);
         this.isConnected = true;
 
-        this.logger.LogTrace("Connected to the Discord websocket.");
+        this.logger.LogDebug("Connected to the Discord websocket, using {compression} compression.", this.decompressor.Name);
     }
 
     /// <inheritdoc/>
@@ -114,6 +126,7 @@ internal sealed class TransportService : ITransportService
                 break;
         }
 
+        this.decompressor.Reset();
         this.socket.Dispose();
     }
 
@@ -153,17 +166,42 @@ internal sealed class TransportService : ITransportService
             throw new InvalidDataException("Failed to decompress a gateway payload.");
         }
 
-        string result = Encoding.UTF8.GetString(this.decompressedWriter.WrittenSpan);
+        if (this.logger.IsEnabled(LogLevel.Trace) && RuntimeFeatures.EnableInboundGatewayLogging)
+        {
+            string result = Encoding.UTF8.GetString(this.decompressedWriter.WrittenSpan);
 
-        this.logger.LogTrace
-        (
-            "Length for the last inbound gateway event: {length}",
-            this.writer.WrittenCount != 0 ? this.writer.WrittenCount : $"closed: {(int)this.socket.CloseStatus!}"
-        );
+            this.logger.LogTrace
+            (
+                "Length for the last inbound gateway event: {length}",
+                this.writer.WrittenCount != 0 ? this.writer.WrittenCount : $"closed: {(int)this.socket.CloseStatus!}"
+            );
 
-        this.logger.LogTrace("Payload for the last inbound gateway event:\n{event}", result);
+            string anonymized = result;
 
-        return this.writer.WrittenCount == 0 ? new((int)this.socket.CloseStatus!) : new(result);
+            if (RuntimeFeatures.AnonymizeTokens)
+            {
+                anonymized = AnonymizationUtilities.AnonymizeTokens(anonymized);
+            }
+
+            if (RuntimeFeatures.AnonymizeContents)
+            {
+                anonymized = AnonymizationUtilities.AnonymizeContents(anonymized);
+            }
+
+            this.logger.LogTrace("Payload for the last inbound gateway event: {event}", anonymized);
+
+            return this.writer.WrittenCount == 0 ? new((int)this.socket.CloseStatus!) : new(result);
+        }
+        else if (this.streamingDeserialization)
+        {
+            MemoryStream result = new(this.decompressedWriter.WrittenSpan.ToArray());
+            return this.writer.WrittenCount == 0 ? new((int)this.socket.CloseStatus!) : new(result);
+        }
+        else
+        {
+            string result = Encoding.UTF8.GetString(this.decompressedWriter.WrittenSpan);
+            return this.writer.WrittenCount == 0 ? new((int)this.socket.CloseStatus!) : new(result);
+        }
     }
 
     /// <inheritdoc/>
@@ -171,20 +209,36 @@ internal sealed class TransportService : ITransportService
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(payload.Length, 4096, nameof(payload));
 
-#if DEBUG
-        this.logger.LogTrace
-        (
-            "Sending outbound gateway event:\n{event}",
-            Encoding.UTF8.GetString(payload)
-        );
-#endif
-        await this.socket.SendAsync
-        (
-            buffer: payload,
-            messageType: WebSocketMessageType.Text,
-            endOfMessage: true,
-            cancellationToken: CancellationToken.None
-        );
+        if (this.logger.IsEnabled(LogLevel.Trace) && RuntimeFeatures.EnableOutboundGatewayLogging)
+        {
+
+            this.logger.LogTrace("Length for the last outbound outbound event: {length}", payload.Length);
+
+            string anonymized = Encoding.UTF8.GetString(payload);
+
+            if (RuntimeFeatures.AnonymizeTokens)
+            {
+                anonymized = AnonymizationUtilities.AnonymizeTokens(anonymized);
+            }
+
+            if (RuntimeFeatures.AnonymizeContents)
+            {
+                anonymized = AnonymizationUtilities.AnonymizeContents(anonymized);
+            }
+
+            this.logger.LogTrace("Payload for the last outbound gateway event: {event}", anonymized);
+        }
+
+        if (!this.isDisposed)
+        {
+            await this.socket.SendAsync
+            (
+                buffer: payload,
+                messageType: WebSocketMessageType.Text,
+                endOfMessage: true,
+                cancellationToken: CancellationToken.None
+            );
+        }
     }
 
     /// <inheritdoc/>

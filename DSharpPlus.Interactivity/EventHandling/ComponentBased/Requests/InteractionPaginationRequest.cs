@@ -171,7 +171,7 @@ internal class InteractionPaginationRequest : IPaginationRequest
                 DiscordWebhookBuilder builder = new DiscordWebhookBuilder()
                     .WithContent(this.pages[this.index].Content)
                     .AddEmbed(this.pages[this.index].Embed)
-                    .AddComponents(buttons);
+                    .AddActionRowComponent(buttons);
 
                 await this.lastInteraction.EditOriginalResponseAsync(builder);
                 break;

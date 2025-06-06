@@ -182,7 +182,7 @@ internal class RestChannelMessageEditPayload
     public DiscordMentions? Mentions { get; set; }
 
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyList<DiscordActionRowComponent>? Components { get; set; }
+    public IReadOnlyList<DiscordComponent>? Components { get; set; }
 
     [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordMessageFlags? Flags { get; set; }
@@ -281,7 +281,7 @@ internal sealed class RestChannelPermissionEditPayload
     public DiscordPermissions Deny { get; set; }
 
     [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-    public string Type { get; set; }
+    public int Type { get; set; }
 }
 
 internal sealed class RestChannelGroupDmRecipientAddPayload : IOAuth2Payload

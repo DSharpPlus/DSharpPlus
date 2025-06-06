@@ -168,7 +168,7 @@ Then, add an `if` statement into the body of your event lambda that will check i
 ```cs
 builder.ConfigureEventHandlers
 (
-    b => b.HandleMessageCreated(async s, e) => 
+    b => b.HandleMessageCreated(async (s, e) => 
     {
         if (e.Message.Content.ToLower().StartsWith("ping"))
         {

@@ -20,6 +20,12 @@ public interface IGatewayController
     public Task HeartbeatedAsync(IGatewayClient client);
 
     /// <summary>
+    /// Called when DSharpPlus attempts to resume a gateway session.
+    /// </summary>
+    /// <param name="client">The gateway client attempting to resume a session.</param>
+    public Task ResumeAttemptedAsync(IGatewayClient client);
+
+    /// <summary>
     /// Called when Discord requests a reconnect. This does not imply that DSharpPlus' reconnection attempt failed.
     /// </summary>
     /// <param name="client">The gateway client reconnection was requested from.</param>

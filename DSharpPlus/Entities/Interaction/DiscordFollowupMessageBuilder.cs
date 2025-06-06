@@ -11,10 +11,21 @@ public sealed class DiscordFollowupMessageBuilder : BaseDiscordMessageBuilder<Di
     /// <summary>
     /// Whether this followup message should be ephemeral.
     /// </summary>
-    public bool IsEphemeral { get; set; }
-
-    internal int? flags
-        => this.IsEphemeral ? (int?)(this.Flags | DiscordMessageFlags.Ephemeral) : null;
+    public bool IsEphemeral
+    {
+        get => this.Flags.HasFlag(DiscordMessageFlags.Ephemeral);
+        set
+        {
+            if (value)
+            {
+                this.Flags |= DiscordMessageFlags.Ephemeral;
+            }
+            else
+            {
+                this.Flags &= ~DiscordMessageFlags.Ephemeral;
+            }
+        }
+    }
 
     /// <summary>
     /// Constructs a new followup message builder
@@ -52,7 +63,7 @@ public sealed class DiscordFollowupMessageBuilder : BaseDiscordMessageBuilder<Di
 
     internal void Validate()
     {
-        if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && !this.Embeds.Any())
+        if (!this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) && this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && !this.Embeds.Any())
         {
             throw new ArgumentException("You must specify content, an embed, or at least one file.");
         }
