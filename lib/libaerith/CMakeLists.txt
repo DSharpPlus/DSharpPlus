@@ -13,6 +13,8 @@ include_directories(INTERFACE_SYSTEM_INCLUDE_DIRECTORIES)
 set(
     SOURCES
     session_bindings.cpp
+    vector_wrapper.h
+    vector_wrapper.cpp
 )
 
 add_library(libaerith SHARED ${SOURCES})

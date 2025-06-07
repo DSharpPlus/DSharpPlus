@@ -5,6 +5,8 @@
 #include<dave/mls/persisted_key_pair.h>
 #include<dave/mls/session.h>
 
+#include "vector_wrapper.h"
+
 using namespace discord::dave;
 using namespace discord::dave::mls;
 
@@ -58,32 +60,19 @@ extern "C" __declspec(__dllexport__) void AerithInitSession
     Session* __restrict__ session,
     uint64_t groupId,
     const char* currentUserId,
-    size_t currentUserLength,
     std::shared_ptr<SignaturePrivateKey>* privateTransientKey
 )
 {
-    std::string currentUser(currentUserId, currentUserLength);
+    std::string currentUser(currentUserId, 20);
 
     session->Init(1, groupId, currentUser, *privateTransientKey);
 }
 
 // gets the amount of bytes needed to store the last epoch's authenticator.
-extern "C" __declspec(__dllexport__) int32_t AerithGetLastEpochAuthenticatorSize(Session* __restrict__ session)
+extern "C" __declspec(__dllexport__) VectorWrapper* AerithGetLastEpochAuthenticator(Session* __restrict__ session)
 {
     std::vector<uint8_t> authenticator = session->GetLastEpochAuthenticator();
-    return authenticator.size();
-}
-
-// gets the last epoch's authenticator and copies it to C#-provided memory
-extern "C" __declspec(__dllexport__) void AerithGetLastEpochAuthenticator
-(
-    Session* __restrict__ session,
-    uint8_t* buffer
-)
-{
-    std::vector<uint8_t> authenticator = session->GetLastEpochAuthenticator();
-    uint8_t* raw = &authenticator[0];
-    memcpy(buffer, raw, authenticator.size());
+    return new VectorWrapper(authenticator);
 }
 
 // sets the voice gateway external sender
@@ -96,6 +85,38 @@ extern "C" __declspec(__dllexport__) void AerithSetExternalSender
 {
     std::vector<uint8_t> externalSender(externalSenderPackage, externalSenderPackage + externalSenderLength);
     session->SetExternalSender(externalSender);
+}
+
+// processes proposals and returns an acknowledgement in a wrapped vector.
+extern "C" __declspec(__dllexport__) VectorWrapper* AerithProcessProposals
+(
+    Session* __restrict__ session,
+    const uint8_t* proposalsData,
+    size_t proposalsLength,
+    const char** recognizedUserIds,
+    int32_t recognizedUserCount
+)
+{
+    std::set<std::string> userIds {};
+
+    for (int i = 0; i < recognizedUserCount; ++i)
+    {
+        std::string id(recognizedUserIds[i], 20);
+        userIds.insert(id);
+    }
+
+    std::vector<uint8_t> proposals(proposalsData, proposalsData + proposalsLength);
+
+    std::optional<std::vector<uint8_t>> result = session->ProcessProposals(proposals, userIds);
+    
+    if (result.has_value())
+    {
+        return new VectorWrapper(result.value());
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 
 // resets the current session. it must be re-initialized before further use.

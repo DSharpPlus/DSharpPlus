@@ -29,19 +29,11 @@ partial class AerithInterop
             AerithSession* session,
             ulong groupId,
             byte* currentUserId,
-            nuint currentUserLength,
             AerithSignaturePrivateKey* privateKey
         );
 
         [LibraryImport("aerith")]
-        public static partial int AerithGetLastEpochAuthenticatorSize(AerithSession* session);
-
-        [LibraryImport("aerith")]
-        public static partial void AerithGetLastEpochAuthenticator
-        (
-            AerithSession* session,
-            byte* buffer
-        );
+        public static partial VectorWrapper* AerithGetLastEpochAuthenticator(AerithSession* session);
 
         [LibraryImport("aerith")]
         public static partial void AerithSetExternalSender
@@ -52,9 +44,30 @@ partial class AerithInterop
         );
 
         [LibraryImport("aerith")]
+        public static partial VectorWrapper* AerithProcessProposals
+        (
+            AerithSession* session,
+            byte* proposalsData,
+            nuint proposalsLength,
+            byte** recognizedUserIds,
+            int recognizedUserIdCount
+        );
+
+        [LibraryImport("aerith")]
         public static partial void AerithResetSession(AerithSession* session);
 
         [LibraryImport("aerith")]
         public static partial void* AerithDestroySession(AerithSession* session);
+
+        // vector_wrapper.h
+
+        [LibraryImport("aerith")]
+        public static partial int AerithGetWrappedVectorSize(VectorWrapper* wrapper);
+
+        [LibraryImport("aerith")]
+        public static partial void AerithGetWrappedVectorData(VectorWrapper* wrapper, byte* buffer);
+
+        [LibraryImport("aerith")]
+        public static partial void AerithDestroyVectorWrapper(VectorWrapper* wrapper);
     }
 }
