@@ -5,6 +5,7 @@
 #include<dave/mls/persisted_key_pair.h>
 #include<dave/mls/session.h>
 
+#include "roster_wrapper.h"
 #include "vector_wrapper.h"
 
 using namespace discord::dave;
@@ -112,6 +113,67 @@ extern "C" __declspec(__dllexport__) VectorWrapper* AerithProcessProposals
     if (result.has_value())
     {
         return new VectorWrapper(result.value());
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+// processes a commit and returns the user diff caused by this commit.
+extern "C" __declspec(__dllexport__) RosterWrapper* AerithProcessCommit
+(
+    Session* __restrict__ session,
+    const uint8_t* commitData,
+    size_t commitLength,
+    int32_t* failureCode
+)
+{
+    std::vector<uint8_t> commit(commitData, commitData + commitLength);
+    RosterVariant result = session->ProcessCommit(commit);
+
+    if (std::holds_alternative<failed_t>(result))
+    {
+        *failureCode = 1;
+        return nullptr;
+    }
+    else if (std::holds_alternative<ignored_t>(result))
+    {
+        *failureCode = 2;
+        return nullptr;
+    }
+    else if (std::holds_alternative<RosterMap>(result))
+    {
+        *failureCode = 0;
+        return new RosterWrapper(std::get<RosterMap>(result));
+    }
+}
+
+// processes a welcome message and returns the initial users in the group.
+extern "C" __declspec(__dllexport__) RosterWrapper* AerithProcessWelcome
+(
+    Session* __restrict__ session,
+    const uint8_t* welcomeData,
+    size_t welcomeLength,
+    const char** recognizedUserIds,
+    int32_t recognizedUserCount
+)
+{
+    std::set<std::string> userIds {};
+
+    for (int i = 0; i < recognizedUserCount; ++i)
+    {
+        std::string id(recognizedUserIds[i], 20);
+        userIds.insert(id);
+    }
+
+    std::vector<uint8_t> welcome(welcomeData, welcomeData + welcomeLength);
+
+    std::optional<RosterMap> result = session->ProcessWelcome(welcome, userIds);
+
+    if (result.has_value())
+    {
+        return new RosterWrapper(result.value());
     }
     else
     {
