@@ -13,7 +13,6 @@ include_directories(INTERFACE_SYSTEM_INCLUDE_DIRECTORIES)
 set(
     SOURCES
     session_bindings.cpp
-    credential_bindings.cpp
 )
 
 add_library(libaerith SHARED ${SOURCES})

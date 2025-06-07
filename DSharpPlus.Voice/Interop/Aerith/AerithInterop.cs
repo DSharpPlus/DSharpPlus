@@ -1,10 +1,17 @@
 using System;
 using System.Buffers.Binary;
+using System.Runtime.InteropServices;
 
 namespace DSharpPlus.Voice.Interop.Aerith;
 
 internal static unsafe partial class AerithInterop
 {
+    [UnmanagedCallersOnly]
+    public static void HandleNativeMlsError(byte* site, byte* reason)
+    {
+
+    }
+
     /// <summary>
     /// Creates a basic user credential from the user's snowflake ID.
     /// </summary>
