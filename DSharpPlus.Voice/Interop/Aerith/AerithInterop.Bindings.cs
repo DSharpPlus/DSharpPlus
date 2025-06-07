@@ -54,6 +54,9 @@ partial class AerithInterop
         );
 
         [LibraryImport("aerith")]
+        public static partial VectorWrapper* AerithGetMarshalledKeyPackage(AerithSession* session);
+
+        [LibraryImport("aerith")]
         public static partial void AerithResetSession(AerithSession* session);
 
         [LibraryImport("aerith")]

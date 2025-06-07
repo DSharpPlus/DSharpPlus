@@ -119,6 +119,13 @@ extern "C" __declspec(__dllexport__) VectorWrapper* AerithProcessProposals
     }
 }
 
+// gets the marshalled key package for the current session
+extern "C" __declspec(__dllexport__) VectorWrapper* AerithGetMarshalledKeyPackage(Session* session)
+{
+    std::vector<uint8_t> keyPackage = session->GetMarshalledKeyPackage();
+    return new VectorWrapper(keyPackage);
+}
+
 // resets the current session. it must be re-initialized before further use.
 extern "C" __declspec(__dllexport__) void AerithResetSession(Session* session)
 {
