@@ -1,6 +1,8 @@
 #pragma once
 
 #include<cstdint>
+#include<cstdlib>
+#include<cstring>
 
 #include<dave/common.h>
 
@@ -12,22 +14,71 @@ using namespace discord::dave;
 struct RosterWrapper
 {
 public:
-    RosterMap roster;
+    uint64_t* keys;
+    uint8_t** values;
+    int32_t* valueLengths;
+    int32_t length;
+    int32_t error;
 
     RosterWrapper(RosterMap map)
     {
-        this->roster = map;
+        this->error = 0;
+        this->length = map.size();
+
+        this->keys = (uint64_t*)malloc(8 * this->length);
+        this->valueLengths = (int32_t*)malloc(4 * this->length);
+        this->values = (uint8_t**)malloc(8 * this->length);
+
+        if (!this->values || !this->valueLengths || !this->keys)
+        {
+            this->error = 1;
+            return;
+        }
+
+        int i = 0;
+
+        for (const auto& [key, vec] : map)
+        {
+            this->keys[i] = key;
+
+            uint8_t* data = (uint8_t*)malloc(vec.size());
+
+            if (!data)
+            {
+                this->error = 1;
+                return;
+            }
+
+            memcpy(data, &vec[0], vec.size());
+            this->values[i] = data;
+            this->valueLengths[i] = vec.size();
+
+            ++i;
+        }
+
+        if (++i != this->length)
+        {
+            this->error = 2;
+            return;
+        }
+    }
+
+    ~RosterWrapper()
+    {
+        free(this->keys);
+        free(this->valueLengths);
+
+        for (int i = 0; i < this->length; ++i)
+        {
+            free(this->values[i]);
+        }
+
+        free(this->values);
     }
 };
 
-// gets the amount of users in this roster
-extern "C" __declspec(__dllimport__) int32_t AerithGetRosterCount(RosterWrapper* __restrict__ wrapper);
-
-// gets the ID of the user at the specified index
-extern "C" __declspec(__dllimport__) uint64_t AerithGetRosterKeyAtIndex(RosterWrapper* __restrict__ wrapper, int32_t index);
-
-// gets the value associated with the user
-extern "C" __declspec(__dllimport__) VectorWrapper* AerithGetRosterValue(RosterWrapper* __restrict__ wrapper, uint64_t key);
-
 // destroys the roster wrapper
-extern "C" __declspec(__dllimport__) void AerithDestroyRoster(RosterWrapper* wrapper);
+extern "C" __declspec(dllexport) void AerithDestroyRoster(RosterWrapper* wrapper)
+{
+    delete wrapper;
+}

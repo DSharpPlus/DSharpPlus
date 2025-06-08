@@ -1,4 +1,4 @@
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace DSharpPlus.Voice.Interop.Aerith;
 
@@ -13,7 +13,7 @@ partial class AerithInterop
         (
             byte* authSessionId,
             nuint authSessionLength,
-            delegate* unmanaged<byte*, byte*> errorHandler
+            delegate* unmanaged<byte*, byte*, void> errorHandler
         );
 
         [LibraryImport("aerith")]
@@ -28,7 +28,7 @@ partial class AerithInterop
         (
             AerithSession* session,
             ulong groupId,
-            byte* currentUserId,
+            ulong currentUserId,
             AerithSignaturePrivateKey* privateKey
         );
 
@@ -49,7 +49,7 @@ partial class AerithInterop
             AerithSession* session,
             byte* proposalsData,
             nuint proposalsLength,
-            byte** recognizedUserIds,
+            ulong* recognizedUserIds,
             int recognizedUserIdCount
         );
 
@@ -68,7 +68,7 @@ partial class AerithInterop
             AerithSession* session,
             byte* welcomeData,
             nuint welcomeLength,
-            byte** recognizedUserIds,
+            ulong* recognizedUserIds,
             int recognizedUserIdCount
         );
 
@@ -84,24 +84,9 @@ partial class AerithInterop
         // vector_wrapper.h
 
         [LibraryImport("aerith")]
-        public static partial int AerithGetWrappedVectorSize(VectorWrapper* wrapper);
-
-        [LibraryImport("aerith")]
-        public static partial void AerithGetWrappedVectorData(VectorWrapper* wrapper, byte* buffer);
-
-        [LibraryImport("aerith")]
         public static partial void AerithDestroyVectorWrapper(VectorWrapper* wrapper);
 
         // roster_wrapper.h
-
-        [LibraryImport("aerith")]
-        public static partial int AerithGetRosterCount(RosterWrapper* wrapper);
-
-        [LibraryImport("aerith")]
-        public static partial ulong AerithGetRosterKeyAtIndex(RosterWrapper* wrapper, int index);
-
-        [LibraryImport("aerith")]
-        public static partial ulong AerithGetRosterValue(RosterWrapper* wrapper, ulong key);
 
         [LibraryImport("aerith")]
         public static partial void AerithDestroyRoster(RosterWrapper* wrapper);

@@ -1,6 +1,13 @@
-namespace DSharpPlus.Voice.Interop.Aerith;
+﻿namespace DSharpPlus.Voice.Interop.Aerith;
 
 /// <summary>
-/// Represents a marker struct for a wrapper around a <code>RosterMap</code>.
+/// A wrapper struct for a a <code>RosterMap</code>.
 /// </summary>
-internal struct RosterWrapper;
+internal unsafe struct RosterWrapper
+{
+    internal ulong* keys;
+    internal byte** values;
+    internal int* valueLengths;
+    internal int length;
+    internal AerithWrapperError error;
+}

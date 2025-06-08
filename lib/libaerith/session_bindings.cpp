@@ -26,7 +26,7 @@ void MLSErrorCallback(const std::string& source, const std::string& reason)
 
 // create a new session with ID and set the error handler. the error handler is always the same as far as C# is concerned, so we don't have to
 // worry about potentially resetting it (it's a global variable).
-extern "C" __declspec(__dllexport__) Session* AerithCreateSession
+extern "C" __declspec(dllexport) Session* AerithCreateSession
 (
     const char* authSessionId,
     size_t authSessionLength,
@@ -43,7 +43,7 @@ extern "C" __declspec(__dllexport__) Session* AerithCreateSession
 // get a new signature key. this may either be entirely new or already persisted on-device. we don't really care which it is, but for us it's highly
 // unlikely to not just be a new one
 // returning a pointer to a std::shared_ptr is cursed but this has to survive contact with C# for a bit
-extern "C" __declspec(__dllexport__) std::shared_ptr<SignaturePrivateKey>* AerithGetSignaturePrivateKey
+extern "C" __declspec(dllexport) std::shared_ptr<SignaturePrivateKey>* AerithGetSignaturePrivateKey
 (
     const char* sessionId,
     size_t sessionLength
@@ -56,30 +56,30 @@ extern "C" __declspec(__dllexport__) std::shared_ptr<SignaturePrivateKey>* Aerit
 }
 
 // initializes a created session. C# has to first obtain a pointer to a SignaturePrivateKey above.
-extern "C" __declspec(__dllexport__) void AerithInitSession
+extern "C" __declspec(dllexport) void AerithInitSession
 (
-    Session* __restrict__ session,
+    Session* session,
     uint64_t groupId,
-    const char* currentUserId,
+    uint64_t currentUserId,
     std::shared_ptr<SignaturePrivateKey>* privateTransientKey
 )
 {
-    std::string currentUser(currentUserId, 20);
+    std::string currentUser = std::to_string(currentUserId);
 
     session->Init(1, groupId, currentUser, *privateTransientKey);
 }
 
 // gets the amount of bytes needed to store the last epoch's authenticator.
-extern "C" __declspec(__dllexport__) VectorWrapper* AerithGetLastEpochAuthenticator(Session* __restrict__ session)
+extern "C" __declspec(dllexport) VectorWrapper* AerithGetLastEpochAuthenticator(Session* session)
 {
     std::vector<uint8_t> authenticator = session->GetLastEpochAuthenticator();
     return new VectorWrapper(authenticator);
 }
 
 // sets the voice gateway external sender
-extern "C" __declspec(__dllexport__) void AerithSetExternalSender
+extern "C" __declspec(dllexport) void AerithSetExternalSender
 (
-    Session* __restrict__ session,
+    Session* session,
     const uint8_t* externalSenderPackage,
     size_t externalSenderLength
 )
@@ -89,12 +89,12 @@ extern "C" __declspec(__dllexport__) void AerithSetExternalSender
 }
 
 // processes proposals and returns an acknowledgement in a wrapped vector.
-extern "C" __declspec(__dllexport__) VectorWrapper* AerithProcessProposals
+extern "C" __declspec(dllexport) VectorWrapper* AerithProcessProposals
 (
-    Session* __restrict__ session,
+    Session* session,
     const uint8_t* proposalsData,
     size_t proposalsLength,
-    const char** recognizedUserIds,
+    uint64_t* recognizedUserIds,
     int32_t recognizedUserCount
 )
 {
@@ -102,8 +102,7 @@ extern "C" __declspec(__dllexport__) VectorWrapper* AerithProcessProposals
 
     for (int i = 0; i < recognizedUserCount; ++i)
     {
-        std::string id(recognizedUserIds[i], 20);
-        userIds.insert(id);
+        userIds.insert(std::to_string(recognizedUserIds[i]));
     }
 
     std::vector<uint8_t> proposals(proposalsData, proposalsData + proposalsLength);
@@ -121,9 +120,9 @@ extern "C" __declspec(__dllexport__) VectorWrapper* AerithProcessProposals
 }
 
 // processes a commit and returns the user diff caused by this commit.
-extern "C" __declspec(__dllexport__) RosterWrapper* AerithProcessCommit
+extern "C" __declspec(dllexport) RosterWrapper* AerithProcessCommit
 (
-    Session* __restrict__ session,
+    Session* session,
     const uint8_t* commitData,
     size_t commitLength,
     int32_t* failureCode
@@ -150,12 +149,12 @@ extern "C" __declspec(__dllexport__) RosterWrapper* AerithProcessCommit
 }
 
 // processes a welcome message and returns the initial users in the group.
-extern "C" __declspec(__dllexport__) RosterWrapper* AerithProcessWelcome
+extern "C" __declspec(dllexport) RosterWrapper* AerithProcessWelcome
 (
-    Session* __restrict__ session,
+    Session* session,
     const uint8_t* welcomeData,
     size_t welcomeLength,
-    const char** recognizedUserIds,
+    uint64_t* recognizedUserIds,
     int32_t recognizedUserCount
 )
 {
@@ -163,8 +162,7 @@ extern "C" __declspec(__dllexport__) RosterWrapper* AerithProcessWelcome
 
     for (int i = 0; i < recognizedUserCount; ++i)
     {
-        std::string id(recognizedUserIds[i], 20);
-        userIds.insert(id);
+        userIds.insert(std::to_string(recognizedUserIds[i]));
     }
 
     std::vector<uint8_t> welcome(welcomeData, welcomeData + welcomeLength);
@@ -182,20 +180,20 @@ extern "C" __declspec(__dllexport__) RosterWrapper* AerithProcessWelcome
 }
 
 // gets the marshalled key package for the current session
-extern "C" __declspec(__dllexport__) VectorWrapper* AerithGetMarshalledKeyPackage(Session* session)
+extern "C" __declspec(dllexport) VectorWrapper* AerithGetMarshalledKeyPackage(Session* session)
 {
     std::vector<uint8_t> keyPackage = session->GetMarshalledKeyPackage();
     return new VectorWrapper(keyPackage);
 }
 
 // resets the current session. it must be re-initialized before further use.
-extern "C" __declspec(__dllexport__) void AerithResetSession(Session* session)
+extern "C" __declspec(dllexport) void AerithResetSession(Session* session)
 {
     session->Reset();
 }
 
 // destroys an existing session.
-extern "C" __declspec(__dllexport__) void AerithDestroySession(Session* session)
+extern "C" __declspec(dllexport) void AerithDestroySession(Session* session)
 {
     delete session;
 }

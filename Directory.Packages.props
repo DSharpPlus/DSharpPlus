@@ -1,10 +1,11 @@
 ﻿<Project>
   <ItemGroup>
+    <PackageVersion Include="Microsoft.Extensions.ObjectPool" Version="9.0.5" />
     <PackageVersion Include="System.Formats.Asn1" Version="8.0.1" VersionOverride="8.0.1" />
     <PackageVersion Include="Basic.Reference.Assemblies.Net80" Version="1.7.2" />
     <PackageVersion Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
     <PackageVersion Include="ConcurrentHashSet" Version="1.3.0" />
-    <PackageVersion Include="DSharpPlus.Natives.Opus" Version="1.5.2.18" />
+    <PackageVersion Include="DSharpPlus.Natives.Opus" Version="1.5.2.20" />
     <PackageVersion Include="DSharpPlus.Natives.Sodium" Version="1.0.20.17" />
     <PackageVersion Include="DSharpPlus.Natives.Zstd" Version="1.5.7.21" />
     <PackageVersion Include="DSharpPlus.VoiceNext.Natives" Version="1.0.0" />

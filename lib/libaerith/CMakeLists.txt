@@ -14,9 +14,7 @@ set(
     SOURCES
     session_bindings.cpp
     vector_wrapper.h
-    vector_wrapper.cpp
     roster_wrapper.h
-    roster_wrapper.cpp
 )
 
 add_library(libaerith SHARED ${SOURCES})

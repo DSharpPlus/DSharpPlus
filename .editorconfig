@@ -63,8 +63,8 @@ dotnet_diagnostic.CS1591.severity = suggestion
 dotnet_diagnostic.IDE0058.severity = none
 
 # Organize usings
-dotnet_sort_system_directives_first = true:error
-dotnet_separate_import_directive_groups = true:error
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = true
 
 # Unfortunately, no java-style usings
 dotnet_diagnostic.IDE0064.severity = none

@@ -1,6 +1,9 @@
-using System;
-using System.Buffers.Binary;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace DSharpPlus.Voice.Interop.Aerith;
 
@@ -12,38 +15,144 @@ internal static unsafe partial class AerithInterop
 
     }
 
-    /// <summary>
-    /// Creates a basic user credential from the user's snowflake ID.
-    /// </summary>
-    public static void* CreateUserCredential(ulong userId)
+    public static AerithSession* CreateSession(string sessionId)
     {
-        Span<byte> bigEndian = stackalloc byte[8];
-        BinaryPrimitives.WriteUInt64BigEndian(bigEndian, userId);
+        Span<byte> ascii = stackalloc byte[20];
+        Encoding.ASCII.GetBytes(sessionId, ascii);
 
-        fixed (byte* pId = bigEndian)
+        fixed (byte* pSessionId = ascii)
         {
-            return Bindings.aerith_create_user_credential(pId);
+            return Bindings.AerithCreateSession(pSessionId, (nuint)ascii.Length, (delegate* unmanaged<byte*, byte*, void>)&HandleNativeMlsError);
         }
     }
 
-    /// <summary>
-    /// Extracts the user ID from a basic credential.
-    /// </summary>
-    public static ulong DeserializeUserCredential(void* credential)
+    public static void InitializeSession(AerithSession* session, string sessionId, ulong groupId, ulong currentUser)
     {
-        Span<byte> buffer = stackalloc byte[8];
-        
-        fixed (byte* pBuffer = buffer)
-        {
-            Bindings.aerith_deserialize_credential(credential, pBuffer);
-        }
+        Span<byte> sessionIdAscii = stackalloc byte[sessionId.Length];
 
-        return BinaryPrimitives.ReadUInt64BigEndian(buffer);
+        Encoding.ASCII.GetBytes(sessionId, sessionIdAscii);
+
+        fixed (byte* pSessionId = sessionIdAscii)
+        {
+            AerithSignaturePrivateKey* key = Bindings.AerithGetSignaturePrivateKey(pSessionId, (nuint)sessionId.Length);
+            Bindings.AerithInitSession(session, groupId, currentUser, key);
+        }
     }
 
-    /// <summary>
-    /// Destroys a credential. Using the credential in any way is illegal after this operation.
-    /// </summary>
-    public static void FreeUserCredential(void* credential) 
-        => Bindings.aerith_free_credential(credential);
+    public static byte[] GetLastEpochAuthenticator(AerithSession* session)
+    {
+        VectorWrapper* nativeVector = Bindings.AerithGetLastEpochAuthenticator(session);
+        return UnwrapVector(nativeVector);
+    }
+
+    public static void SetExternalSender(AerithSession* session, byte[] data)
+    {
+        fixed (byte* pData = data)
+        {
+            Bindings.AerithSetExternalSender(session, pData, (nuint)data.Length);
+        }
+    }
+
+    public static byte[] ProcessProposals(AerithSession* session, byte[] proposals, ReadOnlySpan<ulong> userIds)
+    {
+        fixed (byte* pProposals = proposals)
+        fixed (ulong* pUserIds = userIds)
+        {
+            VectorWrapper* ack = Bindings.AerithProcessProposals(session, pProposals, (nuint)proposals.Length, pUserIds, userIds.Length);
+            return ack == null ? [] : UnwrapVector(ack);
+        }
+    }
+
+    public static (AerithCommitError, Dictionary<ulong, byte[]>) ProcessCommit(AerithSession* session, byte[] commit)
+    {
+        AerithCommitError error;
+        RosterWrapper* nativeRoster;
+
+        fixed (byte* pCommit = commit)
+        {
+            nativeRoster = Bindings.AerithProcessCommit(session, pCommit, (nuint)commit.Length, (int*)&error);
+        }
+
+        Dictionary<ulong, byte[]> changeRoster = error == AerithCommitError.Success ? UnwrapRoster(nativeRoster) : null!;
+        return (error, changeRoster);
+    }
+
+    public static Dictionary<ulong, byte[]> ProcessWelcome(AerithSession* session, byte[] welcome, ReadOnlySpan<ulong> userIds)
+    {
+        fixed (byte* pWelcome = welcome)
+        fixed (ulong* pUserIds = userIds)
+        {
+            RosterWrapper* nativeRoster = Bindings.AerithProcessWelcome(session, pWelcome, (nuint)welcome.Length, pUserIds, userIds.Length);
+            return UnwrapRoster(nativeRoster);
+        }
+    }
+
+    public static byte[] GetMarshalledKeyPackage(AerithSession* session)
+    {
+        VectorWrapper* nativeKeyPackage = Bindings.AerithGetMarshalledKeyPackage(session);
+        return UnwrapVector(nativeKeyPackage);
+    }
+
+    private static byte[] UnwrapVector(VectorWrapper* nativeVector)
+    {
+        if (nativeVector->error == AerithWrapperError.OutOfMemory)
+        {
+            ThrowHelper.ThrowNativeOutOfMemory();
+        }
+
+        byte[] buffer = new byte[nativeVector->length];
+        Span<byte> nativeMemory = new(nativeVector->data, nativeVector->length);
+
+        nativeMemory.CopyTo(buffer);
+
+        Bindings.AerithDestroyVectorWrapper(nativeVector);
+
+        return buffer;
+    }
+
+    private static Dictionary<ulong, byte[]> UnwrapRoster(RosterWrapper* nativeRoster)
+    {
+        if (nativeRoster->error == AerithWrapperError.OutOfMemory)
+        {
+            ThrowHelper.ThrowNativeOutOfMemory();
+        }
+
+        if (nativeRoster->error == AerithWrapperError.LengthMismatch)
+        {
+            ThrowHelper.ThrowNativeInvalidData();
+        }
+
+        int count = nativeRoster->length;
+
+        Dictionary<ulong, byte[]> roster = new(count);
+
+        for (int i = 0; i < count; i++)
+        {
+            ulong key = nativeRoster->keys[i];
+
+            byte[] buffer = new byte[nativeRoster->valueLengths[i]];
+            Span<byte> nativeMemory = new(nativeRoster->values[i], nativeRoster->valueLengths[i]);
+
+            nativeMemory.CopyTo(buffer);
+
+            roster.Add(key, buffer);
+        }
+
+        Bindings.AerithDestroyRoster(nativeRoster);
+
+        return roster;
+    }
+}
+
+static file class ThrowHelper
+{
+    [DebuggerHidden]
+    [StackTraceHidden]
+    public static void ThrowNativeOutOfMemory() 
+        => throw new OutOfMemoryException("Failed to allocate enough memory for an operation in native MLS code.");
+
+    [DebuggerHidden]
+    [StackTraceHidden]
+    public static void ThrowNativeInvalidData()
+        => throw new InvalidDataException("Encountered invalid data in native MLS code.");
 }
