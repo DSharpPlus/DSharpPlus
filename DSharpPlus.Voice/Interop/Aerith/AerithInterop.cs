@@ -59,7 +59,7 @@ internal static unsafe partial class AerithInterop
         fixed (ulong* pUserIds = userIds)
         {
             VectorWrapper* ack = Bindings.AerithProcessProposals(session, pProposals, (nuint)proposals.Length, pUserIds, userIds.Length);
-            return ack == null ? [] : UnwrapVector(ack);
+            return UnwrapVector(ack);
         }
     }
 
@@ -95,6 +95,11 @@ internal static unsafe partial class AerithInterop
 
     private static byte[] UnwrapVector(VectorWrapper* nativeVector)
     {
+        if (nativeVector == null)
+        {
+            return [];
+        }
+
         if (nativeVector->error == AerithWrapperError.OutOfMemory)
         {
             ThrowHelper.ThrowNativeOutOfMemory();
@@ -112,6 +117,11 @@ internal static unsafe partial class AerithInterop
 
     private static Dictionary<ulong, byte[]> UnwrapRoster(RosterWrapper* nativeRoster)
     {
+        if (nativeRoster == null)
+        {
+            return [];
+        }
+
         if (nativeRoster->error == AerithWrapperError.OutOfMemory)
         {
             ThrowHelper.ThrowNativeOutOfMemory();
