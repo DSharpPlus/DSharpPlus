@@ -97,7 +97,7 @@ internal class ComponentEventWaiter : IDisposable
                             new() { Content = responseMessage, IsEphemeral = true }
                         );
                     }
-                    else
+                    else if (args.Interaction.ResponseState is DiscordInteractionResponseState.Deferred)
                     {
                         await args.Interaction.CreateFollowupMessageAsync
                         (
@@ -136,7 +136,7 @@ internal class ComponentEventWaiter : IDisposable
                                 new() { Content = responseMessage, IsEphemeral = true }
                             );
                         }
-                        else
+                        else if (args.Interaction.ResponseState is DiscordInteractionResponseState.Deferred)
                         {
                             await args.Interaction.CreateFollowupMessageAsync
                             (
