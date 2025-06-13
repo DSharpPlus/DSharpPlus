@@ -8,6 +8,16 @@ partial class AerithInterop
 {
     private static unsafe partial class Bindings
     {
+        /// <summary>
+        /// <code>
+        /// <![CDATA[discord::dave::mls::Session* AerithCreateSession
+        /// (
+        ///     const char* authSessionId,
+        ///     size_t authSessionLength,
+        ///     void (*errorHandler)(const char*, const char*)
+        /// );]]>
+        /// </code>
+        /// </summary>
         [LibraryImport("aerith")]
         public static partial AerithSession* AerithCreateSession
         (
@@ -16,6 +26,15 @@ partial class AerithInterop
             delegate* unmanaged<byte*, byte*, void> errorHandler
         );
 
+        /// <summary>
+        /// <code>
+        /// <![CDATA[std::shared_ptr<mlspp::SignaturePrivateKey>* AerithGetSignaturePrivateKey
+        /// (
+        ///     const char* sessionId,
+        ///     size_t sessionLength
+        /// );]]>
+        /// </code>
+        /// </summary>
         [LibraryImport("aerith")]
         public static partial AerithSignaturePrivateKey* AerithGetSignaturePrivateKey
         (
@@ -23,6 +42,17 @@ partial class AerithInterop
             nuint sessionLength
         );
 
+        /// <summary>
+        /// <code>
+        /// <![CDATA[void AerithInitSession
+        /// (
+        ///     discord::dave::mls::Session* session,
+        ///     uint64_t groupId,
+        ///     uint64_t currentUserId,
+        ///     std::shared_ptr<mlspp::SignaturePrivateKey>* privateTransientKey
+        /// );]]>
+        /// </code>
+        /// </summary>
         [LibraryImport("aerith")]
         public static partial void AerithInitSession
         (
@@ -32,9 +62,24 @@ partial class AerithInterop
             AerithSignaturePrivateKey* privateKey
         );
 
+        /// <summary>
+        /// <code>
+        /// <![CDATA[VectorWrapper* AerithGetLastEpochAuthenticator(discord::dave::mls::Session* session);]]>
+        /// </code>
+        /// </summary>
         [LibraryImport("aerith")]
         public static partial VectorWrapper* AerithGetLastEpochAuthenticator(AerithSession* session);
 
+        /// <summary>
+        /// <code>
+        /// <![CDATA[void AerithSetExternalSender
+        /// (
+        ///     discord::dave::mls::Session* session,
+        ///     const uint8_t* externalSenderPackage,
+        ///     size_t externalSenderLength
+        /// );]]>
+        /// </code>
+        /// </summary>
         [LibraryImport("aerith")]
         public static partial void AerithSetExternalSender
         (
@@ -43,6 +88,18 @@ partial class AerithInterop
             nuint externalSenderLength
         );
 
+        /// <summary>
+        /// <code>
+        /// <![CDATA[VectorWrapper* AerithProcessProposals
+        /// (
+        ///     discord::dave::mls::Session* session,
+        ///     const uint8_t* proposalsData,
+        ///     size_t proposalsLength,
+        ///     uint64_t* recognizedUserIds,
+        ///     int32_t recognizedUserCount
+        /// );]]>
+        /// </code>
+        /// </summary>
         [LibraryImport("aerith")]
         public static partial VectorWrapper* AerithProcessProposals
         (
@@ -53,6 +110,17 @@ partial class AerithInterop
             int recognizedUserIdCount
         );
 
+        /// <summary>
+        /// <code>
+        /// <![CDATA[RosterWrapper* AerithProcessCommit
+        /// (
+        ///     discord::dave::mls::Session* session,
+        ///     const uint8_t* commitData,
+        ///     size_t commitLength,
+        ///     int32_t* failureCode
+        /// );]]>
+        /// </code>
+        /// </summary>
         [LibraryImport("aerith")]
         public static partial RosterWrapper* AerithProcessCommit
         (
@@ -62,6 +130,18 @@ partial class AerithInterop
             int* failureCode
         );
 
+        /// <summary>
+        /// <code>
+        /// <![CDATA[RosterWrapper* AerithProcessWelcome
+        /// (
+        ///     discord::dave::mls::Session* session,
+        ///     const uint8_t* welcomeData,
+        ///     size_t welcomeLength,
+        ///     uint64_t* recognizedUserIds,
+        ///     int32_t recognizedUserCount
+        /// );]]>
+        /// </code>
+        /// </summary>
         [LibraryImport("aerith")]
         public static partial RosterWrapper* AerithProcessWelcome
         (
@@ -72,22 +152,47 @@ partial class AerithInterop
             int recognizedUserIdCount
         );
 
+        /// <summary>
+        /// <code>
+        /// <![CDATA[VectorWrapper* AerithGetMarshalledKeyPackage(discord::dave::mls::Session* session);]]>
+        /// </code>
+        /// </summary>
         [LibraryImport("aerith")]
         public static partial VectorWrapper* AerithGetMarshalledKeyPackage(AerithSession* session);
 
+        /// <summary>
+        /// <code>
+        /// <![CDATA[void AerithResetSession(discord::dave::mls::Session* session);]]>
+        /// </code>
+        /// </summary>
         [LibraryImport("aerith")]
         public static partial void AerithResetSession(AerithSession* session);
 
+        /// <summary>
+        /// <code>
+        /// <![CDATA[void AerithDestroySession(discord::dave::mls::Session* session);]]>
+        /// </code>
+        /// </summary>
         [LibraryImport("aerith")]
-        public static partial void* AerithDestroySession(AerithSession* session);
+        public static partial void AerithDestroySession(AerithSession* session);
 
         // vector_wrapper.h
 
+        /// <summary>
+        /// <code>
+        /// <![CDATA[void AerithDestroyVectorWrapper(VectorWrapper* wrapper);]]>
+        /// </code>
+        /// </summary>
         [LibraryImport("aerith")]
         public static partial void AerithDestroyVectorWrapper(VectorWrapper* wrapper);
 
         // roster_wrapper.h
 
+        /// <summary>
+        /// <code>
+        /// <![CDATA[void AerithDestroyRoster(RosterWrapper* wrapper);]]>
+        /// </code>
+        /// </summary>
         [LibraryImport("aerith")]
         public static partial void AerithDestroyRoster(RosterWrapper* wrapper);
     }

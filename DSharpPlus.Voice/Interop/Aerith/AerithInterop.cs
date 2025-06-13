@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -7,6 +7,9 @@ using System.Text;
 
 namespace DSharpPlus.Voice.Interop.Aerith;
 
+/// <summary>
+/// Provides utilities to consume native methods from managed code.
+/// </summary>
 internal static unsafe partial class AerithInterop
 {
     [UnmanagedCallersOnly]
@@ -15,9 +18,12 @@ internal static unsafe partial class AerithInterop
 
     }
 
+    /// <summary>
+    /// Creates a new session object. The session ID here must match the session ID we later initialize with.
+    /// </summary>
     public static AerithSession* CreateSession(string sessionId)
     {
-        Span<byte> ascii = stackalloc byte[20];
+        Span<byte> ascii = stackalloc byte[sessionId.Length];
         Encoding.ASCII.GetBytes(sessionId, ascii);
 
         fixed (byte* pSessionId = ascii)
@@ -26,6 +32,9 @@ internal static unsafe partial class AerithInterop
         }
     }
 
+    /// <summary>
+    /// Initializes the previously created session. 
+    /// </summary>
     public static void InitializeSession(AerithSession* session, string sessionId, ulong groupId, ulong currentUser)
     {
         Span<byte> sessionIdAscii = stackalloc byte[sessionId.Length];
@@ -39,12 +48,18 @@ internal static unsafe partial class AerithInterop
         }
     }
 
+    /// <summary>
+    /// Gets the authenticator key for the last epoch.
+    /// </summary>
     public static byte[] GetLastEpochAuthenticator(AerithSession* session)
     {
         VectorWrapper* nativeVector = Bindings.AerithGetLastEpochAuthenticator(session);
         return UnwrapVector(nativeVector);
     }
 
+    /// <summary>
+    /// Sets the voice gateway as the external sender.
+    /// </summary>
     public static void SetExternalSender(AerithSession* session, byte[] data)
     {
         fixed (byte* pData = data)
@@ -53,6 +68,9 @@ internal static unsafe partial class AerithInterop
         }
     }
 
+    /// <summary>
+    /// Processes a batch of proposals and returns either an empty array or a response to the voice gateway.
+    /// </summary>
     public static byte[] ProcessProposals(AerithSession* session, byte[] proposals, ReadOnlySpan<ulong> userIds)
     {
         fixed (byte* pProposals = proposals)
@@ -63,6 +81,9 @@ internal static unsafe partial class AerithInterop
         }
     }
 
+    /// <summary>
+    /// Processes a commit and returns a dictionary of added and removed users.
+    /// </summary>
     public static (AerithCommitError, Dictionary<ulong, byte[]>) ProcessCommit(AerithSession* session, byte[] commit)
     {
         AerithCommitError error;
@@ -77,6 +98,9 @@ internal static unsafe partial class AerithInterop
         return (error, changeRoster);
     }
 
+    /// <summary>
+    /// Processes a welcome message and returns a dictionary of added users.
+    /// </summary>
     public static Dictionary<ulong, byte[]> ProcessWelcome(AerithSession* session, byte[] welcome, ReadOnlySpan<ulong> userIds)
     {
         fixed (byte* pWelcome = welcome)
@@ -87,12 +111,30 @@ internal static unsafe partial class AerithInterop
         }
     }
 
+    /// <summary>
+    /// Gets the marshalled key package for the current session.
+    /// </summary>
     public static byte[] GetMarshalledKeyPackage(AerithSession* session)
     {
         VectorWrapper* nativeKeyPackage = Bindings.AerithGetMarshalledKeyPackage(session);
         return UnwrapVector(nativeKeyPackage);
     }
 
+    /// <summary>
+    /// Resets the current session.
+    /// </summary>
+    public static void ResetSession(AerithSession* session) => Bindings.AerithResetSession(session);
+
+    /// <summary>
+    /// Destroys the current session at the end of its lifetime.
+    /// </summary>
+    public static void DestroySession(AerithSession* session) => Bindings.AerithDestroySession(session);
+
+    /// <summary>
+    /// Unwraps a <c>std::vector&lt;uint8_t&gt;</c> into a c# byte array.
+    /// </summary>
+    /// <param name="nativeVector"></param>
+    /// <returns></returns>
     private static byte[] UnwrapVector(VectorWrapper* nativeVector)
     {
         if (nativeVector == null)
@@ -115,6 +157,9 @@ internal static unsafe partial class AerithInterop
         return buffer;
     }
 
+    /// <summary>
+    /// Unwraps a user roster into a c# dictionary of IDs to keys.
+    /// </summary>
     private static Dictionary<ulong, byte[]> UnwrapRoster(RosterWrapper* nativeRoster)
     {
         if (nativeRoster == null)
