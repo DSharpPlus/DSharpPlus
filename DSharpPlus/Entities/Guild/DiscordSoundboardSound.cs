@@ -17,7 +17,7 @@ public class DiscordSoundboardSound : SnowflakeObject
         this.Discord = client;
 
         if (transportSoundboardSound.EmojiId is not null &&
-            DiscordEmoji.TryFromGuildEmote(client, transportSoundboardSound.EmojiId.Value, out DiscordEmoji emoji))
+            DiscordEmoji.TryFromGuildEmote(client, transportSoundboardSound.EmojiId.Value, out DiscordEmoji emoji, this.GuildId))
         {
             this.Emoji = emoji;
         }
@@ -34,7 +34,7 @@ public class DiscordSoundboardSound : SnowflakeObject
     public string Name { get; internal set; }
 
     /// <summary>
-    /// The id of the guild the sound belongs 
+    /// The id of the guild the sound belongs to. This is null if the sound is a default sound.
     /// </summary>
     public ulong? GuildId { get; internal set; }
 
@@ -50,14 +50,18 @@ public class DiscordSoundboardSound : SnowflakeObject
 
     /// <summary>
     /// The id of the user who created the soundboard.
-    /// This is null if the bot does not have the <see cref="DiscordPermission.CreateGuildExpressions"/> or <see cref="DiscordPermission.ManageGuildExpressions"/> permission.
+    /// This is null if the bot does not have the <see cref="DiscordPermission.CreateGuildExpressions"/>
+    /// or <see cref="DiscordPermission.ManageGuildExpressions"/> permission or if the sound is a default one.
     /// </summary>
     public ulong? UserId { get; internal set; }
 
     /// <summary>
-    /// Get the guild this sound belongs to
+    /// Gets the guild this sound belongs to, or <c>null</c> if the sound is a default sound.
     /// </summary>
-    /// <param name="skipCache">If the guild should be fetched and the cache skiped </param>
+    /// <param name="skipCache">
+    /// If set to <c>true</c>, this method will bypass any cached data and fetch the guild directly from the Discord API.
+    /// If set to <c>false</c>, the method will attempt to retrieve the guild from the local cache first, and only query the API if it is not found in the cache.
+    /// </param>
     public async ValueTask<DiscordGuild?> GetGuildAsync(bool skipCache = false)
     {
         if (this.GuildId is null)
@@ -74,12 +78,15 @@ public class DiscordSoundboardSound : SnowflakeObject
     }
 
     /// <summary>
-    /// Retrieves the user who created this sound
+    /// Retrieves the user who created this sound.
     /// </summary>
-    /// <param name="skipCache">If the user should be fetched and cache skiped</param>
+    /// <param name="skipCache">
+    /// If set to <c>true</c>, this method will bypass any cached data and fetch the user directly from the Discord API.
+    /// If set to <c>false</c>, the method will attempt to retrieve the user from the local cache first, and only query the API if the user is not found in the cache.
+    /// </param>
     /// <returns>
-    /// Returns the user who created the sound if the user is known. If the user is in cache it can be a DiscordMember.
-    /// This is null if the bot does not have the <see cref="DiscordPermission.CreateGuildExpressions"/> or <see cref="DiscordPermission.ManageGuildExpressions"/> permission.
+    /// The user who created the sound, if known. If the user is in cache, this may be a <see cref="DiscordMember"/>.
+    /// Returns <c>null</c> if the bot does not have the <see cref="DiscordPermission.CreateGuildExpressions"/> or <see cref="DiscordPermission.ManageGuildExpressions"/> permission, or if the sound is a default one.
     /// </returns>
     public async ValueTask<DiscordUser?> GetUserAsync(bool skipCache = false)
     {
