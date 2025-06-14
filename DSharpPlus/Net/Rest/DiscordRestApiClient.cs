@@ -3856,7 +3856,8 @@ public sealed class DiscordRestApiClient
             Deafen = deaf,
             Mute = mute,
             VoiceChannelId = voiceChannelId,
-            CommunicationDisabledUntil = communicationDisabledUntil
+            CommunicationDisabledUntil = communicationDisabledUntil,
+            MemberFlags = memberFlags
         };
 
         string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.MEMBERS}/:user_id";
