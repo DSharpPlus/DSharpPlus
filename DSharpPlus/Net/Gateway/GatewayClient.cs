@@ -560,6 +560,8 @@ public sealed class GatewayClient : IGatewayClient
         }
         else if (frame.TryGetErrorCode(out int errorCode))
         {
+            this.logger.LogInformation("Received error code {Code} from gateway websocket.", errorCode);
+            
             bool success = errorCode switch
             {
                 < 4000 => await HandleSystemErrorAsync(errorCode),
