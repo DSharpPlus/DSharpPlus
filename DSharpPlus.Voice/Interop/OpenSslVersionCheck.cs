@@ -19,7 +19,9 @@ internal static partial class OpenSslVersionCheck
     private static partial class Bindings
     {
         /// <summary>
+        /// <code>
         /// <![CDATA[unsigned int OPENSSL_version_major(void);]]>
+        /// </code>
         /// </summary>
         [LibraryImport("libcrypto")]
         internal static partial uint OPENSSL_version_major();

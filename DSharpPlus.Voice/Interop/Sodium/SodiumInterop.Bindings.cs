@@ -2,7 +2,9 @@ using System.Runtime.InteropServices;
 
 namespace DSharpPlus.Voice.Interop.Sodium;
 
-internal unsafe partial class SodiumInterop
+#pragma warning disable IDE0040
+
+unsafe partial class SodiumInterop
 {
     // sodium_init checks hardware support for AEAD AES256-GCM, the preferred transport encryption mode
 
@@ -20,24 +22,6 @@ internal unsafe partial class SodiumInterop
     /// </summary>
     [LibraryImport("libsodium")]
     private static partial int crypto_aead_aes256gcm_is_available();
-
-    /// <summary>
-    /// <c>size_t crypto_aead_aes256gcm_keybytes(void);</c>
-    /// </summary>
-    [LibraryImport("libsodium")]
-    private static partial nuint crypto_aead_aes256gcm_keybytes();
-
-    /// <summary>
-    /// <c>size_t crypto_aead_aes256gcm_npubbytes(void);</c>
-    /// </summary>
-    [LibraryImport("libsodium")]
-    private static partial nuint crypto_aead_aes256gcm_npubbytes();
-
-    /// <summary>
-    /// <c>size_t crypto_aead_aes256gcm_abytes(void);</c>
-    /// </summary>
-    [LibraryImport("libsodium")]
-    private static partial nuint crypto_aead_aes256gcm_abytes();
 
     /// <summary>
     /// <code><![CDATA[int crypto_aead_aes256gcm_encrypt(
@@ -88,24 +72,6 @@ internal unsafe partial class SodiumInterop
 
     // AEAD XChaCha20-Poly1305 imports
     // this serves as the fallback if AEAD AES256-GCM is not available, and thereby as the de-facto baseline.
-
-    /// <summary>
-    /// <c>size_t crypto_aead_xchacha20poly1305_ietf_keybytes(void);</c>
-    /// </summary>
-    [LibraryImport("libsodium")]
-    private static partial nuint crypto_aead_xchacha20poly1305_ietf_keybytes();
-
-    /// <summary>
-    /// <c>size_t crypto_aead_xchacha20poly1305_ietf_npubbytes(void);</c>
-    /// </summary>
-    [LibraryImport("libsodium")]
-    private static partial nuint crypto_aead_xchacha20poly1305_ietf_npubbytes();
-
-    /// <summary>
-    /// <c>size_t crypto_aead_xchacha20poly1305_ietf_abytes(void);</c>
-    /// </summary>
-    [LibraryImport("libsodium")]
-    private static partial nuint crypto_aead_xchacha20poly1305_ietf_abytes();
 
     /// <summary>
     /// <code><![CDATA[int crypto_aead_xchacha20poly1305_ietf_encrypt(

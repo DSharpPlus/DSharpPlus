@@ -59,6 +59,7 @@ internal unsafe partial struct KoanaInterop : IDisposable
     /// <param name="protocolVersion">The protocol version to use, currently always 1 (if we create a session at all).</param>
     /// <param name="channelId">The snowflake identifier of the voice channel.</param>
     /// <param name="userId">The snowflake identifier of the bot user.</param>
+    /// <param name="ssrc">The SSRC of the bot for this session.</param>
     public KoanaInterop(ushort protocolVersion, ulong channelId, ulong userId, uint ssrc)
     {
         KoanaContext* context = koana_create_context((delegate* unmanaged<KoanaLogLevel, byte*, void>)&HandleKoanaLog);
