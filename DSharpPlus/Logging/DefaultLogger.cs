@@ -1,5 +1,5 @@
 using System;
-
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Logging;
@@ -11,7 +11,7 @@ internal sealed class DefaultLogger : ILogger
 {
     private readonly string name;
     private readonly LogLevel minimumLogLevel;
-    private readonly object @lock = new();
+    private readonly Lock @lock = new();
     private readonly string timestampFormat;
 
     public DefaultLogger(string name, LogLevel minimumLogLevel, string timestampFormat)
@@ -21,8 +21,8 @@ internal sealed class DefaultLogger : ILogger
         this.timestampFormat = timestampFormat;
     }
 
-    public IDisposable? BeginScope<TState>(TState state) 
-        where TState : notnull 
+    public IDisposable? BeginScope<TState>(TState state)
+        where TState : notnull
         => default;
 
     public bool IsEnabled(LogLevel logLevel)
