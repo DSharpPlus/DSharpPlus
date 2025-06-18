@@ -264,7 +264,7 @@ public sealed class GatewayClient : IGatewayClient
             }
             catch (WebSocketException e)
             {
-                this.logger.LogWarning(e, "WebSocketException while sending a heartbeat. Will try to reconnect.");
+                this.logger.LogWarning(e, "The connection died or entered an invalid state, reconnecting");
                 
                 await ReconnectAsync();
                 return;
