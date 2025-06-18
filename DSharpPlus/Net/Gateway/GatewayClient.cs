@@ -249,16 +249,31 @@ public sealed class GatewayClient : IGatewayClient
 
         do
         {
-            await WriteAsync(Encoding.UTF8.GetBytes($"{{\"op\":1,\"d\":{this.lastReceivedSequence}}}"));
-            this.logger.LogTrace("Heartbeat sent with sequence number {Sequence}.", this.lastReceivedSequence);
-
-            this.lastSentHeartbeat = DateTimeOffset.UtcNow;
-            this.pendingHeartbeats++;
-
-            if (this.pendingHeartbeats > 5)
+            try
             {
-                _ = this.controller.ZombiedAsync(this);
+                await WriteAsync(Encoding.UTF8.GetBytes($"{{\"op\":1,\"d\":{this.lastReceivedSequence}}}"));
+                this.logger.LogTrace("Heartbeat sent with sequence number {Sequence}.", this.lastReceivedSequence);
+
+                this.lastSentHeartbeat = DateTimeOffset.UtcNow;
+                this.pendingHeartbeats++;
+
+                if (this.pendingHeartbeats > 5)
+                {
+                    _ = this.controller.ZombiedAsync(this);
+                }
             }
+            catch (WebSocketException e)
+            {
+                this.logger.LogWarning(e, "The connection died or entered an invalid state, reconnecting");
+                
+                await ReconnectAsync();
+                return;
+            }
+            catch (Exception e)
+            {
+                this.logger.LogError(e, "An error occurred while sending a heartbeat.");
+            }
+            
         } while (await timer.WaitForNextTickAsync(ct));
     }
 
