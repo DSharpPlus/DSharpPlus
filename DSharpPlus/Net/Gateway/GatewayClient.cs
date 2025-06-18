@@ -264,7 +264,7 @@ public sealed class GatewayClient : IGatewayClient
             }
             catch (WebSocketException e)
             {
-                this.logger.LogError(e, "WebSocketException while sending a heartbeat. Will try to reconnect.");
+                this.logger.LogWarning(e, "WebSocketException while sending a heartbeat. Will try to reconnect.");
                 
                 await ReconnectAsync();
                 return;
