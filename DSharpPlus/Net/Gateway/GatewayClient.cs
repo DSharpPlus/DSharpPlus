@@ -264,7 +264,7 @@ public sealed class GatewayClient : IGatewayClient
             }
             catch (WebSocketException e)
             {
-                this.logger.LogWarning(e, "The connection died or entered an invalid state, reconnecting");
+                this.logger.LogWarning("The connection died or entered an invalid state, reconnecting. Exception: {ExceptionMessage}", e.Message);
                 
                 await ReconnectAsync();
                 return;
