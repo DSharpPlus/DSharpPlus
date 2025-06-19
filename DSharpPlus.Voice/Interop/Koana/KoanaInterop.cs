@@ -21,7 +21,6 @@ internal unsafe partial struct KoanaInterop : IDisposable
     private readonly KoanaContext* context;
     private readonly ulong channelId;
     private readonly ulong userId;
-    private readonly uint ssrc;
 
     [UnmanagedCallersOnly]
     public static void HandleNativeMlsError(byte* pSite, byte* pReason)
@@ -59,8 +58,7 @@ internal unsafe partial struct KoanaInterop : IDisposable
     /// <param name="protocolVersion">The protocol version to use, currently always 1 (if we create a session at all).</param>
     /// <param name="channelId">The snowflake identifier of the voice channel.</param>
     /// <param name="userId">The snowflake identifier of the bot user.</param>
-    /// <param name="ssrc">The SSRC of the bot for this session.</param>
-    public KoanaInterop(ushort protocolVersion, ulong channelId, ulong userId, uint ssrc)
+    public KoanaInterop(ushort protocolVersion, ulong channelId, ulong userId)
     {
         KoanaContext* context = koana_create_context((delegate* unmanaged<KoanaLogLevel, byte*, void>)&HandleKoanaLog);
         koana_reinit_context(context, protocolVersion, channelId, userId);
@@ -68,7 +66,6 @@ internal unsafe partial struct KoanaInterop : IDisposable
         this.context = context;
         this.channelId = channelId;
         this.userId = userId;
-        this.ssrc = ssrc;
     }
 
     /// <summary>
@@ -261,10 +258,11 @@ internal unsafe partial struct KoanaInterop : IDisposable
     /// <summary>
     /// Encrypts an audio frame.
     /// </summary>
-    /// <param name="unencryptedFrame">The unencrypted frame data..</param>
+    /// <param name="unencryptedFrame">The unencrypted frame data.</param>
     /// <param name="encryptedFrame">A buffer for the encrypted frame data, equal in length to the unencrypted form.</param>
+    /// <param name="ssrc">The sender's SSRC for this frame.</param>
     /// <returns>The amount of data that was encrypted.</returns>
-    public readonly int EncryptFrame(ReadOnlySpan<byte> unencryptedFrame, Span<byte> encryptedFrame)
+    public readonly int EncryptFrame(ReadOnlySpan<byte> unencryptedFrame, Span<byte> encryptedFrame, uint ssrc)
     {
         Debug.Assert(unencryptedFrame.Length == encryptedFrame.Length);
         int size;
@@ -272,7 +270,7 @@ internal unsafe partial struct KoanaInterop : IDisposable
         fixed (byte* pUnencrypted = unencryptedFrame)
         fixed (byte* pEncrypted = encryptedFrame)
         {
-            KoanaError error = koana_encrypt_frame(this.context, this.ssrc, pUnencrypted, unencryptedFrame.Length, pEncrypted, encryptedFrame.Length, &size);
+            KoanaError error = koana_encrypt_frame(this.context, ssrc, pUnencrypted, unencryptedFrame.Length, pEncrypted, encryptedFrame.Length, &size);
 
             if (error == KoanaError.EncryptionFailure)
             {
