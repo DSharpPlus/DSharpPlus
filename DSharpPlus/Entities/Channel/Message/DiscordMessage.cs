@@ -466,13 +466,34 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
             {
                 foreach (DiscordComponent subComponent in actionRowComponent.Components)
                 {
-                    if (subComponent is T filteredComponent)
+                    if (subComponent is T subFilteredComponent)
                     {
-                        components.Add(filteredComponent);
+                        components.Add(subFilteredComponent);
                     }
                 }
             }
-            else if (component is T filteredComponent)
+            else if (component is DiscordContainerComponent containerComponent)
+            {
+                foreach (DiscordComponent subComponent in containerComponent.Components)
+                {
+                    if (subComponent is T subFilteredComponent)
+                    {
+                        components.Add(subFilteredComponent);
+                    }
+                }
+            }
+            else if (component is DiscordSectionComponent sectionComponent)
+            {
+                foreach (DiscordComponent subComponent in sectionComponent.Components)
+                {
+                    if (subComponent is T subFilteredComponent)
+                    {
+                        components.Add(subFilteredComponent);
+                    }
+                }
+            }
+            
+            if (component is T filteredComponent)
             {
                 components.Add(filteredComponent);
             }
