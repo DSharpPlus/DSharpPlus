@@ -459,6 +459,11 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         where T : DiscordComponent
     {
         List<T> components = [];
+        
+        if (this.Components is null || this.Components.Count == 0)
+        {
+            return [];
+        }
 
         foreach (DiscordComponent component in this.Components)
         {
@@ -472,6 +477,11 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
                     break;
                 case DiscordSectionComponent sectionComponent:
                     components.AddRange(FilterComponents<T>(sectionComponent.Components));
+                    
+                    if (sectionComponent.Accessory is T filteredAccessory)
+                    {
+                        components.Add(filteredAccessory);
+                    }
                     break;
             }
 
@@ -501,6 +511,11 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
                     break;
                 case DiscordSectionComponent sectionComponent:
                     filteredComponents.AddRange(FilterComponents<T>(sectionComponent.Components));
+                    
+                    if (sectionComponent.Accessory is T filteredAccessory)
+                    {
+                        filteredComponents.Add(filteredAccessory);
+                    }
                     break;
             }
             
