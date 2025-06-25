@@ -40,13 +40,26 @@ public class DiscordVoiceRegion
     /// <summary>
     /// Gets whether two <see cref="DiscordVoiceRegion"/>s are equal.
     /// </summary>
-    /// <param name="region">The region to compare with.</param>
+    /// <param name="left">The region to compare with.</param>
+    /// <param name="right">The region to compare against.</param>
     /// <returns></returns>
-    public bool Equals(DiscordVoiceRegion region)
-        => this == region;
+    public static bool Equals(DiscordVoiceRegion? left, DiscordVoiceRegion? right)
+    {
+        if (ReferenceEquals(left, right))
+        {
+            return true;
+        }
+        
+        if (left is null || right is null)
+        {
+            return false;
+        }
+        
+        return left.Id == right.Id;
+    }
 
     /// <inheritdoc />
-    public override bool Equals(object obj) => Equals(obj as DiscordVoiceRegion);
+    public override bool Equals(object? obj) => Equals(this, obj as DiscordVoiceRegion);
 
     /// <inheritdoc />
     public override int GetHashCode() => this.Id.GetHashCode();
@@ -57,8 +70,8 @@ public class DiscordVoiceRegion
     /// <param name="left">First voice region to compare.</param>
     /// <param name="right">Second voice region to compare.</param>
     /// <returns>Whether the two voice regions are equal.</returns>
-    public static bool operator ==(DiscordVoiceRegion left, DiscordVoiceRegion right)
-        => left.Equals(right);
+    public static bool operator ==(DiscordVoiceRegion? left, DiscordVoiceRegion? right)
+        => Equals(left, right);
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordVoiceRegion"/> objects are not equal.
