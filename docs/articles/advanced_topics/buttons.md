@@ -46,7 +46,7 @@ var myButton = new DiscordButtonComponent(
 ```
 
 This will create a blurple button with the text that reads "Very cool button!". When a user pushes it,
-`"my_very_cool_button"` will be sent back as the @DSharpPlus.EventArgs.ComponentInteractionCreateEventArgs.Id property
+`"my_very_cool_button"` will be sent back as the @DSharpPlus.EventArgs.ComponentInteractionCreatedEventArgs.Id property
 on the event. This is expanded on in the [how to respond to buttons][2].
 
 The label of a button is optional *if* an emoji is specified. The label can be up to 80 characters in length. The emoji
@@ -145,17 +145,17 @@ Pikachu enjoying a lolipop. Adorable.
 
 # Responding to button presses
 
-When any button is pressed, it will fire the @DSharpPlus.DiscordClient.ComponentInteractionCreated.
+When any button is pressed, it will fire the ComponentInteractionCreated event.
 
 In the event args, @DSharpPlus.EventArgs.ComponentInteractionCreatedEventArgs.Id will be the id of the button you
 specified. There's also an @DSharpPlus.EventArgs.InteractionCreatedEventArgs.Interaction property, which contains the
 interaction the event created. It's important to respond to an interaction within 3 seconds, or it will time out.
 Responding after this period will throw a @DSharpPlus.Exceptions.NotFoundException.
 
-With buttons, there are two new response types: @DSharpPlus.Entities.InteractionResponseType.DeferredMessageUpdate and
-@DSharpPlus.Entities.InteractionResponseType.UpdateMessage.
+With buttons, there are two new response types: @DSharpPlus.Entities.DiscordInteractionResponseType.DeferredMessageUpdate and
+@DSharpPlus.Entities.DiscordInteractionResponseType.UpdateMessage.
 
-Using @DSharpPlus.Entities.InteractionResponseType.DeferredMessageUpdate lets you create followup messages via the
+Using @DSharpPlus.Entities.DiscordInteractionResponseType.DeferredMessageUpdate lets you create followup messages via the
 [followup message builder][6]. The button will return to being in it's 'dormant' state, or it's 'unpushed' state, if you
 will.
 
@@ -164,36 +164,35 @@ You have 15 minutes from that point to make followup messages. Responding to tha
 ```cs
 builder.ConfigureEventHandlers(b => b.HandleComponentInteractionCreated(async (s, e) =>
 {
-    await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+    await e.Interaction.CreateResponseAsync(DiscordInteractionResponseType.DeferredMessageUpdate);
     // Do things.. //
 }));
 ```
 
 If you would like to update the message when a button is pressed, however, you'd use
-@DSharpPlus.Entities.InteractionResponseType.UpdateMessage instead, and pass a
+@DSharpPlus.Entities.DiscordInteractionResponseType.UpdateMessage instead, and pass a
 @DSharpPlus.Entities.DiscordInteractionResponseBuilder with the new content you'd like.
 
 ```cs
 builder.ConfigureEventHandlers(b => b.HandleComponentInteractionCreated(async (s, e) =>
 {
     await e.Interaction.CreateResponseAsync(
-        InteractionResponseType.UpdateMessage,
+        DiscordInteractionResponseType.UpdateMessage,
         new DiscordInteractionResponseBuilder()
             .WithContent("No more buttons for you >:)")
     );
 }));
 ```
-```
 
 If you would like to update the message when a button is pressed, however, you'd use
-@DSharpPlus.Entities.InteractionResponseType.UpdateMessage instead, and pass a
+@DSharpPlus.Entities.DiscordInteractionResponseType.UpdateMessage instead, and pass a
 @DSharpPlus.Entities.DiscordInteractionResponseBuilder with the new content you'd like.
 
 ```cs
 client.ComponentInteractionCreated += async (s, e) =>
 {
     await e.Interaction.CreateResponseAsync(
-        InteractionResponseType.UpdateMessage,
+        DiscordInteractionResponseType.UpdateMessage,
         new DiscordInteractionResponseBuilder()
             .WithContent("No more buttons for you >:)"));
 }
