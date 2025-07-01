@@ -266,10 +266,6 @@ public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMes
         {
             throw new InvalidOperationException("You can only have 5 action rows per message.");
         }
-        else if (this.Components.Count > 10)
-        {
-            throw new InvalidOperationException("You can only have 10 surface-level components per message.");
-        }
 
         if (!this.Flags.HasFlag(DiscordMessageFlags.IsComponentsV2) && this.Components.Any(c => c is not DiscordActionRowComponent))
         {
