@@ -158,7 +158,6 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
         ArgumentOutOfRangeException.ThrowIfGreaterThan(shardId, (int)this.stride + this.shardCount);
 
         return this.shards[shardId - this.stride].IsConnected;
-
     }
 
     /// <inheritdoc/>
@@ -225,5 +224,29 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     }
 
     /// <inheritdoc/>
-    public IEnumerable<int> GetShardIds() => this.shards.Select(x => x.ShardId);
+    public IEnumerable<int> GetShardIds()
+    {
+        if (this.stride == 0 || this.totalShards == 0)
+        {
+            // No striding, use linear IDs
+            uint count = this.shardCount == default ? 1 : this.shardCount;
+            for (int i = 0; i < count; i++)
+            {
+                yield return i;
+            }
+        }
+        else
+        {
+            // Strided IDs
+            uint count = this.shardCount == default ? 1 : this.shardCount;
+            for (int i = 0; i < count; i++)
+            {
+                int shardId = (int)(i * this.stride);
+                if (shardId < this.totalShards)
+                {
+                    yield return shardId;
+                }
+            }
+        }
+    }
 }
