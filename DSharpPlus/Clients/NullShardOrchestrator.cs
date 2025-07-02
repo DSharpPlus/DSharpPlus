@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
@@ -25,7 +26,14 @@ public sealed class NullShardOrchestrator : IShardOrchestrator
     public TimeSpan GetConnectionLatency(ulong guildId) => TimeSpan.Zero;
 
     /// <inheritdoc/>
+    public TimeSpan GetConnectionLatency(int shardId) => TimeSpan.Zero;
+
+    /// <inheritdoc/>
+    public IEnumerable<int> GetShardIds() => [];
+
+    /// <inheritdoc/>
     public bool IsConnected(ulong guildId) => this.AllShardsConnected;
+    public bool IsConnected(int shardId) => this.AllShardsConnected;
 
     /// <inheritdoc/>
     public ValueTask ReconnectAsync()

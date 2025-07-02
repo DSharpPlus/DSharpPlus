@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
@@ -45,6 +46,26 @@ public interface IShardOrchestrator
     /// Gets the connection latency to a specific guild, otherwise known as ping.
     /// </summary>
     public TimeSpan GetConnectionLatency(ulong guildId);
+
+    /// <summary>
+    /// Get the list of Shard ID's this orcestrator is responsible for.
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerable<int> GetShardIds();
+
+    /// <summary>
+    /// Indicates whether the bot's shard connection is functional.
+    /// </summary>
+    /// <param name="shardId"></param>
+    /// <returns></returns>
+    public bool IsConnected(int shardId);
+
+    /// <summary>
+    /// Gets the connection latency specific to a shard, otherwise known as ping.
+    /// </summary>
+    /// <param name="shardId"></param>
+    /// <returns></returns>
+    public TimeSpan GetConnectionLatency(int shardId);
 
     /// <summary>
     /// Indicates whether all shards are connected.
