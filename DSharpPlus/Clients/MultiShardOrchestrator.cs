@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -151,25 +152,35 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     }
 
     /// <inheritdoc/>
+    public bool IsConnected(int shardId)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(shardId, (int)this.stride);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(shardId, (int)this.stride + this.shardCount);
+
+        return this.shards[shardId - this.stride].IsConnected;
+    }
+
+    /// <inheritdoc/>
     public bool IsConnected(ulong guildId)
     {
         uint shardId = GetShardIdForGuildId(guildId);
+        return IsConnected(shardId);
+    }
 
-        ArgumentOutOfRangeException.ThrowIfLessThan(shardId, this.stride);
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(shardId, this.stride + this.shardCount);
+    /// <inheritdoc/>
+    public TimeSpan GetConnectionLatency(int shardId)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(shardId, (int)this.stride);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(shardId, (int)this.stride + this.shardCount);
 
-        return this.shards[shardId - this.stride].IsConnected;
+        return this.shards[shardId - this.stride].Ping;
     }
 
     /// <inheritdoc/>
     public TimeSpan GetConnectionLatency(ulong guildId)
     {
         uint shardId = GetShardIdForGuildId(guildId);
-
-        ArgumentOutOfRangeException.ThrowIfLessThan(shardId, this.stride);
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(shardId, this.stride + this.shardCount);
-
-        return this.shards[shardId - this.stride].Ping;
+        return GetConnectionLatency(shardId);
     }
 
     private uint GetShardIdForGuildId(ulong guildId)
@@ -210,5 +221,32 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
         }
 
         await Parallel.ForEachAsync(this.shards, async (shard, _) => await shard.WriteAsync(payload));
+    }
+
+    /// <inheritdoc/>
+    public IEnumerable<int> GetShardIds()
+    {
+        if (this.stride == 0 || this.totalShards == 0)
+        {
+            // No striding, use linear IDs
+            uint count = this.shardCount == default ? 1 : this.shardCount;
+            for (int i = 0; i < count; i++)
+            {
+                yield return i;
+            }
+        }
+        else
+        {
+            // Strided IDs
+            uint count = this.shardCount == default ? 1 : this.shardCount;
+            for (int i = 0; i < count; i++)
+            {
+                int shardId = (int)(i * this.stride);
+                if (shardId < this.totalShards)
+                {
+                    yield return shardId;
+                }
+            }
+        }
     }
 }
