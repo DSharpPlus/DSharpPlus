@@ -407,7 +407,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
             mdl.Bitrate,
             mdl.Userlimit,
             mdl.PerUserRateLimit,
-            mdl.RtcRegion.IfPresent(r => r?.Id),
+            mdl.RtcRegion.IfPresent(r => r.Id),
             mdl.QualityMode,
             mdl.Type,
             mdl.PermissionOverwrites,

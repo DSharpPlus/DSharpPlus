@@ -1298,7 +1298,7 @@ public sealed partial class DiscordClient
                 VerificationLevel = gld.VerificationLevel,
                 RulesChannelId = gld.RulesChannelId,
                 PublicUpdatesChannelId = gld.PublicUpdatesChannelId,
-                voiceRegionId = gld.voiceRegionId,
+                VoiceRegionId = gld.VoiceRegionId,
                 PremiumProgressBarEnabled = gld.PremiumProgressBarEnabled,
                 IsNSFW = gld.IsNSFW,
                 channels = new ConcurrentDictionary<ulong, DiscordChannel>(),
@@ -1861,11 +1861,18 @@ public sealed partial class DiscordClient
             {
                 message.Content = event_message.Content;
             }
+            if (event_message.Flags is not null)
+            {
+                message.Flags = event_message.Flags;
+            }
 
             message.embeds.Clear();
             message.embeds.AddRange(event_message.embeds);
+            
             message.attachments.Clear();
             message.attachments.AddRange(event_message.attachments);
+            
+            message.Components = event_message.Components;
             message.Pinned = event_message.Pinned;
             message.IsTTS = event_message.IsTTS;
             message.Poll = event_message.Poll;
@@ -1886,9 +1893,9 @@ public sealed partial class DiscordClient
         {
             Message = message,
             MessageBefore = oldmsg,
-            MentionedUsers = new ReadOnlyCollection<DiscordUser>(message.mentionedUsers),
-            MentionedRoles = message.mentionedRoles != null ? new ReadOnlyCollection<DiscordRole>(message.mentionedRoles) : null,
-            MentionedChannels = message.mentionedChannels != null ? new ReadOnlyCollection<DiscordChannel>(message.mentionedChannels) : null
+            MentionedUsers = message.mentionedUsers,
+            MentionedRoles = message.mentionedRoles != null ? message.mentionedRoles : null,
+            MentionedChannels = message.mentionedChannels != null ? message.mentionedChannels : null
         };
 
         await this.dispatcher.DispatchAsync(this, ea);

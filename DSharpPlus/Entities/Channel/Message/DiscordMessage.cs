@@ -459,20 +459,33 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         where T : DiscordComponent
     {
         List<T> components = [];
+        
+        if (this.Components is null || this.Components.Count == 0)
+        {
+            return [];
+        }
 
         foreach (DiscordComponent component in this.Components)
         {
-            if (component is DiscordActionRowComponent actionRowComponent)
+            switch (component)
             {
-                foreach (DiscordComponent subComponent in actionRowComponent.Components)
-                {
-                    if (subComponent is T filteredComponent)
+                case DiscordActionRowComponent actionRowComponent:
+                    components.AddRange(FilterComponents<T>(actionRowComponent.Components));
+                    break;
+                case DiscordContainerComponent containerComponent:
+                    components.AddRange(FilterComponents<T>(containerComponent.Components));
+                    break;
+                case DiscordSectionComponent sectionComponent:
+                    components.AddRange(FilterComponents<T>(sectionComponent.Components));
+                    
+                    if (sectionComponent.Accessory is T filteredAccessory)
                     {
-                        components.Add(filteredComponent);
+                        components.Add(filteredAccessory);
                     }
-                }
+                    break;
             }
-            else if (component is T filteredComponent)
+
+            if (component is T filteredComponent)
             {
                 components.Add(filteredComponent);
             }
@@ -481,6 +494,40 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         return components;
     }
 
+    private static List<T> FilterComponents<T>(IReadOnlyList<DiscordComponent> components)
+        where T : DiscordComponent
+    {
+        List<T> filteredComponents = [];
+
+        foreach (DiscordComponent component in components)
+        {
+            switch (component)
+            {
+                case DiscordActionRowComponent actionRowComponent:
+                    filteredComponents.AddRange(FilterComponents<T>(actionRowComponent.Components));
+                    break;
+                case DiscordContainerComponent containerComponent:
+                    filteredComponents.AddRange(FilterComponents<T>(containerComponent.Components));
+                    break;
+                case DiscordSectionComponent sectionComponent:
+                    filteredComponents.AddRange(FilterComponents<T>(sectionComponent.Components));
+                    
+                    if (sectionComponent.Accessory is T filteredAccessory)
+                    {
+                        filteredComponents.Add(filteredAccessory);
+                    }
+                    break;
+            }
+            
+            if (component is T filteredComponent)
+            {
+                filteredComponents.Add(filteredComponent);
+            }
+        }
+
+        return filteredComponents;
+    }
+    
     /// <summary>
     /// Edits the message.
     /// </summary>

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
@@ -51,11 +52,21 @@ public sealed class SingleShardOrchestrator : IShardOrchestrator
 
         await SendOutboundEventAsync(payload, 0);
     }
-    /// <inheritdoc/>
-    public TimeSpan GetConnectionLatency(ulong guildId) => this.gatewayClient.Ping;
 
     /// <inheritdoc/>
-    public bool IsConnected(ulong guildId) => this.gatewayClient.IsConnected;
+    public TimeSpan GetConnectionLatency(ulong _) => this.gatewayClient.Ping;
+
+    /// <inheritdoc/>
+    public TimeSpan GetConnectionLatency(int _) => this.gatewayClient.Ping;
+
+    /// <inheritdoc/>
+    public IEnumerable<int> GetShardIds() => [this.gatewayClient.ShardId];
+
+    /// <inheritdoc/>
+    public bool IsConnected(ulong _) => this.gatewayClient.IsConnected;
+
+    /// <inheritdoc/>
+    public bool IsConnected(int _) => this.gatewayClient.IsConnected;
 
     /// <inheritdoc/>
     public async ValueTask ReconnectAsync() => await this.gatewayClient.ReconnectAsync();
