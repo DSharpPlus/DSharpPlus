@@ -327,6 +327,14 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
         get => this.User.GlobalName;
         internal set => this.User.GlobalName = value;
     }
+
+    /// <inheritdoc />
+    [JsonIgnore]
+    public override DiscordUserPrimaryGuild? PrimaryGuild 
+    { 
+        get => this.User.PrimaryGuild;
+        internal set => this.User.PrimaryGuild = value;
+    }
     #endregion
 
     /// <summary>

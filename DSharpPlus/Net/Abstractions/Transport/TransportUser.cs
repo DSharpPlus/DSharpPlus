@@ -49,6 +49,9 @@ internal class TransportUser
 
     [JsonProperty("public_flags", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordUserFlags? Flags { get; internal set; }
+    
+    [JsonProperty("primary_guild", NullValueHandling = NullValueHandling.Ignore)]
+    public DiscordUserPrimaryGuild? PrimaryGuild { get; internal set; }
 
     internal TransportUser() { }
 
@@ -69,5 +72,6 @@ internal class TransportUser
         this.Locale = other.Locale;
         this.Flags = other.Flags;
         this.OAuthFlags = other.OAuthFlags;
+        this.PrimaryGuild = other.PrimaryGuild;
     }
 }
