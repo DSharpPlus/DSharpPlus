@@ -27,21 +27,14 @@ public static partial class Utilities
 
     static Utilities()
     {
-        Assembly a = typeof(DiscordClient).GetTypeInfo().Assembly;
+        Assembly assembly = typeof(DiscordClient).GetTypeInfo().Assembly;
 
-        string vs = "";
-        AssemblyInformationalVersionAttribute? iv = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-        if (iv != null)
-        {
-            vs = iv.InformationalVersion;
-        }
-        else
-        {
-            Version? v = a.GetName().Version;
-            vs = v.ToString(3);
-        }
+        AssemblyInformationalVersionAttribute? informationalVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+        string versionString = informationalVersion != null
+            ? informationalVersion.InformationalVersion
+            : assembly.GetName().Version!.ToString(3);
 
-        VersionHeader = $"DiscordBot (https://github.com/DSharpPlus/DSharpPlus, v{vs})";
+        VersionHeader = $"DiscordBot (https://github.com/DSharpPlus/DSharpPlus, v{versionString})";
     }
 
     internal static string GetApiBaseUri()
