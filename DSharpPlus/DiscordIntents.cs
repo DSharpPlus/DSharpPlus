@@ -162,23 +162,23 @@ public enum DiscordIntents
     ScheduledGuildEvents = 1 << 16,
 
     /// <summary>
-    /// Whetever to include creation, modification or deletion of an auto-Moderation rule.
+    /// Whatever to include creation, modification or deletion of an auto-Moderation rule.
     /// </summary>
     AutoModerationEvents = 1 << 20,
 
     /// <summary>
-    /// Whetever to include when an auto-moderation rule was fired.
+    /// Whatever to include when an auto-moderation rule was fired.
     /// </summary>
     AutoModerationExecution = 1 << 21,
 
     /// <summary>
-    ///  Whetever to include add and remove of a poll votes events in guilds.
+    ///  Whatever to include add and remove of a poll votes events in guilds.
     /// <para>This includes MessagePollVoted</para>
     /// </summary>
     GuildMessagePolls = 1 << 24,
 
     /// <summary>
-    ///  Whetever to include add and remove of a poll votes events in direct messages.
+    ///  Whatever to include add and remove of a poll votes events in direct messages.
     /// <para>This includes MessagePollVoted</para>
     /// </summary>
     DirectMessagePolls = 1 << 25,
