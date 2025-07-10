@@ -234,17 +234,7 @@ public static partial class Utilities
     /// <param name="characters">Characters to check for.</param>
     /// <returns>Whether the string contained these characters.</returns>
     public static bool Contains(this string str, params char[] characters)
-    {
-        foreach (char xc in str)
-        {
-            if (characters.Contains(xc))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
+        => Array.Exists(characters, str.Contains);
 
     internal static void LogTaskFault(this Task task, ILogger logger, LogLevel level, EventId eventId, string message)
     {
