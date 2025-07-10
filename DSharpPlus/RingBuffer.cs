@@ -25,7 +25,7 @@ public class RingBuffer<T> : ICollection<T>
     /// Gets the number of items in this ring buffer.
     /// </summary>
     public int Count
-        => this.reached_end ? this.Capacity : this.CurrentIndex;
+        => this.reachedEnd ? this.Capacity : this.CurrentIndex;
 
     /// <summary>
     /// Gets whether this ring buffer is read-only.
@@ -37,7 +37,7 @@ public class RingBuffer<T> : ICollection<T>
     /// Gets or sets the internal collection of items.
     /// </summary>
     protected T[] InternalBuffer { get; set; }
-    private bool reached_end = false;
+    private bool reachedEnd = false;
 
     /// <summary>
     /// Creates a new ring buffer with specified size.
@@ -101,7 +101,7 @@ public class RingBuffer<T> : ICollection<T>
         if (this.CurrentIndex == this.Capacity)
         {
             this.CurrentIndex = 0;
-            this.reached_end = true;
+            this.reachedEnd = true;
         }
     }
 
@@ -153,7 +153,7 @@ public class RingBuffer<T> : ICollection<T>
     /// <param name="item">Item to check for.</param>
     /// <returns>Whether the buffer contains the item.</returns>
     /// <exception cref="NotImplementedException" />
-    public bool Contains(T item) => throw new NotImplementedException("This method is not implemented. Use.Contains(predicate) instead.");
+    public bool Contains(T item) => Array.Exists(this.InternalBuffer, i => i?.Equals(item) is true);
 
     /// <summary>
     /// Checks whether given item is present in the buffer using given predicate to find it.
@@ -166,23 +166,23 @@ public class RingBuffer<T> : ICollection<T>
     /// Copies this ring buffer to target array, attempting to maintain the order of items within.
     /// </summary>
     /// <param name="array">Target array.</param>
-    /// <param name="index">Index starting at which to copy the items to.</param>
-    public void CopyTo(T[] array, int index)
+    /// <param name="arrayIndex">Index starting at which to copy the items to.</param>
+    public void CopyTo(T[] array, int arrayIndex)
     {
-        if (array.Length - index < 1)
+        if (array.Length - arrayIndex < 1)
         {
             throw new ArgumentException("Target array is too small to contain the elements from this buffer.", nameof(array));
         }
 
-        int ci = 0;
+        int currentIndex = 0;
         for (int i = this.CurrentIndex; i < this.InternalBuffer.Length; i++)
         {
-            array[ci++] = this.InternalBuffer[i];
+            array[currentIndex++] = this.InternalBuffer[i];
         }
 
         for (int i = 0; i < this.CurrentIndex; i++)
         {
-            array[ci++] = this.InternalBuffer[i];
+            array[currentIndex++] = this.InternalBuffer[i];
         }
     }
 
@@ -216,7 +216,7 @@ public class RingBuffer<T> : ICollection<T>
     /// Returns an enumerator for this ring buffer.
     /// </summary>
     /// <returns>Enumerator for this ring buffer.</returns>
-    public IEnumerator<T> GetEnumerator() => !this.reached_end
+    public IEnumerator<T> GetEnumerator() => !this.reachedEnd
             ? this.InternalBuffer.AsEnumerable().GetEnumerator()
             : this.InternalBuffer.Skip(this.CurrentIndex)
             .Concat(this.InternalBuffer.Take(this.CurrentIndex))
