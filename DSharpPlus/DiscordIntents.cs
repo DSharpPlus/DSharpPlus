@@ -23,7 +23,7 @@ public static class DiscordIntentExtensions
     /// <param name="toAdd">The intents to add.</param>
     /// <returns></returns>
     public static DiscordIntents AddIntent(this DiscordIntents intents, DiscordIntents toAdd)
-        => intents |= toAdd;
+        => intents | toAdd;
 
     /// <summary>
     /// Removes an intent from these intents.
@@ -32,7 +32,7 @@ public static class DiscordIntentExtensions
     /// <param name="toRemove">The intents to remove.</param>
     /// <returns></returns>
     public static DiscordIntents RemoveIntent(this DiscordIntents intents, DiscordIntents toRemove)
-        => intents &= ~toRemove;
+        => intents & ~toRemove;
 
     internal static bool HasAllPrivilegedIntents(this DiscordIntents intents)
         => intents.HasIntent(DiscordIntents.GuildMembers | DiscordIntents.GuildPresences);
