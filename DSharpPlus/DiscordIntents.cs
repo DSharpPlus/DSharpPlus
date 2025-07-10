@@ -2,6 +2,9 @@ using System;
 
 namespace DSharpPlus;
 
+/// <summary>
+/// Provides extension methods for <see cref="DiscordIntents"/>.
+/// </summary>
 public static class DiscordIntentExtensions
 {
     /// <summary>
