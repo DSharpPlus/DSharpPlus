@@ -6,6 +6,9 @@ using DSharpPlus.Net.Models;
 
 namespace DSharpPlus.Entities;
 
+/// <summary>
+/// Represents a soundboard sound
+/// </summary>
 public class DiscordSoundboardSound : SnowflakeObject
 {
     internal DiscordSoundboardSound() { }
@@ -19,13 +22,11 @@ public class DiscordSoundboardSound : SnowflakeObject
         this.Volume = transportSoundboardSound.Volume;
         this.Discord = client;
 
-        if (transportSoundboardSound.EmojiId is not null &&
-            DiscordEmoji.TryFromGuildEmote(client, transportSoundboardSound.EmojiId.Value, out DiscordEmoji emoji, this.GuildId))
-        {
-            this.Emoji = emoji;
-        }
-        else if (!string.IsNullOrWhiteSpace(transportSoundboardSound.EmojiName) &&
-                 DiscordEmoji.TryFromName(client, transportSoundboardSound.EmojiName, false, out emoji))
+        if ((transportSoundboardSound.EmojiId is not null &&
+             DiscordEmoji.TryFromGuildEmote(client, transportSoundboardSound.EmojiId.Value, out DiscordEmoji emoji,
+                 this.GuildId))
+            || (!string.IsNullOrWhiteSpace(transportSoundboardSound.EmojiName) &&
+                DiscordEmoji.TryFromUnicode(client, transportSoundboardSound.EmojiName, out emoji)))
         {
             this.Emoji = emoji;
         }
@@ -71,7 +72,7 @@ public class DiscordSoundboardSound : SnowflakeObject
         {
             return null;
         }
-        
+
         if (!skipCache && this.Discord.Guilds.TryGetValue(this.GuildId.Value, out DiscordGuild? guild))
         {
             return guild;
@@ -98,7 +99,8 @@ public class DiscordSoundboardSound : SnowflakeObject
             return null;
         }
 
-        if (!skipCache && this.GuildId is not null && this.Discord.Guilds.TryGetValue(this.GuildId.Value, out DiscordGuild? guild))
+        if (!skipCache && this.GuildId is not null &&
+            this.Discord.Guilds.TryGetValue(this.GuildId.Value, out DiscordGuild? guild))
         {
             if (guild.members.TryGetValue(this.UserId.Value, out DiscordMember? member))
             {
@@ -130,7 +132,7 @@ public class DiscordSoundboardSound : SnowflakeObject
             throw new InvalidOperationException("Cannot modify a default soundboard sound.");
         }
 
-        SoundboardSoundEditModel mdl = new();
+        SoundboardSoundEditModel mdl = new() {Name = this.Name, Volume = this.Volume};
         action(mdl);
 
         Optional<ulong>? emojiId = null;
@@ -138,12 +140,7 @@ public class DiscordSoundboardSound : SnowflakeObject
 
         if (mdl.Emoji.HasValue)
         {
-            if (mdl.Emoji.Value is null)
-            {
-                emojiId = new Optional<ulong>();
-                emojiName = new Optional<string>();
-            }
-            else if (mdl.Emoji.Value.Id == 0)
+            if (mdl.Emoji.Value.Id == 0)
             {
                 emojiName = mdl.Emoji.Value.Name;
                 emojiId = new Optional<ulong>();
