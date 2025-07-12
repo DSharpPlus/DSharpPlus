@@ -7147,11 +7147,11 @@ public sealed class DiscordRestApiClient
         RestRequest request = new() {Route = route, Url = url, Method = HttpMethod.Get,};
 
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
-        IReadOnlyList<TransportSoundboardSound> transportSoundboardSounds =
-            JsonConvert.DeserializeObject<IReadOnlyList<TransportSoundboardSound>>(res.Response!)!;
+        TransportListGuildSoundboardSounds transportSoundboardSounds =
+            JsonConvert.DeserializeObject<TransportListGuildSoundboardSounds>(res.Response!)!;
 
-        List<DiscordSoundboardSound> sounds = new(transportSoundboardSounds.Count);
-        foreach (TransportSoundboardSound transportSoundboardSound in transportSoundboardSounds)
+        List<DiscordSoundboardSound> sounds = new(transportSoundboardSounds.Items.Count);
+        foreach (TransportSoundboardSound transportSoundboardSound in transportSoundboardSounds.Items)
         {
             DiscordSoundboardSound sound = new(transportSoundboardSound, this.discord!);
             sounds.Add(sound);
