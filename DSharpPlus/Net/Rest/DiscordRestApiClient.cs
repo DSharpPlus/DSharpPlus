@@ -7101,6 +7101,15 @@ public sealed class DiscordRestApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
+    /// <summary>
+    /// Gets a soundboard sound from a guild.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild.</param>
+    /// <param name="soundId">The ID of the soundboard sound.</param>
+    /// <returns>The requested soundboard sound.</returns>
+    /// <exception cref="NotFoundException">Thrown when the soundboard sound does not exist.</exception>
+    /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async ValueTask<DiscordSoundboardSound> GetGuildSoundboardSoundAsync(ulong guildId, ulong soundId)
     {
         string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.SOUNDBOARD_SOUNDS}/:soundId";
@@ -7121,6 +7130,15 @@ public sealed class DiscordRestApiClient
         return sound;
     }
 
+    /// <summary>
+    /// Gets all soundboard sounds from a guild.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild.</param>
+    /// <returns>A list of soundboard sounds from the guild.</returns>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.CreateGuildExpressions"/> permission.</exception>
+    /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
+    /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async ValueTask<IReadOnlyList<DiscordSoundboardSound>> ListGuildSoundboardSoundsAsync(ulong guildId)
     {
         string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.SOUNDBOARD_SOUNDS}";
@@ -7142,6 +7160,12 @@ public sealed class DiscordRestApiClient
         return sounds;
     }
 
+    /// <summary>
+    /// Gets all default soundboard sounds.
+    /// </summary>
+    /// <returns>A list of default soundboard sounds.</returns>
+    /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async ValueTask<IReadOnlyList<DiscordSoundboardSound>> ListDefaultSoundboardSoundsAsync()
     {
         string route = $"{Endpoints.SOUNDBOARD_DEFAULT_SOUNDS}";
@@ -7163,6 +7187,21 @@ public sealed class DiscordRestApiClient
         return sounds;
     }
 
+    /// <summary>
+    /// Creates a soundboard sound for a guild.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild.</param>
+    /// <param name="name">The name of the soundboard sound.</param>
+    /// <param name="soundBase64">The sound file encoded as base64.</param>
+    /// <param name="volume">The volume of the soundboard sound (0.0 to 1.0).</param>
+    /// <param name="emojiId">The ID of the emoji to associate with the sound.</param>
+    /// <param name="emojiName">The name of the emoji to associate with the sound.</param>
+    /// <param name="reason">Reason for audit logs.</param>
+    /// <returns>The created soundboard sound.</returns>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.CreateGuildExpressions"/> permission.</exception>
+    /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
+    /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async ValueTask<DiscordSoundboardSound> CreateGuildSoundboardSoundAsync
     (
         ulong guildId,
@@ -7210,6 +7249,21 @@ public sealed class DiscordRestApiClient
         return sound;
     }
 
+    /// <summary>
+    /// Modifies a soundboard sound in a guild.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild.</param>
+    /// <param name="soundId">The ID of the soundboard sound to modify.</param>
+    /// <param name="name">The new name of the soundboard sound.</param>
+    /// <param name="volume">The new volume of the soundboard sound (0.0 to 1.0).</param>
+    /// <param name="emojiId">The new emoji ID to associate with the sound.</param>
+    /// <param name="emojiName">The new emoji name to associate with the sound.</param>
+    /// <param name="reason">Reason for audit logs.</param>
+    /// <returns>The modified soundboard sound.</returns>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageGuildExpressions"/> permission.</exception>
+    /// <exception cref="NotFoundException">Thrown when the soundboard sound does not exist.</exception>
+    /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async ValueTask<DiscordSoundboardSound> ModifyGuildSoundboardSoundAsync
     (
         ulong guildId,
@@ -7217,7 +7271,8 @@ public sealed class DiscordRestApiClient
         string name,
         Optional<double>? volume = null,
         Optional<ulong>? emojiId = null,
-        Optional<string>? emojiName = null
+        Optional<string>? emojiName = null,
+        string? reason = null
     )
     {
         string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.SOUNDBOARD_SOUNDS}/:soundId";
@@ -7230,10 +7285,20 @@ public sealed class DiscordRestApiClient
             EmojiId = emojiId,
             EmojiName = emojiName
         };
+        
+        Dictionary<string, string>? headers = null;
+        if (!string.IsNullOrWhiteSpace(reason))
+        {
+            headers = new Dictionary<string, string> {{REASON_HEADER_NAME, reason}};
+        }
 
         RestRequest request = new()
         {
-            Route = route, Url = url, Method = HttpMethod.Patch, Payload = DiscordJson.SerializeObject(payload)
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Patch,
+            Payload = DiscordJson.SerializeObject(payload),
+            Headers = headers
         };
 
         RestResponse res = await this.rest.ExecuteRequestAsync(request);
