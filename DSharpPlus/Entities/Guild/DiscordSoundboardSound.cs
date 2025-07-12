@@ -1,5 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Models;
 
 namespace DSharpPlus.Entities;
 
@@ -109,5 +112,57 @@ public class DiscordSoundboardSound : SnowflakeObject
         }
 
         return await this.Discord.ApiClient.GetUserAsync(this.UserId.Value);
+    }
+
+    /// <summary>
+    /// Modifies this soundboard sound.
+    /// </summary>
+    /// <param name="action">Action to perform on this soundboard sound</param>
+    /// <returns></returns>
+    /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="DiscordPermission.ManageGuildExpressions"/> permission.</exception>
+    /// <exception cref="NotFoundException">Thrown when the soundboard sound does not exist.</exception>
+    /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+    /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+    public async Task<DiscordSoundboardSound> ModifyAsync(Action<SoundboardSoundEditModel> action)
+    {
+        if (this.GuildId is null)
+        {
+            throw new InvalidOperationException("Cannot modify a default soundboard sound.");
+        }
+
+        SoundboardSoundEditModel mdl = new();
+        action(mdl);
+
+        Optional<ulong>? emojiId = null;
+        Optional<string>? emojiName = null;
+
+        if (mdl.Emoji.HasValue)
+        {
+            if (mdl.Emoji.Value is null)
+            {
+                emojiId = new Optional<ulong>();
+                emojiName = new Optional<string>();
+            }
+            else if (mdl.Emoji.Value.Id == 0)
+            {
+                emojiName = mdl.Emoji.Value.Name;
+                emojiId = new Optional<ulong>();
+            }
+            else
+            {
+                emojiId = mdl.Emoji.Value.Id;
+                emojiName = new Optional<string>();
+            }
+        }
+
+        return await this.Discord.ApiClient.ModifyGuildSoundboardSoundAsync
+        (
+            this.GuildId.Value,
+            this.Id,
+            mdl.Name,
+            mdl.Volume,
+            emojiId,
+            emojiName
+        );
     }
 }
