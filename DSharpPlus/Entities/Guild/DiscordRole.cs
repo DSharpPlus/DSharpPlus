@@ -85,7 +85,7 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     public DiscordRoleTags Tags { get; internal set; }
 
     [JsonIgnore]
-    internal ulong guild_id = 0;
+    internal ulong guildId = 0;
 
     /// <summary>
     /// Gets a mention string for this role. If the role is mentionable, this string will mention all the users that belong to this role.
@@ -106,7 +106,7 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task ModifyPositionAsync(int position, string reason = null)
     {
-        DiscordRole[] roles = [.. this.Discord.Guilds[this.guild_id].Roles.Values.OrderByDescending(xr => xr.Position)];
+        DiscordRole[] roles = [.. this.Discord.Guilds[this.guildId].Roles.Values.OrderByDescending(xr => xr.Position)];
         DiscordRolePosition[] pmds = new DiscordRolePosition[roles.Length];
         for (int i = 0; i < roles.Length; i++)
         {
@@ -117,7 +117,7 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
             };
         }
 
-        await this.Discord.ApiClient.ModifyGuildRolePositionsAsync(this.guild_id, pmds, reason);
+        await this.Discord.ApiClient.ModifyGuildRolePositionsAsync(this.guildId, pmds, reason);
     }
 
     /// <summary>
@@ -137,7 +137,7 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task ModifyAsync(string name = null, DiscordPermissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null, Stream icon = null, DiscordEmoji emoji = null)
-        => await this.Discord.ApiClient.ModifyGuildRoleAsync(this.guild_id, this.Id, name, permissions, color?.Value, hoist, mentionable, icon, emoji?.ToString(), reason);
+        => await this.Discord.ApiClient.ModifyGuildRoleAsync(this.guildId, this.Id, name, permissions, color?.Value, hoist, mentionable, icon, emoji?.ToString(), reason);
 
     /// <exception cref = "Exceptions.UnauthorizedException" > Thrown when the client does not have the<see cref="DiscordPermission.ManageRoles"/> permission.</exception>
     /// <exception cref="Exceptions.NotFoundException">Thrown when the role does not exist.</exception>
@@ -161,7 +161,7 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task DeleteAsync(string? reason = null)
-        => await this.Discord.ApiClient.DeleteRoleAsync(this.guild_id, this.Id, reason);
+        => await this.Discord.ApiClient.DeleteRoleAsync(this.guildId, this.Id, reason);
     #endregion
 
     internal DiscordRole() { }
@@ -211,9 +211,9 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     /// <param name="e1">First role to compare.</param>
     /// <param name="e2">Second role to compare.</param>
     /// <returns>Whether the two roles are equal.</returns>
-    public static bool operator ==(DiscordRole e1, DiscordRole e2)
+    public static bool operator ==(DiscordRole? e1, DiscordRole? e2)
         => e1 is null == e2 is null
-        && ((e1 is null && e2 is null) || e1.Id == e2.Id);
+        && ((e1 is null && e2 is null) || e1?.Id == e2?.Id);
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordRole"/> objects are not equal.
@@ -221,6 +221,6 @@ public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     /// <param name="e1">First role to compare.</param>
     /// <param name="e2">Second role to compare.</param>
     /// <returns>Whether the two roles are not equal.</returns>
-    public static bool operator !=(DiscordRole e1, DiscordRole e2)
+    public static bool operator !=(DiscordRole? e1, DiscordRole? e2)
         => !(e1 == e2);
 }

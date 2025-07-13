@@ -119,7 +119,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// Date the user joined the guild
     /// </summary>
     [JsonProperty("joined_at", NullValueHandling = NullValueHandling.Ignore)]
-    public DateTimeOffset JoinedAt { get; internal set; }
+    public DateTimeOffset? JoinedAt { get; internal set; }
 
     /// <summary>
     /// Date the user started boosting this server
@@ -131,13 +131,13 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// If the user is deafened
     /// </summary>
     [JsonProperty("is_deafened", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsDeafened { get; internal set; }
+    public bool? IsDeafened { get; internal set; }
 
     /// <summary>
     /// If the user is muted
     /// </summary>
     [JsonProperty("is_muted", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsMuted { get; internal set; }
+    public bool? IsMuted { get; internal set; }
 
     /// <summary>
     /// If the user has passed the guild's Membership Screening requirements
@@ -325,7 +325,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     public override string? GlobalName
     {
         get => this.User.GlobalName;
-        internal set => this.User.GlobalName = value;
+        internal set => this.User.GlobalName = value!;
     }
 
     /// <inheritdoc />
@@ -523,7 +523,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// </summary>
     /// <param name="channel">Channel to calculate permissions for.</param>
     /// <returns>Calculated permissions for this member in the channel.</returns>
-    public DiscordPermissions PermissionsIn(DiscordChannel channel)
+    public DiscordPermissions? PermissionsIn(DiscordChannel channel)
         => channel.PermissionsFor(this);
 
     /// <summary>
@@ -612,7 +612,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// <param name="obj">First member to compare.</param>
     /// <param name="other">Second member to compare.</param>
     /// <returns>Whether the two members are equal.</returns>
-    public static bool operator ==(DiscordMember obj, DiscordMember other) => obj?.Equals(other) ?? other is null;
+    public static bool operator ==(DiscordMember? obj, DiscordMember? other) => obj?.Equals(other) ?? other is null;
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordMember"/> objects are not equal.
