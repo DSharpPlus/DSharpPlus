@@ -349,7 +349,7 @@ public sealed class GatewayClient : IGatewayClient
 
                     case GatewayOpCode.InvalidSession:
 
-                        this.logger.LogDebug("Received INVALID_SESSION, resumable: {Resumable}", (bool)payload.Data);
+                        this.logger.LogDebug("Received INVALID_SESSION, resumable: {Resumable}", (bool)payload.Data!);
                         bool success = (bool)payload.Data ? await TryResumeAsync() : await TryReconnectAsync();
 
                         if (!success)
