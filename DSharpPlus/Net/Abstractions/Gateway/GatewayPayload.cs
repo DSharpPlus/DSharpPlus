@@ -17,7 +17,7 @@ public class GatewayPayload
     /// Gets or sets the data of the payload.
     /// </summary>
     [JsonProperty("d")]
-    public object Data { get; set; }
+    public object? Data { get; set; }
 
     /// <summary>
     /// Gets or sets the sequence number of the payload. Only present for OP 0.

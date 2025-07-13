@@ -10,7 +10,7 @@ internal sealed class GatewayRequestGuildMembers
     public ulong GuildId { get; }
 
     [JsonProperty("query", NullValueHandling = NullValueHandling.Ignore)]
-    public string Query { get; set; } = null;
+    public string? Query { get; set; } = null;
 
     [JsonProperty("limit")]
     public int Limit { get; set; } = 0;
@@ -19,10 +19,10 @@ internal sealed class GatewayRequestGuildMembers
     public bool? Presences { get; set; } = null;
 
     [JsonProperty("user_ids", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<ulong> UserIds { get; set; } = null;
+    public IEnumerable<ulong>? UserIds { get; set; } = null;
 
     [JsonProperty("nonce", NullValueHandling = NullValueHandling.Ignore)]
-    public string Nonce { get; internal set; }
+    public string? Nonce { get; internal set; }
 
     public GatewayRequestGuildMembers(DiscordGuild guild) => this.GuildId = guild.Id;
 }
