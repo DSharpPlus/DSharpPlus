@@ -31,55 +31,55 @@ public class DiscordVoiceState
     /// Gets ID of the user to which this voice state belongs.
     /// </summary>
     [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
-    public ulong UserId { get; init; }
+    public ulong? UserId { get; init; }
 
     /// <summary>
     /// Gets ID of the session of this voice state.
     /// </summary>
     [JsonProperty("session_id", NullValueHandling = NullValueHandling.Ignore)]
-    public string SessionId { get; internal init; }
+    public string? SessionId { get; internal init; }
 
     /// <summary>
     /// Gets whether this user is deafened.
     /// </summary>
     [JsonProperty("deaf", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsServerDeafened { get; internal init; }
+    public bool? IsServerDeafened { get; internal init; }
 
     /// <summary>
     /// Gets whether this user is muted.
     /// </summary>
     [JsonProperty("mute", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsServerMuted { get; internal init; }
+    public bool? IsServerMuted { get; internal init; }
 
     /// <summary>
     /// Gets whether this user is locally deafened.
     /// </summary>
     [JsonProperty("self_deaf", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsSelfDeafened { get; internal init; }
+    public bool? IsSelfDeafened { get; internal init; }
 
     /// <summary>
     /// Gets whether this user is locally muted.
     /// </summary>
     [JsonProperty("self_mute", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsSelfMuted { get; internal init; }
+    public bool? IsSelfMuted { get; internal init; }
 
     /// <summary>
     /// Gets whether this user's camera is enabled.
     /// </summary>
     [JsonProperty("self_video", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsSelfVideo { get; internal init; }
+    public bool? IsSelfVideo { get; internal init; }
 
     /// <summary>
     /// Gets whether this user is using the Go Live feature.
     /// </summary>
     [JsonProperty("self_stream", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsSelfStream { get; internal init; }
+    public bool? IsSelfStream { get; internal init; }
 
     /// <summary>
     /// Gets whether the current user has suppressed this user.
     /// </summary>
     [JsonProperty("suppress", NullValueHandling = NullValueHandling.Ignore)]
-    public bool IsSuppressed { get; internal init; }
+    public bool? IsSuppressed { get; internal init; }
 
     /// <summary>
     /// Gets the time at which this user requested to speak.
@@ -88,7 +88,7 @@ public class DiscordVoiceState
     public DateTimeOffset? RequestToSpeakTimestamp { get; internal init; }
 
     [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
-    internal TransportMember TransportMember { get; init; }
+    internal TransportMember? TransportMember { get; init; }
     
     /// <summary>
     /// Gets the guild associated with this voice state.
@@ -135,7 +135,7 @@ public class DiscordVoiceState
 
         if (skipCache)
         {
-            return await this.Discord.ApiClient.GetGuildMemberAsync(this.GuildId.Value, this.UserId);
+            return await this.Discord.ApiClient.GetGuildMemberAsync(this.GuildId.Value, (ulong)this.UserId!);
         }
         
         DiscordGuild? guild = await GetGuildAsync(skipCache);
@@ -145,12 +145,12 @@ public class DiscordVoiceState
             return null;
         }
         
-        if (guild.Members.TryGetValue(this.UserId, out DiscordMember? member))
+        if (guild.Members.TryGetValue((ulong)this.UserId!, out DiscordMember? member))
         {
             return member;
         }
 
-        member = new DiscordMember(this.TransportMember) { Discord = this.Discord };
+        member = new DiscordMember(this.TransportMember!) { Discord = this.Discord };
 
         if (this.Discord is DiscordClient dc)
         {
@@ -212,5 +212,5 @@ public class DiscordVoiceState
         // Values not filled out are values that are not known from a DiscordMember
     }
 
-    public override string ToString() => $"{this.UserId.ToString(CultureInfo.InvariantCulture)} in {this.GuildId?.ToString(CultureInfo.InvariantCulture)}";
+    public override string ToString() => $"{this.UserId?.ToString(CultureInfo.InvariantCulture)} in {this.GuildId?.ToString(CultureInfo.InvariantCulture)}";
 }
