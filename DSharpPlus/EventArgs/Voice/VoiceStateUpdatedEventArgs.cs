@@ -11,7 +11,7 @@ public class VoiceStateUpdatedEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the ID of the user whose voice state was updated.
     /// </summary>
-    public ulong UserId => this.After.UserId;
+    public ulong? UserId => this.After.UserId;
 
     /// <summary>
     /// Gets the ID of the channel this user is now connected to.
