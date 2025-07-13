@@ -10,8 +10,9 @@ internal sealed class RestChannelCreatePayload
     [JsonProperty("name")]
     public string Name { get; set; }
 
+    // Marked nullable, might need to change later.
     [JsonProperty("type")]
-    public DiscordChannelType Type { get; set; }
+    public DiscordChannelType? Type { get; set; }
 
     [JsonProperty("parent_id", NullValueHandling = NullValueHandling.Ignore)]
     public ulong? Parent { get; set; }
