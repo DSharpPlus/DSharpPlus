@@ -19,7 +19,7 @@ public sealed class ApplicationAuthorizedEventArgs : DiscordEventArgs
     /// The user who authorized the application. This may be a member object if the application was authorized
     /// into a guild.
     /// </summary>
-    public DiscordUser User { get; internal set; }
+    public DiscordUser? User { get; internal set; }
 
     /// <summary>
     /// The scopes the app was authorized for.
