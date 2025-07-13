@@ -1192,7 +1192,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 continue;
             }
 
-            role.guild_id = guild.Id;
+            role.guildId = guild.Id;
             guild.roles[role.Id] = role;
         }
 
