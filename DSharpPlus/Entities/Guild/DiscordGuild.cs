@@ -455,7 +455,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the guild member for current user.
     /// </summary>
     [JsonIgnore]
-    public DiscordMember CurrentMember => this.members != null && this.members.TryGetValue(this.Discord.CurrentUser.Id, out DiscordMember? member) ? member : null;
+    public DiscordMember? CurrentMember => this.members != null && this.members.TryGetValue(this.Discord.CurrentUser.Id, out DiscordMember? member) ? member : null;
 
     /// <summary>
     /// Gets the @everyone role for this guild.

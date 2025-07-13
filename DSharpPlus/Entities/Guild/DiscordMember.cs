@@ -523,7 +523,7 @@ public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     /// </summary>
     /// <param name="channel">Channel to calculate permissions for.</param>
     /// <returns>Calculated permissions for this member in the channel.</returns>
-    public DiscordPermissions? PermissionsIn(DiscordChannel channel)
+    public DiscordPermissions PermissionsIn(DiscordChannel channel)
         => channel.PermissionsFor(this);
 
     /// <summary>
