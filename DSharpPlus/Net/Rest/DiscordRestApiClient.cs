@@ -1568,7 +1568,7 @@ public sealed class DiscordRestApiClient
     (
         ulong guildId,
         string name,
-        DiscordChannelType? type,
+        DiscordChannelType type,
         ulong? parent,
         Optional<string> topic,
         int? bitrate,

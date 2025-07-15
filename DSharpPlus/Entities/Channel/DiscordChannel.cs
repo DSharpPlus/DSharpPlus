@@ -48,7 +48,7 @@ public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     /// Gets the type of this channel.
     /// </summary>
     [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-    public virtual DiscordChannelType? Type { get; internal set; }
+    public virtual DiscordChannelType Type { get; internal set; }
 
     /// <summary>
     /// Gets the position of this channel.

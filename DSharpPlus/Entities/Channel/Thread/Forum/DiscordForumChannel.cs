@@ -11,7 +11,7 @@ namespace DSharpPlus.Entities;
 public sealed class DiscordForumChannel : DiscordChannel
 {
     [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-    public override DiscordChannelType? Type => DiscordChannelType.GuildForum;
+    public override DiscordChannelType Type => DiscordChannelType.GuildForum;
 
     /// <summary>
     /// Gets the topic of the forum. This doubles as the guidelines for the forum.

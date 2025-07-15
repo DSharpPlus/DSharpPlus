@@ -18,7 +18,7 @@ internal sealed class TextChannelTypesCheck : IParameterCheck<ChannelTypesAttrib
         {
             return ValueTask.FromResult<string?>(null);
         }
-        else if (channel.Type != null && attribute.ChannelTypes.Contains(channel.Type.Value))
+        else if (attribute.ChannelTypes.Contains(channel.Type))
         {
             return ValueTask.FromResult<string?>(null);
         }

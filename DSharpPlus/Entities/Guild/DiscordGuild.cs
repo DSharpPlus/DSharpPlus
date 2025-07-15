@@ -1388,7 +1388,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public async Task<DiscordChannel> CreateChannelAsync
     (
         string name,
-        DiscordChannelType? type,
+        DiscordChannelType type,
         DiscordChannel? parent = null,
         Optional<string> topic = default,
         int? bitrate = null,
