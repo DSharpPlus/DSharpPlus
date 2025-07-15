@@ -52,7 +52,7 @@ public class DiscordPartialChannel
     /// Gets a list of permission overwrites
     /// </summary>
     [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
-    public List<DiscordOverwrite>? PermissionOverwrites = [];
+    public List<DiscordOverwrite>? PermissionOverwrites { get; internal set; } = [];
 
     /// <summary>
     /// Gets the channel's topic. This is applicable to text channels only.
