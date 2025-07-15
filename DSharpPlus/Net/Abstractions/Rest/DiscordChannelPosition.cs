@@ -1,14 +1,14 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions.Rest;
 
 public sealed class DiscordChannelPosition
 {
     [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-    public ulong ChannelId { get; set; }
+    public ulong? ChannelId { get; set; }
 
     [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
-    public int Position { get; set; }
+    public int? Position { get; set; }
 
     [JsonProperty("lock_permissions", NullValueHandling = NullValueHandling.Ignore)]
     public bool? LockPermissions { get; set; }

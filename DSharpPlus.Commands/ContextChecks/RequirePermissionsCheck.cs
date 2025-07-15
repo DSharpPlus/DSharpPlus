@@ -23,7 +23,7 @@ internal sealed class RequirePermissionsCheck : IContextCheck<RequirePermissions
         {
             return ValueTask.FromResult<string?>(RequireGuildCheck.ErrorMessage);
         }
-        else if (!context.Guild!.CurrentMember.PermissionsIn(context.Channel).HasAllPermissions(attribute.BotPermissions))
+        else if (!context.Guild!.CurrentMember!.PermissionsIn(context.Channel).HasAllPermissions(attribute.BotPermissions))
         {
             return ValueTask.FromResult<string?>("The bot did not have the needed permissions to execute this command.");
         }

@@ -82,10 +82,10 @@ public class ApplicationCommandEditModel
     /// <summary>
     /// Interaction context(s) where the command can be used.
     /// </summary>
-    public Optional<IEnumerable<DiscordInteractionContextType>> AllowedContexts { internal get; set; }
+    public Optional<IEnumerable<DiscordInteractionContextType?>> AllowedContexts { internal get; set; }
 
     /// <summary>
     /// Installation context(s) where the command is available.
     /// </summary>
-    public Optional<IEnumerable<DiscordApplicationIntegrationType>> IntegrationTypes { internal get; set; }
+    public Optional<IEnumerable<DiscordApplicationIntegrationType?>> IntegrationTypes { internal get; set; }
 }

@@ -751,7 +751,7 @@ public sealed partial class DiscordClient
             foreach (DiscordRole xr in guild.Roles.Values)
             {
                 xr.Discord = this;
-                xr.guild_id = guild.Id;
+                xr.guildId = guild.Id;
             }
 
             JObject rawGuild = rawGuildIndex[guild.Id];
@@ -1221,7 +1221,7 @@ public sealed partial class DiscordClient
         foreach (DiscordRole xr in guild.roles.Values)
         {
             xr.Discord = this;
-            xr.guild_id = guild.Id;
+            xr.guildId = guild.Id;
         }
 
         foreach (DiscordStageInstance instance in guild.stageInstances.Values)
@@ -1382,7 +1382,7 @@ public sealed partial class DiscordClient
         foreach (DiscordRole xr in guild.roles.Values)
         {
             xr.Discord = this;
-            xr.guild_id = guild.Id;
+            xr.guildId = guild.Id;
         }
 
         await this.dispatcher.DispatchAsync(this, new GuildUpdatedEventArgs
@@ -1661,7 +1661,7 @@ public sealed partial class DiscordClient
     internal async Task OnGuildRoleCreateEventAsync(DiscordRole role, DiscordGuild guild)
     {
         role.Discord = this;
-        role.guild_id = guild.Id;
+        role.guildId = guild.Id;
 
         guild.roles[role.Id] = role;
 
@@ -1679,7 +1679,7 @@ public sealed partial class DiscordClient
         DiscordRole newRole = await guild.GetRoleAsync(role.Id);
         DiscordRole oldRole = new()
         {
-            guild_id = guild.Id,
+            guildId = guild.Id,
             color = newRole.color,
             Discord = this,
             IsHoisted = newRole.IsHoisted,
@@ -1693,7 +1693,7 @@ public sealed partial class DiscordClient
             emoji = newRole.emoji
         };
 
-        newRole.guild_id = guild.Id;
+        newRole.guildId = guild.Id;
         newRole.color = role.color;
         newRole.IsHoisted = role.IsHoisted;
         newRole.IsManaged = role.IsManaged;
@@ -2340,7 +2340,7 @@ public sealed partial class DiscordClient
 
         if (vstateNew.ChannelId != null)
         {
-            gld.voiceStates[vstateNew.UserId] = vstateNew;
+            gld.voiceStates[(ulong)vstateNew.UserId!] = vstateNew;
         }
 
         if (gld.members.TryGetValue(uid, out DiscordMember? mbr))
@@ -2822,7 +2822,7 @@ public sealed partial class DiscordClient
 
                     if (guildId.HasValue)
                     {
-                        c.Value.guild_id = guildId.Value;
+                        c.Value.guildId = guildId.Value;
                         if (this.guilds.TryGetValue(guildId.Value, out DiscordGuild? guild))
                         {
                             guild.roles.TryAdd(c.Value.Id, c.Value);

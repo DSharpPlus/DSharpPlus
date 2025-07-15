@@ -15,7 +15,6 @@ using DSharpPlus.Clients;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
-using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Gateway;
 using DSharpPlus.Net.InboundWebhooks;
@@ -148,7 +147,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.UnauthorizedException">Thrown when an invalid token was provided.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task ConnectAsync(DiscordActivity activity = null, DiscordUserStatus? status = null, DateTimeOffset? idlesince = null)
+    public async Task ConnectAsync(DiscordActivity? activity = null, DiscordUserStatus? status = null, DateTimeOffset? idlesince = null)
     {
         // method checks if its already initialized
         await InitializeAsync();
@@ -167,12 +166,12 @@ public sealed partial class DiscordClient : BaseDiscordClient
         }
         else
         {
-            long? since_unix = idlesince != null ? Utilities.GetUnixTime(idlesince.Value) : null;
+            long? sinceUnix = idlesince != null ? Utilities.GetUnixTime(idlesince.Value) : null;
             this.status = new StatusUpdate()
             {
                 Activity = new TransportActivity(activity),
                 Status = status ?? DiscordUserStatus.Online,
-                IdleSince = since_unix,
+                IdleSince = sinceUnix,
                 IsAFK = idlesince != null,
                 activity = activity
             };
@@ -258,17 +257,17 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordUser> GetUserAsync(ulong userId, bool updateCache = false)
     {
-        if (!updateCache && TryGetCachedUserInternal(userId, out DiscordUser? usr))
+        if (!updateCache && TryGetCachedUserInternal(userId, out DiscordUser? discordUser))
         {
-            return usr;
+            return discordUser;
         }
 
-        usr = await this.ApiClient.GetUserAsync(userId);
+        discordUser = await this.ApiClient.GetUserAsync(userId);
 
         // See BaseDiscordClient.UpdateUser for why this is done like this.
-        this.UserCache.AddOrUpdate(userId, usr, (_, _) => usr);
+        this.UserCache.AddOrUpdate(userId, discordUser, (_, _) => discordUser);
 
-        return usr;
+        return discordUser;
     }
 
     /// <summary>
@@ -376,19 +375,19 @@ public sealed partial class DiscordClient : BaseDiscordClient
         DiscordSystemChannelFlags? systemChannelFlags = null
     )
     {
-        Optional<string?> iconb64 = Optional.FromNoValue<string?>();
+        Optional<string?> base64Icon = Optional.FromNoValue<string?>();
 
         if (icon.HasValue && icon.Value != null)
         {
             using InlineMediaTool imgtool = new(icon.Value);
-            iconb64 = imgtool.GetBase64();
+            base64Icon = imgtool.GetBase64();
         }
         else if (icon.HasValue)
         {
-            iconb64 = null;
+            base64Icon = null;
         }
 
-        return await this.ApiClient.CreateGuildAsync(name, region, iconb64, verificationLevel, defaultMessageNotifications, systemChannelFlags);
+        return await this.ApiClient.CreateGuildAsync(name, region, base64Icon, verificationLevel, defaultMessageNotifications, systemChannelFlags);
     }
 
     /// <summary>
@@ -402,19 +401,19 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordGuild> CreateGuildFromTemplateAsync(string code, string name, Optional<Stream> icon = default)
     {
-        Optional<string?> iconb64 = Optional.FromNoValue<string?>();
+        Optional<string?> base64Icon = Optional.FromNoValue<string?>();
 
         if (icon.HasValue && icon.Value != null)
         {
             using InlineMediaTool imgtool = new(icon.Value);
-            iconb64 = imgtool.GetBase64();
+            base64Icon = imgtool.GetBase64();
         }
         else if (icon.HasValue)
         {
-            iconb64 = null;
+            base64Icon = null;
         }
 
-        return await this.ApiClient.CreateGuildFromTemplateAsync(code, name, iconb64);
+        return await this.ApiClient.CreateGuildFromTemplateAsync(code, name, base64Icon);
     }
 
     /// <summary>
@@ -523,7 +522,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             update.Status = userStatus.Value;
         }
 
-        GatewayPayload gatewayPayload = new() {OpCode = GatewayOpCode.StatusUpdate, Data = update};
+        GatewayPayload gatewayPayload = new() { OpCode = GatewayOpCode.StatusUpdate, Data = update };
 
         string payload = DiscordJson.SerializeObject(gatewayPayload);
 
@@ -549,13 +548,13 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <exception cref="Exceptions.NotFoundException">Thrown when the user does not exist.</exception>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<DiscordUser> ModifyCurrentUserAsync(string username = null, Optional<Stream> avatar = default, Optional<Stream> banner = default)
+    public async Task<DiscordUser> ModifyCurrentUserAsync(string? username = null, Optional<Stream> avatar = default, Optional<Stream> banner = default)
     {
         Optional<string> avatarBase64 = Optional.FromNoValue<string>();
         if (avatar.HasValue && avatar.Value != null)
         {
-            using InlineMediaTool imgtool = new(avatar.Value);
-            avatarBase64 = imgtool.GetBase64();
+            using InlineMediaTool imageTool = new(avatar.Value);
+            avatarBase64 = imageTool.GetBase64();
         }
         else if (avatar.HasValue)
         {
@@ -565,19 +564,19 @@ public sealed partial class DiscordClient : BaseDiscordClient
         Optional<string> bannerBase64 = Optional.FromNoValue<string>();
         if (banner.HasValue && banner.Value != null)
         {
-            using InlineMediaTool imgtool = new(banner.Value);
-            bannerBase64 = imgtool.GetBase64();
+            using InlineMediaTool imageTool = new(banner.Value);
+            bannerBase64 = imageTool.GetBase64();
         }
         else if (banner.HasValue)
         {
             bannerBase64 = null;
         }
 
-        DiscordUser usr = await this.ApiClient.ModifyCurrentUserAsync(username, avatarBase64, bannerBase64);
+        DiscordUser discordUser = await this.ApiClient.ModifyCurrentUserAsync(username, avatarBase64, bannerBase64);
 
-        this.CurrentUser.Username = usr.Username;
-        this.CurrentUser.Discriminator = usr.Discriminator;
-        this.CurrentUser.AvatarHash = usr.AvatarHash;
+        this.CurrentUser.Username = discordUser.Username;
+        this.CurrentUser.Discriminator = discordUser.Discriminator;
+        this.CurrentUser.AvatarHash = discordUser.AvatarHash;
         return this.CurrentUser;
     }
 
@@ -629,7 +628,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <param name="commandName">The name of the command to get.</param>
     /// <param name="withLocalizations">Whether to include localizations in the response.</param>
     /// <returns>The command with the name.</returns>
-    public async Task<DiscordApplicationCommand> GetGlobalApplicationCommandAsync(string commandName, bool withLocalizations = false)
+    public async Task<DiscordApplicationCommand?> GetGlobalApplicationCommandAsync(string commandName, bool withLocalizations = false)
     {
         foreach (DiscordApplicationCommand command in await this.ApiClient.GetGlobalApplicationCommandsAsync(this.CurrentApplication.Id, withLocalizations))
         {
@@ -650,8 +649,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <returns>The edited command.</returns>
     public async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong commandId, Action<ApplicationCommandEditModel> action)
     {
-        ApplicationCommandEditModel mdl = new();
-        action(mdl);
+        ApplicationCommandEditModel commandEditModel = new();
+        action(commandEditModel);
 
         ulong applicationId = this.CurrentApplication?.Id ?? (await GetCurrentApplicationAsync()).Id;
 
@@ -659,17 +658,17 @@ public sealed partial class DiscordClient : BaseDiscordClient
         (
             applicationId,
             commandId,
-            mdl.Name,
-            mdl.Description,
-            mdl.Options,
-            mdl.DefaultPermission,
-            mdl.NSFW,
-            mdl.NameLocalizations,
-            mdl.DescriptionLocalizations,
-            mdl.AllowDMUsage,
-            mdl.DefaultMemberPermissions,
-            mdl.AllowedContexts,
-            mdl.IntegrationTypes
+            commandEditModel.Name,
+            commandEditModel.Description,
+            commandEditModel.Options,
+            commandEditModel.DefaultPermission,
+            commandEditModel.NSFW,
+            commandEditModel.NameLocalizations,
+            commandEditModel.DescriptionLocalizations,
+            commandEditModel.AllowDMUsage,
+            commandEditModel.DefaultMemberPermissions,
+            commandEditModel.AllowedContexts,
+            commandEditModel.IntegrationTypes
         );
     }
 
@@ -725,8 +724,8 @@ public sealed partial class DiscordClient : BaseDiscordClient
     /// <returns>The edited command.</returns>
     public async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong guildId, ulong commandId, Action<ApplicationCommandEditModel> action)
     {
-        ApplicationCommandEditModel mdl = new();
-        action(mdl);
+        ApplicationCommandEditModel commandEditModel = new();
+        action(commandEditModel);
 
         ulong applicationId = this.CurrentApplication?.Id ?? (await GetCurrentApplicationAsync()).Id;
 
@@ -735,17 +734,17 @@ public sealed partial class DiscordClient : BaseDiscordClient
             applicationId,
             guildId,
             commandId,
-            mdl.Name,
-            mdl.Description,
-            mdl.Options,
-            mdl.DefaultPermission,
-            mdl.NSFW,
-            mdl.NameLocalizations,
-            mdl.DescriptionLocalizations,
-            mdl.AllowDMUsage,
-            mdl.DefaultMemberPermissions,
-            mdl.AllowedContexts,
-            mdl.IntegrationTypes
+            commandEditModel.Name,
+            commandEditModel.Description,
+            commandEditModel.Options,
+            commandEditModel.DefaultPermission,
+            commandEditModel.NSFW,
+            commandEditModel.NameLocalizations,
+            commandEditModel.DescriptionLocalizations,
+            commandEditModel.AllowDMUsage,
+            commandEditModel.DefaultMemberPermissions,
+            commandEditModel.AllowedContexts,
+            commandEditModel.IntegrationTypes
         );
     }
 
@@ -813,14 +812,14 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
         ArgumentNullException.ThrowIfNull(image);
 
-        string? image64 = null;
+        string? base64Image = null;
 
-        using (InlineMediaTool imgtool = new(image))
+        using (InlineMediaTool imageTool = new(image))
         {
-            image64 = imgtool.GetBase64();
+            base64Image = imageTool.GetBase64();
         }
 
-        return await this.ApiClient.CreateApplicationEmojiAsync(this.CurrentApplication.Id, name, image64);
+        return await this.ApiClient.CreateApplicationEmojiAsync(this.CurrentApplication.Id, name, base64Image);
     }
 
     /// <summary>
@@ -835,11 +834,11 @@ public sealed partial class DiscordClient : BaseDiscordClient
         {
             return emoji;
         }
-        
+
         DiscordEmoji result = await this.ApiClient.GetApplicationEmojiAsync(this.CurrentApplication.Id, emojiId);
-        
+
         this.CurrentApplication.ApplicationEmojis[emojiId] = result;
-        
+
         return result;
     }
 
@@ -851,12 +850,12 @@ public sealed partial class DiscordClient : BaseDiscordClient
     public async ValueTask<IReadOnlyList<DiscordEmoji>> GetApplicationEmojisAsync()
     {
         IReadOnlyList<DiscordEmoji> result = await this.ApiClient.GetApplicationEmojisAsync(this.CurrentApplication.Id);
-        
+
         foreach (DiscordEmoji emoji in result)
         {
             this.CurrentApplication.ApplicationEmojis[emoji.Id] = emoji;
         }
-        
+
         return result;
     }
 
@@ -908,7 +907,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 yield break;
             }
 
-            int fetchSize = remaining > 200 ? 200 : remaining;
+            int fetchSize = Math.Min(remaining, 200);
             IReadOnlyList<DiscordGuild> fetchedGuilds = await this.ApiClient.GetGuildsAsync(fetchSize, isbefore ? last ?? before : null, !isbefore ? last ?? after : null, withCount);
 
             lastCount = fetchedGuilds.Count;
@@ -945,17 +944,14 @@ public sealed partial class DiscordClient : BaseDiscordClient
         Int128 nonceKey = new(guildId, (ulong)(nonce?.GetHashCode() ?? 0));
         Channel<GuildMembersChunkedEventArgs> channel = Channel.CreateUnbounded<GuildMembersChunkedEventArgs>(new UnboundedChannelOptions { SingleWriter = true, SingleReader = true });
 
-        if (!this.guildMembersChunkedEvents.TryAdd(nonceKey, channel))
-        {
-            throw new InvalidOperationException("A guild member chunk request for the given guild and nonce has already been registered.");
-        }
-
-        return channel.Reader;
+        return !this.guildMembersChunkedEvents.TryAdd(nonceKey, channel)
+            ? throw new InvalidOperationException("A guild member chunk request for the given guild and nonce has already been registered.")
+            : channel.Reader;
     }
 
     private async ValueTask DispatchGuildMembersChunkForIteratorsAsync(GuildMembersChunkedEventArgs eventArgs)
     {
-        if (this.guildMembersChunkedEvents.Count is 0)
+        if (this.guildMembersChunkedEvents.IsEmpty)
         {
             return;
         }
@@ -1000,15 +996,12 @@ public sealed partial class DiscordClient : BaseDiscordClient
             return InternalGetCachedThread(threadId);
         }
 
-        if (this.guilds.TryGetValue(guildId.Value, out DiscordGuild? guild))
-        {
-            return guild.Threads.GetValueOrDefault(threadId);
-        }
-
-        return null;
+        return this.guilds.TryGetValue(guildId.Value, out DiscordGuild? guild) 
+            ? guild.Threads.GetValueOrDefault(threadId) 
+            : null;
     }
 
-    internal DiscordChannel InternalGetCachedChannel(ulong channelId)
+    internal DiscordChannel? InternalGetCachedChannel(ulong channelId)
     {
         if (this.privateChannels?.TryGetValue(channelId, out DiscordDmChannel? foundDmChannel) == true)
         {
@@ -1033,37 +1026,25 @@ public sealed partial class DiscordClient : BaseDiscordClient
             return this.privateChannels.GetValueOrDefault(channelId) ?? InternalGetCachedChannel(channelId);
         }
 
-        if (this.guilds.TryGetValue(nonNullGuildID, out DiscordGuild? guild))
-        {
-            return guild.Channels.GetValueOrDefault(channelId);
-        }
-
-        return InternalGetCachedChannel(channelId);
+        return this.guilds.TryGetValue(nonNullGuildID, out DiscordGuild? guild)
+            ? guild.Channels.GetValueOrDefault(channelId)
+            : InternalGetCachedChannel(channelId);
     }
 
-    internal DiscordGuild InternalGetCachedGuild(ulong? guildId)
+    internal DiscordGuild? InternalGetCachedGuild(ulong? guildId)
     {
-        if (this.guilds != null && guildId.HasValue)
-        {
-            if (this.guilds.TryGetValue(guildId.Value, out DiscordGuild? guild))
-            {
-                return guild;
-            }
-        }
-
-        return null;
+        return this.guilds != null && guildId.HasValue && this.guilds.TryGetValue(guildId.Value, out DiscordGuild? guild) 
+            ? guild 
+            : null;
     }
 
-    private void UpdateMessage(DiscordMessage message, TransportUser author, DiscordGuild guild, TransportMember member)
+    private void UpdateMessage(DiscordMessage message, TransportUser author, DiscordGuild? guild, TransportMember member)
     {
         if (author != null)
         {
             DiscordUser usr = new(author) { Discord = this };
 
-            if (member != null)
-            {
-                member.User = author;
-            }
+            member.User = author;
 
             message.Author = UpdateUser(usr, guild?.Id, guild, member);
         }
@@ -1086,7 +1067,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             : new DiscordChannel
             {
                 Id = message.ChannelId,
-                GuildId = guild.Id,
+                GuildId = guild?.Id,
                 Discord = this
             };
 
@@ -1095,47 +1076,44 @@ public sealed partial class DiscordClient : BaseDiscordClient
         message.Channel = channel;
     }
 
-    private DiscordUser UpdateUser(DiscordUser usr, ulong? guildId, DiscordGuild guild, TransportMember mbr)
+    private DiscordUser UpdateUser(DiscordUser user, ulong? guildId, DiscordGuild? guild, TransportMember? transportMember)
     {
-        if (mbr != null)
+        if (transportMember != null)
         {
-            if (mbr.User != null)
+            if (transportMember.User != null)
             {
-                usr = new DiscordUser(mbr.User) { Discord = this };
+                user = new DiscordUser(transportMember.User) { Discord = this };
 
-                UpdateUserCache(usr);
+                UpdateUserCache(user);
 
-                usr = new DiscordMember(mbr) { Discord = this, guild_id = guildId.Value };
+                user = new DiscordMember(transportMember) { Discord = this, guild_id = guildId.Value };
             }
 
             DiscordIntents intents = this.Intents;
 
-            DiscordMember member = default;
+            DiscordMember? member = default;
 
-            if (!intents.HasAllPrivilegedIntents() || guild.IsLarge) // we have the necessary privileged intents, no need to worry about caching here unless guild is large.
+            if (!intents.HasAllPrivilegedIntents() || guild?.IsLarge is true) // we have the necessary privileged intents, no need to worry about caching here unless guild is large.
             {
-                if (guild?.members.TryGetValue(usr.Id, out member) == false)
+                if (guild?.members.TryGetValue(user.Id, out member) == false)
                 {
                     if (intents.HasIntent(DiscordIntents.GuildMembers) || this.Configuration.AlwaysCacheMembers) // member can be updated by events, so cache it
                     {
-                        guild.members.TryAdd(usr.Id, (DiscordMember)usr);
+                        guild.members.TryAdd(user.Id, (DiscordMember)user);
                     }
                 }
-                else if (intents.HasIntent(DiscordIntents.GuildPresences) || this.Configuration.AlwaysCacheMembers) // we can attempt to update it if it's already in cache.
+                else if ((intents.HasIntent(DiscordIntents.GuildPresences) || this.Configuration.AlwaysCacheMembers) && !intents.HasIntent(DiscordIntents.GuildMembers)) // we can attempt to update it if it's already in cache.
                 {
-                    if (!intents.HasIntent(DiscordIntents.GuildMembers)) // no need to update if we already have the member events
-                    {
-                        _ = guild?.members.TryUpdate(usr.Id, (DiscordMember)usr, member);
-                    }
+                    _ = guild?.members.TryUpdate(user.Id, (DiscordMember)user, member);
                 }
             }
         }
-        else if (usr.Username != null) // check if not a skeleton user
+        else if (user.Username != null) // check if not a skeleton user
         {
-            UpdateUserCache(usr);
+            UpdateUserCache(user);
         }
 
-        return usr;
+        return user;
     }
 
     private void UpdateCachedGuild(DiscordGuild newGuild, JArray rawMembers)
@@ -1145,7 +1123,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
             return;
         }
 
-        if (!this.guilds.TryGetValue(newGuild.Id, out DiscordGuild guild))
+        if (!this.guilds.TryGetValue(newGuild.Id, out DiscordGuild? guild))
         {
             guild = newGuild;
             this.guilds[newGuild.Id] = guild;
@@ -1214,7 +1192,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
                 continue;
             }
 
-            role.guild_id = guild.Id;
+            role.guildId = guild.Id;
             guild.roles[role.Id] = role;
         }
 
@@ -1270,7 +1248,7 @@ public sealed partial class DiscordClient : BaseDiscordClient
 
     private void PopulateMessageReactionsAndCache(DiscordMessage message, TransportUser author, TransportMember member)
     {
-        DiscordGuild guild = message.Channel?.Guild ?? InternalGetCachedGuild(message.guildId);
+        DiscordGuild? guild = message.Channel?.Guild ?? InternalGetCachedGuild(message.guildId);
         UpdateMessage(message, author, guild, member);
         message.reactions ??= [];
 

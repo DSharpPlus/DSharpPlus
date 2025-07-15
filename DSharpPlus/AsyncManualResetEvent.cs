@@ -10,9 +10,9 @@ namespace DSharpPlus;
 /// </summary>
 internal class AsyncManualResetEvent
 {
-    public bool IsSet => this.tsc != null && this.tsc.Task.IsCompleted;
+    public bool IsSet => this.taskCompletionSource != null && this.taskCompletionSource.Task.IsCompleted;
 
-    private TaskCompletionSource<bool> tsc;
+    private TaskCompletionSource<bool> taskCompletionSource;
 
     public AsyncManualResetEvent()
         : this(false)
@@ -20,25 +20,25 @@ internal class AsyncManualResetEvent
 
     public AsyncManualResetEvent(bool initialState)
     {
-        this.tsc = new TaskCompletionSource<bool>();
+        this.taskCompletionSource = new TaskCompletionSource<bool>();
 
         if (initialState)
         {
-            this.tsc.TrySetResult(true);
+            this.taskCompletionSource.TrySetResult(true);
         }
     }
 
-    public Task WaitAsync() => this.tsc.Task;
+    public Task WaitAsync() => this.taskCompletionSource.Task;
 
-    public Task SetAsync() => Task.Run(() => this.tsc.TrySetResult(true));
+    public Task SetAsync() => Task.Run(() => this.taskCompletionSource.TrySetResult(true));
 
     public void Reset()
     {
         while (true)
         {
-            TaskCompletionSource<bool> tsc = this.tsc;
+            TaskCompletionSource<bool> completionSource = this.taskCompletionSource;
 
-            if (!tsc.Task.IsCompleted || Interlocked.CompareExchange(ref this.tsc, new TaskCompletionSource<bool>(), tsc) == tsc)
+            if (!completionSource.Task.IsCompleted || Interlocked.CompareExchange(ref this.taskCompletionSource, new TaskCompletionSource<bool>(), completionSource) == completionSource)
             {
                 return;
             }

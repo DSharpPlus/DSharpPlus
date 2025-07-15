@@ -71,59 +71,59 @@ public sealed class InlineMediaTool : IDisposable
             return this.format;
         }
 
-        using (BinaryReader br = new(this.SourceStream, Utilities.UTF8, true))
+        using (BinaryReader binaryReader = new(this.SourceStream, Utilities.UTF8, true))
         {
-            ulong bgn64 = br.ReadUInt64();
+            ulong readLongMagic = binaryReader.ReadUInt64();
 
-            if (bgn64 == PNG_MAGIC)
+            if (readLongMagic == PNG_MAGIC)
             {
                 return this.format = MediaFormat.Png;
             }
 
-            if ((bgn64 & MASK32_LESSER) == AVIF_MAGIC_PART_1 && br.ReadUInt32() == AVIF_MAGIC_PART_2)
+            if ((readLongMagic & MASK32_LESSER) == AVIF_MAGIC_PART_1 && binaryReader.ReadUInt32() == AVIF_MAGIC_PART_2)
             {
                 return this.format = MediaFormat.Avif;
             }
 
-            bgn64 &= GIF_MASK;
+            readLongMagic &= GIF_MASK;
 
-            if (bgn64 is GIF_MAGIC_1 or GIF_MAGIC_2)
+            if (readLongMagic is GIF_MAGIC_1 or GIF_MAGIC_2)
             {
                 return this.format = MediaFormat.Gif;
             }
 
-            uint bgn32 = (uint)(bgn64 & MASK32);
+            uint readIntegerMagic = (uint)(readLongMagic & MASK32);
 
-            if (bgn32 == WEBP_MAGIC_1 && br.ReadUInt32() == WEBP_MAGIC_2)
+            if (readIntegerMagic == WEBP_MAGIC_1 && binaryReader.ReadUInt32() == WEBP_MAGIC_2)
             {
                 return this.format = MediaFormat.WebP;
             }
 
-            if (bgn32 == OGG_MAGIC)
+            if (readIntegerMagic == OGG_MAGIC)
             {
                 return this.format = MediaFormat.Ogg;
             }
 
-            uint bgn24 = bgn32 & MASK24;
+            readIntegerMagic &= MASK24;
 
-            if (bgn24 == MP3_MAGIC_4)
+            if (readIntegerMagic == MP3_MAGIC_4)
             {
                 return this.format = MediaFormat.Mp3;
             }
 
-            ushort bgn16 = (ushort)(bgn32 & MASK16);
+            ushort readShortMagic = (ushort)(readIntegerMagic & MASK16);
 
-            if (bgn16 == JPEG_MAGIC_1)
+            if (readShortMagic == JPEG_MAGIC_1)
             {
                 this.SourceStream.Seek(-2, SeekOrigin.End);
 
-                if (br.ReadUInt16() == JPEG_MAGIC_2)
+                if (binaryReader.ReadUInt16() == JPEG_MAGIC_2)
                 {
                     return this.format = MediaFormat.Jpeg;
                 }
             }
 
-            if (bgn16 is MP3_MAGIC_1 or MP3_MAGIC_2 or MP3_MAGIC_3)
+            if (readShortMagic is MP3_MAGIC_1 or MP3_MAGIC_2 or MP3_MAGIC_3)
             {
                 return this.format = MediaFormat.Mp3;
             }
@@ -141,13 +141,13 @@ public sealed class InlineMediaTool : IDisposable
         const int readLength = 12288;
         const int writeLength = 16384;
 
-        MediaFormat fmt = GetFormat();
+        MediaFormat mediaFormat = GetFormat();
 
         int contentLength = Base64.GetMaxEncodedToUtf8Length((int)this.SourceStream.Length);
 
-        int formatLength = fmt.ToString().Length;
+        int formatLength = mediaFormat.ToString().Length;
 
-        byte[] b64Buffer = ArrayPool<byte>.Shared.Rent(formatLength + contentLength + 19);
+        byte[] base64Buffer = ArrayPool<byte>.Shared.Rent(formatLength + contentLength + 19);
         byte[] readBufferBacking = ArrayPool<byte>.Shared.Rent(readLength);
 
         Span<byte> readBuffer = readBufferBacking.AsSpan()[..readLength];
@@ -155,7 +155,7 @@ public sealed class InlineMediaTool : IDisposable
         int processed = 0;
         int totalWritten = 0;
 
-        (fmt switch
+        (mediaFormat switch
         {
             MediaFormat.Png => "data:image/png;base64,"u8,
             MediaFormat.Jpeg => "data:image/jpeg;base64,"u8,
@@ -166,7 +166,7 @@ public sealed class InlineMediaTool : IDisposable
             MediaFormat.Mp3 => "data:audio/mp3;base64,"u8,
             MediaFormat.Auto => "data:image/auto;base64,"u8,
             _ => "data:image/unknown;base64"u8
-        }).CopyTo(b64Buffer);
+        }).CopyTo(base64Buffer);
 
         totalWritten += 19;
         totalWritten += formatLength;
@@ -175,7 +175,7 @@ public sealed class InlineMediaTool : IDisposable
         {
             this.SourceStream.ReadExactly(readBuffer);
 
-            Base64.EncodeToUtf8(readBuffer, b64Buffer.AsSpan().Slice(totalWritten, writeLength), out int _, out int written, false);
+            Base64.EncodeToUtf8(readBuffer, base64Buffer.AsSpan().Slice(totalWritten, writeLength), out int _, out int written, false);
 
             processed += readLength;
             totalWritten += written;
@@ -185,11 +185,11 @@ public sealed class InlineMediaTool : IDisposable
 
         this.SourceStream.ReadExactly(readBufferBacking, 0, remainingLength);
 
-        Base64.EncodeToUtf8(readBufferBacking.AsSpan()[..remainingLength], b64Buffer.AsSpan()[totalWritten..], out int _, out int lastWritten);
+        Base64.EncodeToUtf8(readBufferBacking.AsSpan()[..remainingLength], base64Buffer.AsSpan()[totalWritten..], out int _, out int lastWritten);
 
-        string value = Encoding.UTF8.GetString(b64Buffer.AsSpan()[..(totalWritten + lastWritten)]);
+        string value = Encoding.UTF8.GetString(base64Buffer.AsSpan()[..(totalWritten + lastWritten)]);
 
-        ArrayPool<byte>.Shared.Return(b64Buffer);
+        ArrayPool<byte>.Shared.Return(base64Buffer);
         ArrayPool<byte>.Shared.Return(readBufferBacking);
 
         return value;
