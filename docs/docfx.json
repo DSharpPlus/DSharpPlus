@@ -40,6 +40,9 @@
         ]
       }
     ],
+    "xref": [
+      "https://learn.microsoft.com/en-us/dotnet/.xrefmap.json"
+    ],
     "resource": [
       {
         "files": [
