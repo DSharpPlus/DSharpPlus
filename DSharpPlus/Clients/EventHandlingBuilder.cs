@@ -608,6 +608,15 @@ public sealed class EventHandlingBuilder
     }
 
     /// <summary>
+    /// Sent when someone sends an effect, such as an emoji reaction or a soundboard sound, in a voice channel the current user is connected to. 
+    /// </summary>
+    public EventHandlingBuilder HandleVoiceChannelEffectSend(Func<DiscordClient, VoiceChannelEffectSendEventArgs, Task> handler)
+    {
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
+        return this;
+    }
+
+    /// <summary>
     /// Fired when a thread is created.
     /// For this event to fire you need the <see cref="DiscordIntents.Guilds"/> intent.
     /// </summary>

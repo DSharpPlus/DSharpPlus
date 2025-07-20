@@ -7309,5 +7309,68 @@ public sealed class DiscordRestApiClient
 
         return sound;
     }
-    
+
+    /// <summary>
+    /// Deletes a soundboard sound from a guild.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild.</param>
+    /// <param name="soundId">The ID of the soundboard sound to delete.</param>
+    /// <param name="reason">Reason for audit logs.</param>
+    public async ValueTask DeleteGuildSoundboardSoundAsync(ulong guildId, ulong soundId, string? reason = null)
+    {
+        string route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.SOUNDBOARD_SOUNDS}/:soundId";
+        string url = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.SOUNDBOARD_SOUNDS}/{soundId}";
+
+        Dictionary<string, string>? headers = null;
+        if (!string.IsNullOrWhiteSpace(reason))
+        {
+            headers = new Dictionary<string, string> {{REASON_HEADER_NAME, reason}};
+        }
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Delete,
+            Headers = headers
+        };
+
+        await this.rest.ExecuteRequestAsync(request);
+    }
+
+    /// <summary>
+    /// Sends a soundboard sound to a channel.
+    /// </summary>
+    /// <param name="channelId">The ID of the channel to send the sound to.</param>
+    /// <param name="soundId">The ID of the soundboard sound to send.</param>
+    /// <param name="sourceGuildId">The id of the guild the soundboard sound is from, required to play sounds from different servers.</param>
+    /// <remarks>
+    /// Requires the <see cref="DiscordPermission.Speak"/> and <see cref="DiscordPermission.UseSoundboard"/> permissions,
+    /// and also the <see cref="DiscordPermission.UseExternalSounds"/> permission if the sound is from a different server.
+    /// Additionally, requires the user to be connected to the voice channel,
+    /// having a voice state without <see cref="DiscordVoiceState.IsServerDeafened"/>, <see cref="DiscordVoiceState.IsSelfDeafened"/>,
+    /// <see cref="DiscordVoiceState.IsServerMuted"/> or <see cref="DiscordVoiceState.IsSuppressed"/>.
+    /// </remarks>
+    public async ValueTask SendSoundboardSoundToChannelAsync(ulong channelId, ulong soundId, ulong? sourceGuildId)
+    {
+        string route = $"{Endpoints.CHANNELS}/:channelId/{Endpoints.Send_Soundboard_Sound}";
+        string url = $"{Endpoints.CHANNELS}/{channelId}/{Endpoints.Send_Soundboard_Sound}";
+
+        RestSendSoundboardSoundPayload payload = new()
+        {
+            SoundId = soundId,
+            SourceGuildId = sourceGuildId
+        };
+
+        RestRequest request = new()
+        {
+            Route = route,
+            Url = url,
+            Method = HttpMethod.Post,
+            Payload = DiscordJson.SerializeObject(payload)
+        };
+
+        await this.rest.ExecuteRequestAsync(request);
+        
+    }
 }

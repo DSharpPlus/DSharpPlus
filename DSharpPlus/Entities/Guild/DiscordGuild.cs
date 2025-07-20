@@ -2619,7 +2619,53 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>Returns the soundboard sound from the guild.</returns>
     public async Task<DiscordSoundboardSound> GetSoundboardSoundAsync(ulong id) 
         => await this.Discord.ApiClient.GetGuildSoundboardSoundAsync(this.Id, id);
+    
+    /// <summary>
+    /// Creates a new soundboard sound in the guild.
+    /// </summary>
+    /// <param name="name">Name of the soundboard sound.</param>
+    /// <param name="sound">Sound to use as the soundboard sound.</param>
+    /// <param name="volume">Volume of the soundboard sound, between 0.0 and 1.0.</param>
+    /// <param name="emoji">Emoji to use as the soundboard sound. This can be null.</param>
+    /// <param name="reason">Reason for audit log.</param>
+    /// <returns></returns>
+    public async Task<DiscordSoundboardSound> CreateSoundboardSoundAsync(string name, Stream sound, double volume = 1, DiscordEmoji? emoji = null, string? reason = null)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(sound);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(volume, 1.0, nameof(volume));
+        ArgumentOutOfRangeException.ThrowIfNegative(volume, nameof(volume));
 
+        using InlineMediaTool imgtool = new(sound);
+        string sound64 = imgtool.GetBase64();
+
+        string? emojiName = null;
+        ulong? emojiId = null;
+
+        if (emoji is not null)
+        {
+            emojiName = emoji.Id == 0 ? emoji.Name : null;
+            emojiId = emoji.Id == 0 ? null : emoji.Id;
+        }
+
+        return await this.Discord.ApiClient.CreateGuildSoundboardSoundAsync(this.Id, name, sound64, volume, emojiId, emojiName, reason);
+    }
+
+    /// <summary>
+    /// Deletes a soundboard sound from the guild.
+    /// </summary>
+    /// <param name="soundId">The id of the soundboard sound to delete.</param>
+    /// <param name="reason">Reason for audit log.</param>
+    public async Task DeleteSoundboardSoundAsync(ulong soundId, string? reason = null)
+        => await this.Discord.ApiClient.DeleteGuildSoundboardSoundAsync(this.Id, soundId, reason);
+
+    /// <summary>
+    /// Deletes a soundboard sound from the guild.
+    /// </summary>
+    /// <param name="sound">The soundboard sound to delete.</param>
+    /// <param name="reason">Reason for audit log.</param>
+    public async Task DeleteSoundboardSoundAsync(DiscordSoundboardSound sound, string? reason = null)
+        => await this.Discord.ApiClient.DeleteGuildSoundboardSoundAsync(this.Id, sound.Id, reason);
     #endregion
 
     /// <summary>

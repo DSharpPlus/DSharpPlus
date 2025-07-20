@@ -58,6 +58,7 @@ internal static class Endpoints
     public const string ROLES = "roles";
     public const string RULES = "rules";
     public const string SEARCH = "search";
+    public const string Send_Soundboard_Sound = "send-soundboard-sound";
     public const string SKUS = "skus";
     public const string SLACK = "slack";
     public const string SOUNDBOARD_DEFAULT_SOUNDS = "soundboard-default-sounds";

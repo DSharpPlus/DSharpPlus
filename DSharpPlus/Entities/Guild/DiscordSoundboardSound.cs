@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Abstractions;
@@ -9,6 +10,7 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Represents a soundboard sound
 /// </summary>
+[DebuggerDisplay("{ToString()}")]
 public class DiscordSoundboardSound : SnowflakeObject
 {
     internal DiscordSoundboardSound() { }
@@ -33,7 +35,7 @@ public class DiscordSoundboardSound : SnowflakeObject
     }
 
     /// <summary>
-    /// The name of the sound
+    /// The name of the sound.
     /// </summary>
     public string Name { get; internal set; }
 
@@ -43,12 +45,12 @@ public class DiscordSoundboardSound : SnowflakeObject
     public ulong? GuildId { get; internal set; }
 
     /// <summary>
-    /// Volume of the sound between 1 and 0
+    /// Volume of the sound between 1 and 0.
     /// </summary>
     public double Volume { get; internal set; }
 
     /// <summary>
-    /// The emoji associated with the sound
+    /// The emoji associated with the sound.
     /// </summary>
     public DiscordEmoji? Emoji { get; internal set; }
 
@@ -62,10 +64,7 @@ public class DiscordSoundboardSound : SnowflakeObject
     /// <summary>
     /// Gets the guild this sound belongs to, or <c>null</c> if the sound is a default sound.
     /// </summary>
-    /// <param name="skipCache">
-    /// If set to <c>true</c>, this method will bypass any cached data and fetch the guild directly from the Discord API.
-    /// If set to <c>false</c>, the method will attempt to retrieve the guild from the local cache first, and only query the API if it is not found in the cache.
-    /// </param>
+    /// <param name="skipCache">If set to true this method will skip all caches and always perform a rest api call</param>
     public async ValueTask<DiscordGuild?> GetGuildAsync(bool skipCache = false)
     {
         if (this.GuildId is null)
@@ -84,10 +83,7 @@ public class DiscordSoundboardSound : SnowflakeObject
     /// <summary>
     /// Retrieves the user who created this sound.
     /// </summary>
-    /// <param name="skipCache">
-    /// If set to <c>true</c>, this method will bypass any cached data and fetch the user directly from the Discord API.
-    /// If set to <c>false</c>, the method will attempt to retrieve the user from the local cache first, and only query the API if the user is not found in the cache.
-    /// </param>
+    /// <param name="skipCache">If set to true this method will skip all caches and always perform a rest api call</param>
     /// <returns>
     /// The user who created the sound, if known. If the user is in cache, this may be a <see cref="DiscordMember"/>.
     /// Returns <c>null</c> if the bot does not have the <see cref="DiscordPermission.CreateGuildExpressions"/> or <see cref="DiscordPermission.ManageGuildExpressions"/> permission, or if the sound is a default one.
@@ -162,4 +158,21 @@ public class DiscordSoundboardSound : SnowflakeObject
             emojiName
         );
     }
+    
+    /// <summary>
+    /// Deletes this soundboard sound.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Thrown when the sound is a default sound.</exception>
+    public async ValueTask DeleteAsync()
+    {
+        if (this.GuildId is null)
+        {
+            throw new InvalidOperationException("Cannot delete a default soundboard sound.");
+        }
+
+        await this.Discord.ApiClient.DeleteGuildSoundboardSoundAsync(this.GuildId.Value, this.Id);
+    }
+
+    /// <inheritdoc />
+    public override string ToString() => $"{this.Name} ({this.Id}) - Volume: {this.Volume}, Emoji: {this.Emoji?.Name ?? "None"}";
 }
