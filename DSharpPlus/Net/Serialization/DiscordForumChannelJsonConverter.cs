@@ -13,8 +13,8 @@ public class DiscordForumChannelJsonConverter : JsonConverter
 
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
     {
-        JObject job = JObject.Load(reader);
-        bool hasType = job.TryGetValue("type", out JToken typeToken);
+        JObject jObject = JObject.Load(reader);
+        bool hasType = jObject.TryGetValue("type", out JToken? typeToken);
 
         if (!hasType)
         {
@@ -22,33 +22,33 @@ public class DiscordForumChannelJsonConverter : JsonConverter
         }
 
         DiscordChannel channel;
-        DiscordChannelType channelType = typeToken.ToObject<DiscordChannelType>();
+        DiscordChannelType channelType = typeToken!.ToObject<DiscordChannelType>();
 
         if (channelType is DiscordChannelType.GuildForum)
         {
             // Type erasure is almost unheard of in C#, but you never know...
-            DiscordForumChannel chn = new();
-            serializer.Populate(job.CreateReader(), chn);
+            DiscordForumChannel forumChannel = new();
+            serializer.Populate(jObject.CreateReader(), forumChannel);
 
-            channel = chn;
+            channel = forumChannel;
         }
         // May or not be necessary. Better safe than sorry.
         else if (channelType is DiscordChannelType.NewsThread or DiscordChannelType.PrivateThread or DiscordChannelType.PublicThread)
         {
-            DiscordThreadChannel chn = new();
-            serializer.Populate(job.CreateReader(), chn);
+            DiscordThreadChannel threadChannel = new();
+            serializer.Populate(jObject.CreateReader(), threadChannel);
 
-            channel = chn;
+            channel = threadChannel;
         }
         else if (channelType is DiscordChannelType.Private or DiscordChannelType.Group)
         {
             channel = new DiscordDmChannel();
-            serializer.Populate(job.CreateReader(), channel);
+            serializer.Populate(jObject.CreateReader(), channel);
         }
         else
         {
             channel = new DiscordChannel();
-            serializer.Populate(job.CreateReader(), channel);
+            serializer.Populate(jObject.CreateReader(), channel);
         }
 
         return channel;

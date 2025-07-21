@@ -38,19 +38,19 @@ public sealed class RequireBotPermissionsAttribute : CheckBaseAttribute
             return this.IgnoreDms;
         }
 
-        DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
-        if (bot == null)
+        DiscordMember member = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
+        if (member == null)
         {
             return false;
         }
 
-        if (bot.Id == ctx.Guild.OwnerId)
+        if (member.Id == ctx.Guild.OwnerId)
         {
             return true;
         }
 
-        DiscordPermissions pbot = ctx.Channel.PermissionsFor(bot);
+        DiscordPermissions permissions = ctx.Channel.PermissionsFor(member);
 
-        return pbot.HasAllPermissions([..this.Permissions]);
+        return permissions.HasAllPermissions([..this.Permissions]);
     }
 }

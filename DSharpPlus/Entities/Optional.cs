@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
@@ -40,7 +41,7 @@ public static class Optional
 public interface IOptional
 {
     public bool HasValue { get; }
-    public object RawValue { get; } // must NOT throw InvalidOperationException
+    public object? RawValue { get; } // must NOT throw InvalidOperationException
 }
 
 /// <summary>
@@ -80,24 +81,27 @@ public readonly struct Optional<T> : IEquatable<Optional<T>>, IEquatable<T>, IOp
     /// <param name="value">The value contained within the optional.</param>
     /// <returns>True if the value is set, and is not null, otherwise false.</returns>
     public bool IsDefined([NotNullWhen(true)] out T? value)
-        => (value = this.val) != null;
+    {
+        value = this.val;
+        return EqualityComparer<T>.Default.Equals(value, default);
+    }
 
     /// <summary>
     /// Returns a string representation of this optional value.
     /// </summary>
     /// <returns>String representation of this optional value.</returns>
-    public override string ToString() => $"Optional<{typeof(T)}> ({(this.HasValue ? this.Value.ToString() : "<no value>")})";
+    public override string ToString() => $"Optional<{typeof(T)}> ({(this.HasValue ? this.Value?.ToString() ?? string.Empty : "<no value>")})";
 
     /// <summary>
     /// Checks whether this <see cref="Optional{T}"/> (or its value) are equal to another object.
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="Optional{T}"/> or its value.</returns>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj switch
         {
-            T t => Equals(t),
+            T instance => Equals(instance),
             Optional<T> opt => Equals(opt),
             _ => false,
         };
@@ -106,18 +110,18 @@ public readonly struct Optional<T> : IEquatable<Optional<T>>, IEquatable<T>, IOp
     /// <summary>
     /// Checks whether this <see cref="Optional{T}"/> is equal to another <see cref="Optional{T}"/>.
     /// </summary>
-    /// <param name="e"><see cref="Optional{T}"/> to compare to.</param>
+    /// <param name="optional"><see cref="Optional{T}"/> to compare to.</param>
     /// <returns>Whether the <see cref="Optional{T}"/> is equal to this <see cref="Optional{T}"/>.</returns>
-    public bool Equals(Optional<T> e)
-        => (!this.HasValue && !e.HasValue) || (this.HasValue == e.HasValue && this.Value.Equals(e.Value));
+    public bool Equals(Optional<T> optional)
+        => (!this.HasValue && !optional.HasValue) || (this.HasValue == optional.HasValue && this.Value.Equals(optional.Value));
 
     /// <summary>
     /// Checks whether the value of this <see cref="Optional{T}"/> is equal to specified object.
     /// </summary>
-    /// <param name="e">Object to compare to.</param>
+    /// <param name="other">Object to compare to.</param>
     /// <returns>Whether the object is equal to the value of this <see cref="Optional{T}"/>.</returns>
-    public bool Equals(T e)
-        => this.HasValue && ReferenceEquals(this.Value, e);
+    public bool Equals(T? other)
+        => this.HasValue && ReferenceEquals(this.Value, other);
 
     /// <summary>
     /// Gets the hash code for this <see cref="Optional{T}"/>.
@@ -139,7 +143,7 @@ public readonly struct Optional<T> : IEquatable<Optional<T>>, IEquatable<T>, IOp
         return -1;
     }
 
-    public static implicit operator Optional<T>(T val)
+    public static implicit operator Optional<T>(T? val)
         => new(val);
 
     public static explicit operator T(Optional<T> opt)
@@ -151,10 +155,10 @@ public readonly struct Optional<T> : IEquatable<Optional<T>>, IEquatable<T>, IOp
     public static bool operator !=(Optional<T> opt1, Optional<T> opt2)
         => !opt1.Equals(opt2);
 
-    public static bool operator ==(Optional<T> opt, T t)
+    public static bool operator ==(Optional<T> opt, T? t)
         => opt.Equals(t);
 
-    public static bool operator !=(Optional<T> opt, T t)
+    public static bool operator !=(Optional<T> opt, T? t)
         => !opt.Equals(t);
 
     /// <summary>
@@ -181,7 +185,7 @@ internal sealed class OptionalJsonContractResolver : DefaultContractResolver
 
         Type? type = property.PropertyType;
 
-        if (!type.GetTypeInfo().ImplementedInterfaces.Contains(typeof(IOptional)))
+        if (type?.GetTypeInfo().ImplementedInterfaces.Contains(typeof(IOptional)) is false)
         {
             return property;
         }
@@ -189,7 +193,7 @@ internal sealed class OptionalJsonContractResolver : DefaultContractResolver
         // we cache the PropertyInfo object here (it's captured in closure). we don't have direct
         // access to the property value so we have to reflect into it from the parent instance
         // we use UnderlyingName instead of PropertyName in case the C# name is different from the Json name.
-        MemberInfo? declaringMember = property.DeclaringType.GetTypeInfo().DeclaredMembers
+        MemberInfo? declaringMember = property.DeclaringType?.GetTypeInfo().DeclaredMembers
             .FirstOrDefault(e => e.Name == property.UnderlyingName);
 
         switch (declaringMember)
@@ -217,12 +221,11 @@ internal sealed class OptionalJsonContractResolver : DefaultContractResolver
 
 internal sealed class OptionalJsonConverter : JsonConverter
 {
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
     {
         // we don't check for HasValue here since it's checked in OptionalJsonContractResolver
-        object val = (value as IOptional).RawValue;
         // JToken.FromObject will throw if `null` so we manually write a null value.
-        if (val == null)
+        if (value is not IOptional optional)
         {
             // you can read serializer.NullValueHandling here, but unfortunately you can **not** skip serialization
             // here, or else you will get a nasty JsonWriterException, so we just ignore its value and manually
@@ -232,11 +235,11 @@ internal sealed class OptionalJsonConverter : JsonConverter
         else
         {
             // convert the value to a JSON object and write it to the property value.
-            JToken.FromObject(val).WriteTo(writer);
+            JToken.FromObject(optional).WriteTo(writer);
         }
     }
 
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
+    public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue,
         JsonSerializer serializer)
     {
         Type genericType = objectType.GenericTypeArguments[0];
@@ -244,7 +247,7 @@ internal sealed class OptionalJsonConverter : JsonConverter
         ConstructorInfo? constructor = objectType.GetTypeInfo().DeclaredConstructors
             .FirstOrDefault(e => e.GetParameters()[0].ParameterType == genericType);
 
-        return constructor.Invoke([serializer.Deserialize(reader, genericType)]);
+        return constructor?.Invoke([serializer.Deserialize(reader, genericType)]);
     }
 
     public override bool CanConvert(Type objectType) => objectType.GetTypeInfo().ImplementedInterfaces.Contains(typeof(IOptional));

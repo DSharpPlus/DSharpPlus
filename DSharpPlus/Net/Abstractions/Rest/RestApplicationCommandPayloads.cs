@@ -14,10 +14,10 @@ internal class RestApplicationCommandCreatePayload
     public string Name { get; set; }
 
     [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
-    public IEnumerable<DiscordApplicationCommandOption> Options { get; set; }
+    public IEnumerable<DiscordApplicationCommandOption>? Options { get; set; }
 
     [JsonProperty("default_permission", NullValueHandling = NullValueHandling.Ignore)]
     public bool? DefaultPermission { get; set; }
@@ -84,13 +84,13 @@ internal class RestApplicationCommandEditPayload
     /// Interaction context(s) where the command can be used.
     /// </summary>
     [JsonProperty("contexts", NullValueHandling = NullValueHandling.Ignore)]
-    public Optional<IEnumerable<DiscordInteractionContextType>> AllowedContexts { get; set; }
+    public Optional<IEnumerable<DiscordInteractionContextType?>> AllowedContexts { get; set; }
 
     /// <summary>
     /// Installation context(s) where the command is available.
     /// </summary>
     [JsonProperty("integration_types", NullValueHandling = NullValueHandling.Ignore)]
-    public Optional<IEnumerable<DiscordApplicationIntegrationType>> InstallTypes { get; set; }
+    public Optional<IEnumerable<DiscordApplicationIntegrationType?>> InstallTypes { get; set; }
 }
 
 internal class DiscordInteractionResponsePayload
@@ -117,10 +117,10 @@ internal class RestFollowupMessageCreatePayload
     public DiscordMentions? Mentions { get; set; }
 
     [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
-    public DiscordMessageFlags Flags { get; set; }
+    public DiscordMessageFlags? Flags { get; set; }
 
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyList<DiscordComponent> Components { get; set; }
+    public IReadOnlyList<DiscordComponent>? Components { get; set; }
 }
 
 internal class RestEditApplicationCommandPermissionsPayload

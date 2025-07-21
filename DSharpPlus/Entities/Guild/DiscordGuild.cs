@@ -455,7 +455,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the guild member for current user.
     /// </summary>
     [JsonIgnore]
-    public DiscordMember CurrentMember => this.members != null && this.members.TryGetValue(this.Discord.CurrentUser.Id, out DiscordMember? member) ? member : null;
+    public DiscordMember? CurrentMember => this.members != null && this.members.TryGetValue(this.Discord.CurrentUser.Id, out DiscordMember? member) ? member : null;
 
     /// <summary>
     /// Gets the @everyone role for this guild.
@@ -1853,7 +1853,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="presences">Whether to include the <see cref="GuildMembersChunkedEventArgs.Presences"/> associated with the fetched members.</param>
     /// <param name="userIds">Whether to limit the request to the specified user ids. Either this or <paramref name="query"/> must not be null.</param>
     /// <param name="nonce">The unique string to identify the response.</param>
-    public async Task RequestMembersAsync(string query = "", int limit = 0, bool? presences = null, IEnumerable<ulong>? userIds = null, string? nonce = null)
+    public async Task RequestMembersAsync(string? query = "", int limit = 0, bool? presences = null, IEnumerable<ulong>? userIds = null, string? nonce = null)
     {
         if (this.Discord is not DiscordClient client)
         {
@@ -2638,12 +2638,12 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="e1">First member to compare.</param>
     /// <param name="e2">Second member to compare.</param>
     /// <returns>Whether the two members are equal.</returns>
-    public static bool operator ==(DiscordGuild e1, DiscordGuild e2)
+    public static bool operator ==(DiscordGuild? e1, DiscordGuild? e2)
     {
         object? o1 = e1;
         object? o2 = e2;
 
-        return (o1 != null || o2 == null) && (o1 == null || o2 != null) && ((o1 == null && o2 == null) || e1.Id == e2.Id);
+        return (o1 != null || o2 == null) && (o1 == null || o2 != null) && ((o1 == null && o2 == null) || e1?.Id == e2?.Id);
     }
 
     /// <summary>

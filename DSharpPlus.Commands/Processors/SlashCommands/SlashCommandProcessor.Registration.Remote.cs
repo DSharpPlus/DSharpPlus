@@ -88,7 +88,7 @@ public sealed partial class SlashCommandProcessor
             return await this.extension.Client.EditGuildApplicationCommandAsync
             (
                 this.extension.DebugGuildId,
-                id, 
+                id,
                 x => CopyToEditModel(command, x)
             );
         }
@@ -117,11 +117,11 @@ public sealed partial class SlashCommandProcessor
         editModel.NameLocalizations = command.NameLocalizations;
         editModel.DescriptionLocalizations = command.DescriptionLocalizations;
         editModel.IntegrationTypes = command.IntegrationTypes is not null
-            ? new(command.IntegrationTypes)
-            : Optional.FromNoValue<IEnumerable<DiscordApplicationIntegrationType>>();
+            ? new((IReadOnlyList<DiscordApplicationIntegrationType?>)command.IntegrationTypes)
+            : Optional.FromNoValue<IEnumerable<DiscordApplicationIntegrationType?>>();
         editModel.AllowedContexts = command.Contexts is not null
-            ? new(command.Contexts)
-            : Optional.FromNoValue<IEnumerable<DiscordInteractionContextType>>();
+            ? new((IReadOnlyList<DiscordInteractionContextType?>)command.Contexts)
+            : Optional.FromNoValue<IEnumerable<DiscordInteractionContextType?>>();
         editModel.NSFW = command.NSFW;
         editModel.Options = command.Options is not null
             ? new(command.Options)

@@ -2,6 +2,9 @@ using System;
 
 namespace DSharpPlus;
 
+/// <summary>
+/// Provides extension methods for <see cref="DiscordIntents"/>.
+/// </summary>
 public static class DiscordIntentExtensions
 {
     /// <summary>
@@ -20,7 +23,7 @@ public static class DiscordIntentExtensions
     /// <param name="toAdd">The intents to add.</param>
     /// <returns></returns>
     public static DiscordIntents AddIntent(this DiscordIntents intents, DiscordIntents toAdd)
-        => intents |= toAdd;
+        => intents | toAdd;
 
     /// <summary>
     /// Removes an intent from these intents.
@@ -29,7 +32,7 @@ public static class DiscordIntentExtensions
     /// <param name="toRemove">The intents to remove.</param>
     /// <returns></returns>
     public static DiscordIntents RemoveIntent(this DiscordIntents intents, DiscordIntents toRemove)
-        => intents &= ~toRemove;
+        => intents & ~toRemove;
 
     internal static bool HasAllPrivilegedIntents(this DiscordIntents intents)
         => intents.HasIntent(DiscordIntents.GuildMembers | DiscordIntents.GuildPresences);
@@ -159,23 +162,23 @@ public enum DiscordIntents
     ScheduledGuildEvents = 1 << 16,
 
     /// <summary>
-    /// Whetever to include creation, modification or deletion of an auto-Moderation rule.
+    /// Whatever to include creation, modification or deletion of an auto-Moderation rule.
     /// </summary>
     AutoModerationEvents = 1 << 20,
 
     /// <summary>
-    /// Whetever to include when an auto-moderation rule was fired.
+    /// Whatever to include when an auto-moderation rule was fired.
     /// </summary>
     AutoModerationExecution = 1 << 21,
 
     /// <summary>
-    ///  Whetever to include add and remove of a poll votes events in guilds.
+    ///  Whatever to include add and remove of a poll votes events in guilds.
     /// <para>This includes MessagePollVoted</para>
     /// </summary>
     GuildMessagePolls = 1 << 24,
 
     /// <summary>
-    ///  Whetever to include add and remove of a poll votes events in direct messages.
+    ///  Whatever to include add and remove of a poll votes events in direct messages.
     /// <para>This includes MessagePollVoted</para>
     /// </summary>
     DirectMessagePolls = 1 << 25,
