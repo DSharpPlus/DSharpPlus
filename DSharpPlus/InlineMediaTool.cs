@@ -1,6 +1,7 @@
 using System;
 using System.Buffers;
 using System.Buffers.Text;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -11,28 +12,29 @@ namespace DSharpPlus;
 /// </summary>
 public sealed class InlineMediaTool : IDisposable
 {
-    private const ulong PNG_MAGIC = 0x0A1A_0A0D_474E_5089;
-    private const ushort JPEG_MAGIC_1 = 0xD8FF;
-    private const ushort JPEG_MAGIC_2 = 0xD9FF;
-    private const ulong GIF_MAGIC_1 = 0x0000_6139_3846_4947;
-    private const ulong GIF_MAGIC_2 = 0x0000_6137_3846_4947;
-    private const uint WEBP_MAGIC_1 = 0x4646_4952;
-    private const uint WEBP_MAGIC_2 = 0x5042_4557;
-    private const ulong AVIF_MAGIC_PART_1 = 0x7079_7466_0000_0000;
-    private const uint AVIF_MAGIC_PART_2 = 0x6669_7661;
-    private const uint OGG_MAGIC = 0x5367_674F;
-    private const ushort MP3_MAGIC_1 = 0xFBFF;
-    private const ushort MP3_MAGIC_2 = 0xF3FF;
-    private const ushort MP3_MAGIC_3 = 0xF2FF;
+    private const int MAX_SIGNATURE_LENGTH = 16;
+    private const byte WILDCARD_BYTE = 0x11;
 
-    // this one is stupid and only 24 bits are assigned.
-    private const uint MP3_MAGIC_4 = 0x0033_4499;
+    private record FileSignature(MediaFormat Format, byte[] MagicBytes);
 
-    private const ulong GIF_MASK = 0x0000_FFFF_FFFF_FFFF;
-    private const ulong MASK32 = 0x0000_0000_FFFF_FFFF;
-    private const ulong MASK32_LESSER = 0xFFFF_FFFF_0000_0000;
-    private const uint MASK16 = 0x0000_FFFF;
-    private const uint MASK24 = 0x00FF_FFFF;
+    private static readonly IReadOnlyList<FileSignature> knownSignatures =
+    [
+        new(MediaFormat.Png,  [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]),
+        new(MediaFormat.Gif,  [0x47, 0x49, 0x46, 0x38, 0x37, 0x61]),
+        new(MediaFormat.Gif,  [0x47, 0x49, 0x46, 0x38, 0x39, 0x61]),
+        new(MediaFormat.Jpeg, [0xFF, 0xD8, 0xFF, 0xDB]),
+        new(MediaFormat.Jpeg, [0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01]),
+        new(MediaFormat.Jpeg, [0xFF, 0xD8, 0xFF, 0xEE]),
+        new(MediaFormat.Jpeg, [0xFF, 0xD8, 0xFF, 0xE1, WILDCARD_BYTE, WILDCARD_BYTE, 0x45, 0x78, 0x69, 0x66, 0x00, 0x00]),
+        new(MediaFormat.Jpeg, [0xFF, 0xD8, 0xFF, 0xE0]),
+        new(MediaFormat.WebP, [0x52, 0x49, 0x46, 0x46, WILDCARD_BYTE, WILDCARD_BYTE, WILDCARD_BYTE, WILDCARD_BYTE, 0x57, 0x45, 0x42, 0x50]),
+        new(MediaFormat.Avif, [0x00, 0x00, 0x00, WILDCARD_BYTE, 0x66, 0x74, 0x79, 0x70, 0x61, 0x76, 0x69, 0x66, 0x00, 0x00, 0x00, 0x00]),
+        new(MediaFormat.Ogg,  [0x4F, 0x67, 0x67, 0x53]),
+        new(MediaFormat.Mp3,  [0xFF, 0xFB]),
+        new(MediaFormat.Mp3,  [0xFF, 0xF3]),
+        new(MediaFormat.Mp3,  [0xFF, 0xF2]),
+        new(MediaFormat.Mp3,  [0x49, 0x44, 0x33])
+    ];
 
     /// <summary>
     /// Gets the stream this tool is operating on.
@@ -57,7 +59,12 @@ public sealed class InlineMediaTool : IDisposable
         this.SourceStream = stream;
         this.SourceStream.Seek(0, SeekOrigin.Begin);
 
-        this.format = 0;
+        if (stream.Length < MAX_SIGNATURE_LENGTH)
+        {
+            throw new InvalidDataException("The stream is too short to be valid media data.");
+        }
+
+        this.format = MediaFormat.Unknown;
     }
 
     /// <summary>
@@ -71,65 +78,45 @@ public sealed class InlineMediaTool : IDisposable
             return this.format;
         }
 
-        using (BinaryReader br = new(this.SourceStream, Utilities.UTF8, true))
+        long originalPosition = this.SourceStream.Position;
+        this.SourceStream.Seek(0, SeekOrigin.Begin);
+
+        byte[] first16 = ArrayPool<byte>.Shared.Rent(MAX_SIGNATURE_LENGTH);
+        this.SourceStream.ReadExactly(first16, 0, MAX_SIGNATURE_LENGTH);
+
+        try
         {
-            ulong bgn64 = br.ReadUInt64();
-
-            if (bgn64 == PNG_MAGIC)
+            foreach (FileSignature sig in knownSignatures)
             {
-                return this.format = MediaFormat.Png;
-            }
+                bool match = true;
 
-            if ((bgn64 & MASK32_LESSER) == AVIF_MAGIC_PART_1 && br.ReadUInt32() == AVIF_MAGIC_PART_2)
-            {
-                return this.format = MediaFormat.Avif;
-            }
-
-            bgn64 &= GIF_MASK;
-
-            if (bgn64 is GIF_MAGIC_1 or GIF_MAGIC_2)
-            {
-                return this.format = MediaFormat.Gif;
-            }
-
-            uint bgn32 = (uint)(bgn64 & MASK32);
-
-            if (bgn32 == WEBP_MAGIC_1 && br.ReadUInt32() == WEBP_MAGIC_2)
-            {
-                return this.format = MediaFormat.WebP;
-            }
-
-            if (bgn32 == OGG_MAGIC)
-            {
-                return this.format = MediaFormat.Ogg;
-            }
-
-            uint bgn24 = bgn32 & MASK24;
-
-            if (bgn24 == MP3_MAGIC_4)
-            {
-                return this.format = MediaFormat.Mp3;
-            }
-
-            ushort bgn16 = (ushort)(bgn32 & MASK16);
-
-            if (bgn16 == JPEG_MAGIC_1)
-            {
-                this.SourceStream.Seek(-2, SeekOrigin.End);
-
-                if (br.ReadUInt16() == JPEG_MAGIC_2)
+                for (int i = 0; i < sig.MagicBytes.Length; i++)
                 {
-                    return this.format = MediaFormat.Jpeg;
+                    if (sig.MagicBytes[i] == WILDCARD_BYTE)
+                    {
+                        continue;
+                    }
+
+                    if (first16[i] != sig.MagicBytes[i])
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+
+                if (match)
+                {
+                    return this.format = sig.Format;
                 }
             }
 
-            if (bgn16 is MP3_MAGIC_1 or MP3_MAGIC_2 or MP3_MAGIC_3)
-            {
-                return this.format = MediaFormat.Mp3;
-            }
+            throw new InvalidDataException("The data within the stream was not valid media data.");
         }
-
-        throw new InvalidDataException("The data within the stream was not valid image data.");
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(first16);
+            this.SourceStream.Seek(originalPosition, SeekOrigin.Begin);
+        }
     }
 
     /// <summary>
