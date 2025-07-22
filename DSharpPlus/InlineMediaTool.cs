@@ -81,8 +81,8 @@ public sealed class InlineMediaTool : IDisposable
         long originalPosition = this.SourceStream.Position;
         this.SourceStream.Seek(0, SeekOrigin.Begin);
 
-        byte[] first16 = ArrayPool<byte>.Shared.Rent(MAX_SIGNATURE_LENGTH);
-        this.SourceStream.ReadExactly(first16, 0, MAX_SIGNATURE_LENGTH);
+        Span<byte> first16 = stackalloc byte[MAX_SIGNATURE_LENGTH];
+        this.SourceStream.ReadExactly(first16);
 
         try
         {
@@ -114,7 +114,6 @@ public sealed class InlineMediaTool : IDisposable
         }
         finally
         {
-            ArrayPool<byte>.Shared.Return(first16);
             this.SourceStream.Seek(originalPosition, SeekOrigin.Begin);
         }
     }
