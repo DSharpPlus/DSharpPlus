@@ -1,143 +1,201 @@
-using System.Runtime.InteropServices;
+using System;
 
-using OpusErrorOrLength = int;
+using DSharpPlus.Voice.Exceptions;
 
 namespace DSharpPlus.Voice.Interop.Opus;
 
 internal static unsafe partial class OpusInterop
 {
     /// <summary>
-    /// <code>
-    /// <![CDATA[OpusEncoder *opus_encoder_create(
-    ///     opus_int32 Fs,
-    ///     int channels,
-    ///     int application,
-    ///     int* error
-    /// );]]>
-    /// </code>
+    /// Creates a new opus encoder with the specified target bitrate and DSharpPlus' default settings.
     /// </summary>
-    [LibraryImport("opus")]
-    public static partial OpusEncoder* opus_encoder_create(int samplingRate, int channels, OpusEncodingMode mode, OpusError* error);
+    public static OpusEncoder* CreateEncoder(OpusEncodingMode mode, int bitrate)
+    {
+        const int OpusMaxComplexity = 10;
+        const int OpusEnable = 1;
+        const int OpusDisable = 0;
+
+        // opus supports bitrates between 500 and 512,000; discord supports up to 384,000
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(bitrate, 512_000, nameof(bitrate));
+        ArgumentOutOfRangeException.ThrowIfLessThan(bitrate, 500, nameof(bitrate));
+
+        OpusError error;
+        OpusEncoder* encoder = opus_encoder_create(SamplingRate, Channels, mode, &error);
+
+        if (error != OpusError.OpusOK)
+        {
+            throw new OpusException(error, "initializing");
+        }
+
+        // enable forward error correction
+        _ = dsharpplus_opus_encoder_ctl_set_in_band_fec(encoder, OpusEnable);
+
+        // set the target bitrate to our decided value, pulled from either the channel settings or bot-defined constraint
+        _ = dsharpplus_opus_encoder_ctl_set_bitrate(encoder, bitrate);
+
+        // disable cvbr
+        _ = dsharpplus_opus_encoder_ctl_set_vbr_constraint(encoder, OpusDisable);
+
+        // enable opus to use the best encoding possible
+        _ = dsharpplus_opus_encoder_ctl_set_complexity(encoder, OpusMaxComplexity);
+
+        return encoder;
+    }
 
     /// <summary>
-    /// <code>
-    /// <![CDATA[opus_int32 opus_encode(
-    ///     OpusEncoder *st,
-    ///     const opus_int16 *pcm,
-    ///     int frame_size,
-    ///     unsigned char *data,
-    ///     opus_int32 max_data_bytes
-    /// );]]>
-    /// </code>
+    /// Encodes a 20ms frame from the provided pcm data into the target buffer.
     /// </summary>
-    [LibraryImport("opus")]
-    public static partial OpusErrorOrLength opus_encode(OpusEncoder* encoder, short* pcm, int frameSize, byte* data, int maxDataBytes);
+    /// <returns>The amount of bytes written to the target buffer.</returns>
+    public static int EncodeFrame(OpusEncoder* encoder, Span<short> pcm, Span<byte> target)
+    {
+        int samples = pcm.Length / (Channels * sizeof(short));
+        int result;
+
+        fixed (short* pPcm = pcm)
+        fixed (byte* pTarget = target)
+        {
+            result = opus_encode(encoder, pPcm, samples, pTarget, target.Length);
+        }
+
+        if (result < 0)
+        {
+            OpusError error = (OpusError)result;
+            throw new OpusException(error, "encoding");
+        }
+
+        return result;
+    }
 
     /// <summary>
-    /// <code>
-    /// <![CDATA[void opus_encoder_destroy(OpusEncoder *st);]]>
-    /// </code>
+    /// Sets the signal type for this encoder.
     /// </summary>
-    [LibraryImport("opus")]
-    public static partial void opus_encoder_destroy(OpusEncoder* encoder);
+    public static void SetSignal(OpusEncoder* encoder, OpusSignal signal)
+        => dsharpplus_opus_encoder_ctl_set_signal(encoder, signal);
 
     /// <summary>
-    /// <code>
-    /// <![CDATA[int dsharpplus_opus_encoder_ctl_set_bitrate(OpusEncoder* encoder, int bitrate);]]>
-    /// </code>
+    /// Deletes the provided encoder. It is no longer valid to use anywhere after this operation.
     /// </summary>
-    [LibraryImport("opus")]
-    public static partial int dsharpplus_opus_encoder_ctl_set_bitrate(OpusEncoder* encoder, int bitrate);
+    public static void DestroyEncoder(OpusEncoder* encoder)
+        => opus_encoder_destroy(encoder);
 
     /// <summary>
-    /// <code>
-    /// <![CDATA[int dsharpplus_opus_encoder_ctl_set_max_bandwidth(OpusEncoder* encoder, int bandwidth);]]>
-    /// </code>
+    /// Creates a new opus decoder. Since opus is a streaming codec, this must be done for each speaking user in a call.
     /// </summary>
-    [LibraryImport("opus")]
-    public static partial int dsharpplus_opus_encoder_ctl_set_max_bandwidth(OpusEncoder* encoder, int bandwidth);
+    public static OpusDecoder* CreateDecoder()
+    {
+        OpusError error;
+        OpusDecoder* decoder = opus_decoder_create(SamplingRate, Channels, &error);
+
+        if (error != OpusError.OpusOK)
+        {
+            throw new OpusException(error, "initializing");
+        }
+
+        return decoder;
+    }
 
     /// <summary>
-    /// <code>
-    /// <![CDATA[int dsharpplus_opus_encoder_ctl_set_in_band_fec(OpusEncoder* encoder, int fec);]]>
-    /// </code>
+    /// Decodes the provided packet into the provided pcm buffer.
     /// </summary>
-    [LibraryImport("opus")]
-    public static partial int dsharpplus_opus_encoder_ctl_set_in_band_fec(OpusEncoder* encoder, int fec);
+    /// <remarks>The amount of samples decoded, half the amount of values assigned.</remarks>
+    public static int DecodePacket(OpusDecoder* decoder, ReadOnlySpan<byte> buffer, Span<short> pcm)
+    {
+        // 5760 samples, or 23040 bytes, is the maximum size of a packet permitted by the spec
+        ArgumentOutOfRangeException.ThrowIfLessThan(pcm.Length, 11520, "buffer.Length");
+
+        int samples = pcm.Length / (Channels * sizeof(short));
+        int result;
+
+        fixed (short* pPcm = pcm)
+        fixed (byte* pBuffer = buffer)
+        {
+            result = opus_decode(decoder, pBuffer, buffer.Length, pPcm, samples, 1);
+        }
+
+        if (result < 0)
+        {
+            OpusError error = (OpusError)result;
+            throw new OpusException(error, "decoding");
+        }
+
+        return result;
+    }
 
     /// <summary>
-    /// <code>
-    /// <![CDATA[int dsharpplus_opus_encoder_ctl_set_packet_loss(OpusEncoder* encoder, int packet_loss_percent);]]>
-    /// </code>
+    /// Gets the amount of samples contained in the last decoded packet. Identical to the output of the last <see cref="DecodePacket"/> call.
     /// </summary>
-    [LibraryImport("opus")]
-    public static partial int dsharpplus_opus_encoder_ctl_set_packet_loss(OpusEncoder* encoder, int packetLossPercent);
+    public static int GetLastPacketSamples(OpusDecoder* decoder)
+    {
+        int samples;
+        _ = dsharpplus_opus_decoder_get_last_packet_duration(decoder, &samples);
+
+        return samples;
+    }
 
     /// <summary>
-    /// <code>
-    /// <![CDATA[int dsharpplus_opus_encoder_ctl_set_signal(OpusEncoder* encoder, int signal);]]>
-    /// </code>
+    /// Deletes the provided decoder. It is no longer valid to use anywhere after this operation.
     /// </summary>
-    [LibraryImport("opus")]
-    public static partial int dsharpplus_opus_encoder_ctl_set_signal(OpusEncoder* encoder, int signal);
+    /// <param name="decoder"></param>
+    public static void DestroyDecoder(OpusDecoder* decoder)
+        => opus_decoder_destroy(decoder);
 
     /// <summary>
-    /// <code>
-    /// <![CDATA[int dsharpplus_opus_encoder_ctl_reset_state(OpusEncoder* encoder);]]>
-    /// </code>
+    /// Creates a new opus repacketizer.
     /// </summary>
-    [LibraryImport("opus")]
-    public static partial int dsharpplus_opus_encoder_ctl_reset_state(OpusEncoder* encoder);
+    public static OpusRepacketizer* CreateRepacketizer()
+        => opus_repacketizer_create();
 
     /// <summary>
-    /// <code>
-    /// <![CDATA[OpusDecoder *opus_decoder_create(
-    ///     opus_int32 Fs,
-    ///     int channels,
-    ///     int *error
-    /// );]]>
-    /// </code>
+    /// Reinitializes the provided repacketizer. This must be called every time a packet is taken out of a repacketizer.
     /// </summary>
-    [LibraryImport("opus")]
-    public static partial OpusDecoder* opus_decoder_create(int sampleRate, int channels, OpusError* error);
+    public static OpusRepacketizer* ReinitializeRepacketizer(OpusRepacketizer* repacketizer)
+        => opus_repacketizer_init(repacketizer);
 
     /// <summary>
-    /// <code>
-    /// <![CDATA[int opus_decode(
-    ///     OpusDecoder *st,
-    ///     const unsigned char *data,
-    ///     opus_int32 len,
-    ///     opus_int16 *pcm,
-    ///     int frame_size,
-    ///     int decode_fec
-    /// );]]>
-    /// </code>
+    /// Submits the provided frame to the repacketizer, returning whether the operation succeeded.
     /// </summary>
-    [LibraryImport("opus")]
-    public static partial OpusErrorOrLength opus_decode(OpusDecoder* decoder, byte* data, int length, short* pcm, int frameSize, int decodeErrorCorrectionData);
+    public static OpusError SubmitFrameToRepacketizer(OpusRepacketizer* repacketizer, ReadOnlySpan<byte> frame)
+    {
+        fixed (byte* pFrame = frame)
+        {
+            return (OpusError)opus_repacketizer_cat(repacketizer, pFrame, frame.Length);
+        }
+    }
 
     /// <summary>
-    /// <code>
-    /// <![CDATA[void opus_decoder_destroy(OpusDecoder *st);]]>
-    /// </code>
+    /// Gets the amount of frames submitted to this repacketizer. DSharpPlus encodes in 20ms frames, so once this hits 6 we must extract the packet.
     /// </summary>
-    [LibraryImport("opus")]
-    public static partial void opus_decoder_destroy(OpusDecoder* decoder);
+    public static int GetFramesInRepacketizer(OpusRepacketizer* repacketizer)
+        => opus_repacketizer_get_nb_frames(repacketizer);
 
     /// <summary>
-    /// <code>
-    /// <![CDATA[int dsharpplus_opus_decoder_ctl_reset_state(OpusDecoder* decoder);]]>
-    /// </code>
+    /// Extracts a finished packet from the repacketizer.
     /// </summary>
-    [LibraryImport("opus")]
+    /// <returns>The amount of bytes written to the packet.</returns>
+    public static int ExtractPacket(OpusRepacketizer* repacketizer, Span<byte> buffer)
+    {
+        // 5760 is the maximum amount of bytes in a packet we can send to discord, pinning 384kbps
+        // if discord ever raises their maximum bitrate we'll have to update this limit and our memory management code.
+        ArgumentOutOfRangeException.ThrowIfLessThan(buffer.Length, 5760, "buffer.Length");
 
-    public static partial int dsharpplus_opus_decoder_ctl_reset_state(OpusDecoder* decoder);
+        int result;
+
+        fixed (byte* pBuffer = buffer)
+        {
+            result = opus_repacketizer_out(repacketizer, pBuffer, buffer.Length);
+        }
+
+        if (result < 0)
+        {
+            throw new OpusException((OpusError)result, "repacketizing");
+        }
+
+        return result;
+    }
 
     /// <summary>
-    /// <code>
-    /// <![CDATA[int dsharpplus_opus_decoder_get_last_packet_duration(OpusDecoder* decoder, int* target);]]>
-    /// </code>
+    /// Deletes the provided repacketizer. It is no longer valid to use anywhere after this operation.
     /// </summary>
-    [LibraryImport("opus")]
-    public static partial int dsharpplus_opus_decoder_get_last_packet_duration(OpusDecoder* decoder, int* sampleCount);
+    public static void DestroyRepacketizer(OpusRepacketizer* repacketizer)
+        => opus_repacketizer_destroy(repacketizer);
 }
