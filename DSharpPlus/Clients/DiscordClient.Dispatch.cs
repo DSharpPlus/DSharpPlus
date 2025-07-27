@@ -1809,6 +1809,18 @@ public sealed partial class DiscordClient
             sticker.Discord = this;
         }
 
+        if (message.MessageType == DiscordMessageType.PollResult)
+        {
+            message = new DiscordPollCompletionMessage(message);
+
+            MessagePollCompletedEventArgs pollEventArgs = new()
+            {
+                Message = (DiscordPollCompletionMessage)message
+            };
+
+            await this.dispatcher.DispatchAsync(this, pollEventArgs);
+        }
+
         MessageCreatedEventArgs ea = new()
         {
             Message = message,
