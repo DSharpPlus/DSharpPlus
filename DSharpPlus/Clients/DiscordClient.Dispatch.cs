@@ -1815,7 +1815,7 @@ public sealed partial class DiscordClient
 
             MessagePollCompletedEventArgs pollEventArgs = new()
             {
-                Message = (DiscordPollCompletionMessage)message
+                PollCompletion = (DiscordPollCompletionMessage)message
             };
 
             await this.dispatcher.DispatchAsync(this, pollEventArgs);
