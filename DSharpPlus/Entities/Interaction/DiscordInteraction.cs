@@ -172,6 +172,15 @@ public class DiscordInteraction : SnowflakeObject
     public int AttachmentSizeLimit { get; internal set; }
 
     /// <summary>
+    /// For monetized apps, any entitlements for the invoking user, representing access to premium SKUs
+    /// </summary>
+    [JsonIgnore]
+    public IReadOnlyList<DiscordEntitlement> Entitlements => this.entitlements;
+
+    [JsonProperty("entitlements")]
+    private List<DiscordEntitlement> entitlements = [];
+    
+    /// <summary>
     /// Creates a response to this interaction.
     /// </summary>
     /// <param name="type">The type of the response.</param>
