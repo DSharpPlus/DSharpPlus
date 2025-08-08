@@ -52,4 +52,9 @@ public enum DiscordMemberFlags
     /// Member has dismissed the DM settings upsell
     /// </summary>
     DmSettingsUpsellAcknowledged = 1 << 9,
+
+    /// <summary>
+    /// Member's guild tag is blocked by AutoMod
+    /// </summary>
+    AutomodQuarantinedGuildTag = 1 << 10,
 }
