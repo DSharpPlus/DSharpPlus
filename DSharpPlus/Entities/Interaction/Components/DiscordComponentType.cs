@@ -79,6 +79,11 @@ public enum DiscordComponentType
     /// <summary>
     /// A container for other components; can be styled with an accent color like embeds.
     /// </summary>
-    Container = 17
+    Container = 17,
+    
+    /// <summary>
+    /// A label component containing a title, component, and optionally description. Only used in Modals.
+    /// </summary>
+    Label = 18,
     
 }

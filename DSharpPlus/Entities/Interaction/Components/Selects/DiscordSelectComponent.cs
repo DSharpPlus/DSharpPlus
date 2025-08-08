@@ -15,6 +15,12 @@ public sealed class DiscordSelectComponent : BaseDiscordSelectComponent
     /// </summary>
     [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
     public IReadOnlyList<DiscordSelectComponentOption> Options { get; internal set; } = Array.Empty<DiscordSelectComponentOption>();
+    
+    /// <summary>
+    /// Sets this select to be required. Only used in modals.
+    /// </summary>
+    [JsonProperty("required", NullValueHandling = NullValueHandling.Ignore)]
+    public bool Required { get; set; }
 
     /// <summary>
     /// Enables this component.

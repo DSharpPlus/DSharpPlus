@@ -6038,50 +6038,59 @@ public sealed class DiscordRestApiClient
         await this.rest.ExecuteRequestAsync(request);
     }
 
-    public async ValueTask CreateInteractionResponseAsync
+    internal async ValueTask CreateInteractionResponseAsync
     (
         ulong interactionId,
         string interactionToken,
         DiscordInteractionResponseType type,
-        DiscordInteractionResponseBuilder? builder
+        string? content = null,
+        IReadOnlyList<DiscordEmbed>? embeds = null,
+        bool isTTS = false,
+        string? customID = null,
+        string? title = null,
+        IReadOnlyList<IMention>? mentions = null,
+        IReadOnlyList<DiscordComponent>? components = null,
+        DiscordMessageFlags? flags = null,
+        IReadOnlyList<DiscordAutoCompleteChoice>? choices = null,
+        DiscordPollBuilder? pollBuilder = null,
+        IReadOnlyList<DiscordMessageFile>? files = null
     )
     {
-        if (builder?.Embeds != null)
+        bool hasContent = content is not null || embeds is not null || components is not null || choices is not null || pollBuilder is not null;
+
+        if (embeds is not null)
         {
-            foreach (DiscordEmbed embed in builder.Embeds)
+            foreach (DiscordEmbed embed in embeds)
             {
-                if (embed.Timestamp is not null)
-                {
-                    embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
-                }
+                embed.Timestamp = embed.Timestamp?.ToUniversalTime();
             }
         }
 
         DiscordInteractionResponsePayload payload = new()
         {
             Type = type,
-            Data = builder is not null
-            ? new DiscordInteractionApplicationCommandCallbackData
-            {
-                Content = builder.Content,
-                Title = builder.Title,
-                CustomId = builder.CustomId,
-                Embeds = builder.Embeds,
-                IsTTS = builder.IsTTS,
-                Mentions = new DiscordMentions(builder.Mentions ?? Mentions.All, builder.Mentions?.Any() ?? false),
-                Flags = builder.Flags,
-                Components = builder.Components,
-                Choices = builder.Choices,
-                Poll = builder.Poll?.BuildInternal(),
-            }
-            : null
+            Data = !hasContent
+                ? null
+                : new DiscordInteractionApplicationCommandCallbackData
+                {
+                    Content = content,
+                    IsTTS = isTTS,
+                    Title = title,
+                    CustomId = customID,
+                    Embeds = embeds,
+                    Mentions = new DiscordMentions(mentions ?? Mentions.All, mentions is not (null or [])),
+                    Components = components,
+                    Choices = choices,
+                    Poll = pollBuilder?.BuildInternal(),
+                    Flags = flags,
+                }
         };
-
+        
         Dictionary<string, string> values = [];
 
-        if (builder != null)
+        if (hasContent)
         {
-            if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count > 0 || builder.IsTTS == true || builder.Mentions != null)
+            if (!string.IsNullOrEmpty(content) || embeds?.Count > 0 || isTTS || mentions != null)
             {
                 values["payload_json"] = DiscordJson.SerializeObject(payload);
             }
@@ -6090,7 +6099,8 @@ public sealed class DiscordRestApiClient
         string route = $"{Endpoints.INTERACTIONS}/{interactionId}/:interaction_token/{Endpoints.CALLBACK}";
         string url = $"{Endpoints.INTERACTIONS}/{interactionId}/{interactionToken}/{Endpoints.CALLBACK}";
 
-        if (builder is not null && builder.Files.Count != 0)
+        
+        if (files is not (null or []))
         {
             MultipartRestRequest request = new()
             {
@@ -6098,7 +6108,7 @@ public sealed class DiscordRestApiClient
                 Url = url,
                 Method = HttpMethod.Post,
                 Values = values,
-                Files = builder.Files,
+                Files = files,
                 IsExemptFromAllLimits = true
             };
 
@@ -6108,7 +6118,13 @@ public sealed class DiscordRestApiClient
             }
             finally
             {
-                builder.ResetFileStreamPositions();
+                foreach (DiscordMessageFile file in files)
+                {
+                    if (file.ResetPositionTo is long pos)
+                    {
+                        file.Stream.Seek(pos, SeekOrigin.Begin);
+                    }
+                }
             }
         }
         else
@@ -6125,6 +6141,30 @@ public sealed class DiscordRestApiClient
             await this.rest.ExecuteRequestAsync(request);
         }
     }
+
+    public ValueTask CreateInteractionResponseAsync
+    (
+        ulong interactionId,
+        string interactionToken,
+        DiscordInteractionResponseType type,
+        DiscordInteractionResponseBuilder? builder
+    ) => CreateInteractionResponseAsync
+    (
+        interactionId,
+        interactionToken,
+        type,
+        builder?.Content,
+        builder?.Embeds,
+        builder?.IsTTS ?? false,
+        builder?.CustomId,
+        builder.Title,
+        builder?.Mentions,
+        builder?.Components,
+        builder?.Flags,
+        builder?.Choices,
+        builder?.Poll,
+        builder?.Files
+    );
 
     public async ValueTask<DiscordMessage> GetOriginalInteractionResponseAsync
     (
