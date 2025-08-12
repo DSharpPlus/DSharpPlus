@@ -34,9 +34,23 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
 
     public DiscordMessageFlags Flags { get; internal set; }
 
+    /// <summary>
+    /// Suppresses notifications for this message.
+    /// </summary>
+    /// <returns>The builder to chain calls with.</returns>
     public T SuppressNotifications()
     {
         this.Flags |= DiscordMessageFlags.SuppressNotifications;
+        return (T)this;
+    }
+    
+    /// <summary>
+    /// Suppresses embeds for this message.
+    /// </summary>
+    /// <returns>The builder to chain calls with.</returns>
+    public T SuppressEmbeds()
+    {
+        this.Flags |= DiscordMessageFlags.SuppressEmbeds;
         return (T)this;
     }
 
@@ -82,7 +96,7 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
     /// <summary>
     /// Gets or sets a poll for this message.
     /// </summary>
-    public DiscordPollBuilder? Poll { get; set => SetIfV2Disabled(ref field, value, nameof(Poll)); }
+    public DiscordPollBuilder? Poll { get; set => SetIfV2Disabled(ref field, value, nameof(this.Poll)); }
 
     /// <summary>
     /// Embeds to send on this webhook request.
@@ -731,20 +745,21 @@ public abstract class BaseDiscordMessageBuilder<T> : IDiscordMessageBuilder wher
         }
     }
     
-    IDiscordMessageBuilder IDiscordMessageBuilder.EnableV2Components() => this.EnableV2Components();
-    IDiscordMessageBuilder IDiscordMessageBuilder.DisableV2Components() => this.DisableV2Components();
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddActionRowComponent(DiscordActionRowComponent component) => this.AddActionRowComponent(component);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddActionRowComponent(DiscordSelectComponent selectMenu) => this.AddActionRowComponent(selectMenu);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddActionRowComponent(params IEnumerable<DiscordButtonComponent> buttons) => this.AddActionRowComponent(buttons);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddMediaGalleryComponent(params IEnumerable<DiscordMediaGalleryItem> galleryItems) => this.AddMediaGalleryComponent(galleryItems);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddSectionComponent(DiscordSectionComponent section) => this.AddSectionComponent(section);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddTextDisplayComponent(DiscordTextDisplayComponent component) => this.AddTextDisplayComponent(component);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddTextDisplayComponent(string content) => this.AddTextDisplayComponent(content);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddTextInputComponent(DiscordTextInputComponent component) => this.AddTextInputComponent(component);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddSeparatorComponent(DiscordSeparatorComponent component) => this.AddSeparatorComponent(component);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddFileComponent(DiscordFileComponent component) => this.AddFileComponent(component);
-    IDiscordMessageBuilder IDiscordMessageBuilder.AddContainerComponent(DiscordContainerComponent component) => this.AddContainerComponent(component);
+    IDiscordMessageBuilder IDiscordMessageBuilder.EnableV2Components() => EnableV2Components();
+    IDiscordMessageBuilder IDiscordMessageBuilder.DisableV2Components() => DisableV2Components();
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddActionRowComponent(DiscordActionRowComponent component) => AddActionRowComponent(component);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddActionRowComponent(DiscordSelectComponent selectMenu) => AddActionRowComponent(selectMenu);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddActionRowComponent(params IEnumerable<DiscordButtonComponent> buttons) => AddActionRowComponent(buttons);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddMediaGalleryComponent(params IEnumerable<DiscordMediaGalleryItem> galleryItems) => AddMediaGalleryComponent(galleryItems);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddSectionComponent(DiscordSectionComponent section) => AddSectionComponent(section);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddTextDisplayComponent(DiscordTextDisplayComponent component) => AddTextDisplayComponent(component);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddTextDisplayComponent(string content) => AddTextDisplayComponent(content);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddTextInputComponent(DiscordTextInputComponent component) => AddTextInputComponent(component);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddSeparatorComponent(DiscordSeparatorComponent component) => AddSeparatorComponent(component);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddFileComponent(DiscordFileComponent component) => AddFileComponent(component);
+    IDiscordMessageBuilder IDiscordMessageBuilder.AddContainerComponent(DiscordContainerComponent component) => AddContainerComponent(component);
     IDiscordMessageBuilder IDiscordMessageBuilder.SuppressNotifications() => SuppressNotifications();
+    IDiscordMessageBuilder IDiscordMessageBuilder.SuppressEmbeds() => SuppressEmbeds();
     IDiscordMessageBuilder IDiscordMessageBuilder.WithContent(string content) => WithContent(content);
     IDiscordMessageBuilder IDiscordMessageBuilder.WithTTS(bool isTTS) => WithTTS(isTTS);
     IDiscordMessageBuilder IDiscordMessageBuilder.AddEmbed(DiscordEmbed embed) => AddEmbed(embed);
@@ -1058,6 +1073,8 @@ public interface IDiscordMessageBuilder : IDisposable, IAsyncDisposable
     /// Clears this builder.
     /// </summary>
     public void Clear();
+
+    IDiscordMessageBuilder SuppressEmbeds();
 }
 
 /*
