@@ -23,8 +23,7 @@ public enum DiscordMessageFlags
     /// <summary>
     /// Whether any embeds in the message are hidden.
     /// </summary>
-    /// <remarks>This flag is inbound only (it cannot be set).</remarks>
-    SuppressedEmbeds = 1 << 2,
+    SuppressEmbeds = 1 << 2,
 
     /// <summary>
     /// The source message for this crosspost has been deleted.
