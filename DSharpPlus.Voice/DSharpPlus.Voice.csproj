@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DSharpPlus.Natives.Koana" />
     <PackageReference Include="DSharpPlus.Natives.Opus" />
     <PackageReference Include="DSharpPlus.Natives.Sodium" />
   </ItemGroup>

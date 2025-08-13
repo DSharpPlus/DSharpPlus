@@ -1,5 +1,6 @@
 ﻿<Project>
   <ItemGroup>
+    <PackageVersion Include="DSharpPlus.Natives.Koana" Version="0.1.1.5" />
     <PackageVersion Include="Microsoft.Extensions.ObjectPool" Version="9.0.5" />
     <PackageVersion Include="System.Formats.Asn1" Version="8.0.1" VersionOverride="8.0.1" />
     <PackageVersion Include="Basic.Reference.Assemblies.Net80" Version="1.7.2" />
