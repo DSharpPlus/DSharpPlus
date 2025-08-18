@@ -1,164 +1,85 @@
 using System;
-using System.Buffers;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.WebSockets;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using CommunityToolkit.HighPerformance.Buffers;
+
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Voice.Transport;
 
-/// <summary>
-/// This service creates a websocket connection and has a callback for binary and text received.
-/// It also allows for sending messages to the remote connection.
-/// </summary>
-public class TransportService : IDisposable, ITransportService
+/// <inheritdoc cref="ITransportService"/>
+public sealed class TransportService : ITransportService
 {
-    private readonly Uri uri;
-    private readonly Func<string, Task> onTextAsync;
-    private readonly Func<ReadOnlyMemory<byte>, Task> onBinaryAsync;
-    private readonly ClientWebSocket webSocketClient;
-    private readonly SemaphoreSlim receiveSemaphore = new(1);
-    private readonly SemaphoreSlim sendSemaphore = new(1);
-    private const int ReceiveLoopTimeout = 5000;
+    private readonly ILogger<ITransportService> logger;
+    private readonly ConcurrentDictionary<int, List<Func<string, TransportService, Task>>> jsonHandlers;
+    private readonly ConcurrentDictionary<int, List<Func<ReadOnlyMemory<byte>, TransportService, Task>>> binaryHandlers;
+    private readonly TransportServiceCore transportService;
 
-    public TransportService(Uri uri,
-        Func<string, Task> onTextAsync,
-        Func<ReadOnlyMemory<byte>, Task> onBinaryAsync,
-        Action<ClientWebSocketOptions>? configureOptions = null)
+    internal TransportService
+    (
+        Uri uri,
+        ConcurrentDictionary<int, List<Func<string, TransportService, Task>>> jsonHandlers,
+        ConcurrentDictionary<int, List<Func<ReadOnlyMemory<byte>, TransportService, Task>>> binaryHandlers,
+        ILogger<ITransportService> logger,
+        Action<ClientWebSocketOptions>? configureOptions = null
+    )
     {
-        this.onTextAsync = onTextAsync;
-        this.onBinaryAsync = onBinaryAsync;
-        this.uri = uri;
-        this.webSocketClient = new();
-
-        configureOptions?.Invoke(this.webSocketClient.Options);
-    }
-
-
-    /// <inheritdoc/>
-    public async Task ConnectAsync(CancellationToken? cancellationToken = null)
-    {
-        await this.webSocketClient.ConnectAsync(this.uri, cancellationToken ?? CancellationToken.None);
-
-        // Start the receive loop
-        _ = Task.Run(async () => await ReceiveLoopAsync());
-    }
-
-
-    /// <inheritdoc/>
-    public async Task SendAsync(ReadOnlyMemory<byte> data, CancellationToken? token = null)
-    {
-        await this.sendSemaphore.WaitAsync();
-        token ??= CancellationToken.None;
-
-        try
-        {
-            await this.webSocketClient.SendAsync(data, WebSocketMessageType.Binary, true, token.Value);
-        }
-        finally
-        {
-            this.sendSemaphore.Release();
-        }
-    }
-
-
-    /// <inheritdoc/>
-    public async Task SendAsync<T>(T data, CancellationToken? token = null)
-    {
-        await this.sendSemaphore.WaitAsync();
-        token ??= CancellationToken.None;
-
-        string jsonString = JsonSerializer.Serialize(data);
-        byte[] jsonBinary = Encoding.UTF8.GetBytes(jsonString);
-
-        try
-        {
-            await this.webSocketClient.SendAsync(jsonBinary, WebSocketMessageType.Text, true, token.Value);
-        }
-        finally
-        {
-            this.sendSemaphore.Release();
-        }
+        this.transportService = new TransportServiceCore(uri, OnTextReceivedAsync, OnBinaryReceivedAsync, configureOptions);
+        this.jsonHandlers = jsonHandlers;
+        this.binaryHandlers = binaryHandlers;
+        this.logger = logger;
     }
 
     /// <inheritdoc/>
-    public void Dispose()
+    public async Task ConnectAsync(CancellationToken? cancellationToken = null) => await this.transportService.ConnectAsync(cancellationToken);
+
+    /// <inheritdoc/>
+    private async Task OnTextReceivedAsync(string messageText)
     {
-        this.webSocketClient?.Dispose();
-        this.sendSemaphore.Dispose();
-        this.receiveSemaphore?.Dispose();
+        using JsonDocument doc = JsonDocument.Parse(messageText);
+        List<Task> handlerTasks = [];
+
+        int opcode = doc.RootElement.GetProperty("op").GetInt32();
+
+        if (this.jsonHandlers.TryGetValue(opcode, out List<Func<string, TransportService, Task>>? handler))
+        {
+            handlerTasks = [.. handler.Select(async x => await x.Invoke(messageText, this))];
+        }
+
+        await Task.WhenAll(handlerTasks);
     }
 
-    private async Task ReceiveLoopAsync(CancellationToken? token = null)
+    /// <inheritdoc/>
+    private async Task OnBinaryReceivedAsync(ReadOnlyMemory<byte> binaryResponse)
     {
-        byte[] buffer = ArrayPool<byte>.Shared.Rent(8192);
-        token ??= CancellationToken.None;
+        List<Task> handlerTasks = [];
 
-        try
+        if (binaryResponse.Length < 3)
         {
-            ArrayPoolBufferWriter<byte> writer = new();
-            while (!token.Value.IsCancellationRequested)
-            {
-                await this.receiveSemaphore.WaitAsync(token.Value);
+            // log invalid binary message was received
+            this.logger.LogWarning("Invalid binary message was received!");
 
-                try
-                {
-                    if (this.webSocketClient is null || this.webSocketClient.State != WebSocketState.Open)
-                    {
-                        break;
-                    }
-
-                    ValueWebSocketReceiveResult result;
-
-                    try
-                    {
-                        result = await this.webSocketClient.ReceiveAsync(buffer.AsMemory(0, buffer.Length), token.Value);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        break;
-                    }
-
-                    if (result.MessageType == WebSocketMessageType.Close)
-                    {
-                        await this.webSocketClient.CloseAsync(WebSocketCloseStatus.NormalClosure, "ack", token.Value);
-                        break;
-                    }
-
-                    writer.Write(buffer);
-
-                    if (result.EndOfMessage)
-                    {
-                        if (result.MessageType == WebSocketMessageType.Text)
-                        {
-                            string text = Encoding.UTF8.GetString(writer.WrittenSpan);
-
-                            await this.onTextAsync(text);
-                        }
-                        else if (result.MessageType == WebSocketMessageType.Binary)
-                        {
-                            await this.onBinaryAsync(writer.WrittenMemory);
-                        }
-
-                        writer.Clear();
-                    }
-
-                    if (result.Count == 0)
-                    {
-                        await Task.Delay(ReceiveLoopTimeout, token.Value);
-                    }
-                }
-                finally
-                {
-                    this.receiveSemaphore.Release();
-                }
-            }
+            return;
         }
-        finally
+
+        int opCode = binaryResponse.Span[2];
+        if (this.binaryHandlers.TryGetValue(opCode, out List<Func<ReadOnlyMemory<byte>, TransportService, Task>>? handler))
         {
-            ArrayPool<byte>.Shared.Return(buffer);
+            handlerTasks = [.. handler.Select(async (x, y) => await x.Invoke(binaryResponse, this))];
         }
+
+        await Task.WhenAll(handlerTasks);
     }
+
+    /// <inheritdoc/>
+    public async Task SendAsync(ReadOnlyMemory<byte> data, CancellationToken? token = null) 
+        => await this.transportService.SendAsync(data, token);
+
+    /// <inheritdoc/>
+    public async Task SendAsync<T>(T data, CancellationToken? token = null) 
+        => await this.transportService.SendAsync(data, token);
 }

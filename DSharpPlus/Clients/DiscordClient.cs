@@ -15,13 +15,11 @@ using DSharpPlus.Clients;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
-using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Gateway;
 using DSharpPlus.Net.InboundWebhooks;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
-using DSharpPlus.Net.WebSocket;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -37,7 +35,6 @@ namespace DSharpPlus;
 public sealed partial class DiscordClient : BaseDiscordClient
 {
     internal static readonly DateTimeOffset discordEpoch = new(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
-    private static readonly ConcurrentDictionary<ulong, SocketLock> socketLocks = [];
 
     internal bool isShard = false;
     internal IMessageCacheProvider? MessageCache { get; }

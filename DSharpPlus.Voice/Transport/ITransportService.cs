@@ -3,6 +3,10 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Voice.Transport;
+
+/// <summary>
+/// Represents a mechanism for transporting data to and from the voice gateway server.
+/// </summary>
 public interface ITransportService
 {
     /// <summary>
