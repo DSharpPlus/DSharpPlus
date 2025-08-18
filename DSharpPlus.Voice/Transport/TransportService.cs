@@ -1,11 +1,11 @@
 using System;
 using System.Buffers;
-using System.IO;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace DSharpPlus.Voice.Transport;
 public class TransportService : IDisposable
@@ -14,8 +14,8 @@ public class TransportService : IDisposable
     private readonly Func<string, Task> onTextAsync;
     private readonly Func<ReadOnlyMemory<byte>, Task> onBinaryAsync;
     private readonly ClientWebSocket webSocketClient;
-    private readonly SemaphoreSlim receiveSemaphore = new SemaphoreSlim(1);
-    private readonly SemaphoreSlim sendSemaphore = new SemaphoreSlim(1);
+    private readonly SemaphoreSlim receiveSemaphore = new(1);
+    private readonly SemaphoreSlim sendSemaphore = new(1);
     private const int ReceiveLoopTimeout = 5000;
 
     public TransportService(Uri uri,
@@ -38,7 +38,7 @@ public class TransportService : IDisposable
 
         try
         {
-            MemoryStream ms = new MemoryStream();
+            ArrayPoolBufferWriter<byte> writer = new();
             while (!token.Value.IsCancellationRequested)
             {
                 await this.receiveSemaphore.WaitAsync(token.Value);
@@ -63,30 +63,26 @@ public class TransportService : IDisposable
 
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
-                        //_log?.Invoke($"Server requested close: {result.CloseStatus} {result.CloseStatusDescription}");
                         await this.webSocketClient.CloseAsync(WebSocketCloseStatus.NormalClosure, "ack", token.Value);
                         break;
                     }
 
-                    ms.Write(buffer, 0, result.Count);
+                    writer.Write(buffer);
 
                     if (result.EndOfMessage)
                     {
                         if (result.MessageType == WebSocketMessageType.Text)
                         {
-                            ms.Position = 0;
-                            using StreamReader reader = new StreamReader(ms, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, leaveOpen: true);
-                            string text = await reader.ReadToEndAsync();
-                            ms.SetLength(0);
+                            string text = Encoding.UTF8.GetString(writer.WrittenSpan);
 
                             await this.onTextAsync(text);
                         }
                         else if (result.MessageType == WebSocketMessageType.Binary)
                         {
-                            byte[] payload = ms.ToArray();
-                            ms.SetLength(0);
-                            await this.onBinaryAsync(new ReadOnlyMemory<byte>(payload));
+                            await this.onBinaryAsync(writer.WrittenMemory);
                         }
+
+                        writer.Clear();
                     }
 
                     if (result.Count == 0)

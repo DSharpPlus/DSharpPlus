@@ -64,7 +64,7 @@ public class DiscordTransportService : IDiscordTransportService
             return;
         }
 
-        int opCode = BitConverter.ToInt32(binaryResponse.Span.Slice(2, 4));
+        int opCode = binaryResponse.Span[2];
         if (this.binaryHandlers.TryGetValue(opCode, out List<Func<ReadOnlyMemory<byte>, DiscordTransportService, Task>>? handler))
         {
             handlerTasks = [.. handler.Select(async (x, y) => await x.Invoke(binaryResponse, this))];
@@ -73,8 +73,8 @@ public class DiscordTransportService : IDiscordTransportService
         await Task.WhenAll(handlerTasks);
     }
 
-    public async Task Send(ReadOnlyMemory<byte> data, CancellationToken? token = null) => await this.transportService.SendAsync(data, token);
-    public async Task Send<T>(T data, CancellationToken? token = null) => await this.transportService.SendAsync(data, token);
+    public async Task SendAsync(ReadOnlyMemory<byte> data, CancellationToken? token = null) => await this.transportService.SendAsync(data, token);
+    public async Task SendAsync<T>(T data, CancellationToken? token = null) => await this.transportService.SendAsync(data, token);
 }
 
 public class DiscordTransportServiceBuilder : IDiscordTransportServiceBuilder
