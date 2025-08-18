@@ -3,17 +3,17 @@ using System.Buffers.Binary;
 
 using CommunityToolkit.HighPerformance.Helpers;
 
-namespace DSharpPlus.Voice.Protocol.DiscordRtp;
+namespace DSharpPlus.Voice.Protocol.Rtp;
 
 /// <summary>
-/// Provides ways to obtain <see cref="DiscordRtpFrameInfo"/> instances depending on the encryption method used and its specific requirements.
+/// Provides ways to obtain <see cref="RtpFrameInfo"/> instances depending on the encryption method used and its specific requirements.
 /// </summary>
 internal static class FrameParser
 {
     /// <summary>
     /// Parses a frame with Discord RTP header and a suffixed nonce of the specified length.
     /// </summary>
-    public static DiscordRtpFrameInfo ParseRtpsizeSuffixedNonce(ReadOnlySpan<byte> frame, int nonceSize)
+    public static RtpFrameInfo ParseRtpsizeSuffixedNonce(ReadOnlySpan<byte> frame, int nonceSize)
     {
         const int discordRtpHeaderSize = 12;
         int csrcCount = frame[0] & 0x0F;
@@ -37,7 +37,7 @@ internal static class FrameParser
             cipher = (headerLength + 4)..(frame.Length - nonceSize);
             nonce = (frame.Length - nonceSize)..frame.Length;
 
-            return new DiscordRtpFrameInfo
+            return new RtpFrameInfo
             {
                 Header = header,
                 VoiceData = cipher,
@@ -52,7 +52,7 @@ internal static class FrameParser
         cipher = headerLength..(frame.Length - nonceSize);
         nonce = (frame.Length - nonceSize)..frame.Length;
 
-        return new DiscordRtpFrameInfo
+        return new RtpFrameInfo
         {
             Header = header,
             VoiceData = cipher,

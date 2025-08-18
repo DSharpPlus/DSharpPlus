@@ -122,7 +122,7 @@ public sealed class SharedAudioBufferPool : AudioBufferPool
         {
             if (stats.PooledArrays < stats.TotalCapacity * 0.10)
             {
-                int newMask = (this.mask << 1) + 1;
+                int newMask = (this.mask << 1) | 1;
 
                 if (newMask == 255)
                 {

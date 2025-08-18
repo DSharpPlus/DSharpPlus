@@ -1,11 +1,11 @@
 using System;
 
-namespace DSharpPlus.Voice.Protocol.DiscordRtp;
+namespace DSharpPlus.Voice.Protocol.Rtp;
 
 /// <summary>
 /// Describes the layout of a discord-flavoured RTP frame. The frame is not stored along with this type.
 /// </summary>
-internal readonly record struct DiscordRtpFrameInfo
+internal readonly record struct RtpFrameInfo
 {
     /// <summary>
     /// Gets a range specifying the size of the header.

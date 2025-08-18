@@ -20,7 +20,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial OpusEncoder* opus_encoder_create(int samplingRate, int channels, OpusEncodingMode mode, OpusError* error);
+    private static partial NativeOpusEncoder* opus_encoder_create(int samplingRate, int channels, OpusEncodingMode mode, OpusError* error);
 
     /// <summary>
     /// <code>
@@ -34,7 +34,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial int opus_encode(OpusEncoder* encoder, short* pcm, int frameSize, byte* data, int maxDataBytes);
+    private static partial int opus_encode(NativeOpusEncoder* encoder, short* pcm, int frameSize, byte* data, int maxDataBytes);
 
     /// <summary>
     /// <code>
@@ -42,7 +42,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial void opus_encoder_destroy(OpusEncoder* encoder);
+    private static partial void opus_encoder_destroy(NativeOpusEncoder* encoder);
 
     /// <summary>
     /// <code>
@@ -50,7 +50,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial int dsharpplus_opus_encoder_ctl_set_bitrate(OpusEncoder* encoder, int bitrate);
+    private static partial int dsharpplus_opus_encoder_ctl_set_bitrate(NativeOpusEncoder* encoder, int bitrate);
 
     /// <summary>
     /// <code>
@@ -58,7 +58,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial int dsharpplus_opus_encoder_ctl_set_max_bandwidth(OpusEncoder* encoder, int bandwidth);
+    private static partial int dsharpplus_opus_encoder_ctl_set_max_bandwidth(NativeOpusEncoder* encoder, int bandwidth);
 
     /// <summary>
     /// <code>
@@ -66,7 +66,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial int dsharpplus_opus_encoder_ctl_set_in_band_fec(OpusEncoder* encoder, int fec);
+    private static partial int dsharpplus_opus_encoder_ctl_set_in_band_fec(NativeOpusEncoder* encoder, int fec);
 
     /// <summary>
     /// <code>
@@ -74,7 +74,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial int dsharpplus_opus_encoder_ctl_set_packet_loss(OpusEncoder* encoder, int packetLossPercent);
+    private static partial int dsharpplus_opus_encoder_ctl_set_packet_loss(NativeOpusEncoder* encoder, int packetLossPercent);
 
     /// <summary>
     /// <code>
@@ -82,7 +82,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial int dsharpplus_opus_encoder_ctl_set_signal(OpusEncoder* encoder, OpusSignal signal);
+    private static partial int dsharpplus_opus_encoder_ctl_set_signal(NativeOpusEncoder* encoder, OpusSignal signal);
 
     /// <summary>
     /// <code>
@@ -90,7 +90,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial int dsharpplus_opus_encoder_ctl_set_vbr_constraint(OpusEncoder* encoder, int mode);
+    private static partial int dsharpplus_opus_encoder_ctl_set_vbr_constraint(NativeOpusEncoder* encoder, int mode);
 
     /// <summary>
     /// <code>
@@ -98,7 +98,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial int dsharpplus_opus_encoder_ctl_set_complexity(OpusEncoder* encoder, int complexity);
+    private static partial int dsharpplus_opus_encoder_ctl_set_complexity(NativeOpusEncoder* encoder, int complexity);
 
     /// <summary>
     /// <code>
@@ -106,7 +106,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial int dsharpplus_opus_encoder_ctl_reset_state(OpusEncoder* encoder);
+    private static partial int dsharpplus_opus_encoder_ctl_reset_state(NativeOpusEncoder* encoder);
 
     /// <summary>
     /// <code>
@@ -118,7 +118,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial OpusDecoder* opus_decoder_create(int sampleRate, int channels, OpusError* error);
+    private static partial NativeOpusDecoder* opus_decoder_create(int sampleRate, int channels, OpusError* error);
 
     /// <summary>
     /// <code>
@@ -133,7 +133,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial int opus_decode(OpusDecoder* decoder, byte* data, int length, short* pcm, int frameSize, int decodeErrorCorrectionData);
+    private static partial int opus_decode(NativeOpusDecoder* decoder, byte* data, int length, short* pcm, int frameSize, int decodeErrorCorrectionData);
 
     /// <summary>
     /// <code>
@@ -141,7 +141,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial void opus_decoder_destroy(OpusDecoder* decoder);
+    private static partial void opus_decoder_destroy(NativeOpusDecoder* decoder);
 
     /// <summary>
     /// <code>
@@ -150,7 +150,7 @@ internal static unsafe partial class OpusInterop
     /// </summary>
     [LibraryImport("opus")]
 
-    private static partial int dsharpplus_opus_decoder_ctl_reset_state(OpusDecoder* decoder);
+    private static partial int dsharpplus_opus_decoder_ctl_reset_state(NativeOpusDecoder* decoder);
 
     /// <summary>
     /// <code>
@@ -158,7 +158,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial int dsharpplus_opus_decoder_get_last_packet_duration(OpusDecoder* decoder, int* sampleCount);
+    private static partial int dsharpplus_opus_decoder_get_last_packet_duration(NativeOpusDecoder* decoder, int* sampleCount);
 
     /// <summary>
     /// <code>
@@ -166,7 +166,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial OpusRepacketizer* opus_repacketizer_create();
+    private static partial NativeOpusRepacketizer* opus_repacketizer_create();
 
     /// <summary>
     /// <code>
@@ -174,7 +174,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial OpusRepacketizer* opus_repacketizer_init(OpusRepacketizer* repacketizer);
+    private static partial NativeOpusRepacketizer* opus_repacketizer_init(NativeOpusRepacketizer* repacketizer);
 
     /// <summary>
     /// <code>
@@ -182,7 +182,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial int opus_repacketizer_cat(OpusRepacketizer* repacketizer, byte* data, int length);
+    private static partial int opus_repacketizer_cat(NativeOpusRepacketizer* repacketizer, byte* data, int length);
 
     /// <summary>
     /// <code>
@@ -190,7 +190,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial int opus_repacketizer_out(OpusRepacketizer* repacketizer, byte* data, int length);
+    private static partial int opus_repacketizer_out(NativeOpusRepacketizer* repacketizer, byte* data, int length);
 
     /// <summary>
     /// <code>
@@ -198,7 +198,7 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial int opus_repacketizer_get_nb_frames(OpusRepacketizer* repacketizer);
+    private static partial int opus_repacketizer_get_nb_frames(NativeOpusRepacketizer* repacketizer);
 
     /// <summary>
     /// <code>
@@ -206,5 +206,5 @@ internal static unsafe partial class OpusInterop
     /// </code>
     /// </summary>
     [LibraryImport("opus")]
-    private static partial void opus_repacketizer_destroy(OpusRepacketizer* repacketizer);
+    private static partial void opus_repacketizer_destroy(NativeOpusRepacketizer* repacketizer);
 }

@@ -10,6 +10,7 @@ public abstract class AudioBufferPool
     // these are provided here as statics to help the JIT with devirtualizing them
     private static readonly SharedAudioBufferPool backing20 = new(972, TimeSpan.FromMilliseconds(20));
     private static readonly SharedAudioBufferPool backing120 = new(5772, TimeSpan.FromMilliseconds(120));
+    private static readonly NonPoolingBufferPool backingSilence = new(15);
 
     /// <summary>
     /// A pre-provided pool for 20ms opus buffers.
@@ -20,6 +21,11 @@ public abstract class AudioBufferPool
     /// A pre-provided pool for 120ms opus buffers.
     /// </summary>
     public static AudioBufferPool Opus120ms => backing120;
+
+    /// <summary>
+    /// A pre-provided pool for opus silence frames.
+    /// </summary>
+    public static AudioBufferPool OpusSilenceFrames => backingSilence;
 
     /// <summary>
     /// Acquires a lease to an array. Dispose of the lease to automatically return it to a pool.

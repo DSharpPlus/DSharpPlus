@@ -7,7 +7,7 @@ using System.Threading;
 using CommunityToolkit.HighPerformance.Buffers;
 
 using DSharpPlus.Voice.Interop.Sodium;
-using DSharpPlus.Voice.Protocol.DiscordRtp;
+using DSharpPlus.Voice.Protocol.Rtp;
 
 namespace DSharpPlus.Voice.Cryptors;
 
@@ -31,7 +31,7 @@ public sealed class AeadXChaCha20Poly1305Cryptor : ICryptor
     /// <inheritdoc/>
     public void Decrypt(ReadOnlySpan<byte> encryptedFrame, ArrayPoolBufferWriter<byte> decrypted, out int extensionHeaderLength)
     {
-        DiscordRtpFrameInfo frameInfo = FrameParser.ParseRtpsizeSuffixedNonce(encryptedFrame, 4);
+        RtpFrameInfo frameInfo = FrameParser.ParseRtpsizeSuffixedNonce(encryptedFrame, 4);
         extensionHeaderLength = frameInfo.ExtensionHeaderLength;
 
         Span<byte> nonce = stackalloc byte[SodiumInterop.AeadXChaCha20Poly1305NonceLength];

@@ -5,14 +5,19 @@ namespace DSharpPlus.Voice.RuntimeServices.Memory;
 /// <summary>
 /// Represents a leased array from an <see cref="AudioBufferPool"/>.
 /// </summary>
-public readonly record struct AudioBufferLease : IDisposable
+public record struct AudioBufferLease : IDisposable
 {
     private readonly AudioBufferPool pool;
 
     /// <summary>
     /// The buffer represented by this lease.
     /// </summary>
-    public byte[] Buffer { get; }
+    public readonly byte[] Buffer { get; }
+
+    /// <summary>
+    /// The actually utilized length within the leased buffer.
+    /// </summary>
+    public int Length { get; set; }
 
     /// <summary>
     /// Creates a new lease, noting the pool it must return to.
@@ -26,6 +31,6 @@ public readonly record struct AudioBufferLease : IDisposable
     /// <summary>
     /// Disposes of this lease and returns it to the pool.
     /// </summary>
-    public void Dispose() 
+    public readonly void Dispose() 
         => this.pool.Return(this.Buffer);
 }
