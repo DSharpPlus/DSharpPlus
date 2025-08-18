@@ -6,6 +6,7 @@ using DSharpPlus.Voice.Interop.Koana;
 using DSharpPlus.Voice.Interop.Sodium;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace DSharpPlus.Voice;
 
@@ -13,16 +14,23 @@ internal sealed class VoiceInitializer : IEventHandler<ClientStartedEventArgs>
 {
     private readonly ILogger<KoanaContext> koanaLogger;
     private readonly ILogger<VoiceInitializer> logger;
+    private readonly bool logNativeMessages;
 
-    public VoiceInitializer(ILogger<KoanaContext> koanaLogger, ILogger<VoiceInitializer> logger)
+    public VoiceInitializer
+    (
+        IOptions<VoiceOptions> options,
+        ILogger<KoanaContext> koanaLogger,
+        ILogger<VoiceInitializer> logger
+    )
     {
         this.koanaLogger = koanaLogger;
         this.logger = logger;
+        this.logNativeMessages = options.Value.LogNativeMlsDebugMessages;
     }
 
     public Task HandleEventAsync(DiscordClient _, ClientStartedEventArgs __)
     {
-        KoanaInterop.SetLogger(this.koanaLogger);
+        KoanaInterop.SetLogger(this.koanaLogger, this.logNativeMessages);
         KoanaInterop.Initialize();
 
         if (!OpenSslVersionCheck.CheckOpenSslVersionCompatible())

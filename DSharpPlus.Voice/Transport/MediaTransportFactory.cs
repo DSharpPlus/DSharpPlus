@@ -2,25 +2,16 @@ using System;
 using System.Collections.Concurrent;
 using System.Net;
 
-using DSharpPlus.Net.Transport;
+using DSharpPlus.Voice.Transport;
 
-/// <summary>
-/// Factory for creating MediaTransportService instances
-/// </summary>
+/// <inheritdoc/>
 public sealed class MediaTransportFactory : IMediaTransportFactory, IDisposable
 {
-    /// <summary>
-    /// dictionary for storing already created UDP clients
-    /// </summary>
+    // dictionary for storing already created UDP clients
     private readonly ConcurrentDictionary<(string? Local, int LPort, string? Remote, int RPort), MediaTransportService> map
         = new();
 
-    /// <summary>
-    /// Key consists of the main components of each endpoint l and r
-    /// </summary>
-    /// <param name="l"></param>
-    /// <param name="r"></param>
-    /// <returns></returns>
+    // key consists of the main components of each endpoint l and r
     private static (string?, int, string?, int) Key(IPEndPoint? l, IPEndPoint? r)
         => (l?.Address?.ToString(), l?.Port ?? -1, r?.Address?.ToString(), r?.Port ?? -1);
 
@@ -46,7 +37,7 @@ public sealed class MediaTransportFactory : IMediaTransportFactory, IDisposable
     }
 
     /// <summary>
-    /// Dispose of all cached IMediaTransportServices and clears the internal cache map
+    /// Disposes of all cached IMediaTransportServices and clears the internal cache map.
     /// </summary>
     public void Dispose()
     {

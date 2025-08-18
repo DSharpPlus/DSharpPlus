@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
@@ -17,6 +18,7 @@ namespace DSharpPlus.Voice.Interop.Koana;
 internal unsafe partial struct KoanaInterop : IDisposable
 {
     private static ILogger<KoanaContext>? logger;
+    private static bool logNativeDebuggingMessages;
 
     private readonly KoanaContext* context;
     private readonly ulong channelId;
@@ -37,14 +39,20 @@ internal unsafe partial struct KoanaInterop : IDisposable
         string message = new((sbyte*)pMessage);
         LogLevel level = (LogLevel)(int)logLevel;
 
-        logger?.Log(level, "{message}", message);
+        if (logNativeDebuggingMessages)
+        {
+            logger?.Log(level, "{message}", message);
+        }
     }
 
     /// <summary>
-    /// Sets the logger used to bubble up any native errors or debugging messages.
+    /// Sets the logger used to bubble up any native errors and whether to also log native debugging messages.
     /// </summary>
-    public static void SetLogger(ILogger<KoanaContext> logger)
-        => KoanaInterop.logger = logger;
+    public static void SetLogger(ILogger<KoanaContext> logger, bool logNativeMessages)
+    {
+        KoanaInterop.logger = logger;
+        KoanaInterop.logNativeDebuggingMessages = logNativeMessages;
+    }
 
     /// <summary>
     /// Initializes the native library state for use.
@@ -243,7 +251,7 @@ internal unsafe partial struct KoanaInterop : IDisposable
     /// <returns>The amount of data that was decrypted.</returns>
     public readonly int DecryptFrame(ulong userId, ReadOnlySpan<byte> encryptedFrame, Span<byte> decryptedFrame)
     {
-        Debug.Assert(encryptedFrame.Length == decryptedFrame.Length);
+        Debug.Assert(encryptedFrame.Length <= decryptedFrame.Length);
 
         fixed (byte* pEncrypted = encryptedFrame)
         fixed (byte* pDecrypted = decryptedFrame)
@@ -264,7 +272,7 @@ internal unsafe partial struct KoanaInterop : IDisposable
     /// <returns>The amount of data that was encrypted.</returns>
     public readonly int EncryptFrame(ReadOnlySpan<byte> unencryptedFrame, Span<byte> encryptedFrame, uint ssrc)
     {
-        Debug.Assert(unencryptedFrame.Length == encryptedFrame.Length);
+        Debug.Assert(unencryptedFrame.Length <= encryptedFrame.Length);
         int size;
 
         fixed (byte* pUnencrypted = unencryptedFrame)
@@ -304,5 +312,5 @@ file class ThrowHelper
     [DebuggerHidden]
     [StackTraceHidden]
     public static void ThrowEncryptionFailure()
-        => throw new Exception();
+        => throw new CryptographicException("Failed to encrypt a frame in native MLS code.");
 }

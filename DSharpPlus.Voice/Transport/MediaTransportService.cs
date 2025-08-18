@@ -5,7 +5,9 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DSharpPlus.Net.Transport;
+namespace DSharpPlus.Voice.Transport;
+
+/// <inheritdoc/>
 public class MediaTransportService : IMediaTransportService, IDisposable
 {
     private readonly UdpClient udpClient;
@@ -13,10 +15,10 @@ public class MediaTransportService : IMediaTransportService, IDisposable
     private readonly SemaphoreSlim readSemaphore = new(1);
 
     /// <summary>
-    /// Used by MediaTransportFactory to build the MediaTransportService
+    /// Used by MediaTransportFactory to build the MediaTransportService.
     /// </summary>
-    /// <param name="localBinding">where on the local machine to bind the respond UDP datagrams</param> 
-    /// <param name="remoteBinding">what remote address to send UDP datagrams to</param> 
+    /// <param name="localBinding">Indicates where on the local machine UDP datagrams are bound to.</param> 
+    /// <param name="remoteBinding">Indicates what remote address UDP datagrams are sent to.</param> 
     public MediaTransportService(IPEndPoint? localBinding, IPEndPoint? remoteBinding)
     {
         this.udpClient = localBinding is not null ? new UdpClient(localBinding) : new UdpClient();
@@ -59,5 +61,6 @@ public class MediaTransportService : IMediaTransportService, IDisposable
         }
     }
 
+    /// <inheritdoc/>
     public void Dispose() => this.udpClient?.Dispose();
 }
