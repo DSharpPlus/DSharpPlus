@@ -8,7 +8,12 @@ using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace DSharpPlus.Voice.Transport;
-public class TransportService : IDisposable
+
+/// <summary>
+/// This service creates a websocket connection and has a callback for binary and text received.
+/// It also allows for sending messages to the remote connection.
+/// </summary>
+public class TransportService : IDisposable, ITransportService
 {
     private readonly Uri uri;
     private readonly Func<string, Task> onTextAsync;
@@ -29,6 +34,61 @@ public class TransportService : IDisposable
         this.webSocketClient = new();
 
         configureOptions?.Invoke(this.webSocketClient.Options);
+    }
+
+
+    /// <inheritdoc/>
+    public async Task ConnectAsync(CancellationToken? cancellationToken = null)
+    {
+        await this.webSocketClient.ConnectAsync(this.uri, cancellationToken ?? CancellationToken.None);
+
+        // Start the receive loop
+        _ = Task.Run(async () => await ReceiveLoopAsync());
+    }
+
+
+    /// <inheritdoc/>
+    public async Task SendAsync(ReadOnlyMemory<byte> data, CancellationToken? token = null)
+    {
+        await this.sendSemaphore.WaitAsync();
+        token ??= CancellationToken.None;
+
+        try
+        {
+            await this.webSocketClient.SendAsync(data, WebSocketMessageType.Binary, true, token.Value);
+        }
+        finally
+        {
+            this.sendSemaphore.Release();
+        }
+    }
+
+
+    /// <inheritdoc/>
+    public async Task SendAsync<T>(T data, CancellationToken? token = null)
+    {
+        await this.sendSemaphore.WaitAsync();
+        token ??= CancellationToken.None;
+
+        string jsonString = JsonSerializer.Serialize(data);
+        byte[] jsonBinary = Encoding.UTF8.GetBytes(jsonString);
+
+        try
+        {
+            await this.webSocketClient.SendAsync(jsonBinary, WebSocketMessageType.Text, true, token.Value);
+        }
+        finally
+        {
+            this.sendSemaphore.Release();
+        }
+    }
+
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+        this.webSocketClient?.Dispose();
+        this.sendSemaphore.Dispose();
+        this.receiveSemaphore?.Dispose();
     }
 
     private async Task ReceiveLoopAsync(CancellationToken? token = null)
@@ -100,53 +160,5 @@ public class TransportService : IDisposable
         {
             ArrayPool<byte>.Shared.Return(buffer);
         }
-    }
-
-    public async Task ConnectAsync(CancellationToken? cancellationToken = null)
-    {
-        await this.webSocketClient.ConnectAsync(this.uri, cancellationToken ?? CancellationToken.None);
-
-        // Start the receive loop
-        _ = Task.Run(async () => await ReceiveLoopAsync());
-    }
-
-    public async Task SendAsync(ReadOnlyMemory<byte> data, CancellationToken? token = null)
-    {
-        await this.sendSemaphore.WaitAsync();
-        token ??= CancellationToken.None;
-
-        try
-        {
-            await this.webSocketClient.SendAsync(data, WebSocketMessageType.Binary, true, token.Value);
-        }
-        finally
-        {
-            this.sendSemaphore.Release();
-        }
-    }
-
-    public async Task SendAsync<T>(T data, CancellationToken? token = null)
-    {
-        await this.sendSemaphore.WaitAsync();
-        token ??= CancellationToken.None;
-
-        string jsonString = JsonSerializer.Serialize(data);
-        byte[] jsonBinary = Encoding.UTF8.GetBytes(jsonString);
-
-        try
-        {
-            await this.webSocketClient.SendAsync(jsonBinary, WebSocketMessageType.Text, true, token.Value);
-        }
-        finally
-        {
-            this.sendSemaphore.Release();
-        }
-    }
-
-    public void Dispose()
-    {
-        this.webSocketClient?.Dispose();
-        this.sendSemaphore.Dispose();
-        this.receiveSemaphore?.Dispose();
     }
 }

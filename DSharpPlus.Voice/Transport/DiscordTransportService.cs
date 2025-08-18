@@ -7,11 +7,13 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
+using DSharpPlus.Voice.Transport.Models;
+
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Voice.Transport;
 
-public class DiscordTransportService : IDiscordTransportService
+public class DiscordTransportService : ITransportService
 {
     private readonly ILogger<DiscordTransportService> logger;
     private readonly ConcurrentDictionary<int, List<Func<string, DiscordTransportService, Task>>> jsonHandlers;
@@ -24,17 +26,19 @@ public class DiscordTransportService : IDiscordTransportService
         ILogger<DiscordTransportService> logger,
         Action<ClientWebSocketOptions>? configureOptions = null)
     {
-        this.transportService = new TransportService(uri, OnBaseText, OnBaseBinary, configureOptions);
+        this.transportService = new TransportService(uri, OnBaseTextAsync, OnBaseBinaryAsync, configureOptions);
         this.jsonHandlers = jsonHandlers;
         this.binaryHandlers = binaryHandlers;
         this.logger = logger;
     }
 
-    public async Task ConnectAsync() => await this.transportService.ConnectAsync();
+    /// <inheritdoc/>
+    public async Task ConnectAsync(CancellationToken? cancellationToken = null) => await this.transportService.ConnectAsync(cancellationToken);
 
-    public async Task OnBaseText(string messageText)
+    /// <inheritdoc/>
+    private async Task OnBaseTextAsync(string messageText)
     {
-        BaseDiscordMessage? message = JsonSerializer.Deserialize<BaseDiscordMessage>(messageText);
+        BaseDiscordGatewayMessage? message = JsonSerializer.Deserialize<BaseDiscordGatewayMessage>(messageText);
         List<Task> handlerTasks = [];
 
         if (message == null)
@@ -53,7 +57,8 @@ public class DiscordTransportService : IDiscordTransportService
         await Task.WhenAll(handlerTasks);
     }
 
-    public async Task OnBaseBinary(ReadOnlyMemory<byte> binaryResponse)
+    /// <inheritdoc/>
+    private async Task OnBaseBinaryAsync(ReadOnlyMemory<byte> binaryResponse)
     {
         List<Task> handlerTasks = [];
         if (binaryResponse.Length < 3)
@@ -73,7 +78,9 @@ public class DiscordTransportService : IDiscordTransportService
         await Task.WhenAll(handlerTasks);
     }
 
+    /// <inheritdoc/>
     public async Task SendAsync(ReadOnlyMemory<byte> data, CancellationToken? token = null) => await this.transportService.SendAsync(data, token);
+    /// <inheritdoc/>
     public async Task SendAsync<T>(T data, CancellationToken? token = null) => await this.transportService.SendAsync(data, token);
 }
 
@@ -86,6 +93,7 @@ public class DiscordTransportServiceBuilder : IDiscordTransportServiceBuilder
 
     public DiscordTransportServiceBuilder(ILogger<DiscordTransportService> logger) => this.logger = logger;
 
+    /// <inheritdoc/>
     public void AddJsonHandler<T>(int opCode, Func<T, DiscordTransportService, Task> handler)
     {
         if (!this.jsonHandlers.TryGetValue(opCode, out List<Func<string, DiscordTransportService, Task>>? handlerTasks))
@@ -118,6 +126,7 @@ public class DiscordTransportServiceBuilder : IDiscordTransportServiceBuilder
         this.jsonHandlers[opCode] = handlerTasks;
     }
 
+    /// <inheritdoc/>
     public void AddBinaryHandler(int opCode, Func<ReadOnlyMemory<byte>, DiscordTransportService, Task> handler)
     {
         if (!this.binaryHandlers.TryGetValue(opCode, out List<Func<ReadOnlyMemory<byte>, DiscordTransportService, Task>>? handlerTasks))
@@ -130,9 +139,11 @@ public class DiscordTransportServiceBuilder : IDiscordTransportServiceBuilder
         this.binaryHandlers[opCode] = handlerTasks;
     }
 
+    /// <inheritdoc/>
     public void ConfigureWebSocketOptions(Action<ClientWebSocketOptions> configureOptions) => this.configureOptions = configureOptions;
 
-    public DiscordTransportService Build(Uri uri)
+    /// <inheritdoc/>
+    public ITransportService Build(Uri uri)
     {
         if (this.jsonHandlers.IsEmpty && this.binaryHandlers.IsEmpty)
         {
