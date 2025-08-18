@@ -74,6 +74,8 @@ public sealed partial class DiscordClient
         JToken? rawRefMsg = dat["referenced_message"];
         JArray rawMembers;
         JArray rawPresences;
+        JToken rlMetadata;
+        GatewayOpCode rlOpcode;
 
         switch (payload.EventName.ToLowerInvariant())
         {
@@ -549,6 +551,12 @@ public sealed partial class DiscordClient
             case "guild_stickers_update":
                 IEnumerable<DiscordMessageSticker> strs = dat["stickers"].ToDiscordObject<IEnumerable<DiscordMessageSticker>>();
                 await OnStickersUpdatedAsync(strs, dat);
+                break;
+
+            case "rate_limited":
+                rlMetadata = dat["meta"];
+                rlOpcode = (GatewayOpCode)(int)dat["opcode"];
+                await OnRatelimitedAsync(dat.ToDiscordObject<RatelimitedEventArgs>(), rlOpcode, rlMetadata);
                 break;
 
             default:
@@ -2972,6 +2980,22 @@ public sealed partial class DiscordClient
         };
 
         await this.dispatcher.DispatchAsync(this, sea);
+    }
+
+    internal async Task OnRatelimitedAsync(RatelimitedEventArgs ratelimitedEventArgs, GatewayOpCode rlOpcode, JToken rlMetadata)
+    {
+        RatelimitMetadata metadata = rlOpcode switch
+        {
+            GatewayOpCode.RequestGuildMembers => rlMetadata.ToDiscordObject<RequestGuildMembersRatelimitMetadata>(),
+            _ => new UnknownRatelimitMetadata
+            {
+                Json = rlMetadata.ToString()
+            }
+        };
+
+        ratelimitedEventArgs.Metadata = metadata;
+
+        await this.dispatcher.DispatchAsync(this, ratelimitedEventArgs);
     }
 
     internal async Task OnUnknownEventAsync(GatewayPayload payload)
