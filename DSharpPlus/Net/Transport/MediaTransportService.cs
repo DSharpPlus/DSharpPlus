@@ -12,6 +12,11 @@ public class MediaTransportService : IMediaTransportService, IDisposable
     private readonly SemaphoreSlim writeSemaphore = new(1);
     private readonly SemaphoreSlim readSemaphore = new(1);
 
+    /// <summary>
+    /// Used by MediaTransportFactory to build the MediaTransportService
+    /// </summary>
+    /// <param name="localBinding">where on the local machine to bind the respond UDP datagrams</param> 
+    /// <param name="remoteBinding">what remote address to send UDP datagrams to</param> 
     public MediaTransportService(IPEndPoint? localBinding, IPEndPoint? remoteBinding)
     {
         this.udpClient = localBinding is not null ? new UdpClient(localBinding) : new UdpClient();
@@ -22,6 +27,7 @@ public class MediaTransportService : IMediaTransportService, IDisposable
         }
     }
 
+    /// <inheritdoc/>
     public async Task ReceiveAsync(IBufferWriter<byte> bufferWriter)
     {
         await this.readSemaphore.WaitAsync();
@@ -39,6 +45,7 @@ public class MediaTransportService : IMediaTransportService, IDisposable
         }
     }
 
+    /// <inheritdoc/>
     public async Task SendAsync(ReadOnlyMemory<byte> buffer)
     {
         await this.writeSemaphore.WaitAsync();

@@ -4,21 +4,36 @@ using System.Net;
 
 using DSharpPlus.Net.Transport;
 
+/// <summary>
+/// Factory for creating MediaTransportService instances
+/// </summary>
 public sealed class MediaTransportFactory : IMediaTransportFactory, IDisposable
 {
+    /// <summary>
+    /// dictionary for storing already created UDP clients
+    /// </summary>
     private readonly ConcurrentDictionary<(string? Local, int LPort, string? Remote, int RPort), MediaTransportService> map
         = new();
 
-    // Key consists of the main components of each endpoint
+    /// <summary>
+    /// Key consists of the main components of each endpoint l and r
+    /// </summary>
+    /// <param name="l"></param>
+    /// <param name="r"></param>
+    /// <returns></returns>
     private static (string?, int, string?, int) Key(IPEndPoint? l, IPEndPoint? r)
         => (l?.Address?.ToString(), l?.Port ?? -1, r?.Address?.ToString(), r?.Port ?? -1);
 
-    public IMediaTransportService GetOrCreate(IPEndPoint? localBind, IPEndPoint? remotePeer)
+
+    /// <inheritdoc/>
+    public IMediaTransportService Create(IPEndPoint? localBind, IPEndPoint? remotePeer)
     {
         (string?, int, string?, int) key = Key(localBind, remotePeer);
         return this.map.GetOrAdd(key, _ => new MediaTransportService(localBind, remotePeer));
     }
 
+
+    /// <inheritdoc/>
     public bool Remove(IPEndPoint localBind, IPEndPoint remotePeer)
     {
         (string?, int, string?, int) key = Key(localBind, remotePeer);
@@ -30,6 +45,9 @@ public sealed class MediaTransportFactory : IMediaTransportFactory, IDisposable
         return false;
     }
 
+    /// <summary>
+    /// Dispose of all cached IMediaTransportServices and clears the internal cache map
+    /// </summary>
     public void Dispose()
     {
         foreach (System.Collections.Generic.KeyValuePair<(string? Local, int LPort, string? Remote, int RPort), MediaTransportService> kv in this.map)
