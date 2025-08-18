@@ -39,12 +39,12 @@ public class MediaTransportService : IMediaTransportService, IDisposable
         }
     }
 
-    public async Task SendAsync(ReadOnlySequence<byte> buffer)
+    public async Task SendAsync(ReadOnlyMemory<byte> buffer)
     {
         await this.writeSemaphore.WaitAsync();
         try
         {
-            await this.udpClient.SendAsync(buffer.First);
+            await this.udpClient.SendAsync(buffer);
         }
         finally
         {
