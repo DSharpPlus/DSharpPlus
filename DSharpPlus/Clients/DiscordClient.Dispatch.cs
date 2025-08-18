@@ -2995,6 +2995,12 @@ public sealed partial class DiscordClient
 
         ratelimitedEventArgs.Metadata = metadata;
 
+        if (rlOpcode == GatewayOpCode.RequestGuildMembers)
+        {
+            RequestGuildMembersRatelimitMetadata rgmMetadata = (RequestGuildMembersRatelimitMetadata)metadata;
+            CancelGuildMemberEnumeration(rgmMetadata.GuildId, rgmMetadata.Nonce, ratelimitedEventArgs.RetryAfter);
+        }
+
         await this.dispatcher.DispatchAsync(this, ratelimitedEventArgs);
     }
 
