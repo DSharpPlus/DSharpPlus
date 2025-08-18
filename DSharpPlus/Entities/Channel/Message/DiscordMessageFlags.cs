@@ -23,8 +23,7 @@ public enum DiscordMessageFlags
     /// <summary>
     /// Whether any embeds in the message are hidden.
     /// </summary>
-    /// <remarks>This flag is inbound only (it cannot be set).</remarks>
-    SuppressedEmbeds = 1 << 2,
+    SuppressEmbeds = 1 << 2,
 
     /// <summary>
     /// The source message for this crosspost has been deleted.
@@ -37,6 +36,11 @@ public enum DiscordMessageFlags
     /// </summary>
     /// <remarks>This flag is inbound only (it cannot be set).</remarks>
     Urgent = 1 << 4,
+
+    /// <summary>
+    /// This message has an associated thread, with the same id as the message
+    /// </summary>
+    HasThread = 1 << 5,
 
     /// <summary>
     /// The message is only visible to the user who invoked the interaction.
@@ -67,6 +71,16 @@ public enum DiscordMessageFlags
     /// Mentions in the message will still have a mention indicator, however.
     /// </summary>
     SuppressNotifications = 1 << 12,
+
+    /// <summary>
+    /// This message is a voice message
+    /// </summary>
+    IsVoiceMessage = 1 << 13,
+    
+    /// <summary>
+    /// This message has a snapshot (via Message Forwarding)
+    /// </summary>
+    HasSnapshot = 1 << 14,
     
     /// <summary>
     /// Indicates that this message is/will support Components V2.

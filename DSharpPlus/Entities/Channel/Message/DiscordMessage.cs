@@ -592,7 +592,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     public async Task<DiscordMessage> ModifyAsync(DiscordMessageBuilder builder, bool suppressEmbeds = false, IEnumerable<DiscordAttachment>? attachments = default)
     {
         builder.Validate();
-        return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.mentions, builder.Components, builder.Files, suppressEmbeds ? DiscordMessageFlags.SuppressedEmbeds : null, attachments);
+        return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.mentions, builder.Components, builder.Files, suppressEmbeds ? DiscordMessageFlags.SuppressEmbeds : null, attachments);
     }
 
     /// <summary>
@@ -611,7 +611,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
         DiscordMessageBuilder builder = new(this);
         action(builder);
         builder.Validate();
-        return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.mentions, builder.Components, builder.Files, suppressEmbeds ? DiscordMessageFlags.SuppressedEmbeds : null, attachments);
+        return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.mentions, builder.Components, builder.Files, suppressEmbeds ? DiscordMessageFlags.SuppressEmbeds : null, attachments);
     }
 
     /// <summary>
@@ -624,7 +624,7 @@ public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task ModifyEmbedSuppressionAsync(bool hideEmbeds)
-        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, default, default, default, [], hideEmbeds ? DiscordMessageFlags.SuppressedEmbeds : null, default);
+        => await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, default, default, default, [], hideEmbeds ? DiscordMessageFlags.SuppressEmbeds : null, default);
 
     /// <summary>
     /// Deletes the message.

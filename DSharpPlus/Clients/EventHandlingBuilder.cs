@@ -464,6 +464,15 @@ public sealed class EventHandlingBuilder
     }
 
     /// <summary>
+    /// Fired when a poll completes and a poll result message is created. For this event to fire you need the <see cref="DiscordIntents.GuildMessages"/> intent.
+    /// </summary>
+    public EventHandlingBuilder HandleMessagePollCompleted(Func<DiscordClient, MessagePollCompletedEventArgs, Task> handler)
+    {
+        this.Services.Configure<EventHandlerCollection>(c => c.Register(handler));
+        return this;
+    }
+
+    /// <summary>
     /// Fired when a message is updated.
     /// For this event to fire you need the <see cref="DiscordIntents.GuildMessages"/> or 
     /// <see cref="DiscordIntents.DirectMessages"/> intent.

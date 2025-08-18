@@ -334,14 +334,6 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
         {
             return await typedConverter.ConvertAsync(context);
         }
-        // Call next variadic-argument to ensure that the context is ready to parse the next argument.
-        else if (!context.NextVariadicArgument())
-        {
-            return Optional.FromValue<ArgumentFailedConversionResult>(new()
-            {
-                Value = context.Argument
-            });
-        }
 
         // int.MaxValue is used to indicate that there's no maximum argument count.
         // If there's a maximum argument count, we'll ensure that the list has enough
@@ -373,7 +365,7 @@ public abstract partial class BaseCommandProcessor<TConverter, TConverterContext
             }
 
             varArgValues.Add(parsedArgument.Value);
-        } while (context.NextArgument() && context.NextVariadicArgument());
+        } while (context.NextArgument());
 
         if (varArgValues.Count < context.VariadicArgumentAttribute.MinimumArgumentCount)
         {

@@ -163,7 +163,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     /// <inheritdoc/>
     public bool IsConnected(ulong guildId)
     {
-        uint shardId = GetShardIdForGuildId(guildId);
+        int shardId = (int)GetShardIdForGuildId(guildId);
         return IsConnected(shardId);
     }
 
@@ -179,7 +179,7 @@ public sealed class MultiShardOrchestrator : IShardOrchestrator
     /// <inheritdoc/>
     public TimeSpan GetConnectionLatency(ulong guildId)
     {
-        uint shardId = GetShardIdForGuildId(guildId);
+        int shardId = (int)GetShardIdForGuildId(guildId);
         return GetConnectionLatency(shardId);
     }
 

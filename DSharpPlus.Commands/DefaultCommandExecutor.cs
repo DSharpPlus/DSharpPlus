@@ -197,7 +197,7 @@ public class DefaultCommandExecutor : ICommandExecutor
         // If there are no checks, we can skip this step.
         if (checks.Count == 0)
         {
-            return [];
+            return failedChecks;
         }
 
         // Reverse foreach so we execute the top-most command's checks first.
