@@ -421,8 +421,8 @@ internal static class AuditLogParser
                             .OldValue)?
                         .ToDiscordObject<DiscordApplicationCommandPermission>();
 
-                    DiscordApplicationCommandPermission? newValue = ((JObject)change
-                            .NewValue)
+                    DiscordApplicationCommandPermission? newValue = ((JObject?)change
+                            .NewValue)?
                         .ToDiscordObject<DiscordApplicationCommandPermission>();
 
                     permissionEntry.PermissionChanges = permissionEntry.PermissionChanges
