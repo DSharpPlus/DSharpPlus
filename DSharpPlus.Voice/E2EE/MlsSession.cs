@@ -1,6 +1,5 @@
+
 using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Threading;
 
 using CommunityToolkit.HighPerformance.Buffers;
@@ -9,8 +8,10 @@ using DSharpPlus.Voice.Interop.Koana;
 
 namespace DSharpPlus.Voice.E2EE;
 
-/// <inheritdoc/>
-public sealed class MlsSession : IE2EESession
+/// <summary>
+/// Provides the E2EE implementation for DSharpPlus.Voice, based on DAVE 1.1.4.
+/// </summary>
+public sealed class MlsSession : IDisposable
 {
     private readonly KoanaInterop koana;
     private readonly Lock mlsLock;
@@ -34,7 +35,9 @@ public sealed class MlsSession : IE2EESession
         this.ssrc = ssrc;
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Reinitializes the E2EE session with a different DAVE protocol version.
+    /// </summary>
     public void ReinitializeE2EESession(ushort protocolVersion)
     {
         lock (this.mlsLock)
@@ -44,7 +47,9 @@ public sealed class MlsSession : IE2EESession
         }
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Sets the voice gateway as an external sender capable of adding members to the E2EE group.
+    /// </summary>
     public void SetExternalSender(byte[] payload)
     {
         lock (this.mlsLock)
@@ -53,19 +58,20 @@ public sealed class MlsSession : IE2EESession
         }
     }
 
-    /// <inheritdoc/>
-    public byte[] ProcessProposals(byte[] payload)
+    /// <summary>
+    /// Processes proposals and retuns a message with the E2EE client's response in turn.
+    /// </summary>
+    public byte[] ProcessProposals(byte[] payload, ulong[] roster)
     {
-        List<ulong> roster = this.koana.GetUserList();
-
         lock (this.mlsLock)
         {
-            Span<ulong> rosterSpan = CollectionsMarshal.AsSpan(roster);
-            return this.koana.ProcessProposals(payload, rosterSpan);
+            return this.koana.ProcessProposals(payload, roster);
         }
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Processes an otherwise unspecified commit.
+    /// </summary>
     public void ProcessCommit(byte[] payload)
     {
         lock (this.mlsLock)
@@ -77,23 +83,30 @@ public sealed class MlsSession : IE2EESession
         }
     }
 
-    /// <inheritdoc/>
-    public void ProcessWelcome(byte[] payload)
+    /// <summary>
+    /// Welcomes a new user to the E2EE group.
+    /// </summary>
+    public void ProcessWelcome(byte[] payload, ulong[] roster)
     {
-        List<ulong> roster = this.koana.GetUserList();
-
         lock (this.mlsLock)
         {
-            Span<ulong> rosterSpan = CollectionsMarshal.AsSpan(roster);
-            this.koana.ProcessWelcome(payload, rosterSpan);
+            this.koana.ProcessWelcome(payload, roster);
         }
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Writes the client's key package to the writer.
+    /// </summary>
     public void WriteKeyPackage(ArrayPoolBufferWriter<byte> writer)
         => this.koana.GetMarshalledKeyPackage(writer);
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Decrypts the provided frame.
+    /// </summary>
+    /// <param name="userId">The snowflake identifier of the user who sent this payload.</param>
+    /// <param name="encryptedFrame">The E2EE-encrypted frame data.</param>
+    /// <param name="decryptedFrame">A buffer for the decrypted frame data, equal in length to the encrypted data.</param>
+    /// <returns>The amount of bytes written to <paramref name="decryptedFrame"/>.</returns>
     public int DecryptFrame(ulong userId, ReadOnlySpan<byte> encryptedFrame, Span<byte> decryptedFrame)
     {
         lock (this.mlsLock)
@@ -102,7 +115,12 @@ public sealed class MlsSession : IE2EESession
         }
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Encrypts the provided frame.
+    /// </summary>
+    /// <param name="unencryptedFrame">The unencrypted frame data.</param>
+    /// <param name="encryptedFrame">A buffer for the E2EE-encrypted frame data.</param>
+    /// <returns>The amount of bytes written to <paramref name="encryptedFrame"/>.</returns>
     public int EncryptFrame(ReadOnlySpan<byte> unencryptedFrame, Span<byte> encryptedFrame)
     {
         lock (this.mlsLock)
@@ -112,6 +130,6 @@ public sealed class MlsSession : IE2EESession
     }
 
     /// <inheritdoc/>
-    public void Dispose() 
+    public void Dispose()
         => this.koana.Dispose();
 }

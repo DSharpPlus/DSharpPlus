@@ -31,5 +31,5 @@ public interface ITransportService
     /// <param name="data"></param>
     /// <param name="token"></param>
     /// <returns></returns>
-    public Task SendAsync<T>(T data, CancellationToken? token = null);
+    public Task SendAsync<T>(T data, CancellationToken? token = null) where T : class;
 }

@@ -43,9 +43,10 @@ public sealed class TransportService : ITransportService
         using JsonDocument doc = JsonDocument.Parse(messageText);
         List<Task> handlerTasks = [];
 
-        int opcode = doc.RootElement.GetProperty("op").GetInt32();
+        int opCode = doc.RootElement.GetProperty("op").GetInt32();
+        this.logger.LogDebug("Received JSON OpCode: {opcode}", opCode);
 
-        if (this.jsonHandlers.TryGetValue(opcode, out List<Func<string, TransportService, Task>>? handler))
+        if (this.jsonHandlers.TryGetValue(opCode, out List<Func<string, TransportService, Task>>? handler))
         {
             handlerTasks = [.. handler.Select(async x => await x.Invoke(messageText, this))];
         }
@@ -61,12 +62,14 @@ public sealed class TransportService : ITransportService
         if (binaryResponse.Length < 3)
         {
             // log invalid binary message was received
-            this.logger.LogWarning("Invalid binary message was received!");
+            this.logger.LogDebug("Invalid binary message was received!");
 
             return;
         }
 
         int opCode = binaryResponse.Span[2];
+        this.logger.LogDebug("Received Binary OpCode: {opcode}", opCode);
+
         if (this.binaryHandlers.TryGetValue(opCode, out List<Func<ReadOnlyMemory<byte>, TransportService, Task>>? handler))
         {
             handlerTasks = [.. handler.Select(async (x, y) => await x.Invoke(binaryResponse, this))];
@@ -76,10 +79,12 @@ public sealed class TransportService : ITransportService
     }
 
     /// <inheritdoc/>
-    public async Task SendAsync(ReadOnlyMemory<byte> data, CancellationToken? token = null) 
-        => await this.transportService.SendAsync(data, token);
+    public async Task SendAsync(ReadOnlyMemory<byte> data, CancellationToken? token = null)
+    {
+        this.logger.LogDebug("Sending Binary with OpCode: {opCode}", (int)data.Span[0]);
+        await this.transportService.SendAsync(data, token);
+    }
 
     /// <inheritdoc/>
-    public async Task SendAsync<T>(T data, CancellationToken? token = null) 
-        => await this.transportService.SendAsync(data, token);
+    public async Task SendAsync<T>(T data, CancellationToken? token = null) where T : class => await this.transportService.SendAsync(data, token);
 }

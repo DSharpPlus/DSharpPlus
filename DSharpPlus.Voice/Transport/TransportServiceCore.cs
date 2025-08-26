@@ -124,7 +124,7 @@ internal sealed class TransportServiceCore : IDisposable
                         break;
                     }
 
-                    writer.Write(buffer);
+                    writer.Write(buffer.AsSpan(0, result.Count));
 
                     if (result.EndOfMessage)
                     {

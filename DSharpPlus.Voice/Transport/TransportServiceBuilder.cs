@@ -12,7 +12,7 @@ namespace DSharpPlus.Voice.Transport;
 /// <summary>
 /// Provides a convenience utility for registering payload handlers for a transport service.
 /// </summary>
-public sealed class TransportServiceBuilder : ITransportServiceBuilder
+public sealed class TransportServiceBuilder : ITransportServiceBuilder, IInitializedTransportServiceBuilder
 {
     private readonly ILogger<ITransportService> logger;
     private readonly ConcurrentDictionary<int, List<Func<string, TransportService, Task>>> jsonHandlers = [];
@@ -62,7 +62,7 @@ public sealed class TransportServiceBuilder : ITransportServiceBuilder
             handlerTasks = [];
         }
 
-        handlerTasks.Add(handler);
+        handlerTasks.Add(async (data, client) => await handler.Invoke(data[3..], client) );
 
         this.binaryHandlers[opcode] = handlerTasks;
     }
@@ -80,4 +80,6 @@ public sealed class TransportServiceBuilder : ITransportServiceBuilder
 
         return new TransportService(uri, this.jsonHandlers, this.binaryHandlers, this.logger, this.configureOptions);
     }
+
+    public IInitializedTransportServiceBuilder CreateBuilder() => new TransportServiceBuilder(this.logger);
 }
