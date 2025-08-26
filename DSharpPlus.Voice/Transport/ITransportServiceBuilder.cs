@@ -1,7 +1,3 @@
-using System;
-using System.Net.WebSockets;
-using System.Threading.Tasks;
-
 namespace DSharpPlus.Voice.Transport;
 
 /// <summary>

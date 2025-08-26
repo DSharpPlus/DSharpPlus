@@ -23,7 +23,7 @@ internal sealed class TransportServiceCore : IDisposable
     private readonly SemaphoreSlim sendSemaphore = new(1);
     private const int ReceiveLoopTimeout = 5000;
 
-    public TransportServiceCore
+    internal TransportServiceCore
     (
         Uri uri,
         Func<string, Task> onTextAsync,

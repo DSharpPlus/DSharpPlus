@@ -19,7 +19,7 @@ public class MediaTransportService : IMediaTransportService, IDisposable
     /// </summary>
     /// <param name="localBinding">Indicates where on the local machine UDP datagrams are bound to.</param> 
     /// <param name="remoteBinding">Indicates what remote address UDP datagrams are sent to.</param> 
-    public MediaTransportService(IPEndPoint? localBinding, IPEndPoint? remoteBinding)
+    internal MediaTransportService(IPEndPoint? localBinding, IPEndPoint? remoteBinding)
     {
         this.udpClient = localBinding is not null ? new UdpClient(localBinding) : new UdpClient();
 

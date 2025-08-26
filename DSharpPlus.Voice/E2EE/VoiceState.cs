@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 public class VoiceState
 {
+    internal VoiceState() { }
     public string? SessionId { get; set; }
     public string? UserId { get; set; }
     public string? VoiceToken { get; set; }

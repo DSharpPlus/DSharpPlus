@@ -5,7 +5,7 @@ using DSharpPlus.Voice.Transport;
 
 namespace DSharpPlus.Voice.E2EE;
 
-public class DaveStateHandler(MlsSession mls, ITransportService voiceNegotiationTransportService, Action<bool> setE2eeActive)
+public class DaveStateHandler
 {
     public ushort ProtocolVersion { get; private set; }
     public uint CurrentEpoch { get; private set; }
@@ -14,9 +14,16 @@ public class DaveStateHandler(MlsSession mls, ITransportService voiceNegotiation
     private uint? pendingEpochId;
     private bool pendingDowngrade;
 
-    private readonly MlsSession mls = mls;
-    private readonly ITransportService voiceNegotiationTransportService = voiceNegotiationTransportService;
-    private readonly Action<bool> setE2eeActive = setE2eeActive;
+    private readonly MlsSession mls;
+    private readonly ITransportService voiceNegotiationTransportService;
+    private readonly Action<bool> setE2eeActive;
+
+    internal DaveStateHandler(MlsSession mls, ITransportService voiceNegotiationTransportService, Action<bool> setE2eeActive)
+    {
+        this.mls = mls;
+        this.voiceNegotiationTransportService = voiceNegotiationTransportService;
+        this.setE2eeActive = setE2eeActive;
+    }
 
     public void SetNegotiatedDaveVersion(ushort v) => this.ProtocolVersion = v;
 

@@ -11,10 +11,16 @@ using DSharpPlus.Voice.E2EE;
 
 namespace DSharpPlus.Voice.Transport;
 
-public class VoiceStateFactory(ITransportServiceBuilder transportServiceBuilder, ICryptorFactory cryptorFactory)
+public class VoiceStateFactory : IVoiceStateFactory
 {
-    private readonly ITransportServiceBuilder transportServiceBuilder = transportServiceBuilder;
-    private readonly ICryptorFactory cryptorFactory = cryptorFactory;
+    private readonly ITransportServiceBuilder transportServiceBuilder;
+    private readonly ICryptorFactory cryptorFactory;
+
+    public VoiceStateFactory(ITransportServiceBuilder transportServiceBuilder, ICryptorFactory cryptorFactory)
+    {
+        this.transportServiceBuilder = transportServiceBuilder;
+        this.cryptorFactory = cryptorFactory;
+    }
 
     public VoiceState Create(string userId, string serverId, string channelId, string token, string sessionId, string endpoint)
     {
