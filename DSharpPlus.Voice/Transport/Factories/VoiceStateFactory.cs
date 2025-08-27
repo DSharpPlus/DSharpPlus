@@ -9,7 +9,7 @@ using CommunityToolkit.HighPerformance;
 using DSharpPlus.Voice.Cryptors;
 using DSharpPlus.Voice.E2EE;
 
-namespace DSharpPlus.Voice.Transport;
+namespace DSharpPlus.Voice.Transport.Factories;
 
 public class VoiceStateFactory : IVoiceStateFactory
 {
@@ -24,7 +24,25 @@ public class VoiceStateFactory : IVoiceStateFactory
 
     public VoiceState Create(string userId, string serverId, string channelId, string token, string sessionId, string endpoint)
     {
-        VoiceState state = new VoiceState()
+        // Create Initial voice state with known values
+        VoiceState state = CreateInitialVoiceState(userId, serverId, channelId, token, sessionId, endpoint);
+
+        // Create builder for the Voice State Negotiator Service
+        IInitializedTransportServiceBuilder voiceDiscordServiceBuilder = this.transportServiceBuilder.CreateBuilder();
+
+        // Setup our callbacks for Voice State Negotiation events
+        SetupInitialCallbacks(voiceDiscordServiceBuilder, state);
+
+        // Build our Voice State Negotiator Service
+        state.VoiceNegotiationTransportService = voiceDiscordServiceBuilder.Build(new Uri($"wss://{state.Endpoint}?v=8"));
+        state.VoiceNegotiationTransportService.ConnectAsync();
+
+        // Now return our VoiceState that represents our connection state in any voice channel
+        return state;
+    }
+
+    private static VoiceState CreateInitialVoiceState(string userId, string serverId, string channelId, string token, string sessionId, string endpoint) =>
+        new()
         {
             UserId = userId,
             ServerId = serverId,
@@ -35,22 +53,21 @@ public class VoiceStateFactory : IVoiceStateFactory
             E2EEIsActive = false
         };
 
-        IInitializedTransportServiceBuilder voiceDiscordServiceBuilder = this.transportServiceBuilder.CreateBuilder();
-
-        // --------------------Dave------------------------------ //
-
+    private void SetupInitialCallbacks(IInitializedTransportServiceBuilder transportServiceBuilder, VoiceState state)
+    {
         void setEncryptionStatusCb(bool active) => state.E2EEIsActive = active;
         MlsSession? e2ee = null;
 
-        // External Sender (25)
-        voiceDiscordServiceBuilder.AddBinaryHandler(25, (frame, client) =>
+        // External Sender (25 - DAVE) - Includes all data required to add an external send to the MLS group's extensions
+        transportServiceBuilder.AddBinaryHandler(25, (frame, client) =>
         {
             state.DaveStateHandler?.OnExternalSender(frame.Span);
             return Task.CompletedTask;
         });
 
-        // Prepare Epoch (24)
-        voiceDiscordServiceBuilder.AddJsonHandler<VoicePrepareEpochPayload>(24, async (frame, client) =>
+        // Prepare Epoch (24 - DAVE) - Lets us know that we are moving to a new epoch. Includes the new epochs upcoming protocol.
+        // If the epoch is 1 then we know it is actually a new MLS group we are creating with the given protocol
+        transportServiceBuilder.AddJsonHandler<VoicePrepareEpochPayload>(24, async (frame, client) =>
         {
             if (state.DaveStateHandler != null)
             {
@@ -58,8 +75,9 @@ public class VoiceStateFactory : IVoiceStateFactory
             }
         });
 
-        // Prepare Transition (21)
-        voiceDiscordServiceBuilder.AddJsonHandler<VoicePrepareTransitionPayload>(21, async (frame, client) =>
+        // Prepare Transition (21 - DAVE) - This informs us that we are about to transition to a new protocol?
+        // If the transition id is 0 then its a (re)initialization and it can be executed immediately. 
+        transportServiceBuilder.AddJsonHandler<VoicePrepareTransitionPayload>(21, async (frame, client) =>
         {
             if (state.DaveStateHandler != null)
             {
@@ -67,15 +85,16 @@ public class VoiceStateFactory : IVoiceStateFactory
             }
         });
 
-        // Execute Transition (22)
-        voiceDiscordServiceBuilder.AddJsonHandler<VoicePrepareTransitionPayload>(22, (frame, client) =>
+
+        // Execute Transition (22 - DAVE) - Informs us to execute the transition we were warned about in OPCODE 21
+        transportServiceBuilder.AddJsonHandler<VoicePrepareTransitionPayload>(22, (frame, client) =>
         {
             state.DaveStateHandler?.OnExecuteTransition(frame.Data.TransitionId);
             return Task.CompletedTask;
         });
 
-        // MLS Proposals (27)
-        voiceDiscordServiceBuilder.AddBinaryHandler(27, async (frame, client) =>
+        // MLS Proposals (27 - DAVE) - Lists proposals that we want to append and/or revoke for our MLS group
+        transportServiceBuilder.AddBinaryHandler(27, async (frame, client) =>
         {
             if (state.DaveStateHandler != null)
             {
@@ -83,50 +102,55 @@ public class VoiceStateFactory : IVoiceStateFactory
             }
         });
 
-        // MLS Announce Commit (29)
-        voiceDiscordServiceBuilder.AddBinaryHandler(29, (frame, client) =>
+        // MLS Announce Commit (29 - DAVE) - Ask jesus what this one does because I don't know
+        transportServiceBuilder.AddBinaryHandler(29, (frame, client) =>
         {
             state.DaveStateHandler?.OnAnnounceCommitTransition(frame.Slice(2).ToArray());
             return Task.CompletedTask;
         });
 
-        // MLS Welcome (30)
-        voiceDiscordServiceBuilder.AddBinaryHandler(30, (frame, client) =>
+        // MLS Welcome (30 - DAVE) - A targeted message that includes the MLS welcome that adds the pending
+        // members to the group, and also has the transition id for the group transition.
+        transportServiceBuilder.AddBinaryHandler(30, (frame, client) =>
         {
             state.DaveStateHandler?.OnWelcome(frame.Span.Slice(2), state.OtherUsersInVoice.AsSpan());
             return Task.CompletedTask;
         });
 
-        voiceDiscordServiceBuilder.AddJsonHandler<VoiceSessionDescriptionPayload>(30, (x, y) =>
+        // why do I have 2 here, dunno
+        transportServiceBuilder.AddJsonHandler<VoiceSessionDescriptionPayload>(30, (x, y) =>
         {
             state.VoiceCryptor = this.cryptorFactory.CreateCryptor([x.Data.Mode], [.. x.Data.SecretKey]);
             state.DaveStateHandler?.SetNegotiatedDaveVersion(1);
             return Task.CompletedTask;
         });
 
-        voiceDiscordServiceBuilder.AddJsonHandler<VoiceUserIdsPayload>(11, (x, y) =>
+        // Clients Connect (11 - DAVE) - Gives the snowflake user id's of users that have connected to the media session. Used to ensure
+        // the proposed addition of the mls group members match the expected media session users
+        transportServiceBuilder.AddJsonHandler<VoiceUserIdsPayload>(11, (x, y) =>
         {
             state.OtherUsersInVoice = [.. x.Data.UserIds.Select(x => ulong.Parse(x))];
             return Task.CompletedTask;
         });
 
-        voiceDiscordServiceBuilder.AddJsonHandler<VoiceUserPayload>(13, (x, y) =>
+        // Client Disconnect (13 - DAVE) - Lets us know a user disconnected and gives us their user snowflake id
+        transportServiceBuilder.AddJsonHandler<VoiceUserPayload>(13, (x, y) =>
         {
             state.OtherUsersInVoice.Remove(ulong.Parse(x.Data.UserId));
             return Task.CompletedTask;
         });
 
-        // ------------------------------------------------------ //
-
-
-        voiceDiscordServiceBuilder.AddJsonHandler<VoiceSessionDescriptionPayload>(4, async (x, y) =>
+        // Select Protocol Ack (4 - DAVE) - Lets us know what version of dave we are using and what cryptors to use
+        transportServiceBuilder.AddJsonHandler<VoiceSessionDescriptionPayload>(4, async (x, y) =>
         {
             state.VoiceCryptor = this.cryptorFactory.CreateCryptor([x.Data.Mode], [.. x.Data.SecretKey]);
-            state.DaveStateHandler?.SetNegotiatedDaveVersion(1);
+            state.DaveStateHandler?.SetNegotiatedDaveVersion(x.Data.DaveProtocolVersion);
             await (state.DaveStateHandler?.SendMlsKeyPackageAsync() ?? Task.CompletedTask);
         });
 
-        voiceDiscordServiceBuilder.AddJsonHandler<VoiceReadyPayload>(2, async (x, client) =>
+        // (2) Lets us know we are ready for voice. Here we send a message to discords udp discover endpoint in order to
+        // get our own IP address.
+        transportServiceBuilder.AddJsonHandler<VoiceReadyPayload>(2, async (x, client) =>
         {
             string selectedMode = this.cryptorFactory.SupportedEncryptionModes
                 .First(m => x.Data.Modes.Contains(m));
@@ -134,7 +158,7 @@ public class VoiceStateFactory : IVoiceStateFactory
             MediaTransportFactory factory = new MediaTransportFactory();
             IMediaTransportService udp = factory.Create(null, new(IPAddress.Parse(x.Data.Ip), x.Data.Port));
             state.Ssrc = x.Data.Ssrc;
-            e2ee = new(protocolVersion: 1, channelId: ulong.Parse(state.ConnectedChannel), userId: ulong.Parse(state.UserId), ssrc: (uint)state.Ssrc); // User id needs to be confirmed not null here
+            e2ee = new(protocolVersion: 1, channelId: ulong.Parse(state.ConnectedChannel), userId: ulong.Parse(state.UserId), ssrc: state.Ssrc); // User id needs to be confirmed not null here
             state.DaveStateHandler = new(e2ee, client, setEncryptionStatusCb);
 
             // Send probe
@@ -166,21 +190,11 @@ public class VoiceStateFactory : IVoiceStateFactory
             await client.SendAsync(selectProtocol);
         });
 
-        voiceDiscordServiceBuilder.AddJsonHandler<BaseDiscordGatewayMessage>(8, async (x, client) =>
+        // (8) Lets us know that we are ready to send data.
+        // After this we identify with the discord gateway
+        transportServiceBuilder.AddJsonHandler<BaseDiscordGatewayMessage>(8, async (x, client) =>
         {
-            short retryCount = 0;
-            while (state.VoiceToken is null || state.SessionId is null)
-            {
-                await Task.Delay(1000);
-                retryCount++;
-
-                if (retryCount > 3)
-                {
-                    throw new InvalidOperationException("OpCode 8 received without VoiceToken or SessionId!");
-                }
-            }
-
-            VoiceIdentifyPayload payload = new VoiceIdentifyPayload()
+            VoiceIdentifyPayload payload = new()
             {
                 Data = new()
                 {
@@ -194,11 +208,6 @@ public class VoiceStateFactory : IVoiceStateFactory
             };
             await client.SendAsync(payload);
         });
-
-        state.VoiceNegotiationTransportService = voiceDiscordServiceBuilder.Build(new Uri($"wss://{state.Endpoint}?v=8"));
-        state.VoiceNegotiationTransportService.ConnectAsync();
-
-        return state;
     }
 
     private static byte[] BuildIpDiscoveryProbe(uint ssrc)

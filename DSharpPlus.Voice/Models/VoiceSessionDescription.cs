@@ -21,7 +21,7 @@ public class VoiceSessionDescription
     public string MediaSessionId { get; set; }
 
     [JsonPropertyName("dave_protocol_version")]
-    public int DaveProtocolVersion { get; set; }
+    public ushort DaveProtocolVersion { get; set; }
 
     [JsonPropertyName("audio_codec")]
     public string AudioCodec { get; set; }

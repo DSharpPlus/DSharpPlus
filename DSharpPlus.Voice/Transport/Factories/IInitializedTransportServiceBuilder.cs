@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace DSharpPlus.Voice.Transport;
+namespace DSharpPlus.Voice.Transport.Factories;
 
 /// <summary>
 /// An abstraction for creating a transport service.
