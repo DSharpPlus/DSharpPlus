@@ -14,6 +14,7 @@ public class VoiceState
     public required string ConnectedChannel { get; set; }
     public required bool E2EEIsActive { get; set; }
 
+    public ushort SequenceNumber => this.VoiceNegotiationTransportService.SequenceNumber;
     public uint Ssrc { get; set; }
     public List<ulong> OtherUsersInVoice { get; set; } = [];
     public DaveStateHandler? DaveStateHandler { get; set; }

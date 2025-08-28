@@ -10,6 +10,11 @@ namespace DSharpPlus.Voice.Transport;
 public interface ITransportService
 {
     /// <summary>
+    /// Current Sequence number for the active connection
+    /// </summary>
+    public ushort SequenceNumber { get; }
+
+    /// <summary>
     /// Connects the client to the configured endpoint
     /// </summary>
     /// <param name="cancellationToken"></param>

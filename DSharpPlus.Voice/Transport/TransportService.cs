@@ -1,4 +1,5 @@
 using System;
+using System.Buffers.Binary;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,9 @@ public sealed class TransportService : ITransportService
     private readonly ConcurrentDictionary<int, List<Func<string, TransportService, Task>>> jsonHandlers;
     private readonly ConcurrentDictionary<int, List<Func<ReadOnlyMemory<byte>, TransportService, Task>>> binaryHandlers;
     private readonly TransportServiceCore transportService;
+
+    /// <inheritdoc/>
+    public ushort SequenceNumber { get; internal set; }
 
     internal TransportService
     (
@@ -43,7 +47,12 @@ public sealed class TransportService : ITransportService
         using JsonDocument doc = JsonDocument.Parse(messageText);
         List<Task> handlerTasks = [];
 
-        int opCode = doc.RootElement.GetProperty("op").GetInt32();
+        if (doc.RootElement.TryGetProperty("s", out JsonElement property))
+        {
+            this.SequenceNumber = property.GetUInt16();
+        }
+
+        int opCode = doc.RootElement.GetProperty("op").GetUInt16();
         this.logger.LogDebug("Received JSON OpCode: {opcode}", opCode);
 
         if (this.jsonHandlers.TryGetValue(opCode, out List<Func<string, TransportService, Task>>? handler))
@@ -67,6 +76,7 @@ public sealed class TransportService : ITransportService
             return;
         }
 
+        this.SequenceNumber = BinaryPrimitives.ReadUInt16BigEndian(binaryResponse.Span);
         int opCode = binaryResponse.Span[2];
         this.logger.LogDebug("Received Binary OpCode: {opcode}", opCode);
 
