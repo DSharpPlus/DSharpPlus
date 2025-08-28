@@ -11,6 +11,7 @@ using DSharpPlus.Voice.E2EE;
 
 namespace DSharpPlus.Voice.Transport.Factories;
 
+/// <inheritdoc/>
 public class VoiceStateFactory : IVoiceStateFactory
 {
     private readonly ITransportServiceBuilder transportServiceBuilder;
@@ -22,6 +23,7 @@ public class VoiceStateFactory : IVoiceStateFactory
         this.cryptorFactory = cryptorFactory;
     }
 
+    /// <inheritdoc/>
     public VoiceState Create(string userId, string serverId, string channelId, string token, string sessionId, string endpoint)
     {
         // Create Initial voice state with known values
@@ -41,6 +43,16 @@ public class VoiceStateFactory : IVoiceStateFactory
         return state;
     }
 
+    /// <summary>
+    /// Creates a voice state with the required initial data.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="serverId"></param>
+    /// <param name="channelId"></param>
+    /// <param name="token"></param>
+    /// <param name="sessionId"></param>
+    /// <param name="endpoint"></param>
+    /// <returns></returns>
     private static VoiceState CreateInitialVoiceState(string userId, string serverId, string channelId, string token, string sessionId, string endpoint) =>
         new()
         {
@@ -53,6 +65,11 @@ public class VoiceStateFactory : IVoiceStateFactory
             E2EEIsActive = false
         };
 
+    /// <summary>
+    /// Sets up the callbacks for the different Discord Voice Gateway events.
+    /// </summary>
+    /// <param name="transportServiceBuilder"></param>
+    /// <param name="state"></param>
     private void SetupInitialCallbacks(IInitializedTransportServiceBuilder transportServiceBuilder, VoiceState state)
     {
         void setEncryptionStatusCb(bool active) => state.E2EEIsActive = active;
@@ -85,7 +102,6 @@ public class VoiceStateFactory : IVoiceStateFactory
             }
         });
 
-
         // Execute Transition (22 - DAVE) - Informs us to execute the transition we were warned about in OPCODE 21
         transportServiceBuilder.AddJsonHandler<VoicePrepareTransitionPayload>(22, (frame, client) =>
         {
@@ -117,11 +133,11 @@ public class VoiceStateFactory : IVoiceStateFactory
             return Task.CompletedTask;
         });
 
-        // why do I have 2 here, dunno
+        // why do I have 2 here, dunno, but I'm scared to remove it
         transportServiceBuilder.AddJsonHandler<VoiceSessionDescriptionPayload>(30, (x, y) =>
         {
             state.VoiceCryptor = this.cryptorFactory.CreateCryptor([x.Data.Mode], [.. x.Data.SecretKey]);
-            state.DaveStateHandler?.SetNegotiatedDaveVersion(1);
+            state.DaveStateHandler?.SetNegotiatedDaveVersion(x.Data.DaveProtocolVersion);
             return Task.CompletedTask;
         });
 
@@ -208,8 +224,32 @@ public class VoiceStateFactory : IVoiceStateFactory
             };
             await client.SendAsync(payload);
         });
+
+        // (5) Lets us know that we are ready to send data.
+        // After this we identify with the discord gateway
+        transportServiceBuilder.AddJsonHandler<BaseDiscordGatewayMessage>(8, async (x, client) =>
+        {
+            VoiceIdentifyPayload payload = new()
+            {
+                Data = new()
+                {
+                    ServerId = state.ServerId,
+                    UserId = state.UserId,
+                    Token = state.VoiceToken,
+                    SessionId = state.SessionId,
+                    MaxSupportedDaveVersion = 1
+                },
+                OpCode = 0
+            };
+            await client.SendAsync(payload);
+        });
     }
 
+    /// <summary>
+    /// Builds the IP Discovery Probe to send to discord.
+    /// </summary>
+    /// <param name="ssrc"></param>
+    /// <returns></returns>
     private static byte[] BuildIpDiscoveryProbe(uint ssrc)
     {
         byte[] buf = new byte[74];
@@ -220,6 +260,12 @@ public class VoiceStateFactory : IVoiceStateFactory
         return buf;
     }
 
+    /// <summary>
+    /// Parses the response received from the IP Discovery Endpoint.
+    /// </summary>
+    /// <param name="resp"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     private static (string ip, int port) ParseIpDiscoveryResponse(ReadOnlySpan<byte> resp)
     {
         if (resp.Length < 74)

@@ -6,17 +6,18 @@ using System.Collections.Generic;
 public class VoiceState
 {
     internal VoiceState() { }
-    public string? SessionId { get; set; }
-    public string? UserId { get; set; }
-    public string? VoiceToken { get; set; }
-    public string? Endpoint { get; set; }
+    public required string SessionId { get; set; }
+    public required string UserId { get; set; }
+    public required string VoiceToken { get; set; }
+    public required string Endpoint { get; set; }
+    public required string ServerId { get; set; }
+    public required string ConnectedChannel { get; set; }
+    public required bool E2EEIsActive { get; set; }
+
     public uint Ssrc { get; set; }
     public List<ulong> OtherUsersInVoice { get; set; } = [];
     public DaveStateHandler? DaveStateHandler { get; set; }
     public ITransportService? VoiceNegotiationTransportService { get; set; }
     public ICryptor? VoiceCryptor { get; set; }
-    public string? ServerId { get; set; }
-    public string? ConnectedChannel { get; set; }
-    public bool E2EEIsActive { get; set; }
 }
 

@@ -50,7 +50,7 @@ public sealed class MlsSession : IDisposable
     /// <summary>
     /// Sets the voice gateway as an external sender capable of adding members to the E2EE group.
     /// </summary>
-    public void SetExternalSender(byte[] payload)
+    public void SetExternalSender(ReadOnlySpan<byte> payload)
     {
         lock (this.mlsLock)
         {
